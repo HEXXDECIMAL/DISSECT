@@ -45,7 +45,8 @@ pub enum TraitKind {
 pub struct Trait {
     /// Kind of trait
     pub kind: TraitKind,
-    /// The raw value discovered
+    /// The raw value discovered (truncated to 4KB on serialization)
+    #[serde(serialize_with = "serialize_truncated_value")]
     pub value: String,
     /// Offset in file (hex format like "0x1234")
     #[serde(skip_serializing_if = "Option::is_none", default)]
@@ -206,13 +207,45 @@ pub struct StructuralFeature {
     pub evidence: Vec<Evidence>,
 }
 
+/// Maximum size for evidence value field (4KB)
+const MAX_EVIDENCE_VALUE_SIZE: usize = 4096;
+
+/// Serialize evidence value, truncating to MAX_EVIDENCE_VALUE_SIZE
+fn serialize_truncated_value<S>(value: &str, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    if value.len() <= MAX_EVIDENCE_VALUE_SIZE {
+        serializer.serialize_str(value)
+    } else {
+        // Truncate at a valid UTF-8 boundary
+        let truncated = truncate_str(value, MAX_EVIDENCE_VALUE_SIZE - 12);
+        let with_marker = format!("{}...[truncated]", truncated);
+        serializer.serialize_str(&with_marker)
+    }
+}
+
+/// Truncate a string at a valid UTF-8 char boundary
+fn truncate_str(s: &str, max_bytes: usize) -> &str {
+    if s.len() <= max_bytes {
+        return s;
+    }
+    // Find the last valid char boundary at or before max_bytes
+    let mut end = max_bytes;
+    while end > 0 && !s.is_char_boundary(end) {
+        end -= 1;
+    }
+    &s[..end]
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Evidence {
     /// Detection method (symbol, yara, tree-sitter, radare2, entropy, magic, etc.)
     pub method: String,
     /// Source tool (goblin, yara-x, radare2, tree-sitter-bash, etc.)
     pub source: String,
-    /// Value discovered (symbol name, pattern match, etc.)
+    /// Value discovered (symbol name, pattern match, etc.) - truncated to 4KB on serialization
+    #[serde(serialize_with = "serialize_truncated_value")]
     pub value: String,
     /// Optional location context
     #[serde(skip_serializing_if = "Option::is_none", default)]

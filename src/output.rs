@@ -291,6 +291,73 @@ pub fn format_json(report: &AnalysisReport) -> Result<String> {
     Ok(serde_json::to_string_pretty(&output)?)
 }
 
+// =============================================================================
+// JSONL (Newline-Delimited JSON) Output for Streaming
+// =============================================================================
+
+/// JSONL file entry - emitted for each file as it's analyzed
+#[derive(serde::Serialize)]
+struct JsonlFileEntry<'a> {
+    #[serde(rename = "type")]
+    entry_type: &'static str,
+    #[serde(flatten)]
+    file: &'a crate::types::FileAnalysis,
+}
+
+/// JSONL summary entry - emitted at the end of streaming output
+#[derive(serde::Serialize)]
+struct JsonlSummary {
+    #[serde(rename = "type")]
+    entry_type: &'static str,
+    files_analyzed: u32,
+    hostile: u32,
+    suspicious: u32,
+    notable: u32,
+    analysis_duration_ms: u64,
+}
+
+/// Format a single file analysis as a JSONL line
+pub fn format_jsonl_line(file: &crate::types::FileAnalysis) -> Result<String> {
+    let entry = JsonlFileEntry {
+        entry_type: "file",
+        file,
+    };
+    Ok(serde_json::to_string(&entry)?)
+}
+
+/// Format the summary as a JSONL line (for end of streaming output)
+pub fn format_jsonl_summary(report: &AnalysisReport) -> Result<String> {
+    let summary = report.summary.as_ref();
+    let counts = summary.map(|s| &s.counts);
+
+    let entry = JsonlSummary {
+        entry_type: "summary",
+        files_analyzed: summary
+            .map(|s| s.files_analyzed)
+            .unwrap_or(report.files.len() as u32),
+        hostile: counts.map(|c| c.hostile).unwrap_or(0),
+        suspicious: counts.map(|c| c.suspicious).unwrap_or(0),
+        notable: counts.map(|c| c.notable).unwrap_or(0),
+        analysis_duration_ms: report.metadata.analysis_duration_ms,
+    };
+    Ok(serde_json::to_string(&entry)?)
+}
+
+/// Format entire report as JSONL (for non-streaming output)
+pub fn format_jsonl(report: &AnalysisReport) -> Result<String> {
+    let mut lines = Vec::with_capacity(report.files.len() + 1);
+
+    // Emit each file as a line
+    for file in &report.files {
+        lines.push(format_jsonl_line(file)?);
+    }
+
+    // Emit summary at end
+    lines.push(format_jsonl_summary(report)?);
+
+    Ok(lines.join("\n"))
+}
+
 /// Parse v2 JSON back to AnalysisReport
 pub fn parse_json_v2(json: &str) -> Result<AnalysisReport> {
     let v2: JsonOutputV2 = serde_json::from_str(json)?;

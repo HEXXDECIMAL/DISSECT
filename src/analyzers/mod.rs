@@ -414,6 +414,8 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
         || path_str.ends_with(".epub")
         || path_str.ends_with(".7z")
         || path_str.ends_with(".pkg")
+        || path_str.ends_with(".deb")
+        || path_str.ends_with(".rpm")
     {
         return Ok(FileType::Archive);
     }

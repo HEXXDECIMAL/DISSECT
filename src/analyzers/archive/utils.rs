@@ -90,6 +90,29 @@ pub(crate) fn is_benign_java_path(path: &Path) -> bool {
         || path_str.contains("/com/ibm/")
 }
 
+/// Detect TAR compression type from file extension.
+/// Returns Some("gzip"), Some("bzip2"), Some("xz"), or None for plain tar.
+pub(crate) fn detect_tar_compression(path: &Path) -> Option<String> {
+    let path_str = path.to_string_lossy().to_lowercase();
+
+    if path_str.ends_with(".tar.gz")
+        || path_str.ends_with(".tgz")
+        || path_str.ends_with(".gem")
+        || path_str.ends_with(".crate")
+    {
+        Some("gzip".to_string())
+    } else if path_str.ends_with(".tar.bz2")
+        || path_str.ends_with(".tbz2")
+        || path_str.ends_with(".tbz")
+    {
+        Some("bzip2".to_string())
+    } else if path_str.ends_with(".tar.xz") || path_str.ends_with(".txz") {
+        Some("xz".to_string())
+    } else {
+        None
+    }
+}
+
 /// Detect archive type from file extension
 pub(crate) fn detect_archive_type(path: &Path) -> &str {
     let path_str = path.to_string_lossy().to_lowercase();

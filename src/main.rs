@@ -435,7 +435,16 @@ fn analyze_file(
             if let Some(engine) = yara_engine.take() {
                 analyzer = analyzer.with_yara(engine);
             }
-            analyzer.analyze(path)?
+            // Use streaming for JSONL format to emit files as they're analyzed
+            if matches!(format, cli::OutputFormat::Jsonl) {
+                analyzer.analyze_streaming(path, |file_analysis| {
+                    if let Ok(line) = output::format_jsonl_line(file_analysis) {
+                        println!("{}", line);
+                    }
+                })?
+            } else {
+                analyzer.analyze(path)?
+            }
         }
         // All source code languages use the unified analyzer (or generic fallback)
         _ => {
@@ -496,6 +505,7 @@ fn analyze_file(
     let t4 = std::time::Instant::now();
     let result = match format {
         cli::OutputFormat::Json => output::format_json(&report),
+        cli::OutputFormat::Jsonl => output::format_jsonl(&report),
         cli::OutputFormat::Terminal => output::format_terminal(&report),
     };
     eprintln!("[TIMING] Output format: {:?}", t4.elapsed());
@@ -587,9 +597,13 @@ fn scan_paths(
     );
 
     // Create progress bar for terminal output only when stdout is a TTY
+    // JSONL output is streaming so don't use progress bar there either
     let total_items = all_files.len() + archives_found.len();
     let is_tty = std::io::stdout().is_terminal();
-    let pb = if matches!(format, cli::OutputFormat::Terminal) && is_tty {
+    let pb = if matches!(format, cli::OutputFormat::Terminal)
+        && is_tty
+        && !matches!(format, cli::OutputFormat::Jsonl)
+    {
         let bar = ProgressBar::new(total_items as u64);
         bar.set_style(
             ProgressStyle::default_bar()
@@ -635,40 +649,57 @@ fn scan_paths(
             verbose,
         ) {
             Ok(json) => {
-                // For terminal format, show immediate output above progress bar
-                if matches!(format, cli::OutputFormat::Terminal) {
-                    // Parse JSON (v2 format) and format as terminal output
-                    match output::parse_json_v2(&json) {
-                        Ok(report) => match output::format_terminal(&report) {
-                            Ok(formatted) => {
-                                if let Some(ref bar) = pb {
-                                    bar.println(formatted);
-                                } else {
-                                    print!("{}", formatted);
+                match format {
+                    cli::OutputFormat::Terminal => {
+                        // For terminal format, show immediate output above progress bar
+                        match output::parse_json_v2(&json) {
+                            Ok(report) => match output::format_terminal(&report) {
+                                Ok(formatted) => {
+                                    if let Some(ref bar) = pb {
+                                        bar.println(formatted);
+                                    } else {
+                                        print!("{}", formatted);
+                                    }
                                 }
-                            }
+                                Err(e) => {
+                                    let msg =
+                                        format!("Error formatting report for {}: {}", path_str, e);
+                                    if let Some(ref bar) = pb {
+                                        bar.println(msg);
+                                    } else {
+                                        eprintln!("{}", msg);
+                                    }
+                                }
+                            },
                             Err(e) => {
-                                let msg =
-                                    format!("Error formatting report for {}: {}", path_str, e);
+                                let msg = format!("Error parsing JSON for {}: {}", path_str, e);
                                 if let Some(ref bar) = pb {
                                     bar.println(msg);
                                 } else {
                                     eprintln!("{}", msg);
                                 }
                             }
-                        },
-                        Err(e) => {
-                            let msg = format!("Error parsing JSON for {}: {}", path_str, e);
-                            if let Some(ref bar) = pb {
-                                bar.println(msg);
-                            } else {
-                                eprintln!("{}", msg);
+                        }
+                    }
+                    cli::OutputFormat::Jsonl => {
+                        // For JSONL, stream each file immediately
+                        match output::parse_json_v2(&json) {
+                            Ok(report) => {
+                                for file in &report.files {
+                                    if let Ok(line) = output::format_jsonl_line(file) {
+                                        println!("{}", line);
+                                    }
+                                }
+                            }
+                            Err(e) => {
+                                eprintln!("Error parsing JSON for {}: {}", path_str, e);
                             }
                         }
                     }
-                } else {
-                    // For JSON format, collect for array output at end
-                    all_reports.lock().unwrap().push(json);
+                    cli::OutputFormat::Json => {
+                        // For JSON format, collect for array output at end
+                        all_reports.lock().unwrap().push(json);
+                    }
                 }
             }
             Err(e) => {
@@ -723,6 +754,27 @@ fn scan_paths(
                 ));
             }
 
+            // For JSONL format, use true streaming analysis for archives
+            if matches!(format, cli::OutputFormat::Jsonl) {
+                match analyze_archive_streaming_jsonl(
+                    path_str,
+                    &capability_mapper,
+                    shared_yara_engine.as_ref(),
+                    zip_passwords,
+                ) {
+                    Ok(()) => {
+                        // Files were already streamed via callback
+                    }
+                    Err(e) => {
+                        eprintln!("✗ {}: {}", path_str, e);
+                    }
+                }
+                if let Some(ref bar) = pb {
+                    bar.inc(1);
+                }
+                return Ok(());
+            }
+
             match analyze_file_with_shared_mapper(
                 path_str,
                 &capability_mapper,
@@ -733,41 +785,52 @@ fn scan_paths(
                 verbose,
             ) {
                 Ok(json) => {
-                    // For terminal format, show immediate output above progress bar
-                    if matches!(format, cli::OutputFormat::Terminal) {
-                        // Parse JSON (v2 format) and format as terminal output
-                        match output::parse_json_v2(&json) {
-                            Ok(report) => match output::format_terminal(&report) {
-                                Ok(formatted) => {
-                                    if let Some(ref bar) = pb {
-                                        bar.println(formatted);
-                                    } else {
-                                        print!("{}", formatted);
+                    match format {
+                        cli::OutputFormat::Terminal => {
+                            // For terminal format, show immediate output above progress bar
+                            match output::parse_json_v2(&json) {
+                                Ok(report) => match output::format_terminal(&report) {
+                                    Ok(formatted) => {
+                                        if let Some(ref bar) = pb {
+                                            bar.println(formatted);
+                                        } else {
+                                            print!("{}", formatted);
+                                        }
                                     }
-                                }
+                                    Err(e) => {
+                                        let msg = format!(
+                                            "Error formatting report for {}: {}",
+                                            path_str, e
+                                        );
+                                        if let Some(ref bar) = pb {
+                                            bar.println(msg);
+                                        } else {
+                                            eprintln!("{}", msg);
+                                        }
+                                    }
+                                },
                                 Err(e) => {
-                                    let msg =
-                                        format!("Error formatting report for {}: {}", path_str, e);
+                                    eprintln!("DEBUG: JSON parse error: {}", e);
+                                    eprintln!(
+                                        "DEBUG: JSON preview: {}",
+                                        &json[..json.len().min(500)]
+                                    );
+                                    let msg = format!("Error parsing JSON for {}: {}", path_str, e);
                                     if let Some(ref bar) = pb {
-                                        bar.println(msg);
-                                    } else {
-                                        eprintln!("{}", msg);
+                                        bar.println(msg.clone());
                                     }
+                                    eprintln!("{}", msg);
                                 }
-                            },
-                            Err(e) => {
-                                eprintln!("DEBUG: JSON parse error: {}", e);
-                                eprintln!("DEBUG: JSON preview: {}", &json[..json.len().min(500)]);
-                                let msg = format!("Error parsing JSON for {}: {}", path_str, e);
-                                if let Some(ref bar) = pb {
-                                    bar.println(msg.clone());
-                                }
-                                eprintln!("{}", msg);
                             }
                         }
-                    } else {
-                        // For JSON format, collect for array output at end
-                        all_reports.lock().unwrap().push(json);
+                        cli::OutputFormat::Jsonl => {
+                            // Should not reach here - JSONL uses streaming path above
+                            unreachable!("JSONL should use streaming path");
+                        }
+                        cli::OutputFormat::Json => {
+                            // For JSON format, collect for array output at end
+                            all_reports.lock().unwrap().push(json);
+                        }
                     }
                 }
                 Err(e) => {
@@ -832,6 +895,15 @@ fn scan_paths(
 ]",
             reports.join(",\n")
         )),
+        cli::OutputFormat::Jsonl => {
+            // JSONL already streamed files above, just emit summary line
+            let summary = serde_json::json!({
+                "type": "summary",
+                "files_analyzed": all_files.len() + archives_found.len(),
+                "reports": reports.len()
+            });
+            Ok(serde_json::to_string(&summary).unwrap_or_default())
+        }
         cli::OutputFormat::Terminal => {
             // For terminal, show summary
             let mut output = String::new();
@@ -1006,12 +1078,42 @@ fn analyze_file_with_shared_mapper(
     output::format_json(&report)
 }
 
+/// Analyze an archive with streaming JSONL output.
+///
+/// This function uses the streaming archive analyzer to emit results as they
+/// become available, rather than waiting for the entire archive to be processed.
+fn analyze_archive_streaming_jsonl(
+    target: &str,
+    capability_mapper: &Arc<crate::capabilities::CapabilityMapper>,
+    shared_yara_engine: Option<&Arc<YaraEngine>>,
+    zip_passwords: &[String],
+) -> Result<()> {
+    let path = Path::new(target);
+
+    let mut analyzer = ArchiveAnalyzer::new()
+        .with_capability_mapper((**capability_mapper).clone())
+        .with_zip_passwords(zip_passwords.to_vec());
+
+    if let Some(engine) = shared_yara_engine {
+        analyzer = analyzer.with_yara_arc(engine.clone());
+    }
+
+    // Use streaming analysis - each file is emitted as a JSONL line via the callback
+    let _report = analyzer.analyze_streaming(path, |file_analysis| {
+        if let Ok(line) = output::format_jsonl_line(file_analysis) {
+            println!("{}", line);
+        }
+    })?;
+
+    Ok(())
+}
+
 fn diff_analysis(old: &str, new: &str, format: &cli::OutputFormat) -> Result<String> {
     let diff_analyzer = diff::DiffAnalyzer::new(old, new);
 
     match format {
-        cli::OutputFormat::Json => {
-            // Use full diff for JSON - comprehensive ML-ready output
+        cli::OutputFormat::Json | cli::OutputFormat::Jsonl => {
+            // Use full diff for JSON/JSONL - comprehensive ML-ready output
             let report = diff_analyzer.analyze_full()?;
             Ok(serde_json::to_string_pretty(&report)?)
         }
@@ -1162,7 +1264,9 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
     let strings = extractor.extract_smart(&data);
 
     match format {
-        cli::OutputFormat::Json => Ok(serde_json::to_string_pretty(&strings)?),
+        cli::OutputFormat::Json | cli::OutputFormat::Jsonl => {
+            Ok(serde_json::to_string_pretty(&strings)?)
+        }
         cli::OutputFormat::Terminal => {
             let mut output = String::new();
             output.push_str(&format!(
@@ -1237,7 +1341,9 @@ fn extract_strings_from_ast(
         .collect();
 
     match format {
-        cli::OutputFormat::Json => Ok(serde_json::to_string_pretty(&filtered_strings)?),
+        cli::OutputFormat::Json | cli::OutputFormat::Jsonl => {
+            Ok(serde_json::to_string_pretty(&filtered_strings)?)
+        }
         cli::OutputFormat::Terminal => {
             let mut output = String::new();
             output.push_str(&format!(
@@ -1451,7 +1557,9 @@ fn extract_symbols(target: &str, format: &cli::OutputFormat) -> Result<String> {
 
     // Format output
     match format {
-        cli::OutputFormat::Json => Ok(serde_json::to_string_pretty(&symbols)?),
+        cli::OutputFormat::Json | cli::OutputFormat::Jsonl => {
+            Ok(serde_json::to_string_pretty(&symbols)?)
+        }
         cli::OutputFormat::Terminal => {
             let mut output = String::new();
             output.push_str(&format!(

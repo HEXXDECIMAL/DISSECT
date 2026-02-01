@@ -2,6 +2,7 @@
 
 mod analyzers;
 mod guards;
+pub mod streaming;
 mod system_packages;
 mod tar;
 mod utils;
@@ -97,6 +98,187 @@ impl ArchiveAnalyzer {
             None => format!("archive:{}", relative_path),
         }
     }
+
+    /// Analyze an archive with streaming output.
+    ///
+    /// This method uses the streaming infrastructure to extract and analyze files
+    /// concurrently, calling the provided callback for each file as it completes.
+    ///
+    /// # Arguments
+    /// * `file_path` - Path to the archive
+    /// * `on_file` - Callback invoked for each analyzed file
+    ///
+    /// # Returns
+    /// The full `AnalysisReport` with aggregated results
+    pub fn analyze_streaming<F>(&self, file_path: &Path, on_file: F) -> Result<AnalysisReport>
+    where
+        F: Fn(&FileAnalysis) + Send + Sync,
+    {
+        use streaming::StreamingFileResult;
+
+        let start = std::time::Instant::now();
+
+        // Prevent infinite recursion
+        if self.current_depth >= self.max_depth {
+            anyhow::bail!("Maximum archive depth ({}) exceeded", self.max_depth);
+        }
+
+        // Create target info
+        let file_data = fs::read(file_path)?;
+        let target = TargetInfo {
+            path: file_path.display().to_string(),
+            file_type: detect_archive_type(file_path).to_string(),
+            size_bytes: file_data.len() as u64,
+            sha256: calculate_sha256(&file_data),
+            architectures: None,
+        };
+
+        let mut report = AnalysisReport::new(target);
+        report
+            .metadata
+            .tools_used
+            .push("streaming_analyzer".to_string());
+
+        // Collect files for the report
+        let files = std::sync::Arc::new(std::sync::Mutex::new(Vec::new()));
+        let files_clone = files.clone();
+
+        // Determine archive type and use appropriate streaming method
+        let archive_type = detect_archive_type(file_path);
+        let summary = match archive_type {
+            "tar" | "tar.gz" | "tgz" | "tar.bz2" | "tbz" | "tbz2" | "tar.xz" | "txz" => {
+                self.analyze_tar_streaming(file_path, |result: StreamingFileResult| {
+                    // Call user callback
+                    on_file(&result.file_analysis);
+
+                    // Collect for report
+                    let mut files = files_clone.lock().unwrap();
+                    files.push(result.file_analysis);
+                    for nested in result.nested_files {
+                        files.push(nested);
+                    }
+                })?
+            }
+            "zip" | "jar" | "war" | "ear" | "apk" | "aar" | "egg" | "whl" | "phar" | "nupkg"
+            | "vsix" | "xpi" | "ipa" | "epub" => {
+                self.analyze_zip_streaming(file_path, |result: StreamingFileResult| {
+                    // Call user callback
+                    on_file(&result.file_analysis);
+
+                    // Collect for report
+                    let mut files = files_clone.lock().unwrap();
+                    files.push(result.file_analysis);
+                    for nested in result.nested_files {
+                        files.push(nested);
+                    }
+                })?
+            }
+            _ => {
+                // Fall back to non-streaming for unsupported formats
+                return self.analyze_archive(file_path);
+            }
+        };
+
+        // Add hostile findings from extraction
+        for reason in summary.hostile_reasons {
+            let (id, desc, evidence_value) = match &reason {
+                HostileArchiveReason::PathTraversal(path) => (
+                    "anti-analysis/archive/path-traversal",
+                    "Archive contains path traversal attempt (zip slip)",
+                    format!("path:{}", path),
+                ),
+                HostileArchiveReason::ZipBomb {
+                    compressed,
+                    uncompressed,
+                } => (
+                    "anti-analysis/archive/zip-bomb",
+                    "Archive has suspicious compression ratio (potential zip bomb)",
+                    format!(
+                        "ratio:{}:1 ({}B -> {}B)",
+                        uncompressed / (*compressed).max(1),
+                        compressed,
+                        uncompressed
+                    ),
+                ),
+                HostileArchiveReason::ExcessiveFileCount(count) => (
+                    "anti-analysis/archive/excessive-files",
+                    "Archive contains excessive number of files",
+                    format!("count:{} (limit:{})", count, MAX_FILE_COUNT),
+                ),
+                HostileArchiveReason::ExcessiveTotalSize(size) => (
+                    "anti-analysis/archive/excessive-size",
+                    "Archive expands to excessive total size",
+                    format!("size:{} bytes (limit:{})", size, MAX_TOTAL_SIZE),
+                ),
+                HostileArchiveReason::ExcessiveFileSize { file, size } => (
+                    "anti-analysis/archive/large-file",
+                    "Archive contains excessively large file",
+                    format!("file:{} size:{} (limit:{})", file, size, MAX_FILE_SIZE),
+                ),
+                HostileArchiveReason::SymlinkEscape(path) => (
+                    "anti-analysis/archive/symlink-escape",
+                    "Archive contains symlink that may escape extraction directory",
+                    format!("symlink:{}", path),
+                ),
+                HostileArchiveReason::MalformedEntry(msg) => (
+                    "anti-analysis/archive/malformed",
+                    "Archive contains malformed entry",
+                    msg.clone(),
+                ),
+                HostileArchiveReason::ExtractionError(msg) => (
+                    "anti-analysis/archive/extraction-failed",
+                    "Archive extraction failed (potentially malformed or hostile)",
+                    msg.clone(),
+                ),
+            };
+
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
+                id: id.to_string(),
+                desc: desc.to_string(),
+                conf: 0.9,
+                crit: Criticality::Suspicious,
+                mbc: None,
+                attack: None,
+                evidence: vec![Evidence {
+                    method: "archive_extraction".to_string(),
+                    source: "streaming_analyzer".to_string(),
+                    value: evidence_value,
+                    location: None,
+                }],
+            });
+        }
+
+        // Add structural feature
+        report.structure.push(StructuralFeature {
+            id: format!("archive/{}", archive_type),
+            desc: format!("{} archive", archive_type),
+            evidence: vec![Evidence {
+                method: "extension".to_string(),
+                source: "streaming_analyzer".to_string(),
+                value: file_path
+                    .extension()
+                    .and_then(|e| e.to_str())
+                    .unwrap_or("unknown")
+                    .to_string(),
+                location: None,
+            }],
+        });
+
+        // Merge collected files into report
+        let collected_files = match std::sync::Arc::try_unwrap(files) {
+            Ok(mutex) => mutex.into_inner().unwrap(),
+            Err(arc) => arc.lock().unwrap().clone(),
+        };
+        report.files = collected_files;
+
+        // Set timing
+        report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
+
+        Ok(report)
+    }
+
     fn analyze_archive(&self, file_path: &Path) -> Result<AnalysisReport> {
         let start = std::time::Instant::now();
 

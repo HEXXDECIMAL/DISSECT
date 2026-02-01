@@ -4,6 +4,36 @@ use serde::{Deserialize, Serialize};
 
 use super::{is_false, is_zero_f32, is_zero_u32};
 
+/// Maximum size for string values (4KB)
+const MAX_STRING_VALUE_SIZE: usize = 4096;
+
+/// Serialize string value, truncating to MAX_STRING_VALUE_SIZE
+fn serialize_truncated_string<S>(value: &str, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    if value.len() <= MAX_STRING_VALUE_SIZE {
+        serializer.serialize_str(value)
+    } else {
+        // Truncate at a valid UTF-8 boundary
+        let truncated = truncate_str_at_boundary(value, MAX_STRING_VALUE_SIZE - 12);
+        let with_marker = format!("{}...[truncated]", truncated);
+        serializer.serialize_str(&with_marker)
+    }
+}
+
+/// Truncate a string at a valid UTF-8 char boundary
+fn truncate_str_at_boundary(s: &str, max_bytes: usize) -> &str {
+    if s.len() <= max_bytes {
+        return s;
+    }
+    let mut end = max_bytes;
+    while end > 0 && !s.is_char_boundary(end) {
+        end -= 1;
+    }
+    &s[..end]
+}
+
 // ========================================================================
 // ML-Ready Feature Extraction Structures
 // ========================================================================
@@ -147,6 +177,7 @@ pub struct RegisterUsage {
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct EmbeddedConstant {
     /// Raw value as hex string
+    #[serde(serialize_with = "serialize_truncated_string")]
     pub value: String,
     /// Constant type (qword, dword, word, byte)
     pub constant_type: String,
@@ -161,6 +192,7 @@ pub struct DecodedValue {
     /// Type of decoded value (ip_address, port, url, key, etc)
     pub value_type: String,
     /// Human-readable decoded value
+    #[serde(serialize_with = "serialize_truncated_string")]
     pub decoded_value: String,
     /// Confidence in this interpretation (0.0-1.0)
     #[serde(default, skip_serializing_if = "is_zero_f32")]

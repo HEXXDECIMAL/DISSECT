@@ -41,8 +41,39 @@ pub struct Function {
     pub call_patterns: Option<CallPatternMetrics>,
 }
 
+/// Maximum size for string values (4KB)
+const MAX_STRING_VALUE_SIZE: usize = 4096;
+
+/// Serialize string value, truncating to MAX_STRING_VALUE_SIZE
+fn serialize_truncated_string<S>(value: &str, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    if value.len() <= MAX_STRING_VALUE_SIZE {
+        serializer.serialize_str(value)
+    } else {
+        // Truncate at a valid UTF-8 boundary
+        let truncated = truncate_str_at_boundary(value, MAX_STRING_VALUE_SIZE - 12);
+        let with_marker = format!("{}...[truncated]", truncated);
+        serializer.serialize_str(&with_marker)
+    }
+}
+
+/// Truncate a string at a valid UTF-8 char boundary
+fn truncate_str_at_boundary(s: &str, max_bytes: usize) -> &str {
+    if s.len() <= max_bytes {
+        return s;
+    }
+    let mut end = max_bytes;
+    while end > 0 && !s.is_char_boundary(end) {
+        end -= 1;
+    }
+    &s[..end]
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StringInfo {
+    #[serde(serialize_with = "serialize_truncated_string")]
     pub value: String,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub offset: Option<String>,
@@ -57,8 +88,10 @@ pub struct StringInfo {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DecodedString {
     /// The decoded plaintext value
+    #[serde(serialize_with = "serialize_truncated_string")]
     pub value: String,
-    /// Original encoded value (truncated if >100 chars)
+    /// Original encoded value (truncated to 4KB)
+    #[serde(serialize_with = "serialize_truncated_string")]
     pub encoded: String,
     /// Encoding method (base64, xor, etc.)
     pub method: String,
@@ -138,6 +171,7 @@ pub struct YaraMatch {
 pub struct MatchedString {
     pub identifier: String,
     pub offset: u64,
+    #[serde(serialize_with = "serialize_truncated_string")]
     pub value: String,
 }
 

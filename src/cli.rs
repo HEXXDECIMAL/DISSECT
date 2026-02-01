@@ -104,9 +104,13 @@ pub struct Args {
     #[arg(value_name = "PATH")]
     pub paths: Vec<String>,
 
-    /// Output as JSON (machine-readable)
+    /// Output as JSON (machine-readable). Shorthand for --format json.
     #[arg(long)]
     pub json: bool,
+
+    /// Output format: terminal (default), json, or jsonl (streaming)
+    #[arg(long, value_enum)]
+    pub format: Option<OutputFormat>,
 
     /// Write output to file
     #[arg(short, long)]
@@ -160,8 +164,12 @@ impl Args {
         }
     }
 
-    /// Get the output format based on --json flag
+    /// Get the output format based on --json and --format flags
     pub fn format(&self) -> OutputFormat {
+        // --format takes precedence over --json
+        if let Some(format) = self.format {
+            return format;
+        }
         if self.json {
             OutputFormat::Json
         } else {
@@ -331,10 +339,12 @@ pub enum DetectFileType {
     Raw,
 }
 
-#[derive(Debug, Clone, clap::ValueEnum, PartialEq)]
+#[derive(Debug, Clone, Copy, clap::ValueEnum, PartialEq)]
 pub enum OutputFormat {
     /// JSON output for machine consumption
     Json,
+    /// JSONL output (newline-delimited JSON) for streaming
+    Jsonl,
     /// Human-readable terminal output
     Terminal,
 }
