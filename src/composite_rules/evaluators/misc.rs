@@ -75,16 +75,19 @@ pub fn eval_trait(id: &str, ctx: &EvaluationContext) -> ConditionResult {
         // Short name: suffix match for same-directory relative reference
         // e.g., "terminate" matches "exec/process/terminate"
         let suffix = format!("/{}", id);
-        let evidence: Vec<_> = ctx
+        let matching: Vec<_> = ctx
             .report
             .findings
             .iter()
             .chain(ctx.additional_findings.into_iter().flatten())
             .filter(|f| f.id.ends_with(&suffix))
-            .flat_map(|f| f.evidence.iter().cloned())
             .collect();
 
-        if !evidence.is_empty() {
+        if !matching.is_empty() {
+            let evidence = matching
+                .iter()
+                .flat_map(|f| f.evidence.iter().cloned())
+                .collect();
             return ConditionResult {
                 matched: true,
                 evidence,
@@ -97,16 +100,19 @@ pub fn eval_trait(id: &str, ctx: &EvaluationContext) -> ConditionResult {
         // e.g., "anti-static/obfuscation/strings" matches
         // "anti-static/obfuscation/strings/python-hex"
         let prefix = format!("{}/", id);
-        let evidence: Vec<_> = ctx
+        let matching: Vec<_> = ctx
             .report
             .findings
             .iter()
             .chain(ctx.additional_findings.into_iter().flatten())
             .filter(|f| f.id.starts_with(&prefix))
-            .flat_map(|f| f.evidence.iter().cloned())
             .collect();
 
-        if !evidence.is_empty() {
+        if !matching.is_empty() {
+            let evidence = matching
+                .iter()
+                .flat_map(|f| f.evidence.iter().cloned())
+                .collect();
             return ConditionResult {
                 matched: true,
                 evidence,

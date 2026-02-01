@@ -866,6 +866,38 @@ impl Condition {
         matches!(self, Condition::Trait { .. })
     }
 
+    /// Check if this condition can possibly match for a given file type.
+    /// Returns false for conditions that require binary section analysis
+    /// when evaluating source/text files.
+    pub fn can_match_file_type(&self, file_type: &super::FileType) -> bool {
+        use super::FileType;
+
+        // Binary section analysis requires PE/ELF/Mach-O format
+        let is_binary = matches!(
+            file_type,
+            FileType::Elf
+                | FileType::Macho
+                | FileType::Pe
+                | FileType::Dll
+                | FileType::So
+                | FileType::Dylib
+        );
+
+        match self {
+            // Section analysis is binary-only
+            Condition::SectionRatio { .. }
+            | Condition::SectionEntropy { .. }
+            | Condition::SectionName { .. }
+            | Condition::Structure { .. } => is_binary,
+
+            // AST requires source code
+            Condition::Ast { .. } => file_type.is_source_code(),
+
+            // All other conditions can potentially match any file type
+            _ => true,
+        }
+    }
+
     /// Returns a description of the condition type for error messages
     pub fn type_name(&self) -> &'static str {
         match self {

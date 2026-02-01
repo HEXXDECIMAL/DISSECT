@@ -184,23 +184,34 @@ impl StringMatchIndex {
     }
 }
 
-/// Index for regex patterns that require raw content searching.
-/// Enables single-pass RegexSet matching for raw: true traits with regex patterns.
+/// Index for regex patterns from `type: content` conditions.
+/// Builds per-file-type RegexSets to avoid running irrelevant patterns.
 #[derive(Clone, Default)]
 pub(crate) struct RawContentRegexIndex {
-    /// RegexSet for all regex patterns with raw: true
-    regex_set: Option<RegexSet>,
-    /// Maps regex index -> trait indices that use this pattern
-    pattern_to_traits: Vec<Vec<usize>>,
+    /// Per-file-type regex sets for targeted matching
+    by_file_type: FxHashMap<RuleFileType, FileTypeRegexSet>,
+    /// Universal patterns that apply to all file types
+    universal: Option<FileTypeRegexSet>,
+    /// Set of all trait indices that have content regex patterns (for quick lookup)
+    indexed_traits: FxHashSet<usize>,
     /// Total number of traits with raw content regex patterns
     pub(crate) total_patterns: usize,
 }
 
+/// Regex set for a specific file type
+#[derive(Clone)]
+struct FileTypeRegexSet {
+    regex_set: RegexSet,
+    pattern_to_traits: Vec<Vec<usize>>,
+}
+
 impl RawContentRegexIndex {
     pub(crate) fn build(traits: &[TraitDefinition]) -> Self {
-        let mut patterns: Vec<String> = Vec::new();
-        let mut pattern_to_traits: Vec<Vec<usize>> = Vec::new();
-        let mut pattern_map: FxHashMap<String, usize> = FxHashMap::default();
+        // Group patterns by file type
+        let mut by_file_type: FxHashMap<RuleFileType, Vec<(String, usize)>> = FxHashMap::default();
+        let mut universal_patterns: Vec<(String, usize)> = Vec::new();
+        let mut indexed_traits = FxHashSet::default();
+        let mut total_patterns = 0;
 
         for (trait_idx, trait_def) in traits.iter().enumerate() {
             // Extract regex patterns from Content traits
@@ -227,46 +238,67 @@ impl RawContentRegexIndex {
             };
 
             if let Some(pattern) = pattern_opt {
-                if let Some(&pattern_idx) = pattern_map.get(&pattern) {
-                    pattern_to_traits[pattern_idx].push(trait_idx);
+                indexed_traits.insert(trait_idx);
+                total_patterns += 1;
+
+                // Check if trait applies to all file types
+                if trait_def.r#for.contains(&RuleFileType::All) {
+                    universal_patterns.push((pattern, trait_idx));
                 } else {
-                    let pattern_idx = patterns.len();
-                    pattern_map.insert(pattern.clone(), pattern_idx);
-                    patterns.push(pattern);
-                    pattern_to_traits.push(vec![trait_idx]);
+                    // Add to each specific file type
+                    for ft in &trait_def.r#for {
+                        by_file_type
+                            .entry(*ft)
+                            .or_default()
+                            .push((pattern.clone(), trait_idx));
+                    }
                 }
             }
         }
 
-        let total_patterns = patterns.len();
-        let regex_set = if !patterns.is_empty() {
-            match RegexSet::new(&patterns) {
-                Ok(set) => Some(set),
-                Err(e) => {
-                    // Find and report which patterns failed to compile
-                    let mut failed_patterns = Vec::new();
-                    for (i, pattern) in patterns.iter().enumerate() {
-                        if let Err(pe) = regex::Regex::new(pattern) {
-                            failed_patterns.push(format!("  [{}]: {} -> {}", i, pattern, pe));
-                        }
-                    }
-                    eprintln!(
-                        "warning: Failed to compile raw content regex index ({} patterns): {}\n{}",
-                        patterns.len(),
-                        e,
-                        failed_patterns.join("\n")
-                    );
-                    None
-                }
-            }
-        } else {
-            None
-        };
+        // Build regex sets for each file type
+        let by_file_type: FxHashMap<RuleFileType, FileTypeRegexSet> = by_file_type
+            .into_iter()
+            .filter_map(|(ft, patterns)| {
+                Self::build_regex_set(patterns).map(|rs| (ft, rs))
+            })
+            .collect();
+
+        let universal = Self::build_regex_set(universal_patterns);
+
 
         Self {
-            regex_set,
-            pattern_to_traits,
+            by_file_type,
+            universal,
+            indexed_traits,
             total_patterns,
+        }
+    }
+
+    fn build_regex_set(patterns: Vec<(String, usize)>) -> Option<FileTypeRegexSet> {
+        if patterns.is_empty() {
+            return None;
+        }
+
+        let (pattern_strs, trait_indices): (Vec<_>, Vec<_>) = patterns.into_iter().unzip();
+
+        // Build pattern_to_traits mapping
+        let pattern_to_traits: Vec<Vec<usize>> =
+            trait_indices.into_iter().map(|idx| vec![idx]).collect();
+
+        match RegexSet::new(&pattern_strs) {
+            Ok(regex_set) => Some(FileTypeRegexSet {
+                regex_set,
+                pattern_to_traits,
+            }),
+            Err(e) => {
+                eprintln!(
+                    "warning: Failed to compile regex set ({} patterns): {}",
+                    pattern_strs.len(),
+                    e
+                );
+                None
+            }
         }
     }
 
@@ -274,16 +306,43 @@ impl RawContentRegexIndex {
         self.total_patterns > 0
     }
 
-    pub(crate) fn find_matches(&self, binary_data: &[u8]) -> FxHashSet<usize> {
+    /// Check if any of the given trait indices have content regex patterns
+    pub(crate) fn has_applicable_patterns(&self, applicable: &[usize]) -> bool {
+        applicable
+            .iter()
+            .any(|idx| self.indexed_traits.contains(idx))
+    }
+
+    /// Find matches using only patterns applicable to the given file type
+    pub(crate) fn find_matches(
+        &self,
+        binary_data: &[u8],
+        file_type: &RuleFileType,
+    ) -> FxHashSet<usize> {
         let mut matching_traits = FxHashSet::default();
 
-        if let Some(ref regex_set) = self.regex_set {
-            if let Ok(content) = std::str::from_utf8(binary_data) {
-                for pattern_idx in regex_set.matches(content).iter() {
-                    if let Some(trait_indices) = self.pattern_to_traits.get(pattern_idx) {
-                        for &trait_idx in trait_indices {
-                            matching_traits.insert(trait_idx);
-                        }
+        let content = match std::str::from_utf8(binary_data) {
+            Ok(c) => c,
+            Err(_) => return matching_traits,
+        };
+
+        // Match universal patterns
+        if let Some(ref universal) = self.universal {
+            for pattern_idx in universal.regex_set.matches(content).iter() {
+                if let Some(trait_indices) = universal.pattern_to_traits.get(pattern_idx) {
+                    for &trait_idx in trait_indices {
+                        matching_traits.insert(trait_idx);
+                    }
+                }
+            }
+        }
+
+        // Match file-type-specific patterns
+        if let Some(ft_set) = self.by_file_type.get(file_type) {
+            for pattern_idx in ft_set.regex_set.matches(content).iter() {
+                if let Some(trait_indices) = ft_set.pattern_to_traits.get(pattern_idx) {
+                    for &trait_idx in trait_indices {
+                        matching_traits.insert(trait_idx);
                     }
                 }
             }

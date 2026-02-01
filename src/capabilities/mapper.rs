@@ -885,14 +885,8 @@ impl CapabilityMapper {
         let platform = self.detect_platform(&report.target.file_type);
         let file_type = self.detect_file_type(&report.target.file_type);
 
-        let ctx = EvaluationContext::new(
-            report,
-            binary_data,
-            file_type,
-            platform,
-            None,
-            cached_ast,
-        );
+        let ctx =
+            EvaluationContext::new(report, binary_data, file_type, platform, None, cached_ast);
 
         // Use trait index to only evaluate applicable traits
         // This dramatically reduces work for specific file types
@@ -941,10 +935,16 @@ impl CapabilityMapper {
             );
         }
 
-        // Pre-filter using batched regex matching for raw: true patterns
+        // Pre-filter using batched regex matching for Content conditions
+        // Only run if any applicable traits have content regex patterns
         let t_raw_regex = std::time::Instant::now();
-        let raw_regex_matched_traits = if self.raw_content_regex_index.has_patterns() {
-            self.raw_content_regex_index.find_matches(binary_data)
+        let raw_regex_matched_traits = if self.raw_content_regex_index.has_patterns()
+            && self
+                .raw_content_regex_index
+                .has_applicable_patterns(&applicable_indices)
+        {
+            self.raw_content_regex_index
+                .find_matches(binary_data, &file_type)
         } else {
             FxHashSet::default()
         };
@@ -1034,6 +1034,13 @@ impl CapabilityMapper {
 
                 // If trait has a raw content pattern and it wasn't matched, skip it
                 if has_content_regex && !raw_regex_matched_traits.contains(&idx) {
+                    skip_count.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                    return None;
+                }
+
+                // Skip conditions that can never match this file type
+                // (e.g., binary-only conditions on source files)
+                if !trait_def.r#if.can_match_file_type(&file_type) {
                     skip_count.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
                     return None;
                 }
