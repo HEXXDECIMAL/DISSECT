@@ -26,72 +26,85 @@ import (
 	"time"
 )
 
-const knownGoodPrompt = `Tuning DISSECT for false positive reduction.
+const knownGoodPrompt = `Tune DISSECT for semantic correctness on known-good software.
 
-**File:** %s (KNOWN-GOOD software)
-**Findings:** %s
+## Input
+- **File:** %s (KNOWN-GOOD)
+- **Findings:** %s
 
-**Task:** Fix false positives. HOSTILE on legitimate software is WRONG.
+## Principle
+Findings must match actual behavior. Suspicious findings on goodware are fine IF the code actually does suspicious things. Fix MISLABELED findings (e.g., "c2/beacon" when it's just HTTP).
 
-**Preferred fixes (in order):**
-1. Tune trait patterns for accuracy (more specific regex, exact matches)
-2. Ensure proper taxonomy placement (objective/capability/kind per RULES.md)
-3. Add ` + "`not:`" + ` patterns to filter specific matched strings
-4. Last resort: ` + "`unless:`" + ` or ` + "`downgrade:`" + ` for context-based exceptions
+## Process
+1. Read RULES.md for syntax
+2. Analyze what the file actually does
+3. Fix mislabeled findings using (in order):
+   - **Taxonomy** - Move to correct category (net/http-client not c2/beacon)
+   - **Patterns** - Make regex more specific
+   - **Exclusions** - ` + "`not:`" + ` to filter false matches
+   - **Exceptions** - ` + "`unless:`" + ` or ` + "`downgrade:`" + ` (last resort)
 
-**Rules:** %s/traits/ | Read RULES.md for syntax
-**Validate:** Run ` + "`dissect %s --json`" + ` to confirm fix. Review ALL findings to ensure they are semantically correct for this file:
-- Traits should only match if the file actually performs that capability (e.g., no c2/ traits for programs that don't do C2)
-- Check if overly broad patterns are causing misclassification
-- Verify objective/capability/kind taxonomy accurately describes the matched behavior
-**Warning:** Do NOT use git stash - other processes may be editing this codebase`
+## Constraints
+- Traits: %s/traits/
+- Do NOT remove traits - recategorize instead
+- Do NOT use git stash
 
-const knownBadPrompt = `Tuning DISSECT for false negative reduction.
+## Validate
+Run ` + "`dissect %s --format jsonl`" + ` - all findings should accurately describe actual capabilities.`
 
-**File:** %s (KNOWN-BAD malware sample)
-**Findings:** %s
+const knownBadPrompt = `Tune DISSECT to detect this malware's capabilities.
 
-**Task:** This file isn't flagged suspicious/hostile. Find what DISSECT missed.
+## Input
+- **File:** %s (KNOWN-BAD malware)
+- **Findings:** %s
+- **Problem:** Not flagged suspicious/hostile - find what's missing
 
-1. Reverse engineer: radare2, nm, strings, objdump, xxd
-2. Identify malicious capabilities
-3. Create/modify traits following objective/capability/kind taxonomy:
-   anti-analysis|c2|collect|cred|discovery|exec|exfil|impact|lateral|persist|privesc
-4. HOSTILE composites REQUIRE complexity >= 4 (any:+1, all:+N per item, file_types:+1)
+## Process
+1. Read RULES.md for syntax
+2. Reverse engineer: radare2, nm, strings, objdump, xxd
+3. Create/modify traits for detected capabilities
 
-Note: If file is genuinely benign (README, etc.), move on.
+## Taxonomy
+anti-analysis | c2 | collect | cred | discovery | exec | exfil | impact | lateral | persist | privesc
 
-**Rules:** %s/traits/ | Read RULES.md for syntax
-**Validate:** Run ` + "`dissect %s --json`" + ` to confirm detection. Review ALL findings to ensure they are semantically correct:
-- New traits should accurately describe the malicious capability (correct objective/capability/kind)
-- Patterns should be specific enough to avoid false positives on legitimate software
-- HOSTILE composites require complexity >= 4 (any:+1, all:+N per item, file_types:+1)
-**Warning:** Do NOT use git stash - other processes may be editing this codebase`
+## Detection Philosophy
+Write GENERIC patterns that catch similar malware:
+- Behavioral patterns over specific strings (socket+connect+recv, not hardcoded C2 domain)
+- Cross-language when possible (base64+exec works in Python, JS, Shell)
+- Neutral taxonomy for dual-use capabilities (net/socket not c2/socket)
 
-const fixPromptTemplate = `DISSECT is failing to run. Please fix the issue.
+## Composites
+HOSTILE requires complexity >= 4 (any:+1, all:+N per item, file_types:+1)
 
-**Command that failed:**
-dissect %s --json
+## Constraints
+- Traits: %s/traits/
+- Skip if file is actually benign (README, docs)
+- Do NOT use git stash
 
-**Error output:**
-%s
+## Validate
+Run ` + "`dissect %s --format jsonl`" + ` - file should be suspicious or hostile with accurate findings.
+Suspicious is OK if hostility is hard to prove.`
 
-**Your task:**
-1. Diagnose the error (likely a broken trait YAML file or build issue)
-2. Fix the problem by editing the appropriate files
-3. Re-run "dissect %s --json" to verify the fix works
-4. Continue until dissect runs successfully
+const fixPromptTemplate = `DISSECT failed to run. Fix it.
 
-**Common issues:**
-- Invalid YAML syntax in traits/*.yaml files
-- Missing or malformed trait conditions
-- Rust compilation errors (run "cargo build --release" to check)
+## Error
+Command: dissect %s --format jsonl
+Output: %s
 
-**Guidelines:**
-- Trait files are in: %s/traits/
-- Read RULES.md for trait YAML syntax if needed
-- For YAML errors, the error message usually points to the problematic file and line
-- Do NOT use git stash - other processes may be editing this codebase`
+## Likely Causes
+- Invalid YAML in traits/*.yaml (check file/line in error)
+- Rust build error (run: cargo build --release)
+
+## Fix Process
+1. Diagnose from error message
+2. Edit the broken file
+3. Re-run: dissect %s --format jsonl
+4. Repeat until it works
+
+## Constraints
+- Trait files: %s/traits/
+- Syntax reference: RULES.md
+- Do NOT use git stash`
 
 const maxFixAttempts = 3
 
@@ -140,7 +153,7 @@ func main() {
 	provider := flag.String("provider", "claude", "AI provider: claude, gemini, or opencode")
 	repoRoot := flag.String("repo-root", "", "Path to DISSECT repo root (auto-detected if not specified)")
 	useCargo := flag.Bool("cargo", true, "Use 'cargo run --release' instead of dissect binary")
-	timeout := flag.Duration("timeout", 10*time.Minute, "Maximum time for each AI invocation")
+	timeout := flag.Duration("timeout", 20*time.Minute, "Maximum time for each AI invocation")
 
 	flag.Parse()
 
@@ -257,10 +270,10 @@ func sanityCheck(ctx context.Context, cfg *config, repoRoot string) error {
 
 	var cmd *exec.Cmd
 	if cfg.useCargo {
-		cmd = exec.CommandContext(ctx, "cargo", "run", "--release", "--", "--json", testFile)
+		cmd = exec.CommandContext(ctx, "cargo", "run", "--release", "--", "--format", "jsonl", testFile)
 		cmd.Dir = repoRoot
 	} else {
-		cmd = exec.CommandContext(ctx, "dissect", "--json", testFile)
+		cmd = exec.CommandContext(ctx, "dissect", "--format", "jsonl", testFile)
 	}
 
 	var stdout, stderr bytes.Buffer
@@ -303,13 +316,23 @@ func runDissectDirWithRetry(ctx context.Context, cfg *config, dir, repoRoot, ses
 	return nil, lastErr
 }
 
+// JsonlEntry represents a single JSONL line from streaming output.
+type JsonlEntry struct {
+	Type     string    `json:"type"`
+	Path     string    `json:"path"`
+	FileType string    `json:"file_type"`
+	Risk     string    `json:"risk"`
+	Findings []Finding `json:"findings"`
+}
+
 func runDissectDir(ctx context.Context, cfg *config, dir, repoRoot string) ([]DissectReport, error) {
 	var cmd *exec.Cmd
 	if cfg.useCargo {
-		cmd = exec.CommandContext(ctx, "cargo", "run", "--release", "--", "--json", dir)
+		// Use --format jsonl for streaming output
+		cmd = exec.CommandContext(ctx, "cargo", "run", "--release", "--", "--format", "jsonl", dir)
 		cmd.Dir = repoRoot
 	} else {
-		cmd = exec.CommandContext(ctx, "dissect", "--json", dir)
+		cmd = exec.CommandContext(ctx, "dissect", "--format", "jsonl", dir)
 	}
 
 	var stdout, stderr bytes.Buffer
@@ -324,17 +347,45 @@ func runDissectDir(ctx context.Context, cfg *config, dir, repoRoot string) ([]Di
 		return nil, fmt.Errorf("dissect error: %w", err)
 	}
 
-	// Output is an array of reports
-	var reports []DissectReport
-	if err := json.Unmarshal(stdout.Bytes(), &reports); err != nil {
-		preview := stdout.String()
-		if len(preview) > 500 {
-			preview = preview[:500] + "..."
+	// Parse JSONL output - each line is a file or summary entry
+	var files []FileAnalysis
+	scanner := bufio.NewScanner(strings.NewReader(stdout.String()))
+	// Increase buffer size to 128MB to handle malware files with massive strings/findings
+	const maxScannerBuffer = 128 * 1024 * 1024
+	scanner.Buffer(make([]byte, maxScannerBuffer), maxScannerBuffer)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" {
+			continue
 		}
-		return nil, fmt.Errorf("JSON parse error: %w\noutput preview: %s", err, preview)
+
+		var entry JsonlEntry
+		if err := json.Unmarshal([]byte(line), &entry); err != nil {
+			// Skip lines that don't parse (could be debug output)
+			continue
+		}
+
+		// Only process file entries, skip summary
+		if entry.Type == "file" {
+			files = append(files, FileAnalysis{
+				Path:     entry.Path,
+				Risk:     entry.Risk,
+				Findings: entry.Findings,
+			})
+		}
 	}
 
-	return reports, nil
+	if err := scanner.Err(); err != nil {
+		return nil, fmt.Errorf("error reading JSONL output: %w", err)
+	}
+
+	// Wrap in a single report for compatibility with existing code
+	report := DissectReport{
+		SchemaVersion: "2.0",
+		Files:         files,
+	}
+
+	return []DissectReport{report}, nil
 }
 
 // shouldReview determines if a file needs Claude review based on mode.
