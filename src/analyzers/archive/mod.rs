@@ -203,8 +203,17 @@ impl ArchiveAnalyzer {
                     files.push(nested);
                 }
             })?,
+            "7z" => self.analyze_7z_streaming(file_path, |result: StreamingFileResult| {
+                on_file(&result.file_analysis);
+
+                let mut files = files_clone.lock().unwrap();
+                files.push(result.file_analysis);
+                for nested in result.nested_files {
+                    files.push(nested);
+                }
+            })?,
             _ => {
-                // Fall back to non-streaming for unsupported formats
+                // Fall back to non-streaming for unsupported formats (rar, pkg)
                 return self.analyze_archive(file_path);
             }
         };

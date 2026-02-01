@@ -163,14 +163,6 @@ composite_rules:
       - id: discord-leveldb-lower
       - id: discord-leveldb-upper
 
-  # Discord ldb composite - requires LevelDB extension specifically
-  - id: discord-ldb
-    desc: Discord LDB database files
-    crit: notable
-    conf: 0.8
-    all:
-      - id: discord-ldb-ext
-
   # Signal config composite
   - id: signal-config
     desc: Signal Desktop configuration

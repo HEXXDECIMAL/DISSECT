@@ -120,12 +120,10 @@ impl CapabilityMapper {
             }
         }
 
-        eprintln!("❌ ERROR: Failed to load capabilities from any source");
+        eprintln!("❌ FATAL: Failed to load capabilities from any source");
         eprintln!("   Tried: traits/ directory, capabilities.yaml");
-        eprintln!("   Set DISSECT_DEBUG=1 for detailed errors");
-        eprintln!("   Creating empty capability mapper - NO DETECTIONS WILL WORK");
-
-        Self::empty()
+        eprintln!("   Set DISSECT_DEBUG=1 for detailed errors\n");
+        std::process::exit(1);
     }
 
     /// Load capability mappings from directory of YAML files (recursively)
@@ -629,6 +627,7 @@ impl CapabilityMapper {
                 }
             }
             eprintln!();
+            std::process::exit(1);
         }
 
         if timing {

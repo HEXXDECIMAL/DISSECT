@@ -23,15 +23,3 @@ traits:
   # behavioral analysis or more specific patterns (e.g., XOR with hardcoded
   # key in a tight loop with specific register usage).
 
-composite_rules:
-  # String obfuscation composite - only stack-string-construction remains
-  # after removing overly broad xor-loop-pattern
-  - id: string-deobfuscation
-    desc: String obfuscation/deobfuscation pattern
-    crit: inert
-    conf: 0.4
-    attack: "T1027"
-    for: [elf, macho, pe]
-    count_min: 1
-    any:
-      - id: stack-string-construction

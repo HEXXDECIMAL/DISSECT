@@ -22,7 +22,9 @@ use anyhow::Result;
 use std::io::Read;
 use std::path::{Path, PathBuf};
 
-use super::guards::{sanitize_entry_path, ExtractionGuard, HostileArchiveReason, MAX_FILE_SIZE};
+use super::guards::{
+    sanitize_entry_path, ExtractionGuard, HostileArchiveReason, LimitedReader, MAX_FILE_SIZE,
+};
 use super::utils::calculate_sha256;
 use super::ArchiveAnalyzer;
 
@@ -1166,6 +1168,224 @@ impl ArchiveAnalyzer {
 
             // Process CPIO entries
             extract_cpio_streaming(cpio_reader, &temp_dir_path, &guard, &tx)?;
+
+            drop(tx);
+            Ok(guard.take_reasons())
+        });
+
+        // Analyze files in parallel
+        let on_file_ref = &on_file;
+        let files_analyzed_ref = &files_analyzed;
+        let hostile_count_ref = &hostile_count;
+        let suspicious_count_ref = &suspicious_count;
+        let notable_count_ref = &notable_count;
+        let total_bytes_ref = &total_bytes;
+
+        rx.into_iter().par_bridge().for_each(|file| {
+            let result = match &file {
+                ExtractedFile::InMemory {
+                    path,
+                    data,
+                    file_type,
+                } => {
+                    total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
+                    self.analyze_in_memory(path, data, file_type)
+                }
+                ExtractedFile::OnDisk {
+                    path,
+                    temp_path,
+                    file_type,
+                } => match std::fs::read(temp_path) {
+                    Ok(data) => {
+                        total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
+                        self.analyze_in_memory(path, &data, file_type)
+                    }
+                    Err(e) => Err(anyhow::anyhow!("Failed to read temp file: {}", e)),
+                },
+            };
+
+            match result {
+                Ok(file_result) => {
+                    files_analyzed_ref.fetch_add(1, Ordering::Relaxed);
+
+                    if let Some(risk) = &file_result.file_analysis.risk {
+                        match risk {
+                            crate::types::Criticality::Hostile => {
+                                hostile_count_ref.fetch_add(1, Ordering::Relaxed);
+                            }
+                            crate::types::Criticality::Suspicious => {
+                                suspicious_count_ref.fetch_add(1, Ordering::Relaxed);
+                            }
+                            crate::types::Criticality::Notable => {
+                                notable_count_ref.fetch_add(1, Ordering::Relaxed);
+                            }
+                            _ => {}
+                        }
+                    }
+
+                    on_file_ref(file_result);
+                }
+                Err(e) => {
+                    tracing::debug!("Failed to analyze {}: {}", file.path(), e);
+                }
+            }
+        });
+
+        let hostile_reasons = extractor_handle
+            .join()
+            .map_err(|_| anyhow::anyhow!("Extractor thread panicked"))??;
+
+        Ok(ArchiveSummary {
+            files_analyzed: files_analyzed.load(Ordering::Relaxed),
+            hostile: hostile_count.load(Ordering::Relaxed),
+            suspicious: suspicious_count.load(Ordering::Relaxed),
+            notable: notable_count.load(Ordering::Relaxed),
+            total_bytes: total_bytes.load(Ordering::Relaxed),
+            hostile_reasons,
+            analysis_duration_ms: start.elapsed().as_millis() as u64,
+        })
+    }
+}
+
+impl ArchiveAnalyzer {
+    /// Analyze a 7z archive with sequential extraction and parallel analysis.
+    ///
+    /// 7z uses solid compression so extraction must be sequential, but we can
+    /// analyze files in parallel as they're extracted.
+    pub fn analyze_7z_streaming<F>(&self, archive_path: &Path, on_file: F) -> Result<ArchiveSummary>
+    where
+        F: Fn(StreamingFileResult) + Send + Sync,
+    {
+        use crossbeam_channel::bounded;
+        use rayon::prelude::*;
+        use sevenz_rust::{Password, SevenZReader};
+        use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
+
+        let start = std::time::Instant::now();
+
+        // Create temp dir for large files
+        let temp_dir = tempfile::tempdir()?;
+
+        // Create extraction guard
+        let guard = ExtractionGuard::new();
+
+        // Bounded channel (32 items) for backpressure
+        let (tx, rx) = bounded::<ExtractedFile>(32);
+
+        // Statistics
+        let files_analyzed = AtomicU32::new(0);
+        let hostile_count = AtomicU32::new(0);
+        let suspicious_count = AtomicU32::new(0);
+        let notable_count = AtomicU32::new(0);
+        let total_bytes = AtomicU64::new(0);
+
+        let archive_path = archive_path.to_path_buf();
+        let temp_dir_path = temp_dir.path().to_path_buf();
+
+        // Spawn extractor thread (must be sequential due to solid compression)
+        let extractor_handle = std::thread::spawn(move || -> Result<Vec<HostileArchiveReason>> {
+            let file = std::fs::File::open(&archive_path)?;
+            let file_len = file.metadata()?.len();
+
+            let mut sz = SevenZReader::new(file, file_len, Password::empty())
+                .map_err(|e| anyhow::anyhow!("Failed to read 7z: {}", e))?;
+
+            sz.for_each_entries(|entry, reader| {
+                if !guard.check_file_count() {
+                    return Err(sevenz_rust::Error::other("Exceeded maximum file count"));
+                }
+
+                let name = entry.name().to_string();
+                if name.is_empty() || entry.is_directory() {
+                    return Ok(true);
+                }
+
+                // Sanitize path
+                if sanitize_entry_path(&name, &temp_dir_path).is_none() {
+                    guard.add_hostile_reason(HostileArchiveReason::PathTraversal(name.clone()));
+                    return Ok(true);
+                }
+
+                let file_size = entry.size();
+                if file_size > MAX_FILE_SIZE {
+                    guard.add_hostile_reason(HostileArchiveReason::ExcessiveFileSize {
+                        file: name.clone(),
+                        size: file_size,
+                    });
+                    return Ok(true);
+                }
+
+                // Detect file type
+                let path = std::path::Path::new(&name);
+                let file_type = detect_file_type(path).unwrap_or(FileType::Unknown);
+
+                // Read to memory or disk
+                let use_disk = file_size > MAX_MEMORY_FILE_SIZE
+                    || matches!(file_type, FileType::Archive | FileType::Jar);
+
+                if use_disk {
+                    let out_path = temp_dir_path.join(&name);
+                    if let Some(parent) = out_path.parent() {
+                        std::fs::create_dir_all(parent).ok();
+                    }
+
+                    let mut limited = LimitedReader::new(reader, MAX_FILE_SIZE);
+                    let mut outfile = match std::fs::File::create(&out_path) {
+                        Ok(f) => f,
+                        Err(_) => return Ok(true),
+                    };
+
+                    if std::io::copy(&mut limited, &mut outfile).is_err() {
+                        return Ok(true);
+                    }
+
+                    if !guard.check_bytes(file_size, &name) {
+                        return Err(sevenz_rust::Error::other("Exceeded total size"));
+                    }
+
+                    if tx
+                        .send(ExtractedFile::OnDisk {
+                            path: name,
+                            temp_path: out_path,
+                            file_type,
+                        })
+                        .is_err()
+                    {
+                        return Err(sevenz_rust::Error::other("Channel closed"));
+                    }
+                } else {
+                    let mut data = Vec::with_capacity(file_size as usize);
+                    let mut limited = LimitedReader::new(reader, MAX_FILE_SIZE);
+                    if std::io::Read::read_to_end(&mut limited, &mut data).is_err() {
+                        return Ok(true);
+                    }
+
+                    if !guard.check_bytes(data.len() as u64, &name) {
+                        return Err(sevenz_rust::Error::other("Exceeded total size"));
+                    }
+
+                    // Re-detect with magic
+                    let actual_type = if data.len() >= 4 {
+                        detect_file_type_from_magic(&data).unwrap_or(file_type)
+                    } else {
+                        file_type
+                    };
+
+                    if tx
+                        .send(ExtractedFile::InMemory {
+                            path: name,
+                            data,
+                            file_type: actual_type,
+                        })
+                        .is_err()
+                    {
+                        return Err(sevenz_rust::Error::other("Channel closed"));
+                    }
+                }
+
+                Ok(true)
+            })
+            .map_err(|e| anyhow::anyhow!("7z extraction failed: {}", e))?;
 
             drop(tx);
             Ok(guard.take_reasons())
