@@ -364,5 +364,6 @@ pub(crate) fn simple_rule_to_composite_rule(rule: super::models::SimpleRule) -> 
         none: None,
         unless: None,
         not: None,
+        downgrade: None,
     }
 }

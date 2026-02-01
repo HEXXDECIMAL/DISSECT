@@ -355,6 +355,9 @@ composite_rules:
       - id: execve
 
   # PTY-based network backdoor - combines PTY with network operations
+  # NOTE: This matches legitimate shells (/bin/bash) which have all these symbols
+  # for job control, command substitution, and network utilities (like /dev/tcp).
+  # Downgrade for Apple system components to avoid FPs on system shells.
   - id: pty-network-backdoor
     desc: PTY-based network backdoor
     crit: suspicious
@@ -377,3 +380,8 @@ composite_rules:
       - id: socket-send
       - id: execve
       - id: exec/command/shell/bin-sh
+    # Downgrade for Apple system components (e.g., /bin/bash)
+    downgrade:
+      inert:
+        any:
+          - id: feat/apple/system-component

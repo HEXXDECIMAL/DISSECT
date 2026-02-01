@@ -152,7 +152,24 @@ impl TraitDefinition {
 
             // Check downgrade conditions
             if let Some(downgrade_rules) = &self.downgrade {
+                let debug_downgrade = std::env::var("DEBUG_DOWNGRADE").is_ok();
+                if debug_downgrade {
+                    eprintln!(
+                        "DEBUG: Evaluating downgrade for trait '{}' (current: {:?})",
+                        self.id, self.crit
+                    );
+                    eprintln!(
+                        "DEBUG: downgrade_rules.inert={:?}",
+                        downgrade_rules.inert.is_some()
+                    );
+                }
                 final_crit = self.evaluate_downgrade(downgrade_rules, &self.crit, ctx);
+                if debug_downgrade {
+                    eprintln!(
+                        "DEBUG: Final criticality for '{}': {:?}",
+                        self.id, final_crit
+                    );
+                }
             }
 
             Some(Finding {
@@ -247,6 +264,8 @@ impl TraitDefinition {
         conditions: &DowngradeConditions,
         ctx: &EvaluationContext,
     ) -> bool {
+        let debug_downgrade = std::env::var("DEBUG_DOWNGRADE").is_ok();
+
         // If 'all' is specified, all must match
         if let Some(all_conds) = &conditions.all {
             for cond in all_conds {
@@ -259,8 +278,15 @@ impl TraitDefinition {
 
         // If 'any' is specified, at least one must match
         if let Some(any_conds) = &conditions.any {
-            for cond in any_conds {
-                if self.eval_condition(cond, ctx).matched {
+            for (i, cond) in any_conds.iter().enumerate() {
+                let result = self.eval_condition(cond, ctx);
+                if debug_downgrade {
+                    eprintln!(
+                        "DEBUG TraitDef: downgrade any[{}] cond={:?} matched={}",
+                        i, cond, result.matched
+                    );
+                }
+                if result.matched {
                     return true;
                 }
             }
@@ -533,6 +559,11 @@ pub struct CompositeTrait {
     /// String-level exceptions - filter matched strings
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub not: Option<Vec<NotException>>,
+
+    /// Criticality downgrade rules - map of target criticality to conditions
+    /// Only levels LOWER than base `crit` are allowed (validated at load time)
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub downgrade: Option<DowngradeRules>,
 }
 
 impl CompositeTrait {
@@ -648,12 +679,36 @@ impl CompositeTrait {
         };
 
         if result.matched {
+            let mut final_crit = self.crit;
+
+            // Check downgrade conditions
+            if let Some(downgrade_rules) = &self.downgrade {
+                let debug_downgrade = std::env::var("DEBUG_DOWNGRADE").is_ok();
+                if debug_downgrade {
+                    eprintln!(
+                        "DEBUG: Evaluating downgrade for composite '{}' (current: {:?})",
+                        self.id, self.crit
+                    );
+                    eprintln!(
+                        "DEBUG: downgrade_rules.inert={:?}",
+                        downgrade_rules.inert.is_some()
+                    );
+                }
+                final_crit = self.evaluate_downgrade(downgrade_rules, &self.crit, ctx);
+                if debug_downgrade {
+                    eprintln!(
+                        "DEBUG: Final criticality for composite '{}': {:?}",
+                        self.id, final_crit
+                    );
+                }
+            }
+
             Some(Finding {
                 id: self.id.clone(),
                 kind: FindingKind::Capability,
                 desc: self.desc.clone(),
                 conf: self.conf,
-                crit: self.crit,
+                crit: final_crit,
                 mbc: self.mbc.clone(),
                 attack: self.attack.clone(),
                 trait_refs: vec![],
@@ -662,6 +717,93 @@ impl CompositeTrait {
         } else {
             None
         }
+    }
+
+    /// Evaluate downgrade rules and return final criticality.
+    /// Public so that mapper can re-evaluate downgrades after all findings are collected.
+    pub fn evaluate_downgrade(
+        &self,
+        rules: &DowngradeRules,
+        base_crit: &Criticality,
+        ctx: &EvaluationContext,
+    ) -> Criticality {
+        // Check in severity order: hostile → suspicious → notable → inert
+        // First match wins
+
+        if let Some(conditions) = &rules.hostile {
+            if self.eval_downgrade_conditions(conditions, ctx) {
+                return Criticality::Hostile;
+            }
+        }
+
+        if let Some(conditions) = &rules.suspicious {
+            if self.eval_downgrade_conditions(conditions, ctx) {
+                return Criticality::Suspicious;
+            }
+        }
+
+        if let Some(conditions) = &rules.notable {
+            if self.eval_downgrade_conditions(conditions, ctx) {
+                return Criticality::Notable;
+            }
+        }
+
+        if let Some(conditions) = &rules.inert {
+            if self.eval_downgrade_conditions(conditions, ctx) {
+                return Criticality::Inert;
+            }
+        }
+
+        // No downgrade matched - return base criticality
+        *base_crit
+    }
+
+    /// Evaluate a single downgrade condition set
+    fn eval_downgrade_conditions(
+        &self,
+        conditions: &DowngradeConditions,
+        ctx: &EvaluationContext,
+    ) -> bool {
+        let debug_downgrade = std::env::var("DEBUG_DOWNGRADE").is_ok();
+
+        // If 'all' is specified, all must match
+        if let Some(all_conds) = &conditions.all {
+            for cond in all_conds {
+                if !self.eval_condition(cond, ctx).matched {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // If 'any' is specified, at least one must match
+        if let Some(any_conds) = &conditions.any {
+            for (i, cond) in any_conds.iter().enumerate() {
+                let result = self.eval_condition(cond, ctx);
+                if debug_downgrade {
+                    eprintln!(
+                        "DEBUG CompositeTrait: downgrade any[{}] cond={:?} matched={}",
+                        i, cond, result.matched
+                    );
+                }
+                if result.matched {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // If 'none' is specified, none can match
+        if let Some(none_conds) = &conditions.none {
+            for cond in none_conds {
+                if self.eval_condition(cond, ctx).matched {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        false
     }
 
     /// Check if rule applies to current platform/file type

@@ -199,7 +199,10 @@ impl AnalysisReport {
                     file.parent_id = Some(0); // Point to root
                 }
                 // Ensure paths have proper archive prefix (!! for archives, ## for decoded)
-                if !file.path.contains("!!") && !file.path.contains("##") && !file.path.starts_with(&root_path) {
+                if !file.path.contains("!!")
+                    && !file.path.contains("##")
+                    && !file.path.starts_with(&root_path)
+                {
                     file.path = super::file_analysis::encode_archive_path(&root_path, &file.path);
                 }
             }

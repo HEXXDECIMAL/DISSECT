@@ -83,6 +83,7 @@ composite_rules:
       - id: gettimeofday
 
   # Delay with network = evasion or C2 beaconing
+  # NOTE: Legitimate shells have sleep and socket support for scripting purposes
   - id: delay-with-network
     desc: "Network communication with delays (C2"
     crit: suspicious
@@ -94,8 +95,14 @@ composite_rules:
     any:
       - id: comm/socket/create
       - id: comm/download/curl/libcurl-http
+    # Downgrade for Apple system components (e.g., /bin/bash)
+    downgrade:
+      inert:
+        any:
+          - id: feat/apple/system-component
 
   # Timing measurement + delay = sandbox evasion
+  # NOTE: Legitimate shells have timing functions for scripting purposes
   - id: timing-evasion
     desc: "Timing measurement with delays (sandbox/VM"
     crit: suspicious
@@ -105,3 +112,8 @@ composite_rules:
     all:
       - id: timing-measurement
       - id: delay-capability
+    # Downgrade for Apple system components (e.g., /bin/bash)
+    downgrade:
+      inert:
+        any:
+          - id: feat/apple/system-component

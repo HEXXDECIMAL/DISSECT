@@ -298,6 +298,8 @@ composite_rules:
       - id: nsbundle
       - id: dl-function
 
+  # NOTE: dlopen/dlsym is common in many legitimate programs including shells
+  # (bash uses it for loadable builtins), interpreters, and plugin systems.
   - id: dynamic-loader-detected
     desc: Dynamic code loading pattern
     crit: suspicious
@@ -309,6 +311,11 @@ composite_rules:
     any:
       - id: dlopen-dlsym
       - id: nsbundle-dynamic
+    # Downgrade for Apple system components (e.g., /bin/bash with loadable builtins)
+    downgrade:
+      inert:
+        any:
+          - id: feat/apple/system-component
 
   # ctypes CDLL composite
   - id: ctypes-cdll

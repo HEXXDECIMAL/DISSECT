@@ -333,7 +333,8 @@ composite_rules:
       - id: chrome-extensions-path
       - id: browser-support-extensions
 
-  # Opera composite
+  # Opera composite - require both the name AND a browser-specific indicator
+  # to avoid false positives (e.g., the word "Opera" can appear in many contexts)
   - id: opera
     desc: Opera browser data
     crit: notable
@@ -343,7 +344,11 @@ composite_rules:
     count_min: 1
     any:
       - id: opera-stable
-      - id: opera-name
+    # Downgrade when only generic "Opera" string found without browser-specific paths
+    downgrade:
+      inert:
+        none:
+          - id: opera-stable
 
   # Brave composite
 

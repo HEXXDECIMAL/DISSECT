@@ -117,7 +117,7 @@ pub(crate) fn apply_trait_defaults(
         r#if: raw.condition,
         not: raw.not,
         unless: None,
-        downgrade: None,
+        downgrade: raw.downgrade,
     }
 }
 
@@ -245,5 +245,6 @@ pub(crate) fn apply_composite_defaults(
         none: raw.none,
         unless: raw.unless,
         not: raw.not,
+        downgrade: raw.downgrade,
     }
 }

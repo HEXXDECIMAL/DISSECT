@@ -83,6 +83,7 @@ fn test_symbol_condition() {
         none: None,
         unless: None,
         not: None,
+        downgrade: None,
     };
 
     let result = rule.evaluate(&ctx);
@@ -146,6 +147,7 @@ fn test_all() {
         none: None,
         unless: None,
         not: None,
+        downgrade: None,
     };
 
     let result = rule.evaluate(&ctx);
@@ -203,6 +205,7 @@ fn test_count() {
         none: None,
         unless: None,
         not: None,
+        downgrade: None,
     };
 
     let result = rule.evaluate(&ctx);
@@ -254,6 +257,7 @@ fn test_string_exact_condition() {
         none: None,
         unless: None,
         not: None,
+        downgrade: None,
     };
 
     let result = rule.evaluate(&ctx);
@@ -308,6 +312,7 @@ fn test_any() {
         none: None,
         unless: None,
         not: None,
+        downgrade: None,
     };
 
     let result = rule.evaluate(&ctx);

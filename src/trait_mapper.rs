@@ -56,37 +56,160 @@ pub fn analyze_function(func: &Function) -> Vec<Finding> {
 
 /// Analyze control flow metrics for behavioral patterns
 fn analyze_control_flow(cf: &ControlFlowMetrics, func_name: &str) -> Vec<Finding> {
-        let mut capabilities = Vec::new();
+    let mut capabilities = Vec::new();
 
-        // High complexity with loops -> potential crypto/packing
-        if cf.cyclomatic_complexity > 10 && cf.loop_count > 0 {
+    // High complexity with loops -> potential crypto/packing
+    if cf.cyclomatic_complexity > 10 && cf.loop_count > 0 {
+        capabilities.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
+            id: "complexity/high".to_string(),
+            desc: "High cyclomatic complexity with loops".to_string(),
+            conf: 0.7,
+            crit: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            evidence: vec![Evidence {
+                method: "trait".to_string(),
+                source: "radare2".to_string(),
+                value: format!(
+                    "complexity={}, loops={}",
+                    cf.cyclomatic_complexity, cf.loop_count
+                ),
+                location: Some(func_name.to_string()),
+            }],
+        });
+
+        // If very high complexity, could be obfuscation
+        if cf.cyclomatic_complexity > 20 {
             capabilities.push(Finding {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
-                id: "complexity/high".to_string(),
-                desc: "High cyclomatic complexity with loops".to_string(),
-                conf: 0.7,
+                id: "anti-analysis/obfuscation/control-flow".to_string(),
+                desc: "Control flow obfuscation detected".to_string(),
+                conf: 0.6,
                 crit: Criticality::Inert,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
                     method: "trait".to_string(),
                     source: "radare2".to_string(),
-                    value: format!(
-                        "complexity={}, loops={}",
-                        cf.cyclomatic_complexity, cf.loop_count
-                    ),
+                    value: format!("complexity={}", cf.cyclomatic_complexity),
                     location: Some(func_name.to_string()),
                 }],
             });
+        }
+    }
 
-            // If very high complexity, could be obfuscation
-            if cf.cyclomatic_complexity > 20 {
+    // Multiple loops -> potential crypto operation
+    if cf.loop_count >= 2 {
+        capabilities.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
+            id: "data/encode".to_string(),
+            desc: "Multiple nested loops suggest encoding/crypto".to_string(),
+            conf: 0.5,
+            crit: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            evidence: vec![Evidence {
+                method: "trait".to_string(),
+                source: "radare2".to_string(),
+                value: format!("loops={}", cf.loop_count),
+                location: Some(func_name.to_string()),
+            }],
+        });
+    }
+
+    capabilities
+}
+
+/// Analyze instruction patterns for behaviors
+fn analyze_instructions(instr: &InstructionAnalysis, func_name: &str) -> Vec<Finding> {
+    let mut capabilities = Vec::new();
+
+    // Anti-debug instructions
+    for unusual_inst in &instr.unusual_instructions {
+        match unusual_inst.as_str() {
+            "int1" | "int 1" | "icebp" => {
                 capabilities.push(Finding {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
-                    id: "anti-analysis/obfuscation/control-flow".to_string(),
-                    desc: "Control flow obfuscation detected".to_string(),
+                    id: "anti-analysis/anti-debug/debugger-detect".to_string(),
+                    desc: "Debug trap instruction detected".to_string(),
+                    conf: 0.9,
+                    crit: Criticality::Inert,
+                    mbc: None,
+                    attack: None,
+                    evidence: vec![Evidence {
+                        method: "trait".to_string(),
+                        source: "radare2".to_string(),
+                        value: unusual_inst.clone(),
+                        location: Some(func_name.to_string()),
+                    }],
+                });
+            }
+            "int3" | "int 3" => {
+                capabilities.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
+                    id: "anti-analysis/anti-debug/breakpoint".to_string(),
+                    desc: "Breakpoint instruction detected".to_string(),
+                    conf: 0.8,
+                    crit: Criticality::Inert,
+                    mbc: None,
+                    attack: None,
+                    evidence: vec![Evidence {
+                        method: "trait".to_string(),
+                        source: "radare2".to_string(),
+                        value: unusual_inst.clone(),
+                        location: Some(func_name.to_string()),
+                    }],
+                });
+            }
+            "rdtsc" | "rdtscp" => {
+                capabilities.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
+                    id: "anti-analysis/anti-debug/timing".to_string(),
+                    desc: "Timing check via RDTSC".to_string(),
+                    conf: 0.8,
+                    crit: Criticality::Inert,
+                    mbc: None,
+                    attack: None,
+                    evidence: vec![Evidence {
+                        method: "trait".to_string(),
+                        source: "radare2".to_string(),
+                        value: unusual_inst.clone(),
+                        location: Some(func_name.to_string()),
+                    }],
+                });
+            }
+            s if s.contains("cpuid") => {
+                capabilities.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
+                    id: "anti-analysis/anti-vm/cpu-detect".to_string(),
+                    desc: "CPU detection via CPUID".to_string(),
+                    conf: 0.7,
+                    crit: Criticality::Inert,
+                    mbc: None,
+                    attack: None,
+                    evidence: vec![Evidence {
+                        method: "trait".to_string(),
+                        source: "radare2".to_string(),
+                        value: unusual_inst.clone(),
+                        location: Some(func_name.to_string()),
+                    }],
+                });
+            }
+            s if s.starts_with("fx") => {
+                // FPU instructions in suspicious context
+                capabilities.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
+                    id: "anti-analysis/obfuscation/fpu".to_string(),
+                    desc: "FPU instructions used for obfuscation".to_string(),
                     conf: 0.6,
                     crit: Criticality::Inert,
                     mbc: None,
@@ -94,130 +217,161 @@ fn analyze_control_flow(cf: &ControlFlowMetrics, func_name: &str) -> Vec<Finding
                     evidence: vec![Evidence {
                         method: "trait".to_string(),
                         source: "radare2".to_string(),
-                        value: format!("complexity={}", cf.cyclomatic_complexity),
+                        value: unusual_inst.clone(),
                         location: Some(func_name.to_string()),
                     }],
                 });
             }
+            _ => {}
         }
-
-        // Multiple loops -> potential crypto operation
-        if cf.loop_count >= 2 {
-            capabilities.push(Finding {
-                kind: FindingKind::Capability,
-                trait_refs: vec![],
-                id: "data/encode".to_string(),
-                desc: "Multiple nested loops suggest encoding/crypto".to_string(),
-                conf: 0.5,
-                crit: Criticality::Inert,
-                mbc: None,
-                attack: None,
-                evidence: vec![Evidence {
-                    method: "trait".to_string(),
-                    source: "radare2".to_string(),
-                    value: format!("loops={}", cf.loop_count),
-                    location: Some(func_name.to_string()),
-                }],
-            });
-        }
-
-        capabilities
     }
 
-/// Analyze instruction patterns for behaviors
-fn analyze_instructions(instr: &InstructionAnalysis, func_name: &str) -> Vec<Finding> {
-        let mut capabilities = Vec::new();
+    // High ratio of XOR operations -> encoding/crypto
+    let xor_ratio = instr.categories.logic as f32 / instr.total_instructions as f32;
+    if xor_ratio > 0.2 && instr.total_instructions > 10 {
+        capabilities.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
+            id: "crypto/xor".to_string(),
+            desc: "High XOR operation density suggests encoding".to_string(),
+            conf: 0.6,
+            crit: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            evidence: vec![Evidence {
+                method: "trait".to_string(),
+                source: "radare2".to_string(),
+                value: format!("xor_ratio={:.2}", xor_ratio),
+                location: Some(func_name.to_string()),
+            }],
+        });
+    }
 
-        // Anti-debug instructions
-        for unusual_inst in &instr.unusual_instructions {
-            match unusual_inst.as_str() {
-                "int1" | "int 1" | "icebp" => {
+    // Crypto instructions
+    if instr.categories.crypto > 0 {
+        capabilities.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
+            id: "crypto/encrypt".to_string(),
+            desc: "Hardware crypto instructions detected".to_string(),
+            conf: 0.9,
+            crit: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            evidence: vec![Evidence {
+                method: "trait".to_string(),
+                source: "radare2".to_string(),
+                value: format!("crypto_instructions={}", instr.categories.crypto),
+                location: Some(func_name.to_string()),
+            }],
+        });
+    }
+
+    // String operations with loops -> data manipulation
+    if instr.categories.string_ops > 3 {
+        capabilities.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
+            id: "data/encoding/string-ops".to_string(),
+            desc: "String operations for data manipulation".to_string(),
+            conf: 0.6,
+            crit: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            evidence: vec![Evidence {
+                method: "trait".to_string(),
+                source: "radare2".to_string(),
+                value: format!("string_ops={}", instr.categories.string_ops),
+                location: Some(func_name.to_string()),
+            }],
+        });
+    }
+
+    // System calls
+    if instr.categories.system > 0 {
+        capabilities.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
+            id: "os/syscall".to_string(),
+            desc: "Direct system call usage".to_string(),
+            conf: 0.8,
+            crit: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            evidence: vec![Evidence {
+                method: "trait".to_string(),
+                source: "radare2".to_string(),
+                value: format!("syscalls={}", instr.categories.system),
+                location: Some(func_name.to_string()),
+            }],
+        });
+    }
+
+    // Privileged instructions -> rootkit behavior
+    if instr.categories.privileged > 0 {
+        capabilities.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
+            id: "privilege/escalate".to_string(),
+            desc: "Privileged instructions detected".to_string(),
+            conf: 0.7,
+            crit: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            evidence: vec![Evidence {
+                method: "trait".to_string(),
+                source: "radare2".to_string(),
+                value: format!("privileged={}", instr.categories.privileged),
+                location: Some(func_name.to_string()),
+            }],
+        });
+    }
+
+    capabilities
+}
+
+/// Analyze embedded constants for C2 indicators
+fn analyze_constants(
+    constants: &[crate::types::EmbeddedConstant],
+    func_name: &str,
+) -> Vec<Finding> {
+    let mut capabilities = Vec::new();
+
+    for constant in constants {
+        for decoded in &constant.decoded {
+            match decoded.value_type.as_str() {
+                "ip_address" | "ip_port" => {
                     capabilities.push(Finding {
                         kind: FindingKind::Capability,
                         trait_refs: vec![],
-                        id: "anti-analysis/anti-debug/debugger-detect".to_string(),
-                        desc: "Debug trap instruction detected".to_string(),
-                        conf: 0.9,
+                        id: "net/c2/address".to_string(),
+                        desc: format!("Embedded C2 address: {}", decoded.decoded_value),
+                        conf: decoded.conf,
                         crit: Criticality::Inert,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
-                            method: "trait".to_string(),
+                            method: "constant_decode".to_string(),
                             source: "radare2".to_string(),
-                            value: unusual_inst.clone(),
+                            value: decoded.decoded_value.clone(),
                             location: Some(func_name.to_string()),
                         }],
                     });
                 }
-                "int3" | "int 3" => {
+                "port" => {
                     capabilities.push(Finding {
                         kind: FindingKind::Capability,
                         trait_refs: vec![],
-                        id: "anti-analysis/anti-debug/breakpoint".to_string(),
-                        desc: "Breakpoint instruction detected".to_string(),
-                        conf: 0.8,
-                        crit: Criticality::Inert,
+                        id: "net/socket/listen".to_string(),
+                        desc: format!("Embedded port number: {}", decoded.decoded_value),
+                        conf: decoded.conf * 0.7, // Lower confidence for ports alone
+                        crit: Criticality::Notable,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
-                            method: "trait".to_string(),
+                            method: "constant_decode".to_string(),
                             source: "radare2".to_string(),
-                            value: unusual_inst.clone(),
-                            location: Some(func_name.to_string()),
-                        }],
-                    });
-                }
-                "rdtsc" | "rdtscp" => {
-                    capabilities.push(Finding {
-                        kind: FindingKind::Capability,
-                        trait_refs: vec![],
-                        id: "anti-analysis/anti-debug/timing".to_string(),
-                        desc: "Timing check via RDTSC".to_string(),
-                        conf: 0.8,
-                        crit: Criticality::Inert,
-                        mbc: None,
-                        attack: None,
-                        evidence: vec![Evidence {
-                            method: "trait".to_string(),
-                            source: "radare2".to_string(),
-                            value: unusual_inst.clone(),
-                            location: Some(func_name.to_string()),
-                        }],
-                    });
-                }
-                s if s.contains("cpuid") => {
-                    capabilities.push(Finding {
-                        kind: FindingKind::Capability,
-                        trait_refs: vec![],
-                        id: "anti-analysis/anti-vm/cpu-detect".to_string(),
-                        desc: "CPU detection via CPUID".to_string(),
-                        conf: 0.7,
-                        crit: Criticality::Inert,
-                        mbc: None,
-                        attack: None,
-                        evidence: vec![Evidence {
-                            method: "trait".to_string(),
-                            source: "radare2".to_string(),
-                            value: unusual_inst.clone(),
-                            location: Some(func_name.to_string()),
-                        }],
-                    });
-                }
-                s if s.starts_with("fx") => {
-                    // FPU instructions in suspicious context
-                    capabilities.push(Finding {
-                        kind: FindingKind::Capability,
-                        trait_refs: vec![],
-                        id: "anti-analysis/obfuscation/fpu".to_string(),
-                        desc: "FPU instructions used for obfuscation".to_string(),
-                        conf: 0.6,
-                        crit: Criticality::Inert,
-                        mbc: None,
-                        attack: None,
-                        evidence: vec![Evidence {
-                            method: "trait".to_string(),
-                            source: "radare2".to_string(),
-                            value: unusual_inst.clone(),
+                            value: decoded.decoded_value.clone(),
                             location: Some(func_name.to_string()),
                         }],
                     });
@@ -225,257 +379,103 @@ fn analyze_instructions(instr: &InstructionAnalysis, func_name: &str) -> Vec<Fin
                 _ => {}
             }
         }
-
-        // High ratio of XOR operations -> encoding/crypto
-        let xor_ratio = instr.categories.logic as f32 / instr.total_instructions as f32;
-        if xor_ratio > 0.2 && instr.total_instructions > 10 {
-            capabilities.push(Finding {
-                kind: FindingKind::Capability,
-                trait_refs: vec![],
-                id: "crypto/xor".to_string(),
-                desc: "High XOR operation density suggests encoding".to_string(),
-                conf: 0.6,
-                crit: Criticality::Inert,
-                mbc: None,
-                attack: None,
-                evidence: vec![Evidence {
-                    method: "trait".to_string(),
-                    source: "radare2".to_string(),
-                    value: format!("xor_ratio={:.2}", xor_ratio),
-                    location: Some(func_name.to_string()),
-                }],
-            });
-        }
-
-        // Crypto instructions
-        if instr.categories.crypto > 0 {
-            capabilities.push(Finding {
-                kind: FindingKind::Capability,
-                trait_refs: vec![],
-                id: "crypto/encrypt".to_string(),
-                desc: "Hardware crypto instructions detected".to_string(),
-                conf: 0.9,
-                crit: Criticality::Inert,
-                mbc: None,
-                attack: None,
-                evidence: vec![Evidence {
-                    method: "trait".to_string(),
-                    source: "radare2".to_string(),
-                    value: format!("crypto_instructions={}", instr.categories.crypto),
-                    location: Some(func_name.to_string()),
-                }],
-            });
-        }
-
-        // String operations with loops -> data manipulation
-        if instr.categories.string_ops > 3 {
-            capabilities.push(Finding {
-                kind: FindingKind::Capability,
-                trait_refs: vec![],
-                id: "data/encoding/string-ops".to_string(),
-                desc: "String operations for data manipulation".to_string(),
-                conf: 0.6,
-                crit: Criticality::Inert,
-                mbc: None,
-                attack: None,
-                evidence: vec![Evidence {
-                    method: "trait".to_string(),
-                    source: "radare2".to_string(),
-                    value: format!("string_ops={}", instr.categories.string_ops),
-                    location: Some(func_name.to_string()),
-                }],
-            });
-        }
-
-        // System calls
-        if instr.categories.system > 0 {
-            capabilities.push(Finding {
-                kind: FindingKind::Capability,
-                trait_refs: vec![],
-                id: "os/syscall".to_string(),
-                desc: "Direct system call usage".to_string(),
-                conf: 0.8,
-                crit: Criticality::Inert,
-                mbc: None,
-                attack: None,
-                evidence: vec![Evidence {
-                    method: "trait".to_string(),
-                    source: "radare2".to_string(),
-                    value: format!("syscalls={}", instr.categories.system),
-                    location: Some(func_name.to_string()),
-                }],
-            });
-        }
-
-        // Privileged instructions -> rootkit behavior
-        if instr.categories.privileged > 0 {
-            capabilities.push(Finding {
-                kind: FindingKind::Capability,
-                trait_refs: vec![],
-                id: "privilege/escalate".to_string(),
-                desc: "Privileged instructions detected".to_string(),
-                conf: 0.7,
-                crit: Criticality::Inert,
-                mbc: None,
-                attack: None,
-                evidence: vec![Evidence {
-                    method: "trait".to_string(),
-                    source: "radare2".to_string(),
-                    value: format!("privileged={}", instr.categories.privileged),
-                    location: Some(func_name.to_string()),
-                }],
-            });
-        }
-
-        capabilities
     }
 
-/// Analyze embedded constants for C2 indicators
-fn analyze_constants(
-    constants: &[crate::types::EmbeddedConstant],
-    func_name: &str,
-) -> Vec<Finding> {
-        let mut capabilities = Vec::new();
-
-        for constant in constants {
-            for decoded in &constant.decoded {
-                match decoded.value_type.as_str() {
-                    "ip_address" | "ip_port" => {
-                        capabilities.push(Finding {
-                            kind: FindingKind::Capability,
-                            trait_refs: vec![],
-                            id: "net/c2/address".to_string(),
-                            desc: format!("Embedded C2 address: {}", decoded.decoded_value),
-                            conf: decoded.conf,
-                            crit: Criticality::Inert,
-                            mbc: None,
-                            attack: None,
-                            evidence: vec![Evidence {
-                                method: "constant_decode".to_string(),
-                                source: "radare2".to_string(),
-                                value: decoded.decoded_value.clone(),
-                                location: Some(func_name.to_string()),
-                            }],
-                        });
-                    }
-                    "port" => {
-                        capabilities.push(Finding {
-                            kind: FindingKind::Capability,
-                            trait_refs: vec![],
-                            id: "net/socket/listen".to_string(),
-                            desc: format!("Embedded port number: {}", decoded.decoded_value),
-                            conf: decoded.conf * 0.7, // Lower confidence for ports alone
-                            crit: Criticality::Notable,
-                            mbc: None,
-                            attack: None,
-                            evidence: vec![Evidence {
-                                method: "constant_decode".to_string(),
-                                source: "radare2".to_string(),
-                                value: decoded.decoded_value.clone(),
-                                location: Some(func_name.to_string()),
-                            }],
-                        });
-                    }
-                    _ => {}
-                }
-            }
-        }
-
-        capabilities
-    }
+    capabilities
+}
 
 /// Analyze binary-wide properties for capabilities
 pub fn analyze_binary_properties(props: &BinaryProperties) -> Vec<Finding> {
-        let mut capabilities = Vec::new();
+    let mut capabilities = Vec::new();
 
-        // No security features -> suspicious
-        if !props.security.canary && !props.security.nx && !props.security.pic {
-            capabilities.push(Finding {
-                kind: FindingKind::Capability,
-                trait_refs: vec![],
-                id: "binary/security/none".to_string(),
-                desc: "No security hardening features present".to_string(),
-                conf: 1.0,
-                crit: Criticality::Inert,
-                mbc: None,
-                attack: None,
-                evidence: vec![Evidence {
-                    method: "trait".to_string(),
-                    source: "radare2".to_string(),
-                    value: "no_canary,no_nx,no_pic".to_string(),
-                    location: None,
-                }],
-            });
-        }
+    // No security features -> suspicious
+    if !props.security.canary && !props.security.nx && !props.security.pic {
+        capabilities.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
+            id: "binary/security/none".to_string(),
+            desc: "No security hardening features present".to_string(),
+            conf: 1.0,
+            crit: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            evidence: vec![Evidence {
+                method: "trait".to_string(),
+                source: "radare2".to_string(),
+                value: "no_canary,no_nx,no_pic".to_string(),
+                location: None,
+            }],
+        });
+    }
 
-        // Stripped binary -> anti-analysis
-        if props.security.stripped {
-            capabilities.push(Finding {
-                kind: FindingKind::Capability,
-                trait_refs: vec![],
-                id: "anti-analysis/stripped".to_string(),
-                desc: "Binary symbols stripped".to_string(),
-                conf: 1.0,
-                crit: Criticality::Inert,
-                mbc: None,
-                attack: None,
-                evidence: vec![Evidence {
-                    method: "trait".to_string(),
-                    source: "radare2".to_string(),
-                    value: "stripped".to_string(),
-                    location: None,
-                }],
-            });
-        }
+    // Stripped binary -> anti-analysis
+    if props.security.stripped {
+        capabilities.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
+            id: "anti-analysis/stripped".to_string(),
+            desc: "Binary symbols stripped".to_string(),
+            conf: 1.0,
+            crit: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            evidence: vec![Evidence {
+                method: "trait".to_string(),
+                source: "radare2".to_string(),
+                value: "stripped".to_string(),
+                location: None,
+            }],
+        });
+    }
 
-        // Static linking -> evasion
-        if props.linking.is_static {
-            capabilities.push(Finding {
-                kind: FindingKind::Capability,
-                trait_refs: vec![],
-                id: "binary/linking/static".to_string(),
-                desc: "Statically linked binary".to_string(),
-                conf: 1.0,
-                crit: Criticality::Inert,
-                mbc: None,
-                attack: None,
-                evidence: vec![Evidence {
-                    method: "trait".to_string(),
-                    source: "radare2".to_string(),
-                    value: "static".to_string(),
-                    location: None,
-                }],
-            });
-        }
+    // Static linking -> evasion
+    if props.linking.is_static {
+        capabilities.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
+            id: "binary/linking/static".to_string(),
+            desc: "Statically linked binary".to_string(),
+            conf: 1.0,
+            crit: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            evidence: vec![Evidence {
+                method: "trait".to_string(),
+                source: "radare2".to_string(),
+                value: "static".to_string(),
+                location: None,
+            }],
+        });
+    }
 
-        // Anomalies
-        for anomaly in &props.anomalies {
-            let capability_id = match anomaly.anomaly_type.as_str() {
-                "no_section_header" => "anti-analysis/format/no-sections",
-                "overlapping_functions" => "anti-analysis/format/overlapping",
-                "unusual_entry_point" => "anti-analysis/format/entry-point",
-                _ => "binary/anomaly",
-            };
+    // Anomalies
+    for anomaly in &props.anomalies {
+        let capability_id = match anomaly.anomaly_type.as_str() {
+            "no_section_header" => "anti-analysis/format/no-sections",
+            "overlapping_functions" => "anti-analysis/format/overlapping",
+            "unusual_entry_point" => "anti-analysis/format/entry-point",
+            _ => "binary/anomaly",
+        };
 
-            capabilities.push(Finding {
-                kind: FindingKind::Capability,
-                trait_refs: vec![],
-                id: capability_id.to_string(),
-                desc: anomaly.desc.clone(),
-                conf: 0.8,
-                crit: Criticality::Inert,
-                mbc: None,
-                attack: None,
-                evidence: vec![Evidence {
-                    method: "trait".to_string(),
-                    source: "radare2".to_string(),
-                    value: anomaly.anomaly_type.clone(),
-                    location: None,
-                }],
-            });
-        }
+        capabilities.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
+            id: capability_id.to_string(),
+            desc: anomaly.desc.clone(),
+            conf: 0.8,
+            crit: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            evidence: vec![Evidence {
+                method: "trait".to_string(),
+                source: "radare2".to_string(),
+                value: anomaly.anomaly_type.clone(),
+                location: None,
+            }],
+        });
+    }
 
-        capabilities
+    capabilities
 }
 
 #[cfg(test)]

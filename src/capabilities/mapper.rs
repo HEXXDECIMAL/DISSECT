@@ -994,17 +994,19 @@ impl CapabilityMapper {
             .filter_map(|&idx| {
                 let trait_def = &self.trait_definitions[idx];
 
-                // Check if this is an exact string trait (no excludes, min_count=1)
+                // Check if this is an exact string trait (no excludes, min_count=1, no downgrade)
                 // Works for both case-sensitive and case-insensitive
-                let is_simple_exact_string = matches!(
-                    &trait_def.r#if,
-                    Condition::String {
-                        exact: Some(_),
-                        exclude_patterns: None,
-                        min_count: 1,
-                        ..
-                    }
-                );
+                // NOTE: Cannot use fast path for traits with downgrade rules - they need full evaluation
+                let is_simple_exact_string = trait_def.downgrade.is_none()
+                    && matches!(
+                        &trait_def.r#if,
+                        Condition::String {
+                            exact: Some(_),
+                            exclude_patterns: None,
+                            min_count: 1,
+                            ..
+                        }
+                    );
 
                 if is_simple_exact_string {
                     // Use cached evidence directly - skip full evaluation
@@ -1191,7 +1193,82 @@ impl CapabilityMapper {
             all_findings.push(finding);
         }
 
+        // Pass 3: Re-evaluate downgrades for all findings now that the full context is available.
+        // This handles cases where a finding's downgrade depends on another composite that
+        // wasn't available when it was first evaluated.
+        self.reeval_downgrades(
+            &mut all_findings,
+            report,
+            binary_data,
+            cached_ast,
+            file_type,
+            &platform,
+        );
+
         all_findings
+    }
+
+    /// Re-evaluate downgrade conditions for all findings using the complete finding set.
+    /// This handles ordering issues where a composite's downgrade depends on another composite.
+    fn reeval_downgrades(
+        &self,
+        findings: &mut [Finding],
+        report: &AnalysisReport,
+        binary_data: &[u8],
+        cached_ast: Option<&tree_sitter::Tree>,
+        file_type: RuleFileType,
+        platform: &Platform,
+    ) {
+        use rustc_hash::FxHashMap;
+
+        // Build a map of rule ID to rule for quick lookup
+        let composite_map: FxHashMap<&str, &CompositeTrait> = self
+            .composite_rules
+            .iter()
+            .map(|r| (r.id.as_str(), r))
+            .collect();
+
+        // First pass: collect new criticalities (can't mutate while borrowing for context)
+        let updates: Vec<(usize, Criticality)> = {
+            // Create final context with all findings (immutable borrow)
+            let ctx = EvaluationContext::new(
+                report,
+                binary_data,
+                file_type,
+                platform.clone(),
+                Some(findings),
+                cached_ast,
+            );
+
+            findings
+                .iter()
+                .enumerate()
+                .filter_map(|(i, finding)| {
+                    if let Some(rule) = composite_map.get(finding.id.as_str()) {
+                        if let Some(downgrade_rules) = &rule.downgrade {
+                            let new_crit =
+                                rule.evaluate_downgrade(downgrade_rules, &rule.crit, &ctx);
+                            if new_crit != finding.crit {
+                                return Some((i, new_crit));
+                            }
+                        }
+                    }
+                    None
+                })
+                .collect()
+        };
+
+        // Second pass: apply updates
+        let debug_downgrade = std::env::var("DEBUG_DOWNGRADE").is_ok();
+        for (idx, new_crit) in updates {
+            if debug_downgrade {
+                eprintln!(
+                    "DEBUG: Re-eval downgrade for '{}': {:?} -> {:?}",
+                    findings[idx].id, findings[idx].crit, new_crit
+                );
+            }
+            findings[idx].crit = new_crit;
+        }
     }
 
     /// Evaluate all rules (atomic traits + composite rules) and merge findings into the report.

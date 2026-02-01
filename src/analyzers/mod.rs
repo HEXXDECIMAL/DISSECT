@@ -297,11 +297,46 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
             return Ok(FileType::VsixManifest);
         }
         // Debian/Ubuntu package maintainer scripts (often lack shebang)
+        // But only if they don't have a recognized source code extension
         let name = file_name.to_string_lossy().to_lowercase();
-        if name.contains("postinst")
-            || name.contains("preinst")
-            || name.contains("postrm")
-            || name.contains("prerm")
+        let has_code_extension = file_path.extension().is_some_and(|ext| {
+            matches!(
+                ext.to_str(),
+                Some(
+                    "js" | "mjs"
+                        | "cjs"
+                        | "ts"
+                        | "tsx"
+                        | "py"
+                        | "rb"
+                        | "go"
+                        | "rs"
+                        | "java"
+                        | "php"
+                        | "pl"
+                        | "pm"
+                        | "lua"
+                        | "cs"
+                        | "swift"
+                        | "m"
+                        | "mm"
+                        | "groovy"
+                        | "gradle"
+                        | "scala"
+                        | "sc"
+                        | "zig"
+                        | "ex"
+                        | "exs"
+                        | "c"
+                        | "h"
+                )
+            )
+        });
+        if !has_code_extension
+            && (name.contains("postinst")
+                || name.contains("preinst")
+                || name.contains("postrm")
+                || name.contains("prerm"))
         {
             return Ok(FileType::Shell);
         }
@@ -309,7 +344,47 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
 
     // Heuristic shell detection for files without shebang
     // Look for common shell patterns in first few lines
-    if looks_like_shell(&file_data) {
+    // Skip if file has a known code extension (will be handled later)
+    let has_known_extension = file_path.extension().is_some_and(|ext| {
+        matches!(
+            ext.to_str(),
+            Some(
+                "js" | "mjs"
+                    | "cjs"
+                    | "ts"
+                    | "tsx"
+                    | "py"
+                    | "rb"
+                    | "go"
+                    | "rs"
+                    | "java"
+                    | "php"
+                    | "pl"
+                    | "pm"
+                    | "lua"
+                    | "cs"
+                    | "swift"
+                    | "m"
+                    | "mm"
+                    | "groovy"
+                    | "gradle"
+                    | "scala"
+                    | "sc"
+                    | "zig"
+                    | "ex"
+                    | "exs"
+                    | "c"
+                    | "h"
+                    | "sh"
+                    | "bat"
+                    | "cmd"
+                    | "ps1"
+                    | "psm1"
+                    | "psd1"
+            )
+        )
+    });
+    if !has_known_extension && looks_like_shell(&file_data) {
         return Ok(FileType::Shell);
     }
 
