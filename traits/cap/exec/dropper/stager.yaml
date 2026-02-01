@@ -24,7 +24,7 @@ composite_rules:
     desc: Suspicious binary structure
     crit: notable
     all:
-      - id: meta/binary/tiny/dominant-text-section
+      - id: meta/format/dominant-text-section
     any:
       - id: obj/anti-static/hardening/detection/minimal
 
@@ -32,7 +32,7 @@ composite_rules:
     desc: "Tiny network stager"
     crit: hostile
     all:
-      - id: meta/binary/tiny/tiny-elf
+      - id: meta/format/tiny-elf
       - id: arm-network-syscalls
       - id: structural-anomalies
 

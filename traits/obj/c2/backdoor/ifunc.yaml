@@ -15,7 +15,7 @@ composite_rules:
     crit: suspicious
     conf: 0.7
     all:
-      - id: meta/binary/elf/ifunc
+      - id: meta/format/elf/ifunc
     none:
       - id: cap/exec/load/system-lib-marker  # Exclude glibc/libm
       - id: cap/exec/go-runtime-marker
@@ -26,7 +26,7 @@ composite_rules:
     crit: suspicious
     conf: 0.8
     all:
-      - id: meta/binary/elf/ifunc
+      - id: meta/format/elf/ifunc
     any:
       - id: cap/os/pam/pam-authenticate-symbol
       - id: cap/crypto/asymmetric/rsa-public-decrypt
@@ -37,7 +37,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     all:
-      - id: meta/binary/elf/ifunc
+      - id: meta/format/elf/ifunc
       - id: cap/os/env/vars/env-access
     none:
       - id: cap/exec/load/system-lib-marker
@@ -47,7 +47,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     all:
-      - id: meta/binary/elf/ifunc
+      - id: meta/format/elf/ifunc
       - id: cap/process/info/getpid
     none:
       - id: cap/exec/load/system-lib-marker

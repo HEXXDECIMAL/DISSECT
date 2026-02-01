@@ -53,7 +53,7 @@ traits:
     conf: 1.0
     if:
       type: trait
-      id: meta/binary/elf/ifunc
+      id: meta/format/elf/ifunc
 
 composite_rules:
   - id: resolver-markers
@@ -63,7 +63,7 @@ composite_rules:
     count_min: 1
     any:
       - id: resolver-suffix
-      - id: meta/binary/elf/sections/gnu-hash
+      - id: meta/format/elf/sections/gnu-hash
       - id: libc-start-ref
 
   - id: ifunc-markers

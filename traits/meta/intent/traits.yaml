@@ -1,0 +1,40 @@
+# Intent Markers
+# Detects suspicious naming patterns that may indicate malicious intent
+# These are weak signals used in composite rules for additional context
+
+defaults:
+  crit: inert
+  conf: 0.5
+  for: [c, elf, macho, pe, shell, python, javascript, go, rust]
+
+traits:
+  # === Backdoor intent markers ===
+  - id: backdoor
+    desc: Backdoor naming pattern
+    if:
+      type: string
+      regex: "\\b(back_?door|bkdr|bd_handler|rootkit_)\\w*\\b"
+      case_insensitive: true
+
+  # === Magic value markers ===
+  - id: magic
+    desc: Magic value naming pattern
+    if:
+      type: string
+      regex: "\\b(magic_?(key|value|number|bytes|header)|MAGIC_)\\w*\\b"
+
+  # === Trigger markers ===
+  - id: trigger
+    desc: Trigger naming pattern
+    if:
+      type: string
+      regex: "\\b(trigger_?(func|handler|condition|event)|on_trigger)\\b"
+      case_insensitive: true
+
+  # === Secret markers ===
+  - id: secret
+    desc: Secret naming pattern
+    if:
+      type: string
+      regex: "\\b(secret_?(key|data|payload|cmd)|hidden_cmd|covert_)\\w*\\b"
+      case_insensitive: true

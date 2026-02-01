@@ -44,7 +44,7 @@ composite_rules:
     attack: "T1070.004"
     for: [php]
     all:
-      - id: obj/self-destruct
+      - id: obj/anti-forensics/self-destruct/script/script-self-delete
       - id: cap/data/user-input
 
   # SSRF/Proxy webshell
@@ -62,22 +62,8 @@ composite_rules:
       - id: cap/data/user-input
       - id: cap/comm/http/curl/ssl-verify-disable
       - id: cap/comm/http/curl/ssl-host-disable
-      - id: obj/impersonate/ua-array
 
     count_min: 1
-  # Bot impersonation webshell
-  - id: php-bot-impersonate
-    desc: "PHP webshell with search engine"
-    crit: suspicious
-    conf: 0.9
-    mbc: "B0032"
-    attack: "T1036"
-    for: [php]
-    all:
-      - id: cap/comm/http/curl/init
-    any:
-      - id: obj/impersonate
-      - id: obj/impersonate/ua-array
 
   # Timestamp manipulation (anti-forensic)
   - id: php-timestomp
@@ -88,7 +74,7 @@ composite_rules:
     attack: "T1070.006"
     for: [php]
     all:
-      - id: obj/timestomp
+      - id: obj/anti-forensics/timestomp/modify/timestomp
       - id: cap/fs/write
 
   # Hardcoded authentication backdoor

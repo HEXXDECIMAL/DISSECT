@@ -84,7 +84,7 @@ composite_rules:
     attack: "T1082"
     for: [elf, macho, pe]
     all:
-      - id: meta/encoding/base64/custom-implementation
+      - id: cap/data/encode/base64/custom-implementation
     count_min: 1
     any:
       - id: obj/discovery/fingerprint/hardware-uuid-macos
@@ -100,7 +100,7 @@ composite_rules:
     mbc: "B0032"
     for: [elf, macho, pe]
     all:
-      - id: meta/encoding/base64/custom-implementation
+      - id: cap/data/encode/base64/custom-implementation
       - id: obj/anti-static/obfuscation/string-decrypt
     count_min: 1
     any:

@@ -40,7 +40,7 @@ composite_rules:
     for: [python]
     count_min: 3
     all:
-      - id: obj/aliasing
+      - id: obj/anti-analysis/aliasing/python-std-alias
       - id: obj/discovery/system
       - id: cap/comm/http/request
 

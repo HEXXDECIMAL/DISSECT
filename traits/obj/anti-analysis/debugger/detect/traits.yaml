@@ -117,7 +117,7 @@ composite_rules:
     platforms: [linux]
     count_min: 1
     any:
-      - id: obj/syscall/ptrace
+      - id: cap/os/syscall/ptrace
       - id: cap/fs/proc/process/process-self-status
       - id: cap/fs/proc/process/process-self-maps
       - id: tracerpid-string

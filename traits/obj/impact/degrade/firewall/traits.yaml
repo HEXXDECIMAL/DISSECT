@@ -129,5 +129,5 @@ composite_rules:
       - id: disabled
       - id: cap/fs/attributes/chattr/chattr-command
     any:
-      - id: obj/rootkit/userspace/ld-so-preload-clear
-      - id: obj/rootkit/userspace/ld-so-preload-chattr
+      - id: obj/anti-analysis/kernel-hide/userspace/ld-so-preload-clear
+      - id: obj/anti-analysis/kernel-hide/userspace/ld-so-preload-chattr
