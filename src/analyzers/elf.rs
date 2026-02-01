@@ -59,7 +59,11 @@ impl ElfAnalyzer {
         let t_sha = std::time::Instant::now();
         let sha256 = crate::analyzers::utils::calculate_sha256(data);
         if timing {
-            eprintln!("[TIMING] ELF SHA256 ({} MB): {:?}", data.len() / 1024 / 1024, t_sha.elapsed());
+            eprintln!(
+                "[TIMING] ELF SHA256 ({} MB): {:?}",
+                data.len() / 1024 / 1024,
+                t_sha.elapsed()
+            );
         }
 
         // Create target info with default/empty values for fields that require parsing
@@ -167,9 +171,7 @@ impl ElfAnalyzer {
         if file_size > MAX_SIZE_FOR_FULL_STNG {
             // Large binary: use lightweight extraction (r2 strings + basic extraction)
             // Skip expensive language-aware extraction which is slow for large Go/Rust binaries
-            report.strings = self
-                .string_extractor
-                .extract_lightweight(data, r2_strings);
+            report.strings = self.string_extractor.extract_lightweight(data, r2_strings);
         } else if let Some(ref elf) = parsed_elf {
             report.strings = self
                 .string_extractor
@@ -180,7 +182,11 @@ impl ElfAnalyzer {
                 .extract_smart_with_r2(data, r2_strings);
         }
         if timing {
-            eprintln!("[TIMING] ELF stng extraction ({} strings): {:?}", report.strings.len(), t_stng.elapsed());
+            eprintln!(
+                "[TIMING] ELF stng extraction ({} strings): {:?}",
+                report.strings.len(),
+                t_stng.elapsed()
+            );
         }
         tools_used.push("stng".to_string());
 

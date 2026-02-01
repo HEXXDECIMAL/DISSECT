@@ -40,27 +40,33 @@ fn test_analyze_bin_ls_json_output() {
     );
 
     let report = &reports[0];
-    let findings = report["findings"]
-        .as_array()
-        .expect("Report should have findings array");
 
-    // Verify all findings are only inert or notable (no hostile/suspicious)
+    // V2 format: findings are inside files array
+    let files = report["files"]
+        .as_array()
+        .expect("Report should have files array");
+
+    // Collect all findings from all files
     let mut hostile_count = 0;
     let mut suspicious_count = 0;
     let mut notable_count = 0;
     let mut inert_count = 0;
 
-    for finding in findings {
-        let crit = finding["crit"]
-            .as_str()
-            .expect("Finding should have criticality");
+    for file in files {
+        if let Some(findings) = file["findings"].as_array() {
+            for finding in findings {
+                let crit = finding["crit"]
+                    .as_str()
+                    .expect("Finding should have criticality");
 
-        match crit {
-            "hostile" => hostile_count += 1,
-            "suspicious" => suspicious_count += 1,
-            "notable" => notable_count += 1,
-            "inert" => inert_count += 1,
-            _ => panic!("Unknown criticality: {}", crit),
+                match crit {
+                    "hostile" => hostile_count += 1,
+                    "suspicious" => suspicious_count += 1,
+                    "notable" => notable_count += 1,
+                    "inert" => inert_count += 1,
+                    _ => panic!("Unknown criticality: {}", crit),
+                }
+            }
         }
     }
 

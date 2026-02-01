@@ -180,7 +180,7 @@ impl ArchiveAnalyzer {
         let collected_yara = Arc::new(Mutex::new(Vec::<YaraMatch>::new()));
         let collected_strings = Arc::new(Mutex::new(Vec::<StringInfo>::new()));
         let collected_archive_entries = Arc::new(Mutex::new(Vec::<ArchiveEntry>::new()));
-        let collected_sub_reports = Arc::new(Mutex::new(Vec::<Box<AnalysisReport>>::new()));
+        let collected_files = Arc::new(Mutex::new(Vec::<FileAnalysis>::new()));
 
         classes_to_analyze.par_iter().for_each(|entry| {
             let relative_path = entry
@@ -217,7 +217,7 @@ impl ArchiveAnalyzer {
                 let mut all_yara = collected_yara.lock().unwrap();
                 let mut all_strings = collected_strings.lock().unwrap();
                 let mut all_archive_entries = collected_archive_entries.lock().unwrap();
-                let mut all_sub_reports = collected_sub_reports.lock().unwrap();
+                let mut all_files = collected_files.lock().unwrap();
 
                 // Aggregate findings
                 for f in &file_report.findings {
@@ -267,18 +267,21 @@ impl ArchiveAnalyzer {
                     all_archive_entries.push(nested_entry.clone());
                 }
 
-                // Store full report for per-file ML classification
-                // Update the target path to show it's from within the archive
-                // Use std::mem::take to extract sub_reports before moving file_report
-                let nested_sub_reports = std::mem::take(&mut file_report.sub_reports);
-                let mut sub_report = file_report;
+                // Convert to FileAnalysis for v2 flat files array
+                let mut file_entry = file_report.to_file_analysis(0, true);
+                file_entry.path = entry_path.clone();
+                file_entry.depth = 1; // Direct child of archive
+                file_entry.compute_summary();
+                all_files.push(file_entry);
 
-                // Merge sub_reports from nested archives
-                for nested_sub in nested_sub_reports {
-                    all_sub_reports.push(nested_sub);
+                // Handle nested archives - add their files with updated paths
+                for mut nested_file in std::mem::take(&mut file_report.files) {
+                    if !nested_file.path.contains("!!") {
+                        nested_file.path = encode_archive_path(&entry_path, &nested_file.path);
+                    }
+                    nested_file.depth += 1;
+                    all_files.push(nested_file);
                 }
-                sub_report.target.path = entry_path.clone();
-                all_sub_reports.push(Box::new(sub_report));
             }
         });
 
@@ -344,7 +347,7 @@ impl ArchiveAnalyzer {
                 let mut all_yara = collected_yara.lock().unwrap();
                 let mut all_strings = collected_strings.lock().unwrap();
                 let mut all_archive_entries = collected_archive_entries.lock().unwrap();
-                let mut all_sub_reports = collected_sub_reports.lock().unwrap();
+                let mut all_files = collected_files.lock().unwrap();
 
                 // Aggregate findings
                 for f in &file_report.findings {
@@ -391,17 +394,21 @@ impl ArchiveAnalyzer {
                     all_archive_entries.push(nested_entry.clone());
                 }
 
-                // Store full report for per-file ML classification
-                let nested_sub_reports = std::mem::take(&mut file_report.sub_reports);
-                let mut sub_report = file_report;
-                sub_report.target.path = entry_path.clone();
+                // Convert to FileAnalysis for v2 flat files array
+                let mut file_entry = file_report.to_file_analysis(0, true);
+                file_entry.path = entry_path.clone();
+                file_entry.depth = 1;
+                file_entry.compute_summary();
+                all_files.push(file_entry);
 
-                // Merge sub_reports from nested archives
-                for nested_sub in nested_sub_reports {
-                    all_sub_reports.push(nested_sub);
+                // Handle nested archives
+                for mut nested_file in std::mem::take(&mut file_report.files) {
+                    if !nested_file.path.contains("!!") {
+                        nested_file.path = encode_archive_path(&entry_path, &nested_file.path);
+                    }
+                    nested_file.depth += 1;
+                    all_files.push(nested_file);
                 }
-
-                all_sub_reports.push(Box::new(sub_report));
             }
         });
 
@@ -446,8 +453,8 @@ impl ArchiveAnalyzer {
                 .into_inner()
                 .unwrap(),
         );
-        report.sub_reports.extend(
-            Arc::try_unwrap(collected_sub_reports)
+        report.files.extend(
+            Arc::try_unwrap(collected_files)
                 .expect("done")
                 .into_inner()
                 .unwrap(),
@@ -536,7 +543,7 @@ impl ArchiveAnalyzer {
         let collected_yara = Arc::new(Mutex::new(Vec::<YaraMatch>::new()));
         let collected_strings = Arc::new(Mutex::new(Vec::<StringInfo>::new()));
         let collected_archive_entries = Arc::new(Mutex::new(Vec::<ArchiveEntry>::new()));
-        let collected_sub_reports = Arc::new(Mutex::new(Vec::<Box<AnalysisReport>>::new()));
+        let collected_files = Arc::new(Mutex::new(Vec::<FileAnalysis>::new()));
         let last_progress = Arc::new(Mutex::new(std::time::Instant::now()));
 
         // Analyze files in parallel
@@ -600,7 +607,7 @@ impl ArchiveAnalyzer {
                 let mut all_yara = collected_yara.lock().unwrap();
                 let mut all_strings = collected_strings.lock().unwrap();
                 let mut all_archive_entries = collected_archive_entries.lock().unwrap();
-                let mut all_sub_reports = collected_sub_reports.lock().unwrap();
+                let mut all_files = collected_files.lock().unwrap();
 
                 // Aggregate findings
                 for f in &file_report.findings {
@@ -647,17 +654,22 @@ impl ArchiveAnalyzer {
                     all_archive_entries.push(nested_entry.clone());
                 }
 
-                // Store full report for per-file ML classification
-                let nested_sub_reports = std::mem::take(&mut file_report.sub_reports);
-                let mut sub_report = file_report;
-                sub_report.target.path = entry_path.clone();
+                // Convert to FileAnalysis for v2 flat files array
+                let mut file_entry = file_report.to_file_analysis(0, true);
+                file_entry.path = entry_path.clone();
+                file_entry.depth = 1; // Direct child of archive
+                file_entry.compute_summary();
+                all_files.push(file_entry);
 
-                // Merge sub_reports from nested archives
-                for nested_sub in nested_sub_reports {
-                    all_sub_reports.push(nested_sub);
+                // Handle nested archives - add their files with updated paths
+                for mut nested_file in std::mem::take(&mut file_report.files) {
+                    // Update path to include our archive prefix
+                    if !nested_file.path.contains("!!") {
+                        nested_file.path = encode_archive_path(&entry_path, &nested_file.path);
+                    }
+                    nested_file.depth += 1; // Increment depth for nesting
+                    all_files.push(nested_file);
                 }
-
-                all_sub_reports.push(Box::new(sub_report));
             }
         });
 
@@ -702,8 +714,8 @@ impl ArchiveAnalyzer {
                 .into_inner()
                 .unwrap(),
         );
-        report.sub_reports.extend(
-            Arc::try_unwrap(collected_sub_reports)
+        report.files.extend(
+            Arc::try_unwrap(collected_files)
                 .expect("done")
                 .into_inner()
                 .unwrap(),

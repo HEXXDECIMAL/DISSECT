@@ -1027,13 +1027,8 @@ impl CapabilityMapper {
                 }
 
                 // Check if this trait has an exact string pattern that wasn't matched
-                let has_exact_string = matches!(
-                    trait_def.r#if,
-                    Condition::String {
-                        exact: Some(_),
-                        ..
-                    }
-                );
+                let has_exact_string =
+                    matches!(trait_def.r#if, Condition::String { exact: Some(_), .. });
 
                 // If trait has an exact string pattern and it wasn't matched, skip it
                 if has_exact_string && !string_matched_traits.contains(&idx) {
@@ -1042,9 +1037,7 @@ impl CapabilityMapper {
                 }
 
                 // If trait has a regex string pattern and its literal wasn't found, skip it
-                if self.string_match_index.is_regex_trait(idx)
-                    && !regex_candidates.contains(&idx)
-                {
+                if self.string_match_index.is_regex_trait(idx) && !regex_candidates.contains(&idx) {
                     skip_count.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
                     return None;
                 }

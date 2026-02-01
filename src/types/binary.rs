@@ -90,7 +90,7 @@ pub enum StringType {
     Docstring,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Section {
     pub name: String,
     pub size: u64,

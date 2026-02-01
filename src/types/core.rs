@@ -8,6 +8,7 @@ use super::binary::{
     AnalysisMetadata, DecodedString, Export, Function, Import, Section, StringInfo, YaraMatch,
 };
 use super::code_structure::{BinaryProperties, CodeMetrics, OverlayMetrics, SourceCodeMetrics};
+use super::file_analysis::{FileAnalysis, ReportSummary};
 use super::paths_env::{DirectoryAccess, EnvVarInfo, PathInfo};
 use super::scores::Metrics;
 use super::traits_findings::{Finding, StructuralFeature, Trait};
@@ -90,12 +91,23 @@ pub struct AnalysisReport {
     /// Paths match those used in Evidence.location fields (without "archive:" prefix)
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub archive_contents: Vec<ArchiveEntry>,
-    /// Full analysis reports for files within archives (for per-file ML classification)
-    /// Each report has its own file_type, findings, metrics, etc.
-    /// Box is required to break the recursive type (AnalysisReport contains sub_reports)
+
+    // ========================================================================
+    // V2 Schema fields (flat file-centric structure)
+    // ========================================================================
+    /// Path that was scanned (for directory scans)
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub scanned_path: Option<String>,
+
+    /// Flat array of all analyzed files (v2 schema)
+    /// Includes root file, archive members, and decoded payloads
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
-    #[allow(clippy::vec_box)]
-    pub sub_reports: Vec<Box<AnalysisReport>>,
+    pub files: Vec<FileAnalysis>,
+
+    /// Report-level summary (v2 schema)
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub summary: Option<ReportSummary>,
+
     pub metadata: AnalysisMetadata,
 }
 
@@ -106,7 +118,7 @@ impl AnalysisReport {
 
     pub fn new_with_timestamp(target: TargetInfo, timestamp: chrono::DateTime<Utc>) -> Self {
         Self {
-            schema_version: "1.1".to_string(),
+            schema_version: "2.0".to_string(),
             analysis_timestamp: timestamp,
             target,
             traits: Vec::new(),
@@ -129,7 +141,9 @@ impl AnalysisReport {
             directories: Vec::new(),
             env_vars: Vec::new(),
             archive_contents: Vec::new(),
-            sub_reports: Vec::new(),
+            scanned_path: None,
+            files: Vec::new(),
+            summary: None,
             metadata: AnalysisMetadata::default(),
         }
     }
@@ -158,6 +172,110 @@ impl AnalysisReport {
     /// Returns None if there are no findings
     pub fn highest_criticality(&self) -> Option<Criticality> {
         self.findings.iter().map(|f| f.crit).max()
+    }
+
+    /// Convert to v2 flat files array format
+    ///
+    /// This ensures the files array is properly populated for JSON output.
+    /// Adds the root file entry at position 0 and renumbers child file IDs.
+    pub fn convert_to_v2(&mut self, verbose: bool) {
+        // Create the root file entry
+        let mut root_file = self.to_file_analysis(0, verbose);
+        root_file.path = self.target.path.clone();
+        root_file.depth = 0;
+        root_file.parent_id = None;
+        root_file.compute_summary();
+
+        if self.files.is_empty() {
+            // Simple case: just the root file
+            self.files.push(root_file);
+        } else {
+            // Files were pre-populated by archive/payload analyzers
+            // Renumber IDs and insert root file at position 0
+            let root_path = self.target.path.clone();
+            for (idx, file) in self.files.iter_mut().enumerate() {
+                file.id = (idx + 1) as u32; // Shift IDs to make room for root
+                if file.depth == 1 && file.parent_id.is_none() {
+                    file.parent_id = Some(0); // Point to root
+                }
+                // Ensure paths have proper archive prefix (!! for archives, ## for decoded)
+                if !file.path.contains("!!") && !file.path.contains("##") && !file.path.starts_with(&root_path) {
+                    file.path = super::file_analysis::encode_archive_path(&root_path, &file.path);
+                }
+            }
+            self.files.insert(0, root_file);
+        }
+
+        // Compute report summary
+        self.summary = Some(ReportSummary::from_files(&self.files));
+
+        // Clear verbose fields if not in verbose mode
+        if !verbose {
+            for file in &mut self.files {
+                file.minimize();
+            }
+        }
+    }
+
+    /// Create a FileAnalysis from this report's data
+    ///
+    /// This is used internally by convert_to_v2() and by archive analyzers
+    /// to convert per-file reports into the flat files array structure.
+    pub fn to_file_analysis(&self, id: u32, verbose: bool) -> FileAnalysis {
+        let mut file = FileAnalysis::new(
+            id,
+            self.target.path.clone(),
+            self.target.file_type.clone(),
+            self.target.sha256.clone(),
+            self.target.size_bytes,
+        );
+
+        file.findings = self.findings.clone();
+
+        if verbose {
+            file.traits = self.traits.clone();
+            file.structure = self.structure.clone();
+            file.functions = self.functions.clone();
+            file.strings = self.strings.clone();
+            file.sections = self.sections.clone();
+            file.imports = self.imports.clone();
+            file.exports = self.exports.clone();
+            file.yara_matches = self.yara_matches.clone();
+            file.syscalls = self.syscalls.clone();
+            file.decoded_strings = self.decoded_strings.clone();
+            file.binary_properties = self.binary_properties.clone();
+            file.source_code_metrics = self.source_code_metrics.clone();
+            file.metrics = self.metrics.clone();
+            file.paths = self.paths.clone();
+            file.directories = self.directories.clone();
+            file.env_vars = self.env_vars.clone();
+        }
+
+        file
+    }
+
+    /// Minimize the report for non-verbose output
+    /// Keeps only findings and summary data
+    pub fn minimize(&mut self) {
+        self.traits.clear();
+        self.structure.clear();
+        self.functions.clear();
+        self.strings.clear();
+        self.sections.clear();
+        self.imports.clear();
+        self.exports.clear();
+        self.yara_matches.clear();
+        self.syscalls.clear();
+        self.decoded_strings.clear();
+        self.binary_properties = None;
+        self.code_metrics = None;
+        self.source_code_metrics = None;
+        self.overlay_metrics = None;
+        self.metrics = None;
+        self.paths.clear();
+        self.directories.clear();
+        self.env_vars.clear();
+        self.archive_contents.clear();
     }
 }
 

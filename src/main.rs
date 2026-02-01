@@ -65,27 +65,11 @@ use serde::Serialize;
 use std::fs;
 use std::io::{BufRead, IsTerminal};
 use std::path::Path;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use tracing::debug;
 use tracing_subscriber::EnvFilter;
 use yara_engine::YaraEngine;
-
-/// Filter analysis report fields based on verbosity
-fn filter_report(report: &mut types::AnalysisReport, verbose: bool) {
-    if !verbose {
-        report.structure.clear();
-        report.functions.clear();
-        report.strings.clear();
-        report.sections.clear();
-        report.imports.clear();
-        report.exports.clear();
-        report.yara_matches.clear();
-        report.syscalls.clear();
-        report.decoded_strings.clear();
-        // We keep metrics as they are often useful for high-level classification
-        // We keep paths, directories, env_vars, archive_contents as they are small
-    }
-}
 
 /// Read paths from stdin, one per line.
 /// Filters out empty lines and comments (lines starting with #).
@@ -499,8 +483,8 @@ fn analyze_file(
     // Check if report's criticality matches --error-if criteria
     check_criticality_error(&report, error_if_levels)?;
 
-    // Filter report based on verbosity
-    filter_report(&mut report, verbose);
+    // Convert to v2 schema (flat files array) and filter based on verbosity
+    report.convert_to_v2(verbose);
 
     // Format output based on requested format
     let t4 = std::time::Instant::now();
@@ -606,8 +590,17 @@ fn scan_paths(
     // Use Mutex to safely collect results from parallel threads
     let all_reports = Arc::new(Mutex::new(Vec::new()));
 
-    // Process regular files in parallel
-    all_files.par_iter().for_each(|path_str| {
+    // Track --error-if failures to stop processing early
+    let error_if_triggered = Arc::new(AtomicBool::new(false));
+    let error_if_message: Arc<Mutex<Option<String>>> = Arc::new(Mutex::new(None));
+
+    // Process regular files in parallel using try_for_each for early termination
+    let files_result: Result<(), ()> = all_files.par_iter().try_for_each(|path_str| {
+        // Check if another thread already triggered --error-if
+        if error_if_triggered.load(Ordering::Relaxed) {
+            return Err(());
+        }
+
         let path = Path::new(&path_str);
 
         if let Some(ref bar) = pb {
@@ -629,8 +622,8 @@ fn scan_paths(
             Ok(json) => {
                 // For terminal format, show immediate output above progress bar
                 if matches!(format, cli::OutputFormat::Terminal) {
-                    // Parse JSON and format as terminal output
-                    match serde_json::from_str::<crate::types::AnalysisReport>(&json) {
+                    // Parse JSON (v2 format) and format as terminal output
+                    match output::parse_json_v2(&json) {
                         Ok(report) => match output::format_terminal(&report) {
                             Ok(formatted) => {
                                 if let Some(ref bar) = pb {
@@ -664,6 +657,23 @@ fn scan_paths(
                 }
             }
             Err(e) => {
+                let err_str = e.to_string();
+                // Check if this is an --error-if failure - stop processing
+                if err_str.contains("--error-if") {
+                    error_if_triggered.store(true, Ordering::Relaxed);
+                    if let Some(ref bar) = pb {
+                        bar.println(format!("✗ {}: {}", path_str, e));
+                        bar.inc(1);
+                    } else {
+                        eprintln!("✗ {}: {}", path_str, e);
+                    }
+                    let mut msg = error_if_message.lock().unwrap();
+                    if msg.is_none() {
+                        *msg = Some(err_str);
+                    }
+                    return Err(()); // Short-circuit parallel iteration
+                }
+
                 if pb.is_none() {
                     eprintln!("✗ {}: {}", path_str, e);
                 } else {
@@ -678,85 +688,120 @@ fn scan_paths(
         if let Some(ref bar) = pb {
             bar.inc(1);
         }
+        Ok(())
     });
 
-    // Process archives in parallel
-    archives_found.par_iter().for_each(|path_str| {
-        let path = Path::new(&path_str);
+    // Process archives in parallel (skip if files already triggered --error-if)
+    let archives_result: Result<(), ()> = if files_result.is_ok() {
+        archives_found.par_iter().try_for_each(|path_str| {
+            // Check if another thread already triggered --error-if
+            if error_if_triggered.load(Ordering::Relaxed) {
+                return Err(());
+            }
 
-        if let Some(ref bar) = pb {
-            bar.set_message(format!(
-                "Extracting {}",
-                path.file_name().unwrap_or_default().to_string_lossy()
-            ));
-        }
+            let path = Path::new(&path_str);
 
-        match analyze_file_with_shared_mapper(
-            path_str,
-            &capability_mapper,
-            shared_yara_engine.as_ref(),
-            zip_passwords,
-            disabled,
-            error_if_levels,
-            verbose,
-        ) {
-            Ok(json) => {
-                // For terminal format, show immediate output above progress bar
-                if matches!(format, cli::OutputFormat::Terminal) {
-                    // Parse JSON and format as terminal output
-                    match serde_json::from_str::<crate::types::AnalysisReport>(&json) {
-                        Ok(report) => match output::format_terminal(&report) {
-                            Ok(formatted) => {
-                                if let Some(ref bar) = pb {
-                                    bar.println(formatted);
-                                } else {
-                                    print!("{}", formatted);
+            if let Some(ref bar) = pb {
+                bar.set_message(format!(
+                    "Extracting {}",
+                    path.file_name().unwrap_or_default().to_string_lossy()
+                ));
+            }
+
+            match analyze_file_with_shared_mapper(
+                path_str,
+                &capability_mapper,
+                shared_yara_engine.as_ref(),
+                zip_passwords,
+                disabled,
+                error_if_levels,
+                verbose,
+            ) {
+                Ok(json) => {
+                    // For terminal format, show immediate output above progress bar
+                    if matches!(format, cli::OutputFormat::Terminal) {
+                        // Parse JSON (v2 format) and format as terminal output
+                        match output::parse_json_v2(&json) {
+                            Ok(report) => match output::format_terminal(&report) {
+                                Ok(formatted) => {
+                                    if let Some(ref bar) = pb {
+                                        bar.println(formatted);
+                                    } else {
+                                        print!("{}", formatted);
+                                    }
                                 }
-                            }
+                                Err(e) => {
+                                    let msg =
+                                        format!("Error formatting report for {}: {}", path_str, e);
+                                    if let Some(ref bar) = pb {
+                                        bar.println(msg);
+                                    } else {
+                                        eprintln!("{}", msg);
+                                    }
+                                }
+                            },
                             Err(e) => {
-                                let msg =
-                                    format!("Error formatting report for {}: {}", path_str, e);
+                                eprintln!("DEBUG: JSON parse error: {}", e);
+                                eprintln!("DEBUG: JSON preview: {}", &json[..json.len().min(500)]);
+                                let msg = format!("Error parsing JSON for {}: {}", path_str, e);
                                 if let Some(ref bar) = pb {
-                                    bar.println(msg);
-                                } else {
-                                    eprintln!("{}", msg);
+                                    bar.println(msg.clone());
                                 }
+                                eprintln!("{}", msg);
                             }
-                        },
-                        Err(e) => {
-                            eprintln!("DEBUG: JSON parse error: {}", e);
-                            eprintln!("DEBUG: JSON preview: {}", &json[..json.len().min(500)]);
-                            let msg = format!("Error parsing JSON for {}: {}", path_str, e);
-                            if let Some(ref bar) = pb {
-                                bar.println(msg.clone());
-                            }
-                            eprintln!("{}", msg);
+                        }
+                    } else {
+                        // For JSON format, collect for array output at end
+                        all_reports.lock().unwrap().push(json);
+                    }
+                }
+                Err(e) => {
+                    let err_str = e.to_string();
+                    // Check if this is an --error-if failure - stop processing
+                    if err_str.contains("--error-if") {
+                        error_if_triggered.store(true, Ordering::Relaxed);
+                        if let Some(ref bar) = pb {
+                            bar.println(format!("✗ {}: {}", path_str, e));
+                            bar.inc(1);
+                        } else {
+                            eprintln!("✗ {}: {}", path_str, e);
+                        }
+                        let mut msg = error_if_message.lock().unwrap();
+                        if msg.is_none() {
+                            *msg = Some(err_str);
+                        }
+                        return Err(()); // Short-circuit parallel iteration
+                    }
+
+                    if pb.is_none() {
+                        eprintln!("✗ {}: {}", path_str, e);
+                    } else {
+                        // Show error but keep progress bar
+                        if let Some(ref bar) = pb {
+                            bar.println(format!("✗ {}: {}", path_str, e));
                         }
                     }
-                } else {
-                    // For JSON format, collect for array output at end
-                    all_reports.lock().unwrap().push(json);
                 }
             }
-            Err(e) => {
-                if pb.is_none() {
-                    eprintln!("✗ {}: {}", path_str, e);
-                } else {
-                    // Show error but keep progress bar
-                    if let Some(ref bar) = pb {
-                        bar.println(format!("✗ {}: {}", path_str, e));
-                    }
-                }
-            }
-        }
 
-        if let Some(ref bar) = pb {
-            bar.inc(1);
-        }
-    });
+            if let Some(ref bar) = pb {
+                bar.inc(1);
+            }
+            Ok(())
+        })
+    } else {
+        Err(()) // Skip archives if files already failed
+    };
 
     if let Some(ref bar) = pb {
         bar.finish_with_message("Scan complete");
+    }
+
+    // If --error-if was triggered, return the error
+    if files_result.is_err() || archives_result.is_err() {
+        if let Some(msg) = error_if_message.lock().unwrap().take() {
+            anyhow::bail!(msg);
+        }
     }
 
     // Extract results from Arc<Mutex<>>
@@ -939,8 +984,8 @@ fn analyze_file_with_shared_mapper(
     // Check if report's criticality matches --error-if criteria
     check_criticality_error(&report, error_if_levels)?;
 
-    // Filter report based on verbosity
-    filter_report(&mut report, verbose);
+    // Convert to v2 schema (flat files array) and filter based on verbosity
+    report.convert_to_v2(verbose);
 
     // Always output JSON for parallel scanning
     output::format_json(&report)

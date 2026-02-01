@@ -58,7 +58,9 @@ fn create_test_report_for_diff(path: &str, trait_ids: Vec<&str>) -> AnalysisRepo
         directories: vec![],
         env_vars: vec![],
         archive_contents: vec![],
-        sub_reports: vec![],
+        scanned_path: None,
+        files: vec![],
+        summary: None,
         metadata: crate::types::AnalysisMetadata {
             analysis_duration_ms: 100,
             tools_used: vec!["test".to_string()],

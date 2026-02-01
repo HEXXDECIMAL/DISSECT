@@ -348,11 +348,7 @@ impl StringExtractor {
             for s in r2s {
                 if s.string.len() >= large_file_min_length && !seen.contains(&s.string) {
                     seen.insert(s.string.clone());
-                    strings.push(self.classify_string(
-                        s.string,
-                        s.paddr as usize,
-                        None,
-                    ));
+                    strings.push(self.classify_string(s.string, s.paddr as usize, None));
                 }
             }
         }

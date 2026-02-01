@@ -21,11 +21,18 @@ fn analyze_file_for_traits(file_path: &str) -> serde_json::Value {
     })
 }
 
+/// Get the first file from the v2 files array
+fn get_first_file(json: &serde_json::Value) -> Option<&serde_json::Value> {
+    json.get("files")
+        .and_then(|f| f.as_array())
+        .and_then(|arr| arr.first())
+}
+
 /// Check if the file was detected as the expected type
 /// The type field may include suffixes like "_script" (e.g., "python_script")
 fn check_file_type(json: &serde_json::Value, expected: &str) -> bool {
-    json.get("target")
-        .and_then(|t| t.get("type"))
+    get_first_file(json)
+        .and_then(|f| f.get("file_type"))
         .and_then(|v| v.as_str())
         .map(|ft| {
             let ft_lower = ft.to_lowercase();
@@ -40,7 +47,8 @@ fn check_file_type(json: &serde_json::Value, expected: &str) -> bool {
 
 /// Check if the structure field exists and is non-empty
 fn has_structure(json: &serde_json::Value) -> bool {
-    json.get("structure")
+    get_first_file(json)
+        .and_then(|f| f.get("structure"))
         .and_then(|s| s.as_array())
         .map(|arr| !arr.is_empty())
         .unwrap_or(false)
@@ -48,7 +56,8 @@ fn has_structure(json: &serde_json::Value) -> bool {
 
 /// Get all symbols from the imports array
 fn get_symbols(json: &serde_json::Value) -> Vec<String> {
-    json.get("imports")
+    get_first_file(json)
+        .and_then(|f| f.get("imports"))
         .and_then(|v| v.as_array())
         .map(|arr| {
             arr.iter()

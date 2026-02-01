@@ -1,6 +1,11 @@
 use std::fs;
 use tempfile::TempDir;
 
+/// Helper to get the first file from v2 JSON output
+fn get_first_file(json: &serde_json::Value) -> Option<&serde_json::Value> {
+    json.get("files").and_then(|f| f.get(0))
+}
+
 /// Test that shell-specific YARA rules match shell scripts
 #[test]
 fn test_shell_script_matches_shell_rules() {
@@ -17,21 +22,18 @@ fn test_shell_script_matches_shell_rules() {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Parse JSON to check file type and YARA matches
+    // Parse JSON to check file type and YARA matches (v2 format: files[0])
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
+        let file = get_first_file(&json).expect("Should have at least one file");
         // Should detect shell file type
-        let file_type = json
-            .get("target")
-            .and_then(|t| t.get("type"))
-            .and_then(|v| v.as_str())
-            .unwrap_or("");
+        let file_type = file.get("file_type").and_then(|v| v.as_str()).unwrap_or("");
         assert!(
             file_type.to_lowercase().contains("shell"),
             "Expected shell file type, got: {}",
             file_type
         );
 
-        if let Some(yara_matches) = json.get("yara_matches").and_then(|v| v.as_array()) {
+        if let Some(yara_matches) = file.get("yara_matches").and_then(|v| v.as_array()) {
             // Look for shell-specific rules - should NOT be filtered
             let shell_rules: Vec<_> = yara_matches
                 .iter()
@@ -75,21 +77,18 @@ fn test_python_rules_filtered_for_shell_scripts() {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Parse JSON to check file type and YARA matches
+    // Parse JSON to check file type and YARA matches (v2 format: files[0])
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
+        let file = get_first_file(&json).expect("Should have at least one file");
         // Should detect shell file type
-        let file_type = json
-            .get("target")
-            .and_then(|t| t.get("type"))
-            .and_then(|v| v.as_str())
-            .unwrap_or("");
+        let file_type = file.get("file_type").and_then(|v| v.as_str()).unwrap_or("");
         assert!(
             file_type.to_lowercase().contains("shell"),
             "Expected shell file type, got: {}",
             file_type
         );
 
-        if let Some(yara_matches) = json.get("yara_matches").and_then(|v| v.as_array()) {
+        if let Some(yara_matches) = file.get("yara_matches").and_then(|v| v.as_array()) {
             // Look for any matches with severity "filtered"
             let filtered_rules: Vec<_> = yara_matches
                 .iter()
@@ -131,21 +130,18 @@ fn test_python_file_matches_python_rules() {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Parse JSON to check file type and YARA matches
+    // Parse JSON to check file type and YARA matches (v2 format: files[0])
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
+        let file = get_first_file(&json).expect("Should have at least one file");
         // Should detect Python file type
-        let file_type = json
-            .get("target")
-            .and_then(|t| t.get("type"))
-            .and_then(|v| v.as_str())
-            .unwrap_or("");
+        let file_type = file.get("file_type").and_then(|v| v.as_str()).unwrap_or("");
         assert!(
             file_type.to_lowercase().contains("python"),
             "Expected Python file type, got: {}",
             file_type
         );
 
-        if let Some(yara_matches) = json.get("yara_matches").and_then(|v| v.as_array()) {
+        if let Some(yara_matches) = file.get("yara_matches").and_then(|v| v.as_array()) {
             // Look for Python-specific rules
             let python_rules: Vec<_> = yara_matches
                 .iter()
@@ -193,9 +189,10 @@ fn test_generic_rules_never_filtered() {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Parse JSON to check YARA matches
+    // Parse JSON to check YARA matches (v2 format: files[0])
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
-        if let Some(yara_matches) = json.get("yara_matches").and_then(|v| v.as_array()) {
+        let file = get_first_file(&json).expect("Should have at least one file");
+        if let Some(yara_matches) = file.get("yara_matches").and_then(|v| v.as_array()) {
             // Generic rules (no filetype) should never be filtered
             for yara_match in yara_matches {
                 let rule = yara_match
@@ -236,21 +233,18 @@ fn test_javascript_file_filters_non_js_rules() {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Parse JSON to check file type and YARA matches
+    // Parse JSON to check file type and YARA matches (v2 format: files[0])
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
+        let file = get_first_file(&json).expect("Should have at least one file");
         // Should detect JavaScript file type
-        let file_type = json
-            .get("target")
-            .and_then(|t| t.get("type"))
-            .and_then(|v| v.as_str())
-            .unwrap_or("");
+        let file_type = file.get("file_type").and_then(|v| v.as_str()).unwrap_or("");
         assert!(
             file_type.to_lowercase().contains("javascript"),
             "Expected JavaScript file type, got: {}",
             file_type
         );
 
-        if let Some(yara_matches) = json.get("yara_matches").and_then(|v| v.as_array()) {
+        if let Some(yara_matches) = file.get("yara_matches").and_then(|v| v.as_array()) {
             // Count filtered vs unfiltered
             let filtered_count = yara_matches
                 .iter()
@@ -309,16 +303,16 @@ fn test_scan_multi_filetype_directory() {
     // Should succeed and return JSON array
     assert!(output.status.success());
 
-    // Parse as JSON array of reports
+    // Parse as JSON array of reports (v2 format)
     if let Ok(reports) = serde_json::from_str::<serde_json::Value>(&stdout) {
         if let Some(reports_array) = reports.as_array() {
             assert_eq!(reports_array.len(), 3, "Should have 3 analysis reports");
 
-            // Each report should have target and metadata fields
+            // Each report should have files and metadata fields (v2 format)
             for report in reports_array {
                 assert!(
-                    report.get("target").is_some(),
-                    "Each report should have target field"
+                    report.get("files").is_some(),
+                    "Each report should have files field"
                 );
                 assert!(
                     report.get("metadata").is_some(),
@@ -345,9 +339,10 @@ fn test_filtered_criticality_level() {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Parse JSON
+    // Parse JSON (v2 format: files[0])
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
-        if let Some(yara_matches) = json.get("yara_matches").and_then(|v| v.as_array()) {
+        let file = get_first_file(&json).expect("Should have at least one file");
+        if let Some(yara_matches) = file.get("yara_matches").and_then(|v| v.as_array()) {
             // Look for filtered matches
             for yara_match in yara_matches {
                 let severity = yara_match
@@ -397,9 +392,10 @@ fn test_filtered_matches_preserved() {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Parse JSON
+    // Parse JSON (v2 format: files[0])
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
-        if let Some(yara_matches) = json.get("yara_matches").and_then(|v| v.as_array()) {
+        let file = get_first_file(&json).expect("Should have at least one file");
+        if let Some(yara_matches) = file.get("yara_matches").and_then(|v| v.as_array()) {
             // Should have both filtered and unfiltered matches preserved
             let total_matches = yara_matches.len();
             let filtered_matches = yara_matches

@@ -371,8 +371,12 @@ impl UnifiedSourceAnalyzer {
         // Extract and analyze base64/zlib encoded payloads (same treatment as archives)
         let extracted_payloads = crate::extractors::extract_encoded_payloads(content.as_bytes());
         for (idx, payload) in extracted_payloads.iter().enumerate() {
-            // Create virtual path with encoding info
-            let virtual_path = format!("{}!base64#{}", file_path.display(), idx);
+            // Create virtual path with encoding info using ## delimiter for decoded content
+            let virtual_path = crate::types::encode_decoded_path(
+                &file_path.display().to_string(),
+                &["base64".to_string()],
+                idx,
+            );
 
             // Read the decoded content
             let payload_content = std::fs::read(&payload.temp_path).unwrap_or_default();
@@ -422,10 +426,16 @@ impl UnifiedSourceAnalyzer {
                 }
             };
 
-            // Process sub_report like archives do
-            if let Some(mut pr) = payload_report {
+            // Process payload report - convert to FileAnalysis for v2 flat files array
+            if let Some(pr) = payload_report {
                 // Prefix findings with extracted payload location (same as archive: prefix)
-                for finding in &mut pr.findings {
+                let mut file_entry = pr.to_file_analysis(0, true);
+                file_entry.path = virtual_path.clone();
+                file_entry.depth = 1; // Decoded content is one level deep
+                file_entry.encoding = Some(vec!["base64".to_string()]);
+
+                // Update evidence locations to indicate extracted payload
+                for finding in &mut file_entry.findings {
                     for evidence in &mut finding.evidence {
                         match &evidence.location {
                             None => {
@@ -439,8 +449,8 @@ impl UnifiedSourceAnalyzer {
                     }
                 }
 
-                // Add full report to sub_reports (same as archives)
-                report.sub_reports.push(Box::new(pr));
+                file_entry.compute_summary();
+                report.files.push(file_entry);
             }
 
             // Clean up temp file

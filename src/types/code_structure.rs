@@ -127,7 +127,7 @@ pub struct CodeMetrics {
 
 /// Source code metrics for scripts (Python, JavaScript, etc.)
 /// Useful for ML analysis and behavioral profiling
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct SourceCodeMetrics {
     /// Total lines in file
     #[serde(default, skip_serializing_if = "is_zero_u32")]

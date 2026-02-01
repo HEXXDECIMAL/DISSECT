@@ -284,118 +284,176 @@ fn format_size(bytes: u64) -> String {
     }
 }
 
-/// Format analysis report as JSON
+/// V2 JSON output structure - flat file-centric format
+#[derive(serde::Serialize, serde::Deserialize)]
+struct JsonOutputV2 {
+    schema_version: String,
+    analysis_timestamp: chrono::DateTime<chrono::Utc>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    scanned_path: Option<String>,
+    #[serde(default)]
+    files: Vec<crate::types::FileAnalysis>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    summary: Option<crate::types::ReportSummary>,
+    metadata: crate::types::AnalysisMetadata,
+}
+
+/// Format analysis report as JSON (v2 format)
 pub fn format_json(report: &AnalysisReport) -> Result<String> {
-    Ok(serde_json::to_string_pretty(report)?)
+    let output = JsonOutputV2 {
+        schema_version: report.schema_version.clone(),
+        analysis_timestamp: report.analysis_timestamp,
+        scanned_path: report.scanned_path.clone(),
+        files: report.files.clone(),
+        summary: report.summary.clone(),
+        metadata: report.metadata.clone(),
+    };
+    Ok(serde_json::to_string_pretty(&output)?)
+}
+
+/// Parse v2 JSON back to AnalysisReport
+pub fn parse_json_v2(json: &str) -> Result<AnalysisReport> {
+    let v2: JsonOutputV2 = serde_json::from_str(json)?;
+
+    // Create a minimal AnalysisReport with the v2 data
+    let target = if let Some(first_file) = v2.files.first() {
+        crate::types::TargetInfo {
+            path: first_file.path.clone(),
+            file_type: first_file.file_type.clone(),
+            sha256: first_file.sha256.clone(),
+            size_bytes: first_file.size,
+            architectures: None,
+        }
+    } else {
+        crate::types::TargetInfo {
+            path: "unknown".to_string(),
+            file_type: "unknown".to_string(),
+            sha256: String::new(),
+            size_bytes: 0,
+            architectures: None,
+        }
+    };
+
+    let mut report = AnalysisReport::new_with_timestamp(target, v2.analysis_timestamp);
+    report.schema_version = v2.schema_version;
+    report.scanned_path = v2.scanned_path;
+    report.files = v2.files;
+    report.summary = v2.summary;
+    report.metadata = v2.metadata;
+
+    Ok(report)
 }
 
 /// Format analysis report for terminal display (malcontent-style)
+/// Uses the v2 flat files array structure.
 pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
     let mut output = String::new();
 
-    // File path (no file-level criticality until ML pipeline is ready)
-    output.push_str(&format!("├─ {}\n", report.target.path.bright_white()));
-    output.push_str("│\n");
-
-    // Combine all findings from report, sub_reports, and YARA matches
-    let mut all_findings: Vec<Finding> = report.findings.clone();
-
-    // Add findings from sub_reports (archives and extracted payloads)
-    for sub_report in &report.sub_reports {
-        all_findings.extend(sub_report.findings.clone());
-    }
-
-    // Add YARA matches as findings
-    all_findings.extend(yara_to_findings(&report.yara_matches));
-
-    // Aggregate by directory path (e.g., exec/command, malware/cryptominer)
-    let aggregated = aggregate_findings_by_directory(&all_findings);
-
-    // Filter: remove criticality=none and confidence<0.5
-    let filtered: Vec<Finding> = aggregated
-        .into_iter()
-        .filter(|f| f.crit != Criticality::Inert && f.conf >= 0.5)
-        .collect();
-
-    if filtered.is_empty() {
-        output.push_str("│\n");
-        return Ok(output);
-    }
-
-    // Group by namespace (top-level objective like "exec", "malware", "c2")
-    let mut by_namespace: HashMap<String, Vec<&Finding>> = HashMap::new();
-    let mut ns_max_crit: HashMap<String, Criticality> = HashMap::new();
-
-    for finding in &filtered {
-        let (ns, _) = split_trait_id(&finding.id);
-
-        // Track max criticality for namespace
-        let current_max = ns_max_crit.get(&ns).unwrap_or(&Criticality::Inert);
-        if &finding.crit > current_max {
-            ns_max_crit.insert(ns.clone(), finding.crit);
+    // Iterate over files that have findings
+    for file in &report.files {
+        // Skip files with no findings
+        if file.findings.is_empty() {
+            continue;
         }
 
-        by_namespace.entry(ns).or_default().push(finding);
-    }
+        // File header with risk indicator
+        let risk_indicator = match file.risk {
+            Some(Criticality::Hostile) => "🛑".to_string(),
+            Some(Criticality::Suspicious) => "🟡".to_string(),
+            Some(Criticality::Notable) => "🔵".to_string(),
+            _ => "".to_string(),
+        };
 
-    // Sort namespaces by criticality (highest first), then alphabetically by name
-    let mut namespaces: Vec<String> = by_namespace.keys().cloned().collect();
-    namespaces.sort_by(|a, b| {
-        let crit_a = ns_max_crit.get(a).unwrap_or(&Criticality::Inert);
-        let crit_b = ns_max_crit.get(b).unwrap_or(&Criticality::Inert);
-        crit_b
-            .cmp(crit_a)
-            .then_with(|| namespace_long_name(a).cmp(namespace_long_name(b)))
-    });
+        output.push_str(&format!(
+            "├─ {} {}\n",
+            file.path.bright_white(),
+            risk_indicator
+        ));
+        output.push_str("│\n");
 
-    // Render each namespace
-    for ns in &namespaces {
-        let findings = by_namespace.get(ns).unwrap();
+        // Aggregate findings by directory path
+        let aggregated = aggregate_findings_by_directory(&file.findings);
 
-        // Namespace header
-        output.push_str(&format!("│     ≡ {}\n", namespace_long_name(ns)));
+        // Filter: remove criticality=none and confidence<0.5
+        let filtered: Vec<Finding> = aggregated
+            .into_iter()
+            .filter(|f| f.crit != Criticality::Inert && f.conf >= 0.5)
+            .collect();
 
-        // Sort findings by criticality (highest first), then ID
-        let mut sorted_findings = findings.clone();
-        sorted_findings.sort_by(|a, b| b.crit.cmp(&a.crit).then_with(|| a.id.cmp(&b.id)));
+        if filtered.is_empty() {
+            continue;
+        }
 
-        // Render each finding
-        for finding in sorted_findings {
-            let (_, rest) = split_trait_id(&finding.id);
-            let emoji = risk_emoji(&finding.crit);
-            let evidence = format_evidence(finding);
-            let desc = terse_description(&finding.desc);
+        // Group by namespace
+        let mut by_namespace: HashMap<String, Vec<&Finding>> = HashMap::new();
+        let mut ns_max_crit: HashMap<String, Criticality> = HashMap::new();
 
-            // Colorize based on criticality
-            let content = match finding.crit {
-                Criticality::Hostile => format!("{} {} — {}", emoji, rest, desc).bright_red(),
-                Criticality::Suspicious => format!("{} {} — {}", emoji, rest, desc).bright_yellow(),
-                _ => format!("{} {} — {}", emoji, rest, desc).bright_cyan(),
-            };
+        for finding in &filtered {
+            let (ns, _) = split_trait_id(&finding.id);
+            let current_max = ns_max_crit.get(&ns).unwrap_or(&Criticality::Inert);
+            if &finding.crit > current_max {
+                ns_max_crit.insert(ns.clone(), finding.crit);
+            }
+            by_namespace.entry(ns).or_default().push(finding);
+        }
 
-            if evidence.is_empty() {
-                output.push_str(&format!("│       {}\n", content));
-            } else {
-                // Calculate display length (strip ANSI codes for measurement)
-                let display_len = strip_ansi(&format!("{}: {}", content, evidence)).len();
+        // Sort namespaces by criticality then name
+        let mut namespaces: Vec<String> = by_namespace.keys().cloned().collect();
+        namespaces.sort_by(|a, b| {
+            let crit_a = ns_max_crit.get(a).unwrap_or(&Criticality::Inert);
+            let crit_b = ns_max_crit.get(b).unwrap_or(&Criticality::Inert);
+            crit_b
+                .cmp(crit_a)
+                .then_with(|| namespace_long_name(a).cmp(namespace_long_name(b)))
+        });
 
-                // If line would be too long, put evidence on separate line
-                if display_len > 120 {
+        // Render each namespace
+        for ns in &namespaces {
+            let findings = by_namespace.get(ns).unwrap();
+            output.push_str(&format!("│     ≡ {}\n", namespace_long_name(ns)));
+
+            let mut sorted_findings = findings.clone();
+            sorted_findings.sort_by(|a, b| b.crit.cmp(&a.crit).then_with(|| a.id.cmp(&b.id)));
+
+            for finding in sorted_findings {
+                let (_, rest) = split_trait_id(&finding.id);
+                let emoji = risk_emoji(&finding.crit);
+                let evidence = format_evidence(finding);
+                let desc = terse_description(&finding.desc);
+
+                let content = match finding.crit {
+                    Criticality::Hostile => format!("{} {} — {}", emoji, rest, desc).bright_red(),
+                    Criticality::Suspicious => {
+                        format!("{} {} — {}", emoji, rest, desc).bright_yellow()
+                    }
+                    _ => format!("{} {} — {}", emoji, rest, desc).bright_cyan(),
+                };
+
+                if evidence.is_empty() {
                     output.push_str(&format!("│       {}\n", content));
-                    output.push_str(&format!("│           {}\n", evidence.bright_black()));
                 } else {
-                    // Keep evidence on same line
-                    output.push_str(&format!(
-                        "│       {}{} {}\n",
-                        content,
-                        ":".bright_black(),
-                        evidence.bright_black()
-                    ));
+                    let display_len = strip_ansi(&format!("{}: {}", content, evidence)).len();
+                    if display_len > 120 {
+                        output.push_str(&format!("│       {}\n", content));
+                        output.push_str(&format!("│           {}\n", evidence.bright_black()));
+                    } else {
+                        output.push_str(&format!(
+                            "│       {}{} {}\n",
+                            content,
+                            ":".bright_black(),
+                            evidence.bright_black()
+                        ));
+                    }
                 }
             }
+            output.push_str("│\n");
         }
-        // Add blank line between sections for better visual separation
-        output.push_str("│\n");
+    }
+
+    // If no files had findings, show a simple message
+    if output.is_empty() {
+        output.push_str(&format!("├─ {}\n", report.target.path.bright_white()));
+        output.push_str("│  No findings\n");
     }
 
     output.push_str("│\n");
@@ -601,8 +659,8 @@ mod tests {
     use chrono::Utc;
 
     fn create_test_report(findings: Vec<Finding>, yara_matches: Vec<YaraMatch>) -> AnalysisReport {
-        AnalysisReport {
-            schema_version: "1.1".to_string(),
+        let mut report = AnalysisReport {
+            schema_version: "2.0".to_string(),
             analysis_timestamp: Utc::now(),
             target: TargetInfo {
                 path: "/test/sample.bin".to_string(),
@@ -631,13 +689,18 @@ mod tests {
             directories: vec![],
             env_vars: vec![],
             archive_contents: vec![],
-            sub_reports: vec![],
+            scanned_path: None,
+            files: vec![],
+            summary: None,
             metadata: crate::types::AnalysisMetadata {
                 analysis_duration_ms: 100,
                 tools_used: vec!["test".to_string()],
                 errors: vec![],
             },
-        }
+        };
+        // Convert to v2 format to populate files array
+        report.convert_to_v2(true);
+        report
     }
 
     #[test]
@@ -895,7 +958,7 @@ mod tests {
         let report = create_test_report(vec![], vec![]);
         let json = format_json(&report).unwrap();
         assert!(json.contains("schema_version"));
-        assert!(json.contains("1.1"));
+        assert!(json.contains("2.0"));
     }
 
     #[test]

@@ -39,6 +39,7 @@ pub mod code_structure;
 pub mod container_metrics;
 pub mod core;
 pub mod diff;
+pub mod file_analysis;
 pub mod language_metrics;
 pub mod ml_features;
 pub mod paths_env;
@@ -50,6 +51,12 @@ pub mod traits_findings;
 // These re-exports are part of the public library API even if not used directly in the binary
 #[allow(unused_imports)]
 pub use core::{AnalysisReport, ArchiveEntry, Criticality, TargetInfo};
+
+#[allow(unused_imports)]
+pub use file_analysis::{
+    encode_archive_path, encode_decoded_path, parse_file_path, FileAnalysis, FindingCounts,
+    ParsedPath, ReportSummary, ARCHIVE_DELIMITER, ENCODING_DELIMITER,
+};
 
 #[allow(unused_imports)]
 pub use traits_findings::{Evidence, Finding, FindingKind, StructuralFeature, Trait, TraitKind};

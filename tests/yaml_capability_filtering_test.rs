@@ -1,6 +1,11 @@
 use std::fs;
 use tempfile::TempDir;
 
+/// Helper to get the first file from v2 JSON output
+fn get_first_file(json: &serde_json::Value) -> Option<&serde_json::Value> {
+    json.get("files").and_then(|f| f.get(0))
+}
+
 /// Test that platform-specific YAML traits are filtered correctly
 #[test]
 fn test_windows_keylog_capability_filtered_for_elf() {
@@ -21,20 +26,17 @@ fn test_windows_keylog_capability_filtered_for_elf() {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Parse JSON to check file type and traits
+    // Parse JSON to check file type and traits (v2 format: files[0])
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
+        let file = get_first_file(&json).expect("Should have at least one file");
         // Should detect as ELF
-        let file_type = json
-            .get("target")
-            .and_then(|t| t.get("type"))
-            .and_then(|v| v.as_str())
-            .unwrap_or("");
+        let file_type = file.get("file_type").and_then(|v| v.as_str()).unwrap_or("");
         assert!(
             file_type.to_lowercase().contains("elf"),
             "Expected ELF file type, got: {}",
             file_type
         );
-        if let Some(traits) = json.get("traits").and_then(|v| v.as_array()) {
+        if let Some(traits) = file.get("traits").and_then(|v| v.as_array()) {
             // Get traits that are capabilities (capability: true)
             let capabilities: Vec<_> = traits
                 .iter()
@@ -84,15 +86,18 @@ fn test_universal_capabilities_match_all_files() {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Parse JSON - just verify the structure works
+    // Parse JSON - just verify the structure works (v2 format)
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
-        // Verify basic structure exists
-        assert!(json.get("target").is_some(), "Should have target field");
-        // Note: structure field may be missing if empty (skip_serializing_if = "Vec::is_empty")
+        // Verify basic structure exists (v2 format: files array)
+        let file = get_first_file(&json).expect("Should have at least one file");
+        assert!(
+            file.get("file_type").is_some(),
+            "Should have file_type field"
+        );
 
         // Traits field may be missing if empty (skip_serializing_if)
         // Capabilities are traits with capability: true
-        if let Some(traits) = json.get("traits").and_then(|v| v.as_array()) {
+        if let Some(traits) = file.get("traits").and_then(|v| v.as_array()) {
             let capabilities: Vec<_> = traits
                 .iter()
                 .filter(|t| {
@@ -128,20 +133,17 @@ fn test_python_capabilities_for_python_files() {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Parse JSON to check file type and traits
+    // Parse JSON to check file type and traits (v2 format: files[0])
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
+        let file = get_first_file(&json).expect("Should have at least one file");
         // Should detect as Python
-        let file_type = json
-            .get("target")
-            .and_then(|t| t.get("type"))
-            .and_then(|v| v.as_str())
-            .unwrap_or("");
+        let file_type = file.get("file_type").and_then(|v| v.as_str()).unwrap_or("");
         assert!(
             file_type.to_lowercase().contains("python"),
             "Expected Python file type, got: {}",
             file_type
         );
-        if let Some(traits) = json.get("traits").and_then(|v| v.as_array()) {
+        if let Some(traits) = file.get("traits").and_then(|v| v.as_array()) {
             let capabilities: Vec<_> = traits
                 .iter()
                 .filter(|t| {
@@ -197,14 +199,11 @@ fn test_javascript_capabilities_for_js_files() {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Parse JSON - verify structure (capabilities are traits with capability: true)
+    // Parse JSON - verify structure (v2 format: files[0])
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
+        let file = get_first_file(&json).expect("Should have at least one file");
         // Should detect as JavaScript
-        let file_type = json
-            .get("target")
-            .and_then(|t| t.get("type"))
-            .and_then(|v| v.as_str())
-            .unwrap_or("");
+        let file_type = file.get("file_type").and_then(|v| v.as_str()).unwrap_or("");
         assert!(
             file_type.to_lowercase().contains("javascript"),
             "Expected JavaScript file type, got: {}",
@@ -212,11 +211,13 @@ fn test_javascript_capabilities_for_js_files() {
         );
 
         // Verify basic structure exists
-        assert!(json.get("target").is_some(), "Should have target field");
-        // Note: structure field may be missing if empty (skip_serializing_if = "Vec::is_empty")
+        assert!(
+            file.get("file_type").is_some(),
+            "Should have file_type field"
+        );
 
         // Traits field may be missing if empty
-        if let Some(traits) = json.get("traits").and_then(|v| v.as_array()) {
+        if let Some(traits) = file.get("traits").and_then(|v| v.as_array()) {
             let capabilities: Vec<_> = traits
                 .iter()
                 .filter(|t| {
@@ -234,7 +235,7 @@ fn test_javascript_capabilities_for_js_files() {
         }
 
         // Check for YARA matches which are more likely for localStorage usage
-        if let Some(yara_matches) = json.get("yara_matches").and_then(|v| v.as_array()) {
+        if let Some(yara_matches) = file.get("yara_matches").and_then(|v| v.as_array()) {
             eprintln!("Found {} YARA matches", yara_matches.len());
         }
     }
@@ -260,20 +261,17 @@ fn test_shell_capabilities_for_shell_scripts() {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Parse JSON (capabilities are traits with capability: true)
+    // Parse JSON (v2 format: files[0])
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
+        let file = get_first_file(&json).expect("Should have at least one file");
         // Should detect as Shell
-        let file_type = json
-            .get("target")
-            .and_then(|t| t.get("type"))
-            .and_then(|v| v.as_str())
-            .unwrap_or("");
+        let file_type = file.get("file_type").and_then(|v| v.as_str()).unwrap_or("");
         assert!(
             file_type.to_lowercase().contains("shell"),
             "Expected Shell file type, got: {}",
             file_type
         );
-        if let Some(traits) = json.get("traits").and_then(|v| v.as_array()) {
+        if let Some(traits) = file.get("traits").and_then(|v| v.as_array()) {
             let capabilities: Vec<_> = traits
                 .iter()
                 .filter(|t| {
@@ -336,19 +334,18 @@ fn test_rules_without_filetype_are_universal() {
 
         let stdout = String::from_utf8_lossy(&output.stdout);
 
-        // Parse JSON - verify structure is correct for all file types
-        // (capabilities are traits with capability: true)
+        // Parse JSON - verify structure is correct for all file types (v2 format)
         if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
+            let file_entry = get_first_file(&json).expect("Should have at least one file");
             // Verify basic structure exists
             assert!(
-                json.get("target").is_some(),
-                "File {:?} should have target field",
+                file_entry.get("file_type").is_some(),
+                "File {:?} should have file_type field",
                 file.file_name()
             );
-            // Note: structure field may be missing if empty (skip_serializing_if = "Vec::is_empty")
 
             // Traits field may be missing if empty
-            if let Some(traits) = json.get("traits").and_then(|v| v.as_array()) {
+            if let Some(traits) = file_entry.get("traits").and_then(|v| v.as_array()) {
                 let capabilities: Vec<_> = traits
                     .iter()
                     .filter(|t| {
@@ -396,10 +393,11 @@ fn test_composite_trait_file_type_filtering() {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Parse JSON (capabilities are traits with capability: true)
+    // Parse JSON (v2 format: files[0])
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
+        let file = get_first_file(&json).expect("Should have at least one file");
         // Check traits
-        if let Some(traits) = json.get("traits").and_then(|v| v.as_array()) {
+        if let Some(traits) = file.get("traits").and_then(|v| v.as_array()) {
             eprintln!("Found {} traits detected", traits.len());
 
             // Check that Python file gets appropriate capabilities
@@ -450,19 +448,19 @@ fn test_platform_and_filetype_constraints_together() {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Parse and verify basic structure (capabilities are traits with capability: true)
+    // Parse and verify basic structure (v2 format: files[0])
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
-        assert!(json.get("target").is_some(), "Should have target field");
-        // Note: structure field may be missing if empty (skip_serializing_if = "Vec::is_empty")
+        let file = get_first_file(&json).expect("Should have at least one file");
+        assert!(
+            file.get("file_type").is_some(),
+            "Should have file_type field"
+        );
 
         // File type should be Shell
-        if let Some(file_type) = json
-            .get("target")
-            .and_then(|t| t.get("file_type"))
-            .and_then(|ft| ft.as_str())
-        {
+        if let Some(file_type) = file.get("file_type").and_then(|ft| ft.as_str()) {
             assert!(
-                file_type.contains("Shell") || file_type.contains("script"),
+                file_type.to_lowercase().contains("shell")
+                    || file_type.to_lowercase().contains("script"),
                 "File type should indicate shell script, got: {}",
                 file_type
             );

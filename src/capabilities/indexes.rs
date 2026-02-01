@@ -121,8 +121,8 @@ impl StringMatchIndex {
                 match c {
                     // Common escapes that represent literals
                     's' | 'S' | 'd' | 'D' | 'w' | 'W' | 'b' | 'B' => break, // meta escapes
-                    '.' | '*' | '+' | '?' | '[' | ']' | '(' | ')' | '{' | '}' | '|' | '^'
-                    | '$' | '\\' => {
+                    '.' | '*' | '+' | '?' | '[' | ']' | '(' | ')' | '{' | '}' | '|' | '^' | '$'
+                    | '\\' => {
                         literal.push(c);
                     }
                     _ => literal.push(c),
@@ -434,13 +434,10 @@ impl RawContentRegexIndex {
         // Build regex sets for each file type
         let by_file_type: FxHashMap<RuleFileType, FileTypeRegexSet> = by_file_type
             .into_iter()
-            .filter_map(|(ft, patterns)| {
-                Self::build_regex_set(patterns).map(|rs| (ft, rs))
-            })
+            .filter_map(|(ft, patterns)| Self::build_regex_set(patterns).map(|rs| (ft, rs)))
             .collect();
 
         let universal = Self::build_regex_set(universal_patterns);
-
 
         Self {
             by_file_type,

@@ -466,3 +466,78 @@ fn test_strings_vs_symbols_difference() {
     assert!(symbols_stdout.contains("ls"));
     assert!(!symbols_stdout.contains("some string")); // Symbols don't show literal strings
 }
+
+/// Test --error-if with single file that matches criteria (exits with error)
+#[test]
+fn test_error_if_single_file_match() {
+    let temp_dir = TempDir::new().unwrap();
+    let script = temp_dir.path().join("test.sh");
+    // Create a simple script - the obfuscation/code-metrics rule gives it Notable criticality
+    fs::write(&script, "#!/bin/bash\necho 'hello'\n").unwrap();
+
+    // --error-if=notable should fail because this file has Notable criticality
+    assert_cmd::cargo_bin_cmd!("dissect")
+        .args(["--error-if", "notable", "analyze", script.to_str().unwrap()])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("--error-if"));
+}
+
+/// Test --error-if with single file that doesn't match criteria (succeeds)
+#[test]
+fn test_error_if_single_file_no_match() {
+    let temp_dir = TempDir::new().unwrap();
+    let script = temp_dir.path().join("test.sh");
+    // Create a simple script - gets Notable criticality
+    fs::write(&script, "#!/bin/bash\necho 'hello'\n").unwrap();
+
+    // --error-if=hostile should succeed because this file is Notable (not Hostile)
+    assert_cmd::cargo_bin_cmd!("dissect")
+        .args(["--error-if", "hostile", "analyze", script.to_str().unwrap()])
+        .assert()
+        .success();
+}
+
+/// Test --error-if with multiple files stops on first match
+#[test]
+fn test_error_if_scan_stops_early() {
+    let temp_dir = TempDir::new().unwrap();
+
+    // Create multiple files
+    for i in 0..5 {
+        let script = temp_dir.path().join(format!("test{}.sh", i));
+        fs::write(&script, "#!/bin/bash\necho 'hello'\n").unwrap();
+    }
+
+    // --error-if=notable should fail when scanning directory (files have Notable criticality)
+    assert_cmd::cargo_bin_cmd!("dissect")
+        .args([
+            "--error-if",
+            "notable",
+            "scan",
+            temp_dir.path().to_str().unwrap(),
+        ])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("--error-if"));
+}
+
+/// Test --error-if with comma-separated levels
+#[test]
+fn test_error_if_multiple_levels() {
+    let temp_dir = TempDir::new().unwrap();
+    let script = temp_dir.path().join("test.sh");
+    fs::write(&script, "#!/bin/bash\necho 'hello'\n").unwrap();
+
+    // --error-if=inert,notable should fail for Notable files
+    assert_cmd::cargo_bin_cmd!("dissect")
+        .args([
+            "--error-if",
+            "inert,notable",
+            "analyze",
+            script.to_str().unwrap(),
+        ])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("--error-if"));
+}
