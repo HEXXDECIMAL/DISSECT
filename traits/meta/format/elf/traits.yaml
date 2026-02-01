@@ -1,0 +1,76 @@
+# ELF Binary Features
+# ELF-specific function and symbol references
+
+defaults:
+  for: [elf]
+
+traits:
+  # === Runtime Linker ===
+  - id: libc-start-ref
+    desc: __libc_start reference
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      exact: "__libc_start"
+
+  - id: rtld-default-ref
+    desc: RTLD_DEFAULT macro reference
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: "RTLD_DEFAULT"
+
+  # === IFUNC Resolvers ===
+  - id: ifunc-ref
+    desc: IFUNC reference
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: "IFUNC"
+
+  - id: resolver-suffix
+    desc: _resolver function suffix
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: "_resolver"
+
+  - id: getauxval-ref
+    desc: getauxval function reference
+    crit: inert
+    conf: 0.3
+    if:
+      type: symbol
+      pattern: "getauxval"
+
+  - id: ifunc
+    desc: ELF IFUNC resolver
+    crit: notable
+    conf: 1.0
+    if:
+      type: trait
+      id: meta/binary/elf/ifunc
+
+composite_rules:
+  - id: resolver-markers
+    desc: Resolver function markers
+    crit: inert
+    conf: 0.4
+    count_min: 1
+    any:
+      - id: resolver-suffix
+      - id: meta/binary/elf/sections/gnu-hash
+      - id: libc-start-ref
+
+  - id: ifunc-markers
+    desc: IFUNC-related markers
+    crit: inert
+    conf: 0.4
+    count_min: 1
+    any:
+      - id: ifunc-ref
+      - id: getauxval-ref

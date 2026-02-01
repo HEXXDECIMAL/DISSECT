@@ -1,0 +1,338 @@
+# Network Tunneling Tool Detection
+# Detects port forwarding and tunneling tools used in APT attacks
+# ATT&CK: T1572 (Protocol Tunneling)
+
+defaults:
+  attack: "T1572"
+
+traits:
+  # === Earthworm (EW) atomic indicators ===
+  - id: ew-ssocksd
+    desc: Earthworm ssocksd component
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: ssocksd
+
+  - id: ew-rcsocks
+    desc: Earthworm rcsocks component
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: rcsocks
+
+  - id: ew-rssocks
+    desc: Earthworm rssocks component
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: rssocks
+
+  - id: ew-lcx-listen
+    desc: Earthworm lcx_listen function
+    crit: inert
+    conf: 0.8
+    if:
+      type: string
+      exact: lcx_listen
+
+  - id: ew-lcx-tran
+    desc: Earthworm lcx_tran function
+    crit: inert
+    conf: 0.8
+    if:
+      type: string
+      exact: lcx_tran
+
+  - id: ew-lcx-slave
+    desc: Earthworm lcx_slave function
+    crit: inert
+    conf: 0.8
+    if:
+      type: string
+      exact: lcx_slave
+
+  - id: ew-rootkiter
+    desc: Earthworm author domain
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: string
+      exact: rootkiter.com
+
+  # === LCX port forwarder atomic indicators ===
+  # NOTE: Individual flags like -tran, -slave, -listen are too generic.
+  # Many tools use these flags (flex uses -tran for transitions, etc.)
+  # Only match when combined with LCX-specific function names.
+  - id: lcx-tran-func
+    desc: LCX lcx_tran with -tran flag
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      # Require function name context, not just the flag
+      regex: "(?:lcx_tran|-tran.{0,20}lcx|lcx.{0,20}-tran)"
+
+  - id: lcx-slave-func
+    desc: LCX lcx_slave with -slave flag
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      regex: "(?:lcx_slave|-slave.{0,20}lcx|lcx.{0,20}-slave)"
+
+  - id: lcx-listen-func
+    desc: LCX lcx_listen with -listen flag
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      regex: "(?:lcx_listen|-listen.{0,20}lcx|lcx.{0,20}-listen)"
+
+  - id: listen-port
+    desc: Port forwarding listenport config
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: listenport
+      case_insensitive: true
+
+  - id: conn-port
+    desc: Port forwarding connport config
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: connport
+      case_insensitive: true
+
+  - id: local-port
+    desc: Port forwarding localport config
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: localport
+      case_insensitive: true
+
+  - id: remote-host
+    desc: Port forwarding remotehost config
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: remotehost
+      case_insensitive: true
+
+  # === reGeorg/Tunna atomic indicators ===
+  - id: regeorg-name
+    desc: reGeorg tool name
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: string
+      exact: reGeorg
+      case_insensitive: true
+
+  - id: tunna-name
+    desc: Tunna tool name
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      # Case-sensitive to avoid false positives - the tool is specifically "Tunna"
+      exact: Tunna
+
+  - id: neo-regeorg
+    desc: neo-reGeorg tool name
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: string
+      exact: neo-reGeorg
+
+  - id: xcmd-header
+    desc: Web tunnel X-CMD header
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      exact: X-CMD
+
+  # === Chisel atomic indicators ===
+  - id: chisel-import
+    desc: Chisel Go import path
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: string
+      exact: github.com/jpillora/chisel
+
+  - id: chisel-client
+    desc: Chisel client mode
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "chisel client"
+
+  - id: chisel-server
+    desc: Chisel server mode
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "chisel server"
+
+  # === Ngrok atomic indicators ===
+  - id: ngrok-name
+    desc: Ngrok tool name
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: ngrok
+      case_insensitive: true
+
+  - id: ngrok-io
+    desc: Ngrok tunnel domain (ngrok.io)
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      exact: ngrok.io
+
+  - id: ngrok-com
+    desc: Ngrok service domain
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      exact: ngrok.com
+
+  # === SOCKS proxy atomic indicators ===
+  - id: socks4-proto
+    desc: SOCKS4 protocol reference
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: SOCKS4
+
+  - id: socks5-proto
+    desc: SOCKS5 protocol reference
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: SOCKS5
+
+  - id: socks-default-port
+    desc: SOCKS default port 1080
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: ":1080"
+
+  - id: socks-server-ref
+    desc: SOCKS server terminology
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      exact: "socks server"
+      case_insensitive: true
+
+composite_rules:
+  # Earthworm (EW) tunneling tool (3 of ew* or rootkiter)
+  - id: earthworm
+    desc: Earthworm tunneling tool (APT lateral
+    crit: suspicious
+    conf: 0.95
+    any:
+      - id: ew-rootkiter
+      - id: ew-ssocksd
+      - id: ew-rcsocks
+      - id: ew-rssocks
+      - id: ew-lcx-listen
+      - id: ew-lcx-tran
+      - id: ew-lcx-slave
+
+    count_min: 3
+  # LCX port forwarder
+  - id: lcx
+    desc: LCX-style port forwarding tool
+    crit: suspicious
+    conf: 0.85
+    count_min: 2
+    any:
+      - id: ew-lcx-listen
+      - id: ew-lcx-tran
+      - id: ew-lcx-slave
+      - id: lcx-tran-func
+      - id: lcx-slave-func
+      - id: lcx-listen-func
+
+  # LCX via port config (listen/local + conn/remote)
+  # NOTE: Single terms like "remotehost" are too common in shell environments.
+  # Require at least 2 indicators to reduce false positives on legitimate programs.
+  - id: lcx-config
+    desc: LCX-style port forwarding configuration
+    crit: suspicious
+    conf: 0.8
+    any:
+      - id: listen-port
+      - id: local-port
+      - id: conn-port
+      - id: remote-host
+    count_min: 2
+  # reGeorg/Tunna web tunnel
+  - id: regeorg
+    desc: reGeorg/Tunna web tunneling
+    crit: suspicious
+    conf: 0.9
+    count_min: 1
+    any:
+      - id: regeorg-name
+      - id: tunna-name
+      - id: neo-regeorg
+      - id: xcmd-header
+
+  # Chisel tunneling
+  - id: chisel
+    desc: Chisel HTTP tunneling tool
+    crit: suspicious
+    conf: 0.9
+    count_min: 1
+    any:
+      - id: chisel-import
+      - id: chisel-client
+      - id: chisel-server
+
+  # Ngrok tunneling
+  - id: ngrok
+    desc: Ngrok tunneling service
+    crit: suspicious
+    conf: 0.85
+    count_min: 1
+    any:
+      - id: ngrok-name
+      - id: ngrok-io
+      - id: ngrok-com
+
+  # Generic SOCKS proxy behavior (2 of them)
+  - id: socks-server
+    desc: SOCKS proxy server implementation
+    crit: suspicious
+    conf: 0.8
+    count_min: 2
+    any:
+      - id: socks4-proto
+      - id: socks5-proto
+      - id: socks-default-port
+      - id: socks-server-ref

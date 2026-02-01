@@ -1,0 +1,264 @@
+# PHP Webshell Composite Detection Rules
+# These rules combine multiple traits to identify webshell behavior patterns
+# MBC: B0030 (C2 Communication)
+# ATT&CK: T1505.003 (Server Software Component: Web Shell)
+
+composite_rules:
+  # High-confidence webshell detection
+  - id: php-backdoor
+    desc: "PHP webshell: session-based backdoor with"
+    crit: suspicious
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1505.003"
+    for: [php]
+    all:
+      - id: obj/persist/session
+      - id: cap/data/user-input
+    any:
+      - id: obj/anti-static/obfuscation
+      - id: cap/fs/write
+      - id: cap/exec/command/exec
+
+  # Dropper webshell (writes decoded payloads)
+  - id: php-dropper
+    desc: "PHP dropper: decodes and writes"
+    crit: suspicious
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1105"
+    for: [php]
+    all:
+      - id: obj/anti-static/obfuscation
+      - id: cap/fs/write
+    any:
+      - id: cap/data/user-input
+      - id: cap/data/user-input
+
+  # Self-destructing webshell
+  - id: php-self-destruct
+    desc: "PHP webshell with self-deletion capability"
+    crit: suspicious
+    conf: 0.95
+    mbc: "F0006"
+    attack: "T1070.004"
+    for: [php]
+    all:
+      - id: obj/self-destruct
+      - id: cap/data/user-input
+
+  # SSRF/Proxy webshell
+  - id: php-proxy
+    desc: "PHP proxy/SSRF webshell for fetching"
+    crit: suspicious
+    conf: 0.9
+    mbc: "B0030"
+    attack: "T1090"
+    for: [php]
+    all:
+      - id: cap/comm/http/curl/init
+    any:
+      - id: cap/data/user-input
+      - id: cap/data/user-input
+      - id: cap/comm/http/curl/ssl-verify-disable
+      - id: cap/comm/http/curl/ssl-host-disable
+      - id: obj/impersonate/ua-array
+
+    count_min: 1
+  # Bot impersonation webshell
+  - id: php-bot-impersonate
+    desc: "PHP webshell with search engine"
+    crit: suspicious
+    conf: 0.9
+    mbc: "B0032"
+    attack: "T1036"
+    for: [php]
+    all:
+      - id: cap/comm/http/curl/init
+    any:
+      - id: obj/impersonate
+      - id: obj/impersonate/ua-array
+
+  # Timestamp manipulation (anti-forensic)
+  - id: php-timestomp
+    desc: "PHP webshell with timestamp manipulation"
+    crit: suspicious
+    conf: 0.9
+    mbc: "F0006"
+    attack: "T1070.006"
+    for: [php]
+    all:
+      - id: obj/timestomp
+      - id: cap/fs/write
+
+  # Hardcoded authentication backdoor
+  - id: php-hardcoded-auth
+    desc: "PHP webshell with hardcoded hash"
+    crit: suspicious
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1505.003"
+    for: [php]
+    any:
+      - id: obj/c2/webshell/hardcoded-hash-auth
+      - id: obj/c2/webshell/substr-hash-compare
+
+  # File upload webshell
+  - id: php-uploader
+    desc: "PHP webshell with file upload"
+    crit: suspicious
+    conf: 0.9
+    mbc: "B0030"
+    attack: "T1105"
+    for: [php]
+    any:
+      - id: cap/data/user-input
+      - id: cap/comm/http/curl/file-upload
+      - id: cap/fs/write
+      - id: cap/fs/write
+
+    count_min: 1
+  # Command execution webshell
+  - id: php-rce
+    desc: "PHP webshell with remote command"
+    crit: suspicious
+    conf: 0.95
+    mbc: "E1059"
+    attack: "T1059.004"
+    for: [php]
+    any:
+      - id: cap/exec/command/exec-user-input
+      - id: obj/anti-static/obfuscation
+      - id: obj/anti-static/obfuscation
+      - id: cap/data/user-input
+      - id: cap/data/user-input
+
+    count_min: 1
+  # Web UI webshell (has HTML interface)
+  - id: php-web-ui
+    desc: "PHP webshell with web-based user"
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0030"
+    attack: "T1505.003"
+    for: [php]
+    all:
+      - id: obj/c2/webshell/password-form
+    any:
+      - id: obj/persist/session
+      - id: cap/data/user-input
+
+  # Google scraping webshell (SEO spam tool)
+  - id: php-seo-tool
+    desc: "PHP SEO spam tool with"
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0030"
+    attack: "T1505.003"
+    for: [php]
+    all:
+      - id: obj/c2/webshell/google-search-scrape
+      - id: cap/comm/http/curl/init
+
+  # Obfuscated payload webshell
+  - id: php-obfuscated
+    desc: "PHP webshell with heavily obfuscated"
+    crit: suspicious
+    conf: 0.9
+    mbc: "B0032"
+    attack: "T1027"
+    for: [php]
+    count_min: 2
+    any:
+      - id: obj/anti-static/obfuscation
+      - id: obj/anti-static/obfuscation
+      - id: obj/anti-static/obfuscation
+      - id: obj/anti-static/obfuscation
+      - id: obj/anti-static/obfuscation
+
+  # Decompressed code execution
+  - id: php-gz-eval
+    desc: "PHP: decompresses and executes code"
+    crit: suspicious
+    conf: 0.98
+    mbc: "B0032"
+    attack: "T1027"
+    for: [php]
+    all:
+      - id: obj/anti-static/obfuscation/encoding/gzinflate
+      - id: obj/anti-static/obfuscation/encoding/eval
+
+  # Obfuscated dynamic backdoor
+  - id: php-obfuscated-dynamic-backdoor
+    desc: "PHP: obfuscated dynamic backdoor (dynamic"
+    crit: suspicious
+    conf: 0.98
+    mbc: "B0032"
+    attack: "T1027"
+    for: [php]
+    all:
+      - id: cap/exec/dynamic-call
+    any:
+      - id: obj/anti-static/obfuscation/code-metrics/php-obfuscated-vars
+      - id: obj/anti-static/obfuscation/code-metrics/php-encoded-strings
+      - id: obj/anti-static/obfuscation/encoding
+
+  # Non-ASCII dynamic backdoor
+  - id: php-non-ascii-backdoor
+    desc: "PHP: non-ASCII dynamic backdoor (dynamic"
+    crit: suspicious
+    conf: 0.98
+    mbc: "B0032"
+    attack: "T1027"
+    for: [php]
+    all:
+      - id: cap/exec/dynamic-call
+      - id: obj/anti-static/obfuscation/code-metrics/php-high-non-ascii-ratio
+
+  - id: php-non-ascii-identifiers-backdoor
+    desc: "PHP: backdoor using non-ASCII identifiers"
+    crit: suspicious
+    conf: 0.98
+    mbc: "B0032"
+    attack: "T1027"
+    for: [php]
+    any:
+      - id: obj/anti-static/obfuscation/code-metrics/php-non-ascii-call
+      - id: obj/anti-static/obfuscation/code-metrics/php-non-ascii-variable
+      - id: obj/anti-static/obfuscation/code-metrics/php-non-ascii-name
+
+  - id: php-shell-functional
+    desc: "PHP: functional webshell (exec +"
+    crit: suspicious
+    conf: 0.98
+    mbc: "B0030"
+    attack: "T1505.003"
+    for: [php]
+    all:
+      - id: cap/exec/dynamic-call
+    any:
+      - id: cap/data/user-input/request/get
+      - id: cap/data/user-input/request/post
+      - id: cap/data/user-input/request/request
+      - id: cap/data/user-input/request/cookie
+      - id: cap/data/user-input/request/server
+      - id: obj/anti-static/obfuscation
+      - id: obj/anti-static/obfuscation
+      - id: cap/fs/read/file
+      - id: cap/fs/write/file
+
+  # Functional PHP shell
+  - id: php-shell
+    desc: "PHP: functional webshell (exec +"
+    crit: suspicious
+    conf: 0.98
+    mbc: "B0030"
+    attack: "T1505.003"
+    for: [php]
+    all:
+      - id: cap/exec/command/shell
+      - id: cap/data/user-input/request
+    any:
+      - id: cap/fs/read/file
+      - id: cap/fs/write/file
+      - id: obj/anti-static/obfuscation/encoding

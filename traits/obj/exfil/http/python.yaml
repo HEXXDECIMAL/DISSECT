@@ -1,0 +1,37 @@
+# HTTP Exfiltration - Python
+# MBC: C0002 (HTTP Communication)
+# ATT&CK: T1041 (Exfiltration Over C2 Channel)
+
+defaults:
+  crit: suspicious
+  for: [python]
+  attack: "T1041"
+
+traits:
+  # Data collection with HTTP transmission
+  - id: system-data-post
+    desc: POST system data
+    conf: 0.8
+    if:
+      type: content
+      regex: "(platform|uname|hostname).{0,50}(post|send|request)"
+
+  - id: file-read-http-send
+    desc: Read file and HTTP send
+    conf: 0.8
+    if:
+      type: content
+      regex: "open\\(.{0,50}read\\(.{0,50}(post|send|request)"
+
+composite_rules:
+  - id: exfiltration
+    desc: "System info exfiltration"
+    crit: suspicious
+    conf: 0.85
+    count_min: 2
+    any:
+      - id: system-data-post
+      - id: file-read-http-send
+    all:
+      - id: obj/discovery/system
+      - id: cap/comm/http/request

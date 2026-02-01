@@ -1,0 +1,210 @@
+# HTTP download and execute patterns (Python)
+# MBC: B0024 (Dropper)
+# ATT&CK: T1105 (Ingress Tool Transfer)
+
+defaults:
+  for: [python]
+  mbc: "B0024"
+  attack: "T1105"
+  crit: suspicious
+
+traits:
+  # === Download and execute function patterns ===
+  - id: download-and-execute-func
+    desc: download_and_execute function
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: string
+      regex: "download_and_execute|download_execute|downloadAndExecute|downloadExecute"
+
+  - id: def-download
+    desc: Function named download_*
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: "def download_\\w+\\("
+
+  - id: def-fetch
+    desc: Function named fetch_*
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: "def fetch_\\w+\\("
+
+  - id: payload-keyword
+    desc: payload/stage/phase keyword
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: "(?i)payload|stage|phase"
+
+  - id: requests-method
+    desc: requests.get or requests.post
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: "requests\\.(get|post)\\("
+
+  - id: write-call
+    desc: .write() call
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: "\\.write\\("
+
+  - id: popen-call
+    desc: subprocess module call
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: "subprocess\\.(Popen|run|call)\\("
+
+composite_rules:
+  # HTTP library composite
+  - id: python-http-lib
+    desc: Python HTTP library usage
+    crit: notable
+    conf: 0.6
+    count_min: 1
+    any:
+      - id: requests-get
+      - id: requests-post
+      - id: urllib-request
+      - id: http-client
+
+  # HTTP download call composite
+  - id: python-http-download-call
+    desc: Python HTTP download function call
+    crit: notable
+    conf: 0.6
+    count_min: 1
+    any:
+      - id: requests-get
+      - id: requests-post
+      - id: urlopen-call
+      - id: urlretrieve-call
+
+  # Temp directory composite
+  - id: python-tmp-dir
+    desc: Temporary directory access
+    crit: notable
+    conf: 0.5
+    count_min: 1
+    any:
+      - id: tmp-path
+      - id: tempfile-module
+
+  # Home directory composite
+  - id: python-home-dir
+    desc: Home directory access
+    crit: notable
+    conf: 0.5
+    count_min: 1
+    any:
+      - id: expanduser-home
+      - id: path-home-call
+      - id: environ-home
+
+  # Subprocess execution composite
+  - id: python-subprocess-exec
+    desc: Subprocess execution
+    crit: notable
+    conf: 0.5
+    count_min: 1
+    any:
+      - id: cap/exec/command/subprocess/python/popen
+      - id: cap/exec/command/subprocess/python/run-call
+      - id: cap/exec/command/subprocess/python/call
+
+  # Code or process execution composite
+  - id: python-exec-any
+    desc: Code or process execution
+    crit: notable
+    conf: 0.5
+    count_min: 1
+    any:
+      - id: cap/exec/command/subprocess/python/popen
+      - id: cap/exec/command/subprocess/python/run-call
+      - id: cap/exec/command/subprocess/python/call
+      - id: os-system-call
+      - id: exec-call
+
+  # C2 endpoint path composite
+  - id: python-endpoint-path
+    desc: Suspicious C2 endpoint paths
+    crit: suspicious
+    conf: 0.85
+    attack: "T1105"
+    count_min: 1
+    any:
+      - id: path-payload
+      - id: path-stage
+      - id: path-drop
+      - id: path-brow
+      - id: path-mclip
+      - id: path-clip
+      - id: path-steal
+      - id: path-grab
+      - id: path-exfil
+
+  # Original rule - tmp directory dropper
+  - id: tmp-dropper
+    desc: "HTTP download to temp and"
+    conf: 0.9
+    count_min: 3
+    any:
+      - id: python-http-lib
+      - id: python-tmp-dir
+      - id: python-chmod
+      - id: python-subprocess-exec
+
+  # Home directory dropper - downloads to hidden dir in home
+  - id: home-dropper
+    desc: "HTTP download to home directory"
+    conf: 0.95
+    crit: suspicious
+    count_min: 3
+    any:
+      - id: python-http-download-call
+      - id: python-home-dir
+      - id: python-write-binary
+      - id: python-exec-any
+
+  # Generic download + write + execute (any location)
+  - id: generic-dropper
+    desc: "Download, write, and execute pattern"
+    conf: 0.9
+    all:
+      - id: python-http-lib
+      - id: python-write-content
+      - id: python-subprocess-exec
+
+  # Multiple download functions composite
+  - id: multi-download-funcs
+    desc: Multiple download function definitions
+    crit: suspicious
+    conf: 0.85
+    count_min: 2
+    any:
+      - id: def-download
+      - id: def-fetch
+
+  # Staged dropper - download function called multiple times
+  - id: staged-dropper
+    desc: "Staged payload dropper"
+    conf: 0.9
+    crit: suspicious
+    any:
+      - id: multi-download-funcs
+    all:
+      - id: requests-method
+      - id: write-call
+      - id: popen-call
+      - id: payload-keyword

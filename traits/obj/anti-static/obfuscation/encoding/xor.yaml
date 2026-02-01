@@ -1,0 +1,166 @@
+# XOR Obfuscation Detection
+# Detects XOR-based string/data obfuscation patterns
+# ATT&CK: T1027 (Obfuscated Files or Information)
+
+defaults:
+  for: [elf, macho, pe]
+  mbc: "B0032"
+  attack: "T1027"
+
+traits:
+  # === XOR decode symbol atomic indicators ===
+  - id: xor-decode-symbol
+    desc: xor_decode symbol
+    crit: suspicious
+    conf: 0.8
+    if:
+      type: symbol
+      exact: "xor_decode"
+
+  - id: decode-xor-symbol
+    desc: decode_xor symbol
+    crit: suspicious
+    conf: 0.8
+    if:
+      type: symbol
+      exact: "decode_xor"
+
+  - id: xor-decrypt-symbol
+    desc: xor_decrypt symbol
+    crit: suspicious
+    conf: 0.8
+    if:
+      type: symbol
+      exact: "xor_decrypt"
+
+  - id: decrypt-xor-symbol
+    desc: decrypt_xor symbol
+    crit: suspicious
+    conf: 0.8
+    if:
+      type: symbol
+      pattern: "decrypt_xor"
+
+  - id: xor-string-symbol
+    desc: xor_string symbol
+    crit: suspicious
+    conf: 0.8
+    if:
+      type: symbol
+      pattern: "xor_string"
+
+  # === Single-byte XOR key atomic indicators ===
+  - id: xor-key-0x37
+    desc: XOR key 0x37 repeated
+    crit: inert
+    conf: 0.55
+    for: [elf]
+    if:
+      type: content
+
+  # === Table-based decode atomic indicators ===
+  - id: decode-table-symbol
+    desc: decode_table symbol
+    crit: inert
+    conf: 0.5
+    if:
+      type: symbol
+      pattern: "decode_table"
+
+  - id: table-decode-symbol
+    desc: table_decode symbol
+    crit: inert
+    conf: 0.5
+    if:
+      type: symbol
+      pattern: "table_decode"
+
+  - id: lookup-decode-symbol
+    desc: lookup_decode symbol
+    crit: inert
+    conf: 0.5
+    if:
+      type: symbol
+      pattern: "lookup_decode"
+
+  - id: char-map-symbol
+    desc: char_map symbol
+    crit: inert
+    conf: 0.5
+    if:
+      type: symbol
+      pattern: "char_map"
+
+  # === Multi-byte XOR key detection ===
+  # NOTE: Generic alphanumeric strings are too common in binaries (identifiers,
+  # debug strings, version info). These patterns are only useful in composite
+  # rules that also require XOR-related symbols or other obfuscation indicators.
+  # Disabled as standalone traits due to excessive false positives.
+  #
+  # - id: xor-key-multibyte-31
+  #   desc: 31-byte alphanumeric XOR key pattern
+  #   crit: inert
+  #   conf: 0.5
+  #   for: [elf, macho, pe]
+  #   if:
+  #     type: string
+  #     regex: "\\b[a-zA-Z0-9]{31}\\b"
+  #     count_min: 1
+  #
+  # - id: xor-key-multibyte-16-32
+  #   desc: 16-32 byte random-looking key in
+  #   crit: inert
+  #   conf: 0.5
+  #   for: [elf, macho, pe]
+  #   if:
+  #     type: string
+  #     regex: "\\b[a-zA-Z0-9]{16,32}\\b"
+  #     count_min: 1
+  - id: xor-key-embedded-homabrews
+    desc: "Known homabrews.org XOR key"
+    crit: suspicious
+    conf: 1.0
+    if:
+      type: content
+      exact: "fYztZORL5VNS7nCUH1ktn5UoJ8VSgaf"
+
+composite_rules:
+  - id: single-byte-xor-key
+    desc: "Single byte XOR key"
+    crit: notable
+    conf: 0.5
+    any:
+      - id: xor-key-hex-0x55
+      - id: xor-key-hex-0xaa
+      - id: xor-key-hex-0xff
+
+  - id: xor-decode-loop
+    desc: "XOR decryption loop pattern"
+    crit: suspicious
+    conf: 0.85
+    count_min: 1
+    any:
+      - id: xor-decode-symbol
+      - id: decode-xor-symbol
+      - id: xor-decrypt-symbol
+      - id: decrypt-xor-symbol
+      - id: xor-string-symbol
+
+  - id: table-based-decode
+    desc: "Table-based decoding function"
+    crit: notable
+    conf: 0.7
+    count_min: 1
+    any:
+      - id: decode-table-symbol
+      - id: table-decode-symbol
+      - id: lookup-decode-symbol
+      - id: char-map-symbol
+
+  - id: string-decrypt
+    desc: "String decryption capability"
+    crit: suspicious
+    conf: 0.8
+    any:
+      - id: xor-decode-loop
+      - id: table-based-decode

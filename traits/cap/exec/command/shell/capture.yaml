@@ -1,0 +1,11 @@
+composite_rules:
+  - id: cap/exec/command/shell/capture-command-output
+    desc: "Executes shell command and captures"
+    crit: suspicious
+    conf: 0.9
+    all:
+      - id: cap/exec/command/popen-call
+    any:
+      - id: cap/exec/command/fgets-loop
+      - id: cap/exec/command/cpp-exception
+    for: [macho, elf, pe]

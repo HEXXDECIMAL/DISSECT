@@ -549,6 +549,10 @@ impl ArchiveAnalyzer {
                 Some("gzip") => Box::new(flate2::read::GzDecoder::new(file)),
                 Some("bzip2") => Box::new(bzip2::read::BzDecoder::new(file)),
                 Some("xz") => Box::new(xz2::read::XzDecoder::new(file)),
+                Some("zstd") => Box::new(
+                    zstd::stream::read::Decoder::new(file)
+                        .map_err(|e| anyhow::anyhow!("Failed to create zstd decoder: {}", e))?,
+                ),
                 _ => Box::new(file),
             };
 
@@ -866,6 +870,550 @@ impl ArchiveAnalyzer {
             analysis_duration_ms: start.elapsed().as_millis() as u64,
         })
     }
+
+    /// Analyze a DEB package with streaming extraction and parallel analysis.
+    ///
+    /// DEB files are AR archives containing:
+    /// - debian-binary (version)
+    /// - control.tar.* (metadata)
+    /// - data.tar.* (actual files)
+    ///
+    /// We stream the inner tar archives for parallel analysis.
+    pub fn analyze_deb_streaming<F>(
+        &self,
+        archive_path: &Path,
+        on_file: F,
+    ) -> Result<ArchiveSummary>
+    where
+        F: Fn(StreamingFileResult) + Send + Sync,
+    {
+        use crossbeam_channel::bounded;
+        use rayon::prelude::*;
+        use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
+
+        let start = std::time::Instant::now();
+
+        // Create temp dir for large files
+        let temp_dir = tempfile::tempdir()?;
+
+        // Create extraction guard
+        let guard = ExtractionGuard::new();
+
+        // Bounded channel (32 items) for backpressure
+        let (tx, rx) = bounded::<ExtractedFile>(32);
+
+        // Statistics
+        let files_analyzed = AtomicU32::new(0);
+        let hostile_count = AtomicU32::new(0);
+        let suspicious_count = AtomicU32::new(0);
+        let notable_count = AtomicU32::new(0);
+        let total_bytes = AtomicU64::new(0);
+
+        let archive_path = archive_path.to_path_buf();
+        let temp_dir_path = temp_dir.path().to_path_buf();
+
+        // Spawn extractor thread
+        let extractor_handle = std::thread::spawn(move || -> Result<Vec<HostileArchiveReason>> {
+            let file = std::fs::File::open(&archive_path)?;
+            let mut ar_archive = ar::Archive::new(file);
+
+            while let Some(entry_result) = ar_archive.next_entry() {
+                let entry = match entry_result {
+                    Ok(e) => e,
+                    Err(e) => {
+                        tracing::debug!("Failed to read AR entry: {}", e);
+                        continue;
+                    }
+                };
+
+                let name = String::from_utf8_lossy(entry.header().identifier()).to_string();
+
+                // Process data.tar.* and control.tar.*
+                if name.starts_with("data.tar") || name.starts_with("control.tar") {
+                    let prefix = if name.starts_with("data.tar") {
+                        "data"
+                    } else {
+                        "control"
+                    };
+
+                    // Determine compression
+                    let reader: Box<dyn Read + Send> = if name.ends_with(".gz") {
+                        Box::new(flate2::read::GzDecoder::new(entry))
+                    } else if name.ends_with(".xz") {
+                        Box::new(xz2::read::XzDecoder::new(entry))
+                    } else if name.ends_with(".zst") {
+                        match zstd::stream::read::Decoder::new(entry) {
+                            Ok(d) => Box::new(d),
+                            Err(e) => {
+                                tracing::debug!("Failed to create zstd decoder: {}", e);
+                                continue;
+                            }
+                        }
+                    } else if name.ends_with(".bz2") {
+                        Box::new(bzip2::read::BzDecoder::new(entry))
+                    } else {
+                        Box::new(entry)
+                    };
+
+                    // Process TAR entries
+                    let mut tar = tar::Archive::new(reader);
+                    for tar_entry_result in tar.entries()? {
+                        if !guard.check_file_count() {
+                            break;
+                        }
+
+                        let mut tar_entry = match tar_entry_result {
+                            Ok(e) => e,
+                            Err(e) => {
+                                tracing::debug!("Failed to read TAR entry: {}", e);
+                                continue;
+                            }
+                        };
+
+                        let entry_name = match tar_entry.path() {
+                            Ok(p) => format!("{}/{}", prefix, p.to_string_lossy()),
+                            Err(_) => continue,
+                        };
+
+                        match ArchiveAnalyzer::extract_tar_entry_to_memory(
+                            &mut tar_entry,
+                            &entry_name,
+                            &temp_dir_path,
+                            &guard,
+                        ) {
+                            Ok(Some(extracted)) => {
+                                if tx.send(extracted).is_err() {
+                                    break;
+                                }
+                            }
+                            Ok(None) => {}
+                            Err(e) => {
+                                tracing::debug!("Failed to extract {}: {}", entry_name, e);
+                            }
+                        }
+                    }
+                }
+            }
+
+            drop(tx);
+            Ok(guard.take_reasons())
+        });
+
+        // Analyze files in parallel
+        let on_file_ref = &on_file;
+        let files_analyzed_ref = &files_analyzed;
+        let hostile_count_ref = &hostile_count;
+        let suspicious_count_ref = &suspicious_count;
+        let notable_count_ref = &notable_count;
+        let total_bytes_ref = &total_bytes;
+
+        rx.into_iter().par_bridge().for_each(|file| {
+            let result = match &file {
+                ExtractedFile::InMemory {
+                    path,
+                    data,
+                    file_type,
+                } => {
+                    total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
+                    self.analyze_in_memory(path, data, file_type)
+                }
+                ExtractedFile::OnDisk {
+                    path,
+                    temp_path,
+                    file_type,
+                } => match std::fs::read(temp_path) {
+                    Ok(data) => {
+                        total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
+                        self.analyze_in_memory(path, &data, file_type)
+                    }
+                    Err(e) => Err(anyhow::anyhow!("Failed to read temp file: {}", e)),
+                },
+            };
+
+            match result {
+                Ok(file_result) => {
+                    files_analyzed_ref.fetch_add(1, Ordering::Relaxed);
+
+                    if let Some(risk) = &file_result.file_analysis.risk {
+                        match risk {
+                            crate::types::Criticality::Hostile => {
+                                hostile_count_ref.fetch_add(1, Ordering::Relaxed);
+                            }
+                            crate::types::Criticality::Suspicious => {
+                                suspicious_count_ref.fetch_add(1, Ordering::Relaxed);
+                            }
+                            crate::types::Criticality::Notable => {
+                                notable_count_ref.fetch_add(1, Ordering::Relaxed);
+                            }
+                            _ => {}
+                        }
+                    }
+
+                    on_file_ref(file_result);
+                }
+                Err(e) => {
+                    tracing::debug!("Failed to analyze {}: {}", file.path(), e);
+                }
+            }
+        });
+
+        let hostile_reasons = extractor_handle
+            .join()
+            .map_err(|_| anyhow::anyhow!("Extractor thread panicked"))??;
+
+        Ok(ArchiveSummary {
+            files_analyzed: files_analyzed.load(Ordering::Relaxed),
+            hostile: hostile_count.load(Ordering::Relaxed),
+            suspicious: suspicious_count.load(Ordering::Relaxed),
+            notable: notable_count.load(Ordering::Relaxed),
+            total_bytes: total_bytes.load(Ordering::Relaxed),
+            hostile_reasons,
+            analysis_duration_ms: start.elapsed().as_millis() as u64,
+        })
+    }
+
+    /// Analyze an RPM package with streaming extraction and parallel analysis.
+    ///
+    /// RPM files contain a lead, signature header, main header, and CPIO payload.
+    /// The CPIO payload may be compressed with gzip, xz, zstd, bzip2, or lzma.
+    pub fn analyze_rpm_streaming<F>(
+        &self,
+        archive_path: &Path,
+        on_file: F,
+    ) -> Result<ArchiveSummary>
+    where
+        F: Fn(StreamingFileResult) + Send + Sync,
+    {
+        use crossbeam_channel::bounded;
+        use rayon::prelude::*;
+        use std::io::BufReader;
+        use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
+
+        let start = std::time::Instant::now();
+
+        // Create temp dir for large files
+        let temp_dir = tempfile::tempdir()?;
+
+        // Create extraction guard
+        let guard = ExtractionGuard::new();
+
+        // Bounded channel (32 items) for backpressure
+        let (tx, rx) = bounded::<ExtractedFile>(32);
+
+        // Statistics
+        let files_analyzed = AtomicU32::new(0);
+        let hostile_count = AtomicU32::new(0);
+        let suspicious_count = AtomicU32::new(0);
+        let notable_count = AtomicU32::new(0);
+        let total_bytes = AtomicU64::new(0);
+
+        let archive_path = archive_path.to_path_buf();
+        let temp_dir_path = temp_dir.path().to_path_buf();
+
+        // Spawn extractor thread
+        let extractor_handle = std::thread::spawn(move || -> Result<Vec<HostileArchiveReason>> {
+            let file = std::fs::File::open(&archive_path)?;
+            let mut reader = BufReader::new(file);
+
+            // RPM magic: 0xedabeedb
+            let mut magic = [0u8; 4];
+            reader.read_exact(&mut magic)?;
+            if magic != [0xed, 0xab, 0xee, 0xdb] {
+                anyhow::bail!("Not a valid RPM file (invalid magic)");
+            }
+
+            // Read RPM lead (96 bytes total, we already read 4)
+            let mut lead_rest = [0u8; 92];
+            reader.read_exact(&mut lead_rest)?;
+
+            // Skip signature header
+            let sig_size = skip_rpm_header(&mut reader)?;
+
+            // Align to 8-byte boundary
+            let pos = sig_size;
+            let padding = (8 - (pos % 8)) % 8;
+            if padding > 0 {
+                let mut pad = vec![0u8; padding];
+                reader.read_exact(&mut pad)?;
+            }
+
+            // Skip main header
+            skip_rpm_header(&mut reader)?;
+
+            // Detect compression
+            let mut peek = [0u8; 6];
+            reader.read_exact(&mut peek)?;
+            let peek_cursor = std::io::Cursor::new(peek.to_vec());
+            let chained = peek_cursor.chain(reader);
+
+            // Create decompressor based on magic
+            let cpio_reader: Box<dyn Read + Send> = if peek[0..2] == [0x1f, 0x8b] {
+                Box::new(flate2::read::GzDecoder::new(chained))
+            } else if peek[0..3] == [0xfd, 0x37, 0x7a] {
+                Box::new(xz2::read::XzDecoder::new(chained))
+            } else if peek[0..4] == [0x28, 0xb5, 0x2f, 0xfd] {
+                match zstd::stream::read::Decoder::new(chained) {
+                    Ok(d) => Box::new(d),
+                    Err(e) => anyhow::bail!("Failed to create zstd decoder: {}", e),
+                }
+            } else if peek[0..3] == [0x42, 0x5a, 0x68] {
+                Box::new(bzip2::read::BzDecoder::new(chained))
+            } else if peek[0..2] == [0x5d, 0x00] {
+                Box::new(xz2::read::XzDecoder::new(chained))
+            } else {
+                Box::new(chained)
+            };
+
+            // Process CPIO entries
+            extract_cpio_streaming(cpio_reader, &temp_dir_path, &guard, &tx)?;
+
+            drop(tx);
+            Ok(guard.take_reasons())
+        });
+
+        // Analyze files in parallel
+        let on_file_ref = &on_file;
+        let files_analyzed_ref = &files_analyzed;
+        let hostile_count_ref = &hostile_count;
+        let suspicious_count_ref = &suspicious_count;
+        let notable_count_ref = &notable_count;
+        let total_bytes_ref = &total_bytes;
+
+        rx.into_iter().par_bridge().for_each(|file| {
+            let result = match &file {
+                ExtractedFile::InMemory {
+                    path,
+                    data,
+                    file_type,
+                } => {
+                    total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
+                    self.analyze_in_memory(path, data, file_type)
+                }
+                ExtractedFile::OnDisk {
+                    path,
+                    temp_path,
+                    file_type,
+                } => match std::fs::read(temp_path) {
+                    Ok(data) => {
+                        total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
+                        self.analyze_in_memory(path, &data, file_type)
+                    }
+                    Err(e) => Err(anyhow::anyhow!("Failed to read temp file: {}", e)),
+                },
+            };
+
+            match result {
+                Ok(file_result) => {
+                    files_analyzed_ref.fetch_add(1, Ordering::Relaxed);
+
+                    if let Some(risk) = &file_result.file_analysis.risk {
+                        match risk {
+                            crate::types::Criticality::Hostile => {
+                                hostile_count_ref.fetch_add(1, Ordering::Relaxed);
+                            }
+                            crate::types::Criticality::Suspicious => {
+                                suspicious_count_ref.fetch_add(1, Ordering::Relaxed);
+                            }
+                            crate::types::Criticality::Notable => {
+                                notable_count_ref.fetch_add(1, Ordering::Relaxed);
+                            }
+                            _ => {}
+                        }
+                    }
+
+                    on_file_ref(file_result);
+                }
+                Err(e) => {
+                    tracing::debug!("Failed to analyze {}: {}", file.path(), e);
+                }
+            }
+        });
+
+        let hostile_reasons = extractor_handle
+            .join()
+            .map_err(|_| anyhow::anyhow!("Extractor thread panicked"))??;
+
+        Ok(ArchiveSummary {
+            files_analyzed: files_analyzed.load(Ordering::Relaxed),
+            hostile: hostile_count.load(Ordering::Relaxed),
+            suspicious: suspicious_count.load(Ordering::Relaxed),
+            notable: notable_count.load(Ordering::Relaxed),
+            total_bytes: total_bytes.load(Ordering::Relaxed),
+            hostile_reasons,
+            analysis_duration_ms: start.elapsed().as_millis() as u64,
+        })
+    }
+}
+
+/// Skip an RPM header and return its size
+fn skip_rpm_header<R: Read>(reader: &mut R) -> Result<usize> {
+    let mut magic = [0u8; 3];
+    reader.read_exact(&mut magic)?;
+    if magic != [0x8e, 0xad, 0xe8] {
+        anyhow::bail!("Invalid RPM header magic");
+    }
+
+    let mut version = [0u8; 1];
+    reader.read_exact(&mut version)?;
+
+    let mut reserved = [0u8; 4];
+    reader.read_exact(&mut reserved)?;
+
+    let mut nindex = [0u8; 4];
+    reader.read_exact(&mut nindex)?;
+    let nindex = u32::from_be_bytes(nindex);
+
+    let mut hsize = [0u8; 4];
+    reader.read_exact(&mut hsize)?;
+    let hsize = u32::from_be_bytes(hsize);
+
+    let index_size = nindex as usize * 16;
+    let mut index_data = vec![0u8; index_size];
+    reader.read_exact(&mut index_data)?;
+
+    let mut data = vec![0u8; hsize as usize];
+    reader.read_exact(&mut data)?;
+
+    Ok(16 + index_size + hsize as usize)
+}
+
+/// Extract CPIO entries to memory and send to channel for parallel analysis
+fn extract_cpio_streaming<R: Read>(
+    mut reader: R,
+    temp_dir: &Path,
+    guard: &ExtractionGuard,
+    tx: &crossbeam_channel::Sender<ExtractedFile>,
+) -> Result<()> {
+    loop {
+        if !guard.check_file_count() {
+            break;
+        }
+
+        let entry_reader = match cpio::newc::Reader::new(&mut reader) {
+            Ok(r) => r,
+            Err(e) => {
+                if e.kind() == std::io::ErrorKind::InvalidData {
+                    break;
+                }
+                return Err(e.into());
+            }
+        };
+
+        let entry = entry_reader.entry();
+        let name = entry.name().to_string();
+
+        if name == "TRAILER!!!" {
+            break;
+        }
+
+        if name.is_empty() || name == "." {
+            let mut sink = std::io::sink();
+            std::io::copy(&mut { entry_reader }, &mut sink).ok();
+            continue;
+        }
+
+        let clean_name = name.trim_start_matches("./").trim_start_matches('/');
+        if clean_name.is_empty() {
+            let mut sink = std::io::sink();
+            std::io::copy(&mut { entry_reader }, &mut sink).ok();
+            continue;
+        }
+
+        let mode = entry.mode();
+        let file_size = entry.file_size() as u64;
+
+        // Skip directories and non-regular files
+        if mode & 0o170000 != 0o100000 {
+            if mode & 0o170000 == 0o120000 {
+                guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape(
+                    clean_name.to_string(),
+                ));
+            }
+            let mut sink = std::io::sink();
+            std::io::copy(&mut { entry_reader }, &mut sink).ok();
+            continue;
+        }
+
+        // Check file size
+        if file_size > MAX_FILE_SIZE {
+            guard.add_hostile_reason(HostileArchiveReason::ExcessiveFileSize {
+                file: clean_name.to_string(),
+                size: file_size,
+            });
+            let mut sink = std::io::sink();
+            std::io::copy(&mut { entry_reader }, &mut sink).ok();
+            continue;
+        }
+
+        // Sanitize path
+        let sanitized = sanitize_entry_path(clean_name, temp_dir);
+        if sanitized.is_none() {
+            guard.add_hostile_reason(HostileArchiveReason::PathTraversal(name.clone()));
+            let mut sink = std::io::sink();
+            std::io::copy(&mut { entry_reader }, &mut sink).ok();
+            continue;
+        }
+
+        // Detect file type
+        let path = std::path::Path::new(clean_name);
+        let file_type = detect_file_type(path).unwrap_or(FileType::Unknown);
+
+        // Decide: in-memory or on-disk?
+        let use_disk = file_size > MAX_MEMORY_FILE_SIZE
+            || matches!(file_type, FileType::Archive | FileType::Jar);
+
+        if use_disk {
+            let out_path = sanitized.unwrap();
+            if let Some(parent) = out_path.parent() {
+                std::fs::create_dir_all(parent)?;
+            }
+
+            let mut outfile = std::fs::File::create(&out_path)?;
+            std::io::copy(&mut { entry_reader }, &mut outfile)?;
+
+            if !guard.check_bytes(file_size, clean_name) {
+                break;
+            }
+
+            if tx
+                .send(ExtractedFile::OnDisk {
+                    path: clean_name.to_string(),
+                    temp_path: out_path,
+                    file_type,
+                })
+                .is_err()
+            {
+                break;
+            }
+        } else {
+            let mut data = Vec::with_capacity(file_size as usize);
+            std::io::Read::read_to_end(&mut { entry_reader }, &mut data)?;
+
+            if !guard.check_bytes(data.len() as u64, clean_name) {
+                break;
+            }
+
+            // Re-detect file type with magic bytes
+            let actual_type = if data.len() >= 4 {
+                detect_file_type_from_magic(&data).unwrap_or(file_type)
+            } else {
+                file_type
+            };
+
+            if tx
+                .send(ExtractedFile::InMemory {
+                    path: clean_name.to_string(),
+                    data,
+                    file_type: actual_type,
+                })
+                .is_err()
+            {
+                break;
+            }
+        }
+    }
+
+    Ok(())
 }
 
 /// Summary of streaming archive analysis
@@ -966,5 +1514,63 @@ mod tests {
         // Unknown
         let unknown_data = [0, 0, 0, 0, 0, 0, 0, 0];
         assert_eq!(detect_file_type_from_magic(&unknown_data), None);
+    }
+
+    #[test]
+    fn test_skip_rpm_header() {
+        // Create a minimal RPM header
+        let mut header = Vec::new();
+        // Magic: 0x8eade8
+        header.extend_from_slice(&[0x8e, 0xad, 0xe8]);
+        // Version
+        header.push(0x01);
+        // Reserved (4 bytes)
+        header.extend_from_slice(&[0, 0, 0, 0]);
+        // nindex (1 entry)
+        header.extend_from_slice(&[0, 0, 0, 1]);
+        // hsize (16 bytes of data)
+        header.extend_from_slice(&[0, 0, 0, 16]);
+        // Index entry (16 bytes)
+        header.extend_from_slice(&[0u8; 16]);
+        // Data (16 bytes)
+        header.extend_from_slice(&[0u8; 16]);
+
+        let mut cursor = std::io::Cursor::new(header);
+        let result = skip_rpm_header(&mut cursor);
+        assert!(result.is_ok());
+        // Size = 16 (header struct) + 16 (1 index entry) + 16 (data) = 48
+        assert_eq!(result.unwrap(), 48);
+    }
+
+    #[test]
+    fn test_skip_rpm_header_invalid_magic() {
+        let header = vec![0x00, 0x00, 0x00]; // Wrong magic
+        let mut cursor = std::io::Cursor::new(header);
+        let result = skip_rpm_header(&mut cursor);
+        assert!(result.is_err());
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("Invalid RPM header magic"));
+    }
+
+    #[test]
+    fn test_deb_streaming_creates_analyzer() {
+        // Just test that the analyzer can be created and has the streaming method
+        let analyzer = ArchiveAnalyzer::new();
+        // This is a compile-time check that the method exists
+        let _: fn(&ArchiveAnalyzer, &Path, fn(StreamingFileResult)) -> Result<ArchiveSummary> =
+            ArchiveAnalyzer::analyze_deb_streaming;
+        assert!(analyzer.max_depth > 0);
+    }
+
+    #[test]
+    fn test_rpm_streaming_creates_analyzer() {
+        // Just test that the analyzer can be created and has the streaming method
+        let analyzer = ArchiveAnalyzer::new();
+        // This is a compile-time check that the method exists
+        let _: fn(&ArchiveAnalyzer, &Path, fn(StreamingFileResult)) -> Result<ArchiveSummary> =
+            ArchiveAnalyzer::analyze_rpm_streaming;
+        assert!(analyzer.max_depth > 0);
     }
 }

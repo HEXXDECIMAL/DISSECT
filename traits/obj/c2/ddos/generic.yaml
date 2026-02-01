@@ -1,0 +1,98 @@
+# Generic DDoS Detection Patterns
+# Detects common techniques used in DDoS tools:
+# 1. High-concurrency network workers
+# 2. Header/User-Agent rotation
+# 3. DDoS-specific terminology (pps, bps, flood types)
+# 4. Telemetry (packets sent, success rate)
+
+defaults:
+  attack: "T1498" # Network Denial of Service
+  mbc: "B0009"   # Denial of Service
+
+traits:
+  # NOTE: Worker pool detection is handled by feat/concurrency/worker-pool (inert)
+  # The c2/ddos/worker-pool trait was removed because worker pools alone are not
+  # indicators of DDoS - they're used legitimately by compilers, build tools, etc.
+  # DDoS detection now requires additional context via composite rules.
+
+  # === User-Agent Rotation ===
+  - id: ua-list-large
+    desc: Large list of browser User-Agents
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: "Mozilla/5\\.0"
+      count_min: 10
+  # === DDoS Terminology ===
+  - id: attack-metrics
+    desc: Performance metrics typical of DDoS
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      # Match performance metrics in context (e.g., "100 pps", "sent: 1000 bps")
+      # Excludes standalone abbreviations that could appear in documentation
+      regex: "\\b[0-9]+\\s*(pps|bps|qps)\\b|\\b(pps|bps|qps)\\s*[=:]\\s*[0-9]+"
+      case_insensitive: true
+
+  - id: flood-types
+    desc: Specific flood attack types
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: "(syn|udp|http|icmp|slowloris|post|get|dns|memcached)[_-]?flood"
+      case_insensitive: true
+
+  # === Telemetry ===
+  - id: attack-telemetry
+    desc: Telemetry counters for attack progress
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: "\\b(packets|requests|bytes|payloads)[_-](sent|total|count|success|fail)\\b"
+      case_insensitive: true
+
+composite_rules:
+  # Helper: Attack terminology
+  - id: ddos-terminology
+    desc: "DDoS-specific terminology detected"
+    any:
+      - id: flood-types
+      - id: attack-metrics
+
+  # Helper: Bot mechanics
+  - id: ddos-mechanics
+    desc: "DDoS-specific operational mechanics detected"
+    any:
+      - id: meta/concurrency/worker-pool
+      - id: attack-telemetry
+
+  # Helper: HTTP Methods
+  - id: http-methods
+    desc: "HTTP request methods detected"
+    any:
+      - id: cap/comm/http/post
+      - id: cap/comm/http/request
+
+  # High-confidence DDoS capability
+  - id: ddos-capability
+    desc: "Probable DDoS attack tool (Attack"
+    crit: suspicious
+    conf: 0.9
+    all:
+      - id: ddos-terminology
+      - id: ddos-mechanics
+      - id: cap/comm/socket/create
+
+  # Layer 7 DDoS (Application Layer)
+  - id: layer7-ddos
+    desc: "Layer 7 (HTTP) DDoS tool"
+    crit: suspicious
+    conf: 0.95
+    all:
+      - id: ua-list-large
+      - id: http-methods
+      - id: ddos-terminology

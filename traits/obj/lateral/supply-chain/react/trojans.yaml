@@ -1,0 +1,96 @@
+# Trojanized React Library Detection
+# ATT&CK: T1195.002 (Compromise Software Supply Chain)
+# Detects React libraries modified to include malicious capabilities
+
+defaults:
+  attack: "T1195.002"
+  mbc: "B0024"
+  for: [javascript]
+
+composite_rules:
+  # React + ActiveXObject = HOSTILE (complexity >= 4)
+  - id: trojanized-activex
+    desc: "React library with ActiveXObject (trojanized"
+    crit: hostile
+    conf: 0.98
+    all:
+      - {id: meta/library/react/library}
+      - {id: meta/library/react/version-banner}
+      - {id: cap/exec/dropper/activex-object}
+    explanation: |
+      This file contains React library signatures but uses ActiveXObject.
+      Real React never uses ActiveXObject for any purpose.
+      This is a trojanized library - a supply chain attack.
+
+  # React + Reverse Shell = HOSTILE
+  - id: trojanized-reverse-shell
+    desc: "React library with reverse shell"
+    crit: hostile
+    conf: 0.98
+    all:
+      - {id: meta/library/react/library}
+      - {id: meta/library/react/version-banner}
+      - {id: obj/c2/reverse-shell/node/socket-with-exec}
+    explanation: |
+      This React library contains reverse shell capabilities.
+      Real React is a UI library and doesn't create reverse shells.
+      This is a trojanized library - a supply chain attack.
+
+  # React + Base64 Eval = HOSTILE (hidden payload)
+  - id: trojanized-base64-eval
+    desc: "React library with base64+eval payload"
+    crit: hostile
+    conf: 0.95
+    all:
+      - {id: meta/library/react/library}
+      - {id: meta/library/react/version-banner}
+      - {id: obj/anti-static/obfuscation/base64-eval}
+    explanation: |
+      This React library uses base64+eval to hide malicious code.
+      Real React doesn't use base64+eval obfuscation patterns.
+      This is a trojanized library - a supply chain attack.
+
+  # React + Credential Access = HOSTILE
+  - id: trojanized-credential-access
+    desc: "React library with credential access"
+    crit: hostile
+    conf: 0.98
+    all:
+      - {id: meta/library/react/library}
+      - {id: meta/library/react/version-banner}
+    any:
+      - {id: obj/creds/browser/chromium/login-data}
+      - {id: obj/creds/browser/firefox/cookies-sqlite}
+    explanation: |
+      This React library accesses credential stores.
+      Real React never accesses browser credentials.
+      This is a trojanized library - a supply chain attack.
+
+  # React + Command Execution = HOSTILE
+  - id: trojanized-exec
+    desc: "React library with command execution"
+    crit: hostile
+    conf: 0.98
+    all:
+      - {id: meta/library/react/library}
+      - {id: meta/library/react/version-banner}
+    any:
+      - {id: cap/exec/command/shell}
+      - {id: cap/exec/command/node/child-process}
+    explanation: |
+      This React library executes system commands or spawns processes.
+      Real React is a UI library and never executes commands.
+      This is a trojanized library - a supply chain attack.
+
+  # React + Network Backdoor = HOSTILE
+  - id: trojanized-backdoor
+    desc: "React library with network backdoor"
+    crit: hostile
+    conf: 0.95
+    all:
+      - {id: meta/library/react/library}
+      - {id: meta/library/react/version-banner}
+      - {id: obj/c2/infrastructure/domain/suspicious}
+    explanation: |
+      This React library communicates with suspicious domains.
+      This is a trojanized library - a supply chain attack.

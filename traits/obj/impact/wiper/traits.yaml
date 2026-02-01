@@ -1,0 +1,223 @@
+# Wiper/Destruction Patterns
+# Detects patterns associated with destructive malware (wipers, protestware)
+# ATT&CK: T1485 (Data Destruction), T1561 (Disk Wipe)
+
+traits:
+  # Recursive directory deletion (Node.js)
+  - id: recursive-delete
+    description: Recursive directory deletion function
+    crit: suspicious
+    conf: 0.85
+    attack: "T1485"
+    for: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule node_recursive_delete {
+          strings:
+            $readdir = "readdirSync" ascii
+            $unlink = "unlinkSync" ascii
+            $rmdir = "rmdirSync" ascii
+            $rmrf = "rm -rf" ascii
+            $rimraf = "rimraf" ascii
+          condition:
+            ($readdir and ($unlink or $rmdir)) or $rmrf or $rimraf
+        }
+
+  # Targets development directories
+  - id: target-dev-dirs
+    description: Targets development directories for deletion
+    crit: suspicious
+    conf: 0.9
+    attack: "T1485"
+    for: [javascript, typescript, python]
+    condition:
+      type: yara
+      source: |
+        rule target_dev_directories {
+          strings:
+            $dir1 = ".git" ascii
+            $dir2 = ".svn" ascii
+            $dir3 = "node_modules" ascii
+            $dir4 = ".vscode" ascii
+            $dir5 = "/src" ascii
+            $dir6 = "/public" ascii
+            $delete1 = "unlink" ascii
+            $delete2 = "rmdir" ascii
+            $delete3 = "rm -rf" ascii
+            $delete4 = "rmtree" ascii
+            $delete5 = "shutil.rmtree" ascii
+          condition:
+            3 of ($dir*) and any of ($delete*)
+        }
+
+  # Individual directory targeting
+  - id: target-git
+    description: Targets .git directory (version control)
+    crit: notable
+    conf: 0.85
+    attack: "T1485"
+    for: [javascript, typescript, python, shell]
+    condition:
+      type: string
+      regex: '["'']\\./?\\.git["'']'
+
+  - id: target-node-modules
+    description: Targets node_modules directory
+    crit: notable
+    conf: 0.8
+    attack: "T1485"
+    for: [javascript, typescript]
+    condition:
+      type: string
+      regex: '["'']/?(\\./)?node_modules["'']'
+
+  - id: target-src
+    description: Targets source code directory
+    crit: notable
+    conf: 0.85
+    attack: "T1485"
+    for: [javascript, typescript, python]
+    condition:
+      type: string
+      regex: '["'']/?(\\./)?src["'']'
+
+  # === IDE config atomic indicators ===
+  - id: target-vscode-dir
+    description: Targets .vscode directory
+    crit: inert
+    conf: 0.7
+    attack: "T1485"
+    for: [javascript, typescript]
+    condition:
+      type: string
+      regex: '["'']/?(\\./)?\\.(vscode)["'']'
+
+  - id: target-idea-dir
+    description: Targets .idea directory
+    crit: inert
+    conf: 0.7
+    attack: "T1485"
+    for: [javascript, typescript]
+    condition:
+      type: string
+      regex: '["'']/?(\\./)?\\.(idea)["'']'
+
+  # Conditional destruction based on environment
+  - id: conditional-destroy
+    description: Conditional destruction based on environment
+    crit: suspicious
+    conf: 0.95
+    attack: "T1485"
+    for: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule conditional_destruction {
+          strings:
+            $env_check = /process\.env\[[^\]]+\]\s*(!=|!==|==|===)/ ascii
+            $node_env = "NODE_ENV" ascii
+            $destroy1 = "unlinkSync" ascii
+            $destroy2 = "rmdirSync" ascii
+            $destroy3 = "rm -rf" ascii
+          condition:
+            ($env_check or $node_env) and any of ($destroy*)
+        }
+
+  # Android/mobile storage targeting
+  - id: target-android-storage
+    description: Targets Android storage directories
+    crit: suspicious
+    conf: 0.95
+    attack: "T1485"
+    for: [javascript, typescript, shell]
+    condition:
+      type: yara
+      source: |
+        rule target_android_storage {
+          strings:
+            $sdcard = "/sdcard" ascii
+            $storage = "/storage/emulated" ascii
+            $dcim = "DCIM" ascii
+            $pictures = "Pictures" ascii
+            $downloads = "Download" ascii
+            $rm = "rm " ascii
+            $rmrf = "rm -rf" ascii
+            $spawn = "spawn(" ascii
+          condition:
+            ($sdcard or $storage) and any of ($dcim, $pictures, $downloads) and any of ($rm, $rmrf, $spawn)
+        }
+
+  # Mass file deletion
+  - id: mass-delete
+    description: Mass file deletion pattern
+    crit: suspicious
+    conf: 0.85
+    attack: "T1485"
+    for: [javascript, typescript, python, shell]
+    condition:
+      type: yara
+      source: |
+        rule mass_file_deletion {
+          strings:
+            $walk1 = "fs.readdirSync" ascii
+            $walk2 = "os.walk" ascii
+            $walk3 = "glob(" ascii
+            $walk4 = "find ." ascii
+            $delete1 = "unlinkSync" ascii
+            $delete2 = "os.remove" ascii
+            $delete3 = "os.unlink" ascii
+            $delete4 = "-delete" ascii
+            $delete5 = "rm -rf" ascii
+          condition:
+            any of ($walk*) and any of ($delete*)
+        }
+
+composite_rules:
+  # Target IDE config composite
+  - id: target-vscode
+    description: Targets .vscode configuration directory
+    crit: notable
+    conf: 0.85
+    attack: "T1485"
+    for: [javascript, typescript]
+    count_min: 1
+    any:
+      - id: target-vscode-dir
+      - id: target-idea-dir
+
+  - id: http-callback
+    description: HTTP request pattern for callback/reporting
+    crit: notable
+    conf: 0.8
+    for: [javascript, typescript]
+    count_min: 1
+    any:
+      - id: cap/comm/http/request/javascript/axios
+      - id: cap/comm/http/request/javascript/fetch-call
+      - id: cap/comm/http/request/javascript/https-request
+      - id: cap/comm/http/request/javascript/http-request
+
+  # Protestware pattern (env-conditional destruction)
+  - id: protestware
+    description: Protestware pattern - conditional destruction
+    crit: suspicious
+    conf: 0.98
+    attack: "T1485"
+    mbc: "B0031"
+    for: [javascript, typescript]
+    all:
+      - id: obj/impact/wiper/conditional-destroy
+      - id: obj/impact/wiper/target-dev-dirs
+
+  # Full wiper with HTTP callback (report success)
+  - id: with-callback
+    description: Wiper with HTTP callback (potential
+    crit: suspicious
+    conf: 0.95
+    attack: "T1485"
+    mbc: "B0031"
+    for: [javascript, typescript]
+    all:
+      - id: obj/impact/wiper/recursive-delete
+      - id: obj/impact/wiper/http-callback

@@ -1,0 +1,83 @@
+# Memory-based Code Execution
+# ATT&CK: T1055 (Process Injection)
+# MBC: B0033
+
+traits:
+  - id: remote-injection
+    description: Remote process memory manipulation
+    crit: suspicious
+    confidence: 0.9
+    attack: "T1055"
+    platforms: [windows]
+    file_types: [pe, dll]
+    condition:
+      type: yara
+      source: |
+        rule remote_injection {
+          strings:
+            $vpe = "VirtualProtectEx" ascii wide
+            $vqe = "VirtualQueryEx" ascii wide
+          condition:
+            any of them
+        }
+
+  - id: execve-symbol
+    description: Linux execve/fexecve symbol reference
+    crit: notable
+    confidence: 0.8
+    platforms: [linux]
+    file_types: [elf]
+    condition:
+      type: symbol
+      pattern: "^_?(execve|fexecve)$"
+
+  - id: python-encode-call
+    description: Python encode method call
+    crit: notable
+    confidence: 0.8
+    platforms: [windows, linux, macos]
+    file_types: [python]
+    condition:
+      type: ast
+      kind: call
+      exact: "encode"
+
+  - id: python-b64decode-call
+    description: Python base64 decode call
+    crit: notable
+    confidence: 0.8
+    platforms: [windows, linux, macos]
+    file_types: [python]
+    condition:
+      type: ast
+      kind: call
+      exact: "b64decode"
+
+composite_rules:
+  - id: linux-memfd
+    description: Fileless execution via anonymous memory
+    crit: suspicious
+    confidence: 0.9
+    attack: "T1055"
+    mbc: "B0033"
+    platforms: [linux]
+    file_types: [elf]
+    all:
+      - id: cap/mem/anonymous/create/memfd-create
+    any:
+      - id: execve-symbol
+      - id: cap/mem/protect/modify/mprotect
+
+  - id: python-shellcode
+    description: Python shellcode injection via VirtualProtect
+    crit: suspicious
+    confidence: 0.95
+    attack: "T1055"
+    mbc: "B0033"
+    platforms: [windows]
+    file_types: [python]
+    all:
+      - id: cap/mem/protect/modify/virtualprotect-ctypes
+    any:
+      - id: python-encode-call
+      - id: python-b64decode-call

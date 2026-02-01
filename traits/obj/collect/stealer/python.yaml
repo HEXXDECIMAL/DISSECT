@@ -1,0 +1,61 @@
+# Python Infostealer and Staging Detection
+# Aggregates micro-behaviors into high-level stealer narratives
+
+composite_rules:
+  - id: infostealer
+    desc: "Python infostealer behavior"
+    crit: suspicious
+    conf: 0.95
+    mbc: "OB0003"
+    attack: "T1041"
+    for: [python]
+    count_min: 4
+    all:
+      - id: obj/discovery/system
+      - id: cap/comm/http/request
+    any:
+      - id: cap/fs/file/write
+      - id: cred
+      - id: collect
+
+  - id: dynamic-dropper
+    desc: "Dynamic Python dropper behavior"
+    crit: suspicious
+    conf: 0.98
+    mbc: "B0023"
+    attack: "T1059"
+    for: [python]
+    count_min: 4
+    all:
+      - id: obj/anti-static/obfuscation/strings
+      - id: obj/lateral/supply-chain
+      - id: exec
+
+  - id: evasive-profiler
+    desc: "Evasive Python system profiler"
+    crit: suspicious
+    conf: 0.95
+    mbc: "E1082"
+    attack: "T1082"
+    for: [python]
+    count_min: 3
+    all:
+      - id: obj/aliasing
+      - id: obj/discovery/system
+      - id: cap/comm/http/request
+
+  - id: data-staging
+    desc: "Data staging for exfiltration"
+    crit: suspicious
+    conf: 0.98
+    mbc: "B0030"
+    attack: "T1074"
+    for: [python]
+    near_lines: 100
+    count_min: 4
+    all:
+      - id: obj/discovery/system
+    any:
+      - id: cap/fs/file/write
+      - id: obj/collect/archive
+      - id: obj/exfil/http

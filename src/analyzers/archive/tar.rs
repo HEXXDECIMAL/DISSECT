@@ -5,8 +5,12 @@
 //! - Gzip-compressed TAR (.tar.gz, .tgz)
 //! - Bzip2-compressed TAR (.tar.bz2, .tbz2, .tbz)
 //! - XZ-compressed TAR (.tar.xz, .txz)
+//! - Zstd-compressed TAR (.tar.zst, .tzst)
 //! - Ruby gems (.gem) - TAR.GZ format
 //! - Rust crates (.crate) - TAR.GZ format
+//! - Arch Linux packages (.pkg.tar.zst, .pkg.tar.xz)
+//! - Void Linux packages (.xbps) - TAR.ZSTD format
+//! - Alpine Linux packages (.apk) - TAR.GZ format (detected by magic)
 
 use super::guards::{
     sanitize_entry_path, ExtractionGuard, HostileArchiveReason, LimitedReader, MAX_FILE_SIZE,
@@ -29,6 +33,9 @@ pub(crate) fn extract_tar_safe(
         Some("gzip") => Box::new(flate2::read::GzDecoder::new(file)),
         Some("bzip2") => Box::new(bzip2::read::BzDecoder::new(file)),
         Some("xz") => Box::new(xz2::read::XzDecoder::new(file)),
+        Some("zstd") => Box::new(
+            zstd::stream::read::Decoder::new(file).context("Failed to create zstd decoder")?,
+        ),
         None => Box::new(file),
         _ => anyhow::bail!("Unsupported compression: {:?}", compression),
     };

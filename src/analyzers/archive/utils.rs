@@ -1,7 +1,7 @@
 //! Utility functions for archive analysis.
 
 use std::fs::File;
-use std::io::{BufRead, BufReader};
+use std::io::{BufRead, BufReader, Read};
 use std::path::Path;
 
 /// Calculate SHA256 hash of data
@@ -91,7 +91,7 @@ pub(crate) fn is_benign_java_path(path: &Path) -> bool {
 }
 
 /// Detect TAR compression type from file extension.
-/// Returns Some("gzip"), Some("bzip2"), Some("xz"), or None for plain tar.
+/// Returns Some("gzip"), Some("bzip2"), Some("xz"), Some("zstd"), or None for plain tar.
 pub(crate) fn detect_tar_compression(path: &Path) -> Option<String> {
     let path_str = path.to_string_lossy().to_lowercase();
 
@@ -108,14 +108,28 @@ pub(crate) fn detect_tar_compression(path: &Path) -> Option<String> {
         Some("bzip2".to_string())
     } else if path_str.ends_with(".tar.xz") || path_str.ends_with(".txz") {
         Some("xz".to_string())
+    } else if path_str.ends_with(".tar.zst")
+        || path_str.ends_with(".tzst")
+        || path_str.ends_with(".xbps")
+    {
+        Some("zstd".to_string())
     } else {
         None
     }
 }
 
 /// Detect archive type from file extension
-pub(crate) fn detect_archive_type(path: &Path) -> &str {
+pub(crate) fn detect_archive_type(path: &Path) -> &'static str {
     let path_str = path.to_string_lossy().to_lowercase();
+
+    // Arch Linux packages (must check before generic .tar.* patterns)
+    if path_str.ends_with(".pkg.tar.zst") {
+        return "tar.zst";
+    } else if path_str.ends_with(".pkg.tar.xz") {
+        return "tar.xz";
+    } else if path_str.ends_with(".pkg.tar.gz") {
+        return "tar.gz";
+    }
 
     if path_str.ends_with(".tar.gz") {
         "tar.gz"
@@ -129,13 +143,17 @@ pub(crate) fn detect_archive_type(path: &Path) -> &str {
         "tar.xz"
     } else if path_str.ends_with(".txz") {
         "txz"
+    } else if path_str.ends_with(".tar.zst") || path_str.ends_with(".tzst") {
+        "tar.zst"
+    } else if path_str.ends_with(".xbps") {
+        // Void Linux packages - zstd-compressed tar
+        "tar.zst"
     } else if path_str.ends_with(".tar") {
         "tar"
     } else if path_str.ends_with(".zip")
         || path_str.ends_with(".jar")
         || path_str.ends_with(".war")
         || path_str.ends_with(".ear")
-        || path_str.ends_with(".apk")
         || path_str.ends_with(".aar")
         || path_str.ends_with(".egg")
         || path_str.ends_with(".whl")
@@ -147,6 +165,10 @@ pub(crate) fn detect_archive_type(path: &Path) -> &str {
         || path_str.ends_with(".epub")
     {
         "zip"
+    } else if path_str.ends_with(".apk") {
+        // Could be Android APK (zip) or Alpine APK (tar.gz)
+        // Default to "apk", use detect_archive_type_with_magic to resolve
+        "apk"
     } else if path_str.ends_with(".crx") {
         "crx"
     } else if path_str.ends_with(".7z") {
@@ -157,6 +179,8 @@ pub(crate) fn detect_archive_type(path: &Path) -> &str {
         "xz"
     } else if path_str.ends_with(".gz") {
         "gz"
+    } else if path_str.ends_with(".zst") {
+        "zst"
     } else if path_str.ends_with(".bz2") {
         "bz2"
     } else if path_str.ends_with(".deb") {
@@ -164,10 +188,57 @@ pub(crate) fn detect_archive_type(path: &Path) -> &str {
     } else if path_str.ends_with(".rpm") {
         "rpm"
     } else if path_str.ends_with(".pkg") {
+        // Could be macOS PKG (xar) or FreeBSD pkg (tar.xz)
+        // Default to "pkg", use detect_archive_type_with_magic to resolve
         "pkg"
     } else if path_str.ends_with(".rar") {
         "rar"
     } else {
         "unknown"
+    }
+}
+
+/// Detect archive type using magic bytes for ambiguous extensions.
+/// Call this when extension-based detection returns "apk" or "pkg".
+pub(crate) fn detect_archive_type_with_magic(path: &Path) -> std::io::Result<&'static str> {
+    let extension_type = detect_archive_type(path);
+
+    // Only check magic for ambiguous types
+    match extension_type {
+        "apk" => {
+            // Alpine APK: gzip (0x1f 0x8b) - tar.gz
+            // Android APK: ZIP (PK\x03\x04)
+            let mut file = File::open(path)?;
+            let mut magic = [0u8; 4];
+            file.read_exact(&mut magic)?;
+
+            if magic[0..2] == [0x1f, 0x8b] {
+                Ok("tar.gz") // Alpine APK
+            } else if magic == [b'P', b'K', 0x03, 0x04] {
+                Ok("zip") // Android APK
+            } else {
+                Ok("zip") // Default to Android
+            }
+        }
+        "pkg" => {
+            // macOS PKG: XAR ("xar!" at offset 0)
+            // FreeBSD pkg: usually starts with xz or zstd magic
+            let mut file = File::open(path)?;
+            let mut magic = [0u8; 6];
+            file.read_exact(&mut magic)?;
+
+            if &magic[0..4] == b"xar!" {
+                Ok("pkg") // macOS XAR package
+            } else if magic[0..2] == [0xfd, 0x37] {
+                // XZ magic - FreeBSD pkg (tar.xz)
+                Ok("tar.xz")
+            } else if magic[0..4] == [0x28, 0xb5, 0x2f, 0xfd] {
+                // Zstd magic - FreeBSD pkg (tar.zst)
+                Ok("tar.zst")
+            } else {
+                Ok("pkg") // Default to macOS
+            }
+        }
+        other => Ok(other),
     }
 }

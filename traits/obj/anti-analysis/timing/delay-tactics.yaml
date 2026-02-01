@@ -1,0 +1,112 @@
+# Timing and Delay Tactics Detection
+# Detects sleep/delay functions used for evasion or rate limiting
+# ATT&CK: T1497.003 (Virtualization/Sandbox Evasion: Time Based Evasion)
+
+defaults:
+  attack: "T1497.003"
+  mbc: "B0003.005"
+  crit: inert
+
+traits:
+  # === Sleep functions ===
+  - id: sleep-func
+    desc: "Sleep function (delays execution)"
+    crit: inert
+    conf: 0.4
+    for: [elf, macho, pe]
+    if:
+      type: symbol
+      pattern: "^sleep$"
+
+  - id: usleep-func
+    desc: "Microsecond sleep (precise timing delays)"
+    crit: inert
+    conf: 0.4
+    platforms: [linux, macos, unix]
+    for: [elf, macho]
+    if:
+      type: symbol
+      pattern: "usleep"
+
+  - id: nanosleep-func
+    desc: "Nanosecond sleep (high-precision delays)"
+    crit: inert
+    conf: 0.4
+    platforms: [linux, macos, unix]
+    for: [elf, macho]
+    if:
+      type: symbol
+      pattern: "nanosleep"
+
+  # === Clock/timing functions ===
+  - id: clock-gettime
+    desc: "Reads current time (timing measurements)"
+    crit: inert
+    conf: 0.4
+    platforms: [linux, macos, unix]
+    for: [elf, macho]
+    if:
+      type: symbol
+      pattern: "clock_gettime"
+
+  - id: gettimeofday
+    desc: "Gets current time of day"
+    crit: inert
+    conf: 0.3
+    platforms: [linux, macos, unix]
+    for: [elf, macho]
+    if:
+      type: symbol
+      pattern: "gettimeofday"
+
+composite_rules:
+  # Basic delay capability
+  - id: delay-capability
+    desc: "Program can delay execution (sleep/timing)"
+    crit: inert
+    conf: 0.5
+    count_min: 1
+    any:
+      - id: sleep-func
+      - id: usleep-func
+      - id: nanosleep-func
+
+  # Timing measurement
+  - id: timing-measurement
+    desc: "Measures execution time (timing attacks"
+    crit: notable
+    conf: 0.7
+    attack: "T1497.003"
+    count_min: 1
+    any:
+      - id: clock-gettime
+      - id: gettimeofday
+
+  # Delay with network = evasion or C2 beaconing
+  # NOTE: nanosleep + socket is extremely common in any network program.
+  # This pattern alone is NOT suspicious - nearly all network tools use this.
+  - id: delay-with-network
+    desc: "Network communication with delays (C2"
+    crit: inert
+    conf: 0.5
+    attack: "T1497.003"
+    all:
+      - id: delay-capability
+    count_min: 1
+    any:
+      - id: cap/comm/socket/create
+      - id: cap/comm/download/curl/libcurl-http
+
+  # Timing measurement + delay = sandbox evasion
+  # NOTE: clock_gettime + nanosleep is extremely common in legitimate software.
+  # This pattern alone is NOT suspicious - nearly all async I/O uses this.
+  # Only suspicious when combined with actual anti-analysis indicators.
+  - id: timing-evasion
+    desc: "Timing measurement with delays (sandbox/VM"
+    crit: inert
+    conf: 0.5
+    attack: "T1497.003"
+    mbc: "B0003.005"
+    all:
+      - id: timing-measurement
+      - id: delay-capability

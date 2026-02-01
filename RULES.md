@@ -10,69 +10,77 @@
 
 ## Taxonomy
 
-Rules follow `objective/capability/kind` organization. Since this is static analysis, we detect **capabilities** not behaviors.
+Rules follow a three-tier hierarchy based on [MBC (Malware Behavior Catalog)](https://github.com/MBCProject/mbc-markdown). See [TAXONOMY.md](./TAXONOMY.md) for the complete structure.
 
-**Objectives:**
+| Tier | Prefix | Purpose | Criticality Range |
+|------|--------|---------|-------------------|
+| **Capabilities** | `cap/` | What code *can do* (value-neutral) | inert → notable → suspicious |
+| **Objectives** | `obj/` | What code *likely wants* to do | notable → suspicious → hostile |
+| **Known** | `known/` | Specific malware/tool signatures | suspicious → hostile |
+| **Meta** | `meta/` | File properties (informational) | inert |
 
-| Objective | Capabilities that could... |
-|---|---|
-| **anti-analysis** | evade behavior analysis |
-| **anti-static** | make static analysis difficult |
-| **collect** | gather information from machine/network |
-| **c2** | communicate with compromised systems |
-| **cred** | steal credentials |
-| **discovery** | gain environmental knowledge |
-| **exec** | execute code |
-| **exfil** | steal data |
-| **impact** | destroy systems or data |
-| **lateral** | move through environment |
-| **persist** | remain on system |
-| **privesc** | obtain higher permissions |
-
-**Micro-traits** (MBC MicroBehaviors):
+**Capabilities** (`cap/`) - MBC Micro-behaviors:
 
 | Prefix | Description |
 |---|---|
-| **comm** | communications/networking |
-| **crypto** | cryptography |
-| **data** | data manipulation |
-| **fs** | filesystem |
-| **mem** | memory |
-| **process** | process manipulation |
-| **os** | OS (registry, env vars) |
-| **feat** | program features |
+| `cap/comm/` | Network communication |
+| `cap/crypto/` | Cryptography |
+| `cap/data/` | Data transformation |
+| `cap/exec/` | Code execution |
+| `cap/fs/` | Filesystem access |
+| `cap/hw/` | Hardware interaction |
+| `cap/mem/` | Memory operations |
+| `cap/os/` | OS integration |
+| `cap/process/` | Process control |
 
-**Known tools** (`known-tools/`): Malware families and security tools organized by STIX 2.1 type.
+**Objectives** (`obj/`) - MBC Objectives:
+
+| Prefix | Description |
+|---|---|
+| `obj/anti-analysis/` | Evade dynamic analysis |
+| `obj/anti-forensics/` | Cover tracks |
+| `obj/anti-static/` | Evade static analysis |
+| `obj/c2/` | Command & control |
+| `obj/collect/` | Information gathering |
+| `obj/creds/` | Credential theft |
+| `obj/discovery/` | Environment reconnaissance |
+| `obj/exfil/` | Data exfiltration |
+| `obj/impact/` | Destructive operations |
+| `obj/lateral/` | Lateral movement |
+| `obj/persist/` | Persistence mechanisms |
+| `obj/privesc/` | Privilege escalation |
+
+**Known** (`known/`): Malware families (`known/malware/`) and security tools (`known/tools/`).
 
 ## Trait Placement (CRITICAL)
 
-**Generic micro-behaviors NEVER go in `known-tools/`.** Only family-unique identifiers belong there.
+**Generic capabilities NEVER go in `known/`.** Only family-unique identifiers belong there.
 
 ```yaml
-# known-tools/backdoor/examplebot/traits.yaml - CORRECT
+# known/malware/backdoor/examplebot/traits.yaml - CORRECT
 traits:
-  - id: backdoor/examplebot/marker  # Malware-specific only
+  - id: marker  # Malware-specific only (auto-prefixed to known/malware/backdoor/examplebot/marker)
     if: { type: string, exact: "ExampleBot_v2.1" }
 
 composite_rules:
-  - id: backdoor/examplebot/detected
+  - id: detected
     all:
-      - id: backdoor/examplebot/marker  # Local
-      - id: bin-sh                       # From exec/command/shell/
-      - id: socks5-proto                 # From comm/proxy/socks/
+      - id: marker                       # Local reference
+      - id: cap/exec/shell/bin-sh        # From cap/exec/shell/
+      - id: cap/comm/proxy/socks5-proto  # From cap/comm/proxy/
 ```
 
 ## File Organization
 
 ```
-traits/exec/command/
+traits/cap/exec/shell/
 ├── traits.yaml      # Primary definitions
 ├── combos.yaml      # Composite rules
 ├── linux.yaml       # Platform-specific
 └── python.yaml      # Language-specific
 ```
 
-**Trait IDs** are relative to directory. Use full path for cross-directory references: `exec/command/py_subprocess`
+**Trait IDs** are relative to directory (auto-prefixed). Use full path for cross-tier references: `cap/exec/shell/subprocess`
 
 ## Criticality Levels
 
@@ -290,19 +298,20 @@ if:
 
 ## Composite Rules
 
-Combine traits with boolean logic.
+Combine traits with boolean logic. Capabilities combine into objectives.
 
 ```yaml
+# obj/c2/reverse-shell/combos.yaml
 composite_rules:
-  - id: c2/reverse-shell
+  - id: reverse-shell
     desc: "Reverse shell"
     crit: hostile
     conf: 0.95
     for: [elf, macho]
     all:                    # AND - all must match
-      - id: comm/socket/create
-      - id: process/fd/dup2
-      - id: exec/shell
+      - id: cap/comm/socket/create
+      - id: cap/process/fd/dup2
+      - id: cap/exec/shell
     any:                    # OR - at least one
       - id: pattern-a
       - id: pattern-b

@@ -1,0 +1,50 @@
+# Distinguish Legitimate Minification from Malicious Obfuscation
+# Minified code is compressed but readable, obfuscated code hides intent
+
+defaults:
+  for: [javascript, typescript]
+
+composite_rules:
+  # Legitimate minification patterns (benign compression)
+  - id: minification-pattern
+    desc: "Code appears minified by webpack/uglify/terser"
+    crit: notable
+    conf: 0.8
+    all:
+      - {id: obj/anti-static/obfuscation/code-metrics/very-long-lines}
+      - {id: obj/anti-static/obfuscation/code-metrics/single-char-function-names}
+    not:
+      - {id: obj/anti-static/obfuscation/base64-eval}
+    explanation: |
+      This code appears to be minified by standard build tools (webpack, uglify, terser).
+      Minification is a normal optimization technique used by legitimate libraries.
+
+  # Hostile obfuscation (malicious encoding)
+  - id: hostile-obfuscation
+    desc: "Hostile obfuscation techniques (not just"
+    crit: suspicious
+    conf: 0.90
+    any:
+      - {id: obj/anti-static/obfuscation/base64-eval}
+      - {id: obj/anti-static/obfuscation/encoding/xor-string}
+    explanation: |
+      This code uses hostile obfuscation techniques beyond normal minification.
+      Encoding combined with dynamic execution indicates attempt to hide malicious intent.
+
+  # Minified library with hostile capabilities (trojanized)
+  - id: minified-with-hostile-caps
+    desc: "Minified code with hostile capabilities"
+    crit: suspicious
+    conf: 0.92
+    attack: "T1195.002"
+    mbc: "B0024"
+    all:
+      - {id: obj/anti-static/obfuscation/minified-vs-obfuscated/minification-pattern}
+    any:
+      - {id: cap/exec/dropper/activex-object}
+      - {id: obj/c2/reverse-shell/socket-command}
+      - {id: obj/anti-static/obfuscation/minified-vs-obfuscated/hostile-obfuscation}
+    explanation: |
+      This appears to be legitimately minified code, but contains hostile capabilities
+      that legitimate libraries don't have. This suggests a trojanized library or
+      malware disguised as a minified library.

@@ -1,0 +1,409 @@
+# SSH Brute-Force Attack Detection
+# ATT&CK: T1110.001 (Brute Force: Password Guessing)
+# MBC: E1110 (Brute Force)
+
+traits:
+  # SSH protocol strings
+  - id: ssh-userauth
+    desc: SSH user authentication protocol
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "ssh-userauth"
+
+  - id: libssh
+    desc: libssh library
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "libssh"
+
+  - id: ssh-version
+    desc: SSH protocol version 2.0
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "SSH-2.0"
+
+  # Authentication methods
+  - id: password-auth
+    desc: SSH password authentication
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      # SSH authentication method context, not generic "password" word
+      regex: "(?:ssh[_-]?)?password[_-]?(?:auth(?:entication)?|method)"
+
+  - id: keyboard-interactive
+    desc: SSH keyboard-interactive authentication
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "keyboard-interactive"
+
+  # Authentication error strings
+  - id: auth-failed
+    desc: Authentication failed error message
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "Authentication failed"
+
+  - id: permission-denied
+    desc: Permission denied error message
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "Permission denied"
+
+  - id: too-many-auth-failures
+    desc: Too many authentication failures error
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "Too many authentication failures"
+
+  # Default IoT credentials (15 common pairs)
+  - id: admin-admin-cred
+    desc: Default credential admin:admin
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "admin:admin"
+
+  - id: root-root-cred
+    desc: Default credential root:root
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "root:root"
+
+  - id: admin-1234-cred
+    desc: Default credential admin:1234
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "admin:1234"
+
+  - id: ubnt-ubnt-cred
+    desc: Default Ubiquiti credential ubnt:ubnt
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "ubnt:ubnt"
+
+  - id: pi-raspberry-cred
+    desc: Default Raspberry Pi credential pi:raspberry
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "pi:raspberry"
+
+  - id: admin-password-cred
+    desc: Default credential admin:password
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "admin:password"
+
+  - id: guest-guest-cred
+    desc: Default credential guest:guest
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "guest:guest"
+
+  - id: support-support-cred
+    desc: Default credential support:support
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "support:support"
+
+  - id: root-vizxv-cred
+    desc: Telnet default credential root:vizxv
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "root:vizxv"
+
+  - id: root-xc3511-cred
+    desc: Telnet default credential root:xc3511
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "root:xc3511"
+
+  - id: root-888888-cred
+    desc: Telnet default credential root:888888
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "root:888888"
+
+  - id: root-juantech-cred
+    desc: Telnet default credential root:juantech
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "root:juantech"
+
+  - id: admin-admin1234-cred
+    desc: Camera default credential admin:admin1234
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "admin:admin1234"
+
+  - id: admin-smcadmin-cred
+    desc: SMC default credential admin:smcadmin
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "admin:smcadmin"
+
+  - id: user-user-cred
+    desc: Default credential user:user
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "user:user"
+
+  # SSH port references - require more context than just ":22"
+  - id: ssh-port-colon
+    desc: SSH port :22
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      # Require host:22 or port context, not just ":22" which matches too many things
+      # (array indices, offsets like "[22]", etc.)
+      regex: "(?:localhost|127\\.0\\.0\\.1|0\\.0\\.0\\.0|\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}):22\\b|\\bport\\s*[:=]?\\s*22\\b"
+
+  - id: ssh-port-string-lower
+    desc: SSH port string (lowercase)
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "port 22"
+
+  - id: ssh-port-string-upper
+    desc: SSH port string (uppercase)
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "PORT 22"
+
+  - id: ssh-port-string-title
+    desc: SSH port string (titlecase)
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "Port 22"
+
+  # Scanner keywords - require network scanning context
+  - id: scanner-keyword
+    desc: scanner keyword
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      # Network scanner context, not generic "scanner" word
+      regex: "(?i)(?:port[_-]?scanner|network[_-]?scanner|ssh[_-]?scanner|scanner[_-]?(?:thread|target|port))"
+
+  - id: scanning-keyword
+    desc: scanning keyword
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      # Network scanning context
+      regex: "(?i)(?:port[_-]?scanning|network[_-]?scanning|scanning[_-]?(?:port|target|thread))"
+
+  # NOTE: connect() is a generic socket function defined in cap/comm/socket/connect/unix.yaml
+  # Don't duplicate it here - the SSH scanner composites reference the cap trait directly.
+
+  # NOTE: Removed standalone "timeout" trait - too generic, matches any library
+  # with timeout functionality. Timeout is only meaningful in SSH context when
+  # combined with SSH-specific indicators (handled in composites).
+
+composite_rules:
+  # Helper: SSH protocol indicators
+  - id: ssh-protocol
+    desc: SSH protocol indicators
+    any:
+      - id: ssh-userauth
+      - id: libssh
+      - id: ssh-version
+
+  # Helper: SSH authentication methods
+  - id: ssh-auth-methods
+    desc: SSH authentication methods
+    any:
+      - id: password-auth
+      - id: keyboard-interactive
+
+  # Helper: SSH authentication errors
+  - id: ssh-auth-errors
+    desc: SSH authentication error messages
+    any:
+      - id: auth-failed
+      - id: permission-denied
+      - id: too-many-auth-failures
+
+  # Helper: SSH port references
+  - id: ssh-port-refs
+    desc: SSH port 22 references
+    any:
+      - id: ssh-port-colon
+      - id: ssh-port-string-lower
+      - id: ssh-port-string-upper
+      - id: ssh-port-string-title
+
+  # Helper: Scanner keywords
+  - id: scanner-keywords
+    desc: Network scanner keywords
+    any:
+      - id: scanner-keyword
+      - id: scanning-keyword
+      - id: cap/comm/socket/connect/connect
+
+  # Helper: Threading indicators (references cap/process/threading traits)
+  - id: threading
+    desc: Threading/concurrency indicators
+    any:
+      - id: cap/process/threading/pthread
+      - id: cap/process/threading/goroutine
+
+  # Helper: Default IoT credentials (all 15)
+  - id: default-creds
+    desc: Default IoT device credentials
+    any:
+      - id: admin-admin-cred
+      - id: root-root-cred
+      - id: admin-1234-cred
+      - id: ubnt-ubnt-cred
+      - id: pi-raspberry-cred
+      - id: admin-password-cred
+      - id: guest-guest-cred
+      - id: support-support-cred
+      - id: root-vizxv-cred
+      - id: root-xc3511-cred
+      - id: root-888888-cred
+      - id: root-juantech-cred
+      - id: admin-admin1234-cred
+      - id: admin-smcadmin-cred
+      - id: user-user-cred
+
+  # Helper: SSH protocol with auth methods
+  - id: ssh-with-auth
+    desc: SSH protocol with authentication methods
+    all:
+      - id: ssh-protocol
+      - id: ssh-auth-methods
+
+  # SSH authentication brute-force
+  - id: auth-spray
+    desc: SSH authentication credential spraying
+    crit: suspicious
+    conf: 0.85
+    mbc: "E1110"
+    attack: "T1110.001"
+    count_min: 2
+    any:
+      - id: ssh-protocol
+      - id: ssh-auth-methods
+      - id: ssh-auth-errors
+
+  # Default IoT credential lists (requires 3 of 15)
+  - id: iot-creds
+    desc: Default IoT device credentials for
+    crit: suspicious
+    conf: 0.9
+    mbc: "E1110"
+    attack: "T1078.001"
+    count_min: 3
+    any:
+      - id: admin-admin-cred
+      - id: root-root-cred
+      - id: admin-1234-cred
+      - id: ubnt-ubnt-cred
+      - id: pi-raspberry-cred
+      - id: admin-password-cred
+      - id: guest-guest-cred
+      - id: support-support-cred
+      - id: root-vizxv-cred
+      - id: root-xc3511-cred
+      - id: root-888888-cred
+      - id: root-juantech-cred
+      - id: admin-admin1234-cred
+      - id: admin-smcadmin-cred
+      - id: user-user-cred
+
+  # Helper: SSH port with scanner keywords
+  - id: ssh-port-scanner
+    desc: SSH port with scanner keywords
+    all:
+      - id: ssh-port-refs
+      - id: scanner-keywords
+
+  # Helper: SSH port with threading (threaded scanning)
+  # NOTE: Removed timeout requirement as "timeout" alone is too generic.
+  # SSH scanning is indicated by port 22 + threading + connect.
+  - id: ssh-port-threaded
+    desc: SSH port with threading
+    all:
+      - id: ssh-port-refs
+      - id: threading
+      - id: cap/comm/socket/connect/connect
+
+  # SSH scanner patterns
+  - id: scanner
+    desc: SSH network scanner for brute-force
+    crit: suspicious
+    conf: 0.8
+    mbc: "E1110"
+    attack: "T1046"
+    count_min: 2
+    any:
+      - id: ssh-port-scanner
+      - id: ssh-port-threaded
+
+  # SSH brute-force botnet
+  - id: botnet
+    desc: SSH brute-force botnet detected
+    crit: hostile
+    conf: 0.9
+    mbc: "E1110"
+    attack: "T1110.001"
+    for: [elf]
+    all:
+      - id: scanner
+      - id: iot-creds
+      - id: auth-spray

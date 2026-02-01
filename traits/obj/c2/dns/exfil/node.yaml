@@ -1,0 +1,62 @@
+# DNS-based C2 and Exfiltration Traits (Node.js) - Composites Only
+# Detects DNS tunneling and data exfiltration via DNS queries
+# MBC: C0002 (DNS Communication), E1591 (Data Exfiltration)
+# ATT&CK: T1071.004 (DNS), T1048 (Exfiltration Over Alternative Protocol)
+#
+# Note: Atomic traits moved to appropriate micro-trait directories:
+# - DNS traits: comm/dns/lookup/node.yaml
+# - Crypto traits: crypto/symmetric/aes/node.yaml
+# This file contains only behavioral composites that indicate C2/exfiltration usage
+
+defaults:
+  for: [javascript, typescript]
+  attack: "T1071.004"
+  mbc: "C0002"
+
+composite_rules:
+  - id: dns-resolve
+    desc: Node.js DNS resolve function (potential
+    crit: notable
+    conf: 0.8
+    count_min: 1
+    any:
+      - id: cap/comm/dns/lookup/node/dns-resolve-call
+      - id: cap/comm/dns/lookup/node/dns-resolve4-call
+      - id: cap/comm/dns/lookup/node/dns-resolve6-call
+
+  - id: dns-resolve-txt
+    desc: DNS TXT record resolution (common
+    crit: suspicious
+    conf: 0.9
+    mbc: "C0002"
+    attack: "T1071.004"
+    count_min: 1
+    any:
+      - id: cap/comm/dns/lookup/node/dns-resolveTxt-method
+      - id: cap/comm/dns/lookup/node/resolveTxt-call
+      - id: cap/comm/dns/lookup/node/txt-record-single-quote
+      - id: cap/comm/dns/lookup/node/txt-record-double-quote
+
+  # DNS with crypto (migrated from YARA)
+  - id: dns-with-crypto
+    desc: DNS combined with encryption (encrypted
+    crit: suspicious
+    conf: 0.9
+    mbc: "C0002"
+    attack: "T1573"
+    all:
+      - id: dns-resolve-txt
+      - id: cap/crypto/symmetric/aes/node/cipher-create
+
+  # DNS polling loop (migrated from YARA)
+  - id: dns-polling-loop
+    desc: DNS polling loop (C2 beacon
+    crit: suspicious
+    conf: 0.85
+    mbc: "C0002"
+    attack: "T1071.004"
+    all:
+      - id: dns-resolve-txt
+    any:
+      - id: cap/process/timing/setInterval
+      - id: cap/process/timing/setTimeout

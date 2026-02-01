@@ -1,0 +1,210 @@
+# Dynamic Eval Execution - JavaScript/Node.js
+# Detects eval() usage patterns that indicate dynamic code execution
+# ATT&CK: T1059.007 (Command and Scripting Interpreter: JavaScript)
+
+traits:
+  # === Eval function reference atomic indicators ===
+  - id: eval-as-first-arg
+    desc: eval as first argument (eval,
+    crit: inert
+    conf: 0.7
+    attack: "T1059.007"
+    for: [javascript]
+    if:
+      type: string
+      regex: "\\(eval\\s*,"
+
+  - id: eval-as-last-arg
+    desc: eval as last argument ,eval)
+    crit: inert
+    conf: 0.7
+    attack: "T1059.007"
+    for: [javascript]
+    if:
+      type: string
+      regex: ",\\s*eval\\)"
+
+  - id: eval-variable
+    desc: eval with variable argument
+    crit: suspicious
+    conf: 0.9
+    attack: "T1059.007"
+    for: [javascript]
+    if:
+      type: string
+      regex: "eval\\s*\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s*\\)"
+
+  # === Function constructor atomic indicators ===
+  - id: new-function-constructor
+    desc: new Function() constructor
+    crit: notable
+    conf: 0.8
+    attack: "T1059.007"
+    for: [javascript]
+    if:
+      type: string
+      regex: "new\\s+Function\\s*\\("
+
+  - id: function-constructor-call
+    desc: Function() constructor call
+    crit: notable
+    conf: 0.8
+    attack: "T1059.007"
+    for: [javascript]
+    if:
+      type: string
+      regex: "Function\\s*\\("
+
+  # Accessing constructor property (common obfuscation)
+  - id: constructor-property-access
+    desc: Constructor property access
+    crit: suspicious
+    conf: 0.75
+    attack: "T1059.007"
+    mbc: "B0032"
+    for: [javascript]
+    if:
+      type: content
+      regex: "\\[\\s*[\"']constructor[\"']\\s*\\]"
+
+  # Bracket notation function call (variable as function)
+  - id: bracket-function-access
+    desc: Function access via bracket notation
+    crit: notable
+    conf: 0.65
+    attack: "T1027.002"
+    for: [javascript]
+    if:
+      type: content
+      regex: '\w+\[\w+\]\s*\('
+    not:
+      - "process.env["
+      - "module.exports["
+      - "global["
+      - "console["
+      - "Array["
+      - "Object["
+      - "Math["
+
+  # === VM runIn atomic indicators ===
+  - id: vm-runIn-method
+    desc: vm.runIn method
+    crit: inert
+    conf: 0.7
+    attack: "T1059.007"
+    for: [javascript]
+    if:
+      type: string
+      regex: "vm\\.runIn"
+
+  - id: runInContext-call
+    desc: runInContext call
+    crit: inert
+    conf: 0.7
+    attack: "T1059.007"
+    for: [javascript]
+    if:
+      type: string
+      exact: "runInContext"
+
+  - id: runInNewContext-call
+    desc: runInNewContext call
+    crit: inert
+    conf: 0.7
+    attack: "T1059.007"
+    for: [javascript]
+    if:
+      type: string
+      exact: "runInNewContext"
+
+  # === IIFE patterns ===
+  - id: iife-pattern
+    desc: Immediately invoked function expression
+    crit: inert
+    conf: 0.9
+    for: [javascript]
+    if:
+      type: content
+      regex: '\(\s*(?:async\s+)?function\s*\([^)]{0,100}\)\s*\{'
+
+  # Variable immediately invoked as function
+  - id: variable-immediate-call
+    desc: Variable called immediately as function
+    crit: notable
+    conf: 0.7
+    for: [javascript]
+    if:
+      type: content
+      regex: 'var\s+\w+\s*=\s*[^;]{5,200};\s*\w+\s*\('
+
+composite_rules:
+  - id: eval-function-reference
+    desc: eval passed as function reference
+    crit: suspicious
+    conf: 0.95
+    attack: "T1059.007"
+    for: [javascript]
+    count_min: 1
+    any:
+      - id: eval-as-first-arg
+      - id: eval-as-last-arg
+
+  - id: Function-constructor
+    desc: Function constructor usage
+    crit: suspicious
+    conf: 0.9
+    attack: "T1059.007"
+    mbc: "B0009.016"
+    for: [javascript]
+    count_min: 1
+    any:
+      - id: new-function-constructor
+      - id: function-constructor-call
+      - id: constructor-property-access
+
+  # Function constructor accessed via obfuscation
+  - id: obfuscated-function-constructor
+    desc: Obfuscated Function constructor access
+    crit: hostile
+    conf: 0.95
+    attack: "T1027.002"
+    mbc: "B0032"
+    for: [javascript]
+    all:
+      - id: constructor-property-access
+      - id: bracket-function-access
+
+  - id: vm-runInContext
+    desc: Node.js VM runInContext
+    crit: suspicious
+    conf: 0.85
+    attack: "T1059.007"
+    for: [javascript]
+    count_min: 1
+    any:
+      - id: vm-runIn-method
+      - id: runInContext-call
+      - id: runInNewContext-call
+
+  # IIFE with obfuscation indicators
+  - id: obfuscated-iife
+    desc: Obfuscated IIFE payload
+    crit: suspicious
+    conf: 0.85
+    attack: "T1027.002"
+    for: [javascript]
+    all:
+      - id: iife-pattern
+      - id: obj/anti-static/obfuscation/code-metrics
+
+  # Constructed function immediately executed
+  - id: dynamic-code-execution
+    desc: Dynamic function construction and execution
+    crit: hostile
+    conf: 0.95
+    attack: "T1059.007"
+    mbc: "B0009.016"
+    for: [javascript]
+    all:
+      - id: Function-constructor
+      - id: variable-immediate-call

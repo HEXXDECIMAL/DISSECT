@@ -411,11 +411,28 @@ pub fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResu
     let mut evidence = Vec::new();
     const MAX_MATCHES: usize = 1000; // Cap evidence collection
 
+    // Buffers needed for text predicate evaluation
+    let mut buffer1 = Vec::new();
+    let mut buffer2 = Vec::new();
+
+    // Text provider implementation for predicate checking
+    struct SourceTextProvider<'a>(&'a [u8]);
+    impl<'a> tree_sitter::TextProvider<&'a [u8]> for SourceTextProvider<'a> {
+        type I = std::iter::Once<&'a [u8]>;
+        fn text(&mut self, node: tree_sitter::Node) -> Self::I {
+            let start = node.byte_range().start;
+            let end = node.byte_range().end.min(self.0.len());
+            std::iter::once(&self.0[start..end])
+        }
+    }
+
     // Use matches() to get full match info including pattern index for predicate checking
     let mut matches = query_cursor.matches(&query, tree.root_node(), source.as_bytes());
     while let Some(m) = matches.next() {
-        // Check predicates for this pattern (e.g., #eq?, #match?)
-        if !check_predicates(&query, m, source.as_bytes()) {
+        // Check text predicates (e.g., #eq?, #match?) using tree-sitter's built-in method
+        // This is REQUIRED - tree-sitter does NOT automatically filter by text predicates
+        let mut text_provider = SourceTextProvider(source.as_bytes());
+        if !m.satisfies_text_predicates(&query, &mut buffer1, &mut buffer2, &mut text_provider) {
             continue; // Skip matches that don't satisfy predicates
         }
 

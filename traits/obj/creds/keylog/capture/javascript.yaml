@@ -1,0 +1,26 @@
+# Keylogging - JavaScript/Node.js
+# ATT&CK: T1056.001 (Input Capture: Keylogging)
+
+traits:
+  - id: js-keyboard-listener
+    desc: Global keyboard listener implementation
+    crit: suspicious
+    conf: 0.9
+    mbc: "B0015"
+    attack: "T1056.001"
+    for: [javascript]
+    if:
+      type: string
+      regex: "GlobalKeyboardListener"
+
+composite_rules:
+  - id: js-keylogger-exfil
+    desc: JavaScript keylogger with exfiltration
+    crit: suspicious
+    conf: 0.95
+    attack: "T1056.001"
+    mbc: "B0015"
+    for: [javascript]
+    all:
+      - id: js-keyboard-listener
+      - id: cap/comm/http/request/js-axios-post

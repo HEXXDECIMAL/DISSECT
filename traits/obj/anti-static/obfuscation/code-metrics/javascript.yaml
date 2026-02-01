@@ -1,0 +1,69 @@
+# JavaScript-Specific Metrics-Based Obfuscation Detection
+# Detects JS obfuscation patterns common in npm malware and web exploits
+
+defaults:
+  for: [javascript, typescript]
+  attack: "T1027"
+  mbc: "B0032"
+
+traits:
+  # === JavaScript-Specific Obfuscation Patterns ===
+
+  - id: js-arrow-function-abuse
+    desc: "Excessive anonymous arrow functions (obfuscation"
+    crit: suspicious
+    conf: 0.8
+    if:
+      type: metrics
+      field: functions.anonymous
+      min: 20
+
+  - id: js-iife-heavy
+    desc: "High function density with one-liners"
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: metrics
+      field: functions.density_per_100_lines
+      min: 15
+
+  - id: js-deep-callback-nesting
+    desc: "Deep function nesting (callback hell"
+    crit: notable
+    conf: 0.75
+    if:
+      type: metrics
+      field: functions.max_nesting_depth
+      min: 6
+
+  - id: js-webpack-minified
+    desc: "Webpack/bundler minified output pattern"
+    crit: notable
+    conf: 0.7
+    if:
+      type: metrics
+      field: text.max_line_length
+      min: 1000
+
+composite_rules:
+  - id: js-obfuscator-pattern
+    desc: "JavaScript obfuscator tool output"
+    crit: suspicious
+    conf: 0.9
+    count_min: 3
+    any:
+      - id: obj/anti-static/obfuscation/code-metrics/high-entropy-identifiers
+      - id: obj/anti-static/obfuscation/code-metrics/js-arrow-function-abuse
+      - id: obj/anti-static/obfuscation/code-metrics/high-entropy-strings
+      - id: obj/anti-static/obfuscation/code-metrics/no-comments
+
+  - id: js-npm-malware-pattern
+    desc: "npm malware obfuscation pattern (install"
+    crit: hostile
+    conf: 0.9
+    all:
+      - id: obj/anti-static/obfuscation/code-metrics/high-entropy-identifiers
+      - id: obj/anti-static/obfuscation/code-metrics/no-comments
+    any:
+      - id: obj/anti-static/obfuscation/code-metrics/js-webpack-minified
+      - id: obj/anti-static/obfuscation/code-metrics/very-long-lines

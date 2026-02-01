@@ -1,0 +1,68 @@
+# Shell-based Network Exfiltration
+# Behavioral composites that combine shell tools with exfiltration indicators
+# ATT&CK: T1041 (Exfiltration Over C2 Channel)
+#
+# Note: Atomic curl/wget/nc traits moved to comm/http/client/shell.yaml
+# This file contains only behavioral composites that indicate exfiltration
+
+defaults:
+  mbc: "E1041"
+  attack: "T1041"
+  for: ["*"]
+
+composite_rules:
+  - id: curl-post-data
+    desc: Curl POST with data (potential
+    crit: suspicious
+    conf: 0.85
+    count_min: 1
+    any:
+      - id: cap/comm/http/client/shell/curl-d-flag
+      - id: cap/comm/http/client/shell/curl-data-flag
+      - id: cap/comm/http/client/shell/curl-x-post
+    unless:
+      - id: cap/os/admin/legitimate/http-tools/package-manager
+      - id: cap/os/admin/legitimate/http-tools/ci-cd-pipeline
+      - id: cap/os/admin/legitimate/http-tools/health-check
+      - id: cap/os/admin/legitimate/http-tools/installer-script
+
+  - id: curl-upload-file
+    desc: Curl file upload
+    crit: suspicious
+    conf: 0.85
+    count_min: 1
+    any:
+      - id: cap/comm/http/client/shell/curl-f-flag
+      - id: cap/comm/http/client/shell/curl-form-flag
+      - id: cap/comm/http/client/shell/curl-t-flag
+      - id: cap/comm/http/client/shell/curl-upload-flag
+    unless:
+      - id: cap/os/admin/legitimate/http-tools/package-manager
+      - id: cap/os/admin/legitimate/http-tools/ci-cd-pipeline
+      - id: cap/os/admin/legitimate/http-tools/backup-script
+
+  - id: wget-post
+    desc: Wget POST request (potential exfiltration)
+    crit: suspicious
+    conf: 0.8
+    count_min: 1
+    any:
+      - id: cap/comm/http/client/shell/wget-post-data
+      - id: cap/comm/http/client/shell/wget-post-file
+    unless:
+      - id: cap/os/admin/legitimate/http-tools/package-manager
+      - id: cap/os/admin/legitimate/http-tools/ci-cd-pipeline
+      - id: cap/os/admin/legitimate/http-tools/installer-script
+
+  - id: nc-exfil
+    desc: Netcat exfiltration
+    crit: suspicious
+    conf: 0.85
+    attack: "T1048"
+    count_min: 1
+    any:
+      - id: cap/comm/http/client/shell/nc-stdin-redirect
+      - id: cap/comm/http/client/shell/cat-pipe-nc
+      - id: cap/comm/http/client/shell/pipe-to-nc
+    unless:
+      - id: cap/os/admin/legitimate/http-tools/backup-script

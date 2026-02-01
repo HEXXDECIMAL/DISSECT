@@ -1,0 +1,92 @@
+# Process Hiding - Windows (Python)
+# Detects subprocess creation with hidden window flags
+# ATT&CK: T1564.003 (Hide Artifacts: Hidden Window)
+
+defaults:
+  for: [python]
+  mbc: "F0005"
+  attack: "T1564.003"
+  crit: suspicious
+  platforms: [windows]
+
+traits:
+  # CREATE_NO_WINDOW flag - hides console window
+  - id: create-no-window
+    desc: "Process creation with hidden window"
+    conf: 0.9
+    if:
+      type: string
+      regex: "CREATE_NO_WINDOW"
+
+  # CREATE_NEW_PROCESS_GROUP - detaches from parent
+  - id: create-new-process-group
+    desc: "Process creation detached from parent"
+    conf: 0.8
+    if:
+      type: string
+      regex: "CREATE_NEW_PROCESS_GROUP"
+
+  # DETACHED_PROCESS - runs without console
+  - id: detached-process
+    desc: "Detached process creation (DETACHED_PROCESS)"
+    conf: 0.85
+    if:
+      type: string
+      regex: "DETACHED_PROCESS"
+
+  # SW_HIDE - hidden window via startupinfo
+  - id: sw-hide
+    desc: "Hidden window via STARTUPINFO (SW_HIDE)"
+    conf: 0.9
+    if:
+      type: string
+      regex: "SW_HIDE"
+
+  # creationflags parameter in subprocess
+  - id: creationflags
+    desc: "Process creation with custom flags"
+    conf: 0.75
+    crit: notable
+    if:
+      type: string
+      regex: "creationflags\\s*="
+
+  # Combined creation flags with bitwise OR
+  - id: combined-creationflags
+    desc: "Multiple process creation flags combined"
+    conf: 0.9
+    if:
+      type: string
+      # Matches: creationflags=FLAG1 | FLAG2
+      regex: "creationflags\\s*=\\s*[^,)]+\\|"
+
+composite_rules:
+  # subprocess call composite
+  - id: subprocess-call
+    desc: "Subprocess module process creation call"
+    conf: 0.7
+    crit: notable
+    count_min: 1
+    any:
+      - id: cap/exec/command/subprocess/python/popen
+      - id: cap/exec/command/subprocess/python/run-call
+      - id: cap/exec/command/subprocess/python/call
+
+  # hidden window flag composite
+  - id: hidden-window-flag
+    desc: "Hidden or detached process window"
+    conf: 0.85
+    count_min: 1
+    any:
+      - id: create-no-window
+      - id: detached-process
+
+  # Combined: CREATE_NO_WINDOW + CREATE_NEW_PROCESS_GROUP
+  - id: stealth-subprocess
+    desc: "Stealthy subprocess creation (hidden +"
+    conf: 0.95
+    crit: suspicious
+    all:
+      - id: subprocess-call
+      - id: hidden-window-flag
+

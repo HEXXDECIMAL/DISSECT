@@ -90,18 +90,22 @@ JSON schema v1.0 includes full attribution:
 | entropy | built-in | Packing/encryption detection |
 | pattern | regex | String classification |
 
-## Capability Taxonomy
+## Taxonomy
 
-Hierarchical `objective/behavior/kind` format based on [Malware Behavior Catalog](https://github.com/MBCProject/mbc-markdown). See [TAXONOMY.md](./TAXONOMY.md) for the complete Rosetta Stone mapping to CAPA, malcontent, and ATT&CK.
+Three-tier hierarchy based on [MBC (Malware Behavior Catalog)](https://github.com/MBCProject/mbc-markdown). See [TAXONOMY.md](./TAXONOMY.md) for the complete structure and MBC mappings.
 
-- `exec/command/shell` - Shell command execution
-- `exec/dylib/load` - Dynamic library loading
-- `net/socket/connect` - Network connections
-- `fs/write`, `fs/delete` - File operations
-- `crypto/encrypt/aes` - Cryptographic operations
-- `anti-analysis/obfuscation/*` - Obfuscation techniques
-- `persistence/cron` - Persistence mechanisms
-- `credential/keychain` - Credential access
+| Tier | Prefix | Purpose |
+|------|--------|---------|
+| Capabilities | `cap/` | What code *can do* (value-neutral) |
+| Objectives | `obj/` | What code *likely wants* to do (attacker goals) |
+| Known | `known/` | Specific malware/tool signatures |
+
+**Examples:**
+- `cap/exec/shell` - Shell command execution capability
+- `cap/comm/socket/create` - Socket creation capability
+- `obj/c2/reverse-shell` - Reverse shell objective (hostile)
+- `obj/creds/browser` - Browser credential theft objective
+- `known/malware/rat/cobalt-strike` - Cobalt Strike detection
 
 ## Customization
 

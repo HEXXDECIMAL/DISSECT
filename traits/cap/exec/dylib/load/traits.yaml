@@ -1,0 +1,334 @@
+# Execution - Dynamic Library Loading
+# ATT&CK: T1574.006 (Dynamic Linker Hijacking)
+
+traits:
+  - id: dlopen
+    desc: Dynamic library loading via dlopen
+    crit: notable
+    conf: 0.9
+    attack: "T1574.006"
+    for: [elf, macho]
+    if:
+      type: symbol
+      exact: "dlopen"
+
+  - id: dlsym
+    desc: Dynamic symbol resolution via dlsym
+    crit: notable
+    conf: 0.9
+    attack: "T1574.006"
+    for: [elf, macho]
+    if:
+      type: symbol
+      exact: "dlsym"
+
+  - id: dlclose
+    desc: Dynamic library unload
+    crit: notable
+    conf: 0.8
+    attack: "T1574.006"
+    for: [elf, macho]
+    if:
+      type: symbol
+      exact: "dlclose"
+
+  - id: dlerror
+    desc: Dynamic linker error handling
+    crit: notable
+    conf: 0.8
+    attack: "T1574.006"
+    for: [elf, macho]
+    if:
+      type: symbol
+      exact: "dlerror"
+
+  # === LoadLibrary (Windows) atomic indicators ===
+  - id: loadlibrary-symbol
+    desc: LoadLibrary symbol
+    crit: inert
+    conf: 0.75
+    for: [pe]
+    if:
+      type: symbol
+      exact: "LoadLibrary"
+
+  - id: loadlibrarya-symbol
+    desc: LoadLibraryA symbol
+    crit: inert
+    conf: 0.75
+    for: [pe]
+    if:
+      type: symbol
+      exact: "LoadLibraryA"
+
+  - id: loadlibraryw-symbol
+    desc: LoadLibraryW symbol
+    crit: inert
+    conf: 0.75
+    for: [pe]
+    if:
+      type: symbol
+      exact: "LoadLibraryW"
+
+  - id: loadlibraryex-symbol
+    desc: LoadLibraryEx symbol
+    crit: inert
+    conf: 0.75
+    for: [pe]
+    if:
+      type: symbol
+      exact: "LoadLibraryEx"
+
+  - id: loadlibraryexa-symbol
+    desc: LoadLibraryExA symbol
+    crit: inert
+    conf: 0.75
+    for: [pe]
+    if:
+      type: symbol
+      exact: "LoadLibraryExA"
+
+  - id: loadlibraryexw-symbol
+    desc: LoadLibraryExW symbol
+    crit: inert
+    conf: 0.75
+    for: [pe]
+    if:
+      type: symbol
+      exact: "LoadLibraryExW"
+
+  - id: getprocaddress-symbol
+    desc: GetProcAddress symbol
+    crit: inert
+    conf: 0.75
+    for: [pe]
+    if:
+      type: symbol
+      exact: "GetProcAddress"
+
+  - id: nsbundle
+    desc: macOS NSBundle loading
+    crit: notable
+    conf: 0.6
+    attack: "T1574.006"
+    for: [macho]
+    if:
+      type: string
+      exact: "NSBundle"
+
+  - id: ctypes-windll
+    desc: Python ctypes Windows DLL
+    crit: suspicious
+    conf: 0.85
+    attack: "T1574.002"
+    for: [python]
+    if:
+      type: string
+      regex: "windll\\.[\\w.]+"
+
+  # === ctypes CDLL atomic indicators ===
+  - id: ctypes-cdll-dot
+    desc: ctypes.CDLL pattern
+    crit: notable
+    conf: 0.7
+    attack: "T1574"
+    for: [python]
+    if:
+      type: string
+      exact: "ctypes.CDLL"
+
+  - id: cdll-paren
+    desc: CDLL( call pattern
+    crit: notable
+    conf: 0.7
+    attack: "T1574"
+    for: [python]
+    if:
+      type: string
+      regex: "CDLL\\("
+
+  # === Python local path loading atomic indicators ===
+  - id: cdll-keyword
+    desc: CDLL keyword
+    crit: inert
+    conf: 0.6
+    for: [python]
+    if:
+      type: string
+      word: "CDLL"
+
+  - id: loadlibrary-keyword
+    desc: LoadLibrary keyword
+    crit: inert
+    conf: 0.6
+    for: [python]
+    if:
+      type: string
+      word: "LoadLibrary"
+
+  - id: python-file-dunder
+    desc: __file__ variable
+    crit: inert
+    conf: 0.5
+    for: [python]
+    if:
+      type: string
+      exact: "__file__"
+
+  - id: dirname-call
+    desc: dirname function call
+    crit: inert
+    conf: 0.5
+    for: [python]
+    if:
+      type: string
+      word: "dirname"
+
+  - id: abspath-call
+    desc: abspath function call
+    crit: inert
+    conf: 0.5
+    for: [python]
+    if:
+      type: string
+      word: "abspath"
+
+  - id: ruby-dlopen
+    desc: Ruby FFI dlopen
+    crit: suspicious
+    conf: 0.85
+    attack: "T1574.006"
+    for: [ruby]
+    if:
+      type: string
+      regex: "\\.dlopen\\("
+
+  - id: java-loadclass
+    desc: Java runtime class loading
+    crit: suspicious
+    conf: 0.85
+    attack: "T1574"
+    for: [java, class]
+    if:
+      type: string
+      exact: "loadReplacementClass"
+
+composite_rules:
+  # Helper composites
+  - id: loadlibrary-variants
+    desc: LoadLibrary function variants
+    for: [pe]
+    any:
+      - { id: loadlibrary-symbol }
+      - { id: loadlibrarya-symbol }
+      - { id: loadlibraryw-symbol }
+      - { id: loadlibraryex-symbol }
+      - { id: loadlibraryexa-symbol }
+      - { id: loadlibraryexw-symbol }
+
+  - id: library-loaders
+    desc: Library loading functions (CDLL or
+    for: [python]
+    any:
+      - { id: cdll-keyword }
+      - { id: loadlibrary-keyword }
+
+  - id: path-manipulation
+    desc: Path manipulation functions
+    for: [python]
+    any:
+      - { id: python-file-dunder }
+      - { id: dirname-call }
+      - { id: abspath-call }
+
+  # Migrated from YARA
+  - id: loadlibrary
+    desc: Runtime library loading via LoadLibrary
+    crit: notable
+    conf: 0.9
+    attack: "T1574.002"
+    for: [pe]
+    any:
+      - { id: loadlibrary-variants }
+      - { id: getprocaddress-symbol }
+
+  - id: local-load
+    desc: Loading dynamic library from local
+    crit: suspicious
+    conf: 0.9
+    attack: "T1574"
+    for: [python]
+    all:
+      - { id: library-loaders }
+      - { id: path-manipulation }
+
+  # Core dlopen + dlsym pattern (basic dynamic loading)
+  - id: dlopen-dlsym
+    desc: Core dlopen/dlsym pattern
+    crit: notable
+    conf: 0.85
+    attack: "T1574.006"
+    for: [elf, macho]
+    all:
+      - id: dlopen
+      - id: dlsym
+
+  # dl* family function
+  - id: dl-function
+    desc: Any dl* function usage
+    crit: notable
+    conf: 0.7
+    attack: "T1574.006"
+    for: [elf, macho]
+    count_min: 1
+    any:
+      - id: dlopen
+      - id: dlsym
+      - id: dlclose
+      - id: dlerror
+
+  # NSBundle with dynamic loading
+  - id: nsbundle-dynamic
+    desc: NSBundle with dynamic loading APIs
+    crit: suspicious
+    conf: 0.85
+    attack: "T1574.006"
+    for: [macho]
+    all:
+      - id: nsbundle
+      - id: dl-function
+
+  # NOTE: dlopen/dlsym is common in many legitimate programs including shells
+  # (bash uses it for loadable builtins), interpreters, plugin systems, and
+  # graphics libraries (loading GPU drivers dynamically).
+  - id: dynamic-loader-detected
+    desc: Dynamic code loading pattern
+    crit: suspicious
+    conf: 0.9
+    attack: "T1574.006"
+    mbc: "B0023"
+    for: [elf, macho]
+    count_min: 1
+    any:
+      - id: dlopen-dlsym
+      - id: nsbundle-dynamic
+    # Downgrade for system components and known system libraries
+    downgrade:
+      inert:
+        any:
+          - id: meta/apple/system-component
+          - id: cap/exec/load/system-lib-marker
+          - id: meta/library/graphics-lib-marker
+          - id: meta/library/shell-interpreter
+
+  # ctypes CDLL composite
+  - id: ctypes-cdll
+    desc: Python ctypes CDLL loading
+    crit: suspicious
+    conf: 0.85
+    attack: "T1574"
+    for: [python]
+    count_min: 1
+    any:
+      - id: ctypes-cdll-dot
+      - id: cdll-paren

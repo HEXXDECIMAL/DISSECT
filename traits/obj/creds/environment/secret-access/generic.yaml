@@ -1,0 +1,118 @@
+# Secret/Credential Environment Variable Access - Generic
+# Detects access to sensitive environment variables
+# ATT&CK: T1552.001 (Credentials In Files)
+
+traits:
+  # === GitHub token atomic indicators ===
+  - id: github-token-var
+    desc: GITHUB_TOKEN environment variable
+    crit: notable
+    conf: 0.85
+    attack: "T1552.001"
+    if:
+      type: string
+      exact: "GITHUB_TOKEN"
+
+  - id: gh-token-var
+    desc: GH_TOKEN environment variable
+    crit: notable
+    conf: 0.85
+    attack: "T1552.001"
+    if:
+      type: string
+      exact: "GH_TOKEN"
+
+  - id: aws-access-key
+    desc: AWS_ACCESS_KEY environment variable access
+    crit: suspicious
+    conf: 0.95
+    attack: "T1552.001"
+    if:
+      type: string
+      regex: "AWS_ACCESS_KEY"
+
+  - id: aws-secret
+    desc: AWS_SECRET environment variable access
+    crit: suspicious
+    conf: 0.95
+    attack: "T1552.001"
+    if:
+      type: string
+      regex: "AWS_SECRET"
+
+  - id: api-key-generic
+    desc: Generic API_KEY environment variable access
+    crit: suspicious
+    conf: 0.8
+    attack: "T1552.001"
+    if:
+      type: string
+      exact: "API_KEY"
+
+  - id: secret-key-generic
+    desc: Generic SECRET_KEY environment variable access
+    crit: suspicious
+    conf: 0.8
+    attack: "T1552.001"
+    if:
+      type: string
+      exact: "SECRET_KEY"
+
+  - id: discord-token
+    desc: DISCORD_TOKEN environment variable access
+    crit: suspicious
+    conf: 0.95
+    attack: "T1552.001"
+    if:
+      type: string
+      exact: "DISCORD_TOKEN"
+
+  - id: slack-token
+    desc: SLACK_TOKEN environment variable access
+    crit: suspicious
+    conf: 0.95
+    attack: "T1552.001"
+    if:
+      type: string
+      exact: "SLACK_TOKEN"
+
+  - id: openai-api-key
+    desc: OPENAI_API_KEY environment variable access
+    crit: suspicious
+    conf: 0.95
+    attack: "T1552.001"
+    if:
+      type: string
+      exact: "OPENAI_API_KEY"
+
+  - id: anthropic-api-key
+    desc: ANTHROPIC_API_KEY environment variable access
+    crit: suspicious
+    conf: 0.95
+    attack: "T1552.001"
+    if:
+      type: string
+      exact: "ANTHROPIC_API_KEY"
+
+composite_rules:
+  # GitHub token indicators (OR)
+  - id: github-token-indicators
+    desc: GitHub token variable indicators
+    crit: inert  # Just the string, not actual access
+    conf: 0.7
+    attack: "T1552.001"
+    any:
+      - id: github-token-var
+      - id: gh-token-var
+
+  # GitHub token composite - require getenv to indicate actual access
+  # Just having the string "GITHUB_TOKEN" in a binary (e.g., from build scripts,
+  # CI configuration) is not enough - we need evidence of env var access
+  - id: github-token
+    desc: GitHub token environment variable access
+    crit: suspicious
+    conf: 0.95
+    attack: "T1552.001"
+    all:
+      - id: github-token-indicators
+      - id: cap/os/env/vars/env-access

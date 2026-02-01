@@ -52,12 +52,12 @@ fn test_evidence_propagates_from_atomic_to_composite() {
     let atomic_wallet = report
         .findings
         .iter()
-        .find(|f| f.id.contains("cred/wallet/mnemonic") && f.id.contains("wallet-word"));
+        .find(|f| f.id.contains("obj/creds/wallet/mnemonic") && f.id.contains("wallet-word"));
 
     let atomic_mnemonic = report
         .findings
         .iter()
-        .find(|f| f.id.contains("cred/wallet/mnemonic") && f.id.contains("mnemonic-word"));
+        .find(|f| f.id.contains("obj/creds/wallet/mnemonic") && f.id.contains("mnemonic-word"));
 
     // At least one atomic trait should be found
     assert!(
@@ -69,7 +69,7 @@ fn test_evidence_propagates_from_atomic_to_composite() {
     let composite = report
         .findings
         .iter()
-        .find(|f| f.id == "cred/wallet/mnemonic/wallet-context");
+        .find(|f| f.id == "obj/creds/wallet/mnemonic/wallet-context");
 
     if let Some(composite_finding) = composite {
         // Composite should have evidence (propagated from atomic traits)
@@ -152,7 +152,7 @@ fn test_recursive_evidence_propagation() {
     let stealer_pattern = report
         .findings
         .iter()
-        .find(|f| f.id == "cred/wallet/mnemonic/stealer-pattern");
+        .find(|f| f.id == "obj/creds/wallet/mnemonic/stealer-pattern");
 
     if let Some(stealer) = stealer_pattern {
         println!(

@@ -1,0 +1,102 @@
+# System Information Discovery - Python
+# Detects Python code that fingerprints the host system
+# ATT&CK: T1082 (System Information Discovery)
+
+defaults:
+  for: [python]
+  mbc: "E1082"
+  attack: "T1082"
+  crit: notable
+
+traits:
+  # Platform module - OS detection (Alias-resistant AST)
+  - id: python-platform-system
+    desc: Profiles the host operating system
+    conf: 0.8
+    if:
+      type: ast
+      kind: call
+      exact: ".system()"
+
+  - id: python-platform-machine
+    desc: Identifies the host CPU architecture
+    conf: 0.75
+    if:
+      type: ast
+      kind: call
+      exact: ".machine()"
+
+  - id: python-platform-node
+    desc: Retrieves the system hostname
+    conf: 0.7
+    if:
+      type: ast
+      kind: call
+      exact: ".node()"
+
+  - id: python-platform-uname
+    desc: Collects comprehensive system hardware and
+    conf: 0.8
+    if:
+      type: ast
+      kind: call
+      exact: ".uname()"
+
+  # User lookup (Alias-resistant)
+  - id: python-getpass-user
+    desc: Identifies the current logged-in user
+    conf: 0.85
+    if:
+      type: ast
+      kind: call
+      exact: ".getuser()"
+
+  # === MAC address discovery (atomic) ===
+  - id: getmac-module
+    desc: getmac module for MAC address
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "getmac"
+
+  - id: ifconfig-cmd
+    desc: ifconfig command for network info
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "ifconfig"
+
+  - id: uuid-getnode
+    desc: uuid.getnode() for MAC address
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "uuid.getnode()"
+
+composite_rules:
+  # MAC address discovery
+  - id: python-mac-discovery
+    desc: Collects hardware MAC addresses for
+    crit: notable
+    conf: 0.8
+    count_min: 1
+    any:
+      - id: getmac-module
+      - id: ifconfig-cmd
+      - id: uuid-getnode
+
+  # Composite: Intensive system enumeration (Alias-resistant)
+  - id: python-enumeration
+    desc: Performs intensive system enumeration (multiple
+    crit: suspicious
+    conf: 0.95
+    near_lines: 80
+    count_min: 3
+    any:
+      - id: python-platform-system
+      - id: python-mac-discovery
+      - id: python-getpass-user
+      - id: cap/comm/http/request

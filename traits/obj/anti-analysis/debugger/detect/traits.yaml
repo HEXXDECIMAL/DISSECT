@@ -1,0 +1,163 @@
+# Debugger Detection
+# MBC: OB0001 (Anti-Behavioral Analysis) → B0001 (Debugger Detection)
+# ATT&CK: T1622 (Debugger Evasion)
+# NOTE: /proc/self/status is defined in fs/proc/process/linux.yaml (process-self-status)
+
+traits:
+  # === ptrace constant atomic indicators ===
+  - id: ptrace-traceme
+    desc: PTRACE_TRACEME constant
+    crit: notable
+    mbc: "B0001.m01"
+    attack: "T1622"
+    conf: 0.7
+    if:
+      type: string
+      exact: "PTRACE_TRACEME"
+    platforms: [linux, unix]
+
+  - id: pt-deny-attach
+    desc: PT_DENY_ATTACH constant
+    crit: notable
+    mbc: "B0001.m01"
+    attack: "T1622"
+    conf: 0.7
+    if:
+      type: string
+      exact: "PT_DENY_ATTACH"
+    platforms: [macos]
+
+  # === Process inspection micro-traits ===
+  - id: tracerpid-string
+    desc: TracerPid string (debugger detection)
+    crit: notable
+    conf: 0.7
+    attack: "T1622"
+    if:
+      type: string
+      exact: "TracerPid"
+    platforms: [linux]
+
+  - id: ld-debug
+    desc: LD_DEBUG environment variable check
+    crit: notable
+    mbc: "B0001"
+    attack: "T1622"
+    conf: 0.6
+    if:
+      type: string
+      exact: "LD_DEBUG"
+    platforms: [linux]
+
+  # Windows
+  - id: win-isdebuggerpresent
+    desc: Windows IsDebuggerPresent API
+    crit: suspicious
+    mbc: "B0001"
+    attack: "T1622"
+    conf: 0.9
+    if:
+      type: string
+      exact: "IsDebuggerPresent"
+    platforms: [windows]
+    for: [pe, dll]
+
+  - id: win-checkremotedebugger
+    desc: Windows CheckRemoteDebuggerPresent API
+    crit: suspicious
+    mbc: "B0001"
+    attack: "T1622"
+    conf: 0.9
+    if:
+      type: string
+      exact: "CheckRemoteDebuggerPresent"
+    platforms: [windows]
+
+  - id: win-ntqueryinfo
+    desc: NtQueryInformationProcess for debugger detection
+    crit: suspicious
+    mbc: "B0001"
+    attack: "T1622"
+    conf: 0.85
+    if:
+      type: string
+      exact: "NtQueryInformationProcess"
+    platforms: [windows]
+
+  - id: win-unhandledexception
+    desc: UnhandledExceptionFilter for anti-debugging
+    crit: suspicious
+    mbc: "B0001"
+    attack: "T1622"
+    conf: 0.7
+    if:
+      type: string
+      exact: "UnhandledExceptionFilter"
+    platforms: [windows]
+
+  - id: win-queryperformance
+    desc: QueryPerformanceCounter timing check
+    crit: suspicious
+    mbc: "B0001"
+    attack: "T1622"
+    conf: 0.6
+    if:
+      type: string
+      exact: "QueryPerformanceCounter"
+    platforms: [windows]
+
+composite_rules:
+  # Process inspection composite (migrated from YARA)
+  - id: process-inspection
+    desc: Process inspection pattern (potential anti-debug)
+    crit: notable
+    conf: 0.75
+    mbc: "B0001"
+    attack: "T1622"
+    platforms: [linux]
+    count_min: 1
+    any:
+      - id: obj/syscall/ptrace
+      - id: cap/fs/proc/process/process-self-status
+      - id: cap/fs/proc/process/process-self-maps
+      - id: tracerpid-string
+
+  # ptrace constant composite
+  - id: ptrace-traceme-or-deny
+    desc: PTRACE_TRACEME or PT_DENY_ATTACH anti-debugging constants
+    crit: suspicious
+    mbc: "B0001.m01"
+    attack: "T1622"
+    conf: 0.8
+    count_min: 1
+    any:
+      - id: ptrace-traceme
+      - id: pt-deny-attach
+
+  # Windows debugger detection composite
+  - id: win-debugger-detect
+    desc: Windows debugger detection API usage
+    crit: suspicious
+    mbc: "B0001"
+    attack: "T1622"
+    conf: 0.9
+    platforms: [windows]
+    count_min: 1
+    any:
+      - id: win-isdebuggerpresent
+      - id: win-checkremotedebugger
+      - id: win-ntqueryinfo
+
+  # Full anti-debug composite
+  - id: anti-debug-full
+    desc: Multiple anti-debugging techniques
+    crit: suspicious
+    mbc: "B0001"
+    attack: "T1622"
+    conf: 0.85
+    count_min: 2
+    any:
+      - id: ptrace-traceme-or-deny
+      - id: process-inspection
+      - id: win-debugger-detect
+      - id: ld-debug

@@ -1,0 +1,371 @@
+# Supply Chain Binary Backdoor Detection
+# Detects patterns consistent with supply chain attacks like XZ Utils (CVE-2024-3094)
+# ATT&CK: T1195.002 (Supply Chain Compromise: Compromise Software Supply Chain)
+# MBC: B0025 (Compromise Software Supply Chain)
+
+defaults:
+  for: [elf, pe, macho]
+  attack: "T1195.002"
+  mbc: "B0025"
+
+traits:
+  # === Obfuscation Indicators ===
+  - id: high-entropy-strings
+    desc: Large obfuscated data blob
+    crit: suspicious
+    conf: 0.7
+    if:
+      type: metrics
+      field: binary.high_entropy_strings
+      min: 20
+
+  # === Symbol interposition patterns ===
+  - id: rtld-next-ref
+    desc: RTLD_NEXT macro reference
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      exact: "RTLD_NEXT"
+
+  # === Massive Code Injection Indicators ===
+  - id: massive-code-blob
+    desc: Extremely large average function size
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: metrics
+      field: binary.avg_function_size
+      min: 10000
+
+  - id: many-huge-functions
+    desc: Many huge functions (>64KB) -
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: metrics
+      field: binary.huge_functions
+      min: 4
+
+  # === XZ Utils Backdoor Specific Patterns ===
+  - id: xz-backdoor-entry
+    desc: XZ backdoor entry pattern bytes
+    crit: suspicious
+    conf: 0.95
+    for: [elf]
+    if:
+      type: hex
+      pattern: "F3 0F 1E FA 55 48 89 E5 48 89 7D D8 48 C7 45 E8"
+
+  - id: lzma-crc64-table
+    desc: lzma_crc64_table reference
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      substr: "lzma_crc64_table"
+
+  - id: lzma-crc64
+    desc: lzma_crc64 reference
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      substr: "lzma_crc64"
+
+  - id: xz-obf-pattern
+    desc: XZ obfuscated function marker bytes
+    crit: notable
+    conf: 0.7
+    for: [elf]
+    if:
+      type: hex
+      pattern: "0F B6 ?? ?? 0F B6 ?? ?? 31 ?? 0F B6 ?? ?? 31"
+
+  # === SSH/Auth hooking patterns ===
+  - id: libsystemd-ref
+    desc: libsystemd reference
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: "libsystemd"
+
+  - id: mm-answer-keyallowed
+    desc: mm_answer_keyallowed SSH function
+    crit: suspicious
+    conf: 0.8
+    if:
+      type: string
+      exact: "mm_answer_keyallowed"
+
+  - id: mm-answer-authpassword
+    desc: mm_answer_authpassword SSH function
+    crit: suspicious
+    conf: 0.8
+    if:
+      type: string
+      exact: "mm_answer_authpassword"
+
+  - id: pubkey-auth-ref
+    desc: pubkey_auth reference
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      exact: "pubkey_auth"
+
+  # === glibc hijacking patterns ===
+  - id: rtld-global-ref
+    desc: __rtld_global reference
+    crit: notable
+    conf: 0.6
+    for: [elf]
+    if:
+      type: string
+      exact: "__rtld_global"
+
+  - id: la-symbind-ref
+    desc: la_symbind audit hook
+    crit: suspicious
+    conf: 0.7
+    for: [elf]
+    if:
+      type: string
+      exact: "la_symbind"
+
+composite_rules:
+  # === Symbol interposition ===
+  - id: symbol-interposition
+    desc: Symbol interposition/override pattern
+    crit: suspicious
+    conf: 0.7
+    for: [elf]
+    all:
+      - id: cap/exec/dylib/load/dlsym
+    any:
+      - id: rtld-next-ref
+      - id: meta/binary/elf/rtld-default-ref
+      - id: meta/binary/elf/sections/gnu-version
+
+  # === XZ CRC patterns ===
+  - id: xz-crc-pattern
+    desc: XZ CRC64 patterns
+    crit: suspicious
+    conf: 0.6
+    for: [elf]
+    count_min: 2
+    any:
+      - id: lzma-crc64-table
+      - id: lzma-crc64
+      - id: meta/binary/elf/ifunc
+
+  # === XZ backdoor signature ===
+  - id: xz-backdoor-signature
+    desc: XZ Utils backdoor signature (CVE-2024-3094)
+    crit: hostile
+    conf: 0.99
+    for: [elf]
+    all:
+      - id: xz-crc-pattern
+    any:
+      - id: xz-backdoor-entry
+      - id: xz-obf-pattern
+
+  # === IFUNC resolver pattern ===
+  # NOTE: CPUID + IFUNC + resolver is extremely common in legitimate binaries
+  # that use CPU feature detection (SIMD optimizations). This pattern alone
+  # is not suspicious - it needs additional context like XZ-specific patterns.
+  - id: xz-ifunc-pattern
+    desc: IFUNC resolver pattern (potential function
+    crit: inert
+    conf: 0.4
+    for: [elf]
+    all:
+      - id: meta/binary/x86/cpuid-instr
+      - id: meta/binary/elf/resolver-markers
+      - id: meta/binary/elf/ifunc-markers
+
+  # === RSA in compression library ===
+  - id: rsa-in-compression-lib
+    desc: RSA operations in compression library
+    crit: suspicious
+    conf: 0.9
+    all:
+      - id: cap/crypto/asymmetric/rsa-operations
+      - id: meta/library/compression-lib
+
+  # === SSH hook patterns ===
+  - id: ssh-hook-pattern
+    desc: SSH authentication hooking pattern
+    crit: suspicious
+    conf: 0.85
+    all:
+      - id: cap/os/service/ssh/sshd-ref
+    any:
+      - id: cap/crypto/asymmetric/rsa-public-decrypt
+      - id: mm-answer-keyallowed
+      - id: mm-answer-authpassword
+      - id: pubkey-auth-ref
+
+  # === glibc hijack ===
+  # NOTE: dlopen + dlsym is extremely common in legitimate binaries (graphics drivers, plugins, etc.)
+  # Only flag as hijacking when combined with actual hijacking indicators
+  - id: glibc-hijack
+    desc: glibc function hijacking patterns
+    crit: suspicious
+    conf: 0.7
+    for: [elf]
+    all:
+      # Require basic dynamic loading
+      - id: cap/exec/dylib/load/dlsym
+    any:
+      # Plus at least one actual hijacking indicator (not just dlopen)
+      - id: rtld-global-ref
+      - id: la-symbind-ref
+      - id: cap/os/linker/env/ld-preload
+      - id: cap/os/linker/env/ld-audit
+    # Graphics libraries use dlopen/dlsym for GPU driver loading - not hijacking
+    downgrade:
+      inert:
+        any:
+          - id: meta/library/graphics-lib-marker
+          - id: cap/exec/load/system-lib-marker
+
+  # === Unexpected capability combinations ===
+  # References external traits for socket/process operations
+  # NOTE: Excludes libraries that legitimately use sockets:
+  # - Network libraries (libssl, libcurl, libssh)
+  # - X11 IPC libraries (libICE, libSM) - use Unix/TCP sockets for inter-client communication
+  # - Graphics libraries (Mesa, OpenGL) - may use X11 sockets
+  # - Go runtime - has built-in networking
+  # - Debuggers - use sockets for remote debugging
+  - id: unexpected-socket-ops
+    desc: Socket operations in non-network library
+    crit: notable
+    conf: 0.6
+    all:
+      - id: cap/comm/socket/create/create
+      - id: cap/comm/socket/create/connect
+    none:
+      - id: cap/exec/load/network-lib-marker
+      - id: cap/exec/load/system-lib-marker
+      - id: cap/exec/load/x11-ipc-lib-marker
+      - id: cap/exec/load/graphics-lib-marker
+      - id: cap/exec/go-runtime-marker
+      - id: cap/exec/load/debugger-tool-marker
+
+  - id: unexpected-process-ops
+    desc: Process operations in utility library
+    crit: suspicious
+    conf: 0.75
+    count_min: 3
+    any:
+      - id: cap/process/fork/fork
+      - id: cap/exec/command/shell/c-execve
+      - id: cap/exec/command/shell/c-system
+      - id: cap/exec/command/shell/c-popen
+      - id: cap/exec/command/shell/bin-sh
+    none:
+      - id: cap/exec/go-runtime-marker
+      - id: cap/exec/load/shell-interpreter
+      # Compiler tools legitimately spawn processes for compilation
+      - id: cap/exec/load/llvm-project-ref
+      - id: cap/exec/load/llvm-lib-ref
+      - id: cap/exec/load/gcc-project-ref
+      - id: cap/exec/load/cmake-build-ref
+      # Debuggers legitimately use process control for debugging
+      - id: cap/exec/load/debugger-tool-marker
+
+  - id: unexpected-crypto
+    desc: Cryptographic operations in non-crypto library
+    crit: suspicious
+    conf: 0.75
+    count_min: 2
+    any:
+      - id: cap/crypto/symmetric/aes/binary/aes-sbox-bytes
+      - id: cap/crypto/asymmetric/rsa-operations
+      - id: cap/crypto/asymmetric/ed25519-constant-bytes
+
+  # === Unexpected capability combination ===
+  - id: unexpected-capabilities
+    desc: Unexpected capability combination in library
+    crit: suspicious
+    conf: 0.8
+    count_min: 2
+    any:
+      - id: unexpected-socket-ops
+      - id: unexpected-process-ops
+      - id: unexpected-crypto
+
+  # === Injected code pattern ===
+  - id: injected-code-pattern
+    desc: Injected code pattern in library
+    crit: suspicious
+    conf: 0.85
+    all:
+      - id: high-entropy-strings
+    any:
+      - id: unexpected-crypto
+      - id: unexpected-socket-ops
+
+  # === XZ-style backdoor detection ===
+  # Requires more specific indicators than just CPUID/IFUNC patterns
+  # which are common in legitimate optimized binaries
+  - id: xz-style-attack
+    desc: XZ-style supply chain backdoor pattern
+    crit: suspicious
+    conf: 0.9
+    all:
+      - id: many-huge-functions
+    any:
+      - id: xz-crc-pattern
+      - id: xz-obf-pattern
+      - id: ssh-hook-pattern
+      - id: rsa-in-compression-lib
+
+  # === Potential code injection ===
+  - id: potential-code-injection
+    desc: Potential code injection indicators
+    crit: suspicious
+    conf: 0.8
+    all:
+      - id: massive-code-blob
+    any:
+      - id: many-huge-functions
+      - id: glibc-hijack
+
+  # === Authentication bypass ===
+  - id: auth-bypass-indicator
+    desc: Authentication bypass backdoor indicator
+    crit: suspicious
+    conf: 0.95
+    any:
+      - id: ssh-hook-pattern
+      - id: rsa-in-compression-lib
+      - id: symbol-interposition
+
+  # === Function hooking behavior ===
+  # Require actual hijacking indicators, not just CPUID/IFUNC patterns
+  - id: function-hooking-behavior
+    desc: Dynamic function hooking patterns
+    crit: suspicious
+    conf: 0.8
+    all:
+      - id: glibc-hijack
+    any:
+      - id: symbol-interposition
+      - id: rtld-global-ref
+      - id: la-symbind-ref
+
+  # === RWX memory with suspicious context ===
+  - id: rwx-with-injection
+    desc: RWX memory protection with code
+    crit: suspicious
+    conf: 0.75
+    all:
+      - id: cap/mem/protect/modify/rwx-prot-bytes
+    any:
+      - id: glibc-hijack
+      - id: symbol-interposition
+      - id: high-entropy-strings

@@ -1,0 +1,115 @@
+# HTTP Request Operations - Generic
+# MBC: C0002 (HTTP Communication)
+# ATT&CK: T1071.001
+
+traits:
+  # === HTTP request micro-traits (migrated from YARA) ===
+  - id: http-request-func
+    desc: httpRequest function reference
+    crit: inert
+    conf: 0.5
+    mbc: "C0002"
+    attack: "T1071.001"
+    if:
+      type: string
+      exact: "httpRequest"
+
+  - id: user-agent-header
+    desc: User-Agent header
+    crit: inert
+    conf: 0.5
+    mbc: "C0002"
+    attack: "T1071.001"
+    if:
+      type: string
+      exact: "User-Agent"
+
+  - id: http-version
+    desc: HTTP/1.x version string
+    crit: inert
+    conf: 0.5
+    mbc: "C0002"
+    attack: "T1071.001"
+    if:
+      type: string
+      exact: "HTTP/1."
+
+  # === Network exfiltration atomic indicators ===
+  - id: requests-post
+    desc: Python requests.post call
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: "requests\\.post"
+
+  - id: requests-get
+    desc: Python requests.get call
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      regex: "requests\\.get"
+
+  - id: urllib-word
+    desc: urllib reference
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: "urllib"
+
+  - id: socket-dot
+    desc: socket module usage
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      regex: "socket\\."
+
+  - id: fetch-call
+    desc: JavaScript fetch call
+    crit: inert
+    conf: 0.4
+    # Restrict to JavaScript/TypeScript - "fetch(" as a string is too generic
+    # for binaries where it matches C++ method names like llvm::Fetcher::fetch()
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "fetch\\("
+
+  - id: xmlhttprequest-word
+    desc: XMLHttpRequest reference
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: "XMLHttpRequest"
+
+composite_rules:
+  # HTTP request composite (migrated from YARA)
+  - id: request
+    desc: Makes HTTP requests
+    crit: notable
+    conf: 0.66
+    mbc: "C0002"
+    attack: "T1071.001"
+    count_min: 1
+    any:
+      - id: http-request-func
+      - id: user-agent-header
+      - id: http-version
+
+  # Network exfiltration composite
+  - id: network-exfil
+    desc: Network request patterns for exfiltration
+    crit: notable
+    conf: 0.7
+    count_min: 1
+    any:
+      - id: requests-post
+      - id: requests-get
+      - id: urllib-word
+      - id: socket-dot
+      - id: fetch-call
+      - id: xmlhttprequest-word

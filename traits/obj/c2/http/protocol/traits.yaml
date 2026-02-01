@@ -1,0 +1,33 @@
+# HTTP C2 Protocol Detection - Composites
+# Detects suspicious HTTP patterns that may indicate C2 communication
+# ATT&CK: T1071.001 (Application Layer Protocol: Web Protocols)
+#
+# Note: Atomic HTTP protocol traits moved to comm/http/protocol/
+# This file contains only behavioral composites that indicate C2 usage
+
+defaults:
+  for: [elf, pe, macho]
+  attack: "T1071.001"
+  crit: suspicious
+
+composite_rules:
+  - id: hardcoded-request
+    desc: "Hardcoded HTTP request in binary"
+    crit: suspicious
+    conf: 0.7
+    all:
+      - id: cap/comm/http/protocol/http-protocol-string
+    any:
+      - id: cap/comm/http/protocol/http-method-get
+      - id: cap/comm/http/protocol/http-method-post
+
+  - id: custom-client
+    desc: "Custom HTTP client implementation"
+    crit: suspicious
+    conf: 0.65
+    all:
+      - id: cap/comm/http/protocol/http-protocol-string
+      - id: cap/comm/http/protocol/http-delimiter
+    any:
+      - id: cap/comm/http/protocol/http-user-agent
+      - id: cap/comm/http/protocol/http-content-type

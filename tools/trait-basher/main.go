@@ -33,13 +33,13 @@ const knownGoodPrompt = `Tune DISSECT for semantic correctness on known-good sof
 - **Findings:** %s
 
 ## Principle
-Findings must match actual behavior. Suspicious findings on goodware are fine IF the code actually does suspicious things. Fix MISLABELED findings (e.g., "c2/beacon" when it's just HTTP).
+Findings must match actual behavior. Suspicious findings on goodware are fine IF the code actually does suspicious things. Fix MISLABELED findings (e.g., "obj/c2/beacon" when it's just HTTP client).
 
 ## Process
-1. Read RULES.md for syntax
+1. Read RULES.md and TAXONOMY.md for syntax and structure
 2. Analyze what the file actually does
 3. Fix mislabeled findings using (in order):
-   - **Taxonomy** - Move to correct category (net/http-client not c2/beacon)
+   - **Taxonomy** - Move to correct tier (cap/comm/http/client not obj/c2/beacon)
    - **Patterns** - Make regex more specific
    - **Exclusions** - ` + "`not:`" + ` to filter false matches
    - **Exceptions** - ` + "`unless:`" + ` or ` + "`downgrade:`" + ` (last resort)
@@ -60,21 +60,30 @@ const knownBadPrompt = `Tune DISSECT to detect this malware's capabilities.
 - **Problem:** Not flagged suspicious/hostile - find what's missing
 
 ## Process
-1. Read RULES.md for syntax
+1. Read RULES.md and TAXONOMY.md for syntax and structure
 2. Reverse engineer: radare2, nm, strings, objdump, xxd
 3. Create/modify traits for detected capabilities
 
-## Taxonomy (objective/capability/kind)
-**Objectives** (attacker goals): anti-analysis | anti-static | c2 | collect | cred | discovery | exec | exfil | impact | lateral | persist | privesc
-**Micro-behaviors** (low-level mechanics): comm | crypto | data | feat | fs | hw | mem | os | process
+## Taxonomy (see TAXONOMY.md)
+Three-tier hierarchy based on MBC (Malware Behavior Catalog):
 
-Use objectives when intent is clear. Fall back to micro-behaviors for generic capabilities.
+**Capabilities** (cap/) - what code CAN do (value-neutral, never hostile):
+  cap/comm/ | cap/crypto/ | cap/data/ | cap/exec/ | cap/fs/ | cap/hw/ | cap/mem/ | cap/os/ | cap/process/
+
+**Objectives** (obj/) - what code LIKELY WANTS to do (attacker goals):
+  obj/anti-analysis/ | obj/anti-forensics/ | obj/anti-static/ | obj/c2/ | obj/collect/ |
+  obj/creds/ | obj/discovery/ | obj/exfil/ | obj/impact/ | obj/lateral/ | obj/persist/ | obj/privesc/
+
+**Known** (known/) - specific malware/tool signatures:
+  known/malware/ | known/tools/
+
+Use cap/ for neutral mechanics. Use obj/ when intent is clear. Use known/ only for family-specific markers.
 
 ## Detection Philosophy
 Write GENERIC patterns that catch similar malware:
-- Behavioral patterns over specific strings (socket+connect+recv, not hardcoded C2 domain)
+- Behavioral patterns over specific strings (cap/comm/socket + cap/process/fd/dup + cap/exec/shell, not hardcoded C2 domain)
 - Cross-language when possible (base64+exec works in Python, JS, Shell)
-- Neutral taxonomy for dual-use capabilities (net/socket not c2/socket)
+- Capabilities (cap/) are value-neutral; combine into objectives (obj/) with composite rules
 
 ## Composites
 HOSTILE requires complexity >= 4 (any:+1, all:+N per item, file_types:+1)

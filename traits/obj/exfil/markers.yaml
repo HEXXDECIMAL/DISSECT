@@ -1,0 +1,10 @@
+# Exfiltration markers
+traits:
+  - id: secret
+    desc: Secret marker string
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      regex: "secret[_-]?(key|token|api|exfil|data|steal|grab)"
+      case_insensitive: true

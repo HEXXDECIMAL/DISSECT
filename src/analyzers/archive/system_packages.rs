@@ -59,6 +59,13 @@ pub(crate) fn extract_compressed_safe(
             std::io::copy(&mut limited, &mut output_file)
                 .context("Failed to decompress BZ2 file")?
         }
+        "zstd" => {
+            let decoder =
+                zstd::stream::read::Decoder::new(file).context("Failed to create zstd decoder")?;
+            let mut limited = LimitedReader::new(decoder, MAX_FILE_SIZE);
+            std::io::copy(&mut limited, &mut output_file)
+                .context("Failed to decompress ZSTD file")?
+        }
         _ => anyhow::bail!("Unsupported compression: {}", compression),
     };
 

@@ -1,0 +1,26 @@
+# Browser Data Theft - JavaScript/Node.js
+# ATT&CK: T1555.003 (Credentials from Web Browsers)
+
+traits:
+  - id: js-sqlite-logins
+    desc: SQL query for Chromium login
+    crit: suspicious
+    conf: 0.95
+    attack: "T1555.003"
+    for: [javascript]
+    if:
+      type: string
+      regex: 'SELECT.{0,30}origin_url.{0,30}username_value.{0,30}password_value.{0,30}FROM\s+logins'
+      case_insensitive: true
+
+composite_rules:
+  - id: js-stealer
+    desc: Chromium browser credential stealer (SQLite
+    crit: suspicious
+    conf: 0.98
+    attack: "T1555.003"
+    mbc: "B0028"
+    for: [javascript]
+    all:
+      - id: js-sqlite-logins
+      - id: cap/comm/http/request/js-axios-post

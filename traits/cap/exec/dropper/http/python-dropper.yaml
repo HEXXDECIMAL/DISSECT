@@ -1,0 +1,143 @@
+# Python Dropper Patterns
+# ATT&CK: T1105 (Ingress Tool Transfer)
+# MBC: B0024 (Dropper)
+# Detects Python scripts that download and execute payloads
+
+defaults:
+  for: [python]
+  mbc: "B0024"
+  attack: "T1105"
+
+traits:
+  # === Download and Execute function patterns ===
+  - id: download-and-execute-func
+    desc: download_and_execute function
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: symbol
+      regex: "download_and_execute|download_execute|downloadAndExecute|downloadExecute"
+
+  # === Process checking patterns (anti-duplicate infection) ===
+  - id: is-process-running-func
+    desc: is_process_running function
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      regex: "is_process_running|isProcessRunning|check_if_running|process_running"
+
+  # === MD5-based process validation (anti-analysis/integrity) ===
+  - id: kill-process-md5
+    desc: MD5-based process termination
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: string
+      regex: "kill_process.{0,30}md5|md5.{0,30}kill.{0,30}process"
+
+  - id: kill-process-mismatch
+    desc: Kill process if mismatch
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: string
+      regex: "kill.{0,20}if.{0,20}mismatch|mismatch.{0,20}kill"
+
+  # === Platform architecture detection for payload selection ===
+  - id: platform-architecture-check
+    desc: Platform architecture check
+    crit: notable
+    conf: 0.85
+    if:
+      type: ast
+      kind: call
+      regex: "\\.architecture\\("
+
+  - id: arch-64bit-check
+    desc: 64-bit architecture check
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      exact: "64bit"
+
+  # === Multiple persistence locations (dropper behavior) ===
+  - id: multi-persist-dirs
+    desc: Multiple persistence directories
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: content
+      # Match scripts that reference multiple temp/persist directories
+      regex: "/tmp.{0,100}/var/tmp|/var/tmp.{0,100}/dev/shm|/tmp.{0,100}/dev/shm"
+
+  # === HTTP URL with IP and port pattern ===
+  - id: http-ip-port-url
+    desc: HTTP URL with IP:port
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      # Match http://IP:PORT patterns
+      regex: "http://[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+:[0-9]+"
+
+  # === Binary download path patterns ===
+  - id: bin-endpoint-path
+    desc: Binary download endpoint path
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      regex: "http.{0,60}/bin($|\"|\\')"
+
+composite_rules:
+  # Process checking + killing = anti-duplicate infection
+  - id: anti-duplicate-infection
+    desc: Anti-duplicate infection pattern
+    crit: suspicious
+    conf: 0.9
+    count_min: 1
+    any:
+      - id: is-process-running-func
+      - id: kill-process-md5
+      - id: kill-process-mismatch
+
+  # Architecture-based payload selection
+  - id: arch-payload-selection
+    desc: Architecture-based payload selection
+    crit: suspicious
+    conf: 0.85
+    all:
+      - id: platform-architecture-check
+    any:
+      - id: arch-64bit-check
+      - id: http-ip-port-url
+
+  # Dropper with multiple persistence locations
+  # Complexity: file_types:+1, all:+3 = 4 (hostile allowed)
+  - id: multi-location-dropper
+    desc: "Dropper targeting multiple persistence"
+    crit: hostile
+    conf: 0.95
+    file_types: [python]
+    all:
+      - id: download-and-execute-func
+      - id: multi-persist-dirs
+      - id: http-ip-port-url
+
+  # Generic Python dropper pattern
+  # Complexity: file_types:+1, all:+3, any:+1 = 5 (hostile allowed)
+  - id: python-dropper
+    desc: "Python dropper with download and"
+    crit: hostile
+    conf: 0.95
+    file_types: [python]
+    all:
+      - id: download-and-execute-func
+      - id: http-ip-port-url
+      - id: cap/fs/file/tmp-ref
+    any:
+      - id: is-process-running-func
+      - id: arch-64bit-check
+      - id: cap/exec/command/subprocess/run-ast

@@ -143,10 +143,12 @@ impl ArchiveAnalyzer {
         let files = std::sync::Arc::new(std::sync::Mutex::new(Vec::new()));
         let files_clone = files.clone();
 
-        // Determine archive type and use appropriate streaming method
-        let archive_type = detect_archive_type(file_path);
+        // Determine archive type - use magic detection for ambiguous extensions
+        let archive_type = utils::detect_archive_type_with_magic(file_path)
+            .unwrap_or_else(|_| detect_archive_type(file_path));
         let summary = match archive_type {
-            "tar" | "tar.gz" | "tgz" | "tar.bz2" | "tbz" | "tbz2" | "tar.xz" | "txz" => {
+            "tar" | "tar.gz" | "tgz" | "tar.bz2" | "tbz" | "tbz2" | "tar.xz" | "txz"
+            | "tar.zst" | "tzst" => {
                 self.analyze_tar_streaming(file_path, |result: StreamingFileResult| {
                     // Call user callback
                     on_file(&result.file_analysis);
@@ -159,8 +161,8 @@ impl ArchiveAnalyzer {
                     }
                 })?
             }
-            "zip" | "jar" | "war" | "ear" | "apk" | "aar" | "egg" | "whl" | "phar" | "nupkg"
-            | "vsix" | "xpi" | "ipa" | "epub" => {
+            "zip" | "jar" | "war" | "ear" | "aar" | "egg" | "whl" | "phar" | "nupkg" | "vsix"
+            | "xpi" | "ipa" | "epub" => {
                 self.analyze_zip_streaming(file_path, |result: StreamingFileResult| {
                     // Call user callback
                     on_file(&result.file_analysis);
@@ -173,6 +175,34 @@ impl ArchiveAnalyzer {
                     }
                 })?
             }
+            // Handle "apk" that wasn't resolved by magic (fallback to zip for Android)
+            "apk" => self.analyze_zip_streaming(file_path, |result: StreamingFileResult| {
+                on_file(&result.file_analysis);
+
+                let mut files = files_clone.lock().unwrap();
+                files.push(result.file_analysis);
+                for nested in result.nested_files {
+                    files.push(nested);
+                }
+            })?,
+            "deb" => self.analyze_deb_streaming(file_path, |result: StreamingFileResult| {
+                on_file(&result.file_analysis);
+
+                let mut files = files_clone.lock().unwrap();
+                files.push(result.file_analysis);
+                for nested in result.nested_files {
+                    files.push(nested);
+                }
+            })?,
+            "rpm" => self.analyze_rpm_streaming(file_path, |result: StreamingFileResult| {
+                on_file(&result.file_analysis);
+
+                let mut files = files_clone.lock().unwrap();
+                files.push(result.file_analysis);
+                for nested in result.nested_files {
+                    files.push(nested);
+                }
+            })?,
             _ => {
                 // Fall back to non-streaming for unsupported formats
                 return self.analyze_archive(file_path);
@@ -439,7 +469,9 @@ impl ArchiveAnalyzer {
         dest_dir: &Path,
         guard: &ExtractionGuard,
     ) -> Result<()> {
-        let archive_type = detect_archive_type(archive_path);
+        // Use magic-based detection for ambiguous extensions (apk, pkg)
+        let archive_type = utils::detect_archive_type_with_magic(archive_path)
+            .unwrap_or_else(|_| detect_archive_type(archive_path));
 
         match archive_type {
             "zip" => zip::extract_zip_safe(archive_path, dest_dir, guard, &self.zip_passwords),
@@ -453,8 +485,14 @@ impl ArchiveAnalyzer {
                 tar::extract_tar_safe(archive_path, dest_dir, Some("bzip2"), guard)
             }
             "tar.xz" | "txz" => tar::extract_tar_safe(archive_path, dest_dir, Some("xz"), guard),
+            "tar.zst" | "tzst" => {
+                tar::extract_tar_safe(archive_path, dest_dir, Some("zstd"), guard)
+            }
             "xz" => system_packages::extract_compressed_safe(archive_path, dest_dir, "xz", guard),
             "gz" => system_packages::extract_compressed_safe(archive_path, dest_dir, "gzip", guard),
+            "zst" => {
+                system_packages::extract_compressed_safe(archive_path, dest_dir, "zstd", guard)
+            }
             "bz2" => {
                 system_packages::extract_compressed_safe(archive_path, dest_dir, "bzip2", guard)
             }
@@ -462,6 +500,8 @@ impl ArchiveAnalyzer {
             "rpm" => system_packages::extract_rpm(archive_path, dest_dir, guard),
             "pkg" => system_packages::extract_pkg_safe(archive_path, dest_dir, guard),
             "rar" => system_packages::extract_rar(archive_path, dest_dir, guard),
+            // Handle ambiguous "apk" that wasn't resolved by magic detection
+            "apk" => zip::extract_zip_safe(archive_path, dest_dir, guard, &self.zip_passwords),
             _ => anyhow::bail!("Unsupported archive type: {}", archive_type),
         }
     }
@@ -483,7 +523,7 @@ impl Analyzer for ArchiveAnalyzer {
             || path_str.ends_with(".jar")
             || path_str.ends_with(".war")
             || path_str.ends_with(".ear")
-            || path_str.ends_with(".apk")
+            || path_str.ends_with(".apk") // Android APK or Alpine APK (detected by magic)
             || path_str.ends_with(".aar")
             || path_str.ends_with(".egg")
             || path_str.ends_with(".whl")
@@ -501,14 +541,22 @@ impl Analyzer for ArchiveAnalyzer {
             || path_str.ends_with(".tgz")
             || path_str.ends_with(".tar.bz2")
             || path_str.ends_with(".tbz2")
+            || path_str.ends_with(".tbz")
             || path_str.ends_with(".tar.xz")
             || path_str.ends_with(".txz")
+            || path_str.ends_with(".tar.zst") // Zstd-compressed tar
+            || path_str.ends_with(".tzst")
+            || path_str.ends_with(".pkg.tar.zst") // Arch Linux packages
+            || path_str.ends_with(".pkg.tar.xz")
+            || path_str.ends_with(".pkg.tar.gz")
+            || path_str.ends_with(".xbps") // Void Linux packages
             || (path_str.ends_with(".xz") && !path_str.ends_with(".tar.xz"))
             || (path_str.ends_with(".gz") && !path_str.ends_with(".tar.gz"))
+            || (path_str.ends_with(".zst") && !path_str.ends_with(".tar.zst"))
             || (path_str.ends_with(".bz2") && !path_str.ends_with(".tar.bz2"))
             || path_str.ends_with(".deb")
             || path_str.ends_with(".rpm")
-            || path_str.ends_with(".pkg")
+            || path_str.ends_with(".pkg") // macOS PKG or FreeBSD pkg (detected by magic)
             || path_str.ends_with(".rar")
             || path_str.ends_with(".7z")
     }
@@ -566,7 +614,8 @@ mod tests {
         let _analyzer = ArchiveAnalyzer::new();
         assert_eq!(detect_archive_type(Path::new("test.jar")), "zip");
         assert_eq!(detect_archive_type(Path::new("test.war")), "zip");
-        assert_eq!(detect_archive_type(Path::new("test.apk")), "zip");
+        // .apk returns "apk" for extension-based detection (needs magic for Android vs Alpine)
+        assert_eq!(detect_archive_type(Path::new("test.apk")), "apk");
     }
 
     #[test]
@@ -837,6 +886,62 @@ mod tests {
     fn test_detect_archive_type_unknown() {
         let _analyzer = ArchiveAnalyzer::new();
         assert_eq!(detect_archive_type(Path::new("test.txt")), "unknown");
+    }
+
+    #[test]
+    fn test_detect_archive_type_zstd_tar() {
+        let _analyzer = ArchiveAnalyzer::new();
+        assert_eq!(detect_archive_type(Path::new("test.tar.zst")), "tar.zst");
+        assert_eq!(detect_archive_type(Path::new("test.tzst")), "tar.zst");
+    }
+
+    #[test]
+    fn test_detect_archive_type_arch_packages() {
+        let _analyzer = ArchiveAnalyzer::new();
+        // Arch Linux packages
+        assert_eq!(
+            detect_archive_type(Path::new("linux-6.7-1-x86_64.pkg.tar.zst")),
+            "tar.zst"
+        );
+        assert_eq!(
+            detect_archive_type(Path::new("pacman-6.0-1-x86_64.pkg.tar.xz")),
+            "tar.xz"
+        );
+        assert_eq!(
+            detect_archive_type(Path::new("old-pkg-1.0-1.pkg.tar.gz")),
+            "tar.gz"
+        );
+    }
+
+    #[test]
+    fn test_detect_archive_type_void_packages() {
+        let _analyzer = ArchiveAnalyzer::new();
+        // Void Linux packages (xbps)
+        assert_eq!(
+            detect_archive_type(Path::new("bash-5.2-1.x86_64.xbps")),
+            "tar.zst"
+        );
+    }
+
+    #[test]
+    fn test_can_analyze_zstd_tar() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert!(analyzer.can_analyze(Path::new("test.tar.zst")));
+        assert!(analyzer.can_analyze(Path::new("test.tzst")));
+    }
+
+    #[test]
+    fn test_can_analyze_arch_packages() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert!(analyzer.can_analyze(Path::new("linux.pkg.tar.zst")));
+        assert!(analyzer.can_analyze(Path::new("linux.pkg.tar.xz")));
+        assert!(analyzer.can_analyze(Path::new("linux.pkg.tar.gz")));
+    }
+
+    #[test]
+    fn test_can_analyze_void_packages() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert!(analyzer.can_analyze(Path::new("bash.xbps")));
     }
 
     #[test]

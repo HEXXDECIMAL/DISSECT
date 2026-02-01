@@ -1,0 +1,143 @@
+# Crypto Bot Facade Malware Detection
+# Detects fake crypto trading bots used to distribute malware
+# Common pattern: legitimate-looking trading code + malicious helper imports
+# ATT&CK: T1204 (User Execution), T1195.002 (Supply Chain Compromise)
+# MBC: B0024 (Dropper)
+
+defaults:
+  crit: suspicious
+  mbc: "B0024"
+  attack: "T1204"
+  for: [python]
+
+traits:
+  # === Wildcard Import Patterns ===
+  - id: wildcard-import-helpers
+    desc: Wildcard import from helpers
+    crit: suspicious
+    conf: 0.75
+    if:
+      type: content
+      regex: "from\\s+helpers\\.[a-zA-Z_]+\\s+import\\s+\\*"
+
+  - id: wildcard-import-server
+    desc: Wildcard import from server module
+    crit: suspicious
+    conf: 0.75
+    if:
+      type: content
+      regex: "from\\s+[a-zA-Z_.]+server\\s+import\\s+\\*"
+
+  - id: wildcard-import-utils
+    desc: Wildcard import from utils module
+    crit: notable
+    conf: 0.60
+    if:
+      type: content
+      regex: "from\\s+[a-zA-Z_.]+utils\\s+import\\s+\\*"
+
+  # === Crypto Trading Terminology ===
+  - id: defi-protocol-ref
+    desc: DeFi protocol references
+    crit: inert
+    conf: 0.50
+    if:
+      type: string
+      regex: "(?i)(uniswap|sushiswap|pancakeswap|curve|aave|compound)"
+
+  - id: token-swap-pattern
+    desc: Token swap operation patterns
+    crit: inert
+    conf: 0.50
+    if:
+      type: string
+      regex: "(getReserves|calculatePrice|getPairContract|swapExact|swap_tokens)"
+
+  - id: arbitrage-terms
+    desc: Arbitrage trading terms
+    crit: inert
+    conf: 0.50
+    if:
+      type: string
+      regex: "(arbitrage|arb_for|arb_against|price_difference|flash_loan)"
+
+  - id: web3-provider
+    desc: Web3 provider usage
+    crit: inert
+    conf: 0.50
+    if:
+      type: string
+      regex: "(from\\s+web3\\s+import|Web3\\(|provider\\.eth)"
+
+  - id: meme-token-keywords
+    desc: Meme token related keywords
+    crit: inert
+    conf: 0.50
+    if:
+      type: string
+      regex: "(?i)(meme.?token|token.?hunter|sniper.?bot|trading.?bot)"
+
+  # === Suspicious Helper Patterns ===
+  - id: helper-subprocess-exec
+    desc: Helper with subprocess execution
+    crit: suspicious
+    conf: 0.80
+    if:
+      type: string
+      regex: "helper.{0,20}subprocess\\.(run|Popen|call)"
+
+  - id: helper-os-system
+    desc: Helper with os.system execution
+    crit: suspicious
+    conf: 0.80
+    if:
+      type: string
+      regex: "helper.{0,20}os\\.system"
+
+composite_rules:
+  # === Helper composites ===
+  - id: wildcard-imports
+    desc: Wildcard import patterns
+    any:
+      - id: wildcard-import-helpers
+      - id: wildcard-import-server
+      - id: wildcard-import-utils
+
+  - id: crypto-trading-facade
+    desc: Crypto trading code patterns
+    count_min: 2
+    any:
+      - id: defi-protocol-ref
+      - id: token-swap-pattern
+      - id: arbitrage-terms
+      - id: web3-provider
+      - id: meme-token-keywords
+
+  # === Main Detection Rules ===
+  # Complexity: all(+2) = 2 (suspicious is ok for < 4)
+  - id: crypto-facade-with-wildcard
+    desc: Crypto trading facade with wildcard
+    crit: suspicious
+    conf: 0.85
+    attack: "T1204"
+    all:
+      - id: wildcard-imports
+      - id: crypto-trading-facade
+
+  # === HOSTILE: Crypto Bot Facade with Execution ===
+  # Complexity: file_types(+1) + all(+2) + any(+1) = 4 >= 4
+  - id: crypto-bot-dropper-facade
+    desc: Crypto bot facade with dropper
+    crit: hostile
+    conf: 0.92
+    mbc: "B0024"
+    attack: "T1195.002"
+    file_types: [python]
+    all:
+      - id: wildcard-imports
+      - id: crypto-trading-facade
+    any:
+      - id: helper-subprocess-exec
+      - id: helper-os-system
+      - id: cap/exec/command/subprocess/run-ast
+      - id: cap/exec/command/shell/python-os-system

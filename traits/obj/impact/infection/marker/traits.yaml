@@ -1,0 +1,67 @@
+# Impact - Infection Markers
+# ATT&CK: T1204 (User Execution)
+
+traits:
+  - id: infected-with
+    description: Infection notification pattern
+    crit: suspicious
+    conf: 0.9
+    attack: "T1204"
+    for: [all]
+    if:
+      type: string
+      regex: ".{3,16} infected with .{3,16}"
+
+  - id: elf-infector-yara
+    description: ELF file infector pattern via
+    crit: suspicious
+    conf: 0.95
+    attack: "T1204"
+    mbc: "B0009"
+    for: [elf]
+    if:
+      type: yara
+      source: |
+        rule elf_infector {
+          strings:
+            // High-confidence infection terminology (specific to file infectors)
+            $infect_file = /infect.{0,10}(file|elf|binary)/i
+            $virus = "virus" nocase fullword
+            $parasite = "parasite" nocase fullword
+            // Common file-scanning patterns in infectors
+            $scan_elf = /scan.{0,10}elf/i
+            $find_target = /find.{0,10}target/i
+            // Exclusions for legitimate binaries/tools
+            $llvm = "LLVM" fullword
+            $clang = "clang" fullword
+            $objcopy = "objcopy" fullword
+            $binutils = "binutils" fullword
+          condition:
+            uint32(0) == 0x464C457F and
+            filesize < 1MB and
+            // Only match explicit infection terminology, NOT embedded ELF
+            // (embedded ELF is common in linkers, objcopy, etc.)
+            any of ($infect_file, $virus, $parasite, $scan_elf, $find_target) and
+            none of ($llvm, $clang, $objcopy, $binutils)
+        }
+
+  - id: infected-xor-yara
+    description: XOR obfuscated infection marker pattern
+    crit: suspicious
+    conf: 0.95
+    attack: "T1027"
+    for: [all]
+    if:
+      type: yara
+      source: |
+        rule infected_xor {
+          strings:
+            $infected_x = "infected" xor(1-255)
+            $INFECTED_x = "INFECTED" xor(1-255)
+          condition:
+            filesize < 5MB and any of them
+        }
+
+composite_rules:
+  # NOTE: Simple libc function references are too common in statically linked binaries
+  # Require explicit infection markers or embedded ELF payloads at non-zero offset

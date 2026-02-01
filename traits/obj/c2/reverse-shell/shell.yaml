@@ -1,0 +1,142 @@
+# Reverse Shell Detection - Shell/Bash
+# MBC: B0033 (Adversary-in-the-Middle)
+# ATT&CK: T1059.004 (Unix Shell)
+# NOTE: stdin-redirect (0>&1) is defined in c2/backdoor/traits.yaml
+
+defaults:
+  attack: "T1059.004"
+
+traits:
+  # Complete bash reverse shell pattern (no legitimate use)
+  - id: reverse-shell-bash-complete
+    desc: Bash reverse shell via /dev/tcp
+    crit: suspicious
+    conf: 0.98
+    for: [shell, packagejson, javascript]
+    if:
+      type: string
+      regex: "bash\\s+-i\\s+>&\\s*/dev/tcp/[0-9.]+/[0-9]+\\s+0>&1"
+
+  - id: reverse-shell-bash
+    desc: Bash reverse shell via /dev/tcp
+    crit: suspicious
+    conf: 0.95
+    for: [shell, packagejson, javascript]
+    if:
+      type: string
+      regex: "bash\\s+-i\\s+>&\\s*/dev/tcp/"
+
+  # === mkfifo netcat atomic indicators ===
+  - id: mkfifo-cmd
+    desc: mkfifo command for named pipe
+    crit: inert
+    conf: 0.5
+    for: [shell, packagejson]
+    if:
+      type: string
+      regex: '\bmkfifo\b'
+
+  - id: nc-pipe
+    desc: Netcat with pipe
+    crit: inert
+    conf: 0.5
+    for: [shell, packagejson]
+    if:
+      type: string
+      regex: '\| {0,2}nc '
+
+  # Python reverse shell
+  - id: reverse-shell-python
+    desc: Python reverse shell pattern
+    crit: suspicious
+    conf: 0.95
+    attack: "T1059.006"
+    for: [shell, packagejson, python]
+    if:
+      type: string
+      regex: "python[23]?\\s+-c\\s+['\"]import socket.{0,100}subprocess.{0,50}connect"
+
+  # Perl reverse shell
+  - id: reverse-shell-perl
+    desc: Perl reverse shell pattern
+    crit: suspicious
+    conf: 0.95
+    attack: "T1059"
+    for: [shell, packagejson]
+    if:
+      type: string
+      regex: "perl\\s+-e\\s+['\"].{0,100}socket.{0,50}connect.{0,50}exec"
+
+  # === Netcat reverse shell atomic indicators ===
+  - id: nc-exec-sh
+    desc: nc -e /bin/sh pattern
+    crit: suspicious
+    conf: 0.9
+    for: [shell, packagejson]
+    if:
+      type: string
+      regex: 'nc\s+-e\s+/bin/(ba)?sh'
+
+  - id: ncat-exec-sh
+    desc: ncat -e /bin/sh pattern
+    crit: suspicious
+    conf: 0.9
+    for: [shell, packagejson]
+    if:
+      type: string
+      regex: 'ncat\s+-e\s+/bin/(ba)?sh'
+
+  - id: netcat-exec-sh
+    desc: netcat -e /bin/sh pattern
+    crit: suspicious
+    conf: 0.9
+    for: [shell, packagejson]
+    if:
+      type: string
+      regex: 'netcat\s+-e\s+/bin/(ba)?sh'
+
+  # Ruby reverse shell
+  - id: reverse-shell-ruby
+    desc: Ruby reverse shell pattern
+    crit: suspicious
+    conf: 0.95
+    attack: "T1059"
+    for: [shell, packagejson, ruby]
+    if:
+      type: string
+      regex: "ruby\\s+-rsocket\\s+-e|TCPSocket\\.open.{0,50}exec"
+
+  # PHP reverse shell
+  - id: reverse-shell-php
+    desc: PHP reverse shell pattern
+    crit: suspicious
+    conf: 0.95
+    attack: "T1059"
+    for: [shell, packagejson, php]
+    if:
+      type: string
+      regex: "php\\s+-r\\s+['\"].{0,100}fsockopen.{0,50}shell_exec|\\$sock\\s*=\\s*fsockopen"
+
+composite_rules:
+  # mkfifo + netcat reverse shell (all of them + small file)
+  - id: reverse-shell-mkfifo
+    desc: Reverse shell using mkfifo and
+    crit: suspicious
+    conf: 0.95
+    for: [shell, packagejson]
+    all:
+      - id: mkfifo-cmd
+      - id: cap/exec/command/shell/interactive/sh-interactive
+      - id: nc-pipe
+
+  # Netcat reverse shell variants
+  - id: reverse-shell-netcat
+    desc: Netcat reverse shell pattern
+    crit: suspicious
+    conf: 0.9
+    for: [shell, packagejson]
+    count_min: 1
+    any:
+      - id: nc-exec-sh
+      - id: ncat-exec-sh
+      - id: netcat-exec-sh

@@ -1,0 +1,180 @@
+# System Directory Destructive Operations
+# Detects targeting of critical system directories for destructive purposes
+# ATT&CK: T1485 (Data Destruction), T1561 (Disk Wipe)
+
+defaults:
+  attack: "T1485"
+  crit: suspicious
+
+traits:
+  # Windows System32 deletion
+  - id: windows-system32-delete
+    description: "Windows System32 directory deletion"
+    conf: 0.95
+    platforms: [windows]
+    if:
+      type: string
+      regex: "(rmdir|del|remove|shutil\\.rmtree|os\\.remove).{0,100}[Ss]ystem32|[Ss]ystem32.{0,100}(rmdir|del|remove)"
+
+  # Windows directory recursive deletion
+  - id: windows-recursive-delete
+    description: "Windows system directory recursive deletion"
+    conf: 0.9
+    platforms: [windows]
+    if:
+      type: string
+      regex: "rd\\s+/s|rmdir\\s+/s.{0,50}Windows|del\\s+/f\\s+/q.{0,50}Windows"
+
+  # Linux critical directory targeting
+  - id: linux-etc-delete
+    description: "Linux /etc directory deletion attempt"
+    conf: 0.95
+    platforms: [linux]
+    if:
+      type: string
+      regex: "rm\\s+-rf\\s+/etc|shutil\\.rmtree.{0,50}[\"']/etc"
+
+  # Linux /usr directory targeting (binaries/libs)
+  - id: linux-usr-delete
+    description: "Linux /usr directory deletion attempt"
+    conf: 0.95
+    platforms: [linux]
+    if:
+      type: string
+      regex: "rm\\s+-rf\\s+/usr|shutil\\.rmtree.{0,50}[\"']/usr"
+
+  # Linux boot directory targeting
+  - id: linux-boot-delete
+    description: "Linux /boot directory deletion attempt"
+    conf: 0.95
+    platforms: [linux]
+    if:
+      type: string
+      regex: "rm\\s+-rf\\s+/boot|shutil\\.rmtree.{0,50}[\"']/boot"
+
+  # Root filesystem wipe
+  - id: root-wipe
+    description: "Root filesystem wipe attempt"
+    conf: 0.95
+    attack: "T1561"
+    if:
+      type: string
+      regex: "rm\\s+-rf\\s+/\\s|rm\\s+-rf\\s+/\\*|shutil\\.rmtree.{0,50}[\"']/[\"']"
+
+  # macOS system directory targeting
+  - id: macos-system-delete
+    description: "macOS system directory deletion"
+    conf: 0.95
+    platforms: [macos]
+    if:
+      type: string
+      regex: "rm\\s+-rf.{0,50}(/System|/Library/System)|shutil\\.rmtree.{0,50}/System"
+
+  # MBR/Boot sector targeting
+  - id: mbr-target
+    description: "MBR/Boot sector targeting"
+    conf: 0.95
+    attack: "T1561.002"
+    if:
+      type: string
+      regex: "/dev/sda|/dev/hda|PhysicalDrive0|\\\\\\\\\\\\.\\\\PhysicalDrive"
+
+  # === Recursive deletion atomic indicators ===
+  - id: rmtree-call
+    description: rmtree function call
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "rmtree"
+
+  - id: rm-rf-cmd
+    description: rm -rf command
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      regex: "rm\\s+-rf"
+
+  - id: rmdir-recursive
+    description: rmdir recursive command
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      regex: "rmdir.{0,30}(/s|/q)"
+
+  # === System directory atomic indicators ===
+  - id: windows-dir-ref
+    description: Windows directory reference
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "Windows"
+
+  - id: system32-ref
+    description: System32 directory reference
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "System32"
+
+  - id: etc-dir-ref
+    description: /etc directory reference
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "/etc"
+
+  - id: boot-dir-ref
+    description: /boot directory reference
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "/boot"
+
+  - id: usr-dir-ref
+    description: /usr directory reference
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "/usr"
+
+composite_rules:
+  - id: recursive-delete-cmd
+    description: "Recursive deletion command pattern"
+    crit: notable
+    conf: 0.8
+    count_min: 1
+    any:
+      - id: rmtree-call
+      - id: rm-rf-cmd
+      - id: rmdir-recursive
+
+  # NOTE: Go and many legitimate programs reference /etc, /usr, etc.
+  # These are too generic on their own - downgraded to inert.
+  - id: system-dir-reference
+    description: "Reference to critical system directories"
+    crit: inert
+    conf: 0.4
+    count_min: 1
+    any:
+      - id: windows-dir-ref
+      - id: system32-ref
+      - id: etc-dir-ref
+      - id: boot-dir-ref
+      - id: usr-dir-ref
+
+  # System destruction with iteration
+  - id: mass-deletion
+    description: "Mass system file deletion"
+    conf: 0.95
+    all:
+      - id: recursive-delete-cmd
+      - id: cap/data/control-flow/iteration-loop-pattern
+      - id: system-dir-reference
