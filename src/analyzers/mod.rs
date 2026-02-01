@@ -25,9 +25,6 @@ pub mod symbol_extraction;
 pub mod text_metrics;
 pub mod utils;
 
-// Analyzer templates and helpers
-pub mod source_analyzer;
-
 // Dedicated analyzers for binary/bytecode/manifest formats
 pub mod elf;
 pub mod java_class;

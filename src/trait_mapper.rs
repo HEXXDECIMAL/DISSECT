@@ -10,56 +10,52 @@ use crate::types::{
     InstructionAnalysis,
 };
 
-/// Maps low-level structural traits to Malware Behavior Catalog capabilities
-pub struct TraitMapper;
+/// Analyze function traits and generate behavioral capabilities
+pub fn analyze_function(func: &Function) -> Vec<Finding> {
+    let mut capabilities = Vec::new();
 
-impl TraitMapper {
-    /// Analyze function traits and generate behavioral capabilities
-    pub fn analyze_function(func: &Function) -> Vec<Finding> {
-        let mut capabilities = Vec::new();
-
-        // Analyze control flow metrics
-        if let Some(ref cf) = func.control_flow {
-            capabilities.extend(Self::analyze_control_flow(cf, &func.name));
-        }
-
-        // Analyze instruction patterns
-        if let Some(ref instr) = func.instruction_analysis {
-            capabilities.extend(Self::analyze_instructions(instr, &func.name));
-        }
-
-        // Analyze constants for C2
-        if !func.constants.is_empty() {
-            capabilities.extend(Self::analyze_constants(&func.constants, &func.name));
-        }
-
-        // Analyze function properties
-        if let Some(ref props) = func.properties {
-            if props.is_noreturn {
-                capabilities.push(Finding {
-                    kind: FindingKind::Capability,
-                    trait_refs: vec![],
-                    id: "exec/terminate".to_string(),
-                    desc: "Function terminates execution".to_string(),
-                    conf: 0.7,
-                    crit: Criticality::Inert,
-                    mbc: None,
-                    attack: None,
-                    evidence: vec![Evidence {
-                        method: "trait".to_string(),
-                        source: "radare2".to_string(),
-                        value: "noreturn".to_string(),
-                        location: Some(func.name.clone()),
-                    }],
-                });
-            }
-        }
-
-        capabilities
+    // Analyze control flow metrics
+    if let Some(ref cf) = func.control_flow {
+        capabilities.extend(analyze_control_flow(cf, &func.name));
     }
 
-    /// Analyze control flow metrics for behavioral patterns
-    fn analyze_control_flow(cf: &ControlFlowMetrics, func_name: &str) -> Vec<Finding> {
+    // Analyze instruction patterns
+    if let Some(ref instr) = func.instruction_analysis {
+        capabilities.extend(analyze_instructions(instr, &func.name));
+    }
+
+    // Analyze constants for C2
+    if !func.constants.is_empty() {
+        capabilities.extend(analyze_constants(&func.constants, &func.name));
+    }
+
+    // Analyze function properties
+    if let Some(ref props) = func.properties {
+        if props.is_noreturn {
+            capabilities.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
+                id: "exec/terminate".to_string(),
+                desc: "Function terminates execution".to_string(),
+                conf: 0.7,
+                crit: Criticality::Inert,
+                mbc: None,
+                attack: None,
+                evidence: vec![Evidence {
+                    method: "trait".to_string(),
+                    source: "radare2".to_string(),
+                    value: "noreturn".to_string(),
+                    location: Some(func.name.clone()),
+                }],
+            });
+        }
+    }
+
+    capabilities
+}
+
+/// Analyze control flow metrics for behavioral patterns
+fn analyze_control_flow(cf: &ControlFlowMetrics, func_name: &str) -> Vec<Finding> {
         let mut capabilities = Vec::new();
 
         // High complexity with loops -> potential crypto/packing
@@ -128,8 +124,8 @@ impl TraitMapper {
         capabilities
     }
 
-    /// Analyze instruction patterns for behaviors
-    fn analyze_instructions(instr: &InstructionAnalysis, func_name: &str) -> Vec<Finding> {
+/// Analyze instruction patterns for behaviors
+fn analyze_instructions(instr: &InstructionAnalysis, func_name: &str) -> Vec<Finding> {
         let mut capabilities = Vec::new();
 
         // Anti-debug instructions
@@ -334,11 +330,11 @@ impl TraitMapper {
         capabilities
     }
 
-    /// Analyze embedded constants for C2 indicators
-    fn analyze_constants(
-        constants: &[crate::types::EmbeddedConstant],
-        func_name: &str,
-    ) -> Vec<Finding> {
+/// Analyze embedded constants for C2 indicators
+fn analyze_constants(
+    constants: &[crate::types::EmbeddedConstant],
+    func_name: &str,
+) -> Vec<Finding> {
         let mut capabilities = Vec::new();
 
         for constant in constants {
@@ -388,8 +384,8 @@ impl TraitMapper {
         capabilities
     }
 
-    /// Analyze binary-wide properties for capabilities
-    pub fn analyze_binary_properties(props: &BinaryProperties) -> Vec<Finding> {
+/// Analyze binary-wide properties for capabilities
+pub fn analyze_binary_properties(props: &BinaryProperties) -> Vec<Finding> {
         let mut capabilities = Vec::new();
 
         // No security features -> suspicious
@@ -480,7 +476,6 @@ impl TraitMapper {
         }
 
         capabilities
-    }
 }
 
 #[cfg(test)]
@@ -522,7 +517,7 @@ mod tests {
             out_degree: 2,
         };
 
-        let caps = TraitMapper::analyze_control_flow(&cf, "test_func");
+        let caps = analyze_control_flow(&cf, "test_func");
 
         // Should detect high complexity
         assert!(caps.iter().any(|c| c.id == "complexity/high"));
@@ -546,7 +541,7 @@ mod tests {
             out_degree: 3,
         };
 
-        let caps = TraitMapper::analyze_control_flow(&cf, "obfuscated_func");
+        let caps = analyze_control_flow(&cf, "obfuscated_func");
 
         // Should detect obfuscation
         assert!(caps
@@ -576,7 +571,7 @@ mod tests {
             out_degree: 1,
         };
 
-        let caps = TraitMapper::analyze_control_flow(&cf, "simple_func");
+        let caps = analyze_control_flow(&cf, "simple_func");
 
         // Should not detect anything suspicious
         assert!(caps.is_empty());
@@ -603,7 +598,7 @@ mod tests {
             unusual_instructions: vec!["int1".to_string()],
         };
 
-        let caps = TraitMapper::analyze_instructions(&instr, "debug_trap");
+        let caps = analyze_instructions(&instr, "debug_trap");
 
         // Should detect debug trap
         assert!(caps
@@ -637,7 +632,7 @@ mod tests {
             unusual_instructions: vec!["int3".to_string()],
         };
 
-        let caps = TraitMapper::analyze_instructions(&instr, "breakpoint_func");
+        let caps = analyze_instructions(&instr, "breakpoint_func");
 
         // Should detect breakpoint
         assert!(caps
@@ -671,7 +666,7 @@ mod tests {
             unusual_instructions: vec!["rdtsc".to_string()],
         };
 
-        let caps = TraitMapper::analyze_instructions(&instr, "timing_check");
+        let caps = analyze_instructions(&instr, "timing_check");
 
         // Should detect timing check
         assert!(caps
@@ -707,7 +702,7 @@ mod tests {
             unusual_instructions: vec!["cpuid".to_string()],
         };
 
-        let caps = TraitMapper::analyze_instructions(&instr, "vm_detect");
+        let caps = analyze_instructions(&instr, "vm_detect");
 
         // Should detect VM detection
         assert!(caps
@@ -743,7 +738,7 @@ mod tests {
             unusual_instructions: Vec::new(),
         };
 
-        let caps = TraitMapper::analyze_instructions(&instr, "xor_loop");
+        let caps = analyze_instructions(&instr, "xor_loop");
 
         // Should detect XOR encoding (15/50 = 0.3 > 0.2)
         assert!(caps.iter().any(|c| c.id == "crypto/xor"));
@@ -774,7 +769,7 @@ mod tests {
             unusual_instructions: Vec::new(),
         };
 
-        let caps = TraitMapper::analyze_instructions(&instr, "aes_encrypt");
+        let caps = analyze_instructions(&instr, "aes_encrypt");
 
         // Should detect hardware crypto
         assert!(caps.iter().any(|c| c.id == "crypto/encrypt"));
@@ -805,7 +800,7 @@ mod tests {
             unusual_instructions: Vec::new(),
         };
 
-        let caps = TraitMapper::analyze_instructions(&instr, "syscall_func");
+        let caps = analyze_instructions(&instr, "syscall_func");
 
         // Should detect system calls
         assert!(caps.iter().any(|c| c.id == "os/syscall"));
@@ -836,7 +831,7 @@ mod tests {
             unusual_instructions: Vec::new(),
         };
 
-        let caps = TraitMapper::analyze_instructions(&instr, "privileged_func");
+        let caps = analyze_instructions(&instr, "privileged_func");
 
         // Should detect privileged instructions
         assert!(caps.iter().any(|c| c.id == "privilege/escalate"));
@@ -861,7 +856,7 @@ mod tests {
             }],
         }];
 
-        let caps = TraitMapper::analyze_constants(&constants, "c2_func");
+        let caps = analyze_constants(&constants, "c2_func");
 
         // Should detect C2 address
         assert_eq!(caps.len(), 1);
@@ -882,7 +877,7 @@ mod tests {
             }],
         }];
 
-        let caps = TraitMapper::analyze_constants(&constants, "listen_func");
+        let caps = analyze_constants(&constants, "listen_func");
 
         // Should detect port
         assert_eq!(caps.len(), 1);
@@ -912,7 +907,7 @@ mod tests {
             anomalies: Vec::new(),
         };
 
-        let caps = TraitMapper::analyze_binary_properties(&props);
+        let caps = analyze_binary_properties(&props);
 
         // Should detect no security features
         assert!(caps.iter().any(|c| c.id == "binary/security/none"));
@@ -945,7 +940,7 @@ mod tests {
             anomalies: Vec::new(),
         };
 
-        let caps = TraitMapper::analyze_binary_properties(&props);
+        let caps = analyze_binary_properties(&props);
 
         // Should detect stripped binary
         assert!(caps.iter().any(|c| c.id == "anti-analysis/stripped"));
@@ -978,7 +973,7 @@ mod tests {
             anomalies: Vec::new(),
         };
 
-        let caps = TraitMapper::analyze_binary_properties(&props);
+        let caps = analyze_binary_properties(&props);
 
         // Should detect static linking
         assert!(caps.iter().any(|c| c.id == "binary/linking/static"));
@@ -1008,7 +1003,7 @@ mod tests {
             }],
         };
 
-        let caps = TraitMapper::analyze_binary_properties(&props);
+        let caps = analyze_binary_properties(&props);
 
         // Should detect anomaly
         assert!(caps
@@ -1036,7 +1031,7 @@ mod tests {
             is_leaf: false,
         });
 
-        let caps = TraitMapper::analyze_function(&func);
+        let caps = analyze_function(&func);
 
         // Should detect noreturn
         assert!(caps.iter().any(|c| c.id == "exec/terminate"));
@@ -1091,7 +1086,7 @@ mod tests {
             }],
         }];
 
-        let caps = TraitMapper::analyze_function(&func);
+        let caps = analyze_function(&func);
 
         // Should detect multiple capabilities
         assert!(caps.len() >= 5); // complexity/high, data/encode, timing, xor, syscall, c2

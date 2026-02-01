@@ -214,12 +214,6 @@ fn namespace_long_name(ns: &str) -> &str {
 /// Maximum width for evidence display (truncate if longer)
 const EVIDENCE_MAX_WIDTH: usize = 80;
 
-/// Strip ANSI escape codes for accurate length measurement
-fn strip_ansi(s: &str) -> String {
-    let re = regex::Regex::new(r"\x1b\[[0-9;]*m").unwrap();
-    re.replace_all(s, "").to_string()
-}
-
 /// Make descriptions more terse by removing redundant explanatory parentheticals
 fn terse_description(desc: &str) -> String {
     // Remove common verbose patterns that are redundant given the context
@@ -432,7 +426,9 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
                 if evidence.is_empty() {
                     output.push_str(&format!("│       {}\n", content));
                 } else {
-                    let display_len = strip_ansi(&format!("{}: {}", content, evidence)).len();
+                    // Strip ANSI codes for accurate length measurement
+                    let ansi_re = regex::Regex::new(r"\x1b\[[0-9;]*m").unwrap();
+                    let display_len = ansi_re.replace_all(&format!("{}: {}", content, evidence), "").len();
                     if display_len > 120 {
                         output.push_str(&format!("│       {}\n", content));
                         output.push_str(&format!("│           {}\n", evidence.bright_black()));
