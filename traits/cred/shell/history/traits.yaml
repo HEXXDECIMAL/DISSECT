@@ -13,7 +13,7 @@ traits:
     attack: "T1552.003"
     if:
       type: string
-      contains: ".bash_history"
+      substr: ".bash_history"
     # Downgrade for Apple system components (e.g., /bin/bash)
     # NOTE: Can't reference composite traits from atomic trait downgrades,
     # so we use direct string conditions that match Apple bundle IDs
@@ -31,7 +31,7 @@ traits:
     attack: "T1552.003"
     if:
       type: string
-      contains: ".zsh_history"
+      substr: ".zsh_history"
     # Downgrade for Apple system components (e.g., /bin/zsh)
     downgrade:
       inert:

@@ -12,6 +12,16 @@ traits:
       type: string
       regex: '\bopen\('
 
+  # In-place binary file modification (common in ransomware)
+  - id: binary-rw
+    desc: "In-place binary file modification"
+    crit: notable
+    conf: 0.85
+    for: [python]
+    if:
+      type: content
+      regex: "open\\([^)]*['\"]r\\+b['\"]"
+
   # Sensitive file paths (browser/wallet)
   - id: cookies-path
     desc: Browser cookies file

@@ -49,7 +49,7 @@ traits:
     attack: "T1548.002"
     if:
       type: content
-      contains: "sudo -v -S"
+      substr: "sudo -v -S"
 
   - id: homabrews-domain
     desc: "Fake Homebrew typosquatting domain"
@@ -58,7 +58,7 @@ traits:
     attack: "T1036.005"
     if:
       type: string
-      contains: "homabrews.org"
+      substr: "homabrews.org"
 
   - id: base64-password
     desc: "Base64 encodes password variable"

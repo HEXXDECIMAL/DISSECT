@@ -65,7 +65,7 @@ traits:
     for: [shell]
     if:
       type: content
-      contains: "/proc/mounts"
+      substr: "/proc/mounts"
 
   - id: dd-devzero-content
     desc: dd with /dev/zero

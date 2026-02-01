@@ -52,6 +52,15 @@ traits:
       type: string
       regex: "Fernet\\.generate_key\\s*\\("
 
+  # Fernet encrypt operation
+  - id: encrypt
+    desc: "Fernet encryption operation"
+    crit: notable
+    conf: 0.9
+    if:
+      type: string
+      regex: "\\.encrypt\\s*\\("
+
   # === Runtime installation patterns ===
   - id: pip-install-fernet-lower
     desc: pip install fernet (lowercase)

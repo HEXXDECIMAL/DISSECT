@@ -13,7 +13,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      contains: "fromCharCode"
+      substr: "fromCharCode"
 
   # Unicode escape sequences used to hide strings
   - id: js-unicode-escape
@@ -164,7 +164,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: content
-      contains: "new Function"
+      substr: "new Function"
 
   - id: js-array-join-symbol
     desc: Array join operation

@@ -69,6 +69,7 @@ fn test_symbol_condition() {
         size_max: None,
         all: Some(vec![Condition::Symbol {
             exact: None,
+            substr: None,
             regex: Some("socket".to_string()),
             platforms: None,
             compiled_regex: None,
@@ -121,13 +122,14 @@ fn test_all() {
         all: Some(vec![
             Condition::Symbol {
                 exact: None,
+                substr: None,
                 regex: Some("socket".to_string()),
                 platforms: None,
                 compiled_regex: None,
             },
             Condition::String {
                 exact: Some("/bin/sh".to_string()),
-                contains: None,
+                substr: None,
                 regex: None,
                 word: None,
                 case_insensitive: false,
@@ -182,18 +184,21 @@ fn test_count() {
         any: Some(vec![
             Condition::Symbol {
                 exact: None,
+                substr: None,
                 regex: Some("socket".to_string()),
                 platforms: None,
                 compiled_regex: None,
             },
             Condition::Symbol {
                 exact: None,
+                substr: None,
                 regex: Some("connect".to_string()),
                 platforms: None,
                 compiled_regex: None,
             },
             Condition::Symbol {
                 exact: None,
+                substr: None,
                 regex: Some("nonexistent".to_string()),
                 platforms: None,
                 compiled_regex: None,
@@ -238,7 +243,7 @@ fn test_string_exact_condition() {
         size_max: None,
         all: Some(vec![Condition::String {
             exact: Some("/bin/sh".to_string()),
-            contains: None,
+            substr: None,
             regex: None,
             word: None,
             case_insensitive: false,
@@ -292,12 +297,14 @@ fn test_any() {
         any: Some(vec![
             Condition::Symbol {
                 exact: None,
+                substr: None,
                 regex: Some("nonexistent".to_string()),
                 platforms: None,
                 compiled_regex: None,
             },
             Condition::Symbol {
                 exact: None,
+                substr: None,
                 regex: Some("socket".to_string()),
                 platforms: None,
                 compiled_regex: None,
@@ -366,7 +373,7 @@ fn test_not_directive_shorthand() {
         size_max: None,
         r#if: Condition::String {
             exact: None,
-            contains: None,
+            substr: None,
             regex: Some(r"[a-z]+\.com".to_string()),
             word: None,
             case_insensitive: false,
@@ -431,7 +438,7 @@ fn test_not_directive_exact() {
         size_max: None,
         r#if: Condition::String {
             exact: None,
-            contains: None,
+            substr: None,
             regex: Some(r"[a-z]+\.com".to_string()),
             word: None,
             case_insensitive: false,
@@ -442,7 +449,7 @@ fn test_not_directive_exact() {
         },
         not: Some(vec![NotException::Structured {
             exact: Some("github.com".to_string()),
-            contains: None,
+            substr: None,
             regex: None,
         }]),
         unless: None,
@@ -500,7 +507,7 @@ fn test_not_directive_regex() {
         size_max: None,
         r#if: Condition::String {
             exact: None,
-            contains: None,
+            substr: None,
             regex: Some(r"\d+\.\d+\.\d+\.\d+".to_string()),
             word: None,
             case_insensitive: false,
@@ -511,7 +518,7 @@ fn test_not_directive_regex() {
         },
         not: Some(vec![NotException::Structured {
             exact: None,
-            contains: None,
+            substr: None,
             regex: Some(r"^192\.168\.".to_string()),
         }]),
         unless: None,
@@ -567,6 +574,7 @@ fn test_unless_directive_skips_trait() {
         size_max: None,
         r#if: Condition::Symbol {
             exact: None,
+            substr: None,
             regex: Some("socket".to_string()),
             platforms: None,
             compiled_regex: None,
@@ -610,6 +618,7 @@ fn test_unless_directive_allows_trait() {
         size_max: None,
         r#if: Condition::Symbol {
             exact: None,
+            substr: None,
             regex: Some("socket".to_string()),
             platforms: None,
             compiled_regex: None,
@@ -666,7 +675,7 @@ fn test_downgrade_to_notable() {
         size_max: None,
         r#if: Condition::String {
             exact: Some("/bin/sh".to_string()),
-            contains: None,
+            substr: None,
             regex: None,
             word: None,
             case_insensitive: false,
@@ -741,6 +750,7 @@ fn test_downgrade_to_inert() {
         size_max: None,
         r#if: Condition::Symbol {
             exact: None,
+            substr: None,
             regex: Some("socket".to_string()),
             platforms: None,
             compiled_regex: None,
@@ -799,6 +809,7 @@ fn test_downgrade_no_match_keeps_original() {
         size_max: None,
         r#if: Condition::Symbol {
             exact: None,
+            substr: None,
             regex: Some("socket".to_string()),
             platforms: None,
             compiled_regex: None,
@@ -883,6 +894,7 @@ fn test_downgrade_first_match_wins() {
         size_max: None,
         r#if: Condition::Symbol {
             exact: None,
+            substr: None,
             regex: Some("socket".to_string()),
             platforms: None,
             compiled_regex: None,
@@ -979,7 +991,7 @@ fn test_all_three_directives_combined() {
         size_max: None,
         r#if: Condition::String {
             exact: None,
-            contains: None,
+            substr: None,
             regex: Some(r"[a-z]+\.com".to_string()),
             word: None,
             case_insensitive: false,

@@ -51,6 +51,7 @@ traits:
   # NOTE: Go and Rust binaries have uniform code sections due to compilation
   # patterns, not packing. Lowered threshold - Go binaries typically have
   # entropy variance around 0.3-0.6, so only flag truly uniform binaries.
+  # Requires min: 0.01 to avoid triggering when metrics are unavailable.
   - id: entropy-variance-low
     desc: "Low entropy variance (uniform packing)"
     crit: inert
@@ -58,6 +59,7 @@ traits:
     if:
       type: metrics
       field: binary.entropy_variance
+      min: 0.01
       max: 0.2
 
   # === Section Anomalies ===
@@ -129,15 +131,18 @@ traits:
   # === String Anomalies ===
 
   # NOTE: Some legitimate binaries (Go, Rust) may have low string counts
-  # depending on how strings are extracted. Downgraded to notable.
+  # depending on how strings are extracted. Downgraded to inert - only useful
+  # in composite rules with other indicators. Requires min: 1 to avoid
+  # triggering when metrics are not available (0 indicates missing data).
   - id: no-strings
     desc: "No readable strings (potentially encrypted/packed)"
-    crit: notable
-    conf: 0.5
+    crit: inert
+    conf: 0.4
     attack: "T1045"
     if:
       type: metrics
       field: binary.string_count
+      min: 1
       max: 5
 
   - id: high-string-entropy
@@ -199,13 +204,16 @@ traits:
       field: binary.tiny_functions
       min: 500
 
+  # NOTE: Requires min: 1 to avoid triggering when metrics are unavailable.
+  # Small utilities legitimately have small functions.
   - id: small-avg-function
     desc: "Very small average function size"
-    crit: notable
-    conf: 0.6
+    crit: inert
+    conf: 0.4
     if:
       type: metrics
       field: binary.avg_function_size
+      min: 1
       max: 32
 
   # === Complexity Anomalies (Control Flow Obfuscation) ===
@@ -275,13 +283,16 @@ traits:
       field: binary.avg_basic_blocks
       min: 30
 
+  # NOTE: Requires min: 1 to avoid triggering when metrics are unavailable.
+  # Small utilities legitimately have few basic blocks.
   - id: few-basic-blocks
     desc: "Very few basic blocks (obfuscated"
-    crit: notable
-    conf: 0.6
+    crit: inert
+    conf: 0.4
     if:
       type: metrics
       field: binary.total_basic_blocks
+      min: 1
       max: 10
 
   - id: many-linear-functions
@@ -311,13 +322,16 @@ traits:
       field: binary.noreturn_functions
       min: 20
 
+  # NOTE: Requires min: 1 to avoid triggering when metrics are unavailable.
+  # Small utilities legitimately have few leaf functions.
   - id: few-leaf-functions
     desc: "Very few leaf functions (deep"
-    crit: notable
-    conf: 0.6
+    crit: inert
+    conf: 0.4
     if:
       type: metrics
       field: binary.leaf_functions
+      min: 1
       max: 5
 
   # === Stack Anomalies ===

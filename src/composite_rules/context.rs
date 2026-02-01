@@ -117,7 +117,7 @@ impl ConditionResult {
 /// Parameters for string condition evaluation (reduces argument count)
 pub struct StringParams<'a> {
     pub exact: Option<&'a String>,
-    pub contains: Option<&'a String>,
+    pub substr: Option<&'a String>,
     pub regex: Option<&'a String>,
     pub word: Option<&'a String>,
     pub case_insensitive: bool,

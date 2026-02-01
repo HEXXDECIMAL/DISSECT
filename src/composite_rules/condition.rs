@@ -9,7 +9,7 @@ use std::sync::Arc;
 #[derive(Debug, Clone, Deserialize)]
 #[serde(untagged)]
 pub enum NotException {
-    /// Shorthand: bare string defaults to contains match
+    /// Shorthand: bare string defaults to substr match
     Shorthand(String),
 
     /// Structured exception with explicit match type
@@ -17,7 +17,7 @@ pub enum NotException {
         #[serde(skip_serializing_if = "Option::is_none")]
         exact: Option<String>,
         #[serde(skip_serializing_if = "Option::is_none")]
-        contains: Option<String>,
+        substr: Option<String>,
         #[serde(skip_serializing_if = "Option::is_none")]
         regex: Option<String>,
     },
@@ -32,13 +32,13 @@ impl NotException {
             }
             NotException::Structured {
                 exact,
-                contains,
+                substr,
                 regex,
             } => {
                 if let Some(exact_str) = exact {
                     value.eq_ignore_ascii_case(exact_str)
-                } else if let Some(contains_str) = contains {
-                    value.to_lowercase().contains(&contains_str.to_lowercase())
+                } else if let Some(substr_str) = substr {
+                    value.to_lowercase().contains(&substr_str.to_lowercase())
                 } else if let Some(regex_str) = regex {
                     regex::Regex::new(regex_str)
                         .map(|re| re.is_match(value))
@@ -69,8 +69,12 @@ enum ConditionDeser {
 #[serde(tag = "type", rename_all = "snake_case")]
 enum ConditionTagged {
     Symbol {
+        /// Full symbol name match (entire symbol must equal this)
         #[serde(default)]
         exact: Option<String>,
+        /// Substring match (appears anywhere in symbol name)
+        #[serde(default)]
+        substr: Option<String>,
         /// Regex pattern to match symbol names (alias: pattern for backward compatibility)
         #[serde(default, alias = "pattern")]
         regex: Option<String>,
@@ -82,7 +86,7 @@ enum ConditionTagged {
         exact: Option<String>,
         /// Substring match (appears anywhere in string)
         #[serde(default)]
-        contains: Option<String>,
+        substr: Option<String>,
         /// Regex pattern match
         #[serde(default)]
         regex: Option<String>,
@@ -117,7 +121,7 @@ enum ConditionTagged {
         id: String,
     },
     /// Unified AST condition type - replaces ast_pattern and ast_query
-    /// Simple mode: kind + exact/regex (or node + exact/regex for raw node types)
+    /// Simple mode: kind + exact/substr/regex (or node + exact/substr/regex for raw node types)
     /// Advanced mode: query (tree-sitter S-expression)
     Ast {
         /// Abstract node category (e.g., "call", "function", "class")
@@ -127,9 +131,12 @@ enum ConditionTagged {
         /// Raw tree-sitter node type (escape hatch, bypasses kind mapping)
         #[serde(skip_serializing_if = "Option::is_none")]
         node: Option<String>,
-        /// Substring match in node text
+        /// Full match (entire node text must equal this)
         #[serde(skip_serializing_if = "Option::is_none")]
         exact: Option<String>,
+        /// Substring match (appears anywhere in node text)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        substr: Option<String>,
         /// Regex match in node text
         #[serde(skip_serializing_if = "Option::is_none")]
         regex: Option<String>,
@@ -218,8 +225,10 @@ enum ConditionTagged {
     /// searches properly extracted/bounded strings, this searches the raw bytes.
     #[serde(rename = "content", alias = "raw")]
     Content {
+        /// Full match (entire content must equal this - rarely useful)
         exact: Option<String>,
-        contains: Option<String>,
+        /// Substring match (appears anywhere in content)
+        substr: Option<String>,
         regex: Option<String>,
         word: Option<String>,
         #[serde(default)]
@@ -241,11 +250,14 @@ enum ConditionTagged {
 
     /// Match patterns in base64-decoded strings
     /// Example: { type: base64, regex: "https?://" }
-    /// Example: { type: base64, exact: "eval(" }
+    /// Example: { type: base64, substr: "eval(" }
     Base64 {
-        /// Exact string to match
+        /// Full match (entire decoded string must equal this)
         #[serde(skip_serializing_if = "Option::is_none")]
         exact: Option<String>,
+        /// Substring match (appears anywhere in decoded string)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        substr: Option<String>,
         /// Regex pattern to match
         #[serde(skip_serializing_if = "Option::is_none")]
         regex: Option<String>,
@@ -258,15 +270,18 @@ enum ConditionTagged {
     },
 
     /// Match patterns in XOR-decoded strings
-    /// Example: { type: xor, key: 0x42, exact: "http://" }
+    /// Example: { type: xor, key: 0x42, substr: "http://" }
     /// Example: { type: xor, regex: "eval\\(" } - searches all keys if key not specified
     Xor {
         /// XOR key (hex byte, e.g. "0x42"). If not specified, searches all keys 0x01-0xFF
         #[serde(skip_serializing_if = "Option::is_none")]
         key: Option<String>,
-        /// Exact string to match
+        /// Full match (entire decoded string must equal this)
         #[serde(skip_serializing_if = "Option::is_none")]
         exact: Option<String>,
+        /// Substring match (appears anywhere in decoded string)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        substr: Option<String>,
         /// Regex pattern to match
         #[serde(skip_serializing_if = "Option::is_none")]
         regex: Option<String>,
@@ -290,17 +305,19 @@ impl From<ConditionDeser> for Condition {
             ConditionDeser::Tagged(tagged) => match tagged {
                 ConditionTagged::Symbol {
                     exact,
+                    substr,
                     regex,
                     platforms,
                 } => Condition::Symbol {
                     exact,
+                    substr,
                     regex,
                     platforms,
                     compiled_regex: None,
                 },
                 ConditionTagged::String {
                     exact,
-                    contains,
+                    substr,
                     regex,
                     word,
                     case_insensitive,
@@ -308,7 +325,7 @@ impl From<ConditionDeser> for Condition {
                     min_count,
                 } => Condition::String {
                     exact,
-                    contains,
+                    substr,
                     regex,
                     word,
                     case_insensitive,
@@ -336,6 +353,7 @@ impl From<ConditionDeser> for Condition {
                     kind,
                     node,
                     exact,
+                    substr,
                     regex,
                     query,
                     language,
@@ -344,6 +362,7 @@ impl From<ConditionDeser> for Condition {
                     kind,
                     node,
                     exact,
+                    substr,
                     regex,
                     query,
                     language,
@@ -436,14 +455,14 @@ impl From<ConditionDeser> for Condition {
                 }
                 ConditionTagged::Content {
                     exact,
-                    contains,
+                    substr,
                     regex,
                     word,
                     case_insensitive,
                     min_count,
                 } => Condition::Content {
                     exact,
-                    contains,
+                    substr,
                     regex,
                     word,
                     case_insensitive,
@@ -455,11 +474,13 @@ impl From<ConditionDeser> for Condition {
                 }
                 ConditionTagged::Base64 {
                     exact,
+                    substr,
                     regex,
                     case_insensitive,
                     min_count,
                 } => Condition::Base64 {
                     exact,
+                    substr,
                     regex,
                     case_insensitive,
                     min_count,
@@ -467,12 +488,14 @@ impl From<ConditionDeser> for Condition {
                 ConditionTagged::Xor {
                     key,
                     exact,
+                    substr,
                     regex,
                     case_insensitive,
                     min_count,
                 } => Condition::Xor {
                     key,
                     exact,
+                    substr,
                     regex,
                     case_insensitive,
                     min_count,
@@ -492,9 +515,12 @@ impl From<ConditionDeser> for Condition {
 pub enum Condition {
     /// Match a symbol (import/export)
     Symbol {
-        /// Exact symbol name to match
+        /// Full symbol name match (entire symbol must equal this)
         #[serde(skip_serializing_if = "Option::is_none")]
         exact: Option<String>,
+        /// Substring match (appears anywhere in symbol name)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        substr: Option<String>,
         /// Regex pattern to match symbol names
         #[serde(skip_serializing_if = "Option::is_none")]
         regex: Option<String>,
@@ -512,7 +538,7 @@ pub enum Condition {
         exact: Option<String>,
         /// Substring match (appears anywhere in string)
         #[serde(skip_serializing_if = "Option::is_none")]
-        contains: Option<String>,
+        substr: Option<String>,
         /// Regex pattern match
         #[serde(skip_serializing_if = "Option::is_none")]
         regex: Option<String>,
@@ -570,20 +596,22 @@ pub enum Condition {
 
     /// Unified AST condition - search for patterns in AST nodes
     ///
-    /// Simple mode (kind + exact/regex):
+    /// Simple mode (kind + exact/substr/regex):
     /// ```yaml
     /// type: ast
     /// kind: call              # abstract kind: call, function, class, import, etc.
-    /// exact: "eval"           # substring match
+    /// substr: "eval"          # substring match
+    /// # OR
+    /// exact: "eval"           # full match (entire node text must equal this)
     /// # OR
     /// regex: "eval\\("        # regex match
     /// ```
     ///
-    /// Raw node type mode (node + exact/regex):
+    /// Raw node type mode (node + exact/substr/regex):
     /// ```yaml
     /// type: ast
     /// node: call_expression   # raw tree-sitter node type (escape hatch)
-    /// exact: "eval"
+    /// substr: "eval"
     /// ```
     ///
     /// Advanced mode (query):
@@ -602,9 +630,12 @@ pub enum Condition {
         /// Raw tree-sitter node type (escape hatch, bypasses kind mapping)
         #[serde(skip_serializing_if = "Option::is_none")]
         node: Option<String>,
-        /// Substring match in node text
+        /// Full match (entire node text must equal this)
         #[serde(skip_serializing_if = "Option::is_none")]
         exact: Option<String>,
+        /// Substring match (appears anywhere in node text)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        substr: Option<String>,
         /// Regex match in node text
         #[serde(skip_serializing_if = "Option::is_none")]
         regex: Option<String>,
@@ -775,7 +806,7 @@ pub enum Condition {
     /// properly extracted/bounded strings, this searches the raw bytes as text.
     /// Use this when you need to match patterns in source code or when string
     /// extraction may not capture what you're looking for.
-    /// Example: { type: raw, contains: "eval(" }
+    /// Example: { type: raw, substr: "eval(" }
     /// Example: { type: raw, exact: "#!/bin/sh" }  # Entire file must equal this
     /// Example: { type: raw, regex: "\\bpassword\\s*=", case_insensitive: true }
     /// Example: { type: raw, word: "socket" }  # Match "socket" as whole word
@@ -785,7 +816,7 @@ pub enum Condition {
         exact: Option<String>,
         /// Substring match (appears anywhere in file)
         #[serde(skip_serializing_if = "Option::is_none")]
-        contains: Option<String>,
+        substr: Option<String>,
         /// Regex pattern to match
         #[serde(skip_serializing_if = "Option::is_none")]
         regex: Option<String>,
@@ -816,10 +847,14 @@ pub enum Condition {
 
     /// Match patterns in base64-decoded strings
     /// Example: { type: base64, regex: "https?://" }
+    /// Example: { type: base64, substr: "eval(" }
     Base64 {
-        /// Exact string to match
+        /// Full match (entire decoded string must equal this)
         #[serde(skip_serializing_if = "Option::is_none")]
         exact: Option<String>,
+        /// Substring match (appears anywhere in decoded string)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        substr: Option<String>,
         /// Regex pattern to match
         #[serde(skip_serializing_if = "Option::is_none")]
         regex: Option<String>,
@@ -832,14 +867,17 @@ pub enum Condition {
     },
 
     /// Match patterns in XOR-decoded strings
-    /// Example: { type: xor, key: "0x42", exact: "http://" }
+    /// Example: { type: xor, key: "0x42", substr: "http://" }
     Xor {
         /// XOR key (hex byte, e.g. "0x42"). If not specified, searches all keys 0x01-0xFF
         #[serde(skip_serializing_if = "Option::is_none")]
         key: Option<String>,
-        /// Exact string to match
+        /// Full match (entire decoded string must equal this)
         #[serde(skip_serializing_if = "Option::is_none")]
         exact: Option<String>,
+        /// Substring match (appears anywhere in decoded string)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        substr: Option<String>,
         /// Regex pattern to match
         #[serde(skip_serializing_if = "Option::is_none")]
         regex: Option<String>,

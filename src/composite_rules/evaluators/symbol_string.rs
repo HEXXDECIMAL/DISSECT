@@ -15,6 +15,7 @@ use crate::types::Evidence;
 /// Evaluate symbol condition - matches symbols in imports/exports.
 pub fn eval_symbol(
     exact: Option<&String>,
+    substr: Option<&String>,
     pattern: Option<&String>,
     platforms: Option<&Vec<Platform>>,
     compiled_regex: Option<&regex::Regex>,
@@ -36,7 +37,7 @@ pub fn eval_symbol(
 
     // Search in imports
     for import in &ctx.report.imports {
-        if symbol_matches_condition(&import.symbol, exact, pattern, compiled_regex) {
+        if symbol_matches_condition(&import.symbol, exact, substr, pattern, compiled_regex) {
             evidence.push(Evidence {
                 method: "symbol".to_string(),
                 source: import.source.clone(),
@@ -48,7 +49,7 @@ pub fn eval_symbol(
 
     // Search in exports
     for export in &ctx.report.exports {
-        if symbol_matches_condition(&export.symbol, exact, pattern, compiled_regex) {
+        if symbol_matches_condition(&export.symbol, exact, substr, pattern, compiled_regex) {
             evidence.push(Evidence {
                 method: "symbol".to_string(),
                 source: export.source.clone(),
@@ -60,7 +61,7 @@ pub fn eval_symbol(
 
     // Search in internal functions (important for statically linked Go binaries)
     for func in &ctx.report.functions {
-        if symbol_matches_condition(&func.name, exact, pattern, compiled_regex) {
+        if symbol_matches_condition(&func.name, exact, substr, pattern, compiled_regex) {
             evidence.push(Evidence {
                 method: "symbol".to_string(),
                 source: func.source.clone(),
@@ -78,10 +79,11 @@ pub fn eval_symbol(
     }
 }
 
-/// Check if a symbol matches an exact name or pattern.
+/// Check if a symbol matches an exact name, substring, or pattern.
 fn symbol_matches_condition(
     symbol: &str,
     exact: Option<&String>,
+    substr: Option<&String>,
     pattern: Option<&String>,
     compiled_regex: Option<&regex::Regex>,
 ) -> bool {
@@ -91,6 +93,11 @@ fn symbol_matches_condition(
     // If exact is specified, do strict equality match
     if let Some(exact_val) = exact {
         return clean == exact_val || symbol == exact_val;
+    }
+
+    // If substr is specified, do substring match
+    if let Some(substr_val) = substr {
+        return symbol.contains(substr_val.as_str()) || clean.contains(substr_val.as_str());
     }
 
     // If pattern is specified, use precompiled regex if available
@@ -103,7 +110,7 @@ fn symbol_matches_condition(
         }
     }
 
-    // Neither exact nor pattern specified - no match
+    // Neither exact nor substr nor pattern specified - no match
     false
 }
 
@@ -147,7 +154,7 @@ pub fn eval_string(
             if matched {
                 match_value = exact_str.clone();
             }
-        } else if let Some(contains_str) = params.contains {
+        } else if let Some(contains_str) = params.substr {
             matched = if params.case_insensitive {
                 value.to_lowercase().contains(&contains_str.to_lowercase())
             } else {
@@ -290,7 +297,7 @@ pub fn eval_string(
 #[allow(clippy::too_many_arguments)]
 pub fn eval_raw(
     exact: Option<&String>,
-    contains: Option<&String>,
+    substr: Option<&String>,
     _regex: Option<&String>,
     _word: Option<&String>,
     case_insensitive: bool,
@@ -353,7 +360,7 @@ pub fn eval_raw(
                 location: Some("file".to_string()),
             });
         }
-    } else if let Some(contains_str) = contains {
+    } else if let Some(substr_str) = substr {
         // Substring match - count occurrences in raw content
         let search_content = if case_insensitive {
             content.to_lowercase()
@@ -361,16 +368,16 @@ pub fn eval_raw(
             content.to_string()
         };
         let search_pattern = if case_insensitive {
-            contains_str.to_lowercase()
+            substr_str.to_lowercase()
         } else {
-            contains_str.clone()
+            substr_str.clone()
         };
         let match_count = search_content.matches(&search_pattern).count();
         if match_count >= min_count {
             evidence.push(Evidence {
                 method: "raw".to_string(),
                 source: "raw_content".to_string(),
-                value: format!("Found {} occurrences of {}", match_count, contains_str),
+                value: format!("Found {} occurrences of {}", match_count, substr_str),
                 location: Some("file".to_string()),
             });
         }
@@ -394,12 +401,21 @@ pub fn eval_raw(
 /// Decoded strings are extracted once during analysis and stored in the report.
 pub fn eval_base64(
     exact: Option<&String>,
+    substr: Option<&String>,
     regex: Option<&String>,
     case_insensitive: bool,
     min_count: usize,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
-    eval_decoded_helper("base64", exact, regex, case_insensitive, min_count, ctx)
+    eval_decoded_helper(
+        "base64",
+        exact,
+        substr,
+        regex,
+        case_insensitive,
+        min_count,
+        ctx,
+    )
 }
 
 /// Search XOR-decoded strings for patterns.
@@ -407,6 +423,7 @@ pub fn eval_base64(
 pub fn eval_xor(
     key: Option<&String>,
     exact: Option<&String>,
+    substr: Option<&String>,
     regex: Option<&String>,
     case_insensitive: bool,
     min_count: usize,
@@ -431,6 +448,7 @@ pub fn eval_xor(
         &decoded_strings,
         "xor",
         exact,
+        substr,
         regex,
         case_insensitive,
         min_count,
@@ -441,6 +459,7 @@ pub fn eval_xor(
 fn eval_decoded_helper(
     method: &str,
     exact: Option<&String>,
+    substr: Option<&String>,
     regex: Option<&String>,
     case_insensitive: bool,
     min_count: usize,
@@ -457,6 +476,7 @@ fn eval_decoded_helper(
         &decoded_strings,
         method,
         exact,
+        substr,
         regex,
         case_insensitive,
         min_count,
@@ -468,6 +488,7 @@ fn eval_decoded_strings_helper(
     decoded_strings: &[&crate::types::DecodedString],
     method: &str,
     exact: Option<&String>,
+    substr: Option<&String>,
     regex: Option<&String>,
     case_insensitive: bool,
     min_count: usize,
@@ -493,16 +514,27 @@ fn eval_decoded_strings_helper(
     for decoded in decoded_strings {
         let mut matches = false;
 
-        // Check exact match
+        // Check exact match (full string equality)
         if let Some(exact_str) = exact {
             matches = if case_insensitive {
-                decoded
-                    .value
-                    .to_lowercase()
-                    .contains(&exact_str.to_lowercase())
+                decoded.value.eq_ignore_ascii_case(exact_str)
             } else {
-                decoded.value.contains(exact_str.as_str())
+                decoded.value == *exact_str
             };
+        }
+
+        // Check substring match
+        if !matches {
+            if let Some(substr_str) = substr {
+                matches = if case_insensitive {
+                    decoded
+                        .value
+                        .to_lowercase()
+                        .contains(&substr_str.to_lowercase())
+                } else {
+                    decoded.value.contains(substr_str.as_str())
+                };
+            }
         }
 
         // Check regex match

@@ -63,6 +63,26 @@ traits:
             any of them
         }
 
+  # Python zipimporter - loads modules from ZIP files
+  - id: python-zipimporter
+    desc: Python zipimporter module loading
+    crit: notable
+    conf: 0.9
+    file_types: [python]
+    if:
+      type: symbol
+      exact: "zipimporter"
+
+  # Python zipimporter load_module - executes code from ZIP
+  - id: python-zipimporter-load
+    desc: Loads module from ZIP archive
+    crit: suspicious
+    conf: 0.95
+    file_types: [python]
+    if:
+      type: symbol
+      regex: "\\.load_module"
+
   # Java reflection loading
   - id: java-reflection
     desc: Java reflection class loading

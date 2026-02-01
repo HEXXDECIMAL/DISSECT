@@ -1,6 +1,9 @@
 # Ruby Console/Interaction
 # Traits for identifying console interaction in Ruby
 
+defaults:
+  for: [ruby]
+
 traits:
   # === Interactive Shell Input ===
   - id: stdin-gets
@@ -13,11 +16,14 @@ traits:
       regex: "gets|chomp"
 
   # === Exit Command Pattern ===
+  # NOTE: Only applies to Ruby source code - checking for shell loop exit patterns.
+  # The string "exit" is too generic for binaries (present in error messages, help text).
   - id: exit-command-check
     desc: Exit command check in shell
     crit: notable
     conf: 0.65
     attack: "T1059"
     if:
-      type: string
+      type: ast
+      kind: call
       exact: "exit"

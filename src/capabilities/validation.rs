@@ -353,6 +353,7 @@ pub(crate) fn simple_rule_to_composite_rule(rule: super::models::SimpleRule) -> 
         size_max: None,
         all: Some(vec![Condition::Symbol {
             exact: None,
+            substr: None,
             regex: Some(rule.symbol),
             platforms: None,
             compiled_regex: None,

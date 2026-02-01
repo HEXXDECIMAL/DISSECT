@@ -26,7 +26,7 @@ traits:
     attack: "T1105"
     if:
       type: string
-      contains: " -O "
+      substr: " -O "
 
   - id: wget-output-document
     desc: "Wget with --output-document"
@@ -36,7 +36,7 @@ traits:
     attack: "T1105"
     if:
       type: string
-      contains: "--output-document"
+      substr: "--output-document"
 
   - id: curl-download
     desc: "Download via curl"
@@ -57,7 +57,7 @@ traits:
     attack: "T1105"
     if:
       type: string
-      contains: " -o "
+      substr: " -o "
 
   - id: curl-output-flag
     desc: "Curl with --output"
@@ -67,7 +67,7 @@ traits:
     attack: "T1105"
     if:
       type: string
-      contains: "--output"
+      substr: "--output"
 
   # === Execution patterns (content search for cross-line matching) ===
   - id: execute-dot-slash

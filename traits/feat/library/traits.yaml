@@ -118,7 +118,7 @@ traits:
     for: [elf, macho]
     if:
       type: string
-      contains: "shell builtin"
+      substr: "shell builtin"
 
 composite_rules:
   - id: network-lib-marker

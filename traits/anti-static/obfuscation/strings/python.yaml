@@ -111,6 +111,15 @@ traits:
       type: string
       exact: "marshal.loads"
 
+  # Reverse byte order - anti-analysis technique
+  - id: reverse-bytes
+    desc: Reverses byte order before processing
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: content
+      regex: "\\[::-1\\]"
+
 composite_rules:
   # Decode functions composite
   - id: python-decode-functions

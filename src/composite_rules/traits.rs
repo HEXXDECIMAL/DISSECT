@@ -311,11 +311,13 @@ impl TraitDefinition {
         match condition {
             Condition::Symbol {
                 exact,
+                substr,
                 regex,
                 platforms,
                 compiled_regex,
             } => eval_symbol(
                 exact.as_ref(),
+                substr.as_ref(),
                 regex.as_ref(),
                 platforms.as_ref(),
                 compiled_regex.as_ref(),
@@ -323,7 +325,7 @@ impl TraitDefinition {
             ),
             Condition::String {
                 exact,
-                contains,
+                substr,
                 regex,
                 word,
                 case_insensitive,
@@ -334,7 +336,7 @@ impl TraitDefinition {
             } => {
                 let params = StringParams {
                     exact: exact.as_ref(),
-                    contains: contains.as_ref(),
+                    substr: substr.as_ref(),
                     regex: regex.as_ref(),
                     word: word.as_ref(),
                     case_insensitive: *case_insensitive,
@@ -442,7 +444,7 @@ impl TraitDefinition {
             Condition::TraitGlob { pattern, r#match } => eval_trait_glob(pattern, r#match, ctx),
             Condition::Content {
                 exact,
-                contains,
+                substr,
                 regex,
                 word,
                 case_insensitive,
@@ -450,7 +452,7 @@ impl TraitDefinition {
                 compiled_regex,
             } => eval_raw(
                 exact.as_ref(),
-                contains.as_ref(),
+                substr.as_ref(),
                 regex.as_ref(),
                 word.as_ref(),
                 *case_insensitive,
@@ -461,11 +463,13 @@ impl TraitDefinition {
             Condition::SectionName { pattern, regex } => eval_section_name(pattern, *regex, ctx),
             Condition::Base64 {
                 exact,
+                substr,
                 regex,
                 case_insensitive,
                 min_count,
             } => eval_base64(
                 exact.as_ref(),
+                substr.as_ref(),
                 regex.as_ref(),
                 *case_insensitive,
                 *min_count,
@@ -474,12 +478,14 @@ impl TraitDefinition {
             Condition::Xor {
                 key,
                 exact,
+                substr,
                 regex,
                 case_insensitive,
                 min_count,
             } => eval_xor(
                 key.as_ref(),
                 exact.as_ref(),
+                substr.as_ref(),
                 regex.as_ref(),
                 *case_insensitive,
                 *min_count,
@@ -955,11 +961,13 @@ impl CompositeTrait {
         match condition {
             Condition::Symbol {
                 exact,
+                substr,
                 regex,
                 platforms,
                 compiled_regex,
             } => self.eval_symbol(
                 exact.as_ref(),
+                substr.as_ref(),
                 regex.as_ref(),
                 platforms.as_ref(),
                 compiled_regex.as_ref(),
@@ -967,7 +975,7 @@ impl CompositeTrait {
             ),
             Condition::String {
                 exact,
-                contains,
+                substr,
                 regex,
                 word,
                 case_insensitive,
@@ -978,7 +986,7 @@ impl CompositeTrait {
             } => {
                 let params = StringParams {
                     exact: exact.as_ref(),
-                    contains: contains.as_ref(),
+                    substr: substr.as_ref(),
                     regex: regex.as_ref(),
                     word: word.as_ref(),
                     case_insensitive: *case_insensitive,
@@ -1086,7 +1094,7 @@ impl CompositeTrait {
             Condition::TraitGlob { pattern, r#match } => eval_trait_glob(pattern, r#match, ctx),
             Condition::Content {
                 exact,
-                contains,
+                substr,
                 regex,
                 word,
                 case_insensitive,
@@ -1094,7 +1102,7 @@ impl CompositeTrait {
                 compiled_regex,
             } => eval_raw(
                 exact.as_ref(),
-                contains.as_ref(),
+                substr.as_ref(),
                 regex.as_ref(),
                 word.as_ref(),
                 *case_insensitive,
@@ -1105,11 +1113,13 @@ impl CompositeTrait {
             Condition::SectionName { pattern, regex } => eval_section_name(pattern, *regex, ctx),
             Condition::Base64 {
                 exact,
+                substr,
                 regex,
                 case_insensitive,
                 min_count,
             } => eval_base64(
                 exact.as_ref(),
+                substr.as_ref(),
                 regex.as_ref(),
                 *case_insensitive,
                 *min_count,
@@ -1118,12 +1128,14 @@ impl CompositeTrait {
             Condition::Xor {
                 key,
                 exact,
+                substr,
                 regex,
                 case_insensitive,
                 min_count,
             } => eval_xor(
                 key.as_ref(),
                 exact.as_ref(),
+                substr.as_ref(),
                 regex.as_ref(),
                 *case_insensitive,
                 *min_count,
@@ -1136,6 +1148,7 @@ impl CompositeTrait {
     fn eval_symbol(
         &self,
         exact: Option<&String>,
+        substr: Option<&String>,
         pattern: Option<&String>,
         platforms: Option<&Vec<Platform>>,
         compiled_regex: Option<&regex::Regex>,
@@ -1153,7 +1166,7 @@ impl CompositeTrait {
             }
         }
 
-        eval_symbol(exact, pattern, None, compiled_regex, ctx)
+        eval_symbol(exact, substr, pattern, None, compiled_regex, ctx)
     }
 
     /// Evaluate YARA match condition

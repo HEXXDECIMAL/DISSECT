@@ -57,4 +57,4 @@ traits:
     for: [go]
     if:
       type: string
-      contains: "ptrace"
+      substr: "ptrace"

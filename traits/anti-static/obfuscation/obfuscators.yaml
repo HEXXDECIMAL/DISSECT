@@ -17,7 +17,7 @@ traits:
     conf: 0.95
     if:
       type: content
-      contains: "Obfuscated with BlankOBF"
+      substr: "Obfuscated with BlankOBF"
 
   - id: pyarmor-signature
     desc: PyArmor obfuscator signature

@@ -63,7 +63,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      contains: "lzma_crc64_table"
+      substr: "lzma_crc64_table"
 
   - id: lzma-crc64
     desc: lzma_crc64 reference
@@ -71,7 +71,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      contains: "lzma_crc64"
+      substr: "lzma_crc64"
 
   - id: xz-obf-pattern
     desc: XZ obfuscated function marker bytes

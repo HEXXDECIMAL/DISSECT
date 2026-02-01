@@ -100,15 +100,18 @@ traits:
       compare_to: "total"
       min_ratio: 0.90
 
+  # NOTE: This trait requires additional context to avoid FPs on legitimate binaries.
+  # Many system binaries have high-entropy __const sections (compressed data, lookup tables).
+  # This trait is only useful when combined with other AMOS indicators in composite rules.
   - id: stealer/amos/high-const-entropy
     description: "High entropy __const section (encrypted"
-    crit: suspicious
-    conf: 0.8
+    crit: inert
+    conf: 0.5
     attack: "T1027"
     mbc: "C0027"
     platforms: [macos]
-    file_types: [macho]
-    condition:
+    for: [macho]
+    if:
       type: section_entropy
       section: "__const"
       min_entropy: 7.5

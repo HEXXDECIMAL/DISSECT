@@ -113,7 +113,7 @@ traits:
     attack: "T1071.001"
     if:
       type: string
-      contains: "git-hub"
+      substr: "git-hub"
 
   - id: typosquat-domain-pattern
     desc: Typosquat domain pattern

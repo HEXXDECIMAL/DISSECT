@@ -56,10 +56,13 @@ traits:
 
   # === Entropy Indicators ===
 
+  # NOTE: Many legitimate system binaries have high-entropy __const sections
+  # (lookup tables, compressed data, crypto constants). Downgraded to notable.
+  # Only suspicious when combined with other indicators in composite rules.
   - id: high-entropy-const
     desc: "High entropy in __const section"
-    crit: suspicious
-    conf: 0.85
+    crit: notable
+    conf: 0.6
     mbc: "C0027"
     for: [macho]
     if:

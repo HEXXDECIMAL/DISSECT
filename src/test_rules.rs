@@ -387,7 +387,7 @@ impl<'a> RuleDebugger<'a> {
             Condition::Trait { id } => self.debug_trait_reference(id),
             Condition::String {
                 exact,
-                contains,
+                substr,
                 regex,
                 word,
                 case_insensitive,
@@ -395,7 +395,7 @@ impl<'a> RuleDebugger<'a> {
                 ..
             } => self.debug_string_condition(
                 exact,
-                contains,
+                substr,
                 regex,
                 word,
                 *case_insensitive,
@@ -412,11 +412,11 @@ impl<'a> RuleDebugger<'a> {
             Condition::Structure { feature, .. } => self.debug_structure_condition(feature),
             Condition::Content {
                 regex,
-                contains,
+                substr,
                 exact,
                 word,
                 ..
-            } => self.debug_content_condition(exact, contains, regex, word),
+            } => self.debug_content_condition(exact, substr, regex, word),
             Condition::Ast {
                 kind,
                 node,
@@ -521,7 +521,7 @@ impl<'a> RuleDebugger<'a> {
     fn debug_string_condition(
         &self,
         exact: &Option<String>,
-        contains: &Option<String>,
+        substr: &Option<String>,
         regex: &Option<String>,
         word: &Option<String>,
         case_insensitive: bool,
@@ -529,8 +529,8 @@ impl<'a> RuleDebugger<'a> {
     ) -> ConditionDebugResult {
         let pattern_desc = if let Some(e) = exact {
             format!("exact: \"{}\"", e)
-        } else if let Some(c) = contains {
-            format!("contains: \"{}\"", c)
+        } else if let Some(c) = substr {
+            format!("substr: \"{}\"", c)
         } else if let Some(r) = regex {
             format!("regex: /{}/", r)
         } else if let Some(w) = word {
@@ -557,7 +557,7 @@ impl<'a> RuleDebugger<'a> {
             .map(|s| s.value.as_str())
             .collect();
         let matched_strings =
-            find_matching_strings(&strings, exact, contains, regex, word, case_insensitive);
+            find_matching_strings(&strings, exact, substr, regex, word, case_insensitive);
 
         let matched = matched_strings.len() >= min_count;
 
@@ -594,6 +594,66 @@ impl<'a> RuleDebugger<'a> {
                     location: None,
                 })
                 .collect();
+
+            // Suggest better match types
+            if let Some(s) = substr {
+                // Check if exact would work: all matched strings equal the pattern
+                if matched_strings.iter().all(|m| {
+                    if case_insensitive {
+                        m.eq_ignore_ascii_case(s)
+                    } else {
+                        *m == s
+                    }
+                }) {
+                    result.details.push(format!(
+                        "💡 All matches are exact - consider using `exact: \"{}\"` instead of `substr:`",
+                        s
+                    ));
+                } else {
+                    // Check if word would be a better fit
+                    let word_pattern = if case_insensitive {
+                        format!(r"(?i)\b{}\b", regex::escape(s))
+                    } else {
+                        format!(r"\b{}\b", regex::escape(s))
+                    };
+                    if let Ok(re) = regex::Regex::new(&word_pattern) {
+                        let word_matches: Vec<_> =
+                            matched_strings.iter().filter(|m| re.is_match(m)).collect();
+                        if word_matches.len() == matched_strings.len() {
+                            result.details.push(format!(
+                                "💡 All matches appear as whole words - consider using `word: \"{}\"` for precision",
+                                s
+                            ));
+                        }
+                    }
+                }
+            } else if let Some(r) = regex {
+                // Check if regex could be simplified to exact or substr
+                let simple_pattern = r
+                    .replace(r"\.", ".")
+                    .replace(r"\-", "-")
+                    .replace(r"\_", "_");
+                if !simple_pattern.contains(|c: char| "^$.*+?[](){}|\\".contains(c)) {
+                    // Pattern has no regex metacharacters after unescaping common ones
+                    if matched_strings.iter().all(|m| {
+                        if case_insensitive {
+                            m.eq_ignore_ascii_case(&simple_pattern)
+                        } else {
+                            *m == simple_pattern
+                        }
+                    }) {
+                        result.details.push(format!(
+                            "💡 Regex matches exact string - consider using `exact: \"{}\"` instead",
+                            simple_pattern
+                        ));
+                    } else if matched_strings.iter().all(|m| m.contains(&simple_pattern)) {
+                        result.details.push(format!(
+                            "💡 Regex matches substring - consider using `substr: \"{}\"` instead",
+                            simple_pattern
+                        ));
+                    }
+                }
+            }
         } else if strings.len() <= 20 {
             result.details.push("All strings in file:".to_string());
             for s in &strings {
@@ -627,8 +687,8 @@ impl<'a> RuleDebugger<'a> {
             // Check content
             let content = String::from_utf8_lossy(self.binary_data);
             let content_matched = if let Some(e) = exact {
-                content.contains(e)
-            } else if let Some(c) = contains {
+                &content == e
+            } else if let Some(c) = substr {
                 content.contains(c)
             } else if let Some(r) = regex {
                 let pattern = if case_insensitive {
@@ -886,14 +946,14 @@ impl<'a> RuleDebugger<'a> {
     fn debug_content_condition(
         &self,
         exact: &Option<String>,
-        contains: &Option<String>,
+        substr: &Option<String>,
         regex: &Option<String>,
         word: &Option<String>,
     ) -> ConditionDebugResult {
         let pattern_desc = if let Some(e) = exact {
             format!("exact: \"{}\"", truncate_string(e, 40))
-        } else if let Some(c) = contains {
-            format!("contains: \"{}\"", truncate_string(c, 40))
+        } else if let Some(c) = substr {
+            format!("substr: \"{}\"", truncate_string(c, 40))
         } else if let Some(r) = regex {
             format!("regex: /{}/", truncate_string(r, 40))
         } else if let Some(w) = word {
@@ -907,8 +967,8 @@ impl<'a> RuleDebugger<'a> {
         // Search in raw binary data
         let content = String::from_utf8_lossy(self.binary_data);
         let matched = if let Some(e) = exact {
-            content.contains(e)
-        } else if let Some(c) = contains {
+            &content == e
+        } else if let Some(c) = substr {
             content.contains(c)
         } else if let Some(r) = regex {
             regex::Regex::new(r).is_ok_and(|re| re.is_match(&content))
@@ -952,8 +1012,7 @@ impl<'a> RuleDebugger<'a> {
                 .iter()
                 .map(|s| s.value.as_str())
                 .collect();
-            let string_matches =
-                find_matching_strings(&strings, exact, contains, regex, word, false);
+            let string_matches = find_matching_strings(&strings, exact, substr, regex, word, false);
             if !string_matches.is_empty() {
                 result.details.push(format!(
                     "💡 Found in strings ({} matches) - try `string:` instead",
@@ -1072,15 +1131,15 @@ fn describe_condition(condition: &Condition) -> String {
         Condition::Trait { id } => format!("trait: {}", id),
         Condition::String {
             exact,
-            contains,
+            substr,
             regex,
             word,
             ..
         } => {
             if let Some(e) = exact {
                 format!("string[exact]: \"{}\"", truncate_string(e, 30))
-            } else if let Some(c) = contains {
-                format!("string[contains]: \"{}\"", truncate_string(c, 30))
+            } else if let Some(c) = substr {
+                format!("string[substr]: \"{}\"", truncate_string(c, 30))
             } else if let Some(r) = regex {
                 format!("string[regex]: /{}/", truncate_string(r, 30))
             } else if let Some(w) = word {
@@ -1114,15 +1173,15 @@ fn describe_condition(condition: &Condition) -> String {
         Condition::Structure { feature, .. } => format!("structure: {}", feature),
         Condition::Content {
             exact,
-            contains,
+            substr,
             regex,
             word,
             ..
         } => {
             if exact.is_some() {
                 "content[exact]".to_string()
-            } else if contains.is_some() {
-                "content[contains]".to_string()
+            } else if substr.is_some() {
+                "content[substr]".to_string()
             } else if regex.is_some() {
                 "content[regex]".to_string()
             } else if word.is_some() {
@@ -1174,7 +1233,7 @@ fn truncate_string(s: &str, max_len: usize) -> String {
 pub fn find_matching_strings<'a>(
     strings: &[&'a str],
     exact: &Option<String>,
-    contains: &Option<String>,
+    substr: &Option<String>,
     regex_pat: &Option<String>,
     word: &Option<String>,
     case_insensitive: bool,
@@ -1188,7 +1247,7 @@ pub fn find_matching_strings<'a>(
                 } else {
                     *s == e
                 }
-            } else if let Some(c) = contains {
+            } else if let Some(c) = substr {
                 if case_insensitive {
                     s.to_lowercase().contains(&c.to_lowercase())
                 } else {

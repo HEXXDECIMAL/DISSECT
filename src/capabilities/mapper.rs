@@ -284,6 +284,7 @@ impl CapabilityMapper {
                 // Check if this trait has a symbol condition
                 if let Condition::Symbol {
                     exact,
+                    substr: _,
                     regex,
                     platforms: _,
                     compiled_regex: _,
