@@ -895,43 +895,48 @@ impl CapabilityMapper {
         // Pre-filter using batched Aho-Corasick string matching WITH evidence caching
         // This identifies which traits match AND caches the evidence to avoid re-iteration
         let t_prematch = std::time::Instant::now();
+
+        // Combine strings and symbols for pre-filtering
+        let mut all_strings = report.strings.clone();
+
+        // Add imports as strings
+        for imp in &report.imports {
+            all_strings.push(crate::types::StringInfo {
+                value: imp.symbol.clone(),
+                offset: None,
+                encoding: "symbol".to_string(),
+                string_type: crate::types::StringType::Import,
+                section: None,
+            });
+        }
+
+        // Add exports as strings
+        for exp in &report.exports {
+            all_strings.push(crate::types::StringInfo {
+                value: exp.symbol.clone(),
+                offset: exp.offset.clone(),
+                encoding: "symbol".to_string(),
+                string_type: crate::types::StringType::Export,
+                section: None,
+            });
+        }
+
         let (string_matched_traits, cached_evidence) = if self.string_match_index.has_patterns() {
-            // Combine strings and symbols for pre-filtering
-            let mut all_strings = report.strings.clone();
-
-            // Add imports as strings
-            for imp in &report.imports {
-                all_strings.push(crate::types::StringInfo {
-                    value: imp.symbol.clone(),
-                    offset: None,
-                    encoding: "symbol".to_string(),
-                    string_type: crate::types::StringType::Import,
-                    section: None,
-                });
-            }
-
-            // Add exports as strings
-            for exp in &report.exports {
-                all_strings.push(crate::types::StringInfo {
-                    value: exp.symbol.clone(),
-                    offset: exp.offset.clone(),
-                    encoding: "symbol".to_string(),
-                    string_type: crate::types::StringType::Export,
-                    section: None,
-                });
-            }
-
             self.string_match_index
                 .find_matches_with_evidence(&all_strings)
         } else {
             (FxHashSet::default(), FxHashMap::default())
         };
 
+        // Also find regex candidates based on literal prefix matching
+        let regex_candidates = self.string_match_index.find_regex_candidates(&all_strings);
+
         if timing {
             eprintln!(
-                "[TIMING] String pre-match: {:?} ({} traits matched)",
+                "[TIMING] String pre-match: {:?} ({} exact, {} regex candidates)",
                 t_prematch.elapsed(),
-                string_matched_traits.len()
+                string_matched_traits.len(),
+                regex_candidates.len()
             );
         }
 
@@ -961,6 +966,18 @@ impl CapabilityMapper {
         // For exact string traits with cached evidence, use that directly instead of re-evaluating
         let t_eval = std::time::Instant::now();
 
+        // Early termination: if no strings and no pre-matched traits, skip evaluation
+        let has_any_matches = !string_matched_traits.is_empty()
+            || !raw_regex_matched_traits.is_empty()
+            || !regex_candidates.is_empty();
+
+        if !has_any_matches && all_strings.is_empty() && binary_data.len() < 100 {
+            if timing {
+                eprintln!("[TIMING] Early termination: no strings or matches in small file");
+            }
+            return vec![];
+        }
+
         if timing {
             eprintln!(
                 "[TIMING] Applicable traits: {} (out of {})",
@@ -977,12 +994,12 @@ impl CapabilityMapper {
             .filter_map(|&idx| {
                 let trait_def = &self.trait_definitions[idx];
 
-                // Check if this is an exact string trait (case-sensitive, no excludes)
+                // Check if this is an exact string trait (no excludes, min_count=1)
+                // Works for both case-sensitive and case-insensitive
                 let is_simple_exact_string = matches!(
                     &trait_def.r#if,
                     Condition::String {
                         exact: Some(_),
-                        case_insensitive: false,
                         exclude_patterns: None,
                         min_count: 1,
                         ..
@@ -1014,13 +1031,20 @@ impl CapabilityMapper {
                     trait_def.r#if,
                     Condition::String {
                         exact: Some(_),
-                        case_insensitive: false,
                         ..
                     }
                 );
 
                 // If trait has an exact string pattern and it wasn't matched, skip it
                 if has_exact_string && !string_matched_traits.contains(&idx) {
+                    skip_count.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                    return None;
+                }
+
+                // If trait has a regex string pattern and its literal wasn't found, skip it
+                if self.string_match_index.is_regex_trait(idx)
+                    && !regex_candidates.contains(&idx)
+                {
                     skip_count.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
                     return None;
                 }

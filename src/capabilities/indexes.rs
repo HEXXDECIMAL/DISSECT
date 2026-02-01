@@ -81,52 +81,140 @@ impl TraitIndex {
 }
 
 /// Index for fast batched string matching using Aho-Corasick.
-/// Pre-computes an automaton from all exact string patterns in traits,
+/// Pre-computes automatons from all exact string patterns in traits,
 /// enabling single-pass matching across thousands of patterns.
 #[derive(Clone, Default)]
 pub(crate) struct StringMatchIndex {
-    /// Aho-Corasick automaton for all exact string patterns (case-sensitive)
+    /// Aho-Corasick automaton for case-sensitive exact string patterns
     automaton: Option<AhoCorasick>,
     /// Maps pattern index -> trait indices that use this pattern
     pattern_to_traits: Vec<Vec<usize>>,
     /// Maps pattern index -> the pattern string (for evidence)
     patterns: Vec<String>,
+    /// Aho-Corasick automaton for case-insensitive exact string patterns
+    ci_automaton: Option<AhoCorasick>,
+    /// Maps CI pattern index -> trait indices
+    ci_pattern_to_traits: Vec<Vec<usize>>,
+    /// Maps CI pattern index -> the pattern string (for evidence)
+    ci_patterns: Vec<String>,
+    /// Aho-Corasick automaton for regex literal prefixes (for pre-filtering)
+    regex_literal_automaton: Option<AhoCorasick>,
+    /// Maps regex literal index -> trait indices
+    regex_literal_to_traits: Vec<Vec<usize>>,
+    /// Set of all trait indices with regex patterns (for lookup)
+    regex_trait_indices: FxHashSet<usize>,
     /// Total number of traits with exact string patterns
     pub(crate) total_patterns: usize,
 }
 
 impl StringMatchIndex {
+    /// Extract the literal prefix from a regex pattern.
+    /// Returns None if no useful literal can be extracted (pattern starts with metachar).
+    fn extract_regex_literal(pattern: &str) -> Option<String> {
+        let mut literal = String::new();
+        let mut chars = pattern.chars().peekable();
+        let mut in_escape = false;
+
+        while let Some(c) = chars.next() {
+            if in_escape {
+                // Handle escaped characters
+                match c {
+                    // Common escapes that represent literals
+                    's' | 'S' | 'd' | 'D' | 'w' | 'W' | 'b' | 'B' => break, // meta escapes
+                    '.' | '*' | '+' | '?' | '[' | ']' | '(' | ')' | '{' | '}' | '|' | '^'
+                    | '$' | '\\' => {
+                        literal.push(c);
+                    }
+                    _ => literal.push(c),
+                }
+                in_escape = false;
+            } else if c == '\\' {
+                in_escape = true;
+            } else if c.is_alphanumeric() || c == '_' || c == '-' || c == '/' || c == '.' {
+                literal.push(c);
+            } else {
+                // Hit a metacharacter, stop
+                break;
+            }
+        }
+
+        // Return literal if it's at least 3 chars (useful for filtering)
+        if literal.len() >= 3 {
+            Some(literal)
+        } else {
+            None
+        }
+    }
+
     /// Build the string match index from trait definitions.
-    /// Extracts all exact string patterns (case-sensitive only) and builds an AC automaton.
+    /// Extracts all exact string patterns and builds AC automatons (case-sensitive and case-insensitive).
     pub(crate) fn build(traits: &[TraitDefinition]) -> Self {
         let mut patterns: Vec<String> = Vec::new();
         let mut pattern_to_traits: Vec<Vec<usize>> = Vec::new();
         let mut pattern_map: FxHashMap<String, usize> = FxHashMap::default();
 
+        let mut ci_patterns: Vec<String> = Vec::new();
+        let mut ci_pattern_to_traits: Vec<Vec<usize>> = Vec::new();
+        let mut ci_pattern_map: FxHashMap<String, usize> = FxHashMap::default();
+
+        let mut regex_literals: Vec<String> = Vec::new();
+        let mut regex_literal_to_traits: Vec<Vec<usize>> = Vec::new();
+        let mut regex_literal_map: FxHashMap<String, usize> = FxHashMap::default();
+        let mut regex_trait_indices: FxHashSet<usize> = FxHashSet::default();
+
         for (trait_idx, trait_def) in traits.iter().enumerate() {
-            // Extract exact string pattern if present
-            if let Condition::String {
-                exact: Some(ref exact_str),
-                case_insensitive: false,
-                ..
-            } = trait_def.r#if
-            {
-                // Check if we already have this pattern
-                if let Some(&pattern_idx) = pattern_map.get(exact_str) {
-                    pattern_to_traits[pattern_idx].push(trait_idx);
-                } else {
-                    // New pattern
-                    let pattern_idx = patterns.len();
-                    pattern_map.insert(exact_str.clone(), pattern_idx);
-                    patterns.push(exact_str.clone());
-                    pattern_to_traits.push(vec![trait_idx]);
+            match &trait_def.r#if {
+                // Exact string patterns
+                Condition::String {
+                    exact: Some(ref exact_str),
+                    case_insensitive,
+                    ..
+                } => {
+                    if *case_insensitive {
+                        let lower = exact_str.to_lowercase();
+                        if let Some(&pattern_idx) = ci_pattern_map.get(&lower) {
+                            ci_pattern_to_traits[pattern_idx].push(trait_idx);
+                        } else {
+                            let pattern_idx = ci_patterns.len();
+                            ci_pattern_map.insert(lower, pattern_idx);
+                            ci_patterns.push(exact_str.clone());
+                            ci_pattern_to_traits.push(vec![trait_idx]);
+                        }
+                    } else {
+                        if let Some(&pattern_idx) = pattern_map.get(exact_str) {
+                            pattern_to_traits[pattern_idx].push(trait_idx);
+                        } else {
+                            let pattern_idx = patterns.len();
+                            pattern_map.insert(exact_str.clone(), pattern_idx);
+                            patterns.push(exact_str.clone());
+                            pattern_to_traits.push(vec![trait_idx]);
+                        }
+                    }
                 }
+                // Regex string patterns - extract literal prefix for pre-filtering
+                Condition::String {
+                    regex: Some(ref regex_str),
+                    ..
+                } => {
+                    regex_trait_indices.insert(trait_idx);
+                    if let Some(literal) = Self::extract_regex_literal(regex_str) {
+                        if let Some(&pattern_idx) = regex_literal_map.get(&literal) {
+                            regex_literal_to_traits[pattern_idx].push(trait_idx);
+                        } else {
+                            let pattern_idx = regex_literals.len();
+                            regex_literal_map.insert(literal.clone(), pattern_idx);
+                            regex_literals.push(literal);
+                            regex_literal_to_traits.push(vec![trait_idx]);
+                        }
+                    }
+                }
+                _ => {}
             }
         }
 
-        let total_patterns = patterns.len();
+        let total_patterns = patterns.len() + ci_patterns.len();
 
-        // Build Aho-Corasick automaton if we have patterns
+        // Build case-sensitive Aho-Corasick automaton
         let automaton = if !patterns.is_empty() {
             AhoCorasick::builder()
                 .ascii_case_insensitive(false)
@@ -136,10 +224,36 @@ impl StringMatchIndex {
             None
         };
 
+        // Build case-insensitive Aho-Corasick automaton
+        let ci_automaton = if !ci_patterns.is_empty() {
+            AhoCorasick::builder()
+                .ascii_case_insensitive(true)
+                .build(&ci_patterns)
+                .ok()
+        } else {
+            None
+        };
+
+        // Build regex literal automaton for pre-filtering
+        let regex_literal_automaton = if !regex_literals.is_empty() {
+            AhoCorasick::builder()
+                .ascii_case_insensitive(false)
+                .build(&regex_literals)
+                .ok()
+        } else {
+            None
+        };
+
         Self {
             automaton,
             pattern_to_traits,
             patterns,
+            ci_automaton,
+            ci_pattern_to_traits,
+            ci_patterns,
+            regex_literal_automaton,
+            regex_literal_to_traits,
+            regex_trait_indices,
             total_patterns,
         }
     }
@@ -159,6 +273,7 @@ impl StringMatchIndex {
         let mut matching_traits = FxHashSet::default();
         let mut trait_evidence: FxHashMap<usize, Vec<Evidence>> = FxHashMap::default();
 
+        // Case-sensitive matching
         if let Some(ref ac) = self.automaton {
             for string_info in strings {
                 for mat in ac.find_iter(&string_info.value) {
@@ -180,7 +295,67 @@ impl StringMatchIndex {
             }
         }
 
+        // Case-insensitive matching
+        if let Some(ref ac) = self.ci_automaton {
+            for string_info in strings {
+                for mat in ac.find_iter(&string_info.value) {
+                    let pattern_idx = mat.pattern().as_usize();
+                    if let Some(trait_indices) = self.ci_pattern_to_traits.get(pattern_idx) {
+                        let pattern = &self.ci_patterns[pattern_idx];
+                        for &trait_idx in trait_indices {
+                            matching_traits.insert(trait_idx);
+                            trait_evidence.entry(trait_idx).or_default().push(Evidence {
+                                method: "string".to_string(),
+                                source: "string_extractor".to_string(),
+                                value: pattern.clone(),
+                                location: string_info.offset.clone(),
+                            });
+                        }
+                    }
+                }
+            }
+        }
+
         (matching_traits, trait_evidence)
+    }
+
+    /// Find regex traits that MIGHT match based on literal prefix matching.
+    /// Returns trait indices whose regex patterns had their literal prefix found.
+    /// Traits not in this set can be skipped without running the full regex.
+    pub(crate) fn find_regex_candidates(&self, strings: &[StringInfo]) -> FxHashSet<usize> {
+        let mut candidates = FxHashSet::default();
+
+        if let Some(ref ac) = self.regex_literal_automaton {
+            for string_info in strings {
+                for mat in ac.find_iter(&string_info.value) {
+                    let pattern_idx = mat.pattern().as_usize();
+                    if let Some(trait_indices) = self.regex_literal_to_traits.get(pattern_idx) {
+                        for &trait_idx in trait_indices {
+                            candidates.insert(trait_idx);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Traits without extractable literals can't be pre-filtered, so include them
+        for &trait_idx in &self.regex_trait_indices {
+            // If this trait isn't in any literal bucket, include it as candidate
+            let has_literal = self
+                .regex_literal_to_traits
+                .iter()
+                .any(|traits| traits.contains(&trait_idx));
+            if !has_literal {
+                candidates.insert(trait_idx);
+            }
+        }
+
+        candidates
+    }
+
+    /// Check if a trait has a regex string pattern
+    pub(crate) fn is_regex_trait(&self, trait_idx: usize) -> bool {
+        self.regex_trait_indices.contains(&trait_idx)
     }
 }
 
