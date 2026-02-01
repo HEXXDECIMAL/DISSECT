@@ -40,6 +40,33 @@ traits:
       type: string
       exact: "/var/appweb"
 
+  - id: sslvpn-log-path
+    desc: PAN-OS sslvpn error log
+    crit: notable
+    conf: 0.9
+    for: [python, shell, elf, macho]
+    if:
+      type: content
+      substr: "sslvpn_ngx_error"
+
+  - id: var-log-pan-path
+    desc: PAN-OS log directory
+    crit: notable
+    conf: 0.85
+    for: [python, shell, elf, macho]
+    if:
+      type: content
+      substr: "/var/log/pan/"
+
+  - id: sslvpndocs-path
+    desc: PAN-OS SSL VPN docs path
+    crit: notable
+    conf: 0.85
+    for: [python, shell, elf, macho]
+    if:
+      type: content
+      substr: "/sslvpndocs/"
+
   - id: opt-panlogs-path
     desc: PAN-OS /opt/panlogs path
     crit: inert
@@ -215,6 +242,13 @@ composite_rules:
       - id: globalprotect-string
       - id: opt-pancfg-path
 
+  - id: pan-os-log-paths
+    description: PAN-OS log paths (high confidence)
+    any:
+      - id: sslvpn-log-path
+      - id: var-log-pan-path
+      - id: sslvpndocs-path
+
   - id: backdoor-markers
     description: Backdoor file markers
     any:
@@ -322,3 +356,21 @@ composite_rules:
     description: Upstyle backdoor detected
     crit: suspicious
     conf: 0.95
+    any:
+      - id: upstyle-names
+      - id: backdoor/upstyle/generic
+      - id: backdoor/upstyle/cmd-exec
+
+  # === Hostile: Log-based command extraction backdoor ===
+  # Complexity: file_types(+1) + all(+4) = 5 >= 4 HOSTILE
+  - id: log-c2
+    description: Log-based command extraction backdoor
+    crit: hostile
+    conf: 0.95
+    attack: "T1505"
+    for: [python]
+    all:
+      - id: pan-os-log-paths
+      - id: anti-static/base64/decode/decode-python
+      - id: exec/command/subprocess/os-popen-ast
+      - id: fs/file/timestamp/timestamp-modification

@@ -18,12 +18,15 @@ composite_rules:
       - id: comm/syscall/arm/svc-connect
 
   # Helper: Structural anomalies
+  # NOTE: Stripped binaries are normal for release builds. Require additional
+  # indicators beyond just being stripped to flag as suspicious.
   - id: structural-anomalies
     desc: Suspicious binary structure
-    crit: suspicious
-    any:
+    crit: notable
+    all:
       - id: feat/binary/tiny/dominant-text-section
-      - id: anti-static/hardening/detection
+    any:
+      - id: anti-static/hardening/detection/minimal
 
   - id: tiny-network-stager
     desc: "Tiny network stager"

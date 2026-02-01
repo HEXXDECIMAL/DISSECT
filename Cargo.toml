@@ -73,6 +73,7 @@ unrar = "0.5"
 
 # Parallelization
 rayon = "1.10"
+crossbeam-channel = "0.5"
 
 # Utilities
 sha2 = "0.10"

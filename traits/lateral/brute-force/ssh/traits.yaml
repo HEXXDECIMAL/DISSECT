@@ -35,7 +35,8 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "password"
+      # SSH authentication method context, not generic "password" word
+      regex: "(?:ssh[_-]?)?password[_-]?(?:auth(?:entication)?|method)"
 
   - id: keyboard-interactive
     desc: SSH keyboard-interactive authentication
@@ -224,14 +225,15 @@ traits:
       type: string
       exact: "Port 22"
 
-  # Scanner keywords
+  # Scanner keywords - require network scanning context
   - id: scanner-keyword
     desc: scanner keyword
     crit: inert
     conf: 0.5
     if:
       type: string
-      exact: "scanner"
+      # Network scanner context, not generic "scanner" word
+      regex: "(?i)(?:port[_-]?scanner|network[_-]?scanner|ssh[_-]?scanner|scanner[_-]?(?:thread|target|port))"
 
   - id: scanning-keyword
     desc: scanning keyword
@@ -239,14 +241,16 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "scanning"
+      # Network scanning context
+      regex: "(?i)(?:port[_-]?scanning|network[_-]?scanning|scanning[_-]?(?:port|target|thread))"
 
   - id: connect-keyword
     desc: connect keyword
     crit: inert
     conf: 0.5
     if:
-      type: string
+      type: symbol
+      # Only match socket connect function, not generic word
       exact: "connect"
 
   - id: timeout-keyword
@@ -256,22 +260,6 @@ traits:
     if:
       type: string
       exact: "timeout"
-
-  - id: pthread-keyword
-    desc: pthread threading
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      exact: "pthread"
-
-  - id: goroutine-keyword
-    desc: Go goroutine
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      exact: "goroutine"
 
 composite_rules:
   # Helper: SSH protocol indicators
@@ -314,12 +302,12 @@ composite_rules:
       - id: scanning-keyword
       - id: connect-keyword
 
-  # Helper: Threading indicators
+  # Helper: Threading indicators (references process/threading traits)
   - id: threading
     desc: Threading/concurrency indicators
     any:
-      - id: pthread-keyword
-      - id: goroutine-keyword
+      - id: process/threading/pthread
+      - id: process/threading/goroutine
 
   # Helper: Default IoT credentials (all 15)
   - id: default-creds

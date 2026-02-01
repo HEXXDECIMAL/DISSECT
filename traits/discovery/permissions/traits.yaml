@@ -24,34 +24,37 @@ traits:
       type: string
       exact: "getgroups"
 
+  # NOTE: getgid/getegid/geteuid are extremely common POSIX functions used by
+  # virtually every program that needs user/group information. Mark as inert
+  # unless combined with other permission discovery indicators.
   - id: getgid
     desc: Get group ID
-    crit: notable
-    conf: 0.7
+    crit: inert
+    conf: 0.5
     attack: "T1069"
     for: [elf, macho]
     if:
-      type: string
+      type: symbol
       exact: "getgid"
 
   - id: getegid
     desc: Get effective group ID
-    crit: notable
-    conf: 0.75
+    crit: inert
+    conf: 0.5
     attack: "T1069"
     for: [elf, macho]
     if:
-      type: string
+      type: symbol
       exact: "getegid"
 
   - id: geteuid
     desc: Get effective user ID
-    crit: notable
-    conf: 0.7
+    crit: inert
+    conf: 0.5
     attack: "T1033"
     for: [elf, macho]
     if:
-      type: string
+      type: symbol
       exact: "geteuid"
 
   - id: etc-group
@@ -173,3 +176,18 @@ composite_rules:
     any:
       - id: linux-caps-via-capsh
       - id: linux-caps-via-api
+
+  # User/group ID gathering - only notable when combined with multiple checks
+  - id: uid-gid-gathering
+    desc: User/group ID gathering
+    crit: notable
+    conf: 0.7
+    attack: "T1069"
+    for: [elf, macho]
+    # Require multiple ID checks to be notable
+    count_min: 3
+    any:
+      - id: getgid
+      - id: getegid
+      - id: geteuid
+      - id: getgroups

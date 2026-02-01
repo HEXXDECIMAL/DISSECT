@@ -62,6 +62,32 @@ traits:
       type: string
       exact: "subprocess.check_call("
 
+  # === os.popen detection ===
+  - id: os-popen
+    desc: Executes command via os.popen
+    crit: notable
+    conf: 0.85
+    mbc: "E1059.006"
+    if:
+      type: string
+      exact: "os.popen("
+
+  - id: os-popen-ast
+    desc: Executes command via os.popen
+    crit: notable
+    conf: 0.9
+    mbc: "C0017"
+    if:
+      type: ast
+      language: python
+      query: |
+        (call
+          function: (attribute
+            object: (identifier) @mod
+            attribute: (identifier) @meth))
+        (#eq? @mod "os")
+        (#eq? @meth "popen")
+
   # === AST-based detection (more precise) ===
   - id: run-ast
     desc: "Executes external system command"
@@ -74,10 +100,12 @@ traits:
       query: |
         (call
           function: (attribute
+            object: (identifier) @mod
             attribute: (identifier) @meth)
           arguments: (argument_list
             (string) @cmd))
-        (#match? @meth "^(Popen|run|call|check_output|system|spawn)$")
+        (#match? @mod "^subprocess$")
+        (#match? @meth "^(Popen|run|call|check_output|check_call)$")
 
 composite_rules:
   # All subprocess methods

@@ -59,9 +59,18 @@ fn classify_path_type(path: &str) -> PathType {
 
 /// Classify path category based on common patterns
 fn classify_path_category(path: &str) -> PathCategory {
-    // Hidden files (starts with . or contains /.)
-    if path.starts_with('.') || path.contains("/.") {
+    // Hidden files: dot-prefixed filenames like ".bashrc" or "/path/.hidden"
+    // But NOT relative path components like "/../" or "/./"
+    if path.starts_with('.') && !path.starts_with("./") && !path.starts_with("../") {
         return PathCategory::Hidden;
+    }
+    // Check for hidden files in paths (e.g., /home/user/.bashrc)
+    // Exclude relative path components: /../ and /./
+    if let Some(filename) = path.rsplit('/').next() {
+        if filename.starts_with('.') && !filename.is_empty() && filename != "." && filename != ".."
+        {
+            return PathCategory::Hidden;
+        }
     }
 
     // System paths
@@ -313,11 +322,15 @@ fn detect_anomalous_paths(paths: &[PathInfo]) -> Vec<Finding> {
     let mut traits = Vec::new();
 
     // Hidden files in system directories
+    // Exclude paths with relative components (/../ or /./) as these are typically
+    // DWARF debug paths from compilation, not actual hidden file references
     let anomalous_hidden: Vec<_> = paths
         .iter()
         .filter(|p| {
             p.category == PathCategory::Hidden
                 && (p.path.starts_with("/var/") || p.path.starts_with("/usr/"))
+                && !p.path.contains("/../")
+                && !p.path.contains("/./")
         })
         .collect();
 
@@ -607,11 +620,30 @@ mod tests {
 
     #[test]
     fn test_classify_path_category_hidden() {
+        // Actual hidden files
         assert_eq!(classify_path_category(".hidden"), PathCategory::Hidden);
         assert_eq!(
             classify_path_category("/path/.hidden"),
             PathCategory::Hidden
         );
+        assert_eq!(
+            classify_path_category("/home/user/.bashrc"),
+            PathCategory::Hidden
+        );
+
+        // NOT hidden: relative path components in debug info / DWARF paths
+        // These are absolute paths with /../ that resolve to normal files
+        assert_ne!(
+            classify_path_category("/usr/xenocara/lib/mesa/mk/libEGL/../../src/egl/main/eglapi.c"),
+            PathCategory::Hidden
+        );
+        assert_ne!(
+            classify_path_category("/usr/src/../lib/file.c"),
+            PathCategory::Hidden
+        );
+        // ./ relative paths are not hidden
+        assert_ne!(classify_path_category("./file.txt"), PathCategory::Hidden);
+        assert_ne!(classify_path_category("../file.txt"), PathCategory::Hidden);
     }
 
     #[test]
@@ -714,5 +746,49 @@ mod tests {
         let traits = detect_privilege_requirements(&paths);
 
         assert!(traits.iter().any(|t| t.id.contains("root-access")));
+    }
+
+    #[test]
+    fn test_detect_anomalous_paths_excludes_debug_paths() {
+        // DWARF debug paths with relative components should NOT trigger hidden file detection
+        let debug_path = PathInfo {
+            path: "/usr/xenocara/lib/mesa/mk/libGLESv1_CM/../../src/mapi/entry.c".to_string(),
+            path_type: PathType::Absolute,
+            category: PathCategory::Hidden, // Even if classified as Hidden
+            access_type: None,
+            source: "strings".to_string(),
+            evidence: vec![],
+            referenced_by_traits: vec![],
+        };
+
+        let traits = detect_anomalous_paths(&[debug_path]);
+
+        // Should NOT generate a persistence/hidden_file finding due to /../
+        assert!(
+            !traits.iter().any(|t| t.id == "persistence/hidden_file"),
+            "DWARF debug paths with /../ should not trigger hidden file detection"
+        );
+    }
+
+    #[test]
+    fn test_detect_anomalous_paths_detects_real_hidden_files() {
+        // Actual hidden files in system directories SHOULD trigger detection
+        let hidden_path = PathInfo {
+            path: "/usr/lib/.malware".to_string(),
+            path_type: PathType::Absolute,
+            category: PathCategory::Hidden,
+            access_type: None,
+            source: "strings".to_string(),
+            evidence: vec![],
+            referenced_by_traits: vec![],
+        };
+
+        let traits = detect_anomalous_paths(&[hidden_path]);
+
+        // Should generate a persistence/hidden_file finding
+        assert!(
+            traits.iter().any(|t| t.id == "persistence/hidden_file"),
+            "Real hidden files in system directories should trigger detection"
+        );
     }
 }

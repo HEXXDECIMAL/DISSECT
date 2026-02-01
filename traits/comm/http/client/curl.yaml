@@ -12,7 +12,8 @@ traits:
     conf: 0.3
     if:
       type: string
-      word: "curl"
+      # Match curl in command context, not generic word
+      regex: "(?:^|[\\s/])curl(?:\\s+-|\\s+http|\\s+--)"
 
   - id: wget-cmd
     desc: wget command

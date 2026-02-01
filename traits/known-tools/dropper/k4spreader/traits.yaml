@@ -3,9 +3,18 @@
 # ATT&CK: T1583.005 (Botnet)
 
 defaults:
-  file_types: [elf, macho, so, dylib]
+  file_types: [elf, macho, so, dylib, python, shell]
 
 traits:
+  # === K4Spreader Binary Names ===
+  - id: klibsystem5-marker
+    desc: klibsystem5 binary name (K4Spreader)
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: string
+      exact: "klibsystem5"
+
   # === Related Malware Names (fullword = word boundary) ===
   - id: tsunami-lower
     desc: tsunami malware name (lowercase)
@@ -55,22 +64,18 @@ traits:
       type: string
       word: "KAITEN"
 
-  # === Spreading Keywords (fullword = word boundary) ===
-  - id: scanner-word
-    desc: scanner keyword (word boundary)
+  # === Spreading Keywords (require malware-specific context) ===
+  # NOTE: Generic terms like "scanner" and "exploit" are too common in legitimate tools
+  # (e.g., flex generates lexical scanners, security tools document exploits).
+  # These patterns require malware-specific context to avoid false positives.
+  - id: scanner-exploit-combo
+    desc: scanner + exploit keywords together
     crit: inert
-    conf: 0.65
+    conf: 0.7
     if:
       type: string
-      word: "scanner"
-
-  - id: exploit-word
-    desc: exploit keyword (word boundary)
-    crit: inert
-    conf: 0.65
-    if:
-      type: string
-      word: "exploit"
+      # Require both words in close proximity (shell script spreading pattern)
+      regex: "(?i)(?:scanner.{0,50}exploit|exploit.{0,50}scanner)"
 
   # === K4Spreader Magic String ===
   - id: k4spreader-magic
@@ -106,8 +111,7 @@ composite_rules:
   - id: spreading-keywords
     description: Spreading/exploitation keywords
     any:
-      - id: scanner-word
-      - id: exploit-word
+      - id: scanner-exploit-combo
 
   # === Helper composite ===
   - id: malware-with-spreading
@@ -125,4 +129,5 @@ composite_rules:
     attack: "T1583.005"
     any:
       - id: k4spreader-magic
+      - id: klibsystem5-marker
       - id: malware-with-spreading

@@ -4,32 +4,13 @@
 traits:
   # System monitoring tools
   - id: monitoring
-    description: System monitoring utilities
-    crit: benign
-    confidence: 0.9
-    condition:
-      type: yara
-      source: |
-        rule sysadmin_monitoring {
-          strings:
-            // Process monitoring
-            $mon1 = "htop" ascii
-            $mon2 = "top" ascii
-            $mon3 = "atop" ascii
-            $mon4 = "iotop" ascii
-            $mon5 = "iftop" ascii
-            // Resource monitoring
-            $res1 = "vmstat" ascii
-            $res2 = "iostat" ascii
-            $res3 = "mpstat" ascii
-            $res4 = "sar" ascii
-            // System info
-            $info1 = "lscpu" ascii
-            $info2 = "lsmem" ascii
-            $info3 = "lsblk" ascii
-          condition:
-            any of them
-        }
+    desc: System monitoring utilities
+    crit: inert
+    conf: 0.9
+    if:
+      type: string
+      # Match specific monitoring tool paths or command invocations
+      regex: "(?:/usr/bin/(?:htop|atop|iotop|iftop|vmstat|iostat|mpstat|sar|lscpu|lsmem|lsblk)|\\b(?:htop|atop|iotop|iftop|vmstat|iostat|mpstat|lscpu|lsmem|lsblk)\\s+-)"
 
   # Package management
   - id: package-mgmt
@@ -85,25 +66,10 @@ traits:
 
   # Log analysis
   - id: logs
-    description: Log analysis utilities
-    crit: benign
-    confidence: 0.9
-    condition:
-      type: yara
-      source: |
-        rule log_analysis {
-          strings:
-            // Journal
-            $log1 = "journalctl" ascii
-            $log2 = "dmesg" ascii
-            // Log viewers
-            $view1 = "less " ascii
-            $view2 = "tail -f" ascii
-            $view3 = "multitail" ascii
-            // Log paths
-            $path1 = "/var/log/syslog" ascii
-            $path2 = "/var/log/messages" ascii
-            $path3 = "/var/log/auth.log" ascii
-          condition:
-            any of ($log*, $view*) or 2 of ($path*)
-        }
+    desc: Log analysis utilities
+    crit: inert
+    conf: 0.9
+    if:
+      type: string
+      # Match specific log analysis commands or log paths
+      regex: "(?:/usr/bin/(?:journalctl|dmesg|multitail)|\\bjournalctl\\s+-|\\btail\\s+-f\\s+/var/log|/var/log/(?:syslog|messages|auth\\.log))"

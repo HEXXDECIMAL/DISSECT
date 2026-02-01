@@ -89,7 +89,8 @@ traits:
     conf: 0.5
     if:
       type: string
-      word: "PAN"
+      # PAN attack is specific IRC bot command - require command context
+      regex: "(?i)(?:\\.pan\\b|pan[_-]?(?:attack|flood)|\\bpan[_-]?ddos)"
 
   - id: attack-udp
     desc: UDP attack type indicator
@@ -106,8 +107,8 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: flood
-      case_insensitive: true
+      # Match DDoS flood context, not generic "flood" word
+      regex: "(?i)(?:(?:syn|udp|http|icmp|tcp|dns|ack)[_-]?flood|flood[_-]?(?:attack|target|packets?|mode))"
 
   - id: ddos-attack
     desc: Attack terminology
@@ -115,8 +116,8 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: attack
-      case_insensitive: true
+      # Match DDoS attack context, not generic "attack" word
+      regex: "(?i)(?:ddos[_-]?attack|attack[_-]?(?:target|mode|type|vector|method)|(?:syn|udp|http|icmp)[_-]?attack)"
 
 composite_rules:
   # Helper: IRC protocol

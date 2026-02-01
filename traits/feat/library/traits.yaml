@@ -101,6 +101,44 @@ traits:
       type: string
       regex: "(?i)\\bzlib\\b"
 
+  # === Graphics Libraries ===
+  - id: mesa-ref
+    desc: Mesa 3D graphics reference
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      # Match Mesa graphics stack strings (library names, paths, internal names)
+      regex: "(?i)(?:mesa|gallium|libGL|libEGL|libGLX|dri_|swrast|pipe_loader|_mesa_)"
+
+  - id: opengl-ref
+    desc: OpenGL graphics reference
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      # Match OpenGL/graphics API strings
+      regex: "(?i)(?:opengl|glx|\\begl\\b|vulkan|GL_VERSION|GL_RENDERER|glX[A-Z])"
+
+  - id: x11-ref
+    desc: X11 windowing reference
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      # Match X11 windowing stack strings
+      regex: "(?i)(?:libX11|libxcb|xorg|xenocara|XOpenDisplay|XCreateWindow)"
+
+  - id: dri-driver-ref
+    desc: DRI graphics driver reference
+    crit: inert
+    conf: 0.6
+    for: [elf, so]
+    if:
+      type: string
+      # Match DRI driver paths and patterns common in Mesa/GPU drivers
+      regex: "/usr/(?:lib|X11R6/lib)/(?:dri|modules/dri)/|_dri\\.so|drirc|DRI_PRIME"
+
   # === Shell Interpreters ===
   - id: shell-keyword-marker
     desc: Shell interpreter keyword marker
@@ -120,6 +158,39 @@ traits:
       type: string
       substr: "shell builtin"
 
+  # === Compiler/Build Tools ===
+  - id: llvm-project-ref
+    desc: LLVM project reference
+    crit: inert
+    conf: 0.8
+    if:
+      type: string
+      regex: "(?i)\\b(llvm|clang)\\s+(version|compiler|project|IR)"
+
+  - id: llvm-lib-ref
+    desc: libLLVM library reference
+    crit: inert
+    conf: 0.9
+    if:
+      type: string
+      regex: "libLLVM"
+
+  - id: gcc-project-ref
+    desc: GCC project reference
+    crit: inert
+    conf: 0.8
+    if:
+      type: string
+      regex: "(?i)\\bgcc\\s+(version|compiler)|\\bgnuc\\b"
+
+  - id: cmake-build-ref
+    desc: CMake build tool reference
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      regex: "(?i)\\bcmake\\b"
+
 composite_rules:
   - id: network-lib-marker
     desc: Known network library markers
@@ -132,6 +203,17 @@ composite_rules:
       - id: libcurl-ref
       - id: libssh-ref
 
+  - id: graphics-lib-marker
+    desc: Graphics/OpenGL library markers
+    crit: inert
+    conf: 0.6
+    count_min: 1
+    any:
+      - id: mesa-ref
+      - id: opengl-ref
+      - id: x11-ref
+      - id: dri-driver-ref
+
   - id: system-lib-marker
     desc: Known system library markers
     crit: inert
@@ -143,6 +225,7 @@ composite_rules:
       - id: systemd-ref
       - id: libc-characteristic-symbols
       - id: system-debug-lib
+      - id: graphics-lib-marker
 
   - id: compression-lib
     desc: Compression library markers
@@ -163,3 +246,14 @@ composite_rules:
     any:
       - id: shell-keyword-marker
       - id: shell-builtin-marker
+
+  - id: compiler-tool-marker
+    desc: Compiler or build tool binary
+    crit: inert
+    conf: 0.8
+    count_min: 1
+    any:
+      - id: llvm-project-ref
+      - id: llvm-lib-ref
+      - id: gcc-project-ref
+      - id: cmake-build-ref

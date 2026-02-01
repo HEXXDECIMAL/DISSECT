@@ -170,7 +170,8 @@ traits:
     for: [elf, macho, pe, so, dylib, dll, shell]
     if:
       type: string
-      exact: "pool."
+      # Must be followed by a TLD-like pattern to be a mining pool domain
+      regex: "pool\\.[a-z]{2,10}(?:/|$|:)"
 
   # === Persistence Mechanisms ===
   - id: crontab-command
@@ -246,6 +247,25 @@ traits:
     if:
       type: string
       exact: "popen("
+
+  # === Hadooken-specific binary names ===
+  - id: crondr-binary
+    desc: crondr binary (Hadooken dropper)
+    crit: suspicious
+    conf: 0.95
+    for: [elf, macho, shell]
+    if:
+      type: content
+      regex: 'crondr'
+
+  - id: crondr-path
+    desc: /bin/crondr path (Hadooken)
+    crit: suspicious
+    conf: 0.95
+    for: [elf, macho, shell]
+    if:
+      type: content
+      regex: '/bin/crondr'
 
 composite_rules:
   # === Helper composites ===
@@ -389,6 +409,17 @@ composite_rules:
       - id: hadooken-keyword
       - id: irc-webshell
 
+  # crondr binary reference composite
+  - id: crondr-reference
+    desc: Hadooken crondr binary reference
+    crit: suspicious
+    conf: 0.95
+    for: [elf, macho, shell]
+    count_min: 1
+    any:
+      - id: crondr-binary
+      - id: crondr-path
+
   # Hadooken detection
   - id: detected
     desc: "Hadooken malware detected"
@@ -401,3 +432,4 @@ composite_rules:
       - id: dropper/hadooken/generic
       - id: dropper/hadooken/miner
       - id: dropper/hadooken/webshell
+      - id: crondr-reference

@@ -37,8 +37,8 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: '(reverse|socks5|proxy)'
-      case_insensitive: true
+      # Require tunneling context - not just generic words
+      regex: '(?i)(?:reverse[_-]?(?:tunnel|proxy|forward)|socks5[_-]?(?:proxy|server|port)|proxy[_-]?(?:tunnel|mode|server))'
 
 composite_rules:
   - id: tools/tunnel/chisel/keyword-with-mode

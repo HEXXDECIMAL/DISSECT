@@ -45,126 +45,11 @@ traits:
       type: string
       regex: "dlsym\\s*\\(\\s*RTLD_NEXT"
 
-  # === libc function targets (commonly hooked) ===
-  - id: fopen-string
-    desc: fopen function reference
-    crit: inert
-    conf: 0.3
-    if:
-      type: string
-      exact: "fopen"
-
-  - id: open64-string
-    desc: open64 function reference
-    crit: inert
-    conf: 0.3
-    if:
-      type: string
-      exact: "open64"
-
-  - id: readdir-string
-    desc: readdir function reference
-    crit: inert
-    conf: 0.3
-    if:
-      type: string
-      exact: "readdir"
-
-  - id: readdir64-string
-    desc: readdir64 function reference
-    crit: inert
-    conf: 0.3
-    if:
-      type: string
-      exact: "readdir64"
-
-  - id: opendir-string
-    desc: opendir function reference
-    crit: inert
-    conf: 0.3
-    if:
-      type: string
-      exact: "opendir"
-
-  - id: accept-string
-    desc: accept function reference
-    crit: inert
-    conf: 0.3
-    if:
-      type: string
-      exact: "accept"
-
-  - id: connect-string
-    desc: connect function reference
-    crit: inert
-    conf: 0.3
-    if:
-      type: string
-      exact: "connect"
-
-  - id: recvfrom-string
-    desc: recvfrom function reference
-    crit: inert
-    conf: 0.3
-    if:
-      type: string
-      exact: "recvfrom"
-
-  - id: getpwnam-string
-    desc: getpwnam function reference
-    crit: inert
-    conf: 0.3
-    if:
-      type: string
-      exact: "getpwnam"
-
-  - id: getpwuid-string
-    desc: getpwuid function reference
-    crit: inert
-    conf: 0.3
-    if:
-      type: string
-      exact: "getpwuid"
-
-  - id: xstat-string
-    desc: __xstat function reference
-    crit: inert
-    conf: 0.4
-    if:
-      type: string
-      exact: "__xstat"
-
-  - id: lxstat-string
-    desc: __lxstat function reference
-    crit: inert
-    conf: 0.4
-    if:
-      type: string
-      exact: "__lxstat"
-
-  - id: fxstat-string
-    desc: __fxstat function reference
-    crit: inert
-    conf: 0.4
-    if:
-      type: string
-      exact: "__fxstat"
-
-  - id: xstat64-string
-    desc: __xstat64 function reference
-    crit: inert
-    conf: 0.4
-    if:
-      type: string
-      exact: "__xstat64"
-
-  - id: lxstat64-string
-    desc: __lxstat64 function reference
-    crit: inert
-    conf: 0.4
-    if:
-      type: string
-      exact: "__lxstat64"
+  # NOTE: Removed generic libc function string traits (fopen-string, readdir-string, etc.)
+  # These match nearly every binary and create excessive noise. The libc-targets composite
+  # and libc-hook-targets rules have been removed as they relied on these overly generic patterns.
+  # Rootkit detection should focus on the hook infrastructure (dlsym + RTLD_NEXT) combined
+  # with specific rootkit indicators (hide_pid, proc hiding, etc.) rather than generic function names.
 
   # === Symbiote rootkit indicators ===
   - id: skullseclabs-string
@@ -210,7 +95,11 @@ traits:
     for: [elf]
     if:
       type: string
-      exact: "original_"
+      # Match original_ followed by common hooked function names, not just any original_ prefix
+      regex: "original_(?:open|read|write|stat|fopen|readdir|execve|connect|socket|getdents|unlink)"
+    # System libraries may have these for legitimate wrapper/forwarding purposes
+    unless:
+      - id: feat/library/system-lib-marker
 
   - id: real-prefix
     desc: real_ function prefix (hook backup)
@@ -219,7 +108,11 @@ traits:
     for: [elf]
     if:
       type: string
-      exact: "real_"
+      # Match real_ followed by common hooked function names, not just any real_ prefix
+      regex: "real_(?:open|read|write|stat|fopen|readdir|execve|connect|socket|getdents|unlink)"
+    # System libraries may have these for legitimate wrapper/forwarding purposes
+    unless:
+      - id: feat/library/system-lib-marker
 
   # === /proc hiding micro-traits ===
   - id: proc-self-string
@@ -333,10 +226,34 @@ traits:
     conf: 0.9
     mbc: "F0015"
     attack: "T1574.006"
-    for: [elf]
+    for: [elf, shell]
     if:
       type: string
       exact: "/etc/ld.so.preload"
+
+  # ld.so.preload clearing (removing hooks or preparing for new ones)
+  - id: ld-so-preload-clear
+    desc: Clears /etc/ld.so.preload content
+    crit: suspicious
+    conf: 0.9
+    mbc: "F0015"
+    attack: "T1574.006"
+    for: [shell]
+    if:
+      type: string
+      regex: '(cat\s+/dev/null\s*>\s*/etc/ld\.so\.preload|>\s*/etc/ld\.so\.preload|echo\s*>\s*/etc/ld\.so\.preload|truncate\s+.{0,50}\s*/etc/ld\.so\.preload)'
+
+  # chattr on ld.so.preload (removing protection to modify it)
+  - id: ld-so-preload-chattr
+    desc: Removes file attributes from ld.so.preload
+    crit: suspicious
+    conf: 0.9
+    mbc: "F0015"
+    attack: "T1574.006"
+    for: [shell]
+    if:
+      type: string
+      regex: 'chattr\s+[-][ia]+\s+/etc/ld\.so\.preload'
 
   # __libc_dlopen_mode (internal glibc dynamic loading)
   - id: libc-dlopen-mode
@@ -385,29 +302,6 @@ composite_rules:
       - id: dlsym-rtld-next-pattern
       - id: hook-infrastructure
 
-  # libc hook targets composite
-  - id: libc-targets
-    desc: Multiple libc functions commonly hooked
-    crit: inert
-    conf: 0.5
-    count_min: 5
-    any:
-      - id: fopen-string
-      - id: open64-string
-      - id: readdir-string
-      - id: readdir64-string
-      - id: opendir-string
-      - id: accept-string
-      - id: connect-string
-      - id: recvfrom-string
-      - id: getpwnam-string
-      - id: getpwuid-string
-      - id: xstat-string
-      - id: lxstat-string
-      - id: fxstat-string
-      - id: xstat64-string
-      - id: lxstat64-string
-
   # Hook indicator composite
   - id: hook-indicator
     desc: Hook implementation indicator
@@ -421,17 +315,6 @@ composite_rules:
       - id: dlsym-rtld-next-pattern
     unless:
       - id: feat/library/system-lib-marker
-
-  # libc hook targets with hook indicators (migrated from YARA)
-  - id: libc-hook-targets
-    desc: References multiple libc functions commonly
-    crit: notable
-    conf: 0.5
-    mbc: "F0015"
-    attack: "T1574.006"
-    all:
-      - id: libc-targets
-      - id: hook-indicator
 
   # Hook prefix composite
   - id: hook-prefixes
@@ -513,9 +396,9 @@ composite_rules:
     all:
       - id: dlsym-rtld-next
     any:
-      - id: libc-hook-targets
       - id: proc-hiding
       - id: symbiote
+      - id: hook-prefixes
 
   # LD_PRELOAD installation rootkit
   - id: ld-preload-installer

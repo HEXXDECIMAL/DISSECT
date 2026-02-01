@@ -4,6 +4,53 @@
 # ATT&CK: T1027
 
 traits:
+  # === Hex decoding functions ===
+  - id: binascii-unhexlify
+    desc: Hex decoding via binascii.unhexlify
+    crit: notable
+    conf: 0.7
+    mbc: "B0032"
+    attack: "T1140"
+    for: [python]
+    if:
+      type: content
+      substr: "binascii.unhexlify"
+
+  - id: unhexlify-import
+    desc: unhexlify function import
+    crit: notable
+    conf: 0.7
+    mbc: "B0032"
+    attack: "T1140"
+    for: [python]
+    if:
+      type: content
+      regex: "from\\s+binascii\\s+import.{0,50}unhexlify"
+
+  # === Content-based exec/eval detection ===
+  # These use content: instead of string: to match function calls in source
+  - id: exec-function-call
+    desc: exec() function call
+    crit: notable
+    conf: 0.7
+    mbc: "E1059"
+    attack: "T1059"
+    for: [python]
+    if:
+      type: content
+      regex: "exec\\s*\\("
+
+  - id: eval-function-call
+    desc: eval() function call
+    crit: notable
+    conf: 0.7
+    mbc: "E1059"
+    attack: "T1059"
+    for: [python]
+    if:
+      type: content
+      regex: "eval\\s*\\("
+
   # Large base64-like string (512+ chars)
   - id: large-base64-string
     desc: Large base64-like string (512+ chars)
@@ -60,6 +107,23 @@ traits:
       regex: "compile\\s*\\([^)]+,\\s*['\"][^'\"]+['\"]\\s*,\\s*['\"]exec['\"]\\s*\\)"
 
 composite_rules:
+  # === Hex decode execution patterns ===
+  # exec(binascii.unhexlify(...)) - classic malware obfuscation
+  # Complexity: file_types(+1) + all(+2) + any(+1) = 4
+  - id: exec-unhexlify
+    desc: Execute hex-decoded payload
+    crit: hostile
+    conf: 0.95
+    mbc: "B0032"
+    attack: "T1027"
+    file_types: [python]
+    all:
+      - id: exec-function-call
+      - id: binascii-unhexlify
+    any:
+      - id: unhexlify-import
+      - id: anti-static/obfuscation/code-metrics/low-whitespace
+
   # Large encoded string composite (migrated from YARA)
   - id: large-encoded-string
     desc: Large high-entropy string literal (likely

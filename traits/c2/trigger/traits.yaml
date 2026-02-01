@@ -37,29 +37,12 @@ traits:
       type: string
       exact: "0x539"
 
-  - id: magic-keyword-lower
-    desc: MAGIC keyword (lowercase)
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      exact: "magic"
+  # NOTE: Removed magic-keyword-lower, magic-keyword-upper, magic-keyword-title
+  # The word "magic" is extremely common in legitimate software (file magic,
+  # magic numbers, games, etc.). These patterns create false positives.
+  # The magic-values composite now only uses numeric magic values (1337, 0x539)
+  # which are more specific indicators of C2 triggers.
 
-  - id: magic-keyword-upper
-    desc: MAGIC keyword (uppercase)
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      exact: "MAGIC"
-
-  - id: magic-keyword-title
-    desc: Magic keyword (titlecase)
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      exact: "Magic"
 
   # Trigger keywords
   - id: trigger-keyword-lower
@@ -151,15 +134,12 @@ composite_rules:
       - id: icmp-hdr-struct
       - id: icmp-rcv
 
-  # Helper: Magic value patterns
+  # Helper: Magic value patterns (numeric only - word "magic" removed due to false positives)
   - id: magic-values
     desc: Magic trigger values
     any:
       - id: magic-1337
       - id: magic-0x539
-      - id: magic-keyword-lower
-      - id: magic-keyword-upper
-      - id: magic-keyword-title
 
   # Helper: Trigger keywords
   - id: trigger-keywords

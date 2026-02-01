@@ -70,10 +70,15 @@ traits:
       section: "__const"
       min_entropy: 7.5
 
+  # NOTE: High entropy in data sections is common in legitimate software:
+  # - Games (compressed assets, lookup tables)
+  # - Multimedia apps (embedded media)
+  # - Crypto software (key material, random data)
+  # Only suspicious when combined with other indicators (see composites).
   - id: high-entropy-data
     desc: "High entropy in data section"
-    crit: suspicious
-    conf: 0.85
+    crit: notable
+    conf: 0.6
     mbc: "C0027"
     for: [elf, pe]
     if:

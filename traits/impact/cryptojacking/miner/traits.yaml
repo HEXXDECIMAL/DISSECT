@@ -330,3 +330,50 @@ composite_rules:
       - id: argon2d
       - id: proc-self-ref
       - id: numa-ref
+
+  # === HOSTILE: Cryptominer Trojan ===
+  # Complexity: file_types(+1) + all(+4) = 5 >= 4 ✓
+  - id: cryptominer-trojan
+    description: Cryptominer trojan detected
+    crit: hostile
+    conf: 0.98
+    attack: "T1496"
+    mbc: "B0036"
+    for: [python, shell]
+    all:
+      - id: xmrig-ref
+      - id: pool-supportxmr
+      - id: known-tools/resource-exploitation/monero-wallets
+      - id: exec/command/shell/python-os-system
+
+  # Helper: any known mining pool
+  - id: known-mining-pool
+    description: Known mining pool detected
+    crit: suspicious
+    conf: 0.9
+    attack: "T1496"
+    any:
+      - id: pool-c3pool
+      - id: pool-f2pool
+      - id: pool-hashvault
+      - id: pool-monerohash
+      - id: pool-xmrpool
+      - id: pool-supportxmr
+      - id: pool-minergate
+      - id: pool-crypto-pool
+      - id: pool-moneropool
+
+  # === HOSTILE: Generic Python Cryptominer Dropper ===
+  # Complexity: file_types(+1) + all(+4) = 5 >= 4 ✓
+  - id: python-cryptominer-dropper
+    description: Python cryptominer dropper
+    crit: hostile
+    conf: 0.95
+    attack: "T1496"
+    mbc: "B0036"
+    for: [python]
+    all:
+      - id: xmrig-ref
+      - id: known-mining-pool
+      - id: known-tools/resource-exploitation/monero-wallets
+      - id: exec/command/shell/python-os-system

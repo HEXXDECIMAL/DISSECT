@@ -459,9 +459,9 @@ impl ArchiveAnalyzer {
                 system_packages::extract_compressed_safe(archive_path, dest_dir, "bzip2", guard)
             }
             "deb" => system_packages::extract_deb_safe(archive_path, dest_dir, guard),
-            "rpm" => system_packages::extract_rpm(archive_path, dest_dir), // TODO: add guard
+            "rpm" => system_packages::extract_rpm(archive_path, dest_dir, guard),
             "pkg" => system_packages::extract_pkg_safe(archive_path, dest_dir, guard),
-            "rar" => system_packages::extract_rar(archive_path, dest_dir), // TODO: add guard
+            "rar" => system_packages::extract_rar(archive_path, dest_dir, guard),
             _ => anyhow::bail!("Unsupported archive type: {}", archive_type),
         }
     }

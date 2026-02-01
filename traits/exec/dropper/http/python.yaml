@@ -9,14 +9,14 @@ defaults:
   crit: suspicious
 
 traits:
-  # === HTTP library atomic indicators ===
-  - id: requests-get
-    desc: requests.get call
-    crit: inert
-    conf: 0.5
+  # === Download and execute function patterns ===
+  - id: download-and-execute-func
+    desc: download_and_execute function
+    crit: suspicious
+    conf: 0.9
     if:
-      type: content
-
+      type: string
+      regex: "download_and_execute|download_execute|downloadAndExecute|downloadExecute"
 
   - id: def-download
     desc: Function named download_*

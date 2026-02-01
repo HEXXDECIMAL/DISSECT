@@ -3,18 +3,20 @@
 # ATT&CK: T1027 (Obfuscated Files or Information)
 
 traits:
+  # NOTE: Stripped binaries are common for release builds, not suspicious alone
   - id: stripped-binary-struct
     desc: "Binary has symbol table stripped"
-    crit: notable
+    crit: inert
     conf: 0.7
     for: [elf, macho, pe]
     if:
       type: structure
       feature: "binary/stripped"
 
+  # NOTE: Static linking is common for portable binaries (Go, Rust)
   - id: static-linked-struct
     desc: "Statically linked binary (self-contained)"
-    crit: notable
+    crit: inert
     conf: 0.7
     for: [elf]
     if:

@@ -64,8 +64,11 @@ const knownBadPrompt = `Tune DISSECT to detect this malware's capabilities.
 2. Reverse engineer: radare2, nm, strings, objdump, xxd
 3. Create/modify traits for detected capabilities
 
-## Taxonomy
-anti-analysis | c2 | collect | cred | discovery | exec | exfil | impact | lateral | persist | privesc
+## Taxonomy (objective/capability/kind)
+**Objectives** (attacker goals): anti-analysis | anti-static | c2 | collect | cred | discovery | exec | exfil | impact | lateral | persist | privesc
+**Micro-behaviors** (low-level mechanics): comm | crypto | data | feat | fs | hw | mem | os | process
+
+Use objectives when intent is clear. Fall back to micro-behaviors for generic capabilities.
 
 ## Detection Philosophy
 Write GENERIC patterns that catch similar malware:

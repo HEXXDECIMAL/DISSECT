@@ -105,7 +105,8 @@ traits:
     desc: ss socket statistics
     if:
       type: string
-      exact: "ss "
+      # Must be command-like context with typical ss flags
+      regex: "\\bss\\s+-[atnlup]"
 
   - id: lsof-i
     desc: lsof network listing
@@ -181,7 +182,8 @@ traits:
     desc: Apache Bench (ab) tool
     if:
       type: string
-      exact: "ab "
+      # Match ab command with typical flags like -n, -c, -t, -k, or URL patterns
+      regex: "\\bab\\s+-[nctkvVhwixpTrsHX]"
 
   - id: wrk
     desc: wrk HTTP benchmark

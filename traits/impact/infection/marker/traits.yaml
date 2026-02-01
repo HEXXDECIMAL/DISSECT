@@ -24,12 +24,10 @@ traits:
       source: |
         rule elf_infector {
           strings:
-            // Infection-specific strings (required)
-            $infect = "infect" nocase
-            $payload = "payload" fullword
-            $virus = "virus" nocase
-            $parasite = "parasite" nocase
-            $inject_elf = "inject" fullword
+            // High-confidence infection terminology (specific to file infectors)
+            $infect_file = /infect.{0,10}(file|elf|binary)/i
+            $virus = "virus" nocase fullword
+            $parasite = "parasite" nocase fullword
             // Embedded ELF magic at non-zero offset indicates payload
             $embedded_elf = { 7F 45 4C 46 }
             // Common file-scanning patterns in infectors
@@ -39,8 +37,8 @@ traits:
             uint32(0) == 0x464C457F and
             filesize < 1MB and
             (
-              // Explicit infection terminology
-              any of ($infect, $virus, $parasite, $payload, $inject_elf, $scan_elf, $find_target) or
+              // High-confidence infection terminology
+              any of ($infect_file, $virus, $parasite, $scan_elf, $find_target) or
               // Embedded ELF payload (not at offset 0)
               ($embedded_elf and @embedded_elf[1] > 512)
             )

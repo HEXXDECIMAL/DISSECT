@@ -128,7 +128,8 @@ traits:
     platforms: [all]
     condition:
       type: string
-      regex: '\b[Pp]robe\b'
+      # Match probe in network/scanning context, not generic word
+      regex: "(?i)(?:network[_\\-\\s]?probe|probe[_\\-\\s]?(?:port|host|target|scan|packet)|(?:tcp|udp|icmp)[_\\-\\s]?probe)"
 
   - id: banner-grab
     description: Banner grab keyword

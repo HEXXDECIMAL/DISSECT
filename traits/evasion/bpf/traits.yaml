@@ -57,9 +57,12 @@ traits:
     desc: knock string reference
     crit: notable
     conf: 0.6
+    for: [elf, c]
     if:
       type: string
-      exact: "knock"
+      # Match port knocking context, not generic "knock" word
+      # Require explicit port/network context to avoid game/UI false positives
+      regex: "(?i)(?:port[_-]?knock(?:ing|er|s)?|knock[_-]?(?:sequence|packet|daemon|port)|(?:tcp|udp)[_-]?knock)"
 
   - id: port-knock
     desc: port_knock string
@@ -117,7 +120,7 @@ traits:
 
   - id: dup2-fn
     desc: dup2 file descriptor duplication
-    crit: notable
+    crit: inert
     conf: 0.5
     for: [elf, c]
     if:
@@ -166,7 +169,8 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "bcc"
+      # Require "bcc" as a word boundary to avoid matching partial strings
+      regex: "\\bbcc(?:_|/|\\s|$)"
 
   - id: libbpf
     desc: libbpf library
@@ -283,21 +287,24 @@ composite_rules:
       - id: recvfrom-fn
 
   # Shell activation helper
+  # NOTE: dup2 + execve is extremely common in legitimate programs.
+  # Only suspicious in context of /bin/sh execution with fd redirection.
   - id: shell-activation
     desc: Shell execution components
-    crit: notable
+    crit: inert
     conf: 0.6
     for: [elf, c]
+    all:
+      - id: exec/command/shell/generic/bin-sh
     count_min: 1
     any:
-      - id: exec/command/shell/generic/bin-sh
       - id: dup2-fn
       - id: execve-fn
 
   # Protocol trigger helper
   - id: protocol-trigger
     desc: ICMP/UDP protocol triggers
-    crit: notable
+    crit: inert
     conf: 0.6
     for: [elf, c]
     count_min: 1
@@ -306,13 +313,13 @@ composite_rules:
       - id: ipproto-udp
 
   # BPFDoor-style helper
+  # Requires both shell activation AND protocol trigger to be suspicious
   - id: bpfdoor-activation
     desc: BPFDoor activation components
-    crit: suspicious
+    crit: notable
     conf: 0.85
     for: [elf, c]
-    count_min: 1
-    any:
+    all:
       - id: shell-activation
       - id: protocol-trigger
 

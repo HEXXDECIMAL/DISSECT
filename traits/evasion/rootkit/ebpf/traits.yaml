@@ -176,9 +176,12 @@ traits:
     desc: Patch string reference
     crit: inert
     conf: 0.5
+    for: [c, elf, go]
     if:
       type: string
-      regex: "(?i)patch"
+      # Match patch in malware/rootkit context, not graphics (tessellation patches)
+      # or software updates (patches). Require programming/binary manipulation context.
+      regex: "(?i)(?:memory[_-]?patch|patch[_-]?(?:code|byte|func|hook|syscall)|kernel[_-]?patch|runtime[_-]?patch)"
 
   # === eBPF Manipulation Functions ===
   - id: bpf-probe-write-user
@@ -206,7 +209,12 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: "(?i)shadow"
+      # Match /etc/shadow path or shadow file context, not graphics shadow
+      regex: "/etc/shadow(?:\\b|$)|shadow[_-](?:file|passwd|db|hash)"
+    # Graphics/system libraries shouldn't be flagged for shadow file references
+    unless:
+      - id: feat/library/graphics-lib-marker
+      - id: feat/library/system-lib-marker
 
   - id: passwd-ref
     desc: Passwd file reference
@@ -214,7 +222,8 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "(?i)passwd"
+      # Match passwd file paths, not general password references
+      regex: "/etc/passwd(?:\\b|$)|passwd[_-](?:file|db|hash)|getpwnam|getpwuid"
 
   # === Directory Entry Hiding ===
   - id: getdents64-tracepoint
@@ -249,9 +258,12 @@ traits:
     desc: Password string reference
     crit: inert
     conf: 0.4
+    for: [c, elf]
     if:
       type: string
-      exact: "password"
+      # Match password in credential hooking context, not generic UI/prompt usage
+      # Require programming patterns like password_buf, password_ptr, etc.
+      regex: "(?:password[_-]?(?:buf|ptr|len|hash|data|struct|arg)|get[_-]?password|check[_-]?password)"
 
   # === HTTP Manipulation ===
   - id: http-routes
@@ -316,17 +328,37 @@ composite_rules:
       - id: xdp-payload
 
   # Intent markers helper (eBPF context only)
+  # Requires eBPF context markers, not just generic intent strings
   - id: offensive-intent
     desc: Offensive intent markers
     crit: notable
     conf: 0.7
     for: [c, elf, rust]
-    count_min: 1
+    all:
+      # Require some eBPF indicator to avoid FPs on games/generic binaries
+      - id: ebpf-indicator
     any:
       - id: feat/intent/magic
       - id: feat/intent/trigger
       - id: feat/intent/backdoor
       - id: feat/intent/secret
+
+  # Helper: any eBPF-related indicator
+  - id: ebpf-indicator
+    desc: eBPF-related markers
+    crit: inert
+    conf: 0.6
+    for: [c, elf]
+    count_min: 1
+    any:
+      - id: sec-syscall-enter
+      - id: sec-syscall-exit
+      - id: sec-xdp
+      - id: sec-uprobe
+      - id: xdp-md-struct
+      - id: cilium-ebpf
+      - id: libbpfgo
+      - id: datadog-ebpf
 
   # XDP backdoor composite (migrated from YARA)
   - id: xdp-backdoor

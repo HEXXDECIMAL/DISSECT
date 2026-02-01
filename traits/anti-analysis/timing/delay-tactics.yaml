@@ -83,11 +83,12 @@ composite_rules:
       - id: gettimeofday
 
   # Delay with network = evasion or C2 beaconing
-  # NOTE: Legitimate shells have sleep and socket support for scripting purposes
+  # NOTE: nanosleep + socket is extremely common in any network program.
+  # This pattern alone is NOT suspicious - nearly all network tools use this.
   - id: delay-with-network
     desc: "Network communication with delays (C2"
-    crit: suspicious
-    conf: 0.85
+    crit: inert
+    conf: 0.5
     attack: "T1497.003"
     all:
       - id: delay-capability
@@ -95,28 +96,17 @@ composite_rules:
     any:
       - id: comm/socket/create
       - id: comm/download/curl/libcurl-http
-    # Downgrade for Apple system components (bundle-id sufficient for shells)
-    downgrade:
-      inert:
-        any:
-          - id: feat/apple/system-component
-          - id: feat/apple/bundle-id
 
   # Timing measurement + delay = sandbox evasion
-  # NOTE: Legitimate shells and system utilities have timing functions for
-  # scripting purposes. Downgrade for Apple binaries (bundle-id is sufficient).
+  # NOTE: clock_gettime + nanosleep is extremely common in legitimate software.
+  # This pattern alone is NOT suspicious - nearly all async I/O uses this.
+  # Only suspicious when combined with actual anti-analysis indicators.
   - id: timing-evasion
     desc: "Timing measurement with delays (sandbox/VM"
-    crit: suspicious
-    conf: 0.9
+    crit: inert
+    conf: 0.5
     attack: "T1497.003"
     mbc: "B0003.005"
     all:
       - id: timing-measurement
       - id: delay-capability
-    # Downgrade for Apple system components (bundle-id sufficient for shells)
-    downgrade:
-      inert:
-        any:
-          - id: feat/apple/system-component
-          - id: feat/apple/bundle-id

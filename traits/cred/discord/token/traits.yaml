@@ -97,7 +97,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "leveldb"
+      substr: "leveldb"
 
   # Local Storage reference
   - id: local-storage-ref
@@ -106,7 +106,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "Local Storage"
+      substr: "Local Storage"
 
   # Discord application path
   - id: discord-path
@@ -144,6 +144,16 @@ traits:
       type: string
       exact: "mfa."
 
+  # MFA token type enum - used in token stealers to differentiate token types
+  - id: mfa-token-type
+    desc: MFA token type enumeration
+    crit: suspicious
+    conf: 0.85
+    for: [javascript, typescript]
+    if:
+      type: content
+      regex: "(?i)(MFA\\s*[=:]\\s*[0-9]|TokenType\\.MFA|type:\\s*MFA)"
+
   # Users/@me API path
   - id: users-me-path
     desc: Discord users/@me API path
@@ -171,41 +181,45 @@ traits:
       type: string
       exact: "api.telegram.org"
 
-  # Chrome browser path
+  # Chrome browser profile path for token theft
   - id: chrome-browser
-    desc: Chrome browser reference
+    desc: Chrome browser profile path
     crit: notable
     conf: 0.6
     if:
       type: string
-      exact: "Chrome"
+      # Match Chrome profile data paths, not just "Chrome" string (too generic for graphics libs)
+      regex: "(?i)Google[/\\\\]Chrome[/\\\\]User Data|Chrome[/\\\\](?:Default|Profile)[/\\\\]|/\\.config/google-chrome/"
 
-  # Opera browser path
+  # Opera browser path - require profile data path context
   - id: opera-browser
-    desc: Opera browser reference
+    desc: Opera browser profile path
     crit: notable
     conf: 0.6
     if:
       type: string
-      exact: "Opera"
+      # Match Opera profile paths, not just "Opera" (too generic)
+      regex: "(?i)Opera[/\\\\](?:Stable|Profile|Software)|AppData[/\\\\].{0,50}Opera"
 
-  # Brave browser path
+  # Brave browser path - require profile data path context
   - id: brave-browser
-    desc: Brave browser reference
+    desc: Brave browser profile path
     crit: notable
     conf: 0.6
     if:
       type: string
-      exact: "Brave"
+      # Match Brave profile paths, not just "Brave" (too generic)
+      regex: "(?i)Brave[/\\\\](?:Software|User Data|Profile)|BraveSoftware[/\\\\]"
 
-  # Edge browser path
+  # Edge browser path - require profile data path context
   - id: edge-browser
-    desc: Edge browser reference
+    desc: Edge browser profile path
     crit: notable
     conf: 0.6
     if:
       type: string
-      exact: "Edge"
+      # Match Edge profile paths, not just "Edge" (too generic - common in graphics for edge detection)
+      regex: "(?i)Microsoft[/\\\\]Edge[/\\\\]User Data|Edge[/\\\\](?:Default|Profile)[/\\\\]"
 
   # LDB file extension
   - id: ldb-extension
@@ -216,16 +230,82 @@ traits:
       type: string
       exact: ".ldb"
 
-  # Log file extension - too generic, used as part of composite only
-  - id: log-extension
-    desc: Log file extension
-    crit: inert
-    conf: 0.3
-    if:
-      type: string
-      exact: ".log"
+  # Removed: log-extension was too generic (.log matches any log file)
+  # LevelDB log files are detected via leveldb-ref and localstorage-path patterns
 
   # Token keyword moved to data/text/generic.yaml
+
+  # AppData reference for Windows credential theft
+  - id: appdata-ref
+    desc: Windows AppData directory reference
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "AppData"
+
+  # extractTokens function - common in token stealers
+  - id: extract-tokens-fn
+    desc: Token extraction function
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: content
+      regex: "extractTokens?\\("
+
+  # getTokens function - common in token stealers
+  - id: get-tokens-fn
+    desc: Token getter function
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: content
+      regex: "getTokens?\\("
+
+  # Discord domain filtering regex in code - targets Discord storage
+  - id: discord-domain-filter
+    desc: Discord domain filtering regex
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: content
+      regex: 'discord\(\?:app\)\?'
+
+  # Firefox webappsstore.sqlite - used to steal Discord tokens from Firefox
+  - id: firefox-webappsstore
+    desc: Firefox webappsstore.sqlite database
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      exact: "webappsstore.sqlite"
+
+  # Firefox ls-archive.sqlite - local storage archive
+  - id: firefox-ls-archive
+    desc: Firefox ls-archive.sqlite database
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      substr: "ls-archive.sqlite"
+
+  # Firefox storage/default path - Discord token location
+  - id: firefox-storage-default
+    desc: Firefox storage/default path
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      exact: "storage/default"
+
+  # Firefox ls/data.sqlite - Discord local storage
+  - id: firefox-ls-data
+    desc: Firefox ls/data.sqlite database
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      substr: "ls/data.sqlite"
 
 composite_rules:
   # Discord token stealer composite
@@ -235,7 +315,7 @@ composite_rules:
     conf: 0.98
     attack: "T1555.003"
     mbc: "B0030"
-    for: [javascript, python, elf, pe, macho]
+    for: [javascript, typescript, python, elf, pe, macho]
     any:
       - id: leveldb-ref
       - id: discord-path
@@ -249,7 +329,51 @@ composite_rules:
     conf: 0.95
     attack: "T1555.003"
     mbc: "B0030"
-    for: [javascript, python, elf, pe, macho]
+    for: [javascript, typescript, python, elf, pe, macho]
     all:
       - id: discord-path
       - id: data/text/generic/token
+
+  # LevelDB token harvester - targets browser local storage for tokens
+  # Complexity: file_types:+1, all:+4 = 5 (hostile allowed)
+  - id: leveldb-harvester
+    desc: LevelDB credential harvester
+    crit: hostile
+    conf: 0.95
+    attack: "T1555.003"
+    mbc: "B0030"
+    for: [javascript, typescript]
+    all:
+      - id: leveldb-ref
+      - id: local-storage-ref
+      - id: appdata-ref
+      - id: discovery/system/os-homedir-call
+
+  # Firefox storage databases used for Discord token theft
+  - id: firefox-storage-access
+    desc: Firefox browser storage database access
+    crit: notable
+    conf: 0.9
+    for: [javascript, typescript, python]
+    any:
+      - id: firefox-webappsstore
+      - id: firefox-ls-archive
+      - id: firefox-ls-data
+
+  # Firefox-based Discord token stealer
+  # Complexity: file_types:+1, all:+3, any:+1 = 5 (hostile allowed)
+  - id: firefox-token-stealer
+    desc: Firefox Discord token stealer
+    crit: hostile
+    conf: 0.95
+    attack: "T1555.003"
+    mbc: "B0030"
+    for: [javascript, typescript]
+    all:
+      - id: firefox-storage-access
+      - id: appdata-ref
+      - id: discovery/system/os-homedir-call
+    any:
+      - id: extract-tokens-fn
+      - id: get-tokens-fn
+      - id: discord-domain-filter

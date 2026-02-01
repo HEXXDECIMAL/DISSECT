@@ -41,6 +41,7 @@ traits:
 
   # NOTE: "password" alone is too common (system utilities, config, etc.)
   # Real credential brute-force detection requires multiple indicators
+  # Match "password" only with control char delimiters suggesting credential list
   - id: literal-password
     description: "Default credential: password"
     crit: notable
@@ -49,7 +50,8 @@ traits:
     file_types: [elf]
     condition:
       type: string
-      exact: "password"
+      # Require credential list context: control chars as delimiters or user:password format
+      regex: "(?:[\\x00-\\x1f]password[\\x00-\\x1f]?|\\b\\w+:password\\b)"
 
   - id: admin123
     description: "Default credential: admin123"
@@ -85,7 +87,8 @@ traits:
     file_types: [elf]
     condition:
       type: string
-      exact: "guest"
+      # Match guest in credential context (user:pass combo or with control chars)
+      regex: "(?:[\\x00-\\x1f]guest[\\x00-\\x1f]?|\\bguest:)"
 
   - id: iot-vizxv
     description: "Default IoT credential: vizxv (Dahua)"

@@ -134,7 +134,8 @@ traits:
     conf: 0.3
     if:
       type: string
-      regex: "passw(or)?d"
+      # Require credential-related context, not generic password prompts
+      regex: "(?:passw(?:or)?d[_-]?(?:hash|buf|ptr|auth|cred|sniff|steal|capture|grab|dump)|(?:steal|grab|sniff|capture|dump)[_-]?passw(?:or)?d)"
 
   # === Atomic: Session Sniffing ===
   - id: sniff-ssh-lower

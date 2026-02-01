@@ -83,15 +83,24 @@ traits:
       exact: bitdefender
       case_insensitive: true
 
-  - id: avast-name
-    description: Avast reference
+  # Avast AV detection - must be specific to avoid nautical term "avast" (meaning "stop")
+  - id: avast-service
+    description: Avast service reference
     crit: inert
-    conf: 0.5
+    conf: 0.7
     for: [pe, elf]
     if:
       type: string
-      exact: avast
-      case_insensitive: true
+      regex: "(?i)avast(svc|ui|setup|antivirus|\\.exe|software|service)"
+
+  - id: avast-path
+    description: Avast installation path
+    crit: inert
+    conf: 0.7
+    for: [pe, elf]
+    if:
+      type: string
+      regex: "(?i)(program files|avast software).{0,50}avast"
 
   - id: norton-name
     description: Norton reference
@@ -154,7 +163,8 @@ composite_rules:
       - id: malwarebytes-name
       - id: kaspersky-name
       - id: bitdefender-name
-      - id: avast-name
+      - id: avast-service
+      - id: avast-path
       - id: norton-name
       - id: mcafee-name
       - id: sophos-name

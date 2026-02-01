@@ -137,7 +137,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "Local Storage"
+      substr: "Local Storage"
 
   - id: leveldb-storage
     desc: leveldb storage
@@ -147,7 +147,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "leveldb"
+      substr: "leveldb"
 
   # === Extensions ===
   - id: chrome-extension-url

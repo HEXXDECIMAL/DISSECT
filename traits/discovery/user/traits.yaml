@@ -171,7 +171,9 @@ traits:
     for: [shell, elf, macho]
     if:
       type: string
-      exact: "finger"
+      # Match finger command path or with host/user query pattern
+      # Tightened to avoid game strings like "finger ring" etc.
+      regex: "(?:/usr/bin/finger|/usr/local/bin/finger|\\bfinger\\s+@[a-z]|\\bfinger\\s+-[lms]\\s)"
 
   - id: last-cmd
     desc: Last command for login history

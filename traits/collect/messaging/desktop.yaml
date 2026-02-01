@@ -74,13 +74,8 @@ traits:
       type: string
       regex: "\\.ldb$"
 
-  - id: discord-log-ext
-    desc: Log file extension
-    crit: inert
-    conf: 0.4
-    if:
-      type: string
-      regex: "\\.log$"
+  # Removed: discord-log-ext was too generic (.log matches any log file)
+  # LevelDB log files are specifically named (e.g., 000003.log) and detected by discord-leveldb paths
 
   # === Signal Desktop atomic indicators ===
 
@@ -168,15 +163,13 @@ composite_rules:
       - id: discord-leveldb-lower
       - id: discord-leveldb-upper
 
-  # Discord ldb composite
+  # Discord ldb composite - requires LevelDB extension specifically
   - id: discord-ldb
     desc: Discord LDB database files
     crit: notable
     conf: 0.8
-    count_min: 1
-    any:
+    all:
       - id: discord-ldb-ext
-      - id: discord-log-ext
 
   # Signal config composite
   - id: signal-config

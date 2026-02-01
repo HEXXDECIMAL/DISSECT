@@ -16,20 +16,16 @@ traits:
       type: hex
       pattern: "C6 45 ?? ?? C6 45 ?? ?? C6 45 ?? ?? C6 45 ?? ?? C6 45 ?? ??"
 
-  # XOR decryption loop pattern
-  - id: xor-loop-pattern
-    desc: XOR decryption loop pattern
-    crit: inert
-    conf: 0.4
-    attack: "T1027"
-    for: [elf, macho, pe]
-    if:
-      type: hex
-      # xor reg, reg; inc/add; cmp; jne loop
-      pattern: "30 ?? ?? ?? ?? ?? E2"
+  # NOTE: Removed overly broad xor-loop-pattern hex signature.
+  # The pattern "30 ?? ?? ?? ?? ?? E2" (XOR + LOOP instruction) matches
+  # many legitimate code sequences including games, crypto libraries, and
+  # compression routines. XOR-based obfuscation detection should rely on
+  # behavioral analysis or more specific patterns (e.g., XOR with hardcoded
+  # key in a tight loop with specific register usage).
 
 composite_rules:
-  # String obfuscation composite (migrated from YARA)
+  # String obfuscation composite - only stack-string-construction remains
+  # after removing overly broad xor-loop-pattern
   - id: string-deobfuscation
     desc: String obfuscation/deobfuscation pattern
     crit: inert
@@ -39,4 +35,3 @@ composite_rules:
     count_min: 1
     any:
       - id: stack-string-construction
-      - id: xor-loop-pattern

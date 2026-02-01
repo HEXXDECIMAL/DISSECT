@@ -26,7 +26,9 @@ traits:
     conf: 0.7
     if:
       type: string
-      word: "backdoor"
+      # Match backdoor in malware context, not game/physical doors
+      # Require adjacent technical terms like c2, shell, trojan, etc.
+      regex: "backdoor[_-]?(shell|c2|trojan|server|client|agent|payload|access|connection|remote)"
       case_insensitive: true
 
   - id: secret
@@ -35,7 +37,9 @@ traits:
     conf: 0.6
     if:
       type: string
-      word: "secret"
+      # Match secret in malware context, not game/dungeon contexts
+      # Require adjacent technical terms like key, token, api, exfil
+      regex: "secret[_-]?(key|token|api|exfil|data|steal|grab)"
       case_insensitive: true
 
   - id: offensive-symbol

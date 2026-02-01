@@ -64,29 +64,33 @@ traits:
       exact: rootkiter.com
 
   # === LCX port forwarder atomic indicators ===
-  - id: lcx-tran-flag
-    desc: LCX -tran flag
+  # NOTE: Individual flags like -tran, -slave, -listen are too generic.
+  # Many tools use these flags (flex uses -tran for transitions, etc.)
+  # Only match when combined with LCX-specific function names.
+  - id: lcx-tran-func
+    desc: LCX lcx_tran with -tran flag
     crit: inert
-    conf: 0.6
+    conf: 0.7
     if:
       type: string
-      exact: "-tran"
+      # Require function name context, not just the flag
+      regex: "(?:lcx_tran|-tran.{0,20}lcx|lcx.{0,20}-tran)"
 
-  - id: lcx-slave-flag
-    desc: LCX -slave flag
+  - id: lcx-slave-func
+    desc: LCX lcx_slave with -slave flag
     crit: inert
-    conf: 0.6
+    conf: 0.7
     if:
       type: string
-      exact: "-slave"
+      regex: "(?:lcx_slave|-slave.{0,20}lcx|lcx.{0,20}-slave)"
 
-  - id: lcx-listen-flag
-    desc: LCX -listen flag
+  - id: lcx-listen-func
+    desc: LCX lcx_listen with -listen flag
     crit: inert
-    conf: 0.6
+    conf: 0.7
     if:
       type: string
-      exact: "-listen"
+      regex: "(?:lcx_listen|-listen.{0,20}lcx|lcx.{0,20}-listen)"
 
   - id: listen-port
     desc: Port forwarding listenport config
@@ -270,9 +274,9 @@ composite_rules:
       - id: ew-lcx-listen
       - id: ew-lcx-tran
       - id: ew-lcx-slave
-      - id: lcx-tran-flag
-      - id: lcx-slave-flag
-      - id: lcx-listen-flag
+      - id: lcx-tran-func
+      - id: lcx-slave-func
+      - id: lcx-listen-func
 
   # LCX via port config (listen/local + conn/remote)
   # NOTE: Single terms like "remotehost" are too common in shell environments.

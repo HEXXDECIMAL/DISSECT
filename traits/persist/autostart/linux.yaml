@@ -113,6 +113,17 @@ traits:
       type: string
       exact: "/etc/init.d/"
 
+  - id: init-script-header
+    desc: LSB init script header
+    crit: notable
+    conf: 0.85
+    attack: "T1037.004"
+    for: [shell]
+    platforms: [all]
+    if:
+      type: content
+      substr: "BEGIN INIT INFO"
+
   - id: update-rc-d-cmd
     description: update-rc.d command
     crit: inert
@@ -204,15 +215,18 @@ composite_rules:
 
   # init.d composite
   - id: linux-init-script
-    description: "init.d script persistence"
-    confidence: 0.85
+    desc: "init.d script persistence"
+    conf: 0.85
+    crit: suspicious
     attack: "T1037.004"
     file_types: [shell, elf, macho, python]
+    platforms: [all]
     count_min: 1
     any:
       - id: etc-init-d
       - id: update-rc-d-cmd
       - id: chkconfig-cmd
+      - id: init-script-header
 
   # XDG autostart directory composite
   - id: linux-xdg-autostart-dir

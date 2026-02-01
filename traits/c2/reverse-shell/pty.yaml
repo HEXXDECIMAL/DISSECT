@@ -256,7 +256,9 @@ traits:
     for: [python, javascript, shell]
     if:
       type: string
-      exact: "raw"
+      # Match "raw mode", "setraw", "cfmakeraw", "stty raw" etc.
+      # Avoid matching "draw", "drawing" etc.
+      regex: "\\braw\\s*(mode)?\\b|setraw|cfmakeraw|stty\\s+raw"
 
   # === Socat atomic indicators ===
   - id: socat-exec-sh

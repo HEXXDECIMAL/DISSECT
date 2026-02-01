@@ -150,13 +150,17 @@ traits:
             $s4 = "ReflectiveLoader" ascii
             $s5 = "%02d/%02d/%02d %02d:%02d:%02d" ascii
             $s6 = "poisonivy" ascii nocase
-            $cfg1 = { 00 01 00 01 00 02 }  // Config header
-            $cfg2 = { 69 68 69 68 69 6b }  // "ihihik" marker
+            // Config headers - require more context to avoid false positives
+            // The short pattern { 00 01 00 01 00 02 } is too common
+            $cfg2 = { 69 68 69 68 69 6b }  // "ihihik" marker (unique to Cobalt Strike)
             // Go runtime markers to exclude
             $go1 = "runtime.goexit" ascii
             $go2 = "go.runtime" ascii
+            // Rust runtime markers to exclude
+            $rust1 = "rust_begin_unwind" ascii
+            $rust2 = ".rustc" ascii
           condition:
-            not any of ($go*) and (3 of ($s*) or any of ($cfg*))
+            not any of ($go*) and not any of ($rust*) and (3 of ($s*) or $cfg2)
         }
 
   # Metasploit patterns

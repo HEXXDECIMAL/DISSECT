@@ -173,10 +173,13 @@ composite_rules:
       - id: xz-obf-pattern
 
   # === IFUNC resolver pattern ===
+  # NOTE: CPUID + IFUNC + resolver is extremely common in legitimate binaries
+  # that use CPU feature detection (SIMD optimizations). This pattern alone
+  # is not suspicious - it needs additional context like XZ-specific patterns.
   - id: xz-ifunc-pattern
     desc: IFUNC resolver pattern (potential function
-    crit: suspicious
-    conf: 0.8
+    crit: inert
+    conf: 0.4
     for: [elf]
     all:
       - id: feat/binary/x86/cpuid-instr
@@ -206,19 +209,28 @@ composite_rules:
       - id: pubkey-auth-ref
 
   # === glibc hijack ===
+  # NOTE: dlopen + dlsym is extremely common in legitimate binaries (graphics drivers, plugins, etc.)
+  # Only flag as hijacking when combined with actual hijacking indicators
   - id: glibc-hijack
     desc: glibc function hijacking patterns
     crit: suspicious
     conf: 0.7
     for: [elf]
-    count_min: 2
-    any:
+    all:
+      # Require basic dynamic loading
       - id: exec/dylib/load/dlsym
-      - id: exec/dylib/load/dlopen
+    any:
+      # Plus at least one actual hijacking indicator (not just dlopen)
       - id: rtld-global-ref
       - id: la-symbind-ref
       - id: os/linker/env/ld-preload
       - id: os/linker/env/ld-audit
+    # Graphics libraries use dlopen/dlsym for GPU driver loading - not hijacking
+    downgrade:
+      inert:
+        any:
+          - id: feat/library/graphics-lib-marker
+          - id: feat/library/system-lib-marker
 
   # === Unexpected capability combinations ===
   # References external traits for socket/process operations
@@ -248,6 +260,7 @@ composite_rules:
     none:
       - id: feat/runtime/go-runtime-marker
       - id: feat/library/shell-interpreter
+      - id: feat/library/compiler-tool-marker
 
   - id: unexpected-crypto
     desc: Cryptographic operations in non-crypto library
@@ -282,15 +295,19 @@ composite_rules:
       - id: unexpected-socket-ops
 
   # === XZ-style backdoor detection ===
+  # Requires more specific indicators than just CPUID/IFUNC patterns
+  # which are common in legitimate optimized binaries
   - id: xz-style-attack
     desc: XZ-style supply chain backdoor pattern
     crit: suspicious
     conf: 0.9
-    count_min: 2
-    any:
+    all:
       - id: many-huge-functions
-      - id: feat/binary/x86/cpuid-fingerprinting
-      - id: xz-ifunc-pattern
+    any:
+      - id: xz-crc-pattern
+      - id: xz-obf-pattern
+      - id: ssh-hook-pattern
+      - id: rsa-in-compression-lib
 
   # === Potential code injection ===
   - id: potential-code-injection
@@ -314,15 +331,17 @@ composite_rules:
       - id: symbol-interposition
 
   # === Function hooking behavior ===
+  # Require actual hijacking indicators, not just CPUID/IFUNC patterns
   - id: function-hooking-behavior
     desc: Dynamic function hooking patterns
     crit: suspicious
     conf: 0.8
-    count_min: 2
-    any:
-      - id: xz-ifunc-pattern
+    all:
       - id: glibc-hijack
-      - id: feat/binary/x86/cpuid-fingerprinting
+    any:
+      - id: symbol-interposition
+      - id: rtld-global-ref
+      - id: la-symbind-ref
 
   # === RWX memory with suspicious context ===
   - id: rwx-with-injection

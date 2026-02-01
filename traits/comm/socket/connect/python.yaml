@@ -160,8 +160,10 @@ traits:
     conf: 0.6
     for: [python]
     if:
-      type: symbol
-      exact: "close"
+      type: ast
+      kind: call
+      # Match socket close specifically - sock.close(), s.close() etc. after socket creation context
+      regex: "\\b(?:sock|socket|s|conn|client|server)\\.close\\("
 
   # === Socket address operations ===
   - id: socket-gethostbyname

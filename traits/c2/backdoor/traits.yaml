@@ -82,7 +82,8 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "reverse"
+      # Require reverse connection/backdoor context, not generic "reverse" word
+      regex: "(?i)reverse[_-]?(?:connect|conn|tcp|shell|backdoor|proxy|tunnel)"
 
   # === Atomic: Ruby Reverse Shell ===
 

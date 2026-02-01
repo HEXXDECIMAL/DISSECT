@@ -5,13 +5,14 @@ traits:
   # === Path/File References ===
 
   - id: path
-    desc: Firefox browser reference
+    desc: Firefox browser profile path
     crit: notable
     conf: 0.6
     attack: "T1555.003"
     if:
       type: string
-      exact: "Firefox"
+      # Match Firefox profile paths, not just "Firefox" (too generic for graphics libs with browser support)
+      regex: "(?i)Mozilla[/\\\\]Firefox[/\\\\]Profiles|/\\.mozilla/firefox/|Firefox[/\\\\]Profiles[/\\\\]"
 
   - id: waterfox-path
     desc: Waterfox browser profile path
@@ -20,7 +21,8 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "Waterfox"
+      # Match Waterfox profile paths, not just "Waterfox"
+      regex: "(?i)Waterfox[/\\\\]Profiles|/\\.waterfox/"
 
   - id: palemoon-path
     desc: Pale Moon browser profile path
@@ -29,7 +31,8 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "Pale Moon"
+      # Match Pale Moon profile paths, not just the name
+      regex: "(?i)Pale Moon[/\\\\]Profiles|Moonchild Productions[/\\\\]Pale Moon"
 
   # === Profiles path atomic indicators ===
   - id: firefox-profiles

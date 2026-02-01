@@ -19,6 +19,9 @@ traits:
       type: string
       regex: "(worker|thread|goroutine)[_-]?pool"
       case_insensitive: true
+    # Compiler/build tools legitimately use worker pools for parallel compilation
+    unless:
+      - id: feat/library/compiler-tool-marker
 
   # === User-Agent Rotation ===
   - id: ua-list-large
@@ -36,7 +39,9 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: "\\b(pps|bps|qps)\\b"
+      # Match performance metrics in context (e.g., "100 pps", "sent: 1000 bps")
+      # Excludes standalone abbreviations that could appear in documentation
+      regex: "\\b[0-9]+\\s*(pps|bps|qps)\\b|\\b(pps|bps|qps)\\s*[=:]\\s*[0-9]+"
       case_insensitive: true
 
   - id: flood-types

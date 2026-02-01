@@ -284,9 +284,13 @@ pub(crate) fn extract_deb_safe(
     Ok(())
 }
 
-/// Extract an RPM package (.rpm)
+/// Extract an RPM package (.rpm) with bomb protection
 /// RPM packages contain a lead, signature, header, and CPIO archive
-pub(crate) fn extract_rpm(archive_path: &Path, dest_dir: &Path) -> Result<()> {
+pub(crate) fn extract_rpm(
+    archive_path: &Path,
+    dest_dir: &Path,
+    guard: &ExtractionGuard,
+) -> Result<()> {
     let file = File::open(archive_path)?;
     let mut reader = BufReader::new(file);
 
@@ -328,27 +332,27 @@ pub(crate) fn extract_rpm(archive_path: &Path, dest_dir: &Path) -> Result<()> {
     if peek[0..2] == [0x1f, 0x8b] {
         // gzip
         let decoder = flate2::read::GzDecoder::new(chained);
-        extract_cpio(decoder, dest_dir)?;
+        extract_cpio(decoder, dest_dir, guard)?;
     } else if peek[0..3] == [0xfd, 0x37, 0x7a] {
         // xz
         let decoder = xz2::read::XzDecoder::new(chained);
-        extract_cpio(decoder, dest_dir)?;
+        extract_cpio(decoder, dest_dir, guard)?;
     } else if peek[0..4] == [0x28, 0xb5, 0x2f, 0xfd] {
         // zstd
         let decoder =
             zstd::stream::read::Decoder::new(chained).context("Failed to create zstd decoder")?;
-        extract_cpio(decoder, dest_dir)?;
+        extract_cpio(decoder, dest_dir, guard)?;
     } else if peek[0..3] == [0x42, 0x5a, 0x68] {
         // bzip2
         let decoder = bzip2::read::BzDecoder::new(chained);
-        extract_cpio(decoder, dest_dir)?;
+        extract_cpio(decoder, dest_dir, guard)?;
     } else if peek[0..2] == [0x5d, 0x00] {
         // LZMA (legacy) - try xz decoder
         let decoder = xz2::read::XzDecoder::new(chained);
-        extract_cpio(decoder, dest_dir)?;
+        extract_cpio(decoder, dest_dir, guard)?;
     } else {
         // Uncompressed CPIO
-        extract_cpio(chained, dest_dir)?;
+        extract_cpio(chained, dest_dir, guard)?;
     }
 
     Ok(())
@@ -392,8 +396,13 @@ fn skip_rpm_header<R: Read>(reader: &mut R) -> Result<usize> {
     Ok(16 + index_size + hsize as usize)
 }
 
-fn extract_cpio<R: Read>(mut reader: R, dest_dir: &Path) -> Result<()> {
+fn extract_cpio<R: Read>(mut reader: R, dest_dir: &Path, guard: &ExtractionGuard) -> Result<()> {
     loop {
+        // Check file count limit
+        if !guard.check_file_count() {
+            anyhow::bail!("Exceeded maximum file count");
+        }
+
         // Try to read next CPIO entry
         let entry_reader = match cpio::newc::Reader::new(&mut reader) {
             Ok(r) => r,
@@ -429,8 +438,30 @@ fn extract_cpio<R: Read>(mut reader: R, dest_dir: &Path) -> Result<()> {
             continue;
         }
 
-        let out_path = dest_dir.join(clean_name);
+        // Sanitize path to prevent traversal
+        let out_path = match sanitize_entry_path(clean_name, dest_dir) {
+            Some(p) => p,
+            None => {
+                guard.add_hostile_reason(HostileArchiveReason::PathTraversal(name.clone()));
+                let mut sink = std::io::sink();
+                std::io::copy(&mut { entry_reader }, &mut sink).ok();
+                continue;
+            }
+        };
+
         let mode = entry.mode();
+        let file_size = entry.file_size() as u64;
+
+        // Check file size limit
+        if file_size > MAX_FILE_SIZE {
+            guard.add_hostile_reason(HostileArchiveReason::ExcessiveFileSize {
+                file: clean_name.to_string(),
+                size: file_size,
+            });
+            let mut sink = std::io::sink();
+            std::io::copy(&mut { entry_reader }, &mut sink).ok();
+            continue;
+        }
 
         if mode & 0o170000 == 0o040000 {
             // Directory
@@ -444,9 +475,20 @@ fn extract_cpio<R: Read>(mut reader: R, dest_dir: &Path) -> Result<()> {
                 fs::create_dir_all(parent)?;
             }
             let mut file = File::create(&out_path)?;
-            std::io::copy(&mut { entry_reader }, &mut file)?;
+            let mut limited = LimitedReader::new(entry_reader, MAX_FILE_SIZE);
+            let written = std::io::copy(&mut limited, &mut file)?;
+
+            // Track total bytes
+            if !guard.check_bytes(written, clean_name) {
+                anyhow::bail!("Exceeded maximum total extraction size");
+            }
+        } else if mode & 0o170000 == 0o120000 {
+            // Symlink - skip with hostile flag
+            guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape(clean_name.to_string()));
+            let mut sink = std::io::sink();
+            std::io::copy(&mut { entry_reader }, &mut sink).ok();
         } else {
-            // Skip other types (symlinks, devices, etc.)
+            // Skip other types (devices, etc.)
             let mut sink = std::io::sink();
             std::io::copy(&mut { entry_reader }, &mut sink).ok();
         }
@@ -455,23 +497,57 @@ fn extract_cpio<R: Read>(mut reader: R, dest_dir: &Path) -> Result<()> {
     Ok(())
 }
 
-/// Extract a RAR archive (.rar)
-pub(crate) fn extract_rar(archive_path: &Path, dest_dir: &Path) -> Result<()> {
+/// Extract a RAR archive (.rar) with bomb protection
+pub(crate) fn extract_rar(
+    archive_path: &Path,
+    dest_dir: &Path,
+    guard: &ExtractionGuard,
+) -> Result<()> {
     let mut archive = unrar::Archive::new(archive_path)
         .open_for_processing()
         .context("Failed to open RAR archive")?;
 
     loop {
+        // Check file count limit
+        if !guard.check_file_count() {
+            anyhow::bail!("Exceeded maximum file count");
+        }
+
         // Read the next header
         let header_result = archive.read_header();
         match header_result {
             Ok(Some(file_archive)) => {
                 let header = file_archive.entry();
+                let filename = header.filename.to_string_lossy().to_string();
+                let is_file = header.is_file();
+                let is_directory = header.is_directory();
+                let unpacked_size = header.unpacked_size;
 
-                if header.is_file() {
-                    // Determine output path
-                    let filename = header.filename.to_string_lossy();
-                    let out_path = dest_dir.join(filename.as_ref());
+                if is_file {
+                    // Check file size limit
+                    if unpacked_size > MAX_FILE_SIZE {
+                        guard.add_hostile_reason(HostileArchiveReason::ExcessiveFileSize {
+                            file: filename.clone(),
+                            size: unpacked_size,
+                        });
+                        archive = file_archive.skip().context("Failed to skip RAR entry")?;
+                        continue;
+                    }
+
+                    // Note: RAR unrar crate doesn't expose packed_size, so we can't check
+                    // compression ratio directly. We rely on unpacked_size limit above.
+
+                    // Sanitize path
+                    let out_path = match sanitize_entry_path(&filename, dest_dir) {
+                        Some(p) => p,
+                        None => {
+                            guard.add_hostile_reason(HostileArchiveReason::PathTraversal(
+                                filename.clone(),
+                            ));
+                            archive = file_archive.skip().context("Failed to skip RAR entry")?;
+                            continue;
+                        }
+                    };
 
                     // Create parent directories
                     if let Some(parent) = out_path.parent() {
@@ -482,9 +558,22 @@ pub(crate) fn extract_rar(archive_path: &Path, dest_dir: &Path) -> Result<()> {
                     archive = file_archive
                         .extract_to(&out_path)
                         .context("Failed to extract RAR entry")?;
-                } else if header.is_directory() {
-                    let dirname = header.filename.to_string_lossy();
-                    let dir_path = dest_dir.join(dirname.as_ref());
+
+                    // Track bytes
+                    if !guard.check_bytes(unpacked_size, &filename) {
+                        anyhow::bail!("Exceeded maximum total extraction size");
+                    }
+                } else if is_directory {
+                    let dir_path = match sanitize_entry_path(&filename, dest_dir) {
+                        Some(p) => p,
+                        None => {
+                            guard.add_hostile_reason(HostileArchiveReason::PathTraversal(
+                                filename.clone(),
+                            ));
+                            archive = file_archive.skip().context("Failed to skip RAR entry")?;
+                            continue;
+                        }
+                    };
                     fs::create_dir_all(&dir_path)?;
                     archive = file_archive
                         .skip()

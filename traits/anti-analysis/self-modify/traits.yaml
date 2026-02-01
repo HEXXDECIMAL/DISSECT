@@ -240,10 +240,13 @@ traits:
       exact: "self-modifying"
       case_insensitive: true
 
+  # NOTE: XOR loop patterns are common in legitimate software (crypto, compression,
+  # RNG, games). Only meaningful as an indicator when combined with other self-modify
+  # indicators in the polymorphic composite.
   - id: xor-loop-pattern
     desc: XOR decryption loop byte pattern
-    crit: suspicious
-    conf: 0.7
+    crit: inert
+    conf: 0.4
     if:
       type: hex
       pattern: "30 ?? 4? 83 ?? ?? 7?"
