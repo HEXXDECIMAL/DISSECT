@@ -6,6 +6,74 @@ defaults:
   for: [elf, macho, so, dylib, c]
 
 traits:
+  # User ID functions
+  - id: getuid
+    desc: Get real user ID of
+    crit: inert
+    mbc: "E1057"
+    attack: "T1057"
+    conf: 0.5
+    if:
+      type: symbol
+      pattern: getuid
+    platforms: [unix, linux, macos]
+
+  - id: geteuid
+    desc: Get effective user ID of
+    crit: inert
+    mbc: "E1057"
+    attack: "T1057"
+    conf: 0.5
+    if:
+      type: symbol
+      pattern: geteuid
+    platforms: [unix, linux, macos]
+
+  - id: getgid
+    desc: Get real group ID of
+    crit: inert
+    mbc: "E1057"
+    attack: "T1057"
+    conf: 0.5
+    if:
+      type: symbol
+      pattern: getgid
+    platforms: [unix, linux, macos]
+
+  - id: getegid
+    desc: Get effective group ID of
+    crit: inert
+    mbc: "E1057"
+    attack: "T1057"
+    conf: 0.5
+    if:
+      type: symbol
+      pattern: getegid
+    platforms: [unix, linux, macos]
+
+  # Process ID functions
+  - id: getpid
+    desc: Get process ID of calling
+    crit: inert
+    mbc: "E1057"
+    attack: "T1057"
+    conf: 0.5
+    if:
+      type: symbol
+      pattern: getpid
+    platforms: [unix, linux, macos]
+
+  - id: getppid
+    desc: Get parent process ID
+    crit: inert
+    mbc: "E1057"
+    attack: "T1057"
+    conf: 0.5
+    if:
+      type: symbol
+      pattern: getppid
+    platforms: [unix, linux, macos]
+
   # User information lookup
   - id: getpwnam
     desc: Get user database entry by

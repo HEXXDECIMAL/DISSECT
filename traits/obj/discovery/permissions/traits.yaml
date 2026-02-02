@@ -24,6 +24,39 @@ traits:
       type: string
       exact: "getgroups"
 
+  # NOTE: getgid/getegid/geteuid are extremely common POSIX functions used by
+  # virtually every program that needs user/group information. Mark as inert
+  # unless combined with other permission discovery indicators.
+  - id: getgid
+    desc: Get group ID
+    crit: inert
+    conf: 0.5
+    attack: "T1069"
+    for: [elf, macho]
+    if:
+      type: symbol
+      exact: "getgid"
+
+  - id: getegid
+    desc: Get effective group ID
+    crit: inert
+    conf: 0.5
+    attack: "T1069"
+    for: [elf, macho]
+    if:
+      type: symbol
+      exact: "getegid"
+
+  - id: geteuid
+    desc: Get effective user ID
+    crit: inert
+    conf: 0.5
+    attack: "T1033"
+    for: [elf, macho]
+    if:
+      type: symbol
+      exact: "geteuid"
+
   - id: etc-group
     desc: Group file access
     crit: suspicious
@@ -154,9 +187,9 @@ composite_rules:
     # Require multiple ID checks to be notable
     count_min: 3
     any:
-      - id: cap/process/identity/query/getgid
-      - id: cap/process/identity/query/getegid
-      - id: cap/process/identity/query/geteuid
+      - id: getgid
+      - id: getegid
+      - id: geteuid
       - id: getgroups
     # Many legitimate libraries check uid/gid for access control:
     # video drivers (DRM access), X11 libs, system libraries

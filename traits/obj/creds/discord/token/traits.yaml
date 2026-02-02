@@ -255,7 +255,6 @@ traits:
       regex: "extractTokens?\\("
 
   # getTokens function - common in token stealers
-  # NOTE: This is generic - SSH/auth libraries also have getToken() functions
   - id: get-tokens-fn
     desc: Token getter function
     crit: suspicious
@@ -263,11 +262,6 @@ traits:
     if:
       type: content
       regex: "getTokens?\\("
-    # Downgrade when SSH library is present (getToken used for SSH auth)
-    downgrade:
-      any:
-        - id: cap/comm/ssh/client/library
-        - id: cap/comm/ssh/connect/libssh
 
   # Discord domain filtering regex in code - targets Discord storage
   - id: discord-domain-filter

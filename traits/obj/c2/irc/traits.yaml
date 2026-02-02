@@ -29,10 +29,6 @@ traits:
     if:
       type: string
       exact: "USER "
-    # SSH libraries have "USERAUTH" and "USER " in authentication contexts
-    not:
-      - "USERAUTH"
-      - "ssh-userauth"
 
   # === Bot command indicators ===
   - id: cmd-login
@@ -65,9 +61,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      # Require IRC bot command context - ".shell" alone is too generic
-      # (SSH libraries have shell session handling)
-      regex: "(?:^|\\s)\\.shell(?:\\s|$)"
+      exact: ".shell"
 
   # === Tsunami/Kaiten identifiers ===
   - id: tsunami-name
@@ -165,11 +159,6 @@ composite_rules:
       - id: cmd-udp
       - id: cmd-tcp
       - id: cmd-shell
-    # Downgrade when SSH library is present (USER/shell are common in SSH context)
-    downgrade:
-      any:
-        - id: cap/comm/ssh/client/library
-        - id: cap/comm/ssh/connect/libssh
 
   # IRC DDoS (IRC protocol + DDoS attack terminology)
   - id: irc-ddos

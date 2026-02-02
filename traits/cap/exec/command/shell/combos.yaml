@@ -10,7 +10,6 @@ composite_rules:
     any:
       - id: c-system
       - id: c-popen
-      - id: c-execve
       - id: python-os-system
       - id: go-os-exec
       - id: js-child-process

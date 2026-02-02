@@ -134,7 +134,7 @@ traits:
       exact: "process.version"
 
 composite_rules:
-  # Migrated from YARA
+  # System profiling: hostname + userinfo + platform (strict)
   - id: js-profiling
     desc: Aggregates system info for profiling
     crit: suspicious
@@ -144,6 +144,32 @@ composite_rules:
       - {id: os-hostname-call}
       - {id: os-userinfo-call}
       - {id: os-platform-call}
+
+  # System profiling: at least 3 sensitive system info functions
+  - id: js-sysinfo-multi
+    desc: Multiple system info function calls
+    crit: suspicious
+    conf: 0.9
+    for: [javascript, typescript]
+    count_min: 3
+    any:
+      - {id: os-hostname-call}
+      - {id: os-userinfo-call}
+      - {id: os-homedir-call}
+      - {id: os-networkinterfaces-call}
+      - {id: process-cwd-call}
+      - {id: process-env-access}
+
+  # User identification: hostname + userinfo (core victim ID)
+  - id: js-victim-id
+    desc: Victim identification (host + user)
+    crit: notable
+    conf: 0.85
+    for: [javascript, typescript]
+    all:
+      - {id: os-hostname-call}
+      - {id: os-userinfo-call}
+
   - id: js-profiling-exfil
     desc: JavaScript system profiling with exfiltration
     crit: hostile

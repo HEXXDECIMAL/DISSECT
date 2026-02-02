@@ -11,11 +11,31 @@ defaults:
 
 traits:
   - id: hardcoded-ipv4
-    desc: "Hardcoded IPv4 address"
+    desc: Hardcoded IPv4 address
+    crit: notable
     conf: 0.8
     if:
       type: content
+      regex: '\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b'
+    not:
+      # Exclude common non-C2 IPs
+      - regex: '^(127\.|0\.|255\.|192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[01])\.)'
+      - exact: "0.0.0.0"
+      - exact: "255.255.255.255"
 
+  - id: http-raw-ip-url
+    desc: HTTP URL with raw IP
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: content
+      regex: 'https?://[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+[/:]'
+    not:
+      # Exclude localhost and private ranges
+      - regex: 'https?://127\.'
+      - regex: 'https?://192\.168\.'
+      - regex: 'https?://10\.'
+      - regex: 'https?://172\.(1[6-9]|2[0-9]|3[01])\.'
 
   # === Port number atomic indicators ===
   - id: port-23

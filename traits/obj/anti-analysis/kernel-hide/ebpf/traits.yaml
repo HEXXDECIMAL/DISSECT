@@ -28,8 +28,8 @@ traits:
     conf: 0.8
     for: [c, elf]
     if:
-      type: string
-      exact: 'SEC("xdp'
+      type: content
+      substr: 'SEC("xdp'
 
   - id: sec-uprobe
     desc: 'SEC("uprobe/") section marker'

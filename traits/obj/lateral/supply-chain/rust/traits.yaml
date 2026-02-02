@@ -3,157 +3,159 @@
 
 traits:
   # === Suspicious crate atomic indicators ===
+  # These use `type: content` because crate names appear as code identifiers, not string literals
   - id: sha-rust-crate
-    description: sha_rust suspicious crate
+    desc: sha_rust suspicious crate
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     attack: "T1195"
-    file_types: [rust]
-    condition:
-      type: string
-      exact: "sha_rust"
+    for: [rust]
+    if:
+      type: content
+      substr: "sha_rust::"
 
   - id: rust-sha-crate
-    description: rust_sha suspicious crate
+    desc: rust_sha suspicious crate
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     attack: "T1195"
-    file_types: [rust]
-    condition:
-      type: string
-      exact: "rust_sha"
+    for: [rust]
+    if:
+      type: content
+      substr: "rust_sha::"
 
   - id: reqwest-rust-crate
-    description: reqwest_rust suspicious crate
+    desc: reqwest_rust suspicious crate
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     attack: "T1195"
-    file_types: [rust]
-    condition:
-      type: string
-      exact: "reqwest_rust"
+    for: [rust]
+    if:
+      type: content
+      substr: "reqwest_rust::"
 
   - id: tokio-rust-crate
-    description: tokio_rust suspicious crate
+    desc: tokio_rust suspicious crate
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     attack: "T1195"
-    file_types: [rust]
-    condition:
-      type: string
-      exact: "tokio_rust"
+    for: [rust]
+    if:
+      type: content
+      substr: "tokio_rust::"
 
   - id: base64-rust-crate
-    description: base64_rust suspicious crate
+    desc: base64_rust suspicious crate
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     attack: "T1195"
-    file_types: [rust]
-    condition:
-      type: string
-      exact: "base64_rust"
+    for: [rust]
+    if:
+      type: content
+      substr: "base64_rust::"
 
   # === Misspelled word atomic indicators ===
+  # Use type: content since these are identifiers in code, not string literals
   - id: filte-var-typo
-    description: filte_var misspelling
+    desc: filte_var misspelling
     crit: notable
-    confidence: 0.7
-    file_types: [rust]
-    condition:
-      type: string
-      exact: "filte_var"
+    conf: 0.7
+    for: [rust]
+    if:
+      type: content
+      substr: "filte_var"
 
   - id: connecion-typo
-    description: connecion misspelling
+    desc: connecion misspelling
     crit: notable
-    confidence: 0.7
-    file_types: [rust]
-    condition:
-      type: string
-      exact: "connecion"
+    conf: 0.7
+    for: [rust]
+    if:
+      type: content
+      substr: "connecion"
 
   - id: payloaad-typo
-    description: payloaad misspelling
+    desc: payloaad misspelling
     crit: notable
-    confidence: 0.7
-    file_types: [rust]
-    condition:
-      type: string
-      exact: "payloaad"
+    conf: 0.7
+    for: [rust]
+    if:
+      type: content
+      substr: "payloaad"
 
   - id: exfiltrat-word
-    description: exfiltrat word fragment
+    desc: exfiltrat word fragment
     crit: notable
-    confidence: 0.7
-    file_types: [rust]
-    condition:
-      type: string
-      exact: "exfiltrat"
+    conf: 0.7
+    for: [rust]
+    if:
+      type: content
+      substr: "exfiltrat"
 
   # === Dummy key/value atomic indicators ===
   - id: dummy-key-word
-    description: dummy_key reference
+    desc: dummy_key reference
     crit: inert
-    confidence: 0.5
-    file_types: [rust]
-    condition:
+    conf: 0.5
+    for: [rust]
+    if:
       type: string
-      exact: "dummy_key"
+      substr: "dummy_key"
 
   - id: dummy-value-word
-    description: dummy_value reference
+    desc: dummy_value reference
     crit: inert
-    confidence: 0.5
-    file_types: [rust]
-    condition:
+    conf: 0.5
+    for: [rust]
+    if:
       type: string
-      exact: "dummy_value"
+      substr: "dummy_value"
 
   # === Library pattern atomic indicators ===
   - id: pub-struct
-    description: pub struct declaration
+    desc: pub struct declaration
     crit: inert
-    confidence: 0.5
-    file_types: [rust]
-    condition:
-      type: string
-      exact: "pub struct "
+    conf: 0.5
+    for: [rust]
+    if:
+      type: content
+      substr: "pub struct "
 
   - id: pub-enum
-    description: pub enum declaration
+    desc: pub enum declaration
     crit: inert
-    confidence: 0.5
-    file_types: [rust]
-    condition:
-      type: string
-      exact: "pub enum "
+    conf: 0.5
+    for: [rust]
+    if:
+      type: content
+      substr: "pub enum "
 
   - id: impl-keyword
-    description: impl keyword
+    desc: impl keyword
     crit: inert
-    confidence: 0.5
-    file_types: [rust]
-    condition:
-      type: string
-      exact: "impl "
+    conf: 0.5
+    for: [rust]
+    if:
+      type: content
+      substr: "impl "
 
   - id: pub-trait
-    description: pub trait declaration
+    desc: pub trait declaration
     crit: inert
-    confidence: 0.5
-    file_types: [rust]
-    condition:
-      type: string
-      exact: "pub trait "
+    conf: 0.5
+    for: [rust]
+    if:
+      type: content
+      substr: "pub trait "
 
 composite_rules:
   # Suspicious crate composite
   - id: suspicious-crate-call
-    description: Call to a suspicious-looking crate
+    desc: Call to suspicious-looking crate
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     attack: "T1195"
-    file_types: [rust]
+    for: [rust]
     count_min: 1
     any:
       - id: sha-rust-crate
@@ -164,10 +166,10 @@ composite_rules:
 
   # Misspelled words composite
   - id: misspelled-common-words
-    description: Misspelled common words in identifiers
+    desc: Misspelled common words in identifiers
     crit: notable
-    confidence: 0.7
-    file_types: [rust]
+    conf: 0.7
+    for: [rust]
     count_min: 1
     any:
       - id: filte-var-typo
@@ -177,10 +179,10 @@ composite_rules:
 
   # Library pattern composite (requires 2 of them)
   - id: internal-lib-pattern
-    description: Generic indicator of legitimate library
+    desc: Generic indicator of legitimate library
     crit: inert
-    confidence: 0.5
-    file_types: [rust]
+    conf: 0.5
+    for: [rust]
     count_min: 2
     any:
       - id: pub-struct
@@ -190,22 +192,23 @@ composite_rules:
 
   # Dummy keys composite
   - id: dummy-keys-hashmap
-    description: Usage of dummy keys in
+    desc: Usage of dummy keys in HashMap
     crit: notable
-    confidence: 0.6
-    file_types: [rust]
+    conf: 0.6
+    for: [rust]
     count_min: 1
     any:
       - id: dummy-key-word
       - id: dummy-value-word
 
+  # Combined trojanized library detection
   - id: trojanized-lib
-    description: Potential trojanized library (legitimate library
+    desc: Trojanized Rust library
     crit: hostile
-    confidence: 0.85
+    conf: 0.85
     attack: "T1195.001"
     mbc: "B0024"
-    file_types: [rust]
+    for: [rust]
     all:
       - id: internal-lib-pattern
       - id: suspicious-crate-call

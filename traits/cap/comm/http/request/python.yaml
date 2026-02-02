@@ -39,22 +39,6 @@ traits:
       type: string
       exact: "urllib.request.urlopen"
 
-  - id: urllib-legacy-urlopen
-    desc: urllib.urlopen call (legacy)
-    crit: inert
-    conf: 0.7
-    if:
-      type: symbol
-      exact: "urllib.urlopen"
-
-  - id: request-urlopen
-    desc: request.urlopen call
-    crit: inert
-    conf: 0.7
-    if:
-      type: symbol
-      exact: "request.urlopen"
-
   - id: aiohttp-session
     desc: aiohttp.ClientSession usage
     crit: inert
@@ -108,8 +92,6 @@ composite_rules:
       - id: requests-get
       - id: requests-post
       - id: urllib-urlopen
-      - id: urllib-legacy-urlopen
-      - id: request-urlopen
       - id: aiohttp-session
       - id: httpx-get
       - id: httpx-post

@@ -35,9 +35,9 @@ traits:
     file_types: [elf]
     condition:
       type: string
-      # Match 123456 as credential, exclude ASCII tables (0123456789)
-      # Match when preceded by non-digit or start of string
-      regex: "(?:^|[^0-9])123456(?:$|[^0-9])"
+      # Avoid matching ASCII character tables (0123456789...)
+      # Require 123456 not preceded by 0-5 and not followed by 7-9
+      regex: "(?<![0-5])123456(?![7-9])"
 
   # NOTE: "password" alone is too common (system utilities, config, etc.)
   # Real credential brute-force detection requires multiple indicators
@@ -169,16 +169,7 @@ traits:
     file_types: [elf]
     condition:
       type: string
-      # Match common default password patterns in user:pass format
-      # Require at least 2 matches to indicate credential list (single match is likely noise)
-      regex: "\\b(root|admin|user|guest|support):(root|admin|pass(word)?|1234|default|guest|toor|test)\\b"
-      min_count: 2
-    not:
-      # Legitimate graphviz/dot node specifications
-      - "user:request"
-      - "user:Response"
-      - "user:info"
-      - "user:data"
+      regex: "\\b(root|admin|user|guest|support):(root|admin|[a-zA-Z0-9]{4,12})\\b"
 
 composite_rules:
   # IoT ZTE credential composite

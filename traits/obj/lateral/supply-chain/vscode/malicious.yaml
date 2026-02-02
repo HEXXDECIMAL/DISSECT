@@ -115,57 +115,6 @@ traits:
       type: string
       exact: "POST"
 
-  # AST-based HTTP patterns (more robust than string matching)
-  - id: http-request-ast
-    desc: HTTP request via require('http')
-    crit: inert
-    conf: 0.7
-    for: [javascript, typescript]
-    if:
-      type: ast
-      kind: call
-      regex: "http\\.request|https\\.request"
-
-  - id: http-get-ast
-    desc: HTTP GET via require('http')
-    crit: inert
-    conf: 0.7
-    for: [javascript, typescript]
-    if:
-      type: ast
-      kind: call
-      regex: "http\\.get|https\\.get"
-
-  - id: child-process-require
-    desc: child_process module require
-    crit: notable
-    conf: 0.8
-    for: [javascript, typescript]
-    if:
-      type: ast
-      kind: import
-      exact: "child_process"
-
-  - id: child-process-exec-ast
-    desc: child_process exec/spawn call
-    crit: notable
-    conf: 0.85
-    for: [javascript, typescript]
-    if:
-      type: ast
-      kind: call
-      regex: "exec(Sync)?\\(|spawn(Sync)?\\(|execFile(Sync)?\\("
-
-  - id: new-function-constructor
-    desc: new Function() constructor (dynamic code)
-    crit: suspicious
-    conf: 0.9
-    for: [javascript, typescript]
-    if:
-      type: ast
-      kind: call
-      exact: "new Function"
-
   # VSCode namespace usage pattern
   - id: vscode-namespace
     description: Uses VSCode namespace
@@ -199,7 +148,7 @@ traits:
 composite_rules:
   # State helpers
   - id: state-markers
-    description: State management markers (globalState or postInstall)
+    description: State management markers (globalState or
     crit: notable
     confidence: 0.75
     file_types: [javascript, typescript]
@@ -221,34 +170,17 @@ composite_rules:
       - id: npmrc-file
       - id: env-file
 
-  # HTTP/network capability (broader than just POST string)
-  - id: network-capability
-    description: HTTP/network communication capability
+  # Send methods
+  - id: send-methods
+    description: HTTP send methods
     crit: notable
     confidence: 0.7
     file_types: [javascript, typescript]
     count_min: 1
     any:
       - id: post-method
-      - id: http-request-ast
-      - id: http-get-ast
-      - id: cap/comm/http/request/javascript/https-request
-      - id: cap/comm/http/request/javascript/http-request
-      - id: cap/comm/http/request/javascript/axios
-      - id: cap/comm/http/request/javascript/node-fetch-import
-
-  # Execution capability (child_process or dynamic code)
-  - id: exec-capability
-    description: Code execution capability
-    crit: notable
-    confidence: 0.8
-    file_types: [javascript, typescript]
-    count_min: 1
-    any:
-      - id: exec-pattern
-      - id: child-process-require
-      - id: child-process-exec-ast
-      - id: new-function-constructor
+      - id: fetch-call
+      - id: axios-lib
 
   # Post-Install Code Execution
   - id: post-install-exec
@@ -260,9 +192,10 @@ composite_rules:
     file_types: [javascript, typescript]
     all:
       - id: activate-word
-      - id: exec-capability
+      - id: state-markers
+      - id: exec-pattern
 
-  # Extension Credential Theft (original - requires network send)
+  # Extension Credential Theft
   - id: credential-theft
     description: VSCode extension accessing sensitive credentials
     crit: suspicious
@@ -273,20 +206,7 @@ composite_rules:
     all:
       - id: credential-paths
       - id: readFile-pattern
-      - id: network-capability
-
-  # Extension Credential Access (alternate - file ops + exec without network)
-  - id: credential-access-exec
-    description: VSCode extension with credential access and execution
-    crit: suspicious
-    confidence: 0.85
-    mbc: "E1519"
-    attack: "T1555"
-    file_types: [javascript, typescript]
-    all:
-      - id: credential-paths
-      - id: readFile-pattern
-      - id: exec-capability
+      - id: send-methods
 
   # Staged Decryption and Execution inside a VSCode Extension
   - id: staged-dropper
@@ -313,31 +233,3 @@ composite_rules:
       - id: api-usage
       - id: persistence-locations
       - id: file-write-ops
-
-  # Obfuscated VSCode extension with credential access
-  # This catches malware that uses dynamic code + accesses sensitive paths
-  - id: obfuscated-credential-stealer
-    description: Obfuscated VSCode extension with credential access
-    crit: hostile
-    confidence: 0.95
-    mbc: "B0032"
-    attack: "T1555"
-    file_types: [javascript, typescript]
-    all:
-      - id: new-function-constructor
-      - id: credential-paths
-      - id: readFile-pattern
-      - id: activate-word
-
-  # VSCode extension with dynamic code execution + exec/spawn
-  - id: dynamic-exec-extension
-    description: VSCode extension with dynamic code and process execution
-    crit: hostile
-    confidence: 0.9
-    mbc: "B0024"
-    attack: "T1059"
-    file_types: [javascript, typescript]
-    all:
-      - id: new-function-constructor
-      - id: child-process-exec-ast
-      - id: activate-word

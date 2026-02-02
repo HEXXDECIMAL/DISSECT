@@ -201,6 +201,40 @@ traits:
       type: string
       regex: "(?i)\\bcall\\b"
 
+  # PowerShell launcher from batch
+  - id: powershell-exe
+    desc: PowerShell.exe invocation
+    crit: notable
+    conf: 0.7
+    for: [shell, batch]
+    attack: "T1059.001"
+    if:
+      type: string
+      regex: "powershell\\.exe"
+      case_insensitive: true
+
+  # PowerShell with -c flag (command)
+  - id: powershell-command
+    desc: PowerShell command flag
+    crit: notable
+    conf: 0.7
+    for: [shell, batch]
+    attack: "T1059.001"
+    if:
+      type: string
+      regex: "powershell[^\\n]*-[Cc]\\s"
+
+  # OutFile parameter (download to disk)
+  - id: outfile-param
+    desc: OutFile parameter
+    crit: notable
+    conf: 0.75
+    for: [shell, batch, powershell]
+    if:
+      type: string
+      regex: "-OutFile"
+      case_insensitive: true
+
 composite_rules:
   # Download tool composite
   - id: download-tool
@@ -240,3 +274,27 @@ composite_rules:
       - id: download-tool
       - id: exec-cmd
       - id: output-flag
+
+  # PowerShell launcher from batch
+  - id: powershell-launcher
+    desc: PowerShell launcher in batch
+    crit: notable
+    conf: 0.8
+    for: [shell, batch]
+    all:
+      - id: powershell-exe
+      - id: powershell-command
+
+  # PowerShell download cradle in batch (Invoke-WebRequest + OutFile)
+  - id: powershell-download-cradle
+    desc: PowerShell download cradle
+    crit: suspicious
+    conf: 0.9
+    mbc: "C0002"
+    attack: "T1059.001"
+    for: [shell, batch]
+    all:
+      - id: powershell-exe
+    any:
+      - id: outfile-param
+      - id: powershell-download

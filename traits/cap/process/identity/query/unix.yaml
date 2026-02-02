@@ -6,51 +6,19 @@ defaults:
 
 traits:
   # NOTE: Go runtime uses getuid/geteuid legitimately - downgraded to inert
-  - id: getuid
-    desc: Get real user ID
+  - id: get-uid
+    description: Get user/group identity
     crit: inert
-    conf: 0.3
-    if:
+    confidence: 0.3
+    condition:
       type: symbol
-      exact: getuid
-
-  - id: geteuid
-    desc: Get effective user ID
-    crit: inert
-    conf: 0.3
-    if:
-      type: symbol
-      exact: geteuid
-
-  - id: getgid
-    desc: Get real group ID
-    crit: inert
-    conf: 0.3
-    if:
-      type: symbol
-      exact: getgid
-
-  - id: getegid
-    desc: Get effective group ID
-    crit: inert
-    conf: 0.3
-    if:
-      type: symbol
-      exact: getegid
+      pattern: getuid|geteuid|getgid|getegid
 
   # NOTE: Go runtime uses getpid/getppid legitimately - downgraded to inert
-  - id: getpid
-    desc: Get process ID
+  - id: get-pid
+    description: Get process ID
     crit: inert
-    conf: 0.3
-    if:
+    confidence: 0.3
+    condition:
       type: symbol
-      exact: getpid
-
-  - id: getppid
-    desc: Get parent process ID
-    crit: inert
-    conf: 0.3
-    if:
-      type: symbol
-      exact: getppid
+      pattern: getpid|getppid

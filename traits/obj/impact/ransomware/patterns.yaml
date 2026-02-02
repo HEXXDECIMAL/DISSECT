@@ -308,15 +308,13 @@ traits:
       exact: ".locked"
 
   - id: ext-enc
-    description: .enc extension in path context
+    description: .enc extension
     crit: inert
     conf: 0.6
     for: [javascript, typescript, python]
     if:
       type: string
-      # Require file path context (slash or backslash before .enc) to avoid matching
-      # encryption algorithm strings like "aes-128-cbc.enc"
-      regex: "[/\\\\][^/\\\\]+\\.enc[\"']?$"
+      exact: ".enc"
 
   - id: ext-crypt
     description: .crypt extension
@@ -454,8 +452,6 @@ composite_rules:
       - id: open-paren
 
   # File encryption loop
-  # NOTE: This pattern also matches stealers with encrypted exfiltration
-  # Ransomware requires additional indicators (extension change, ransom note, etc.)
   - id: file-encryption-loop
     description: File iteration with encryption (ransomware
     crit: suspicious
@@ -465,12 +461,6 @@ composite_rules:
       - id: file-iteration
       - id: encryption-functions
       - id: file-write-functions
-    # Downgrade when credential theft patterns are present (stealer, not ransomware)
-    downgrade:
-      any:
-        - id: obj/creds/ssh/key/dot-ssh-path
-        - id: obj/creds/cloud/token/aws-dir
-        - id: obj/lateral/supply-chain/vscode/credential-paths
 
   # Ransom note
   - id: ransom-note

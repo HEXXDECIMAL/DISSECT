@@ -13,8 +13,7 @@ traits:
     language: c
     if:
       type: symbol
-      # Match system() call exactly - avoid matching *_system_* in function names
-      regex: "^(sym\\.)?(imp\\.)?system$"
+      pattern: system
     platforms: [unix, linux, macos]
     for: [pe, elf, macho, dll, so, dylib]
 

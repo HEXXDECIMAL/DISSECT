@@ -11,6 +11,58 @@ traits:
     condition:
       type: content
 
+  # === Suspicious link patterns ===
+  # Legitimate extensions have real GitHub repos, not stub links
+  # These patterns are VSIX-specific XML so won't match other files
+
+  - id: stub-github-link
+    desc: Stub GitHub link
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: content
+      # Matches github.com/ or github.com" without a real path (in XML attribute context)
+      regex: 'github\.com/?["'']'
+
+  # Multiple stub links indicate deliberate deception
+  - id: multiple-stub-links
+    desc: Multiple stub links
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: content
+      regex: 'github\.com/?["'']'
+      min_count: 2
+
+  # Links section but no actual repository content
+  - id: links-source-stub
+    desc: Stub source link
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: content
+      regex: 'Links\.Source"[^>]*Value\s*=\s*"https?://github\.com/?["'']'
+
+  - id: links-github-stub
+    desc: Stub GitHub property
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: content
+      regex: 'Links\.GitHub"[^>]*Value\s*=\s*"https?://github\.com/?["'']'
+
+  # === Internal marker patterns ===
+  # The __ext_ prefix in Tags is used by some malicious extensions
+  # for internal tracking/categorization. Legitimate extensions don't need
+  # this pattern in their public marketplace tags.
+  - id: internal-ext-marker
+    desc: Internal __ext_ marker in tags
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: content
+      regex: '<Tags>[^<]*__ext_'
+
 
 composite_rules:
   - id: identity
@@ -34,3 +86,17 @@ composite_rules:
       - id: link-source
       - id: link-github
       - id: link-support
+
+  # Suspicious: stub links (impersonation indicator)
+  - id: suspicious-stub-links
+    desc: Extension with stub links
+    crit: suspicious
+    conf: 0.95
+    attack: "T1036.005"
+    mbc: "B0033"
+    count_min: 1
+    any:
+      - id: stub-github-link
+      - id: multiple-stub-links
+      - id: links-source-stub
+      - id: links-github-stub

@@ -10,8 +10,8 @@ traits:
     mbc: E1222
     attack: T1222
     if:
-      type: string
-      exact: "xattr -c"
+      type: content
+      regex: 'xattr\s+-c\b'
 
   - id: xattr-delete
     desc: xattr -d (delete specific attribute)
@@ -20,8 +20,8 @@ traits:
     mbc: E1222
     attack: T1222
     if:
-      type: string
-      exact: "xattr -d"
+      type: content
+      regex: 'xattr\s+-d\b'
 
   - id: xattr-write
     desc: xattr -w (write attribute value)
@@ -30,8 +30,8 @@ traits:
     mbc: E1222
     attack: T1222
     if:
-      type: string
-      exact: "xattr -w"
+      type: content
+      regex: 'xattr\s+-w\b'
 
   - id: xattr-quarantine-remove-1
     desc: xattr -d -r -s com.apple.quarantine

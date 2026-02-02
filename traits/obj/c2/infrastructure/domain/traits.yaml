@@ -62,20 +62,6 @@ traits:
       # Removed: .date (matches Go time.Time.date), .pro (too common)
       # Added: .pe (Peru - commonly abused for short URLs), .su (Soviet Union - malware favorite)
       regex: "\\b[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\\.(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|download|racing|win|party|review|accountant|science|trade|webcam|bid|loan|pe|su|icu|buzz)\\b|https?://[a-zA-Z0-9][-a-zA-Z0-9]*\\.(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|work|stream|download|racing|pe|su|icu|buzz)"
-    not:
-      # Color space conversion library patterns (e.g., color-convert, chroma.js)
-      # These match patterns like colors.lab.xyz(), s.rgb.xyz(), etc.
-      - regex: "\\b[a-z]\\.lab\\.xyz\\b"
-      - regex: "\\b[a-z]\\.rgb\\.xyz\\b"
-      - regex: "\\b[a-z]\\.xyz\\.lab\\b"
-      - regex: "\\b[a-z]\\.xyz\\.rgb\\b"
-      - regex: "\\b[a-z]\\.hsl\\.xyz\\b"
-      - regex: "\\b[a-z]\\.hsv\\.xyz\\b"
-      - regex: "\\b[a-z]\\.hwb\\.xyz\\b"
-      - regex: "\\bcolor\\..*\\.xyz\\b"
-      - regex: "\\bcolors?\\..*\\.xyz\\b"
-      # OpenSSH protocol extensions use @openssh.com pattern
-      - regex: "@openssh\\.com"
 
   - id: short-domain-url-pattern
     desc: "Very short domain in URL"

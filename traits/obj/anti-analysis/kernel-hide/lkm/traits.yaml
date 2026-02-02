@@ -5,15 +5,105 @@
 
 traits:
   # ============================================================
-  # KERNEL MODULE HEADERS
+  # KERNEL MODULE HEADERS (string-based for reliable detection)
   # ============================================================
+
+  - id: kprobes-include-str
+    desc: linux/kprobes.h include (kernel hooking)
+    crit: suspicious
+    conf: 0.95
+    attack: "T1014"
+    for: [c]
+    if:
+      type: string
+      regex: "linux/kprobes\\.h"
+
+  - id: dirent-include-str
+    desc: linux/dirent.h include (file hiding)
+    crit: suspicious
+    conf: 0.9
+    attack: "T1014"
+    for: [c]
+    if:
+      type: string
+      regex: "linux/dirent\\.h"
+
+  - id: linkage-include-str
+    desc: linux/linkage.h include (kernel ABI)
+    crit: suspicious
+    conf: 0.85
+    for: [c]
+    if:
+      type: string
+      regex: "linux/linkage\\.h"
+
+  - id: kallsyms-lookup-name-str
+    desc: kallsyms_lookup_name string (symbol resolution)
+    crit: suspicious
+    conf: 0.98
+    mbc: "F0004"
+    attack: "T1014"
+    for: [c]
+    if:
+      type: string
+      exact: "kallsyms_lookup_name"
+
+  - id: syscall-table-str
+    desc: __syscall_table reference
+    crit: suspicious
+    conf: 0.95
+    attack: "T1014"
+    for: [c]
+    if:
+      type: string
+      regex: "__syscall_table"
+
+  - id: linux-dirent-str
+    desc: linux_dirent structure
+    crit: suspicious
+    conf: 0.9
+    attack: "T1014"
+    for: [c]
+    if:
+      type: string
+      regex: "\\blinux_dirent\\b"
+
+  - id: cr0-variable-str
+    desc: cr0 register variable
+    crit: suspicious
+    conf: 0.9
+    for: [c]
+    if:
+      type: string
+      regex: "\\bcr0\\b"
+
+  - id: force-order-str
+    desc: __force_order variable (CR0 compiler barrier)
+    crit: suspicious
+    conf: 0.95
+    for: [c]
+    if:
+      type: string
+      regex: "__force_order"
+
+  - id: nr-getdents-str
+    desc: NR_getdents syscall number reference
+    crit: suspicious
+    conf: 0.9
+    attack: "T1014"
+    for: [c]
+    if:
+      type: string
+      regex: "NR_getdents"
+
+  # ============================================================
+  # KERNEL MODULE HEADERS (AST-based)
 
   - id: kernel-module-header
     desc: Linux kernel module header (loadable
     crit: suspicious
     conf: 0.98
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: import
@@ -24,7 +114,6 @@ traits:
     crit: suspicious
     conf: 0.95
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: import
@@ -35,7 +124,6 @@ traits:
     crit: suspicious
     conf: 0.95
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: import
@@ -46,7 +134,6 @@ traits:
     crit: suspicious
     conf: 0.9
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: import
@@ -57,7 +144,6 @@ traits:
     crit: suspicious
     conf: 0.95
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: import
@@ -68,7 +154,6 @@ traits:
     crit: suspicious
     conf: 0.98
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: import
@@ -79,7 +164,6 @@ traits:
     crit: suspicious
     conf: 0.95
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: import
@@ -90,7 +174,6 @@ traits:
     crit: suspicious
     conf: 0.95
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: import
@@ -101,7 +184,6 @@ traits:
     crit: suspicious
     conf: 0.9
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: import
@@ -112,7 +194,6 @@ traits:
     crit: suspicious
     conf: 0.99
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: import
@@ -128,7 +209,6 @@ traits:
     conf: 0.98
     mbc: "F0004"
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: call
@@ -140,7 +220,6 @@ traits:
     conf: 0.98
     attack: "T1068"
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: call
@@ -152,7 +231,6 @@ traits:
     conf: 0.98
     attack: "T1068"
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: call
@@ -164,7 +242,6 @@ traits:
     conf: 0.95
     attack: "T1014"
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: call
@@ -175,7 +252,6 @@ traits:
     crit: suspicious
     conf: 0.98
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: call
@@ -186,7 +262,6 @@ traits:
     crit: suspicious
     conf: 0.99
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: call
@@ -197,7 +272,6 @@ traits:
     crit: suspicious
     conf: 0.9
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: call
@@ -208,7 +282,6 @@ traits:
     crit: suspicious
     conf: 0.9
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: call
@@ -219,7 +292,6 @@ traits:
     crit: suspicious
     conf: 0.9
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: call
@@ -234,7 +306,6 @@ traits:
     crit: suspicious
     conf: 0.95
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: call
@@ -245,7 +316,6 @@ traits:
     crit: suspicious
     conf: 0.98
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: call
@@ -256,7 +326,6 @@ traits:
     crit: suspicious
     conf: 0.95
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: call
@@ -267,7 +336,6 @@ traits:
     crit: suspicious
     conf: 0.95
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: call
@@ -283,7 +351,6 @@ traits:
     conf: 0.99
     attack: "T1014"
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       node: declaration
@@ -294,7 +361,6 @@ traits:
     crit: suspicious
     conf: 0.9
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       node: declaration
@@ -305,7 +371,6 @@ traits:
     crit: suspicious
     conf: 0.95
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       node: declaration
@@ -316,7 +381,6 @@ traits:
     crit: suspicious
     conf: 0.95
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       node: declaration
@@ -327,7 +391,6 @@ traits:
     crit: suspicious
     conf: 0.85
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       node: declaration
@@ -342,7 +405,6 @@ traits:
     crit: suspicious
     conf: 0.9
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: binary_op
@@ -353,7 +415,6 @@ traits:
     crit: suspicious
     conf: 0.95
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: binary_op
@@ -364,7 +425,6 @@ traits:
     crit: suspicious
     conf: 0.99
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: binary_op
@@ -375,7 +435,6 @@ traits:
     crit: suspicious
     conf: 0.9
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: attribute
@@ -501,7 +560,6 @@ traits:
     conf: 0.98
     attack: "T1014"
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: attribute
@@ -512,7 +570,6 @@ traits:
     crit: suspicious
     conf: 0.8
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: attribute
@@ -523,7 +580,6 @@ traits:
     crit: suspicious
     conf: 0.85
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: call
@@ -559,7 +615,6 @@ traits:
     conf: 0.99
     attack: "T1014"
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: attribute
@@ -570,7 +625,6 @@ traits:
     crit: suspicious
     conf: 0.9
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: call
@@ -581,7 +635,6 @@ traits:
     crit: suspicious
     conf: 0.7
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: call
@@ -596,7 +649,6 @@ traits:
     crit: suspicious
     conf: 0.9
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       node: declaration
@@ -607,7 +659,6 @@ traits:
     crit: suspicious
     conf: 0.95
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       node: type_definition
@@ -619,7 +670,6 @@ traits:
     conf: 0.95
     attack: "T1014"
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       node: declaration
@@ -630,7 +680,6 @@ traits:
     crit: suspicious
     conf: 0.9
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: attribute
@@ -641,7 +690,6 @@ traits:
     crit: suspicious
     conf: 0.95
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: attribute
@@ -652,7 +700,6 @@ traits:
     crit: suspicious
     conf: 0.95
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: attribute
@@ -667,7 +714,6 @@ traits:
     crit: suspicious
     conf: 0.85
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: attribute
@@ -678,7 +724,6 @@ traits:
     crit: suspicious
     conf: 0.8
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: attribute
@@ -689,7 +734,6 @@ traits:
     crit: suspicious
     conf: 0.8
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: attribute
@@ -700,7 +744,6 @@ traits:
     crit: suspicious
     conf: 0.8
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: attribute
@@ -711,7 +754,6 @@ traits:
     crit: suspicious
     conf: 0.85
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: attribute
@@ -722,7 +764,6 @@ traits:
     crit: suspicious
     conf: 0.8
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: attribute
@@ -733,7 +774,6 @@ traits:
     crit: suspicious
     conf: 0.75
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: call
@@ -748,7 +788,6 @@ traits:
     crit: suspicious
     conf: 0.8
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       node: declaration
@@ -759,7 +798,6 @@ traits:
     crit: suspicious
     conf: 0.7
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: call
@@ -774,7 +812,6 @@ traits:
     crit: suspicious
     conf: 0.9
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: function
@@ -785,7 +822,6 @@ traits:
     crit: suspicious
     conf: 0.9
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: function
@@ -796,7 +832,6 @@ traits:
     crit: suspicious
     conf: 0.7
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: call
@@ -807,7 +842,6 @@ traits:
     crit: suspicious
     conf: 0.7
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: call
@@ -818,7 +852,6 @@ traits:
     crit: suspicious
     conf: 0.6
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: string
@@ -860,7 +893,6 @@ traits:
     conf: 0.98
     attack: "T1014"
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: attribute
@@ -872,7 +904,6 @@ traits:
     conf: 0.99
     attack: "T1014"
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: binary_op
@@ -893,7 +924,6 @@ traits:
     crit: suspicious
     conf: 0.75
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: identifier
@@ -909,7 +939,6 @@ traits:
     conf: 0.98
     attack: "T1068"
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: assignment
@@ -921,7 +950,6 @@ traits:
     conf: 0.98
     attack: "T1068"
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: assignment
@@ -932,7 +960,6 @@ traits:
     crit: suspicious
     conf: 0.9
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: attribute
@@ -947,7 +974,6 @@ traits:
     crit: suspicious
     conf: 0.95
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       node: declaration
@@ -973,7 +999,6 @@ traits:
     conf: 0.99
     attack: "T1014"
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: function
@@ -985,7 +1010,6 @@ traits:
     crit: suspicious
     conf: 0.98
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       node: subscript_expression
@@ -996,7 +1020,6 @@ traits:
     crit: suspicious
     conf: 0.95
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       node: subscript_expression
@@ -1127,7 +1150,6 @@ traits:
     crit: suspicious
     conf: 0.8
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       node: return_statement
@@ -1138,7 +1160,6 @@ traits:
     crit: suspicious
     conf: 0.6
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       node: return_statement
@@ -1153,7 +1174,6 @@ traits:
     crit: suspicious
     conf: 0.95
     for: [elf, c]
-    platforms: [linux]
     if:
       type: symbol
       pattern: "memfd_create"
@@ -1163,7 +1183,6 @@ traits:
     crit: suspicious
     conf: 0.95
     for: [elf, c]
-    platforms: [linux]
     if:
       type: string
       exact: "SYS_memfd_create"
@@ -1173,7 +1192,6 @@ traits:
     crit: suspicious
     conf: 0.95
     for: [elf, c]
-    platforms: [linux]
     if:
       type: symbol
       pattern: "finit_module"
@@ -1183,7 +1201,6 @@ traits:
     crit: suspicious
     conf: 0.95
     for: [elf, c]
-    platforms: [linux]
     if:
       type: string
       exact: "SYS_finit_module"
@@ -1197,7 +1214,6 @@ traits:
     crit: suspicious
     conf: 0.9
     for: [c]
-    platforms: [linux]
     if:
       type: ast
       kind: call
@@ -1208,7 +1224,6 @@ traits:
     crit: suspicious
     conf: 0.9
     for: [c]
-    platforms: [linux]
     if:
       type: string
       exact: "_PAGE_RW"
@@ -1218,7 +1233,6 @@ traits:
     crit: suspicious
     conf: 0.9
     for: [c]
-    platforms: [linux]
     if:
       type: string
       exact: "_PAGE_NX"
@@ -1283,7 +1297,6 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     for: [elf, c]
-    platforms: [linux]
     count_min: 1
     any:
       - id: memfd-create-call
@@ -1295,7 +1308,6 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     for: [elf, c]
-    platforms: [linux]
     count_min: 1
     any:
       - id: finit-module-call
@@ -1318,7 +1330,6 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     for: [c]
-    platforms: [linux]
     count_min: 1
     any:
       - id: page-rw-flag
@@ -1364,3 +1375,75 @@ composite_rules:
     desc: "Advanced LKM rootkit detected"
     crit: suspicious
     conf: 0.95
+
+  # ============================================================
+  # ROOTKIT HEADER DETECTION (string-based composites)
+  # ============================================================
+
+  # Kernel hooking infrastructure (kprobes for symbol resolution)
+  - id: kprobes-kallsyms
+    desc: Kprobes with kallsyms (kernel 5.7+ symbol bypass)
+    crit: suspicious
+    conf: 0.95
+    attack: "T1014"
+    for: [c]
+    all:
+      - id: kprobes-include-str
+      - id: kallsyms-lookup-name-str
+
+  # Syscall hooking infrastructure
+  - id: syscall-hook-setup
+    desc: Syscall hooking setup (table+dirent)
+    crit: suspicious
+    conf: 0.9
+    attack: "T1014"
+    for: [c]
+    count_min: 2
+    any:
+      - id: syscall-table-str
+      - id: dirent-include-str
+      - id: linux-dirent-str
+      - id: nr-getdents-str
+
+  # CR0 manipulation (memory write protection bypass)
+  - id: cr0-bypass
+    desc: CR0 write protection bypass
+    crit: suspicious
+    conf: 0.9
+    for: [c]
+    count_min: 1
+    any:
+      - id: cr0-variable-str
+      - id: force-order-str
+
+  # Rootkit header pattern (kernel module with hooking)
+  - id: rootkit-header
+    desc: Rootkit header file pattern
+    crit: suspicious
+    conf: 0.95
+    attack: "T1014"
+    for: [c]
+    all:
+      - id: linkage-include-str
+    count_min: 2
+    any:
+      - id: kprobes-include-str
+      - id: dirent-include-str
+      - id: kallsyms-lookup-name-str
+      - id: syscall-table-str
+      - id: linux-dirent-str
+
+  # Full rootkit header detection
+  - id: lkm-rootkit-header
+    desc: LKM rootkit header detected
+    crit: hostile
+    conf: 0.98
+    attack: "T1014"
+    for: [c]
+    all:
+      - id: linkage-include-str
+      - id: kprobes-kallsyms
+    count_min: 1
+    any:
+      - id: syscall-hook-setup
+      - id: cr0-bypass

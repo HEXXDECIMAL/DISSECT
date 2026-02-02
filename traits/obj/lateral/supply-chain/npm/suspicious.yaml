@@ -301,6 +301,70 @@ traits:
       type: string
       exact: "discord.com/api/webhooks"
 
+  # === Placeholder/Default Author Patterns ===
+  # Malicious packages often use placeholder author values
+
+  - id: placeholder-author-your-name
+    desc: Placeholder author "Your Name"
+    crit: suspicious
+    conf: 0.85
+    for: [packagejson]
+    if:
+      type: content
+      regex: '"author":\s*"Your Name"'
+
+  - id: placeholder-author-generic
+    desc: Generic placeholder author patterns
+    crit: notable
+    conf: 0.75
+    for: [packagejson]
+    if:
+      type: content
+      regex: '"author":\s*"(?:author|your name|name|test|user|admin|example|sample|anonymous)"'
+      case_insensitive: true
+
+  # === Minimal Metadata Patterns ===
+  # Malicious packages often lack standard package metadata
+
+  - id: pkg-no-description-short
+    desc: Very short/empty description
+    crit: inert
+    conf: 0.7
+    for: [packagejson]
+    if:
+      type: content
+      regex: '"description":\s*"[^"]{0,15}"'
+
+  - id: pkg-main-resp-path
+    desc: Main uses resp/ directory
+    crit: notable
+    conf: 0.7
+    for: [packagejson]
+    if:
+      type: content
+      contains: '"main": "resp/'
+
+  # === CDN/Template Facade Patterns ===
+  # Phishing packages often pretend to be CDN assets or templates
+
+  - id: cdn-keyword-facade
+    desc: CDN-related keywords
+    crit: inert
+    conf: 0.6
+    for: [packagejson]
+    if:
+      type: content
+      regex: '"keywords":\s*\[[^\]]*"(?:jsdelivr|cdn|cloudflare|unpkg)"'
+
+  - id: template-keyword
+    desc: Template keyword in package
+    crit: inert
+    conf: 0.5
+    for: [packagejson]
+    if:
+      type: content
+      contains: '"template"'
+
 composite_rules:
   # Has exports composite
   - id: has-exports
@@ -424,3 +488,59 @@ composite_rules:
       - id: webhook-site-domain
       - id: pipedream-domain
       - id: discord-webhook
+
+  # === Placeholder/Suspicious Metadata Composites ===
+
+  # Placeholder author with no repository - highly suspicious
+  - id: placeholder-no-repo
+    desc: Placeholder author without repository
+    crit: suspicious
+    conf: 0.85
+    for: [packagejson]
+    all:
+      - id: placeholder-author-your-name
+    none:
+      - id: pkg-repository
+
+  # === Data Exfiltration Patterns ===
+
+  # System info exfiltration - small npm package collects system info and sends via HTTP POST
+  # This is the classic npm supply-chain telemetry/data exfiltration pattern
+  # Complexity: file_types(+1) + all(+3) = 4 (meets HOSTILE threshold)
+  - id: npm-data-exfil
+    desc: NPM package exfiltrates system info via HTTP
+    crit: hostile
+    conf: 0.95
+    attack: "T1020"
+    mbc: "E1041"
+    for: [javascript]
+    all:
+      - id: obj/discovery/system/js-sysinfo-multi
+      - id: cap/comm/http/post/post
+      - id: small-file-5k
+
+  # Victim identification with HTTP POST - slightly less certainty but still hostile
+  # Complexity: file_types(+1) + all(+3) = 4
+  - id: npm-victim-exfil
+    desc: NPM package sends victim ID via HTTP POST
+    crit: hostile
+    conf: 0.92
+    attack: "T1020"
+    mbc: "E1041"
+    for: [javascript]
+    all:
+      - id: obj/discovery/system/js-victim-id
+      - id: cap/comm/http/post/post
+      - id: small-file-5k
+
+  # Suspicious combo: system info + HTTP but larger file
+  - id: npm-sysinfo-http
+    desc: NPM package with system info and HTTP POST
+    crit: suspicious
+    conf: 0.85
+    attack: "T1082"
+    for: [javascript]
+    all:
+      - id: obj/discovery/system/js-victim-id
+      - id: cap/comm/http/post/post
+
