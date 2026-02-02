@@ -222,26 +222,9 @@ func isFragment(path string) bool {
 	return strings.Contains(path, "##")
 }
 
-// isTinyFile checks if a file is too small to be meaningful (e.g., empty __init__.py).
-// Files < 8 bytes are typically metadata and should be ignored.
-// For archive members, uses ExtractedPath if available; otherwise uses Path.
-func isTinyFile(f *FileAnalysis) bool {
-	path := f.Path
-	if f.ExtractedPath != "" {
-		path = f.ExtractedPath
-	}
-	info, err := os.Stat(path)
-	if err != nil {
-		return false
-	}
-	return info.Size() < 8
-}
-
 // archiveNeedsReview returns true if any member of the archive needs review.
 // For known-good archives: review if ANY member is flagged (to reduce false positives).
-// For known-bad archives: review only if NO members are flagged as malicious AND
-// there's at least one non-tiny file (to find missed detections). Once any member
-// is flagged, the archive is already detected as malicious.
+// For known-bad archives: skip if ANY member is already flagged as malicious.
 func archiveNeedsReview(a *ArchiveAnalysis, knownGood bool) bool {
 	if knownGood {
 		// Known-good: review if any member is suspicious/hostile (false positive)
@@ -254,7 +237,6 @@ func archiveNeedsReview(a *ArchiveAnalysis, knownGood bool) bool {
 	}
 
 	// Known-bad: skip if ANY member is already flagged as malicious
-	// (archive is already detected, no need to review further)
 	for _, m := range a.Members {
 		for _, finding := range m.Findings {
 			c := strings.ToLower(finding.Crit)
@@ -264,23 +246,14 @@ func archiveNeedsReview(a *ArchiveAnalysis, knownGood bool) bool {
 		}
 	}
 
-	// All members are clean/inert. Only review if there's at least one non-tiny file
-	// (skip archives that are all metadata like empty __init__.py files).
-	for _, m := range a.Members {
-		if !isTinyFile(&m) {
-			return true // Has real files that should be flagged
-		}
-	}
-	return false // Only tiny files, skip
+	// No members detected yet - review the archive
+	return true
 }
 
-// archiveProblematicMembers returns the members that need review, excluding tiny files.
+// archiveProblematicMembers returns the members that need review.
 func archiveProblematicMembers(a *ArchiveAnalysis, knownGood bool) []FileAnalysis {
 	var result []FileAnalysis
 	for _, m := range a.Members {
-		if isTinyFile(&m) {
-			continue // Skip tiny files
-		}
 		if needsReview(m, knownGood) {
 			result = append(result, m)
 		}
