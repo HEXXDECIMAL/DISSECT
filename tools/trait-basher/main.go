@@ -29,6 +29,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -280,6 +281,14 @@ func main() {
 	if *dir == "" {
 		log.Fatal("--dir is required")
 	}
+	if info, err := os.Stat(*dir); err != nil {
+		if os.IsNotExist(err) {
+			log.Fatalf("Directory does not exist: %s", *dir)
+		}
+		log.Fatalf("Cannot access directory %s: %v", *dir, err)
+	} else if !info.IsDir() {
+		log.Fatalf("Not a directory: %s", *dir)
+	}
 	if !*knownGood && !*knownBad {
 		log.Fatal("Either --good or --bad is required")
 	}
@@ -342,16 +351,9 @@ func main() {
 	fmt.Fprintf(os.Stderr, "Provider: %s\n", cfg.provider)
 	fmt.Fprintf(os.Stderr, "Mode: %s\n", mode)
 	fmt.Fprintf(os.Stderr, "Repo root: %s\n", cfg.repoRoot)
-	fmt.Fprintf(os.Stderr, "Scanning %s with dissect...\n", cfg.dir)
+	fmt.Fprintf(os.Stderr, "Streaming analysis of %s...\n\n", cfg.dir)
 
 	ctx := context.Background()
-
-	// Scan the entire directory with dissect
-	sessionID := generateSessionID()
-	files, err := runDissectDirWithRetry(ctx, cfg, sessionID)
-	if err != nil {
-		log.Fatalf("Failed to scan directory: %v", err)
-	}
 
 	// Database mode (good/bad, not known-good/known-bad)
 	dbMode := "bad"
@@ -359,105 +361,105 @@ func main() {
 		dbMode = "good"
 	}
 
-	// Group files by archive - archives are the unit of review
-	archives, standalone := groupByArchive(files)
-
-	// Filter standalone files needing review
-	var standaloneToReview []FileAnalysis
-	var skippedCached int
-	for _, f := range standalone {
-		if !needsReview(f, cfg.knownGood) {
-			continue
-		}
-
-		// Check if already analyzed
-		h, err := hashFile(f.Path)
-		if err != nil {
-			log.Printf("Warning: could not hash %s: %v", f.Path, err)
-			standaloneToReview = append(standaloneToReview, f)
-			continue
-		}
-
-		if wasAnalyzed(cfg.db, h, dbMode) {
-			skippedCached++
-			continue
-		}
-
-		standaloneToReview = append(standaloneToReview, f)
+	// Use streaming analysis - process each archive as it completes
+	stats, err := streamAnalyzeAndReview(ctx, cfg, dbMode)
+	if err != nil {
+		log.Fatalf("Analysis failed: %v", err)
 	}
 
-	// Filter archives needing review (any member needs review)
-	var archivesToReview []*ArchiveAnalysis
-	for _, a := range archives {
-		if !archiveNeedsReview(a, cfg.knownGood) {
-			continue
+	fmt.Fprintf(os.Stderr, "\nDone. Reviewed %d archives, %d standalone files. Skipped %d (cached), %d (no review needed).\n",
+		stats.archivesReviewed, stats.standaloneReviewed, stats.skippedCached, stats.skippedNoReview)
+	fmt.Fprint(os.Stderr, "Run \"git diff traits/\" to see changes.\n")
+}
+
+// streamStats tracks streaming analysis statistics
+type streamStats struct {
+	archivesReviewed   int
+	standaloneReviewed int
+	skippedCached      int
+	skippedNoReview    int
+	totalFiles         int
+}
+
+// streamAnalyzeAndReview streams dissect output and reviews archives as they complete
+func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*streamStats, error) {
+	// Determine sample extraction threshold based on mode
+	sampleMaxRisk := "notable"
+	if cfg.knownGood {
+		sampleMaxRisk = "hostile"
+	}
+
+	var cmd *exec.Cmd
+	if cfg.useCargo {
+		args := []string{"run", "--release", "--",
+			"--format", "jsonl",
+			"--sample-dir", cfg.sampleDir,
+			"--sample-max-risk", sampleMaxRisk,
+			cfg.dir,
 		}
-
-		// Check if archive was already analyzed (hash the archive path itself)
-		h := hashString(a.ArchivePath)
-		if wasAnalyzed(cfg.db, h, dbMode) {
-			skippedCached++
-			continue
+		cmd = exec.CommandContext(ctx, "cargo", args...)
+		cmd.Dir = cfg.repoRoot
+	} else {
+		args := []string{
+			"--format", "jsonl",
+			"--sample-dir", cfg.sampleDir,
+			"--sample-max-risk", sampleMaxRisk,
+			cfg.dir,
 		}
-
-		archivesToReview = append(archivesToReview, a)
+		cmd = exec.CommandContext(ctx, "dissect", args...)
 	}
 
-	// Count files by risk level
-	riskCounts := make(map[string]int)
-	for _, f := range files {
-		riskCounts[strings.ToLower(f.Risk)]++
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return nil, fmt.Errorf("could not create stdout pipe: %w", err)
 	}
 
-	fmt.Fprint(os.Stderr, "\nScan summary:\n")
-	fmt.Fprintf(os.Stderr, "  Total files: %d\n", len(files))
-	fmt.Fprintf(os.Stderr, "  Archives: %d | Standalone files: %d\n", len(archives), len(standalone))
-	for _, level := range []string{"hostile", "suspicious", "notable", "inert"} {
-		if n := riskCounts[level]; n > 0 {
-			fmt.Fprintf(os.Stderr, "  - %s: %d\n", level, n)
-		}
+	var stderrBuf bytes.Buffer
+	cmd.Stderr = &stderrBuf
+
+	if err := cmd.Start(); err != nil {
+		return nil, fmt.Errorf("could not start dissect: %w", err)
 	}
 
-	totalToReview := len(archivesToReview) + len(standaloneToReview)
-	fmt.Fprint(os.Stderr, "\nReview queue:\n")
-	fmt.Fprintf(os.Stderr, "  Archives to review: %d\n", len(archivesToReview))
-	fmt.Fprintf(os.Stderr, "  Standalone files to review: %d\n", len(standaloneToReview))
-	if skippedCached > 0 {
-		fmt.Fprintf(os.Stderr, "  Skipped (cached): %d\n", skippedCached)
-	}
-	fmt.Fprintln(os.Stderr)
+	stats := &streamStats{}
+	scanner := bufio.NewScanner(stdout)
+	scanner.Buffer(make([]byte, 128*1024*1024), 128*1024*1024) // 128MB buffer
 
+	// Track current archive being processed
+	var currentArchive *ArchiveAnalysis
+	var currentArchivePath string
 	critRank := map[string]int{"inert": 0, "notable": 1, "suspicious": 2, "hostile": 3}
 
-	reviewStart := time.Now()
-	reviewCount := 0
-
-	// Review archives first (they're higher priority as they contain problematic members)
-	for i, a := range archivesToReview {
-		sid := generateSessionID()
-
-		// Calculate progress and rate
-		pct := float64(reviewCount) / float64(totalToReview) * 100
-		elapsed := time.Since(reviewStart)
-
-		// Build progress line with rate/ETA if we have enough data
-		progressLine := fmt.Sprintf("[%d/%d] (%.0f%%)", reviewCount+1, totalToReview, pct)
-		if reviewCount > 0 && elapsed.Seconds() > 0 {
-			rate := float64(reviewCount) / elapsed.Minutes()
-			remaining := totalToReview - reviewCount
-			eta := time.Duration(float64(remaining)/rate) * time.Minute
-			progressLine = fmt.Sprintf("[%d/%d] (%.0f%%, %.1f/min, ~%s remaining)",
-				reviewCount+1, totalToReview, pct, rate, eta.Truncate(time.Minute))
+	// Process completed archive (or standalone file)
+	processCompleted := func(archive *ArchiveAnalysis) {
+		if archive == nil || len(archive.Members) == 0 {
+			return
 		}
 
-		problematic := archiveProblematicMembers(a, cfg.knownGood)
-		fmt.Fprintf(os.Stderr, "%s Reviewing archive: %s\n", progressLine, a.ArchivePath)
-		fmt.Fprintf(os.Stderr, "  Problematic members: %d of %d\n", len(problematic), len(a.Members))
+		stats.totalFiles += len(archive.Members)
+
+		// Check if archive needs review
+		if !archiveNeedsReview(archive, cfg.knownGood) {
+			stats.skippedNoReview++
+			return
+		}
+
+		// Check cache
+		h := hashString(archive.ArchivePath)
+		if wasAnalyzed(cfg.db, h, dbMode) {
+			stats.skippedCached++
+			return
+		}
+
+		// Review the archive
+		problematic := archiveProblematicMembers(archive, cfg.knownGood)
+		fmt.Fprintf(os.Stderr, "\n📦 Archive complete: %s\n", archive.ArchivePath)
+		fmt.Fprintf(os.Stderr, "   Members: %d total, %d need review\n", len(archive.Members), len(problematic))
 
 		// Show first few problematic members
 		for j, m := range problematic {
 			if j >= 3 {
-				fmt.Fprintf(os.Stderr, "    ... and %d more\n", len(problematic)-3)
+				fmt.Fprintf(os.Stderr, "   ... and %d more\n", len(problematic)-3)
 				break
 			}
 			var maxCrit string
@@ -466,83 +468,148 @@ func main() {
 					maxCrit = finding.Crit
 				}
 			}
-			fmt.Fprintf(os.Stderr, "    - %s (%s)\n", memberPath(m.Path), maxCrit)
-		}
-		fmt.Fprint(os.Stderr, "  Invoking Claude...\n\n")
-
-		if err := invokeAIArchive(ctx, cfg, a, sid); err != nil {
-			log.Fatalf("%s failed: %v", cfg.provider, err)
+			fmt.Fprintf(os.Stderr, "   - %s (%s)\n", memberPath(m.Path), maxCrit)
 		}
 
-		// Mark archive as analyzed
-		h := hashString(a.ArchivePath)
-		if err := markAnalyzed(cfg.db, h, dbMode); err != nil {
-			log.Printf("Warning: could not record analysis for %s: %v", a.ArchivePath, err)
-		}
-
-		reviewCount++
-		fmt.Fprintf(os.Stderr, "\n--- Completed archive %s [%d/%d] ---\n\n", a.ArchivePath, i+1, len(archivesToReview))
-	}
-
-	// Review standalone files
-	for i, f := range standaloneToReview {
 		sid := generateSessionID()
-
-		// Calculate progress and rate
-		pct := float64(reviewCount) / float64(totalToReview) * 100
-		elapsed := time.Since(reviewStart)
-
-		// Build progress line with rate/ETA if we have enough data
-		progressLine := fmt.Sprintf("[%d/%d] (%.0f%%)", reviewCount+1, totalToReview, pct)
-		if reviewCount > 0 && elapsed.Seconds() > 0 {
-			rate := float64(reviewCount) / elapsed.Minutes()
-			remaining := totalToReview - reviewCount
-			eta := time.Duration(float64(remaining)/rate) * time.Minute
-			progressLine = fmt.Sprintf("[%d/%d] (%.0f%%, %.1f/min, ~%s remaining)",
-				reviewCount+1, totalToReview, pct, rate, eta.Truncate(time.Minute))
-		}
-
-		fmt.Fprintf(os.Stderr, "%s Reviewing: %s\n", progressLine, f.Path)
-		if len(f.Findings) > 0 {
-			var ids []string
-			var maxCrit string
-			for _, finding := range f.Findings {
-				ids = append(ids, finding.ID)
-				if critRank[strings.ToLower(finding.Crit)] > critRank[strings.ToLower(maxCrit)] {
-					maxCrit = finding.Crit
-				}
-			}
-			fmt.Fprintf(os.Stderr, "  Risk: %s\n", maxCrit)
-			fmt.Fprintf(os.Stderr, "  Findings: %s\n", strings.Join(ids, ", "))
-		}
-		fmt.Fprint(os.Stderr, "  Invoking Claude...\n\n")
-
-		if err := invokeAI(ctx, cfg, f, sid); err != nil {
-			log.Fatalf("%s failed: %v", cfg.provider, err)
-		}
-
-		// Mark as analyzed after successful review
-		if h, err := hashFile(f.Path); err == nil {
+		if err := invokeAIArchive(ctx, cfg, archive, sid); err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: %s failed for %s: %v\n", cfg.provider, archive.ArchivePath, err)
+		} else {
+			// Mark as analyzed
 			if err := markAnalyzed(cfg.db, h, dbMode); err != nil {
-				log.Printf("Warning: could not record analysis for %s: %v", f.Path, err)
+				fmt.Fprintf(os.Stderr, "Warning: could not record analysis for %s: %v\n", archive.ArchivePath, err)
 			}
+			stats.archivesReviewed++
+		}
+	}
+
+	// Process standalone file
+	processStandalone := func(f FileAnalysis) {
+		stats.totalFiles++
+
+		if !needsReview(f, cfg.knownGood) {
+			stats.skippedNoReview++
+			return
 		}
 
-		reviewCount++
-		fmt.Fprintf(os.Stderr, "\n--- Completed %s [%d/%d] ---\n\n", f.Path, i+1, len(standaloneToReview))
+		// Check cache
+		h, err := hashFile(f.Path)
+		if err != nil {
+			h = hashString(f.Path) // Fallback to path hash
+		}
+		if wasAnalyzed(cfg.db, h, dbMode) {
+			stats.skippedCached++
+			return
+		}
+
+		// Review the file
+		fmt.Fprintf(os.Stderr, "\n📄 Standalone file: %s\n", f.Path)
+		var maxCrit string
+		for _, finding := range f.Findings {
+			if critRank[strings.ToLower(finding.Crit)] > critRank[strings.ToLower(maxCrit)] {
+				maxCrit = finding.Crit
+			}
+		}
+		if maxCrit != "" {
+			fmt.Fprintf(os.Stderr, "   Risk: %s, Findings: %d\n", maxCrit, len(f.Findings))
+		}
+
+		sid := generateSessionID()
+		if err := invokeAI(ctx, cfg, f, sid); err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: %s failed for %s: %v\n", cfg.provider, f.Path, err)
+		} else {
+			if err := markAnalyzed(cfg.db, h, dbMode); err != nil {
+				fmt.Fprintf(os.Stderr, "Warning: could not record analysis for %s: %v\n", f.Path, err)
+			}
+			stats.standaloneReviewed++
+		}
 	}
 
-	totalElapsed := time.Since(reviewStart)
-	if totalToReview > 0 && totalElapsed.Seconds() > 0 {
-		rate := float64(totalToReview) / totalElapsed.Minutes()
-		fmt.Fprintf(os.Stderr, "Done. Reviewed %d items (%d archives, %d files) in %s (%.1f/min).\n",
-			totalToReview, len(archivesToReview), len(standaloneToReview),
-			totalElapsed.Truncate(time.Second), rate)
-	} else {
-		fmt.Fprintf(os.Stderr, "Done. Reviewed %d items (%d archives, %d files).\n",
-			totalToReview, len(archivesToReview), len(standaloneToReview))
+	// Stream and process
+	fileCount := 0
+	lastProgress := time.Now()
+
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" {
+			continue
+		}
+
+		var entry jsonlEntry
+		if err := json.Unmarshal([]byte(line), &entry); err != nil {
+			continue
+		}
+
+		if entry.Type != "file" {
+			continue
+		}
+
+		fileCount++
+
+		// Show progress every 100ms
+		if time.Since(lastProgress) > 100*time.Millisecond {
+			fmt.Fprintf(os.Stderr, "\r  Scanning... %d files processed", fileCount)
+			lastProgress = time.Now()
+		}
+
+		f := FileAnalysis{
+			Path:          entry.Path,
+			Risk:          entry.Risk,
+			Findings:      entry.Findings,
+			ExtractedPath: entry.ExtractedPath,
+		}
+
+		// Check if this file is part of an archive
+		archivePath := rootArchive(f.Path)
+
+		if archivePath == "" {
+			// Standalone file - process any pending archive first
+			if currentArchive != nil {
+				fmt.Fprintf(os.Stderr, "\r                                        \r") // Clear progress line
+				processCompleted(currentArchive)
+				currentArchive = nil
+				currentArchivePath = ""
+			}
+			// Process standalone file immediately
+			fmt.Fprintf(os.Stderr, "\r                                        \r")
+			processStandalone(f)
+		} else if archivePath != currentArchivePath {
+			// New archive - process the previous one first
+			if currentArchive != nil {
+				fmt.Fprintf(os.Stderr, "\r                                        \r")
+				processCompleted(currentArchive)
+			}
+			// Start new archive
+			currentArchivePath = archivePath
+			currentArchive = &ArchiveAnalysis{
+				ArchivePath: archivePath,
+				Members:     []FileAnalysis{f},
+			}
+		} else {
+			// Same archive - add member
+			currentArchive.Members = append(currentArchive.Members, f)
+		}
 	}
-	fmt.Fprint(os.Stderr, "Run \"git diff traits/\" to see changes.\n")
+
+	// Process final archive
+	if currentArchive != nil {
+		fmt.Fprintf(os.Stderr, "\r                                        \r")
+		processCompleted(currentArchive)
+	}
+
+	if err := scanner.Err(); err != nil {
+		return stats, fmt.Errorf("error reading dissect output: %w", err)
+	}
+
+	if err := cmd.Wait(); err != nil {
+		if msg := strings.TrimSpace(stderrBuf.String()); msg != "" {
+			return stats, fmt.Errorf("dissect error: %s", msg)
+		}
+		return stats, fmt.Errorf("dissect failed: %w", err)
+	}
+
+	fmt.Fprintf(os.Stderr, "\r  Scanned %d files total                    \n", fileCount)
+	return stats, nil
 }
 
 // needsReview determines if a file needs AI review based on mode.
@@ -943,6 +1010,9 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 	}
 
 	// Read stdout and stderr concurrently
+	// Collect stderr so we can include it in error messages
+	var stderrLines []string
+	var stderrMu sync.Mutex
 	done := make(chan struct{})
 	go func() {
 		scanner := bufio.NewScanner(stdout)
@@ -955,7 +1025,11 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 	go func() {
 		scanner := bufio.NewScanner(stderr)
 		for scanner.Scan() {
-			fmt.Fprintf(os.Stderr, "  [stderr] %s\n", scanner.Text())
+			line := scanner.Text()
+			fmt.Fprintf(os.Stderr, "  [stderr] %s\n", line)
+			stderrMu.Lock()
+			stderrLines = append(stderrLines, line)
+			stderrMu.Unlock()
 		}
 		done <- struct{}{}
 	}()
@@ -978,6 +1052,15 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 	if err := cmd.Wait(); err != nil {
 		if ctx.Err() == context.DeadlineExceeded {
 			return errors.New("exceeded time limit")
+		}
+		stderrMu.Lock()
+		lastLines := stderrLines
+		if len(lastLines) > 5 {
+			lastLines = lastLines[len(lastLines)-5:]
+		}
+		stderrMu.Unlock()
+		if len(lastLines) > 0 {
+			return fmt.Errorf("%s exited with error: %w\nLast stderr output:\n  %s", cfg.provider, err, strings.Join(lastLines, "\n  "))
 		}
 		return fmt.Errorf("%s exited with error: %w", cfg.provider, err)
 	}

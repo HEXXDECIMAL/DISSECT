@@ -918,7 +918,7 @@ impl<'a> RuleDebugger<'a> {
         let ctx = EvaluationContext {
             report: self.report,
             binary_data: self.binary_data,
-            file_type: self.file_type.clone(),
+            file_type: self.file_type,
             platform: self.platform.clone(),
             additional_findings: None,
             cached_ast: None,
@@ -1050,6 +1050,7 @@ impl<'a> RuleDebugger<'a> {
         result
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn debug_ast_condition(
         &self,
         kind: &Option<String>,

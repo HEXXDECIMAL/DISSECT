@@ -332,6 +332,7 @@ fn main() -> Result<()> {
 
     Ok(())
 }
+#[allow(clippy::too_many_arguments)]
 fn analyze_file(
     target: &str,
     enable_third_party_yara: bool,
@@ -538,6 +539,7 @@ fn analyze_file(
     result
 }
 
+#[allow(clippy::too_many_arguments)]
 fn scan_paths(
     paths: Vec<String>,
     enable_third_party_yara: bool,
@@ -946,6 +948,7 @@ fn scan_paths(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn analyze_file_with_shared_mapper(
     target: &str,
     capability_mapper: &Arc<crate::capabilities::CapabilityMapper>,
@@ -1126,6 +1129,7 @@ fn analyze_archive_streaming_jsonl(
     sample_extraction: Option<&types::SampleExtractionConfig>,
 ) -> Result<()> {
     let path = Path::new(target);
+    let archive_path = target.to_string();
 
     let mut analyzer = ArchiveAnalyzer::new()
         .with_capability_mapper((**capability_mapper).clone())
@@ -1139,8 +1143,11 @@ fn analyze_archive_streaming_jsonl(
     }
 
     // Use streaming analysis - each file is emitted as a JSONL line via the callback
+    // Prefix the archive path to each file's path so consumers can group by archive
     let _report = analyzer.analyze_streaming(path, |file_analysis| {
-        if let Ok(line) = output::format_jsonl_line(file_analysis) {
+        let mut fa = file_analysis.clone();
+        fa.path = types::file_analysis::encode_archive_path(&archive_path, &fa.path);
+        if let Ok(line) = output::format_jsonl_line(&fa) {
             println!("{}", line);
         }
     })?;

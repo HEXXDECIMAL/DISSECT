@@ -20,7 +20,10 @@ pub struct ChromeManifestAnalyzer {
     capability_mapper: CapabilityMapper,
 }
 
+/// Chrome extension manifest structure
+/// Note: Some fields are only used for deserialization tolerance
 #[derive(Deserialize, Default, Debug)]
+#[allow(dead_code)]
 struct ChromeManifest {
     manifest_version: Option<u8>,
     name: Option<String>,
@@ -42,6 +45,7 @@ struct ChromeManifest {
 }
 
 #[derive(Deserialize, Default, Debug)]
+#[allow(dead_code)]
 struct ContentScript {
     #[serde(default)]
     matches: Vec<String>,
@@ -53,6 +57,7 @@ struct ContentScript {
 }
 
 #[derive(Deserialize, Default, Debug)]
+#[allow(dead_code)]
 struct Background {
     service_worker: Option<String>,
     #[serde(default)]
