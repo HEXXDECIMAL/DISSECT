@@ -224,7 +224,12 @@ func isFragment(path string) bool {
 
 // isTinyFile checks if a file is too small to be meaningful (e.g., empty __init__.py).
 // Files < 8 bytes are typically metadata and should be ignored.
-func isTinyFile(path string) bool {
+// For archive members, uses ExtractedPath if available; otherwise uses Path.
+func isTinyFile(f *FileAnalysis) bool {
+	path := f.Path
+	if f.ExtractedPath != "" {
+		path = f.ExtractedPath
+	}
 	info, err := os.Stat(path)
 	if err != nil {
 		return false
@@ -262,7 +267,7 @@ func archiveNeedsReview(a *ArchiveAnalysis, knownGood bool) bool {
 	// All members are clean/inert. Only review if there's at least one non-tiny file
 	// (skip archives that are all metadata like empty __init__.py files).
 	for _, m := range a.Members {
-		if !isTinyFile(m.Path) {
+		if !isTinyFile(&m) {
 			return true // Has real files that should be flagged
 		}
 	}
@@ -273,7 +278,7 @@ func archiveNeedsReview(a *ArchiveAnalysis, knownGood bool) bool {
 func archiveProblematicMembers(a *ArchiveAnalysis, knownGood bool) []FileAnalysis {
 	var result []FileAnalysis
 	for _, m := range a.Members {
-		if isTinyFile(m.Path) {
+		if isTinyFile(&m) {
 			continue // Skip tiny files
 		}
 		if needsReview(m, knownGood) {
