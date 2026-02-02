@@ -58,6 +58,20 @@ traits:
       type: content
       regex: 'Buffer.from\(.{0,100}["\'']hex["\'']\)'
 
+  # Hex-encoded require statement - obfuscated module import
+  # Pattern: require(Buffer.from("6f73", "hex").toString()) = require("os")
+  # This is a strong malware indicator - hiding sensitive imports
+  - id: js-hex-encoded-require
+    desc: Hex-encoded require statement
+    crit: suspicious
+    conf: 0.92
+    mbc: "B0032"
+    attack: "T1027"
+    for: [javascript]
+    if:
+      type: content
+      regex: 'require\s*\(\s*Buffer\.from\s*\(\s*["\x27][0-9a-fA-F]+["\x27]\s*,\s*["\x27]hex["\x27]\s*\)\.toString\s*\(\s*\)'
+
   # Global object manipulation patterns (symbol-based, more reliable)
   - id: js-global-property-write
     desc: Global object property assignment
@@ -235,3 +249,17 @@ composite_rules:
       - id: js-hex-escape
       - id: js-buffer-from-base64
       - id: js-buffer-from-hex
+
+  # Hex-encoded require obfuscation (npm supply chain malware pattern)
+  # Complexity: file_types(+1) + all(+3) = 4 (meets HOSTILE threshold)
+  - id: js-obfuscated-requires
+    desc: Obfuscated module imports via hex encoding
+    crit: hostile
+    conf: 0.95
+    attack: "T1195.002"
+    mbc: "B0032"
+    for: [javascript]
+    all:
+      - id: js-hex-encoded-require
+      - id: js-buffer-from-hex
+      - id: obj/lateral/supply-chain/npm/auto-execute

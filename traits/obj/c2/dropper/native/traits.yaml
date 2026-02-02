@@ -56,6 +56,41 @@ traits:
       - regex: "^[0-9a-fA-F]+$"
 
 composite_rules:
+  # libcurl network dropper: downloads content via libcurl, writes to disk, executes via shell
+  # Pattern seen in kworker_pretenders malware family (2024):
+  # - Uses libcurl to download payloads
+  # - Writes to user home directory files for persistence
+  # - Executes downloaded content via system()
+  # - Reads /proc/self/exe for self-discovery
+  # Complexity: all(4) + for(1) = 5 >= 4 ✓ HOSTILE
+  - id: libcurl-network-dropper
+    desc: libcurl dropper (downloads and executes payload)
+    crit: hostile
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1105"
+    for: [elf]
+    all:
+      - id: cap/comm/download/curl/libcurl-http
+      - id: cap/exec/command/shell/shell-execution
+      - id: cap/fs/file-ops/binary-file-ops
+      - id: cap/fs/proc/process/process-pid-exe
+
+  # Minimal libcurl dropper: stripped binary with curl + system + few imports
+  # This variant doesn't need /proc/self/exe but has minimal imports indicating malicious intent
+  # Complexity: all(3) + for(1) = 4 >= 4 ✓ HOSTILE
+  - id: libcurl-minimal-dropper
+    desc: Minimal libcurl dropper (stripped binary)
+    crit: hostile
+    conf: 0.92
+    mbc: "B0030"
+    attack: "T1105"
+    for: [elf]
+    all:
+      - id: cap/comm/download/curl/libcurl-http
+      - id: cap/exec/command/shell/shell-execution
+      - id: obj/anti-static/obfuscation/payload/minimal-imports
+
   # Hex-encoded dropper: large hex blob + system() + minimal imports
   # This is a classic dropper pattern: decode hex payload and execute via shell
   # Complexity: all(3) + file_types(1) = 4 >= 4 ✓ HOSTILE

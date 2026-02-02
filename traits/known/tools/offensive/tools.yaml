@@ -76,6 +76,29 @@ traits:
       # Word boundaries to avoid matching substrings like "dynmap", "unmap", etc.
       word: "nmap"
 
+  # Nmap spoofing flags - used to hide scanner identity
+  - id: nmap-spoof-source
+    description: Nmap source IP spoofing
+    crit: suspicious
+    conf: 0.85
+    attack: "T1046"
+    platforms: [all]
+    condition:
+      type: content
+      # Matches nmap -S or arguments containing -S for source IP spoofing
+      regex: "(?:nmap|scan).{0,50}-S\\s+[0-9]|arguments.{0,20}-S\\s+[0-9]|'-S\\s+[0-9]"
+
+  - id: nmap-decoy-scan
+    description: Nmap decoy scan
+    crit: suspicious
+    conf: 0.85
+    attack: "T1046"
+    platforms: [all]
+    condition:
+      type: content
+      # Matches nmap -D for decoy scanning
+      regex: "(?:nmap|scan).{0,50}-D\\s+[0-9]|arguments.{0,20}-D\\s+[0-9]|'-D\\s+[0-9]"
+
   - id: masscan-ref
     description: Masscan port scanner reference
     crit: suspicious

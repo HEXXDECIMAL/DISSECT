@@ -200,6 +200,194 @@ traits:
       type: string
       exact: "child_process"
 
+  # === INSTALL-TIME STEALTH PATTERNS ===
+  # Malware that checks if running during npm install to hide output
+
+  - id: is-preinstall-check
+    desc: isPreinstall variable check (install-time stealth)
+    crit: suspicious
+    conf: 0.9
+    mbc: "B0024"
+    attack: "T1195.002"
+    if:
+      type: content
+      regex: "\\bisPreinstall\\b"
+
+  - id: npm-lifecycle-env-check
+    desc: npm_lifecycle_event environment check
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0024"
+    attack: "T1195.002"
+    if:
+      type: content
+      regex: "npm_lifecycle_event|npm_lifecycle_script"
+
+  - id: not-is-preinstall-guard
+    desc: Negated preinstall stealth guard
+    crit: suspicious
+    conf: 0.92
+    mbc: "B0024"
+    attack: "T1195.002"
+    if:
+      type: content
+      regex: "!\\s*isPreinstall|if\\s*\\(!\\s*isPreinstall"
+
+  # === EXFILTRATION FUNCTION NAMING ===
+  # Explicit exfiltration function names are strong indicators
+
+  - id: send-data-function
+    desc: sendData function (exfiltration)
+    crit: suspicious
+    conf: 0.85
+    mbc: "E1041"
+    attack: "T1041"
+    if:
+      type: content
+      regex: "(?:async\\s+)?function\\s+sendData\\s*\\(|sendData\\s*=\\s*(?:async\\s+)?(?:function|\\()"
+
+  - id: send-via-websocket-function
+    desc: sendViaWebSocket function (backup C2)
+    crit: suspicious
+    conf: 0.9
+    mbc: "E1041"
+    attack: "T1041"
+    if:
+      type: content
+      regex: "(?:async\\s+)?function\\s+sendViaWebSocket\\s*\\(|sendViaWebSocket\\s*\\("
+
+  - id: exfil-function-call
+    desc: Call to sendData/exfil function
+    crit: notable
+    conf: 0.8
+    mbc: "E1041"
+    attack: "T1041"
+    if:
+      type: content
+      regex: "\\bsendData\\s*\\(|\\bexfilData\\s*\\(|\\bsendInfo\\s*\\("
+
+  # === DYNAMIC C2 ENDPOINT ===
+  # Dynamic endpoint selection is common in supply chain malware
+
+  - id: get-available-endpoint
+    desc: getAvailableEndpoint function (C2 selection)
+    crit: suspicious
+    conf: 0.88
+    mbc: "B0030"
+    attack: "T1071"
+    if:
+      type: content
+      regex: "getAvailableEndpoint\\s*\\(|getEndpoint\\s*\\(|selectEndpoint\\s*\\("
+
+  - id: build-query-params
+    desc: buildQueryParams function (URL exfil encoding)
+    crit: notable
+    conf: 0.75
+    mbc: "E1041"
+    attack: "T1041"
+    if:
+      type: content
+      regex: "buildQueryParams\\s*\\("
+
+  # === WEBSOCKET BACKUP CHANNEL ===
+  # WebSocket as fallback C2 channel
+
+  - id: websocket-fallback
+    desc: WebSocket fallback/backup channel
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0030"
+    attack: "T1071.001"
+    if:
+      type: content
+      regex: "WebSocket\\s+(?:Backup|backup|fallback)|sendViaWebSocket|ws\\.send\\("
+
+  # === HEADER-BASED BACKDOOR PATTERNS ===
+  # getcookies-style backdoors that extract commands from HTTP headers
+
+  - id: header-regex-extraction
+    desc: Header regex command extraction
+    crit: suspicious
+    conf: 0.9
+    mbc: "B0030"
+    attack: "T1071.001"
+    if:
+      type: content
+      # Pattern matches: req.headers.something.replace(/regex/, ...) or JSON.stringify(req.headers).replace(...)
+      regex: "(?:req\\.headers|headers).{0,100}\\.replace\\s*\\(\\s*/[^/]+/"
+
+  - id: hex-require-bracket-method
+    desc: Hex-escaped bracket method access
+    crit: suspicious
+    conf: 0.95
+    mbc: "B0032"
+    attack: "T1027"
+    if:
+      type: content
+      # Pattern: require('\x...')['...'](  - obfuscated module with bracket method access
+      regex: "require\\s*\\(\\s*['\"]\\\\x[0-9a-fA-F]{2}.{0,50}['\"]\\s*\\)\\s*\\[\\s*['\"]"
+
+  - id: buffer-alloc-large
+    desc: Large buffer allocation (command assembly)
+    crit: notable
+    conf: 0.7
+    if:
+      type: content
+      regex: "Buffer\\.alloc\\s*\\(\\s*0x[fF]{2,}"
+
+  - id: buffer-write-loop
+    desc: Staged buffer payload assembly
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0032"
+    attack: "T1027"
+    if:
+      type: content
+      # Pattern: buffer[index] = value in a loop
+      regex: "\\w+\\[\\s*\\w+\\s*\\+\\s*\\w+\\s*\\]\\s*=\\s*\\w+\\[\\s*\\w+\\s*\\]"
+
+  - id: settimeout-code-exec
+    desc: setTimeout with code execution
+    crit: notable
+    conf: 0.75
+    if:
+      type: content
+      # setTimeout with arrow function that calls something suspicious
+      regex: "setTimeout\\s*\\(\\s*\\(\\s*\\)\\s*=>\\s*\\{"
+
+  - id: hex-vm-import
+    desc: Hex-escaped vm module import
+    crit: suspicious
+    conf: 0.95
+    mbc: "B0032"
+    attack: "T1059"
+    if:
+      type: content
+      # \x76\x6d = 'vm'
+      regex: "require\\s*\\(\\s*['\"]\\\\x76\\\\x6d['\"]\\s*\\)"
+
+  - id: hex-runinthiscontext
+    desc: Hex-escaped runInThisContext method
+    crit: suspicious
+    conf: 0.95
+    mbc: "B0032"
+    attack: "T1059"
+    if:
+      type: content
+      # \x72\x75\x6e\x49\x6e\x54\x68\x69\x73\x43\x6f\x6e\x74\x65\x78\x74 = 'runInThisContext'
+      regex: "\\\\x72\\\\x75\\\\x6e\\\\x49\\\\x6e\\\\x54\\\\x68\\\\x69\\\\x73\\\\x43\\\\x6f\\\\x6e\\\\x74\\\\x65\\\\x78\\\\x74"
+
+  - id: test-harness-in-production
+    desc: Test harness import in production
+    crit: suspicious
+    conf: 0.8
+    mbc: "B0024"
+    attack: "T1195.002"
+    if:
+      type: content
+      # Unusual: importing test/harness in non-test file
+      regex: "require\\s*\\(\\s*['\"][^'\"]*(?:test|spec)[/\\\\]harness[^'\"]*['\"]\\s*\\)"
+
 composite_rules:
   # Python interpreter exec composite
   - id: python-interpreter-exec
@@ -275,3 +463,133 @@ composite_rules:
       - id: obj/anti-static/obfuscation/strings/js-global-manipulation
       - id: cap/exec/eval/dynamic/obfuscated-iife
       - id: obj/anti-static/obfuscation/strings/js-require-alias
+
+  # === INSTALL-TIME STEALTH COMPOSITES ===
+
+  # Helper: any install-time stealth check
+  - id: install-stealth-check
+    desc: Install-time stealth mechanism
+    crit: suspicious
+    conf: 0.88
+    mbc: "B0024"
+    attack: "T1195.002"
+    for: [javascript]
+    count_min: 1
+    any:
+      - id: is-preinstall-check
+      - id: not-is-preinstall-guard
+      - id: npm-lifecycle-env-check
+
+  # Helper: HTTP POST exfiltration capability
+  - id: http-post-exfil
+    desc: HTTP POST exfiltration
+    crit: notable
+    conf: 0.75
+    for: [javascript]
+    count_min: 1
+    any:
+      - id: cap/comm/http/post/post
+      - id: obj/exfil/http/node/node-post-json
+
+  # === SUPPLY CHAIN EXFIL COMPOSITES (HOSTILE) ===
+
+  # Stealth exfil during install: isPreinstall + HTTP POST
+  # Complexity: file_types(+1) + all(+3) = 4 (meets HOSTILE threshold)
+  - id: stealth-install-exfil
+    desc: Stealthy exfiltration during npm install
+    crit: hostile
+    conf: 0.95
+    mbc: "E1041"
+    attack: "T1195.002"
+    for: [javascript]
+    all:
+      - id: install-stealth-check
+      - id: http-post-exfil
+      - id: cap/comm/http/websocket/websocket
+
+  # Dual-channel exfil: HTTP + WebSocket backup
+  # Complexity: file_types(+1) + all(+3) = 4 (meets HOSTILE threshold)
+  - id: dual-channel-exfil
+    desc: Dual HTTP/WebSocket exfiltration channels
+    crit: hostile
+    conf: 0.93
+    mbc: "B0030"
+    attack: "T1071.001"
+    for: [javascript]
+    all:
+      - id: send-data-function
+      - id: send-via-websocket-function
+      - id: cap/comm/http/post/post
+
+  # Dynamic C2 with exfil function
+  # Complexity: file_types(+1) + all(+3) = 4 (meets HOSTILE threshold)
+  - id: dynamic-c2-exfil
+    desc: Dynamic C2 endpoint with exfiltration
+    crit: hostile
+    conf: 0.92
+    mbc: "B0030"
+    attack: "T1071.001"
+    for: [javascript]
+    all:
+      - id: get-available-endpoint
+      - id: exfil-function-call
+      - id: cap/comm/http/post/post
+
+  # Complete npm exfiltrator pattern (all indicators)
+  # Complexity: file_types(+1) + all(+4) = 5 (exceeds HOSTILE threshold)
+  - id: npm-exfiltrator
+    desc: Complete npm supply chain exfiltrator
+    crit: hostile
+    conf: 0.98
+    mbc: "E1041"
+    attack: "T1195.002"
+    for: [javascript]
+    all:
+      - id: install-stealth-check
+      - id: exfil-function-call
+      - id: get-available-endpoint
+      - id: cap/comm/http/post/post
+
+  # === HEADER-TRIGGERED BACKDOOR COMPOSITES ===
+
+  # Obfuscated VM code execution (getcookies-style backdoor)
+  # Complexity: file_types(+1) + all(+3) = 4 (meets HOSTILE threshold)
+  - id: obfuscated-vm-backdoor
+    desc: Obfuscated vm.runInThisContext backdoor
+    crit: hostile
+    conf: 0.98
+    mbc: "B0022"
+    attack: "T1059.007"
+    for: [javascript]
+    all:
+      - id: hex-vm-import
+      - id: hex-runinthiscontext
+      - id: obj/anti-static/obfuscation/strings/js-hex-escape
+
+  # Header-based command injection backdoor
+  # Complexity: file_types(+1) + all(+3) = 4 (meets HOSTILE threshold)
+  - id: header-command-backdoor
+    desc: HTTP header-based command injection
+    crit: hostile
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1071.001"
+    for: [javascript]
+    all:
+      - id: header-regex-extraction
+      - id: buffer-alloc-large
+      - id: settimeout-code-exec
+
+  # Generic obfuscated bracket-access backdoor
+  # Complexity: file_types(+1) + all(+3) = 4 (meets HOSTILE threshold)
+  - id: bracket-access-backdoor
+    desc: Obfuscated require with bracket method access
+    crit: hostile
+    conf: 0.95
+    mbc: "B0032"
+    attack: "T1059.007"
+    for: [javascript]
+    all:
+      - id: hex-require-bracket-method
+      - id: obj/anti-static/obfuscation/strings/js-hex-escape
+      - id: settimeout-code-exec

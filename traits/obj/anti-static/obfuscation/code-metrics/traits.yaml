@@ -110,6 +110,7 @@ traits:
       type: metrics
       field: identifiers.reuse_ratio
       max: 0.15
+      min_size: 512
 
   # === High Entropy Function Names ===
 
@@ -265,6 +266,7 @@ traits:
       type: metrics
       field: text.whitespace_ratio
       max: 0.10
+      min_size: 512
 
   # === Complexity Anomalies ===
 

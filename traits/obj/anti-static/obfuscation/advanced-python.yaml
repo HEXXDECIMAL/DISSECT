@@ -143,3 +143,18 @@ composite_rules:
       - id: com-dispatch-usage
       - id: admin-check-ctypes
       - id: ctypes-windll-usage
+
+  # === Supply Chain Attack Detection ===
+  # Obfuscated Python setup.py with persistence indicators
+  # Complexity: file_types(+1) + all(+3) = 4 (meets HOSTILE threshold)
+  - id: obfuscated-setup-py-trojan
+    desc: Heavily obfuscated setup.py trojan
+    crit: hostile
+    conf: 0.95
+    attack: "T1195.002"
+    mbc: "B0024"
+    file_types: [python]
+    all:
+      - id: advanced-python-obfuscation
+      - id: state-machine-obfuscation
+      - id: com-dispatch-usage
