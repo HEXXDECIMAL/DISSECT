@@ -1,0 +1,88 @@
+# Native Binary Dropper Detection
+# Detects compiled binaries that decode and execute embedded payloads
+# MBC: B0030 (Dropper), B0032 (Obfuscation)
+# ATT&CK: T1027.009 (Embedded Payloads), T1059 (Command Execution)
+
+defaults:
+  for: [macho, elf, pe]
+  mbc: "B0030"
+  attack: "T1027.009"
+
+traits:
+  # Large hex-encoded payload embedded in binary
+  # Pattern: long continuous hex string (20000+ chars = 10KB+ decoded)
+  # This is a dropper technique: encode payload as hex, decode at runtime
+  # Common in AMOS stealer, cryptominers, and other macOS malware
+  - id: large-hex-payload
+    desc: Large hex-encoded payload string (10KB+)
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      regex: "^[0-9a-fA-F]{20000,}$"
+      min_count: 1
+
+  # Custom encoding alphabet (64 chars with special characters)
+  # Malware often uses custom base64-like alphabets for obfuscation
+  # Pattern: 60-66 chars containing letters, numbers, AND special chars
+  # Examples: ">Ei*=%K6X#<ht!x4P8j(rHF3_pLJc9n1uWy5oqYI7gsbU+$@MSNA&k-)vVCGQZwR"
+  # Standard base64 only uses +/= as special chars; custom alphabets use more
+  # Must contain at least one of: > < * % # ! ( ) @ $ & to be a custom alphabet
+  - id: custom-encoding-alphabet
+    desc: Custom encoding alphabet (cipher/obfuscation)
+    crit: suspicious
+    conf: 0.8
+    mbc: "B0032"
+    attack: "T1027"
+    if:
+      type: string
+      # 60-66 char string that:
+      # - Contains special chars like >*=%#<()!@$&
+      # - Does NOT start with __ (excludes C++ mangled names)
+      # - Is not all alphanumeric (must have real special chars)
+      regex: "^[^_][a-zA-Z0-9><=*%#!()@$&+\\-_]{59,65}$"
+      min_count: 1
+    # Filter out standard base64 and common false positives
+    not:
+      - exact: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+      - exact: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+      # Exclude strings that only have alphanumeric + standard base64 chars
+      - regex: "^[A-Za-z0-9+/=\\-_]+$"
+      # Exclude C++ mangled names (contain Ns, Es in sequence pattern)
+      - regex: "NSt3__1"
+      - regex: "__Z"
+      - regex: "@__Z"
+      # Exclude hex strings (only 0-9a-f)
+      - regex: "^[0-9a-fA-F]+$"
+
+composite_rules:
+  # Hex-encoded dropper: large hex blob + system() + minimal imports
+  # This is a classic dropper pattern: decode hex payload and execute via shell
+  # Complexity: all(3) + file_types(1) = 4 >= 4 ✓ HOSTILE
+  - id: hex-payload-dropper
+    desc: Hex-encoded payload dropper (decodes and executes)
+    crit: hostile
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1059"
+    for: [macho, elf]
+    all:
+      - id: large-hex-payload
+      - id: obj/anti-static/obfuscation/payload/minimal-imports
+      - id: cap/exec/command/shell/shell-execution
+
+  # Obfuscated payload dropper: custom encoding + large payload + exec
+  # This pattern is common in macOS malware like FakeZoom/AMOS stealer
+  # Uses custom encoding alphabet to decode embedded payload, then executes
+  # Complexity: all(3) + file_types(1) = 4 >= 4 ✓ HOSTILE
+  - id: custom-encoded-dropper
+    desc: Custom-encoded payload dropper
+    crit: hostile
+    conf: 0.92
+    mbc: "B0030"
+    attack: "T1059"
+    for: [macho, elf]
+    all:
+      - id: large-hex-payload
+      - id: custom-encoding-alphabet
+      - id: cap/exec/command/shell/shell-execution

@@ -38,6 +38,27 @@ traits:
       type: string
       substr: "--output-document"
 
+  # === Silent wget/curl to stdout (dropper pattern) ===
+  - id: wget-silent-stdout
+    desc: "Silent wget output to stdout"
+    crit: suspicious
+    conf: 0.9
+    mbc: "C0002"
+    attack: "T1105"
+    if:
+      type: content
+      regex: 'wget\s+[^|&\n]*-q[^|&\n]*-O\s*-|wget\s+[^|&\n]*-O\s*-[^|&\n]*-q'
+
+  - id: curl-silent-stdout
+    desc: "Silent curl output to stdout"
+    crit: suspicious
+    conf: 0.9
+    mbc: "C0002"
+    attack: "T1105"
+    if:
+      type: content
+      regex: 'curl\s+[^|&\n]*-s[^|&\n]*(https?://|ftp://)|curl\s+[^|&\n]*--silent[^|&\n]*(https?://|ftp://)'
+
   - id: curl-download
     desc: "Download via curl"
     crit: notable
@@ -106,7 +127,7 @@ traits:
     attack: "T1222"
     if:
       type: content
-      regex: 'chmod\s+\+x\s+'
+      regex: 'chmod\s+\+x'
 
   # === One-liner detection ===
   - id: oneliner-dropper-pattern
@@ -180,6 +201,19 @@ composite_rules:
       - id: curl-download-file
       - id: chmod-plus-x-cmd
       - id: execute-tmp-staging
+
+  # curl + chmod +x + ./ execute (suspicious - 3 conditions)
+  - id: curl-chmod-dotslash
+    desc: "Download, chmod +x, execute via ./"
+    conf: 0.9
+    crit: suspicious
+    mbc: "B0024"
+    attack: "T1059.004"
+    for: [shell]
+    all:
+      - id: curl-download-file
+      - id: chmod-plus-x-cmd
+      - id: execute-dot-slash
 
   # One-liner dropper (hostile)
   - id: oneliner-dropper

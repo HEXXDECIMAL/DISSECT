@@ -48,6 +48,21 @@ composite_rules:
       - id: cap/exec/dropper/script/chmod-plus-x-cmd
       - id: cap/exec/dropper/script/execute-dot-slash
 
+  # Download from external URL + chmod + execute
+  # Complexity: all(4) = 4 -> hostile
+  - id: url-dropper
+    desc: Download from URL, chmod, and execute
+    crit: hostile
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1105"
+    for: [shell]
+    all:
+      - id: obj/c2/infrastructure/domain/http-url-with-domain-pattern
+      - id: cap/exec/dropper/script/curl-download-file
+      - id: cap/exec/dropper/script/chmod-plus-x-cmd
+      - id: cap/exec/dropper/script/execute-dot-slash
+
 traits:
   - id: tmpdir-variable
     desc: $TMPDIR environment variable usage

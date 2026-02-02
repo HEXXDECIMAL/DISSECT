@@ -15,9 +15,8 @@ traits:
     conf: 0.75
     attack: "T1083"
     if:
-      type: ast
-      kind: call
-      exact: "Dir.foreach"
+      type: content
+      regex: 'Dir\.foreach|Dir\.glob|Dir\.entries'
 
   - id: recursive-call-self
     desc: Recursive function call for traversal
@@ -25,9 +24,8 @@ traits:
     conf: 0.80
     attack: "T1083"
     if:
-      type: ast
-      kind: call
-      exact: "find_files"
+      type: content
+      regex: 'find_files\s*\([^)]*,[^)]*,\s*\w+\s*,'
 
   - id: depth-limit-param
     desc: Depth-limited recursion parameter
@@ -35,8 +33,8 @@ traits:
     conf: 0.70
     attack: "T1083"
     if:
-      type: string
-      regex: 'max_depth|depth.{0,50}[0-9]'
+      type: content
+      regex: 'max_depth|depth\s*[=-]'
 
   # === File Collection ===
   - id: file-array-append
@@ -45,7 +43,7 @@ traits:
     conf: 0.75
     attack: "T1083"
     if:
-      type: string
+      type: content
       regex: '(files|paths|targets|list)\s*<<'
 
   - id: directory-array-append
@@ -54,8 +52,8 @@ traits:
     conf: 0.75
     attack: "T1083"
     if:
-      type: string
-      regex: 'directories.{0,50}<<|dirs.{0,50}<<'
+      type: content
+      regex: 'directories\s*<<|dirs\s*<<'
 
   # === Extension Manipulation ===
   - id: file-extension-rename
@@ -64,8 +62,8 @@ traits:
     conf: 0.85
     attack: "T1027"
     if:
-      type: string
-      regex: 'File\.rename.{0,50}\.rb|\.rb.{0,50}File\.rename'
+      type: content
+      regex: 'File\.rename.{0,100}\.rb|\.rb.{0,100}File\.rename'
 
   # === Self-Replication ===
   - id: self-file-reference
@@ -74,8 +72,8 @@ traits:
     conf: 0.80
     attack: "T1059"
     if:
-      type: string
-      regex: '__FILE__|File\.basename.{0,50}__FILE__'
+      type: content
+      regex: '__FILE__'
 
   - id: read-self-content
     desc: Reading own file content
@@ -83,8 +81,8 @@ traits:
     conf: 0.85
     attack: "T1059"
     if:
-      type: string
-      regex: 'File\.open.{0,50}__FILE__|File\.read.{0,50}__FILE__|file_malware\.read'
+      type: content
+      regex: 'File\.open.{0,100}malware|File\.read.{0,100}malware|file_malware\.read'
 
   - id: write-to-other-files
     desc: Writing content to other files
@@ -92,8 +90,8 @@ traits:
     conf: 0.90
     attack: "T1059"
     if:
-      type: string
-      regex: 'File\.open.{0,50}w.{0,50}file|file_target\.write|write\(content'
+      type: content
+      regex: 'file_target\.write|\.write\s*\(\s*content'
 
   # === Self-Preservation ===
   - id: skip-self-check
@@ -102,8 +100,8 @@ traits:
     conf: 0.80
     attack: "T1070"
     if:
-      type: string
-      regex: 'next if file == __FILE__|file_name\[0\].{0,50}malware\.rb|file_name\[0\].{0,50}main\.rb'
+      type: content
+      regex: 'next\s+if\s+file\s*==\s*__FILE__|!=.{0,30}malware\.rb|!=.{0,30}main\.rb'
 
   - id: exception-swallow-file-ops
     desc: Exception swallowing for file operations
@@ -111,8 +109,8 @@ traits:
     conf: 0.75
     attack: "T1070"
     if:
-      type: string
-      regex: 'rescue.{0,50}next|begin.{0,50}rescue.{0,50}File'
+      type: content
+      regex: 'rescue\s*\n\s*next|begin\s*\n.{0,200}File.{0,200}rescue'
 
 composite_rules:
   # === File Enumerator ===
@@ -153,18 +151,17 @@ composite_rules:
       - id: skip-self-check
 
   # === File Infector Virus ===
+  # HOSTILE: Active file infection that modifies/overwrites other files
+  # Complexity: all(3) + any(1) = 4+ (meets hostile threshold)
   - id: file-infector-virus
     desc: File infector virus spreads by injecting code into other files
-    crit: suspicious
+    crit: hostile
     conf: 0.95
     attack: "T1491.001"
-    count_min: 5
+    all:
+      - id: file-enumerator        # Must enumerate files
+      - id: self-replicator        # Must have self-replication behavior
+      - id: write-to-other-files   # Must write to other files
     any:
-      - id: recursive-dir-traverse
-      - id: recursive-call-self
       - id: file-extension-rename
-      - id: read-self-content
-      - id: write-to-other-files
-      - id: skip-self-check
       - id: exception-swallow-file-ops
-      - id: file-array-append

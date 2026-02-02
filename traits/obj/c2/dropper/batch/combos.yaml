@@ -1,0 +1,95 @@
+# Windows Batch Dropper Objectives
+# Combines batch dropper techniques with C2 indicators and defense evasion
+# MBC: B0030 (Dropper), C0002 (Download)
+# ATT&CK: T1059.003, T1105, T1562.001
+
+composite_rules:
+  # Download + Execute + Security Bypass (AV disable/exclusion)
+  # This is the classic malware dropper pattern:
+  # 1. Disable/bypass security tools
+  # 2. Download payload from remote URL
+  # 3. Execute the downloaded payload
+  # Complexity: all(3) + file_types(1) = 4 -> hostile
+  - id: security-bypass-dropper
+    desc: Dropper with security tool bypass
+    crit: hostile
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1562.001"
+    file_types: [batch, shell]
+    all:
+      - id: obj/anti-analysis/security-bypass/bypass
+      - id: cap/exec/dropper/windows/download-tool
+      - id: cap/exec/dropper/windows/exec-cmd
+
+  # Download + Execute + Defender Exclusion specifically
+  # Complexity: all(3) + file_types(1) = 4 -> hostile
+  - id: defender-exclusion-dropper
+    desc: Dropper with Defender exclusion
+    crit: hostile
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1562.001"
+    file_types: [batch, shell, powershell]
+    all:
+      - id: obj/anti-analysis/security-bypass/defender-exclusion
+      - id: cap/exec/dropper/windows/download-file-ps
+      - id: cap/exec/dropper/windows/start-cmd
+
+  # PowerShell download cradle in batch with security bypass
+  # Complexity: all(3) + file_types(1) = 4 -> hostile
+  - id: ps-cradle-security-bypass
+    desc: PowerShell cradle with security bypass
+    crit: hostile
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1059.001"
+    file_types: [batch, shell]
+    all:
+      - id: obj/anti-analysis/security-bypass/bypass
+      - id: cap/exec/dropper/windows/powershell-download
+      - id: cap/exec/dropper/windows/exec-cmd
+
+  # UAC bypass + Download + Execute
+  # Complexity: all(3) + file_types(1) = 4 -> hostile
+  - id: uac-bypass-dropper
+    desc: UAC bypass dropper
+    crit: hostile
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1548.002"
+    file_types: [batch, shell, powershell]
+    all:
+      - id: obj/anti-analysis/security-bypass/start-process-runas
+      - id: cap/exec/dropper/windows/download-tool
+      - id: cap/exec/dropper/windows/exec-cmd
+
+  # AV check (tasklist) + Security bypass + dropper
+  # Classic pattern: check for AV, disable it, then download/execute
+  # Complexity: all(4) = 4 -> hostile
+  - id: av-aware-dropper
+    desc: AV-aware dropper with bypass
+    crit: hostile
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1562.001"
+    for: [batch, shell]
+    all:
+      - id: obj/anti-analysis/security-bypass/tasklist-av-check
+      - id: obj/anti-analysis/security-bypass/bypass
+      - id: cap/exec/dropper/windows/download-tool
+      - id: cap/exec/dropper/windows/exec-cmd
+
+  # Malwarebytes disable + dropper
+  # Complexity: all(3) + file_types(1) = 4 -> hostile
+  - id: malwarebytes-bypass-dropper
+    desc: Malwarebytes bypass dropper
+    crit: hostile
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1562.001"
+    file_types: [batch, shell]
+    all:
+      - id: obj/anti-analysis/security-bypass/malwarebytes-stop-service
+      - id: cap/exec/dropper/windows/download-tool
+      - id: cap/exec/dropper/windows/exec-cmd

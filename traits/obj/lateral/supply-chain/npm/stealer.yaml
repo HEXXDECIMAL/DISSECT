@@ -100,6 +100,54 @@ traits:
       regex: "global\\.__[a-z_]*postinstall"
       case_insensitive: true
 
+  # === DUNDER VARIABLE PATTERNS (content matching for .d.ts files) ===
+  # TypeScript declaration files don't extract identifiers as strings
+  # These patterns catch malware state tracking variables in declarations
+
+  - id: dunder-postinstall-decl
+    desc: Dunder postinstall variable declaration
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0024"
+    if:
+      type: content
+      regex: "__[a-z_]*postinstall"
+      case_insensitive: true
+
+  - id: dunder-token-decl
+    desc: Dunder token storage variable
+    crit: suspicious
+    conf: 0.85
+    mbc: "E1059"
+    attack: "T1528"
+    if:
+      type: content
+      regex: "__[a-z_]*_token\\b"
+      case_insensitive: true
+
+  # === STEALER BASENAME DETECTION ===
+  # Files named stealer/grabber are strong indicators
+
+  - id: stealer-basename
+    desc: File named stealer
+    crit: suspicious
+    conf: 0.9
+    mbc: "E1059"
+    if:
+      type: basename
+      regex: "^stealer\\."
+      case_insensitive: true
+
+  - id: grabber-basename
+    desc: File named grabber
+    crit: suspicious
+    conf: 0.9
+    mbc: "E1059"
+    if:
+      type: basename
+      regex: "^grabber\\."
+      case_insensitive: true
+
 composite_rules:
   # Stealer module import (any form)
   - id: stealer-import
@@ -160,3 +208,42 @@ composite_rules:
       - id: stealer-import
       - id: cloud-sandbox-check
       - id: cap/process/exit/process-exit
+
+  # Stealer declaration file (combines basename + credential storage patterns)
+  # Complexity: file_types(+1) + all(+3) = 4
+  - id: stealer-declaration
+    desc: Stealer module declaration with token storage
+    crit: hostile
+    conf: 0.95
+    mbc: "E1059"
+    attack: "T1528"
+    file_types: [javascript, typescript]
+    all:
+      - id: stealer-basename
+      - id: dunder-token-decl
+      - id: dunder-postinstall-decl
+
+  # Stealer file with postinstall tracking (slightly lower bar)
+  # Complexity: file_types(+1) + all(+2) = 3 -> suspicious
+  - id: stealer-postinstall-tracking
+    desc: Stealer file with postinstall state
+    crit: suspicious
+    conf: 0.9
+    mbc: "B0024"
+    file_types: [javascript, typescript]
+    all:
+      - id: stealer-basename
+      - id: dunder-postinstall-decl
+
+  # Token theft declaration pattern (any file)
+  # Complexity: file_types(+1) + all(+2) = 3 -> suspicious
+  - id: token-theft-declaration
+    desc: Token storage with postinstall tracking
+    crit: suspicious
+    conf: 0.88
+    mbc: "E1059"
+    attack: "T1528"
+    file_types: [javascript, typescript]
+    all:
+      - id: dunder-token-decl
+      - id: dunder-postinstall-decl

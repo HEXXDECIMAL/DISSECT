@@ -82,6 +82,19 @@ traits:
       type: hex
       pattern: "0F B6 ?? ?? 0F B6 ?? ?? 31 ?? 0F B6 ?? ?? 31"
 
+  # XZ backdoor CPUID mask check pattern
+  # The sequence: cpuid; not ecx; and ecx, 0x80202
+  # This checks for SSSE3, LAHF/SAHF, and POPCNT in ECX to select backdoor variant
+  # Extremely specific to XZ backdoor - not found in legitimate LZMA libraries
+  - id: xz-cpuid-mask-check
+    desc: XZ backdoor CPUID mask
+    crit: suspicious
+    conf: 0.95
+    for: [elf]
+    if:
+      type: hex
+      pattern: "0F A2 F7 D1 81 E1 02 02 08 00"
+
   # === SSH/Auth hooking patterns ===
   - id: libsystemd-ref
     desc: libsystemd reference
@@ -369,3 +382,66 @@ composite_rules:
       - id: glibc-hijack
       - id: symbol-interposition
       - id: high-entropy-strings
+
+  # === Compression library supply chain backdoor ===
+  # A compression library (lzma, zlib, etc.) with:
+  # 1. Multiple embedded compressed payloads (hidden stage)
+  # 2. Geofencing/country code checks (CIS exclusion typical of state actors)
+  # This is a very strong indicator of supply chain compromise like XZ Utils backdoor
+  # Complexity: all(2) + for(1) + any(3 min 1) = 4 minimum
+  - id: compression-lib-backdoor
+    desc: Compression library with hidden payload and geofencing
+    crit: hostile
+    conf: 0.95
+    for: [elf]
+    all:
+      - id: meta/library/compression/compression-lib
+      - id: cap/data/embedded/multiple-compressed-payloads
+    any:
+      - id: obj/anti-forensics/geofencing/cis-country-codes
+      - id: obj/anti-forensics/geofencing/russian-system-check
+      - id: obj/anti-forensics/geofencing/cis-timezone-checks
+
+  # === Compression library with embedded executable ===
+  # A compression library embedding ELF/PE binaries is highly suspicious
+  - id: compression-lib-embedded-binary
+    desc: Compression library with embedded executable
+    crit: hostile
+    conf: 0.95
+    for: [elf]
+    all:
+      - id: meta/library/compression/compression-lib
+    any:
+      - id: cap/data/embedded/elf-magic-embedded
+      - id: cap/data/embedded/pe-magic-embedded
+
+  # === Library with embedded payload and geofencing (generic) ===
+  # Any shared library with both hidden payloads and country exclusion logic
+  # Complexity: all(2) + for(1) + any(1) = 4 minimum
+  - id: library-payload-geofencing
+    desc: Library with embedded payload and geofencing
+    crit: suspicious
+    conf: 0.85
+    for: [elf]
+    all:
+      - id: cap/data/embedded/multiple-compressed-payloads
+      - id: obj/anti-forensics/geofencing/cis-country-codes
+
+  # === Compression library with suspicious CPUID feature selection ===
+  # A compression library with:
+  # 1. Multiple embedded compressed payloads (hidden stage/backdoor)
+  # 2. Suspicious CPUID mask checks (XZ backdoor style CPU feature detection)
+  # The XZ backdoor uses CPUID to select different payload variants based on CPU features.
+  # This is NOT typical of legitimate compression libraries which use CPUID only for
+  # SIMD optimization (AVX/SSE), not for selecting between different code paths with
+  # specific masks like 0x80202.
+  # Complexity: all(3) + for(1) = 4
+  - id: compression-lib-backdoor-cpuid
+    desc: Compression library with hidden payload and suspicious CPUID
+    crit: hostile
+    conf: 0.95
+    for: [elf]
+    all:
+      - id: meta/library/compression/compression-lib
+      - id: cap/data/embedded/multiple-compressed-payloads
+      - id: xz-cpuid-mask-check

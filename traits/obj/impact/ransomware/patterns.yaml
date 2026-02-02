@@ -539,3 +539,17 @@ composite_rules:
       - id: vssadmin-delete
       - id: wmic-shadowcopy
       - id: bcdedit-recovery
+
+  # In-place file encryption ransomware (Python/Fernet)
+  # Combines directory traversal + in-place file write + encryption
+  - id: inplace-encrypt
+    description: In-place file encryption ransomware
+    crit: hostile
+    conf: 0.95
+    for: [python]
+    all:
+      - id: cap/fs/directory/traverse/traverse-walk
+      - id: cap/fs/file/open/binary-rw
+    any:
+      - id: cap/crypto/symmetric/fernet/encrypt
+      - id: cap/crypto/symmetric/fernet/class-usage

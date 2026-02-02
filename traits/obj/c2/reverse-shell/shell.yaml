@@ -26,6 +26,35 @@ traits:
       type: string
       regex: "bash\\s+-i\\s+>&\\s*/dev/tcp/"
 
+  # Bash /dev/tcp HTTP client pattern (exec FD<>/dev/tcp)
+  # Used by droppers and C2 for HTTP over bash sockets
+  - id: bash-dev-tcp-fd
+    desc: Bash fd redirect to /dev/tcp
+    crit: suspicious
+    conf: 0.95
+    for: [shell]
+    if:
+      type: content
+      regex: 'exec\s+[0-9]+<>"?/dev/tcp/'
+
+  - id: dev-tcp-http-get
+    desc: HTTP GET via /dev/tcp socket
+    crit: suspicious
+    conf: 0.95
+    for: [shell]
+    if:
+      type: string
+      regex: '/dev/tcp/.{0,64}GET\s+/'
+
+  - id: dev-tcp-http-host
+    desc: HTTP Host header via /dev/tcp
+    crit: suspicious
+    conf: 0.9
+    for: [shell]
+    if:
+      type: string
+      regex: '/dev/tcp/.{0,128}Host:'
+
   # === mkfifo netcat atomic indicators ===
   - id: mkfifo-cmd
     desc: mkfifo command for named pipe
@@ -140,3 +169,15 @@ composite_rules:
       - id: nc-exec-sh
       - id: ncat-exec-sh
       - id: netcat-exec-sh
+
+  # Bash /dev/tcp HTTP client (dropper technique)
+  - id: bash-dev-tcp-http
+    desc: Bash /dev/tcp HTTP client
+    crit: suspicious
+    conf: 0.95
+    for: [shell]
+    all:
+      - id: bash-dev-tcp-fd
+    any:
+      - id: dev-tcp-http-get
+      - id: dev-tcp-http-host

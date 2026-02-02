@@ -1,0 +1,184 @@
+# Embedded Data Detection
+# Detects compressed/encrypted data payloads embedded within binaries
+# MBC: F0001.006 (Embedded Payload), T1027.009 (Embedded Payloads)
+# ATT&CK: T1027.009
+
+defaults:
+  for: [elf, pe, macho]
+
+traits:
+  # === Embedded Compression Magic Bytes (YARA-based for reliable detection) ===
+  # These detect compression stream headers that may indicate embedded payloads
+
+  - id: zstd-magic
+    desc: Embedded ZSTD compressed data
+    crit: notable
+    conf: 0.7
+    mbc: "F0001.006"
+    attack: "T1027.009"
+    if:
+      type: yara
+      source: |
+        rule embedded_zstd {
+          strings:
+            $zstd = { 28 B5 2F FD }
+          condition:
+            $zstd
+        }
+
+  - id: lzma-magic
+    desc: Embedded LZMA compressed data
+    crit: notable
+    conf: 0.7
+    mbc: "F0001.006"
+    attack: "T1027.009"
+    if:
+      type: yara
+      source: |
+        rule embedded_lzma {
+          strings:
+            $lzma = { 5D 00 00 }
+          condition:
+            $lzma
+        }
+
+  - id: xz-magic
+    desc: Embedded XZ compressed data
+    crit: notable
+    conf: 0.7
+    mbc: "F0001.006"
+    attack: "T1027.009"
+    if:
+      type: yara
+      source: |
+        rule embedded_xz {
+          strings:
+            $xz = { FD 37 7A 58 5A 00 }
+          condition:
+            $xz
+        }
+
+  - id: gzip-magic
+    desc: Embedded gzip compressed data
+    crit: inert
+    conf: 0.5
+    if:
+      type: yara
+      source: |
+        rule embedded_gzip {
+          strings:
+            $gzip = { 1F 8B 08 }
+          condition:
+            $gzip
+        }
+
+  - id: bzip2-magic
+    desc: Embedded bzip2 compressed data
+    crit: inert
+    conf: 0.5
+    if:
+      type: yara
+      source: |
+        rule embedded_bzip2 {
+          strings:
+            $bz2 = { 42 5A 68 }
+          condition:
+            $bz2
+        }
+
+  # === Embedded Binary Magic ===
+  # Note: ELF/PE/Mach-O embedded detection needs to skip the file header
+
+  - id: elf-magic-embedded
+    desc: Embedded ELF binary
+    crit: suspicious
+    conf: 0.8
+    mbc: "F0001.006"
+    attack: "T1027.009"
+    if:
+      type: yara
+      source: |
+        rule embedded_elf {
+          strings:
+            $elf = { 7F 45 4C 46 }
+          condition:
+            // ELF magic not at file start indicates embedded binary
+            $elf and @elf[1] > 0x1000
+        }
+
+  - id: pe-magic-embedded
+    desc: Embedded PE/MZ binary
+    crit: suspicious
+    conf: 0.8
+    mbc: "F0001.006"
+    attack: "T1027.009"
+    if:
+      type: yara
+      source: |
+        rule embedded_pe {
+          strings:
+            $mz = { 4D 5A 90 00 }
+          condition:
+            // MZ magic not at file start indicates embedded binary
+            $mz and @mz[1] > 0x1000
+        }
+
+  # === Embedded Archive Formats ===
+
+  - id: zip-magic
+    desc: Embedded ZIP archive
+    crit: inert
+    conf: 0.4
+    if:
+      type: yara
+      source: |
+        rule embedded_zip {
+          strings:
+            $zip = { 50 4B 03 04 }
+          condition:
+            $zip
+        }
+
+  - id: rar-magic
+    desc: Embedded RAR archive
+    crit: notable
+    conf: 0.6
+    if:
+      type: yara
+      source: |
+        rule embedded_rar {
+          strings:
+            $rar = { 52 61 72 21 1A 07 }
+          condition:
+            $rar
+        }
+
+  - id: 7z-magic
+    desc: Embedded 7-Zip archive
+    crit: notable
+    conf: 0.6
+    if:
+      type: yara
+      source: |
+        rule embedded_7z {
+          strings:
+            $7z = { 37 7A BC AF 27 1C }
+          condition:
+            $7z
+        }
+
+composite_rules:
+  # Multiple embedded compressed payloads is suspicious
+  - id: multiple-compressed-payloads
+    desc: Multiple embedded compressed payloads
+    crit: suspicious
+    conf: 0.75
+    mbc: "F0001.006"
+    attack: "T1027.009"
+    count_min: 2
+    any:
+      - id: zstd-magic
+      - id: lzma-magic
+      - id: xz-magic
+      - id: gzip-magic
+      - id: bzip2-magic
