@@ -177,6 +177,15 @@ type ArchiveAnalysis struct {
 	Members     []FileAnalysis
 }
 
+// RealFileAnalysis groups a real file with all its encoded/decoded fragments.
+// Fragments are decoded payloads (e.g., base64-decoded content) that should be
+// analyzed together with their parent file.
+type RealFileAnalysis struct {
+	RealPath string        // The real file path (stripped of ## fragment delimiters)
+	Root     FileAnalysis  // The root/real file entry
+	Fragments []FileAnalysis // All decoded fragment entries (if any)
+}
+
 // rootArchive returns the root archive path from a path with archive delimiters.
 // e.g., "archive.zip!!inner/file.py" -> "archive.zip".
 // For non-archive paths, returns empty string.
@@ -194,6 +203,21 @@ func memberPath(path string) string {
 		return path[idx+2:]
 	}
 	return path
+}
+
+// realFilePath returns the real file path, stripping fragment delimiters.
+// e.g., "yarn_fragments.sh##base64@0" -> "yarn_fragments.sh".
+// For non-fragment paths, returns the original path.
+func realFilePath(path string) string {
+	if idx := strings.Index(path, "##"); idx != -1 {
+		return path[:idx]
+	}
+	return path
+}
+
+// isFragment returns true if this path represents an encoded/decoded fragment.
+func isFragment(path string) bool {
+	return strings.Contains(path, "##")
 }
 
 // archiveNeedsReview returns true if any member of the archive needs review.
@@ -379,6 +403,8 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 
 	var currentArchive *ArchiveAnalysis
 	var currentArchivePath string
+	var currentRealFile *RealFileAnalysis
+	var currentRealPath string
 	fileCount := 0
 	lastProgress := time.Now()
 
@@ -412,12 +438,17 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 		}
 
 		archivePath := rootArchive(f.Path)
-		currentArchive, currentArchivePath = processFileEntry(
+		currentArchive, currentArchivePath, currentRealFile, currentRealPath = processFileEntry(
 			ctx, cfg, dbMode, stats, f, archivePath,
 			currentArchive, currentArchivePath,
+			currentRealFile, currentRealPath,
 		)
 	}
 
+	if currentRealFile != nil {
+		clearProgressLine()
+		processRealFile(ctx, cfg, dbMode, stats, currentRealFile)
+	}
 	if currentArchive != nil {
 		clearProgressLine()
 		processCompletedArchive(ctx, cfg, dbMode, stats, currentArchive)
@@ -480,30 +511,64 @@ func processFileEntry(
 	archivePath string,
 	currentArchive *ArchiveAnalysis,
 	currentArchivePath string,
-) (archive *ArchiveAnalysis, archPath string) {
+	currentRealFile *RealFileAnalysis,
+	currentRealPath string,
+) (archive *ArchiveAnalysis, archPath string, realFile *RealFileAnalysis, realPath string) {
 	switch {
 	case archivePath == "":
+		// Standalone file (not in an archive)
 		if currentArchive != nil {
 			clearProgressLine()
 			processCompletedArchive(ctx, cfg, dbMode, stats, currentArchive)
 		}
-		clearProgressLine()
-		processStandaloneFile(ctx, cfg, dbMode, stats, f)
-		return nil, ""
+
+		// Check if this is a fragment or root file
+		fPath := realFilePath(f.Path)
+		if fPath == currentRealPath && currentRealFile != nil {
+			// Same real file: add as fragment
+			currentRealFile.Fragments = append(currentRealFile.Fragments, f)
+			return nil, "", currentRealFile, currentRealPath
+		}
+
+		// Different real file: process previous and start new
+		if currentRealFile != nil {
+			clearProgressLine()
+			processRealFile(ctx, cfg, dbMode, stats, currentRealFile)
+		}
+
+		// Start new real file
+		newReal := &RealFileAnalysis{
+			RealPath:  fPath,
+			Fragments: []FileAnalysis{},
+		}
+		if isFragment(f.Path) {
+			// This entry itself is a fragment; root file entry may come later
+			newReal.Fragments = []FileAnalysis{f}
+		} else {
+			// This is the root file entry
+			newReal.Root = f
+		}
+		return nil, "", newReal, fPath
 
 	case archivePath != currentArchivePath:
+		// Different archive: process everything pending
 		if currentArchive != nil {
 			clearProgressLine()
 			processCompletedArchive(ctx, cfg, dbMode, stats, currentArchive)
+		}
+		if currentRealFile != nil {
+			clearProgressLine()
+			processRealFile(ctx, cfg, dbMode, stats, currentRealFile)
 		}
 		return &ArchiveAnalysis{
 			ArchivePath: archivePath,
 			Members:     []FileAnalysis{f},
-		}, archivePath
+		}, archivePath, nil, ""
 
 	default:
+		// Same archive: just add to current archive members
 		currentArchive.Members = append(currentArchive.Members, f)
-		return currentArchive, currentArchivePath
+		return currentArchive, currentArchivePath, currentRealFile, currentRealPath
 	}
 }
 
@@ -552,6 +617,64 @@ func processCompletedArchive(ctx context.Context, cfg *config, dbMode string, st
 			fmt.Fprintf(os.Stderr, "Warning: could not record analysis for %s: %v\n", archive.ArchivePath, err)
 		}
 		stats.archivesReviewed++
+	}
+}
+
+func processRealFile(ctx context.Context, cfg *config, dbMode string, stats *streamStats, rf *RealFileAnalysis) {
+	if rf == nil || rf.RealPath == "" {
+		return
+	}
+
+	stats.totalFiles++
+
+	if !realFileNeedsReview(rf, cfg.knownGood) {
+		stats.skippedNoReview++
+		return
+	}
+
+	h, err := hashFile(rf.RealPath)
+	if err != nil {
+		h = hashString(rf.RealPath)
+	}
+	if wasAnalyzed(ctx, cfg.db, h, dbMode) {
+		stats.skippedCached++
+		return
+	}
+
+	// Aggregate findings from root and all fragments
+	aggregated := rf.Root
+	if aggregated.Path == "" {
+		// No root file entry was seen, use the real path
+		aggregated.Path = rf.RealPath
+	}
+	for _, frag := range rf.Fragments {
+		aggregated.Findings = append(aggregated.Findings, frag.Findings...)
+	}
+
+	fmt.Fprintf(os.Stderr, "\n📄 Standalone file: %s\n", rf.RealPath)
+	if len(rf.Fragments) > 0 {
+		fmt.Fprintf(os.Stderr, "   (with %d decoded fragment(s))\n", len(rf.Fragments))
+	}
+
+	critRank := map[string]int{"inert": 0, "notable": 1, "suspicious": 2, "hostile": 3}
+	var maxCrit string
+	for _, finding := range aggregated.Findings {
+		if critRank[strings.ToLower(finding.Crit)] > critRank[strings.ToLower(maxCrit)] {
+			maxCrit = finding.Crit
+		}
+	}
+	if maxCrit != "" {
+		fmt.Fprintf(os.Stderr, "   Risk: %s, Findings: %d\n", maxCrit, len(aggregated.Findings))
+	}
+
+	sid := generateSessionID()
+	if err := invokeAI(ctx, cfg, aggregated, sid); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: %s failed for %s: %v\n", cfg.provider, rf.RealPath, err)
+	} else {
+		if err := markAnalyzed(ctx, cfg.db, h, dbMode); err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: could not record analysis for %s: %v\n", rf.RealPath, err)
+		}
+		stats.standaloneReviewed++
 	}
 }
 
@@ -606,6 +729,21 @@ func needsReview(f FileAnalysis, knownGood bool) bool {
 		}
 	}
 	return !knownGood // No suspicious: review if --bad (FN check)
+}
+
+// realFileNeedsReview determines if a real file (with all its fragments) needs review.
+func realFileNeedsReview(rf *RealFileAnalysis, knownGood bool) bool {
+	// Check root file
+	if needsReview(rf.Root, knownGood) {
+		return true
+	}
+	// Check any fragment
+	for _, frag := range rf.Fragments {
+		if needsReview(frag, knownGood) {
+			return true
+		}
+	}
+	return false
 }
 
 // sanityCheck runs dissect on /bin/ls to catch code errors early.
