@@ -316,9 +316,9 @@ func main() {
 	// Find repo root (for running dissect via cargo).
 	resolvedRoot := *repoRoot
 	if resolvedRoot == "" {
-		ctx := context.Background()
-		cmd := exec.CommandContext(ctx, "git", "rev-parse", "--show-toplevel")
-		out, err := cmd.Output()
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		out, err := exec.CommandContext(ctx, "git", "rev-parse", "--show-toplevel").Output()
+		cancel()
 		if err != nil {
 			log.Fatalf("Could not detect repo root: %v. Use --repo-root flag.", err)
 		}
@@ -353,8 +353,10 @@ func main() {
 		sampleDir: sampleDir,
 	}
 
+	ctx := context.Background()
+
 	// Sanity check: run dissect on /bin/ls to catch code errors early.
-	if err := sanityCheck(context.Background(), cfg); err != nil {
+	if err := sanityCheck(ctx, cfg); err != nil {
 		//nolint:gocritic // exitAfterDefer: defers won't run after log.Fatalf, acceptable for fatal errors
 		log.Fatalf("Sanity check failed: %v", err)
 	}
@@ -372,8 +374,6 @@ func main() {
 	fmt.Fprintf(os.Stderr, "Mode: %s\n", mode)
 	fmt.Fprintf(os.Stderr, "Repo root: %s\n", cfg.repoRoot)
 	fmt.Fprintf(os.Stderr, "Streaming analysis of %s...\n\n", cfg.dir)
-
-	ctx := context.Background()
 
 	// Database mode (good/bad, not known-good/known-bad).
 	dbMode := "bad"
@@ -618,16 +618,16 @@ func processCompletedArchive(ctx context.Context, state *streamState) {
 	fmt.Fprintf(os.Stderr, "\n📦 Archive complete: %s\n", archive.ArchivePath)
 	fmt.Fprintf(os.Stderr, "   Members: %d total, %d need review\n", len(archive.Members), len(problematic))
 
-	critRank := map[string]int{"inert": 0, "notable": 1, "suspicious": 2, "hostile": 3}
-	for j, m := range problematic {
-		if j >= 3 {
+	rank := map[string]int{"inert": 0, "notable": 1, "suspicious": 2, "hostile": 3}
+	for i, m := range problematic {
+		if i >= 3 {
 			fmt.Fprintf(os.Stderr, "   ... and %d more\n", len(problematic)-3)
 			break
 		}
 		var maxCrit string
-		for _, finding := range m.Findings {
-			if critRank[strings.ToLower(finding.Crit)] > critRank[strings.ToLower(maxCrit)] {
-				maxCrit = finding.Crit
+		for _, f := range m.Findings {
+			if rank[strings.ToLower(f.Crit)] > rank[strings.ToLower(maxCrit)] {
+				maxCrit = f.Crit
 			}
 		}
 		fmt.Fprintf(os.Stderr, "   - %s (%s)\n", memberPath(m.Path), maxCrit)
@@ -681,11 +681,11 @@ func processRealFile(ctx context.Context, state *streamState) {
 		fmt.Fprintf(os.Stderr, "   (with %d decoded fragment(s))\n", len(rf.Fragments))
 	}
 
-	critRank := map[string]int{"inert": 0, "notable": 1, "suspicious": 2, "hostile": 3}
+	rank := map[string]int{"inert": 0, "notable": 1, "suspicious": 2, "hostile": 3}
 	var maxCrit string
-	for _, finding := range aggregated.Findings {
-		if critRank[strings.ToLower(finding.Crit)] > critRank[strings.ToLower(maxCrit)] {
-			maxCrit = finding.Crit
+	for _, f := range aggregated.Findings {
+		if rank[strings.ToLower(f.Crit)] > rank[strings.ToLower(maxCrit)] {
+			maxCrit = f.Crit
 		}
 	}
 	if maxCrit != "" {
