@@ -1,68 +1,13 @@
 # SSH Brute-Force Attack Detection
 # ATT&CK: T1110.001 (Brute Force: Password Guessing)
 # MBC: E1110 (Brute Force)
+#
+# NOTE: SSH protocol strings (ssh-userauth, libssh, keyboard-interactive, etc.)
+# are now in cap/comm/ssh/client/ - those indicate SSH library presence, not attacks.
+# This file detects actual brute-force ATTACK patterns: credential lists, loops, etc.
 
 traits:
-  # SSH protocol strings
-  - id: ssh-userauth
-    desc: SSH user authentication protocol
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      exact: "ssh-userauth"
-
-  - id: libssh
-    desc: libssh library
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      exact: "libssh"
-
-  - id: ssh-version
-    desc: SSH protocol version 2.0
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      exact: "SSH-2.0"
-
-  # Authentication methods
-  - id: password-auth
-    desc: SSH password authentication
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      # SSH authentication method context, not generic "password" word
-      regex: "(?:ssh[_-]?)?password[_-]?(?:auth(?:entication)?|method)"
-
-  - id: keyboard-interactive
-    desc: SSH keyboard-interactive authentication
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      exact: "keyboard-interactive"
-
-  # Authentication error strings
-  - id: auth-failed
-    desc: Authentication failed error message
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      exact: "Authentication failed"
-
-  - id: permission-denied
-    desc: Permission denied error message
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      exact: "Permission denied"
-
+  # Too many auth failures - only meaningful when code handles this error
   - id: too-many-auth-failures
     desc: Too many authentication failures error
     crit: inert
@@ -70,6 +15,49 @@ traits:
     if:
       type: string
       exact: "Too many authentication failures"
+
+  # Credential iteration patterns (AST-based for precision)
+  - id: credential-loop-py
+    desc: Python loop over credentials
+    crit: suspicious
+    conf: 0.85
+    for: [python]
+    if:
+      type: ast
+      query: |
+        (for_statement
+          left: (pattern_list) @vars
+          right: (_) @iterable
+          (#match? @vars "(user|pass|cred|login)"))
+
+  - id: credential-loop-js
+    desc: JavaScript loop over credentials
+    crit: suspicious
+    conf: 0.85
+    for: [javascript, typescript]
+    if:
+      type: ast
+      query: |
+        (for_in_statement
+          left: (_) @var
+          right: (identifier) @arr
+          (#match? @arr "(users|passwords|creds|credentials|logins)"))
+
+  - id: try-credentials-func
+    desc: Function named try_credentials or similar
+    crit: suspicious
+    conf: 0.8
+    if:
+      type: string
+      regex: "(?i)try[_-]?(credentials?|login|auth|password)"
+
+  - id: brute-force-var
+    desc: Variable/function named brute_force
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: string
+      regex: "(?i)brute[_-]?force"
 
   # Default IoT credentials (15 common pairs)
   - id: admin-admin-cred
@@ -254,29 +242,6 @@ traits:
   # combined with SSH-specific indicators (handled in composites).
 
 composite_rules:
-  # Helper: SSH protocol indicators
-  - id: ssh-protocol
-    desc: SSH protocol indicators
-    any:
-      - id: ssh-userauth
-      - id: libssh
-      - id: ssh-version
-
-  # Helper: SSH authentication methods
-  - id: ssh-auth-methods
-    desc: SSH authentication methods
-    any:
-      - id: password-auth
-      - id: keyboard-interactive
-
-  # Helper: SSH authentication errors
-  - id: ssh-auth-errors
-    desc: SSH authentication error messages
-    any:
-      - id: auth-failed
-      - id: permission-denied
-      - id: too-many-auth-failures
-
   # Helper: SSH port references
   - id: ssh-port-refs
     desc: SSH port 22 references
@@ -320,29 +285,33 @@ composite_rules:
       - id: admin-smcadmin-cred
       - id: user-user-cred
 
-  # Helper: SSH protocol with auth methods
-  - id: ssh-with-auth
-    desc: SSH protocol with authentication methods
-    all:
-      - id: ssh-protocol
-      - id: ssh-auth-methods
+  # Helper: Credential iteration patterns
+  - id: credential-iteration
+    desc: Code iterating over credentials
+    any:
+      - id: credential-loop-py
+      - id: credential-loop-js
+      - id: try-credentials-func
+      - id: brute-force-var
 
-  # SSH authentication brute-force
+  # SSH authentication brute-force - requires ATTACK indicators, not just library presence
+  # NOTE: SSH client library presence alone is cap/comm/ssh/client/library
   - id: auth-spray
-    desc: SSH authentication credential spraying
+    desc: SSH brute-force credential attack
     crit: suspicious
-    conf: 0.85
+    conf: 0.9
     mbc: "E1110"
     attack: "T1110.001"
-    count_min: 2
+    all:
+      - id: cap/comm/ssh/client/library
     any:
-      - id: ssh-protocol
-      - id: ssh-auth-methods
-      - id: ssh-auth-errors
+      - id: credential-iteration
+      - id: default-creds
+      - id: too-many-auth-failures
 
   # Default IoT credential lists (requires 3 of 15)
   - id: iot-creds
-    desc: Default IoT device credentials for
+    desc: Default IoT device credentials for brute-force
     crit: suspicious
     conf: 0.9
     mbc: "E1110"
@@ -373,8 +342,6 @@ composite_rules:
       - id: scanner-keywords
 
   # Helper: SSH port with threading (threaded scanning)
-  # NOTE: Removed timeout requirement as "timeout" alone is too generic.
-  # SSH scanning is indicated by port 22 + threading + connect.
   - id: ssh-port-threaded
     desc: SSH port with threading
     all:
@@ -405,4 +372,4 @@ composite_rules:
     all:
       - id: scanner
       - id: iot-creds
-      - id: auth-spray
+      - id: credential-iteration

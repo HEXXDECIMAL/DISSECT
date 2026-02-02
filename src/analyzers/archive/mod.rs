@@ -32,6 +32,8 @@ pub struct ArchiveAnalyzer {
     yara_engine: Option<Arc<YaraEngine>>,
     /// Passwords to try for encrypted zip files
     zip_passwords: Vec<String>,
+    /// Optional sample extraction configuration
+    sample_extraction: Option<SampleExtractionConfig>,
 }
 
 impl ArchiveAnalyzer {
@@ -43,6 +45,7 @@ impl ArchiveAnalyzer {
             capability_mapper: None,
             yara_engine: None,
             zip_passwords: Vec::new(),
+            sample_extraction: None,
         }
     }
 
@@ -76,6 +79,12 @@ impl ArchiveAnalyzer {
     /// Set passwords to try for encrypted zip files
     pub fn with_zip_passwords(mut self, passwords: Vec<String>) -> Self {
         self.zip_passwords = passwords;
+        self
+    }
+
+    /// Set sample extraction configuration for extracting analyzed files to disk
+    pub fn with_sample_extraction(mut self, config: SampleExtractionConfig) -> Self {
+        self.sample_extraction = Some(config);
         self
     }
 

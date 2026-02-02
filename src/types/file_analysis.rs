@@ -132,6 +132,11 @@ pub struct FileAnalysis {
     /// Environment variables accessed
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub env_vars: Vec<EnvVarInfo>,
+
+    /// Path to extracted sample file on disk (set when --sample-dir is used)
+    /// Allows external tools (radare2, objdump, strings) to analyze the file directly
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub extracted_path: Option<String>,
 }
 
 impl FileAnalysis {
@@ -165,6 +170,7 @@ impl FileAnalysis {
             paths: Vec::new(),
             directories: Vec::new(),
             env_vars: Vec::new(),
+            extracted_path: None,
         }
     }
 

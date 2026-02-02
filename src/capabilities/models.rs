@@ -61,6 +61,8 @@ pub(crate) struct RawTraitDefinition {
     #[serde(default)]
     pub(crate) not: Option<Vec<crate::composite_rules::condition::NotException>>,
     #[serde(default)]
+    pub(crate) unless: Option<Vec<crate::composite_rules::Condition>>,
+    #[serde(default)]
     pub(crate) downgrade: Option<crate::composite_rules::DowngradeConditions>,
 }
 

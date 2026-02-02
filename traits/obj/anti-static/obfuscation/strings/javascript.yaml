@@ -235,3 +235,15 @@ composite_rules:
       - id: js-hex-escape
       - id: js-buffer-from-base64
       - id: js-buffer-from-hex
+
+  # Encrypted payload execution (AES decrypt + eval)
+  - id: js-encrypted-payload-exec
+    desc: Encrypted payload decryption and execution
+    crit: hostile
+    conf: 0.98
+    attack: "T1027.002"
+    mbc: "B0032"
+    for: [javascript, typescript]
+    all:
+      - id: js-dynamic-exec
+      - id: cap/crypto/symmetric/aes/node/createDecipheriv

@@ -34,89 +34,121 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-const knownGoodPrompt = `Tune DISSECT traits for this known-good file.
+const knownGoodPrompt = `Fix false positive trait matches in this KNOWN-GOOD file.
 
-## Input
-- **File:** %s (KNOWN-GOOD)
-- **Findings:** %s
+File: %s
+Expected: This file is KNOWN-GOOD (legitimate software)
+Problem: DISSECT flagged it as suspicious/hostile - these are false positives
 
-## Goal
-Fix MISLABELED findings. Suspicious findings are OK if the code actually does suspicious things - only fix incorrect labels (e.g., "obj/c2/beacon" for a simple HTTP client).
+## Your Task
+1. Run: ` + "`dissect %s --format jsonl`" + ` to see the current findings
+2. Read RULES.md and TAXONOMY.md for syntax/taxonomy reference
+3. Analyze what the file actually does (read it, understand its purpose)
+4. For each finding that doesn't match actual behavior, fix using ONE of (in priority order):
+   a) TAXONOMY: Move trait to correct location (e.g., cap/comm/http/client not obj/c2/beacon)
+   b) PATTERNS: Make regex/match more specific to avoid false matches
+   c) EXCLUSIONS: Add ` + "`not:`" + ` conditions to filter this case
+   d) EXCEPTIONS: Add ` + "`unless:`" + ` or ` + "`downgrade:`" + ` (last resort)
+5. Validate: Run dissect again - all findings should match actual capabilities
 
-## Process
-1. Read RULES.md and TAXONOMY.md
-2. Analyze what the file actually does
-3. Fix mislabeled findings (in priority order):
-   - **Taxonomy** - Move to correct tier (cap/comm/http/client not obj/c2/beacon)
-   - **Patterns** - Make regex more specific
-   - **Exclusions** - ` + "`not:`" + ` to filter false matches
-   - **Exceptions** - ` + "`unless:`" + ` or ` + "`downgrade:`" + ` (last resort)
+## Debug Commands
+` + "```" + `
+dissect test-rules <file> --rules "rule-id"           # why does rule match/fail?
+dissect test-match <file> --type string --pattern X   # test individual conditions
+` + "```" + `
 
-## Constraints
-- Traits live in %s/traits/
-- Reorganize or deduplicate traits rather than deleting them
-- Only analyze the file above, not other files in the directory/archive
-- Skip cargo test
+Traits: %s/traits/ | Reorganize don't delete | Skip cargo test | Only analyze this file`
 
-## Debugging Rules
-Use ` + "`dissect test-rules <file> --rules \"rule-id\"`" + ` to debug why specific rules match or fail.
-Use ` + "`dissect test-match <file> --type string --method contains --pattern \"pattern\"`" + ` to test individual conditions.
+const knownBadPrompt = `Add missing detection for this KNOWN-BAD malware sample.
 
-## Validate
-Run ` + "`dissect %s --format jsonl`" + ` - findings should accurately describe actual capabilities.`
+File: %s
+Expected: This file is KNOWN-BAD (malware)
+Problem: DISSECT did not flag it as suspicious/hostile - detection is missing
 
-const knownBadPrompt = `Tune DISSECT to detect this malware's capabilities.
+NOTE: If file is genuinely benign (README, docs, unmodified dependency), skip it.
 
-## Input
-- **File:** %s (from KNOWN-BAD collection)
-- **Findings:** %s
-- **Problem:** Not flagged suspicious/hostile - find what's missing
+## Your Task
+1. Run: ` + "`dissect %s --format jsonl`" + ` to see the current findings
+2. Read RULES.md and TAXONOMY.md for syntax/taxonomy reference
+3. Reverse engineer: radare2, nm, strings, objdump, xxd - identify malicious capabilities
+4. Create/modify traits using GENERIC behavioral patterns (not file-specific signatures):
+   - cap/ = neutral mechanics (socket, exec, file ops) - capabilities that could be benign
+   - obj/ = attacker intent (combine caps: socket + exec → reverse-shell) - malicious objectives
+   - known/ = ONLY for specific malware family names (e.g., known/malware/apt/cozy-bear, known/malware/trojan/emotet)
+   - Cross-language when possible (base64+exec works in Python, JS, Shell)
+5. Validate: Run dissect again - should be suspicious or hostile
 
-## Process
-1. Read RULES.md and TAXONOMY.md
-2. Reverse engineer the file: radare2, nm, strings, objdump, xxd
-3. Create/modify traits for detected capabilities
+## Debug Commands
+` + "```" + `
+dissect test-rules <file> --rules "rule-id"           # why does rule match/fail?
+dissect test-match <file> --type string --pattern X   # test individual conditions
+` + "```" + `
 
-## Detection Philosophy
-Write GENERIC behavioral patterns, not file-specific signatures:
-- Combine capabilities into objectives (cap/comm/socket + cap/exec/shell → obj/c2/reverse-shell)
-- Cross-language when possible (base64+exec works in Python, JS, Shell)
-- Use cap/ for neutral mechanics, obj/ for attacker intent, known/ only for malware-family markers
+Traits: %s/traits/ | Skip cargo test | Only analyze this file`
 
-## Constraints
-- Traits live in %s/traits/
-- Only analyze the file above, not other files in the directory/archive
-- **Skip benign files** - While rare, known-bad collections (especially supply-chain attacks) may contain legitimately benign files like READMEs, docs, tests, or unmodified dependencies. If the file is genuinely benign, skip it.
-- Skip cargo test
+const knownGoodArchivePrompt = `Fix false positive trait matches in this KNOWN-GOOD archive.
 
-## Debugging Rules
-Use ` + "`dissect test-rules <file> --rules \"rule-id\"`" + ` to debug why specific rules match or fail.
-Use ` + "`dissect test-match <file> --type string --method contains --pattern \"pattern\"`" + ` to test individual conditions.
-Particularly useful for complex composites that combine multiple traits with all:/any:/none: logic.
+Archive: %s
+Expected: This archive is KNOWN-GOOD (legitimate software)
+Problem: %d members flagged as suspicious/hostile - these are false positives
 
-## Validate
-Run ` + "`dissect %s --format jsonl`" + ` - file should be suspicious or hostile.
-Suspicious is OK if hostility is hard to prove.`
+## Your Task
+1. Run: ` + "`dissect %s --format jsonl`" + ` to see the current findings for all members
+2. Read RULES.md and TAXONOMY.md for syntax/taxonomy reference
+3. Focus on problematic members (the ones with suspicious/hostile findings)
+4. For each false positive finding, fix using ONE of (in priority order):
+   a) TAXONOMY: Move trait to correct location (e.g., cap/comm/http/client not obj/c2/beacon)
+   b) PATTERNS: Make regex/match more specific to avoid false matches
+   c) EXCLUSIONS: Add ` + "`not:`" + ` conditions to filter this case
+   d) EXCEPTIONS: Add ` + "`unless:`" + ` or ` + "`downgrade:`" + ` (last resort)
+5. Validate: Run dissect again - all findings should match actual capabilities
 
-const fixPromptTemplate = `DISSECT failed to run. Fix it.
+## Debug Commands
+` + "```" + `
+dissect test-rules <file> --rules "rule-id"           # why does rule match/fail?
+dissect test-match <file> --type string --pattern X   # test individual conditions
+` + "```" + `
 
-## Error
+Traits: %s/traits/ | Reorganize don't delete | Skip cargo test | Focus on this archive`
+
+const knownBadArchivePrompt = `Add missing detection for this KNOWN-BAD malware archive.
+
+Archive: %s
+Expected: This archive is KNOWN-BAD (malware)
+Problem: %d members not flagged as suspicious/hostile - detection is missing
+
+NOTE: If some files are genuinely benign (README, docs, unmodified dependencies), skip them.
+
+## Your Task
+1. Run: ` + "`dissect %s --format jsonl`" + ` to see the current findings for all members
+2. Read RULES.md and TAXONOMY.md for syntax/taxonomy reference
+3. Focus on problematic members (the ones WITHOUT suspicious/hostile findings)
+4. Reverse engineer: radare2, nm, strings, objdump, xxd - identify malicious capabilities
+5. Create/modify traits using GENERIC behavioral patterns (not file-specific signatures):
+   - cap/ = neutral mechanics (socket, exec, file ops) - capabilities that could be benign
+   - obj/ = attacker intent (combine caps: socket + exec → reverse-shell) - malicious objectives
+   - known/ = ONLY for specific malware family names (e.g., known/malware/apt/cozy-bear, known/malware/trojan/emotet)
+   - Cross-language when possible (base64+exec works in Python, JS, Shell)
+6. Validate: Run dissect again - should be suspicious or hostile
+
+## Debug Commands
+` + "```" + `
+dissect test-rules <file> --rules "rule-id"           # why does rule match/fail?
+dissect test-match <file> --type string --pattern X   # test individual conditions
+` + "```" + `
+
+Traits: %s/traits/ | Skip cargo test | Focus on this archive`
+
+const fixPromptTemplate = `Fix DISSECT error preventing analysis.
+
 Command: dissect %s --format jsonl
-Output: %s
+Error: %s
 
-## Likely Causes
-- Invalid YAML in traits/*.yaml (check file/line in error)
-- Rust build error (run: cargo build --release)
+Likely causes: Invalid YAML in traits/*.yaml (see file:line in error) or Rust build error (cargo build --release)
 
-## Fix Process
-1. Diagnose from error message
-2. Edit the broken file
-3. Re-run: dissect %s --format jsonl
-4. Repeat until it works
+Fix the error, then verify: ` + "`dissect %s --format jsonl`" + `
 
-## Constraints
-- Trait files: %s/traits/
-- Syntax reference: RULES.md`
+Traits: %s/traits/ | Syntax: RULES.md`
 
 const maxFixAttempts = 3
 
@@ -130,6 +162,7 @@ type config struct {
 	useCargo  bool
 	flush     bool
 	db        *sql.DB
+	sampleDir string // Directory to extract samples for LLM analysis (radare2, etc.)
 }
 
 // Finding represents a matched trait/capability.
@@ -141,18 +174,93 @@ type Finding struct {
 
 // FileAnalysis represents a single analyzed file.
 type FileAnalysis struct {
-	Path     string    `json:"path"`
-	Risk     string    `json:"risk"`
-	Findings []Finding `json:"findings"`
+	Path          string    `json:"path"`
+	Risk          string    `json:"risk"`
+	Findings      []Finding `json:"findings"`
+	ExtractedPath string    `json:"extracted_path,omitempty"`
+}
+
+// ArchiveAnalysis groups files from the same archive for review as a unit.
+// Archives are the unit of resolution - a bad tar.gz with 100 good files and
+// 1 bad file should be reviewed as a single archive.
+type ArchiveAnalysis struct {
+	ArchivePath string         // Path to the root archive
+	Members     []FileAnalysis // All analyzed members of the archive
+}
+
+// rootArchive returns the root archive path from a path with archive delimiters.
+// e.g., "archive.zip!!inner/file.py" -> "archive.zip"
+// For non-archive paths, returns empty string.
+func rootArchive(path string) string {
+	if idx := strings.Index(path, "!!"); idx != -1 {
+		return path[:idx]
+	}
+	return ""
+}
+
+// memberPath returns the member path within an archive.
+// e.g., "archive.zip!!inner/file.py" -> "inner/file.py"
+func memberPath(path string) string {
+	if idx := strings.Index(path, "!!"); idx != -1 {
+		return path[idx+2:]
+	}
+	return path
+}
+
+// groupByArchive groups files by their root archive.
+// Returns a map from archive path to ArchiveAnalysis, plus a slice of
+// standalone files that aren't in archives.
+func groupByArchive(files []FileAnalysis) (map[string]*ArchiveAnalysis, []FileAnalysis) {
+	archives := make(map[string]*ArchiveAnalysis)
+	var standalone []FileAnalysis
+
+	for _, f := range files {
+		archivePath := rootArchive(f.Path)
+		if archivePath == "" {
+			standalone = append(standalone, f)
+			continue
+		}
+
+		if archives[archivePath] == nil {
+			archives[archivePath] = &ArchiveAnalysis{
+				ArchivePath: archivePath,
+			}
+		}
+		archives[archivePath].Members = append(archives[archivePath].Members, f)
+	}
+
+	return archives, standalone
+}
+
+// archiveNeedsReview returns true if any member of the archive needs review.
+func archiveNeedsReview(a *ArchiveAnalysis, knownGood bool) bool {
+	for _, m := range a.Members {
+		if needsReview(m, knownGood) {
+			return true
+		}
+	}
+	return false
+}
+
+// archiveProblematicMembers returns the members that need review.
+func archiveProblematicMembers(a *ArchiveAnalysis, knownGood bool) []FileAnalysis {
+	var result []FileAnalysis
+	for _, m := range a.Members {
+		if needsReview(m, knownGood) {
+			result = append(result, m)
+		}
+	}
+	return result
 }
 
 // jsonlEntry represents a single JSONL line from streaming output.
 type jsonlEntry struct {
-	Type     string    `json:"type"`
-	Path     string    `json:"path"`
-	FileType string    `json:"file_type"`
-	Risk     string    `json:"risk"`
-	Findings []Finding `json:"findings"`
+	Type          string    `json:"type"`
+	Path          string    `json:"path"`
+	FileType      string    `json:"file_type"`
+	Risk          string    `json:"risk"`
+	Findings      []Finding `json:"findings"`
+	ExtractedPath string    `json:"extracted_path,omitempty"`
 }
 
 func main() {
@@ -201,6 +309,13 @@ func main() {
 	}
 	defer db.Close()
 
+	// Create temp directory for extracted samples (for LLM to use radare2, etc.)
+	sampleDir, err := os.MkdirTemp("", "trait-basher-samples-*")
+	if err != nil {
+		log.Fatalf("Could not create sample directory: %v", err)
+	}
+	defer os.RemoveAll(sampleDir)
+
 	cfg := &config{
 		dir:       *dir,
 		repoRoot:  resolvedRoot,
@@ -211,6 +326,7 @@ func main() {
 		useCargo:  *useCargo,
 		flush:     *flush,
 		db:        db,
+		sampleDir: sampleDir,
 	}
 
 	// Sanity check: run dissect on /bin/ls to catch code errors early
@@ -243,10 +359,13 @@ func main() {
 		dbMode = "good"
 	}
 
-	// Filter to files needing review
-	var toReview []FileAnalysis
+	// Group files by archive - archives are the unit of review
+	archives, standalone := groupByArchive(files)
+
+	// Filter standalone files needing review
+	var standaloneToReview []FileAnalysis
 	var skippedCached int
-	for _, f := range files {
+	for _, f := range standalone {
 		if !needsReview(f, cfg.knownGood) {
 			continue
 		}
@@ -255,7 +374,7 @@ func main() {
 		h, err := hashFile(f.Path)
 		if err != nil {
 			log.Printf("Warning: could not hash %s: %v", f.Path, err)
-			toReview = append(toReview, f)
+			standaloneToReview = append(standaloneToReview, f)
 			continue
 		}
 
@@ -264,7 +383,24 @@ func main() {
 			continue
 		}
 
-		toReview = append(toReview, f)
+		standaloneToReview = append(standaloneToReview, f)
+	}
+
+	// Filter archives needing review (any member needs review)
+	var archivesToReview []*ArchiveAnalysis
+	for _, a := range archives {
+		if !archiveNeedsReview(a, cfg.knownGood) {
+			continue
+		}
+
+		// Check if archive was already analyzed (hash the archive path itself)
+		h := hashString(a.ArchivePath)
+		if wasAnalyzed(cfg.db, h, dbMode) {
+			skippedCached++
+			continue
+		}
+
+		archivesToReview = append(archivesToReview, a)
 	}
 
 	// Count files by risk level
@@ -275,46 +411,95 @@ func main() {
 
 	fmt.Fprint(os.Stderr, "\nScan summary:\n")
 	fmt.Fprintf(os.Stderr, "  Total files: %d\n", len(files))
+	fmt.Fprintf(os.Stderr, "  Archives: %d | Standalone files: %d\n", len(archives), len(standalone))
 	for _, level := range []string{"hostile", "suspicious", "notable", "inert"} {
 		if n := riskCounts[level]; n > 0 {
 			fmt.Fprintf(os.Stderr, "  - %s: %d\n", level, n)
 		}
 	}
 
+	totalToReview := len(archivesToReview) + len(standaloneToReview)
 	fmt.Fprint(os.Stderr, "\nReview queue:\n")
-	fmt.Fprintf(os.Stderr, "  Need review: %d\n", len(toReview))
+	fmt.Fprintf(os.Stderr, "  Archives to review: %d\n", len(archivesToReview))
+	fmt.Fprintf(os.Stderr, "  Standalone files to review: %d\n", len(standaloneToReview))
 	if skippedCached > 0 {
 		fmt.Fprintf(os.Stderr, "  Skipped (cached): %d\n", skippedCached)
-	}
-	skippedNoReview := len(files) - len(toReview) - skippedCached
-	if skippedNoReview > 0 {
-		if cfg.knownGood {
-			fmt.Fprintf(os.Stderr, "  Skipped (no suspicious findings): %d\n", skippedNoReview)
-		} else {
-			fmt.Fprintf(os.Stderr, "  Skipped (already suspicious/hostile): %d\n", skippedNoReview)
-		}
 	}
 	fmt.Fprintln(os.Stderr)
 
 	critRank := map[string]int{"inert": 0, "notable": 1, "suspicious": 2, "hostile": 3}
 
 	reviewStart := time.Now()
+	reviewCount := 0
 
-	for i, f := range toReview {
+	// Review archives first (they're higher priority as they contain problematic members)
+	for i, a := range archivesToReview {
 		sid := generateSessionID()
 
 		// Calculate progress and rate
-		pct := float64(i) / float64(len(toReview)) * 100
+		pct := float64(reviewCount) / float64(totalToReview) * 100
 		elapsed := time.Since(reviewStart)
 
 		// Build progress line with rate/ETA if we have enough data
-		progressLine := fmt.Sprintf("[%d/%d] (%.0f%%)", i+1, len(toReview), pct)
-		if i > 0 && elapsed.Seconds() > 0 {
-			rate := float64(i) / elapsed.Minutes()
-			remaining := len(toReview) - i
+		progressLine := fmt.Sprintf("[%d/%d] (%.0f%%)", reviewCount+1, totalToReview, pct)
+		if reviewCount > 0 && elapsed.Seconds() > 0 {
+			rate := float64(reviewCount) / elapsed.Minutes()
+			remaining := totalToReview - reviewCount
 			eta := time.Duration(float64(remaining)/rate) * time.Minute
 			progressLine = fmt.Sprintf("[%d/%d] (%.0f%%, %.1f/min, ~%s remaining)",
-				i+1, len(toReview), pct, rate, eta.Truncate(time.Minute))
+				reviewCount+1, totalToReview, pct, rate, eta.Truncate(time.Minute))
+		}
+
+		problematic := archiveProblematicMembers(a, cfg.knownGood)
+		fmt.Fprintf(os.Stderr, "%s Reviewing archive: %s\n", progressLine, a.ArchivePath)
+		fmt.Fprintf(os.Stderr, "  Problematic members: %d of %d\n", len(problematic), len(a.Members))
+
+		// Show first few problematic members
+		for j, m := range problematic {
+			if j >= 3 {
+				fmt.Fprintf(os.Stderr, "    ... and %d more\n", len(problematic)-3)
+				break
+			}
+			var maxCrit string
+			for _, finding := range m.Findings {
+				if critRank[strings.ToLower(finding.Crit)] > critRank[strings.ToLower(maxCrit)] {
+					maxCrit = finding.Crit
+				}
+			}
+			fmt.Fprintf(os.Stderr, "    - %s (%s)\n", memberPath(m.Path), maxCrit)
+		}
+		fmt.Fprint(os.Stderr, "  Invoking Claude...\n\n")
+
+		if err := invokeAIArchive(ctx, cfg, a, sid); err != nil {
+			log.Fatalf("%s failed: %v", cfg.provider, err)
+		}
+
+		// Mark archive as analyzed
+		h := hashString(a.ArchivePath)
+		if err := markAnalyzed(cfg.db, h, dbMode); err != nil {
+			log.Printf("Warning: could not record analysis for %s: %v", a.ArchivePath, err)
+		}
+
+		reviewCount++
+		fmt.Fprintf(os.Stderr, "\n--- Completed archive %s [%d/%d] ---\n\n", a.ArchivePath, i+1, len(archivesToReview))
+	}
+
+	// Review standalone files
+	for i, f := range standaloneToReview {
+		sid := generateSessionID()
+
+		// Calculate progress and rate
+		pct := float64(reviewCount) / float64(totalToReview) * 100
+		elapsed := time.Since(reviewStart)
+
+		// Build progress line with rate/ETA if we have enough data
+		progressLine := fmt.Sprintf("[%d/%d] (%.0f%%)", reviewCount+1, totalToReview, pct)
+		if reviewCount > 0 && elapsed.Seconds() > 0 {
+			rate := float64(reviewCount) / elapsed.Minutes()
+			remaining := totalToReview - reviewCount
+			eta := time.Duration(float64(remaining)/rate) * time.Minute
+			progressLine = fmt.Sprintf("[%d/%d] (%.0f%%, %.1f/min, ~%s remaining)",
+				reviewCount+1, totalToReview, pct, rate, eta.Truncate(time.Minute))
 		}
 
 		fmt.Fprintf(os.Stderr, "%s Reviewing: %s\n", progressLine, f.Path)
@@ -343,16 +528,19 @@ func main() {
 			}
 		}
 
-		fmt.Fprintf(os.Stderr, "\n--- Completed %s [%d/%d] ---\n\n", f.Path, i+1, len(toReview))
+		reviewCount++
+		fmt.Fprintf(os.Stderr, "\n--- Completed %s [%d/%d] ---\n\n", f.Path, i+1, len(standaloneToReview))
 	}
 
 	totalElapsed := time.Since(reviewStart)
-	if len(toReview) > 0 && totalElapsed.Seconds() > 0 {
-		rate := float64(len(toReview)) / totalElapsed.Minutes()
-		fmt.Fprintf(os.Stderr, "Done. Reviewed %d files in %s (%.1f/min).\n",
-			len(toReview), totalElapsed.Truncate(time.Second), rate)
+	if totalToReview > 0 && totalElapsed.Seconds() > 0 {
+		rate := float64(totalToReview) / totalElapsed.Minutes()
+		fmt.Fprintf(os.Stderr, "Done. Reviewed %d items (%d archives, %d files) in %s (%.1f/min).\n",
+			totalToReview, len(archivesToReview), len(standaloneToReview),
+			totalElapsed.Truncate(time.Second), rate)
 	} else {
-		fmt.Fprintf(os.Stderr, "Done. Reviewed %d files.\n", len(toReview))
+		fmt.Fprintf(os.Stderr, "Done. Reviewed %d items (%d archives, %d files).\n",
+			totalToReview, len(archivesToReview), len(standaloneToReview))
 	}
 	fmt.Fprint(os.Stderr, "Run \"git diff traits/\" to see changes.\n")
 }
@@ -420,12 +608,32 @@ func runDissectDirWithRetry(ctx context.Context, cfg *config, sid string) ([]Fil
 }
 
 func runDissectDir(ctx context.Context, cfg *config) ([]FileAnalysis, error) {
+	// Determine sample extraction threshold based on mode:
+	// --bad mode: extract inert/notable files (ones we need to detect)
+	// --good mode: extract suspicious/hostile files (false positives to review)
+	sampleMaxRisk := "notable"
+	if cfg.knownGood {
+		sampleMaxRisk = "hostile"
+	}
+
 	var cmd *exec.Cmd
 	if cfg.useCargo {
-		cmd = exec.CommandContext(ctx, "cargo", "run", "--release", "--", "--format", "jsonl", cfg.dir)
+		args := []string{"run", "--release", "--",
+			"--format", "jsonl",
+			"--sample-dir", cfg.sampleDir,
+			"--sample-max-risk", sampleMaxRisk,
+			cfg.dir,
+		}
+		cmd = exec.CommandContext(ctx, "cargo", args...)
 		cmd.Dir = cfg.repoRoot
 	} else {
-		cmd = exec.CommandContext(ctx, "dissect", "--format", "jsonl", cfg.dir)
+		args := []string{
+			"--format", "jsonl",
+			"--sample-dir", cfg.sampleDir,
+			"--sample-max-risk", sampleMaxRisk,
+			cfg.dir,
+		}
+		cmd = exec.CommandContext(ctx, "dissect", args...)
 	}
 
 	stdout, err := cmd.StdoutPipe()
@@ -462,9 +670,10 @@ func runDissectDir(ctx context.Context, cfg *config) ([]FileAnalysis, error) {
 
 		if entry.Type == "file" {
 			files = append(files, FileAnalysis{
-				Path:     entry.Path,
-				Risk:     entry.Risk,
-				Findings: entry.Findings,
+				Path:          entry.Path,
+				Risk:          entry.Risk,
+				Findings:      entry.Findings,
+				ExtractedPath: entry.ExtractedPath,
 			})
 			critCounts[strings.ToLower(entry.Risk)]++
 
@@ -556,22 +765,22 @@ func invokeAIFix(ctx context.Context, cfg *config, errOutput, sid string) error 
 }
 
 func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) error {
-	findingsJSON, err := json.MarshalIndent(f.Findings, "", "  ")
-	if err != nil {
-		log.Printf("Warning: could not marshal findings: %v", err)
-		findingsJSON = []byte("[]")
-	}
-
+	// Build prompt - LLM will run dissect itself to see findings
 	var prompt, task string
 	if cfg.knownGood {
-		prompt = fmt.Sprintf(knownGoodPrompt, f.Path, string(findingsJSON), cfg.repoRoot, f.Path)
+		prompt = fmt.Sprintf(knownGoodPrompt, f.Path, f.Path, cfg.repoRoot)
 		task = "Review for false positives (known-good collection)"
 	} else {
-		prompt = fmt.Sprintf(knownBadPrompt, f.Path, string(findingsJSON), cfg.repoRoot, f.Path)
+		prompt = fmt.Sprintf(knownBadPrompt, f.Path, f.Path, cfg.repoRoot)
 		task = "Find missing detections (known-bad collection)"
 	}
 
-	// Count criticalities for summary
+	// Add extracted sample path if available (for radare2, strings, objdump analysis)
+	if f.ExtractedPath != "" {
+		prompt += fmt.Sprintf("\n\n## Extracted Sample\nThe file has been extracted to: %s\nUse this path for binary analysis tools (radare2, strings, objdump, xxd, nm).", f.ExtractedPath)
+	}
+
+	// Count criticalities for summary display
 	critCounts := make(map[string]int)
 	for _, finding := range f.Findings {
 		critCounts[strings.ToLower(finding.Crit)]++
@@ -586,6 +795,9 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) erro
 	fmt.Fprintln(os.Stderr, "┌─────────────────────────────────────────────────────────────")
 	fmt.Fprintf(os.Stderr, "│ %s REVIEW: %s\n", strings.ToUpper(cfg.provider), f.Path)
 	fmt.Fprintf(os.Stderr, "│ Findings: %s\n", strings.Join(critSummary, ", "))
+	if f.ExtractedPath != "" {
+		fmt.Fprintf(os.Stderr, "│ Sample: %s\n", f.ExtractedPath)
+	}
 	fmt.Fprintf(os.Stderr, "│ Task: %s\n", task)
 	fmt.Fprintln(os.Stderr, "├─────────────────────────────────────────────────────────────")
 	fmt.Fprintln(os.Stderr, "│ Prompt (abbreviated):")
@@ -608,7 +820,73 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) erro
 	timedCtx, cancel := context.WithTimeout(ctx, cfg.timeout)
 	defer cancel()
 
-	err = runAIWithStreaming(timedCtx, cfg, prompt, sid)
+	if err := runAIWithStreaming(timedCtx, cfg, prompt, sid); err != nil {
+		fmt.Fprintln(os.Stderr)
+		fmt.Fprintf(os.Stderr, "<<< %s failed: %v\n", cfg.provider, err)
+		return err
+	}
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintf(os.Stderr, "<<< %s finished\n", cfg.provider)
+	return nil
+}
+
+func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid string) error {
+	problematic := archiveProblematicMembers(a, cfg.knownGood)
+
+	// Build prompt - LLM will run dissect itself to see findings
+	var prompt, task string
+	if cfg.knownGood {
+		prompt = fmt.Sprintf(knownGoodArchivePrompt, a.ArchivePath, len(problematic), a.ArchivePath, cfg.repoRoot)
+		task = "Review archive for false positives (known-good collection)"
+	} else {
+		prompt = fmt.Sprintf(knownBadArchivePrompt, a.ArchivePath, len(problematic), a.ArchivePath, cfg.repoRoot)
+		task = "Find missing detections in archive (known-bad collection)"
+	}
+
+	// Add extracted sample paths if available
+	var extractedPaths []string
+	for _, m := range problematic {
+		if m.ExtractedPath != "" {
+			extractedPaths = append(extractedPaths, fmt.Sprintf("- %s -> %s", memberPath(m.Path), m.ExtractedPath))
+		}
+	}
+	if len(extractedPaths) > 0 {
+		prompt += fmt.Sprintf("\n\n## Extracted Samples\nProblematic members have been extracted for binary analysis:\n%s\nUse these paths for radare2, strings, objdump, xxd, nm.", strings.Join(extractedPaths, "\n"))
+	}
+
+	// Count criticalities for summary display
+	critCounts := make(map[string]int)
+	for _, m := range a.Members {
+		for _, finding := range m.Findings {
+			critCounts[strings.ToLower(finding.Crit)]++
+		}
+	}
+	var critSummary []string
+	for _, level := range []string{"hostile", "suspicious", "notable", "inert"} {
+		if n := critCounts[level]; n > 0 {
+			critSummary = append(critSummary, fmt.Sprintf("%d %s", n, level))
+		}
+	}
+
+	fmt.Fprintln(os.Stderr, "┌─────────────────────────────────────────────────────────────")
+	fmt.Fprintf(os.Stderr, "│ %s ARCHIVE REVIEW: %s\n", strings.ToUpper(cfg.provider), a.ArchivePath)
+	fmt.Fprintf(os.Stderr, "│ Members: %d total, %d problematic\n", len(a.Members), len(problematic))
+	fmt.Fprintf(os.Stderr, "│ Findings: %s\n", strings.Join(critSummary, ", "))
+	fmt.Fprintf(os.Stderr, "│ Task: %s\n", task)
+	fmt.Fprintln(os.Stderr, "├─────────────────────────────────────────────────────────────")
+	fmt.Fprintln(os.Stderr, "│ Prompt:")
+	for _, line := range strings.Split(prompt, "\n") {
+		fmt.Fprintf(os.Stderr, "│   %s\n", line)
+	}
+	fmt.Fprintln(os.Stderr, "└─────────────────────────────────────────────────────────────")
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintf(os.Stderr, ">>> %s working (timeout: %s)...\n", cfg.provider, cfg.timeout)
+	fmt.Fprintln(os.Stderr)
+
+	timedCtx, cancel := context.WithTimeout(ctx, cfg.timeout)
+	defer cancel()
+
+	err := runAIWithStreaming(timedCtx, cfg, prompt, sid)
 	fmt.Fprintln(os.Stderr)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "<<< %s failed: %v\n", cfg.provider, err)
@@ -852,6 +1130,12 @@ func hashFile(path string) (string, error) {
 		return "", err
 	}
 	return hex.EncodeToString(h.Sum(nil)), nil
+}
+
+// hashString returns SHA256 hash of a string (for archive path caching)
+func hashString(s string) string {
+	h := sha256.Sum256([]byte(s))
+	return hex.EncodeToString(h[:])
 }
 
 func wasAnalyzed(db *sql.DB, hash, mode string) bool {

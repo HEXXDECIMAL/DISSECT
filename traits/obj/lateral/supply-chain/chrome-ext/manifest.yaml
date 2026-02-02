@@ -1,0 +1,325 @@
+# Chrome Extension Manifest Patterns
+# Detects suspicious patterns in Chrome extension manifest.json files
+# Note: These use content matching since manifest.json doesn't have a dedicated analyzer
+
+traits:
+  # === Manifest Version Detection ===
+  - id: manifest-v3
+    desc: Chrome extension using Manifest V3
+    crit: inert
+    conf: 0.95
+    for: [all]
+    if:
+      type: content
+      regex: "\"manifest_version\"\\s*:\\s*3"
+
+  - id: manifest-v2
+    desc: Uses deprecated Manifest V2
+    crit: notable
+    conf: 0.95
+    for: [all]
+    if:
+      type: content
+      regex: "\"manifest_version\"\\s*:\\s*2"
+
+  # === Dangerous Permissions ===
+  - id: permission-all-urls
+    desc: Requests all URLs access
+    crit: suspicious
+    conf: 0.95
+    for: [all]
+    if:
+      type: content
+      regex: "\"<all_urls>\"|\"\\*://\\*/\\*\""
+
+  - id: permission-active-tab
+    desc: Extension requests activeTab permission
+    crit: notable
+    conf: 0.9
+    for: [all]
+    if:
+      type: content
+      regex: "\"activeTab\""
+
+  - id: permission-tabs
+    desc: Extension requests tabs permission
+    crit: notable
+    conf: 0.9
+    for: [all]
+    if:
+      type: content
+      regex: "\"tabs\""
+
+  - id: permission-web-request
+    desc: Extension requests webRequest permission
+    crit: suspicious
+    conf: 0.95
+    for: [all]
+    if:
+      type: content
+      regex: "\"webRequest\"|\"webRequestBlocking\""
+
+  - id: permission-cookies
+    desc: Extension requests cookies permission
+    crit: suspicious
+    conf: 0.9
+    for: [all]
+    if:
+      type: content
+      regex: "\"cookies\""
+
+  - id: permission-history
+    desc: Extension requests history permission
+    crit: suspicious
+    conf: 0.95
+    for: [all]
+    if:
+      type: content
+      regex: "\"history\""
+
+  - id: permission-bookmarks
+    desc: Extension requests bookmarks permission
+    crit: notable
+    conf: 0.9
+    for: [all]
+    if:
+      type: content
+      regex: "\"bookmarks\""
+
+  - id: permission-geolocation
+    desc: Extension requests geolocation permission
+    crit: suspicious
+    conf: 0.9
+    for: [all]
+    if:
+      type: content
+      regex: "\"geolocation\""
+
+  - id: permission-clipboard-read
+    desc: Extension can read clipboard
+    crit: suspicious
+    conf: 0.95
+    for: [all]
+    if:
+      type: content
+      regex: "\"clipboardRead\""
+
+  - id: permission-clipboard-write
+    desc: Extension can write clipboard
+    crit: notable
+    conf: 0.9
+    for: [all]
+    if:
+      type: content
+      regex: "\"clipboardWrite\""
+
+  - id: permission-native-messaging
+    desc: Extension uses native messaging
+    crit: suspicious
+    conf: 0.95
+    for: [all]
+    if:
+      type: content
+      regex: "\"nativeMessaging\""
+
+  - id: permission-debugger
+    desc: Uses debugger API
+    crit: suspicious
+    conf: 0.98
+    for: [all]
+    if:
+      type: content
+      regex: "\"debugger\""
+
+  - id: permission-proxy
+    desc: Extension can modify proxy settings
+    crit: suspicious
+    conf: 0.95
+    for: [all]
+    if:
+      type: content
+      regex: "\"proxy\""
+
+  - id: permission-declarative-net-request
+    desc: Extension uses declarativeNetRequest
+    crit: notable
+    conf: 0.85
+    for: [all]
+    if:
+      type: content
+      regex: "\"declarativeNetRequest\"|\"declarativeNetRequestWithHostAccess\""
+
+  # === Host Permissions (broad access) ===
+  - id: host-all-http
+    desc: Access to all HTTP sites
+    crit: suspicious
+    conf: 0.95
+    for: [all]
+    if:
+      type: content
+      regex: "\"\\*://\\*\\.\\*/\\*\"|\"http://\\*/\\*\"|\"https://\\*/\\*\""
+
+  - id: host-multiple-tlds
+    desc: Targets multiple domain TLDs
+    crit: notable
+    conf: 0.85
+    for: [all]
+    if:
+      type: content
+      regex: "\\*://\\*\\.[a-z]+\\.(com|co\\.uk|de|fr|jp|cn|in|ca|au)"
+
+  - id: host-shopping-sites
+    desc: Extension targets e-commerce sites
+    crit: notable
+    conf: 0.9
+    for: [all]
+    if:
+      type: content
+      regex: "\\*://\\*\\.amazon\\.|\\*://\\*\\.ebay\\.|\\*://\\*\\.walmart\\.|\\*://\\*\\.aliexpress\\."
+
+  # === Content Scripts ===
+  - id: content-script-all-urls
+    desc: Content script on all URLs
+    crit: suspicious
+    conf: 0.95
+    for: [all]
+    if:
+      type: content
+      regex: "\"content_scripts\"[^}]*\"matches\"[^\\]]*\"<all_urls>\""
+
+  - id: content-script-run-at-start
+    desc: Content script runs at document_start
+    crit: notable
+    conf: 0.85
+    for: [all]
+    if:
+      type: content
+      regex: "\"run_at\"\\s*:\\s*\"document_start\""
+
+  # === Background Scripts ===
+  - id: background-persistent
+    desc: Extension uses persistent background page
+    crit: notable
+    conf: 0.85
+    for: [all]
+    if:
+      type: content
+      regex: "\"persistent\"\\s*:\\s*true"
+
+  - id: background-service-worker
+    desc: Extension uses service worker (MV3)
+    crit: inert
+    conf: 0.9
+    for: [all]
+    if:
+      type: content
+      regex: "\"service_worker\"\\s*:"
+
+  # === Suspicious Manifest Patterns ===
+  - id: externally-connectable
+    desc: Extension allows external connections
+    crit: suspicious
+    conf: 0.9
+    for: [all]
+    if:
+      type: content
+      regex: "\"externally_connectable\""
+
+  - id: update-url-external
+    desc: Non-Google update URL
+    crit: suspicious
+    conf: 0.9
+    for: [all]
+    if:
+      type: content
+      regex: "\"update_url\"\\s*:\\s*\"https?://[^c][^l]"
+    not:
+      - "clients2.google.com"
+
+  - id: web-accessible-resources
+    desc: Exposes resources to web
+    crit: notable
+    conf: 0.85
+    for: [all]
+    if:
+      type: content
+      regex: "\"web_accessible_resources\""
+
+  # === Chrome Extension Marker ===
+  - id: is-chrome-manifest
+    desc: Chrome extension manifest file
+    crit: inert
+    conf: 0.95
+    for: [all]
+    if:
+      type: content
+      regex: "\"manifest_version\"\\s*:\\s*[23]"
+
+composite_rules:
+  # Overprivileged extension
+  - id: overprivileged
+    desc: Extension requests excessive permissions
+    crit: suspicious
+    conf: 0.9
+    for: [all]
+    count_min: 3
+    any:
+      - id: permission-all-urls
+      - id: permission-web-request
+      - id: permission-cookies
+      - id: permission-history
+      - id: permission-clipboard-read
+      - id: permission-native-messaging
+      - id: permission-debugger
+      - id: permission-proxy
+
+  # E-commerce targeting extension
+  - id: ecommerce-targeting
+    desc: Extension specifically targets shopping sites
+    crit: notable
+    conf: 0.85
+    for: [all]
+    all:
+      - id: is-chrome-manifest
+      - id: host-shopping-sites
+
+  # Broad host access with content scripts
+  - id: broad-content-injection
+    desc: Extension can inject content into many sites
+    crit: suspicious
+    conf: 0.9
+    for: [all]
+    all:
+      - id: is-chrome-manifest
+    any:
+      - id: content-script-all-urls
+      - id: permission-all-urls
+      - id: host-all-http
+
+  # Suspicious permissions combination for data theft
+  - id: data-theft-permissions
+    desc: Extension has permissions enabling data theft
+    crit: suspicious
+    conf: 0.95
+    for: [all]
+    all:
+      - id: is-chrome-manifest
+    count_min: 2
+    any:
+      - id: permission-cookies
+      - id: permission-history
+      - id: permission-clipboard-read
+      - id: permission-web-request
+
+  # Deprecated manifest with dangerous permissions
+  - id: deprecated-with-dangerous
+    desc: MV2 extension with dangerous permissions
+    crit: suspicious
+    conf: 0.9
+    for: [all]
+    all:
+      - id: manifest-v2
+    any:
+      - id: permission-all-urls
+      - id: permission-web-request
+      - id: permission-debugger

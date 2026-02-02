@@ -16,7 +16,7 @@
 //! Files under 256MB are extracted to memory buffers, avoiding disk I/O for 99%
 //! of typical files. Larger files are extracted to temp files.
 
-use crate::analyzers::{detect_file_type, Analyzer, FileType};
+use crate::analyzers::{detect_file_type_from_path, Analyzer, FileType};
 use crate::types::*;
 use anyhow::Result;
 use std::io::Read;
@@ -242,6 +242,9 @@ impl ArchiveAnalyzer {
                         nested_analyzer =
                             nested_analyzer.with_zip_passwords(self.zip_passwords.clone());
                     }
+                    if let Some(ref config) = self.sample_extraction {
+                        nested_analyzer = nested_analyzer.with_sample_extraction(config.clone());
+                    }
 
                     if let Ok(report) = nested_analyzer.analyze(temp.path()) {
                         // Merge nested findings
@@ -289,6 +292,15 @@ impl ArchiveAnalyzer {
         // Compute summary
         file_analysis.compute_summary();
 
+        // Extract sample to disk if configured and file meets criteria
+        if let Some(ref config) = self.sample_extraction {
+            if config.should_extract(file_analysis.risk) {
+                if let Some(extracted_path) = config.extract(&file_analysis.sha256, data) {
+                    file_analysis.extracted_path = Some(extracted_path.display().to_string());
+                }
+            }
+        }
+
         Ok(StreamingFileResult {
             path: relative_path.to_string(),
             file_analysis,
@@ -330,9 +342,9 @@ impl ArchiveAnalyzer {
             return Ok(None);
         }
 
-        // Detect file type from name first (we'll verify with magic bytes)
+        // Detect file type from name (can't use detect_file_type since file doesn't exist on disk)
         let path = Path::new(entry_name);
-        let file_type = detect_file_type(path).unwrap_or(FileType::Unknown);
+        let file_type = detect_file_type_from_path(path);
 
         // Decide: in-memory or on-disk?
         let use_disk =
@@ -428,9 +440,9 @@ impl ArchiveAnalyzer {
             return Ok(None);
         }
 
-        // Detect file type from name
+        // Detect file type from name (can't use detect_file_type since file doesn't exist on disk)
         let path = Path::new(&entry_name);
-        let file_type = detect_file_type(path).unwrap_or(FileType::Unknown);
+        let file_type = detect_file_type_from_path(path);
 
         // Decide: in-memory or on-disk?
         let use_disk =
@@ -1331,9 +1343,9 @@ impl ArchiveAnalyzer {
                     return Ok(true);
                 }
 
-                // Detect file type
+                // Detect file type from name (can't use detect_file_type since file doesn't exist on disk)
                 let path = std::path::Path::new(&name);
-                let file_type = detect_file_type(path).unwrap_or(FileType::Unknown);
+                let file_type = detect_file_type_from_path(path);
 
                 // Read to memory or disk
                 let use_disk = file_size > MAX_MEMORY_FILE_SIZE
@@ -1595,9 +1607,9 @@ fn extract_cpio_streaming<R: Read>(
             continue;
         }
 
-        // Detect file type
+        // Detect file type from name (can't use detect_file_type since file doesn't exist on disk)
         let path = std::path::Path::new(clean_name);
-        let file_type = detect_file_type(path).unwrap_or(FileType::Unknown);
+        let file_type = detect_file_type_from_path(path);
 
         // Decide: in-memory or on-disk?
         let use_disk = file_size > MAX_MEMORY_FILE_SIZE

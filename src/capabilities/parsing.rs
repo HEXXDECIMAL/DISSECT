@@ -116,7 +116,7 @@ pub(crate) fn apply_trait_defaults(
         size_max: raw.size_max,
         r#if: raw.condition,
         not: raw.not,
-        unless: None,
+        unless: raw.unless,
         downgrade: raw.downgrade,
     }
 }

@@ -152,6 +152,16 @@ pub struct Args {
     /// By default, only recognized code/binary files are analyzed
     #[arg(long)]
     pub all_files: bool,
+
+    /// Directory to extract samples for external analysis tools (radare2, objdump, etc.)
+    /// Files are named by SHA256 hash for deduplication
+    #[arg(long, value_name = "PATH")]
+    pub sample_dir: Option<String>,
+
+    /// Only extract samples at or below this risk level (requires --sample-dir)
+    /// Values: inert, notable, suspicious, hostile (default: notable)
+    #[arg(long, value_name = "LEVEL", default_value = "notable")]
+    pub sample_max_risk: String,
 }
 
 impl Args {
@@ -184,6 +194,12 @@ impl Args {
                 .map(|level| parse_criticality_level(level.trim()))
                 .collect()
         })
+    }
+
+    /// Parse --sample-max-risk flag into a criticality level (only if --sample-dir is set)
+    pub fn sample_max_risk_level(&self) -> Option<crate::types::Criticality> {
+        self.sample_dir.as_ref()?;
+        Some(parse_criticality_level(&self.sample_max_risk))
     }
 }
 

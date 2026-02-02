@@ -1,0 +1,160 @@
+# Geofencing / Regional Exclusion Detection
+# Detects code that checks geographic location to avoid execution
+# Common in Russian malware to avoid CIS countries (to evade local law enforcement)
+# ATT&CK: T1614 (System Location Discovery)
+
+defaults:
+  attack: "T1614"
+  mbc: "B0024"
+
+traits:
+  # Russian language locale checks
+  - id: ru-locale-check
+    desc: Russian locale string check
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: string
+      regex: "ru[_-]RU|ru[_-]ru"
+
+  - id: russian-language-string
+    desc: Russian language identifier
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      exact: "Russian"
+
+  # Timezone checks for CIS region
+  - id: moscow-timezone
+    desc: Moscow timezone check
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      exact: "Europe/Moscow"
+
+  - id: minsk-timezone
+    desc: Minsk timezone check
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      exact: "Europe/Minsk"
+
+  - id: kiev-timezone
+    desc: Kyiv timezone check
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      exact: "Europe/Kiev"
+
+  # Environment variable locale checks
+  - id: lang-env-check
+    desc: LANG environment variable access
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "process.env.LANG"
+
+  - id: lc-all-env-check
+    desc: LC_ALL environment variable access
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "process.env.LC_ALL"
+
+  - id: language-env-check
+    desc: LANGUAGE environment variable access
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "process.env.LANGUAGE"
+
+  # Timezone offset check (JavaScript)
+  - id: timezone-offset-js
+    desc: getTimezoneOffset() call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: ast
+      kind: call
+      exact: "getTimezoneOffset"
+
+  # Intl timezone resolution
+  - id: intl-timezone-js
+    desc: Intl.DateTimeFormat timezone resolution
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "Intl\\.DateTimeFormat.{0,50}resolvedOptions.{0,30}timeZone"
+
+  # CIS country codes
+  - id: cis-country-codes
+    desc: CIS country code check
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: "\\b(RU|BY|KZ|UA|UZ|AZ|AM|GE|MD|TJ|TM|KG)\\b"
+
+composite_rules:
+  # Locale environment checks
+  - id: locale-env-checks
+    desc: Multiple locale environment checks
+    crit: notable
+    conf: 0.7
+    count_min: 2
+    any:
+      - id: lang-env-check
+      - id: lc-all-env-check
+      - id: language-env-check
+
+  # CIS timezone checks
+  - id: cis-timezone-checks
+    desc: CIS region timezone checks
+    crit: suspicious
+    conf: 0.85
+    count_min: 1
+    any:
+      - id: moscow-timezone
+      - id: minsk-timezone
+      - id: kiev-timezone
+
+  # Russian system detection (classic CIS exclusion pattern)
+  - id: russian-system-check
+    desc: Detects Russian system to avoid execution (CIS exclusion)
+    crit: suspicious
+    conf: 0.95
+    attack: "T1614"
+    count_min: 2
+    any:
+      - id: ru-locale-check
+      - id: russian-language-string
+      - id: moscow-timezone
+      - id: locale-env-checks
+      - id: cis-country-codes
+
+  # Full geofencing detection (timezone + locale)
+  # Complexity: all(1) + any(3) = 4 traits minimum for hostile
+  - id: cis-geofencing
+    desc: CIS region geofencing (avoids Russian/Ukrainian systems)
+    crit: suspicious
+    conf: 0.95
+    attack: "T1614"
+    all:
+      - id: russian-system-check
+    any:
+      - id: timezone-offset-js
+      - id: intl-timezone-js
+      - id: cis-timezone-checks

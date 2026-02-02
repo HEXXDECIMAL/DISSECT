@@ -1,0 +1,938 @@
+//! Tests for symbol and string-based condition evaluators.
+
+use super::*;
+use crate::composite_rules::condition::NotException;
+use crate::composite_rules::context::{EvaluationContext, StringParams};
+use crate::composite_rules::types::{FileType, Platform};
+use crate::types::{
+    AnalysisReport, DecodedString, Export, Function, Import, StringInfo, StringType, TargetInfo,
+};
+
+fn create_test_report() -> AnalysisReport {
+    let target = TargetInfo {
+        path: "/test/binary".to_string(),
+        file_type: "elf".to_string(),
+        size_bytes: 1024,
+        sha256: "abc123".to_string(),
+        architectures: Some(vec!["x86_64".to_string()]),
+    };
+    AnalysisReport::new(target)
+}
+
+fn create_test_context<'a>(report: &'a AnalysisReport, data: &'a [u8]) -> EvaluationContext<'a> {
+    EvaluationContext {
+        report,
+        binary_data: data,
+        file_type: FileType::Elf,
+        platform: Platform::Linux,
+        additional_findings: None,
+        cached_ast: None,
+        finding_id_index: None,
+    }
+}
+
+// =============================================================================
+// eval_symbol tests
+// =============================================================================
+
+#[test]
+fn test_eval_symbol_exact_match() {
+    let mut report = create_test_report();
+    report.imports.push(Import {
+        symbol: "socket".to_string(),
+        library: None,
+        source: "libc".to_string(),
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    let result = eval_symbol(Some(&"socket".to_string()), None, None, None, None, &ctx);
+
+    assert!(result.matched);
+    assert_eq!(result.evidence.len(), 1);
+    assert_eq!(result.evidence[0].value, "socket");
+}
+
+#[test]
+fn test_eval_symbol_exact_match_with_leading_underscore() {
+    let mut report = create_test_report();
+    report.imports.push(Import {
+        symbol: "_socket".to_string(),
+        library: None,
+        source: "libc".to_string(),
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    // Should match with underscore stripped
+    let result = eval_symbol(Some(&"socket".to_string()), None, None, None, None, &ctx);
+
+    assert!(result.matched);
+}
+
+#[test]
+fn test_eval_symbol_substr_match() {
+    let mut report = create_test_report();
+    report.imports.push(Import {
+        symbol: "CreateRemoteThread".to_string(),
+        library: Some("kernel32.dll".to_string()),
+        source: "pe".to_string(),
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    let result = eval_symbol(
+        None,
+        Some(&"RemoteThread".to_string()),
+        None,
+        None,
+        None,
+        &ctx,
+    );
+
+    assert!(result.matched);
+    assert_eq!(result.evidence[0].value, "CreateRemoteThread");
+}
+
+#[test]
+fn test_eval_symbol_regex_match() {
+    let mut report = create_test_report();
+    report.imports.push(Import {
+        symbol: "connect".to_string(),
+        library: None,
+        source: "libc".to_string(),
+    });
+    report.imports.push(Import {
+        symbol: "accept".to_string(),
+        library: None,
+        source: "libc".to_string(),
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    let pattern = "connect|accept".to_string();
+    let re = regex::Regex::new(&pattern).unwrap();
+    let result = eval_symbol(None, None, Some(&pattern), None, Some(&re), &ctx);
+
+    assert!(result.matched);
+    assert_eq!(result.evidence.len(), 2);
+}
+
+#[test]
+fn test_eval_symbol_no_match() {
+    let mut report = create_test_report();
+    report.imports.push(Import {
+        symbol: "malloc".to_string(),
+        library: None,
+        source: "libc".to_string(),
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    let result = eval_symbol(Some(&"socket".to_string()), None, None, None, None, &ctx);
+
+    assert!(!result.matched);
+    assert!(result.evidence.is_empty());
+}
+
+#[test]
+fn test_eval_symbol_platform_filtering() {
+    let mut report = create_test_report();
+    report.imports.push(Import {
+        symbol: "socket".to_string(),
+        library: None,
+        source: "libc".to_string(),
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    // Should not match - wrong platform
+    let result = eval_symbol(
+        Some(&"socket".to_string()),
+        None,
+        None,
+        Some(&vec![Platform::Windows]),
+        None,
+        &ctx,
+    );
+
+    assert!(!result.matched);
+
+    // Should match - correct platform
+    let result = eval_symbol(
+        Some(&"socket".to_string()),
+        None,
+        None,
+        Some(&vec![Platform::Linux]),
+        None,
+        &ctx,
+    );
+
+    assert!(result.matched);
+}
+
+#[test]
+fn test_eval_symbol_platform_all() {
+    let mut report = create_test_report();
+    report.imports.push(Import {
+        symbol: "socket".to_string(),
+        library: None,
+        source: "libc".to_string(),
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    // Platform::All should match any platform
+    let result = eval_symbol(
+        Some(&"socket".to_string()),
+        None,
+        None,
+        Some(&vec![Platform::All]),
+        None,
+        &ctx,
+    );
+
+    assert!(result.matched);
+}
+
+#[test]
+fn test_eval_symbol_in_exports() {
+    let mut report = create_test_report();
+    report.exports.push(Export {
+        symbol: "my_exported_function".to_string(),
+        offset: Some("0x1000".to_string()),
+        source: "elf".to_string(),
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    let result = eval_symbol(None, Some(&"exported".to_string()), None, None, None, &ctx);
+
+    assert!(result.matched);
+    assert_eq!(result.evidence[0].value, "my_exported_function");
+}
+
+#[test]
+fn test_eval_symbol_in_functions() {
+    let mut report = create_test_report();
+    report.functions.push(Function {
+        name: "runtime.newproc".to_string(),
+        offset: Some("0x2000".to_string()),
+        size: Some(100),
+        complexity: None,
+        calls: vec![],
+        source: "go".to_string(),
+        control_flow: None,
+        instruction_analysis: None,
+        register_usage: None,
+        constants: vec![],
+        properties: None,
+        signature: None,
+        nesting: None,
+        call_patterns: None,
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    let result = eval_symbol(None, Some(&"newproc".to_string()), None, None, None, &ctx);
+
+    assert!(result.matched);
+    assert_eq!(result.evidence[0].value, "runtime.newproc");
+}
+
+// =============================================================================
+// eval_string tests
+// =============================================================================
+
+#[test]
+fn test_eval_string_exact_match() {
+    let mut report = create_test_report();
+    report.strings.push(StringInfo {
+        value: "/bin/sh".to_string(),
+        offset: Some("0x1000".to_string()),
+        encoding: "utf8".to_string(),
+        string_type: StringType::Path,
+        section: None,
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    let params = StringParams {
+        exact: Some(&"/bin/sh".to_string()),
+        substr: None,
+        regex: None,
+        word: None,
+        case_insensitive: false,
+        exclude_patterns: None,
+        min_count: 1,
+        compiled_regex: None,
+        compiled_excludes: &[],
+    };
+
+    let result = eval_string(&params, None, &ctx);
+
+    assert!(result.matched);
+    assert_eq!(result.evidence[0].value, "/bin/sh");
+}
+
+#[test]
+fn test_eval_string_substr_match() {
+    let mut report = create_test_report();
+    report.strings.push(StringInfo {
+        value: "http://evil.com/malware".to_string(),
+        offset: Some("0x1000".to_string()),
+        encoding: "utf8".to_string(),
+        string_type: StringType::Url,
+        section: None,
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    let params = StringParams {
+        exact: None,
+        substr: Some(&"evil.com".to_string()),
+        regex: None,
+        word: None,
+        case_insensitive: false,
+        exclude_patterns: None,
+        min_count: 1,
+        compiled_regex: None,
+        compiled_excludes: &[],
+    };
+
+    let result = eval_string(&params, None, &ctx);
+
+    assert!(result.matched);
+}
+
+#[test]
+fn test_eval_string_regex_match() {
+    let mut report = create_test_report();
+    report.strings.push(StringInfo {
+        value: "192.168.1.100".to_string(),
+        offset: Some("0x1000".to_string()),
+        encoding: "utf8".to_string(),
+        string_type: StringType::Ip,
+        section: None,
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    let pattern = r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}".to_string();
+    let re = regex::Regex::new(&pattern).unwrap();
+    let params = StringParams {
+        exact: None,
+        substr: None,
+        regex: Some(&pattern),
+        word: None,
+        case_insensitive: false,
+        exclude_patterns: None,
+        min_count: 1,
+        compiled_regex: Some(&re),
+        compiled_excludes: &[],
+    };
+
+    let result = eval_string(&params, None, &ctx);
+
+    assert!(result.matched);
+}
+
+#[test]
+fn test_eval_string_case_insensitive() {
+    let mut report = create_test_report();
+    report.strings.push(StringInfo {
+        value: "CreateRemoteThread".to_string(),
+        offset: Some("0x1000".to_string()),
+        encoding: "utf8".to_string(),
+        string_type: StringType::Plain,
+        section: None,
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    let params = StringParams {
+        exact: Some(&"createremotethread".to_string()),
+        substr: None,
+        regex: None,
+        word: None,
+        case_insensitive: true,
+        exclude_patterns: None,
+        min_count: 1,
+        compiled_regex: None,
+        compiled_excludes: &[],
+    };
+
+    let result = eval_string(&params, None, &ctx);
+
+    assert!(result.matched);
+}
+
+#[test]
+fn test_eval_string_exclude_patterns() {
+    let mut report = create_test_report();
+    report.strings.push(StringInfo {
+        value: "test_function".to_string(),
+        offset: Some("0x1000".to_string()),
+        encoding: "utf8".to_string(),
+        string_type: StringType::Plain,
+        section: None,
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    let exclude_re = regex::Regex::new("test_").unwrap();
+    let params = StringParams {
+        exact: None,
+        substr: Some(&"function".to_string()),
+        regex: None,
+        word: None,
+        case_insensitive: false,
+        exclude_patterns: None,
+        min_count: 1,
+        compiled_regex: None,
+        compiled_excludes: &[exclude_re],
+    };
+
+    let result = eval_string(&params, None, &ctx);
+
+    // Should not match due to exclude pattern
+    assert!(!result.matched);
+}
+
+#[test]
+fn test_eval_string_min_count() {
+    let mut report = create_test_report();
+    report.strings.push(StringInfo {
+        value: "suspicious".to_string(),
+        offset: Some("0x1000".to_string()),
+        encoding: "utf8".to_string(),
+        string_type: StringType::Plain,
+        section: None,
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    // Require 2 matches
+    let params = StringParams {
+        exact: None,
+        substr: Some(&"suspicious".to_string()),
+        regex: None,
+        word: None,
+        case_insensitive: false,
+        exclude_patterns: None,
+        min_count: 2,
+        compiled_regex: None,
+        compiled_excludes: &[],
+    };
+
+    let result = eval_string(&params, None, &ctx);
+
+    // Only 1 match, need 2
+    assert!(!result.matched);
+}
+
+#[test]
+fn test_eval_string_not_exception() {
+    let mut report = create_test_report();
+    report.strings.push(StringInfo {
+        value: "/bin/sh".to_string(),
+        offset: Some("0x1000".to_string()),
+        encoding: "utf8".to_string(),
+        string_type: StringType::Path,
+        section: None,
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    let not_exceptions = vec![NotException::Shorthand("/bin/sh".to_string())];
+    let params = StringParams {
+        exact: Some(&"/bin/sh".to_string()),
+        substr: None,
+        regex: None,
+        word: None,
+        case_insensitive: false,
+        exclude_patterns: None,
+        min_count: 1,
+        compiled_regex: None,
+        compiled_excludes: &[],
+    };
+
+    let result = eval_string(&params, Some(&not_exceptions), &ctx);
+
+    // Should not match due to not exception
+    assert!(!result.matched);
+}
+
+#[test]
+fn test_eval_string_in_imports() {
+    let mut report = create_test_report();
+    report.imports.push(Import {
+        symbol: "CreateProcess".to_string(),
+        library: Some("kernel32.dll".to_string()),
+        source: "pe".to_string(),
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    let params = StringParams {
+        exact: None,
+        substr: Some(&"CreateProcess".to_string()),
+        regex: None,
+        word: None,
+        case_insensitive: false,
+        exclude_patterns: None,
+        min_count: 1,
+        compiled_regex: None,
+        compiled_excludes: &[],
+    };
+
+    let result = eval_string(&params, None, &ctx);
+
+    assert!(result.matched);
+    assert_eq!(result.evidence[0].method, "import_symbol");
+}
+
+#[test]
+fn test_eval_string_raw_content_fallback() {
+    let report = create_test_report();
+    let data = b"This is some raw content with a password = secret123";
+
+    let mut ctx = create_test_context(&report, data);
+    ctx.file_type = FileType::Python; // Source code - will try raw content
+
+    let params = StringParams {
+        exact: None,
+        substr: Some(&"password".to_string()),
+        regex: None,
+        word: None,
+        case_insensitive: false,
+        exclude_patterns: None,
+        min_count: 1,
+        compiled_regex: None,
+        compiled_excludes: &[],
+    };
+
+    let result = eval_string(&params, None, &ctx);
+
+    assert!(result.matched);
+    assert_eq!(result.evidence[0].source, "raw_content");
+}
+
+// =============================================================================
+// eval_raw tests
+// =============================================================================
+
+#[test]
+fn test_eval_raw_exact_match() {
+    let report = create_test_report();
+    let content = "EXACT_CONTENT";
+    let ctx = create_test_context(&report, content.as_bytes());
+
+    let result = eval_raw(
+        Some(&"EXACT_CONTENT".to_string()),
+        None,
+        None,
+        None,
+        false,
+        1,
+        None,
+        &ctx,
+    );
+
+    assert!(result.matched);
+}
+
+#[test]
+fn test_eval_raw_substr_count() {
+    let report = create_test_report();
+    let content = "token token token more content token";
+    let ctx = create_test_context(&report, content.as_bytes());
+
+    let result = eval_raw(
+        None,
+        Some(&"token".to_string()),
+        None,
+        None,
+        false,
+        3,
+        None,
+        &ctx,
+    );
+
+    assert!(result.matched);
+    assert!(result.evidence[0].value.contains("4 occurrences"));
+}
+
+#[test]
+fn test_eval_raw_substr_count_insufficient() {
+    let report = create_test_report();
+    let content = "token token";
+    let ctx = create_test_context(&report, content.as_bytes());
+
+    let result = eval_raw(
+        None,
+        Some(&"token".to_string()),
+        None,
+        None,
+        false,
+        5, // Require 5 occurrences
+        None,
+        &ctx,
+    );
+
+    assert!(!result.matched);
+}
+
+#[test]
+fn test_eval_raw_regex() {
+    let report = create_test_report();
+    let content = "email: test@example.com and admin@corp.org";
+    let ctx = create_test_context(&report, content.as_bytes());
+
+    let pattern = r"[a-z]+@[a-z]+\.[a-z]+".to_string();
+    let re = regex::Regex::new(&pattern).unwrap();
+
+    let result = eval_raw(
+        None,
+        None,
+        Some(&pattern),
+        None,
+        false,
+        2, // Require 2 matches
+        Some(&re),
+        &ctx,
+    );
+
+    assert!(result.matched);
+}
+
+#[test]
+fn test_eval_raw_case_insensitive() {
+    let report = create_test_report();
+    let content = "PASSWORD password PaSsWoRd";
+    let ctx = create_test_context(&report, content.as_bytes());
+
+    let result = eval_raw(
+        None,
+        Some(&"password".to_string()),
+        None,
+        None,
+        true,
+        3,
+        None,
+        &ctx,
+    );
+
+    assert!(result.matched);
+}
+
+#[test]
+fn test_eval_raw_invalid_utf8() {
+    let report = create_test_report();
+    let data = vec![0xff, 0xfe, 0x00, 0x01]; // Invalid UTF-8
+    let ctx = create_test_context(&report, &data);
+
+    let result = eval_raw(
+        None,
+        Some(&"test".to_string()),
+        None,
+        None,
+        false,
+        1,
+        None,
+        &ctx,
+    );
+
+    assert!(!result.matched);
+}
+
+// =============================================================================
+// eval_base64 tests
+// =============================================================================
+
+#[test]
+fn test_eval_base64_exact_match() {
+    let mut report = create_test_report();
+    report.decoded_strings.push(DecodedString {
+        value: "secret_password".to_string(),
+        encoded: "c2VjcmV0X3Bhc3N3b3Jk".to_string(),
+        method: "base64".to_string(),
+        key: None,
+        offset: Some("0x1000".to_string()),
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    let result = eval_base64(
+        Some(&"secret_password".to_string()),
+        None,
+        None,
+        false,
+        1,
+        &ctx,
+    );
+
+    assert!(result.matched);
+    assert!(result.evidence[0].method.contains("decoded_base64"));
+}
+
+#[test]
+fn test_eval_base64_substr_match() {
+    let mut report = create_test_report();
+    report.decoded_strings.push(DecodedString {
+        value: "http://evil.com/payload".to_string(),
+        encoded: "aHR0cDovL2V2aWwuY29tL3BheWxvYWQ=".to_string(),
+        method: "base64".to_string(),
+        key: None,
+        offset: Some("0x1000".to_string()),
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    let result = eval_base64(None, Some(&"evil.com".to_string()), None, false, 1, &ctx);
+
+    assert!(result.matched);
+}
+
+#[test]
+fn test_eval_base64_regex_match() {
+    let mut report = create_test_report();
+    report.decoded_strings.push(DecodedString {
+        value: "192.168.1.100".to_string(),
+        encoded: "MTkyLjE2OC4xLjEwMA==".to_string(),
+        method: "base64".to_string(),
+        key: None,
+        offset: Some("0x1000".to_string()),
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    let result = eval_base64(
+        None,
+        None,
+        Some(&r"\d+\.\d+\.\d+\.\d+".to_string()),
+        false,
+        1,
+        &ctx,
+    );
+
+    assert!(result.matched);
+}
+
+#[test]
+fn test_eval_base64_no_match_wrong_method() {
+    let mut report = create_test_report();
+    report.decoded_strings.push(DecodedString {
+        value: "secret".to_string(),
+        encoded: "encoded".to_string(),
+        method: "xor".to_string(), // Not base64
+        key: Some("0x42".to_string()),
+        offset: None,
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    let result = eval_base64(Some(&"secret".to_string()), None, None, false, 1, &ctx);
+
+    assert!(!result.matched);
+}
+
+// =============================================================================
+// eval_xor tests
+// =============================================================================
+
+#[test]
+fn test_eval_xor_match() {
+    let mut report = create_test_report();
+    report.decoded_strings.push(DecodedString {
+        value: "malware.exe".to_string(),
+        encoded: "obfuscated".to_string(),
+        method: "xor".to_string(),
+        key: Some("0x42".to_string()),
+        offset: Some("0x2000".to_string()),
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    let result = eval_xor(
+        None,
+        None,
+        Some(&"malware".to_string()),
+        None,
+        false,
+        1,
+        &ctx,
+    );
+
+    assert!(result.matched);
+}
+
+#[test]
+fn test_eval_xor_with_key_filter() {
+    let mut report = create_test_report();
+    report.decoded_strings.push(DecodedString {
+        value: "secret1".to_string(),
+        encoded: "enc1".to_string(),
+        method: "xor".to_string(),
+        key: Some("0x42".to_string()),
+        offset: None,
+    });
+    report.decoded_strings.push(DecodedString {
+        value: "secret2".to_string(),
+        encoded: "enc2".to_string(),
+        method: "xor".to_string(),
+        key: Some("0xFF".to_string()),
+        offset: None,
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    // Only match key 0x42
+    let result = eval_xor(
+        Some(&"0x42".to_string()),
+        None,
+        Some(&"secret".to_string()),
+        None,
+        false,
+        1,
+        &ctx,
+    );
+
+    assert!(result.matched);
+    assert_eq!(result.evidence.len(), 1);
+    assert!(result.evidence[0].value.contains("secret1"));
+}
+
+#[test]
+fn test_eval_xor_case_insensitive() {
+    let mut report = create_test_report();
+    report.decoded_strings.push(DecodedString {
+        value: "MALWARE".to_string(),
+        encoded: "obfuscated".to_string(),
+        method: "xor".to_string(),
+        key: Some("0x42".to_string()),
+        offset: None,
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    let result = eval_xor(
+        None,
+        None,
+        Some(&"malware".to_string()),
+        None,
+        true, // case insensitive
+        1,
+        &ctx,
+    );
+
+    assert!(result.matched);
+}
+
+// =============================================================================
+// eval_string_count tests
+// =============================================================================
+
+#[test]
+fn test_eval_string_count_min() {
+    let mut report = create_test_report();
+    for i in 0..5 {
+        report.strings.push(StringInfo {
+            value: format!("string_{}", i),
+            offset: Some(format!("0x{:x}", i * 0x100)),
+            encoding: "utf8".to_string(),
+            string_type: StringType::Plain,
+            section: None,
+        });
+    }
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    let result = eval_string_count(Some(3), None, None, &ctx);
+    assert!(result.matched);
+
+    let result = eval_string_count(Some(10), None, None, &ctx);
+    assert!(!result.matched);
+}
+
+#[test]
+fn test_eval_string_count_max() {
+    let mut report = create_test_report();
+    for i in 0..5 {
+        report.strings.push(StringInfo {
+            value: format!("string_{}", i),
+            offset: Some(format!("0x{:x}", i * 0x100)),
+            encoding: "utf8".to_string(),
+            string_type: StringType::Plain,
+            section: None,
+        });
+    }
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    let result = eval_string_count(None, Some(10), None, &ctx);
+    assert!(result.matched);
+
+    let result = eval_string_count(None, Some(3), None, &ctx);
+    assert!(!result.matched);
+}
+
+#[test]
+fn test_eval_string_count_min_length() {
+    let mut report = create_test_report();
+    report.strings.push(StringInfo {
+        value: "ab".to_string(), // 2 chars
+        offset: None,
+        encoding: "utf8".to_string(),
+        string_type: StringType::Plain,
+        section: None,
+    });
+    report.strings.push(StringInfo {
+        value: "abcdefgh".to_string(), // 8 chars
+        offset: None,
+        encoding: "utf8".to_string(),
+        string_type: StringType::Plain,
+        section: None,
+    });
+    report.strings.push(StringInfo {
+        value: "abcdefghijklmnop".to_string(), // 16 chars
+        offset: None,
+        encoding: "utf8".to_string(),
+        string_type: StringType::Plain,
+        section: None,
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    // Only count strings >= 5 chars
+    let result = eval_string_count(Some(2), None, Some(5), &ctx);
+    assert!(result.matched);
+
+    // Only count strings >= 10 chars
+    let result = eval_string_count(Some(2), None, Some(10), &ctx);
+    assert!(!result.matched); // Only 1 string >= 10 chars
+}
+
+#[test]
+fn test_eval_string_count_range() {
+    let mut report = create_test_report();
+    for i in 0..10 {
+        report.strings.push(StringInfo {
+            value: format!("string_{}", i),
+            offset: None,
+            encoding: "utf8".to_string(),
+            string_type: StringType::Plain,
+            section: None,
+        });
+    }
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    // Count should be exactly 10
+    let result = eval_string_count(Some(5), Some(15), None, &ctx);
+    assert!(result.matched);
+
+    // Outside range
+    let result = eval_string_count(Some(15), Some(20), None, &ctx);
+    assert!(!result.matched);
+}

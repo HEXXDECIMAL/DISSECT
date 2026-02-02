@@ -4,6 +4,7 @@
 
 traits:
   # Recursive directory deletion (Node.js)
+  # NOTE: This is generic - credential stealers clean up staging directories
   - id: recursive-delete
     description: Recursive directory deletion function
     crit: suspicious
@@ -23,6 +24,13 @@ traits:
           condition:
             ($readdir and ($unlink or $rmdir)) or $rmrf or $rimraf
         }
+    # Downgrade when it looks like temp/staging cleanup (stealer, not wiper)
+    downgrade:
+      any:
+        - id: obj/creds/ssh/key/dot-ssh-path
+        - id: obj/creds/cloud/token/aws-dir
+        - id: obj/lateral/supply-chain/vscode/credential-paths
+        - id: obj/collect/archive/macos/unzip-create
 
   # Targets development directories
   - id: target-dev-dirs

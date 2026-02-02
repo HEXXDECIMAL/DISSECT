@@ -169,7 +169,16 @@ traits:
     file_types: [elf]
     condition:
       type: string
-      regex: "\\b(root|admin|user|guest|support):(root|admin|[a-zA-Z0-9]{4,12})\\b"
+      # Match common default password patterns in user:pass format
+      # Require at least 2 matches to indicate credential list (single match is likely noise)
+      regex: "\\b(root|admin|user|guest|support):(root|admin|pass(word)?|1234|default|guest|toor|test)\\b"
+      min_count: 2
+    not:
+      # Legitimate graphviz/dot node specifications
+      - "user:request"
+      - "user:Response"
+      - "user:info"
+      - "user:data"
 
 composite_rules:
   # IoT ZTE credential composite

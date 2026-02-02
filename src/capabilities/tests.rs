@@ -221,6 +221,7 @@ fn test_apply_trait_defaults_applies_all_defaults() {
         size_min: None,
         size_max: None,
         not: None,
+        unless: None,
         downgrade: None,
         condition: Condition::String {
             exact: Some("test".to_string()),
@@ -268,6 +269,7 @@ fn test_apply_trait_defaults_trait_overrides_defaults() {
         size_min: None,
         size_max: None,
         not: None,
+        unless: None,
         downgrade: None,
         condition: Condition::String {
             exact: Some("test".to_string()),
@@ -316,6 +318,7 @@ fn test_apply_trait_defaults_unset_mbc_with_none() {
         size_min: None,
         size_max: None,
         not: None,
+        unless: None,
         downgrade: None,
         condition: Condition::String {
             exact: Some("test".to_string()),
@@ -359,6 +362,7 @@ fn test_apply_trait_defaults_unset_attack_with_none() {
         size_min: None,
         size_max: None,
         not: None,
+        unless: None,
         downgrade: None,
         condition: Condition::String {
             exact: Some("test".to_string()),
@@ -402,6 +406,7 @@ fn test_apply_trait_defaults_unset_file_types_with_none() {
         size_min: None,
         size_max: None,
         not: None,
+        unless: None,
         downgrade: None,
         condition: Condition::String {
             exact: Some("test".to_string()),

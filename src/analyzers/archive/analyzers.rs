@@ -762,6 +762,7 @@ impl ArchiveAnalyzer {
         let capability_mapper = self.capability_mapper.clone();
         let yara_engine = self.yara_engine.clone();
         let zip_passwords = self.zip_passwords.clone();
+        let sample_extraction = self.sample_extraction.clone();
         let current_depth = self.current_depth;
         let max_depth = self.max_depth;
         let archive_path_prefix = self.archive_path_prefix.clone();
@@ -777,6 +778,7 @@ impl ArchiveAnalyzer {
                 capability_mapper,
                 yara_engine,
                 zip_passwords,
+                sample_extraction,
             };
 
             let result = analyzer.analyze_extracted_file(&file_path_clone);

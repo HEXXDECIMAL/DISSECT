@@ -151,3 +151,33 @@ traits:
         }
 
 composite_rules:
+  # Full dropper pattern in setup.py/init.py
+  # Downloads binary, drops to hidden path, modifies shell config for persistence
+  # Complexity: all(4) = 4 (meets HOSTILE threshold)
+  - id: python-dropper
+    desc: Python dropper downloads and persists malware
+    crit: hostile
+    conf: 0.95
+    attack: "T1195.002"
+    mbc: "B0024"
+    for: [python]
+    all:
+      - id: cap/exec/command/shell/python-os-system
+      - id: cap/comm/http/request/get
+      - id: cap/fs/hide/create/python-string-hidden-path
+      - id: obj/persist/shell/config/bashrc
+
+  # Alternative dropper: downloads + shell exec + persistence (without hidden path)
+  # Complexity: all(4) = 4 (meets HOSTILE threshold)
+  - id: python-dropper-shell-persist
+    desc: Python setup.py with download and shell persistence
+    crit: hostile
+    conf: 0.92
+    attack: "T1195.002"
+    mbc: "B0024"
+    for: [python]
+    all:
+      - id: setup-py-exec-yara
+      - id: cap/exec/command/shell/python-os-system
+      - id: cap/comm/http/request/http-client
+      - id: obj/persist/shell/config/bash-files

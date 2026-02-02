@@ -201,6 +201,19 @@ fn main() -> Result<()> {
     // Collect error_if levels for criticality checking
     let error_if_levels = args.error_if_levels();
 
+    // Create sample extraction config if --sample-dir is specified
+    let sample_extraction = args.sample_dir.as_ref().map(|dir| {
+        let path = std::path::PathBuf::from(dir);
+        // Ensure directory exists
+        if let Err(e) = std::fs::create_dir_all(&path) {
+            eprintln!("Warning: could not create sample directory {}: {}", dir, e);
+        }
+        let max_risk = args
+            .sample_max_risk_level()
+            .unwrap_or(types::Criticality::Notable);
+        types::SampleExtractionConfig::new(path, max_risk)
+    });
+
     let result = match args.command {
         Some(cli::Command::Analyze {
             targets,
@@ -227,6 +240,7 @@ fn main() -> Result<()> {
                     error_if_levels.as_deref(),
                     args.verbose,
                     args.all_files,
+                    sample_extraction.as_ref(),
                 )?
             } else {
                 // Multiple targets or directory - use scan
@@ -239,6 +253,7 @@ fn main() -> Result<()> {
                     error_if_levels.as_deref(),
                     args.verbose,
                     args.all_files,
+                    sample_extraction.as_ref(),
                 )?
             }
         }
@@ -254,6 +269,7 @@ fn main() -> Result<()> {
             error_if_levels.as_deref(),
             args.verbose,
             args.all_files,
+            sample_extraction.as_ref(),
         )?,
         Some(cli::Command::Diff { old, new }) => diff_analysis(&old, &new, &format)?,
         Some(cli::Command::Strings { target, min_length }) => {
@@ -299,6 +315,7 @@ fn main() -> Result<()> {
                 error_if_levels.as_deref(),
                 args.verbose,
                 args.all_files,
+                sample_extraction.as_ref(),
             )?
         }
     };
@@ -324,6 +341,7 @@ fn analyze_file(
     error_if_levels: Option<&[types::Criticality]>,
     verbose: bool,
     all_files: bool,
+    sample_extraction: Option<&types::SampleExtractionConfig>,
 ) -> Result<String> {
     let _start = std::time::Instant::now();
     let path = Path::new(target);
@@ -343,6 +361,7 @@ fn analyze_file(
             error_if_levels,
             verbose,
             all_files,
+            sample_extraction,
         );
     }
 
@@ -416,6 +435,9 @@ fn analyze_file(
             if let Some(engine) = yara_engine.take() {
                 analyzer = analyzer.with_yara(engine);
             }
+            if let Some(config) = sample_extraction {
+                analyzer = analyzer.with_sample_extraction(config.clone());
+            }
             analyzer.analyze(path)?
         }
         FileType::PackageJson => {
@@ -434,6 +456,9 @@ fn analyze_file(
                 .with_zip_passwords(zip_passwords.to_vec());
             if let Some(engine) = yara_engine.take() {
                 analyzer = analyzer.with_yara(engine);
+            }
+            if let Some(config) = sample_extraction {
+                analyzer = analyzer.with_sample_extraction(config.clone());
             }
             // Use streaming for JSONL format to emit files as they're analyzed
             if matches!(format, cli::OutputFormat::Jsonl) {
@@ -522,6 +547,7 @@ fn scan_paths(
     error_if_levels: Option<&[types::Criticality]>,
     verbose: bool,
     include_all_files: bool,
+    sample_extraction: Option<&types::SampleExtractionConfig>,
 ) -> Result<String> {
     use indicatif::{ProgressBar, ProgressStyle};
     use walkdir::WalkDir;
@@ -647,6 +673,7 @@ fn scan_paths(
             disabled,
             error_if_levels,
             verbose,
+            sample_extraction,
         ) {
             Ok(json) => {
                 match format {
@@ -761,6 +788,7 @@ fn scan_paths(
                     &capability_mapper,
                     shared_yara_engine.as_ref(),
                     zip_passwords,
+                    sample_extraction,
                 ) {
                     Ok(()) => {
                         // Files were already streamed via callback
@@ -783,6 +811,7 @@ fn scan_paths(
                 disabled,
                 error_if_levels,
                 verbose,
+                sample_extraction,
             ) {
                 Ok(json) => {
                     match format {
@@ -925,6 +954,7 @@ fn analyze_file_with_shared_mapper(
     _disabled: &cli::DisabledComponents,
     error_if_levels: Option<&[types::Criticality]>,
     verbose: bool,
+    sample_extraction: Option<&types::SampleExtractionConfig>,
 ) -> Result<String> {
     let timing = std::env::var("DISSECT_TIMING").is_ok();
     let t_start = std::time::Instant::now();
@@ -984,6 +1014,9 @@ fn analyze_file_with_shared_mapper(
             if let Some(engine) = shared_yara_engine {
                 analyzer = analyzer.with_yara_arc(engine.clone());
             }
+            if let Some(config) = sample_extraction {
+                analyzer = analyzer.with_sample_extraction(config.clone());
+            }
             analyzer.analyze(path)?
         }
         FileType::PackageJson => {
@@ -1007,6 +1040,9 @@ fn analyze_file_with_shared_mapper(
                 .with_zip_passwords(zip_passwords.to_vec());
             if let Some(engine) = shared_yara_engine {
                 analyzer = analyzer.with_yara_arc(engine.clone());
+            }
+            if let Some(config) = sample_extraction {
+                analyzer = analyzer.with_sample_extraction(config.clone());
             }
             analyzer.analyze(path)?
         }
@@ -1087,6 +1123,7 @@ fn analyze_archive_streaming_jsonl(
     capability_mapper: &Arc<crate::capabilities::CapabilityMapper>,
     shared_yara_engine: Option<&Arc<YaraEngine>>,
     zip_passwords: &[String],
+    sample_extraction: Option<&types::SampleExtractionConfig>,
 ) -> Result<()> {
     let path = Path::new(target);
 
@@ -1096,6 +1133,9 @@ fn analyze_archive_streaming_jsonl(
 
     if let Some(engine) = shared_yara_engine {
         analyzer = analyzer.with_yara_arc(engine.clone());
+    }
+    if let Some(config) = sample_extraction {
+        analyzer = analyzer.with_sample_extraction(config.clone());
     }
 
     // Use streaming analysis - each file is emitted as a JSONL line via the callback

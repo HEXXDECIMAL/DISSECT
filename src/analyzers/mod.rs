@@ -189,6 +189,58 @@ pub trait Analyzer {
     fn can_analyze(&self, file_path: &Path) -> bool;
 }
 
+/// Detect file type from path/extension only (no file access needed)
+/// This is useful for archive entries that don't exist on disk
+pub fn detect_file_type_from_path(file_path: &Path) -> FileType {
+    // Check archives by path pattern
+    let path_str = file_path.to_string_lossy().to_lowercase();
+    if path_str.ends_with(".jar") || path_str.ends_with(".war") || path_str.ends_with(".ear") {
+        return FileType::Jar;
+    }
+    if path_str.ends_with(".tar.gz")
+        || path_str.ends_with(".tgz")
+        || path_str.ends_with(".tar.bz2")
+        || path_str.ends_with(".tar.xz")
+        || path_str.ends_with(".tar.zst")
+        || path_str.ends_with(".tar")
+    {
+        return FileType::Archive;
+    }
+
+    if let Some(ext) = file_path.extension() {
+        let ext_str = ext.to_str().unwrap_or("");
+        match ext_str {
+            "sh" => return FileType::Shell,
+            "py" => return FileType::Python,
+            "js" | "mjs" | "cjs" => return FileType::JavaScript,
+            "ts" | "tsx" | "mts" | "cts" => return FileType::TypeScript,
+            "go" => return FileType::Go,
+            "rs" => return FileType::Rust,
+            "java" => return FileType::Java,
+            "rb" => return FileType::Ruby,
+            "php" => return FileType::Php,
+            "pl" | "pm" | "t" => return FileType::Perl,
+            "ps1" | "psm1" | "psd1" => return FileType::PowerShell,
+            "bat" | "cmd" => return FileType::Batch,
+            "c" | "h" => return FileType::C,
+            "lua" => return FileType::Lua,
+            "cs" => return FileType::CSharp,
+            "swift" => return FileType::Swift,
+            "m" | "mm" => return FileType::ObjectiveC,
+            "groovy" | "gradle" => return FileType::Groovy,
+            "scala" | "sc" => return FileType::Scala,
+            "zig" => return FileType::Zig,
+            "ex" | "exs" => return FileType::Elixir,
+            "scpt" | "applescript" => return FileType::AppleScript,
+            "zip" | "7z" | "rar" | "deb" | "rpm" | "apk" | "ipa" | "xpi" | "epub" | "nupkg"
+            | "vsix" | "aar" | "egg" | "whl" | "phar" => return FileType::Archive,
+            _ => {}
+        }
+    }
+
+    FileType::Unknown
+}
+
 /// Detect file type and route to appropriate analyzer
 pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
     let file_data = std::fs::read(file_path)?;

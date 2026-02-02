@@ -62,11 +62,14 @@ traits:
     if:
       type: symbol
       pattern: "XGrabKey"
-    # Skip if this looks like a system X11 library
+    # Skip if this looks like a system X11 library or utility
     unless:
       # Match X11 library filenames like libX11.so, libX11.so.6, libX11.so.19.0
       - type: basename
-        regex: "^lib(X11|xcb|Xext|Xt|Xmu|Xi|Xrandr|Xrender|Xfixes|Xcomposite|Xdamage|Xinput|Xinerama|Xss|Xkb|Xaw|Xcursor|Xdmcp|Xpm|Xft|fontconfig)(\\.so|\\.dylib).*"
+        regex: "^lib(X11|xcb|Xext|Xt|Xmu|Xi|Xrandr|Xrender|Xfixes|Xcomposite|Xdamage|Xinput|Xinerama|Xss|Xkb|Xaw|Xcursor|Xdmcp|Xpm|Xft|fontconfig|Xxf86dga|Xxf86vm|Xxf86misc)(\\.so|\\.dylib).*"
+      # Match X11/XFree86 test utilities (dga, glxinfo, xdpyinfo, etc.)
+      - type: basename
+        regex: "^(dga|glxinfo|xdpyinfo|xwininfo|xev|xinput|xrandr|xset|xmodmap|xkbcomp|setxkbmap|xhost|xauth)$"
       # Match X11 version strings in the file
       - type: string
         regex: "X11R[0-9]|xenocara|xorg|X\\.Org"
@@ -76,6 +79,9 @@ traits:
       # Match X11 DGA extension markers (legitimate use of XGrabKey for tests/direct access)
       - type: string
         regex: "(?i)(?:XF86DGA|XDGAOpenFramebuffer|XDGACloseFramebuffer|libXxf86dga|XFree86-DGA)"
+      # Match X11 DGA symbol imports (DGA video test utilities)
+      - type: symbol
+        regex: "^XDGA(OpenFramebuffer|CloseFramebuffer|QueryExtension|QueryVersion|SetMode|GetViewportStatus)"
 
   # === Atomic: macOS Keyboard Capture ===
   - id: macos-eventtap
@@ -350,8 +356,12 @@ traits:
 
 composite_rules:
   # === Helper composites (case variants) ===
+  # These are building blocks that just aggregate case variants.
+  # They should remain inert - suspicious ratings come from
+  # the behavioral composites that combine multiple indicators.
   - id: osascript-keyword
     desc: osascript keyword (case variants)
+    crit: inert
     for: [all]
     any:
       - { id: osascript-lower }
@@ -360,6 +370,7 @@ composite_rules:
 
   - id: keystroke-keyword
     desc: keystroke keyword (case variants)
+    crit: inert
     for: [all]
     any:
       - { id: keystroke-lower }
@@ -368,6 +379,7 @@ composite_rules:
 
   - id: key-code-phrase
     desc: key code phrase (case variants)
+    crit: inert
     for: [all]
     any:
       - { id: key-code-lower }
@@ -376,6 +388,7 @@ composite_rules:
 
   - id: key-down-phrase
     desc: key down phrase (case variants)
+    crit: inert
     for: [all]
     any:
       - { id: key-down-lower }
@@ -384,6 +397,7 @@ composite_rules:
 
   - id: system-events-phrase
     desc: system events phrase (case variants)
+    crit: inert
     for: [all]
     any:
       - { id: system-events-lower }
@@ -392,6 +406,7 @@ composite_rules:
 
   - id: applescript-keywords
     desc: AppleScript keystroke keywords
+    crit: inert
     for: [all]
     any:
       - { id: keystroke-keyword }

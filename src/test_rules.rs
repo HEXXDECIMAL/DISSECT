@@ -902,6 +902,8 @@ impl<'a> RuleDebugger<'a> {
     }
 
     fn debug_yara_inline_condition(&self, source: &str) -> ConditionDebugResult {
+        use crate::composite_rules::evaluators::eval_yara_inline;
+
         // Extract rule name from YARA source
         let rule_name = source
             .lines()
@@ -912,12 +914,33 @@ impl<'a> RuleDebugger<'a> {
 
         let desc = format!("yara: {} ({} chars)", rule_name, source.len());
 
-        // For inline YARA, we'd need to compile and run it
-        // For now, show the source and note we can't evaluate it in debug mode
-        let mut result = ConditionDebugResult::new(desc, false);
-        result
-            .details
-            .push("YARA inline rules require full evaluation (not shown in debug)".to_string());
+        // Create evaluation context
+        let ctx = EvaluationContext {
+            report: self.report,
+            binary_data: self.binary_data,
+            file_type: self.file_type.clone(),
+            platform: self.platform.clone(),
+            additional_findings: None,
+            cached_ast: None,
+            finding_id_index: None,
+        };
+
+        // Actually evaluate the inline YARA rule
+        let eval_result = eval_yara_inline(source, None, &ctx);
+
+        let mut result = ConditionDebugResult::new(desc, eval_result.matched);
+        result.evidence = eval_result.evidence;
+
+        if eval_result.matched {
+            result
+                .details
+                .push("✓ Inline YARA rule matched".to_string());
+        } else {
+            result
+                .details
+                .push("✗ Inline YARA rule did not match".to_string());
+        }
+
         result.details.push(format!(
             "Rule source preview: {}...",
             truncate_string(source, 100)

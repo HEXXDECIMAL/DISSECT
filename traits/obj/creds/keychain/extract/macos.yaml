@@ -184,10 +184,20 @@ traits:
     conf: 0.7
     attack: "T1555.001"
     platforms: [macos]
-    for: [macho, shell, perl, python, ruby]
+    for: [macho, shell, perl, python, ruby, javascript, typescript]
     if:
       type: string
       exact: "login.keychain"
+
+  - id: login-db-path
+    desc: User login keychain database path
+    crit: suspicious
+    conf: 0.85
+    attack: "T1555.001"
+    platforms: [macos]
+    if:
+      type: string
+      regex: "login\\.keychain-db|Keychains/login\\.keychain"
 
   - id: system-path
     desc: System keychain path
@@ -195,10 +205,20 @@ traits:
     conf: 0.7
     attack: "T1555.001"
     platforms: [macos]
-    for: [macho, shell, perl, python, ruby]
+    for: [macho, shell, perl, python, ruby, javascript, typescript]
     if:
       type: string
       exact: "/Library/Keychains/System.keychain"
+
+  - id: keychains-dir
+    desc: Keychains directory reference
+    crit: notable
+    conf: 0.7
+    attack: "T1555.001"
+    platforms: [macos]
+    if:
+      type: string
+      regex: "Library/Keychains"
 
 composite_rules:
   # security CLI composite

@@ -182,7 +182,7 @@ Match extracted strings. Use `dissect strings <file>` to preview.
 ```yaml
 if:
   type: string
-  contains: "http://"    # or exact:, regex:, word:
+  substr: "http://"      # or exact:, regex:, word:
   min_count: 1
   case_insensitive: false
 ```
@@ -208,7 +208,7 @@ Search raw file bytes (less precise than `string`).
 ```yaml
 if:
   type: content
-  contains: "eval("
+  substr: "eval("          # or exact:, regex:
 ```
 
 ### yara
@@ -349,14 +349,15 @@ Filter matched strings from evidence.
 
 ### `unless:` - File-Level Skip
 
-Skip trait if conditions match.
+Skip trait/composite if any condition matches. Supports trait references and inline conditions.
 
 ```yaml
 - id: network-connect
   if: { type: symbol, pattern: "connect" }
   unless:
-    - id: file/path/system-binary
-    - id: compiler/go
+    - id: meta/format/system-binary    # Trait reference
+    - type: basename                    # Inline condition
+      regex: "^lib.*\\.so"
 ```
 
 ### `downgrade:` - Context-Based Criticality
@@ -368,11 +369,15 @@ Reduce criticality by one level when conditions match. Drops: hostile→suspicio
   crit: suspicious
   if: { type: string, substr: ".bash_history" }
   downgrade:
-    any:
+    any:                    # At least one must match
       - type: basename
         exact: "bash"
       - type: basename
         exact: "sh"
+    # Also supports:
+    # all: [...]           # All must match
+    # none: [...]          # None can match
+    # count_min: N         # At least N must match
 ```
 
 Use for expected behavior: bash referencing `.bash_history`, chrome referencing `History`, ssh tools using `StrictHostKeyChecking=no`.

@@ -1148,8 +1148,13 @@ impl CompositeTrait {
         ctx: &EvaluationContext,
     ) -> ConditionResult {
         // Check platform constraint
+        // Match if: trait allows All platforms, OR context is All (no --platform specified),
+        // OR trait explicitly includes the context platform
         if let Some(plats) = platforms {
-            if !plats.contains(&ctx.platform) && !plats.contains(&Platform::All) {
+            if !plats.contains(&ctx.platform)
+                && !plats.contains(&Platform::All)
+                && ctx.platform != Platform::All
+            {
                 return ConditionResult {
                     matched: false,
                     evidence: Vec::new(),

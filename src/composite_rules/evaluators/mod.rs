@@ -34,6 +34,18 @@ pub use misc::*;
 pub use symbol_string::*;
 pub use yara::*;
 
+// Test modules
+#[cfg(test)]
+mod ast_tests;
+#[cfg(test)]
+mod binary_tests;
+#[cfg(test)]
+mod metrics_tests;
+#[cfg(test)]
+mod misc_tests;
+#[cfg(test)]
+mod symbol_string_tests;
+
 // =============================================================================
 // Shared Utilities
 // =============================================================================

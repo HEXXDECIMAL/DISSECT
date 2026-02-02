@@ -102,5 +102,49 @@ pub use binary_metrics::BinaryMetrics;
 
 pub use scores::Metrics;
 
+use std::path::PathBuf;
+
+/// Configuration for optional sample extraction (--sample-dir flag)
+///
+/// When configured, analyzed files matching the risk criteria are written to
+/// a directory for external tools (radare2, objdump) to analyze.
+#[derive(Debug, Clone)]
+pub struct SampleExtractionConfig {
+    /// Directory to write extracted samples
+    pub sample_dir: PathBuf,
+    /// Maximum risk level to extract (files at this level or below)
+    pub max_risk: Criticality,
+}
+
+impl SampleExtractionConfig {
+    /// Create a new extraction config
+    pub fn new(sample_dir: PathBuf, max_risk: Criticality) -> Self {
+        Self {
+            sample_dir,
+            max_risk,
+        }
+    }
+
+    /// Check if a file should be extracted based on its risk level
+    pub fn should_extract(&self, risk: Option<Criticality>) -> bool {
+        let file_risk = risk.unwrap_or(Criticality::Inert);
+        file_risk <= self.max_risk
+    }
+
+    /// Extract file data to sample directory, returning the path if successful
+    /// Uses SHA256 as filename for automatic deduplication
+    pub fn extract(&self, sha256: &str, data: &[u8]) -> Option<PathBuf> {
+        let path = self.sample_dir.join(sha256);
+        // Only write if file doesn't exist (deduplication)
+        if !path.exists() {
+            if let Err(e) = std::fs::write(&path, data) {
+                tracing::warn!("Failed to extract sample {}: {}", sha256, e);
+                return None;
+            }
+        }
+        Some(path)
+    }
+}
+
 #[cfg(test)]
 mod tests;
