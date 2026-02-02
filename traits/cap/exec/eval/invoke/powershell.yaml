@@ -1,0 +1,82 @@
+# PowerShell Dynamic Execution
+# MBC: E1059 (Command and Scripting Interpreter)
+# ATT&CK: T1059.001
+
+defaults:
+  for: [powershell, batch, shell]
+  mbc: "E1059"
+  attack: "T1059.001"
+
+traits:
+  # Invoke-Expression (iex) - primary eval mechanism
+  - id: iex
+    desc: Invoke-Expression cmdlet
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      regex: "\\biex\\b|Invoke-Expression"
+      case_insensitive: true
+
+  # Invoke-Command (icm) - remote and local execution
+  - id: icm
+    desc: Invoke-Command cmdlet
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: "\\bicm\\b|Invoke-Command"
+      case_insensitive: true
+
+  # ScriptBlock execution
+  - id: scriptblock
+    desc: ScriptBlock execution
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: "\\[ScriptBlock\\]|Invoke-ScriptBlock|ScriptBlock\\.Create"
+      case_insensitive: true
+
+  # Add-Type for compiling C#
+  - id: add-type
+    desc: Add-Type compilation
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      regex: "Add-Type\\s+-TypeDefinition"
+      case_insensitive: true
+
+  # Start-Process for spawning
+  - id: start-process
+    desc: Start-Process cmdlet
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      regex: "Start-Process|\\bsaps\\b"
+      case_insensitive: true
+
+  # Call operator (&)
+  - id: call-operator
+    desc: PowerShell call operator
+    crit: inert
+    conf: 0.5
+    for: [powershell]
+    if:
+      type: string
+      regex: "&\\s*\\("
+
+composite_rules:
+  # Dynamic code evaluation
+  - id: ps-dynamic-eval
+    desc: PowerShell dynamic code evaluation
+    crit: notable
+    conf: 0.8
+    for: [powershell, batch, shell]
+    count_min: 1
+    any:
+      - id: iex
+      - id: scriptblock
+      - id: add-type

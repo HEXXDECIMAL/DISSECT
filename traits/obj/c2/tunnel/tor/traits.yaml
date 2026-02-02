@@ -1,0 +1,190 @@
+# Tor Hidden Service Detection
+# Detects Tor usage for C2 infrastructure and hidden services
+# MBC: B0030 (C2 Communication), F0004 (Covert Communications)
+# ATT&CK: T1090.003 (Multi-hop Proxy), T1572 (Protocol Tunneling)
+
+defaults:
+  mbc: "B0030"
+  attack: "T1090.003"
+  platforms: [all]
+
+traits:
+  # === Tor Hidden Service Configuration ===
+  - id: hidden-service-dir
+    desc: Tor HiddenServiceDir config
+    crit: suspicious
+    conf: 0.95
+    for: [all]
+    if:
+      type: string
+      substr: "HiddenServiceDir"
+
+  - id: hidden-service-port
+    desc: Tor HiddenServicePort config
+    crit: suspicious
+    conf: 0.95
+    for: [all]
+    if:
+      type: string
+      substr: "HiddenServicePort"
+
+  # === Onion Domain ===
+  - id: onion-domain
+    desc: Tor .onion domain reference
+    crit: suspicious
+    conf: 0.9
+    for: [all]
+    attack: "T1090.003"
+    if:
+      type: string
+      regex: "[a-z2-7]{16,56}\\.onion"
+
+  # === Tor Binary/Config ===
+  - id: tor-exe
+    desc: Tor executable reference
+    crit: notable
+    conf: 0.75
+    for: [all]
+    if:
+      type: string
+      regex: "\\btor\\.exe\\b|\\btor\\.EXE\\b"
+
+  - id: torrc-config
+    desc: Tor configuration file reference
+    crit: notable
+    conf: 0.8
+    for: [all]
+    if:
+      type: string
+      regex: "\\btorrc\\b"
+
+  # === Tor Project Download ===
+  - id: torproject-url
+    desc: torproject.org download URL
+    crit: notable
+    conf: 0.85
+    for: [all]
+    if:
+      type: string
+      substr: "torproject.org"
+
+  - id: tor-expert-bundle
+    desc: Tor expert bundle download
+    crit: suspicious
+    conf: 0.9
+    for: [all]
+    if:
+      type: string
+      regex: "tor-expert-bundle|torbrowser.{0,50}\\.tar\\.gz"
+
+  # === SOCKS Proxy (Tor default) ===
+  - id: socks5-localhost-9050
+    desc: Tor SOCKS5 proxy port
+    crit: notable
+    conf: 0.8
+    for: [all]
+    if:
+      type: string
+      regex: "127\\.0\\.0\\.1:9050|localhost:9050|socks5.{0,20}9050"
+
+  # === Tor Service Installation ===
+  - id: tor-service-install
+    desc: Tor service installation
+    crit: suspicious
+    conf: 0.9
+    for: [all]
+    attack: "T1543.003"
+    if:
+      type: string
+      regex: "tor.{0,30}--service\\s+install|tor\\.exe.{0,30}-service\\s+install"
+
+  # === Tor Bridge Configuration ===
+  - id: obfs4-bridge
+    desc: Tor obfs4 bridge config
+    crit: suspicious
+    conf: 0.85
+    for: [all]
+    if:
+      type: string
+      regex: "Bridge\\s+obfs4|UseBridges\\s+1"
+
+  - id: pluggable-transport
+    desc: Tor pluggable transport config
+    crit: notable
+    conf: 0.8
+    for: [all]
+    if:
+      type: string
+      regex: "ClientTransportPlugin|pluggable_transports"
+
+  # === Exposed services via Tor ===
+  - id: rdp-over-tor
+    desc: RDP exposed via Tor
+    crit: suspicious
+    conf: 0.95
+    for: [all]
+    attack: "T1021.001"
+    if:
+      type: string
+      regex: "HiddenServicePort\\s+3389"
+
+  - id: smb-over-tor
+    desc: SMB exposed via Tor
+    crit: suspicious
+    conf: 0.95
+    for: [all]
+    attack: "T1021.002"
+    if:
+      type: string
+      regex: "HiddenServicePort\\s+445"
+
+  - id: ssh-over-tor
+    desc: SSH exposed via Tor
+    crit: suspicious
+    conf: 0.9
+    for: [all]
+    attack: "T1021.004"
+    if:
+      type: string
+      regex: "HiddenServicePort\\s+22\\b"
+
+composite_rules:
+  # Hidden service setup
+  - id: hidden-service-setup
+    desc: Tor hidden service configuration
+    crit: suspicious
+    conf: 0.95
+    mbc: "F0004"
+    attack: "T1090.003"
+    count_min: 1
+    any:
+      - id: hidden-service-dir
+      - id: hidden-service-port
+
+  # Tor C2 infrastructure (hidden service + onion domain)
+  # Complexity: all(2) + file_types(0) = 2 -> suspicious
+  - id: tor-c2-infrastructure
+    desc: Tor-based C2 infrastructure
+    crit: suspicious
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1090.003"
+    all:
+      - id: hidden-service-setup
+      - id: onion-domain
+
+  # Full Tor dropper (download Tor + setup hidden service + C2)
+  # Complexity: all(3) + any(1) = 4 -> hostile
+  - id: tor-hidden-service-dropper
+    desc: Tor hidden service dropper
+    crit: hostile
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1090.003"
+    all:
+      - id: torproject-url
+      - id: hidden-service-setup
+      - id: onion-domain
+    any:
+      - id: tor-service-install
+      - id: tor-expert-bundle

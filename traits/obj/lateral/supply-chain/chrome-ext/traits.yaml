@@ -1,0 +1,417 @@
+# Chrome Extension Supply-Chain and Adware Patterns
+# Detects suspicious patterns in Chrome/Chromium browser extensions
+
+traits:
+  # === Chrome Extension API Markers ===
+  - id: chrome-runtime
+    desc: chrome.runtime API usage
+    crit: inert
+    conf: 0.9
+    for: [javascript]
+    if:
+      type: string
+      exact: "chrome.runtime"
+
+  - id: chrome-tabs
+    desc: chrome.tabs API usage
+    crit: inert
+    conf: 0.9
+    for: [javascript]
+    if:
+      type: string
+      exact: "chrome.tabs"
+
+  - id: chrome-storage
+    desc: chrome.storage API usage
+    crit: inert
+    conf: 0.9
+    for: [javascript]
+    if:
+      type: string
+      exact: "chrome.storage"
+
+  - id: chrome-webRequest
+    desc: chrome.webRequest API usage
+    crit: notable
+    conf: 0.9
+    for: [javascript]
+    if:
+      type: string
+      exact: "chrome.webRequest"
+
+  - id: chrome-scripting
+    desc: chrome.scripting API usage
+    crit: notable
+    conf: 0.9
+    for: [javascript]
+    if:
+      type: string
+      exact: "chrome.scripting"
+
+  # === Suspicious Chrome API Patterns ===
+  - id: setUninstallURL
+    desc: Extension uninstall URL callback
+    crit: notable
+    conf: 0.95
+    for: [javascript]
+    if:
+      type: string
+      exact: "setUninstallURL"
+
+  - id: onInstalled
+    desc: chrome.runtime.onInstalled listener
+    crit: inert
+    conf: 0.9
+    for: [javascript]
+    if:
+      type: string
+      exact: "onInstalled"
+
+  - id: chrome-management
+    desc: Extension management API
+    crit: suspicious
+    conf: 0.9
+    for: [javascript]
+    if:
+      type: string
+      exact: "chrome.management"
+
+  - id: chrome-debugger
+    desc: Browser debugger API
+    crit: suspicious
+    conf: 0.95
+    for: [javascript]
+    if:
+      type: string
+      exact: "chrome.debugger"
+
+  - id: chrome-downloads
+    desc: chrome.downloads API
+    crit: notable
+    conf: 0.85
+    for: [javascript]
+    if:
+      type: string
+      exact: "chrome.downloads"
+
+  - id: chrome-cookies
+    desc: chrome.cookies API
+    crit: notable
+    conf: 0.9
+    for: [javascript]
+    if:
+      type: string
+      exact: "chrome.cookies"
+
+  - id: chrome-history
+    desc: chrome.history API
+    crit: notable
+    conf: 0.9
+    for: [javascript]
+    if:
+      type: string
+      exact: "chrome.history"
+
+  - id: chrome-bookmarks
+    desc: chrome.bookmarks API
+    crit: notable
+    conf: 0.85
+    for: [javascript]
+    if:
+      type: string
+      exact: "chrome.bookmarks"
+
+  # === Affiliate/Tracking Domain Patterns ===
+  - id: profit-domain
+    desc: Profit/monetization tracking domain
+    crit: suspicious
+    conf: 0.85
+    for: [javascript]
+    if:
+      type: string
+      regex: "\\b\\d*x?profit\\.(?:io|com|net|org)\\b"
+      case_insensitive: true
+
+  - id: tracking-utm-params
+    desc: UTM tracking parameters
+    crit: inert
+    conf: 0.7
+    for: [javascript]
+    if:
+      type: string
+      regex: "utm_(?:source|medium|campaign|content|term)="
+
+  - id: affiliate-domain-pattern
+    desc: Affiliate tracking domain
+    crit: notable
+    conf: 0.75
+    for: [javascript]
+    if:
+      type: string
+      regex: "(?:affiliate|partner|track|click|redir|monetize|revenue|earn)\\.[a-z]{2,6}\\b"
+      case_insensitive: true
+
+  # === Content Script Injection Patterns ===
+  - id: executeScript
+    desc: chrome.scripting.executeScript call
+    crit: notable
+    conf: 0.9
+    for: [javascript]
+    if:
+      type: string
+      exact: "executeScript"
+
+  - id: insertCSS
+    desc: chrome.scripting.insertCSS call
+    crit: inert
+    conf: 0.85
+    for: [javascript]
+    if:
+      type: string
+      exact: "insertCSS"
+
+  # === Extension Message Passing ===
+  - id: sendMessage
+    desc: chrome.runtime.sendMessage
+    crit: inert
+    conf: 0.9
+    for: [javascript]
+    if:
+      type: string
+      exact: "sendMessage"
+
+  - id: onMessage
+    desc: chrome.runtime.onMessage listener
+    crit: inert
+    conf: 0.9
+    for: [javascript]
+    if:
+      type: string
+      exact: "onMessage"
+
+  # === Suspicious URL Patterns ===
+  - id: external-url-on-install
+    desc: External URL on install
+    crit: notable
+    conf: 0.8
+    for: [javascript]
+    if:
+      type: content
+      regex: "onInstalled[\\s\\S]{0,200}(https?://[^\"'\\s]+)"
+
+  # === Affiliate Link Hijacking Patterns ===
+  - id: amazon-product-url-pattern
+    desc: Amazon product URL pattern
+    crit: inert
+    conf: 0.9
+    for: [javascript]
+    if:
+      type: content
+      regex: "/(?:dp|gp/product)/"
+
+  - id: url-searchparams-api
+    desc: URL searchParams API usage
+    crit: inert
+    conf: 0.9
+    for: [javascript]
+    if:
+      type: content
+      regex: "searchParams"
+
+  - id: url-params-set
+    desc: URL params modification
+    crit: inert
+    conf: 0.9
+    for: [javascript]
+    if:
+      type: content
+      regex: "params\\.(?:set|append)"
+
+  - id: href-assignment
+    desc: Link href modification
+    crit: inert
+    conf: 0.85
+    for: [javascript]
+    if:
+      type: content
+      regex: "\\.href\\s*="
+
+  - id: affiliate-tag-constant
+    desc: Affiliate tag variable
+    crit: notable
+    conf: 0.9
+    for: [javascript]
+    if:
+      type: content
+      regex: "[A-Z_]*(?:AFFILIATE|REFERRAL)[A-Z_]*TAG"
+
+  - id: tag-param-literal
+    desc: Tag parameter string literal
+    crit: inert
+    conf: 0.7
+    for: [javascript]
+    if:
+      type: content
+      regex: "['\"]tag['\"]"
+
+  - id: mutation-observer
+    desc: MutationObserver DOM monitoring
+    crit: inert
+    conf: 0.9
+    for: [javascript]
+    if:
+      type: content
+      regex: "MutationObserver"
+
+  - id: amazon-hostname-check
+    desc: Amazon hostname detection
+    crit: inert
+    conf: 0.85
+    for: [javascript]
+    if:
+      type: content
+      regex: "hostname.{0,50}amazon|amazon.{0,50}hostname"
+      case_insensitive: true
+
+  - id: queryselector-link-targeting
+    desc: Link element selection
+    crit: inert
+    conf: 0.8
+    for: [javascript]
+    if:
+      type: content
+      regex: "querySelectorAll\\([^)]*a\\[href"
+
+composite_rules:
+  # Chrome extension context marker
+  - id: chrome-extension-context
+    desc: Chrome extension API context
+    crit: inert
+    conf: 0.95
+    for: [javascript]
+    count_min: 1
+    any:
+      - id: chrome-runtime
+      - id: chrome-tabs
+      - id: chrome-storage
+      - id: chrome-webRequest
+
+  # Uninstall tracking - adware pattern
+  - id: uninstall-tracking
+    desc: Uninstall tracking callback
+    crit: suspicious
+    conf: 0.9
+    mbc: "B0030"
+    attack: "T1071.001"
+    for: [javascript]
+    all:
+      - id: setUninstallURL
+      - id: chrome-runtime
+
+  # Affiliate/adware extension pattern
+  - id: affiliate-adware
+    desc: Affiliate/adware extension
+    crit: suspicious
+    conf: 0.85
+    for: [javascript]
+    all:
+      - id: chrome-extension-context
+    any:
+      - id: profit-domain
+      - id: affiliate-domain-pattern
+
+  # Suspicious data access in extension
+  - id: sensitive-data-access
+    desc: Sensitive browser data access
+    crit: suspicious
+    conf: 0.85
+    for: [javascript]
+    all:
+      - id: chrome-extension-context
+    count_min: 2
+    any:
+      - id: chrome-cookies
+      - id: chrome-history
+      - id: chrome-bookmarks
+      - id: chrome-downloads
+
+  # === Affiliate Link Hijacking Detection ===
+
+  # URL parameter modification capability
+  - id: url-param-modification
+    desc: URL parameter modification
+    crit: notable
+    conf: 0.85
+    for: [javascript]
+    count_min: 2
+    any:
+      - id: url-searchparams-api
+      - id: url-params-set
+      - id: href-assignment
+      - id: tag-param-literal
+
+  # Amazon affiliate link targeting
+  - id: amazon-link-targeting
+    desc: Amazon link targeting
+    crit: notable
+    conf: 0.85
+    for: [javascript]
+    count_min: 2
+    any:
+      - id: amazon-product-url-pattern
+      - id: amazon-hostname-check
+      - id: queryselector-link-targeting
+
+  # Generic affiliate link hijacking pattern (cross-platform)
+  - id: affiliate-link-hijack
+    desc: Affiliate link hijacking
+    crit: suspicious
+    conf: 0.9
+    attack: "T1565.001"
+    for: [javascript]
+    all:
+      - id: url-param-modification
+      - id: href-assignment
+    any:
+      - id: affiliate-tag-constant
+      - id: tag-param-literal
+
+  # Amazon affiliate hijacking (specific)
+  - id: amazon-affiliate-hijack
+    desc: Amazon affiliate hijacking
+    crit: suspicious
+    conf: 0.95
+    attack: "T1565.001"
+    for: [javascript]
+    all:
+      - id: amazon-link-targeting
+      - id: url-param-modification
+      - id: href-assignment
+
+  # Persistent affiliate hijack via MutationObserver (hostile - complexity 4+)
+  - id: persistent-affiliate-hijack
+    desc: Persistent affiliate hijacking
+    crit: hostile
+    conf: 0.95
+    attack: "T1565.001"
+    for: [javascript]
+    all:
+      - id: mutation-observer
+      - id: href-assignment
+      - id: url-param-modification
+    any:
+      - id: amazon-link-targeting
+      - id: affiliate-tag-constant
+
+  # Chrome extension affiliate fraud
+  - id: extension-affiliate-fraud
+    desc: Extension affiliate fraud
+    crit: hostile
+    conf: 0.95
+    attack: "T1565.001"
+    for: [javascript]
+    all:
+      - id: chrome-extension-context
+      - id: mutation-observer
+      - id: href-assignment
+      - id: url-param-modification

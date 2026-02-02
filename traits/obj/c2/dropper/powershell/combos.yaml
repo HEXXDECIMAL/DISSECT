@@ -1,0 +1,57 @@
+# PowerShell Dropper Objective
+# Combines PowerShell obfuscation techniques with dropper behavior
+# MBC: B0030 (Dropper), C0002 (Download)
+# ATT&CK: T1059.001, T1105
+
+composite_rules:
+  # Obfuscated PowerShell dropper (download + execute + obfuscation)
+  # Complexity: all(2) + any(1) + file_types(1) = 4
+  - id: obfuscated-dropper
+    desc: Obfuscated PowerShell dropper
+    crit: hostile
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1059.001"
+    file_types: [batch, shell, powershell]
+    all:
+      - id: obj/anti-static/obfuscation/strings/powershell/ps-iex
+      - id: cap/exec/dropper/windows/batch/powershell-exe
+    any:
+      - id: obj/anti-static/obfuscation/strings/powershell/ps-chararray
+      - id: obj/anti-static/obfuscation/strings/powershell/ps-join-char
+      - id: obj/anti-static/obfuscation/strings/powershell/ps-numeric-chararray
+      - id: obj/anti-static/obfuscation/strings/powershell/ps-rot-cipher
+
+  # Evasive PowerShell dropper (bypass + obfuscation)
+  # Complexity: all(3) + any(1) = 4
+  - id: evasive-dropper
+    desc: Evasive PowerShell dropper
+    crit: hostile
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1059.001"
+    for: [batch, shell, powershell]
+    all:
+      - id: obj/anti-static/obfuscation/strings/powershell/ps-ep-bypass
+      - id: obj/anti-static/obfuscation/strings/powershell/ps-iex
+      - id: cap/exec/dropper/windows/batch/powershell-exe
+    any:
+      - id: obj/anti-static/obfuscation/strings/powershell/ps-chararray-obfuscation
+      - id: cap/exec/dropper/windows/batch/powershell-download-cradle
+
+  # PowerShell dropper with cleanup (download + execute + self-delete)
+  # Complexity: all(3) + any(1) = 4
+  - id: dropper-with-cleanup
+    desc: Dropper with anti-forensics
+    crit: hostile
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1070.004"
+    for: [batch, shell, powershell]
+    all:
+      - id: obj/anti-forensics/self-delete/file/powershell/remove-item
+      - id: cap/exec/dropper/windows/batch/powershell-exe
+      - id: obj/anti-static/obfuscation/strings/powershell/ps-iex
+    any:
+      - id: cap/exec/dropper/windows/batch/powershell-download-cradle
+      - id: cap/comm/http/request/powershell/download

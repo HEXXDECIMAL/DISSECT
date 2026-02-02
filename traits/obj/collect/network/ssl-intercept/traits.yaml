@@ -1,0 +1,98 @@
+# SSL/TLS Traffic Interception Detection
+# Detects tools that intercept encrypted traffic before/after encryption
+
+composite_rules:
+  # SSL function names as hook targets helper
+  - id: ssl-fn-targets
+    desc: SSL/TLS functions as targets
+    crit: notable
+    conf: 0.75
+    for: [c, elf]
+    count_min: 1
+    any:
+      - id: cap/os/bpf/ssl-openssl-fn
+      - id: cap/os/bpf/ssl-gnutls-fn
+      - id: cap/os/bpf/ssl-nss-fn
+      - id: cap/os/bpf/ssl-hook-target
+
+  # eBPF uprobe hook mechanism
+  - id: ebpf-uprobe-hook
+    desc: eBPF uprobe hooking
+    crit: notable
+    conf: 0.8
+    for: [c, elf]
+    count_min: 1
+    any:
+      - id: cap/os/bpf/uprobe-attach
+      - id: cap/os/bpf/uprobe-sec
+
+  # eBPF data exfiltration mechanism
+  - id: ebpf-data-exfil
+    desc: eBPF data exfiltration
+    crit: notable
+    conf: 0.75
+    for: [c, elf]
+    count_min: 1
+    any:
+      - id: cap/os/bpf/bpf-ring-buffer
+      - id: cap/os/bpf/bpf-ringbuf
+      - id: cap/os/bpf/bpf-core-read-user
+
+  # eBPF-based SSL/TLS Interception
+  # Combines: uprobe attachment + SSL function targets + data collection indicators
+  - id: ebpf-ssl-intercept
+    desc: eBPF-based SSL/TLS interception
+    crit: suspicious
+    conf: 0.9
+    attack: "T1557"
+    mbc: "C0001"
+    for: [c, elf]
+    all:
+      - id: ebpf-uprobe-hook
+      - id: ssl-fn-targets
+      - id: ebpf-data-exfil
+
+  # Generic SSL function hooking (non-eBPF)
+  # For LD_PRELOAD or other hooking mechanisms
+  - id: ssl-hook-pattern
+    desc: SSL/TLS function hook pattern
+    crit: suspicious
+    conf: 0.85
+    for: [c, elf]
+    all:
+      - id: ssl-fn-targets
+    any:
+      - id: cap/os/bpf/ssl-op-string
+      - id: cap/os/bpf/uprobe-attach
+
+  # SSL sniffer loader program
+  # Detects the main loader program (not the eBPF probe itself)
+  # Pattern: eBPF loader + SSL library targets + event listener
+  - id: ssl-sniffer-loader
+    desc: SSL sniffer loader program
+    crit: suspicious
+    conf: 0.9
+    attack: "T1557"
+    for: [c, elf]
+    all:
+      - id: cap/os/bpf/ssl-sniffer-loader
+    any:
+      - id: cap/os/bpf/ebpf-loader-include
+      - id: obj/discovery/software/ssl-lib-targets
+
+  # Multi-TLS library interception tool
+  # Targeting multiple SSL/TLS libraries = credential/traffic interception
+  - id: multi-tls-intercept
+    desc: Multi-library TLS interception
+    crit: hostile
+    conf: 0.95
+    attack: "T1557"
+    mbc: "C0001"
+    for: [c, elf]
+    all:
+      - id: cap/os/bpf/ssl-sniffer-loader
+      - id: obj/discovery/software/ssl-lib-targets
+    any:
+      - id: cap/os/bpf/ebpf-loader-include
+      - id: cap/os/bpf/ssl-attach-macro
+      - id: cap/os/bpf/lib-resolver-include

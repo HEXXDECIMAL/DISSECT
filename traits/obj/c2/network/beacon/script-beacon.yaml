@@ -1,0 +1,59 @@
+# C2 Script Beacon Patterns
+# Detects scripting language C2 beacons (PowerShell, shell, etc.)
+# ATT&CK: T1071.001 (Web Protocols), T1059 (Command and Scripting Interpreter)
+# MBC: B0030 (C2 Communication)
+
+defaults:
+  crit: suspicious
+  attack: "T1071.001"
+  mbc: "B0030"
+
+composite_rules:
+  # PowerShell C2 beacon - HTTP POST to suspicious infrastructure
+  # Complexity: all(2) + any(1) + file_types(1) = 4
+  - id: powershell-http-beacon
+    desc: PowerShell HTTP POST to suspicious domain
+    crit: hostile
+    conf: 0.95
+    attack: "T1071.001"
+    mbc: "B0030"
+    file_types: [powershell]
+    all:
+      - id: cap/comm/http/request/post
+      - id: obj/c2/infrastructure/domain/c2-domain
+    any:
+      - id: cap/comm/http/request/invoke-restmethod
+      - id: cap/comm/http/request/invoke-webrequest
+      - id: cap/comm/http/request/webclient-download
+      - id: cap/comm/http/request/webclient-upload
+
+  # PowerShell C2 exfil beacon - POST with body to suspicious domain
+  # Complexity: all(3) + file_types(1) = 4
+  - id: powershell-exfil-beacon
+    desc: PowerShell data exfil to suspicious domain
+    crit: hostile
+    conf: 0.95
+    attack: "T1041"
+    mbc: "B0030"
+    file_types: [powershell]
+    all:
+      - id: cap/comm/http/request/http-post-method
+      - id: cap/comm/http/request/http-body-param
+      - id: obj/c2/infrastructure/domain/c2-domain
+
+  # Generic script HTTP beacon to suspicious infrastructure
+  # Complexity: all(2) + any(1) + file_types(1) = 4
+  - id: script-http-c2-beacon
+    desc: Script HTTP request to C2 infrastructure
+    crit: hostile
+    conf: 0.90
+    attack: "T1071.001"
+    mbc: "B0030"
+    file_types: [powershell, shell, python, javascript]
+    all:
+      - id: obj/c2/infrastructure/domain/c2-domain
+      - id: cap/comm/http/generic/post-method
+    any:
+      - id: cap/comm/http/request/invoke-restmethod
+      - id: cap/comm/http/request/invoke-webrequest
+      - id: cap/comm/http/request/webclient-download

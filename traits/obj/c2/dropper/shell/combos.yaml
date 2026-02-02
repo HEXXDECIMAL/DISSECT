@@ -1,0 +1,59 @@
+# Shell Dropper Objective
+# Combines shell dropper techniques with C2 indicators
+# MBC: B0030 (Dropper), C0002 (Download)
+# ATT&CK: T1059.004, T1105
+
+composite_rules:
+  # Download from raw IP + execute
+  # Complexity: all(3) = 3 -> suspicious
+  - id: raw-ip-dropper
+    desc: Download from raw IP and execute
+    crit: suspicious
+    conf: 0.9
+    mbc: "B0030"
+    attack: "T1105"
+    for: [shell]
+    all:
+      - id: obj/c2/infrastructure/ip/http-raw-ip-url
+      - id: cap/exec/dropper/script/curl-download
+      - id: cap/exec/dropper/script/chmod-plus-x-cmd
+
+  # Download from raw IP + Gatekeeper bypass + execute
+  # Complexity: all(4) = 4 -> hostile
+  - id: raw-ip-gatekeeper-dropper
+    desc: Raw IP dropper with Gatekeeper bypass
+    crit: hostile
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1553.001"
+    for: [shell]
+    all:
+      - id: obj/c2/infrastructure/ip/http-raw-ip-url
+      - id: cap/exec/dropper/script/curl-download
+      - id: cap/fs/attributes/xattr/xattr-clear
+      - id: cap/exec/dropper/script/execute-dot-slash
+
+  # Temp directory staging dropper
+  # Complexity: all(4) = 4 -> hostile
+  - id: tmpdir-staged-dropper
+    desc: Download to temp dir and execute
+    crit: hostile
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1059.004"
+    for: [shell]
+    all:
+      - id: tmpdir-variable
+      - id: cap/exec/dropper/script/curl-download
+      - id: cap/exec/dropper/script/chmod-plus-x-cmd
+      - id: cap/exec/dropper/script/execute-dot-slash
+
+traits:
+  - id: tmpdir-variable
+    desc: $TMPDIR environment variable usage
+    crit: notable
+    conf: 0.7
+    for: [shell]
+    if:
+      type: content
+      regex: '\$TMPDIR|\$\{TMPDIR\}'

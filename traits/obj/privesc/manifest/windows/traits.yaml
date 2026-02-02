@@ -1,0 +1,46 @@
+# Windows Manifest Privilege Escalation
+# Detects executables requesting elevated privileges via manifest
+# ATT&CK: T1548.002 (Bypass User Account Control)
+
+defaults:
+  attack: "T1548.002"
+  platforms: [windows]
+  for: [pe, dll]
+
+traits:
+  # Admin privilege request in manifest
+  - id: require-admin
+    desc: Manifest requests admin privileges
+    crit: notable
+    conf: 0.9
+    if:
+      type: string
+      regex: "requestedExecutionLevel.{0,50}requireAdministrator|level=['\"]requireAdministrator"
+
+  # Highest available privilege request
+  - id: highest-available
+    desc: Manifest requests highest available
+    crit: inert
+    conf: 0.8
+    if:
+      type: string
+      regex: "requestedExecutionLevel.{0,50}highestAvailable|level=['\"]highestAvailable"
+
+  # Auto-elevate attribute (UAC bypass indicator)
+  - id: auto-elevate
+    desc: Auto-elevate manifest attribute
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      regex: "autoElevate.{0,20}true|<autoElevate>true"
+      case_insensitive: true
+
+  # UIAccess privilege (accessibility feature abuse)
+  - id: ui-access
+    desc: UIAccess privilege request
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: "uiAccess=['\"]true"

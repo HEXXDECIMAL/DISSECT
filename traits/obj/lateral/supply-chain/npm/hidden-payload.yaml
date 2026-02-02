@@ -1,0 +1,191 @@
+# Hidden Payload in Non-Code Files - NPM Supply Chain Attack Pattern
+# ATT&CK: T1195.002 (Supply Chain Compromise: Compromise Software Supply Chain)
+# MBC: B0024 (Downloader), B0032 (Obfuscated Files or Information)
+#
+# Pattern: Malicious code hides payload in normally-whitelisted files like LICENSE,
+# README, CHANGELOG, etc. Code reads the file, processes it through a "parser",
+# then eval()s the result.
+
+defaults:
+  file_types: [javascript]
+
+traits:
+  # === Non-code file references (payload containers) ===
+
+  - id: license-file-reference
+    desc: LICENSE file path reference
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: content
+      regex: "['\"`]LICENSE['\"`]|/LICENSE['\"`]|LICENSE['\"`]\\)"
+
+  - id: readme-file-reference
+    desc: README file path reference
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: content
+      regex: "['\"`]README(?:\\.md)?['\"`]|/README(?:\\.md)?['\"`]"
+
+  - id: changelog-file-reference
+    desc: CHANGELOG file path reference
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: content
+      regex: "['\"`]CHANGELOG(?:\\.md)?['\"`]|/CHANGELOG(?:\\.md)?['\"`]"
+
+  - id: txt-file-reference
+    desc: .txt file path reference
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: content
+      regex: "['\"`][^'\"`]+\\.txt['\"`]"
+
+  - id: dat-file-reference
+    desc: .dat file path reference
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: content
+      regex: "['\"`][^'\"`]+\\.dat['\"`]"
+
+  # === Eval with processed argument (not just a variable) ===
+
+  - id: eval-function-call-arg
+    desc: eval() with function call
+    crit: suspicious
+    conf: 0.9
+    attack: "T1027"
+    mbc: "B0032"
+    for: [javascript, typescript]
+    if:
+      type: content
+      regex: "eval\\s*\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s*\\("
+
+  - id: eval-method-call-arg
+    desc: eval() with method call
+    crit: suspicious
+    conf: 0.9
+    attack: "T1027"
+    mbc: "B0032"
+    for: [javascript, typescript]
+    if:
+      type: content
+      regex: "eval\\s*\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\.[a-zA-Z_$][a-zA-Z0-9_$]*\\s*\\("
+
+  # === Local parser module patterns ===
+
+  - id: local-parse-require
+    desc: Local parser module require
+    crit: notable
+    conf: 0.7
+    for: [javascript]
+    if:
+      type: content
+      regex: "require\\s*\\(\\s*['\"`]\\./(?:parse|parser|decode|decrypt|transform|convert)['\"`]\\s*\\)"
+
+  - id: local-lib-require
+    desc: Local lib module require
+    crit: inert
+    conf: 0.5
+    for: [javascript]
+    if:
+      type: content
+      regex: "require\\s*\\(\\s*['\"`]\\./[a-zA-Z0-9_-]+['\"`]\\s*\\)"
+
+  # === fs.readFile patterns ===
+
+  - id: fs-readfile-call
+    desc: fs.readFile call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: symbol
+      regex: "(?:^|\\.)readFile$"
+
+  - id: fs-readfilesync-call
+    desc: fs.readFileSync call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: symbol
+      regex: "(?:^|\\.)readFileSync$"
+
+composite_rules:
+  # === Helper composites ===
+
+  - id: non-code-file-reference
+    desc: Reference to non-code file
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    count_min: 1
+    any:
+      - id: license-file-reference
+      - id: readme-file-reference
+      - id: changelog-file-reference
+      - id: txt-file-reference
+      - id: dat-file-reference
+
+  - id: eval-processed-arg
+    desc: eval with processed/transformed argument
+    crit: suspicious
+    conf: 0.9
+    attack: "T1027"
+    mbc: "B0032"
+    for: [javascript, typescript]
+    count_min: 1
+    any:
+      - id: eval-function-call-arg
+      - id: eval-method-call-arg
+
+  - id: file-read-operation
+    desc: File read operation
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    count_min: 1
+    any:
+      - id: fs-readfile-call
+      - id: fs-readfilesync-call
+
+  # === Main detection composite ===
+
+  # Pattern: Read non-code file + process through function + eval result
+  # This is a strong indicator of hidden payload in innocuous files
+  - id: hidden-payload-eval
+    desc: Hidden payload in non-code file executed via eval
+    crit: hostile
+    conf: 0.95
+    attack: "T1195.002"
+    mbc: "B0024"
+    for: [javascript]
+    all:
+      - id: file-read-operation
+      - id: eval-processed-arg
+      - id: obj/lateral/supply-chain/npm/require-fs
+    any:
+      - id: non-code-file-reference
+      - id: local-parse-require
+
+  # Simpler pattern: eval with function call in small npm package
+  - id: suspicious-eval-transform
+    desc: Suspicious eval with data transformation
+    crit: suspicious
+    conf: 0.85
+    attack: "T1027"
+    mbc: "B0032"
+    for: [javascript]
+    all:
+      - id: eval-processed-arg
+      - id: obj/lateral/supply-chain/npm/small-file-5k

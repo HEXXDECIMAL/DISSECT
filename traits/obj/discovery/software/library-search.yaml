@@ -1,0 +1,221 @@
+# Library Discovery Patterns
+# MBC: E1083 (File and Directory Discovery) + T1518 (Software Discovery)
+# ATT&CK: T1083, T1518
+#
+# Code that searches for shared libraries on the system. This is used by:
+# - eBPF-based SSL sniffers (find libssl.so for hooking)
+# - LD_PRELOAD injection tools
+# - Library hooking/interception frameworks
+# - Dynamic linker implementations
+
+defaults:
+  for: [c, elf]
+
+traits:
+  # === System Library Path References ===
+  # Multiple library directory references suggest library enumeration
+
+  - id: lib-path
+    desc: Reference to /lib/ directory
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      regex: "^/lib(?:32|64)?/$"
+
+  - id: usr-lib-path
+    desc: Reference to /usr/lib directory
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      regex: "^/usr/lib(?:32|64)?/$"
+
+  - id: usr-local-lib-path
+    desc: Reference to /usr/local/lib
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      regex: "^/usr/local/lib/$"
+
+  # === Library Name Patterns ===
+  # References to specific shared library filenames
+
+  - id: libssl-so
+    desc: libssl shared library reference
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: "\\blibssl\\.so"
+
+  - id: libcrypto-so
+    desc: libcrypto shared library reference
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: "\\blibcrypto\\.so"
+
+  - id: libgnutls-so
+    desc: libgnutls shared library reference
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: "\\blibgnutls\\.so"
+
+  - id: libnss-so
+    desc: libnss shared library reference
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: "\\blibnss(?:3|ssl3)?\\.so"
+
+  # === Architecture Detection Strings ===
+  # Architecture strings used for targeting specific library builds
+
+  - id: arch-x86-64
+    desc: x86_64 architecture string
+    crit: inert
+    conf: 0.3
+    for: [c, elf]
+    if:
+      type: string
+      exact: "x86_64"
+
+  - id: arch-aarch64
+    desc: aarch64 architecture string
+    crit: inert
+    conf: 0.3
+    for: [c, elf]
+    if:
+      type: string
+      exact: "aarch64"
+
+  - id: arch-i386
+    desc: i386 architecture string
+    crit: inert
+    conf: 0.3
+    for: [c, elf]
+    if:
+      type: string
+      exact: "i386"
+
+  - id: arch-arm
+    desc: arm architecture string
+    crit: inert
+    conf: 0.3
+    for: [c, elf]
+    if:
+      type: string
+      regex: "^arm$"
+
+  # === Library Resolver Function Patterns ===
+  # Function naming patterns that suggest library resolution code
+
+  - id: resolve-library-fn
+    desc: Library resolver function name
+    crit: notable
+    conf: 0.75
+    for: [c]
+    if:
+      type: content
+      regex: "(?i)\\b(?:resolve|search|find|lookup)[_-]?(?:lib(?:rary)?|so|shared)\\b"
+
+  - id: global-search-library-fn
+    desc: Global library search function
+    crit: notable
+    conf: 0.8
+    for: [c]
+    if:
+      type: content
+      regex: "(?i)\\bglobal[_-]?search[_-]?lib(?:rary)?\\b"
+
+  - id: lookup-path-fn
+    desc: Path lookup function
+    crit: inert
+    conf: 0.5
+    for: [c]
+    if:
+      type: content
+      regex: "(?i)\\blookup[_-]?path\\b"
+
+composite_rules:
+  # Multiple library paths = systematic library enumeration
+  - id: lib-path-enum
+    desc: Library path enumeration
+    crit: notable
+    conf: 0.7
+    mbc: "E1083"
+    attack: "T1518"
+    count_min: 3
+    any:
+      - id: lib-path
+      - id: usr-lib-path
+      - id: usr-local-lib-path
+
+  # Architecture detection for targeting
+  - id: arch-detection
+    desc: Architecture detection strings
+    crit: inert
+    conf: 0.5
+    count_min: 2
+    any:
+      - id: arch-x86-64
+      - id: arch-aarch64
+      - id: arch-i386
+      - id: arch-arm
+
+  # SSL/TLS library search targets
+  - id: ssl-lib-targets
+    desc: SSL/TLS library search targets
+    crit: notable
+    conf: 0.8
+    count_min: 1
+    any:
+      - id: libssl-so
+      - id: libcrypto-so
+      - id: libgnutls-so
+      - id: libnss-so
+
+  # Library resolver functionality
+  - id: lib-resolver-fn
+    desc: Library resolver function patterns
+    crit: notable
+    conf: 0.75
+    count_min: 1
+    any:
+      - id: resolve-library-fn
+      - id: global-search-library-fn
+      - id: lookup-path-fn
+
+  # Library search infrastructure
+  # Library paths + directory traversal + architecture detection = library search tool
+  - id: lib-search-infra
+    desc: Library search infrastructure
+    crit: notable
+    conf: 0.8
+    mbc: "E1083"
+    attack: "T1518"
+    all:
+      - id: lib-path-enum
+    count_min: 1
+    any:
+      - id: arch-detection
+      - id: lib-resolver-fn
+      - id: cap/fs/directory/readdir/readdir
+
+  # SSL library discovery for interception
+  # Library search + SSL targets = SSL interception prep
+  - id: ssl-lib-discovery
+    desc: SSL library discovery
+    crit: suspicious
+    conf: 0.85
+    mbc: "E1083"
+    attack: "T1557"
+    all:
+      - id: lib-path-enum
+      - id: ssl-lib-targets

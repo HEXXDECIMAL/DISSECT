@@ -1,0 +1,140 @@
+# Stealth Node.js Dropper Patterns
+# ATT&CK: T1195.002 (Supply Chain Compromise), T1059.007 (JavaScript)
+# MBC: B0024 (Downloader), F0011 (Background process)
+#
+# Pattern: NPM packages that spawn detached Node.js processes to execute
+# secondary payloads while hiding all I/O. Common in supply-chain attacks.
+
+defaults:
+  file_types: [javascript, typescript]
+
+traits:
+  # === Detached spawn execution indicators ===
+
+  - id: detached-true
+    desc: Detached process spawn option
+    crit: suspicious
+    conf: 0.85
+    mbc: "F0011"
+    attack: "T1059"
+    if:
+      type: content
+      regex: "detached:\\s*true"
+
+  # === Silent I/O patterns ===
+
+  - id: stdio-ignore-array
+    desc: stdio array with ignore values
+    crit: suspicious
+    conf: 0.85
+    mbc: "F0005"
+    if:
+      type: content
+      regex: "stdio:\\s*\\[[^\\]]*['\"]ignore['\"]"
+
+  - id: stdio-ignore-string
+    desc: stdio set to ignore
+    crit: notable
+    conf: 0.75
+    mbc: "F0005"
+    if:
+      type: content
+      regex: "stdio:\\s*['\"]ignore['\"]"
+
+  # === Orphan process patterns ===
+
+  - id: child-unref-call
+    desc: child.unref() orphan process call
+    crit: suspicious
+    conf: 0.85
+    mbc: "F0011"
+    if:
+      type: content
+      substr: ".unref()"
+
+  # === Node.js self-execution for dropper ===
+
+  - id: process-execpath-spawn
+    desc: Spawn using process.execPath
+    crit: suspicious
+    conf: 0.9
+    mbc: "B0024"
+    attack: "T1059.007"
+    if:
+      type: content
+      substr: "process.execPath"
+
+  # === Path construction for secondary payload ===
+
+  - id: path-join-dirname
+    desc: path.join with __dirname
+    crit: inert
+    conf: 0.5
+    if:
+      type: content
+      regex: "path\\.join\\s*\\(\\s*__dirname"
+
+  - id: local-script-path
+    desc: Local script path reference
+    crit: notable
+    conf: 0.7
+    if:
+      type: content
+      regex: "__dirname.{0,100}\\.(js|mjs|cjs)['\"]"
+
+composite_rules:
+  # === Helper composites ===
+
+  - id: stdio-suppressed
+    desc: Process stdio suppressed
+    crit: suspicious
+    conf: 0.85
+    count_min: 1
+    any:
+      - id: stdio-ignore-array
+      - id: stdio-ignore-string
+
+  # === Stealth dropper composite ===
+
+  # Main pattern: detached + stdio hidden + unref = stealthy background execution
+  # Complexity: file_types (1) + all (3) = 4 (meets HOSTILE threshold)
+  - id: stealth-spawn
+    desc: Stealthy detached process spawn
+    crit: hostile
+    conf: 0.95
+    attack: "T1195.002"
+    mbc: "B0024"
+    for: [javascript]
+    all:
+      - id: detached-true
+      - id: stdio-suppressed
+      - id: child-unref-call
+
+  # Node.js self-spawning dropper pattern
+  # Complexity: file_types (1) + all (4) = 5 (meets HOSTILE threshold)
+  - id: node-dropper
+    desc: Node.js dropper spawning payload
+    crit: hostile
+    conf: 0.95
+    attack: "T1059.007"
+    mbc: "B0024"
+    for: [javascript]
+    all:
+      - id: process-execpath-spawn
+      - id: detached-true
+      - id: stdio-suppressed
+      - id: child-unref-call
+
+  # Supply-chain dropper: child_process + stealth spawn + no exports
+  # Complexity: file_types (1) + all (3) = 4 (meets HOSTILE threshold)
+  - id: supply-chain-dropper
+    desc: Supply-chain attack dropper
+    crit: hostile
+    conf: 0.95
+    attack: "T1195.002"
+    mbc: "B0024"
+    for: [javascript]
+    all:
+      - id: obj/lateral/supply-chain/npm/child-process-import
+      - id: stealth-spawn
+      - id: obj/lateral/supply-chain/npm/side-effect-only
