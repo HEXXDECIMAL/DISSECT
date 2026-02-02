@@ -267,20 +267,57 @@ func main() {
 		toReview = append(toReview, f)
 	}
 
-	fmt.Fprintf(os.Stderr, "Found %d files, %d need review", len(files), len(toReview))
-	if skippedCached > 0 {
-		fmt.Fprintf(os.Stderr, " (%d skipped, previously analyzed)", skippedCached)
+	// Count files by risk level
+	riskCounts := make(map[string]int)
+	for _, f := range files {
+		riskCounts[strings.ToLower(f.Risk)]++
 	}
-	fmt.Fprintln(os.Stderr)
+
+	fmt.Fprint(os.Stderr, "\nScan summary:\n")
+	fmt.Fprintf(os.Stderr, "  Total files: %d\n", len(files))
+	for _, level := range []string{"hostile", "suspicious", "notable", "inert"} {
+		if n := riskCounts[level]; n > 0 {
+			fmt.Fprintf(os.Stderr, "  - %s: %d\n", level, n)
+		}
+	}
+
+	fmt.Fprint(os.Stderr, "\nReview queue:\n")
+	fmt.Fprintf(os.Stderr, "  Need review: %d\n", len(toReview))
+	if skippedCached > 0 {
+		fmt.Fprintf(os.Stderr, "  Skipped (cached): %d\n", skippedCached)
+	}
+	skippedNoReview := len(files) - len(toReview) - skippedCached
+	if skippedNoReview > 0 {
+		if cfg.knownGood {
+			fmt.Fprintf(os.Stderr, "  Skipped (no suspicious findings): %d\n", skippedNoReview)
+		} else {
+			fmt.Fprintf(os.Stderr, "  Skipped (already suspicious/hostile): %d\n", skippedNoReview)
+		}
+	}
 	fmt.Fprintln(os.Stderr)
 
 	critRank := map[string]int{"inert": 0, "notable": 1, "suspicious": 2, "hostile": 3}
 
+	reviewStart := time.Now()
+
 	for i, f := range toReview {
 		sid := generateSessionID()
 
-		// Print findings summary
-		fmt.Fprintf(os.Stderr, "[%d/%d] Reviewing: %s\n", i+1, len(toReview), f.Path)
+		// Calculate progress and rate
+		pct := float64(i) / float64(len(toReview)) * 100
+		elapsed := time.Since(reviewStart)
+
+		// Build progress line with rate/ETA if we have enough data
+		progressLine := fmt.Sprintf("[%d/%d] (%.0f%%)", i+1, len(toReview), pct)
+		if i > 0 && elapsed.Seconds() > 0 {
+			rate := float64(i) / elapsed.Minutes()
+			remaining := len(toReview) - i
+			eta := time.Duration(float64(remaining)/rate) * time.Minute
+			progressLine = fmt.Sprintf("[%d/%d] (%.0f%%, %.1f/min, ~%s remaining)",
+				i+1, len(toReview), pct, rate, eta.Truncate(time.Minute))
+		}
+
+		fmt.Fprintf(os.Stderr, "%s Reviewing: %s\n", progressLine, f.Path)
 		if len(f.Findings) > 0 {
 			var ids []string
 			var maxCrit string
@@ -309,7 +346,14 @@ func main() {
 		fmt.Fprintf(os.Stderr, "\n--- Completed %s [%d/%d] ---\n\n", f.Path, i+1, len(toReview))
 	}
 
-	fmt.Fprintf(os.Stderr, "Done. Reviewed %d files.\n", len(toReview))
+	totalElapsed := time.Since(reviewStart)
+	if len(toReview) > 0 && totalElapsed.Seconds() > 0 {
+		rate := float64(len(toReview)) / totalElapsed.Minutes()
+		fmt.Fprintf(os.Stderr, "Done. Reviewed %d files in %s (%.1f/min).\n",
+			len(toReview), totalElapsed.Truncate(time.Second), rate)
+	} else {
+		fmt.Fprintf(os.Stderr, "Done. Reviewed %d files.\n", len(toReview))
+	}
 	fmt.Fprint(os.Stderr, "Run \"git diff traits/\" to see changes.\n")
 }
 
@@ -384,21 +428,27 @@ func runDissectDir(ctx context.Context, cfg *config) ([]FileAnalysis, error) {
 		cmd = exec.CommandContext(ctx, "dissect", "--format", "jsonl", cfg.dir)
 	}
 
-	var stdout, stderr bytes.Buffer
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-
-	if err := cmd.Run(); err != nil {
-		if msg := strings.TrimSpace(stderr.String()); msg != "" {
-			return nil, errors.New(msg)
-		}
-		return nil, fmt.Errorf("dissect error: %w", err)
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return nil, fmt.Errorf("could not create stdout pipe: %w", err)
 	}
 
-	// Parse JSONL output
+	var stderrBuf bytes.Buffer
+	cmd.Stderr = &stderrBuf
+
+	if err := cmd.Start(); err != nil {
+		return nil, fmt.Errorf("could not start dissect: %w", err)
+	}
+
+	// Stream and parse JSONL output with progress
 	var files []FileAnalysis
-	scanner := bufio.NewScanner(strings.NewReader(stdout.String()))
+	scanner := bufio.NewScanner(stdout)
 	scanner.Buffer(make([]byte, 128*1024*1024), 128*1024*1024) // 128MB for large malware
+
+	startTime := time.Now()
+	lastUpdate := time.Now()
+	critCounts := make(map[string]int)
+
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		if line == "" {
@@ -416,11 +466,61 @@ func runDissectDir(ctx context.Context, cfg *config) ([]FileAnalysis, error) {
 				Risk:     entry.Risk,
 				Findings: entry.Findings,
 			})
+			critCounts[strings.ToLower(entry.Risk)]++
+
+			// Update progress every 100ms or every 10 files
+			if time.Since(lastUpdate) > 100*time.Millisecond || len(files)%10 == 0 {
+				elapsed := time.Since(startTime)
+
+				// Build criticality summary
+				var critParts []string
+				for _, level := range []string{"hostile", "suspicious", "notable", "inert"} {
+					if n := critCounts[level]; n > 0 {
+						critParts = append(critParts, fmt.Sprintf("%s:%d", level, n))
+					}
+				}
+				critSummary := strings.Join(critParts, " ")
+
+				if elapsed.Seconds() >= 1 {
+					rate := float64(len(files)) / elapsed.Minutes()
+					fmt.Fprintf(os.Stderr, "\r  Scanned %d files (%.1f/min) [%s]              ",
+						len(files), rate, critSummary)
+				} else {
+					fmt.Fprintf(os.Stderr, "\r  Scanned %d files [%s]              ", len(files), critSummary)
+				}
+				lastUpdate = time.Now()
+			}
 		}
+	}
+
+	// Clear the progress line and print final count with criticality summary
+	elapsed := time.Since(startTime)
+	var critParts []string
+	for _, level := range []string{"hostile", "suspicious", "notable", "inert"} {
+		if n := critCounts[level]; n > 0 {
+			critParts = append(critParts, fmt.Sprintf("%s:%d", level, n))
+		}
+	}
+	critSummary := strings.Join(critParts, " ")
+
+	if elapsed.Seconds() >= 1 && len(files) > 0 {
+		rate := float64(len(files)) / elapsed.Minutes()
+		fmt.Fprintf(os.Stderr, "\r  Scanned %d files in %s (%.1f/min) [%s]                    \n",
+			len(files), elapsed.Truncate(time.Second), rate, critSummary)
+	} else {
+		fmt.Fprintf(os.Stderr, "\r  Scanned %d files [%s]                                      \n",
+			len(files), critSummary)
 	}
 
 	if err := scanner.Err(); err != nil {
 		return nil, fmt.Errorf("error reading JSONL output: %w", err)
+	}
+
+	if err := cmd.Wait(); err != nil {
+		if msg := strings.TrimSpace(stderrBuf.String()); msg != "" {
+			return nil, errors.New(msg)
+		}
+		return nil, fmt.Errorf("dissect error: %w", err)
 	}
 
 	return files, nil
@@ -531,7 +631,11 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 			"--session-id", sid,
 		)
 	case "gemini":
-		cmd = exec.CommandContext(ctx, "gemini", "-p", prompt)
+		cmd = exec.CommandContext(ctx, "gemini",
+			"-p", prompt,
+			"--yolo",
+			"--output-format", "stream-json",
+		)
 	case "opencode":
 		cmd = exec.CommandContext(ctx, "opencode", "-p", prompt)
 	default:

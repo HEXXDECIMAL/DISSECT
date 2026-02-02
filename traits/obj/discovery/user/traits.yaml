@@ -79,6 +79,13 @@ traits:
     if:
       type: string
       word: "USER"
+    # System libraries legitimately reference USER for standard functions
+    downgrade:
+      any:
+        - type: basename
+          regex: "^lib(X11|xcb|c|glib|gtk|qt|pam|pango|gio|dbus|systemd)(\\.so|\\.dylib)"
+        - type: string
+          regex: "X11R[0-9]|xenocara|xorg|X\\.Org|glibc"
 
   - id: logname-var
     desc: LOGNAME environment variable
@@ -90,17 +97,7 @@ traits:
       type: string
       exact: "LOGNAME"
 
-  # NOTE: Go runtime and standard library use getuid/getpwuid legitimately
-  # for user information. Downgraded to inert for atomic indicators.
-  - id: getuid
-    desc: Get user ID
-    crit: inert
-    conf: 0.4
-    attack: "T1033"
-    for: [elf, macho]
-    if:
-      type: string
-      exact: "getuid"
+
 
   - id: getpwuid
     desc: Get password entry by UID
@@ -249,7 +246,7 @@ composite_rules:
     count_min: 1
     any:
       - id: getpwnam
-      - id: getuid
+      - id: cap/process/identity/query/getuid
       - id: getpwuid
 
   # User enumeration detected (active commands + context)

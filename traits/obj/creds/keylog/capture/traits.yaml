@@ -64,10 +64,18 @@ traits:
       pattern: "XGrabKey"
     # Skip if this looks like a system X11 library
     unless:
+      # Match X11 library filenames like libX11.so, libX11.so.6, libX11.so.19.0
       - type: basename
-        regex: "^lib(X11|xcb|Xext|Xt|Xmu|Xi|Xrandr|Xrender|Xfixes|Xcomposite|Xdamage|Xinput|Xinerama|Xss|Xkb)\\b"
+        regex: "^lib(X11|xcb|Xext|Xt|Xmu|Xi|Xrandr|Xrender|Xfixes|Xcomposite|Xdamage|Xinput|Xinerama|Xss|Xkb|Xaw|Xcursor|Xdmcp|Xpm|Xft|fontconfig)(\\.so|\\.dylib).*"
+      # Match X11 version strings in the file
       - type: string
-        regex: "X11R[0-9]|xenocara|xorg"
+        regex: "X11R[0-9]|xenocara|xorg|X\\.Org"
+      # Match if this exports many X11 functions (it's a library, not a consumer)
+      - type: symbol
+        regex: "^X(Query|Open|Close|Create|Destroy|Map|Unmap|Get|Set)(Display|Window|Keymap|Pointer|Event)"
+      # Match X11 DGA extension markers (legitimate use of XGrabKey for tests/direct access)
+      - type: string
+        regex: "(?i)(?:XF86DGA|XDGAOpenFramebuffer|XDGACloseFramebuffer|libXxf86dga|XFree86-DGA)"
 
   # === Atomic: macOS Keyboard Capture ===
   - id: macos-eventtap

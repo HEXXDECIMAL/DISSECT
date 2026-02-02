@@ -74,6 +74,13 @@ traits:
       type: symbol
       pattern: gethostname
     platforms: [unix, linux, macos, windows]
+    # System libraries legitimately call gethostname for protocol/connection purposes
+    downgrade:
+      any:
+        - type: basename
+          regex: "^lib(X11|xcb|c|ssl|crypto|curl|ssh|pam|krb5|gssapi|ldap|nss|glib|gio|dbus|systemd)(\\.so|\\.dylib)"
+        - type: string
+          regex: "X11R[0-9]|xenocara|xorg|X\\.Org|glibc"
 
   - id: getdomainname
     desc: Get NIS domain name

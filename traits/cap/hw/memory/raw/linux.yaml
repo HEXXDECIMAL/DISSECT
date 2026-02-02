@@ -3,30 +3,28 @@
 
 traits:
   - id: kmem
-    description: Access raw kernel memory (/dev/kmem)
-    crit: suspicious
+    desc: Access raw kernel memory (/dev/kmem)
+    crit: notable
     conf: 0.9
     attack: "T1003"
     platforms: [linux, unix]
     if:
       type: string
       exact: "/dev/kmem"
+    # /dev/kmem is notable - it has legitimate uses for graphics/video access
+    # Only becomes suspicious in malware context (handled by composites)
 
   - id: dev-mem
-    description: Access raw system memory (/dev/mem)
-    crit: suspicious
+    desc: Access raw system memory (/dev/mem)
+    crit: notable
     conf: 0.9
     attack: "T1003"
-    platforms: [linux]
+    platforms: [linux, unix]
     if:
       type: string
       exact: "/dev/mem"
-    # X11 DGA (Direct Graphics Access) libraries legitimately use /dev/mem
-    # for direct video memory access - this is core DGA functionality
-    downgrade:
-      any:
-        - id: cap/exec/load/x11-ref
-        - id: cap/exec/load/x11-dga-marker
+    # /dev/mem is notable - it has legitimate uses for graphics/video access
+    # Only becomes suspicious in malware context (handled by composites)
 
   # === Memdump atomic indicators ===
   - id: memdump-cmd
@@ -52,7 +50,7 @@ traits:
 composite_rules:
   # Memdump composite
   - id: memdump-ref
-    description: Memory dump utility reference
+    desc: Memory dump utility reference
     crit: suspicious
     conf: 0.75
     attack: "T1003"
@@ -61,3 +59,22 @@ composite_rules:
     any:
       - id: memdump-cmd
       - id: dumpmem-cmd
+
+  # Raw memory access becomes suspicious when NOT in a graphics/video context
+  # This catches malware that accesses /dev/mem for credential dumping or rootkit behavior
+  - id: raw-mem-suspicious
+    desc: Raw memory access (non-graphics)
+    crit: suspicious
+    conf: 0.8
+    attack: "T1003"
+    platforms: [linux, unix]
+    any:
+      - id: dev-mem
+      - id: kmem
+    none:
+      # Legitimate graphics/video libraries that need /dev/mem
+      - id: cap/exec/load/x11-dga-marker
+      - id: cap/exec/load/graphics-lib-marker
+      - id: cap/exec/load/video-lib-marker
+      - id: cap/exec/load/drm-driver-ref
+      - id: cap/exec/load/x11-ref

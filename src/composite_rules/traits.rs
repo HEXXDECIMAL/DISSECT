@@ -96,6 +96,11 @@ impl TraitDefinition {
     /// Pre-compile YARA rules in this trait's condition
     pub fn compile_yara(&mut self) {
         self.r#if.compile_yara();
+        if let Some(ref mut conds) = self.unless {
+            for cond in conds.iter_mut() {
+                cond.compile_yara();
+            }
+        }
     }
 
     /// Evaluate this trait definition against the analysis context
@@ -570,6 +575,11 @@ impl CompositeTrait {
                 cond.compile_yara();
             }
         }
+        if let Some(ref mut conds) = self.unless {
+            for cond in conds.iter_mut() {
+                cond.compile_yara();
+            }
+        }
     }
 
     /// Evaluate this rule against the analysis context
@@ -582,6 +592,17 @@ impl CompositeTrait {
         // Check size constraints
         if !self.matches_size(ctx) {
             return None;
+        }
+
+        // Check unless conditions (file-level skip)
+        if let Some(unless_conds) = &self.unless {
+            // Default 'any' semantics: skip if ANY condition matches
+            for condition in unless_conds {
+                let result = self.eval_condition(condition, ctx);
+                if result.matched {
+                    return None;
+                }
+            }
         }
 
         // Evaluate positive conditions based on the boolean operator(s)

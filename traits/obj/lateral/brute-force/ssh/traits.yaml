@@ -292,7 +292,6 @@ composite_rules:
     any:
       - id: scanner-keyword
       - id: scanning-keyword
-      - id: cap/comm/socket/connect/connect
 
   # Helper: Threading indicators (references cap/process/threading traits)
   - id: threading

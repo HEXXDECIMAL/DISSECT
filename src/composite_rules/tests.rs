@@ -1741,3 +1741,260 @@ fn test_basename_in_composite_rule() {
     let result = rule.evaluate(&ctx);
     assert!(result.is_some());
 }
+
+// ============================================================================
+// Tests for unless directive on CompositeTrait
+// ============================================================================
+
+#[test]
+fn test_composite_unless_skips_rule() {
+    let (report, data) = create_test_context();
+
+    // Add a finding that would trigger the unless condition
+    let findings = vec![Finding {
+        id: "file/signed/apple".to_string(),
+        kind: FindingKind::Capability,
+        desc: "Apple signed binary".to_string(),
+        conf: 1.0,
+        crit: Criticality::Inert,
+        mbc: None,
+        attack: None,
+        trait_refs: vec![],
+        evidence: vec![],
+    }];
+
+    let ctx = EvaluationContext {
+        report: &report,
+        binary_data: &data,
+        file_type: FileType::Elf,
+        platform: Platform::Linux,
+        additional_findings: Some(&findings),
+        cached_ast: None,
+        finding_id_index: None,
+    };
+
+    // Composite rule with unless condition
+    let rule = CompositeTrait {
+        id: "test/network-composite".to_string(),
+        desc: "Network activity composite".to_string(),
+        conf: 0.9,
+        crit: Criticality::Suspicious,
+        mbc: None,
+        attack: None,
+        platforms: vec![Platform::All],
+        r#for: vec![FileType::All],
+        size_min: None,
+        size_max: None,
+        all: Some(vec![Condition::Symbol {
+            exact: None,
+            substr: None,
+            regex: Some("socket".to_string()),
+            platforms: None,
+            compiled_regex: None,
+        }]),
+        any: None,
+        count_exact: None,
+        count_min: None,
+        count_max: None,
+        none: None,
+        unless: Some(vec![Condition::Trait {
+            id: "file/signed/apple".to_string(),
+        }]),
+        not: None,
+        downgrade: None,
+    };
+
+    // Should return None because unless condition matches
+    let result = rule.evaluate(&ctx);
+    assert!(
+        result.is_none(),
+        "Composite rule should be skipped when unless condition matches"
+    );
+}
+
+#[test]
+fn test_composite_unless_allows_rule() {
+    let (report, data) = create_test_context();
+
+    let ctx = EvaluationContext {
+        report: &report,
+        binary_data: &data,
+        file_type: FileType::Elf,
+        platform: Platform::Linux,
+        additional_findings: None, // No findings that would match unless
+        cached_ast: None,
+        finding_id_index: None,
+    };
+
+    let rule = CompositeTrait {
+        id: "test/network-composite".to_string(),
+        desc: "Network activity composite".to_string(),
+        conf: 0.9,
+        crit: Criticality::Suspicious,
+        mbc: None,
+        attack: None,
+        platforms: vec![Platform::All],
+        r#for: vec![FileType::All],
+        size_min: None,
+        size_max: None,
+        all: Some(vec![Condition::Symbol {
+            exact: None,
+            substr: None,
+            regex: Some("socket".to_string()),
+            platforms: None,
+            compiled_regex: None,
+        }]),
+        any: None,
+        count_exact: None,
+        count_min: None,
+        count_max: None,
+        none: None,
+        unless: Some(vec![Condition::Trait {
+            id: "file/signed/apple".to_string(),
+        }]),
+        not: None,
+        downgrade: None,
+    };
+
+    // Should return Some because unless condition doesn't match
+    let result = rule.evaluate(&ctx);
+    assert!(
+        result.is_some(),
+        "Composite rule should match when unless condition doesn't match"
+    );
+}
+
+#[test]
+fn test_composite_unless_with_basename() {
+    // Test the libX11.so case that was the original bug report
+    let (report, data) = create_test_context_with_path("/usr/lib/libX11.so.6");
+
+    let ctx = EvaluationContext {
+        report: &report,
+        binary_data: &data,
+        file_type: FileType::Elf,
+        platform: Platform::Linux,
+        additional_findings: None,
+        cached_ast: None,
+        finding_id_index: None,
+    };
+
+    let rule = CompositeTrait {
+        id: "test/x11-keylog".to_string(),
+        desc: "X11 keylogger pattern".to_string(),
+        conf: 0.9,
+        crit: Criticality::Suspicious,
+        mbc: None,
+        attack: None,
+        platforms: vec![Platform::All],
+        r#for: vec![FileType::Elf],
+        size_min: None,
+        size_max: None,
+        any: Some(vec![Condition::Symbol {
+            exact: None,
+            substr: None,
+            regex: Some("XQueryKeymap".to_string()),
+            platforms: None,
+            compiled_regex: None,
+        }]),
+        all: None,
+        count_exact: None,
+        count_min: None,
+        count_max: None,
+        none: None,
+        // Skip if this looks like libX11 itself
+        unless: Some(vec![Condition::Basename {
+            exact: None,
+            substr: None,
+            regex: Some(r"^libX11(\\.so|\\.dylib).*".to_string()),
+            case_insensitive: false,
+        }]),
+        not: None,
+        downgrade: None,
+    };
+
+    // Should return None because the basename matches libX11.so
+    let result = rule.evaluate(&ctx);
+    assert!(
+        result.is_none(),
+        "Composite rule should be skipped for libX11.so (unless basename condition should match)"
+    );
+}
+
+#[test]
+fn test_composite_unless_multiple_conditions_any_matches() {
+    let (mut report, data) = create_test_context();
+
+    // Add a string that will match one of the unless conditions
+    report.strings.push(StringInfo {
+        value: "X.Org Foundation".to_string(),
+        offset: Some("0x4000".to_string()),
+        encoding: "utf8".to_string(),
+        string_type: crate::types::StringType::Plain,
+        section: None,
+    });
+
+    let ctx = EvaluationContext {
+        report: &report,
+        binary_data: &data,
+        file_type: FileType::Elf,
+        platform: Platform::Linux,
+        additional_findings: None,
+        cached_ast: None,
+        finding_id_index: None,
+    };
+
+    let rule = CompositeTrait {
+        id: "test/multi-unless".to_string(),
+        desc: "Rule with multiple unless conditions".to_string(),
+        conf: 0.9,
+        crit: Criticality::Suspicious,
+        mbc: None,
+        attack: None,
+        platforms: vec![Platform::All],
+        r#for: vec![FileType::All],
+        size_min: None,
+        size_max: None,
+        all: Some(vec![Condition::Symbol {
+            exact: None,
+            substr: None,
+            regex: Some("socket".to_string()),
+            platforms: None,
+            compiled_regex: None,
+        }]),
+        any: None,
+        count_exact: None,
+        count_min: None,
+        count_max: None,
+        none: None,
+        // Multiple unless conditions - any match should skip the rule
+        unless: Some(vec![
+            Condition::Basename {
+                exact: Some("system-library.so".to_string()),
+                substr: None,
+                regex: None,
+                case_insensitive: false,
+            },
+            Condition::String {
+                exact: None,
+                substr: None,
+                regex: Some(r"X\.Org".to_string()),
+                word: None,
+                case_insensitive: false,
+                exclude_patterns: None,
+                min_count: 1,
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
+            },
+        ]),
+        not: None,
+        downgrade: None,
+    };
+
+    // Should return None because the second unless condition (string regex) matches
+    let result = rule.evaluate(&ctx);
+    assert!(
+        result.is_none(),
+        "Composite rule should be skipped when ANY unless condition matches"
+    );
+}

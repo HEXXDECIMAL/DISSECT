@@ -4,6 +4,12 @@
 BINARY = dissect
 OUT_DIR = out
 
+# Use sccache for faster compilation if available
+SCCACHE := $(shell command -v sccache 2>/dev/null)
+ifdef SCCACHE
+export RUSTC_WRAPPER := $(SCCACHE)
+endif
+
 .PHONY: all build debug release test lint clean coverage ci help
 
 # Default target

@@ -30,6 +30,9 @@ traits:
     if:
       type: string
       exact: "Cookies"
+    unless:
+      - type: basename
+        regex: "^lib(X11|xcb|Xext|Xt|Xmu|Xi|Xrandr|Xrender|Xfixes|Xcomposite|Xdamage|Xinput|Xinerama|Xss|Xkb|Xaw|Xcursor|Xdmcp|Xpm|Xft|fontconfig)(\\.so|\\.dylib).*"
 
   - id: key4-db-path
     desc: Firefox key database

@@ -89,8 +89,11 @@ traits:
     # System libraries commonly have high-entropy lookup tables
     downgrade:
       any:
+        # Match library names with .so/.dylib extension patterns (libX11.so.19.0, libcrypto.so.1.1)
         - type: basename
-          regex: "^lib(X11|xcb|ssl|crypto|c|z|png|jpeg|xml|curl|pcre|iconv|icu|freetype|fontconfig|harfbuzz|cairo|pango|glib|gtk|qt)\\b"
+          regex: "^lib(X11|xcb|Xext|ssl|crypto|c|z|png|jpeg|xml|curl|pcre|iconv|icu|freetype|fontconfig|harfbuzz|cairo|pango|glib|gtk|qt)(\\.so|\\.dylib)"
+        - type: string
+          regex: "X11R[0-9]|xenocara|xorg|X\\.Org"
 
   - id: high-entropy-text
     desc: "High entropy in code section"
