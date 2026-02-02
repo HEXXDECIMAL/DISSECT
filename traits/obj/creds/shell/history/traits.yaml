@@ -14,14 +14,16 @@ traits:
     if:
       type: string
       substr: ".bash_history"
-    # Downgrade for Apple system components (e.g., /bin/bash)
-    # NOTE: Can't reference composite traits from atomic trait downgrades,
-    # so we use direct string conditions that match Apple bundle IDs
     downgrade:
-      inert:
-        any:
-          - type: string
-            regex: "com\\.apple\\.[a-z][a-z0-9.-]+"
+      any:
+        # Shell binaries legitimately reference their own history files
+        - type: basename
+          exact: "bash"
+        - type: basename
+          exact: "sh"
+        # Apple system components
+        - type: string
+          regex: "com\\.apple\\.[a-z][a-z0-9.-]+"
 
   # === Atomic: Zsh History ===
   - id: zsh-history
@@ -32,12 +34,14 @@ traits:
     if:
       type: string
       substr: ".zsh_history"
-    # Downgrade for Apple system components (e.g., /bin/zsh)
     downgrade:
-      inert:
-        any:
-          - type: string
-            regex: "com\\.apple\\.[a-z][a-z0-9.-]+"
+      any:
+        # Zsh binary legitimately references its own history file
+        - type: basename
+          exact: "zsh"
+        # Apple system components
+        - type: string
+          regex: "com\\.apple\\.[a-z][a-z0-9.-]+"
 
   # === Atomic: Fish History ===
   - id: fish-history
@@ -48,6 +52,11 @@ traits:
     if:
       type: string
       regex: "\\.local/share/fish/fish_history"
+    downgrade:
+      any:
+        # Fish shell legitimately references its own history file
+        - type: basename
+          exact: "fish"
 
   # NOTE: Shell RC files (.bashrc, .zshrc, .profile) are defined in persist/shell/config/traits.yaml
 
@@ -64,6 +73,5 @@ composite_rules:
       - id: fish-history
     # Downgrade for Apple system components (e.g., /bin/bash, /bin/zsh)
     downgrade:
-      inert:
-        any:
-          - id: meta/apple/system-component
+      any:
+        - id: meta/apple/system-component

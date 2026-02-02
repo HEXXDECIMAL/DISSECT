@@ -16,11 +16,10 @@ composite_rules:
       - id: cap/exec/command/shell/bin-bash
     # Downgrade for legitimate system libraries and shell interpreters
     downgrade:
-      inert:
-        any:
-          - id: cap/exec/load/system-lib-marker
-          - id: cap/exec/load/shell-interpreter
-          - id: cap/exec/load/debugger-tool-marker
+      any:
+        - id: cap/exec/load/system-lib-marker
+        - id: cap/exec/load/shell-interpreter
+        - id: cap/exec/load/debugger-tool-marker
 
   - id: bind-shell
     desc: Bind shell pattern (socket +
@@ -36,11 +35,10 @@ composite_rules:
       - id: cap/exec/command/shell/bin-bash
     # Downgrade for legitimate network servers/debuggers/system libraries
     downgrade:
-      inert:
-        any:
-          - id: cap/exec/load/debugger-tool-marker
-          - id: cap/exec/load/system-lib-marker
-          - id: cap/exec/load/shell-interpreter
+      any:
+        - id: cap/exec/load/debugger-tool-marker
+        - id: cap/exec/load/system-lib-marker
+        - id: cap/exec/load/shell-interpreter
 
   - id: python-reverse-shell
     desc: "Python reverse shell detected (socket"

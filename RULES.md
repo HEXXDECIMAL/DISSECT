@@ -361,18 +361,21 @@ Skip trait if conditions match.
 
 ### `downgrade:` - Context-Based Criticality
 
-Reduce criticality based on context.
+Reduce criticality by one level when conditions match. Drops: hostile→suspicious→notable→inert.
 
 ```yaml
-- id: suspicious-curl-pipe
+- id: bash-history
   crit: suspicious
-  if: { type: string, regex: "curl.*\\|.*bash" }
+  if: { type: string, substr: ".bash_history" }
   downgrade:
-    notable:
-      any: [id: file/signed/apple]
-    inert:
-      any: [id: file/path/test-fixtures]
+    any:
+      - type: basename
+        exact: "bash"
+      - type: basename
+        exact: "sh"
 ```
+
+Use for expected behavior: bash referencing `.bash_history`, chrome referencing `History`, ssh tools using `StrictHostKeyChecking=no`.
 
 ## Proximity Constraints
 

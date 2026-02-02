@@ -287,12 +287,11 @@ composite_rules:
       - id: cap/exec/command/shell/bin-bash
       - id: cap/exec/command/shell/c-execve
     downgrade:
-      inert:
-        any:
-          - id: meta/apple/system-component
-          - id: cap/exec/load/debugger-tool-marker
-          - id: cap/exec/load/system-lib-marker
-          - id: cap/exec/load/shell-interpreter
+      any:
+        - id: meta/apple/system-component
+        - id: cap/exec/load/debugger-tool-marker
+        - id: cap/exec/load/system-lib-marker
+        - id: cap/exec/load/shell-interpreter
 
   # PTY-based network backdoor - combines PTY with network operations
   # NOTE: This matches legitimate shells (/bin/bash) which have all these symbols
@@ -323,12 +322,11 @@ composite_rules:
       - id: cap/exec/command/shell/bin-sh
     # Downgrade for Apple system components (e.g., /bin/bash), debuggers, graphics libs, and system libraries
     downgrade:
-      inert:
-        any:
-          - id: meta/apple/system-component
-          - id: cap/exec/load/debugger-tool-marker
-          - id: cap/exec/load/system-lib-marker
-          - id: cap/exec/load/shell-interpreter
-          - id: cap/exec/load/graphics-lib-marker
-          - id: cap/exec/load/x11-ipc-lib-marker
-          - id: cap/exec/load/network-lib-marker
+      any:
+        - id: meta/apple/system-component
+        - id: cap/exec/load/debugger-tool-marker
+        - id: cap/exec/load/system-lib-marker
+        - id: cap/exec/load/shell-interpreter
+        - id: cap/exec/load/graphics-lib-marker
+        - id: cap/exec/load/x11-ipc-lib-marker
+        - id: cap/exec/load/network-lib-marker

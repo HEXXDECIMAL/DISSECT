@@ -64,8 +64,10 @@ traits:
       pattern: "XGrabKey"
     # Skip if this looks like a system X11 library
     unless:
+      - type: basename
+        regex: "^lib(X11|xcb|Xext|Xt|Xmu|Xi|Xrandr|Xrender|Xfixes|Xcomposite|Xdamage|Xinput|Xinerama|Xss|Xkb)\\b"
       - type: string
-        regex: "libX11|libxcb|X11R[0-9]|xenocara"
+        regex: "X11R[0-9]|xenocara|xorg"
 
   # === Atomic: macOS Keyboard Capture ===
   - id: macos-eventtap

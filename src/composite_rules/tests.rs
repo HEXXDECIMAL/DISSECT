@@ -2,7 +2,7 @@
 
 use super::*;
 use crate::composite_rules::condition::NotException;
-use crate::composite_rules::traits::{DowngradeConditions, DowngradeRules};
+use crate::composite_rules::traits::DowngradeConditions;
 use crate::types::{
     AnalysisReport, Criticality, Finding, FindingKind, Import, StringInfo, TargetInfo,
 };
@@ -686,20 +686,15 @@ fn test_downgrade_to_notable() {
         },
         not: None,
         unless: None,
-        downgrade: Some(DowngradeRules {
-            hostile: None,
-            suspicious: None,
-            notable: Some(DowngradeConditions {
-                any: Some(vec![Condition::Trait {
-                    id: "file/type/shell-script".to_string(),
-                }]),
-                all: None,
-                none: None,
-                count_exact: None,
-                count_min: None,
-                count_max: None,
-            }),
-            inert: None,
+        downgrade: Some(DowngradeConditions {
+            any: Some(vec![Condition::Trait {
+                id: "file/type/shell-script".to_string(),
+            }]),
+            all: None,
+            none: None,
+            count_exact: None,
+            count_min: None,
+            count_max: None,
         }),
     };
 
@@ -707,12 +702,12 @@ fn test_downgrade_to_notable() {
     assert!(result.is_some());
 
     let finding = result.unwrap();
-    // Should be downgraded from Suspicious to Notable
+    // Should be downgraded one level: Suspicious → Notable
     assert_eq!(finding.crit, Criticality::Notable);
 }
 
 #[test]
-fn test_downgrade_to_inert() {
+fn test_downgrade_one_level() {
     let (report, data) = create_test_context();
 
     let findings = vec![Finding {
@@ -757,20 +752,15 @@ fn test_downgrade_to_inert() {
         },
         not: None,
         unless: None,
-        downgrade: Some(DowngradeRules {
-            hostile: None,
-            suspicious: None,
-            notable: None,
-            inert: Some(DowngradeConditions {
-                any: Some(vec![Condition::Trait {
-                    id: "file/path/test-fixtures".to_string(),
-                }]),
-                all: None,
-                none: None,
-                count_exact: None,
-                count_min: None,
-                count_max: None,
-            }),
+        downgrade: Some(DowngradeConditions {
+            any: Some(vec![Condition::Trait {
+                id: "file/path/test-fixtures".to_string(),
+            }]),
+            all: None,
+            none: None,
+            count_exact: None,
+            count_min: None,
+            count_max: None,
         }),
     };
 
@@ -778,7 +768,7 @@ fn test_downgrade_to_inert() {
     assert!(result.is_some());
 
     let finding = result.unwrap();
-    // Should be downgraded from Notable to Inert
+    // Should be downgraded one level: Notable → Inert
     assert_eq!(finding.crit, Criticality::Inert);
 }
 
@@ -816,20 +806,15 @@ fn test_downgrade_no_match_keeps_original() {
         },
         not: None,
         unless: None,
-        downgrade: Some(DowngradeRules {
-            hostile: None,
-            suspicious: None,
-            notable: Some(DowngradeConditions {
-                any: Some(vec![Condition::Trait {
-                    id: "file/signed/apple".to_string(),
-                }]),
-                all: None,
-                none: None,
-                count_exact: None,
-                count_min: None,
-                count_max: None,
-            }),
-            inert: None,
+        downgrade: Some(DowngradeConditions {
+            any: Some(vec![Condition::Trait {
+                id: "file/signed/apple".to_string(),
+            }]),
+            all: None,
+            none: None,
+            count_exact: None,
+            count_min: None,
+            count_max: None,
         }),
     };
 
@@ -842,34 +827,21 @@ fn test_downgrade_no_match_keeps_original() {
 }
 
 #[test]
-fn test_downgrade_first_match_wins() {
+fn test_downgrade_from_hostile() {
     let (report, data) = create_test_context();
 
-    // Add two findings that match different downgrade levels
-    let findings = vec![
-        Finding {
-            id: "file/type/shell-script".to_string(),
-            kind: FindingKind::Capability,
-            desc: "Shell script".to_string(),
-            conf: 1.0,
-            crit: Criticality::Inert,
-            mbc: None,
-            attack: None,
-            trait_refs: vec![],
-            evidence: vec![],
-        },
-        Finding {
-            id: "file/path/test-fixtures".to_string(),
-            kind: FindingKind::Capability,
-            desc: "Test fixture".to_string(),
-            conf: 1.0,
-            crit: Criticality::Inert,
-            mbc: None,
-            attack: None,
-            trait_refs: vec![],
-            evidence: vec![],
-        },
-    ];
+    // Add finding that will trigger downgrade
+    let findings = vec![Finding {
+        id: "file/type/shell-script".to_string(),
+        kind: FindingKind::Capability,
+        desc: "Shell script".to_string(),
+        conf: 1.0,
+        crit: Criticality::Inert,
+        mbc: None,
+        attack: None,
+        trait_refs: vec![],
+        evidence: vec![],
+    }];
 
     let ctx = EvaluationContext {
         report: &report,
@@ -901,29 +873,15 @@ fn test_downgrade_first_match_wins() {
         },
         not: None,
         unless: None,
-        downgrade: Some(DowngradeRules {
-            hostile: None,
-            suspicious: None,
-            notable: Some(DowngradeConditions {
-                any: Some(vec![Condition::Trait {
-                    id: "file/type/shell-script".to_string(),
-                }]),
-                all: None,
-                none: None,
-                count_exact: None,
-                count_min: None,
-                count_max: None,
-            }),
-            inert: Some(DowngradeConditions {
-                any: Some(vec![Condition::Trait {
-                    id: "file/path/test-fixtures".to_string(),
-                }]),
-                all: None,
-                none: None,
-                count_exact: None,
-                count_min: None,
-                count_max: None,
-            }),
+        downgrade: Some(DowngradeConditions {
+            any: Some(vec![Condition::Trait {
+                id: "file/type/shell-script".to_string(),
+            }]),
+            all: None,
+            none: None,
+            count_exact: None,
+            count_min: None,
+            count_max: None,
         }),
     };
 
@@ -931,8 +889,8 @@ fn test_downgrade_first_match_wins() {
     assert!(result.is_some());
 
     let finding = result.unwrap();
-    // First match wins: should be Notable (checked before Inert)
-    assert_eq!(finding.crit, Criticality::Notable);
+    // Should be downgraded one level: Hostile → Suspicious
+    assert_eq!(finding.crit, Criticality::Suspicious);
 }
 
 #[test]
@@ -1002,20 +960,15 @@ fn test_all_three_directives_combined() {
         },
         not: Some(vec![NotException::Shorthand("apple.com".to_string())]),
         unless: None,
-        downgrade: Some(DowngradeRules {
-            hostile: None,
-            suspicious: None,
-            notable: Some(DowngradeConditions {
-                any: Some(vec![Condition::Trait {
-                    id: "file/type/test".to_string(),
-                }]),
-                all: None,
-                none: None,
-                count_exact: None,
-                count_min: None,
-                count_max: None,
-            }),
-            inert: None,
+        downgrade: Some(DowngradeConditions {
+            any: Some(vec![Condition::Trait {
+                id: "file/type/test".to_string(),
+            }]),
+            all: None,
+            none: None,
+            count_exact: None,
+            count_min: None,
+            count_max: None,
         }),
     };
 
@@ -1026,7 +979,7 @@ fn test_all_three_directives_combined() {
     // Should filter apple.com (not:)
     assert_eq!(finding.evidence.len(), 1);
     assert!(finding.evidence[0].value.contains("evil.com"));
-    // Should be downgraded from Suspicious to Notable
+    // Should be downgraded one level: Suspicious → Notable
     assert_eq!(finding.crit, Criticality::Notable);
 }
 

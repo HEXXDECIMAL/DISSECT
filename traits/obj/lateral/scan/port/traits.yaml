@@ -438,10 +438,9 @@ composite_rules:
       - id: weak-pass-qwerty
     # "qwerty" appears legitimately in X11/graphics libraries (keyboard layouts, test strings)
     downgrade:
-      inert:
-        any:
-          - id: cap/exec/load/graphics-lib-marker
-          - id: cap/exec/load/x11-ref
+      any:
+        - id: cap/exec/load/graphics-lib-marker
+        - id: cap/exec/load/x11-ref
 
   # Root exploitation terminology
   - id: root-exploit-ref

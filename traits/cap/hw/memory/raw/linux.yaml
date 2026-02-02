@@ -24,10 +24,9 @@ traits:
     # X11 DGA (Direct Graphics Access) libraries legitimately use /dev/mem
     # for direct video memory access - this is core DGA functionality
     downgrade:
-      inert:
-        any:
-          - id: cap/exec/load/x11-ref
-          - id: x11-dga-marker
+      any:
+        - id: cap/exec/load/x11-ref
+        - id: cap/exec/load/x11-dga-marker
 
   # === Memdump atomic indicators ===
   - id: memdump-cmd

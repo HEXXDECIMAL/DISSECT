@@ -38,19 +38,6 @@ pub struct DowngradeConditions {
     pub count_max: Option<usize>,
 }
 
-/// Downgrade rules: criticality level → conditions that trigger downgrade
-#[derive(Debug, Clone, Deserialize)]
-pub struct DowngradeRules {
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub hostile: Option<DowngradeConditions>,
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub suspicious: Option<DowngradeConditions>,
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub notable: Option<DowngradeConditions>,
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub inert: Option<DowngradeConditions>,
-}
-
 /// Definition of an atomic observable trait
 #[derive(Debug, Clone, Deserialize)]
 pub struct TraitDefinition {
@@ -102,7 +89,7 @@ pub struct TraitDefinition {
     /// Criticality downgrade rules - map of target criticality to conditions
     /// Only levels LOWER than base `crit` are allowed (validated at load time)
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub downgrade: Option<DowngradeRules>,
+    pub downgrade: Option<DowngradeConditions>,
 }
 
 impl TraitDefinition {
@@ -152,19 +139,15 @@ impl TraitDefinition {
             let mut final_crit = self.crit;
 
             // Check downgrade conditions
-            if let Some(downgrade_rules) = &self.downgrade {
+            if let Some(downgrade_conds) = &self.downgrade {
                 let debug_downgrade = std::env::var("DEBUG_DOWNGRADE").is_ok();
                 if debug_downgrade {
                     eprintln!(
                         "DEBUG: Evaluating downgrade for trait '{}' (current: {:?})",
                         self.id, self.crit
                     );
-                    eprintln!(
-                        "DEBUG: downgrade_rules.inert={:?}",
-                        downgrade_rules.inert.is_some()
-                    );
                 }
-                final_crit = self.evaluate_downgrade(downgrade_rules, &self.crit, ctx);
+                final_crit = self.evaluate_downgrade(downgrade_conds, &self.crit, ctx);
                 if debug_downgrade {
                     eprintln!(
                         "DEBUG: Final criticality for '{}': {:?}",
@@ -221,41 +204,23 @@ impl TraitDefinition {
         true
     }
 
-    /// Evaluate downgrade rules and return final criticality
+    /// Evaluate downgrade conditions and return final criticality.
+    /// When matched, drops one level: hostile→suspicious→notable→inert
     fn evaluate_downgrade(
         &self,
-        rules: &DowngradeRules,
+        conditions: &DowngradeConditions,
         base_crit: &Criticality,
         ctx: &EvaluationContext,
     ) -> Criticality {
-        // Check in severity order: hostile → suspicious → notable → inert
-        // First match wins
-
-        if let Some(conditions) = &rules.hostile {
-            if self.eval_downgrade_conditions(conditions, ctx) {
-                return Criticality::Hostile;
-            }
+        if self.eval_downgrade_conditions(conditions, ctx) {
+            return match base_crit {
+                Criticality::Hostile => Criticality::Suspicious,
+                Criticality::Suspicious => Criticality::Notable,
+                Criticality::Notable | Criticality::Inert | Criticality::Filtered => {
+                    Criticality::Inert
+                }
+            };
         }
-
-        if let Some(conditions) = &rules.suspicious {
-            if self.eval_downgrade_conditions(conditions, ctx) {
-                return Criticality::Suspicious;
-            }
-        }
-
-        if let Some(conditions) = &rules.notable {
-            if self.eval_downgrade_conditions(conditions, ctx) {
-                return Criticality::Notable;
-            }
-        }
-
-        if let Some(conditions) = &rules.inert {
-            if self.eval_downgrade_conditions(conditions, ctx) {
-                return Criticality::Inert;
-            }
-        }
-
-        // No downgrade matched - return base criticality
         *base_crit
     }
 
@@ -584,7 +549,7 @@ pub struct CompositeTrait {
     /// Criticality downgrade rules - map of target criticality to conditions
     /// Only levels LOWER than base `crit` are allowed (validated at load time)
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub downgrade: Option<DowngradeRules>,
+    pub downgrade: Option<DowngradeConditions>,
 }
 
 impl CompositeTrait {
@@ -703,19 +668,15 @@ impl CompositeTrait {
             let mut final_crit = self.crit;
 
             // Check downgrade conditions
-            if let Some(downgrade_rules) = &self.downgrade {
+            if let Some(downgrade_conds) = &self.downgrade {
                 let debug_downgrade = std::env::var("DEBUG_DOWNGRADE").is_ok();
                 if debug_downgrade {
                     eprintln!(
                         "DEBUG: Evaluating downgrade for composite '{}' (current: {:?})",
                         self.id, self.crit
                     );
-                    eprintln!(
-                        "DEBUG: downgrade_rules.inert={:?}",
-                        downgrade_rules.inert.is_some()
-                    );
                 }
-                final_crit = self.evaluate_downgrade(downgrade_rules, &self.crit, ctx);
+                final_crit = self.evaluate_downgrade(downgrade_conds, &self.crit, ctx);
                 if debug_downgrade {
                     eprintln!(
                         "DEBUG: Final criticality for composite '{}': {:?}",
@@ -740,42 +701,24 @@ impl CompositeTrait {
         }
     }
 
-    /// Evaluate downgrade rules and return final criticality.
+    /// Evaluate downgrade conditions and return final criticality.
     /// Public so that mapper can re-evaluate downgrades after all findings are collected.
+    /// When matched, drops one level: hostile→suspicious→notable→inert
     pub fn evaluate_downgrade(
         &self,
-        rules: &DowngradeRules,
+        conditions: &DowngradeConditions,
         base_crit: &Criticality,
         ctx: &EvaluationContext,
     ) -> Criticality {
-        // Check in severity order: hostile → suspicious → notable → inert
-        // First match wins
-
-        if let Some(conditions) = &rules.hostile {
-            if self.eval_downgrade_conditions(conditions, ctx) {
-                return Criticality::Hostile;
-            }
+        if self.eval_downgrade_conditions(conditions, ctx) {
+            return match base_crit {
+                Criticality::Hostile => Criticality::Suspicious,
+                Criticality::Suspicious => Criticality::Notable,
+                Criticality::Notable | Criticality::Inert | Criticality::Filtered => {
+                    Criticality::Inert
+                }
+            };
         }
-
-        if let Some(conditions) = &rules.suspicious {
-            if self.eval_downgrade_conditions(conditions, ctx) {
-                return Criticality::Suspicious;
-            }
-        }
-
-        if let Some(conditions) = &rules.notable {
-            if self.eval_downgrade_conditions(conditions, ctx) {
-                return Criticality::Notable;
-            }
-        }
-
-        if let Some(conditions) = &rules.inert {
-            if self.eval_downgrade_conditions(conditions, ctx) {
-                return Criticality::Inert;
-            }
-        }
-
-        // No downgrade matched - return base criticality
         *base_crit
     }
 

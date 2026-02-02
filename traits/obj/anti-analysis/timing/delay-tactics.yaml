@@ -86,12 +86,11 @@ composite_rules:
       - id: clock-gettime
       - id: gettimeofday
     downgrade:
-      inert:
-        any:
-          - id: cap/exec/load/video-lib-marker
-          - id: cap/exec/load/graphics-lib-marker
-          - id: cap/exec/load/system-lib-marker
-          - id: cap/exec/load/async-io-lib-marker
+      any:
+        - id: cap/exec/load/video-lib-marker
+        - id: cap/exec/load/graphics-lib-marker
+        - id: cap/exec/load/system-lib-marker
+        - id: cap/exec/load/async-io-lib-marker
 
   # Delay with network = evasion or C2 beaconing
   # NOTE: nanosleep + socket is extremely common in any network program.

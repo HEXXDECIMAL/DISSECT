@@ -77,9 +77,8 @@ traits:
       type: string
       regex: '/proc/[^/]+/environ'
     downgrade:
-      notable:
-        any:
-          - id: cap/exec/load/debugger-tool-marker
+      any:
+        - id: cap/exec/load/debugger-tool-marker
 
   - id: process-pid-fd
     description: Access process file descriptors via
@@ -161,6 +160,5 @@ composite_rules:
       - id: python-proc-path-join
       - id: process-pid-mem-maps-helper
     downgrade:
-      notable:
-        any:
-          - id: obj/discovery/process/psutil-enum
+      any:
+        - id: obj/discovery/process/psutil-enum

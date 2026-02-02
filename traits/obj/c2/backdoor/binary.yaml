@@ -227,10 +227,9 @@ composite_rules:
       - id: cap/os/linker/env/ld-audit
     # Graphics libraries use dlopen/dlsym for GPU driver loading - not hijacking
     downgrade:
-      inert:
-        any:
-          - id: meta/library/graphics-lib-marker
-          - id: cap/exec/load/system-lib-marker
+      any:
+        - id: meta/library/graphics-lib-marker
+        - id: cap/exec/load/system-lib-marker
 
   # === Unexpected capability combinations ===
   # References external traits for socket/process operations

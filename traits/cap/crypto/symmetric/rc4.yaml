@@ -27,10 +27,9 @@ traits:
             any of them
         }
     downgrade:
-      inert:
-        any:
-          - id: cap/exec/load/debugger-tool-marker
-          - id: cap/exec/load/compiler-tool-marker
+      any:
+        - id: cap/exec/load/debugger-tool-marker
+        - id: cap/exec/load/compiler-tool-marker
 
   - id: rc4-strings
     desc: "RC4 encryption strings"

@@ -270,6 +270,13 @@ composite_rules:
       - id: prot-write
       - id: prot-exec
       - id: page-rwx
+    # mprotect is common in graphics libraries for memory-mapped video access
+    # and in system libraries for dynamic memory management
+    downgrade:
+      any:
+        - id: cap/exec/load/x11-dga-marker
+        - id: cap/exec/load/graphics-lib-marker
+        - id: cap/exec/load/system-lib-marker
 
   # Self-overwriting code
   - id: self-overwrite

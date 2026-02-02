@@ -74,6 +74,7 @@ traits:
   # - Games (compressed assets, lookup tables)
   # - Multimedia apps (embedded media)
   # - Crypto software (key material, random data)
+  # - System libraries (lookup tables, compression, Unicode tables)
   # Only suspicious when combined with other indicators (see composites).
   - id: high-entropy-data
     desc: "High entropy in data section"
@@ -85,6 +86,11 @@ traits:
       type: section_entropy
       section: "\\.(data|rdata|rodata)"
       min_entropy: 7.5
+    # System libraries commonly have high-entropy lookup tables
+    downgrade:
+      any:
+        - type: basename
+          regex: "^lib(X11|xcb|ssl|crypto|c|z|png|jpeg|xml|curl|pcre|iconv|icu|freetype|fontconfig|harfbuzz|cairo|pango|glib|gtk|qt)\\b"
 
   - id: high-entropy-text
     desc: "High entropy in code section"

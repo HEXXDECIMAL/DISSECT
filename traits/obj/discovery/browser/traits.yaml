@@ -263,6 +263,13 @@ composite_rules:
       - id: history-file
       - id: cookies-file
       - id: obj/creds/browser/chromium/login-data
+    downgrade:
+      any:
+        # Chrome binaries legitimately reference their own data files
+        - type: basename
+          substr: "chrome"
+        - type: basename
+          substr: "chromium"
 
   # Firefox history composite
   - id: firefox-history
@@ -276,6 +283,10 @@ composite_rules:
       - id: places-sqlite
       - id: obj/creds/browser/firefox/cookies-sqlite
       - id: logins-json
+    downgrade:
+      any:
+        - type: basename
+          substr: "firefox"
 
   # Safari history composite
   - id: safari-history
@@ -289,6 +300,10 @@ composite_rules:
     any:
       - id: history-file
       - id: cookies-file
+    downgrade:
+      any:
+        - type: basename
+          substr: "Safari"
 
   # Edge history composite
   - id: edge-history
@@ -302,6 +317,12 @@ composite_rules:
     any:
       - id: history-file
       - id: cookies-file
+    downgrade:
+      any:
+        - type: basename
+          substr: "edge"
+        - type: basename
+          substr: "msedge"
 
   # Bookmarks composite
   - id: bookmarks
@@ -314,6 +335,18 @@ composite_rules:
     any:
       - id: bookmarks-word
       - id: bookmarks-plist
+    downgrade:
+      any:
+        - type: basename
+          substr: "chrome"
+        - type: basename
+          substr: "chromium"
+        - type: basename
+          substr: "firefox"
+        - type: basename
+          substr: "Safari"
+        - type: basename
+          substr: "brave"
 
   # Local storage composite
   - id: local-storage
@@ -340,6 +373,16 @@ composite_rules:
       - id: extensions-hash-path
       - id: chrome-extensions-path
       - id: browser-support-extensions
+    downgrade:
+      any:
+        - type: basename
+          substr: "chrome"
+        - type: basename
+          substr: "chromium"
+        - type: basename
+          substr: "firefox"
+        - type: basename
+          substr: "brave"
 
   # Opera composite - require both the name AND a browser-specific indicator
   # to avoid false positives (e.g., the word "Opera" can appear in many contexts)

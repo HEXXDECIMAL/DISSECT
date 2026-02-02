@@ -25,13 +25,12 @@ composite_rules:
       - id: target-ref
     # Exclude legitimate tools that do network operations
     downgrade:
-      inert:
-        any:
-          - id: cap/exec/load/debugger-tool-marker
-          - id: cap/exec/load/system-lib-marker
-          - id: cap/exec/load/network-lib-marker
-          - id: cap/comm/ssh/connect/connect
-          - id: meta/quality/has-help
+      any:
+        - id: cap/exec/load/debugger-tool-marker
+        - id: cap/exec/load/system-lib-marker
+        - id: cap/exec/load/network-lib-marker
+        - id: cap/comm/ssh/connect/connect
+        - id: meta/quality/has-help
 
   - id: root-scanner
     description: Root exploitation scanner

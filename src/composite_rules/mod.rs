@@ -23,7 +23,7 @@ pub mod types;
 pub use condition::Condition;
 pub use context::EvaluationContext;
 pub use evaluators::eval_trait;
-pub use traits::{CompositeTrait, DowngradeRules, TraitDefinition};
+pub use traits::{CompositeTrait, DowngradeConditions, TraitDefinition};
 pub use types::{FileType, Platform};
 
 #[cfg(test)]

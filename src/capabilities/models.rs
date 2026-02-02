@@ -61,7 +61,7 @@ pub(crate) struct RawTraitDefinition {
     #[serde(default)]
     pub(crate) not: Option<Vec<crate::composite_rules::condition::NotException>>,
     #[serde(default)]
-    pub(crate) downgrade: Option<crate::composite_rules::DowngradeRules>,
+    pub(crate) downgrade: Option<crate::composite_rules::DowngradeConditions>,
 }
 
 /// Raw composite rule for parsing (fields can be absent to inherit defaults)
@@ -110,7 +110,7 @@ pub(crate) struct RawCompositeRule {
     pub(crate) not: Option<Vec<crate::composite_rules::condition::NotException>>,
     /// Criticality downgrade rules - map of target criticality to conditions
     #[serde(default)]
-    pub(crate) downgrade: Option<crate::composite_rules::DowngradeRules>,
+    pub(crate) downgrade: Option<crate::composite_rules::DowngradeConditions>,
 }
 
 /// YAML file structure

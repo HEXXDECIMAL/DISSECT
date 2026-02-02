@@ -15,15 +15,23 @@ import (
 	"bytes"
 	"context"
 	"crypto/rand"
+	"crypto/sha256"
+	"database/sql"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 const knownGoodPrompt = `Tune DISSECT traits for this known-good file.
@@ -50,13 +58,17 @@ Fix MISLABELED findings. Suspicious findings are OK if the code actually does su
 - Only analyze the file above, not other files in the directory/archive
 - Skip cargo test
 
+## Debugging Rules
+Use ` + "`dissect test-rules <file> --rules \"rule-id\"`" + ` to debug why specific rules match or fail.
+Use ` + "`dissect test-match <file> --type string --method contains --pattern \"pattern\"`" + ` to test individual conditions.
+
 ## Validate
 Run ` + "`dissect %s --format jsonl`" + ` - findings should accurately describe actual capabilities.`
 
 const knownBadPrompt = `Tune DISSECT to detect this malware's capabilities.
 
 ## Input
-- **File:** %s (KNOWN-BAD malware)
+- **File:** %s (from KNOWN-BAD collection)
 - **Findings:** %s
 - **Problem:** Not flagged suspicious/hostile - find what's missing
 
@@ -74,8 +86,13 @@ Write GENERIC behavioral patterns, not file-specific signatures:
 ## Constraints
 - Traits live in %s/traits/
 - Only analyze the file above, not other files in the directory/archive
-- Skip if file is actually benign (README, docs)
+- **Skip benign files** - While rare, known-bad collections (especially supply-chain attacks) may contain legitimately benign files like READMEs, docs, tests, or unmodified dependencies. If the file is genuinely benign, skip it.
 - Skip cargo test
+
+## Debugging Rules
+Use ` + "`dissect test-rules <file> --rules \"rule-id\"`" + ` to debug why specific rules match or fail.
+Use ` + "`dissect test-match <file> --type string --method contains --pattern \"pattern\"`" + ` to test individual conditions.
+Particularly useful for complex composites that combine multiple traits with all:/any:/none: logic.
 
 ## Validate
 Run ` + "`dissect %s --format jsonl`" + ` - file should be suspicious or hostile.
@@ -111,19 +128,8 @@ type config struct {
 	knownGood bool
 	knownBad  bool
 	useCargo  bool
-}
-
-// DissectReport represents a single report in the JSON output array.
-type DissectReport struct {
-	SchemaVersion string         `json:"schema_version"`
-	Files         []FileAnalysis `json:"files"`
-}
-
-// FileAnalysis represents a single analyzed file.
-type FileAnalysis struct {
-	Path     string    `json:"path"`
-	Risk     string    `json:"risk"`
-	Findings []Finding `json:"findings"`
+	flush     bool
+	db        *sql.DB
 }
 
 // Finding represents a matched trait/capability.
@@ -133,10 +139,20 @@ type Finding struct {
 	Desc string `json:"desc"`
 }
 
-// Evidence represents proof of why a finding matched.
-type Evidence struct {
-	Method string `json:"method"`
-	Value  string `json:"value"`
+// FileAnalysis represents a single analyzed file.
+type FileAnalysis struct {
+	Path     string    `json:"path"`
+	Risk     string    `json:"risk"`
+	Findings []Finding `json:"findings"`
+}
+
+// jsonlEntry represents a single JSONL line from streaming output.
+type jsonlEntry struct {
+	Type     string    `json:"type"`
+	Path     string    `json:"path"`
+	FileType string    `json:"file_type"`
+	Risk     string    `json:"risk"`
+	Findings []Finding `json:"findings"`
 }
 
 func main() {
@@ -149,6 +165,7 @@ func main() {
 	repoRoot := flag.String("repo-root", "", "Path to DISSECT repo root (auto-detected if not specified)")
 	useCargo := flag.Bool("cargo", true, "Use 'cargo run --release' instead of dissect binary")
 	timeout := flag.Duration("timeout", 20*time.Minute, "Maximum time for each AI invocation")
+	flush := flag.Bool("flush", false, "Clear analysis cache and reprocess all files")
 
 	flag.Parse()
 
@@ -167,23 +184,37 @@ func main() {
 		log.Fatalf("Unknown provider %q: must be claude, gemini, or opencode", *provider)
 	}
 
+	// Find repo root (for running dissect via cargo)
+	resolvedRoot := *repoRoot
+	if resolvedRoot == "" {
+		cmd := exec.Command("git", "rev-parse", "--show-toplevel")
+		out, err := cmd.Output()
+		if err != nil {
+			log.Fatalf("Could not detect repo root: %v. Use --repo-root flag.", err)
+		}
+		resolvedRoot = strings.TrimSpace(string(out))
+	}
+
+	db, err := openDB(*flush)
+	if err != nil {
+		log.Fatalf("Could not open database: %v", err)
+	}
+	defer db.Close()
+
 	cfg := &config{
 		dir:       *dir,
-		repoRoot:  *repoRoot,
+		repoRoot:  resolvedRoot,
 		provider:  *provider,
 		timeout:   *timeout,
 		knownGood: *knownGood,
 		knownBad:  *knownBad,
 		useCargo:  *useCargo,
-	}
-
-	resolvedRoot, err := findRepoRoot(cfg.repoRoot)
-	if err != nil {
-		log.Fatalf("Could not detect repo root: %v. Use --repo-root flag.", err)
+		flush:     *flush,
+		db:        db,
 	}
 
 	// Sanity check: run dissect on /bin/ls to catch code errors early
-	if err := sanityCheck(context.Background(), cfg, resolvedRoot); err != nil {
+	if err := sanityCheck(context.Background(), cfg); err != nil {
 		log.Fatalf("Sanity check failed: %v", err)
 	}
 
@@ -194,79 +225,116 @@ func main() {
 
 	fmt.Fprintf(os.Stderr, "Provider: %s\n", cfg.provider)
 	fmt.Fprintf(os.Stderr, "Mode: %s\n", mode)
-	fmt.Fprintf(os.Stderr, "Repo root: %s\n", resolvedRoot)
-
+	fmt.Fprintf(os.Stderr, "Repo root: %s\n", cfg.repoRoot)
 	fmt.Fprintf(os.Stderr, "Scanning %s with dissect...\n", cfg.dir)
 
 	ctx := context.Background()
 
-	// Scan the entire directory with dissect (uses proper file type detection)
+	// Scan the entire directory with dissect
 	sessionID := generateSessionID()
-	scanResult, err := runDissectDirWithRetry(ctx, cfg, cfg.dir, resolvedRoot, sessionID)
+	files, err := runDissectDirWithRetry(ctx, cfg, sessionID)
 	if err != nil {
 		log.Fatalf("Failed to scan directory: %v", err)
 	}
 
-	// Collect all file analyses from the scan results
-	var fileAnalyses []FileAnalysis
-	for _, report := range scanResult {
-		fileAnalyses = append(fileAnalyses, report.Files...)
+	// Database mode (good/bad, not known-good/known-bad)
+	dbMode := "bad"
+	if cfg.knownGood {
+		dbMode = "good"
 	}
 
-	// Pre-filter to find files needing review
+	// Filter to files needing review
 	var toReview []FileAnalysis
-	for _, fileAnalysis := range fileAnalyses {
-		result := &DissectReport{Files: []FileAnalysis{fileAnalysis}}
-		if shouldReview(result, cfg) {
-			toReview = append(toReview, fileAnalysis)
+	var skippedCached int
+	for _, f := range files {
+		if !needsReview(f, cfg.knownGood) {
+			continue
 		}
+
+		// Check if already analyzed
+		h, err := hashFile(f.Path)
+		if err != nil {
+			log.Printf("Warning: could not hash %s: %v", f.Path, err)
+			toReview = append(toReview, f)
+			continue
+		}
+
+		if wasAnalyzed(cfg.db, h, dbMode) {
+			skippedCached++
+			continue
+		}
+
+		toReview = append(toReview, f)
 	}
 
-	fmt.Fprintf(os.Stderr, "Found %d files, %d need review\n\n", len(fileAnalyses), len(toReview))
+	fmt.Fprintf(os.Stderr, "Found %d files, %d need review", len(files), len(toReview))
+	if skippedCached > 0 {
+		fmt.Fprintf(os.Stderr, " (%d skipped, previously analyzed)", skippedCached)
+	}
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(os.Stderr)
 
-	for i, fileAnalysis := range toReview {
-		file := fileAnalysis.Path
-		result := &DissectReport{Files: []FileAnalysis{fileAnalysis}}
-		fileSessionID := generateSessionID()
+	critRank := map[string]int{"inert": 0, "notable": 1, "suspicious": 2, "hostile": 3}
 
-		fmt.Fprintf(os.Stderr, "[%d/%d] Reviewing: %s\n", i+1, len(toReview), file)
-		printFindings(result)
+	for i, f := range toReview {
+		sid := generateSessionID()
+
+		// Print findings summary
+		fmt.Fprintf(os.Stderr, "[%d/%d] Reviewing: %s\n", i+1, len(toReview), f.Path)
+		if len(f.Findings) > 0 {
+			var ids []string
+			var maxCrit string
+			for _, finding := range f.Findings {
+				ids = append(ids, finding.ID)
+				if critRank[strings.ToLower(finding.Crit)] > critRank[strings.ToLower(maxCrit)] {
+					maxCrit = finding.Crit
+				}
+			}
+			fmt.Fprintf(os.Stderr, "  Risk: %s\n", maxCrit)
+			fmt.Fprintf(os.Stderr, "  Findings: %s\n", strings.Join(ids, ", "))
+		}
 		fmt.Fprint(os.Stderr, "  Invoking Claude...\n\n")
 
-		if err := invokeAI(ctx, cfg, file, result, resolvedRoot, fileSessionID); err != nil {
+		if err := invokeAI(ctx, cfg, f, sid); err != nil {
 			log.Fatalf("%s failed: %v", cfg.provider, err)
 		}
 
-		fmt.Fprintf(os.Stderr, "\n--- Completed %s [%d/%d] ---\n\n", file, i+1, len(toReview))
+		// Mark as analyzed after successful review
+		if h, err := hashFile(f.Path); err == nil {
+			if err := markAnalyzed(cfg.db, h, dbMode); err != nil {
+				log.Printf("Warning: could not record analysis for %s: %v", f.Path, err)
+			}
+		}
+
+		fmt.Fprintf(os.Stderr, "\n--- Completed %s [%d/%d] ---\n\n", f.Path, i+1, len(toReview))
 	}
 
 	fmt.Fprintf(os.Stderr, "Done. Reviewed %d files.\n", len(toReview))
 	fmt.Fprint(os.Stderr, "Run \"git diff traits/\" to see changes.\n")
 }
 
-func findRepoRoot(override string) (string, error) {
-	if override != "" {
-		return override, nil
+// needsReview determines if a file needs AI review based on mode.
+// --good: Review files WITH suspicious/hostile findings (reduce false positives)
+// --bad: Review files WITHOUT suspicious/hostile findings (find false negatives)
+func needsReview(f FileAnalysis, knownGood bool) bool {
+	for _, finding := range f.Findings {
+		c := strings.ToLower(finding.Crit)
+		if c == "suspicious" || c == "hostile" {
+			return knownGood // Has suspicious: review if --good (FP check)
+		}
 	}
-
-	cmd := exec.CommandContext(context.Background(), "git", "rev-parse", "--show-toplevel")
-	out, err := cmd.Output()
-	if err != nil {
-		return "", err
-	}
-	return strings.TrimSpace(string(out)), nil
+	return !knownGood // No suspicious: review if --bad (FN check)
 }
 
 // sanityCheck runs dissect on /bin/ls to catch code errors early.
-// This allows fixing errors in an interactive window rather than mid-run.
-func sanityCheck(ctx context.Context, cfg *config, repoRoot string) error {
+func sanityCheck(ctx context.Context, cfg *config) error {
 	const testFile = "/bin/ls"
 	fmt.Fprintf(os.Stderr, "Sanity check: running dissect on %s...\n", testFile)
 
 	var cmd *exec.Cmd
 	if cfg.useCargo {
 		cmd = exec.CommandContext(ctx, "cargo", "run", "--release", "--", "--format", "jsonl", testFile)
-		cmd.Dir = repoRoot
+		cmd.Dir = cfg.repoRoot
 	} else {
 		cmd = exec.CommandContext(ctx, "dissect", "--format", "jsonl", testFile)
 	}
@@ -290,44 +358,30 @@ func sanityCheck(ctx context.Context, cfg *config, repoRoot string) error {
 	return nil
 }
 
-func runDissectDirWithRetry(ctx context.Context, cfg *config, dir, repoRoot, sessionID string) ([]DissectReport, error) {
+func runDissectDirWithRetry(ctx context.Context, cfg *config, sid string) ([]FileAnalysis, error) {
 	var lastErr error
-
-	for attempt := range maxFixAttempts {
-		result, err := runDissectDir(ctx, cfg, dir, repoRoot)
+	for i := range maxFixAttempts {
+		files, err := runDissectDir(ctx, cfg)
 		if err == nil {
-			return result, nil
+			return files, nil
 		}
-
 		lastErr = err
-		fmt.Fprintf(os.Stderr, "Dissect failed (attempt %d/%d): %v\n", attempt+1, maxFixAttempts, err)
+		fmt.Fprintf(os.Stderr, "Dissect failed (attempt %d/%d): %v\n", i+1, maxFixAttempts, err)
 		fmt.Fprintf(os.Stderr, "Invoking %s to fix the issue...\n\n", cfg.provider)
-
-		if fixErr := invokeAIFix(ctx, cfg, dir, err.Error(), repoRoot, sessionID); fixErr != nil {
-			return nil, fmt.Errorf("%s failed while trying to fix dissect: %w", cfg.provider, fixErr)
+		if err := invokeAIFix(ctx, cfg, err.Error(), sid); err != nil {
+			return nil, fmt.Errorf("%s failed while trying to fix dissect: %w", cfg.provider, err)
 		}
 	}
-
 	return nil, lastErr
 }
 
-// JsonlEntry represents a single JSONL line from streaming output.
-type JsonlEntry struct {
-	Type     string    `json:"type"`
-	Path     string    `json:"path"`
-	FileType string    `json:"file_type"`
-	Risk     string    `json:"risk"`
-	Findings []Finding `json:"findings"`
-}
-
-func runDissectDir(ctx context.Context, cfg *config, dir, repoRoot string) ([]DissectReport, error) {
+func runDissectDir(ctx context.Context, cfg *config) ([]FileAnalysis, error) {
 	var cmd *exec.Cmd
 	if cfg.useCargo {
-		// Use --format jsonl for streaming output
-		cmd = exec.CommandContext(ctx, "cargo", "run", "--release", "--", "--format", "jsonl", dir)
-		cmd.Dir = repoRoot
+		cmd = exec.CommandContext(ctx, "cargo", "run", "--release", "--", "--format", "jsonl", cfg.dir)
+		cmd.Dir = cfg.repoRoot
 	} else {
-		cmd = exec.CommandContext(ctx, "dissect", "--format", "jsonl", dir)
+		cmd = exec.CommandContext(ctx, "dissect", "--format", "jsonl", cfg.dir)
 	}
 
 	var stdout, stderr bytes.Buffer
@@ -335,32 +389,27 @@ func runDissectDir(ctx context.Context, cfg *config, dir, repoRoot string) ([]Di
 	cmd.Stderr = &stderr
 
 	if err := cmd.Run(); err != nil {
-		errMsg := strings.TrimSpace(stderr.String())
-		if errMsg != "" {
-			return nil, fmt.Errorf("%s", errMsg)
+		if msg := strings.TrimSpace(stderr.String()); msg != "" {
+			return nil, errors.New(msg)
 		}
 		return nil, fmt.Errorf("dissect error: %w", err)
 	}
 
-	// Parse JSONL output - each line is a file or summary entry
+	// Parse JSONL output
 	var files []FileAnalysis
 	scanner := bufio.NewScanner(strings.NewReader(stdout.String()))
-	// Increase buffer size to 128MB to handle malware files with massive strings/findings
-	const maxScannerBuffer = 128 * 1024 * 1024
-	scanner.Buffer(make([]byte, maxScannerBuffer), maxScannerBuffer)
+	scanner.Buffer(make([]byte, 128*1024*1024), 128*1024*1024) // 128MB for large malware
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		if line == "" {
 			continue
 		}
 
-		var entry JsonlEntry
+		var entry jsonlEntry
 		if err := json.Unmarshal([]byte(line), &entry); err != nil {
-			// Skip lines that don't parse (could be debug output)
-			continue
+			continue // Skip unparseable lines (debug output)
 		}
 
-		// Only process file entries, skip summary
 		if entry.Type == "file" {
 			files = append(files, FileAnalysis{
 				Path:     entry.Path,
@@ -374,83 +423,14 @@ func runDissectDir(ctx context.Context, cfg *config, dir, repoRoot string) ([]Di
 		return nil, fmt.Errorf("error reading JSONL output: %w", err)
 	}
 
-	// Wrap in a single report for compatibility with existing code
-	report := DissectReport{
-		SchemaVersion: "2.0",
-		Files:         files,
-	}
-
-	return []DissectReport{report}, nil
+	return files, nil
 }
 
-// shouldReview determines if a file needs Claude review based on mode.
-// --good: Review files WITH suspicious/hostile findings (reduce false positives)
-// --bad: Review files WITHOUT suspicious/hostile findings (find false negatives)
-func shouldReview(result *DissectReport, cfg *config) bool {
-	hasSuspiciousOrHostile := false
-	for _, f := range result.Files {
-		for _, finding := range f.Findings {
-			crit := strings.ToLower(finding.Crit)
-			if crit == "suspicious" || crit == "hostile" {
-				hasSuspiciousOrHostile = true
-				break
-			}
-		}
-	}
-
-	if cfg.knownGood {
-		return hasSuspiciousOrHostile // Review FPs
-	}
-	return !hasSuspiciousOrHostile // Review FNs
-}
-
-func printFindings(result *DissectReport) {
-	for _, f := range result.Files {
-		var ids []string
-		var maxCrit string
-		for _, finding := range f.Findings {
-			ids = append(ids, finding.ID)
-			if critHigher(finding.Crit, maxCrit) {
-				maxCrit = finding.Crit
-			}
-		}
-		if len(ids) > 0 {
-			fmt.Fprintf(os.Stderr, "  Risk: %s\n", maxCrit)
-			fmt.Fprintf(os.Stderr, "  Findings: %s\n", strings.Join(ids, ", "))
-		}
-	}
-}
-
-func critHigher(a, b string) bool {
-	order := map[string]int{"inert": 0, "notable": 1, "suspicious": 2, "hostile": 3}
-	return order[strings.ToLower(a)] > order[strings.ToLower(b)]
-}
-
-func generateSessionID() string {
-	b := make([]byte, 16)
-	if _, err := rand.Read(b); err != nil {
-		// Fallback to timestamp-based ID (formatted as UUID-like)
-		ts := time.Now().UnixNano()
-		return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x",
-			ts>>32, (ts>>16)&0xffff, ts&0xffff, 0x4000, ts&0xffffffffffff)
-	}
-	// Set version 4 (random) UUID bits
-	b[6] = (b[6] & 0x0f) | 0x40
-	b[8] = (b[8] & 0x3f) | 0x80
-	return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x",
-		b[0:4], b[4:6], b[6:8], b[8:10], b[10:16])
-}
-
-func invokeAIFix(ctx context.Context, cfg *config, file, errOutput, repoRoot, sessionID string) error {
-	prompt := fmt.Sprintf(fixPromptTemplate,
-		file,
-		errOutput,
-		file,
-		repoRoot,
-	)
+func invokeAIFix(ctx context.Context, cfg *config, errOutput, sid string) error {
+	prompt := fmt.Sprintf(fixPromptTemplate, cfg.dir, errOutput, cfg.dir, cfg.repoRoot)
 
 	fmt.Fprintln(os.Stderr, "┌─────────────────────────────────────────────────────────────")
-	fmt.Fprintf(os.Stderr, "│ %s FIX: %s\n", strings.ToUpper(cfg.provider), file)
+	fmt.Fprintf(os.Stderr, "│ %s FIX: %s\n", strings.ToUpper(cfg.provider), cfg.dir)
 	fmt.Fprintln(os.Stderr, "│ Task: Fix dissect error so it can analyze this file")
 	fmt.Fprintln(os.Stderr, "├─────────────────────────────────────────────────────────────")
 	fmt.Fprintln(os.Stderr, "│ Error:")
@@ -465,8 +445,7 @@ func invokeAIFix(ctx context.Context, cfg *config, file, errOutput, repoRoot, se
 	timedCtx, cancel := context.WithTimeout(ctx, cfg.timeout)
 	defer cancel()
 
-	err := runAIWithStreaming(timedCtx, cfg, prompt, repoRoot, sessionID)
-
+	err := runAIWithStreaming(timedCtx, cfg, prompt, sid)
 	fmt.Fprintln(os.Stderr)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "<<< %s failed: %v\n", cfg.provider, err)
@@ -476,46 +455,36 @@ func invokeAIFix(ctx context.Context, cfg *config, file, errOutput, repoRoot, se
 	return nil
 }
 
-func invokeAI(ctx context.Context, cfg *config, file string, result *DissectReport, repoRoot, sessionID string) error {
-	var findings []Finding
-	var crits []string
-	for _, f := range result.Files {
-		findings = append(findings, f.Findings...)
-		for _, finding := range f.Findings {
-			crits = append(crits, finding.Crit)
-		}
-	}
-
-	findingsJSON, err := json.MarshalIndent(findings, "", "  ")
+func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) error {
+	findingsJSON, err := json.MarshalIndent(f.Findings, "", "  ")
 	if err != nil {
 		log.Printf("Warning: could not marshal findings: %v", err)
 		findingsJSON = []byte("[]")
 	}
 
-	// Select prompt based on mode
 	var prompt, task string
 	if cfg.knownGood {
-		prompt = fmt.Sprintf(knownGoodPrompt, file, string(findingsJSON), repoRoot, file)
+		prompt = fmt.Sprintf(knownGoodPrompt, f.Path, string(findingsJSON), cfg.repoRoot, f.Path)
 		task = "Review for false positives (known-good collection)"
 	} else {
-		prompt = fmt.Sprintf(knownBadPrompt, file, string(findingsJSON), repoRoot, file)
+		prompt = fmt.Sprintf(knownBadPrompt, f.Path, string(findingsJSON), cfg.repoRoot, f.Path)
 		task = "Find missing detections (known-bad collection)"
 	}
 
-	// Count criticalities
+	// Count criticalities for summary
 	critCounts := make(map[string]int)
-	for _, c := range crits {
-		critCounts[strings.ToLower(c)]++
+	for _, finding := range f.Findings {
+		critCounts[strings.ToLower(finding.Crit)]++
 	}
 	var critSummary []string
 	for _, level := range []string{"hostile", "suspicious", "notable", "inert"} {
-		if count := critCounts[level]; count > 0 {
-			critSummary = append(critSummary, fmt.Sprintf("%d %s", count, level))
+		if n := critCounts[level]; n > 0 {
+			critSummary = append(critSummary, fmt.Sprintf("%d %s", n, level))
 		}
 	}
 
 	fmt.Fprintln(os.Stderr, "┌─────────────────────────────────────────────────────────────")
-	fmt.Fprintf(os.Stderr, "│ %s REVIEW: %s\n", strings.ToUpper(cfg.provider), file)
+	fmt.Fprintf(os.Stderr, "│ %s REVIEW: %s\n", strings.ToUpper(cfg.provider), f.Path)
 	fmt.Fprintf(os.Stderr, "│ Findings: %s\n", strings.Join(critSummary, ", "))
 	fmt.Fprintf(os.Stderr, "│ Task: %s\n", task)
 	fmt.Fprintln(os.Stderr, "├─────────────────────────────────────────────────────────────")
@@ -539,8 +508,7 @@ func invokeAI(ctx context.Context, cfg *config, file string, result *DissectRepo
 	timedCtx, cancel := context.WithTimeout(ctx, cfg.timeout)
 	defer cancel()
 
-	err = runAIWithStreaming(timedCtx, cfg, prompt, repoRoot, sessionID)
-
+	err = runAIWithStreaming(timedCtx, cfg, prompt, sid)
 	fmt.Fprintln(os.Stderr)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "<<< %s failed: %v\n", cfg.provider, err)
@@ -550,9 +518,7 @@ func invokeAI(ctx context.Context, cfg *config, file string, result *DissectRepo
 	return nil
 }
 
-// runAIWithStreaming runs the AI provider and displays progress.
-// It streams both stdout and stderr, and handles timeouts gracefully.
-func runAIWithStreaming(ctx context.Context, cfg *config, prompt, repoRoot, sessionID string) error {
+func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) error {
 	var cmd *exec.Cmd
 
 	switch cfg.provider {
@@ -562,27 +528,22 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, repoRoot, sess
 			"--verbose",
 			"--output-format", "stream-json",
 			"--dangerously-skip-permissions",
-			"--session-id", sessionID,
+			"--session-id", sid,
 		)
 	case "gemini":
-		cmd = exec.CommandContext(ctx, "gemini",
-			"-p", prompt,
-		)
+		cmd = exec.CommandContext(ctx, "gemini", "-p", prompt)
 	case "opencode":
-		cmd = exec.CommandContext(ctx, "opencode",
-			"-p", prompt,
-		)
+		cmd = exec.CommandContext(ctx, "opencode", "-p", prompt)
 	default:
 		return fmt.Errorf("unknown provider: %s", cfg.provider)
 	}
 
-	cmd.Dir = repoRoot
+	cmd.Dir = cfg.repoRoot
 
 	// Prevent stdin blocking
-	devNull, err := os.Open(os.DevNull)
-	if err == nil {
+	if devNull, err := os.Open(os.DevNull); err == nil {
 		cmd.Stdin = devNull
-		defer devNull.Close() //nolint:errcheck // best-effort close of /dev/null
+		defer devNull.Close()
 	}
 
 	stdout, err := cmd.StdoutPipe()
@@ -596,7 +557,7 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, repoRoot, sess
 	}
 
 	if err := cmd.Start(); err != nil {
-		return fmt.Errorf("could not start claude: %w", err)
+		return fmt.Errorf("could not start %s: %w", cfg.provider, err)
 	}
 
 	// Read stdout and stderr concurrently
@@ -618,154 +579,190 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, repoRoot, sess
 	}()
 
 	// Wait for both readers or context cancellation
-	readersFinished := 0
-	for readersFinished < 2 {
+	finished := 0
+	for finished < 2 {
 		select {
 		case <-done:
-			readersFinished++
+			finished++
 		case <-ctx.Done():
-			fmt.Fprintln(os.Stderr, "\n  [timeout] Claude timed out, killing process...")
-			// Drain remaining output
-			drainPipe(stdout, "stdout")
-			drainPipe(stderr, "stderr")
-			if err := cmd.Process.Kill(); err != nil {
-				log.Printf("Warning: could not kill claude process: %v", err)
-			}
+			fmt.Fprintln(os.Stderr, "\n  [timeout] timed out, killing process...")
+			io.Copy(io.Discard, stdout) // Drain pipes
+			io.Copy(io.Discard, stderr)
+			cmd.Process.Kill()
 			return fmt.Errorf("timeout: %w", ctx.Err())
 		}
 	}
 
 	if err := cmd.Wait(); err != nil {
 		if ctx.Err() == context.DeadlineExceeded {
-			return errors.New("claude exceeded time limit")
+			return errors.New("exceeded time limit")
 		}
-		return fmt.Errorf("claude exited with error: %w", err)
+		return fmt.Errorf("%s exited with error: %w", cfg.provider, err)
 	}
 	return nil
 }
 
-// drainPipe reads remaining data from a pipe and displays it.
-func drainPipe(r interface{ Read([]byte) (int, error) }, name string) {
-	buf := make([]byte, 4096)
-	for {
-		n, err := r.Read(buf)
-		if n > 0 {
-			for line := range strings.SplitSeq(string(buf[:n]), "\n") {
-				if line != "" {
-					fmt.Fprintf(os.Stderr, "  [%s remaining] %s\n", name, line)
+// displayStreamEvent parses a stream-json line and displays relevant info.
+func displayStreamEvent(line string) {
+	var ev map[string]any
+	if json.Unmarshal([]byte(line), &ev) != nil {
+		return
+	}
+	switch ev["type"] {
+	case "assistant":
+		msg, _ := ev["message"].(map[string]any)
+		content, _ := msg["content"].([]any)
+		for _, c := range content {
+			b, _ := c.(map[string]any)
+			switch b["type"] {
+			case "tool_use":
+				name, _ := b["name"].(string)
+				if name == "" {
+					name = "unknown"
+				}
+				input, ok := b["input"].(map[string]any)
+				if !ok {
+					fmt.Fprintf(os.Stderr, "  [tool] %s\n", name)
+					continue
+				}
+				var detail string
+				for _, k := range []string{"description", "command", "pattern", "file_path"} {
+					if v, ok := input[k].(string); ok {
+						detail = v
+						break
+					}
+				}
+				if len(detail) > 80 {
+					detail = detail[:80] + "..."
+				}
+				if detail != "" {
+					fmt.Fprintf(os.Stderr, "  [tool] %s: %s\n", name, detail)
+				} else {
+					fmt.Fprintf(os.Stderr, "  [tool] %s\n", name)
+				}
+			case "text":
+				if t, _ := b["text"].(string); t != "" {
+					fmt.Fprintf(os.Stderr, "  %s\n", t)
 				}
 			}
 		}
-		if err != nil {
-			break
-		}
-	}
-}
-
-// displayStreamEvent parses a stream-json line and displays relevant info.
-func displayStreamEvent(line string) {
-	var event map[string]any
-	if err := json.Unmarshal([]byte(line), &event); err != nil {
-		return
-	}
-
-	eventType, ok := event["type"].(string)
-	if !ok {
-		return
-	}
-
-	switch eventType {
-	case "assistant":
-		displayAssistantEvent(event)
 	case "result":
-		displayResultEvent(event)
+		if r, _ := ev["result"].(string); r != "" {
+			fmt.Fprintln(os.Stderr)
+			fmt.Fprintln(os.Stderr, "--- Result ---")
+			fmt.Fprintln(os.Stderr, r)
+		}
+		if cost, ok := ev["total_cost_usd"].(float64); ok {
+			fmt.Fprintf(os.Stderr, "\n  Cost: $%.4f\n", cost)
+		}
+	}
+}
+
+func generateSessionID() string {
+	b := make([]byte, 16)
+	if _, err := rand.Read(b); err != nil {
+		ts := time.Now().UnixNano()
+		return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x",
+			ts>>32, (ts>>16)&0xffff, ts&0xffff, 0x4000, ts&0xffffffffffff)
+	}
+	b[6] = (b[6] & 0x0f) | 0x40 // Version 4
+	b[8] = (b[8] & 0x3f) | 0x80 // Variant
+	return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x",
+		b[0:4], b[4:6], b[6:8], b[8:10], b[10:16])
+}
+
+// Database functions for tracking analyzed files
+
+func configDir() (string, error) {
+	var base string
+	switch runtime.GOOS {
+	case "darwin":
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return "", err
+		}
+		base = filepath.Join(home, "Library", "Application Support")
 	default:
-		// Ignore other event types
-	}
-}
-
-func displayAssistantEvent(event map[string]any) {
-	msg, ok := event["message"].(map[string]any)
-	if !ok {
-		return
-	}
-	content, ok := msg["content"].([]any)
-	if !ok {
-		return
-	}
-	for _, c := range content {
-		block, ok := c.(map[string]any)
-		if !ok {
-			continue
+		if xdg := os.Getenv("XDG_CONFIG_HOME"); xdg != "" {
+			base = xdg
+		} else {
+			home, err := os.UserHomeDir()
+			if err != nil {
+				return "", err
+			}
+			base = filepath.Join(home, ".config")
 		}
-		displayContentBlock(block)
 	}
+	return filepath.Join(base, "dissect"), nil
 }
 
-func displayContentBlock(block map[string]any) {
-	blockType, ok := block["type"].(string)
-	if !ok {
-		return
+func openDB(flush bool) (*sql.DB, error) {
+	dir, err := configDir()
+	if err != nil {
+		return nil, fmt.Errorf("config directory: %w", err)
 	}
 
-	switch blockType {
-	case "tool_use":
-		displayToolUse(block)
-	case "text":
-		if text, ok := block["text"].(string); ok && text != "" {
-			fmt.Fprintf(os.Stderr, "  %s\n", text)
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return nil, fmt.Errorf("create config directory: %w", err)
+	}
+
+	dbPath := filepath.Join(dir, "trait-basher.db")
+
+	if flush {
+		if err := os.Remove(dbPath); err != nil && !os.IsNotExist(err) {
+			return nil, fmt.Errorf("remove database: %w", err)
 		}
-	default:
-		// Ignore other block types
+		fmt.Fprintf(os.Stderr, "Flushed analysis cache: %s\n", dbPath)
 	}
+
+	db, err := sql.Open("sqlite3", dbPath)
+	if err != nil {
+		return nil, fmt.Errorf("open database: %w", err)
+	}
+
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS analyzed_files (
+			file_hash TEXT NOT NULL,
+			mode TEXT NOT NULL,
+			analyzed_at INTEGER NOT NULL,
+			PRIMARY KEY (file_hash, mode)
+		)
+	`)
+	if err != nil {
+		db.Close()
+		return nil, fmt.Errorf("create table: %w", err)
+	}
+
+	return db, nil
 }
 
-func displayToolUse(block map[string]any) {
-	name, ok := block["name"].(string)
-	if !ok {
-		name = "unknown"
+func hashFile(path string) (string, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return "", err
 	}
-	input, ok := block["input"].(map[string]any)
-	if !ok {
-		fmt.Fprintf(os.Stderr, "  [tool] %s\n", name)
-		return
-	}
+	defer f.Close()
 
-	detail := extractToolDetail(input)
-	if detail != "" {
-		fmt.Fprintf(os.Stderr, "  [tool] %s: %s\n", name, detail)
-	} else {
-		fmt.Fprintf(os.Stderr, "  [tool] %s\n", name)
+	h := sha256.New()
+	if _, err := io.Copy(h, f); err != nil {
+		return "", err
 	}
+	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
-func extractToolDetail(input map[string]any) string {
-	// Try various input fields in order of preference
-	if desc, ok := input["description"].(string); ok {
-		return desc
-	}
-	if cmd, ok := input["command"].(string); ok {
-		if len(cmd) > 80 {
-			return cmd[:80] + "..."
-		}
-		return cmd
-	}
-	if pattern, ok := input["pattern"].(string); ok {
-		return pattern
-	}
-	if filePath, ok := input["file_path"].(string); ok {
-		return filePath
-	}
-	return ""
+func wasAnalyzed(db *sql.DB, hash, mode string) bool {
+	var n int
+	err := db.QueryRow(
+		"SELECT COUNT(*) FROM analyzed_files WHERE file_hash = ? AND mode = ?",
+		hash, mode,
+	).Scan(&n)
+	return err == nil && n > 0
 }
 
-func displayResultEvent(event map[string]any) {
-	if result, ok := event["result"].(string); ok && result != "" {
-		fmt.Fprintln(os.Stderr)
-		fmt.Fprintln(os.Stderr, "--- Result ---")
-		fmt.Fprintln(os.Stderr, result)
-	}
-	if cost, ok := event["total_cost_usd"].(float64); ok {
-		fmt.Fprintf(os.Stderr, "\n  Cost: $%.4f\n", cost)
-	}
+func markAnalyzed(db *sql.DB, hash, mode string) error {
+	_, err := db.Exec(
+		"INSERT OR REPLACE INTO analyzed_files (file_hash, mode, analyzed_at) VALUES (?, ?, ?)",
+		hash, mode, time.Now().Unix(),
+	)
+	return err
 }

@@ -12,12 +12,8 @@ traits:
       type: string
       exact: ".bash_profile"
     downgrade:
-      notable:
-        any:
-          - id: meta/sign/signed
-      inert:
-        any:
-          - id: cap/exec/load/system-lib-marker
+      any:
+        - id: cap/exec/load/system-lib-marker
 
   - id: bashrc
     description: .bashrc shell configuration file
@@ -28,12 +24,8 @@ traits:
       type: string
       exact: ".bashrc"
     downgrade:
-      notable:
-        any:
-          - id: meta/sign/signed
-      inert:
-        any:
-          - id: cap/exec/load/system-lib-marker
+      any:
+        - id: cap/exec/load/system-lib-marker
 
   - id: bash-login
     description: .bash_login shell configuration file
@@ -43,10 +35,6 @@ traits:
     if:
       type: string
       exact: ".bash_login"
-    downgrade:
-      notable:
-        any:
-          - id: meta/sign/signed
 
   - id: bash-logout
     description: .bash_logout shell configuration file
@@ -56,10 +44,6 @@ traits:
     if:
       type: string
       exact: ".bash_logout"
-    downgrade:
-      notable:
-        any:
-          - id: meta/sign/signed
 
   - id: profile
     description: .profile shell configuration file
@@ -72,13 +56,9 @@ traits:
       # This avoids matching things like "vaGetProfileSupport" or "ProfileManager"
       regex: '(?:^|[/~])\.profile$|\.profile(?:\s|$)'
     downgrade:
-      notable:
-        any:
-          - id: meta/sign/signed
-      inert:
-        any:
-          - id: cap/exec/load/system-lib-marker
-          - id: cap/exec/load/video-lib-marker
+      any:
+        - id: cap/exec/load/system-lib-marker
+        - id: cap/exec/load/video-lib-marker
 
   - id: etc-profile
     description: /etc/profile system-wide shell configuration
@@ -108,12 +88,8 @@ traits:
       type: string
       exact: ".zshrc"
     downgrade:
-      notable:
-        any:
-          - id: meta/sign/signed
-      inert:
-        any:
-          - id: cap/exec/load/system-lib-marker
+      any:
+        - id: cap/exec/load/system-lib-marker
 
   - id: zprofile
     description: .zprofile shell configuration file
@@ -124,12 +100,8 @@ traits:
       type: string
       exact: ".zprofile"
     downgrade:
-      notable:
-        any:
-          - id: meta/sign/signed
-      inert:
-        any:
-          - id: cap/exec/load/system-lib-marker
+      any:
+        - id: cap/exec/load/system-lib-marker
 
   - id: zlogin
     description: .zlogin shell configuration file
@@ -139,10 +111,6 @@ traits:
     if:
       type: string
       exact: ".zlogin"
-    downgrade:
-      notable:
-        any:
-          - id: meta/sign/signed
 
   - id: zlogout
     description: .zlogout shell configuration file
@@ -152,10 +120,6 @@ traits:
     if:
       type: string
       exact: ".zlogout"
-    downgrade:
-      notable:
-        any:
-          - id: meta/sign/signed
 
   - id: etc-zshrc
     description: /etc/zshrc system-wide shell configuration

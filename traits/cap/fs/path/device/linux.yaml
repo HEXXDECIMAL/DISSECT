@@ -55,7 +55,7 @@ traits:
 
 composite_rules:
   - id: device-dev
-    desc: Reference to /dev devices (excludes
+    desc: Reference to /dev devices (excludes /dev/null, /dev/shm)
     crit: notable
     conf: 0.66
     mbc: E1083
@@ -65,4 +65,10 @@ composite_rules:
     none:
       - id: dev-null
       - id: dev-shm
+    # Graphics libraries legitimately access /dev/mem, /dev/fb*, /dev/dri/*
+    downgrade:
+      any:
+        - id: cap/exec/load/x11-dga-marker
+        - id: cap/exec/load/graphics-lib-marker
+        - id: cap/exec/load/drm-driver-ref
 

@@ -49,9 +49,9 @@ traits:
     for: [python]
     if:
       type: content
-      # Matches standalone eval( at start of line or after non-identifier chars
-      # Excludes method calls like self.model.eval() or np.eval()
-      regex: "(^|[^.a-zA-Z_])eval\\s*\\("
+      # Match eval( preceded by = or ( or : or , (assignment/call/dict/args)
+      # Excludes: def eval(), .eval(), etc.
+      regex: "[=(,]\\s*eval\\s*\\("
 
   # Large base64-like string (512+ chars)
   - id: large-base64-string

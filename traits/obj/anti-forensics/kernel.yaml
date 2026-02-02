@@ -336,12 +336,11 @@ composite_rules:
     # Ftrace is a legitimate Linux tracing framework used by performance tools,
     # debuggers, video drivers (for trace logging), and system monitoring tools.
     downgrade:
-      inert:
-        any:
-          - id: cap/exec/load/video-lib-marker
-          - id: cap/exec/load/graphics-lib-marker
-          - id: cap/exec/load/system-lib-marker
-          - id: cap/exec/load/debugger-tool-marker
+      any:
+        - id: cap/exec/load/video-lib-marker
+        - id: cap/exec/load/graphics-lib-marker
+        - id: cap/exec/load/system-lib-marker
+        - id: cap/exec/load/debugger-tool-marker
 
   - id: taint-keyword
     desc: Taint keyword (case variants)
@@ -363,12 +362,11 @@ composite_rules:
     # memory safety, singularity for HPC containers. Only suspicious in
     # combination with actual rootkit infrastructure.
     downgrade:
-      inert:
-        any:
-          - id: cap/exec/load/video-lib-marker
-          - id: cap/exec/load/graphics-lib-marker
-          - id: cap/exec/load/system-lib-marker
-          - id: cap/exec/load/debugger-tool-marker
+      any:
+        - id: cap/exec/load/video-lib-marker
+        - id: cap/exec/load/graphics-lib-marker
+        - id: cap/exec/load/system-lib-marker
+        - id: cap/exec/load/debugger-tool-marker
 
   - id: audit-functions
     desc: Audit system functions

@@ -59,13 +59,20 @@ traits:
 
 composite_rules:
   # Hardcoded base64 with decode table = custom implementation
+  # NOTE: Many system libraries (libX11, libc, OpenSSL, etc.) legitimately
+  # include base64 implementations. Only flag in script contexts.
   - id: custom-implementation
     desc: "Custom base64 implementation"
     crit: notable
     conf: 0.9
     attack: "T1027.010"
     mbc: "B0032.001"
-    count_min: 1
-    any:
-      - id: alphabet-standard
+    # Only flag when decode table is present (not just alphabet)
+    # Having the alphabet string alone is too common in system libraries
+    all:
       - id: decode-table
+    # System libraries legitimately include base64
+    downgrade:
+      any:
+        - type: basename
+          regex: "^lib(X11|xcb|ssl|crypto|c|z|png|jpeg|xml|curl|pcre|iconv)\\b"

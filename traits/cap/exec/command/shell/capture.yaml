@@ -11,8 +11,7 @@ composite_rules:
     for: [macho, elf, pe]
     # Downgrade for system libraries and shell interpreters
     downgrade:
-      inert:
-        any:
-          - id: cap/exec/load/system-lib-marker
-          - id: cap/exec/load/shell-interpreter
-          - id: cap/exec/load/debugger-tool-marker
+      any:
+        - id: cap/exec/load/system-lib-marker
+        - id: cap/exec/load/shell-interpreter
+        - id: cap/exec/load/debugger-tool-marker

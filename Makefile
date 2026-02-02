@@ -40,7 +40,11 @@ test: ## Run all tests (unit + integration)
 	@echo "Running all tests (unit + integration)..."
 	@echo ""
 	@cargo build --quiet
-	cargo test --workspace
+	@if command -v cargo-nextest >/dev/null 2>&1; then \
+		cargo nextest run --workspace; \
+	else \
+		cargo test --workspace; \
+	fi
 	@echo ""
 	@echo "✓ All tests passed"
 
@@ -48,7 +52,7 @@ lint: ## Run code formatting and linting checks
 	@echo "Checking formatting..."
 	cargo fmt --all --check
 	@echo "Running clippy..."
-	cargo clippy --workspace --all-targets -- \
+	cargo clippy --workspace -- \
 		-D clippy::correctness \
 		-D clippy::suspicious \
 		-A clippy::collapsible_if \

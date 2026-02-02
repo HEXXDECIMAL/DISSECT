@@ -360,9 +360,8 @@ composite_rules:
       - { id: policy-commands }
       - { id: policy-files }
     downgrade:
-      inert:
-        any:
-          - id: cap/exec/load/debugger-tool-marker
+      any:
+        - id: cap/exec/load/debugger-tool-marker
 
   - id: kernel-disable
     desc: SELinux kernel parameter disable

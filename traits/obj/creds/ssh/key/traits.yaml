@@ -281,6 +281,17 @@ traits:
     if:
       type: string
       exact: "StrictHostKeyChecking=no"
+    downgrade:
+      any:
+        # SSH tools legitimately document/use this option
+        - type: basename
+          exact: "ssh"
+        - type: basename
+          exact: "scp"
+        - type: basename
+          exact: "sftp"
+        - type: basename
+          exact: "rsync"
 
   - id: userknownhosts-bypass
     desc: SSH UserKnownHostsFile bypass
@@ -290,6 +301,14 @@ traits:
     if:
       type: string
       regex: "UserKnownHostsFile\\s*[=/]\\s*/dev/null"
+    downgrade:
+      any:
+        - type: basename
+          exact: "ssh"
+        - type: basename
+          exact: "scp"
+        - type: basename
+          exact: "sftp"
 
   - id: dot-ssh-dir
     desc: .ssh directory reference
