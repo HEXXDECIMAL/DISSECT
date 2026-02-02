@@ -47,7 +47,7 @@ Problem: DISSECT flagged it as suspicious/hostile - these are false positives
 3. Analyze what the file actually does (read it, understand its purpose)
 4. For each finding that doesn't match actual behavior, fix using ONE of (in priority order):
    a) TAXONOMY: Move trait to correct location (e.g., cap/comm/http/client not obj/c2/beacon)
-   b) PATTERNS: Make regex/match more specific to avoid false matches
+   b) PATTERNS: Make regex/match more specific; use cap/comm/http/ (directory) or cap/comm/http/client (exact)
    c) EXCLUSIONS: Add ` + "`not:`" + ` conditions to filter this case
    d) EXCEPTIONS: Add ` + "`unless:`" + ` or ` + "`downgrade:`" + ` (last resort)
 5. Validate: Run dissect again - all findings should match actual capabilities
@@ -77,6 +77,7 @@ NOTE: If file is genuinely benign (README, docs, unmodified dependency), skip it
    - obj/ = attacker intent (combine caps: socket + exec → reverse-shell) - malicious objectives
    - known/ = ONLY for specific malware family names (e.g., known/malware/apt/cozy-bear, known/malware/trojan/emotet)
    - Cross-language when possible (base64+exec works in Python, JS, Shell)
+   - Trait refs: use obj/exec/ to match directory (all exec-type objectives) or obj/exec/shell for exact, avoids obfuscation brittleness
 5. Validate: Run dissect again - should be suspicious or hostile
 
 ## Debug Commands
@@ -99,7 +100,7 @@ Problem: %d members flagged as suspicious/hostile - these are false positives
 3. Focus on problematic members (the ones with suspicious/hostile findings)
 4. For each false positive finding, fix using ONE of (in priority order):
    a) TAXONOMY: Move trait to correct location (e.g., cap/comm/http/client not obj/c2/beacon)
-   b) PATTERNS: Make regex/match more specific to avoid false matches
+   b) PATTERNS: Make regex/match more specific; use cap/comm/http/ (directory) or cap/comm/http/client (exact)
    c) EXCLUSIONS: Add ` + "`not:`" + ` conditions to filter this case
    d) EXCEPTIONS: Add ` + "`unless:`" + ` or ` + "`downgrade:`" + ` (last resort)
 5. Validate: Run dissect again - all findings should match actual capabilities
@@ -130,6 +131,7 @@ NOTE: If some files are genuinely benign (README, docs, unmodified dependencies)
    - obj/ = attacker intent (combine caps: socket + exec → reverse-shell) - malicious objectives
    - known/ = ONLY for specific malware family names (e.g., known/malware/apt/cozy-bear, known/malware/trojan/emotet)
    - Cross-language when possible (base64+exec works in Python, JS, Shell)
+   - Trait refs: use obj/exec/ to match directory (all exec-type objectives) or obj/exec/shell for exact, avoids obfuscation brittleness
 6. Validate: Run dissect again - should be suspicious or hostile
 
 ## Debug Commands
