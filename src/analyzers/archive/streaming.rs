@@ -285,6 +285,19 @@ impl ArchiveAnalyzer {
                 }
             }
 
+            FileType::ChromeManifest => {
+                if let Some(mapper) = &self.capability_mapper {
+                    let temp = tempfile::NamedTempFile::new()?;
+                    std::fs::write(temp.path(), data)?;
+
+                    let analyzer = crate::analyzers::chrome_manifest::ChromeManifestAnalyzer::new()
+                        .with_capability_mapper(mapper.clone());
+                    if let Ok(report) = analyzer.analyze(temp.path()) {
+                        file_analysis.findings = report.findings;
+                    }
+                }
+            }
+
             // Unknown files are skipped before reaching analyze_in_memory
             FileType::Unknown => unreachable!("Unknown files should be filtered before analysis"),
         }

@@ -26,6 +26,7 @@ pub mod text_metrics;
 pub mod utils;
 
 // Dedicated analyzers for binary/bytecode/manifest formats
+pub mod chrome_manifest;
 pub mod elf;
 pub mod java_class;
 pub mod macho;
@@ -88,6 +89,9 @@ pub fn analyzer_for_file_type(
         )),
         FileType::PackageJson => Some(Box::new(
             package_json::PackageJsonAnalyzer::new().with_capability_mapper(mapper_or_empty),
+        )),
+        FileType::ChromeManifest => Some(Box::new(
+            chrome_manifest::ChromeManifestAnalyzer::new().with_capability_mapper(mapper_or_empty),
         )),
 
         // Archive needs special handling (depth limits, nested analysis)
@@ -192,6 +196,20 @@ pub trait Analyzer {
 /// Detect file type from path/extension only (no file access needed)
 /// This is useful for archive entries that don't exist on disk
 pub fn detect_file_type_from_path(file_path: &Path) -> FileType {
+    // Check by filename first (for manifest files)
+    if let Some(file_name) = file_path.file_name() {
+        let name = file_name.to_string_lossy().to_lowercase();
+        if name == "package.json" {
+            return FileType::PackageJson;
+        }
+        // Note: manifest.json detection requires content inspection for Chrome manifests,
+        // so we can't reliably detect ChromeManifest from path alone - it will be detected
+        // during content-based analysis if the file is read
+        if name == "extension.vsixmanifest" || name.ends_with(".vsixmanifest") {
+            return FileType::VsixManifest;
+        }
+    }
+
     // Check archives by path pattern
     let path_str = file_path.to_string_lossy().to_lowercase();
     if path_str.ends_with(".jar") || path_str.ends_with(".war") || path_str.ends_with(".ear") {
@@ -339,11 +357,23 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
         return Ok(FileType::Lua);
     }
 
-    // Check for package.json (npm manifest)
+    // Check for package.json (npm manifest) and manifest.json (Chrome extension)
     if let Some(file_name) = file_path.file_name() {
         let name = file_name.to_string_lossy().to_lowercase();
         if name == "package.json" {
             return Ok(FileType::PackageJson);
+        }
+        if name == "manifest.json" {
+            // Check if it's a Chrome extension manifest by looking for manifest_version
+            let content = String::from_utf8_lossy(&file_data);
+            if content.contains("\"manifest_version\"")
+                && (content.contains("\"permissions\"")
+                    || content.contains("\"content_scripts\"")
+                    || content.contains("\"background\"")
+                    || content.contains("\"host_permissions\""))
+            {
+                return Ok(FileType::ChromeManifest);
+            }
         }
         if name == "extension.vsixmanifest" || name.ends_with(".vsixmanifest") {
             return Ok(FileType::VsixManifest);
@@ -664,8 +694,9 @@ pub enum FileType {
     Zig,
     Elixir,
     C,
-    PackageJson,  // npm package.json manifest
-    VsixManifest, // VSCode extension.vsixmanifest
+    PackageJson,    // npm package.json manifest
+    VsixManifest,   // VSCode extension.vsixmanifest
+    ChromeManifest, // Chrome extension manifest.json
     Archive,
     AppleScript,
     Unknown,
@@ -704,6 +735,7 @@ impl FileType {
             | FileType::C
             | FileType::PackageJson
             | FileType::VsixManifest
+            | FileType::ChromeManifest
             | FileType::AppleScript => true,
             FileType::Archive | FileType::Unknown => false, // Skip unknown files by default in dir scans
         }
@@ -763,6 +795,7 @@ impl FileType {
             FileType::C => vec!["c", "h", "hh"],
             FileType::PackageJson => vec!["json", "package.json", "npm"],
             FileType::VsixManifest => vec!["xml", "vsix", "vscode"],
+            FileType::ChromeManifest => vec!["json", "manifest.json", "chrome", "extension"],
             FileType::Archive => vec!["zip", "tar", "gz"],
             FileType::AppleScript => vec!["scpt", "applescript"],
             FileType::Unknown => vec![], // No filtering for unknown types

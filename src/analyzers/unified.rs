@@ -457,6 +457,110 @@ impl UnifiedSourceAnalyzer {
             let _ = std::fs::remove_file(&payload.temp_path);
         }
 
+        // Extract and analyze AES-encrypted payloads (JavaScript/TypeScript)
+        if matches!(self.config.file_type, "javascript" | "typescript") {
+            let aes_payloads = crate::extractors::extract_aes_payloads(content.as_bytes());
+            for (idx, payload) in aes_payloads.iter().enumerate() {
+                // Create virtual path with encoding info
+                let virtual_path = crate::types::encode_decoded_path(
+                    &file_path.display().to_string(),
+                    &payload.encoding_chain,
+                    idx,
+                );
+
+                // Read the decrypted content
+                let payload_content = std::fs::read(&payload.temp_path).unwrap_or_default();
+
+                // Create ArchiveEntry metadata
+                let entry_metadata = crate::types::ArchiveEntry {
+                    path: virtual_path.clone(),
+                    file_type: format!("{:?}", payload.detected_type).to_lowercase(),
+                    sha256: crate::analyzers::utils::calculate_sha256(&payload_content),
+                    size_bytes: payload_content.len() as u64,
+                };
+                report.archive_contents.push(entry_metadata);
+
+                // Analyze the decrypted payload
+                let payload_report = match payload.detected_type {
+                    FileType::JavaScript | FileType::TypeScript => {
+                        if let Some(analyzer) =
+                            UnifiedSourceAnalyzer::for_file_type(&payload.detected_type)
+                        {
+                            analyzer
+                                .with_capability_mapper(self.capability_mapper.clone())
+                                .analyze_source(
+                                    Path::new(&virtual_path),
+                                    &String::from_utf8_lossy(&payload_content),
+                                )
+                                .ok()
+                        } else {
+                            None
+                        }
+                    }
+                    FileType::Python => {
+                        if let Some(analyzer) =
+                            UnifiedSourceAnalyzer::for_file_type(&FileType::Python)
+                        {
+                            analyzer
+                                .with_capability_mapper(self.capability_mapper.clone())
+                                .analyze_source(
+                                    Path::new(&virtual_path),
+                                    &String::from_utf8_lossy(&payload_content),
+                                )
+                                .ok()
+                        } else {
+                            None
+                        }
+                    }
+                    FileType::Shell => {
+                        if let Some(analyzer) =
+                            UnifiedSourceAnalyzer::for_file_type(&FileType::Shell)
+                        {
+                            analyzer
+                                .with_capability_mapper(self.capability_mapper.clone())
+                                .analyze_source(
+                                    Path::new(&virtual_path),
+                                    &String::from_utf8_lossy(&payload_content),
+                                )
+                                .ok()
+                        } else {
+                            None
+                        }
+                    }
+                    _ => None,
+                };
+
+                // Process payload report
+                if let Some(pr) = payload_report {
+                    let mut file_entry = pr.to_file_analysis(0, true);
+                    file_entry.path = virtual_path.clone();
+                    file_entry.depth = 1;
+                    file_entry.encoding = Some(payload.encoding_chain.clone());
+
+                    // Update evidence locations
+                    for finding in &mut file_entry.findings {
+                        for evidence in &mut finding.evidence {
+                            match &evidence.location {
+                                None => {
+                                    evidence.location = Some(format!("decrypted:{}", virtual_path));
+                                }
+                                Some(loc) => {
+                                    evidence.location =
+                                        Some(format!("decrypted:{}:{}", virtual_path, loc));
+                                }
+                            }
+                        }
+                    }
+
+                    file_entry.compute_summary();
+                    report.files.push(file_entry);
+                }
+
+                // Clean up temp file
+                let _ = std::fs::remove_file(&payload.temp_path);
+            }
+        }
+
         // Extract symbols for rule matching
         symbol_extraction::extract_symbols(
             content,

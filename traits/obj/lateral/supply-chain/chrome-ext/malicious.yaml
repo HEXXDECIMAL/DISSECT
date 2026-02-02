@@ -9,9 +9,8 @@ traits:
     conf: 0.85
     for: [javascript, typescript]
     if:
-      type: ast
-      kind: call
-      regex: "\\.searchParams\\.set\\(|searchParams\\.set\\("
+      type: content
+      regex: "\\.searchParams\\.set\\(|params\\.set\\("
 
   - id: url-searchparams-append
     desc: Appends URL search parameters
@@ -19,9 +18,8 @@ traits:
     conf: 0.85
     for: [javascript, typescript]
     if:
-      type: ast
-      kind: call
-      regex: "\\.searchParams\\.append\\(|searchParams\\.append\\("
+      type: content
+      regex: "\\.searchParams\\.append\\(|params\\.append\\("
 
   - id: url-searchparams-delete
     desc: Deletes URL search parameters
@@ -79,8 +77,8 @@ traits:
     conf: 0.9
     for: [javascript, typescript]
     if:
-      type: string
-      regex: "querySelectorAll\\(['\"]a\\[href\\*=.*/dp/|querySelectorAll\\(['\"]a\\[href\\*=.*/gp/product"
+      type: content
+      regex: "querySelectorAll\\([^)]{0,50}/dp/|querySelectorAll\\([^)]{0,50}/gp/product"
 
   # === Affiliate Tag Patterns ===
   - id: affiliate-tag-variable
@@ -107,7 +105,7 @@ traits:
     conf: 0.9
     for: [javascript, typescript]
     if:
-      type: string
+      type: content
       regex: "\\.set\\(['\"]tag['\"]|params\\.set\\(['\"]tag|searchParams\\.set\\(['\"]tag"
 
   - id: params-tag-append
@@ -116,7 +114,7 @@ traits:
     conf: 0.9
     for: [javascript, typescript]
     if:
-      type: string
+      type: content
       regex: "\\.append\\(['\"]tag['\"]|params\\.append\\(['\"]tag|searchParams\\.append\\(['\"]tag"
 
   - id: params-ref-manipulation
@@ -134,7 +132,7 @@ traits:
     conf: 0.85
     for: [javascript, typescript]
     if:
-      type: string
+      type: content
       regex: "params\\.has\\(['\"]tag['\"]|searchParams\\.has\\(['\"]tag"
 
   # === E-commerce Domain Targeting ===
@@ -144,8 +142,8 @@ traits:
     conf: 0.9
     for: [javascript, typescript]
     if:
-      type: string
-      regex: "hostname\\.includes\\(['\"]amazon|hostname\\.match\\(.*amazon|domain.*amazon"
+      type: content
+      regex: "hostname\\.includes\\(['\"]amazon|hostname\\.match\\([^)]{0,30}amazon|domain.{0,20}amazon"
 
   - id: shopping-site-targeting
     desc: Targets e-commerce shopping sites
@@ -164,7 +162,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "createElement\\(['\"]script['\"]\\)|appendChild.*script|insertBefore.*script"
+      regex: "createElement\\(['\"]script['\"]\\)|appendChild\\([^)]{0,30}script|insertBefore\\([^)]{0,30}script"
 
   - id: inject-iframe
     desc: Injects iframe into page
@@ -173,7 +171,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "createElement\\(['\"]iframe['\"]\\)|appendChild.*iframe"
+      regex: "createElement\\(['\"]iframe['\"]\\)|appendChild\\([^)]{0,30}iframe"
 
   # === External Communication ===
   - id: external-domain-hardcoded

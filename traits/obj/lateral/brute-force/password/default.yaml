@@ -35,9 +35,9 @@ traits:
     file_types: [elf]
     condition:
       type: string
-      # Avoid matching ASCII character tables (0123456789...)
-      # Require 123456 not preceded by 0-5 and not followed by 7-9
-      regex: "(?<![0-5])123456(?![7-9])"
+      # Match 123456 as credential, exclude ASCII tables (0123456789)
+      # Match when preceded by non-digit or start of string
+      regex: "(?:^|[^0-9])123456(?:$|[^0-9])"
 
   # NOTE: "password" alone is too common (system utilities, config, etc.)
   # Real credential brute-force detection requires multiple indicators
