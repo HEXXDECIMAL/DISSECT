@@ -449,20 +449,18 @@ pub fn generate_traits_from_directories(directories: &[DirectoryAccess]) -> Vec<
             }
         }
 
-        // Log file access (potential cleanup)
+        // Log file access - notable for awareness, not suspicious on its own
+        // Many legitimate tools access log files (sessreg, logrotate, logging daemons)
         if dir.categories.contains(&PathCategory::Log) && dir.file_count >= 2 {
             traits.push(Finding {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
-                id: "evasion/logging/system_logs".to_string(),
-                desc: format!(
-                    "Accesses {} log files in {} (potential cleanup)",
-                    dir.file_count, dir.directory
-                ),
+                id: "cap/fs/path/log/multiple-access".to_string(),
+                desc: format!("Accesses {} log files in {}", dir.file_count, dir.directory),
                 conf: 0.7,
-                crit: Criticality::Suspicious,
+                crit: Criticality::Notable,
                 mbc: None,
-                attack: Some("T1070.002".to_string()), // Clear Linux Logs
+                attack: None, // No ATT&CK - access alone isn't an attack technique
                 evidence: vec![Evidence {
                     method: "directory_pattern".to_string(),
                     source: "path_mapper".to_string(),

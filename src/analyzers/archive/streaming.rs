@@ -282,12 +282,8 @@ impl ArchiveAnalyzer {
                 }
             }
 
-            // Unknown/unsupported - just extract strings
-            FileType::Unknown => {
-                // Extract basic strings using our string extractor
-                let extractor = crate::strings::StringExtractor::new().with_min_length(6);
-                file_analysis.strings = extractor.extract_smart(data);
-            }
+            // Unknown files are skipped before reaching analyze_in_memory
+            FileType::Unknown => unreachable!("Unknown files should be filtered before analysis"),
         }
 
         // Compute summary
@@ -620,6 +616,11 @@ impl ArchiveAnalyzer {
         let total_bytes_ref = &total_bytes;
 
         rx.into_iter().par_bridge().for_each(|file| {
+            // Skip unknown file types
+            if matches!(file.file_type(), FileType::Unknown) {
+                return;
+            }
+
             // Analyze the file
             let result = match &file {
                 ExtractedFile::InMemory {
@@ -809,6 +810,11 @@ impl ArchiveAnalyzer {
         let total_bytes_ref = &total_bytes;
 
         rx.into_iter().par_bridge().for_each(|file| {
+            // Skip unknown file types
+            if matches!(file.file_type(), FileType::Unknown) {
+                return;
+            }
+
             let result = match &file {
                 ExtractedFile::InMemory {
                     path,
@@ -1010,6 +1016,11 @@ impl ArchiveAnalyzer {
         let total_bytes_ref = &total_bytes;
 
         rx.into_iter().par_bridge().for_each(|file| {
+            // Skip unknown file types
+            if matches!(file.file_type(), FileType::Unknown) {
+                return;
+            }
+
             let result = match &file {
                 ExtractedFile::InMemory {
                     path,
@@ -1182,6 +1193,11 @@ impl ArchiveAnalyzer {
         let total_bytes_ref = &total_bytes;
 
         rx.into_iter().par_bridge().for_each(|file| {
+            // Skip unknown file types
+            if matches!(file.file_type(), FileType::Unknown) {
+                return;
+            }
+
             let result = match &file {
                 ExtractedFile::InMemory {
                     path,
@@ -1400,6 +1416,11 @@ impl ArchiveAnalyzer {
         let total_bytes_ref = &total_bytes;
 
         rx.into_iter().par_bridge().for_each(|file| {
+            // Skip unknown file types
+            if matches!(file.file_type(), FileType::Unknown) {
+                return;
+            }
+
             let result = match &file {
                 ExtractedFile::InMemory {
                     path,
