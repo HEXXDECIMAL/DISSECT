@@ -181,8 +181,8 @@ type ArchiveAnalysis struct {
 // Fragments are decoded payloads (e.g., base64-decoded content) that should be
 // analyzed together with their parent file.
 type RealFileAnalysis struct {
-	RealPath string        // The real file path (stripped of ## fragment delimiters)
-	Root     FileAnalysis  // The root/real file entry
+	RealPath  string         // The real file path (stripped of ## fragment delimiters)
+	Root      FileAnalysis   // The root/real file entry
 	Fragments []FileAnalysis // All decoded fragment entries (if any)
 }
 
@@ -220,20 +220,60 @@ func isFragment(path string) bool {
 	return strings.Contains(path, "##")
 }
 
-// archiveNeedsReview returns true if any member of the archive needs review.
-func archiveNeedsReview(a *ArchiveAnalysis, knownGood bool) bool {
-	for _, m := range a.Members {
-		if needsReview(m, knownGood) {
-			return true
-		}
+// isTinyFile checks if a file is too small to be meaningful (e.g., empty __init__.py).
+// Files < 8 bytes are typically metadata and should be ignored.
+func isTinyFile(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		return false
 	}
-	return false
+	return info.Size() < 8
 }
 
-// archiveProblematicMembers returns the members that need review.
+// archiveNeedsReview returns true if any member of the archive needs review.
+// For known-good archives: review if ANY member is flagged (to reduce false positives).
+// For known-bad archives: review only if NO members are flagged as malicious AND
+// there's at least one non-tiny file (to find missed detections). Once any member
+// is flagged, the archive is already detected as malicious.
+func archiveNeedsReview(a *ArchiveAnalysis, knownGood bool) bool {
+	if knownGood {
+		// Known-good: review if any member is suspicious/hostile (false positive)
+		for _, m := range a.Members {
+			if needsReview(m, knownGood) {
+				return true
+			}
+		}
+		return false
+	}
+
+	// Known-bad: skip if ANY member is already flagged as malicious
+	// (archive is already detected, no need to review further)
+	for _, m := range a.Members {
+		for _, finding := range m.Findings {
+			c := strings.ToLower(finding.Crit)
+			if c == "suspicious" || c == "hostile" {
+				return false // Already detected, no review needed
+			}
+		}
+	}
+
+	// All members are clean/inert. Only review if there's at least one non-tiny file
+	// (skip archives that are all metadata like empty __init__.py files).
+	for _, m := range a.Members {
+		if !isTinyFile(m.Path) {
+			return true // Has real files that should be flagged
+		}
+	}
+	return false // Only tiny files, skip
+}
+
+// archiveProblematicMembers returns the members that need review, excluding tiny files.
 func archiveProblematicMembers(a *ArchiveAnalysis, knownGood bool) []FileAnalysis {
 	var result []FileAnalysis
 	for _, m := range a.Members {
+		if isTinyFile(m.Path) {
+			continue // Skip tiny files
+		}
 		if needsReview(m, knownGood) {
 			result = append(result, m)
 		}
@@ -381,6 +421,17 @@ type streamStats struct {
 	totalFiles         int
 }
 
+// streamState tracks the current processing state as we stream files.
+type streamState struct {
+	cfg                *config
+	dbMode             string
+	stats              *streamStats
+	currentArchive     *ArchiveAnalysis
+	currentArchivePath string
+	currentRealFile    *RealFileAnalysis
+	currentRealPath    string
+}
+
 // streamAnalyzeAndReview streams dissect output and reviews archives as they complete.
 func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*streamStats, error) {
 	cmd := buildDissectCommand(ctx, cfg)
@@ -397,14 +448,14 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 		return nil, fmt.Errorf("could not start dissect: %w", err)
 	}
 
-	stats := &streamStats{}
+	state := &streamState{
+		cfg:    cfg,
+		dbMode: dbMode,
+		stats:  &streamStats{},
+	}
 	scanner := bufio.NewScanner(stdout)
 	scanner.Buffer(make([]byte, 128*1024*1024), 128*1024*1024) // 128MB buffer
 
-	var currentArchive *ArchiveAnalysis
-	var currentArchivePath string
-	var currentRealFile *RealFileAnalysis
-	var currentRealPath string
 	fileCount := 0
 	lastProgress := time.Now()
 
@@ -438,35 +489,31 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 		}
 
 		archivePath := rootArchive(f.Path)
-		currentArchive, currentArchivePath, currentRealFile, currentRealPath = processFileEntry(
-			ctx, cfg, dbMode, stats, f, archivePath,
-			currentArchive, currentArchivePath,
-			currentRealFile, currentRealPath,
-		)
+		processFileEntry(ctx, state, f, archivePath)
 	}
 
-	if currentRealFile != nil {
+	if state.currentRealFile != nil {
 		clearProgressLine()
-		processRealFile(ctx, cfg, dbMode, stats, currentRealFile)
+		processRealFile(ctx, state)
 	}
-	if currentArchive != nil {
+	if state.currentArchive != nil {
 		clearProgressLine()
-		processCompletedArchive(ctx, cfg, dbMode, stats, currentArchive)
+		processCompletedArchive(ctx, state)
 	}
 
 	if err := scanner.Err(); err != nil {
-		return stats, fmt.Errorf("error reading dissect output: %w", err)
+		return state.stats, fmt.Errorf("error reading dissect output: %w", err)
 	}
 
 	if err := cmd.Wait(); err != nil {
 		if msg := strings.TrimSpace(stderrBuf.String()); msg != "" {
-			return stats, fmt.Errorf("dissect error: %s", msg)
+			return state.stats, fmt.Errorf("dissect error: %s", msg)
 		}
-		return stats, fmt.Errorf("dissect failed: %w", err)
+		return state.stats, fmt.Errorf("dissect failed: %w", err)
 	}
 
 	fmt.Fprintf(os.Stderr, "\r  Scanned %d files total                    \n", fileCount)
-	return stats, nil
+	return state.stats, nil
 }
 
 func buildDissectCommand(ctx context.Context, cfg *config) *exec.Cmd {
@@ -502,38 +549,31 @@ func clearProgressLine() {
 	fmt.Fprint(os.Stderr, "\r                                        \r")
 }
 
-func processFileEntry(
-	ctx context.Context,
-	cfg *config,
-	dbMode string,
-	stats *streamStats,
-	f FileAnalysis,
-	archivePath string,
-	currentArchive *ArchiveAnalysis,
-	currentArchivePath string,
-	currentRealFile *RealFileAnalysis,
-	currentRealPath string,
-) (archive *ArchiveAnalysis, archPath string, realFile *RealFileAnalysis, realPath string) {
+func processFileEntry(ctx context.Context, state *streamState, f FileAnalysis, archivePath string) {
 	switch {
 	case archivePath == "":
 		// Standalone file (not in an archive)
-		if currentArchive != nil {
+		if state.currentArchive != nil {
 			clearProgressLine()
-			processCompletedArchive(ctx, cfg, dbMode, stats, currentArchive)
+			processCompletedArchive(ctx, state)
+			state.currentArchive = nil
+			state.currentArchivePath = ""
 		}
 
 		// Check if this is a fragment or root file
 		fPath := realFilePath(f.Path)
-		if fPath == currentRealPath && currentRealFile != nil {
+		if fPath == state.currentRealPath && state.currentRealFile != nil {
 			// Same real file: add as fragment
-			currentRealFile.Fragments = append(currentRealFile.Fragments, f)
-			return nil, "", currentRealFile, currentRealPath
+			state.currentRealFile.Fragments = append(state.currentRealFile.Fragments, f)
+			return
 		}
 
 		// Different real file: process previous and start new
-		if currentRealFile != nil {
+		if state.currentRealFile != nil {
 			clearProgressLine()
-			processRealFile(ctx, cfg, dbMode, stats, currentRealFile)
+			processRealFile(ctx, state)
+			state.currentRealFile = nil
+			state.currentRealPath = ""
 		}
 
 		// Start new real file
@@ -548,49 +588,53 @@ func processFileEntry(
 			// This is the root file entry
 			newReal.Root = f
 		}
-		return nil, "", newReal, fPath
+		state.currentRealFile = newReal
+		state.currentRealPath = fPath
 
-	case archivePath != currentArchivePath:
+	case archivePath != state.currentArchivePath:
 		// Different archive: process everything pending
-		if currentArchive != nil {
+		if state.currentArchive != nil {
 			clearProgressLine()
-			processCompletedArchive(ctx, cfg, dbMode, stats, currentArchive)
+			processCompletedArchive(ctx, state)
 		}
-		if currentRealFile != nil {
+		if state.currentRealFile != nil {
 			clearProgressLine()
-			processRealFile(ctx, cfg, dbMode, stats, currentRealFile)
+			processRealFile(ctx, state)
+			state.currentRealFile = nil
+			state.currentRealPath = ""
 		}
-		return &ArchiveAnalysis{
+		state.currentArchive = &ArchiveAnalysis{
 			ArchivePath: archivePath,
 			Members:     []FileAnalysis{f},
-		}, archivePath, nil, ""
+		}
+		state.currentArchivePath = archivePath
 
 	default:
 		// Same archive: just add to current archive members
-		currentArchive.Members = append(currentArchive.Members, f)
-		return currentArchive, currentArchivePath, currentRealFile, currentRealPath
+		state.currentArchive.Members = append(state.currentArchive.Members, f)
 	}
 }
 
-func processCompletedArchive(ctx context.Context, cfg *config, dbMode string, stats *streamStats, archive *ArchiveAnalysis) {
+func processCompletedArchive(ctx context.Context, state *streamState) {
+	archive := state.currentArchive
 	if archive == nil || len(archive.Members) == 0 {
 		return
 	}
 
-	stats.totalFiles += len(archive.Members)
+	state.stats.totalFiles += len(archive.Members)
 
-	if !archiveNeedsReview(archive, cfg.knownGood) {
-		stats.skippedNoReview++
+	if !archiveNeedsReview(archive, state.cfg.knownGood) {
+		state.stats.skippedNoReview++
 		return
 	}
 
 	h := hashString(archive.ArchivePath)
-	if wasAnalyzed(ctx, cfg.db, h, dbMode) {
-		stats.skippedCached++
+	if wasAnalyzed(ctx, state.cfg.db, h, state.dbMode) {
+		state.stats.skippedCached++
 		return
 	}
 
-	problematic := archiveProblematicMembers(archive, cfg.knownGood)
+	problematic := archiveProblematicMembers(archive, state.cfg.knownGood)
 	fmt.Fprintf(os.Stderr, "\n📦 Archive complete: %s\n", archive.ArchivePath)
 	fmt.Fprintf(os.Stderr, "   Members: %d total, %d need review\n", len(archive.Members), len(problematic))
 
@@ -610,25 +654,26 @@ func processCompletedArchive(ctx context.Context, cfg *config, dbMode string, st
 	}
 
 	sid := generateSessionID()
-	if err := invokeAIArchive(ctx, cfg, archive, sid); err != nil {
-		fmt.Fprintf(os.Stderr, "Warning: %s failed for %s: %v\n", cfg.provider, archive.ArchivePath, err)
+	if err := invokeAIArchive(ctx, state.cfg, archive, sid); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: %s failed for %s: %v\n", state.cfg.provider, archive.ArchivePath, err)
 	} else {
-		if err := markAnalyzed(ctx, cfg.db, h, dbMode); err != nil {
+		if err := markAnalyzed(ctx, state.cfg.db, h, state.dbMode); err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: could not record analysis for %s: %v\n", archive.ArchivePath, err)
 		}
-		stats.archivesReviewed++
+		state.stats.archivesReviewed++
 	}
 }
 
-func processRealFile(ctx context.Context, cfg *config, dbMode string, stats *streamStats, rf *RealFileAnalysis) {
+func processRealFile(ctx context.Context, state *streamState) {
+	rf := state.currentRealFile
 	if rf == nil || rf.RealPath == "" {
 		return
 	}
 
-	stats.totalFiles++
+	state.stats.totalFiles++
 
-	if !realFileNeedsReview(rf, cfg.knownGood) {
-		stats.skippedNoReview++
+	if !realFileNeedsReview(rf, state.cfg.knownGood) {
+		state.stats.skippedNoReview++
 		return
 	}
 
@@ -636,8 +681,8 @@ func processRealFile(ctx context.Context, cfg *config, dbMode string, stats *str
 	if err != nil {
 		h = hashString(rf.RealPath)
 	}
-	if wasAnalyzed(ctx, cfg.db, h, dbMode) {
-		stats.skippedCached++
+	if wasAnalyzed(ctx, state.cfg.db, h, state.dbMode) {
+		state.stats.skippedCached++
 		return
 	}
 
@@ -668,53 +713,13 @@ func processRealFile(ctx context.Context, cfg *config, dbMode string, stats *str
 	}
 
 	sid := generateSessionID()
-	if err := invokeAI(ctx, cfg, aggregated, sid); err != nil {
-		fmt.Fprintf(os.Stderr, "Warning: %s failed for %s: %v\n", cfg.provider, rf.RealPath, err)
+	if err := invokeAI(ctx, state.cfg, aggregated, sid); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: %s failed for %s: %v\n", state.cfg.provider, rf.RealPath, err)
 	} else {
-		if err := markAnalyzed(ctx, cfg.db, h, dbMode); err != nil {
+		if err := markAnalyzed(ctx, state.cfg.db, h, state.dbMode); err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: could not record analysis for %s: %v\n", rf.RealPath, err)
 		}
-		stats.standaloneReviewed++
-	}
-}
-
-func processStandaloneFile(ctx context.Context, cfg *config, dbMode string, stats *streamStats, f FileAnalysis) {
-	stats.totalFiles++
-
-	if !needsReview(f, cfg.knownGood) {
-		stats.skippedNoReview++
-		return
-	}
-
-	h, err := hashFile(f.Path)
-	if err != nil {
-		h = hashString(f.Path)
-	}
-	if wasAnalyzed(ctx, cfg.db, h, dbMode) {
-		stats.skippedCached++
-		return
-	}
-
-	fmt.Fprintf(os.Stderr, "\n📄 Standalone file: %s\n", f.Path)
-	critRank := map[string]int{"inert": 0, "notable": 1, "suspicious": 2, "hostile": 3}
-	var maxCrit string
-	for _, finding := range f.Findings {
-		if critRank[strings.ToLower(finding.Crit)] > critRank[strings.ToLower(maxCrit)] {
-			maxCrit = finding.Crit
-		}
-	}
-	if maxCrit != "" {
-		fmt.Fprintf(os.Stderr, "   Risk: %s, Findings: %d\n", maxCrit, len(f.Findings))
-	}
-
-	sid := generateSessionID()
-	if err := invokeAI(ctx, cfg, f, sid); err != nil {
-		fmt.Fprintf(os.Stderr, "Warning: %s failed for %s: %v\n", cfg.provider, f.Path, err)
-	} else {
-		if err := markAnalyzed(ctx, cfg.db, h, dbMode); err != nil {
-			fmt.Fprintf(os.Stderr, "Warning: could not record analysis for %s: %v\n", f.Path, err)
-		}
-		stats.standaloneReviewed++
+		state.stats.standaloneReviewed++
 	}
 }
 
