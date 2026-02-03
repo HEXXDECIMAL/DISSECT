@@ -4,22 +4,22 @@
 
 traits:
   - id: admin-password
-    description: "Default credential: admin variations"
+    desc: "Default credential: admin variations"
     crit: notable
-    confidence: 0.6
+    conf: 0.6
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       word: "admin"
       min_count: 10
   - id: root-password
-    description: "Default credential: root variations"
+    desc: "Default credential: root variations"
     crit: notable
-    confidence: 0.6
+    conf: 0.6
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       word: "root"
       min_count: 10
@@ -28,12 +28,12 @@ traits:
       - "free"
       - "node"
   - id: numeric-123456
-    description: "Default credential: 123456"
+    desc: "Default credential: 123456"
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       # Avoid matching ASCII character tables (0123456789...)
       # Require 123456 not preceded by 0-5 and not followed by 7-9
@@ -43,33 +43,33 @@ traits:
   # Real credential brute-force detection requires multiple indicators
   # Match "password" only with control char delimiters suggesting credential list
   - id: literal-password
-    description: "Default credential: password"
+    desc: "Default credential: password"
     crit: notable
-    confidence: 0.4
+    conf: 0.4
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       # Require credential list context: control chars as delimiters or user:password format
       regex: "(?:[\\x00-\\x1f]password[\\x00-\\x1f]?|\\b\\w+:password\\b)"
 
   - id: admin123
-    description: "Default credential: admin123"
+    desc: "Default credential: admin123"
     crit: suspicious
-    confidence: 0.85
+    conf: 0.85
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       exact: "admin123"
 
   - id: literal-default
-    description: "Default credential: default"
+    desc: "Default credential: default"
     crit: notable
-    confidence: 0.5
+    conf: 0.5
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       # Word "default" alone is common - require it with control char prefix
       # which suggests credential list with delimiters
@@ -80,105 +80,105 @@ traits:
   # - id: credential/brute-force/password/support
 
   - id: guest
-    description: "Default credential: guest"
+    desc: "Default credential: guest"
     crit: notable
-    confidence: 0.7
+    conf: 0.7
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       # Match guest in credential context (user:pass combo or with control chars)
       regex: "(?:[\\x00-\\x1f]guest[\\x00-\\x1f]?|\\bguest:)"
 
   - id: iot-vizxv
-    description: "Default IoT credential: vizxv (Dahua)"
+    desc: "Default IoT credential: vizxv (Dahua)"
     crit: suspicious
-    confidence: 0.95
+    conf: 0.95
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       exact: "vizxv"
 
   # === IoT ZTE credential atomic indicators ===
   - id: iot-zte521
-    description: "Default IoT credential: Zte521"
+    desc: "Default IoT credential: Zte521"
     crit: suspicious
-    confidence: 0.9
+    conf: 0.9
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       exact: "Zte521"
 
   - id: iot-pte521
-    description: "Default IoT credential: Pte521"
+    desc: "Default IoT credential: Pte521"
     crit: suspicious
-    confidence: 0.9
+    conf: 0.9
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       exact: "Pte521"
 
   - id: iot-pon521
-    description: "Default IoT credential: Pon521"
+    desc: "Default IoT credential: Pon521"
     crit: suspicious
-    confidence: 0.9
+    conf: 0.9
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       exact: "Pon521"
 
   - id: iot-zxic521
-    description: "Default IoT credential: Zxic521"
+    desc: "Default IoT credential: Zxic521"
     crit: suspicious
-    confidence: 0.9
+    conf: 0.9
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       exact: "Zxic521"
 
   - id: iot-oelinux
-    description: "Default IoT credential: oelinux123"
+    desc: "Default IoT credential: oelinux123"
     crit: suspicious
-    confidence: 0.95
+    conf: 0.95
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       exact: "oelinux123"
 
   - id: iot-xc35
-    description: "Default IoT credential: xc3511 (Hikvision)"
+    desc: "Default IoT credential: xc3511 (Hikvision)"
     crit: suspicious
-    confidence: 0.95
+    conf: 0.95
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       exact: "xc3511"
 
   - id: telnet-combo
-    description: "Telnet username:password combo format"
+    desc: "Telnet username:password combo format"
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       regex: "\\b(root|admin|user|guest|support):(root|admin|[a-zA-Z0-9]{4,12})\\b"
 
 composite_rules:
   # IoT ZTE credential composite
   - id: iot-zte
-    description: "Default IoT credential: ZTE router"
+    desc: "Default IoT credential: ZTE router"
     crit: suspicious
-    confidence: 0.95
+    conf: 0.95
     attack: "T1110.001"
-    file_types: [elf]
+    r#for: [elf]
     count_min: 1
     any:
       - id: iot-zte521
@@ -187,12 +187,12 @@ composite_rules:
       - id: iot-zxic521
 
   - id: dictionary
-    description: "Embedded credential brute-force dictionary"
+    desc: "Embedded credential brute-force dictionary"
     crit: suspicious
-    confidence: 0.9
+    conf: 0.9
     mbc: "E1040"
     attack: "T1110.001"
-    file_types: [elf]
+    r#for: [elf]
     count_min: 4
     any:
       - id: admin-password

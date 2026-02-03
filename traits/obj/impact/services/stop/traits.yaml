@@ -8,7 +8,7 @@ defaults:
 
 traits:
   - id: esxcli
-    description: VMware ESXi CLI usage
+    desc: VMware ESXi CLI usage
     crit: suspicious
     conf: 0.9
     if:
@@ -16,7 +16,7 @@ traits:
       exact: "esxcli"
 
   - id: systemctl-stop
-    description: Systemd service stop
+    desc: Systemd service stop
     crit: suspicious
     conf: 0.8
     if:
@@ -24,7 +24,7 @@ traits:
       regex: "systemctl\\s+stop"
 
   - id: service-stop
-    description: SysV service stop
+    desc: SysV service stop
     crit: suspicious
     conf: 0.8
     if:
@@ -32,7 +32,7 @@ traits:
       regex: "service\\s+\\w+\\s+stop"
 
   - id: sc-stop
-    description: Windows service control stop
+    desc: Windows service control stop
     crit: suspicious
     conf: 0.8
     if:
@@ -40,7 +40,7 @@ traits:
       regex: "sc\\s+stop"
 
   - id: net-stop
-    description: Windows net stop command
+    desc: Windows net stop command
     crit: suspicious
     conf: 0.8
     if:
@@ -48,7 +48,7 @@ traits:
       regex: "net\\s+stop"
 
   - id: vmsvc-getallvms
-    description: VMware VM enumeration
+    desc: VMware VM enumeration
     crit: suspicious
     conf: 0.9
     if:
@@ -57,7 +57,7 @@ traits:
 
   # === Database service termination (atomic) ===
   - id: kill-mysql-kill
-    description: MySQL kill command
+    desc: MySQL kill command
     crit: inert
     conf: 0.5
     if:
@@ -65,7 +65,7 @@ traits:
       regex: "(?i)kill.{0,30}mysql"
 
   - id: kill-mysql-stop
-    description: MySQL stop command
+    desc: MySQL stop command
     crit: inert
     conf: 0.5
     if:
@@ -73,7 +73,7 @@ traits:
       regex: "(?i)stop.{0,30}mysql"
 
   - id: kill-postgres-kill
-    description: PostgreSQL kill command
+    desc: PostgreSQL kill command
     crit: inert
     conf: 0.5
     if:
@@ -81,7 +81,7 @@ traits:
       regex: "(?i)kill.{0,30}postgres"
 
   - id: kill-postgres-stop
-    description: PostgreSQL stop command
+    desc: PostgreSQL stop command
     crit: inert
     conf: 0.5
     if:
@@ -89,7 +89,7 @@ traits:
       regex: "(?i)stop.{0,30}postgres"
 
   - id: kill-oracle-kill
-    description: Oracle kill command
+    desc: Oracle kill command
     crit: inert
     conf: 0.5
     if:
@@ -97,7 +97,7 @@ traits:
       regex: "(?i)kill.{0,30}oracle"
 
   - id: kill-oracle-stop
-    description: Oracle stop command
+    desc: Oracle stop command
     crit: inert
     conf: 0.5
     if:
@@ -105,7 +105,7 @@ traits:
       regex: "(?i)stop.{0,30}oracle"
 
   - id: kill-mssql-kill
-    description: MSSQL kill command
+    desc: MSSQL kill command
     crit: inert
     conf: 0.5
     if:
@@ -113,7 +113,7 @@ traits:
       regex: "(?i)kill.{0,30}mssql"
 
   - id: kill-mssql-stop
-    description: MSSQL stop command
+    desc: MSSQL stop command
     crit: inert
     conf: 0.5
     if:
@@ -121,7 +121,7 @@ traits:
       regex: "(?i)stop.{0,30}mssql"
 
   - id: kill-mongodb-kill
-    description: MongoDB kill command
+    desc: MongoDB kill command
     crit: inert
     conf: 0.5
     if:
@@ -129,7 +129,7 @@ traits:
       regex: "(?i)kill.{0,30}mongodb"
 
   - id: kill-mongodb-stop
-    description: MongoDB stop command
+    desc: MongoDB stop command
     crit: inert
     conf: 0.5
     if:
@@ -138,7 +138,7 @@ traits:
 
   # === ESXi ransomware atomic indicators ===
   - id: onion-domain
-    description: .onion domain reference
+    desc: .onion domain reference
     crit: inert
     conf: 0.6
     if:
@@ -146,7 +146,7 @@ traits:
       exact: ".onion"
 
   - id: word-encrypted
-    description: Encrypted keyword
+    desc: Encrypted keyword
     crit: inert
     conf: 0.4
     if:
@@ -155,7 +155,7 @@ traits:
       case_insensitive: true
 
   - id: word-ransom
-    description: Ransom keyword
+    desc: Ransom keyword
     crit: inert
     conf: 0.5
     if:
@@ -164,7 +164,7 @@ traits:
       case_insensitive: true
 
   - id: tor-service-stop
-    description: Tor service stop command
+    desc: Tor service stop command
     crit: suspicious
     conf: 0.7
     if:
@@ -172,7 +172,7 @@ traits:
       regex: "(systemctl|service).{0,50}(stop|disable).{0,50}(tor|tor@)"
 
   - id: tor-process-kill
-    description: Tor process termination
+    desc: Tor process termination
     crit: suspicious
     conf: 0.7
     if:
@@ -180,7 +180,7 @@ traits:
       regex: "(killall|pkill|taskkill).{0,50}[tT]or"
 
   - id: tor-browser-kill
-    description: Tor Browser termination
+    desc: Tor Browser termination
     crit: suspicious
     conf: 0.8
     if:
@@ -188,7 +188,7 @@ traits:
       regex: "tor[- ]?browser.{0,50}kill|kill.{0,50}tor[- ]?browser"
 
   - id: word-bitcoin
-    description: Bitcoin keyword
+    desc: Bitcoin keyword
     crit: inert
     conf: 0.4
     if:
@@ -197,7 +197,7 @@ traits:
       case_insensitive: true
 
   - id: word-victim
-    description: Victim keyword
+    desc: Victim keyword
     crit: inert
     conf: 0.4
     if:
@@ -206,7 +206,7 @@ traits:
       case_insensitive: true
 
   - id: word-company
-    description: Company keyword
+    desc: Company keyword
     crit: inert
     conf: 0.3
     if:
@@ -214,7 +214,7 @@ traits:
       exact: company
 
   - id: phrase-your-data
-    description: Your data phrase
+    desc: Your data phrase
     crit: inert
     conf: 0.4
     if:
@@ -224,7 +224,7 @@ traits:
 composite_rules:
   # Individual database kill composites
   - id: kill-mysql
-    description: MySQL service termination
+    desc: MySQL service termination
     crit: notable
     conf: 0.6
     count_min: 1
@@ -233,7 +233,7 @@ composite_rules:
       - id: kill-mysql-stop
 
   - id: kill-postgres
-    description: PostgreSQL service termination
+    desc: PostgreSQL service termination
     crit: notable
     conf: 0.6
     count_min: 1
@@ -242,7 +242,7 @@ composite_rules:
       - id: kill-postgres-stop
 
   - id: kill-oracle
-    description: Oracle service termination
+    desc: Oracle service termination
     crit: notable
     conf: 0.6
     count_min: 1
@@ -251,7 +251,7 @@ composite_rules:
       - id: kill-oracle-stop
 
   - id: kill-mssql
-    description: MSSQL service termination
+    desc: MSSQL service termination
     crit: notable
     conf: 0.6
     count_min: 1
@@ -260,7 +260,7 @@ composite_rules:
       - id: kill-mssql-stop
 
   - id: kill-mongodb
-    description: MongoDB service termination
+    desc: MongoDB service termination
     crit: notable
     conf: 0.6
     count_min: 1
@@ -269,7 +269,7 @@ composite_rules:
       - id: kill-mongodb-stop
 
   - id: kill-database
-    description: Database service termination
+    desc: Database service termination
     crit: suspicious
     conf: 0.9
     count_min: 1
@@ -281,7 +281,7 @@ composite_rules:
       - id: kill-mongodb
 
   - id: esxi-ransomware
-    description: VMware ESXi ransomware
+    desc: VMware ESXi ransomware
     crit: suspicious
     conf: 0.99
     attack: "T1486"

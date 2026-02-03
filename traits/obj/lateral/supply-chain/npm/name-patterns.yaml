@@ -4,7 +4,7 @@
 # These patterns indicate typosquatting, name confusion, or malicious intent
 
 defaults:
-  file_types: [packagejson]
+  r#for: [packagejson]
 
 traits:
   # === Package name contains credential theft keywords ===

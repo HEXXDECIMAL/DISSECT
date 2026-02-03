@@ -4,7 +4,7 @@
 
 traits:
   - id: file-put-contents
-    description: File write via file_put_contents
+    desc: File write via file_put_contents
     crit: notable
     conf: 0.8
     mbc: "C0052"
@@ -15,7 +15,7 @@ traits:
       exact: file_put_contents
 
   - id: fwrite
-    description: File write via fwrite
+    desc: File write via fwrite
     crit: notable
     conf: 0.8
     mbc: "C0052"
@@ -25,7 +25,7 @@ traits:
       regex: "\\bfwrite\\s*\\("
 
   - id: fputs
-    description: File write via fputs
+    desc: File write via fputs
     crit: notable
     conf: 0.8
     mbc: "C0052"
@@ -35,7 +35,7 @@ traits:
       regex: "\\bfputs\\s*\\("
 
   - id: dropper-pattern
-    description: File dropper pattern (base64 decode
+    desc: File dropper pattern (base64 decode
     crit: suspicious
     conf: 0.95
     mbc: "B0030"
@@ -46,7 +46,7 @@ traits:
       regex: "file_put_contents\\s*\\([^,]+,\\s*base64_decode"
 
   - id: move-uploaded-file
-    description: Move uploaded file to destination
+    desc: Move uploaded file to destination
     crit: suspicious
     conf: 0.85
     mbc: "C0052"

@@ -3,7 +3,7 @@
 
 traits:
   - id: kmem
-    description: Access raw kernel memory (/dev/kmem)
+    desc: Access raw kernel memory (/dev/kmem)
     crit: suspicious
     conf: 0.9
     attack: "T1003"
@@ -13,7 +13,7 @@ traits:
       exact: "/dev/kmem"
 
   - id: dev-mem
-    description: Access raw system memory (/dev/mem)
+    desc: Access raw system memory (/dev/mem)
     crit: suspicious
     conf: 0.9
     attack: "T1003"
@@ -30,7 +30,7 @@ traits:
 
   # === Memdump atomic indicators ===
   - id: memdump-cmd
-    description: memdump command reference
+    desc: memdump command reference
     crit: notable
     conf: 0.65
     attack: "T1003"
@@ -40,7 +40,7 @@ traits:
       word: "memdump"
 
   - id: dumpmem-cmd
-    description: dumpmem command reference
+    desc: dumpmem command reference
     crit: notable
     conf: 0.65
     attack: "T1003"
@@ -52,7 +52,7 @@ traits:
 composite_rules:
   # Memdump composite
   - id: memdump-ref
-    description: Memory dump utility reference
+    desc: Memory dump utility reference
     crit: suspicious
     conf: 0.75
     attack: "T1003"

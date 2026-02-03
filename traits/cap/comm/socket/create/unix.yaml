@@ -11,7 +11,7 @@ traits:
     conf: 0.75
     if:
       type: symbol
-      pattern: "socket|socketpair|socketcall"
+      regex: "socket|socketpair|socketcall"
 
   - id: socket-create
     desc: Creates network socket
@@ -29,7 +29,7 @@ traits:
     conf: 0.85
     if:
       type: symbol
-      pattern: connect
+      regex: connect
 
   - id: socket-connect
     desc: Connects socket to remote host

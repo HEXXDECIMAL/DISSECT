@@ -9,7 +9,7 @@ defaults:
 traits:
   # Windows System32 deletion
   - id: windows-system32-delete
-    description: "Windows System32 directory deletion"
+    desc: "Windows System32 directory deletion"
     conf: 0.95
     platforms: [windows]
     if:
@@ -18,7 +18,7 @@ traits:
 
   # Windows directory recursive deletion
   - id: windows-recursive-delete
-    description: "Windows system directory recursive deletion"
+    desc: "Windows system directory recursive deletion"
     conf: 0.9
     platforms: [windows]
     if:
@@ -27,7 +27,7 @@ traits:
 
   # Linux critical directory targeting
   - id: linux-etc-delete
-    description: "Linux /etc directory deletion attempt"
+    desc: "Linux /etc directory deletion attempt"
     conf: 0.95
     platforms: [linux]
     if:
@@ -36,7 +36,7 @@ traits:
 
   # Linux /usr directory targeting (binaries/libs)
   - id: linux-usr-delete
-    description: "Linux /usr directory deletion attempt"
+    desc: "Linux /usr directory deletion attempt"
     conf: 0.95
     platforms: [linux]
     if:
@@ -45,7 +45,7 @@ traits:
 
   # Linux boot directory targeting
   - id: linux-boot-delete
-    description: "Linux /boot directory deletion attempt"
+    desc: "Linux /boot directory deletion attempt"
     conf: 0.95
     platforms: [linux]
     if:
@@ -54,7 +54,7 @@ traits:
 
   # Root filesystem wipe
   - id: root-wipe
-    description: "Root filesystem wipe attempt"
+    desc: "Root filesystem wipe attempt"
     conf: 0.95
     attack: "T1561"
     if:
@@ -63,7 +63,7 @@ traits:
 
   # macOS system directory targeting
   - id: macos-system-delete
-    description: "macOS system directory deletion"
+    desc: "macOS system directory deletion"
     conf: 0.95
     platforms: [macos]
     if:
@@ -72,7 +72,7 @@ traits:
 
   # MBR/Boot sector targeting
   - id: mbr-target
-    description: "MBR/Boot sector targeting"
+    desc: "MBR/Boot sector targeting"
     conf: 0.95
     attack: "T1561.002"
     if:
@@ -81,7 +81,7 @@ traits:
 
   # === Recursive deletion atomic indicators ===
   - id: rmtree-call
-    description: rmtree function call
+    desc: rmtree function call
     crit: inert
     conf: 0.6
     if:
@@ -89,7 +89,7 @@ traits:
       exact: "rmtree"
 
   - id: rm-rf-cmd
-    description: rm -rf command
+    desc: rm -rf command
     crit: inert
     conf: 0.6
     if:
@@ -97,7 +97,7 @@ traits:
       regex: "rm\\s+-rf"
 
   - id: rmdir-recursive
-    description: rmdir recursive command
+    desc: rmdir recursive command
     crit: inert
     conf: 0.6
     if:
@@ -106,7 +106,7 @@ traits:
 
   # === System directory atomic indicators ===
   - id: windows-dir-ref
-    description: Windows directory reference
+    desc: Windows directory reference
     crit: inert
     conf: 0.5
     if:
@@ -114,7 +114,7 @@ traits:
       exact: "Windows"
 
   - id: system32-ref
-    description: System32 directory reference
+    desc: System32 directory reference
     crit: inert
     conf: 0.6
     if:
@@ -122,7 +122,7 @@ traits:
       exact: "System32"
 
   - id: etc-dir-ref
-    description: /etc directory reference
+    desc: /etc directory reference
     crit: inert
     conf: 0.5
     if:
@@ -130,7 +130,7 @@ traits:
       exact: "/etc"
 
   - id: boot-dir-ref
-    description: /boot directory reference
+    desc: /boot directory reference
     crit: inert
     conf: 0.6
     if:
@@ -138,7 +138,7 @@ traits:
       exact: "/boot"
 
   - id: usr-dir-ref
-    description: /usr directory reference
+    desc: /usr directory reference
     crit: inert
     conf: 0.5
     if:
@@ -147,7 +147,7 @@ traits:
 
 composite_rules:
   - id: recursive-delete-cmd
-    description: "Recursive deletion command pattern"
+    desc: "Recursive deletion command pattern"
     crit: notable
     conf: 0.8
     count_min: 1
@@ -159,7 +159,7 @@ composite_rules:
   # NOTE: Go and many legitimate programs reference /etc, /usr, etc.
   # These are too generic on their own - downgraded to inert.
   - id: system-dir-reference
-    description: "Reference to critical system directories"
+    desc: "Reference to critical system directories"
     crit: inert
     conf: 0.4
     count_min: 1
@@ -172,7 +172,7 @@ composite_rules:
 
   # System destruction with iteration
   - id: mass-deletion
-    description: "Mass system file deletion"
+    desc: "Mass system file deletion"
     conf: 0.95
     all:
       - id: recursive-delete-cmd

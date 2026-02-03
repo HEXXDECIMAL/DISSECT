@@ -3,110 +3,110 @@
 # These help identify setup.py context for supply-chain analysis
 
 defaults:
-  file_types: [python]
+  r#for: [python]
   crit: notable
 
 traits:
   # === setuptools atomic indicators ===
   - id: from-setuptools-import
-    description: from setuptools import statement
+    desc: from setuptools import statement
     crit: inert
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: string
       regex: "from\\s+setuptools\\s+import"
 
   - id: import-setuptools
-    description: import setuptools statement
+    desc: import setuptools statement
     crit: inert
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: string
       regex: "import\\s+setuptools"
 
   # distutils usage (older)
   - id: distutils
-    description: "Python package distribution (distutils)"
-    confidence: 0.8
-    condition:
+    desc: "Python package distribution (distutils)"
+    conf: 0.8
+    if:
       type: string
       regex: "from\\s+distutils"
 
   # setup() function call
   - id: setup-call
-    description: "Python package setup() definition"
-    confidence: 0.85
-    condition:
+    desc: "Python package setup() definition"
+    conf: 0.85
+    if:
       type: ast
       kind: call
       exact: "setup("
 
   # === Package metadata atomic indicators ===
   - id: metadata-author
-    description: author= metadata field
+    desc: author= metadata field
     crit: inert
-    confidence: 0.5
-    condition:
+    conf: 0.5
+    if:
       type: string
       regex: "author\\s*="
 
   - id: metadata-version
-    description: version= metadata field
+    desc: version= metadata field
     crit: inert
-    confidence: 0.5
-    condition:
+    conf: 0.5
+    if:
       type: string
       regex: "version\\s*="
 
   - id: metadata-description
-    description: description= metadata field
+    desc: description= metadata field
     crit: inert
-    confidence: 0.5
-    condition:
+    conf: 0.5
+    if:
       type: string
       regex: "description\\s*="
 
   - id: metadata-packages
-    description: packages= metadata field
+    desc: packages= metadata field
     crit: inert
-    confidence: 0.5
-    condition:
+    conf: 0.5
+    if:
       type: string
       regex: "packages\\s*="
 
   # Directory masquerading (evasion technique)
   - id: directory-masquerade
-    description: Directory masquerading as file (e.g.
+    desc: Directory masquerading as file (e.g.
     crit: suspicious
-    confidence: 0.8
-    file_types: [all]
-    condition:
+    conf: 0.8
+    r#for: [all]
+    if:
       type: string
       regex: "os\\.path\\.join\\(.{0,100}\\.py.{0,30}\\)"
 
   # === cmdclass override atomic indicators ===
   - id: cmdclass-dict
-    description: cmdclass dict assignment
+    desc: cmdclass dict assignment
     crit: notable
-    confidence: 0.75
-    condition:
+    conf: 0.75
+    if:
       type: string
       regex: "cmdclass\\s*=\\s*\\{"
 
   - id: install-class-inherit
-    description: class inheriting from install
+    desc: class inheriting from install
     crit: notable
-    confidence: 0.75
-    condition:
+    conf: 0.75
+    if:
       type: string
       regex: "class\\s+\\w+\\(install\\)"
 
 composite_rules:
   # setuptools composite
   - id: setuptools
-    description: Python package distribution (setuptools)
+    desc: Python package distribution (setuptools)
     crit: notable
-    confidence: 0.8
+    conf: 0.8
     count_min: 1
     any:
       - id: from-setuptools-import
@@ -114,9 +114,9 @@ composite_rules:
 
   # metadata composite
   - id: metadata
-    description: Python package metadata definition
+    desc: Python package metadata definition
     crit: notable
-    confidence: 0.7
+    conf: 0.7
     count_min: 1
     any:
       - id: metadata-author
@@ -126,9 +126,9 @@ composite_rules:
 
   # cmdclass override composite
   - id: cmdclass-override
-    description: Custom install command class override
+    desc: Custom install command class override
     crit: suspicious
-    confidence: 0.85
+    conf: 0.85
     count_min: 1
     any:
       - id: cmdclass-dict

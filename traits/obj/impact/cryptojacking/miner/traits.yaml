@@ -6,7 +6,7 @@ traits:
   # === Atomic: Mining Protocols ===
 
   - id: stratum-protocol
-    description: Stratum mining protocol reference
+    desc: Stratum mining protocol reference
     crit: suspicious
     conf: 0.85
     attack: "T1496"
@@ -17,7 +17,7 @@ traits:
   # === Atomic: Mining Pools ===
 
   - id: pool-c3pool
-    description: C3Pool mining pool
+    desc: C3Pool mining pool
     crit: suspicious
     conf: 0.9
     attack: "T1496"
@@ -26,7 +26,7 @@ traits:
       exact: "c3pool"
 
   - id: pool-f2pool
-    description: F2Pool mining pool
+    desc: F2Pool mining pool
     crit: suspicious
     conf: 0.9
     attack: "T1496"
@@ -35,7 +35,7 @@ traits:
       exact: "f2pool"
 
   - id: pool-hashvault
-    description: HashVault mining pool
+    desc: HashVault mining pool
     crit: suspicious
     conf: 0.9
     attack: "T1496"
@@ -44,7 +44,7 @@ traits:
       exact: "hashvault"
 
   - id: pool-monerohash
-    description: MoneroHash mining pool
+    desc: MoneroHash mining pool
     crit: suspicious
     conf: 0.9
     attack: "T1496"
@@ -53,7 +53,7 @@ traits:
       exact: "monerohash"
 
   - id: pool-xmrpool
-    description: XMRPool mining pool
+    desc: XMRPool mining pool
     crit: suspicious
     conf: 0.9
     attack: "T1496"
@@ -62,7 +62,7 @@ traits:
       exact: "xmrpool"
 
   - id: pool-supportxmr
-    description: SupportXMR mining pool
+    desc: SupportXMR mining pool
     crit: suspicious
     conf: 0.9
     attack: "T1496"
@@ -71,7 +71,7 @@ traits:
       exact: "supportxmr"
 
   - id: pool-minergate
-    description: MinerGate mining pool
+    desc: MinerGate mining pool
     crit: suspicious
     conf: 0.9
     attack: "T1496"
@@ -80,7 +80,7 @@ traits:
       exact: "minergate"
 
   - id: pool-crypto-pool
-    description: Crypto-pool mining pool
+    desc: Crypto-pool mining pool
     crit: suspicious
     conf: 0.7
     attack: "T1496"
@@ -89,7 +89,7 @@ traits:
       exact: "crypto-pool"
 
   - id: pool-moneropool
-    description: Moneropool mining pool
+    desc: Moneropool mining pool
     crit: suspicious
     conf: 0.7
     attack: "T1496"
@@ -100,7 +100,7 @@ traits:
   # === Atomic: Mining Software ===
 
   - id: xmrig-ref
-    description: XMRig miner reference
+    desc: XMRig miner reference
     crit: suspicious
     conf: 0.9
     attack: "T1496"
@@ -110,7 +110,7 @@ traits:
       case_insensitive: true
 
   - id: cryptonight
-    description: CryptoNight algorithm reference
+    desc: CryptoNight algorithm reference
     crit: suspicious
     conf: 0.85
     attack: "T1496"
@@ -119,7 +119,7 @@ traits:
       regex: "[Cc]rypto[Nn]ight"
 
   - id: monero-lower
-    description: monero word (lowercase)
+    desc: monero word (lowercase)
     crit: inert
     conf: 0.5
     attack: "T1496"
@@ -128,7 +128,7 @@ traits:
       word: "monero"
 
   - id: monero-title
-    description: Monero word (title case)
+    desc: Monero word (title case)
     crit: inert
     conf: 0.5
     attack: "T1496"
@@ -137,7 +137,7 @@ traits:
       word: "Monero"
 
   - id: monero-upper
-    description: MONERO word (uppercase)
+    desc: MONERO word (uppercase)
     crit: inert
     conf: 0.5
     attack: "T1496"
@@ -146,7 +146,7 @@ traits:
       word: "MONERO"
 
   - id: xmr-ticker
-    description: XMR ticker symbol
+    desc: XMR ticker symbol
     crit: inert
     conf: 0.5
     attack: "T1496"
@@ -157,7 +157,7 @@ traits:
   # === Atomic: Mining Configuration ===
 
   - id: donate-level
-    description: Mining donate-level configuration
+    desc: Mining donate-level configuration
     crit: suspicious
     conf: 0.85
     attack: "T1496"
@@ -166,7 +166,7 @@ traits:
       exact: "--donate-level"
 
   - id: tls-fingerprint
-    description: Mining TLS fingerprint option
+    desc: Mining TLS fingerprint option
     crit: suspicious
     conf: 0.8
     attack: "T1496"
@@ -175,7 +175,7 @@ traits:
       exact: "--tls-fingerprint"
 
   - id: miner-name
-    description: Miner name configuration
+    desc: Miner name configuration
     crit: suspicious
     conf: 0.75
     attack: "T1496"
@@ -184,7 +184,7 @@ traits:
       exact: "miner_name"
 
   - id: miner-url
-    description: Miner URL configuration
+    desc: Miner URL configuration
     crit: suspicious
     conf: 0.75
     attack: "T1496"
@@ -193,7 +193,7 @@ traits:
       exact: "miner_url"
 
   - id: normal-hashing
-    description: Normal hashing configuration
+    desc: Normal hashing configuration
     crit: suspicious
     conf: 0.8
     attack: "T1496"
@@ -204,7 +204,7 @@ traits:
   # === Atomic: Memory Optimization ===
 
   - id: hugepages
-    description: Huge pages memory configuration
+    desc: Huge pages memory configuration
     crit: suspicious
     conf: 0.7
     attack: "T1496"
@@ -214,7 +214,7 @@ traits:
       exact: "vm.nr_hugepages"
 
   - id: nmi-watchdog
-    description: NMI watchdog disable (mining optimization)
+    desc: NMI watchdog disable (mining optimization)
     crit: suspicious
     conf: 0.75
     attack: "T1496"
@@ -226,7 +226,7 @@ traits:
   # === Atomic: Argon2 (Memory-Hard) ===
 
   - id: argon2d
-    description: Argon2d hashing algorithm
+    desc: Argon2d hashing algorithm
     crit: suspicious
     conf: 0.7
     attack: "T1496"
@@ -239,7 +239,7 @@ traits:
   # NOTE: "wallet" is too generic - appears in many legitimate contexts.
   # Only meaningful with other mining indicators.
   - id: wallet-ref
-    description: Wallet reference (mining context)
+    desc: Wallet reference (mining context)
     crit: inert
     conf: 0.3
     attack: "T1496"
@@ -250,7 +250,7 @@ traits:
   # NOTE: Go runtime uses /proc/self legitimately for memory management
   # Moved to inert - only meaningful with other mining indicators
   - id: proc-self-ref
-    description: Process self reference
+    desc: Process self reference
     crit: inert
     conf: 0.3
     if:
@@ -260,7 +260,7 @@ traits:
   # NOTE: "NUMA" can appear in Go and other runtimes for memory optimization.
   # Only meaningful with other mining indicators.
   - id: numa-ref
-    description: NUMA memory architecture reference
+    desc: NUMA memory architecture reference
     crit: inert
     conf: 0.3
     if:
@@ -270,7 +270,7 @@ traits:
 composite_rules:
   # Monero reference composite
   - id: monero-ref
-    description: Monero cryptocurrency reference
+    desc: Monero cryptocurrency reference
     crit: notable
     conf: 0.6
     attack: "T1496"
@@ -282,7 +282,7 @@ composite_rules:
       - id: xmr-ticker
 
   - id: cryptocurrency-miner
-    description: Cryptocurrency miner detected
+    desc: Cryptocurrency miner detected
     crit: suspicious
     conf: 0.95
     attack: "T1496"
@@ -306,7 +306,7 @@ composite_rules:
       - id: miner-name
 
   - id: memory-optimized-miner
-    description: Memory-optimized cryptocurrency miner
+    desc: Memory-optimized cryptocurrency miner
     crit: suspicious
     conf: 0.9
     attack: "T1496"
@@ -320,7 +320,7 @@ composite_rules:
       - id: wallet-ref
 
   - id: argon2-miner
-    description: Argon2-based cryptocurrency miner
+    desc: Argon2-based cryptocurrency miner
     crit: suspicious
     conf: 0.85
     attack: "T1496"
@@ -334,7 +334,7 @@ composite_rules:
   # === HOSTILE: Cryptominer Trojan ===
   # Complexity: file_types(+1) + all(+4) = 5 >= 4 ✓
   - id: cryptominer-trojan
-    description: Cryptominer trojan detected
+    desc: Cryptominer trojan detected
     crit: hostile
     conf: 0.98
     attack: "T1496"
@@ -348,7 +348,7 @@ composite_rules:
 
   # Helper: any known mining pool
   - id: known-mining-pool
-    description: Known mining pool detected
+    desc: Known mining pool detected
     crit: suspicious
     conf: 0.9
     attack: "T1496"
@@ -366,7 +366,7 @@ composite_rules:
   # === HOSTILE: Generic Python Cryptominer Dropper ===
   # Complexity: file_types(+1) + all(+4) = 5 >= 4 ✓
   - id: python-cryptominer-dropper
-    description: Python cryptominer dropper
+    desc: Python cryptominer dropper
     crit: hostile
     conf: 0.95
     attack: "T1496"
@@ -383,7 +383,7 @@ composite_rules:
   # Pattern: Monero wallet + stealth subprocess execution + chmod executable
   # Complexity: file_types(+1) + all(+4) = 5 >= 4 ✓
   - id: stealth-cryptominer-dropper
-    description: Stealth cryptominer dropper
+    desc: Stealth cryptominer dropper
     crit: hostile
     conf: 0.95
     attack: "T1496"

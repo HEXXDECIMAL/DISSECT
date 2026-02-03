@@ -4,10 +4,10 @@
 
 traits:
   - id: fanotify
-    description: Filesystem-wide event monitoring via fanotify
+    desc: Filesystem-wide event monitoring via fanotify
     crit: notable
     conf: 0.66
     for: [elf, so, c]
     if:
       type: symbol
-      pattern: fanotify_init|fanotify_mark
+      regex: fanotify_init|fanotify_mark

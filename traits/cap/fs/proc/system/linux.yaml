@@ -4,7 +4,7 @@
 
 traits:
   - id: system-cpuinfo
-    description: Get CPU info from /proc/cpuinfo
+    desc: Get CPU info from /proc/cpuinfo
     crit: inert
     conf: 0.66
     if:
@@ -12,7 +12,7 @@ traits:
       exact: /proc/cpuinfo
 
   - id: system-meminfo
-    description: Get memory info from /proc/meminfo
+    desc: Get memory info from /proc/meminfo
     crit: inert
     conf: 0.66
     if:
@@ -20,7 +20,7 @@ traits:
       exact: /proc/meminfo
 
   - id: system-stat
-    description: Get system statistics from /proc/stat
+    desc: Get system statistics from /proc/stat
     crit: inert
     conf: 0.66
     if:
@@ -28,7 +28,7 @@ traits:
       exact: /proc/stat
 
   - id: system-osrelease
-    description: Get kernel version from /proc/sys/kernel/osrelease
+    desc: Get kernel version from /proc/sys/kernel/osrelease
     crit: inert
     conf: 0.66
     if:

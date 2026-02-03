@@ -1,81 +1,72 @@
 traits:
   - id: setuid-syscall
-    description: Sets user ID via setuid/seteuid
+    desc: Sets user ID via setuid/seteuid
     crit: notable
-    condition:
+    if:
       type: syscall
       name: ["setuid", "setuid32", "seteuid"]
 
   - id: setreuid-syscall
-    description: Sets real and effective user
+    desc: Sets real and effective user
     crit: notable
-    condition:
+    if:
       type: syscall
       name: ["setreuid", "setreuid32"]
 
   - id: setresuid-syscall
-    description: Sets real, effective, and saved
+    desc: Sets real, effective, and saved
     crit: notable
-    condition:
+    if:
       type: syscall
       name: ["setresuid", "setresuid32"]
 
   - id: setgid-syscall
-    description: Sets group ID via setgid/setegid
+    desc: Sets group ID via setgid/setegid
     crit: notable
-    condition:
+    if:
       type: syscall
       name: ["setgid", "setgid32", "setegid"]
 
   - id: setregid-syscall
-    description: Sets real and effective group
+    desc: Sets real and effective group
     crit: notable
-    condition:
+    if:
       type: syscall
       name: ["setregid", "setregid32"]
 
   - id: setresgid-syscall
-    description: Sets real, effective, and saved
+    desc: Sets real, effective, and saved
     crit: notable
-    condition:
+    if:
       type: syscall
       name: ["setresgid", "setresgid32"]
 
   - id: capset-syscall
-    description: Sets process capabilities
+    desc: Sets process capabilities
     crit: suspicious
-    condition:
+    if:
       type: syscall
       name: ["capset"]
 
 composite_rules:
   - id: setuid
-    description: Changes user identity
-    confidence: 0.9
+    desc: Changes user identity
+    conf: 0.9
     crit: notable
     platforms: [linux]
-    file_types: [elf]
+    r#for: [elf]
     any:
       - id: setuid-syscall
       - id: setreuid-syscall
       - id: setresuid-syscall
 
   - id: setgid
-    description: Changes group identity
-    confidence: 0.9
+    desc: Changes group identity
+    conf: 0.9
     crit: notable
     platforms: [linux]
-    file_types: [elf]
+    r#for: [elf]
     any:
       - id: setgid-syscall
       - id: setregid-syscall
       - id: setresgid-syscall
-
-  - id: capabilities
-    description: Manipulates process capabilities
-    confidence: 0.85
-    crit: suspicious
-    platforms: [linux]
-    file_types: [elf]
-    condition:
-      id: capset-syscall

@@ -4,17 +4,17 @@
 # Generic behaviors (reverse shells, obfuscation) should be in their objective directories
 
 defaults:
-  file_types: [python]
+  r#for: [python]
   attack: "T1195.002"
 
 traits:
   # NOTE: YARA kept for setup-abuse - requires combining setup.py context with
   # malicious operations (subprocess + urllib download patterns)
   - id: setup-abuse
-    description: Malicious setup.py execution
+    desc: Malicious setup.py execution
     crit: suspicious
-    confidence: 0.85
-    condition:
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule pypi_setup_abuse {
@@ -37,10 +37,10 @@ traits:
   # NOTE: YARA kept for typosquat-exec - requires count-based logic (2 of suspicious
   # patterns) combined with package name detection
   - id: typosquat-exec
-    description: PyPI typosquatting with code execution
+    desc: PyPI typosquatting with code execution
     crit: suspicious
-    confidence: 0.8
-    condition:
+    conf: 0.8
+    if:
       type: yara
       source: |
         rule pypi_typosquat_exec {
@@ -62,10 +62,10 @@ traits:
   # NOTE: YARA kept for install-network - requires combining module-level markers
   # with network activity and exec patterns
   - id: install-network
-    description: Network activity triggered by package
+    desc: Network activity triggered by package
     crit: suspicious
-    confidence: 0.85
-    condition:
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule pypi_install_network {
@@ -89,10 +89,10 @@ traits:
   # NOTE: YARA kept for author-impersonation - requires combining author metadata
   # with code execution patterns
   - id: author-impersonation
-    description: Impersonates package author with malicious
+    desc: Impersonates package author with malicious
     crit: suspicious
-    confidence: 0.8
-    condition:
+    conf: 0.8
+    if:
       type: yara
       source: |
         rule pypi_author_impersonation {
@@ -110,10 +110,10 @@ traits:
   # NOTE: YARA kept for gzip-json-payload - requires combining gzip/json patterns
   # with resource loading and code execution in a specific way
   - id: gzip-json-payload
-    description: Loads code payload from gzipped
+    desc: Loads code payload from gzipped
     crit: suspicious
-    confidence: 0.85
-    condition:
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule pypi_gzip_json_payload {
@@ -132,11 +132,11 @@ traits:
   # NOTE: YARA kept for dependency-injection - requires combining try/except ImportError
   # with pip install patterns in a specific structural way
   - id: dependency-injection
-    description: Package installs additional dependencies at
+    desc: Package installs additional dependencies at
     crit: suspicious
-    confidence: 0.95
+    conf: 0.95
     mbc: "B0024"
-    condition:
+    if:
       type: yara
       source: |
         rule runtime_dependency_injection {

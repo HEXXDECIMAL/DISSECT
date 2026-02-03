@@ -10,4 +10,4 @@ traits:
     for: [pe, dll, c]
     if:
       type: symbol
-      pattern: DeleteFile|DeleteFileA|DeleteFileW
+      regex: DeleteFile|DeleteFileA|DeleteFileW

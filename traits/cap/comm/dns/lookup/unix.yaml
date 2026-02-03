@@ -14,7 +14,7 @@ traits:
     attack: "T1071.004"
     if:
       type: symbol
-      pattern: res_query|res_search|getaddrinfo|gethostbyname
+      regex: res_query|res_search|getaddrinfo|gethostbyname
 
   - id: lookup-resolv
     desc: Reads DNS resolver configuration

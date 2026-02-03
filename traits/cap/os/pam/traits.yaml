@@ -4,159 +4,159 @@
 traits:
   # PAM client API functions (symbols)
   - id: pam-start-symbol
-    description: pam_start function symbol
+    desc: pam_start function symbol
     crit: inert
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: symbol
       exact: "pam_start"
 
   - id: pam-end-symbol
-    description: pam_end function symbol
+    desc: pam_end function symbol
     crit: inert
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: symbol
       exact: "pam_end"
 
   - id: pam-authenticate-symbol
-    description: pam_authenticate function symbol
+    desc: pam_authenticate function symbol
     crit: inert
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: symbol
       exact: "pam_authenticate"
 
   - id: pam-acct-mgmt-symbol
-    description: pam_acct_mgmt function symbol
+    desc: pam_acct_mgmt function symbol
     crit: inert
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: symbol
       exact: "pam_acct_mgmt"
 
   - id: pam-setcred-symbol
-    description: pam_setcred function symbol
+    desc: pam_setcred function symbol
     crit: inert
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: symbol
       exact: "pam_setcred"
 
   # PAM libraries (strings)
   - id: libpam-so-string
-    description: libpam.so library string
+    desc: libpam.so library string
     crit: inert
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: string
       exact: "libpam.so"
 
   - id: libpam-string
-    description: libpam library reference
+    desc: libpam library reference
     crit: inert
-    confidence: 0.5
-    condition:
+    conf: 0.5
+    if:
       type: string
       exact: "libpam"
 
   # PAM module API functions (symbols)
   - id: pam-sm-authenticate-symbol
-    description: pam_sm_authenticate module function
+    desc: pam_sm_authenticate module function
     crit: inert
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: symbol
       exact: "pam_sm_authenticate"
 
   - id: pam-sm-setcred-symbol
-    description: pam_sm_setcred module function
+    desc: pam_sm_setcred module function
     crit: inert
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: symbol
       exact: "pam_sm_setcred"
 
   - id: pam-sm-acct-mgmt-symbol
-    description: pam_sm_acct_mgmt module function
+    desc: pam_sm_acct_mgmt module function
     crit: inert
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: symbol
       exact: "pam_sm_acct_mgmt"
 
   - id: pam-sm-open-session-symbol
-    description: pam_sm_open_session module function
+    desc: pam_sm_open_session module function
     crit: inert
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: symbol
       exact: "pam_sm_open_session"
 
   - id: pam-sm-close-session-symbol
-    description: pam_sm_close_session module function
+    desc: pam_sm_close_session module function
     crit: inert
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: symbol
       exact: "pam_sm_close_session"
 
   # PAM handle types (strings)
   - id: pam-handle-t-string
-    description: pam_handle_t type string
+    desc: pam_handle_t type string
     crit: inert
-    confidence: 0.5
-    condition:
+    conf: 0.5
+    if:
       type: string
       exact: "pam_handle_t"
 
   - id: pam-get-item-symbol
-    description: pam_get_item function symbol
+    desc: pam_get_item function symbol
     crit: inert
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: symbol
       exact: "pam_get_item"
 
   # PAM configuration paths (strings)
   - id: pam-d-path
-    description: /etc/pam.d/ directory path
+    desc: /etc/pam.d/ directory path
     crit: inert
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: string
       exact: "/etc/pam.d/"
 
   - id: pam-conf-path
-    description: /etc/pam.conf file path
+    desc: /etc/pam.conf file path
     crit: inert
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: string
       exact: "/etc/pam.conf"
 
   # PAM module names (strings)
   - id: pam-unix-module
-    description: pam_unix module reference
+    desc: pam_unix module reference
     crit: inert
-    confidence: 0.5
-    condition:
+    conf: 0.5
+    if:
       type: string
       exact: "pam_unix"
 
   - id: pam-permit-module
-    description: pam_permit module reference
+    desc: pam_permit module reference
     crit: inert
-    confidence: 0.5
-    condition:
+    conf: 0.5
+    if:
       type: string
       exact: "pam_permit"
 
   - id: pam-deny-module
-    description: pam_deny module reference
+    desc: pam_deny module reference
     crit: inert
-    confidence: 0.5
-    condition:
+    conf: 0.5
+    if:
       type: string
       exact: "pam_deny"
 
@@ -164,19 +164,19 @@ traits:
   # NOTE: Generic words like "required" and "sufficient" are too broad.
   # Only match PAM config-like patterns with module context.
   - id: pam-required-control
-    description: PAM required control flag
+    desc: PAM required control flag
     crit: inert
-    confidence: 0.4
-    condition:
+    conf: 0.4
+    if:
       type: string
       # Match PAM config line format: "auth required pam_unix.so" etc.
       regex: "(?:auth|account|password|session)\\s+required\\s+pam_"
 
   - id: pam-sufficient-control
-    description: PAM sufficient control flag
+    desc: PAM sufficient control flag
     crit: inert
-    confidence: 0.4
-    condition:
+    conf: 0.4
+    if:
       type: string
       # Match PAM config line format: "auth sufficient pam_unix.so" etc.
       regex: "(?:auth|account|password|session)\\s+sufficient\\s+pam_"
@@ -185,7 +185,7 @@ traits:
 composite_rules:
   # PAM library references
   - id: pam-libraries
-    description: PAM library references
+    desc: PAM library references
     crit: inert
     conf: 0.6
     any:
@@ -194,7 +194,7 @@ composite_rules:
 
   # PAM API functions
   - id: pam-api-functions
-    description: PAM API function usage
+    desc: PAM API function usage
     crit: inert
     conf: 0.7
     count_min: 3
@@ -207,7 +207,7 @@ composite_rules:
 
   # PAM client usage
   - id: client
-    description: PAM client library usage
+    desc: PAM client library usage
     crit: benign
     conf: 0.9
     any:
@@ -216,7 +216,7 @@ composite_rules:
 
   # PAM module API functions
   - id: pam-module-api
-    description: PAM module API functions
+    desc: PAM module API functions
     crit: inert
     conf: 0.7
     count_min: 2
@@ -229,7 +229,7 @@ composite_rules:
 
   # PAM handle access
   - id: pam-handle-access
-    description: PAM handle type and access
+    desc: PAM handle type and access
     crit: inert
     conf: 0.6
     any:
@@ -238,7 +238,7 @@ composite_rules:
 
   # Any PAM module function
   - id: any-pam-module-function
-    description: Any PAM module API function
+    desc: Any PAM module API function
     crit: inert
     conf: 0.6
     any:
@@ -250,7 +250,7 @@ composite_rules:
 
   # PAM module with handle
   - id: pam-module-with-handle
-    description: PAM module with handle access
+    desc: PAM module with handle access
     crit: inert
     conf: 0.7
     all:
@@ -259,7 +259,7 @@ composite_rules:
 
   # PAM module implementation
   - id: module
-    description: PAM module implementation
+    desc: PAM module implementation
     crit: benign
     conf: 0.85
     any:
@@ -268,7 +268,7 @@ composite_rules:
 
   # PAM configuration paths
   - id: pam-config-paths
-    description: PAM configuration file paths
+    desc: PAM configuration file paths
     crit: inert
     conf: 0.6
     any:
@@ -277,7 +277,7 @@ composite_rules:
 
   # PAM modules
   - id: pam-modules
-    description: PAM module names
+    desc: PAM module names
     crit: inert
     conf: 0.5
     count_min: 2
@@ -288,7 +288,7 @@ composite_rules:
 
   # PAM control flags
   - id: pam-controls
-    description: PAM control flags
+    desc: PAM control flags
     crit: inert
     conf: 0.4
     any:
@@ -297,7 +297,7 @@ composite_rules:
 
   # Any PAM module name
   - id: any-pam-module-name
-    description: Any PAM module name
+    desc: Any PAM module name
     crit: inert
     conf: 0.5
     any:
@@ -307,7 +307,7 @@ composite_rules:
 
   # PAM module with control
   - id: pam-module-with-control
-    description: PAM module with control flag
+    desc: PAM module with control flag
     crit: inert
     conf: 0.6
     all:
@@ -316,7 +316,7 @@ composite_rules:
 
   # PAM configuration
   - id: config
-    description: PAM configuration patterns
+    desc: PAM configuration patterns
     crit: benign
     conf: 0.9
     any:

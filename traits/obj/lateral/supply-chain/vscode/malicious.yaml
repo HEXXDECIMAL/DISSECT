@@ -6,11 +6,11 @@ traits:
   # NOTE: YARA kept for api-usage - requires fullword match on "activate" which
   # DISSECT doesn't support, plus regex patterns for require/import
   - id: api-usage
-    description: Uses VSCode API (extension marker)
+    desc: Uses VSCode API (extension marker)
     crit: inert
-    confidence: 1.0
-    file_types: [javascript, typescript]
-    condition:
+    conf: 1.0
+    r#for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule vscode_api_usage {
@@ -25,133 +25,133 @@ traits:
 
   # === Atomic indicators for post-install-exec ===
   - id: activate-word
-    description: activate keyword
+    desc: activate keyword
     crit: inert
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.7
+    r#for: [javascript, typescript]
+    if:
       type: string
       exact: "activate"
 
   - id: globalState-word
-    description: globalState keyword
+    desc: globalState keyword
     crit: inert
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.7
+    r#for: [javascript, typescript]
+    if:
       type: string
       exact: "globalState"
 
   - id: postInstall-word
-    description: postInstall keyword
+    desc: postInstall keyword
     crit: inert
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.7
+    r#for: [javascript, typescript]
+    if:
       type: string
       exact: "postInstall"
 
   - id: exec-pattern
-    description: exec function pattern
+    desc: exec function pattern
     crit: inert
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.7
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "exec(Sync|Async)?"
 
   # === Atomic indicators for credential-theft ===
   - id: ssh-dir
-    description: .ssh directory reference
+    desc: .ssh directory reference
     crit: notable
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.7
+    r#for: [javascript, typescript]
+    if:
       type: string
       exact: ".ssh"
 
   - id: aws-dir
-    description: .aws directory reference
+    desc: .aws directory reference
     crit: notable
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.7
+    r#for: [javascript, typescript]
+    if:
       type: string
       exact: ".aws"
 
   - id: npmrc-file
-    description: .npmrc file reference
+    desc: .npmrc file reference
     crit: notable
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.7
+    r#for: [javascript, typescript]
+    if:
       type: string
       exact: ".npmrc"
 
   - id: env-file
-    description: .env file reference
+    desc: .env file reference
     crit: notable
-    confidence: 0.6
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.6
+    r#for: [javascript, typescript]
+    if:
       type: string
       exact: ".env"
 
   - id: readFile-pattern
-    description: readFile function pattern
+    desc: readFile function pattern
     crit: inert
-    confidence: 0.6
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.6
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "read(File|FileSync)"
 
   - id: post-method
-    description: POST HTTP method
+    desc: POST HTTP method
     crit: inert
-    confidence: 0.6
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.6
+    r#for: [javascript, typescript]
+    if:
       type: string
       exact: "POST"
 
   # VSCode namespace usage pattern
   - id: vscode-namespace
-    description: Uses VSCode namespace
+    desc: Uses VSCode namespace
     crit: inert
-    confidence: 1.0
-    file_types: [javascript, typescript]
-    condition:
+    conf: 1.0
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "vscode\\."
 
   # Persistence location references
   - id: persistence-locations
-    description: References persistence locations (startup/autorun paths)
+    desc: References persistence locations (startup/autorun paths)
     crit: notable
-    confidence: 0.8
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.8
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "APPDATA|Startup|crontab|launchd|systemd"
 
   # File write operations
   - id: file-write-ops
-    description: File write or copy operations
+    desc: File write or copy operations
     crit: inert
-    confidence: 1.0
-    file_types: [javascript, typescript]
-    condition:
+    conf: 1.0
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "write(File|FileSync)|copy(File|FileSync)"
 
 composite_rules:
   # State helpers
   - id: state-markers
-    description: State management markers (globalState or
+    desc: State management markers (globalState or
     crit: notable
-    confidence: 0.75
-    file_types: [javascript, typescript]
+    conf: 0.75
+    r#for: [javascript, typescript]
     count_min: 1
     any:
       - id: globalState-word
@@ -159,10 +159,10 @@ composite_rules:
 
   # Credential paths
   - id: credential-paths
-    description: Sensitive credential file/directory paths
+    desc: Sensitive credential file/directory paths
     crit: notable
-    confidence: 0.8
-    file_types: [javascript, typescript]
+    conf: 0.8
+    r#for: [javascript, typescript]
     count_min: 1
     any:
       - id: ssh-dir
@@ -172,10 +172,10 @@ composite_rules:
 
   # Send methods
   - id: send-methods
-    description: HTTP send methods
+    desc: HTTP send methods
     crit: notable
-    confidence: 0.7
-    file_types: [javascript, typescript]
+    conf: 0.7
+    r#for: [javascript, typescript]
     count_min: 1
     any:
       - id: post-method
@@ -184,12 +184,12 @@ composite_rules:
 
   # Post-Install Code Execution
   - id: post-install-exec
-    description: Post-install script execution (dropper pattern)
+    desc: Post-install script execution (dropper pattern)
     crit: suspicious
-    confidence: 0.95
+    conf: 0.95
     mbc: "B0024"
     attack: "T1059"
-    file_types: [javascript, typescript]
+    r#for: [javascript, typescript]
     all:
       - id: activate-word
       - id: state-markers
@@ -197,12 +197,12 @@ composite_rules:
 
   # Extension Credential Theft
   - id: credential-theft
-    description: VSCode extension accessing sensitive credentials
+    desc: VSCode extension accessing sensitive credentials
     crit: suspicious
-    confidence: 0.9
+    conf: 0.9
     mbc: "E1519"
     attack: "T1555"
-    file_types: [javascript, typescript]
+    r#for: [javascript, typescript]
     all:
       - id: credential-paths
       - id: readFile-pattern
@@ -210,12 +210,12 @@ composite_rules:
 
   # Staged Decryption and Execution inside a VSCode Extension
   - id: staged-dropper
-    description: VSCode extension with staged decryption
+    desc: VSCode extension with staged decryption
     crit: hostile
-    confidence: 0.99
+    conf: 0.99
     mbc: "B0032"
     attack: "T1027"
-    file_types: [javascript, typescript]
+    r#for: [javascript, typescript]
     all:
       - id: js-decrypt-eval
       - id: api-usage
@@ -223,12 +223,12 @@ composite_rules:
 
   # Extension Persistence via well-known hooks
   - id: persistence
-    description: Extension establishing persistence
+    desc: Extension establishing persistence
     crit: hostile
-    confidence: 0.95
+    conf: 0.95
     mbc: "F0011"
     attack: "T1547"
-    file_types: [javascript, typescript]
+    r#for: [javascript, typescript]
     all:
       - id: api-usage
       - id: persistence-locations

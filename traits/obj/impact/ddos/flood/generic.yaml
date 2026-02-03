@@ -9,7 +9,7 @@ traits:
   # - Network monitoring tools
   # Match only when "ddos" appears in attack-specific context
   - id: ddos-reference
-    description: References DDoS attack
+    desc: References DDoS attack
     crit: suspicious
     conf: 0.7
     mbc: "B0042"
@@ -22,7 +22,7 @@ traits:
       - regex: "(?i)anti.?ddos|ddos.?protect|ddos.?mitiga"
 
   - id: syn-flood
-    description: SYN flood attack reference
+    desc: SYN flood attack reference
     crit: suspicious
     conf: 0.9
     mbc: "B0042"
@@ -33,7 +33,7 @@ traits:
       regex: "(?i)syn.?flood"
 
   - id: ack-flood
-    description: ACK flood attack reference
+    desc: ACK flood attack reference
     crit: suspicious
     conf: 0.9
     mbc: "B0042"
@@ -44,7 +44,7 @@ traits:
       regex: "(?i)ack.?flood"
 
   - id: udp-flood
-    description: UDP flood attack function
+    desc: UDP flood attack function
     crit: suspicious
     conf: 0.9
     mbc: "B0042"
@@ -55,7 +55,7 @@ traits:
       exact: "udp_flood"
 
   - id: tcp-flood
-    description: TCP flood attack function
+    desc: TCP flood attack function
     crit: suspicious
     conf: 0.9
     mbc: "B0042"
@@ -66,7 +66,7 @@ traits:
       exact: "tcp_flood"
 
   - id: tcpraw-flood
-    description: TCP raw flood attack function
+    desc: TCP raw flood attack function
     crit: suspicious
     conf: 0.9
     mbc: "B0042"
@@ -77,7 +77,7 @@ traits:
       exact: "tcpraw_flood"
 
   - id: flooder
-    description: Flooder tool reference
+    desc: Flooder tool reference
     crit: suspicious
     conf: 0.85
     mbc: "B0042"
@@ -88,7 +88,7 @@ traits:
       regex: "(?i)flooder"
 
   - id: stresser
-    description: Stresser tool reference
+    desc: Stresser tool reference
     crit: suspicious
     conf: 0.9
     mbc: "B0042"
@@ -99,7 +99,7 @@ traits:
       exact: "stresser"
 
   - id: tsource-engine
-    description: TSource Engine Query (DDoS amplification)
+    desc: TSource Engine Query (DDoS amplification)
     crit: suspicious
     conf: 0.95
     mbc: "B0042"
@@ -110,7 +110,7 @@ traits:
       exact: "TSource Engine Query"
 
   - id: icmp-flood
-    description: ICMP flood attack
+    desc: ICMP flood attack
     crit: suspicious
     conf: 0.9
     mbc: "B0042"
@@ -121,7 +121,7 @@ traits:
       exact: "ICMPFLOOD"
 
   - id: blacknurse
-    description: BlackNurse ICMP attack
+    desc: BlackNurse ICMP attack
     crit: suspicious
     conf: 0.95
     mbc: "B0042"
@@ -132,7 +132,7 @@ traits:
       exact: "BLACKNURSE"
 
   - id: hydrasyn
-    description: HYDRASYN DDoS attack
+    desc: HYDRASYN DDoS attack
     crit: suspicious
     conf: 0.95
     mbc: "B0042"
@@ -143,7 +143,7 @@ traits:
       exact: "HYDRASYN"
 
   - id: flood-operation
-    description: Flood operation message
+    desc: Flood operation message
     crit: suspicious
     conf: 0.9
     mbc: "B0042"
@@ -154,7 +154,7 @@ traits:
       exact: "Flood operation"
 
   - id: starting-flood
-    description: Starting flood message
+    desc: Starting flood message
     crit: suspicious
     conf: 0.9
     mbc: "B0042"
@@ -166,7 +166,7 @@ traits:
 
 composite_rules:
   - id: syn-ack-flood-combo
-    description: SYN and ACK flood attack
+    desc: SYN and ACK flood attack
     crit: suspicious
     conf: 0.95
     mbc: "B0042"
@@ -177,7 +177,7 @@ composite_rules:
       - id: ack-flood
 
   - id: tcp-flood-combo
-    description: Multiple TCP flood functions detected
+    desc: Multiple TCP flood functions detected
     crit: suspicious
     conf: 0.95
     mbc: "B0042"
@@ -190,7 +190,7 @@ composite_rules:
       - id: tcpraw-flood
 
   - id: amplification-attack
-    description: DDoS amplification attack detected
+    desc: DDoS amplification attack detected
     crit: suspicious
     conf: 0.95
     mbc: "B0042"
@@ -203,7 +203,7 @@ composite_rules:
       - id: hydrasyn
 
   - id: flood-messaging
-    description: Flood operation messaging detected
+    desc: Flood operation messaging detected
     crit: suspicious
     conf: 0.95
     mbc: "B0042"

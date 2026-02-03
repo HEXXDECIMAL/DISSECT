@@ -13,7 +13,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "ev_loop"
+      regex: "ev_loop"
 
   - id: ev-io-start
     desc: ev_io_start function
@@ -21,7 +21,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "ev_io_start"
+      regex: "ev_io_start"
 
   - id: ev-io-stop
     desc: ev_io_stop function
@@ -29,7 +29,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "ev_io_stop"
+      regex: "ev_io_stop"
 
   - id: ev-timer-start
     desc: ev_timer_start function
@@ -37,7 +37,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "ev_timer_start"
+      regex: "ev_timer_start"
 
   - id: ev-run
     desc: ev_run function
@@ -45,7 +45,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "ev_run"
+      regex: "ev_run"
 
   - id: ev-break
     desc: ev_break function
@@ -53,7 +53,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "ev_break"
+      regex: "ev_break"
 
   - id: ev-default-loop
     desc: ev_default_loop function
@@ -61,7 +61,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "ev_default_loop"
+      regex: "ev_default_loop"
 
   - id: libev-error
     desc: libev error string
@@ -78,7 +78,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "uv_loop_init"
+      regex: "uv_loop_init"
 
   - id: uv-run
     desc: uv_run function
@@ -86,7 +86,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "uv_run"
+      regex: "uv_run"
 
   - id: uv-tcp-init
     desc: uv_tcp_init function
@@ -94,7 +94,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "uv_tcp_init"
+      regex: "uv_tcp_init"
 
   - id: uv-tcp-connect
     desc: uv_tcp_connect function
@@ -102,7 +102,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "uv_tcp_connect"
+      regex: "uv_tcp_connect"
 
   - id: uv-write
     desc: uv_write function
@@ -110,7 +110,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "uv_write"
+      regex: "uv_write"
 
   - id: uv-read-start
     desc: uv_read_start function
@@ -118,7 +118,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "uv_read_start"
+      regex: "uv_read_start"
 
   - id: uv-spawn
     desc: uv_spawn function
@@ -126,7 +126,7 @@ traits:
     conf: 0.5
     if:
       type: symbol
-      pattern: "uv_spawn"
+      regex: "uv_spawn"
 
   - id: uv-default-loop
     desc: uv_default_loop function
@@ -134,7 +134,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "uv_default_loop"
+      regex: "uv_default_loop"
 
   # === c-ares micro-traits ===
   - id: ares-init
@@ -143,7 +143,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "ares_init"
+      regex: "ares_init"
 
   - id: ares-gethostbyname
     desc: ares_gethostbyname function
@@ -151,7 +151,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "ares_gethostbyname"
+      regex: "ares_gethostbyname"
 
   - id: ares-process
     desc: ares_process function
@@ -159,7 +159,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "ares_process"
+      regex: "ares_process"
 
   - id: ares-destroy
     desc: ares_destroy function
@@ -167,7 +167,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "ares_destroy"
+      regex: "ares_destroy"
 
   - id: ares-query
     desc: ares_query function
@@ -175,7 +175,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "ares_query"
+      regex: "ares_query"
 
   - id: ares-success
     desc: ARES_SUCCESS constant
@@ -192,7 +192,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "event_base_new"
+      regex: "event_base_new"
 
   - id: event-base-dispatch
     desc: event_base_dispatch function
@@ -200,7 +200,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "event_base_dispatch"
+      regex: "event_base_dispatch"
 
   - id: event-add
     desc: event_add function
@@ -208,7 +208,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "event_add"
+      regex: "event_add"
 
   - id: bufferevent-prefix
     desc: bufferevent_ function prefix
@@ -352,7 +352,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "epoll_create"
+      regex: "epoll_create"
 
   - id: epoll-ctl
     desc: epoll_ctl function
@@ -360,7 +360,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "epoll_ctl"
+      regex: "epoll_ctl"
 
   - id: epoll-wait
     desc: epoll_wait function
@@ -368,7 +368,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "epoll_wait"
+      regex: "epoll_wait"
 
   - id: kqueue-func
     desc: kqueue function
@@ -376,7 +376,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "kqueue"
+      regex: "kqueue"
 
   - id: kevent-func
     desc: kevent function
@@ -384,7 +384,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "kevent"
+      regex: "kevent"
 
 composite_rules:
   # libev composite (migrated from YARA)

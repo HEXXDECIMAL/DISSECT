@@ -3,7 +3,7 @@
 
 traits:
   - id: wpa-supplicant
-    description: WPA supplicant wireless access
+    desc: WPA supplicant wireless access
     crit: notable
     conf: 0.6
     platforms: [linux]
@@ -12,7 +12,7 @@ traits:
       exact: "wpa_supplicant"
 
   - id: wps-supplicant
-    description: WPS supplicant wireless access
+    desc: WPS supplicant wireless access
     crit: notable
     conf: 0.6
     platforms: [linux]

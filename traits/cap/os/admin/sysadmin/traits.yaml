@@ -14,10 +14,10 @@ traits:
 
   # Package management
   - id: package-mgmt
-    description: Package management utilities
+    desc: Package management utilities
     crit: benign
-    confidence: 0.9
-    condition:
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule package_management {
@@ -40,10 +40,10 @@ traits:
 
   # System configuration
   - id: config
-    description: System configuration utilities
+    desc: System configuration utilities
     crit: benign
-    confidence: 0.9
-    condition:
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule sysadmin_config {

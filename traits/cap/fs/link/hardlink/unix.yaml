@@ -12,4 +12,4 @@ traits:
     conf: 0.5
     if:
       type: symbol
-      pattern: "^_?(link|linkat)$"
+      regex: "^_?(link|linkat)$"

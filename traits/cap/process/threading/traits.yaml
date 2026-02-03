@@ -12,7 +12,7 @@ traits:
     if:
       type: symbol
       # Match pthread_create which is more specific than generic "pthread" string
-      pattern: "pthread_create"
+      regex: "pthread_create"
 
   # Go concurrency - only meaningful in non-Go binaries (Go runtime always has this)
   - id: goroutine

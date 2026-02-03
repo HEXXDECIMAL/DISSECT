@@ -9,7 +9,7 @@ defaults:
 traits:
   # NtRaiseHardError - forces BSOD
   - id: nt-raise-hard-error
-    description: NtRaiseHardError API (BSOD trigger)
+    desc: NtRaiseHardError API (BSOD trigger)
     crit: suspicious
     conf: 0.98
     if:
@@ -18,7 +18,7 @@ traits:
 
   # RtlAdjustPrivilege - enables shutdown privilege
   - id: rtl-adjust-privilege
-    description: RtlAdjustPrivilege API (privilege escalation)
+    desc: RtlAdjustPrivilege API (privilege escalation)
     crit: suspicious
     conf: 0.9
     if:
@@ -27,7 +27,7 @@ traits:
 
   # Shutdown privilege constant (19)
   - id: shutdown-privilege
-    description: SeShutdownPrivilege constant
+    desc: SeShutdownPrivilege constant
     crit: notable
     conf: 0.7
     for: [python]
@@ -37,7 +37,7 @@ traits:
 
   # STATUS_ASSERTION_FAILURE error code
   - id: status-assertion-failure
-    description: STATUS_ASSERTION_FAILURE error code (BSOD)
+    desc: STATUS_ASSERTION_FAILURE error code (BSOD)
     crit: suspicious
     conf: 0.85
     if:
@@ -46,7 +46,7 @@ traits:
 
   # ntdll library reference
   - id: ntdll-reference
-    description: Reference to ntdll library
+    desc: Reference to ntdll library
     crit: notable
     conf: 0.7
     if:
@@ -55,7 +55,7 @@ traits:
 
   # Python ctypes import
   - id: ctypes-import
-    description: Python ctypes import statement
+    desc: Python ctypes import statement
     crit: notable
     conf: 0.6
     for: [python]
@@ -65,7 +65,7 @@ traits:
 
   # YARA-based detection traits
   - id: bsod-trigger-yara
-    description: Windows BSOD trigger via YARA
+    desc: Windows BSOD trigger via YARA
     crit: suspicious
     conf: 0.99
     attack: "T1499.004"
@@ -90,7 +90,7 @@ traits:
         }
 
   - id: python-bsod-yara
-    description: Python BSOD trigger via YARA
+    desc: Python BSOD trigger via YARA
     crit: suspicious
     conf: 0.99
     for: [python]
@@ -117,7 +117,7 @@ composite_rules:
   # Full BSOD trigger pattern
   # BSOD trigger via trait references (NtRaiseHardError path)
   - id: bsod-raise-error
-    description: BSOD via NtRaiseHardError API call
+    desc: BSOD via NtRaiseHardError API call
     crit: suspicious
     conf: 0.99
     attack: "T1499.004"
@@ -128,7 +128,7 @@ composite_rules:
 
   # BSOD trigger via trait references (RtlAdjustPrivilege path)
   - id: bsod-adjust-privilege
-    description: BSOD via privilege adjustment with
+    desc: BSOD via privilege adjustment with
     crit: hostile
     conf: 0.98
     attack: "T1499.004"
@@ -140,7 +140,7 @@ composite_rules:
 
   # Python BSOD via trait references
   - id: python-bsod-traits
-    description: Python BSOD trigger via ctypes
+    desc: Python BSOD trigger via ctypes
     crit: hostile
     conf: 0.99
     for: [python]

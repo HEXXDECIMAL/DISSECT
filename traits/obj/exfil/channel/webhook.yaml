@@ -77,7 +77,7 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     attack: "T1041"
-    file_types: [python, shell]
+    r#for: [python, shell]
     count_min: 1
     any:
       - id: slack-webhook-url
@@ -88,7 +88,7 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     attack: "T1041"
-    file_types: [python, shell, javascript]
+    r#for: [python, shell, javascript]
     count_min: 1
     any:
       - id: discord-webhook-url

@@ -10,7 +10,7 @@ defaults:
 traits:
   # Binary file write - open with 'wb' mode
   - id: python-open-write-binary
-    description: "Write binary file (open with"
+    desc: "Write binary file (open with"
     conf: 0.85
     if:
       type: string
@@ -19,7 +19,7 @@ traits:
 
   # Binary append mode
   - id: python-open-append-binary
-    description: "Append to binary file (open"
+    desc: "Append to binary file (open"
     conf: 0.8
     if:
       type: string
@@ -27,7 +27,7 @@ traits:
 
   # Write with pathlib
   - id: python-pathlib-write-bytes
-    description: "Write bytes via pathlib"
+    desc: "Write bytes via pathlib"
     conf: 0.85
     if:
       type: string
@@ -35,7 +35,7 @@ traits:
 
   # File content from HTTP response
   - id: python-write-response-content
-    description: "Write HTTP response content to"
+    desc: "Write HTTP response content to"
     conf: 0.9
     if:
       type: string
@@ -44,7 +44,7 @@ traits:
 
   # shutil.copyfileobj - streaming copy
   - id: python-shutil-copy
-    description: "Copy file object (shutil.copyfileobj)"
+    desc: "Copy file object (shutil.copyfileobj)"
     conf: 0.75
     crit: inert
     if:
@@ -53,7 +53,7 @@ traits:
 
   # Write to temp directory
   - id: python-write-tmp
-    description: "Write to /tmp directory"
+    desc: "Write to /tmp directory"
     conf: 0.85
     if:
       type: string
@@ -61,7 +61,7 @@ traits:
 
   # === tempfile module atomic indicators ===
   - id: python-tempfile-named
-    description: "tempfile.NamedTemporaryFile usage"
+    desc: "tempfile.NamedTemporaryFile usage"
     conf: 0.6
     crit: inert
     if:
@@ -69,7 +69,7 @@ traits:
       exact: "tempfile.NamedTemporaryFile"
 
   - id: python-tempfile-mkstemp
-    description: "tempfile.mkstemp usage"
+    desc: "tempfile.mkstemp usage"
     conf: 0.6
     crit: inert
     if:
@@ -77,7 +77,7 @@ traits:
       exact: "tempfile.mkstemp"
 
   - id: python-tempfile-mkdtemp
-    description: "tempfile.mkdtemp usage"
+    desc: "tempfile.mkdtemp usage"
     conf: 0.6
     crit: inert
     if:
@@ -86,7 +86,7 @@ traits:
 
   # === HTTP request atomic indicators ===
   - id: python-requests-get
-    description: "requests.get call"
+    desc: "requests.get call"
     conf: 0.7
     crit: inert
     if:
@@ -94,7 +94,7 @@ traits:
       regex: "requests\\.get\\("
 
   - id: python-requests-post
-    description: "requests.post call"
+    desc: "requests.post call"
     conf: 0.7
     crit: inert
     if:
@@ -102,7 +102,7 @@ traits:
       regex: "requests\\.post\\("
 
   - id: python-urllib-urlopen
-    description: "urllib.request.urlopen call"
+    desc: "urllib.request.urlopen call"
     conf: 0.7
     crit: inert
     if:
@@ -110,7 +110,7 @@ traits:
       regex: "urllib\\.request\\.urlopen"
 
   - id: python-urllib-urlretrieve
-    description: "urllib.request.urlretrieve call"
+    desc: "urllib.request.urlretrieve call"
     conf: 0.7
     crit: inert
     if:
@@ -119,7 +119,7 @@ traits:
 
   # os.chmod with executable permission
   - id: python-chmod-executable
-    description: "Make file executable with os.chmod"
+    desc: "Make file executable with os.chmod"
     conf: 0.9
     if:
       type: string
@@ -127,7 +127,7 @@ traits:
 
 composite_rules:
   - id: python-tempfile
-    description: "Temporary file creation (tempfile module)"
+    desc: "Temporary file creation (tempfile module)"
     conf: 0.7
     crit: inert
     count_min: 1
@@ -137,7 +137,7 @@ composite_rules:
       - id: python-tempfile-mkdtemp
 
   - id: python-http-request
-    description: "HTTP request via requests or"
+    desc: "HTTP request via requests or"
     conf: 0.8
     count_min: 1
     any:
@@ -147,7 +147,7 @@ composite_rules:
       - id: python-urllib-urlretrieve
 
   - id: python-binary-write-pattern
-    description: "Binary file write pattern"
+    desc: "Binary file write pattern"
     conf: 0.85
     count_min: 1
     any:
@@ -156,7 +156,7 @@ composite_rules:
 
   # Download and write pattern (dropper behavior)
   - id: python-download-write
-    description: "Download content and write to"
+    desc: "Download content and write to"
     conf: 0.9
     crit: suspicious
     attack: "T1105"
@@ -167,7 +167,7 @@ composite_rules:
 
   # Write + make executable pattern
   - id: python-write-chmod-exec
-    description: "Write file and make executable"
+    desc: "Write file and make executable"
     conf: 0.95
     crit: suspicious
     attack: "T1222.002"

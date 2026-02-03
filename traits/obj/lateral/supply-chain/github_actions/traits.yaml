@@ -43,7 +43,7 @@ composite_rules:
     desc: Dumps GitHub Actions Runner memory
     crit: hostile
     conf: 0.95
-    file_types: [python, javascript, shell, rust, go]
+    r#for: [python, javascript, shell, rust, go]
     all:
       - id: github-actions-targeting
       - id: cap/fs/proc/process/process-pid-mem
@@ -60,7 +60,7 @@ composite_rules:
     desc: Harvests secrets from GitHub Actions
     crit: hostile
     conf: 0.95
-    file_types: [shell, python, javascript]
+    r#for: [shell, python, javascript]
     all:
       - id: github-actions-targeting
       - id: github-actions-secret-marker-helper

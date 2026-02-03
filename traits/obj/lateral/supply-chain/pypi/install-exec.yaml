@@ -4,36 +4,36 @@
 # ATT&CK: T1195.002 (Supply Chain Compromise: Compromise Software Supply Chain)
 
 defaults:
-  file_types: [python]
+  r#for: [python]
   mbc: "B0030"
   attack: "T1195.002"
 
 traits:
   # os.system call at module level (outside functions)
   - id: module-level-system
-    description: "os.system at module level (install-time"
+    desc: "os.system at module level (install-time"
     crit: suspicious
-    confidence: 0.85
-    condition:
+    conf: 0.85
+    if:
       type: string
       regex: "^os\\.system\\s*\\("
 
   # Import-triggered execution
   - id: import-trigger
-    description: "Code execution triggered by import"
+    desc: "Code execution triggered by import"
     crit: suspicious
-    confidence: 0.8
-    condition:
+    conf: 0.8
+    if:
       type: string
       # os.system or subprocess at top-level in __init__.py
       regex: "^(import|from).{0,100}\\n.{0,100}os\\.system|^(import|from).{0,100}\\n.{0,100}subprocess\\."
 
   # Try-except ImportError with installation
   - id: import-fallback-install
-    description: "Import fallback with automatic package"
+    desc: "Import fallback with automatic package"
     crit: suspicious
-    confidence: 0.9
-    condition:
+    conf: 0.9
+    if:
       type: string
       regex: "except\\s*(ImportError)?.{0,50}:\\s*\\n?\\s*(os\\.system|subprocess)"
 
@@ -41,11 +41,11 @@ traits:
   # patterns (setup.py sdist, bdist_wheel, twine, pytest, etc.). DISSECT doesn't support
   # NOT conditions in composite rules yet.
   - id: setup-py-exec-yara
-    description: "setup.py with suspicious code execution"
+    desc: "setup.py with suspicious code execution"
     crit: suspicious
-    confidence: 0.95
+    conf: 0.95
     mbc: "B0030"
-    condition:
+    if:
       type: yara
       source: |
         rule setup_py_malicious_exec {
@@ -90,11 +90,11 @@ traits:
   # NOTE: YARA kept for init-py-exec - requires NOT conditions to exclude legitimate
   # patterns (pypi.org, readthedocs, github.com, setup tools, etc.)
   - id: init-py-exec-yara
-    description: "__init__.py with immediate code execution"
+    desc: "__init__.py with immediate code execution"
     crit: suspicious
-    confidence: 0.9
+    conf: 0.9
     mbc: "B0030"
-    condition:
+    if:
       type: yara
       source: |
         rule init_py_malicious_exec {
@@ -130,11 +130,11 @@ traits:
   # with pip install patterns in a specific structural way that's difficult to express
   # with simple atomic + composite rules
   - id: dependency-injection-yara
-    description: "Package installs additional dependencies at"
+    desc: "Package installs additional dependencies at"
     crit: suspicious
-    confidence: 0.95
+    conf: 0.95
     mbc: "B0030"
-    condition:
+    if:
       type: yara
       source: |
         rule runtime_dependency_injection {

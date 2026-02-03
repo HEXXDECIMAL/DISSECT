@@ -68,7 +68,7 @@ composite_rules:
     crit: suspicious
     conf: 0.90
     attack: "T1552.001"
-    file_types: [python]
+    r#for: [python]
     count_min: 2
     any:
       - id: dotenv-file-access

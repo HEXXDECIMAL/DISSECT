@@ -3,7 +3,7 @@
 
 traits:
   - id: sys-devices
-    description: Access CPU info via /sys/devices
+    desc: Access CPU info via /sys/devices
     crit: notable
     conf: 0.7
     attack: "T1082"

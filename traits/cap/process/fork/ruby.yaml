@@ -3,53 +3,53 @@
 traits:
   # === Ruby fork atomic indicators ===
   - id: process-fork
-    description: Process.fork call
+    desc: Process.fork call
     crit: inert
-    confidence: 0.7
+    conf: 0.7
     platforms: [all]
-    file_types: [ruby]
-    condition:
+    r#for: [ruby]
+    if:
       type: string
       exact: "Process.fork"
 
   - id: fork-brace-block
-    description: fork with brace block
+    desc: fork with brace block
     crit: inert
-    confidence: 0.6
+    conf: 0.6
     platforms: [all]
-    file_types: [ruby]
-    condition:
+    r#for: [ruby]
+    if:
       type: string
       regex: "\\bfork\\s*\\{"
 
   - id: fork-do-block
-    description: fork with do block
+    desc: fork with do block
     crit: inert
-    confidence: 0.6
+    conf: 0.6
     platforms: [all]
-    file_types: [ruby]
-    condition:
+    r#for: [ruby]
+    if:
       type: string
       regex: "\\bfork\\s*do\\b"
 
   - id: fork-paren
-    description: fork with parenthesis
+    desc: fork with parenthesis
     crit: inert
-    confidence: 0.6
+    conf: 0.6
     platforms: [all]
-    file_types: [ruby]
-    condition:
+    r#for: [ruby]
+    if:
       type: string
       regex: "\\bfork\\s*\\("
 
 composite_rules:
   # Fork block composite
   - id: fork-block
-    description: fork with block/do
+    desc: fork with block/do
     crit: notable
-    confidence: 0.7
+    conf: 0.7
     platforms: [all]
-    file_types: [ruby]
+    r#for: [ruby]
     count_min: 1
     any:
       - id: fork-brace-block
@@ -57,11 +57,11 @@ composite_rules:
       - id: fork-paren
 
   - id: ruby-fork
-    description: Fork process
+    desc: Fork process
     crit: notable
-    confidence: 0.88
+    conf: 0.88
     platforms: [all]
-    file_types: [ruby]
+    r#for: [ruby]
     count_min: 1
     any:
       - id: process-fork

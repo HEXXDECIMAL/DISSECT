@@ -34,7 +34,7 @@ traits:
     for: [elf, macho]
     if:
       type: symbol
-      pattern: posix_openpt
+      regex: posix_openpt
 
   - id: grantpt
     desc: Grant access to slave pseudoterminal
@@ -44,7 +44,7 @@ traits:
     for: [elf, macho]
     if:
       type: symbol
-      pattern: grantpt
+      regex: grantpt
 
   - id: unlockpt
     desc: Unlock slave pseudoterminal
@@ -54,7 +54,7 @@ traits:
     for: [elf, macho]
     if:
       type: symbol
-      pattern: unlockpt
+      regex: unlockpt
 
   # === Ptsname atomic indicators ===
   - id: ptsname-symbol
@@ -65,7 +65,7 @@ traits:
     for: [elf, macho]
     if:
       type: symbol
-      pattern: ptsname
+      regex: ptsname
 
   - id: ptsname-r-symbol
     desc: ptsname_r symbol
@@ -75,7 +75,7 @@ traits:
     for: [elf, macho]
     if:
       type: symbol
-      pattern: ptsname_r
+      regex: ptsname_r
 
   - id: isatty
     desc: Check if terminal
@@ -85,7 +85,7 @@ traits:
     for: [elf, macho]
     if:
       type: symbol
-      pattern: isatty
+      regex: isatty
 
   # === Ttyname atomic indicators ===
   - id: ttyname-symbol
@@ -96,7 +96,7 @@ traits:
     for: [elf, macho]
     if:
       type: symbol
-      pattern: ttyname
+      regex: ttyname
 
   - id: ttyname-r-symbol
     desc: ttyname_r symbol
@@ -106,7 +106,7 @@ traits:
     for: [elf, macho]
     if:
       type: symbol
-      pattern: ttyname_r
+      regex: ttyname_r
 
   - id: tcgetattr
     desc: Get terminal attributes
@@ -116,7 +116,7 @@ traits:
     for: [elf, macho]
     if:
       type: symbol
-      pattern: tcgetattr
+      regex: tcgetattr
 
   - id: tcsetattr
     desc: Set terminal attributes
@@ -126,7 +126,7 @@ traits:
     for: [elf, macho]
     if:
       type: symbol
-      pattern: tcsetattr
+      regex: tcsetattr
 
   - id: vhangup
     desc: Virtual terminal hangup
@@ -150,7 +150,7 @@ traits:
     for: [elf, macho]
     if:
       type: symbol
-      pattern: "^getpass$"
+      regex: "^getpass$"
 
   - id: setupterm
     desc: Terminal initialization

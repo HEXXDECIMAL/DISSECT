@@ -12,7 +12,7 @@ traits:
     conf: 0.66
     if:
       type: symbol
-      pattern: symlink|symlinkat
+      regex: symlink|symlinkat
 
   - id: symlink-read
     desc: Read value of symbolic link
@@ -20,7 +20,7 @@ traits:
     conf: 0.66
     if:
       type: symbol
-      pattern: readlink|readlinkat
+      regex: readlink|readlinkat
 
   - id: symlink-resolve
     desc: Resolve symbolic links to canonical
@@ -28,4 +28,4 @@ traits:
     conf: 0.66
     if:
       type: symbol
-      pattern: realpath
+      regex: realpath

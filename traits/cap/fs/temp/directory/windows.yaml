@@ -4,10 +4,10 @@
 
 traits:
   - id: directory-windows
-    description: Look up temp directory via
+    desc: Look up temp directory via
     crit: inert
     conf: 0.66
     for: [pe, dll, c]
     if:
       type: symbol
-      pattern: GetTempPath|GetTempPathA|GetTempPathW
+      regex: GetTempPath|GetTempPathA|GetTempPathW

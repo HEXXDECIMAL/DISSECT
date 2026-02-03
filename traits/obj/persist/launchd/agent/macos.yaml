@@ -4,7 +4,7 @@
 
 traits:
   - id: launch-agents
-    description: LaunchAgents directory (user-level services)
+    desc: LaunchAgents directory (user-level services)
     crit: notable
     conf: 0.7
     mbc: B0028
@@ -14,7 +14,7 @@ traits:
       exact: "LaunchAgents"
 
   - id: launch-daemons
-    description: LaunchDaemons directory (system-level services)
+    desc: LaunchDaemons directory (system-level services)
     crit: notable
     conf: 0.7
     mbc: B0028
@@ -24,7 +24,7 @@ traits:
       exact: "LaunchDaemons"
 
   - id: launchctl-command
-    description: launchctl command (manage launchd services)
+    desc: launchctl command (manage launchd services)
     crit: notable
     conf: 0.7
     mbc: B0028
@@ -34,7 +34,7 @@ traits:
       word: "launchctl"
 
   - id: plist-extension
-    description: .plist file extension (property list)
+    desc: .plist file extension (property list)
     crit: notable
     conf: 0.6
     attack: T1543.004
@@ -43,7 +43,7 @@ traits:
       exact: ".plist"
 
   - id: run-at-load
-    description: RunAtLoad key (start service at
+    desc: RunAtLoad key (start service at
     crit: notable
     conf: 0.8
     mbc: B0028
@@ -54,7 +54,7 @@ traits:
 
 composite_rules:
   - id: launchd
-    description: macOS launchd persistence (2+ indicators)
+    desc: macOS launchd persistence (2+ indicators)
     crit: notable
     conf: 0.66
     mbc: B0028

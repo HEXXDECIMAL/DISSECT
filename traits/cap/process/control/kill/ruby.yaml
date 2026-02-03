@@ -2,11 +2,11 @@
 
 traits:
   - id: ruby-kill
-    description: Kill process
+    desc: Kill process
     crit: notable
-    confidence: 0.90
+    conf: 0.90
     platforms: [all]
-    file_types: [ruby]
-    condition:
+    r#for: [ruby]
+    if:
       type: symbol
-      pattern: "Process\\.kill"
+      regex: "Process\\.kill"

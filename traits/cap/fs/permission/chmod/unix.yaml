@@ -10,7 +10,7 @@ traits:
     for: [elf, macho, so, dylib, c]
     if:
       type: symbol
-      pattern: chmod|fchmod|fchmodat|lchmod
+      regex: chmod|fchmod|fchmodat|lchmod
 
   - id: string
     desc: Modify file permissions (string match)

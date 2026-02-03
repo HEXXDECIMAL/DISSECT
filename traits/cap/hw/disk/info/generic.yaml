@@ -3,7 +3,7 @@
 
 traits:
   - id: freespace
-    description: Disk free space query
+    desc: Disk free space query
     crit: inert
     conf: 0.5
     attack: "T1082"

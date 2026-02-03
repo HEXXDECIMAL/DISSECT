@@ -7,7 +7,7 @@ defaults:
 
 traits:
   - id: comsvcs-dump
-    description: Dump process memory via comsvcs.dll
+    desc: Dump process memory via comsvcs.dll
     crit: suspicious
     conf: 0.95
     attack: "T1003.001"

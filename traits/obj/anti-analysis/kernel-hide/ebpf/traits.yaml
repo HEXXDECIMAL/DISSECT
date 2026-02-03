@@ -195,7 +195,7 @@ traits:
     for: [c, elf]
     if:
       type: symbol
-      pattern: "bpf_probe_write_user"
+      regex: "bpf_probe_write_user"
 
   # === Sensitive File References ===
   - id: sudoers-ref

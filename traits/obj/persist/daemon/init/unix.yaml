@@ -5,156 +5,156 @@
 traits:
   # === daemon-fork atomic indicators ===
   - id: fork-symbol
-    description: fork syscall symbol
+    desc: fork syscall symbol
     crit: inert
-    confidence: 0.3
-    file_types: [elf, macho]
+    conf: 0.3
+    r#for: [elf, macho]
     platforms: [linux, macos]
-    condition:
+    if:
       type: symbol
-      pattern: "\\bfork\\b"
+      regex: "\\bfork\\b"
 
   - id: daemon-symbol
-    description: daemon function symbol
+    desc: daemon function symbol
     crit: inert
-    confidence: 0.4
-    file_types: [elf, macho]
+    conf: 0.4
+    r#for: [elf, macho]
     platforms: [linux, macos]
-    condition:
+    if:
       type: symbol
-      pattern: "\\bdaemon\\b"
+      regex: "\\bdaemon\\b"
 
   # NOTE: setsid is commonly used by legitimate system tools, shells, and
   # terminal multiplexers. Alone it's just process group management.
   - id: daemon-setsid
-    description: "Session creation (setsid) for daemon"
+    desc: "Session creation (setsid) for daemon"
     crit: inert
-    confidence: 0.4
+    conf: 0.4
     attack: "T1543"
-    file_types: [elf, macho]
+    r#for: [elf, macho]
     platforms: [linux, macos]
-    condition:
+    if:
       type: symbol
-      pattern: "\\bsetsid\\b"
+      regex: "\\bsetsid\\b"
 
   - id: daemon-umask
-    description: "umask syscall (daemon initialization)"
+    desc: "umask syscall (daemon initialization)"
     crit: inert
-    confidence: 0.4
-    file_types: [elf, macho]
+    conf: 0.4
+    r#for: [elf, macho]
     platforms: [linux, macos]
-    condition:
+    if:
       type: symbol
-      pattern: "\\bumask\\b"
+      regex: "\\bumask\\b"
 
   # NOTE: /dev/null is extremely common in legitimate software - build tools,
   # compilers, system utilities all use it for I/O redirection. Too broad to
   # be notable on its own.
   - id: daemon-dev-null
-    description: "Redirects I/O to /dev/null (daemon"
+    desc: "Redirects I/O to /dev/null (daemon"
     crit: inert
-    confidence: 0.3
-    file_types: [elf, macho]
+    conf: 0.3
+    r#for: [elf, macho]
     platforms: [linux, macos]
-    condition:
+    if:
       type: string
       exact: "/dev/null"
 
   # NOTE: chdir is a basic filesystem operation used by countless legitimate tools.
   # Too common to be notable.
   - id: daemon-chdir-root
-    description: "Change directory to root (daemon"
+    desc: "Change directory to root (daemon"
     crit: inert
-    confidence: 0.2
-    file_types: [elf, macho]
+    conf: 0.2
+    r#for: [elf, macho]
     platforms: [linux, macos]
-    condition:
+    if:
       type: symbol
-      pattern: "\\bchdir\\b"
+      regex: "\\bchdir\\b"
 
   # NOTE: Go runtime uses /proc/self legitimately for memory management
   # and process introspection. Downgraded to inert.
   - id: daemon-proc-self
-    description: "Reads /proc/self (process introspection)"
+    desc: "Reads /proc/self (process introspection)"
     crit: inert
-    confidence: 0.3
-    file_types: [elf]
+    conf: 0.3
+    r#for: [elf]
     platforms: [linux]
-    condition:
+    if:
       type: string
       regex: "/proc/self(/|$)"
 
   # === Signal handling micro-traits (migrated from YARA) ===
   - id: signal-symbol
-    description: signal function symbol
+    desc: signal function symbol
     crit: inert
-    confidence: 0.3
-    file_types: [elf, macho]
+    conf: 0.3
+    r#for: [elf, macho]
     platforms: [linux, macos, unix]
-    condition:
+    if:
       type: symbol
-      pattern: "\\bsignal\\b"
+      regex: "\\bsignal\\b"
 
   - id: sigaction-symbol
-    description: sigaction function symbol
+    desc: sigaction function symbol
     crit: inert
-    confidence: 0.3
-    file_types: [elf, macho]
+    conf: 0.3
+    r#for: [elf, macho]
     platforms: [linux, macos, unix]
-    condition:
+    if:
       type: symbol
-      pattern: "\\bsigaction\\b"
+      regex: "\\bsigaction\\b"
 
   # NOTE: Signal ignore patterns are common in many legitimate binaries
   # that need robust signal handling (shells, daemons, servers).
   - id: sig-ign-sighup-x64
-    description: SIGHUP signal ignore pattern (x86_64)
+    desc: SIGHUP signal ignore pattern (x86_64)
     crit: inert
-    confidence: 0.4
-    file_types: [elf, macho]
+    conf: 0.4
+    r#for: [elf, macho]
     platforms: [linux, macos, unix]
-    condition:
+    if:
       type: hex
       pattern: "BF 01 00 00 00 BE 01 00 00 00"
 
   - id: sig-ign-sigpipe-x64
-    description: SIGPIPE signal ignore pattern (x86_64)
+    desc: SIGPIPE signal ignore pattern (x86_64)
     crit: inert
-    confidence: 0.4
-    file_types: [elf, macho]
+    conf: 0.4
+    r#for: [elf, macho]
     platforms: [linux, macos, unix]
-    condition:
+    if:
       type: hex
       pattern: "BF 0D 00 00 00 BE 01 00 00 00"
 
   # === sigchld-handler atomic indicators ===
   - id: sigchild-underscore
-    description: _sigchild string
+    desc: _sigchild string
     crit: inert
-    confidence: 0.5
-    file_types: [elf, macho]
+    conf: 0.5
+    r#for: [elf, macho]
     platforms: [linux, macos, unix]
-    condition:
+    if:
       type: string
       exact: "_sigchild"
 
   - id: sigchld-handler-string
-    description: sigchld_handler string
+    desc: sigchld_handler string
     crit: inert
-    confidence: 0.5
-    file_types: [elf, macho]
+    conf: 0.5
+    r#for: [elf, macho]
     platforms: [linux, macos, unix]
-    condition:
+    if:
       type: string
       exact: "sigchld_handler"
 
   - id: handle-sigchld-string
-    description: handle_sigchld string
+    desc: handle_sigchld string
     crit: inert
-    confidence: 0.5
-    file_types: [elf, macho]
+    conf: 0.5
+    r#for: [elf, macho]
     platforms: [linux, macos, unix]
-    condition:
+    if:
       type: string
       exact: "handle_sigchld"
 
@@ -162,11 +162,11 @@ composite_rules:
   # NOTE: fork/daemon are basic process primitives used by many legitimate
   # system tools, servers, and build utilities. Downgraded to inert.
   - id: daemon-fork
-    description: "Process forking for daemon behavior"
+    desc: "Process forking for daemon behavior"
     crit: inert
-    confidence: 0.3
+    conf: 0.3
     attack: "T1543"
-    file_types: [elf, macho]
+    r#for: [elf, macho]
     platforms: [linux, macos]
     count_min: 1
     any:
@@ -175,10 +175,10 @@ composite_rules:
 
   # Signal function composite
   - id: signal-function
-    description: Signal handling function
+    desc: Signal handling function
     crit: inert
-    confidence: 0.3
-    file_types: [elf, macho]
+    conf: 0.3
+    r#for: [elf, macho]
     platforms: [linux, macos, unix]
     count_min: 1
     any:
@@ -187,10 +187,10 @@ composite_rules:
 
   # NOTE: Signal ignore patterns are common in legitimate binaries.
   - id: sig-ign-pattern
-    description: Signal ignore byte pattern (x86_64)
+    desc: Signal ignore byte pattern (x86_64)
     crit: inert
-    confidence: 0.4
-    file_types: [elf, macho]
+    conf: 0.4
+    r#for: [elf, macho]
     platforms: [linux, macos, unix]
     count_min: 1
     any:
@@ -199,22 +199,22 @@ composite_rules:
 
   # Signal ignore for daemon (migrated from YARA)
   - id: signal-ignore-pattern
-    description: "Signal handler setup (daemon persistence"
+    desc: "Signal handler setup (daemon persistence"
     crit: inert
-    confidence: 0.3
+    conf: 0.3
     attack: "T1543"
-    file_types: [elf, macho]
+    r#for: [elf, macho]
     platforms: [linux, macos, unix]
     all:
       - id: signal-function
       - id: sig-ign-pattern
 
   - id: sigchld-handler
-    description: "Custom SIGCHLD handler (child process"
+    desc: "Custom SIGCHLD handler (child process"
     crit: notable
-    confidence: 0.6
+    conf: 0.6
     attack: "T1543"
-    file_types: [elf, macho]
+    r#for: [elf, macho]
     platforms: [linux, macos, unix]
     count_min: 1
     any:
@@ -228,12 +228,12 @@ composite_rules:
   # For truly malicious daemon activity, combine with C2, credential access,
   # or other hostile indicators in a separate composite.
   - id: full-daemon
-    description: "Full daemon behavior (fork +"
+    desc: "Full daemon behavior (fork +"
     crit: inert
-    confidence: 0.3
+    conf: 0.3
     attack: "T1543"
     mbc: "F0006"
-    file_types: [elf]
+    r#for: [elf]
     platforms: [linux]
     all:
       - id: daemon-dev-null
@@ -244,12 +244,12 @@ composite_rules:
   # NOTE: Since daemon-proc-self is now inert (Go uses /proc/self legitimately),
   # this composite needs additional indicators to be meaningful.
   - id: stealth-daemon
-    description: "Stealthy daemon (daemon + proc"
+    desc: "Stealthy daemon (daemon + proc"
     crit: notable
-    confidence: 0.5
+    conf: 0.5
     attack: "T1543"
     mbc: "F0006"
-    file_types: [elf]
+    r#for: [elf]
     platforms: [linux]
     all:
       - id: daemon-proc-self
@@ -260,12 +260,12 @@ composite_rules:
   # macOS double-fork daemon pattern
   # This is the classic fork() -> setsid() -> fork() -> umask() -> chdir() pattern
   - id: macos-double-fork-daemon
-    description: "macOS double-fork daemon pattern (fork"
+    desc: "macOS double-fork daemon pattern (fork"
     crit: suspicious
-    confidence: 0.85
+    conf: 0.85
     attack: "T1543"
     mbc: "F0006"
-    file_types: [macho]
+    r#for: [macho]
     platforms: [macos]
     all:
       - id: fork-symbol

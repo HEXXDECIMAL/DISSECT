@@ -3,7 +3,7 @@
 
 traits:
   - id: infected-with
-    description: Infection notification pattern
+    desc: Infection notification pattern
     crit: suspicious
     conf: 0.9
     attack: "T1204"
@@ -13,7 +13,7 @@ traits:
       regex: ".{3,16} infected with .{3,16}"
 
   - id: elf-infector-yara
-    description: ELF file infector pattern via
+    desc: ELF file infector pattern via
     crit: suspicious
     conf: 0.95
     attack: "T1204"
@@ -53,7 +53,7 @@ traits:
         }
 
   - id: infected-xor-yara
-    description: XOR obfuscated infection marker pattern
+    desc: XOR obfuscated infection marker pattern
     crit: suspicious
     conf: 0.95
     attack: "T1027"

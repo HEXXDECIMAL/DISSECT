@@ -15,7 +15,7 @@ traits:
     for: [macho, dylib]
     if:
       type: symbol
-      pattern: "sandbox_init"
+      regex: "sandbox_init"
 
   - id: sandbox-init-params
     desc: macOS sandbox initialization with parameters
@@ -24,7 +24,7 @@ traits:
     for: [macho, dylib]
     if:
       type: symbol
-      pattern: "sandbox_init_with_parameters"
+      regex: "sandbox_init_with_parameters"
 
   - id: sandbox-extension-consume
     desc: macOS sandbox extension consumption
@@ -33,7 +33,7 @@ traits:
     for: [macho, dylib]
     if:
       type: symbol
-      pattern: "sandbox_extension_consume"
+      regex: "sandbox_extension_consume"
 
   - id: sandbox-extension-issue
     desc: macOS sandbox extension issuance
@@ -42,7 +42,7 @@ traits:
     for: [macho, dylib]
     if:
       type: symbol
-      pattern: "sandbox_extension_issue"
+      regex: "sandbox_extension_issue"
 
   - id: sandbox-check
     desc: macOS sandbox check function
@@ -51,7 +51,7 @@ traits:
     for: [macho, dylib]
     if:
       type: symbol
-      pattern: "sandbox_check"
+      regex: "sandbox_check"
 
   # === Sandbox Entry Messages ===
 
@@ -94,7 +94,7 @@ traits:
     for: [elf]
     if:
       type: symbol
-      pattern: "seccomp_init"
+      regex: "seccomp_init"
 
   - id: seccomp-rule-add
     desc: Linux seccomp rule addition
@@ -103,7 +103,7 @@ traits:
     for: [elf]
     if:
       type: symbol
-      pattern: "seccomp_rule_add"
+      regex: "seccomp_rule_add"
 
   - id: seccomp-load
     desc: Linux seccomp profile loading
@@ -112,7 +112,7 @@ traits:
     for: [elf]
     if:
       type: symbol
-      pattern: "seccomp_load"
+      regex: "seccomp_load"
 
   - id: prctl-seccomp
     desc: Linux prctl seccomp mode
@@ -141,7 +141,7 @@ traits:
     for: [elf]
     if:
       type: symbol
-      pattern: "^pledge$"
+      regex: "^pledge$"
 
   - id: unveil
     desc: OpenBSD unveil filesystem restriction
@@ -150,7 +150,7 @@ traits:
     for: [elf]
     if:
       type: symbol
-      pattern: "^unveil$"
+      regex: "^unveil$"
 
   # === Capsicum (FreeBSD) ===
 
@@ -161,7 +161,7 @@ traits:
     for: [elf]
     if:
       type: symbol
-      pattern: "cap_enter"
+      regex: "cap_enter"
 
   - id: cap-rights-limit
     desc: FreeBSD Capsicum rights limiting
@@ -170,7 +170,7 @@ traits:
     for: [elf]
     if:
       type: symbol
-      pattern: "cap_rights_limit"
+      regex: "cap_rights_limit"
 
 composite_rules:
   - id: macos-sandboxed

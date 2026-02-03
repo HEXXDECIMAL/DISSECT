@@ -4,7 +4,7 @@
 
 traits:
   - id: wipe-disk
-    description: wipe disk phrase
+    desc: wipe disk phrase
     crit: notable
     conf: 0.6
     if:
@@ -12,7 +12,7 @@ traits:
       regex: "(?i)wipe disk"
 
   - id: wipe-drive
-    description: wipe drive phrase
+    desc: wipe drive phrase
     crit: notable
     conf: 0.6
     if:
@@ -20,7 +20,7 @@ traits:
       regex: "(?i)wipe drive"
 
   - id: disk-wipe
-    description: disk wipe phrase
+    desc: disk wipe phrase
     crit: notable
     conf: 0.6
     if:
@@ -28,7 +28,7 @@ traits:
       regex: "(?i)disk wipe"
 
   - id: secure-erase
-    description: secure erase phrase
+    desc: secure erase phrase
     crit: notable
     conf: 0.6
     if:
@@ -36,7 +36,7 @@ traits:
       regex: "(?i)secure erase"
 
   - id: mbr-ref
-    description: MBR reference
+    desc: MBR reference
     crit: notable
     conf: 0.6
     if:
@@ -44,7 +44,7 @@ traits:
       word: "MBR"
 
   - id: boot-sector
-    description: boot sector reference
+    desc: boot sector reference
     crit: notable
     conf: 0.6
     if:
@@ -52,7 +52,7 @@ traits:
       regex: "(?i)boot sector"
 
   - id: master-boot-record
-    description: master boot record reference
+    desc: master boot record reference
     crit: notable
     conf: 0.6
     if:
@@ -60,7 +60,7 @@ traits:
       regex: "(?i)master boot record"
 
   - id: physicaldrive
-    description: PhysicalDrive reference
+    desc: PhysicalDrive reference
     crit: notable
     conf: 0.6
     if:
@@ -69,7 +69,7 @@ traits:
 
 composite_rules:
   - id: disk-terms
-    description: Disk wiper terminology
+    desc: Disk wiper terminology
     crit: notable
     conf: 0.75
     mbc: "E1561"

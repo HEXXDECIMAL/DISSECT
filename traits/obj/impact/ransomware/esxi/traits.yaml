@@ -5,7 +5,7 @@
 traits:
   # ESXi VM enumeration
   - id: vm-enumeration
-    description: ESXi virtual machine enumeration
+    desc: ESXi virtual machine enumeration
     crit: suspicious
     conf: 0.85
     mbc: "C0027"
@@ -27,7 +27,7 @@ traits:
 
   # ESXi VM termination
   - id: vm-kill
-    description: ESXi virtual machine termination command
+    desc: ESXi virtual machine termination command
     crit: suspicious
     conf: 0.9
     mbc: "C0027"
@@ -51,7 +51,7 @@ traits:
 
   # ESXi snapshot manipulation
   - id: snapshot
-    description: ESXi snapshot removal command (ransomware
+    desc: ESXi snapshot removal command (ransomware
     crit: suspicious
     conf: 0.9
     mbc: "C0027"
@@ -75,7 +75,7 @@ traits:
 
   # ESXi file targeting
   - id: file-targeting
-    description: ESXi-specific file extension targeting
+    desc: ESXi-specific file extension targeting
     crit: suspicious
     conf: 0.85
     mbc: "C0027"
@@ -103,7 +103,7 @@ traits:
 
   # ESXi CLI tools usage
   - id: cli-tools
-    description: ESXi CLI tools for attack
+    desc: ESXi CLI tools for attack
     crit: suspicious
     conf: 0.8
     mbc: "C0027"
@@ -126,7 +126,7 @@ traits:
 
   # ESXi version detection
   - id: version-detect
-    description: ESXi version detection for compatibility
+    desc: ESXi version detection for compatibility
     crit: notable
     conf: 0.7
     mbc: "C0027"
@@ -147,7 +147,7 @@ traits:
 
   # ESXi datastore access
   - id: datastore-access
-    description: ESXi datastore enumeration and access
+    desc: ESXi datastore enumeration and access
     crit: suspicious
     conf: 0.8
     mbc: "C0027"
@@ -169,7 +169,7 @@ traits:
 composite_rules:
   # Full ESXi ransomware targeting
   - id: full-attack
-    description: ESXi-targeted ransomware attack chain
+    desc: ESXi-targeted ransomware attack chain
     crit: suspicious
     conf: 0.95
     all:

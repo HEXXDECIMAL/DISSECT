@@ -1,0 +1,44 @@
+# Data Compression/Encoding
+# Compression and encoding operations
+
+defaults:
+  for: ["elf", "macho", "pe", "dll", "so", "dylib"]
+  platforms: ["all"]
+
+traits:
+  # === LZMA Compression ===
+  - id: lzma-signature
+    desc: Embedded LZMA compressed data
+    crit: suspicious
+    conf: 0.95
+    attack: "T1140"
+    mbc: "C0032"
+    if:
+      type: content
+      substr: "$lzma"
+
+  - id: lzma-magic
+    desc: LZMA magic bytes
+    crit: suspicious
+    conf: 0.95
+    attack: "T1140"
+    if:
+      type: hex
+      pattern: "5D 00 00 80"
+
+  # === Compression Libraries ===
+  - id: zlib-signature
+    desc: zlib compression library
+    crit: notable
+    conf: 0.80
+    if:
+      type: string
+      exact: "zlib"
+
+  - id: brotli-signature
+    desc: Brotli compression library
+    crit: notable
+    conf: 0.80
+    if:
+      type: string
+      exact: "brotli"

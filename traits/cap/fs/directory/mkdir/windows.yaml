@@ -10,4 +10,4 @@ traits:
     for: [pe, dll, c]
     if:
       type: symbol
-      pattern: CreateDirectory|CreateDirectoryA|CreateDirectoryW|CreateDirectoryEx
+      regex: CreateDirectory|CreateDirectoryA|CreateDirectoryW|CreateDirectoryEx

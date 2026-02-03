@@ -4,7 +4,7 @@
 
 traits:
   - id: mount-keyword
-    description: mount command keyword
+    desc: mount command keyword
     crit: notable
     conf: 0.6
     mbc: E1222
@@ -14,7 +14,7 @@ traits:
       word: "mount"
 
   - id: fstab-file
-    description: fstab file reference (filesystem table)
+    desc: fstab file reference (filesystem table)
     crit: notable
     conf: 0.7
     mbc: E1222
@@ -24,7 +24,7 @@ traits:
       word: "fstab"
 
   - id: remount-keyword
-    description: remount keyword (remount filesystem)
+    desc: remount keyword (remount filesystem)
     crit: notable
     conf: 0.7
     mbc: E1222
@@ -35,7 +35,7 @@ traits:
 
 composite_rules:
   - id: mount-context
-    description: Mount-related keywords (options, fstab, remount)
+    desc: Mount-related keywords (options, fstab, remount)
     crit: notable
     conf: 0.6
     mbc: E1222
@@ -45,7 +45,7 @@ composite_rules:
       - id: remount-keyword
 
   - id: mount-command
-    description: Mount file systems with command
+    desc: Mount file systems with command
     crit: notable
     conf: 0.66
     mbc: E1222

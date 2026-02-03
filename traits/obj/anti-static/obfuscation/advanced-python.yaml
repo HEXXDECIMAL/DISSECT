@@ -111,7 +111,7 @@ composite_rules:
     crit: suspicious
     conf: 0.90
     attack: "T1027"
-    file_types: [python]
+    r#for: [python]
     count_min: 3
     any:
       - id: unicode-variable-names
@@ -153,7 +153,7 @@ composite_rules:
     conf: 0.95
     attack: "T1195.002"
     mbc: "B0024"
-    file_types: [python]
+    r#for: [python]
     all:
       - id: advanced-python-obfuscation
       - id: state-machine-obfuscation

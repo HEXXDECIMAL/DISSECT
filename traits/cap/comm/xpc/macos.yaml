@@ -9,11 +9,11 @@ traits:
     conf: 0.9
     if:
       type: symbol
-      pattern: "xpc_connection_create"
+      regex: "xpc_connection_create"
 
   - id: xpc-message
     desc: XPC message handling
     conf: 0.85
     if:
       type: symbol
-      pattern: "xpc_dictionary_"
+      regex: "xpc_dictionary_"

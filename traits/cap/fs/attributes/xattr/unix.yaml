@@ -12,7 +12,7 @@ traits:
     conf: 0.66
     if:
       type: symbol
-      pattern: setxattr|fsetxattr|lsetxattr
+      regex: setxattr|fsetxattr|lsetxattr
 
   - id: xattr-get
     desc: Get extended file attribute value
@@ -20,7 +20,7 @@ traits:
     conf: 0.66
     if:
       type: symbol
-      pattern: getxattr|fgetxattr|lgetxattr
+      regex: getxattr|fgetxattr|lgetxattr
 
   - id: xattr-remove
     desc: Remove extended file attribute value
@@ -28,7 +28,7 @@ traits:
     conf: 0.66
     if:
       type: symbol
-      pattern: removexattr|fremovexattr|lremovexattr
+      regex: removexattr|fremovexattr|lremovexattr
 
   - id: xattr-list
     desc: List extended file attributes
@@ -36,4 +36,4 @@ traits:
     conf: 0.66
     if:
       type: symbol
-      pattern: listxattr|flistxattr|llistxattr
+      regex: listxattr|flistxattr|llistxattr

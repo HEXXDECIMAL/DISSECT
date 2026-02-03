@@ -5,131 +5,131 @@
 traits:
   # Webpack bundled
   - id: webpack-bundled
-    description: Code bundled with webpack (legitimate
+    desc: Code bundled with webpack (legitimate
     crit: inert
-    confidence: 0.95
-    file_types: [javascript]
-    condition:
+    conf: 0.95
+    r#for: [javascript]
+    if:
       type: string
       regex: '__webpack_require__|webpackChunk|__webpack_modules__'
 
   # Rollup bundled
   - id: rollup-bundled
-    description: Code bundled with rollup (legitimate
+    desc: Code bundled with rollup (legitimate
     crit: inert
-    confidence: 0.95
-    file_types: [javascript]
-    condition:
+    conf: 0.95
+    r#for: [javascript]
+    if:
       type: string
       regex: '_interopDefaultLegacy|_interopNamespace|rollupPluginBabel'
 
   # esbuild bundled
   - id: esbuild-bundled
-    description: Code bundled with esbuild (legitimate
+    desc: Code bundled with esbuild (legitimate
     crit: inert
-    confidence: 0.95
-    file_types: [javascript]
-    condition:
+    conf: 0.95
+    r#for: [javascript]
+    if:
       type: string
       regex: '__toESM|__toCommonJS|__export|__copyProps'
 
   # Parcel bundled
   - id: parcel-bundled
-    description: Code bundled with Parcel (legitimate
+    desc: Code bundled with Parcel (legitimate
     crit: inert
-    confidence: 0.95
-    file_types: [javascript]
-    condition:
+    conf: 0.95
+    r#for: [javascript]
+    if:
       type: string
       regex: 'parcelRequire|__parcel__'
 
   # Vite bundled
   - id: vite-bundled
-    description: Code bundled with Vite (legitimate
+    desc: Code bundled with Vite (legitimate
     crit: inert
-    confidence: 0.95
-    file_types: [javascript]
-    condition:
+    conf: 0.95
+    r#for: [javascript]
+    if:
       type: string
       regex: '__vite__|import\\.meta\\.hot'
 
   # TypeScript compiled marker
   - id: typescript-compiled
-    description: Code compiled from TypeScript
+    desc: Code compiled from TypeScript
     crit: inert
-    confidence: 0.9
-    file_types: [javascript]
-    condition:
+    conf: 0.9
+    r#for: [javascript]
+    if:
       type: string
       regex: '__esModule|Object\\.defineProperty\\(exports|tslib'
 
   # Babel transpiled
   - id: babel-transpiled
-    description: Code transpiled with Babel
+    desc: Code transpiled with Babel
     crit: inert
-    confidence: 0.9
-    file_types: [javascript]
-    condition:
+    conf: 0.9
+    r#for: [javascript]
+    if:
       type: string
       regex: '_classCallCheck|_defineProperty|_objectSpread|@babel/runtime'
 
   # Source map reference
   - id: has-sourcemap
-    description: Code has source map reference
+    desc: Code has source map reference
     crit: inert
-    confidence: 0.9
-    file_types: [javascript]
-    condition:
+    conf: 0.9
+    r#for: [javascript]
+    if:
       type: string
       regex: '//# sourceMappingURL=|//@ sourceMappingURL='
 
   # UMD module pattern
   - id: umd-pattern
-    description: Universal Module Definition pattern
+    desc: Universal Module Definition pattern
     crit: inert
-    confidence: 0.85
-    file_types: [javascript]
-    condition:
+    conf: 0.85
+    r#for: [javascript]
+    if:
       type: string
       regex: 'typeof exports.{0,30}===.{0,30}object.{0,30}&&.{0,30}typeof module.{0,30}!==.{0,30}undefined|\\(function\\s*\\(root,\\s*factory\\)'
 
   # CommonJS2 export pattern
   - id: cjs2-export
-    description: CommonJS2 module export pattern
+    desc: CommonJS2 module export pattern
     crit: inert
-    confidence: 0.85
-    file_types: [javascript]
-    condition:
+    conf: 0.85
+    r#for: [javascript]
+    if:
       type: string
       regex: 'module\\.exports\\.default|exports\\.default\\s*='
 
   # React production build
   - id: react-production
-    description: React production build markers
+    desc: React production build markers
     crit: inert
-    confidence: 0.9
-    file_types: [javascript]
-    condition:
+    conf: 0.9
+    r#for: [javascript]
+    if:
       type: string
       regex: 'react\\.production\\.min|ReactDOM\\.production'
 
   # Vue production build
   - id: vue-production
-    description: Vue production build markers
+    desc: Vue production build markers
     crit: inert
-    confidence: 0.9
-    file_types: [javascript]
-    condition:
+    conf: 0.9
+    r#for: [javascript]
+    if:
       type: string
       regex: 'vue\\.runtime\\.esm|vue\\.esm-bundler|__VUE_PROD'
 
   # Angular production build
   - id: angular-production
-    description: Angular production build markers
+    desc: Angular production build markers
     crit: inert
-    confidence: 0.9
-    file_types: [javascript]
-    condition:
+    conf: 0.9
+    r#for: [javascript]
+    if:
       type: string
       regex: '@angular/core|ngDevMode|ɵɵdefineComponent'
 
@@ -176,181 +176,181 @@ traits:
 
   # Has module.exports (CommonJS export)
   - id: has-cjs-export
-    description: Code exports functionality via CommonJS
+    desc: Code exports functionality via CommonJS
     crit: inert
-    confidence: 0.85
-    file_types: [javascript]
-    condition:
+    conf: 0.85
+    r#for: [javascript]
+    if:
       type: string
       regex: "module\\.exports\\s*=|exports\\.[a-zA-Z]"
 
   # Has ES module export
   - id: has-esm-export
-    description: Code exports functionality via ES
+    desc: Code exports functionality via ES
     crit: inert
-    confidence: 0.85
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.85
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "^export\\s+(default|const|function|class|async|let|var|\\{)"
 
   # Has class definition
   - id: has-class
-    description: Code defines classes
+    desc: Code defines classes
     crit: inert
-    confidence: 0.8
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.8
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "^class\\s+[A-Z][a-zA-Z0-9]*|export\\s+class\\s+[A-Z]"
 
   # Has JSDoc comments
   - id: has-jsdoc
-    description: Code has JSDoc documentation
+    desc: Code has JSDoc documentation
     crit: inert
-    confidence: 0.85
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.85
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "/\\*\\*[\\s\\S]*?@(?:param|returns?|type|typedef|example)"
 
   # Has proper error handling
   - id: has-try-catch
-    description: Code has try-catch error handling
+    desc: Code has try-catch error handling
     crit: inert
-    confidence: 0.75
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.75
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "try\\s*\\{[^}]+\\}\\s*catch"
 
   # Has async/await
   - id: has-async-await
-    description: Code uses async/await patterns
+    desc: Code uses async/await patterns
     crit: inert
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.7
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "async\\s+function|async\\s*\\(|await\\s+"
 
   # Has Promise usage
   - id: has-promise
-    description: Code uses Promises
+    desc: Code uses Promises
     crit: inert
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.7
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "new\\s+Promise\\(|\\.then\\(|\\.catch\\(|Promise\\.(?:all|race|resolve|reject)"
 
   # Has named function definitions
   - id: has-named-functions
-    description: Code has named function definitions
+    desc: Code has named function definitions
     crit: inert
-    confidence: 0.8
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.8
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "^(?:async\\s+)?function\\s+[a-z][a-zA-Z0-9]*\\s*\\("
 
   # Imports from node_modules
   - id: imports-dependencies
-    description: Code imports from external packages
+    desc: Code imports from external packages
     crit: inert
-    confidence: 0.8
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.8
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "require\\(['\"][^./][^'\"]+['\"]\\)|from\\s+['\"][^./][^'\"]+['\"]"
 
   # Has TypeScript types
   - id: has-typescript-types
-    description: Code has TypeScript type annotations
+    desc: Code has TypeScript type annotations
     crit: inert
-    confidence: 0.9
-    file_types: [typescript]
-    condition:
+    conf: 0.9
+    r#for: [typescript]
+    if:
       type: string
       regex: ":\\s*(?:string|number|boolean|object|any|void|never|unknown|null|undefined|Array|Record|Promise)\\b"
 
   # Has interface/type definitions
   - id: has-type-definitions
-    description: Code defines TypeScript interfaces or
+    desc: Code defines TypeScript interfaces or
     crit: inert
-    confidence: 0.9
-    file_types: [typescript]
-    condition:
+    conf: 0.9
+    r#for: [typescript]
+    if:
       type: string
       regex: "^(?:export\\s+)?(?:interface|type)\\s+[A-Z]"
 
   # Has EventEmitter pattern
   - id: has-eventemitter
-    description: Code uses EventEmitter pattern
+    desc: Code uses EventEmitter pattern
     crit: inert
-    confidence: 0.8
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.8
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "extends\\s+EventEmitter|require\\(['\"]events['\"]\\)"
 
   # Has Stream usage
   - id: has-stream
-    description: Code uses Node.js streams
+    desc: Code uses Node.js streams
     crit: inert
-    confidence: 0.75
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.75
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "require\\(['\"]stream['\"]\\)|Readable|Writable|Transform|Duplex"
 
   # Has Buffer with encoding (legitimate usage)
   - id: has-buffer-encoding
-    description: Code uses Buffer with explicit
+    desc: Code uses Buffer with explicit
     crit: inert
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.7
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "Buffer\\.from\\([^)]+,\\s*['\"](?:utf8|utf-8|ascii|hex|binary)['\"]\\)"
 
   # Has callback pattern
   - id: has-callback-pattern
-    description: Code uses Node.js callback pattern
+    desc: Code uses Node.js callback pattern
     crit: inert
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.7
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "function\\s*\\([^)]*,\\s*(?:callback|cb|done|next)\\)"
 
   # Has configuration object pattern
   - id: has-config-object
-    description: Code uses configuration objects
+    desc: Code uses configuration objects
     crit: inert
-    confidence: 0.75
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.75
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "(?:config|options|settings|opts)\\s*=\\s*\\{|function\\s*\\([^)]*(?:config|options|settings)\\)"
 
   # Has default export
   - id: has-default-export
-    description: Code has default export
+    desc: Code has default export
     crit: inert
-    confidence: 0.8
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.8
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "export\\s+default|module\\.exports\\s*="
 
   # Uses 'use strict'
   - id: use-strict
-    description: Code uses strict mode
+    desc: Code uses strict mode
     crit: inert
-    confidence: 0.75
-    file_types: [javascript]
-    condition:
+    conf: 0.75
+    r#for: [javascript]
+    if:
       type: string
       exact: "'use strict'"
 
@@ -411,171 +411,171 @@ traits:
 
   # Has assertion library usage
   - id: has-assertions
-    description: Code uses assertion patterns
+    desc: Code uses assertion patterns
     crit: inert
-    confidence: 0.9
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.9
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "(?:assert|expect|should)\\s*[.\\(]|toBe\\(|toEqual\\(|toMatch\\("
 
   # Uses popular web framework
   - id: uses-web-framework
-    description: Code uses established web framework
+    desc: Code uses established web framework
     crit: inert
-    confidence: 0.85
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.85
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "require\\(['\"](?:express|koa|fastify|hapi|next|nuxt)['\"]\\)|from ['\"](?:express|koa|fastify|hapi|next|nuxt)['\"]"
 
   # Has middleware pattern
   - id: has-middleware
-    description: Code uses middleware pattern
+    desc: Code uses middleware pattern
     crit: inert
-    confidence: 0.85
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.85
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "(?:app|router)\\.use\\(|middleware\\s*[=:]"
 
   # Has route definitions
   - id: has-routes
-    description: Code defines HTTP routes
+    desc: Code defines HTTP routes
     crit: inert
-    confidence: 0.8
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.8
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "(?:app|router)\\.(?:get|post|put|delete|patch)\\s*\\(['\"]/"
 
   # Has proper logging
   - id: has-logging
-    description: Code uses logging library
+    desc: Code uses logging library
     crit: inert
-    confidence: 0.8
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.8
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "require\\(['\"](?:winston|pino|bunyan|log4js|debug)['\"]\\)|logger\\.|log\\.(?:info|warn|error|debug)"
 
   # Has schema validation
   - id: has-validation
-    description: Code uses schema validation
+    desc: Code uses schema validation
     crit: inert
-    confidence: 0.85
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.85
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "require\\(['\"](?:joi|yup|zod|ajv)['\"]\\)|z\\.object\\(|Joi\\.object\\("
 
   # Has database interaction
   - id: has-database
-    description: Code interacts with database
+    desc: Code interacts with database
     crit: inert
-    confidence: 0.8
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.8
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "require\\(['\"](?:mongoose|sequelize|knex|pg|mysql|mongodb)['\"]\\)|prisma\\.|\\$queryRaw"
 
   # Has React/Vue/Angular patterns
   - id: has-frontend-framework
-    description: Code uses frontend framework patterns
+    desc: Code uses frontend framework patterns
     crit: inert
-    confidence: 0.9
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.9
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "(?:React|Vue|Component)\\.(?:createElement|defineComponent)|@Component\\(|useEffect\\(|useState\\("
 
   # Has decorator patterns
   - id: has-decorators
-    description: Code uses TypeScript/ES decorators
+    desc: Code uses TypeScript/ES decorators
     crit: inert
-    confidence: 0.85
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.85
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "@(?:Controller|Injectable|Service|Module|Component|Prop|Watch)\\("
 
   # Has dependency injection
   - id: has-di-pattern
-    description: Code uses dependency injection
+    desc: Code uses dependency injection
     crit: inert
-    confidence: 0.85
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.85
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "(?:inject|provide|@Inject|container\\.resolve|inversify)"
 
   # Has CLI argument parsing
   - id: has-cli-args
-    description: Code parses CLI arguments
+    desc: Code parses CLI arguments
     crit: inert
-    confidence: 0.8
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.8
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "require\\(['\"](?:commander|yargs|meow|minimist)['\"]\\)|program\\.(?:command|option)\\("
 
   # Has proper error class
   - id: has-error-class
-    description: Code defines custom error classes
+    desc: Code defines custom error classes
     crit: inert
-    confidence: 0.85
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.85
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "class\\s+\\w+Error\\s+extends\\s+Error"
 
   # Has getter/setter
   - id: has-accessors
-    description: Code uses getters/setters
+    desc: Code uses getters/setters
     crit: inert
-    confidence: 0.8
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.8
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "\\bget\\s+\\w+\\s*\\(\\)|\\bset\\s+\\w+\\s*\\("
 
   # Has symbol usage
   - id: has-symbols
-    description: Code uses Symbol for private
+    desc: Code uses Symbol for private
     crit: inert
-    confidence: 0.85
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.85
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "Symbol\\s*\\(|Symbol\\.(?:for|iterator|asyncIterator)"
 
   # Has WeakMap/WeakSet (private data pattern)
   - id: has-weak-collections
-    description: Code uses WeakMap/WeakSet patterns
+    desc: Code uses WeakMap/WeakSet patterns
     crit: inert
-    confidence: 0.85
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.85
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "new\\s+Weak(?:Map|Set)\\s*\\("
 
   # Has Proxy usage
   - id: has-proxy
-    description: Code uses Proxy for metaprogramming
+    desc: Code uses Proxy for metaprogramming
     crit: inert
-    confidence: 0.8
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.8
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "new\\s+Proxy\\s*\\("
 
   # Has generator functions
   - id: has-generators
-    description: Code uses generator functions
+    desc: Code uses generator functions
     crit: inert
-    confidence: 0.85
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.85
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "function\\s*\\*|yield\\s+"
 
@@ -612,161 +612,161 @@ traits:
 
   # References README file
   - id: references-readme
-    description: Package references README file
+    desc: Package references README file
     crit: inert
-    confidence: 0.8
-    file_types: [packagejson]
-    condition:
+    conf: 0.8
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"readme":|README\\.md|readme\\.md'
 
   # References LICENSE file
   - id: references-license
-    description: Package references LICENSE file
+    desc: Package references LICENSE file
     crit: inert
-    confidence: 0.85
-    file_types: [packagejson]
-    condition:
+    conf: 0.85
+    r#for: [packagejson]
+    if:
       type: string
       regex: 'LICENSE|license|LICENCE|licence|COPYING'
 
   # References CHANGELOG
   - id: references-changelog
-    description: Package references CHANGELOG
+    desc: Package references CHANGELOG
     crit: inert
-    confidence: 0.85
-    file_types: [packagejson]
-    condition:
+    conf: 0.85
+    r#for: [packagejson]
+    if:
       type: string
       regex: 'CHANGELOG|changelog|HISTORY|history|CHANGES'
 
   # Has dist/lib output directory
   - id: has-build-output
-    description: Package has build output directory
+    desc: Package has build output directory
     crit: inert
-    confidence: 0.85
-    file_types: [packagejson]
-    condition:
+    conf: 0.85
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"main":\\s*"(?:dist/|lib/|build/|out/)'
 
   # Has src directory structure
   - id: has-src-directory
-    description: Package has src directory structure
+    desc: Package has src directory structure
     crit: inert
-    confidence: 0.8
-    file_types: [packagejson]
-    condition:
+    conf: 0.8
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"[^"]*src/|"files":[^]]*"src"'
 
   # Has test directory
   - id: has-test-directory
-    description: Package references test directory
+    desc: Package references test directory
     crit: inert
-    confidence: 0.85
-    file_types: [packagejson]
-    condition:
+    conf: 0.85
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"test"|"tests"|"__tests__"|"spec"|"__mocks__"'
 
   # Has examples directory
   - id: has-examples
-    description: Package has examples directory
+    desc: Package has examples directory
     crit: inert
-    confidence: 0.85
-    file_types: [packagejson]
-    condition:
+    conf: 0.85
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"examples"|"example"|"demo"|"demos"'
 
   # Has docs directory
   - id: has-docs
-    description: Package has documentation directory
+    desc: Package has documentation directory
     crit: inert
-    confidence: 0.85
-    file_types: [packagejson]
-    condition:
+    conf: 0.85
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"docs"|"documentation"|"doc"'
 
   # Has .github directory (CI/CD)
   - id: has-github-config
-    description: Package references GitHub configuration
+    desc: Package references GitHub configuration
     crit: inert
-    confidence: 0.9
-    file_types: [packagejson]
-    condition:
+    conf: 0.9
+    r#for: [packagejson]
+    if:
       type: string
       regex: '\\.github|workflows|CONTRIBUTING|CODE_OF_CONDUCT|SECURITY\\.md'
 
   # Has TypeScript config
   - id: has-tsconfig
-    description: Package has TypeScript configuration
+    desc: Package has TypeScript configuration
     crit: inert
-    confidence: 0.9
-    file_types: [packagejson]
-    condition:
+    conf: 0.9
+    r#for: [packagejson]
+    if:
       type: string
       regex: 'tsconfig\\.json|tsconfig\\.build\\.json'
 
   # Has ESLint config
   - id: has-eslint-config
-    description: Package has ESLint configuration
+    desc: Package has ESLint configuration
     crit: inert
-    confidence: 0.9
-    file_types: [packagejson]
-    condition:
+    conf: 0.9
+    r#for: [packagejson]
+    if:
       type: string
       regex: '\\.eslintrc|eslint\\.config|"eslintConfig":'
 
   # Has Prettier config
   - id: has-prettier-config
-    description: Package has Prettier configuration
+    desc: Package has Prettier configuration
     crit: inert
-    confidence: 0.9
-    file_types: [packagejson]
-    condition:
+    conf: 0.9
+    r#for: [packagejson]
+    if:
       type: string
       regex: '\\.prettierrc|prettier\\.config|"prettier":'
 
   # Has Jest config
   - id: has-jest-config
-    description: Package has Jest configuration
+    desc: Package has Jest configuration
     crit: inert
-    confidence: 0.9
-    file_types: [packagejson]
-    condition:
+    conf: 0.9
+    r#for: [packagejson]
+    if:
       type: string
       regex: 'jest\\.config|"jest":\\s*\\{'
 
   # Has Babel config
   - id: has-babel-config
-    description: Package has Babel configuration
+    desc: Package has Babel configuration
     crit: inert
-    confidence: 0.85
-    file_types: [packagejson]
-    condition:
+    conf: 0.85
+    r#for: [packagejson]
+    if:
       type: string
       regex: '\\.babelrc|babel\\.config|"babel":'
 
   # Has editor config
   - id: has-editorconfig
-    description: Package has editor configuration
+    desc: Package has editor configuration
     crit: inert
-    confidence: 0.85
-    file_types: [packagejson]
-    condition:
+    conf: 0.85
+    r#for: [packagejson]
+    if:
       type: string
       regex: '\\.editorconfig'
 
   # Has .npmignore or files field (publishing awareness)
   - id: has-publish-config
-    description: Package has publishing configuration
+    desc: Package has publishing configuration
     crit: inert
-    confidence: 0.85
-    file_types: [packagejson]
-    condition:
+    conf: 0.85
+    r#for: [packagejson]
+    if:
       type: string
       regex: '\\.npmignore|"files":\\s*\\['
 
@@ -776,51 +776,51 @@ traits:
 
   # Has README file (detected via package.json main pointing to index)
   - id: has-index-entry
-    description: Package has standard index entry
+    desc: Package has standard index entry
     crit: inert
-    confidence: 0.8
-    file_types: [packagejson]
-    condition:
+    conf: 0.8
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"main":\s*"(?:index\.js|dist/|lib/|src/)'
 
   # Has types entry point
   - id: has-types-entry
-    description: Package has TypeScript types entry
+    desc: Package has TypeScript types entry
     crit: inert
-    confidence: 0.9
-    file_types: [packagejson]
-    condition:
+    conf: 0.9
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"types":\s*"|"typings":\s*"'
 
   # Has module entry (ESM)
   - id: has-module-entry
-    description: Package has ESM module entry
+    desc: Package has ESM module entry
     crit: inert
-    confidence: 0.85
-    file_types: [packagejson]
-    condition:
+    conf: 0.85
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"module":\s*"'
 
   # Has sideEffects field
   - id: has-side-effects
-    description: Package declares sideEffects (tree-shaking support)
+    desc: Package declares sideEffects (tree-shaking support)
     crit: inert
-    confidence: 0.85
-    file_types: [packagejson]
-    condition:
+    conf: 0.85
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"sideEffects":\s*(?:false|\[)'
 
   # Has browserslist
   - id: has-browserslist
-    description: Package has browser target configuration
+    desc: Package has browser target configuration
     crit: inert
-    confidence: 0.8
-    file_types: [packagejson]
-    condition:
+    conf: 0.8
+    r#for: [packagejson]
+    if:
       type: string
       exact: '"browserslist":'
 
@@ -918,101 +918,101 @@ traits:
 
   # Has CI badge indicators (usually in description or homepage)
   - id: ci-badge-reference
-    description: References CI service (professional project)
+    desc: References CI service (professional project)
     crit: inert
-    confidence: 0.8
-    file_types: [packagejson]
-    condition:
+    conf: 0.8
+    r#for: [packagejson]
+    if:
       type: string
       regex: 'travis-ci\\.org|circleci\\.com|github\\.com/.{0,100}actions|codecov\\.io|coveralls\\.io'
 
   # Has conventional versioning
   - id: conventional-version
-    description: Uses conventional version format
+    desc: Uses conventional version format
     crit: inert
-    confidence: 0.75
-    file_types: [packagejson]
-    condition:
+    conf: 0.75
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"version":\s*"[0-9]+\.[0-9]+\.[0-9]+(?:-(?:alpha|beta|rc|next|canary)\.[0-9]+)?"'
 
   # Has release/publish workflow scripts
   - id: has-release-scripts
-    description: Package has release management scripts
+    desc: Package has release management scripts
     crit: inert
-    confidence: 0.85
-    file_types: [packagejson]
-    condition:
+    conf: 0.85
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"(?:release|publish|version|prepublishOnly|postversion)":'
 
   # Has changeset or conventional commits tooling
   - id: has-changelog-tooling
-    description: Package uses changelog/versioning tooling
+    desc: Package uses changelog/versioning tooling
     crit: inert
-    confidence: 0.9
-    file_types: [packagejson]
-    condition:
+    conf: 0.9
+    r#for: [packagejson]
+    if:
       type: string
       regex: '@changesets/|standard-version|semantic-release|conventional-changelog'
 
   # Has peer dependency range (well-designed library)
   - id: peer-range
-    description: Uses version ranges for peer
+    desc: Uses version ranges for peer
     crit: inert
-    confidence: 0.85
-    file_types: [packagejson]
-    condition:
+    conf: 0.85
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"peerDependencies":\s*\{[^}]*"[>=<^~]'
 
   # Has optional dependencies
   - id: has-optional-deps
-    description: Package has optional dependencies
+    desc: Package has optional dependencies
     crit: inert
-    confidence: 0.8
-    file_types: [packagejson]
-    condition:
+    conf: 0.8
+    r#for: [packagejson]
+    if:
       type: string
       exact: '"optionalDependencies":'
 
   # Has cpu/os restrictions
   - id: has-platform-restrictions
-    description: Package specifies platform restrictions
+    desc: Package specifies platform restrictions
     crit: inert
-    confidence: 0.85
-    file_types: [packagejson]
-    condition:
+    conf: 0.85
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"cpu":\s*\[|"os":\s*\['
 
   # Uses scoped name from known org
   - id: scoped-known-org
-    description: Package from known organization scope
+    desc: Package from known organization scope
     crit: inert
-    confidence: 0.85
-    file_types: [packagejson]
-    condition:
+    conf: 0.85
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"name":\s*"@(?:types|babel|rollup|webpack|eslint|typescript-eslint|testing-library|storybook|angular|vue|emotion|chakra-ui)/'
 
   # Has npm scripts that reference node_modules/.bin
   - id: uses-bin-scripts
-    description: Scripts reference node_modules binaries
+    desc: Scripts reference node_modules binaries
     crit: inert
-    confidence: 0.8
-    file_types: [packagejson]
-    condition:
+    conf: 0.8
+    r#for: [packagejson]
+    if:
       type: string
       regex: 'node_modules/\\.bin/|npx |npm run '
 
   # Has husky/lint-staged (pre-commit tooling)
   - id: has-git-hooks
-    description: Package uses git hooks tooling
+    desc: Package uses git hooks tooling
     crit: inert
-    confidence: 0.9
-    file_types: [packagejson]
-    condition:
+    conf: 0.9
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"husky"|"lint-staged"|"pre-commit"|"simple-git-hooks"'
 
@@ -1022,261 +1022,261 @@ traits:
 
   # Has test script defined
   - id: has-test-script
-    description: Package has test script (legitimate
+    desc: Package has test script (legitimate
     crit: inert
-    confidence: 0.9
-    file_types: [packagejson]
-    condition:
+    conf: 0.9
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"test":\\s*"[^"]*(?:jest|mocha|ava|tap|vitest|node --test|npm test)'
 
   # Has TypeScript configuration
   - id: has-typescript
-    description: Package has TypeScript support
+    desc: Package has TypeScript support
     crit: inert
-    confidence: 0.9
-    file_types: [packagejson]
-    condition:
+    conf: 0.9
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"typescript"|"@types/|"\\.d\\.ts"|"tsconfig"'
 
   # Has build script
   - id: has-build-script
-    description: Package has build script (compiled
+    desc: Package has build script (compiled
     crit: inert
-    confidence: 0.85
-    file_types: [packagejson]
-    condition:
+    conf: 0.85
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"build":\\s*"[^"]*(?:tsc|rollup|webpack|esbuild|babel|vite)'
 
   # Has lint script
   - id: has-lint-script
-    description: Package has linting configured
+    desc: Package has linting configured
     crit: inert
-    confidence: 0.9
-    file_types: [packagejson]
-    condition:
+    conf: 0.9
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"lint":\\s*"|"eslint"|"prettier"|"biome"'
 
   # Has prepublishOnly (good practice)
   - id: has-prepublish-only
-    description: Package has prepublishOnly script (publish
+    desc: Package has prepublishOnly script (publish
     crit: inert
-    confidence: 0.85
-    file_types: [packagejson]
-    condition:
+    conf: 0.85
+    r#for: [packagejson]
+    if:
       type: string
       exact: '"prepublishOnly":'
 
   # Has repository field
   - id: has-repository
-    description: Package has repository URL
+    desc: Package has repository URL
     crit: inert
-    confidence: 0.8
-    file_types: [packagejson]
-    condition:
+    conf: 0.8
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"repository":\\s*\\{|"repository":\\s*"'
 
   # Has proper author with email
   - id: has-author-email
-    description: Package has author with email
+    desc: Package has author with email
     crit: inert
-    confidence: 0.85
-    file_types: [packagejson]
-    condition:
+    conf: 0.85
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"author":\\s*"[^"]*@[^"]*"|"email":\\s*"[^"]*@'
 
   # Has license field
   - id: has-license
-    description: Package has license field
+    desc: Package has license field
     crit: inert
-    confidence: 0.8
-    file_types: [packagejson]
-    condition:
+    conf: 0.8
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"license":\\s*"(?:MIT|ISC|Apache|BSD|GPL|LGPL|MPL|Unlicense)'
 
   # Has keywords
   - id: has-keywords
-    description: Package has keywords array
+    desc: Package has keywords array
     crit: inert
-    confidence: 0.75
-    file_types: [packagejson]
-    condition:
+    conf: 0.75
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"keywords":\\s*\\['
 
   # Has engines field
   - id: has-engines
-    description: Package specifies Node.js engine version
+    desc: Package specifies Node.js engine version
     crit: inert
-    confidence: 0.8
-    file_types: [packagejson]
-    condition:
+    conf: 0.8
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"engines":\\s*\\{[^}]*"node"'
 
   # Has exports field (modern ESM)
   - id: has-exports-field
-    description: Package has modern exports field
+    desc: Package has modern exports field
     crit: inert
-    confidence: 0.85
-    file_types: [packagejson]
-    condition:
+    conf: 0.85
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"exports":\\s*\\{'
 
   # Has peerDependencies (library pattern)
   - id: has-peer-deps
-    description: Package has peerDependencies (framework plugin
+    desc: Package has peerDependencies (framework plugin
     crit: inert
-    confidence: 0.85
-    file_types: [packagejson]
-    condition:
+    conf: 0.85
+    r#for: [packagejson]
+    if:
       type: string
       exact: '"peerDependencies":'
 
   # Has devDependencies (development tooling)
   - id: has-dev-deps
-    description: Package has devDependencies
+    desc: Package has devDependencies
     crit: inert
-    confidence: 0.8
-    file_types: [packagejson]
-    condition:
+    conf: 0.8
+    r#for: [packagejson]
+    if:
       type: string
       exact: '"devDependencies":'
 
   # Uses established test framework
   - id: uses-test-framework
-    description: Package uses established testing framework
+    desc: Package uses established testing framework
     crit: inert
-    confidence: 0.9
-    file_types: [packagejson]
-    condition:
+    conf: 0.9
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"jest"|"mocha"|"ava"|"vitest"|"@testing-library|"chai"|"sinon"|"tap"'
 
   # Has files field (explicit inclusion)
   - id: has-files-field
-    description: Package explicitly lists published files
+    desc: Package explicitly lists published files
     crit: inert
-    confidence: 0.8
-    file_types: [packagejson]
-    condition:
+    conf: 0.8
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"files":\\s*\\['
 
   # Mature version (not 0.0.1 or 1.0.0)
   - id: mature-version
-    description: Package has mature version number
+    desc: Package has mature version number
     crit: inert
-    confidence: 0.7
-    file_types: [packagejson]
-    condition:
+    conf: 0.7
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"version":\\s*"[1-9]\\.[1-9]|"version":\\s*"[0-9]+\\.[1-9]+\\.[1-9]'
 
   # Has meaningful description (> 20 chars)
   - id: has-description
-    description: Package has meaningful description
+    desc: Package has meaningful description
     crit: inert
-    confidence: 0.75
-    file_types: [packagejson]
-    condition:
+    conf: 0.75
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"description":\\s*"[^"]{20,}"'
 
   # Has bin field (CLI tool)
   - id: has-bin-field
-    description: Package provides CLI binary
+    desc: Package provides CLI binary
     crit: inert
-    confidence: 0.8
-    file_types: [packagejson]
-    condition:
+    conf: 0.8
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"bin":\\s*\\{|"bin":\\s*"'
 
   # Has funding field
   - id: has-funding
-    description: Package has funding information
+    desc: Package has funding information
     crit: inert
-    confidence: 0.85
-    file_types: [packagejson]
-    condition:
+    conf: 0.85
+    r#for: [packagejson]
+    if:
       type: string
       exact: '"funding":'
 
   # Has bugs/issues URL
   - id: has-bugs-url
-    description: Package has bugs/issues URL
+    desc: Package has bugs/issues URL
     crit: inert
-    confidence: 0.8
-    file_types: [packagejson]
-    condition:
+    conf: 0.8
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"bugs":\\s*\\{|"bugs":\\s*"http'
 
   # Has homepage
   - id: has-homepage
-    description: Package has homepage URL
+    desc: Package has homepage URL
     crit: inert
-    confidence: 0.8
-    file_types: [packagejson]
-    condition:
+    conf: 0.8
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"homepage":\\s*"https?://'
 
   # Has contributors
   - id: has-contributors
-    description: Package has contributors list
+    desc: Package has contributors list
     crit: inert
-    confidence: 0.85
-    file_types: [packagejson]
-    condition:
+    conf: 0.85
+    r#for: [packagejson]
+    if:
       type: string
       exact: '"contributors":'
 
   # Has workspaces (monorepo)
   - id: has-workspaces
-    description: Package uses workspaces (monorepo pattern)
+    desc: Package uses workspaces (monorepo pattern)
     crit: inert
-    confidence: 0.9
-    file_types: [packagejson]
-    condition:
+    conf: 0.9
+    r#for: [packagejson]
+    if:
       type: string
       exact: '"workspaces":'
 
   # Has private field
   - id: is-private
-    description: Package marked as private
+    desc: Package marked as private
     crit: inert
-    confidence: 0.8
-    file_types: [packagejson]
-    condition:
+    conf: 0.8
+    r#for: [packagejson]
+    if:
       type: string
       exact: '"private": true'
 
   # Uses semantic versioning dependencies
   - id: semver-deps
-    description: Uses semantic versioning for dependencies
+    desc: Uses semantic versioning for dependencies
     crit: inert
-    confidence: 0.75
-    file_types: [packagejson]
-    condition:
+    conf: 0.75
+    r#for: [packagejson]
+    if:
       type: string
       regex: '"dependencies":\\s*\\{[^}]*"\\^[0-9]|"~[0-9]'
 
   # Has publishConfig
   - id: has-publish-config
-    description: Has publish configuration
+    desc: Has publish configuration
     crit: inert
-    confidence: 0.85
-    file_types: [packagejson]
-    condition:
+    conf: 0.85
+    r#for: [packagejson]
+    if:
       type: string
       exact: '"publishConfig":'
 # Test File Context Markers
@@ -1395,11 +1395,11 @@ traits:
 
   # Vitest test file
   - id: vitest-test-file
-    description: Vitest test file markers
+    desc: Vitest test file markers
     crit: inert
-    confidence: 0.95
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.95
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "from ['\"]vitest['\"]|import.{0,50}vitest|vi\\.mock|vi\\.fn"
 
@@ -1524,11 +1524,11 @@ traits:
 
   # Snapshot testing
   - id: snapshot-test
-    description: Snapshot testing patterns
+    desc: Snapshot testing patterns
     crit: inert
-    confidence: 0.95
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.95
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: 'toMatchSnapshot|toMatchInlineSnapshot|\.snap'
 
@@ -1817,11 +1817,11 @@ traits:
 
   # Coverage markers
   - id: coverage-markers
-    description: Code coverage markers
+    desc: Code coverage markers
     crit: inert
-    confidence: 0.9
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.9
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: 'istanbul|nyc|c8|coverage|__coverage__|lcov'
 
@@ -1830,7 +1830,7 @@ traits:
 composite_rules:
   # Terser/UglifyJS minified output
   - id: terser-minifier-helpers
-    description: Minifier helper patterns
+    desc: Minifier helper patterns
     for: [javascript]
     any:
       - {id: void-zero}
@@ -1838,7 +1838,7 @@ composite_rules:
       - {id: object-define-property}
 
   - id: terser-output
-    description: Terser/UglifyJS minified output markers
+    desc: Terser/UglifyJS minified output markers
     crit: inert
     conf: 0.85
     for: [javascript]
@@ -1848,7 +1848,7 @@ composite_rules:
 
   # Test block patterns
   - id: test-block-functions
-    description: Test block functions (describe/it/test)
+    desc: Test block functions (describe/it/test)
     for: [javascript, typescript]
     any:
       - {id: describe-with-string}
@@ -1856,7 +1856,7 @@ composite_rules:
       - {id: test-with-string}
 
   - id: test-assertions
-    description: Test assertion patterns
+    desc: Test assertion patterns
     for: [javascript, typescript]
     any:
       - {id: expect-call}
@@ -1864,7 +1864,7 @@ composite_rules:
       - {id: should-assertion}
 
   - id: has-test-blocks
-    description: Code contains test definitions
+    desc: Code contains test definitions
     crit: inert
     conf: 0.95
     for: [javascript, typescript]
@@ -1874,7 +1874,7 @@ composite_rules:
 
   # Multiple exports
   - id: has-multiple-exports
-    description: Code has multiple named exports
+    desc: Code has multiple named exports
     crit: inert
     conf: 0.85
     for: [javascript, typescript]
@@ -1885,7 +1885,7 @@ composite_rules:
 
   # Multiple entry points
   - id: has-multiple-entries
-    description: Package has multiple entry points
+    desc: Package has multiple entry points
     crit: inert
     conf: 0.85
     for: [packagejson]
@@ -1898,7 +1898,7 @@ composite_rules:
 
   # Development workflow scripts
   - id: has-dev-workflow
-    description: Package has development workflow scripts
+    desc: Package has development workflow scripts
     crit: inert
     conf: 0.85
     for: [packagejson]
@@ -1913,7 +1913,7 @@ composite_rules:
 
   # Jest test file
   - id: jest-test-blocks
-    description: Jest test blocks
+    desc: Jest test blocks
     for: [javascript, typescript]
     any:
       - {id: describe-call}
@@ -1921,7 +1921,7 @@ composite_rules:
       - {id: it-call}
 
   - id: jest-assertions-or-hooks
-    description: Jest assertions or lifecycle hooks
+    desc: Jest assertions or lifecycle hooks
     for: [javascript, typescript]
     any:
       - {id: expect-call}
@@ -1931,7 +1931,7 @@ composite_rules:
       - {id: after-each-call}
 
   - id: jest-test-file
-    description: Jest test file markers
+    desc: Jest test file markers
     crit: inert
     conf: 0.95
     for: [javascript, typescript]
@@ -1941,14 +1941,14 @@ composite_rules:
 
   # Mocha test file
   - id: mocha-test-blocks
-    description: Mocha test blocks
+    desc: Mocha test blocks
     for: [javascript, typescript]
     all:
       - {id: describe-call}
       - {id: it-call}
 
   - id: mocha-assertions-or-hooks
-    description: Mocha assertions or hooks
+    desc: Mocha assertions or hooks
     for: [javascript, typescript]
     any:
       - {id: chai-word}
@@ -1958,7 +1958,7 @@ composite_rules:
       - {id: after-call}
 
   - id: mocha-test-file
-    description: Mocha test file markers
+    desc: Mocha test file markers
     crit: inert
     conf: 0.95
     for: [javascript, typescript]
@@ -1968,7 +1968,7 @@ composite_rules:
 
   # Test filename pattern
   - id: test-filename-pattern
-    description: File follows test naming convention
+    desc: File follows test naming convention
     crit: inert
     conf: 0.9
     for: [javascript, typescript]
@@ -1982,7 +1982,7 @@ composite_rules:
 
   # Test fixtures
   - id: test-fixtures
-    description: Test fixture or mock data
+    desc: Test fixture or mock data
     crit: inert
     conf: 0.9
     for: [javascript, typescript]
@@ -1997,7 +1997,7 @@ composite_rules:
 
   # E2E test frameworks
   - id: e2e-test
-    description: E2E test framework markers
+    desc: E2E test framework markers
     crit: inert
     conf: 0.9
     for: [javascript, typescript]
@@ -2019,7 +2019,7 @@ composite_rules:
 
   # Testing Library
   - id: testing-library-imports
-    description: Testing Library import patterns
+    desc: Testing Library import patterns
     for: [javascript, typescript]
     any:
       - {id: testing-library-import}
@@ -2027,7 +2027,7 @@ composite_rules:
       - {id: testing-library-require}
 
   - id: testing-library-methods
-    description: Testing Library methods
+    desc: Testing Library methods
     for: [javascript, typescript]
     count_min: 2
     any:
@@ -2041,7 +2041,7 @@ composite_rules:
       - {id: wait-for-call}
 
   - id: testing-library
-    description: Testing Library patterns
+    desc: Testing Library patterns
     crit: inert
     conf: 0.95
     for: [javascript, typescript]
@@ -2051,7 +2051,7 @@ composite_rules:
 
   # Test configuration files
   - id: test-config
-    description: Test configuration file
+    desc: Test configuration file
     crit: inert
     conf: 0.95
     for: [javascript, typescript]

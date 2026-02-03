@@ -5,21 +5,21 @@
 traits:
   # === Lifecycle hook atomic indicators ===
   - id: preinstall-hook
-    description: preinstall lifecycle hook
+    desc: preinstall lifecycle hook
     crit: inert
-    confidence: 0.6
-    file_types: [packagejson]
-    condition:
+    conf: 0.6
+    r#for: [packagejson]
+    if:
       type: content
 
 
 composite_rules:
   # Lifecycle hook helpers
   - id: lifecycle-hook
-    description: NPM lifecycle hook (preinstall or
+    desc: NPM lifecycle hook (preinstall or
     crit: inert
-    confidence: 0.6
-    file_types: [packagejson]
+    conf: 0.6
+    r#for: [packagejson]
     count_min: 1
     any:
       - id: preinstall-hook
@@ -27,10 +27,10 @@ composite_rules:
 
   # Download command helpers
   - id: download-command
-    description: Download command (curl or wget)
+    desc: Download command (curl or wget)
     crit: notable
-    confidence: 0.7
-    file_types: [packagejson]
+    conf: 0.7
+    r#for: [packagejson]
     count_min: 1
     any:
       - id: curl-command
@@ -38,10 +38,10 @@ composite_rules:
 
   # Pipe to shell helpers
   - id: pipe-to-shell
-    description: Pipe to shell interpreter
+    desc: Pipe to shell interpreter
     crit: notable
-    confidence: 0.75
-    file_types: [packagejson]
+    conf: 0.75
+    r#for: [packagejson]
     count_min: 1
     any:
       - id: pipe-to-bash
@@ -50,10 +50,10 @@ composite_rules:
 
   # Node eval helpers
   - id: node-eval
-    description: Node inline eval (node -e
+    desc: Node inline eval (node -e
     crit: notable
-    confidence: 0.8
-    file_types: [packagejson]
+    conf: 0.8
+    r#for: [packagejson]
     count_min: 1
     any:
       - id: node-dash-e
@@ -61,12 +61,12 @@ composite_rules:
 
   # NPM preinstall/postinstall abuse with dropper behavior
   - id: lifecycle-dropper
-    description: NPM lifecycle script with dropper
+    desc: NPM lifecycle script with dropper
     crit: suspicious
-    confidence: 0.95
+    conf: 0.95
     attack: "T1195.002"
     mbc: "B0024"
-    file_types: [packagejson]
+    r#for: [packagejson]
     all:
       - id: lifecycle-hook
       - id: download-command
@@ -74,23 +74,23 @@ composite_rules:
 
   # NPM package with inline node eval in hooks
   - id: hook-node-eval
-    description: NPM install hook with node
+    desc: NPM install hook with node
     crit: suspicious
-    confidence: 0.95
+    conf: 0.95
     attack: "T1059.007"
     mbc: "B0024"
-    file_types: [packagejson]
+    r#for: [packagejson]
     all:
       - id: lifecycle-hook
       - id: node-eval
 
   # Install hook spawns child process
   - id: hook-child-process
-    description: NPM install hook using child_process
+    desc: NPM install hook using child_process
     crit: suspicious
-    confidence: 0.85
+    conf: 0.85
     attack: "T1195.002"
-    file_types: [packagejson]
+    r#for: [packagejson]
     all:
       - id: lifecycle-hook
       - id: child-process-module

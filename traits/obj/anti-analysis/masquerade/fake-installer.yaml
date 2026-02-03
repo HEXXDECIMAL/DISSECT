@@ -100,7 +100,7 @@ composite_rules:
     attack: "T1036.005"
     mbc: "F0004"
     platforms: [macos, linux]
-    file_types: [shell]
+    r#for: [shell]
     all:
       - id: homebrew-context
       - id: fake-installer-behaviors

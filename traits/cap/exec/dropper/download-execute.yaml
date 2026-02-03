@@ -78,7 +78,7 @@ composite_rules:
     crit: suspicious
     conf: 0.96
     attack: "T1105"
-    file_types: [python, shell]
+    r#for: [python, shell]
     count_min: 2
     any:
       - id: download-chmod-execute

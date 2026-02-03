@@ -2,7 +2,7 @@
 
 traits:
   - id: mtd
-    description: Access raw flash memory (MTD)
+    desc: Access raw flash memory (MTD)
     crit: suspicious
     conf: 0.8
     platforms: [linux]
@@ -11,7 +11,7 @@ traits:
       regex: "/dev/(block/)?mtd"
 
   - id: mmc
-    description: Access raw SD/MMC devices
+    desc: Access raw SD/MMC devices
     crit: suspicious
     conf: 0.85
     platforms: [linux]
@@ -20,7 +20,7 @@ traits:
       regex: "/dev/(block/)?mmcblk"
 
   - id: ubi
-    description: Access raw unsorted block images
+    desc: Access raw unsorted block images
     crit: suspicious
     conf: 0.8
     platforms: [linux]

@@ -5,11 +5,11 @@
 traits:
   # VSCode extension detection
   - id: vscode-extension
-    description: Package is a VSCode extension
+    desc: Package is a VSCode extension
     crit: inert
-    confidence: 0.95
-    file_types: [packagejson]
-    condition:
+    conf: 0.95
+    r#for: [packagejson]
+    if:
       type: content
 
       case_insensitive: true
@@ -18,10 +18,10 @@ traits:
 composite_rules:
   # Install hook group
   - id: install-hooks
-    description: Package has install hook (preinstall,
+    desc: Package has install hook (preinstall,
     crit: inert
     conf: 0.6
-    file_types: [packagejson]
+    r#for: [packagejson]
     any:
       - id: preinstall-hook-key
       - id: postinstall-hook-key
@@ -29,40 +29,40 @@ composite_rules:
 
   # Version 1.0.0 with install hooks
   - id: version-1.0.0-with-hooks
-    description: Version 1.0.0 with install hooks
+    desc: Version 1.0.0 with install hooks
     crit: suspicious
     conf: 0.75
-    file_types: [packagejson]
+    r#for: [packagejson]
     all:
       - id: version-1.0.0
       - id: install-hooks
 
   # npm URL as homepage/repository
   - id: npm-as-homepage
-    description: Package uses npmjs.com as homepage
+    desc: Package uses npmjs.com as homepage
     crit: notable
     conf: 0.8
-    file_types: [packagejson]
+    r#for: [packagejson]
     any:
       - id: npm-homepage-url
       - id: npm-repo-url
 
   # Repository presence check
   - id: has-repository
-    description: Package has repository URL
+    desc: Package has repository URL
     crit: inert
     conf: 0.5
-    file_types: [packagejson]
+    r#for: [packagejson]
     any:
       - id: repository-key
       - id: repo-url-git-host
 
   # Missing repository with install hooks
   - id: no-repo-with-hooks
-    description: Package has install hooks but
+    desc: Package has install hooks but
     crit: suspicious
     conf: 0.85
-    file_types: [packagejson]
+    r#for: [packagejson]
     all:
       - id: install-hooks
     none:
@@ -70,10 +70,10 @@ composite_rules:
 
   # Generic descriptions group
   - id: generic-descriptions
-    description: Package has generic marketing descriptions
+    desc: Package has generic marketing descriptions
     crit: inert
     conf: 0.5
-    file_types: [packagejson]
+    r#for: [packagejson]
     count_min: 2
     any:
       - id: desc-lightweight
@@ -84,10 +84,10 @@ composite_rules:
 
   # Generic description with hooks
   - id: generic-desc-with-hooks
-    description: Generic description combined with install
+    desc: Generic description combined with install
     crit: suspicious
     conf: 0.8
-    file_types: [packagejson]
+    r#for: [packagejson]
     all:
       - id: generic-descriptions
       - id: install-hooks

@@ -6,7 +6,7 @@ traits:
   # NOTE: "shred" alone is too generic - it's present in glibc
   # Require command-line context or disk device patterns to reduce false positives
   - id: dd-zero
-    description: dd if=/dev/zero command
+    desc: dd if=/dev/zero command
     crit: notable
     conf: 0.6
     if:
@@ -14,7 +14,7 @@ traits:
       exact: "dd if=/dev/zero"
 
   - id: dd-random
-    description: dd if=/dev/urandom command
+    desc: dd if=/dev/urandom command
     crit: notable
     conf: 0.6
     if:
@@ -22,7 +22,7 @@ traits:
       exact: "dd if=/dev/urandom"
 
   - id: shred-flag
-    description: shred command with flag
+    desc: shred command with flag
     crit: notable
     conf: 0.6
     if:
@@ -30,7 +30,7 @@ traits:
       exact: "shred -"
 
   - id: shred-dev
-    description: shred with /dev/ path
+    desc: shred with /dev/ path
     crit: notable
     conf: 0.6
     if:
@@ -38,7 +38,7 @@ traits:
       regex: "shred.{0,20}/dev/"
 
   - id: shred-force
-    description: shred --force command
+    desc: shred --force command
     crit: notable
     conf: 0.6
     if:
@@ -47,7 +47,7 @@ traits:
 
   # === Disk device atomic indicators ===
   - id: dev-sda
-    description: /dev/sda device access
+    desc: /dev/sda device access
     crit: inert
     conf: 0.5
     if:
@@ -55,7 +55,7 @@ traits:
       exact: "/dev/sda"
 
   - id: dev-hda
-    description: /dev/hda device access
+    desc: /dev/hda device access
     crit: inert
     conf: 0.5
     if:
@@ -63,7 +63,7 @@ traits:
       exact: "/dev/hda"
 
   - id: dev-nvme
-    description: /dev/nvme device access
+    desc: /dev/nvme device access
     crit: inert
     conf: 0.5
     if:
@@ -71,7 +71,7 @@ traits:
       regex: "/dev/nvme"
 
   - id: dev-vda
-    description: /dev/vda device access
+    desc: /dev/vda device access
     crit: inert
     conf: 0.5
     if:
@@ -80,7 +80,7 @@ traits:
 
 composite_rules:
   - id: disk
-    description: Disk wiper patterns
+    desc: Disk wiper patterns
     crit: suspicious
     conf: 0.66
     mbc: "E1561"
@@ -94,7 +94,7 @@ composite_rules:
       - id: shred-force
 
   - id: disk-device
-    description: Direct disk device access
+    desc: Direct disk device access
     crit: suspicious
     conf: 0.66
     count_min: 1

@@ -1176,7 +1176,7 @@ traits:
     for: [elf, c]
     if:
       type: symbol
-      pattern: "memfd_create"
+      regex: "memfd_create"
 
   - id: sys-memfd-create-ref
     desc: SYS_memfd_create syscall reference
@@ -1194,7 +1194,7 @@ traits:
     for: [elf, c]
     if:
       type: symbol
-      pattern: "finit_module"
+      regex: "finit_module"
 
   - id: sys-finit-module-ref
     desc: SYS_finit_module syscall reference

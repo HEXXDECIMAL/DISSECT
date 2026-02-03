@@ -10,106 +10,106 @@ defaults:
 traits:
   # === XDG autostart atomic indicators ===
   - id: config-autostart
-    description: .config/autostart directory
+    desc: .config/autostart directory
     crit: inert
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: string
       exact: ".config/autostart"
 
   - id: etc-xdg-autostart
-    description: /etc/xdg/autostart directory
+    desc: /etc/xdg/autostart directory
     crit: inert
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: string
       exact: "/etc/xdg/autostart"
 
   - id: xdg-config-autostart
-    description: XDG_CONFIG_HOME autostart
+    desc: XDG_CONFIG_HOME autostart
     crit: inert
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: string
       regex: "XDG_CONFIG_HOME.{0,50}autostart"
 
   # === Desktop entry atomic indicators ===
   - id: dot-desktop-ext
-    description: .desktop file extension
+    desc: .desktop file extension
     crit: inert
-    confidence: 0.5
-    condition:
+    conf: 0.5
+    if:
       type: string
       exact: ".desktop"
 
   - id: desktop-entry-header
-    description: "[Desktop Entry] header"
+    desc: "[Desktop Entry] header"
     crit: inert
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: string
       exact: "[Desktop Entry]"
 
   - id: x-gnome-autostart
-    description: X-GNOME-Autostart directive
+    desc: X-GNOME-Autostart directive
     crit: inert
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: string
       exact: "X-GNOME-Autostart"
 
   # === User systemd atomic indicators ===
   - id: config-systemd-user
-    description: .config/systemd/user directory
+    desc: .config/systemd/user directory
     crit: inert
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: string
       exact: ".config/systemd/user"
 
   - id: local-share-systemd-user
-    description: .local/share/systemd/user directory
+    desc: .local/share/systemd/user directory
     crit: inert
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: string
       exact: ".local/share/systemd/user"
 
   - id: systemctl-user-enable
-    description: systemctl --user enable
+    desc: systemctl --user enable
     crit: inert
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: string
       regex: "systemctl.{0,30}--user.{0,30}enable"
 
   # === rc.local atomic indicators ===
   - id: etc-rc-local
-    description: /etc/rc.local file
+    desc: /etc/rc.local file
     crit: inert
-    confidence: 0.8
+    conf: 0.8
     attack: "T1037.004"
-    condition:
+    if:
       type: string
       exact: "/etc/rc.local"
 
   - id: etc-rc-d-rc-local
-    description: /etc/rc.d/rc.local file
+    desc: /etc/rc.d/rc.local file
     crit: inert
-    confidence: 0.8
+    conf: 0.8
     attack: "T1037.004"
-    condition:
+    if:
       type: string
       exact: "/etc/rc.d/rc.local"
 
   # === init.d atomic indicators ===
   - id: etc-init-d
-    description: /etc/init.d/ directory
+    desc: /etc/init.d/ directory
     crit: inert
-    confidence: 0.6
+    conf: 0.6
     attack: "T1037.004"
-    file_types: [shell, elf, macho, python]
-    condition:
+    r#for: [shell, elf, macho, python]
+    if:
       type: string
       exact: "/etc/init.d/"
 
@@ -125,55 +125,55 @@ traits:
       substr: "BEGIN INIT INFO"
 
   - id: update-rc-d-cmd
-    description: update-rc.d command
+    desc: update-rc.d command
     crit: inert
-    confidence: 0.7
+    conf: 0.7
     attack: "T1037.004"
-    file_types: [shell, elf, macho, python]
-    condition:
+    r#for: [shell, elf, macho, python]
+    if:
       type: string
       exact: "update-rc.d"
 
   - id: chkconfig-cmd
-    description: chkconfig command
+    desc: chkconfig command
     crit: inert
-    confidence: 0.7
+    conf: 0.7
     attack: "T1037.004"
-    file_types: [shell, elf, macho, python]
-    condition:
+    r#for: [shell, elf, macho, python]
+    if:
       type: string
       exact: "chkconfig"
 
   # === Desktop entry exec atomic indicators ===
   - id: exec-eq-directive
-    description: Exec= directive
+    desc: Exec= directive
     crit: inert
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: string
       exact: "Exec="
 
   - id: hidden-false-directive
-    description: Hidden=false directive
+    desc: Hidden=false directive
     crit: inert
-    confidence: 0.5
-    condition:
+    conf: 0.5
+    if:
       type: string
       exact: "Hidden=false"
 
   - id: type-application-directive
-    description: Type=Application directive
+    desc: Type=Application directive
     crit: inert
-    confidence: 0.5
-    condition:
+    conf: 0.5
+    if:
       type: string
       exact: "Type=Application"
 
 composite_rules:
   # XDG autostart composite
   - id: linux-xdg-autostart
-    description: "XDG autostart directory access"
-    confidence: 0.85
+    desc: "XDG autostart directory access"
+    conf: 0.85
     crit: suspicious
     count_min: 1
     any:
@@ -183,8 +183,8 @@ composite_rules:
 
   # Desktop entry composite
   - id: linux-desktop-entry
-    description: "Desktop entry file creation (.desktop)"
-    confidence: 0.8
+    desc: "Desktop entry file creation (.desktop)"
+    conf: 0.8
     count_min: 1
     any:
       - id: dot-desktop-ext
@@ -193,8 +193,8 @@ composite_rules:
 
   # User systemd composite
   - id: linux-user-systemd
-    description: "User-level systemd service persistence"
-    confidence: 0.85
+    desc: "User-level systemd service persistence"
+    conf: 0.85
     attack: "T1543.002"
     count_min: 1
     any:
@@ -204,8 +204,8 @@ composite_rules:
 
   # rc.local composite
   - id: linux-rc-local
-    description: "rc.local persistence mechanism"
-    confidence: 0.9
+    desc: "rc.local persistence mechanism"
+    conf: 0.9
     crit: suspicious
     attack: "T1037.004"
     count_min: 1
@@ -219,7 +219,7 @@ composite_rules:
     conf: 0.85
     crit: suspicious
     attack: "T1037.004"
-    file_types: [shell, elf, macho, python]
+    r#for: [shell, elf, macho, python]
     platforms: [all]
     count_min: 1
     any:
@@ -230,8 +230,8 @@ composite_rules:
 
   # XDG autostart directory composite
   - id: linux-xdg-autostart-dir
-    description: "XDG autostart directory path"
-    confidence: 0.8
+    desc: "XDG autostart directory path"
+    conf: 0.8
     crit: notable
     count_min: 1
     any:
@@ -240,8 +240,8 @@ composite_rules:
 
   # Desktop entry exec composite
   - id: linux-desktop-entry-exec
-    description: "Desktop entry executable directive"
-    confidence: 0.8
+    desc: "Desktop entry executable directive"
+    conf: 0.8
     crit: notable
     count_min: 1
     any:
@@ -251,12 +251,12 @@ composite_rules:
 
   # XDG autostart with executable
   - id: linux-xdg-executable
-    description: "XDG autostart with executable command"
+    desc: "XDG autostart with executable command"
     crit: suspicious
-    confidence: 0.95
+    conf: 0.95
     attack: "T1547.013"
     mbc: "F0006"
-    file_types: [shell, python, elf]
+    r#for: [shell, python, elf]
     all:
       - id: linux-xdg-autostart-dir
       - id: linux-desktop-entry-exec

@@ -7,64 +7,64 @@ traits:
 
   # === Atomic: SSH Attack Terminology ===
   - id: ssh-attack-suffix
-    description: SSH attack function/variable (ssh_attack, ssh-attack,
+    desc: SSH attack function/variable (ssh_attack, ssh-attack,
     crit: notable
-    confidence: 0.8
+    conf: 0.8
     attack: "T1021.004"
     platforms: [all]
-    condition:
+    if:
       type: string
       regex: "[Ss][Ss][Hh][_\\-]?[Aa]ttack"
 
   - id: attack-ssh-prefix
-    description: Attack SSH function/variable (attack_ssh, attack-ssh,
+    desc: Attack SSH function/variable (attack_ssh, attack-ssh,
     crit: notable
-    confidence: 0.8
+    conf: 0.8
     attack: "T1021.004"
     platforms: [all]
-    condition:
+    if:
       type: string
       regex: "[Aa]ttack[_\\-]?[Ss][Ss][Hh]"
 
   - id: ssh-boom
-    description: SSH boom function/variable reference
+    desc: SSH boom function/variable reference
     crit: notable
-    confidence: 0.8
+    conf: 0.8
     attack: "T1021.004"
     platforms: [all]
-    condition:
+    if:
       type: string
       regex: "ssh[_\\-]?boom"
 
   # === Atomic: SSH Configuration Abuse ===
 
   - id: strict-host-disable
-    description: StrictHostKeyChecking reference (bypass host verification)
+    desc: StrictHostKeyChecking reference (bypass host verification)
     crit: suspicious
-    confidence: 0.75
+    conf: 0.75
     attack: "T1021.004"
     platforms: [linux, macos, unix]
-    condition:
+    if:
       type: string
       exact: "StrictHostKeyChecking"
 
   - id: known-hosts-bypass
-    description: UserKnownHostsFile reference (bypass known hosts)
+    desc: UserKnownHostsFile reference (bypass known hosts)
     crit: suspicious
-    confidence: 0.75
+    conf: 0.75
     attack: "T1021.004"
     platforms: [linux, macos, unix]
-    condition:
+    if:
       type: string
       exact: "UserKnownHostsFile"
 
   - id: connect-timeout
-    description: ConnectTimeout reference (scripted SSH)
+    desc: ConnectTimeout reference (scripted SSH)
     crit: notable
-    confidence: 0.6
+    conf: 0.6
     attack: "T1021.004"
     platforms: [linux, macos, unix]
-    condition:
+    if:
       type: string
       exact: "ConnectTimeout"
 
@@ -73,63 +73,63 @@ traits:
   # Use cred/ssh/key directory reference in composite rules for those traits
 
   - id: key-pem
-    description: References .pem key file
+    desc: References .pem key file
     crit: notable
-    confidence: 0.6
+    conf: 0.6
     attack: "T1552.004"
     platforms: [all]
-    condition:
+    if:
       type: string
       exact: ".pem"
 
   - id: key-identity-file
-    description: IdentityFile SSH config option
+    desc: IdentityFile SSH config option
     crit: notable
-    confidence: 0.6
+    conf: 0.6
     attack: "T1552.004"
     platforms: [linux, macos, unix]
-    condition:
+    if:
       type: string
       exact: "IdentityFile"
 
   - id: ssh-config-parse
-    description: Parses SSH config for hostnames
+    desc: Parses SSH config for hostnames
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     attack: "T1021.004"
     platforms: [linux, macos, unix]
-    condition:
+    if:
       type: string
       regex: "grep.{0,30}HostName.{0,30}/\\.ssh/config"
 
   # === Bash history SSH atomic indicators ===
   - id: ssh-bash-history
-    description: ssh with bash_history
+    desc: ssh with bash_history
     crit: inert
-    confidence: 0.7
+    conf: 0.7
     attack: "T1021.004"
     platforms: [linux, macos, unix]
-    condition:
+    if:
       type: string
       regex: "ssh.{2,64}bash_history"
 
   - id: scp-bash-history
-    description: scp with bash_history
+    desc: scp with bash_history
     crit: inert
-    confidence: 0.7
+    conf: 0.7
     attack: "T1021.004"
     platforms: [linux, macos, unix]
-    condition:
+    if:
       type: string
       regex: "scp.{2,64}bash_history"
 
   - id: getent-hosts
-    description: Uses getent for host discovery
+    desc: Uses getent for host discovery
     crit: suspicious
-    confidence: 0.75
+    conf: 0.75
     attack: "T1018"
     platforms: [linux, unix]
-    condition:
+    if:
       type: string
       exact: "getent ahostsv4"
 
@@ -140,9 +140,9 @@ traits:
 composite_rules:
   # SSH attack terminology composite
   - id: attack-ref
-    description: SSH attack function/variable reference
+    desc: SSH attack function/variable reference
     crit: suspicious
-    confidence: 0.9
+    conf: 0.9
     attack: "T1021.004"
     platforms: [all]
     count_min: 1
@@ -152,9 +152,9 @@ composite_rules:
       - id: ssh-boom
 
   - id: bash-history-ssh
-    description: Extracts SSH targets from bash
+    desc: Extracts SSH targets from bash
     crit: suspicious
-    confidence: 0.85
+    conf: 0.85
     attack: "T1021.004"
     platforms: [linux, macos, unix]
     count_min: 1

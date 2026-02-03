@@ -2,7 +2,7 @@
 
 traits:
   - id: ruby-pty
-    description: Pseudo-terminal (PTY) manipulation
+    desc: Pseudo-terminal (PTY) manipulation
     crit: notable
     conf: 0.93
     platforms: [all]

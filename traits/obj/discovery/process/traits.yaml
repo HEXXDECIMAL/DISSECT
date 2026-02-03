@@ -15,7 +15,7 @@ traits:
     conf: 0.5
     if:
       type: symbol
-      pattern: getuid
+      regex: getuid
     platforms: [unix, linux, macos]
 
   - id: geteuid
@@ -26,7 +26,7 @@ traits:
     conf: 0.5
     if:
       type: symbol
-      pattern: geteuid
+      regex: geteuid
     platforms: [unix, linux, macos]
 
   - id: getgid
@@ -37,7 +37,7 @@ traits:
     conf: 0.5
     if:
       type: symbol
-      pattern: getgid
+      regex: getgid
     platforms: [unix, linux, macos]
 
   - id: getegid
@@ -48,7 +48,7 @@ traits:
     conf: 0.5
     if:
       type: symbol
-      pattern: getegid
+      regex: getegid
     platforms: [unix, linux, macos]
 
   # Process ID functions
@@ -60,7 +60,7 @@ traits:
     conf: 0.5
     if:
       type: symbol
-      pattern: getpid
+      regex: getpid
     platforms: [unix, linux, macos]
 
   - id: getppid
@@ -71,7 +71,7 @@ traits:
     conf: 0.5
     if:
       type: symbol
-      pattern: getppid
+      regex: getppid
     platforms: [unix, linux, macos]
 
   # User information lookup
@@ -83,7 +83,7 @@ traits:
     conf: 0.6
     if:
       type: symbol
-      pattern: getpwnam
+      regex: getpwnam
     platforms: [unix, linux, macos]
 
   - id: getpwuid
@@ -94,7 +94,7 @@ traits:
     conf: 0.6
     if:
       type: symbol
-      pattern: getpwuid
+      regex: getpwuid
     platforms: [unix, linux, macos]
 
   # Group information lookup
@@ -106,7 +106,7 @@ traits:
     conf: 0.6
     if:
       type: symbol
-      pattern: getgrnam
+      regex: getgrnam
     platforms: [unix, linux, macos]
 
   - id: getgrgid
@@ -117,5 +117,5 @@ traits:
     conf: 0.6
     if:
       type: symbol
-      pattern: getgrgid
+      regex: getgrgid
     platforms: [unix, linux, macos]

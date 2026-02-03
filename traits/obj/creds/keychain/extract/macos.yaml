@@ -15,7 +15,7 @@ traits:
     for: [macho, dylib]
     if:
       type: symbol
-      pattern: "SecKeychainFindGenericPassword"
+      regex: "SecKeychainFindGenericPassword"
 
   - id: find-internet
     desc: Read internet passwords from macOS
@@ -27,7 +27,7 @@ traits:
     for: [macho, dylib]
     if:
       type: symbol
-      pattern: "SecKeychainFindInternetPassword"
+      regex: "SecKeychainFindInternetPassword"
 
   - id: item-copy-content
     desc: Copy Keychain item contents (SecKeychainItemCopyContent)
@@ -39,7 +39,7 @@ traits:
     for: [macho, dylib]
     if:
       type: symbol
-      pattern: "SecKeychainItemCopyContent"
+      regex: "SecKeychainItemCopyContent"
 
   - id: open
     desc: Open Keychain database (SecKeychainOpen)
@@ -50,7 +50,7 @@ traits:
     for: [macho, dylib]
     if:
       type: symbol
-      pattern: "SecKeychainOpen"
+      regex: "SecKeychainOpen"
 
   - id: copy-default
     desc: Copy default Keychain reference (SecKeychainCopyDefault)
@@ -61,7 +61,7 @@ traits:
     for: [macho, dylib]
     if:
       type: symbol
-      pattern: "SecKeychainCopyDefault"
+      regex: "SecKeychainCopyDefault"
 
   - id: sec-item-copy
     desc: Copy keychain item attributes (SecItemCopyMatching)
@@ -72,7 +72,7 @@ traits:
     for: [macho, dylib]
     if:
       type: symbol
-      pattern: "SecItemCopy"
+      regex: "SecItemCopy"
 
   # === Atomic: Command Line Tools ===
 

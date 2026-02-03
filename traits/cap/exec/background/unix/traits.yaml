@@ -61,7 +61,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     mbc: "F0005"
-    file_types: [shell]
+    r#for: [shell]
     count_min: 1
     any:
       - id: nohup-hidden-output

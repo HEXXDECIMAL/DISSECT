@@ -37,7 +37,7 @@ traits:
     attack: "T1055"
     if:
       type: symbol
-      pattern: "process_vm_writev"
+      regex: "process_vm_writev"
 
 composite_rules:
   # Process injection via ptrace (migrated from YARA)

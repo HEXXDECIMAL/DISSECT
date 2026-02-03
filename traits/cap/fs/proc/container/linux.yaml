@@ -4,7 +4,7 @@
 
 traits:
   - id: container-pid1-cgroup
-    description: Check PID 1 cgroup to
+    desc: Check PID 1 cgroup to
     crit: notable
     conf: 0.66
     if:
@@ -12,7 +12,7 @@ traits:
       exact: /proc/1/cgroup
 
   - id: container-self-cgroup
-    description: Check own cgroup to detect
+    desc: Check own cgroup to detect
     crit: inert
     conf: 0.66
     if:

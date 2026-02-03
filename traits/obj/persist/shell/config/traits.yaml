@@ -4,7 +4,7 @@
 traits:
   # Bash persistence
   - id: bash-profile
-    description: .bash_profile shell configuration file
+    desc: .bash_profile shell configuration file
     crit: notable
     conf: 0.7
     attack: T1546.004
@@ -16,7 +16,7 @@ traits:
         - id: cap/exec/load/system-lib-marker
 
   - id: bashrc
-    description: .bashrc shell configuration file
+    desc: .bashrc shell configuration file
     crit: notable
     conf: 0.7
     attack: T1546.004
@@ -28,7 +28,7 @@ traits:
         - id: cap/exec/load/system-lib-marker
 
   - id: bash-login
-    description: .bash_login shell configuration file
+    desc: .bash_login shell configuration file
     crit: notable
     conf: 0.75
     attack: T1546.004
@@ -37,7 +37,7 @@ traits:
       exact: ".bash_login"
 
   - id: bash-logout
-    description: .bash_logout shell configuration file
+    desc: .bash_logout shell configuration file
     crit: notable
     conf: 0.85
     attack: T1546.004
@@ -46,7 +46,7 @@ traits:
       exact: ".bash_logout"
 
   - id: profile
-    description: .profile shell configuration file
+    desc: .profile shell configuration file
     crit: notable
     conf: 0.7
     attack: T1546.004
@@ -61,7 +61,7 @@ traits:
         - id: cap/exec/load/video-lib-marker
 
   - id: etc-profile
-    description: /etc/profile system-wide shell configuration
+    desc: /etc/profile system-wide shell configuration
     crit: notable
     conf: 0.75
     attack: T1546.004
@@ -70,7 +70,7 @@ traits:
       exact: "/etc/profile"
 
   - id: etc-bashrc
-    description: /etc/bashrc system-wide shell configuration
+    desc: /etc/bashrc system-wide shell configuration
     crit: notable
     conf: 0.75
     attack: T1546.004
@@ -80,7 +80,7 @@ traits:
 
   # Zsh persistence
   - id: zshrc
-    description: .zshrc shell configuration file
+    desc: .zshrc shell configuration file
     crit: notable
     conf: 0.7
     attack: T1546.004
@@ -92,7 +92,7 @@ traits:
         - id: cap/exec/load/system-lib-marker
 
   - id: zprofile
-    description: .zprofile shell configuration file
+    desc: .zprofile shell configuration file
     crit: notable
     conf: 0.7
     attack: T1546.004
@@ -104,7 +104,7 @@ traits:
         - id: cap/exec/load/system-lib-marker
 
   - id: zlogin
-    description: .zlogin shell configuration file
+    desc: .zlogin shell configuration file
     crit: notable
     conf: 0.75
     attack: T1546.004
@@ -113,7 +113,7 @@ traits:
       exact: ".zlogin"
 
   - id: zlogout
-    description: .zlogout shell configuration file
+    desc: .zlogout shell configuration file
     crit: notable
     conf: 0.85
     attack: T1546.004
@@ -122,7 +122,7 @@ traits:
       exact: ".zlogout"
 
   - id: etc-zshrc
-    description: /etc/zshrc system-wide shell configuration
+    desc: /etc/zshrc system-wide shell configuration
     crit: notable
     conf: 0.75
     attack: T1546.004
@@ -132,7 +132,7 @@ traits:
 
   # Hardcoded paths (more suspicious)
   - id: hardcoded-profile
-    description: Hardcoded path to .profile file
+    desc: Hardcoded path to .profile file
     crit: notable
     conf: 0.9
     for: [elf, macho]
@@ -142,7 +142,7 @@ traits:
       regex: '/[\w./]{0,32}/\.profile'
 
   - id: hardcoded-bashrc
-    description: Hardcoded path to .bashrc file
+    desc: Hardcoded path to .bashrc file
     crit: notable
     conf: 0.9
     for: [elf, macho]
@@ -152,7 +152,7 @@ traits:
       regex: '/[\w./]{0,32}/\.bashrc'
 
   - id: hardcoded-zshrc
-    description: Hardcoded path to .zshrc file
+    desc: Hardcoded path to .zshrc file
     crit: notable
     conf: 0.9
     for: [elf, macho]
@@ -163,7 +163,7 @@ traits:
 
   # Exclusion patterns
   - id: posixly-correct
-    description: POSIXLY_CORRECT environment variable (legitimate bash
+    desc: POSIXLY_CORRECT environment variable (legitimate bash
     crit: inert
     conf: 1.0
     if:
@@ -171,7 +171,7 @@ traits:
       exact: "POSIXLY_CORRECT"
 
   - id: cshrc-file
-    description: .cshrc file (C shell, not
+    desc: .cshrc file (C shell, not
     crit: inert
     conf: 1.0
     if:
@@ -179,7 +179,7 @@ traits:
       exact: ".cshrc"
 
   - id: tcsh-keyword
-    description: tcsh keyword (shell name)
+    desc: tcsh keyword (shell name)
     crit: inert
     conf: 1.0
     if:
@@ -188,7 +188,7 @@ traits:
 
 composite_rules:
   - id: bash-files
-    description: Bash shell configuration files
+    desc: Bash shell configuration files
     crit: notable
     conf: 0.7
     attack: T1546.004
@@ -199,7 +199,7 @@ composite_rules:
       - id: bashrc
 
   - id: multi-file-access
-    description: Multiple shell config files accessed
+    desc: Multiple shell config files accessed
     crit: notable
     conf: 0.9
     attack: T1546.004
@@ -217,7 +217,7 @@ composite_rules:
       - id: tcsh-keyword
 
   - id: elf-hardcoded
-    description: Binary with hardcoded shell config
+    desc: Binary with hardcoded shell config
     crit: notable
     conf: 0.95
     for: [elf, macho]

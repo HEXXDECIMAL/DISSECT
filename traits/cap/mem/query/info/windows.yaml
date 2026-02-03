@@ -3,23 +3,23 @@
 
 traits:
   - id: virtualquery
-    description: Query virtual memory info (VirtualQuery)
+    desc: Query virtual memory info (VirtualQuery)
     crit: notable
-    confidence: 0.7
+    conf: 0.7
     attack: "T1055"
     platforms: [windows]
-    file_types: [pe, dll]
-    condition:
+    r#for: [pe, dll]
+    if:
       type: symbol
-      pattern: "VirtualQuery$"
+      regex: "VirtualQuery$"
 
   - id: virtualquery-ex
-    description: Query virtual memory in other
+    desc: Query virtual memory in other
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     attack: "T1055"
     platforms: [windows]
-    file_types: [pe, dll]
-    condition:
+    r#for: [pe, dll]
+    if:
       type: symbol
-      pattern: "VirtualQueryEx"
+      regex: "VirtualQueryEx"

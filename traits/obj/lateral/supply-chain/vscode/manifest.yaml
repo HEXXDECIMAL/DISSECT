@@ -4,11 +4,11 @@
 traits:
   # === Identity atomic indicators ===
   - id: identity-tag
-    description: Identity XML tag
+    desc: Identity XML tag
     crit: inert
-    confidence: 0.9
-    file_types: [vsixmanifest]
-    condition:
+    conf: 0.9
+    r#for: [vsixmanifest]
+    if:
       type: content
 
   # === Suspicious link patterns ===
@@ -66,10 +66,10 @@ traits:
 
 composite_rules:
   - id: identity
-    description: VSCode extension identity metadata
+    desc: VSCode extension identity metadata
     crit: inert
-    confidence: 1.0
-    file_types: [vsixmanifest]
+    conf: 1.0
+    r#for: [vsixmanifest]
     all:
       - id: identity-tag
       - id: publisher-attr
@@ -77,10 +77,10 @@ composite_rules:
       - id: version-attr
 
   - id: links
-    description: Extension manifest contains external links
+    desc: Extension manifest contains external links
     crit: inert
-    confidence: 0.8
-    file_types: [vsixmanifest]
+    conf: 0.8
+    r#for: [vsixmanifest]
     count_min: 1
     any:
       - id: link-source

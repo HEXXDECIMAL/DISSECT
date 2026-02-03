@@ -2,11 +2,11 @@
 
 traits:
   - id: ruby-setuid
-    description: Set user/group ID
+    desc: Set user/group ID
     crit: notable
-    confidence: 0.93
+    conf: 0.93
     platforms: [all]
-    file_types: [ruby]
-    condition:
+    r#for: [ruby]
+    if:
       type: symbol
-      pattern: "Process\\.setuid|Process\\.setgid|Process\\.seteuid|Process\\.setegid"
+      regex: "Process\\.setuid|Process\\.setgid|Process\\.seteuid|Process\\.setegid"

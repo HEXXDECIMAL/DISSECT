@@ -134,7 +134,7 @@ composite_rules:
     crit: hostile
     conf: 0.99
     attack: "T1649"
-    file_types: [python]
+    r#for: [python]
     count_min: 3
     any:
       - id: procdump-download

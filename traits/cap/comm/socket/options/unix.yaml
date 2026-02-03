@@ -12,7 +12,7 @@ traits:
     conf: 0.66
     if:
       type: symbol
-      pattern: getsockopt
+      regex: getsockopt
 
   - id: options-set
     desc: Set socket options
@@ -20,7 +20,7 @@ traits:
     conf: 0.66
     if:
       type: symbol
-      pattern: setsockopt
+      regex: setsockopt
 
   - id: options-reuseport
     desc: Enable socket port reuse

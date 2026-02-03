@@ -140,7 +140,7 @@ composite_rules:
     conf: 0.95
     attack: "T1071.001"
     mbc: "B0030"
-    file_types: [python, javascript]
+    r#for: [python, javascript]
     count_min: 3
     any:
       - id: c2-cmd-info-collection

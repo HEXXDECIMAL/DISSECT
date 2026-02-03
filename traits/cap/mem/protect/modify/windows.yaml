@@ -3,23 +3,23 @@
 
 traits:
   - id: virtualprotect
-    description: Change memory protection (VirtualProtect)
+    desc: Change memory protection (VirtualProtect)
     crit: notable
-    confidence: 0.9
+    conf: 0.9
     attack: "T1055"
     platforms: [windows]
-    file_types: [pe, dll]
-    condition:
+    r#for: [pe, dll]
+    if:
       type: symbol
-      pattern: "VirtualProtect$"
+      regex: "VirtualProtect$"
 
   - id: virtualprotect-ex
-    description: Change memory protection in other
+    desc: Change memory protection in other
     crit: suspicious
-    confidence: 0.85
+    conf: 0.85
     attack: "T1055"
     platforms: [windows]
-    file_types: [pe, dll]
-    condition:
+    r#for: [pe, dll]
+    if:
       type: symbol
-      pattern: "VirtualProtectEx"
+      regex: "VirtualProtectEx"

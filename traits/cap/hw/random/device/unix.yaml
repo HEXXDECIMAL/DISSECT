@@ -2,7 +2,7 @@
 
 traits:
   - id: urandom
-    description: Access /dev/urandom
+    desc: Access /dev/urandom
     crit: inert
     conf: 1.0
     platforms: [linux, macos, unix]

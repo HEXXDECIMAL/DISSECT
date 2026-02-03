@@ -123,7 +123,7 @@ composite_rules:
     crit: hostile
     conf: 0.95
     attack: "T1070.004"
-    file_types: [pe, dll]
+    r#for: [pe, dll]
     all:
       - id: dotnet-vbs-dropper
       - id: obj/anti-forensics/self-delete/file/vbs-file-delete
@@ -138,7 +138,7 @@ composite_rules:
     crit: hostile
     conf: 0.95
     attack: "T1059.001"
-    file_types: [pe, dll]
+    r#for: [pe, dll]
     all:
       - id: dotnet-vbs-dropper
       - id: cap/exec/powershell/dotnet/sma-namespace

@@ -16,7 +16,7 @@ traits:
     conf: 0.9
     if:
       type: symbol
-      pattern: "std::__1::|std::basic_|std::allocator"
+      regex: "std::__1::|std::basic_|std::allocator"
 
   - id: cpp-iostream
     desc: "Uses C++ iostream (cin/cout)"
@@ -24,7 +24,7 @@ traits:
     conf: 0.85
     if:
       type: symbol
-      pattern: "std::__1::basic_(i|o)stream"
+      regex: "std::__1::basic_(i|o)stream"
 
   - id: cpp-string
     desc: "Uses C++ std::string"
@@ -32,7 +32,7 @@ traits:
     conf: 0.85
     if:
       type: symbol
-      pattern: "std::__1::basic_string.{0,50}char_traits"
+      regex: "std::__1::basic_string.{0,50}char_traits"
 
   - id: cpp-exception
     desc: "Uses C++ exceptions"
@@ -40,7 +40,7 @@ traits:
     conf: 0.8
     if:
       type: symbol
-      pattern: "__cxa_(throw|allocate_exception|begin_catch)"
+      regex: "__cxa_(throw|allocate_exception|begin_catch)"
 
 composite_rules:
   # C++ with shell commands

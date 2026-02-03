@@ -25,7 +25,7 @@ traits:
     conf: 0.5
     if:
       type: symbol
-      pattern: http_post|POST|HttpPost
+      regex: http_post|POST|HttpPost
 
   - id: user-agent-custom
     desc: Custom User-Agent string (C2 indicator)
@@ -47,4 +47,4 @@ traits:
     for: [elf, macho, so, dylib, c]
     if:
       type: symbol
-      pattern: res_query|dns_query
+      regex: res_query|dns_query

@@ -69,7 +69,7 @@ composite_rules:
     crit: suspicious
     conf: 0.98
     attack: "T1036.005"
-    file_types: [python, shell]
+    r#for: [python, shell]
     count_min: 1
     any:
       - id: pypi-online-typosquat

@@ -22,7 +22,7 @@ traits:
     for: [pe, dll]
     if:
       type: symbol
-      pattern: "SetWindowsHookEx"
+      regex: "SetWindowsHookEx"
 
   - id: windows-rawinput
     desc: Windows raw input API for
@@ -31,7 +31,7 @@ traits:
     for: [pe, dll]
     if:
       type: symbol
-      pattern: "GetRawInputData"
+      regex: "GetRawInputData"
 
   - id: windows-asynckey
     desc: Windows GetAsyncKeyState for key polling
@@ -40,7 +40,7 @@ traits:
     for: [pe, dll]
     if:
       type: symbol
-      pattern: "GetAsyncKeyState"
+      regex: "GetAsyncKeyState"
 
   # === Atomic: Linux Keyboard Input ===
   - id: linux-input-device
@@ -61,7 +61,7 @@ traits:
     for: [elf]
     if:
       type: symbol
-      pattern: "XGrabKey"
+      regex: "XGrabKey"
     # Skip if this looks like a system X11 library
     unless:
       - type: basename
@@ -77,7 +77,7 @@ traits:
     for: [macho, dylib]
     if:
       type: symbol
-      pattern: "CGEventTapCreate"
+      regex: "CGEventTapCreate"
 
   # === Atomic: Language Libraries ===
   - id: go-gohook

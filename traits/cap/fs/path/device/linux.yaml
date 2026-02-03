@@ -30,7 +30,7 @@ traits:
       exact: "/dev/shm/"
 
   - id: dev-sda
-    description: /dev/sda device
+    desc: /dev/sda device
     crit: notable
     conf: 0.6
     if:
@@ -38,7 +38,7 @@ traits:
       exact: "/dev/sda"
 
   - id: dev-hda
-    description: /dev/hda device
+    desc: /dev/hda device
     crit: notable
     conf: 0.6
     if:
@@ -46,7 +46,7 @@ traits:
       exact: "/dev/hda"
 
   - id: dev-nvme
-    description: /dev/nvme device
+    desc: /dev/nvme device
     crit: notable
     conf: 0.6
     if:

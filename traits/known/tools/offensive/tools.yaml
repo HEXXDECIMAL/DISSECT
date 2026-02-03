@@ -5,117 +5,117 @@ traits:
   # === Atomic: Metasploit ===
 
   - id: metasploit-ref
-    description: Metasploit framework reference
+    desc: Metasploit framework reference
     crit: suspicious
     conf: 0.8
     attack: "T1588.002"
     platforms: [all]
-    condition:
+    if:
       type: string
       exact: "metasploit"
       case_insensitive: true
 
   - id: msfpayload
-    description: Metasploit payload generator reference
+    desc: Metasploit payload generator reference
     crit: suspicious
     conf: 0.9
     attack: "T1587.001"
     platforms: [all]
-    condition:
+    if:
       type: string
       exact: "msfpayload"
 
   - id: metasploit-url
-    description: Metasploit website reference
+    desc: Metasploit website reference
     crit: suspicious
     conf: 0.75
     attack: "T1588.002"
     platforms: [all]
-    condition:
+    if:
       type: string
       regex: "metasploit\\.com"
 
   - id: meterpreter
-    description: Meterpreter payload reference
+    desc: Meterpreter payload reference
     crit: suspicious
     conf: 0.95
     attack: "T1059"
     platforms: [windows]
-    condition:
+    if:
       type: string
       regex: "/meterpreter/"
 
   - id: payload-label
-    description: Payload label string
+    desc: Payload label string
     crit: inert
     conf: 0.6
     platforms: [all]
-    condition:
+    if:
       type: string
       exact: "Payload: "
 
   - id: shh-bin-path
-    description: Suspicious /shh/bin path (typosquat)
+    desc: Suspicious /shh/bin path (typosquat)
     crit: notable
     conf: 0.7
     platforms: [all]
-    condition:
+    if:
       type: string
       exact: "/shh/bin"
 
   # === Atomic: Network Scanners ===
 
   - id: nmap-ref
-    description: Nmap port scanner reference
+    desc: Nmap port scanner reference
     crit: notable
     conf: 0.6
     attack: "T1046"
     platforms: [all]
-    condition:
+    if:
       type: string
       # Word boundaries to avoid matching substrings like "dynmap", "unmap", etc.
       word: "nmap"
 
   # Nmap spoofing flags - used to hide scanner identity
   - id: nmap-spoof-source
-    description: Nmap source IP spoofing
+    desc: Nmap source IP spoofing
     crit: suspicious
     conf: 0.85
     attack: "T1046"
     platforms: [all]
-    condition:
+    if:
       type: content
       # Matches nmap -S or arguments containing -S for source IP spoofing
       regex: "(?:nmap|scan).{0,50}-S\\s+[0-9]|arguments.{0,20}-S\\s+[0-9]|'-S\\s+[0-9]"
 
   - id: nmap-decoy-scan
-    description: Nmap decoy scan
+    desc: Nmap decoy scan
     crit: suspicious
     conf: 0.85
     attack: "T1046"
     platforms: [all]
-    condition:
+    if:
       type: content
       # Matches nmap -D for decoy scanning
       regex: "(?:nmap|scan).{0,50}-D\\s+[0-9]|arguments.{0,20}-D\\s+[0-9]|'-D\\s+[0-9]"
 
   - id: masscan-ref
-    description: Masscan port scanner reference
+    desc: Masscan port scanner reference
     crit: suspicious
     conf: 0.75
     attack: "T1046"
     platforms: [all]
-    condition:
+    if:
       type: string
       exact: "masscan"
 
   - id: masscan-config
-    description: Masscan configuration patterns
+    desc: Masscan configuration patterns
     crit: suspicious
     conf: 0.85
     attack: "T1046"
     platforms: [all]
-    condition:
+    if:
       type: yara
       source: |
         rule masscan_config {
@@ -129,53 +129,53 @@ traits:
         }
 
   - id: execve-symbol
-    description: execve system call symbol
+    desc: execve system call symbol
     crit: inert
     conf: 0.9
     platforms: [linux]
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: symbol
-      pattern: "^_?execve$"
+      regex: "^_?execve$"
 
   - id: system-symbol
-    description: system() function symbol
+    desc: system() function symbol
     crit: inert
     conf: 0.9
     platforms: [linux, macos]
-    file_types: [elf, macho]
-    condition:
+    r#for: [elf, macho]
+    if:
       type: symbol
-      pattern: "^_?system$"
+      regex: "^_?system$"
 
   - id: go-exec-cmd-run
-    description: Go exec.Cmd.Run method
+    desc: Go exec.Cmd.Run method
     crit: inert
     conf: 0.8
     platforms: [all]
-    condition:
+    if:
       type: string
       exact: "exec.(*Cmd).Run"
 
   # === Atomic: Tunneling Tools ===
 
   - id: chisel-ref
-    description: Chisel TCP/UDP tunnel tool
+    desc: Chisel TCP/UDP tunnel tool
     crit: suspicious
     conf: 0.9
     attack: "T1572"
     platforms: [all]
-    condition:
+    if:
       type: string
       exact: "jpillora/chisel"
 
   - id: chisel-functions
-    description: Chisel tunnel tool function signatures
+    desc: Chisel tunnel tool function signatures
     crit: suspicious
     conf: 0.85
     attack: "T1572"
     platforms: [all]
-    condition:
+    if:
       type: yara
       source: |
         rule chisel_functions {
@@ -192,88 +192,88 @@ traits:
   # === Atomic: Venom RAT ===
 
   - id: venom-dliv3
-    description: Venom Dliv3 GitHub reference
+    desc: Venom Dliv3 GitHub reference
     crit: suspicious
     conf: 0.9
     attack: "T1090"
     platforms: [all]
-    condition:
+    if:
       type: string
       exact: "Dliv3/Venom"
 
   - id: venom-agent-path
-    description: Venom agent path reference
+    desc: Venom agent path reference
     crit: suspicious
     conf: 0.9
     attack: "T1090"
     platforms: [all]
-    condition:
+    if:
       type: string
       exact: "/Venom/agent"
 
   - id: venom-agent-name
-    description: Venom agent name reference
+    desc: Venom agent name reference
     crit: suspicious
     conf: 0.9
     attack: "T1090"
     platforms: [all]
-    condition:
+    if:
       type: string
       exact: "venom_agent"
 
   # === Atomic: Web Recon ===
 
   - id: dirbuster
-    description: DirBuster directory brute-force tool
+    desc: DirBuster directory brute-force tool
     crit: suspicious
     conf: 0.8
     attack: "T1595.003"
     platforms: [all]
-    condition:
+    if:
       type: string
       exact: "dirbuster"
 
   # === Atomic: SMB Tools ===
 
   - id: smbexec-ntlm
-    description: SMBExec NTLM HASH indicator
+    desc: SMBExec NTLM HASH indicator
     crit: suspicious
     conf: 0.85
     attack: "T1021.002"
     platforms: [all]
-    condition:
+    if:
       type: string
       exact: "NTLM HASH"
 
   - id: smbexec-hashpass
-    description: SMBExec HASH PASS substitution indicator
+    desc: SMBExec HASH PASS substitution indicator
     crit: suspicious
     conf: 0.85
     attack: "T1021.002"
     platforms: [all]
-    condition:
+    if:
       type: string
       exact: "HASH PASS: Substituting"
 
   # === Atomic: Process Snooping ===
 
   - id: pspy-ref
-    description: pspy process snooping tool
+    desc: pspy process snooping tool
     crit: suspicious
     conf: 0.9
     attack: "T1057"
     platforms: [linux]
-    condition:
+    if:
       type: string
       exact: "dominicbreuker/pspy"
 
   - id: pspy-functions
-    description: pspy tool function signatures
+    desc: pspy tool function signatures
     crit: suspicious
     conf: 0.8
     attack: "T1057"
     platforms: [linux]
-    condition:
+    if:
       type: yara
       source: |
         rule pspy_functions {
@@ -288,7 +288,7 @@ traits:
 composite_rules:
   # Venom RAT composite
   - id: venom-ref
-    description: Venom multi-hop proxy/RAT reference
+    desc: Venom multi-hop proxy/RAT reference
     crit: suspicious
     conf: 0.95
     attack: "T1090"
@@ -301,7 +301,7 @@ composite_rules:
 
   # SMBExec composite
   - id: smbexec
-    description: SMBExec remote command execution
+    desc: SMBExec remote command execution
     crit: suspicious
     conf: 0.9
     attack: "T1021.002"
@@ -313,7 +313,7 @@ composite_rules:
 
   # Execution capability group
   - id: exec-capability
-    description: Command execution capability
+    desc: Command execution capability
     crit: inert
     conf: 0.7
     count_min: 1
@@ -323,11 +323,11 @@ composite_rules:
       - id: go-exec-cmd-run
 
   - id: metasploit-payload
-    description: Metasploit payload detected
+    desc: Metasploit payload detected
     crit: suspicious
     conf: 0.95
     attack: "T1587.001"
-    file_types: [all]
+    r#for: [all]
     count_min: 2
     any:
       - id: msfpayload
@@ -336,12 +336,12 @@ composite_rules:
       - id: shh-bin-path
 
   - id: masscan-execution
-    description: Masscan scanner execution
+    desc: Masscan scanner execution
     crit: suspicious
     conf: 0.9
     attack: "T1046"
     platforms: [linux]
-    file_types: [elf]
+    r#for: [elf]
     all:
       - id: masscan-ref
       - id: exec-capability

@@ -12,7 +12,7 @@ traits:
     conf: 0.66
     if:
       type: symbol
-      pattern: ioctl
+      regex: ioctl
 
   - id: ioctl-iflags
     desc: ioctl operations for inode flags
@@ -20,4 +20,4 @@ traits:
     conf: 0.66
     if:
       type: symbol
-      pattern: ioctl_iflags
+      regex: ioctl_iflags

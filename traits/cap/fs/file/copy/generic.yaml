@@ -10,4 +10,4 @@ traits:
     for: [elf, macho, pe, dll, so, dylib, c]
     if:
       type: symbol
-      pattern: copyfile|fcopyfile|CopyFile|CopyFileA|CopyFileW
+      regex: copyfile|fcopyfile|CopyFile|CopyFileA|CopyFileW

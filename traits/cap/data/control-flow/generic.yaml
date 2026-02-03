@@ -4,7 +4,7 @@
 traits:
   # === Iteration/loop atomic indicators ===
   - id: for-loop
-    description: for loop pattern
+    desc: for loop pattern
     crit: inert
     conf: 0.3
     if:
@@ -12,7 +12,7 @@ traits:
       word: "for"
 
   - id: while-loop
-    description: while loop pattern
+    desc: while loop pattern
     crit: inert
     conf: 0.3
     if:
@@ -20,7 +20,7 @@ traits:
       word: "while"
 
   - id: os-walk
-    description: os.walk iteration
+    desc: os.walk iteration
     crit: inert
     conf: 0.6
     if:
@@ -28,7 +28,7 @@ traits:
       exact: "os.walk"
 
   - id: glob-pattern
-    description: glob module pattern
+    desc: glob module pattern
     crit: inert
     conf: 0.5
     if:
@@ -37,7 +37,7 @@ traits:
 
 composite_rules:
   - id: iteration-loop-pattern
-    description: "Iteration or loop pattern"
+    desc: "Iteration or loop pattern"
     crit: inert
     conf: 0.5
     count_min: 1

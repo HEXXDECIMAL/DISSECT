@@ -55,7 +55,7 @@ traits:
     attack: "T1005"
     if:
       type: symbol
-      pattern: "fcopyfile"
+      regex: "fcopyfile"
 
   # === Binary file I/O ===
   - id: fread-func
@@ -65,7 +65,7 @@ traits:
     for: [elf, macho, pe]
     if:
       type: symbol
-      pattern: "fread"
+      regex: "fread"
 
   - id: fwrite-func
     desc: "Writes binary data to file"
@@ -74,7 +74,7 @@ traits:
     for: [elf, macho, pe]
     if:
       type: symbol
-      pattern: "fwrite"
+      regex: "fwrite"
 
   - id: fseek-func
     desc: "Seeks to position in file"
@@ -83,7 +83,7 @@ traits:
     for: [elf, macho, pe]
     if:
       type: symbol
-      pattern: "fseek"
+      regex: "fseek"
 
 composite_rules:
   # Binary file operations composite

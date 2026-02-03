@@ -9,7 +9,7 @@ traits:
       # This is hard to match generically with just hex without being too specific
       # but we can look for sdiv in proximity to other math
       type: symbol
-      pattern: "__divdi3|__moddi3" # Often generated for complex math if not inlined
+      regex: "__divdi3|__moddi3" # Often generated for complex math if not inlined
       # For Mach-O ARM64 specifically we saw 'sdiv' which is an instruction.
       # Our 'symbol' match can't match instructions, but 'hex' can.
 

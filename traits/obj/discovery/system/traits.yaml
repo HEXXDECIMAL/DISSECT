@@ -15,7 +15,7 @@ traits:
     conf: 0.6
     if:
       type: symbol
-      pattern: sysctl
+      regex: sysctl
     platforms: [unix, linux, macos]
 
   - id: sysctlbyname
@@ -26,7 +26,7 @@ traits:
     conf: 0.6
     if:
       type: symbol
-      pattern: sysctlbyname
+      regex: sysctlbyname
     platforms: [macos]
 
   - id: sysctlnametomib
@@ -37,7 +37,7 @@ traits:
     conf: 0.5
     if:
       type: symbol
-      pattern: sysctlnametomib
+      regex: sysctlnametomib
     platforms: [macos]
 
   # Device control
@@ -49,7 +49,7 @@ traits:
     conf: 0.5
     if:
       type: symbol
-      pattern: ioctl
+      regex: ioctl
     platforms: [unix, linux, macos]
 
   # System identification
@@ -61,7 +61,7 @@ traits:
     conf: 0.6
     if:
       type: symbol
-      pattern: uname
+      regex: uname
     platforms: [unix, linux, macos]
 
   - id: gethostname
@@ -72,7 +72,7 @@ traits:
     conf: 0.5
     if:
       type: symbol
-      pattern: gethostname
+      regex: gethostname
     platforms: [unix, linux, macos, windows]
 
   - id: getdomainname
@@ -83,7 +83,7 @@ traits:
     conf: 0.5
     if:
       type: symbol
-      pattern: getdomainname
+      regex: getdomainname
     platforms: [unix, linux, macos]
 
   # Resource limits and configuration
@@ -95,7 +95,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: getrlimit
+      regex: getrlimit
     platforms: [unix, linux, macos]
 
   - id: setrlimit
@@ -106,7 +106,7 @@ traits:
     conf: 0.6
     if:
       type: symbol
-      pattern: setrlimit
+      regex: setrlimit
     platforms: [unix, linux, macos]
 
   # System configuration
@@ -118,7 +118,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: sysconf
+      regex: sysconf
     platforms: [unix, linux, macos]
 
   - id: confstr
@@ -129,7 +129,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: confstr
+      regex: confstr
     platforms: [unix, linux, macos]
 
   # macOS-specific system information
@@ -141,7 +141,7 @@ traits:
     conf: 0.6
     if:
       type: symbol
-      pattern: host_info
+      regex: host_info
     platforms: [macos]
 
   - id: host_statistics
@@ -152,5 +152,5 @@ traits:
     conf: 0.6
     if:
       type: symbol
-      pattern: host_statistics
+      regex: host_statistics
     platforms: [macos]

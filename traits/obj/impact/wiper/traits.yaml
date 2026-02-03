@@ -5,12 +5,12 @@
 traits:
   # Recursive directory deletion (Node.js)
   - id: recursive-delete
-    description: Recursive directory deletion function
+    desc: Recursive directory deletion function
     crit: suspicious
     conf: 0.85
     attack: "T1485"
     for: [javascript, typescript]
-    condition:
+    if:
       type: yara
       source: |
         rule node_recursive_delete {
@@ -26,12 +26,12 @@ traits:
 
   # Targets development directories
   - id: target-dev-dirs
-    description: Targets development directories for deletion
+    desc: Targets development directories for deletion
     crit: suspicious
     conf: 0.9
     attack: "T1485"
     for: [javascript, typescript, python]
-    condition:
+    if:
       type: yara
       source: |
         rule target_dev_directories {
@@ -53,64 +53,64 @@ traits:
 
   # Individual directory targeting
   - id: target-git
-    description: Targets .git directory (version control)
+    desc: Targets .git directory (version control)
     crit: notable
     conf: 0.85
     attack: "T1485"
     for: [javascript, typescript, python, shell]
-    condition:
+    if:
       type: string
       regex: '["'']\\./?\\.git["'']'
 
   - id: target-node-modules
-    description: Targets node_modules directory
+    desc: Targets node_modules directory
     crit: notable
     conf: 0.8
     attack: "T1485"
     for: [javascript, typescript]
-    condition:
+    if:
       type: string
       regex: '["'']/?(\\./)?node_modules["'']'
 
   - id: target-src
-    description: Targets source code directory
+    desc: Targets source code directory
     crit: notable
     conf: 0.85
     attack: "T1485"
     for: [javascript, typescript, python]
-    condition:
+    if:
       type: string
       regex: '["'']/?(\\./)?src["'']'
 
   # === IDE config atomic indicators ===
   - id: target-vscode-dir
-    description: Targets .vscode directory
+    desc: Targets .vscode directory
     crit: inert
     conf: 0.7
     attack: "T1485"
     for: [javascript, typescript]
-    condition:
+    if:
       type: string
       regex: '["'']/?(\\./)?\\.(vscode)["'']'
 
   - id: target-idea-dir
-    description: Targets .idea directory
+    desc: Targets .idea directory
     crit: inert
     conf: 0.7
     attack: "T1485"
     for: [javascript, typescript]
-    condition:
+    if:
       type: string
       regex: '["'']/?(\\./)?\\.(idea)["'']'
 
   # Conditional destruction based on environment
   - id: conditional-destroy
-    description: Conditional destruction based on environment
+    desc: Conditional destruction based on environment
     crit: suspicious
     conf: 0.95
     attack: "T1485"
     for: [javascript, typescript]
-    condition:
+    if:
       type: yara
       source: |
         rule conditional_destruction {
@@ -126,12 +126,12 @@ traits:
 
   # Android/mobile storage targeting
   - id: target-android-storage
-    description: Targets Android storage directories
+    desc: Targets Android storage directories
     crit: suspicious
     conf: 0.95
     attack: "T1485"
     for: [javascript, typescript, shell]
-    condition:
+    if:
       type: yara
       source: |
         rule target_android_storage {
@@ -150,12 +150,12 @@ traits:
 
   # Mass file deletion
   - id: mass-delete
-    description: Mass file deletion pattern
+    desc: Mass file deletion pattern
     crit: suspicious
     conf: 0.85
     attack: "T1485"
     for: [javascript, typescript, python, shell]
-    condition:
+    if:
       type: yara
       source: |
         rule mass_file_deletion {
@@ -176,7 +176,7 @@ traits:
 composite_rules:
   # Target IDE config composite
   - id: target-vscode
-    description: Targets .vscode configuration directory
+    desc: Targets .vscode configuration directory
     crit: notable
     conf: 0.85
     attack: "T1485"
@@ -187,7 +187,7 @@ composite_rules:
       - id: target-idea-dir
 
   - id: http-callback
-    description: HTTP request pattern for callback/reporting
+    desc: HTTP request pattern for callback/reporting
     crit: notable
     conf: 0.8
     for: [javascript, typescript]
@@ -200,7 +200,7 @@ composite_rules:
 
   # Protestware pattern (env-conditional destruction)
   - id: protestware
-    description: Protestware pattern - conditional destruction
+    desc: Protestware pattern - conditional destruction
     crit: suspicious
     conf: 0.98
     attack: "T1485"
@@ -212,7 +212,7 @@ composite_rules:
 
   # Full wiper with HTTP callback (report success)
   - id: with-callback
-    description: Wiper with HTTP callback (potential
+    desc: Wiper with HTTP callback (potential
     crit: suspicious
     conf: 0.95
     attack: "T1485"

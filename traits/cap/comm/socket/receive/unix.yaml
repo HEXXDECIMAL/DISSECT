@@ -14,4 +14,4 @@ traits:
     attack: "T1071"
     if:
       type: symbol
-      pattern: recv|recvmsg|recvfrom|recvmmsg|_recv
+      regex: recv|recvmsg|recvfrom|recvmmsg|_recv

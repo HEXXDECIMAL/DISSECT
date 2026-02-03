@@ -2,7 +2,7 @@
 
 traits:
   - id: access
-    description: Access IOKit device driver registry
+    desc: Access IOKit device driver registry
     crit: notable
     conf: 0.6
     platforms: [macos]

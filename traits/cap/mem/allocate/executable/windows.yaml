@@ -3,12 +3,12 @@
 
 traits:
   - id: virtualalloc
-    description: Allocate executable memory (VirtualAlloc)
+    desc: Allocate executable memory (VirtualAlloc)
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     attack: "T1055"
     platforms: [windows]
-    file_types: [pe, dll]
-    condition:
+    r#for: [pe, dll]
+    if:
       type: symbol
-      pattern: "VirtualAlloc(Ex)?"
+      regex: "VirtualAlloc(Ex)?"

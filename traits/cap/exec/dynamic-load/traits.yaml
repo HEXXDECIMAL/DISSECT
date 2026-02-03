@@ -9,7 +9,7 @@ traits:
     crit: notable
     conf: 0.9
     platforms: [linux, macos, unix]
-    file_types: [elf, macho, so, dylib]
+    r#for: [elf, macho, so, dylib]
     if:
       type: yara
       source: |
@@ -29,7 +29,7 @@ traits:
     crit: notable
     conf: 0.9
     platforms: [windows]
-    file_types: [pe, dll]
+    r#for: [pe, dll]
     if:
       type: yara
       source: |
@@ -49,7 +49,7 @@ traits:
     desc: Python dynamic import patterns
     crit: notable
     conf: 0.85
-    file_types: [python]
+    r#for: [python]
     if:
       type: yara
       source: |
@@ -68,7 +68,7 @@ traits:
     desc: Python zipimporter module loading
     crit: notable
     conf: 0.9
-    file_types: [python]
+    r#for: [python]
     if:
       type: symbol
       exact: "zipimporter"
@@ -78,7 +78,7 @@ traits:
     desc: Loads module from ZIP archive
     crit: suspicious
     conf: 0.95
-    file_types: [python]
+    r#for: [python]
     if:
       type: symbol
       regex: "\\.load_module"
@@ -88,7 +88,7 @@ traits:
     desc: Java reflection class loading
     crit: notable
     conf: 0.85
-    file_types: [class, java]
+    r#for: [class, java]
     if:
       type: yara
       source: |
@@ -109,7 +109,7 @@ traits:
     crit: notable
     conf: 0.85
     platforms: [windows]
-    file_types: [pe, dll, csharp]
+    r#for: [pe, dll, csharp]
     if:
       type: yara
       source: |
@@ -129,7 +129,7 @@ traits:
     desc: Go plugin dynamic loading
     crit: notable
     conf: 0.9
-    file_types: [elf, macho, pe, go]
+    r#for: [elf, macho, pe, go]
     if:
       type: yara
       source: |
@@ -147,7 +147,7 @@ traits:
     desc: Allocates or modifies executable memory
     crit: notable
     conf: 0.8
-    file_types: [pe, elf, macho, dll, so, dylib]
+    r#for: [pe, elf, macho, dll, so, dylib]
     if:
       type: yara
       source: |

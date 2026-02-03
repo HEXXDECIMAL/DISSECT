@@ -3,7 +3,7 @@
 
 traits:
   - id: dock-hide
-    description: macOS dock hiding
+    desc: macOS dock hiding
     crit: suspicious
     conf: 0.9
     attack: "T1564.003"
@@ -13,7 +13,7 @@ traits:
       regex: "(?i)(hideDock|applicationWillHide)"
 
   - id: screencapture
-    description: macOS screencapture command
+    desc: macOS screencapture command
     crit: suspicious
     conf: 0.85
     attack: "T1113"
@@ -23,7 +23,7 @@ traits:
       exact: "screencapture"
 
   - id: pil-imagegrab
-    description: Python PIL screenshot capture
+    desc: Python PIL screenshot capture
     crit: suspicious
     conf: 0.85
     attack: "T1113"
@@ -33,7 +33,7 @@ traits:
       exact: "ImageGrab"
 
   - id: cg-window-capture
-    description: macOS CGWindow capture
+    desc: macOS CGWindow capture
     crit: suspicious
     conf: 0.85
     attack: "T1113"
@@ -43,7 +43,7 @@ traits:
       exact: "CGWindowListCreateImageFromArray"
 
   - id: screensaver-engine
-    description: macOS ScreenSaver control
+    desc: macOS ScreenSaver control
     crit: suspicious
     conf: 0.8
     attack: "T1491"
@@ -53,7 +53,7 @@ traits:
       exact: "ScreenSaverEngine"
 
   - id: system-events
-    description: macOS System Events control
+    desc: macOS System Events control
     crit: suspicious
     conf: 0.8
     attack: "T1059.002"
@@ -63,7 +63,7 @@ traits:
       exact: 'tell application "System Events"'
 
   - id: window-watcher
-    description: macOS window/application monitoring
+    desc: macOS window/application monitoring
     crit: suspicious
     conf: 0.9
     attack: "T1010"
@@ -73,7 +73,7 @@ traits:
       exact: "frontmostApplication"
 
   - id: screen-locked
-    description: macOS screen lock detection
+    desc: macOS screen lock detection
     crit: suspicious
     conf: 0.8
     attack: "T1010"
@@ -87,7 +87,7 @@ traits:
   # The x11-auth-protocol trait is defined in cap/exec/load/traits.yaml as inert.
 
   - id: xsession
-    description: Xsession reference
+    desc: Xsession reference
     crit: notable
     conf: 0.6
     attack: "T1056"
@@ -97,7 +97,7 @@ traits:
       exact: "Xsession"
 
   - id: hid-idle-time
-    description: macOS HID idle time detection
+    desc: macOS HID idle time detection
     crit: suspicious
     conf: 0.8
     attack: "T1010"
@@ -107,7 +107,7 @@ traits:
       exact: "HIDIdleTime"
 
   - id: process-identifier
-    description: macOS process identifier access
+    desc: macOS process identifier access
     crit: notable
     conf: 0.7
     attack: "T1010"
@@ -118,7 +118,7 @@ traits:
 
 composite_rules:
   - id: macos-spy-detected
-    description: macOS UI spying
+    desc: macOS UI spying
     crit: suspicious
     conf: 0.95
     attack: "T1010"

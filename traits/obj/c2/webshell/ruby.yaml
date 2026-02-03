@@ -61,7 +61,7 @@ composite_rules:
     conf: 0.95
     attack: "T1505.003"
     mbc: "B0030"
-    file_types: [ruby]
+    r#for: [ruby]
     all:
       - id: http-cookie-extract
       - id: cap/data/encode/base64/base64-decode
@@ -75,7 +75,7 @@ composite_rules:
     conf: 0.95
     attack: "T1505.003"
     mbc: "B0030"
-    file_types: [ruby]
+    r#for: [ruby]
     all:
       - id: rack-middleware-hook
       - id: cap/exec/eval/prepend-module
@@ -89,7 +89,7 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     attack: "T1059.005"
-    file_types: [ruby]
+    r#for: [ruby]
     all:
       - id: cap/data/encode/base64/base64-decode
       - id: cap/exec/eval/eval-call

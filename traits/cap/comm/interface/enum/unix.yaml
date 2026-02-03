@@ -11,7 +11,7 @@ traits:
     conf: 0.75
     if:
       type: symbol
-      pattern: getifaddrs|if_nameindex
+      regex: getifaddrs|if_nameindex
 
   - id: name-lookup
     desc: Network interface name lookup
@@ -19,4 +19,4 @@ traits:
     conf: 0.70
     if:
       type: symbol
-      pattern: if_nametoindex|if_indextoname
+      regex: if_nametoindex|if_indextoname

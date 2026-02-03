@@ -3,13 +3,13 @@
 
 traits:
   - id: virtualprotect-ctypes
-    description: VirtualProtect via Python ctypes
+    desc: VirtualProtect via Python ctypes
     crit: suspicious
-    confidence: 0.85
+    conf: 0.85
     attack: "T1055"
     platforms: [windows]
-    file_types: [python]
-    condition:
+    r#for: [python]
+    if:
       type: ast
       kind: call
       exact: "ctypes.windll.kernel32.VirtualProtect"

@@ -4,7 +4,7 @@
 
 traits:
   - id: stratum-tcp
-    description: stratum+tcp protocol
+    desc: stratum+tcp protocol
     crit: notable
     conf: 0.6
     mbc: "B0041"
@@ -17,7 +17,7 @@ traits:
   # "pool" is ubiquitous in programming (memory pool, thread pool, connection pool)
   # Mining pools are now detected via pool-url pattern or combined with other mining indicators
   - id: pool-url
-    description: Mining pool URL pattern
+    desc: Mining pool URL pattern
     crit: notable
     conf: 0.7
     if:
@@ -26,7 +26,7 @@ traits:
       regex: "(?:stratum\\+(?:tcp|ssl)://|https?://)[^\\s]+pool[^\\s]*|pool\\.[a-z0-9-]+\\.(?:com|net|org|io)"
 
   - id: miner-word
-    description: miner keyword
+    desc: miner keyword
     crit: inert
     conf: 0.4
     if:
@@ -34,7 +34,7 @@ traits:
       word: "miner"
 
   - id: xmrig-str
-    description: xmrig reference
+    desc: xmrig reference
     crit: notable
     conf: 0.6
     if:
@@ -42,7 +42,7 @@ traits:
       exact: "xmrig"
 
   - id: monero-str
-    description: monero reference
+    desc: monero reference
     crit: notable
     conf: 0.6
     if:
@@ -50,7 +50,7 @@ traits:
       exact: "monero"
 
   - id: hashrate-str
-    description: hashrate keyword
+    desc: hashrate keyword
     crit: inert
     conf: 0.5
     if:
@@ -58,7 +58,7 @@ traits:
       exact: "hashrate"
 
   - id: wallet-word
-    description: wallet keyword
+    desc: wallet keyword
     crit: inert
     conf: 0.4
     if:
@@ -66,7 +66,7 @@ traits:
       word: "wallet"
 
   - id: coinhive-str
-    description: coinhive reference
+    desc: coinhive reference
     crit: notable
     conf: 0.6
     if:
@@ -74,7 +74,7 @@ traits:
       exact: "coinhive"
 
   - id: cryptonight-str
-    description: cryptonight algorithm
+    desc: cryptonight algorithm
     crit: notable
     conf: 0.6
     if:
@@ -83,7 +83,7 @@ traits:
 
   # === XMRig atomic indicators (legacy) ===
   - id: xmrig-lower
-    description: xmrig (lowercase)
+    desc: xmrig (lowercase)
     crit: notable
     conf: 0.55
     if:
@@ -91,7 +91,7 @@ traits:
       exact: "xmrig"
 
   - id: xmrig-pascal
-    description: XMRig (PascalCase)
+    desc: XMRig (PascalCase)
     crit: notable
     conf: 0.55
     if:
@@ -99,7 +99,7 @@ traits:
       exact: "XMRig"
 
   - id: miner-stratum
-    description: Stratum mining protocol
+    desc: Stratum mining protocol
     crit: suspicious
     conf: 0.66
     if:
@@ -108,7 +108,7 @@ traits:
 
 composite_rules:
   - id: miner
-    description: Cryptocurrency mining patterns
+    desc: Cryptocurrency mining patterns
     crit: suspicious
     conf: 0.66
     mbc: "B0041"
@@ -127,7 +127,7 @@ composite_rules:
 
   # XMRig composite
   - id: miner-xmrig
-    description: XMRig cryptocurrency miner reference
+    desc: XMRig cryptocurrency miner reference
     crit: suspicious
     conf: 0.66
     count_min: 1

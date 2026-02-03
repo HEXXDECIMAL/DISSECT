@@ -290,7 +290,7 @@ traits:
     conf: 0.9
     if:
       type: symbol
-      pattern: "__stack_chk_fail"
+      regex: "__stack_chk_fail"
 
   - id: stack-chk-guard
     desc: __stack_chk_guard
@@ -315,7 +315,7 @@ traits:
     conf: 0.85
     if:
       type: symbol
-      pattern: "__fortify_fail"
+      regex: "__fortify_fail"
 
   - id: chk-fail
     desc: __chk_fail function
@@ -323,7 +323,7 @@ traits:
     conf: 0.85
     if:
       type: symbol
-      pattern: "__chk_fail"
+      regex: "__chk_fail"
 
   - id: chk-suffix
     desc: _chk@ function suffix
@@ -339,7 +339,7 @@ traits:
     conf: 0.85
     if:
       type: symbol
-      pattern: "__memcpy_chk"
+      regex: "__memcpy_chk"
 
   - id: strcpy-chk
     desc: __strcpy_chk function
@@ -347,7 +347,7 @@ traits:
     conf: 0.85
     if:
       type: symbol
-      pattern: "__strcpy_chk"
+      regex: "__strcpy_chk"
 
   # === RELRO micro-traits ===
   - id: gnu-relro

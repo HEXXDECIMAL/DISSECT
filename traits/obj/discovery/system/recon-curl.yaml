@@ -76,7 +76,7 @@ composite_rules:
     crit: suspicious
     conf: 0.92
     attack: "T1082"
-    file_types: [python, shell]
+    r#for: [python, shell]
     count_min: 3
     any:
       - id: curl-hostname-header

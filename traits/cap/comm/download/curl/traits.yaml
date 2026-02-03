@@ -15,7 +15,7 @@ traits:
     conf: 0.75
     if:
       type: symbol
-      pattern: "curl_easy_init"
+      regex: "curl_easy_init"
 
   - id: curl-easy-setopt
     desc: "Configures libcurl options (URL, headers,"
@@ -23,7 +23,7 @@ traits:
     conf: 0.7
     if:
       type: symbol
-      pattern: "curl_easy_setopt"
+      regex: "curl_easy_setopt"
 
   - id: curl-easy-perform
     desc: "Executes HTTP request via libcurl"
@@ -31,7 +31,7 @@ traits:
     conf: 0.75
     if:
       type: symbol
-      pattern: "curl_easy_perform"
+      regex: "curl_easy_perform"
 
   - id: curl-easy-cleanup
     desc: "Cleans up libcurl session"
@@ -39,7 +39,7 @@ traits:
     conf: 0.6
     if:
       type: symbol
-      pattern: "curl_easy_cleanup"
+      regex: "curl_easy_cleanup"
 
   - id: curl-slist-append
     desc: "Builds custom HTTP headers for"
@@ -47,7 +47,7 @@ traits:
     conf: 0.7
     if:
       type: symbol
-      pattern: "curl_slist_append"
+      regex: "curl_slist_append"
 
   - id: curl-slist-free
     desc: "Frees libcurl header list"
@@ -55,7 +55,7 @@ traits:
     conf: 0.5
     if:
       type: symbol
-      pattern: "curl_slist_free_all"
+      regex: "curl_slist_free_all"
 
 composite_rules:
   # Basic libcurl usage

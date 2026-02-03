@@ -1019,7 +1019,7 @@ traits:
 composite_rules:
   # Anti-copy mechanism detection
   - id: anti-copy
-    description: Anti-copy mechanism (prevents text selection/copying)
+    desc: Anti-copy mechanism (prevents text selection/copying)
     crit: suspicious
     conf: 0.85
     attack: T1566
@@ -1040,7 +1040,7 @@ composite_rules:
 
   # Human verification interaction
   - id: human-interaction-events
-    description: Human interaction event listeners
+    desc: Human interaction event listeners
     for: [javascript]
     any:
       - {id: mousemove-listener}
@@ -1048,7 +1048,7 @@ composite_rules:
       - {id: scroll-listener}
 
   - id: disabled-manipulation
-    description: Disabled state manipulation patterns
+    desc: Disabled state manipulation patterns
     for: [javascript, html]
     any:
       - {id: disabled-class}
@@ -1057,7 +1057,7 @@ composite_rules:
       - {id: remove-disabled-attr}
 
   - id: human-verification
-    description: Requires human interaction before enabling
+    desc: Requires human interaction before enabling
     crit: notable
     conf: 0.8
     for: [javascript, html]
@@ -1067,42 +1067,42 @@ composite_rules:
 
   # Microsoft brand impersonation
   - id: microsoft-logo
-    description: Microsoft logo references
+    desc: Microsoft logo references
     for: [html]
     any:
       - {id: microsoft-logo-ref}
       - {id: microsoft-svg}
 
   - id: microsoft-brand
-    description: Microsoft brand text references
+    desc: Microsoft brand text references
     for: [html]
     any:
       - {id: microsoft-span}
       - {id: microsoft-tag}
 
   - id: signin-text
-    description: Sign in text patterns
+    desc: Sign in text patterns
     for: [html]
     any:
       - {id: sign-in-text}
       - {id: sign-in-hyphen}
 
   - id: microsoft-logo-or-brand
-    description: Microsoft logo or brand references
+    desc: Microsoft logo or brand references
     for: [html]
     any:
       - {id: microsoft-logo}
       - {id: microsoft-brand}
 
   - id: microsoft-signin-or-email
-    description: Microsoft signin text or email
+    desc: Microsoft signin text or email
     for: [html]
     any:
       - {id: signin-text}
       - {id: ms-email-placeholder}
 
   - id: microsoft-impersonation
-    description: Microsoft brand impersonation
+    desc: Microsoft brand impersonation
     crit: suspicious
     conf: 0.9
     attack: T1566.002
@@ -1113,28 +1113,28 @@ composite_rules:
 
   # Google brand impersonation
   - id: google-logo
-    description: Google logo references
+    desc: Google logo references
     for: [html]
     any:
       - {id: google-logo-ref}
       - {id: google-svg}
 
   - id: google-brand
-    description: Google brand text references
+    desc: Google brand text references
     for: [html]
     any:
       - {id: google-span}
       - {id: google-tag}
 
   - id: google-logo-or-brand
-    description: Google logo or brand references
+    desc: Google logo or brand references
     for: [html]
     any:
       - {id: google-logo}
       - {id: google-brand}
 
   - id: google-impersonation
-    description: Google brand impersonation
+    desc: Google brand impersonation
     crit: suspicious
     conf: 0.9
     attack: T1566.002
@@ -1145,7 +1145,7 @@ composite_rules:
 
   # Generic login form
   - id: login-text
-    description: Login/sign in text patterns
+    desc: Login/sign in text patterns
     for: [html]
     any:
       - {id: login-word-lower}
@@ -1157,28 +1157,28 @@ composite_rules:
       - {id: sign-in-hyphen}
 
   - id: password-input
-    description: Password input fields
+    desc: Password input fields
     for: [html]
     any:
       - {id: password-input-double}
       - {id: password-input-single}
 
   - id: email-input
-    description: Email input fields
+    desc: Email input fields
     for: [html]
     any:
       - {id: email-input-double}
       - {id: email-input-single}
 
   - id: credential-placeholders
-    description: Credential input placeholders
+    desc: Credential input placeholders
     for: [html]
     any:
       - {id: email-placeholder-double}
       - {id: password-placeholder-double}
 
   - id: credential-inputs
-    description: Password or email input fields
+    desc: Password or email input fields
     for: [html]
     any:
       - {id: password-input}
@@ -1186,7 +1186,7 @@ composite_rules:
       - {id: credential-placeholders}
 
   - id: login-form
-    description: Suspicious login form with credential
+    desc: Suspicious login form with credential
     crit: suspicious
     conf: 0.85
     attack: T1566
@@ -1197,7 +1197,7 @@ composite_rules:
 
   # Document sharing lure
   - id: sharing-phrases
-    description: Document sharing phrases
+    desc: Document sharing phrases
     for: [html]
     any:
       - {id: shared-with-phrase}
@@ -1206,7 +1206,7 @@ composite_rules:
       - {id: file-sharing-phrase}
 
   - id: document-extensions
-    description: Document file extensions
+    desc: Document file extensions
     for: [html]
     any:
       - {id: pdf-extension}
@@ -1215,21 +1215,21 @@ composite_rules:
       - {id: xls-extension}
 
   - id: document-actions
-    description: Document action keywords
+    desc: Document action keywords
     for: [html]
     any:
       - {id: download-word}
       - {id: verify-word}
 
   - id: document-indicators
-    description: Document file extensions or action
+    desc: Document file extensions or action
     for: [html]
     any:
       - {id: document-extensions}
       - {id: document-actions}
 
   - id: document-lure
-    description: Fake document sharing lure
+    desc: Fake document sharing lure
     crit: suspicious
     conf: 0.85
     attack: T1566.002
@@ -1240,21 +1240,21 @@ composite_rules:
 
   # External form action with suspicious TLD
   - id: location-redirect
-    description: Window location redirect patterns
+    desc: Window location redirect patterns
     for: [javascript]
     any:
       - {id: window-location-href-assign}
       - {id: location-href-assign}
 
   - id: submit-listener
-    description: Form submit event listeners
+    desc: Form submit event listeners
     for: [javascript]
     any:
       - {id: submit-listener-double}
       - {id: submit-listener-single}
 
   - id: suspicious-tlds
-    description: Suspicious/commonly abused TLDs
+    desc: Suspicious/commonly abused TLDs
     for: [html, javascript]
     any:
       - {id: icu-tld}
@@ -1269,14 +1269,14 @@ composite_rules:
       - {id: click-tld}
 
   - id: form-submission-patterns
-    description: Form submission or location redirect
+    desc: Form submission or location redirect
     for: [javascript]
     any:
       - {id: location-redirect}
       - {id: submit-listener}
 
   - id: external-form-action
-    description: Form submits to suspicious external
+    desc: Form submits to suspicious external
     crit: suspicious
     conf: 0.85
     attack: T1566
@@ -1287,7 +1287,7 @@ composite_rules:
 
   # Typosquatting domain detection
   - id: siemens-typosquats
-    description: Siemens brand typosquats
+    desc: Siemens brand typosquats
     for: [html, javascript]
     any:
       - {id: siemensergy-typo}
@@ -1295,7 +1295,7 @@ composite_rules:
       - {id: siemnes-typo}
 
   - id: microsoft-typosquats
-    description: Microsoft brand typosquats
+    desc: Microsoft brand typosquats
     for: [html, javascript]
     any:
       - {id: microsoft-typo-capital-f}
@@ -1304,7 +1304,7 @@ composite_rules:
       - {id: microsft-typo}
 
   - id: google-typosquats
-    description: Google brand typosquats
+    desc: Google brand typosquats
     for: [html, javascript]
     any:
       - {id: gooogle-typo}
@@ -1312,7 +1312,7 @@ composite_rules:
       - {id: gogle-typo}
 
   - id: login-subdomain-prefix
-    description: Login subdomain prefix patterns
+    desc: Login subdomain prefix patterns
     for: [html, javascript]
     any:
       - {id: login-prefix-lower}
@@ -1321,14 +1321,14 @@ composite_rules:
       - {id: signin-prefix-title}
 
   - id: login-subdomain-with-suspicious-tld
-    description: Login subdomain with suspicious TLD
+    desc: Login subdomain with suspicious TLD
     for: [html, javascript]
     all:
       - {id: login-subdomain-prefix}
       - {id: suspicious-tlds}
 
   - id: typosquat-domain
-    description: Typosquatting domain pattern (brand impersonation)
+    desc: Typosquatting domain pattern (brand impersonation)
     crit: suspicious
     conf: 0.85
     attack: T1566.002
@@ -1341,7 +1341,7 @@ composite_rules:
 
   # Bot detection evasion
   - id: bot-detection
-    description: Bot/automation detection for phishing evasion
+    desc: Bot/automation detection for phishing evasion
     crit: suspicious
     conf: 0.85
     attack: T1566
@@ -1360,7 +1360,7 @@ composite_rules:
 
   # Brand CDN icon impersonation
   - id: external-cdn
-    description: External CDN references
+    desc: External CDN references
     for: [html]
     any:
       - {id: flaticon-cdn}
@@ -1368,14 +1368,14 @@ composite_rules:
       - {id: wikipedia-cdn}
 
   - id: logo-icon-keywords
-    description: Logo or icon keywords
+    desc: Logo or icon keywords
     for: [html]
     any:
       - {id: logo-keyword}
       - {id: icon-keyword}
 
   - id: brand-cdn-icons
-    description: External CDN icons for brand
+    desc: External CDN icons for brand
     crit: notable
     conf: 0.8
     attack: T1566.002
@@ -1387,14 +1387,14 @@ composite_rules:
 
   # Targeted email pre-filling
   - id: readonly-email-value
-    description: Pre-filled email value with readonly
+    desc: Pre-filled email value with readonly
     for: [html]
     all:
       - {id: pre-filled-email-value}
       - {id: readonly-attr}
 
   - id: targeted-email
-    description: Pre-filled target email address
+    desc: Pre-filled target email address
     crit: suspicious
     conf: 0.9
     attack: T1566.001
@@ -1406,7 +1406,7 @@ composite_rules:
 
   # Auth required lure
   - id: auth-required-lure
-    description: Fake authentication required message
+    desc: Fake authentication required message
     crit: suspicious
     conf: 0.85
     attack: T1566

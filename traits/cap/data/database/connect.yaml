@@ -17,7 +17,7 @@ traits:
     conf: 0.9
     if:
       type: symbol
-      pattern: "PQconnect"
+      regex: "PQconnect"
 
   - id: postgres-url
     desc: postgres:// URL scheme
@@ -82,7 +82,7 @@ traits:
     conf: 0.9
     if:
       type: symbol
-      pattern: "mysql_real_connect"
+      regex: "mysql_real_connect"
 
   - id: mysqlclient
     desc: mysqlclient library
@@ -123,7 +123,7 @@ traits:
     conf: 0.9
     if:
       type: symbol
-      pattern: "sqlite3_open"
+      regex: "sqlite3_open"
 
   - id: go-sqlite3
     desc: mattn/go-sqlite3 driver

@@ -11,136 +11,136 @@ defaults:
 traits:
   # Ledger Live application path
   - id: ledger-app-path
-    description: "Ledger Live application path reference"
-    confidence: 0.85
-    condition:
+    desc: "Ledger Live application path reference"
+    conf: 0.85
+    if:
       type: string
       exact: "/Applications/Ledger Live.app"
 
   # === pkill atomic indicators ===
   - id: pkill-ledger-live
-    description: pkill Ledger Live
+    desc: pkill Ledger Live
     crit: inert
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: string
       regex: "pkill.{0,30}Ledger Live"
 
   - id: killall-ledger
-    description: killall Ledger
+    desc: killall Ledger
     crit: inert
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: string
       regex: "killall.{0,30}Ledger"
 
   # === Remove applications atomic indicators ===
   - id: rm-applications-dir
-    description: rm -r /Applications/
+    desc: rm -r /Applications/
     crit: inert
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: string
       regex: "rm\\s+-r.{0,50}\"/Applications/"
 
   - id: sudo-rm-app
-    description: sudo rm .app
+    desc: sudo rm .app
     crit: inert
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: string
       regex: "sudo.{0,30}rm.{0,50}\\.app"
 
   # === Unzip applications atomic indicators ===
   - id: unzip-to-applications
-    description: unzip to /Applications
+    desc: unzip to /Applications
     crit: inert
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: string
       regex: "unzip.{0,50}/Applications"
 
   - id: unzip-d-applications
-    description: unzip -d /Applications
+    desc: unzip -d /Applications
     crit: inert
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: string
       regex: "unzip.{0,30}-d.{0,30}/Applications"
 
   # === Download app atomic indicators ===
   - id: curl-app-zip
-    description: curl .app.zip download
+    desc: curl .app.zip download
     crit: inert
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: string
       regex: "curl.{0,100}\\.app\\.zip"
 
   - id: curl-app-archive
-    description: curl app.zip download
+    desc: curl app.zip download
     crit: inert
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: string
       regex: "curl.{0,100}app\\.zip"
 
   - id: wget-app-zip
-    description: wget .app.zip download
+    desc: wget .app.zip download
     crit: inert
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: string
       regex: "wget.{0,100}\\.app\\.zip"
 
   # === App replacement atomic indicators ===
   - id: rm-app-unzip
-    description: rm .app && unzip pattern
+    desc: rm .app && unzip pattern
     crit: inert
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: string
       regex: "rm.{0,50}\\.app.{0,30}&&.{0,30}unzip"
 
   - id: rm-app-cp
-    description: rm .app && cp pattern
+    desc: rm .app && cp pattern
     crit: inert
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: string
       regex: "rm.{0,50}\\.app.{0,30}&&.{0,30}cp"
 
 composite_rules:
   - id: pkill-ledger
-    description: "Kill Ledger Live process"
-    confidence: 0.9
+    desc: "Kill Ledger Live process"
+    conf: 0.9
     count_min: 1
     any:
       - id: pkill-ledger-live
       - id: killall-ledger
 
   - id: rm-applications
-    description: "Remove application from /Applications"
+    desc: "Remove application from /Applications"
     crit: suspicious
-    confidence: 0.9
+    conf: 0.9
     count_min: 1
     any:
       - id: rm-applications-dir
       - id: sudo-rm-app
 
   - id: unzip-applications
-    description: "Unzip to /Applications directory"
+    desc: "Unzip to /Applications directory"
     crit: suspicious
-    confidence: 0.85
+    conf: 0.85
     count_min: 1
     any:
       - id: unzip-to-applications
       - id: unzip-d-applications
 
   - id: download-app-zip
-    description: "Download application archive"
+    desc: "Download application archive"
     crit: suspicious
-    confidence: 0.85
+    conf: 0.85
     count_min: 1
     any:
       - id: curl-app-zip
@@ -148,9 +148,9 @@ composite_rules:
       - id: wget-app-zip
 
   - id: app-replacement
-    description: "Application replacement pattern"
+    desc: "Application replacement pattern"
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     count_min: 1
     any:
       - id: rm-app-unzip
@@ -158,10 +158,10 @@ composite_rules:
 
   # App termination group
   - id: app-termination
-    description: App termination or removal
+    desc: App termination or removal
     crit: suspicious
-    confidence: 0.8
-    file_types: [shell, applescript, python]
+    conf: 0.8
+    r#for: [shell, applescript, python]
     count_min: 1
     any:
       - id: pkill-ledger
@@ -169,10 +169,10 @@ composite_rules:
 
   # App replacement group
   - id: app-replace-action
-    description: App replacement action
+    desc: App replacement action
     crit: suspicious
-    confidence: 0.8
-    file_types: [shell, applescript, python]
+    conf: 0.8
+    r#for: [shell, applescript, python]
     count_min: 1
     any:
       - id: unzip-applications
@@ -180,11 +180,11 @@ composite_rules:
 
   # Ledger Live replacement attack
   - id: ledger-trojanize
-    description: "Ledger Live application replacement attack"
+    desc: "Ledger Live application replacement attack"
     crit: hostile
-    confidence: 0.95
+    conf: 0.95
     attack: "T1574.001"
-    file_types: [shell, applescript, python]
+    r#for: [shell, applescript, python]
     all:
       - id: ledger-app-path
       - id: app-termination
@@ -192,11 +192,11 @@ composite_rules:
 
   # Generic app replacement
   - id: app-trojanize
-    description: "macOS application replacement attack"
+    desc: "macOS application replacement attack"
     crit: suspicious
-    confidence: 0.9
+    conf: 0.9
     attack: "T1574.001"
-    file_types: [shell, applescript, python]
+    r#for: [shell, applescript, python]
     all:
       - id: rm-applications
       - id: unzip-applications

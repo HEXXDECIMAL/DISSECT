@@ -4,7 +4,7 @@
 
 traits:
   - id: systemd-keyword
-    description: systemd init system keyword
+    desc: systemd init system keyword
     crit: notable
     conf: 0.7
     attack: T1543.002
@@ -13,7 +13,7 @@ traits:
       word: "systemd"
 
   - id: systemctl-command
-    description: systemctl command (control systemd services)
+    desc: systemctl command (control systemd services)
     crit: notable
     conf: 0.7
     attack: T1543.002
@@ -22,7 +22,7 @@ traits:
       word: "systemctl"
 
   - id: etc-systemd-path
-    description: /etc/systemd directory path (system services)
+    desc: /etc/systemd directory path (system services)
     crit: notable
     conf: 0.7
     mbc: B0028
@@ -32,7 +32,7 @@ traits:
       exact: "/etc/systemd"
 
   - id: lib-systemd-path
-    description: /lib/systemd directory path (default services)
+    desc: /lib/systemd directory path (default services)
     crit: notable
     conf: 0.7
     mbc: B0028
@@ -42,7 +42,7 @@ traits:
       exact: "/lib/systemd"
 
   - id: service-extension
-    description: .service file extension (systemd unit
+    desc: .service file extension (systemd unit
     crit: inert
     conf: 0.6
     attack: T1543.002
@@ -51,7 +51,7 @@ traits:
       exact: ".service"
 
   - id: systemctl-enable
-    description: systemctl enable command (persistent service)
+    desc: systemctl enable command (persistent service)
     crit: notable
     conf: 0.8
     mbc: B0028
@@ -62,7 +62,7 @@ traits:
 
 composite_rules:
   - id: systemd
-    description: Linux systemd persistence (2+ indicators)
+    desc: Linux systemd persistence (2+ indicators)
     crit: notable
     conf: 0.66
     mbc: B0028

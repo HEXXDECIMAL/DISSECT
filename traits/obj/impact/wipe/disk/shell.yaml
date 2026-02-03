@@ -248,7 +248,7 @@ composite_rules:
     conf: 0.90
     mbc: "E1561"
     attack: "T1561.002"
-    file_types: [shell]
+    r#for: [shell]
     all:
       - id: root-check
       - id: device-enum

@@ -131,7 +131,7 @@ traits:
     conf: 0.3
     if:
       type: symbol
-      pattern: "ptrace|tracer"
+      regex: "ptrace|tracer"
 
   # NOTE: "passwd" alone is too generic - matches /etc/passwd, getpwnam, etc.
   # Use composite rules with context for meaningful detection

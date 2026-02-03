@@ -10,4 +10,4 @@ traits:
     conf: 0.75
     if:
       type: symbol
-      pattern: bind
+      regex: bind

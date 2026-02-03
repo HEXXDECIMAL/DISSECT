@@ -132,7 +132,7 @@ composite_rules:
     conf: 0.92
     mbc: "B0024"
     attack: "T1195.002"
-    file_types: [python]
+    r#for: [python]
     all:
       - id: wildcard-imports
       - id: crypto-trading-facade

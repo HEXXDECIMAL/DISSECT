@@ -7,9 +7,9 @@ defaults:
 
 traits:
   - id: fifo
-    description: Create FIFO special file (named
+    desc: Create FIFO special file (named
     crit: inert
     conf: 0.66
     if:
       type: symbol
-      pattern: mkfifo|mkfifoat
+      regex: mkfifo|mkfifoat

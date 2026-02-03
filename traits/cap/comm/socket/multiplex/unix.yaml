@@ -12,4 +12,4 @@ traits:
     conf: 0.66
     if:
       type: symbol
-      pattern: select|poll|epoll_create|epoll_ctl|epoll_wait|kqueue|kevent
+      regex: select|poll|epoll_create|epoll_ctl|epoll_wait|kqueue|kevent

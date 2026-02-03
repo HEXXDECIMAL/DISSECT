@@ -192,7 +192,7 @@ traits:
 
 composite_rules:
   - id: ruby-file-open-write-binary
-    description: Write binary file
+    desc: Write binary file
     crit: notable
     conf: 0.92
     any:
@@ -202,7 +202,7 @@ composite_rules:
       - id: wb-plus-double
 
   - id: ruby-file-binmode
-    description: Binary file mode
+    desc: Binary file mode
     crit: notable
     conf: 0.90
     any:
@@ -211,7 +211,7 @@ composite_rules:
 
 
   - id: ruby-file-chmod
-    description: Modify file permissions
+    desc: Modify file permissions
     crit: notable
     conf: 0.90
     any:
@@ -220,7 +220,7 @@ composite_rules:
       - id: chmod-symbol
 
   - id: ruby-chmod-777
-    description: Make file world-executable (chmod 777)
+    desc: Make file world-executable (chmod 777)
     crit: suspicious
     conf: 0.95
     any:
@@ -229,7 +229,7 @@ composite_rules:
       - id: chmod-0o777
 
   - id: ruby-file-delete
-    description: Delete file
+    desc: Delete file
     crit: notable
     conf: 0.90
     any:
@@ -239,7 +239,7 @@ composite_rules:
       - id: unlink-symbol
 
   - id: ruby-rm-rf
-    description: Recursive directory deletion
+    desc: Recursive directory deletion
     crit: notable
     conf: 0.93
     any:
@@ -247,7 +247,7 @@ composite_rules:
       - id: rm-rf-symbol
 
   - id: ruby-fileutils
-    description: Imports FileUtils library
+    desc: Imports FileUtils library
     crit: notable
     conf: 0.6
     any:

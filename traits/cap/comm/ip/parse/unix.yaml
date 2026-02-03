@@ -12,7 +12,7 @@ traits:
     conf: 0.66
     if:
       type: symbol
-      pattern: inet_pton|inet_ntop|inet_addr|inet_aton
+      regex: inet_pton|inet_ntop|inet_addr|inet_aton
 
   - id: parse-string
     desc: IP address string patterns
@@ -28,4 +28,4 @@ traits:
     conf: 0.66
     if:
       type: symbol
-      pattern: htons|htonl|ntohs|ntohl
+      regex: htons|htonl|ntohs|ntohl

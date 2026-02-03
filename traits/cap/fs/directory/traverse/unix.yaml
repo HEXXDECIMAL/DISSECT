@@ -15,7 +15,7 @@ traits:
     attack: T1083
     if:
       type: symbol
-      pattern: "_?fts_open"
+      regex: "_?fts_open"
 
   - id: fts-read
     desc: fts_read function (read directory entry)
@@ -25,7 +25,7 @@ traits:
     attack: T1083
     if:
       type: symbol
-      pattern: "_?fts_read"
+      regex: "_?fts_read"
 
   - id: fts-children
     desc: fts_children function (get child entries)
@@ -35,7 +35,7 @@ traits:
     attack: T1083
     if:
       type: symbol
-      pattern: "_?fts_children"
+      regex: "_?fts_children"
 
   - id: fts-set
     desc: fts_set function (set directory options)
@@ -45,7 +45,7 @@ traits:
     attack: T1083
     if:
       type: symbol
-      pattern: "_?fts_set"
+      regex: "_?fts_set"
 
   - id: fts-close
     desc: fts_close function (close directory hierarchy)
@@ -55,7 +55,7 @@ traits:
     attack: T1083
     if:
       type: symbol
-      pattern: "_?fts_close"
+      regex: "_?fts_close"
 
   # nftw/ftw API
   - id: traverse-nftw
@@ -66,7 +66,7 @@ traits:
     attack: T1083
     if:
       type: symbol
-      pattern: "nftw|ftw"
+      regex: "nftw|ftw"
 
 composite_rules:
   - id: traverse-fts

@@ -16,11 +16,11 @@ traits:
     crit: inert
     if:
       type: symbol
-      pattern: "std::__1::basic_string.{0,50}(append|push_back|operator\\+=)"
+      regex: "std::__1::basic_string.{0,50}(append|push_back|operator\\+=)"
 
   - id: popen-call
     desc: "Executes command via popen"
     crit: notable
     if:
       type: symbol
-      pattern: "popen"
+      regex: "popen"

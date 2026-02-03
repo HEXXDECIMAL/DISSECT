@@ -225,7 +225,7 @@ composite_rules:
     crit: hostile
     conf: 0.98
     attack: "T1105"
-    file_types: [javascript, typescript]
+    r#for: [javascript, typescript]
     all:
       - id: fetch-call
       - id: file-write
@@ -239,7 +239,7 @@ composite_rules:
     crit: hostile
     conf: 0.95
     attack: "T1105"
-    file_types: [javascript, typescript]
+    r#for: [javascript, typescript]
     all:
       - id: fetch-call
       - id: temp-js

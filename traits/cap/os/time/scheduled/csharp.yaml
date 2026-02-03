@@ -3,35 +3,35 @@
 
 traits:
   - id: datetime-now
-    description: Current time access (potential time-based
+    desc: Current time access (potential time-based
     crit: inert
     mbc: "B0003"
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: ast
       node: member_access_expression
       exact: "DateTime.Now"
-    file_types: [csharp]
+    r#for: [csharp]
 
   - id: datetime-utcnow
-    description: Current UTC time access
+    desc: Current UTC time access
     crit: inert
     mbc: "B0003"
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: ast
       node: member_access_expression
       exact: "DateTime.UtcNow"
-    file_types: [csharp]
+    r#for: [csharp]
 
   - id: hardcoded-datetime
-    description: Hardcoded date/time value (potential logic
+    desc: Hardcoded date/time value (potential logic
     crit: notable
     mbc: "B0003"
     attack: "T1480.001"
-    confidence: 0.75
-    condition:
+    conf: 0.75
+    if:
       type: ast
       node: object_creation_expression
       exact: "new DateTime"
-    file_types: [csharp]
+    r#for: [csharp]

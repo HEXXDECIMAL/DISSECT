@@ -234,7 +234,7 @@ traits:
     attack: "T1082"
     if:
       type: symbol
-      pattern: "getifaddrs"
+      regex: "getifaddrs"
 
   - id: siocgifhwaddr
     desc: SIOCGIFHWADDR ioctl
@@ -417,7 +417,7 @@ traits:
     attack: "T1082"
     if:
       type: symbol
-      pattern: "gethostname"
+      regex: "gethostname"
 
   - id: etc-hostname
     desc: /etc/hostname path
@@ -454,7 +454,7 @@ traits:
     attack: "T1033"
     if:
       type: symbol
-      pattern: "getlogin"
+      regex: "getlogin"
 
   - id: getpwuid-func
     desc: getpwuid function
@@ -463,7 +463,7 @@ traits:
     attack: "T1033"
     if:
       type: symbol
-      pattern: "getpwuid"
+      regex: "getpwuid"
 
   - id: getenv-user
     desc: getenv USER

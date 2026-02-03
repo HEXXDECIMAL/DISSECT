@@ -14,4 +14,4 @@ traits:
     conf: 0.3
     if:
       type: symbol
-      pattern: unlink|unlinkat|remove
+      regex: unlink|unlinkat|remove

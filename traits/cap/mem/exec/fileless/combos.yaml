@@ -4,13 +4,13 @@
 
 traits:
   - id: remote-injection
-    description: Remote process memory manipulation
+    desc: Remote process memory manipulation
     crit: suspicious
-    confidence: 0.9
+    conf: 0.9
     attack: "T1055"
     platforms: [windows]
-    file_types: [pe, dll]
-    condition:
+    r#for: [pe, dll]
+    if:
       type: yara
       source: |
         rule remote_injection {
@@ -22,46 +22,46 @@ traits:
         }
 
   - id: execve-symbol
-    description: Linux execve/fexecve symbol reference
+    desc: Linux execve/fexecve symbol reference
     crit: notable
-    confidence: 0.8
+    conf: 0.8
     platforms: [linux]
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: symbol
-      pattern: "^_?(execve|fexecve)$"
+      regex: "^_?(execve|fexecve)$"
 
   - id: python-encode-call
-    description: Python encode method call
+    desc: Python encode method call
     crit: notable
-    confidence: 0.8
+    conf: 0.8
     platforms: [windows, linux, macos]
-    file_types: [python]
-    condition:
+    r#for: [python]
+    if:
       type: ast
       kind: call
       exact: "encode"
 
   - id: python-b64decode-call
-    description: Python base64 decode call
+    desc: Python base64 decode call
     crit: notable
-    confidence: 0.8
+    conf: 0.8
     platforms: [windows, linux, macos]
-    file_types: [python]
-    condition:
+    r#for: [python]
+    if:
       type: ast
       kind: call
       exact: "b64decode"
 
 composite_rules:
   - id: linux-memfd
-    description: Fileless execution via anonymous memory
+    desc: Fileless execution via anonymous memory
     crit: suspicious
-    confidence: 0.9
+    conf: 0.9
     attack: "T1055"
     mbc: "B0033"
     platforms: [linux]
-    file_types: [elf]
+    r#for: [elf]
     all:
       - id: cap/mem/anonymous/create/memfd-create
     any:
@@ -69,13 +69,13 @@ composite_rules:
       - id: cap/mem/protect/modify/mprotect
 
   - id: python-shellcode
-    description: Python shellcode injection via VirtualProtect
+    desc: Python shellcode injection via VirtualProtect
     crit: suspicious
-    confidence: 0.95
+    conf: 0.95
     attack: "T1055"
     mbc: "B0033"
     platforms: [windows]
-    file_types: [python]
+    r#for: [python]
     all:
       - id: cap/mem/protect/modify/virtualprotect-ctypes
     any:

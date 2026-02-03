@@ -4,7 +4,7 @@
 
 traits:
   - id: mktemp-go
-    description: Create temporary files (Go)
+    desc: Create temporary files (Go)
     crit: inert
     conf: 0.66
     if:

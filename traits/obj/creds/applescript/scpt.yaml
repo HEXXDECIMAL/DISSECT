@@ -17,7 +17,7 @@ traits:
     conf: 0.85
     if:
       type: symbol
-      pattern: "(?i)^password$"
+      regex: "(?i)^password$"
 
   - id: var-passwd
     desc: "Variable named 'passwd'"
@@ -25,7 +25,7 @@ traits:
     conf: 0.85
     if:
       type: symbol
-      pattern: "(?i)^passwd$"
+      regex: "(?i)^passwd$"
 
   - id: var-pwd
     desc: "Variable named 'pwd'"
@@ -33,7 +33,7 @@ traits:
     conf: 0.7
     if:
       type: symbol
-      pattern: "(?i)^pwd$"
+      regex: "(?i)^pwd$"
 
   # ============================================
   # Credential Variables
@@ -44,7 +44,7 @@ traits:
     conf: 0.85
     if:
       type: symbol
-      pattern: "(?i)^credentials?$"
+      regex: "(?i)^credentials?$"
 
   - id: var-auth
     desc: "Variable contains 'auth'"
@@ -52,7 +52,7 @@ traits:
     conf: 0.7
     if:
       type: symbol
-      pattern: "(?i)auth"
+      regex: "(?i)auth"
 
   # ============================================
   # Token/Key Variables
@@ -64,7 +64,7 @@ traits:
     attack: "T1528"
     if:
       type: symbol
-      pattern: "(?i)^token$"
+      regex: "(?i)^token$"
 
   - id: var-apikey
     desc: "Variable named 'apikey'"
@@ -73,7 +73,7 @@ traits:
     attack: "T1528"
     if:
       type: symbol
-      pattern: "(?i)^api_?key$"
+      regex: "(?i)^api_?key$"
 
   - id: var-secret
     desc: "Variable named 'secret'"
@@ -81,7 +81,7 @@ traits:
     conf: 0.8
     if:
       type: symbol
-      pattern: "(?i)^secret$"
+      regex: "(?i)^secret$"
 
   - id: var-private-key
     desc: "Variable for private key"
@@ -89,7 +89,7 @@ traits:
     conf: 0.85
     if:
       type: symbol
-      pattern: "(?i)^private_?key$"
+      regex: "(?i)^private_?key$"
 
   # ============================================
   # Wallet/Crypto Variables
@@ -101,7 +101,7 @@ traits:
     attack: "T1005"
     if:
       type: symbol
-      pattern: "(?i)^wallet$"
+      regex: "(?i)^wallet$"
 
   - id: var-mnemonic
     desc: "Variable named 'mnemonic'"
@@ -110,7 +110,7 @@ traits:
     attack: "T1005"
     if:
       type: symbol
-      pattern: "(?i)^mnemonic$"
+      regex: "(?i)^mnemonic$"
 
   - id: var-seed-phrase
     desc: "Variable for seed phrase"
@@ -119,7 +119,7 @@ traits:
     attack: "T1005"
     if:
       type: symbol
-      pattern: "(?i)^seed_?phrase$"
+      regex: "(?i)^seed_?phrase$"
 
   # ============================================
   # Path Variables (notable - context needed)
@@ -130,7 +130,7 @@ traits:
     conf: 0.75
     if:
       type: symbol
-      pattern: "(?i)^save_?path$"
+      regex: "(?i)^save_?path$"
 
   - id: var-output-path
     desc: "Variable for output path"
@@ -138,7 +138,7 @@ traits:
     conf: 0.7
     if:
       type: symbol
-      pattern: "(?i)^(output|dest)_?path$"
+      regex: "(?i)^(output|dest)_?path$"
 
   # ============================================
   # Network Variables
@@ -149,7 +149,7 @@ traits:
     conf: 0.75
     if:
       type: symbol
-      pattern: "(?i)^url$"
+      regex: "(?i)^url$"
 
   - id: var-server
     desc: "Variable named 'server'"
@@ -157,7 +157,7 @@ traits:
     conf: 0.75
     if:
       type: symbol
-      pattern: "(?i)^server$"
+      regex: "(?i)^server$"
 
   - id: var-endpoint
     desc: "Variable named 'endpoint'"
@@ -165,7 +165,7 @@ traits:
     conf: 0.75
     if:
       type: symbol
-      pattern: "(?i)^endpoint$"
+      regex: "(?i)^endpoint$"
 
   # ============================================
   # C2-like Variables
@@ -177,7 +177,7 @@ traits:
     attack: "T1071"
     if:
       type: symbol
-      pattern: "(?i)^c2"
+      regex: "(?i)^c2"
 
   - id: var-beacon
     desc: "Variable named 'beacon'"
@@ -186,7 +186,7 @@ traits:
     attack: "T1071"
     if:
       type: symbol
-      pattern: "(?i)^beacon$"
+      regex: "(?i)^beacon$"
 
   - id: var-exfil
     desc: "Variable suggests exfiltration"
@@ -195,7 +195,7 @@ traits:
     attack: "T1041"
     if:
       type: symbol
-      pattern: "(?i)^exfil"
+      regex: "(?i)^exfil"
 
 composite_rules:
   # ============================================

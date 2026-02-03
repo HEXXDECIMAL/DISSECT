@@ -2,51 +2,51 @@
 # Metrics-based detection of supply chain attack patterns in Go code
 
 defaults:
-  file_types: [go]
+  r#for: [go]
 
 traits:
   - id: many-init-functions
-    description: Multiple init() functions (auto-execute on
+    desc: Multiple init() functions (auto-execute on
     crit: suspicious
-    confidence: 0.85
+    conf: 0.85
     attack: "T1195.001"
-    condition:
+    if:
       type: metrics
       field: go_metrics.init_function_count
       min: 3
 
   - id: blank-imports
-    description: Uses blank imports for side
+    desc: Uses blank imports for side
     crit: notable
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: metrics
       field: go_metrics.blank_import_count
       min: 1
 
   - id: many-blank-imports
-    description: Many blank imports (suspicious side-effect
+    desc: Many blank imports (suspicious side-effect
     crit: suspicious
-    confidence: 0.85
-    condition:
+    conf: 0.85
+    if:
       type: metrics
       field: go_metrics.blank_import_count
       min: 3
 
   - id: cgo-usage
-    description: Uses CGo for C interoperability
+    desc: Uses CGo for C interoperability
     crit: notable
-    confidence: 0.75
-    condition:
+    conf: 0.75
+    if:
       type: metrics
       field: go_metrics.cgo_usage
       min: 1
 
   - id: embed-directive
-    description: Embeds files via //go:embed (payload
+    desc: Embeds files via //go:embed (payload
     crit: notable
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: metrics
       field: go_metrics.embed_directive_count
       min: 1
@@ -54,12 +54,12 @@ traits:
 composite_rules:
   # Detect potential backdoor patterns
   - id: backdoor-indicators
-    description: Go code with backdoor-like characteristics
+    desc: Go code with backdoor-like characteristics
     crit: hostile
-    confidence: 0.9
+    conf: 0.9
     attack: "T1195.001"
     mbc: "B0024"
-    file_types: [go]
+    r#for: [go]
     all:
       - id: cap/exec/command/go-exec-command
       - id: cap/comm/socket/go-network-dial
@@ -72,7 +72,7 @@ composite_rules:
     conf: 0.95
     attack: "T1195.001"
     mbc: "B0024"
-    file_types: [go]
+    r#for: [go]
     all:
       - id: many-init-functions
     any:

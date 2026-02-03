@@ -4,7 +4,7 @@
 
 traits:
   - id: process-arbitrary
-    description: Access /proc for arbitrary PIDs
+    desc: Access /proc for arbitrary PIDs
     crit: notable
     conf: 0.66
     if:
@@ -12,7 +12,7 @@ traits:
       regex: '/proc/[%{$][/\\$\\w\\}]{0,12}'
 
   - id: process-self-exe
-    description: Read own executable path via
+    desc: Read own executable path via
     crit: inert
     conf: 0.66
     if:
@@ -20,7 +20,7 @@ traits:
       exact: /proc/self/exe
 
   - id: process-self-cmdline
-    description: Read own command line via
+    desc: Read own command line via
     crit: inert
     conf: 0.66
     if:
@@ -28,7 +28,7 @@ traits:
       exact: /proc/self/cmdline
 
   - id: process-self-status
-    description: Read own process status via
+    desc: Read own process status via
     crit: inert
     conf: 0.66
     if:
@@ -36,7 +36,7 @@ traits:
       exact: /proc/self/status
 
   - id: process-self-maps
-    description: Read own process memory maps
+    desc: Read own process memory maps
     crit: inert
     conf: 0.66
     if:
@@ -44,7 +44,7 @@ traits:
       exact: /proc/self/maps
 
   - id: process-pid-maps
-    description: Read process memory maps via
+    desc: Read process memory maps via
     crit: notable
     conf: 0.66
     if:
@@ -52,7 +52,7 @@ traits:
       regex: '/proc/[^/]+/maps'
 
   - id: process-pid-mem
-    description: Access process memory via /proc/*/mem
+    desc: Access process memory via /proc/*/mem
     crit: suspicious
     conf: 0.75
     if:
@@ -60,7 +60,7 @@ traits:
       regex: '/proc/[^/]+/mem'
 
   - id: process-pid-cmdline
-    description: Read process command line via
+    desc: Read process command line via
     crit: notable
     conf: 0.66
     if:
@@ -70,7 +70,7 @@ traits:
   # NOTE: Debuggers legitimately read /proc/*/environ to inspect target process
   # environment. Downgrade to notable for debugger tools.
   - id: process-pid-environ
-    description: Read process environment via /proc/*/environ
+    desc: Read process environment via /proc/*/environ
     crit: suspicious
     conf: 0.66
     if:
@@ -81,7 +81,7 @@ traits:
         - id: cap/exec/load/debugger-tool-marker
 
   - id: process-pid-fd
-    description: Access process file descriptors via
+    desc: Access process file descriptors via
     crit: notable
     conf: 0.66
     if:
@@ -89,7 +89,7 @@ traits:
       regex: '/proc/[^/]+/fd'
 
   - id: process-pid-exe
-    description: Read process executable path via
+    desc: Read process executable path via
     crit: notable
     conf: 0.66
     if:
@@ -97,7 +97,7 @@ traits:
       regex: '/proc/[^/]+/exe'
 
   - id: process-pid-status
-    description: Read process status via /proc/*/status
+    desc: Read process status via /proc/*/status
     crit: notable
     conf: 0.66
     if:
@@ -105,7 +105,7 @@ traits:
       regex: '/proc/[^/]+/status'
 
   - id: process-pid-stat
-    description: Read process statistics via /proc/*/stat
+    desc: Read process statistics via /proc/*/stat
     crit: notable
     conf: 0.66
     if:
@@ -113,7 +113,7 @@ traits:
       regex: '/proc/[^/]+/stat[^u]'
 
   - id: python-proc-path-join
-    description: os.path.join for /proc sensitive files
+    desc: os.path.join for /proc sensitive files
     crit: notable
     conf: 0.85
     for: [python]
@@ -138,7 +138,7 @@ traits:
          (#match? @file "cmdline|maps|mem|environ|exe"))
 
   - id: process-oom
-    description: Adjust OOM killer score via
+    desc: Adjust OOM killer score via
     crit: suspicious
     conf: 0.66
     if:

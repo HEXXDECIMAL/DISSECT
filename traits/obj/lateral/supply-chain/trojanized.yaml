@@ -5,12 +5,12 @@
 traits:
   # Legitimate library with install hooks added
   - id: popular-lib-with-hooks
-    description: Popular library pattern with unusual
+    desc: Popular library pattern with unusual
     crit: suspicious
-    confidence: 0.85
+    conf: 0.85
     attack: "T1195.001"
-    file_types: [packagejson]
-    condition:
+    r#for: [packagejson]
+    if:
       type: yara
       source: |
         rule popular_lib_with_hooks {
@@ -37,12 +37,12 @@ traits:
 
   # Clone with additional requires
   - id: additional-requires
-    description: Library clone with suspicious additional
+    desc: Library clone with suspicious additional
     crit: suspicious
-    confidence: 0.85
+    conf: 0.85
     attack: "T1195.001"
-    file_types: [javascript]
-    condition:
+    r#for: [javascript]
+    if:
       type: yara
       source: |
         rule additional_suspicious_requires {
@@ -65,13 +65,13 @@ traits:
 
   # Discord library trojanization
   - id: discord-library
-    description: Trojanized Discord library patterns
+    desc: Trojanized Discord library patterns
     crit: suspicious
-    confidence: 0.9
+    conf: 0.9
     attack: "T1195.001"
     mbc: "B0024"
-    file_types: [javascript, typescript]
-    condition:
+    r#for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule trojanized_discord {
@@ -93,13 +93,13 @@ traits:
 
   # Telegram library trojanization
   - id: telegram-library
-    description: Trojanized Telegram library patterns
+    desc: Trojanized Telegram library patterns
     crit: suspicious
-    confidence: 0.9
+    conf: 0.9
     attack: "T1195.001"
     mbc: "B0024"
-    file_types: [javascript, typescript]
-    condition:
+    r#for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule trojanized_telegram {
@@ -120,12 +120,12 @@ traits:
 
   # Logging library trojanization
   - id: logging-library
-    description: Trojanized logging library patterns
+    desc: Trojanized logging library patterns
     crit: suspicious
-    confidence: 0.85
+    conf: 0.85
     attack: "T1195.001"
-    file_types: [javascript, typescript]
-    condition:
+    r#for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule trojanized_logger {
@@ -146,12 +146,12 @@ traits:
 
   # SDK/API client trojanization
   - id: sdk-client
-    description: Trojanized SDK or API client
+    desc: Trojanized SDK or API client
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     attack: "T1195.001"
-    file_types: [javascript, typescript, packagejson]
-    condition:
+    r#for: [javascript, typescript, packagejson]
+    if:
       type: yara
       source: |
         rule trojanized_sdk {
@@ -174,13 +174,13 @@ traits:
 
   # Crypto/blockchain library trojanization
   - id: crypto-library
-    description: Trojanized cryptocurrency library
+    desc: Trojanized cryptocurrency library
     crit: suspicious
-    confidence: 0.9
+    conf: 0.9
     attack: "T1195.001"
     mbc: "B0024"
-    file_types: [javascript, typescript]
-    condition:
+    r#for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule trojanized_crypto_lib {

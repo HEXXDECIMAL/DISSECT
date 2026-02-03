@@ -3,7 +3,7 @@
 
 traits:
   - id: bssid
-    description: Wireless network base station ID
+    desc: Wireless network base station ID
     crit: notable
     conf: 0.6
     attack: "T1016"

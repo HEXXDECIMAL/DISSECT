@@ -8,7 +8,7 @@ defaults:
 traits:
   # === RSA key handling (atomic) ===
   - id: rsa-keyword
-    description: RSA keyword
+    desc: RSA keyword
     crit: inert
     conf: 0.4
     for: [javascript, typescript, python]
@@ -17,7 +17,7 @@ traits:
       exact: "RSA"
 
   - id: generate-keypair
-    description: generateKeyPair function
+    desc: generateKeyPair function
     crit: inert
     conf: 0.5
     for: [javascript, typescript, python]
@@ -26,7 +26,7 @@ traits:
       exact: "generateKeyPair"
 
   - id: public-encrypt
-    description: publicEncrypt function
+    desc: publicEncrypt function
     crit: inert
     conf: 0.5
     for: [javascript, typescript, python]
@@ -35,7 +35,7 @@ traits:
       exact: "publicEncrypt"
 
   - id: private-decrypt
-    description: privateDecrypt function
+    desc: privateDecrypt function
     crit: inert
     conf: 0.5
     for: [javascript, typescript, python]
@@ -44,7 +44,7 @@ traits:
       exact: "privateDecrypt"
 
   - id: begin-rsa-key
-    description: BEGIN RSA key header
+    desc: BEGIN RSA key header
     crit: inert
     conf: 0.5
     for: [javascript, typescript, python]
@@ -53,7 +53,7 @@ traits:
       exact: "-----BEGIN RSA"
 
   - id: begin-public-key
-    description: BEGIN PUBLIC KEY header
+    desc: BEGIN PUBLIC KEY header
     crit: inert
     conf: 0.5
     for: [javascript, typescript, python]
@@ -62,7 +62,7 @@ traits:
       exact: "-----BEGIN PUBLIC KEY"
 
   - id: crypto-module
-    description: crypto module
+    desc: crypto module
     crit: inert
     conf: 0.3
     for: [javascript, typescript, python]
@@ -72,7 +72,7 @@ traits:
 
   # === File iteration (atomic) ===
   - id: readdir-sync
-    description: readdirSync function
+    desc: readdirSync function
     crit: inert
     conf: 0.4
     for: [javascript, typescript, python]
@@ -81,7 +81,7 @@ traits:
       exact: "readdirSync"
 
   - id: walk-sync
-    description: walkSync function
+    desc: walkSync function
     crit: inert
     conf: 0.4
     for: [javascript, typescript, python]
@@ -90,7 +90,7 @@ traits:
       exact: "walkSync"
 
   - id: glob-module
-    description: glob module
+    desc: glob module
     crit: inert
     conf: 0.4
     for: [javascript, typescript, python]
@@ -99,7 +99,7 @@ traits:
       exact: "glob"
 
   - id: readdir-fn
-    description: readdir function
+    desc: readdir function
     crit: inert
     conf: 0.4
     for: [javascript, typescript, python]
@@ -108,7 +108,7 @@ traits:
       exact: "readdir"
 
   - id: os-walk
-    description: os.walk function
+    desc: os.walk function
     crit: inert
     conf: 0.4
     for: [javascript, typescript, python]
@@ -118,7 +118,7 @@ traits:
 
   # === Encryption (atomic) ===
   - id: encrypt-fn
-    description: encrypt function
+    desc: encrypt function
     crit: inert
     conf: 0.4
     for: [javascript, typescript, python]
@@ -127,7 +127,7 @@ traits:
       exact: "encrypt"
 
   - id: cipher-keyword
-    description: cipher keyword
+    desc: cipher keyword
     crit: inert
     conf: 0.4
     for: [javascript, typescript, python]
@@ -136,7 +136,7 @@ traits:
       exact: "cipher"
 
   - id: create-cipheriv
-    description: createCipheriv function
+    desc: createCipheriv function
     crit: inert
     conf: 0.5
     for: [javascript, typescript, python]
@@ -145,7 +145,7 @@ traits:
       exact: "createCipheriv"
 
   - id: aes-keyword
-    description: AES keyword
+    desc: AES keyword
     crit: inert
     conf: 0.4
     for: [javascript, typescript, python]
@@ -155,7 +155,7 @@ traits:
 
   # === File write (atomic) ===
   - id: writefile-sync
-    description: writeFileSync function
+    desc: writeFileSync function
     crit: inert
     conf: 0.4
     for: [javascript, typescript, python]
@@ -164,7 +164,7 @@ traits:
       exact: "writeFileSync"
 
   - id: writefile-fn
-    description: writeFile function
+    desc: writeFile function
     crit: inert
     conf: 0.4
     for: [javascript, typescript, python]
@@ -173,7 +173,7 @@ traits:
       exact: "writeFile"
 
   - id: open-paren
-    description: open( function
+    desc: open( function
     crit: inert
     conf: 0.3
     for: [javascript, typescript, python]
@@ -183,7 +183,7 @@ traits:
 
   # === Ransom note (atomic) ===
   - id: files-encrypted-msg
-    description: Files encrypted message
+    desc: Files encrypted message
     crit: inert
     conf: 0.7
     for: [javascript, typescript, python, shell]
@@ -193,7 +193,7 @@ traits:
       case_insensitive: true
 
   - id: pay-bitcoin-msg
-    description: Pay bitcoin message
+    desc: Pay bitcoin message
     crit: inert
     conf: 0.7
     for: [javascript, typescript, python, shell]
@@ -203,7 +203,7 @@ traits:
       case_insensitive: true
 
   - id: pay-btc-msg
-    description: Pay BTC message
+    desc: Pay BTC message
     crit: inert
     conf: 0.7
     for: [javascript, typescript, python, shell]
@@ -213,7 +213,7 @@ traits:
       case_insensitive: true
 
   - id: decrypt-files-msg
-    description: Decrypt files message
+    desc: Decrypt files message
     crit: inert
     conf: 0.7
     for: [javascript, typescript, python, shell]
@@ -223,7 +223,7 @@ traits:
       case_insensitive: true
 
   - id: bitcoin-wallet-msg
-    description: Bitcoin wallet message
+    desc: Bitcoin wallet message
     crit: inert
     conf: 0.7
     for: [javascript, typescript, python, shell]
@@ -233,7 +233,7 @@ traits:
       case_insensitive: true
 
   - id: restore-files-msg
-    description: Restore files message
+    desc: Restore files message
     crit: inert
     conf: 0.7
     for: [javascript, typescript, python, shell]
@@ -243,7 +243,7 @@ traits:
       case_insensitive: true
 
   - id: send-payment-msg
-    description: Send payment message
+    desc: Send payment message
     crit: inert
     conf: 0.7
     for: [javascript, typescript, python, shell]
@@ -253,7 +253,7 @@ traits:
       case_insensitive: true
 
   - id: ransom-identifier
-    description: Ransom-related terminology
+    desc: Ransom-related terminology
     crit: notable
     conf: 0.6
     if:
@@ -262,7 +262,7 @@ traits:
 
   # === File rename (atomic) ===
   - id: rename-sync
-    description: renameSync function
+    desc: renameSync function
     crit: inert
     conf: 0.4
     for: [javascript, typescript, python]
@@ -271,7 +271,7 @@ traits:
       exact: "renameSync"
 
   - id: rename-fn
-    description: rename( function
+    desc: rename( function
     crit: inert
     conf: 0.4
     for: [javascript, typescript, python]
@@ -280,7 +280,7 @@ traits:
       exact: "rename("
 
   - id: os-rename
-    description: os.rename function
+    desc: os.rename function
     crit: inert
     conf: 0.4
     for: [javascript, typescript, python]
@@ -290,7 +290,7 @@ traits:
 
   # === Encrypted extensions (atomic) ===
   - id: ext-encrypted
-    description: .encrypted extension
+    desc: .encrypted extension
     crit: inert
     conf: 0.6
     for: [javascript, typescript, python]
@@ -299,7 +299,7 @@ traits:
       exact: ".encrypted"
 
   - id: ext-locked
-    description: .locked extension
+    desc: .locked extension
     crit: inert
     conf: 0.6
     for: [javascript, typescript, python]
@@ -308,7 +308,7 @@ traits:
       exact: ".locked"
 
   - id: ext-enc
-    description: .enc extension
+    desc: .enc extension
     crit: inert
     conf: 0.6
     for: [javascript, typescript, python]
@@ -317,7 +317,7 @@ traits:
       exact: ".enc"
 
   - id: ext-crypt
-    description: .crypt extension
+    desc: .crypt extension
     crit: inert
     conf: 0.6
     for: [javascript, typescript, python]
@@ -327,7 +327,7 @@ traits:
 
   # === Medusa ransomware (atomic) ===
   - id: medusa-name
-    description: Medusa name
+    desc: Medusa name
     crit: inert
     conf: 0.5
     for: [javascript, typescript]
@@ -337,7 +337,7 @@ traits:
       case_insensitive: true
 
   - id: polymorphic-keyword
-    description: polymorphic keyword
+    desc: polymorphic keyword
     crit: inert
     conf: 0.5
     for: [javascript, typescript]
@@ -347,7 +347,7 @@ traits:
       case_insensitive: true
 
   - id: mutate-keyword
-    description: mutate keyword
+    desc: mutate keyword
     crit: inert
     conf: 0.4
     for: [javascript, typescript]
@@ -357,7 +357,7 @@ traits:
 
   # === Shadow copy deletion (atomic) ===
   - id: vssadmin-delete
-    description: vssadmin delete shadows
+    desc: vssadmin delete shadows
     crit: inert
     conf: 0.7
     attack: "T1490"
@@ -367,7 +367,7 @@ traits:
       regex: 'vssadmin\s+delete\s+shadows'
 
   - id: wmic-shadowcopy
-    description: wmic shadowcopy delete
+    desc: wmic shadowcopy delete
     crit: inert
     conf: 0.7
     attack: "T1490"
@@ -377,7 +377,7 @@ traits:
       regex: 'wmic\s+shadowcopy\s+delete'
 
   - id: bcdedit-recovery
-    description: bcdedit recoveryenabled no
+    desc: bcdedit recoveryenabled no
     crit: inert
     conf: 0.7
     attack: "T1490"
@@ -389,7 +389,7 @@ traits:
 composite_rules:
   # RSA key operations
   - id: rsa-key-operations
-    description: RSA key operations
+    desc: RSA key operations
     crit: inert
     conf: 0.6
     for: [javascript, typescript, python]
@@ -404,7 +404,7 @@ composite_rules:
 
   # RSA key handling with crypto
   - id: rsa-key-handling
-    description: RSA key generation or handling
+    desc: RSA key generation or handling
     crit: notable
     conf: 0.8
     for: [javascript, typescript, python]
@@ -414,7 +414,7 @@ composite_rules:
 
   # File iteration
   - id: file-iteration
-    description: File iteration functions
+    desc: File iteration functions
     crit: inert
     conf: 0.5
     for: [javascript, typescript, python]
@@ -428,7 +428,7 @@ composite_rules:
 
   # Encryption functions
   - id: encryption-functions
-    description: Encryption functions
+    desc: Encryption functions
     crit: inert
     conf: 0.5
     for: [javascript, typescript, python]
@@ -441,7 +441,7 @@ composite_rules:
 
   # File write functions
   - id: file-write-functions
-    description: File write functions
+    desc: File write functions
     crit: inert
     conf: 0.4
     for: [javascript, typescript, python]
@@ -453,7 +453,7 @@ composite_rules:
 
   # File encryption loop
   - id: file-encryption-loop
-    description: File iteration with encryption (ransomware
+    desc: File iteration with encryption (ransomware
     crit: suspicious
     conf: 0.9
     for: [javascript, typescript, python]
@@ -464,7 +464,7 @@ composite_rules:
 
   # Ransom note
   - id: ransom-note
-    description: Ransom note text patterns
+    desc: Ransom note text patterns
     crit: suspicious
     conf: 0.95
     for: [javascript, typescript, python, shell]
@@ -480,7 +480,7 @@ composite_rules:
 
   # Rename functions
   - id: rename-functions
-    description: File rename functions
+    desc: File rename functions
     crit: inert
     conf: 0.4
     for: [javascript, typescript, python]
@@ -492,7 +492,7 @@ composite_rules:
 
   # Encrypted extensions
   - id: encrypted-extensions
-    description: Encrypted file extensions
+    desc: Encrypted file extensions
     crit: inert
     conf: 0.6
     for: [javascript, typescript, python]
@@ -505,7 +505,7 @@ composite_rules:
 
   # Extension change
   - id: extension-change
-    description: Changes file extensions (potential ransomware)
+    desc: Changes file extensions (potential ransomware)
     crit: suspicious
     conf: 0.85
     for: [javascript, typescript, python]
@@ -515,7 +515,7 @@ composite_rules:
 
   # Medusa pattern
   - id: medusa-pattern
-    description: Medusa ransomware implementation indicators
+    desc: Medusa ransomware implementation indicators
     crit: notable
     conf: 0.95
     for: [javascript, typescript]
@@ -529,7 +529,7 @@ composite_rules:
 
   # Shadow copy deletion
   - id: shadow-delete
-    description: Shadow copy deletion (ransomware preparation)
+    desc: Shadow copy deletion (ransomware preparation)
     crit: suspicious
     conf: 0.95
     attack: "T1490"
@@ -543,7 +543,7 @@ composite_rules:
   # In-place file encryption ransomware (Python/Fernet)
   # Combines directory traversal + in-place file write + encryption
   - id: inplace-encrypt
-    description: In-place file encryption ransomware
+    desc: In-place file encryption ransomware
     crit: hostile
     conf: 0.95
     for: [python]

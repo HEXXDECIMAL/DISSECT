@@ -122,7 +122,7 @@ composite_rules:
     conf: 0.95
     attack: "T1071.001"
     mbc: "B0030"
-    file_types: [python, javascript]
+    r#for: [python, javascript]
     count_min: 2
     any:
       - id: try-except-sleep

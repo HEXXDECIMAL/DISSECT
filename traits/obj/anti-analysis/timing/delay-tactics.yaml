@@ -16,7 +16,7 @@ traits:
     for: [elf, macho, pe]
     if:
       type: symbol
-      pattern: "^sleep$"
+      regex: "^sleep$"
 
   - id: usleep-func
     desc: "Microsecond sleep (precise timing delays)"
@@ -26,7 +26,7 @@ traits:
     for: [elf, macho]
     if:
       type: symbol
-      pattern: "usleep"
+      regex: "usleep"
 
   - id: nanosleep-func
     desc: "Nanosecond sleep (high-precision delays)"
@@ -36,7 +36,7 @@ traits:
     for: [elf, macho]
     if:
       type: symbol
-      pattern: "nanosleep"
+      regex: "nanosleep"
 
   # === Clock/timing functions ===
   - id: clock-gettime
@@ -47,7 +47,7 @@ traits:
     for: [elf, macho]
     if:
       type: symbol
-      pattern: "clock_gettime"
+      regex: "clock_gettime"
 
   - id: gettimeofday
     desc: "Gets current time of day"
@@ -57,7 +57,7 @@ traits:
     for: [elf, macho]
     if:
       type: symbol
-      pattern: "gettimeofday"
+      regex: "gettimeofday"
 
 composite_rules:
   # Basic delay capability

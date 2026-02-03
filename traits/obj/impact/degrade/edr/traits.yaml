@@ -6,7 +6,7 @@ defaults:
 
 traits:
   - id: stopper
-    description: EDR/Antivirus service stopper
+    desc: EDR/Antivirus service stopper
     crit: suspicious
     conf: 0.95
     for: [pe, shell]
@@ -15,7 +15,7 @@ traits:
       exact: "stopservice"
 
   - id: terminate-process-api
-    description: Windows TerminateProcess API call
+    desc: Windows TerminateProcess API call
     crit: notable
     conf: 0.85
     for: [pe]
@@ -25,7 +25,7 @@ traits:
 
   # === EDR/AV process termination verbs (atomic) ===
   - id: kill-keyword
-    description: kill keyword
+    desc: kill keyword
     crit: inert
     conf: 0.4
     for: [elf, pe]
@@ -37,7 +37,7 @@ traits:
   # terminate_handler, and many other legitimate uses. Match only in
   # process termination contexts.
   - id: terminate-keyword
-    description: terminate in process context
+    desc: terminate in process context
     crit: inert
     conf: 0.4
     for: [elf, pe]
@@ -48,7 +48,7 @@ traits:
 
   # === EDR/AV product names (atomic) ===
   - id: defender-name
-    description: Windows Defender reference
+    desc: Windows Defender reference
     crit: inert
     conf: 0.5
     for: [pe, elf]
@@ -58,7 +58,7 @@ traits:
       case_insensitive: true
 
   - id: malwarebytes-name
-    description: Malwarebytes reference
+    desc: Malwarebytes reference
     crit: inert
     conf: 0.5
     for: [pe, elf]
@@ -68,7 +68,7 @@ traits:
       case_insensitive: true
 
   - id: kaspersky-name
-    description: Kaspersky reference
+    desc: Kaspersky reference
     crit: inert
     conf: 0.5
     for: [pe, elf]
@@ -78,7 +78,7 @@ traits:
       case_insensitive: true
 
   - id: bitdefender-name
-    description: Bitdefender reference
+    desc: Bitdefender reference
     crit: inert
     conf: 0.5
     for: [pe, elf]
@@ -89,7 +89,7 @@ traits:
 
   # Avast AV detection - must be specific to avoid nautical term "avast" (meaning "stop")
   - id: avast-service
-    description: Avast service reference
+    desc: Avast service reference
     crit: inert
     conf: 0.7
     for: [pe, elf]
@@ -98,7 +98,7 @@ traits:
       regex: "(?i)avast(svc|ui|setup|antivirus|\\.exe|software|service)"
 
   - id: avast-path
-    description: Avast installation path
+    desc: Avast installation path
     crit: inert
     conf: 0.7
     for: [pe, elf]
@@ -107,7 +107,7 @@ traits:
       regex: "(?i)(program files|avast software).{0,50}avast"
 
   - id: norton-name
-    description: Norton reference
+    desc: Norton reference
     crit: inert
     conf: 0.5
     for: [pe, elf]
@@ -117,7 +117,7 @@ traits:
       case_insensitive: true
 
   - id: mcafee-name
-    description: McAfee reference
+    desc: McAfee reference
     crit: inert
     conf: 0.5
     for: [pe, elf]
@@ -127,7 +127,7 @@ traits:
       case_insensitive: true
 
   - id: sophos-name
-    description: Sophos reference
+    desc: Sophos reference
     crit: inert
     conf: 0.5
     for: [pe, elf]
@@ -157,7 +157,7 @@ traits:
 composite_rules:
   # EDR/AV product names composite
   - id: edr-product-name
-    description: EDR/Antivirus product name reference
+    desc: EDR/Antivirus product name reference
     crit: notable
     conf: 0.8
     for: [pe, elf]
@@ -177,7 +177,7 @@ composite_rules:
 
   # EDR termination verbs composite
   - id: termination-verbs
-    description: Process termination verbs
+    desc: Process termination verbs
     crit: inert
     conf: 0.5
     for: [elf, pe]
@@ -188,7 +188,7 @@ composite_rules:
 
   # EDR process termination (verb + product name)
   - id: kill
-    description: EDR process termination
+    desc: EDR process termination
     crit: suspicious
     conf: 0.9
     for: [elf, pe]
@@ -197,7 +197,7 @@ composite_rules:
       - id: edr-product-name
 
   - id: bypass-detected
-    description: EDR/Antivirus bypass attempt
+    desc: EDR/Antivirus bypass attempt
     crit: suspicious
     conf: 0.95
     mbc: "F0004"

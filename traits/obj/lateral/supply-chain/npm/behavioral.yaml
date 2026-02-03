@@ -3,17 +3,17 @@
 # Helps distinguish install-time vs runtime behavior
 
 defaults:
-  file_types: [javascript]
+  r#for: [javascript]
 
 traits:
   # === INSTALL-TIME BEHAVIOR (Suspicious Context) ===
 
   # NOTE: YARA kept for auto-execute - requires multiline/structural patterns with NOT conditions
   - id: auto-execute
-    description: Code auto-executes on require/import
+    desc: Code auto-executes on require/import
     crit: notable
-    confidence: 0.8
-    condition:
+    conf: 0.8
+    if:
       type: yara
       source: |
         rule auto_execute {
@@ -27,10 +27,10 @@ traits:
 
   # NOTE: YARA kept for side-effect-only - requires NOT conditions across multiple patterns
   - id: side-effect-only
-    description: Module produces side effects without
+    desc: Module produces side effects without
     crit: notable
-    confidence: 0.8
-    condition:
+    conf: 0.8
+    if:
       type: yara
       source: |
         rule side_effect_only {
@@ -48,10 +48,10 @@ traits:
 
   # NOTE: YARA kept for network-on-load - requires combining IIFE pattern with network calls
   - id: network-on-load
-    description: Network request during module initialization
+    desc: Network request during module initialization
     crit: suspicious
-    confidence: 0.85
-    condition:
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule network_on_load {
@@ -67,10 +67,10 @@ traits:
 
   # NOTE: YARA kept for write-on-load - requires combining IIFE pattern with file writes
   - id: write-on-load
-    description: File write during module initialization
+    desc: File write during module initialization
     crit: suspicious
-    confidence: 0.85
-    condition:
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule write_on_load {
@@ -85,10 +85,10 @@ traits:
 
   # NOTE: YARA kept for spawn-on-load - requires combining IIFE pattern with process spawning
   - id: spawn-on-load
-    description: Process spawned during module initialization
+    desc: Process spawned during module initialization
     crit: suspicious
-    confidence: 0.9
-    condition:
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule spawn_on_load {
@@ -106,10 +106,10 @@ traits:
   # Very small file (< 500 bytes)
   # NOTE: YARA kept for filesize check - DISSECT doesn't support filesize conditions
   - id: tiny-file
-    description: Very small code file
+    desc: Very small code file
     crit: notable
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: yara
       source: |
         rule tiny_file {
@@ -120,10 +120,10 @@ traits:
   # Medium file with no functions
   # NOTE: YARA kept for filesize check - DISSECT doesn't support filesize conditions
   - id: script-blob
-    description: Medium-sized file with no function
+    desc: Medium-sized file with no function
     crit: notable
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: yara
       source: |
         rule script_blob {
@@ -139,35 +139,35 @@ traits:
 
   # === Python interpreter atomic indicators ===
   - id: python-c-flag
-    description: python -c flag
+    desc: python -c flag
     crit: inert
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: string
       regex: "python3?\\s+-c"
 
   - id: python-stdin-flag
-    description: python stdin flag
+    desc: python stdin flag
     crit: inert
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: string
       regex: "python3?\\s+-"
 
   # === Node interpreter atomic indicators ===
   - id: node-e-flag
-    description: node -e flag
+    desc: node -e flag
     crit: inert
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: string
       regex: "node\\s+-e"
 
   - id: node-eval-flag
-    description: node --eval flag
+    desc: node --eval flag
     crit: inert
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: string
       regex: "node\\s+--eval"
 
@@ -175,28 +175,28 @@ traits:
 
   # spawn call
   - id: spawn-call
-    description: Process spawn call
+    desc: Process spawn call
     crit: inert
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: string
       regex: "spawn\\("
 
   # exec call
   - id: exec-call
-    description: Process exec call
+    desc: Process exec call
     crit: inert
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: string
       regex: "exec\\("
 
   # child_process module reference
   - id: child-process-import
-    description: Node child_process module usage
+    desc: Node child_process module usage
     crit: notable
-    confidence: 0.9
-    condition:
+    conf: 0.9
+    if:
       type: string
       exact: "child_process"
 
@@ -391,9 +391,9 @@ traits:
 composite_rules:
   # Python interpreter exec composite
   - id: python-interpreter-exec
-    description: Python interpreter with inline code
+    desc: Python interpreter with inline code
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     count_min: 1
     any:
       - id: python-c-flag
@@ -401,9 +401,9 @@ composite_rules:
 
   # Node interpreter exec composite
   - id: node-interpreter-exec
-    description: Node interpreter with inline code
+    desc: Node interpreter with inline code
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     count_min: 1
     any:
       - id: node-e-flag
@@ -411,9 +411,9 @@ composite_rules:
 
   # Spawn or exec composite
   - id: spawn-or-exec-call
-    description: Process spawn or exec function
+    desc: Process spawn or exec function
     crit: notable
-    confidence: 0.8
+    conf: 0.8
     count_min: 1
     any:
       - id: spawn-call
@@ -421,12 +421,12 @@ composite_rules:
 
   # npm package with interpreter dropper (hostile combination)
   - id: interpreter-dropper-package
-    description: npm package that downloads and
+    desc: npm package that downloads and
     crit: hostile
-    confidence: 0.95
+    conf: 0.95
     attack: "T1195.002"
     mbc: "B0024"
-    file_types: [javascript, typescript]
+    r#for: [javascript, typescript]
     any:
       - id: python-interpreter-exec
       - id: node-interpreter-exec
@@ -436,12 +436,12 @@ composite_rules:
 
   # Supply-chain trojan with obfuscated payload
   - id: obfuscated-trojan
-    description: Obfuscated supply-chain trojan
+    desc: Obfuscated supply-chain trojan
     crit: hostile
-    confidence: 0.95
+    conf: 0.95
     attack: "T1195.002"
     mbc: "B0022"
-    file_types: [javascript]  # +1 complexity
+    r#for: [javascript]  # +1 complexity
     all:                       # +3 complexity (3 required patterns)
       - id: obj/anti-static/obfuscation/code-metrics
       - id: obj/anti-static/obfuscation/strings/js-version-marker
@@ -450,12 +450,12 @@ composite_rules:
 
   # Advanced evasion with multiple techniques
   - id: advanced-evasion-trojan
-    description: Multi-layer obfuscated malware
+    desc: Multi-layer obfuscated malware
     crit: hostile
-    confidence: 0.98
+    conf: 0.98
     attack: "T1195.002"
     mbc: "B0032"
-    file_types: [javascript]
+    r#for: [javascript]
     all:
       - id: obj/anti-static/obfuscation/strings/js-string-deobfuscation
       - id: cap/exec/eval/dynamic/Function-constructor

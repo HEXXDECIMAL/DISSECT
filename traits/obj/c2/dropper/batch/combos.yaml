@@ -16,7 +16,7 @@ composite_rules:
     conf: 0.95
     mbc: "B0030"
     attack: "T1562.001"
-    file_types: [batch, shell]
+    r#for: [batch, shell]
     all:
       - id: obj/anti-analysis/security-bypass/bypass
       - id: cap/exec/dropper/windows/download-tool
@@ -30,7 +30,7 @@ composite_rules:
     conf: 0.95
     mbc: "B0030"
     attack: "T1562.001"
-    file_types: [batch, shell, powershell]
+    r#for: [batch, shell, powershell]
     all:
       - id: obj/anti-analysis/security-bypass/defender-exclusion
       - id: cap/exec/dropper/windows/download-file-ps
@@ -44,7 +44,7 @@ composite_rules:
     conf: 0.95
     mbc: "B0030"
     attack: "T1059.001"
-    file_types: [batch, shell]
+    r#for: [batch, shell]
     all:
       - id: obj/anti-analysis/security-bypass/bypass
       - id: cap/exec/dropper/windows/powershell-download
@@ -58,7 +58,7 @@ composite_rules:
     conf: 0.95
     mbc: "B0030"
     attack: "T1548.002"
-    file_types: [batch, shell, powershell]
+    r#for: [batch, shell, powershell]
     all:
       - id: obj/anti-analysis/security-bypass/start-process-runas
       - id: cap/exec/dropper/windows/download-tool
@@ -88,7 +88,7 @@ composite_rules:
     conf: 0.95
     mbc: "B0030"
     attack: "T1562.001"
-    file_types: [batch, shell]
+    r#for: [batch, shell]
     all:
       - id: obj/anti-analysis/security-bypass/malwarebytes-stop-service
       - id: cap/exec/dropper/windows/download-tool

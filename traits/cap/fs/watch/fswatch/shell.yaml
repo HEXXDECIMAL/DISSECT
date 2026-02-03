@@ -4,7 +4,7 @@
 
 traits:
   - id: fswatch
-    description: Filesystem watcher utilities
+    desc: Filesystem watcher utilities
     crit: inert
     conf: 0.66
     if:

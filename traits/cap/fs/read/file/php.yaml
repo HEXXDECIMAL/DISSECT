@@ -3,7 +3,7 @@
 
 traits:
   - id: file-get-contents
-    description: File read via file_get_contents
+    desc: File read via file_get_contents
     crit: notable
     conf: 0.75
     mbc: "C0051"
@@ -13,7 +13,7 @@ traits:
       exact: file_get_contents
 
   - id: fread
-    description: File read via fread
+    desc: File read via fread
     crit: notable
     conf: 0.75
     mbc: "C0051"
@@ -23,7 +23,7 @@ traits:
       regex: "\\bfread\\s*\\("
 
   - id: fgets
-    description: Line read via fgets
+    desc: Line read via fgets
     crit: inert
     conf: 0.6
     for: [php]
@@ -32,7 +32,7 @@ traits:
       regex: "\\bfgets\\s*\\("
 
   - id: readfile
-    description: Output file contents via readfile
+    desc: Output file contents via readfile
     crit: notable
     conf: 0.75
     mbc: "C0051"
@@ -42,7 +42,7 @@ traits:
       exact: readfile
 
   - id: fopen
-    description: File open operation
+    desc: File open operation
     crit: inert
     conf: 0.6
     for: [php]
@@ -51,7 +51,7 @@ traits:
       regex: "\\bfopen\\s*\\("
 
   - id: realpath
-    description: Resolve real file path
+    desc: Resolve real file path
     crit: inert
     conf: 0.6
     for: [php]

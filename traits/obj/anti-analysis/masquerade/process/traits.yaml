@@ -14,7 +14,7 @@ traits:
     conf: 0.8
     if:
       type: symbol
-      pattern: "prctl"
+      regex: "prctl"
 
   - id: pr-set-name-const
     desc: PR_SET_NAME constant reference

@@ -134,7 +134,7 @@ composite_rules:
     conf: 0.95
     attack: "T1036.005"
     mbc: "B0030"
-    file_types: [python, javascript, shell]
+    r#for: [python, javascript, shell]
     count_min: 1
     any:
       - id: typosquat-git-hub-domain
@@ -172,7 +172,7 @@ composite_rules:
     conf: 0.98
     attack: "T1036.005"
     mbc: "B0030"
-    file_types: [python, javascript, shell]
+    r#for: [python, javascript, shell]
     platforms: [all]
     count_min: 2
     all:

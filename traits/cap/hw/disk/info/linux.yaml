@@ -3,7 +3,7 @@
 
 traits:
   - id: dmidecode
-    description: Hardware info via dmidecode
+    desc: Hardware info via dmidecode
     crit: suspicious
     conf: 0.75
     attack: "T1082"
@@ -13,7 +13,7 @@ traits:
       regex: "dmidecode[\\s-]"
 
   - id: gopsutil
-    description: Go disk info via gopsutil
+    desc: Go disk info via gopsutil
     crit: notable
     conf: 0.6
     attack: "T1082"

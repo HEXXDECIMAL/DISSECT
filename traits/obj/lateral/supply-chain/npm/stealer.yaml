@@ -189,7 +189,7 @@ composite_rules:
     crit: hostile
     conf: 0.98
     mbc: "E1059"
-    file_types: [javascript, typescript]
+    r#for: [javascript, typescript]
     all:
       - id: stealer-import
       - id: postinstall-abuse
@@ -203,7 +203,7 @@ composite_rules:
     conf: 0.98
     mbc: "B0007"
     attack: "T1497.001"
-    file_types: [javascript, typescript]
+    r#for: [javascript, typescript]
     all:
       - id: stealer-import
       - id: cloud-sandbox-check
@@ -217,7 +217,7 @@ composite_rules:
     conf: 0.95
     mbc: "E1059"
     attack: "T1528"
-    file_types: [javascript, typescript]
+    r#for: [javascript, typescript]
     all:
       - id: stealer-basename
       - id: dunder-token-decl
@@ -230,7 +230,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     mbc: "B0024"
-    file_types: [javascript, typescript]
+    r#for: [javascript, typescript]
     all:
       - id: stealer-basename
       - id: dunder-postinstall-decl
@@ -243,7 +243,7 @@ composite_rules:
     conf: 0.88
     mbc: "E1059"
     attack: "T1528"
-    file_types: [javascript, typescript]
+    r#for: [javascript, typescript]
     all:
       - id: dunder-token-decl
       - id: dunder-postinstall-decl

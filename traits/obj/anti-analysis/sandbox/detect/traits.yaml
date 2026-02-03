@@ -87,7 +87,7 @@ traits:
     if:
       type: symbol
       # Use exact match to avoid matching Go runtime functions like runtime.notesleep
-      pattern: "^_?(sleep|Sleep|usleep|nanosleep)$"
+      regex: "^_?(sleep|Sleep|usleep|nanosleep)$"
 
   # === Sandbox artifact file path atomic indicators ===
   - id: path-c-analysis

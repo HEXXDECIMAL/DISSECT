@@ -12,4 +12,4 @@ traits:
     conf: 0.66
     if:
       type: symbol
-      pattern: fwrite|write|pwrite|pwrite64
+      regex: fwrite|write|pwrite|pwrite64

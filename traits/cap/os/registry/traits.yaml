@@ -1,0 +1,25 @@
+# Windows Registry Operations
+# Registry access and manipulation
+
+defaults:
+  for: ["pe", "dll"]
+  platforms: ["windows"]
+
+traits:
+  # === advapi32 Library Access ===
+  - id: advapi32-import
+    desc: Windows advanced API functions
+    crit: inert
+    conf: 0.90
+    if:
+      type: string
+      exact: "advapi32"
+
+  # === Registry Library References ===
+  - id: registry-lib
+    desc: Registry operation library
+    crit: inert
+    conf: 0.85
+    if:
+      type: string
+      regex: "HKEY_"

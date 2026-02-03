@@ -10,4 +10,4 @@ traits:
     for: [elf, so, c]
     if:
       type: symbol
-      pattern: blkid
+      regex: blkid

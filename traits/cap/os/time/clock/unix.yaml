@@ -4,29 +4,29 @@
 # and time package. Downgraded to inert to avoid false positives.
 
 defaults:
-  file_types: [elf, macho, so, dylib, c]
+  r#for: [elf, macho, so, dylib, c]
 
 traits:
   - id: get
-    description: Get system time
+    desc: Get system time
     crit: inert
-    confidence: 0.3
-    condition:
+    conf: 0.3
+    if:
       type: symbol
-      pattern: gettimeofday|clock_gettime|time
+      regex: gettimeofday|clock_gettime|time
 
   - id: local
-    description: Convert to local time
+    desc: Convert to local time
     crit: inert
-    confidence: 0.3
-    condition:
+    conf: 0.3
+    if:
       type: symbol
-      pattern: localtime|gmtime|strftime
+      regex: localtime|gmtime|strftime
 
   - id: alarm
-    description: Set alarm timer
+    desc: Set alarm timer
     crit: inert
-    confidence: 0.3
-    condition:
+    conf: 0.3
+    if:
       type: symbol
-      pattern: alarm|setitimer|timer_create
+      regex: alarm|setitimer|timer_create

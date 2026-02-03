@@ -120,7 +120,7 @@ composite_rules:
     desc: "Dropper targeting multiple persistence"
     crit: hostile
     conf: 0.95
-    file_types: [python]
+    r#for: [python]
     all:
       - id: download-and-execute-func
       - id: multi-persist-dirs
@@ -132,7 +132,7 @@ composite_rules:
     desc: "Python dropper with download and"
     crit: hostile
     conf: 0.95
-    file_types: [python]
+    r#for: [python]
     all:
       - id: download-and-execute-func
       - id: http-ip-port-url

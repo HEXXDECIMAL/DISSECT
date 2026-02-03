@@ -3,15 +3,15 @@
 
 defaults:
   # SSH-related strings can be embedded in any file type
-  file_types: ["*"]
+  r#for: ["*"]
 
 composite_rules:
   # === SSH Worm Detection ===
 
   - id: shell-worm
-    description: SSH worm implemented in shell
+    desc: SSH worm implemented in shell
     crit: suspicious
-    confidence: 0.95
+    conf: 0.95
     attack: "T1021.004"
     mbc: "E1021"
     all:
@@ -34,9 +34,9 @@ composite_rules:
   # === SSH Key Theft + Lateral Movement ===
 
   - id: key-based-spread
-    description: SSH key theft for lateral
+    desc: SSH key theft for lateral
     crit: suspicious
-    confidence: 0.85
+    conf: 0.85
     attack: "T1552.004"
     all:
       - id: dot-ssh-ref
@@ -47,9 +47,9 @@ composite_rules:
   # === SSH Host Discovery ===
 
   - id: host-discovery
-    description: SSH target host discovery
+    desc: SSH target host discovery
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     attack: "T1018"
     count_min: 2
     any:

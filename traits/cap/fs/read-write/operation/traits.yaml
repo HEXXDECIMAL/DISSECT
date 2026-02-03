@@ -5,7 +5,7 @@
 traits:
   # Symbolic link operations
   - id: readlink
-    description: Read value of symbolic link
+    desc: Read value of symbolic link
     crit: inert
     mbc: "E1083"
     attack: "T1083"
@@ -13,11 +13,11 @@ traits:
     for: [elf, macho, so, dylib, c]
     if:
       type: symbol
-      pattern: readlink
+      regex: readlink
     platforms: [unix, linux, macos]
 
   - id: realpath
-    description: Resolve absolute pathname (follows symlinks)
+    desc: Resolve absolute pathname (follows symlinks)
     crit: inert
     mbc: "E1083"
     attack: "T1083"
@@ -25,11 +25,11 @@ traits:
     for: [elf, macho, so, dylib, c]
     if:
       type: symbol
-      pattern: realpath
+      regex: realpath
     platforms: [unix, linux, macos]
 
   - id: symlink
-    description: Create symbolic link
+    desc: Create symbolic link
     crit: notable
     mbc: "E1222"
     attack: "T1222"
@@ -37,11 +37,11 @@ traits:
     for: [elf, macho, so, dylib, c]
     if:
       type: symbol
-      pattern: symlink
+      regex: symlink
     platforms: [unix, linux, macos]
 
   - id: link
-    description: Create hard link to file
+    desc: Create hard link to file
     crit: notable
     mbc: "E1222"
     attack: "T1222"
@@ -49,12 +49,12 @@ traits:
     for: [elf, macho, so, dylib, c]
     if:
       type: symbol
-      pattern: link
+      regex: link
     platforms: [unix, linux, macos]
 
   # File metadata operations
   - id: stat
-    description: Get file status and metadata
+    desc: Get file status and metadata
     crit: inert
     mbc: "E1083"
     attack: "T1083"
@@ -62,11 +62,11 @@ traits:
     for: [elf, macho, so, dylib, c]
     if:
       type: symbol
-      pattern: stat|lstat|fstat
+      regex: stat|lstat|fstat
     platforms: [unix, linux, macos]
 
   - id: access
-    description: Check file accessibility and permissions
+    desc: Check file accessibility and permissions
     crit: inert
     mbc: "E1083"
     attack: "T1083"
@@ -74,12 +74,12 @@ traits:
     for: [elf, macho, so, dylib, c]
     if:
       type: symbol
-      pattern: access
+      regex: access
     platforms: [unix, linux, macos]
 
   # Extended attributes (macOS/Linux)
   - id: getxattr
-    description: Get extended file attributes
+    desc: Get extended file attributes
     crit: inert
     mbc: "E1083"
     attack: "T1083"
@@ -87,11 +87,11 @@ traits:
     for: [elf, macho, so, dylib, c]
     if:
       type: symbol
-      pattern: getxattr
+      regex: getxattr
     platforms: [macos, linux]
 
   - id: listxattr
-    description: List extended file attributes
+    desc: List extended file attributes
     crit: inert
     mbc: "E1083"
     attack: "T1083"
@@ -99,11 +99,11 @@ traits:
     for: [elf, macho, so, dylib, c]
     if:
       type: symbol
-      pattern: listxattr
+      regex: listxattr
     platforms: [macos, linux]
 
   - id: setxattr
-    description: Set extended file attributes
+    desc: Set extended file attributes
     crit: notable
     mbc: "E1222"
     attack: "T1222"
@@ -111,11 +111,11 @@ traits:
     for: [elf, macho, so, dylib, c]
     if:
       type: symbol
-      pattern: setxattr
+      regex: setxattr
     platforms: [macos, linux]
 
   - id: removexattr
-    description: Remove extended file attributes
+    desc: Remove extended file attributes
     crit: notable
     mbc: "E1222"
     attack: "T1222"
@@ -123,12 +123,12 @@ traits:
     for: [elf, macho, so, dylib, c]
     if:
       type: symbol
-      pattern: removexattr
+      regex: removexattr
     platforms: [macos, linux]
 
   # File locking
   - id: flock
-    description: Apply or remove advisory lock
+    desc: Apply or remove advisory lock
     crit: inert
     mbc: "E1083"
     attack: "T1083"
@@ -136,11 +136,11 @@ traits:
     for: [elf, macho, so, dylib, c]
     if:
       type: symbol
-      pattern: flock
+      regex: flock
     platforms: [unix, linux, macos]
 
   - id: fcntl
-    description: File descriptor manipulation and control
+    desc: File descriptor manipulation and control
     crit: inert
     mbc: "E1083"
     attack: "T1083"
@@ -148,5 +148,5 @@ traits:
     for: [elf, macho, so, dylib, c]
     if:
       type: symbol
-      pattern: fcntl
+      regex: fcntl
     platforms: [unix, linux, macos]

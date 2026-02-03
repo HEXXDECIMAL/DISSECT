@@ -8,12 +8,12 @@ composite_rules:
   # Downgrade for known legitimate tools to avoid false positives.
 
   - id: generic-scanner
-    description: Generic network scanning tool
+    desc: Generic network scanning tool
     crit: suspicious
-    confidence: 0.85
+    conf: 0.85
     attack: "T1046"
     mbc: "E1046"
-    file_types: [all]
+    r#for: [all]
     all:
       - id: sym-hostname-resolve
       - id: sym-socket-connect
@@ -33,12 +33,12 @@ composite_rules:
         - id: meta/quality/has-help
 
   - id: root-scanner
-    description: Root exploitation scanner
+    desc: Root exploitation scanner
     crit: suspicious
-    confidence: 0.9
+    conf: 0.9
     attack: "T1046"
     mbc: "E1046"
-    file_types: [all]
+    r#for: [all]
     all:
       - id: root-exploit-ref
     any:
@@ -49,11 +49,11 @@ composite_rules:
   # NOTE: IoT credential attack detection is defined in lateral/brute-force/iot-creds/traits.yaml
 
   - id: router-brute-force
-    description: Router credential brute force attack
+    desc: Router credential brute force attack
     crit: suspicious
-    confidence: 0.85
+    conf: 0.85
     attack: "T1110.001"
-    file_types: [all]
+    r#for: [all]
     all:
       - id: ssh-dir-ref
       - id: etc-hosts-ref
@@ -67,11 +67,11 @@ composite_rules:
   # === Random IP Scanning ===
 
   - id: random-ip-scanner
-    description: Random IP address scanning
+    desc: Random IP address scanning
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     attack: "T1046"
-    file_types: [all]
+    r#for: [all]
     all:
       - id: random-target
     any:

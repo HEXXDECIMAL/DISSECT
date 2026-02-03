@@ -4,25 +4,25 @@
 
 traits:
   - id: memfd-create
-    description: Create anonymous memory file (memfd_create)
+    desc: Create anonymous memory file (memfd_create)
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     attack: "T1055"
     mbc: "B0033"
     platforms: [linux]
-    file_types: [elf, c]
-    condition:
+    r#for: [elf, c]
+    if:
       type: symbol
-      pattern: "memfd_create"
+      regex: "memfd_create"
 
   - id: memfd-create-go
-    description: Create anonymous memory file (Go
+    desc: Create anonymous memory file (Go
     crit: suspicious
-    confidence: 0.85
+    conf: 0.85
     attack: "T1055"
     mbc: "B0033"
     platforms: [linux]
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       exact: "MemfdCreate"

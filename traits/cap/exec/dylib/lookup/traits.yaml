@@ -16,7 +16,7 @@ traits:
     conf: 0.9
     if:
       type: symbol
-      pattern: "dlsym"
+      regex: "dlsym"
 
   - id: dladdr
     desc: Address to symbol lookup

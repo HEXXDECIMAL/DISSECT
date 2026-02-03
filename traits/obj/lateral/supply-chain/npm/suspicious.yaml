@@ -3,47 +3,47 @@
 # Generic JS behaviors should be in their objective directories
 
 defaults:
-  file_types: [packagejson]
+  r#for: [packagejson]
 
 traits:
   # === Export detection micro-traits ===
   - id: module-exports-pattern
-    description: CommonJS module.exports pattern
+    desc: CommonJS module.exports pattern
     crit: inert
-    confidence: 0.8
-    file_types: [javascript]
-    condition:
+    conf: 0.8
+    r#for: [javascript]
+    if:
       type: ast
       kind: assignment
       exact: "module.exports"
 
   - id: exports-dot-pattern
-    description: CommonJS exports.{0,50} pattern
+    desc: CommonJS exports.{0,50} pattern
     crit: inert
-    confidence: 0.8
-    file_types: [javascript]
-    condition:
+    conf: 0.8
+    r#for: [javascript]
+    if:
       type: ast
       kind: assignment
       exact: "exports."
 
   - id: esm-export-pattern
-    description: ESM export statement
+    desc: ESM export statement
     crit: inert
-    confidence: 0.8
-    file_types: [javascript]
-    condition:
+    conf: 0.8
+    r#for: [javascript]
+    if:
       type: ast
       node: export_statement
       exact: "export"
 
   # === Node.js require micro-traits ===
   - id: require-os
-    description: require('os') import
+    desc: require('os') import
     crit: inert
-    confidence: 0.7
-    file_types: [javascript]
-    condition:
+    conf: 0.7
+    r#for: [javascript]
+    if:
       type: ast
       language: javascript
       query: |
@@ -54,11 +54,11 @@ traits:
          (#match? @arg "'os'|\"os\""))
 
   - id: require-child-process
-    description: require('child_process') import
+    desc: require('child_process') import
     crit: notable
-    confidence: 0.8
-    file_types: [javascript]
-    condition:
+    conf: 0.8
+    r#for: [javascript]
+    if:
       type: ast
       language: javascript
       query: |
@@ -69,11 +69,11 @@ traits:
          (#match? @arg "'child_process'|\"child_process\""))
 
   - id: require-https
-    description: require('https') import
+    desc: require('https') import
     crit: inert
-    confidence: 0.7
-    file_types: [javascript]
-    condition:
+    conf: 0.7
+    r#for: [javascript]
+    if:
       type: ast
       language: javascript
       query: |
@@ -84,11 +84,11 @@ traits:
          (#match? @arg "'https'|\"https\""))
 
   - id: require-fs
-    description: require('fs') import
+    desc: require('fs') import
     crit: inert
-    confidence: 0.7
-    file_types: [javascript]
-    condition:
+    conf: 0.7
+    r#for: [javascript]
+    if:
       type: ast
       language: javascript
       query: |
@@ -100,204 +100,204 @@ traits:
 
   # === package.json micro-traits ===
   - id: pkg-dependencies
-    description: Package has dependencies field
+    desc: Package has dependencies field
     crit: inert
-    confidence: 0.9
-    condition:
+    conf: 0.9
+    if:
       type: string
       exact: '"dependencies":'
 
   - id: pkg-preinstall-hook
-    description: Package has preinstall hook
+    desc: Package has preinstall hook
     crit: notable
-    confidence: 0.85
-    condition:
+    conf: 0.85
+    if:
       type: string
       exact: '"preinstall":'
 
   - id: pkg-postinstall-hook
-    description: Package has postinstall hook
+    desc: Package has postinstall hook
     crit: notable
-    confidence: 0.85
-    condition:
+    conf: 0.85
+    if:
       type: string
       exact: '"postinstall":'
 
   - id: pkg-install-hook
-    description: Package has install hook
+    desc: Package has install hook
     crit: notable
-    confidence: 0.85
-    condition:
+    conf: 0.85
+    if:
       type: string
       exact: '"install":'
 
   - id: pkg-version-001
-    description: Package version 0.0.1 (brand new)
+    desc: Package version 0.0.1 (brand new)
     crit: inert
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: string
       exact: '"version": "0.0.1"'
 
   - id: pkg-repository
-    description: Package has repository field
+    desc: Package has repository field
     crit: inert
-    confidence: 0.9
-    condition:
+    conf: 0.9
+    if:
       type: string
       exact: '"repository":'
 
   # Package writes to node_modules (persistence)
   - id: node-modules-write
-    description: Package writes to node_modules directory
+    desc: Package writes to node_modules directory
     crit: suspicious
-    confidence: 0.9
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.9
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "(?:writeFile|writeFileSync|appendFile)\\s*\\([^)]*node_modules"
 
   # Reads .npmrc (token theft)
   - id: npmrc-read
-    description: Reads .npmrc file (potential token
+    desc: Reads .npmrc file (potential token
     crit: suspicious
-    confidence: 0.9
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.9
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "(?:readFile|readFileSync)\\s*\\([^)]*\\.npmrc"
 
   # Package writes to package.json (persistence)
   - id: package-json-write
-    description: Writes to package.json file
+    desc: Writes to package.json file
     crit: suspicious
-    confidence: 0.9
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.9
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "writeFileSync\\s*\\([^)]*package\\.json|writeFile\\s*\\([^)]*package\\.json"
 
   # Scoped package mimicking popular library
   - id: scoped-typosquat
-    description: Scoped package mimicking well-known package
+    desc: Scoped package mimicking well-known package
     crit: suspicious
-    confidence: 0.85
-    condition:
+    conf: 0.85
+    if:
       type: string
       regex: '"name":\\s*"@[^/]+/(react|vue|angular|express|lodash|axios|webpack|babel|typescript|eslint|prettier|jest|mocha)'
 
   # === Orphan child process micro-traits ===
   - id: child-dot-unref
-    description: child.unref() call (orphan process)
+    desc: child.unref() call (orphan process)
     crit: notable
-    confidence: 0.75
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.75
+    r#for: [javascript, typescript]
+    if:
       type: ast
       kind: call
       exact: ".unref()"
 
   - id: spawn-unref
-    description: spawn().unref() call (orphan process)
+    desc: spawn().unref() call (orphan process)
     crit: notable
-    confidence: 0.75
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.75
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "spawn\\([^)]+\\)\\.unref\\(\\)"
 
   # === Silent process execution micro-traits ===
   - id: stdio-ignore-string
-    description: "stdio: 'ignore' pattern"
+    desc: "stdio: 'ignore' pattern"
     crit: inert
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.7
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "stdio:\\s*['\"]ignore['\"]"
 
   - id: stdio-ignore-array
-    description: "stdio: [...ignore...] pattern"
+    desc: "stdio: [...ignore...] pattern"
     crit: inert
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.7
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "stdio:\\s*\\[.{0,50}ignore"
 
   # Bug bounty / security research markers
   - id: bug-bounty-marker
-    description: Bug bounty or security research
+    desc: Bug bounty or security research
     crit: notable
-    confidence: 0.9
-    file_types: [javascript, packagejson]
-    condition:
+    conf: 0.9
+    r#for: [javascript, packagejson]
+    if:
       type: string
       regex: "bug\\s*bounty|hackerone|bugcrowd|security\\s*research|proof\\s*of\\s*concept|PoC|benign\\s*test"
       case_insensitive: true
 
   # === Filesize micro-traits ===
   - id: small-file-5k
-    description: Small file under 5KB
+    desc: Small file under 5KB
     crit: inert
-    confidence: 0.7
-    file_types: [javascript]
-    condition:
+    conf: 0.7
+    r#for: [javascript]
+    if:
       type: filesize
       max: 5120
 
   # === OOB exfil domain micro-traits ===
   - id: oast-fun-domain
-    description: oast.fun exfil domain
+    desc: oast.fun exfil domain
     crit: suspicious
-    confidence: 0.9
-    file_types: [javascript, typescript, packagejson]
-    condition:
+    conf: 0.9
+    r#for: [javascript, typescript, packagejson]
+    if:
       type: string
       exact: "oast.fun"
 
   - id: oastify-domain
-    description: oastify.com exfil domain
+    desc: oastify.com exfil domain
     crit: suspicious
-    confidence: 0.9
-    file_types: [javascript, typescript, packagejson]
-    condition:
+    conf: 0.9
+    r#for: [javascript, typescript, packagejson]
+    if:
       type: string
       exact: "oastify.com"
 
   - id: oast-me-domain
-    description: oast.me exfil domain
+    desc: oast.me exfil domain
     crit: suspicious
-    confidence: 0.9
-    file_types: [javascript, typescript, packagejson]
-    condition:
+    conf: 0.9
+    r#for: [javascript, typescript, packagejson]
+    if:
       type: string
       exact: "oast.me"
 
   - id: webhook-site-domain
-    description: webhook.site exfil domain
+    desc: webhook.site exfil domain
     crit: suspicious
-    confidence: 0.9
-    file_types: [javascript, typescript, packagejson]
-    condition:
+    conf: 0.9
+    r#for: [javascript, typescript, packagejson]
+    if:
       type: string
       exact: "webhook.site"
 
   - id: pipedream-domain
-    description: pipedream.net exfil domain
+    desc: pipedream.net exfil domain
     crit: suspicious
-    confidence: 0.9
-    file_types: [javascript, typescript, packagejson]
-    condition:
+    conf: 0.9
+    r#for: [javascript, typescript, packagejson]
+    if:
       type: string
       exact: "pipedream.net"
 
   - id: discord-webhook
-    description: Discord webhook exfil endpoint
+    desc: Discord webhook exfil endpoint
     crit: suspicious
-    confidence: 0.9
-    file_types: [javascript, typescript, packagejson]
-    condition:
+    conf: 0.9
+    r#for: [javascript, typescript, packagejson]
+    if:
       type: string
       exact: "discord.com/api/webhooks"
 
@@ -428,10 +428,10 @@ traits:
 composite_rules:
   # Has exports composite
   - id: has-exports
-    description: Module has exports
+    desc: Module has exports
     crit: inert
-    confidence: 0.8
-    file_types: [javascript]
+    conf: 0.8
+    r#for: [javascript]
     count_min: 1
     any:
       - id: module-exports-pattern
@@ -440,10 +440,10 @@ composite_rules:
 
   # Dangerous requires for tiny packages
   - id: dangerous-requires
-    description: Dangerous Node.js API imports
+    desc: Dangerous Node.js API imports
     crit: notable
-    confidence: 0.8
-    file_types: [javascript]
+    conf: 0.8
+    r#for: [javascript]
     count_min: 3
     any:
       - id: require-os
@@ -453,19 +453,19 @@ composite_rules:
 
   # Single file with dangerous APIs - migrated from YARA
   - id: single-file-dangerous
-    description: Tiny npm package using dangerous
+    desc: Tiny npm package using dangerous
     crit: suspicious
-    confidence: 0.85
-    file_types: [javascript]
+    conf: 0.85
+    r#for: [javascript]
     all:
       - id: small-file-5k
       - id: dangerous-requires
 
   # Install hooks composite
   - id: install-hooks
-    description: Package has install hooks
+    desc: Package has install hooks
     crit: notable
-    confidence: 0.85
+    conf: 0.85
     count_min: 1
     any:
       - id: pkg-preinstall-hook
@@ -474,9 +474,9 @@ composite_rules:
 
   # No deps with hooks - migrated from YARA
   - id: no-deps-with-hooks
-    description: Package has install hooks but
+    desc: Package has install hooks but
     crit: suspicious
-    confidence: 0.85
+    conf: 0.85
     all:
       - id: install-hooks
     none:
@@ -484,9 +484,9 @@ composite_rules:
 
   # Multiple install hooks - migrated from YARA
   - id: multiple-hooks
-    description: Package has multiple install lifecycle
+    desc: Package has multiple install lifecycle
     crit: suspicious
-    confidence: 0.85
+    conf: 0.85
     count_min: 2
     any:
       - id: pkg-preinstall-hook
@@ -495,18 +495,18 @@ composite_rules:
 
   # New version with hooks - migrated from YARA
   - id: new-version-hooks
-    description: Brand new version (0.0.1) with
+    desc: Brand new version (0.0.1) with
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     all:
       - id: pkg-version-001
       - id: install-hooks
 
   # Missing metadata with hooks - migrated from YARA
   - id: missing-metadata-hooks
-    description: Package missing standard metadata but
+    desc: Package missing standard metadata but
     crit: suspicious
-    confidence: 0.85
+    conf: 0.85
     all:
       - id: install-hooks
     none:
@@ -514,10 +514,10 @@ composite_rules:
 
   # Child unref composite
   - id: child-unref
-    description: Orphan child process (unref pattern)
+    desc: Orphan child process (unref pattern)
     crit: suspicious
-    confidence: 0.85
-    file_types: [javascript, typescript]
+    conf: 0.85
+    r#for: [javascript, typescript]
     count_min: 1
     any:
       - id: child-dot-unref
@@ -525,10 +525,10 @@ composite_rules:
 
   # Stdio ignore composite
   - id: stdio-ignore
-    description: Silent process execution (stdio ignored)
+    desc: Silent process execution (stdio ignored)
     crit: notable
-    confidence: 0.8
-    file_types: [javascript, typescript]
+    conf: 0.8
+    r#for: [javascript, typescript]
     count_min: 1
     any:
       - id: stdio-ignore-string
@@ -536,10 +536,10 @@ composite_rules:
 
   # Multiple OOB exfil domains - migrated from YARA
   - id: multi-oob
-    description: Multiple OOB exfiltration endpoints
+    desc: Multiple OOB exfiltration endpoints
     crit: suspicious
-    confidence: 0.9
-    file_types: [javascript, typescript, packagejson]
+    conf: 0.9
+    r#for: [javascript, typescript, packagejson]
     count_min: 2
     any:
       - id: oast-fun-domain

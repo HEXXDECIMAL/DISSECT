@@ -4,10 +4,10 @@
 traits:
   # Prometheus ecosystem
   - id: prometheus
-    description: Prometheus monitoring stack
+    desc: Prometheus monitoring stack
     crit: benign
-    confidence: 0.9
-    condition:
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule prometheus_stack {
@@ -30,10 +30,10 @@ traits:
 
   # Grafana
   - id: grafana
-    description: Grafana visualization
+    desc: Grafana visualization
     crit: benign
-    confidence: 0.9
-    condition:
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule grafana {
@@ -49,10 +49,10 @@ traits:
 
   # OpenTelemetry
   - id: opentelemetry
-    description: OpenTelemetry instrumentation
+    desc: OpenTelemetry instrumentation
     crit: benign
-    confidence: 0.9
-    condition:
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule opentelemetry {
@@ -69,10 +69,10 @@ traits:
 
   # Elastic/ELK stack
   - id: elastic
-    description: Elastic/ELK monitoring stack
+    desc: Elastic/ELK monitoring stack
     crit: benign
-    confidence: 0.9
-    condition:
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule elastic_stack {
@@ -94,10 +94,10 @@ traits:
 
   # Datadog
   - id: datadog
-    description: Datadog monitoring agent
+    desc: Datadog monitoring agent
     crit: benign
-    confidence: 0.9
-    condition:
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule datadog {
@@ -113,10 +113,10 @@ traits:
 
   # Fluentd/Fluent Bit
   - id: fluentd
-    description: Fluentd/Fluent Bit log collector
+    desc: Fluentd/Fluent Bit log collector
     crit: benign
-    confidence: 0.9
-    condition:
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule fluentd {

@@ -5,30 +5,30 @@
 # MBC: C0042 (Modify Security Privileges)
 
 defaults:
-  file_types: [elf, macho, so, dylib, c]
+  r#for: [elf, macho, so, dylib, c]
   platforms: [linux, macos, unix]
 
 traits:
   - id: setuid
-    description: Set user ID (capability)
+    desc: Set user ID (capability)
     crit: notable
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: symbol
-      pattern: "^(setuid|seteuid|setreuid|setresuid)$"
+      regex: "^(setuid|seteuid|setreuid|setresuid)$"
 
   - id: setgid
-    description: Set group ID (capability)
+    desc: Set group ID (capability)
     crit: notable
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: symbol
-      pattern: "^(setgid|setegid|setregid|setresgid)$"
+      regex: "^(setgid|setegid|setregid|setresgid)$"
 
   - id: drop-privs
-    description: Drop privileges (setuid after getuid)
+    desc: Drop privileges (setuid after getuid)
     crit: inert
-    confidence: 0.8
-    condition:
+    conf: 0.8
+    if:
       type: symbol
-      pattern: "^(setuid|setgid|seteuid|setegid)$"
+      regex: "^(setuid|setgid|seteuid|setegid)$"

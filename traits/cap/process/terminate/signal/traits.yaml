@@ -3,96 +3,96 @@
 # ATT&CK: T1562 (Impair Defenses) / T1059 (Command and Scripting Interpreter)
 
 defaults:
-  file_types: [elf, macho, so, dylib, c]
+  r#for: [elf, macho, so, dylib, c]
 
 traits:
   # Signal sending
   - id: kill
-    description: Send signal to process (terminate,
+    desc: Send signal to process (terminate,
     crit: notable
     mbc: "E1562"
     attack: "T1562"
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: symbol
       exact: kill
     platforms: [unix, linux, macos]
 
   - id: killpg
-    description: Send signal to process group
+    desc: Send signal to process group
     crit: notable
     mbc: "E1562"
     attack: "T1562"
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: symbol
       exact: killpg
     platforms: [unix, linux, macos]
 
   # Signal handling
   - id: signal
-    description: Install signal handler (catch or
+    desc: Install signal handler (catch or
     crit: notable
     mbc: "F0004"
     attack: "T1562.001"
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: symbol
       exact: signal
     platforms: [unix, linux, macos]
 
   - id: sigaction
-    description: Examine or change signal action
+    desc: Examine or change signal action
     crit: notable
     mbc: "F0004"
     attack: "T1562.001"
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: symbol
       exact: sigaction
     platforms: [unix, linux, macos]
 
   - id: sigprocmask
-    description: Examine or change blocked signals
+    desc: Examine or change blocked signals
     crit: notable
     mbc: "F0004"
     attack: "T1562.001"
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: symbol
       exact: sigprocmask
     platforms: [unix, linux, macos]
 
   # Process termination
   - id: abort
-    description: Cause abnormal process termination
+    desc: Cause abnormal process termination
     crit: inert
     mbc: "E1562"
     attack: "T1562"
-    confidence: 0.4
-    condition:
+    conf: 0.4
+    if:
       type: symbol
       exact: abort
     platforms: [unix, linux, macos, windows]
 
   - id: exit
-    description: Terminate process with status code
+    desc: Terminate process with status code
     crit: inert
     mbc: "E1562"
     attack: "T1562"
-    confidence: 0.3
-    condition:
+    conf: 0.3
+    if:
       type: symbol
       exact: exit
     platforms: [unix, linux, macos, windows]
 
   - id: _exit
-    description: Terminate process immediately without cleanup
+    desc: Terminate process immediately without cleanup
     crit: inert
     mbc: "E1562"
     attack: "T1562"
-    confidence: 0.4
-    condition:
+    conf: 0.4
+    if:
       type: symbol
       exact: _exit
     platforms: [unix, linux, macos]

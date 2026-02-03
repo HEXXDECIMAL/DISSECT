@@ -5,7 +5,7 @@ defaults:
 
 traits:
   - id: crypto-aes
-    description: crypto/aes import
+    desc: crypto/aes import
     crit: inert
     conf: 0.5
     if:
@@ -13,7 +13,7 @@ traits:
       exact: "crypto/aes"
 
   - id: crypto-cipher
-    description: crypto/cipher import
+    desc: crypto/cipher import
     crit: inert
     conf: 0.5
     if:
@@ -21,7 +21,7 @@ traits:
       exact: "crypto/cipher"
 
   - id: crypto-rsa
-    description: crypto/rsa import
+    desc: crypto/rsa import
     crit: inert
     conf: 0.5
     if:
@@ -29,7 +29,7 @@ traits:
       exact: "crypto/rsa"
 
   - id: filepath-walk
-    description: filepath.Walk call
+    desc: filepath.Walk call
     crit: inert
     conf: 0.5
     if:
@@ -37,7 +37,7 @@ traits:
       exact: "filepath.Walk"
 
   - id: filepath-walkdir
-    description: filepath.WalkDir call
+    desc: filepath.WalkDir call
     crit: inert
     conf: 0.5
     if:
@@ -45,7 +45,7 @@ traits:
       exact: "filepath.WalkDir"
 
   - id: ioutil-writefile
-    description: ioutil.WriteFile call
+    desc: ioutil.WriteFile call
     crit: inert
     conf: 0.5
     if:
@@ -53,7 +53,7 @@ traits:
       exact: "ioutil.WriteFile"
 
   - id: os-writefile
-    description: os.WriteFile call
+    desc: os.WriteFile call
     crit: inert
     conf: 0.5
     if:
@@ -61,7 +61,7 @@ traits:
       exact: "os.WriteFile"
 
   - id: encrypted-ext
-    description: .encrypted extension
+    desc: .encrypted extension
     crit: inert
     conf: 0.5
     if:
@@ -69,7 +69,7 @@ traits:
       exact: ".encrypted"
 
   - id: locked-ext
-    description: .locked extension
+    desc: .locked extension
     crit: inert
     conf: 0.5
     if:
@@ -78,7 +78,7 @@ traits:
 
 composite_rules:
   - id: crypto-import
-    description: Cryptographic imports
+    desc: Cryptographic imports
     crit: notable
     conf: 0.6
     count_min: 1
@@ -88,7 +88,7 @@ composite_rules:
       - id: crypto-rsa
 
   - id: walk-func
-    description: Filesystem walk function
+    desc: Filesystem walk function
     crit: notable
     conf: 0.6
     count_min: 1
@@ -97,7 +97,7 @@ composite_rules:
       - id: filepath-walkdir
 
   - id: write-func
-    description: File write function
+    desc: File write function
     crit: notable
     conf: 0.6
     count_min: 1
@@ -106,7 +106,7 @@ composite_rules:
       - id: os-writefile
 
   - id: encrypt-ext
-    description: Encryption-related extension
+    desc: Encryption-related extension
     crit: notable
     conf: 0.6
     count_min: 1
@@ -115,7 +115,7 @@ composite_rules:
       - id: locked-ext
 
   - id: file-encrypt
-    description: Go file encryption patterns (potential
+    desc: Go file encryption patterns (potential
     crit: suspicious
     conf: 0.8
     all:

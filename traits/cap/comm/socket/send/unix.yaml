@@ -14,4 +14,4 @@ traits:
     attack: "T1071"
     if:
       type: symbol
-      pattern: send|sendmsg|sendto|sendmmsg|_send
+      regex: send|sendmsg|sendto|sendmmsg|_send

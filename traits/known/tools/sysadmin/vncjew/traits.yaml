@@ -3,43 +3,43 @@
 
 traits:
   - id: scanner/vncjew/read-vncs
-    description: VNCJew VNC reader function
+    desc: VNCJew VNC reader function
     crit: suspicious
-    confidence: 0.95
+    conf: 0.95
     family: true
     attack: "T1046"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       exact: "readVNCs"
 
   - id: scanner/vncjew/iptables-ref
-    description: Reference to iptables firewall utility
+    desc: Reference to iptables firewall utility
     crit: notable
-    confidence: 0.7
-    file_types: [elf]
-    condition:
+    conf: 0.7
+    r#for: [elf]
+    if:
       type: string
       exact: "iptables"
 
   - id: scanner/vncjew/masscan-ref
-    description: Reference to masscan network scanner
+    desc: Reference to masscan network scanner
     crit: notable
-    confidence: 0.7
-    file_types: [elf]
-    condition:
+    conf: 0.7
+    r#for: [elf]
+    if:
       type: string
       exact: "masscan"
 
 composite_rules:
   - id: scanner/vncjew/detected
-    description: VNCJew VNC scanner
+    desc: VNCJew VNC scanner
     crit: suspicious
-    confidence: 0.95
+    conf: 0.95
     family: true
     attack: "T1046"
     mbc: "B0046"
-    file_types: [elf]
+    r#for: [elf]
     all:
       - id: scanner/vncjew/read-vncs
       - id: scanner/vncjew/iptables-ref

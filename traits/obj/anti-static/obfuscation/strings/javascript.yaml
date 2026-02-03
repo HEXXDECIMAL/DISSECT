@@ -82,7 +82,7 @@ traits:
     for: [javascript]
     if:
       type: symbol
-      pattern: "global\\..{1,50}"
+      regex: "global\\..{1,50}"
     not:
       - "__dirname"
       - "__filename"
@@ -123,7 +123,7 @@ traits:
     for: [javascript]
     if:
       type: symbol
-      pattern: ".{0,50}\\.charAt"
+      regex: ".{0,50}\\.charAt"
 
   # Array element swapping (common in shuffle algorithms)
   - id: js-array-swap
@@ -144,7 +144,7 @@ traits:
     for: [javascript]
     if:
       type: symbol
-      pattern: '.{0,50}\\.split'
+      regex: '.{0,50}\\.split'
 
   # Dynamic code execution patterns (atomic)
   - id: js-eval-call
@@ -187,7 +187,7 @@ traits:
     for: [javascript]
     if:
       type: symbol
-      pattern: '.{0,50}\.join'
+      regex: '.{0,50}\.join'
 
 composite_rules:
   # String deobfuscation pattern (charAt/split + swap + join)

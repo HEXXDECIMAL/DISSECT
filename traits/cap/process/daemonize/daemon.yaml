@@ -1,84 +1,84 @@
 traits:
   - id: process-fork
-    description: Process forking syscall (fork, vfork,
+    desc: Process forking syscall (fork, vfork,
     crit: notable
-    condition:
+    if:
       type: syscall
       name: ["fork", "vfork", "clone"]
 
   - id: process-fork-macos
-    description: Process forking syscall on macOS
+    desc: Process forking syscall on macOS
     crit: notable
-    condition:
+    if:
       type: syscall
       name: ["fork"]
 
   - id: process-setsid
-    description: Create new session and become
+    desc: Create new session and become
     crit: notable
-    condition:
+    if:
       type: syscall
       name: ["setsid"]
 
   - id: fd-redirect
-    description: File descriptor redirection (dup2 or
+    desc: File descriptor redirection (dup2 or
     crit: notable
-    condition:
+    if:
       type: syscall
       name: ["dup2", "dup3"]
 
   - id: fd-redirect-multiple
-    description: Multiple file descriptor redirections
+    desc: Multiple file descriptor redirections
     crit: notable
-    condition:
+    if:
       type: syscall
       name: ["dup2", "dup3"]
       count_min: 2
   - id: fd-redirect-macos
-    description: File descriptor redirection on macOS
+    desc: File descriptor redirection on macOS
     crit: notable
-    condition:
+    if:
       type: syscall
       name: ["dup2"]
       count_min: 2
 composite_rules:
   - id: daemon
-    description: Daemon behavior - detaches from
-    confidence: 0.85
+    desc: Daemon behavior - detaches from
+    conf: 0.85
     crit: notable
     platforms: [linux]
-    file_types: [elf]
+    r#for: [elf]
     all:
       - id: process-fork
       - id: process-setsid
 
   - id: daemon-full
-    description: Full daemon pattern with stdin/stdout
-    confidence: 0.9
+    desc: Full daemon pattern with stdin/stdout
+    conf: 0.9
     crit: notable
     platforms: [linux]
-    file_types: [elf]
+    r#for: [elf]
     all:
       - id: process-fork
       - id: process-setsid
       - id: fd-redirect-multiple
 
   - id: daemon-macos
-    description: macOS daemon behavior - detaches
-    confidence: 0.85
+    desc: macOS daemon behavior - detaches
+    conf: 0.85
     crit: notable
     platforms: [macos]
-    file_types: [macho]
+    r#for: [macho]
     all:
       - id: process-fork-macos
       - id: process-setsid
 
   - id: daemon-macos-full
-    description: Full macOS daemon pattern with
-    confidence: 0.9
+    desc: Full macOS daemon pattern with
+    conf: 0.9
     crit: notable
     platforms: [macos]
-    file_types: [macho]
+    r#for: [macho]
     all:
       - id: process-fork-macos
       - id: process-setsid

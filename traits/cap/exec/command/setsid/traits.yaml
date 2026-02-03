@@ -31,4 +31,4 @@ traits:
     for: [c]
     if:
       type: symbol
-      pattern: setsid
+      regex: setsid

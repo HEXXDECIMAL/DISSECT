@@ -14,7 +14,7 @@ traits:
     mbc: "C0001"
     if:
       type: symbol
-      pattern: "socket"
+      regex: "socket"
 
   - id: listen-sym
     desc: listen function symbol
@@ -24,7 +24,7 @@ traits:
     attack: "T1071"
     if:
       type: symbol
-      pattern: "listen"
+      regex: "listen"
 
   - id: accept-sym
     desc: accept function symbol
@@ -34,7 +34,7 @@ traits:
     attack: "T1071"
     if:
       type: symbol
-      pattern: "accept"
+      regex: "accept"
 
   - id: accept64-sym
     desc: accept64 function symbol
@@ -44,7 +44,7 @@ traits:
     attack: "T1071"
     if:
       type: symbol
-      pattern: "accept64"
+      regex: "accept64"
 
 composite_rules:
   # Accept function composite

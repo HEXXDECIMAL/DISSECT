@@ -19,7 +19,7 @@ traits:
       type: symbol
       # Match HTTP upload functions, not substrings. Require underscore context or exact match.
       # "upload" alone is too generic (matches upload_file, file_upload, etc. which are normal)
-      pattern: "(?:^|_)http[_-]?upload|curl_easy_upload|http_put(?:$|_)|ftp_upload"
+      regex: "(?:^|_)http[_-]?upload|curl_easy_upload|http_put(?:$|_)|ftp_upload"
 
   - id: ftp-upload
     desc: FTP upload
@@ -29,4 +29,4 @@ traits:
     conf: 0.7
     if:
       type: symbol
-      pattern: ftp_put|STOR
+      regex: ftp_put|STOR

@@ -45,7 +45,7 @@ traits:
     conf: 0.3
     if:
       type: symbol
-      pattern: "getauxval"
+      regex: "getauxval"
 
   - id: ifunc
     desc: ELF IFUNC resolver

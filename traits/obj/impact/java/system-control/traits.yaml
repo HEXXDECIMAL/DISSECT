@@ -6,7 +6,7 @@
 traits:
   # System control
   - id: reboot-string
-    description: System reboot command
+    desc: System reboot command
     crit: suspicious
     conf: 0.85
     mbc: "B0029"
@@ -17,7 +17,7 @@ traits:
       exact: "reboot"
 
   - id: shutdown-string
-    description: System shutdown command
+    desc: System shutdown command
     crit: suspicious
     conf: 0.85
     mbc: "B0029"
@@ -28,7 +28,7 @@ traits:
       exact: "shutdown"
 
   - id: uninstall-string
-    description: Self-uninstall command
+    desc: Self-uninstall command
     crit: suspicious
     conf: 0.9
     mbc: "F0007"
@@ -39,7 +39,7 @@ traits:
       exact: "uninstall"
 
   - id: disconnect-string
-    description: Disconnect from C2 command
+    desc: Disconnect from C2 command
     crit: notable
     conf: 0.8
     mbc: "B0030"
@@ -50,7 +50,7 @@ traits:
 
   # Process management
   - id: processes-string
-    description: Process listing command
+    desc: Process listing command
     crit: notable
     conf: 0.8
     mbc: "E1057"
@@ -62,7 +62,7 @@ traits:
 
   # Persistence
   - id: startup-list-string
-    description: Startup persistence command
+    desc: Startup persistence command
     crit: suspicious
     conf: 0.9
     mbc: "F0004"
@@ -74,7 +74,7 @@ traits:
 
   # Privilege escalation
   - id: chk-priv-string
-    description: Check privileges command
+    desc: Check privileges command
     crit: suspicious
     conf: 0.85
     mbc: "B0014"
@@ -85,7 +85,7 @@ traits:
       exact: "chk-priv"
 
   - id: req-priv-string
-    description: Request elevated privileges command
+    desc: Request elevated privileges command
     crit: suspicious
     conf: 0.9
     mbc: "B0014"

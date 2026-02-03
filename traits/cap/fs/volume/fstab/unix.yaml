@@ -8,7 +8,7 @@ defaults:
 traits:
   # === Mount table file atomic indicators ===
   - id: etc-fstab
-    description: /etc/fstab mount table file
+    desc: /etc/fstab mount table file
     crit: inert
     conf: 0.6
     if:
@@ -16,7 +16,7 @@ traits:
       exact: "/etc/fstab"
 
   - id: etc-mtab
-    description: /etc/mtab mount table file
+    desc: /etc/mtab mount table file
     crit: inert
     conf: 0.6
     if:
@@ -24,25 +24,25 @@ traits:
       exact: "/etc/mtab"
 
   - id: fstab-mntent
-    description: Parse mount table entries via
+    desc: Parse mount table entries via
     crit: inert
     conf: 0.66
     if:
       type: symbol
-      pattern: setmntent|getmntent|endmntent
+      regex: setmntent|getmntent|endmntent
 
   - id: fstab-mntinfo
-    description: Get information on mounted volumes
+    desc: Get information on mounted volumes
     crit: inert
     conf: 0.66
     if:
       type: symbol
-      pattern: getmntinfo
+      regex: getmntinfo
 
 composite_rules:
   # Mount table files composite
   - id: fstab-files
-    description: Reads mount table files (/etc/fstab,
+    desc: Reads mount table files (/etc/fstab,
     crit: inert
     conf: 0.66
     count_min: 1

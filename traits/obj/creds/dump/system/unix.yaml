@@ -20,7 +20,7 @@ traits:
     for: [elf]
     if:
       type: symbol
-      pattern: "getspnam"
+      regex: "getspnam"
 
   # === Atomic: Direct File Access ===
 

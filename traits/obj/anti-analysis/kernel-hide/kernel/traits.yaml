@@ -31,7 +31,7 @@ traits:
     mbc: "F0015"
     if:
       type: symbol
-      pattern: "lookup_address"
+      regex: "lookup_address"
 
   - id: kallsyms-lookup-fn
     desc: kallsyms_lookup kernel function
@@ -40,7 +40,7 @@ traits:
     mbc: "F0015"
     if:
       type: symbol
-      pattern: "kallsyms_lookup"
+      regex: "kallsyms_lookup"
 
   # === TCP/UDP Seq Show Functions ===
   - id: tcp4-seq-show
@@ -52,7 +52,7 @@ traits:
     for: [elf, c]
     if:
       type: symbol
-      pattern: "tcp4_seq_show"
+      regex: "tcp4_seq_show"
 
   - id: tcp6-seq-show
     desc: tcp6_seq_show function
@@ -63,7 +63,7 @@ traits:
     for: [elf, c]
     if:
       type: symbol
-      pattern: "tcp6_seq_show"
+      regex: "tcp6_seq_show"
 
   - id: udp4-seq-show
     desc: udp4_seq_show function
@@ -74,7 +74,7 @@ traits:
     for: [elf, c]
     if:
       type: symbol
-      pattern: "udp4_seq_show"
+      regex: "udp4_seq_show"
 
   - id: udp6-seq-show
     desc: udp6_seq_show function
@@ -85,7 +85,7 @@ traits:
     for: [elf, c]
     if:
       type: symbol
-      pattern: "udp6_seq_show"
+      regex: "udp6_seq_show"
 
   - id: proc-net-tcp
     desc: /proc/net/tcp path
@@ -106,7 +106,7 @@ traits:
     for: [elf, c]
     if:
       type: symbol
-      pattern: "proc_root_readdir"
+      regex: "proc_root_readdir"
 
   - id: proc-iterate
     desc: proc_iterate function
@@ -116,7 +116,7 @@ traits:
     for: [elf, c]
     if:
       type: symbol
-      pattern: "proc_iterate"
+      regex: "proc_iterate"
 
   - id: proc-fill-cache
     desc: proc_fill_cache function
@@ -125,7 +125,7 @@ traits:
     for: [elf, c]
     if:
       type: symbol
-      pattern: "proc_fill_cache"
+      regex: "proc_fill_cache"
 
   - id: filldir
     desc: filldir callback function
@@ -134,7 +134,7 @@ traits:
     for: [elf, c]
     if:
       type: symbol
-      pattern: "filldir"
+      regex: "filldir"
 
   - id: filldir64
     desc: filldir64 callback function
@@ -143,7 +143,7 @@ traits:
     for: [elf, c]
     if:
       type: symbol
-      pattern: "filldir64"
+      regex: "filldir64"
 
   - id: pid-getattr
     desc: pid_getattr function
@@ -152,7 +152,7 @@ traits:
     for: [elf, c]
     if:
       type: symbol
-      pattern: "pid_getattr"
+      regex: "pid_getattr"
 
   # === Syscall Table Manipulation ===
   - id: sys-call-table
@@ -164,7 +164,7 @@ traits:
     for: [elf, c]
     if:
       type: symbol
-      pattern: "sys_call_table"
+      regex: "sys_call_table"
 
   - id: sys-getpriority
     desc: sys_getpriority syscall
@@ -173,7 +173,7 @@ traits:
     for: [elf, c]
     if:
       type: symbol
-      pattern: "sys_getpriority"
+      regex: "sys_getpriority"
 
   - id: sys-getdents
     desc: sys_getdents syscall
@@ -182,7 +182,7 @@ traits:
     for: [elf, c]
     if:
       type: symbol
-      pattern: "sys_getdents"
+      regex: "sys_getdents"
 
   - id: sys-getdents64
     desc: sys_getdents64 syscall
@@ -191,7 +191,7 @@ traits:
     for: [elf, c]
     if:
       type: symbol
-      pattern: "sys_getdents64"
+      regex: "sys_getdents64"
 
   - id: sys-kill
     desc: sys_kill syscall
@@ -200,7 +200,7 @@ traits:
     for: [elf, c]
     if:
       type: symbol
-      pattern: "sys_kill"
+      regex: "sys_kill"
 
   - id: orig-cr0
     desc: orig_cr0 CR0 register backup
@@ -220,7 +220,7 @@ traits:
     for: [elf, c]
     if:
       type: symbol
-      pattern: "write_cr0"
+      regex: "write_cr0"
 
   - id: native-write-cr0
     desc: native_write_cr0 function
@@ -230,7 +230,7 @@ traits:
     for: [elf, c]
     if:
       type: symbol
-      pattern: "native_write_cr0"
+      regex: "native_write_cr0"
 
   # === Kernel Module Markers ===
   - id: init-module
@@ -239,7 +239,7 @@ traits:
     conf: 0.5
     if:
       type: symbol
-      pattern: "init_module"
+      regex: "init_module"
 
   - id: cleanup-module
     desc: cleanup_module exit point
@@ -247,7 +247,7 @@ traits:
     conf: 0.5
     if:
       type: symbol
-      pattern: "cleanup_module"
+      regex: "cleanup_module"
 
   - id: this-module
     desc: __this_module reference
@@ -289,7 +289,7 @@ traits:
     mbc: "F0015"
     if:
       type: symbol
-      pattern: "nf_register_hook"
+      regex: "nf_register_hook"
 
   - id: nf-register-net-hook
     desc: nf_register_net_hook function
@@ -298,7 +298,7 @@ traits:
     mbc: "F0015"
     if:
       type: symbol
-      pattern: "nf_register_net_hook"
+      regex: "nf_register_net_hook"
 
   - id: nf-unregister-hook
     desc: nf_unregister_hook function
@@ -306,7 +306,7 @@ traits:
     conf: 0.8
     if:
       type: symbol
-      pattern: "nf_unregister_hook"
+      regex: "nf_unregister_hook"
 
   - id: nf-hookfn
     desc: nf_hookfn callback type
@@ -340,7 +340,7 @@ traits:
     for: [elf, c]
     if:
       type: symbol
-      pattern: "vfs_read"
+      regex: "vfs_read"
 
   - id: vfs-write
     desc: vfs_write function
@@ -349,7 +349,7 @@ traits:
     for: [elf, c]
     if:
       type: symbol
-      pattern: "vfs_write"
+      regex: "vfs_write"
 
   - id: vfs-readdir
     desc: vfs_readdir function
@@ -358,7 +358,7 @@ traits:
     for: [elf, c]
     if:
       type: symbol
-      pattern: "vfs_readdir"
+      regex: "vfs_readdir"
 
   - id: iterate-dir
     desc: iterate_dir function
@@ -367,7 +367,7 @@ traits:
     for: [elf, c]
     if:
       type: symbol
-      pattern: "iterate_dir"
+      regex: "iterate_dir"
 
   - id: file-operations
     desc: file_operations struct

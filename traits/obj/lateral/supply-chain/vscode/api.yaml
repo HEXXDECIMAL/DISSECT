@@ -1,174 +1,174 @@
 traits:
   # VSCode Extension API Usage
   - id: workspace-findFiles
-    description: VSCode workspace.findFiles API call (file
+    desc: VSCode workspace.findFiles API call (file
     crit: notable
-    confidence: 0.85
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.85
+    r#for: [javascript, typescript]
+    if:
       type: ast
       kind: call
       exact: "workspace.findFiles"
 
   - id: fs-readFile
-    description: VSCode workspace.fs.readFile API call (file
+    desc: VSCode workspace.fs.readFile API call (file
     crit: notable
-    confidence: 0.85
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.85
+    r#for: [javascript, typescript]
+    if:
       type: ast
       kind: call
       exact: "workspace.fs.readFile"
 
   - id: openTextDocument
-    description: VSCode workspace.openTextDocument API call
+    desc: VSCode workspace.openTextDocument API call
     crit: notable
-    confidence: 0.8
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.8
+    r#for: [javascript, typescript]
+    if:
       type: ast
       kind: call
       exact: "openTextDocument"
 
   - id: globalState
-    description: VSCode extension globalState access
+    desc: VSCode extension globalState access
     crit: notable
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.7
+    r#for: [javascript, typescript]
+    if:
       type: string
       exact: "globalState"
 
   # === Extension Activation atomic indicators ===
   - id: function-activate
-    description: function activate definition
+    desc: function activate definition
     crit: inert
-    confidence: 0.9
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.9
+    r#for: [javascript, typescript]
+    if:
       type: string
       exact: "function activate"
 
   - id: async-function-activate
-    description: async function activate definition
+    desc: async function activate definition
     crit: inert
-    confidence: 0.9
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.9
+    r#for: [javascript, typescript]
+    if:
       type: string
       exact: "async function activate"
 
   - id: export-activate
-    description: export activate pattern
+    desc: export activate pattern
     crit: inert
-    confidence: 0.9
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.9
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "export.{0,30}activate"
 
   # === Extension Deactivation atomic indicators ===
   - id: function-deactivate
-    description: function deactivate definition
+    desc: function deactivate definition
     crit: inert
-    confidence: 0.9
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.9
+    r#for: [javascript, typescript]
+    if:
       type: string
       exact: "function deactivate"
 
   - id: export-deactivate
-    description: export deactivate pattern
+    desc: export deactivate pattern
     crit: inert
-    confidence: 0.9
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.9
+    r#for: [javascript, typescript]
+    if:
       type: string
       regex: "export.{0,30}deactivate"
 
   # === VSCode context atomic indicators ===
   - id: vscode-commands
-    description: vscode.commands reference
+    desc: vscode.commands reference
     crit: inert
-    confidence: 0.9
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.9
+    r#for: [javascript, typescript]
+    if:
       type: string
       exact: "vscode.commands"
 
   - id: vscode-window
-    description: vscode.window reference
+    desc: vscode.window reference
     crit: inert
-    confidence: 0.9
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.9
+    r#for: [javascript, typescript]
+    if:
       type: string
       exact: "vscode.window"
 
   - id: vscode-workspace
-    description: vscode.workspace reference
+    desc: vscode.workspace reference
     crit: inert
-    confidence: 0.9
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.9
+    r#for: [javascript, typescript]
+    if:
       type: string
       exact: "vscode.workspace"
 
   - id: vscode-extensions
-    description: vscode.extensions reference
+    desc: vscode.extensions reference
     crit: inert
-    confidence: 0.9
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.9
+    r#for: [javascript, typescript]
+    if:
       type: string
       exact: "vscode.extensions"
 
   # === process.env atomic indicator ===
   - id: process-env
-    description: process.env reference
+    desc: process.env reference
     crit: inert
-    confidence: 0.6
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.6
+    r#for: [javascript, typescript]
+    if:
       type: string
       exact: "process.env"
 
   - id: clipboard-write
-    description: VSCode clipboard write access
+    desc: VSCode clipboard write access
     crit: notable
-    confidence: 0.8
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.8
+    r#for: [javascript, typescript]
+    if:
       type: ast
       kind: call
       exact: "clipboard.writeText"
 
   - id: clipboard-read
-    description: VSCode clipboard read access
+    desc: VSCode clipboard read access
     crit: notable
-    confidence: 0.8
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.8
+    r#for: [javascript, typescript]
+    if:
       type: ast
       kind: call
       exact: "clipboard.readText"
 
   - id: telemetry-event
-    description: VSCode telemetry event sending
+    desc: VSCode telemetry event sending
     crit: notable
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.7
+    r#for: [javascript, typescript]
+    if:
       type: string
       exact: "sendTelemetryEvent"
 
 composite_rules:
   # VSCode context helpers
   - id: vscode-context
-    description: VSCode API context markers
+    desc: VSCode API context markers
     crit: notable
-    confidence: 0.9
-    file_types: [javascript, typescript]
+    conf: 0.9
+    r#for: [javascript, typescript]
     count_min: 1
     any:
       - id: vscode-commands
@@ -179,10 +179,10 @@ composite_rules:
 
   # HTTP helpers
   - id: http-request-libs
-    description: HTTP request libraries
+    desc: HTTP request libraries
     crit: notable
-    confidence: 0.7
-    file_types: [javascript, typescript]
+    conf: 0.7
+    r#for: [javascript, typescript]
     count_min: 1
     any:
       - id: cap/comm/http/request/javascript/https-request
@@ -194,12 +194,12 @@ composite_rules:
   # Suspicious VSCode Extension Behaviors
   # IMPORTANT: Requires VSCode markers to avoid FPs on regular npm packages
   - id: env-access
-    description: Access to process.env in VSCode
+    desc: Access to process.env in VSCode
     crit: suspicious
-    confidence: 0.85
+    conf: 0.85
     mbc: "E1592"
     attack: "T1082"
-    file_types: [javascript, typescript]
+    r#for: [javascript, typescript]
     all:
       - id: vscode-context
       - id: process-env
@@ -207,20 +207,20 @@ composite_rules:
   # Telemetry/Exfiltration Patterns
   # IMPORTANT: Requires VSCode markers to avoid FPs on regular npm packages
   - id: external-request
-    description: HTTP request in VSCode extension
+    desc: HTTP request in VSCode extension
     crit: suspicious
-    confidence: 0.7
-    file_types: [javascript, typescript]
+    conf: 0.7
+    r#for: [javascript, typescript]
     all:
       - id: vscode-context
       - id: http-request-libs
 
   # Activate composite
   - id: activate
-    description: VSCode extension activate function
+    desc: VSCode extension activate function
     crit: inert
-    confidence: 1.0
-    file_types: [javascript, typescript]
+    conf: 1.0
+    r#for: [javascript, typescript]
     count_min: 1
     any:
       - id: function-activate
@@ -229,10 +229,10 @@ composite_rules:
 
   # Deactivate composite
   - id: deactivate
-    description: VSCode extension deactivate function
+    desc: VSCode extension deactivate function
     crit: inert
-    confidence: 1.0
-    file_types: [javascript, typescript]
+    conf: 1.0
+    r#for: [javascript, typescript]
     count_min: 1
     any:
       - id: function-deactivate

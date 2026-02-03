@@ -4,7 +4,7 @@
 
 traits:
   - id: hardware-nvidia
-    description: Access NVIDIA GPU information via
+    desc: Access NVIDIA GPU information via
     crit: inert
     conf: 0.66
     if:

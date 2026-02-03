@@ -4,7 +4,7 @@
 
 traits:
   - id: mounts
-    description: Parse active mounts from /proc/mounts
+    desc: Parse active mounts from /proc/mounts
     crit: inert
     conf: 0.66
     if:
@@ -12,7 +12,7 @@ traits:
       exact: /proc/mounts
 
   - id: mounts-mountinfo
-    description: Read mount info from /proc/self/mountinfo
+    desc: Read mount info from /proc/self/mountinfo
     crit: inert
     conf: 0.66
     if:

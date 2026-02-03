@@ -3,34 +3,34 @@
 
 traits:
   - id: mprotect
-    description: Change memory protection (mprotect)
+    desc: Change memory protection (mprotect)
     crit: inert
-    confidence: 1.0
+    conf: 1.0
     attack: "T1055"
     platforms: [linux, macos, unix]
-    file_types: [elf, macho, so, dylib, c]
-    condition:
+    r#for: [elf, macho, so, dylib, c]
+    if:
       type: symbol
-      pattern: "^_?mprotect$"
+      regex: "^_?mprotect$"
 
   - id: mprotect-string
-    description: mprotect reference in source/script
+    desc: mprotect reference in source/script
     crit: notable
-    confidence: 0.7
+    conf: 0.7
     attack: "T1055"
     platforms: [linux, macos, unix]
-    file_types: [python, shell, c]
-    condition:
+    r#for: [python, shell, c]
+    if:
       type: string
       exact: "mprotect"
 
   - id: rwx-prot-bytes
-    description: RWX protection bytes (PROT_READ|WRITE|EXEC =
+    desc: RWX protection bytes (PROT_READ|WRITE|EXEC =
     crit: inert
-    confidence: 0.6
+    conf: 0.6
     attack: "T1055"
     platforms: [linux, macos, unix]
-    file_types: [elf, macho, so, dylib]
-    condition:
+    r#for: [elf, macho, so, dylib]
+    if:
       type: hex
       pattern: "07 00 00 00"

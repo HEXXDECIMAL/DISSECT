@@ -3,34 +3,34 @@
 
 traits:
   - id: mmap-symbol
-    description: mmap memory mapping function
+    desc: mmap memory mapping function
     crit: inert
-    confidence: 0.5
+    conf: 0.5
     platforms: [linux, macos, unix]
-    file_types: [elf, macho]
-    condition:
+    r#for: [elf, macho]
+    if:
       type: symbol
       exact: "mmap"
 
   - id: prot-exec-const
-    description: PROT_EXEC memory protection constant
+    desc: PROT_EXEC memory protection constant
     crit: inert
-    confidence: 0.6
+    conf: 0.6
     platforms: [linux, macos, unix]
-    file_types: [elf, macho]
-    condition:
+    r#for: [elf, macho]
+    if:
       type: string
       exact: "PROT_EXEC"
 
 # === Composite Rules ===
 composite_rules:
   - id: mmap-exec
-    description: Memory mapping with execute permission
+    desc: Memory mapping with execute permission
     crit: suspicious
     conf: 0.75
     attack: "T1055"
     platforms: [linux, macos, unix]
-    file_types: [elf, macho]
+    r#for: [elf, macho]
     all:
       - id: mmap-symbol
       - id: prot-exec-const

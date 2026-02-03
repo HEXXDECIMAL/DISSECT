@@ -5,7 +5,7 @@
 # MBC: B0024 (Dropper)
 
 defaults:
-  file_types: [python]
+  r#for: [python]
   mbc: "B0024"
   attack: "T1195.002"
 

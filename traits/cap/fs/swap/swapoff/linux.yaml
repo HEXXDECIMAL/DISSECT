@@ -4,10 +4,10 @@
 
 traits:
   - id: swapoff
-    description: Stop swapping to a file/device
+    desc: Stop swapping to a file/device
     crit: notable
     conf: 0.66
     for: [elf, so, c]
     if:
       type: symbol
-      pattern: swapoff
+      regex: swapoff

@@ -7,15 +7,15 @@ defaults:
 
 traits:
   - id: directory-create
-    description: Create temporary directory
+    desc: Create temporary directory
     crit: inert
     conf: 0.66
     if:
       type: symbol
-      pattern: mkdtemp
+      regex: mkdtemp
 
   - id: tmpdir-env-var
-    description: TMPDIR environment variable name
+    desc: TMPDIR environment variable name
     crit: inert
     conf: 0.7
     if:
@@ -24,7 +24,7 @@ traits:
 
 composite_rules:
   - id: directory-env
-    description: Read temp directory from TMPDIR
+    desc: Read temp directory from TMPDIR
     crit: inert
     conf: 0.66
     for: [elf, macho, so, dylib, c]

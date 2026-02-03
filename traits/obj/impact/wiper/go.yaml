@@ -8,10 +8,10 @@ defaults:
 traits:
   # Overwrite and remove pattern (Secure Wipe)
   - id: secure-wipe-pattern
-    description: Opens file for read-write and
+    desc: Opens file for read-write and
     crit: notable
     conf: 0.8
-    condition:
+    if:
       type: yara
       source: |
         rule go_secure_wipe {
@@ -25,10 +25,10 @@ traits:
 
   # Known Wiper Standards
   - id: standards-reference
-    description: References to secure wiping standards
+    desc: References to secure wiping standards
     crit: notable
     conf: 0.9
-    condition:
+    if:
       type: yara
       source: |
         rule wiper_standards {
@@ -43,10 +43,10 @@ traits:
 
   # Specific overwriting patterns (Gutmann)
   - id: gutmann-patterns
-    description: Uses Gutmann secure deletion overwrite
+    desc: Uses Gutmann secure deletion overwrite
     crit: notable
     conf: 0.95
-    condition:
+    if:
       type: yara
       source: |
         rule gutmann_patterns {
@@ -70,10 +70,10 @@ traits:
 
   # Mass file destruction (Go)
   - id: mass-destruction
-    description: Recursively walks filesystem and deletes/overwrites
+    desc: Recursively walks filesystem and deletes/overwrites
     crit: suspicious
     conf: 0.85
-    condition:
+    if:
       type: yara
       source: |
         rule go_mass_destruction {
@@ -89,7 +89,7 @@ traits:
 composite_rules:
   # Secure wiper detection
   - id: secure-wiper
-    description: Highly confident secure wiper (recursive
+    desc: Highly confident secure wiper (recursive
     crit: suspicious
     conf: 0.99
     mbc: "B0031"

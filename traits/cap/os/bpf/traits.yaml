@@ -183,7 +183,7 @@ traits:
     if:
       type: symbol
       # Match actual pcap API functions, not just the prefix
-      pattern: "pcap_(?:open_live|compile|setfilter|loop|next|close|findalldevs|lookupdev)"
+      regex: "pcap_(?:open_live|compile|setfilter|loop|next|close|findalldevs|lookupdev)"
 
   - id: recvfrom-fn
     desc: recvfrom function
@@ -192,7 +192,7 @@ traits:
     for: [elf, c]
     if:
       type: symbol
-      pattern: "recvfrom"
+      regex: "recvfrom"
 
   # NOTE: dup2 and execve are defined in their canonical locations:
   # - cap/process/fd/dup2
@@ -438,7 +438,7 @@ traits:
     conf: 0.8
     if:
       type: symbol
-      pattern: "bpf_probe_read"
+      regex: "bpf_probe_read"
 
   # eBPF user memory read - used for data exfiltration
   - id: bpf-core-read-user

@@ -4,95 +4,95 @@
 traits:
   # Cloudflare Turnstile patterns
   - id: verify-human-text
-    description: Text prompting user to verify
+    desc: Text prompting user to verify
     crit: inert
-    confidence: 0.5
-    file_types: [javascript, typescript, html]
-    condition:
+    conf: 0.5
+    r#for: [javascript, typescript, html]
+    if:
       type: string
       exact: 'Verify you are human'
       case_insensitive: true
 
   - id: completing-action-text
-    description: Text about completing action below
+    desc: Text about completing action below
     crit: inert
-    confidence: 0.4
-    file_types: [javascript, typescript, html]
-    condition:
+    conf: 0.4
+    r#for: [javascript, typescript, html]
+    if:
       type: string
       exact: 'completing the action below'
 
   - id: cloudflare-turnstile-url
-    description: Reference to Cloudflare Turnstile product
+    desc: Reference to Cloudflare Turnstile product
     crit: inert
-    confidence: 0.6
-    file_types: [javascript, typescript, html]
-    condition:
+    conf: 0.6
+    r#for: [javascript, typescript, html]
+    if:
       type: string
       exact: 'cloudflare.com/products/turnstile'
 
   - id: success-text
-    description: Success message text
+    desc: Success message text
     crit: inert
-    confidence: 0.3
-    file_types: [javascript, typescript, html]
-    condition:
+    conf: 0.3
+    r#for: [javascript, typescript, html]
+    if:
       type: string
       exact: 'Success!'
 
   - id: verifying-text
-    description: Verifying progress text
+    desc: Verifying progress text
     crit: inert
-    confidence: 0.3
-    file_types: [javascript, typescript, html]
-    condition:
+    conf: 0.3
+    r#for: [javascript, typescript, html]
+    if:
       type: string
       exact: 'Verifying...'
 
   - id: spinner-i-element
-    description: Spinner UI element identifier
+    desc: Spinner UI element identifier
     crit: inert
-    confidence: 0.4
-    file_types: [javascript, typescript, html]
-    condition:
+    conf: 0.4
+    r#for: [javascript, typescript, html]
+    if:
       type: string
       exact: 'spinner-i'
 
   - id: vfclick-element
-    description: Verification click element identifier
+    desc: Verification click element identifier
     crit: inert
-    confidence: 0.5
-    file_types: [javascript, typescript, html]
-    condition:
+    conf: 0.5
+    r#for: [javascript, typescript, html]
+    if:
       type: string
       exact: 'vfclick'
 
   # reCAPTCHA patterns
   - id: not-a-robot-text
-    description: reCAPTCHA "I'm not a robot"
+    desc: reCAPTCHA "I'm not a robot"
     crit: inert
-    confidence: 0.6
-    file_types: [javascript, typescript, html]
-    condition:
+    conf: 0.6
+    r#for: [javascript, typescript, html]
+    if:
       type: string
       exact: "I'm not a robot"
       case_insensitive: true
 
   - id: recaptcha-checkbox-element
-    description: reCAPTCHA checkbox element identifier
+    desc: reCAPTCHA checkbox element identifier
     crit: inert
-    confidence: 0.6
-    file_types: [javascript, typescript, html]
-    condition:
+    conf: 0.6
+    r#for: [javascript, typescript, html]
+    if:
       type: string
       exact: 'recaptcha-checkbox'
 
   - id: google-recaptcha-url
-    description: Reference to Google reCAPTCHA URL
+    desc: Reference to Google reCAPTCHA URL
     crit: inert
-    confidence: 0.6
-    file_types: [javascript, typescript, html]
-    condition:
+    conf: 0.6
+    r#for: [javascript, typescript, html]
+    if:
       type: string
       exact: 'google.com/recaptcha'
 
@@ -100,20 +100,20 @@ traits:
 composite_rules:
   # Cloudflare Turnstile UI elements
   - id: turnstile-ui-elements
-    description: Cloudflare Turnstile UI elements present
+    desc: Cloudflare Turnstile UI elements present
     crit: inert
     conf: 0.6
-    file_types: [javascript, typescript, html]
+    r#for: [javascript, typescript, html]
     any:
       - id: spinner-i-element
       - id: vfclick-element
 
   # Core Turnstile text patterns
   - id: turnstile-text-patterns
-    description: Multiple Turnstile verification text patterns
+    desc: Multiple Turnstile verification text patterns
     crit: notable
     conf: 0.7
-    file_types: [javascript, typescript, html]
+    r#for: [javascript, typescript, html]
     count_min: 3
     any:
       - id: verify-human-text
@@ -124,33 +124,33 @@ composite_rules:
 
   # Helper: verify human text + UI elements
   - id: turnstile-verify-with-ui
-    description: Verify human text with UI
+    desc: Verify human text with UI
     crit: notable
     conf: 0.8
-    file_types: [javascript, typescript, html]
+    r#for: [javascript, typescript, html]
     all:
       - id: verify-human-text
       - id: turnstile-ui-elements
   # Fake Cloudflare Turnstile
   - id: cloudflare-turnstile
-    description: Fake Cloudflare Turnstile implementation (social
+    desc: Fake Cloudflare Turnstile implementation (social
     crit: suspicious
     conf: 0.95
     mbc: "B0021"
     attack: "T1204.001"
-    file_types: [javascript, typescript, html]
+    r#for: [javascript, typescript, html]
     any:
       - id: turnstile-text-patterns
       - id: turnstile-verify-with-ui
 
   # Fake Google reCAPTCHA
   - id: recaptcha
-    description: Fake Google reCAPTCHA implementation
+    desc: Fake Google reCAPTCHA implementation
     crit: suspicious
     conf: 0.9
     mbc: "B0021"
     attack: "T1204.001"
-    file_types: [javascript, typescript, html]
+    r#for: [javascript, typescript, html]
     all:
       - id: not-a-robot-text
       - id: recaptcha-checkbox-element

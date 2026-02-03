@@ -5,228 +5,228 @@
 traits:
   # Mirai credential indicators - individual strings are suspicious
   - id: mirai-cred-admin
-    description: Mirai credential variant (7ujMko0admin)
+    desc: Mirai credential variant (7ujMko0admin)
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       exact: "7ujMko0admin"
 
   - id: mirai-cred-vizxv
-    description: Mirai credential variant (7ujMko0vizxv)
+    desc: Mirai credential variant (7ujMko0vizxv)
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       exact: "7ujMko0vizxv"
 
   - id: mirai-cred-juantech
-    description: Mirai credential variant (juantech)
+    desc: Mirai credential variant (juantech)
     crit: suspicious
-    confidence: 0.75
+    conf: 0.75
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       exact: "juantech"
 
   - id: mirai-cred-xc3511
-    description: Mirai credential variant (xc3511)
+    desc: Mirai credential variant (xc3511)
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       exact: "xc3511"
 
   - id: mirai-cred-jvbzd
-    description: Mirai credential variant (jvbzd)
+    desc: Mirai credential variant (jvbzd)
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       exact: "jvbzd"
 
   - id: mirai-cred-smcadmin
-    description: Mirai credential variant (smcadmin)
+    desc: Mirai credential variant (smcadmin)
     crit: suspicious
-    confidence: 0.75
+    conf: 0.75
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       exact: "smcadmin"
 
   - id: mirai-cred-gm8182
-    description: Mirai credential variant (GM8182)
+    desc: Mirai credential variant (GM8182)
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       exact: "GM8182"
 
   - id: mirai-cred-oelinux
-    description: Mirai credential variant (oelinux123)
+    desc: Mirai credential variant (oelinux123)
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       exact: "oelinux123"
 
   - id: mirai-cred-hi3518
-    description: Mirai credential variant (hi3518)
+    desc: Mirai credential variant (hi3518)
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       exact: "hi3518"
 
   # Dahua/Hikvision camera credentials
   - id: camera-cred-vizxv
-    description: IP camera credential (vizxv)
+    desc: IP camera credential (vizxv)
     crit: suspicious
-    confidence: 0.75
+    conf: 0.75
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       exact: "vizxv"
 
   - id: camera-cred-xmhdipc
-    description: IP camera credential (xmhdipc)
+    desc: IP camera credential (xmhdipc)
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       exact: "xmhdipc"
 
   # Router default credentials
   - id: router-cred-zte
-    description: Router credential (Zte521)
+    desc: Router credential (Zte521)
     crit: suspicious
-    confidence: 0.75
+    conf: 0.75
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       exact: "Zte521"
 
   - id: router-cred-huawei
-    description: Router credential (telecomadmin)
+    desc: Router credential (telecomadmin)
     crit: suspicious
-    confidence: 0.75
+    conf: 0.75
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       exact: "telecomadmin"
 
   # === Telnet bruteforce atomic indicators ===
   - id: telnet-connect-str
-    description: Telnet connect string
+    desc: Telnet connect string
     crit: notable
-    confidence: 0.6
+    conf: 0.6
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       regex: "(?i)telnet connect"
 
   - id: telnet-scanner-str
-    description: Telnet scanner string
+    desc: Telnet scanner string
     crit: notable
-    confidence: 0.6
+    conf: 0.6
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       regex: "(?i)telnet scanner"
 
   - id: telnet-brute-str
-    description: Telnet brute string
+    desc: Telnet brute string
     crit: notable
-    confidence: 0.6
+    conf: 0.6
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       regex: "(?i)telnet brute"
 
   # === BusyBox download atomic indicators ===
   - id: busybox-wget
-    description: BusyBox wget download
+    desc: BusyBox wget download
     crit: notable
-    confidence: 0.7
+    conf: 0.7
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       exact: "busybox wget"
 
   - id: busybox-tftp
-    description: BusyBox tftp download
+    desc: BusyBox tftp download
     crit: notable
-    confidence: 0.7
+    conf: 0.7
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       exact: "busybox tftp"
 
   - id: mirai-cred-prefix
-    description: Mirai credential prefix (7ujMko0)
+    desc: Mirai credential prefix (7ujMko0)
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       exact: "7ujMko0"
 
   - id: telnet-port-scan
-    description: Telnet port 23 scanning indicator
+    desc: Telnet port 23 scanning indicator
     crit: suspicious
-    confidence: 0.75
+    conf: 0.75
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       regex: "port 23 open"
       case_insensitive: true
 
   - id: router-shell-enable
-    description: Router shell enable sequence
+    desc: Router shell enable sequence
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     attack: "T1110.001"
-    file_types: [elf]
-    condition:
+    r#for: [elf]
+    if:
       type: string
       exact: "enable\nshell\nsh"
 
 composite_rules:
   # Telnet bruteforce composite
   - id: telnet-connect
-    description: Telnet connection string
+    desc: Telnet connection string
     crit: suspicious
-    confidence: 0.7
+    conf: 0.7
     attack: "T1110.001"
-    file_types: [elf]
+    r#for: [elf]
     count_min: 1
     any:
       - id: telnet-connect-str
@@ -235,11 +235,11 @@ composite_rules:
 
   # BusyBox download composite
   - id: busybox-download
-    description: BusyBox download exploitation
+    desc: BusyBox download exploitation
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     attack: "T1110.001"
-    file_types: [elf]
+    r#for: [elf]
     count_min: 1
     any:
       - id: busybox-wget
@@ -247,12 +247,12 @@ composite_rules:
 
   # Mirai default credentials - requires 3+ credential strings
   - id: mirai-creds
-    description: Mirai botnet default credential list
+    desc: Mirai botnet default credential list
     crit: hostile
-    confidence: 0.95
+    conf: 0.95
     attack: "T1110.001"
     mbc: "E1017"
-    file_types: [elf]
+    r#for: [elf]
     count_min: 3
     any:
       - id: mirai-cred-admin

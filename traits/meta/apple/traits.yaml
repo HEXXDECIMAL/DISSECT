@@ -128,7 +128,7 @@ traits:
     conf: 0.6
     if:
       type: symbol
-      pattern: "dispatch_queue_create"
+      regex: "dispatch_queue_create"
 
   - id: dispatch-get-global-queue
     desc: dispatch_get_global_queue symbol
@@ -136,7 +136,7 @@ traits:
     conf: 0.6
     if:
       type: symbol
-      pattern: "dispatch_get_global_queue"
+      regex: "dispatch_get_global_queue"
 
   # === Dispatch async atomic indicators ===
   - id: dispatch-async-symbol
@@ -145,7 +145,7 @@ traits:
     conf: 0.6
     if:
       type: symbol
-      pattern: "dispatch_async"
+      regex: "dispatch_async"
 
   - id: dispatch-sync-symbol
     desc: dispatch_sync symbol
@@ -153,14 +153,14 @@ traits:
     conf: 0.6
     if:
       type: symbol
-      pattern: "dispatch_sync"
+      regex: "dispatch_sync"
 
   - id: dispatch-source
     desc: Grand Central Dispatch source (event
     conf: 0.85
     if:
       type: symbol
-      pattern: "dispatch_source_create"
+      regex: "dispatch_source_create"
 
 composite_rules:
   - id: ad-framework

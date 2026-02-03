@@ -12,7 +12,7 @@ traits:
     conf: 0.3
     if:
       type: symbol
-      pattern: "getenv"
+      regex: "getenv"
     # Reading env vars is completely normal for system libs, video drivers, etc.
     downgrade:
       any:
@@ -26,7 +26,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "setenv"
+      regex: "setenv"
 
   - id: putenv
     desc: putenv function (modify environment variable)
@@ -34,7 +34,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "putenv"
+      regex: "putenv"
 
   - id: unsetenv
     desc: unsetenv function (remove environment variable)
@@ -42,7 +42,7 @@ traits:
     conf: 0.4
     if:
       type: symbol
-      pattern: "unsetenv"
+      regex: "unsetenv"
 
   - id: environ-global
     desc: environ global variable access
@@ -50,7 +50,7 @@ traits:
     conf: 0.3
     if:
       type: symbol
-      pattern: "environ"
+      regex: "environ"
 
 composite_rules:
   - id: env-access

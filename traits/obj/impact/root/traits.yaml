@@ -4,7 +4,7 @@
 traits:
   # Become Root Pattern (AST Structural)
   - id: credential-manipulation
-    description: Structural pattern of resetting multiple
+    desc: Structural pattern of resetting multiple
     crit: suspicious
     conf: 0.99
     attack: "T1068"
@@ -22,7 +22,7 @@ traits:
          (#match? @field "^(uid|gid|euid|egid|suid|sgid|fsuid|fsgid|val)$"))
 
   - id: prepare-creds-string
-    description: "Reference to prepare_creds kernel function"
+    desc: "Reference to prepare_creds kernel function"
     crit: notable
     conf: 0.8
     for: [c]
@@ -34,7 +34,7 @@ traits:
 composite_rules:
   # Dummy Test Rule
   - id: test-dummy-rule
-    description: "Dummy test rule for validation"
+    desc: "Dummy test rule for validation"
     crit: suspicious
     conf: 1.0
     all:
@@ -42,7 +42,7 @@ composite_rules:
 
   # Become Root Flow
   - id: my-become-root
-    description: Complete 'become root' flow (prepare_creds
+    desc: Complete 'become root' flow (prepare_creds
     crit: suspicious
     conf: 1.0
     attack: "T1068"

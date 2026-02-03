@@ -4,7 +4,7 @@
 # ATT&CK: T1219 (Remote Access Software), T1059.007 (Command and Scripting Interpreter: JavaScript)
 
 defaults:
-  file_types: [javascript]
+  r#for: [javascript]
 
 traits:
   # === Runtime Dependency Installation (Evasion) ===
@@ -44,7 +44,7 @@ traits:
     attack: "T1574.007"
     if:
       type: symbol
-      pattern: 'module\\.paths\\.push'
+      regex: 'module\\.paths\\.push'
 
   - id: hidden-node-modules
     desc: Hidden .node_modules directory in home
@@ -83,7 +83,7 @@ traits:
     attack: "T1082"
     if:
       type: symbol
-      pattern: '.{0,50}\\.hostname'
+      regex: '.{0,50}\\.hostname'
     all_strings:
       - "$"
 
@@ -101,7 +101,7 @@ traits:
     conf: 0.6
     if:
       type: symbol
-      pattern: 'process\\.pid'
+      regex: 'process\\.pid'
 
   # === Dependency Resolution Check (Evasion) ===
 
@@ -128,7 +128,7 @@ composite_rules:
     conf: 0.95
     attack: "T1027.009"
     mbc: "E1027"
-    file_types: [javascript]  # +1 complexity
+    r#for: [javascript]  # +1 complexity
     all:  # +3 complexity
       - id: npm-install-runtime-exec
       - id: cap/exec/eval/invoke/shell-eval
@@ -141,7 +141,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1574.007"
-    file_types: [javascript]  # +1
+    r#for: [javascript]  # +1
     all:  # +2
       - id: module-paths-push
       - id: hidden-node-modules
@@ -154,7 +154,7 @@ composite_rules:
     conf: 0.95
     attack: "T1219"
     mbc: "B0022"
-    file_types: [javascript]  # +1
+    r#for: [javascript]  # +1
     all:  # +3
       - id: socket-command-handler
       - id: obj/c2/network/http-listener/socket-io
@@ -167,7 +167,7 @@ composite_rules:
     crit: hostile
     conf: 0.95
     attack: "T1219"
-    file_types: [javascript]  # +1
+    r#for: [javascript]  # +1
     all:  # +2
       - id: runtime-npm-install
       - id: module-path-tampering
@@ -182,7 +182,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1082"
-    file_types: [javascript]  # +1
+    r#for: [javascript]  # +1
     all:  # +2
       - id: hostname-username-concatenation
       - id: client-uuid-pattern

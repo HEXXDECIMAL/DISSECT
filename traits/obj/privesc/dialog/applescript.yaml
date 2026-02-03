@@ -4,7 +4,7 @@
 
 defaults:
   # osascript can be invoked from any language: python subprocess, ruby system(), etc.
-  file_types: [applescript, shell, python, ruby, perl, javascript, elf, macho]
+  r#for: [applescript, shell, python, ruby, perl, javascript, elf, macho]
   platforms: [macos]
   attack: "T1548.004"
 
@@ -13,18 +13,18 @@ traits:
   # Admin Privilege Requests
   # ============================================
   - id: admin-privileges
-    description: "Requests administrator privileges"
+    desc: "Requests administrator privileges"
     crit: suspicious
-    confidence: 0.9
-    condition:
+    conf: 0.9
+    if:
       type: string
       exact: "administrator privileges"
 
   - id: with-admin-privileges
-    description: "do shell script with admin"
+    desc: "do shell script with admin"
     crit: suspicious
-    confidence: 0.9
-    condition:
+    conf: 0.9
+    if:
       type: string
       exact: "with administrator privileges"
 
@@ -32,18 +32,18 @@ traits:
   # Sudo/Root Patterns
   # ============================================
   - id: sudo-in-script
-    description: "Uses sudo in shell script"
+    desc: "Uses sudo in shell script"
     crit: suspicious
-    confidence: 0.85
-    condition:
+    conf: 0.85
+    if:
       type: string
       regex: "do shell script.{0,100}sudo"
 
   - id: run-as-root
-    description: "Attempts to run as root"
+    desc: "Attempts to run as root"
     crit: notable
-    confidence: 0.85
-    condition:
+    conf: 0.85
+    if:
       type: string
       regex: "(?i)run.{0,30}as.{0,30}root"
 
@@ -52,9 +52,9 @@ composite_rules:
   # Admin Privilege Escalation
   # ============================================
   - id: admin-privesc
-    description: "AppleScript admin privilege escalation"
+    desc: "AppleScript admin privilege escalation"
     crit: suspicious
-    confidence: 0.9
+    conf: 0.9
     any:
       - { id: admin-privileges }
       - { id: with-admin-privileges }
@@ -63,9 +63,9 @@ composite_rules:
   # Shell with Admin Privileges
   # ============================================
   - id: shell-admin
-    description: "Shell execution with admin privileges"
+    desc: "Shell execution with admin privileges"
     crit: suspicious
-    confidence: 0.9
+    conf: 0.9
     all:
       - { id: obj/anti-analysis/applescript/do-shell-script }
       - { id: with-admin-privileges }

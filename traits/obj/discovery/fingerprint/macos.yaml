@@ -25,7 +25,7 @@ traits:
     for: [macho]
     if:
       type: symbol
-      pattern: "IORegistryEntryFromPath"
+      regex: "IORegistryEntryFromPath"
 
   - id: iokit-registry-property
     desc: "Reads hardware properties from macOS"
@@ -34,7 +34,7 @@ traits:
     for: [macho]
     if:
       type: symbol
-      pattern: "IORegistryEntryCreateCFProperty"
+      regex: "IORegistryEntryCreateCFProperty"
 
   - id: iokit-object-release
     desc: "Releases macOS IOKit registry object"
@@ -43,7 +43,7 @@ traits:
     for: [macho]
     if:
       type: symbol
-      pattern: "IOObjectRelease"
+      regex: "IOObjectRelease"
 
   - id: ioplatformserialnum
     desc: "References Mac hardware serial number"

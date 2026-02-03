@@ -7,9 +7,9 @@ defaults:
 
 traits:
   - id: mktemp
-    description: Create temporary files
+    desc: Create temporary files
     crit: inert
     conf: 0.66
     if:
       type: symbol
-      pattern: mktemp|mkstemp|mkstemps|mkdtemp|tmpfile
+      regex: mktemp|mkstemp|mkstemps|mkdtemp|tmpfile

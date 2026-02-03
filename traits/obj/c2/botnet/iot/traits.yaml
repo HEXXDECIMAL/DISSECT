@@ -134,7 +134,7 @@ traits:
     platforms: [linux]
     if:
       type: symbol
-      pattern: "send\\("
+      regex: "send\\("
 
   - id: sendto-func
     desc: "sendto function"
@@ -144,7 +144,7 @@ traits:
     platforms: [linux]
     if:
       type: symbol
-      pattern: "sendto\\("
+      regex: "sendto\\("
 
   - id: sendfile-func
     desc: "sendfile function"
@@ -154,7 +154,7 @@ traits:
     platforms: [linux]
     if:
       type: symbol
-      pattern: "sendfile\\("
+      regex: "sendfile\\("
 
   - id: tftp-string
     desc: "tftp string"

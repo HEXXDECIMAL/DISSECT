@@ -4,10 +4,10 @@
 traits:
   # Container runtime libraries
   - id: runtime
-    description: Container runtime library usage
+    desc: Container runtime library usage
     crit: benign
-    confidence: 0.9
-    condition:
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule container_runtime {
@@ -25,10 +25,10 @@ traits:
 
   # OCI spec compliance
   - id: oci
-    description: OCI specification compliance
+    desc: OCI specification compliance
     crit: benign
-    confidence: 0.9
-    condition:
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule oci_spec {
@@ -48,10 +48,10 @@ traits:
 
   # Container networking
   - id: network
-    description: Container networking patterns
+    desc: Container networking patterns
     crit: benign
-    confidence: 0.85
-    condition:
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule container_network {
@@ -71,10 +71,10 @@ traits:
 
   # Kubernetes client
   - id: kubernetes
-    description: Kubernetes client library
+    desc: Kubernetes client library
     crit: benign
-    confidence: 0.9
-    condition:
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule k8s_client {

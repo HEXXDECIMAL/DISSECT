@@ -15,4 +15,4 @@ traits:
     attack: "T1622"
     if:
       type: symbol
-      pattern: IsDebuggerPresent|CheckRemoteDebuggerPresent|NtQueryInformationProcess
+      regex: IsDebuggerPresent|CheckRemoteDebuggerPresent|NtQueryInformationProcess

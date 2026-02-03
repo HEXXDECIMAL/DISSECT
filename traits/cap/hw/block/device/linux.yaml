@@ -3,7 +3,7 @@
 
 traits:
   - id: sys-block
-    description: Access block device info via
+    desc: Access block device info via
     crit: suspicious
     conf: 0.75
     attack: "T1082"
@@ -13,7 +13,7 @@ traits:
       regex: "/sys/(dev/)?block"
 
   - id: dev-sd
-    description: Access raw SCSI/SATA block devices
+    desc: Access raw SCSI/SATA block devices
     crit: suspicious
     conf: 0.8
     platforms: [linux]
@@ -22,7 +22,7 @@ traits:
       regex: "/dev/sd[a-z]"
 
   - id: dev-dm
-    description: Access LVM device mapper
+    desc: Access LVM device mapper
     crit: suspicious
     conf: 0.75
     platforms: [linux]
@@ -31,7 +31,7 @@ traits:
       regex: "/dev/dm-\\d"
 
   - id: dev-mapper
-    description: Uses device mapper framework
+    desc: Uses device mapper framework
     crit: notable
     conf: 0.7
     platforms: [linux]

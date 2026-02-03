@@ -1,0 +1,92 @@
+# Code Injection
+# Process injection and shellcode execution
+
+defaults:
+  for: ["pe", "dll"]
+  platforms: ["windows"]
+
+traits:
+  # === Memory Manipulation for Code Execution ===
+  - id: write-process-memory
+    desc: Write memory to target process
+    crit: suspicious
+    conf: 0.95
+    attack: "T1055"
+    mbc: "C0032"
+    if:
+      type: symbol
+      exact: "WriteProcessMemory"
+
+  - id: read-process-memory
+    desc: Read memory from target process
+    crit: suspicious
+    conf: 0.95
+    attack: "T1005"
+    if:
+      type: symbol
+      exact: "ReadProcessMemory"
+
+  - id: create-remote-thread
+    desc: Create thread in target process
+    crit: suspicious
+    conf: 0.98
+    attack: "T1055.001"
+    mbc: "B0013"
+    if:
+      type: symbol
+      exact: "CreateRemoteThread"
+
+  - id: create-remote-thread-ex
+    desc: Extended remote thread creation
+    crit: suspicious
+    conf: 0.98
+    attack: "T1055.001"
+    if:
+      type: symbol
+      exact: "CreateRemoteThreadEx"
+
+  - id: queue-user-apc
+    desc: Queue APC to thread
+    crit: suspicious
+    conf: 0.95
+    attack: "T1055.004"
+    mbc: "B0018"
+    if:
+      type: symbol
+      exact: "QueueUserAPC"
+
+  - id: set-thread-context
+    desc: Modify thread context/registers
+    crit: suspicious
+    conf: 0.95
+    attack: "T1055"
+    if:
+      type: symbol
+      exact: "SetThreadContext"
+
+  - id: get-thread-context
+    desc: Read thread context/registers
+    crit: suspicious
+    conf: 0.90
+    attack: "T1005"
+    if:
+      type: symbol
+      exact: "GetThreadContext"
+
+  - id: suspend-thread
+    desc: Suspend thread execution
+    crit: suspicious
+    conf: 0.90
+    attack: "T1055"
+    if:
+      type: symbol
+      exact: "SuspendThread"
+
+  - id: resume-thread
+    desc: Resume thread execution
+    crit: suspicious
+    conf: 0.90
+    attack: "T1055"
+    if:
+      type: symbol
+      exact: "ResumeThread"

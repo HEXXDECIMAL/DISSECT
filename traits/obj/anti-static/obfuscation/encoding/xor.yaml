@@ -39,7 +39,7 @@ traits:
     conf: 0.8
     if:
       type: symbol
-      pattern: "decrypt_xor"
+      regex: "decrypt_xor"
 
   - id: xor-string-symbol
     desc: xor_string symbol
@@ -47,7 +47,7 @@ traits:
     conf: 0.8
     if:
       type: symbol
-      pattern: "xor_string"
+      regex: "xor_string"
 
   # === Single-byte XOR key atomic indicators ===
   - id: xor-key-0x37
@@ -65,7 +65,7 @@ traits:
     conf: 0.5
     if:
       type: symbol
-      pattern: "decode_table"
+      regex: "decode_table"
 
   - id: table-decode-symbol
     desc: table_decode symbol
@@ -73,7 +73,7 @@ traits:
     conf: 0.5
     if:
       type: symbol
-      pattern: "table_decode"
+      regex: "table_decode"
 
   - id: lookup-decode-symbol
     desc: lookup_decode symbol
@@ -81,7 +81,7 @@ traits:
     conf: 0.5
     if:
       type: symbol
-      pattern: "lookup_decode"
+      regex: "lookup_decode"
 
   # NOTE: "char_map" is extremely common in font libraries (FreeType, HarfBuzz)
   # where it refers to character-to-glyph mappings. Only flag as obfuscation
@@ -95,7 +95,7 @@ traits:
       type: symbol
       # Require explicit obfuscation context - char_map alone is too common
       # Match only when preceded/followed by obfuscation-related terms
-      pattern: "(?:xor|decode|decrypt|obfusc|cipher)[_-]?char_map|char_map[_-]?(?:xor|decode|decrypt|obfusc|cipher)"
+      regex: "(?:xor|decode|decrypt|obfusc|cipher)[_-]?char_map|char_map[_-]?(?:xor|decode|decrypt|obfusc|cipher)"
 
   # === Multi-byte XOR key detection ===
   # NOTE: Generic alphanumeric strings are too common in binaries (identifiers,

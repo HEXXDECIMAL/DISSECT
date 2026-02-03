@@ -15,4 +15,4 @@ traits:
     attack: "T1055"
     if:
       type: symbol
-      pattern: CreateRemoteThread|WriteProcessMemory|VirtualAllocEx|NtWriteVirtualMemory
+      regex: CreateRemoteThread|WriteProcessMemory|VirtualAllocEx|NtWriteVirtualMemory

@@ -1072,7 +1072,7 @@ traits:
 composite_rules:
   # systemd management
   - id: systemctl-commands
-    description: systemctl commands
+    desc: systemctl commands
     for: [shell]
     any:
       - {id: systemctl-status}
@@ -1082,20 +1082,20 @@ composite_rules:
       - {id: systemctl-is-enabled}
 
   - id: systemd-journal-tools
-    description: systemd journal tools
+    desc: systemd journal tools
     for: [shell]
     any:
       - {id: journalctl-command}
       - {id: systemd-journal-ref}
 
   - id: systemd-dbus-api
-    description: systemd D-Bus API usage
+    desc: systemd D-Bus API usage
     all:
       - {id: systemd-dbus-interface}
       - {id: dbus-get-unit}
 
   - id: systemd-management
-    description: Legitimate systemd service management
+    desc: Legitimate systemd service management
     crit: benign
     conf: 0.75
     for: [shell]
@@ -1106,7 +1106,7 @@ composite_rules:
 
   # cron management
   - id: cron-commands
-    description: cron commands and paths
+    desc: cron commands and paths
     for: [shell]
     any:
       - {id: crontab-list}
@@ -1116,7 +1116,7 @@ composite_rules:
       - {id: cron-spool-path}
 
   - id: at-commands
-    description: at scheduling commands
+    desc: at scheduling commands
     for: [shell]
     any:
       - {id: at-command-time}
@@ -1126,7 +1126,7 @@ composite_rules:
       - {id: batch-command}
 
   - id: cron-management
-    description: Legitimate cron job management
+    desc: Legitimate cron job management
     crit: benign
     conf: 0.7
     for: [shell]
@@ -1136,7 +1136,7 @@ composite_rules:
 
   # package management
   - id: package-management
-    description: Legitimate package management operations
+    desc: Legitimate package management operations
     crit: benign
     conf: 0.85
     for: [shell]
@@ -1155,7 +1155,7 @@ composite_rules:
 
   # log management
   - id: log-viewers
-    description: Log viewing commands
+    desc: Log viewing commands
     for: [shell]
     any:
       - {id: tail-follow}
@@ -1163,14 +1163,14 @@ composite_rules:
       - {id: journalctl-command}
 
   - id: log-with-viewer
-    description: Log path with viewing command
+    desc: Log path with viewing command
     for: [shell]
     all:
       - {id: var-log-path}
       - {id: log-viewers}
 
   - id: syslog-tools
-    description: Syslog management tools
+    desc: Syslog management tools
     for: [shell]
     any:
       - {id: syslog-ref}
@@ -1179,7 +1179,7 @@ composite_rules:
       - {id: syslog-ng-ref}
 
   - id: log-management
-    description: Legitimate log file management
+    desc: Legitimate log file management
     crit: benign
     conf: 0.8
     for: [shell]
@@ -1189,7 +1189,7 @@ composite_rules:
 
   # user management
   - id: user-commands
-    description: User account commands
+    desc: User account commands
     for: [shell]
     any:
       - {id: useradd-command}
@@ -1198,21 +1198,21 @@ composite_rules:
       - {id: adduser-command}
 
   - id: group-commands
-    description: Group management commands
+    desc: Group management commands
     for: [shell]
     any:
       - {id: groupadd-command}
       - {id: groupmod-command}
 
   - id: password-commands
-    description: Password management commands
+    desc: Password management commands
     for: [shell]
     any:
       - {id: passwd-command}
       - {id: chpasswd-command}
 
   - id: user-management
-    description: Legitimate user account management
+    desc: Legitimate user account management
     crit: benign
     conf: 0.75
     for: [shell]
@@ -1223,7 +1223,7 @@ composite_rules:
 
   # network configuration
   - id: ip-commands
-    description: ip command usage
+    desc: ip command usage
     for: [shell]
     any:
       - {id: ip-addr-command}
@@ -1231,7 +1231,7 @@ composite_rules:
       - {id: ip-link-command}
 
   - id: ifconfig-commands
-    description: ifconfig-based network commands
+    desc: ifconfig-based network commands
     for: [shell]
     any:
       - {id: ifconfig-command}
@@ -1239,21 +1239,21 @@ composite_rules:
       - {id: ifdown-command}
 
   - id: network-manager-tools
-    description: NetworkManager tools
+    desc: NetworkManager tools
     for: [shell]
     any:
       - {id: nmcli-command}
       - {id: network-manager-ref}
 
   - id: dns-tools
-    description: DNS configuration tools
+    desc: DNS configuration tools
     for: [shell]
     any:
       - {id: resolvconf-command}
       - {id: systemd-resolved-ref}
 
   - id: firewall-tools
-    description: Firewall management tools
+    desc: Firewall management tools
     for: [shell]
     any:
       - {id: iptables-command}
@@ -1261,7 +1261,7 @@ composite_rules:
       - {id: firewalld-service}
 
   - id: network-config
-    description: Legitimate network configuration
+    desc: Legitimate network configuration
     crit: benign
     conf: 0.8
     for: [shell]
@@ -1274,7 +1274,7 @@ composite_rules:
 
   # filesystem operations
   - id: filesystem-ops
-    description: Legitimate filesystem administration
+    desc: Legitimate filesystem administration
     crit: benign
     conf: 0.75
     for: [shell]
@@ -1293,7 +1293,7 @@ composite_rules:
 
   # backup operations
   - id: backup-ops
-    description: Legitimate backup and restore operations
+    desc: Legitimate backup and restore operations
     crit: benign
     conf: 0.85
     for: [shell]
@@ -1311,7 +1311,7 @@ composite_rules:
 
   # process management
   - id: process-management
-    description: Legitimate process management
+    desc: Legitimate process management
     crit: benign
     conf: 0.8
     for: [shell]
@@ -1329,7 +1329,7 @@ composite_rules:
 
   # SSH administration
   - id: ssh-admin
-    description: Legitimate SSH server administration
+    desc: Legitimate SSH server administration
     crit: benign
     conf: 0.8
     for: [shell]
@@ -1345,7 +1345,7 @@ composite_rules:
 
   # container management
   - id: container-management
-    description: Legitimate container management (Docker/Podman/K8s)
+    desc: Legitimate container management (Docker/Podman/K8s)
     crit: benign
     conf: 0.85
     for: [shell]
@@ -1362,7 +1362,7 @@ composite_rules:
 
   # monitoring
   - id: monitoring
-    description: Legitimate system monitoring tools
+    desc: Legitimate system monitoring tools
     crit: benign
     conf: 0.85
     for: [shell]

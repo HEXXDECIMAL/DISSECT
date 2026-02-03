@@ -58,7 +58,7 @@ traits:
     conf: 0.8
     if:
       type: symbol
-      pattern: "deflate"
+      regex: "deflate"
 
   - id: inflate
     desc: inflate function
@@ -66,7 +66,7 @@ traits:
     conf: 0.8
     if:
       type: symbol
-      pattern: "inflate"
+      regex: "inflate"
 
   - id: z-stream
     desc: z_stream type
@@ -99,7 +99,7 @@ traits:
     conf: 0.9
     if:
       type: symbol
-      pattern: "BZ2_bzCompress"
+      regex: "BZ2_bzCompress"
 
   - id: bz2-decompress
     desc: BZ2_bzDecompress function
@@ -107,7 +107,7 @@ traits:
     conf: 0.9
     if:
       type: symbol
-      pattern: "BZ2_bzDecompress"
+      regex: "BZ2_bzDecompress"
 
   - id: libbz2
     desc: libbz2 library
@@ -132,7 +132,7 @@ traits:
     conf: 0.9
     if:
       type: symbol
-      pattern: "ZSTD_compress"
+      regex: "ZSTD_compress"
 
   - id: zstd-decompress
     desc: ZSTD_decompress function
@@ -140,7 +140,7 @@ traits:
     conf: 0.9
     if:
       type: symbol
-      pattern: "ZSTD_decompress"
+      regex: "ZSTD_decompress"
 
   - id: zstd-cctx
     desc: ZSTD_CCtx type
@@ -165,7 +165,7 @@ traits:
     conf: 0.9
     if:
       type: symbol
-      pattern: "LZ4_compress"
+      regex: "LZ4_compress"
 
   - id: lz4-decompress
     desc: LZ4_decompress function
@@ -173,7 +173,7 @@ traits:
     conf: 0.9
     if:
       type: symbol
-      pattern: "LZ4_decompress"
+      regex: "LZ4_decompress"
 
   - id: liblz4
     desc: liblz4 library

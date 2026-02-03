@@ -3,7 +3,7 @@
 
 traits:
   - id: forkbomb
-    description: Fork bomb pattern
+    desc: Fork bomb pattern
     crit: suspicious
     conf: 0.95
     attack: "T1499"
@@ -13,7 +13,7 @@ traits:
       regex: ":\\(\\) \\{\\s*:\\|:&\\s*\\\\};:"
 
   - id: bluescreen
-    description: Windows BSOD trigger
+    desc: Windows BSOD trigger
     crit: suspicious
     conf: 0.95
     attack: "T1499"
@@ -26,7 +26,7 @@ traits:
   # Use impact/degrade/edr directory reference in composite rules
 
   - id: terminate-process
-    description: TerminateProcess API
+    desc: TerminateProcess API
     crit: suspicious
     conf: 0.8
     attack: "T1489"
@@ -36,7 +36,7 @@ traits:
       exact: "TerminateProcess"
 
   - id: osascript-quit
-    description: macOS application quit via osascript
+    desc: macOS application quit via osascript
     crit: suspicious
     conf: 0.85
     attack: "T1489"

@@ -4,10 +4,10 @@
 
 traits:
   - id: swapon
-    description: Start swapping to a file/device
+    desc: Start swapping to a file/device
     crit: notable
     conf: 0.66
     for: [elf, so, c]
     if:
       type: symbol
-      pattern: swapon
+      regex: swapon

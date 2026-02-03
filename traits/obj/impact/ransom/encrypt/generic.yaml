@@ -4,7 +4,7 @@
 
 traits:
   - id: encrypt
-    description: Ransomware encryption patterns
+    desc: Ransomware encryption patterns
     crit: suspicious
     conf: 0.75
     mbc: "B0040"
@@ -38,7 +38,7 @@ traits:
         }
 
   - id: encrypt-decryptor
-    description: References decryptor
+    desc: References decryptor
     crit: suspicious
     conf: 0.66
     if:
@@ -51,7 +51,7 @@ traits:
 
   # Go file encryption patterns (ransomware)
   - id: file-encrypt
-    description: Go file encryption patterns (potential
+    desc: Go file encryption patterns (potential
     crit: suspicious
     conf: 0.8
     if:
@@ -75,7 +75,7 @@ traits:
 
 composite_rules:
   - id: encrypt-note
-    description: Ransom note patterns
+    desc: Ransom note patterns
     crit: notable
     conf: 0.66
     count_min: 2

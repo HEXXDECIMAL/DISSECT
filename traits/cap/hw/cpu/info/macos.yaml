@@ -3,7 +3,7 @@
 
 traits:
   - id: macos-cpuinfo
-    description: macOS CPU information query
+    desc: macOS CPU information query
     crit: notable
     conf: 0.7
     attack: "T1082"

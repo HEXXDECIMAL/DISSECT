@@ -70,7 +70,7 @@ composite_rules:
     desc: Encrypted payload dropper with dynamic loading
     crit: hostile
     conf: 0.98
-    file_types: [python]
+    r#for: [python]
     all:
       - id: cap/exec/dynamic-load/python-zipimporter-load
       - id: obj/anti-static/base64/decode/decode-python
