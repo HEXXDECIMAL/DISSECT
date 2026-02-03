@@ -1,0 +1,116 @@
+# Fiber Local Storage Operations
+# Detects use of FLS instead of TLS
+# Generic indicator for sophisticated thread pool malware
+
+traits:
+  - id: fls-alloc-api
+    desc: Fiber local storage allocation (FlsAlloc)
+    crit: notable
+    conf: 0.7
+    platforms: [windows]
+    for: [pe]
+    if:
+      type: symbol
+      exact: "FlsAlloc"
+    notes: "Allocates fiber-local storage slot"
+    attack: "T1129"
+
+  - id: fls-getvalue-api
+    desc: Fiber local storage retrieval (FlsGetValue)
+    crit: notable
+    conf: 0.7
+    platforms: [windows]
+    for: [pe]
+    if:
+      type: symbol
+      exact: "FlsGetValue"
+    notes: "Retrieves fiber-local storage value"
+    attack: "T1129"
+
+  - id: fls-setvalue-api
+    desc: Fiber local storage assignment (FlsSetValue)
+    crit: notable
+    conf: 0.7
+    platforms: [windows]
+    for: [pe]
+    if:
+      type: symbol
+      exact: "FlsSetValue"
+    notes: "Sets fiber-local storage value"
+    attack: "T1129"
+
+  - id: fls-free-api
+    desc: Fiber local storage deallocation (FlsFree)
+    crit: inert
+    conf: 0.6
+    platforms: [windows]
+    for: [pe]
+    if:
+      type: symbol
+      exact: "FlsFree"
+    notes: "Frees fiber-local storage slot"
+
+composite_rules:
+  - id: fiber-local-storage-ops
+    desc: Fiber-based thread local storage
+    crit: suspicious
+    conf: 0.75
+    platforms: [windows]
+    for: [pe]
+    attack: "T1129"
+    notes: |
+      Uses Fiber Local Storage instead of Thread Local Storage.
+
+      FLS characteristics:
+      - Works with thread pool scenarios
+      - Multiple fibers can exist in single thread
+      - Less commonly used than TLS (suspicious!)
+      - Effective for thread-pool-based command processing
+
+      Why use FLS instead of TLS?
+      - Supports lightweight threading models
+      - Enables complex fiber-based scheduling
+      - Less monitored by security tools
+      - Alternative threading model for evasion
+
+      Seen in:
+      - Advanced thread pool malware
+      - Loader malware (Chrysalis ConsoleApplication2.exe)
+      - Sophisticated C&C servers
+
+    count_min: 2
+    any:
+      - id: fls-alloc-api
+      - id: fls-getvalue-api
+      - id: fls-setvalue-api
+
+  - id: thread-pool-based-malware
+    desc: Thread pool with fiber-based scheduling
+    crit: suspicious
+    conf: 0.8
+    platforms: [windows]
+    for: [pe]
+    attack: "T1129"
+    notes: |
+      Sophisticated threading model using fibers and thread pools.
+      Indicates advanced malware infrastructure.
+
+    all:
+      - id: fiber-local-storage-ops
+      - id: cap/process/thread/create
+
+  - id: fiber-dispatch-framework
+    desc: Fiber-based dispatch and scheduling framework
+    crit: suspicious
+    conf: 0.85
+    platforms: [windows]
+    for: [pe]
+    attack: "T1129"
+    notes: |
+      Complete fiber-based scheduling and dispatch system.
+      Indicates sophisticated alternative threading model.
+
+    all:
+      - id: thread-pool-based-malware
+      - id: cap/exec/command
+

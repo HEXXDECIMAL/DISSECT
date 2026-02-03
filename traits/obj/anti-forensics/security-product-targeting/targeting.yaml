@@ -1,0 +1,89 @@
+# Security Product Targeting and Disabling
+# Detects malware that explicitly targets security software
+# Strong indicator of ransomware, banking trojans, APT
+
+traits:
+  - id: windows-defender-target
+    desc: Windows Defender/Security Essentials specifically targeted
+    crit: suspicious
+    conf: 0.85
+    platforms: [windows]
+    for: [pe]
+    if:
+      type: string
+      any:
+        - exact: "MsMpEng"
+        - exact: "WinDefend"
+        - substr: "msseces.exe"
+    notes: "Direct reference to Microsoft security product executable"
+    attack: "T1562.001"
+
+  - id: kaspersky-target
+    desc: Kaspersky AV/Internet Security specifically targeted
+    crit: suspicious
+    conf: 0.85
+    platforms: [windows]
+    for: [pe]
+    if:
+      type: string
+      any:
+        - substr: "avp.exe"
+        - substr: "klnagent"
+        - substr: "avpui.exe"
+    notes: "References to Kaspersky AV components"
+    attack: "T1562.001"
+
+  - id: mcafee-target
+    desc: McAfee AV specifically targeted
+    crit: suspicious
+    conf: 0.85
+    platforms: [windows]
+    for: [pe]
+    if:
+      type: string
+      any:
+        - substr: "mcshield.exe"
+        - substr: "mcafee.exe"
+        - substr: "naPrdMgr.exe"
+    notes: "References to McAfee security components"
+    attack: "T1562.001"
+
+  - id: process-enumeration
+    desc: Process enumeration capability (for targeting)
+    crit: notable
+    conf: 0.8
+    platforms: [windows]
+    for: [pe]
+    if:
+      type: import_combination
+      required: ["CreateToolhelp32Snapshot", "Process32First"]
+    notes: "Capability to enumerate processes, likely for targeting security software"
+    mbc: "C0003"
+
+composite_rules:
+  - id: av-product-killer
+    desc: Explicitly targets specific AV/EDR products for termination
+    crit: hostile
+    conf: 0.95
+    attack: "T1562.001"
+    mbc: "B0005"
+    platforms: [windows]
+    for: [pe]
+    notes: |
+      Explicitly targets antivirus/EDR products for killing.
+      Strong indicator of ransomware, banking trojan, or APT.
+
+      Seen in: Ryuk, Conti, LockBit, Emotet, TrickBot
+
+      Pattern:
+      1. Enumerate processes
+      2. Detect security software (specific AV references)
+      3. Terminate security processes
+
+    all:
+      - id: cap/process/terminate
+      - id: process-enumeration
+    any:
+      - id: windows-defender-target
+      - id: kaspersky-target
+      - id: mcafee-target

@@ -1,0 +1,62 @@
+# Encoded Payload Detection
+# Detects large encoded/compressed payloads in binaries
+# Indicates obfuscated second-stage malware
+
+traits:
+  - id: large-base64-payload
+    desc: Large base64 encoded payload
+    crit: notable
+    conf: 0.8
+    platforms: [all]
+    for: [pe, elf, macho]
+    if:
+      type: string
+      regex: "^[A-Za-z0-9+/]{200,}={0,2}$"
+      min_count: 1
+    notes: "Large base64 strings often encode binary payloads"
+    attack: "T1140"
+    mbc: "C0043"
+
+  - id: large-hex-payload
+    desc: Large hexadecimal encoded payload
+    crit: notable
+    conf: 0.8
+    platforms: [all]
+    for: [pe, elf, macho]
+    if:
+      type: string
+      regex: "^[0-9A-Fa-f]{200,}$"
+      min_count: 1
+    notes: "Long hex strings encode binary data"
+    attack: "T1140"
+    mbc: "C0043"
+
+  - id: payload-blob-metrics
+    desc: High entropy encrypted data
+    crit: notable
+    conf: 0.75
+    platforms: [windows]
+    for: [pe]
+    if:
+      type: section_entropy
+      section: "^\\.rdata"
+      min_entropy: 6.5
+    notes: "High entropy suggests encrypted or compressed payloads"
+
+composite_rules:
+  - id: embedded-obfuscated-payload
+    desc: Embedded obfuscated payload
+    crit: suspicious
+    conf: 0.85
+    attack: "T1140"
+    mbc: "C0043"
+    platforms: [all]
+    for: [pe, elf, macho]
+    notes: |
+      Detects encoded/compressed payloads embedded in binary.
+      Indicates multi-stage malware with obfuscated second-stage.
+
+    any:
+      - id: large-base64-payload
+      - id: large-hex-payload
+      - id: payload-blob-metrics

@@ -1,0 +1,89 @@
+# Embedded C&C Infrastructure Lists
+# Detects multiple hardcoded C2 addresses in binary
+# Generic indicator for botnet, worm, RAT
+
+composite_rules:
+  - id: embedded-c2-list
+    desc: Multiple hardcoded C2 IP addresses
+    crit: notable
+    conf: 0.8
+    platforms: [all]
+    for: [pe, elf, macho]
+    attack: "T1043"
+    mbc: "C0002"
+    notes: |
+      Detects multiple IP addresses embedded directly in binary.
+
+      Pattern: 5+ distinct IP addresses in strings/code
+
+      Indicates:
+      - Botnet infrastructure
+      - Hardcoded C&C servers
+      - Failover/redundancy mechanism
+      - Self-contained malware (doesn't fetch URLs)
+
+      Typical counts by malware type:
+      - Botnet: 20-100+ IPs (ConsoleApplication2.exe has 89!)
+      - Worm: 10-50 IPs
+      - RAT: 5-15 IPs
+      - Loader: 5-10 IPs
+
+      Seen in:
+      - Conficker (50+ IPs)
+      - Mirai variants (100+ IPs)
+      - Emotet (variable, often 30+)
+      - Trickbot (20-50 per variant)
+      - Chrysalis (89 in ConsoleApplication2.exe)
+
+    count_min: 5
+    any:
+      - id: cap/comm/ip
+
+  - id: distributed-c2-redundancy
+    desc: Distributed C2 infrastructure redundancy
+    crit: notable
+    conf: 0.85
+    platforms: [all]
+    for: [pe, elf, macho]
+    attack: "T1043"
+    mbc: "C0002"
+    notes: |
+      Large C2 infrastructure indicates sophisticated malware.
+      Suggests professional development and maintenance.
+
+    count_min: 20
+    any:
+      - id: cap/comm/ip
+
+  - id: hardcoded-c2-infrastructure
+    desc: Self-contained C2 with hardcoded addresses
+    crit: suspicious
+    conf: 0.8
+    platforms: [all]
+    for: [pe, elf, macho]
+    attack: "T1043"
+    mbc: "C0002"
+    notes: |
+      Combines hardcoded IPs with other C2 characteristics.
+      Indicates self-propagating or autonomous malware.
+
+    all:
+      - id: embedded-c2-list
+      - id: cap/comm/tcp/connect
+
+  - id: botnet-commander-pattern
+    desc: Botnet commander with hardcoded infrastructure
+    crit: hostile
+    conf: 0.9
+    platforms: [all]
+    for: [pe, elf, macho]
+    attack: "T1043"
+    mbc: "C0002"
+    notes: |
+      Complete botnet infrastructure detected.
+      Indicates this is a command server or node.
+
+    all:
+      - id: distributed-c2-redundancy
+      - id: cap/comm/socket
+

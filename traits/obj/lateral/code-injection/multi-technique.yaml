@@ -1,0 +1,39 @@
+# Multi-Technique Code Injection Framework
+# Detects malware with multiple code injection methods
+# Indicates flexible deployment strategy
+
+traits:
+
+composite_rules:
+  - id: multi-technique-injector
+    desc: Multiple code injection techniques (flexible deployment)
+    crit: hostile
+    conf: 0.9
+    attack: "T1055"
+    mbc: "C0041"
+    platforms: [windows]
+    for: [pe]
+    notes: |
+      3+ injection techniques indicate intentional flexibility.
+      Malware has planned fallback strategies for different environments.
+
+      Generic pattern seen in:
+      - Emotet (4+ techniques per environment)
+      - Trickbot (multiple methods)
+      - Poison Ivy RAT (flexible injection)
+      - Carberp (multiple payload delivery)
+
+      Available techniques in single binary:
+      - Remote thread injection (DLL-based)
+      - Memory write injection (shellcode-based)
+      - APC queue injection (async callback-based)
+      - Atom bombing (alternate callback-based)
+      - Process hollowing (full process replacement)
+
+    count_min: 3
+    any:
+      - id: cap/exec/inject/create-remote-thread
+      - id: cap/exec/inject/write-process-memory
+      - id: cap/exec/inject/queue-user-apc
+      - id: cap/process/inject/atom-bombing/atom-bombing-capable
+      - id: obj/process/injection/process-hollowing

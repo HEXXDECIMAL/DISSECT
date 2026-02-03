@@ -1,0 +1,89 @@
+# DirectX Graphics Infrastructure Access
+# Detects GPU/graphics compute capabilities
+# Generic indicator for GPU-accelerated malware (mining, encryption, etc)
+
+traits:
+  - id: directx-factory-api
+    desc: DirectX factory creation
+    crit: notable
+    conf: 0.7
+    platforms: [windows]
+    for: [pe]
+    if:
+      type: symbol
+      exact: "CreateDXGIFactory"
+    notes: "DirectX Graphics Infrastructure factory - GPU access"
+    attack: "T1657"
+
+  - id: directx-device-api
+    desc: DirectX device creation
+    crit: notable
+    conf: 0.7
+    platforms: [windows]
+    for: [pe]
+    if:
+      type: symbol
+      any:
+        - exact: "CreateDXGIFactory1"
+        - exact: "D3D11CreateDevice"
+        - exact: "D3D12CreateDevice"
+    notes: "DirectX device creation - GPU compute access"
+    attack: "T1657"
+
+  - id: cuda-runtime-api
+    desc: NVIDIA CUDA runtime access
+    crit: notable
+    conf: 0.7
+    platforms: [windows, linux]
+    for: [pe, elf]
+    if:
+      type: symbol
+      any:
+        - substr: "cudaMemcpy"
+        - substr: "cudaLaunchKernel"
+    notes: "CUDA GPU compute - parallel processing capability"
+    attack: "T1657"
+
+composite_rules:
+  - id: gpu-graphics-access
+    desc: GPU graphics infrastructure
+    crit: suspicious
+    conf: 0.75
+    platforms: [windows]
+    for: [pe]
+    attack: "T1657"
+    mbc: "E1030"
+    notes: |
+      GPU/graphics access via DirectX factory creation.
+
+      Indicates:
+      - GPU compute capability
+      - Graphics rendering
+      - Potential GPU-accelerated operations
+
+      Seen in:
+      - Cryptocurrency miners (GPU acceleration)
+      - Ransomware with GPU-optimized encryption
+      - Advanced graphics/video processing
+      - Machine learning inference
+
+    any:
+      - id: directx-factory-api
+      - id: directx-device-api
+
+  - id: gpu-compute-capable
+    desc: GPU compute capability
+    crit: suspicious
+    conf: 0.8
+    platforms: [all]
+    for: [pe, elf]
+    attack: "T1657"
+    mbc: "E1030"
+    notes: |
+      GPU compute access via DirectX or CUDA.
+      Indicates professional GPU-accelerated malware.
+
+    any:
+      - id: gpu-graphics-access
+      - id: cuda-runtime-api
+

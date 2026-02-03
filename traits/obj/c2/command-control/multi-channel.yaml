@@ -1,0 +1,44 @@
+# Multi-Channel C2 Infrastructure
+# Detects malware with multiple hardcoded C2 addresses
+# Indicates redundancy planning for resilience against blocking
+
+composite_rules:
+  - id: redundant-c2-infrastructure
+    desc: Multiple C2 communication channels (failover/redundancy)
+    crit: hostile
+    conf: 0.9
+    attack: "T1071"
+    mbc: "B0030"
+    platforms: [all]
+    for: [pe, elf, macho, shell, python]
+    notes: |
+      Detects malware with 3+ hardcoded C2 addresses.
+      Indicates intentional redundancy for resilience against blocking.
+
+      Pattern seen in: Emotet (100+ C2s), Trickbot (20+ IPs),
+      Dridex, Conficker, Zeroaccess, and other botnets.
+
+      Generic principle: Multiple C2 addresses = deliberate failover design,
+      not accidental duplication. Professional malware expects blocking.
+
+    count_min: 3
+    any:
+      - id: obj/c2/infrastructure/ip
+      - id: obj/c2/infrastructure/domain
+
+  - id: multi-channel-diversity
+    desc: C2 infrastructure using multiple communication methods
+    crit: suspicious
+    conf: 0.85
+    attack: "T1071"
+    mbc: "B0030"
+    platforms: [all]
+    for: [pe, elf, macho, shell]
+    notes: |
+      Multiple communication methods (HTTP, DNS, P2P) indicate
+      sophisticated C2 infrastructure with redundant channels.
+
+    count_min: 2
+    any:
+      - id: obj/c2/infrastructure/ip
+      - id: obj/c2/infrastructure/domain
