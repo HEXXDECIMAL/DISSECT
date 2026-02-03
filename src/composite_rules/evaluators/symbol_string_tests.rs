@@ -4,9 +4,7 @@ use super::*;
 use crate::composite_rules::condition::NotException;
 use crate::composite_rules::context::{EvaluationContext, StringParams};
 use crate::composite_rules::types::{FileType, Platform};
-use crate::types::{
-    AnalysisReport, Export, Function, Import, StringInfo, StringType, TargetInfo,
-};
+use crate::types::{AnalysisReport, Export, Function, Import, StringInfo, StringType, TargetInfo};
 
 fn create_test_report() -> AnalysisReport {
     let target = TargetInfo {
@@ -131,8 +129,8 @@ fn test_eval_symbol_exact_match_with_leading_underscore() {
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
-    // Should match with underscore stripped
-    let result = eval_symbol(Some(&"socket".to_string()), None, None, None, None, &ctx);
+    // Should match with exact underscore-prefixed symbol
+    let result = eval_symbol(Some(&"_socket".to_string()), None, None, None, None, &ctx);
 
     assert!(result.matched);
 }

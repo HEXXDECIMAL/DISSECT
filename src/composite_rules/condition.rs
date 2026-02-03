@@ -75,8 +75,8 @@ enum ConditionTagged {
         /// Substring match (appears anywhere in symbol name)
         #[serde(default)]
         substr: Option<String>,
-        /// Regex pattern to match symbol names (alias: pattern for backward compatibility)
-        #[serde(default, alias = "pattern")]
+        /// Regex pattern to match symbol names
+        #[serde(default)]
         regex: Option<String>,
         platforms: Option<Vec<Platform>>,
     },
@@ -95,8 +95,8 @@ enum ConditionTagged {
         word: Option<String>,
         #[serde(default)]
         case_insensitive: bool,
-        #[serde(alias = "exclude_patterns")]
-        deprecated_exclude_patterns: Option<Vec<String>>,
+        #[serde(default)]
+        exclude_patterns: Option<Vec<String>>,
         #[serde(default = "default_min_count")]
         min_count: usize,
     },
@@ -314,7 +314,9 @@ enum ConditionTagged {
     /// Match strings by their encoding layer path
     /// Example: { type: layer_path, value: "meta/layers/.text/stack" }
     /// Layer paths are computed as: meta/layers/{section}/{encoding_chain_joined}
-    LayerPath { value: String },
+    LayerPath {
+        value: String,
+    },
 }
 
 fn default_match_mode() -> String {
@@ -344,7 +346,7 @@ impl From<ConditionDeser> for Condition {
                     regex,
                     word,
                     case_insensitive,
-                    deprecated_exclude_patterns,
+                    exclude_patterns,
                     min_count,
                 } => Condition::String {
                     exact,
@@ -352,7 +354,7 @@ impl From<ConditionDeser> for Condition {
                     regex,
                     word,
                     case_insensitive,
-                    exclude_patterns: deprecated_exclude_patterns,
+                    exclude_patterns,
                     min_count,
                     compiled_regex: None,
                     compiled_excludes: Vec::new(),

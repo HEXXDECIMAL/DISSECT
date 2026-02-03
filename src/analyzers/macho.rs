@@ -142,26 +142,33 @@ impl MachOAnalyzer {
 
                         // Map YARA matches to capabilities
                         for yara_match in &matches {
-                            // Try to map YARA rule to capability ID
-                            let capability_id =
-                                self.yara_namespace_to_capability(&yara_match.namespace);
+                            // Use namespace as capability ID (e.g., "exec.cmd" -> "exec/cmd")
+                            let cap_id = yara_match.namespace.replace('.', "/");
 
-                            if let Some(cap_id) = capability_id {
-                                // Check if we already have this capability
-                                if !report.findings.iter().any(|c| c.id == cap_id) {
-                                    let evidence = yara_engine.yara_match_to_evidence(yara_match);
-                                    report.findings.push(Finding {
-                                        kind: FindingKind::Capability,
-                                        trait_refs: vec![],
-                                        id: cap_id,
-                                        desc: yara_match.desc.clone(),
-                                        conf: 0.9, // YARA matches are high confidence
-                                        crit: crate::types::Criticality::Inert,
-                                        mbc: None,
-                                        attack: None,
-                                        evidence,
-                                    });
-                                }
+                            // Check if we already have this capability
+                            if !report.findings.iter().any(|c| c.id == cap_id) {
+                                let evidence = yara_engine.yara_match_to_evidence(yara_match);
+
+                                // Map severity to criticality
+                                let criticality = match yara_match.severity.as_str() {
+                                    "critical" => Criticality::Hostile,
+                                    "high" => Criticality::Hostile,
+                                    "medium" => Criticality::Suspicious,
+                                    "low" => Criticality::Notable,
+                                    _ => Criticality::Suspicious,
+                                };
+
+                                report.findings.push(Finding {
+                                    kind: FindingKind::Capability,
+                                    trait_refs: vec![],
+                                    id: cap_id,
+                                    desc: yara_match.desc.clone(),
+                                    conf: 0.9, // YARA matches are high confidence
+                                    crit: criticality,
+                                    mbc: yara_match.mbc.clone(),
+                                    attack: yara_match.attack.clone(),
+                                    evidence,
+                                });
                             }
                         }
                     }
@@ -592,26 +599,6 @@ impl MachOAnalyzer {
             0x0100000c => "arm64".to_string(),
             0x0200000c => "arm64e".to_string(),
             _ => format!("unknown_0x{:x}", macho.header.cputype),
-        }
-    }
-
-    /// Map YARA namespace to capability ID
-    fn yara_namespace_to_capability(&self, namespace: &str) -> Option<String> {
-        // YARA namespace format: exec.cmd, anti-static.obfuscation, etc.
-        // Convert to capability ID: exec/command, anti-analysis/obfuscation
-        let parts: Vec<&str> = namespace.split('.').collect();
-
-        match parts.as_slice() {
-            ["exec", "cmd"] => Some("exec/command/shell".to_string()),
-            ["exec", "program"] => Some("exec/command/direct".to_string()),
-            ["exec", "shell"] => Some("exec/command/shell".to_string()),
-            ["net", sub] => Some(format!("net/{}", sub)),
-            ["crypto", sub] => Some(format!("crypto/{}", sub)),
-            ["fs", sub] => Some(format!("fs/{}", sub)),
-            ["anti-static", "obfuscation"] => Some("anti-analysis/obfuscation".to_string()),
-            ["process", sub] => Some(format!("process/{}", sub)),
-            ["credential", sub] => Some(format!("credential/{}", sub)),
-            _ => None,
         }
     }
 

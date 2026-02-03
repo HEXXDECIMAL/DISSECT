@@ -121,25 +121,7 @@ impl ElfAnalyzer {
             tools_used.push("radare2".to_string());
 
             // Use batched extraction - single r2 session for functions, sections, strings, imports
-            if let Ok(mut batched) = self.radare2.extract_batched(file_path) {
-                // Check if we need deeper analysis (few functions found but executable sections exist)
-                // Skip deep analysis for large binaries (>20MB) as it takes too long (minutes)
-                let file_size = data.len() as u64;
-                const MAX_SIZE_FOR_DEEP_ANALYSIS: u64 = 20 * 1024 * 1024; // 20MB
-                let has_exec_sections = batched
-                    .sections
-                    .iter()
-                    .any(|s| s.perm.clone().unwrap_or_default().contains('x'));
-                if batched.functions.len() < 5
-                    && has_exec_sections
-                    && file_size <= MAX_SIZE_FOR_DEEP_ANALYSIS
-                {
-                    // Re-run with deep analysis enabled (only for smaller binaries)
-                    if let Ok(deep_batched) = self.radare2.extract_batched_deep(file_path) {
-                        batched = deep_batched;
-                    }
-                }
-
+            if let Ok(batched) = self.radare2.extract_batched(file_path) {
                 // Compute metrics from batched data
                 let binary_metrics = self.radare2.compute_metrics_from_batched(&batched);
                 report.metrics = Some(Metrics {
@@ -160,23 +142,10 @@ impl ElfAnalyzer {
         };
 
         // Extract strings using language-aware extraction (Go/Rust) with pre-parsed ELF if available
-        // For large binaries (>20MB), use lightweight extraction to save time
         let t_stng = std::time::Instant::now();
-        const MAX_SIZE_FOR_FULL_STNG: u64 = 20 * 1024 * 1024; // 20MB
-        let file_size = data.len() as u64;
-
-        if file_size > MAX_SIZE_FOR_FULL_STNG {
-            // Large binary: use lightweight extraction (r2 strings + basic extraction)
-            // Skip expensive language-aware extraction which is slow for large Go/Rust binaries
-            report.strings = self.string_extractor.extract_lightweight(data, r2_strings);
-        } else {
-            // Use extract_smart_with_r2 for all cases to ensure comprehensive string extraction
-            // This uses stng::extract_strings_with_options which finds more special strings (like StackStrings)
-            // than extract_from_elf, despite having a pre-parsed ELF available
-            report.strings = self
-                .string_extractor
-                .extract_smart_with_r2(data, r2_strings);
-        }
+        report.strings = self
+            .string_extractor
+            .extract_smart_with_r2(data, r2_strings);
         if timing {
             eprintln!(
                 "[TIMING] ELF stng extraction ({} strings): {:?}",
@@ -197,40 +166,32 @@ impl ElfAnalyzer {
                         report.yara_matches = matches.clone();
 
                         for yara_match in &matches {
-                            // Check if YARA rule has capability=true metadata OR maps via namespace
-                            let capability_id = if yara_match.is_capability {
-                                // Use namespace as capability ID (e.g., "exec.cmd" -> "exec/cmd")
-                                Some(yara_match.namespace.replace('.', "/"))
-                            } else {
-                                // Fall back to namespace mapping
-                                self.yara_namespace_to_capability(&yara_match.namespace)
-                            };
+                            // Use namespace as capability ID (e.g., "exec.cmd" -> "exec/cmd")
+                            let cap_id = yara_match.namespace.replace('.', "/");
 
-                            if let Some(cap_id) = capability_id {
-                                if !report.findings.iter().any(|c| c.id == cap_id) {
-                                    let evidence = yara_engine.yara_match_to_evidence(yara_match);
+                            if !report.findings.iter().any(|c| c.id == cap_id) {
+                                let evidence = yara_engine.yara_match_to_evidence(yara_match);
 
-                                    // Determine criticality from severity
-                                    let criticality = match yara_match.severity.as_str() {
-                                        "critical" => Criticality::Hostile,
-                                        "high" => Criticality::Hostile,
-                                        "medium" => Criticality::Suspicious,
-                                        "low" => Criticality::Notable,
-                                        _ => Criticality::Suspicious,
-                                    };
+                                // Map severity to criticality
+                                let criticality = match yara_match.severity.as_str() {
+                                    "critical" => Criticality::Hostile,
+                                    "high" => Criticality::Hostile,
+                                    "medium" => Criticality::Suspicious,
+                                    "low" => Criticality::Notable,
+                                    _ => Criticality::Suspicious,
+                                };
 
-                                    report.findings.push(Finding {
-                                        kind: FindingKind::Capability,
-                                        trait_refs: vec![],
-                                        id: cap_id,
-                                        desc: yara_match.desc.clone(),
-                                        conf: 0.9,
-                                        crit: criticality,
-                                        mbc: yara_match.mbc.clone(),
-                                        attack: yara_match.attack.clone(),
-                                        evidence,
-                                    });
-                                }
+                                report.findings.push(Finding {
+                                    kind: FindingKind::Capability,
+                                    trait_refs: vec![],
+                                    id: cap_id,
+                                    desc: yara_match.desc.clone(),
+                                    conf: 0.9,
+                                    crit: criticality,
+                                    mbc: yara_match.mbc.clone(),
+                                    attack: yara_match.attack.clone(),
+                                    evidence,
+                                });
                             }
                         }
                     }
@@ -326,10 +287,9 @@ impl ElfAnalyzer {
         // Analyze dynamic symbols (imports)
         for dynsym in &elf.dynsyms {
             if let Some(name) = elf.dynstrtab.get_at(dynsym.st_name) {
-                let clean_name = name.trim_start_matches('_');
                 // Add to imports
                 report.imports.push(Import {
-                    symbol: clean_name.to_string(),
+                    symbol: name.to_string(),
                     library: None, // ELF doesn't always specify library directly
                     source: "goblin".to_string(),
                 });
@@ -339,7 +299,7 @@ impl ElfAnalyzer {
                     report.findings.push(Finding {
                         kind: FindingKind::Capability,
                         id: "feat/binary/elf/ifunc".to_string(),
-                        desc: format!("ELF IFUNC resolver: {}", clean_name),
+                        desc: format!("ELF IFUNC resolver: {}", name),
                         crit: Criticality::Notable,
                         conf: 1.0,
                         mbc: None,
@@ -355,7 +315,7 @@ impl ElfAnalyzer {
                 }
 
                 // Map to capability
-                if let Some(cap) = self.capability_mapper.lookup(clean_name, "goblin") {
+                if let Some(cap) = self.capability_mapper.lookup(name, "goblin") {
                     if !report.findings.iter().any(|c| c.id == cap.id) {
                         report.findings.push(cap);
                     }
@@ -450,23 +410,6 @@ impl ElfAnalyzer {
             goblin::elf::header::EM_ARM => "arm".to_string(),
             goblin::elf::header::EM_RISCV => "riscv".to_string(),
             _ => format!("unknown_{}", elf.header.e_machine),
-        }
-    }
-
-    fn yara_namespace_to_capability(&self, namespace: &str) -> Option<String> {
-        let parts: Vec<&str> = namespace.split('.').collect();
-
-        match parts.as_slice() {
-            ["exec", "cmd"] => Some("exec/command/shell".to_string()),
-            ["exec", "program"] => Some("exec/command/direct".to_string()),
-            ["exec", "shell"] => Some("exec/command/shell".to_string()),
-            ["net", sub] => Some(format!("net/{}", sub)),
-            ["crypto", sub] => Some(format!("crypto/{}", sub)),
-            ["fs", sub] => Some(format!("fs/{}", sub)),
-            ["anti-static", "obfuscation"] => Some("anti-analysis/obfuscation".to_string()),
-            ["process", sub] => Some(format!("process/{}", sub)),
-            ["credential", sub] => Some(format!("credential/{}", sub)),
-            _ => None,
         }
     }
 

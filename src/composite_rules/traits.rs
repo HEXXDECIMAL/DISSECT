@@ -42,13 +42,12 @@ pub struct DowngradeConditions {
 #[derive(Debug, Clone, Deserialize)]
 pub struct TraitDefinition {
     pub id: String,
-    #[serde(alias = "description")]
     pub desc: String,
-    #[serde(default = "default_confidence", alias = "confidence")]
+    #[serde(default = "default_confidence")]
     pub conf: f32,
 
     /// Criticality level (defaults to None = internal only)
-    #[serde(default, alias = "criticality")]
+    #[serde(default)]
     pub crit: Criticality,
 
     /// MBC (Malware Behavior Catalog) ID - most specific available (e.g., "B0015.001")
@@ -62,7 +61,7 @@ pub struct TraitDefinition {
     #[serde(default = "default_platforms")]
     pub platforms: Vec<Platform>,
 
-    #[serde(default = "default_file_types", alias = "file_types", alias = "files")]
+    #[serde(default = "default_file_types")]
     pub r#for: Vec<FileType>,
 
     /// Minimum file size in bytes
@@ -74,7 +73,6 @@ pub struct TraitDefinition {
     pub size_max: Option<usize>,
 
     // Detection condition - just one condition per trait (atomic!)
-    #[serde(alias = "condition")]
     pub r#if: Condition,
 
     /// String-level exceptions - filter matched strings
@@ -484,15 +482,12 @@ impl TraitDefinition {
 /// Boolean logic for combining conditions/traits
 #[derive(Debug, Clone, Deserialize)]
 pub struct CompositeTrait {
-    #[serde(alias = "capability")]
     pub id: String,
-    #[serde(alias = "description")]
     pub desc: String,
-    #[serde(alias = "confidence")]
     pub conf: f32,
 
     /// Criticality level (defaults to None)
-    #[serde(default, alias = "criticality")]
+    #[serde(default)]
     pub crit: Criticality,
 
     /// MBC (Malware Behavior Catalog) ID - most specific available (e.g., "B0015.001")
@@ -506,7 +501,7 @@ pub struct CompositeTrait {
     #[serde(default = "default_platforms")]
     pub platforms: Vec<Platform>,
 
-    #[serde(default = "default_file_types", alias = "file_types", alias = "files")]
+    #[serde(default = "default_file_types")]
     pub r#for: Vec<FileType>,
 
     /// Minimum file size in bytes
@@ -518,15 +513,11 @@ pub struct CompositeTrait {
     pub size_max: Option<usize>,
 
     // Boolean operators
-    #[serde(alias = "requires_all", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub all: Option<Vec<Condition>>,
 
     /// List of conditions - use count_min/count_max/count_exact to control how many must match
-    #[serde(
-        alias = "requires_any",
-        alias = "conditions",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub any: Option<Vec<Condition>>,
 
     /// Exactly this many conditions from `any` must match (rare - use count_min for "at least N")
@@ -541,7 +532,7 @@ pub struct CompositeTrait {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub count_max: Option<usize>,
 
-    #[serde(alias = "requires_none", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub none: Option<Vec<Condition>>,
 
     /// File-level skip conditions - skip entire rule if ANY condition matches

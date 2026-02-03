@@ -92,23 +92,20 @@ fn symbol_matches_condition(
     pattern: Option<&String>,
     compiled_regex: Option<&regex::Regex>,
 ) -> bool {
-    // Clean symbol (remove leading underscores)
-    let clean = symbol.trim_start_matches('_').trim_start_matches("__");
-
     // If exact is specified, do strict equality match
     if let Some(exact_val) = exact {
-        return clean == exact_val || symbol == exact_val;
+        return symbol == exact_val;
     }
 
     // If substr is specified, do substring match
     if let Some(substr_val) = substr {
-        return symbol.contains(substr_val.as_str()) || clean.contains(substr_val.as_str());
+        return symbol.contains(substr_val.as_str());
     }
 
     // If pattern is specified, use precompiled regex if available
     if pattern.is_some() {
         if let Some(re) = compiled_regex {
-            return re.is_match(symbol) || re.is_match(clean);
+            return re.is_match(symbol);
         } else if let Some(pattern_val) = pattern {
             // Fallback: use the existing pattern matching logic if not pre-compiled
             return symbol_matches(symbol, pattern_val);
@@ -600,7 +597,11 @@ pub fn eval_layer_path(value: &str, ctx: &EvaluationContext) -> ConditionResult 
 
     for string_info in &ctx.report.strings {
         // Compute layer path from string's section and encoding_chain
-        let section = string_info.section.as_ref().cloned().unwrap_or_else(|| "content".to_string());
+        let section = string_info
+            .section
+            .as_ref()
+            .cloned()
+            .unwrap_or_else(|| "content".to_string());
         let layer_path = if string_info.encoding_chain.is_empty() {
             // No encoding layers - not a layered string, skip
             continue;
