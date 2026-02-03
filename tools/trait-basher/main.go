@@ -50,10 +50,20 @@ Problem: DISSECT flagged it as suspicious/hostile - these are false positives
 3. Analyze what the file actually does (read it, understand its purpose)
 4. For each finding that doesn't match actual behavior, fix using ONE of (in priority order):
    a) TAXONOMY: Move trait to correct location (e.g., cap/comm/http/client not obj/c2/beacon)
-   b) PATTERNS: Make regex/match more specific; use cap/comm/http/ (directory) or cap/comm/http/client (exact)
-   c) EXCLUSIONS: Add ` + "`not:`" + ` conditions to filter this case
-   d) EXCEPTIONS: Add ` + "`unless:`" + ` or ` + "`downgrade:`" + ` (last resort)
+   b) PATTERNS: Make patterns more specific to avoid legitimate usage:
+      - Add ` + "`near:` or `near_lines:`" + ` to require proximity to suspicious behavior
+      - Use ` + "`filesize_min:`" + ` / ` + "`filesize_max:`" + ` to exclude legitimate executables (e.g., malware: 50KB, legitimate: 50MB)
+      - Restrict ` + "`for:`" + ` file types (elf/pe/macho only) to exclude scripts/interpreted code
+      - Require multiple patterns together via ` + "`all:`" + ` in composites to add context
+   c) EXCLUSIONS: Add ` + "`not:`" + ` conditions to filter known-good strings (e.g., ` + "`not: [\"myapp.exe\"]`" + `)
+   d) EXCEPTIONS: Add ` + "`unless:`" + ` (skip if benign indicator found) or ` + "`downgrade:`" + ` (reduce severity) - last resort
 5. Validate: Run dissect again - all findings should match actual capabilities
+
+## Specificity Tips
+- **near/near_lines**: If a string only matters near a socket/exec call, use ` + "`near: 200`" + `
+- **filesize**: Legitimate tools embed data; malware is compact. Use ` + "`filesize_min: 1000`" + ` / ` + "`filesize_max: 50000`" + `
+- **Scope**: Narrow trait scope (e.g., method-level) beats global scope
+- **Context**: A domain string + networking call = C2. Domain string alone = innocent.
 
 ## Debug Commands
 ` + "```" + `
@@ -103,10 +113,20 @@ Problem: %d members flagged as suspicious/hostile - these are false positives
 3. Focus on problematic members (the ones with suspicious/hostile findings)
 4. For each false positive finding, fix using ONE of (in priority order):
    a) TAXONOMY: Move trait to correct location (e.g., cap/comm/http/client not obj/c2/beacon)
-   b) PATTERNS: Make regex/match more specific; use cap/comm/http/ (directory) or cap/comm/http/client (exact)
-   c) EXCLUSIONS: Add ` + "`not:`" + ` conditions to filter this case
-   d) EXCEPTIONS: Add ` + "`unless:`" + ` or ` + "`downgrade:`" + ` (last resort)
+   b) PATTERNS: Make patterns more specific to avoid legitimate usage:
+      - Add ` + "`near:` or `near_lines:`" + ` to require proximity to suspicious behavior
+      - Use ` + "`filesize_min:`" + ` / ` + "`filesize_max:`" + ` to exclude size patterns (malware: 50-500KB; legitimate: 1-100MB)
+      - Restrict ` + "`for:`" + ` file types (e.g., elf/pe/macho) to exclude libraries/plugins
+      - Combine patterns via ` + "`all:`" + ` composites instead of single-trait flags
+   c) EXCLUSIONS: Add ` + "`not:`" + ` conditions to filter known-good strings
+   d) EXCEPTIONS: Add ` + "`unless:`" + ` or ` + "`downgrade:`" + ` - use sparingly
 5. Validate: Run dissect again - all findings should match actual capabilities
+
+## Specificity Tips
+- **near/near_lines**: If pattern only matters in a tight context, use proximity constraints
+- **filesize**: Legitimate installers are large; malware payloads are compact. Be size-aware.
+- **File types**: Don't flag .py, .js, .rb for binary-specific traits (socket, exec imports)
+- **Composites**: Combine weak signals (domain + base64 + socket) rather than flagging individually
 
 ## Debug Commands
 ` + "```" + `
@@ -147,7 +167,7 @@ Traits: %s/traits/ | Skip cargo test | Focus on this archive`
 
 type config struct {
 	db        *sql.DB
-	dir       string
+	dirs      []string
 	repoRoot  string
 	provider  string
 	model     string
@@ -512,7 +532,6 @@ type jsonlEntry struct {
 func main() {
 	log.SetFlags(0)
 
-	dir := flag.String("dir", "", "Directory to scan recursively (required)")
 	knownGood := flag.Bool("good", false, "Review known-good files for false positives (suspicious/hostile findings)")
 	knownBad := flag.Bool("bad", false, "Review known-bad files for false negatives (missing detections)")
 	provider := flag.String("provider", "claude", "AI provider: claude, gemini, or opencode")
@@ -528,16 +547,19 @@ func main() {
 
 	flag.Parse()
 
-	if *dir == "" {
-		log.Fatal("--dir is required")
+	dirs := flag.Args()
+	if len(dirs) == 0 {
+		log.Fatal("At least one directory is required as an argument")
 	}
-	if info, err := os.Stat(*dir); err != nil {
-		if os.IsNotExist(err) {
-			log.Fatalf("Directory does not exist: %s", *dir)
+	for _, dir := range dirs {
+		if info, err := os.Stat(dir); err != nil {
+			if os.IsNotExist(err) {
+				log.Fatalf("Directory does not exist: %s", dir)
+			}
+			log.Fatalf("Cannot access directory %s: %v", dir, err)
+		} else if !info.IsDir() {
+			log.Fatalf("Not a directory: %s", dir)
 		}
-		log.Fatalf("Cannot access directory %s: %v", *dir, err)
-	} else if !info.IsDir() {
-		log.Fatalf("Not a directory: %s", *dir)
 	}
 	if !*knownGood && !*knownBad {
 		log.Fatal("Either --good or --bad is required")
@@ -578,7 +600,7 @@ func main() {
 	defer func() { db.Close() }()              //nolint:errcheck,gosec // best-effort cleanup
 
 	cfg := &config{
-		dir:       *dir,
+		dirs:      dirs,
 		repoRoot:  resolvedRoot,
 		provider:  *provider,
 		model:     *model,
@@ -611,7 +633,7 @@ func main() {
 	}
 	fmt.Fprintf(os.Stderr, "Mode: %s\n", mode)
 	fmt.Fprintf(os.Stderr, "Repo root: %s\n", cfg.repoRoot)
-	fmt.Fprintf(os.Stderr, "Streaming analysis of %s...\n\n", cfg.dir)
+	fmt.Fprintf(os.Stderr, "Streaming analysis of %v...\n\n", cfg.dirs)
 
 	// Database mode (good/bad, not known-good/known-bad).
 	dbMode := "bad"
@@ -747,8 +769,8 @@ func buildDissectCommand(ctx context.Context, cfg *config) *exec.Cmd {
 			"--format", "jsonl",
 			"--sample-dir", cfg.sampleDir,
 			"--sample-max-risk", sampleMaxRisk,
-			cfg.dir,
 		}
+		args = append(args, cfg.dirs...)
 		cmd = exec.CommandContext(ctx, "cargo", args...)
 		cmd.Dir = cfg.repoRoot
 	} else {
@@ -756,8 +778,8 @@ func buildDissectCommand(ctx context.Context, cfg *config) *exec.Cmd {
 			"--format", "jsonl",
 			"--sample-dir", cfg.sampleDir,
 			"--sample-max-risk", sampleMaxRisk,
-			cfg.dir,
 		}
+		args = append(args, cfg.dirs...)
 		cmd = exec.CommandContext(ctx, "dissect", args...)
 	}
 	return cmd

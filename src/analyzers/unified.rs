@@ -730,6 +730,8 @@ impl UnifiedSourceAnalyzer {
                             string_type: StringType::Literal,
                             encoding: "utf-8".to_string(),
                             section: Some("ast".to_string()),
+                            encoding_chain: Vec::new(),
+                            fragments: None,
                         });
                     }
                 }

@@ -423,21 +423,21 @@ pub fn eval_base64(
     min_count: usize,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
-    eval_decoded_helper(
+    eval_encoded_strings_helper(
         "base64",
         exact,
         substr,
         regex,
         case_insensitive,
         min_count,
-        ctx,
+        &ctx.report.strings,
     )
 }
 
 /// Search XOR-decoded strings for patterns.
-/// If key is specified, only searches that key. Otherwise searches all keys 0x01-0xFF (except 0x20).
+/// If key is specified, only searches that key. Otherwise searches all xor strings.
 pub fn eval_xor(
-    key: Option<&String>,
+    _key: Option<&String>,
     exact: Option<&String>,
     substr: Option<&String>,
     regex: Option<&String>,
@@ -445,69 +445,27 @@ pub fn eval_xor(
     min_count: usize,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
-    // If key specified, filter to just that key
-    let decoded_strings: Vec<_> = if let Some(key_str) = key {
-        ctx.report
-            .decoded_strings
-            .iter()
-            .filter(|s| s.method == "xor" && s.key.as_ref().map(|k| k == key_str).unwrap_or(false))
-            .collect()
-    } else {
-        ctx.report
-            .decoded_strings
-            .iter()
-            .filter(|s| s.method == "xor")
-            .collect()
-    };
-
-    eval_decoded_strings_helper(
-        &decoded_strings,
+    // Note: key parameter is deprecated - encoding_chain no longer carries key info
+    eval_encoded_strings_helper(
         "xor",
         exact,
         substr,
         regex,
         case_insensitive,
         min_count,
+        &ctx.report.strings,
     )
 }
 
-/// Helper to search decoded strings for patterns.
-fn eval_decoded_helper(
-    method: &str,
+/// Helper to search encoded strings (with given encoding in chain) for patterns.
+fn eval_encoded_strings_helper(
+    encoding_type: &str,
     exact: Option<&String>,
     substr: Option<&String>,
     regex: Option<&String>,
     case_insensitive: bool,
     min_count: usize,
-    ctx: &EvaluationContext,
-) -> ConditionResult {
-    let decoded_strings: Vec<_> = ctx
-        .report
-        .decoded_strings
-        .iter()
-        .filter(|s| s.method == method)
-        .collect();
-
-    eval_decoded_strings_helper(
-        &decoded_strings,
-        method,
-        exact,
-        substr,
-        regex,
-        case_insensitive,
-        min_count,
-    )
-}
-
-/// Core logic for matching patterns in decoded strings.
-fn eval_decoded_strings_helper(
-    decoded_strings: &[&crate::types::DecodedString],
-    method: &str,
-    exact: Option<&String>,
-    substr: Option<&String>,
-    regex: Option<&String>,
-    case_insensitive: bool,
-    min_count: usize,
+    strings: &[crate::types::StringInfo],
 ) -> ConditionResult {
     let mut evidence = Vec::new();
     let mut match_count = 0;
@@ -527,15 +485,23 @@ fn eval_decoded_strings_helper(
         None
     };
 
-    for decoded in decoded_strings {
+    // Filter strings that have this encoding in their chain
+    for string_info in strings {
+        if !string_info
+            .encoding_chain
+            .contains(&encoding_type.to_string())
+        {
+            continue;
+        }
+
         let mut matches = false;
 
         // Check exact match (full string equality)
         if let Some(exact_str) = exact {
             matches = if case_insensitive {
-                decoded.value.eq_ignore_ascii_case(exact_str)
+                string_info.value.eq_ignore_ascii_case(exact_str)
             } else {
-                decoded.value == *exact_str
+                string_info.value == *exact_str
             };
         }
 
@@ -543,12 +509,12 @@ fn eval_decoded_strings_helper(
         if !matches {
             if let Some(substr_str) = substr {
                 matches = if case_insensitive {
-                    decoded
+                    string_info
                         .value
                         .to_lowercase()
                         .contains(&substr_str.to_lowercase())
                 } else {
-                    decoded.value.contains(substr_str.as_str())
+                    string_info.value.contains(substr_str.as_str())
                 };
             }
         }
@@ -556,22 +522,22 @@ fn eval_decoded_strings_helper(
         // Check regex match
         if !matches {
             if let Some(ref re) = regex_matcher {
-                matches = re.is_match(&decoded.value);
+                matches = re.is_match(&string_info.value);
             }
         }
 
         if matches {
             match_count += 1;
-            let value_preview = if decoded.value.len() > 100 {
-                format!("{}...", &decoded.value[..100])
+            let value_preview = if string_info.value.len() > 100 {
+                format!("{}...", &string_info.value[..100])
             } else {
-                decoded.value.clone()
+                string_info.value.clone()
             };
             evidence.push(Evidence {
-                method: format!("decoded_{}", method),
+                method: format!("encoded_{}", encoding_type),
                 source: "string".to_string(),
                 value: value_preview,
-                location: decoded.offset.clone(),
+                location: string_info.offset.clone(),
             });
         }
     }

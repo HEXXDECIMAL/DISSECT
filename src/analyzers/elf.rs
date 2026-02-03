@@ -907,6 +907,8 @@ mod tests {
             encoding: "utf8".to_string(),
             string_type: StringType::Plain,
             section: None,
+            encoding_chain: Vec::new(),
+            fragments: None,
         });
 
         // Same string value - should be deduped
@@ -916,6 +918,8 @@ mod tests {
             encoding: "utf8".to_string(),
             string_type: StringType::Plain,
             section: None,
+            encoding_chain: Vec::new(),
+            fragments: None,
         });
 
         // Different string - should be added
@@ -925,6 +929,8 @@ mod tests {
             encoding: "utf8".to_string(),
             string_type: StringType::Plain,
             section: None,
+            encoding_chain: Vec::new(),
+            fragments: None,
         });
 
         analyzer.merge_reports(&mut packed, unpacked);

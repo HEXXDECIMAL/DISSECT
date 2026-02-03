@@ -907,6 +907,8 @@ impl CapabilityMapper {
                 encoding: "symbol".to_string(),
                 string_type: crate::types::StringType::Import,
                 section: None,
+                encoding_chain: Vec::new(),
+                fragments: None,
             });
         }
 
@@ -918,6 +920,8 @@ impl CapabilityMapper {
                 encoding: "symbol".to_string(),
                 string_type: crate::types::StringType::Export,
                 section: None,
+                encoding_chain: Vec::new(),
+                fragments: None,
             });
         }
 

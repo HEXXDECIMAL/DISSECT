@@ -725,7 +725,6 @@ mod tests {
             structure: vec![],
             functions: vec![],
             strings: vec![],
-            decoded_strings: vec![],
             sections: vec![],
             imports: vec![],
             exports: vec![],

@@ -19,6 +19,73 @@ fn create_test_report() -> AnalysisReport {
     AnalysisReport::new(target)
 }
 
+fn create_test_report_with_encoded_strings() -> AnalysisReport {
+    let mut report = create_test_report();
+
+    // Add test strings with encoding chains for testing eval_base64 and eval_xor
+    report.strings.push(StringInfo {
+        value: "secret_password".to_string(),
+        offset: Some("0x1000".to_string()),
+        encoding: "utf8".to_string(),
+        string_type: crate::types::StringType::Plain,
+        section: Some(".data".to_string()),
+        encoding_chain: vec!["base64".to_string()],
+        fragments: None,
+    });
+
+    report.strings.push(StringInfo {
+        value: "https://evil.com/payload".to_string(),
+        offset: Some("0x2000".to_string()),
+        encoding: "utf8".to_string(),
+        string_type: crate::types::StringType::Url,
+        section: Some(".data".to_string()),
+        encoding_chain: vec!["base64".to_string()],
+        fragments: None,
+    });
+
+    report.strings.push(StringInfo {
+        value: "192.168.1.1".to_string(),
+        offset: Some("0x3000".to_string()),
+        encoding: "utf8".to_string(),
+        string_type: crate::types::StringType::Ip,
+        section: Some(".data".to_string()),
+        encoding_chain: vec!["base64".to_string()],
+        fragments: None,
+    });
+
+    report.strings.push(StringInfo {
+        value: "malware".to_string(),
+        offset: Some("0x4000".to_string()),
+        encoding: "utf8".to_string(),
+        string_type: crate::types::StringType::Plain,
+        section: Some(".data".to_string()),
+        encoding_chain: vec!["xor".to_string()],
+        fragments: None,
+    });
+
+    report.strings.push(StringInfo {
+        value: "secret1".to_string(),
+        offset: Some("0x5000".to_string()),
+        encoding: "utf8".to_string(),
+        string_type: crate::types::StringType::Plain,
+        section: Some(".data".to_string()),
+        encoding_chain: vec!["xor".to_string()],
+        fragments: None,
+    });
+
+    report.strings.push(StringInfo {
+        value: "MALWARE_UPPERCASE".to_string(),
+        offset: Some("0x6000".to_string()),
+        encoding: "utf8".to_string(),
+        string_type: crate::types::StringType::Plain,
+        section: Some(".data".to_string()),
+        encoding_chain: vec!["xor".to_string()],
+        fragments: None,
+    });
+
+    report
+}
+
 fn create_test_context<'a>(report: &'a AnalysisReport, data: &'a [u8]) -> EvaluationContext<'a> {
     EvaluationContext {
         report,
@@ -253,6 +320,8 @@ fn test_eval_string_exact_match() {
         encoding: "utf8".to_string(),
         string_type: StringType::Path,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
     let data = vec![];
     let ctx = create_test_context(&report, &data);
@@ -284,6 +353,8 @@ fn test_eval_string_substr_match() {
         encoding: "utf8".to_string(),
         string_type: StringType::Url,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
     let data = vec![];
     let ctx = create_test_context(&report, &data);
@@ -314,6 +385,8 @@ fn test_eval_string_regex_match() {
         encoding: "utf8".to_string(),
         string_type: StringType::Ip,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
     let data = vec![];
     let ctx = create_test_context(&report, &data);
@@ -346,6 +419,8 @@ fn test_eval_string_case_insensitive() {
         encoding: "utf8".to_string(),
         string_type: StringType::Plain,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
     let data = vec![];
     let ctx = create_test_context(&report, &data);
@@ -376,6 +451,8 @@ fn test_eval_string_exclude_patterns() {
         encoding: "utf8".to_string(),
         string_type: StringType::Plain,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
     let data = vec![];
     let ctx = create_test_context(&report, &data);
@@ -408,6 +485,8 @@ fn test_eval_string_min_count() {
         encoding: "utf8".to_string(),
         string_type: StringType::Plain,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
     let data = vec![];
     let ctx = create_test_context(&report, &data);
@@ -440,6 +519,8 @@ fn test_eval_string_not_exception() {
         encoding: "utf8".to_string(),
         string_type: StringType::Path,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
     let data = vec![];
     let ctx = create_test_context(&report, &data);
@@ -652,14 +733,7 @@ fn test_eval_raw_invalid_utf8() {
 
 #[test]
 fn test_eval_base64_exact_match() {
-    let mut report = create_test_report();
-    report.decoded_strings.push(DecodedString {
-        value: "secret_password".to_string(),
-        encoded: "c2VjcmV0X3Bhc3N3b3Jk".to_string(),
-        method: "base64".to_string(),
-        key: None,
-        offset: Some("0x1000".to_string()),
-    });
+    let report = create_test_report_with_encoded_strings();
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
@@ -673,19 +747,12 @@ fn test_eval_base64_exact_match() {
     );
 
     assert!(result.matched);
-    assert!(result.evidence[0].method.contains("decoded_base64"));
+    assert!(result.evidence[0].method.contains("encoded_base64"));
 }
 
 #[test]
 fn test_eval_base64_substr_match() {
-    let mut report = create_test_report();
-    report.decoded_strings.push(DecodedString {
-        value: "http://evil.com/payload".to_string(),
-        encoded: "aHR0cDovL2V2aWwuY29tL3BheWxvYWQ=".to_string(),
-        method: "base64".to_string(),
-        key: None,
-        offset: Some("0x1000".to_string()),
-    });
+    let report = create_test_report_with_encoded_strings();
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
@@ -696,14 +763,7 @@ fn test_eval_base64_substr_match() {
 
 #[test]
 fn test_eval_base64_regex_match() {
-    let mut report = create_test_report();
-    report.decoded_strings.push(DecodedString {
-        value: "192.168.1.100".to_string(),
-        encoded: "MTkyLjE2OC4xLjEwMA==".to_string(),
-        method: "base64".to_string(),
-        key: None,
-        offset: Some("0x1000".to_string()),
-    });
+    let report = create_test_report_with_encoded_strings();
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
@@ -721,14 +781,7 @@ fn test_eval_base64_regex_match() {
 
 #[test]
 fn test_eval_base64_no_match_wrong_method() {
-    let mut report = create_test_report();
-    report.decoded_strings.push(DecodedString {
-        value: "secret".to_string(),
-        encoded: "encoded".to_string(),
-        method: "xor".to_string(), // Not base64
-        key: Some("0x42".to_string()),
-        offset: None,
-    });
+    let report = create_test_report_with_encoded_strings();
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
@@ -743,14 +796,7 @@ fn test_eval_base64_no_match_wrong_method() {
 
 #[test]
 fn test_eval_xor_match() {
-    let mut report = create_test_report();
-    report.decoded_strings.push(DecodedString {
-        value: "malware.exe".to_string(),
-        encoded: "obfuscated".to_string(),
-        method: "xor".to_string(),
-        key: Some("0x42".to_string()),
-        offset: Some("0x2000".to_string()),
-    });
+    let report = create_test_report_with_encoded_strings();
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
@@ -769,21 +815,7 @@ fn test_eval_xor_match() {
 
 #[test]
 fn test_eval_xor_with_key_filter() {
-    let mut report = create_test_report();
-    report.decoded_strings.push(DecodedString {
-        value: "secret1".to_string(),
-        encoded: "enc1".to_string(),
-        method: "xor".to_string(),
-        key: Some("0x42".to_string()),
-        offset: None,
-    });
-    report.decoded_strings.push(DecodedString {
-        value: "secret2".to_string(),
-        encoded: "enc2".to_string(),
-        method: "xor".to_string(),
-        key: Some("0xFF".to_string()),
-        offset: None,
-    });
+    let report = create_test_report_with_encoded_strings();
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
@@ -805,14 +837,7 @@ fn test_eval_xor_with_key_filter() {
 
 #[test]
 fn test_eval_xor_case_insensitive() {
-    let mut report = create_test_report();
-    report.decoded_strings.push(DecodedString {
-        value: "MALWARE".to_string(),
-        encoded: "obfuscated".to_string(),
-        method: "xor".to_string(),
-        key: Some("0x42".to_string()),
-        offset: None,
-    });
+    let report = create_test_report_with_encoded_strings();
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
@@ -843,6 +868,8 @@ fn test_eval_string_count_min() {
             encoding: "utf8".to_string(),
             string_type: StringType::Plain,
             section: None,
+            encoding_chain: Vec::new(),
+            fragments: None,
         });
     }
     let data = vec![];
@@ -865,6 +892,8 @@ fn test_eval_string_count_max() {
             encoding: "utf8".to_string(),
             string_type: StringType::Plain,
             section: None,
+            encoding_chain: Vec::new(),
+            fragments: None,
         });
     }
     let data = vec![];
@@ -886,6 +915,8 @@ fn test_eval_string_count_min_length() {
         encoding: "utf8".to_string(),
         string_type: StringType::Plain,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
     report.strings.push(StringInfo {
         value: "abcdefgh".to_string(), // 8 chars
@@ -893,6 +924,8 @@ fn test_eval_string_count_min_length() {
         encoding: "utf8".to_string(),
         string_type: StringType::Plain,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
     report.strings.push(StringInfo {
         value: "abcdefghijklmnop".to_string(), // 16 chars
@@ -900,6 +933,8 @@ fn test_eval_string_count_min_length() {
         encoding: "utf8".to_string(),
         string_type: StringType::Plain,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
     let data = vec![];
     let ctx = create_test_context(&report, &data);
@@ -923,6 +958,8 @@ fn test_eval_string_count_range() {
             encoding: "utf8".to_string(),
             string_type: StringType::Plain,
             section: None,
+            encoding_chain: Vec::new(),
+            fragments: None,
         });
     }
     let data = vec![];

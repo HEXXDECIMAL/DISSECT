@@ -15,6 +15,53 @@ use rustc_hash::FxHashSet;
 use std::collections::{HashMap, HashSet};
 use stng::{ExtractOptions, ExtractedString, StringKind, StringMethod};
 
+/// Detect encoding layers in a string and populate layer metadata
+fn detect_layers(mut info: StringInfo) -> StringInfo {
+    // If this is a stack string, add it to the chain
+    if info.string_type == StringType::StackString {
+        info.encoding_chain.push("stack".to_string());
+        return info;
+    }
+
+    // Detect other encoding layers based on string content
+    if is_likely_base64(&info.value) {
+        info.encoding_chain.push("base64".to_string());
+    }
+
+    if is_likely_hex(&info.value) {
+        info.encoding_chain.push("hex".to_string());
+    }
+
+    info
+}
+
+/// Check if a string looks like base64-encoded data
+fn is_likely_base64(s: &str) -> bool {
+    // Base64 strings are alphanumeric + /+ and optional padding
+    // Must be reasonably long (> 16 chars) and have high base64 character ratio
+    if s.len() < 16 {
+        return false;
+    }
+
+    let base64_chars = s
+        .chars()
+        .filter(|c| c.is_ascii_alphanumeric() || *c == '+' || *c == '/' || *c == '=')
+        .count();
+
+    // If >= 80% base64 characters, likely encoded
+    (base64_chars as f32 / s.len() as f32) >= 0.8
+}
+
+/// Check if a string looks like hex-encoded data
+fn is_likely_hex(s: &str) -> bool {
+    // Hex strings are [0-9a-fA-F]+, must be even length and >= 32 chars
+    if s.len() < 32 || s.len() % 2 != 0 {
+        return false;
+    }
+
+    s.chars().all(|c| c.is_ascii_hexdigit())
+}
+
 /// Extract and classify strings from binary data
 pub struct StringExtractor {
     min_length: usize,
@@ -441,13 +488,27 @@ impl StringExtractor {
             _ => self.classify_string_type(&es.value),
         };
 
-        StringInfo {
+        // Detect if this is a stack string
+        let final_string_type = if es.method == StringMethod::StackString {
+            StringType::StackString
+        } else {
+            string_type
+        };
+
+        let mut info = StringInfo {
             value: es.value,
             offset: Some(format!("{:#x}", es.data_offset)),
             encoding: "utf8".to_string(),
-            string_type,
+            string_type: final_string_type,
             section: es.section,
-        }
+            encoding_chain: Vec::new(),
+            // Note: fragments from stng are StringFragment, not String - skip for now
+            fragments: None,
+        };
+
+        // Detect any encoding layers
+        info = detect_layers(info);
+        info
     }
 
     /// Classify a string by type
@@ -474,13 +535,19 @@ impl StringExtractor {
             }
         };
 
-        StringInfo {
+        let mut info = StringInfo {
             value,
             offset: Some(format!("{:#x}", offset)),
             encoding: "utf8".to_string(),
             string_type: stype,
             section,
-        }
+            encoding_chain: Vec::new(),
+            fragments: None,
+        };
+
+        // Detect any encoding layers
+        info = detect_layers(info);
+        info
     }
     /// Classify a string's type without creating a StringInfo object
     pub fn classify_string_type(&self, value: &str) -> StringType {

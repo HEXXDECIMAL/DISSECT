@@ -43,7 +43,6 @@ fn create_test_report_for_diff(path: &str, trait_ids: Vec<&str>) -> AnalysisRepo
         structure: vec![],
         functions: vec![],
         strings: vec![],
-        decoded_strings: vec![],
         sections: vec![],
         imports: vec![],
         exports: vec![],

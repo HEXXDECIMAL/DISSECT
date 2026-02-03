@@ -193,6 +193,8 @@ impl GenericAnalyzer {
                             string_type: StringType::Literal,
                             encoding: "utf-8".to_string(),
                             section: Some("ast".to_string()),
+                            encoding_chain: Vec::new(),
+                            fragments: None,
                         });
                     }
                 }
@@ -226,6 +228,8 @@ impl GenericAnalyzer {
                     string_type: StringType::Literal,
                     encoding: "utf-8".to_string(),
                     section: Some("regex".to_string()),
+                    encoding_chain: Vec::new(),
+                    fragments: None,
                 });
             }
         }
@@ -239,6 +243,8 @@ impl GenericAnalyzer {
                     string_type: StringType::Literal,
                     encoding: "utf-8".to_string(),
                     section: Some("regex".to_string()),
+                    encoding_chain: Vec::new(),
+                    fragments: None,
                 });
             }
         }

@@ -300,6 +300,8 @@ fn test_string_info_creation() {
         encoding: "utf8".to_string(),
         string_type: StringType::Url,
         section: Some(".rodata".to_string()),
+        encoding_chain: Vec::new(),
+        fragments: None,
     };
 
     assert_eq!(string.value, "http://example.com");

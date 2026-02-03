@@ -38,6 +38,8 @@ fn create_test_context() -> (AnalysisReport, Vec<u8>) {
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Path,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
 
     (report, vec![])
@@ -341,6 +343,8 @@ fn test_not_directive_shorthand() {
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Url,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
     report.strings.push(StringInfo {
         value: "evil.com".to_string(),
@@ -348,6 +352,8 @@ fn test_not_directive_shorthand() {
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Url,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
 
     let ctx = EvaluationContext {
@@ -406,6 +412,8 @@ fn test_not_directive_exact() {
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Url,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
     report.strings.push(StringInfo {
         value: "bad.com".to_string(),
@@ -413,6 +421,8 @@ fn test_not_directive_exact() {
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Url,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
 
     let ctx = EvaluationContext {
@@ -475,6 +485,8 @@ fn test_not_directive_regex() {
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Ip,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
     report.strings.push(StringInfo {
         value: "8.8.8.8".to_string(),
@@ -482,6 +494,8 @@ fn test_not_directive_regex() {
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Ip,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
 
     let ctx = EvaluationContext {
@@ -904,6 +918,8 @@ fn test_all_three_directives_combined() {
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Url,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
     report.strings.push(StringInfo {
         value: "evil.com".to_string(),
@@ -911,6 +927,8 @@ fn test_all_three_directives_combined() {
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Url,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
 
     // Add finding for downgrade
@@ -996,6 +1014,8 @@ fn test_string_exact_match_requires_full_equality() {
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Plain,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
     report.strings.push(StringInfo {
         value: "hello world".to_string(),
@@ -1003,6 +1023,8 @@ fn test_string_exact_match_requires_full_equality() {
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Plain,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
 
     let ctx = EvaluationContext {
@@ -1062,6 +1084,8 @@ fn test_string_substr_matches_substrings() {
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Plain,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
     report.strings.push(StringInfo {
         value: "hello world".to_string(),
@@ -1069,6 +1093,8 @@ fn test_string_substr_matches_substrings() {
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Plain,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
 
     let ctx = EvaluationContext {
@@ -1212,6 +1238,8 @@ fn test_string_case_insensitive_exact() {
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Plain,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
 
     let ctx = EvaluationContext {
@@ -1266,6 +1294,8 @@ fn test_string_word_boundary_match() {
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Plain,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
     report.strings.push(StringInfo {
         value: "category".to_string(),
@@ -1273,6 +1303,8 @@ fn test_string_word_boundary_match() {
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Plain,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
 
     let ctx = EvaluationContext {
@@ -1331,6 +1363,8 @@ fn test_string_regex_match() {
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Ip,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
     report.strings.push(StringInfo {
         value: "10.0.0.1".to_string(),
@@ -1338,6 +1372,8 @@ fn test_string_regex_match() {
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Ip,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
     report.strings.push(StringInfo {
         value: "not an ip".to_string(),
@@ -1345,6 +1381,8 @@ fn test_string_regex_match() {
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Plain,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
 
     let ctx = EvaluationContext {
@@ -1441,19 +1479,24 @@ fn test_base64_decoded_matching() {
     let (mut report, data) = create_test_context();
 
     // Add decoded base64 strings
-    report.decoded_strings.push(crate::types::DecodedString {
-        value: "secret password".to_string(),
-        method: "base64".to_string(),
-        encoded: "c2VjcmV0IHBhc3N3b3Jk".to_string(),
-        offset: Some("0x1000".to_string()),
-        key: None,
-    });
-    report.decoded_strings.push(crate::types::DecodedString {
+    report.strings.push(StringInfo {
         value: "secret".to_string(),
-        method: "base64".to_string(),
-        encoded: "c2VjcmV0".to_string(),
         offset: Some("0x2000".to_string()),
-        key: None,
+        encoding: "utf8".to_string(),
+        string_type: crate::types::StringType::Plain,
+        section: None,
+        encoding_chain: vec!["base64".to_string()],
+        fragments: None,
+    });
+
+    report.strings.push(StringInfo {
+        value: "secret password".to_string(),
+        offset: Some("0x3000".to_string()),
+        encoding: "utf8".to_string(),
+        string_type: crate::types::StringType::Plain,
+        section: None,
+        encoding_chain: vec!["base64".to_string()],
+        fragments: None,
     });
 
     let ctx = EvaluationContext {
@@ -1484,12 +1527,14 @@ fn test_xor_decoded_matching() {
     let (mut report, data) = create_test_context();
 
     // Add decoded XOR strings
-    report.decoded_strings.push(crate::types::DecodedString {
+    report.strings.push(StringInfo {
         value: "http://evil.com".to_string(),
-        method: "xor".to_string(),
-        encoded: "encrypted".to_string(),
-        offset: Some("0x1000".to_string()),
-        key: Some("0x42".to_string()),
+        offset: Some("0x4000".to_string()),
+        encoding: "utf8".to_string(),
+        string_type: crate::types::StringType::Url,
+        section: None,
+        encoding_chain: vec!["xor".to_string()],
+        fragments: None,
     });
 
     let ctx = EvaluationContext {
@@ -1932,6 +1977,8 @@ fn test_composite_unless_multiple_conditions_any_matches() {
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Plain,
         section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
     });
 
     let ctx = EvaluationContext {

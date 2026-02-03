@@ -71,21 +71,10 @@ fn truncate_str_at_boundary(s: &str, max_bytes: usize) -> &str {
     &s[..end]
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct StringInfo {
-    #[serde(serialize_with = "serialize_truncated_string")]
-    pub value: String,
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub offset: Option<String>,
-    pub encoding: String,
-    #[serde(rename = "type")]
-    pub string_type: StringType,
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub section: Option<String>,
-}
-
 /// Decoded string (base64, xor-decoded, etc.)
+/// Deprecated: Use StringInfo with encoding_chain instead.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(dead_code)]
 pub struct DecodedString {
     /// The decoded plaintext value
     #[serde(serialize_with = "serialize_truncated_string")]
@@ -101,6 +90,25 @@ pub struct DecodedString {
     /// Offset in file where encoded string was found
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub offset: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StringInfo {
+    #[serde(serialize_with = "serialize_truncated_string")]
+    pub value: String,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub offset: Option<String>,
+    pub encoding: String,
+    #[serde(rename = "type")]
+    pub string_type: StringType,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub section: Option<String>,
+    /// Encoding layers applied to this string (e.g., ["base64", "zlib"])
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub encoding_chain: Vec<String>,
+    /// Fragments if this is a stack-constructed string
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub fragments: Option<Vec<String>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
@@ -121,6 +129,8 @@ pub enum StringType {
     Comment,
     /// Docstring/documentation comment
     Docstring,
+    /// Stack-constructed string (character-by-character assembly)
+    StackString,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

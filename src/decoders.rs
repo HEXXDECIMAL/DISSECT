@@ -1,4 +1,7 @@
 //! Decoders for extracting hidden content (base64, xor, etc.)
+//! Note: This module is deprecated. Use StringInfo with encoding_chain instead.
+
+#![allow(dead_code)]
 
 use crate::types::DecodedString;
 

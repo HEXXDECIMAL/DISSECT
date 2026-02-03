@@ -4,9 +4,7 @@ use crate::radare2::SyscallInfo;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use super::binary::{
-    AnalysisMetadata, DecodedString, Export, Function, Import, Section, StringInfo, YaraMatch,
-};
+use super::binary::{AnalysisMetadata, Export, Function, Import, Section, StringInfo, YaraMatch};
 use super::code_structure::{BinaryProperties, CodeMetrics, OverlayMetrics, SourceCodeMetrics};
 use super::file_analysis::{FileAnalysis, ReportSummary};
 use super::paths_env::{DirectoryAccess, EnvVarInfo, PathInfo};
@@ -64,9 +62,6 @@ pub struct AnalysisReport {
     /// Syscalls detected via binary analysis (ELF, Mach-O)
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub syscalls: Vec<SyscallInfo>,
-    /// Decoded strings (base64, xor, etc.) extracted during analysis
-    #[serde(skip_serializing_if = "Vec::is_empty", default)]
-    pub decoded_strings: Vec<DecodedString>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub binary_properties: Option<BinaryProperties>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
@@ -131,7 +126,6 @@ impl AnalysisReport {
             exports: Vec::new(),
             yara_matches: Vec::new(),
             syscalls: Vec::new(),
-            decoded_strings: Vec::new(),
             binary_properties: None,
             code_metrics: None,
             source_code_metrics: None,
@@ -245,7 +239,6 @@ impl AnalysisReport {
             file.exports = self.exports.clone();
             file.yara_matches = self.yara_matches.clone();
             file.syscalls = self.syscalls.clone();
-            file.decoded_strings = self.decoded_strings.clone();
             file.binary_properties = self.binary_properties.clone();
             file.source_code_metrics = self.source_code_metrics.clone();
             file.metrics = self.metrics.clone();
@@ -269,7 +262,6 @@ impl AnalysisReport {
         self.exports.clear();
         self.yara_matches.clear();
         self.syscalls.clear();
-        self.decoded_strings.clear();
         self.binary_properties = None;
         self.code_metrics = None;
         self.source_code_metrics = None;

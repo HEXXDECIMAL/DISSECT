@@ -659,6 +659,8 @@ impl PackageJsonAnalyzer {
                     encoding: "utf8".to_string(),
                     string_type: StringType::Url,
                     section: Some(format!("scripts.{}", name)),
+                    encoding_chain: Vec::new(),
+                    fragments: None,
                 });
             }
 
@@ -670,6 +672,8 @@ impl PackageJsonAnalyzer {
                     encoding: "utf8".to_string(),
                     string_type: StringType::Ip,
                     section: Some(format!("scripts.{}", name)),
+                    encoding_chain: Vec::new(),
+                    fragments: None,
                 });
             }
 
@@ -681,6 +685,8 @@ impl PackageJsonAnalyzer {
                     encoding: "utf8".to_string(),
                     string_type: StringType::Path,
                     section: Some(format!("scripts.{}", name)),
+                    encoding_chain: Vec::new(),
+                    fragments: None,
                 });
             }
         }

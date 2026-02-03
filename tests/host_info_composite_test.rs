@@ -22,6 +22,8 @@ fn test_host_info_composite_fires_with_4_atomics() {
             encoding: "ascii".to_string(),
             string_type: dissect::types::StringType::Plain,
             section: None,
+            encoding_chain: Vec::new(),
+            fragments: None,
         },
         dissect::types::StringInfo {
             value: "GateWay: 192.168.1.254".to_string(),
@@ -29,6 +31,8 @@ fn test_host_info_composite_fires_with_4_atomics() {
             encoding: "ascii".to_string(),
             string_type: dissect::types::StringType::Plain,
             section: None,
+            encoding_chain: Vec::new(),
+            fragments: None,
         },
         dissect::types::StringInfo {
             value: "OSInfo: Linux".to_string(),
@@ -36,6 +40,8 @@ fn test_host_info_composite_fires_with_4_atomics() {
             encoding: "ascii".to_string(),
             string_type: dissect::types::StringType::Plain,
             section: None,
+            encoding_chain: Vec::new(),
+            fragments: None,
         },
         dissect::types::StringInfo {
             value: "Userame: root".to_string(),
@@ -43,6 +49,8 @@ fn test_host_info_composite_fires_with_4_atomics() {
             encoding: "ascii".to_string(),
             string_type: dissect::types::StringType::Plain,
             section: None,
+            encoding_chain: Vec::new(),
+            fragments: None,
         },
     ];
 

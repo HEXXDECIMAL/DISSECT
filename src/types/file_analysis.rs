@@ -6,7 +6,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use super::binary::{DecodedString, Export, Function, Import, Section, StringInfo, YaraMatch};
+use super::binary::{Export, Function, Import, Section, StringInfo, YaraMatch};
 use super::code_structure::{BinaryProperties, SourceCodeMetrics};
 use super::core::Criticality;
 use super::paths_env::{DirectoryAccess, EnvVarInfo, PathInfo};
@@ -105,10 +105,6 @@ pub struct FileAnalysis {
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub syscalls: Vec<SyscallInfo>,
 
-    /// Decoded strings (base64, xor, etc.)
-    #[serde(skip_serializing_if = "Vec::is_empty", default)]
-    pub decoded_strings: Vec<DecodedString>,
-
     /// Binary properties
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub binary_properties: Option<BinaryProperties>,
@@ -163,7 +159,6 @@ impl FileAnalysis {
             exports: Vec::new(),
             yara_matches: Vec::new(),
             syscalls: Vec::new(),
-            decoded_strings: Vec::new(),
             binary_properties: None,
             source_code_metrics: None,
             metrics: None,
@@ -234,7 +229,6 @@ impl FileAnalysis {
         self.exports.clear();
         self.yara_matches.clear();
         self.syscalls.clear();
-        self.decoded_strings.clear();
         self.binary_properties = None;
         self.source_code_metrics = None;
         self.metrics = None;

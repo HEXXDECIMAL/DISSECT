@@ -664,6 +664,8 @@ mod tests {
                 offset: None,
                 encoding: "ascii".to_string(),
                 section: None,
+                encoding_chain: Vec::new(),
+                fragments: None,
             },
             StringInfo {
                 value: "/bin/sh".to_string(),
@@ -671,6 +673,8 @@ mod tests {
                 offset: None,
                 encoding: "ascii".to_string(),
                 section: None,
+                encoding_chain: Vec::new(),
+                fragments: None,
             },
             StringInfo {
                 value: "not a path".to_string(),
@@ -678,6 +682,8 @@ mod tests {
                 offset: None,
                 encoding: "ascii".to_string(),
                 section: None,
+                encoding_chain: Vec::new(),
+                fragments: None,
             },
         ];
 
