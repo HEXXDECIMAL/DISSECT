@@ -5,7 +5,7 @@ use crate::composite_rules::condition::NotException;
 use crate::composite_rules::context::{EvaluationContext, StringParams};
 use crate::composite_rules::types::{FileType, Platform};
 use crate::types::{
-    AnalysisReport, DecodedString, Export, Function, Import, StringInfo, StringType, TargetInfo,
+    AnalysisReport, Export, Function, Import, StringInfo, StringType, TargetInfo,
 };
 
 fn create_test_report() -> AnalysisReport {

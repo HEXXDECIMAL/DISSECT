@@ -79,7 +79,7 @@ impl ElfAnalyzer {
         let mut tools_used = vec![];
 
         // Attempt to parse with goblin
-        let parsed_elf = match Elf::parse(data) {
+        match Elf::parse(data) {
             Ok(elf) => {
                 tools_used.push("goblin".to_string());
 
@@ -94,8 +94,6 @@ impl ElfAnalyzer {
 
                 // Analyze sections and entropy
                 self.analyze_sections(&elf, data, &mut report)?;
-
-                Some(elf)
             }
             Err(e) => {
                 // Parsing failed - this is a strong indicator of malformed/hostile binary
@@ -115,9 +113,8 @@ impl ElfAnalyzer {
                     .metadata
                     .errors
                     .push(format!("ELF parse error: {}", e));
-                None
             }
-        };
+        }
 
         // Use radare2 for deep analysis if available - SINGLE r2 spawn for all data
         let r2_strings = if Radare2Analyzer::is_available() {
@@ -172,11 +169,10 @@ impl ElfAnalyzer {
             // Large binary: use lightweight extraction (r2 strings + basic extraction)
             // Skip expensive language-aware extraction which is slow for large Go/Rust binaries
             report.strings = self.string_extractor.extract_lightweight(data, r2_strings);
-        } else if let Some(ref elf) = parsed_elf {
-            report.strings = self
-                .string_extractor
-                .extract_from_elf(elf, data, r2_strings);
         } else {
+            // Use extract_smart_with_r2 for all cases to ensure comprehensive string extraction
+            // This uses stng::extract_strings_with_options which finds more special strings (like StackStrings)
+            // than extract_from_elf, despite having a pre-parsed ELF available
             report.strings = self
                 .string_extractor
                 .extract_smart_with_r2(data, r2_strings);

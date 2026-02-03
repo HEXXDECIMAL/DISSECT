@@ -310,6 +310,11 @@ enum ConditionTagged {
         #[serde(default)]
         case_insensitive: bool,
     },
+
+    /// Match strings by their encoding layer path
+    /// Example: { type: layer_path, value: "meta/layers/.text/stack" }
+    /// Layer paths are computed as: meta/layers/{section}/{encoding_chain_joined}
+    LayerPath { value: String },
 }
 
 fn default_match_mode() -> String {
@@ -529,6 +534,7 @@ impl From<ConditionDeser> for Condition {
                     regex,
                     case_insensitive,
                 },
+                ConditionTagged::LayerPath { value } => Condition::LayerPath { value },
             },
         }
     }
@@ -936,6 +942,10 @@ pub enum Condition {
         #[serde(default)]
         case_insensitive: bool,
     },
+
+    /// Match strings by their encoding layer path
+    /// Layer paths are computed as: meta/layers/{section}/{encoding_chain_joined}
+    LayerPath { value: String },
 }
 
 fn default_compare_to() -> String {
@@ -974,7 +984,8 @@ impl Condition {
             Condition::SectionRatio { .. }
             | Condition::SectionEntropy { .. }
             | Condition::SectionName { .. }
-            | Condition::Structure { .. } => is_binary,
+            | Condition::Structure { .. }
+            | Condition::LayerPath { .. } => is_binary,
 
             // AST requires source code
             Condition::Ast { .. } => file_type.is_source_code(),
@@ -1010,6 +1021,7 @@ impl Condition {
             Condition::Base64 { .. } => "base64",
             Condition::Xor { .. } => "xor",
             Condition::Basename { .. } => "basename",
+            Condition::LayerPath { .. } => "layer_path",
         }
     }
 

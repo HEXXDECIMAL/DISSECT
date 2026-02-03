@@ -52,7 +52,7 @@ Problem: DISSECT flagged it as suspicious/hostile - these are false positives
    a) TAXONOMY: Move trait to correct location (e.g., cap/comm/http/client not obj/c2/beacon)
    b) PATTERNS: Make patterns more specific to avoid legitimate usage:
       - Add ` + "`near:` or `near_lines:`" + ` to require proximity to suspicious behavior
-      - Use ` + "`filesize_min:`" + ` / ` + "`filesize_max:`" + ` to exclude legitimate executables (e.g., malware: 50KB, legitimate: 50MB)
+      - Use ` + "`size_min:`" + ` / ` + "`size_max:`" + ` to exclude legitimate executables (e.g., malware: 50KB, legitimate: 50MB)
       - Restrict ` + "`for:`" + ` file types (elf/pe/macho only) to exclude scripts/interpreted code
       - Require multiple patterns together via ` + "`all:`" + ` in composites to add context
    c) EXCLUSIONS: Add ` + "`not:`" + ` conditions to filter known-good strings (e.g., ` + "`not: [\"myapp.exe\"]`" + `)
@@ -61,7 +61,7 @@ Problem: DISSECT flagged it as suspicious/hostile - these are false positives
 
 ## Specificity Tips
 - **near/near_lines**: If a string only matters near a socket/exec call, use ` + "`near: 200`" + `
-- **filesize**: Legitimate tools embed data; malware is compact. Use ` + "`filesize_min: 1000`" + ` / ` + "`filesize_max: 50000`" + `
+- **size**: Legitimate tools embed data; malware is compact. Use ` + "`size_min: 1000`" + ` / ` + "`size_max: 50000`" + `
 - **Scope**: Narrow trait scope (e.g., method-level) beats global scope
 - **Context**: A domain string + networking call = C2. Domain string alone = innocent.
 
@@ -115,7 +115,7 @@ Problem: %d members flagged as suspicious/hostile - these are false positives
    a) TAXONOMY: Move trait to correct location (e.g., cap/comm/http/client not obj/c2/beacon)
    b) PATTERNS: Make patterns more specific to avoid legitimate usage:
       - Add ` + "`near:` or `near_lines:`" + ` to require proximity to suspicious behavior
-      - Use ` + "`filesize_min:`" + ` / ` + "`filesize_max:`" + ` to exclude size patterns (malware: 50-500KB; legitimate: 1-100MB)
+      - Use ` + "`size_min:`" + ` / ` + "`size_max:`" + ` to exclude size patterns (malware: 50-500KB; legitimate: 1-100MB)
       - Restrict ` + "`for:`" + ` file types (e.g., elf/pe/macho) to exclude libraries/plugins
       - Combine patterns via ` + "`all:`" + ` composites instead of single-trait flags
    c) EXCLUSIONS: Add ` + "`not:`" + ` conditions to filter known-good strings

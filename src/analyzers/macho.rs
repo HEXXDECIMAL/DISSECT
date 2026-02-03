@@ -122,10 +122,11 @@ impl MachOAnalyzer {
             None
         };
 
-        // Extract strings using language-aware extraction (Go/Rust) with pre-parsed Mach-O
+        // Extract strings using language-aware extraction (Go/Rust)
+        // Use extract_smart_with_r2 for comprehensive string extraction including StackStrings
         report.strings = self
             .string_extractor
-            .extract_from_macho(&macho, data, r2_strings);
+            .extract_smart_with_r2(data, r2_strings);
         tools_used.push("stng".to_string());
 
         // Run YARA scan if engine is loaded

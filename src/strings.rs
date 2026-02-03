@@ -17,13 +17,10 @@ use stng::{ExtractOptions, ExtractedString, StringKind, StringMethod};
 
 /// Detect encoding layers in a string and populate layer metadata
 fn detect_layers(mut info: StringInfo) -> StringInfo {
-    // If this is a stack string, add it to the chain
-    if info.string_type == StringType::StackString {
-        info.encoding_chain.push("stack".to_string());
-        return info;
-    }
+    // Stack strings are already tracked via stng_method_to_string(),  so don't add here
+    // Just detect additional encoding layers in the actual string content
 
-    // Detect other encoding layers based on string content
+    // Detect encoding layers based on string content
     if is_likely_base64(&info.value) {
         info.encoding_chain.push("base64".to_string());
     }
@@ -60,6 +57,30 @@ fn is_likely_hex(s: &str) -> bool {
     }
 
     s.chars().all(|c| c.is_ascii_hexdigit())
+}
+
+/// Convert stng StringMethod to a string for encoding_chain tracking
+/// Only tracks actual string construction/encoding methods, not extraction sources
+fn stng_method_to_string(method: StringMethod) -> String {
+    match method {
+        // String construction methods - worth tracking
+        StringMethod::StackString => "stack",
+        StringMethod::XorDecode => "xor",
+        StringMethod::WideString => "wide",
+
+        // Extraction sources - not worth tracking (all strings are equally valid)
+        StringMethod::R2String
+        | StringMethod::R2Symbol
+        | StringMethod::RawScan
+        | StringMethod::InstructionPattern
+        | StringMethod::Structure
+        | StringMethod::Heuristic
+        | StringMethod::CodeSignature => return String::new(),
+
+        // Future variants from stng
+        _ => return String::new(),
+    }
+    .to_string()
 }
 
 /// Extract and classify strings from binary data
@@ -305,7 +326,11 @@ impl StringExtractor {
 
     /// Extract strings from a pre-parsed Mach-O binary with optional r2 strings.
     ///
+    /// DEPRECATED: This method doesn't find all special string types (e.g., StackStrings).
+    /// Use `extract_smart_with_r2` instead for comprehensive extraction.
+    ///
     /// This avoids re-parsing the binary in stng since DISSECT already parsed it.
+    #[allow(dead_code)]
     pub fn extract_from_macho(
         &self,
         macho: &MachO,
@@ -328,7 +353,11 @@ impl StringExtractor {
 
     /// Extract strings from a pre-parsed ELF binary with optional r2 strings.
     ///
+    /// DEPRECATED: This method doesn't find all special string types (e.g., StackStrings).
+    /// Use `extract_smart_with_r2` instead for comprehensive extraction.
+    ///
     /// This avoids re-parsing the binary in stng since DISSECT already parsed it.
+    #[allow(dead_code)]
     pub fn extract_from_elf(
         &self,
         elf: &Elf,
@@ -351,7 +380,11 @@ impl StringExtractor {
 
     /// Extract strings from a pre-parsed PE binary with optional r2 strings.
     ///
+    /// DEPRECATED: This method doesn't find all special string types (e.g., StackStrings).
+    /// Use `extract_smart_with_r2` instead for comprehensive extraction.
+    ///
     /// This avoids re-parsing the binary in stng since DISSECT already parsed it.
+    #[allow(dead_code)]
     pub fn extract_from_pe(
         &self,
         pe: &PE,
@@ -450,6 +483,7 @@ impl StringExtractor {
     }
 
     /// Merge language-aware strings with basic extraction, deduplicating by value.
+    #[allow(dead_code)]
     fn merge_strings(
         &self,
         lang_strings: Vec<ExtractedString>,
@@ -506,7 +540,14 @@ impl StringExtractor {
             fragments: None,
         };
 
-        // Detect any encoding layers
+        // Track the stng method as an encoding layer if it's a special string construction
+        // This captures: StackString, InetNtoa, InetAton, etc.
+        let method_str = stng_method_to_string(es.method);
+        if !method_str.is_empty() {
+            info.encoding_chain.push(method_str);
+        }
+
+        // Detect any additional encoding layers (base64, hex, etc.)
         info = detect_layers(info);
         info
     }

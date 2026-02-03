@@ -100,7 +100,7 @@ traits/cap/exec/shell/
 **Complexity calculation:**
 - `any:` → +1 (regardless of sub-pattern count)
 - `all:` → +N (N = number of rules)
-- `file_types:`/`filesize:` → +1 each
+- `file_types:`, `size_min:`, `size_max:` → +1 each
 - Referenced composites with `all:` add recursively
 
 ```yaml
@@ -122,6 +122,13 @@ traits/cap/exec/shell/
 | `count_max: N` | At most N can match |
 | `count_exact: N` | Exactly N must match |
 
+### Size Constraints
+
+| Operator | Description |
+|----------|-------------|
+| `size_min: N` | Minimum file size in bytes |
+| `size_max: N` | Maximum file size in bytes |
+
 ## Trait Definitions
 
 ```yaml
@@ -134,6 +141,8 @@ traits:
     attack: "T1562"                    # Optional
     for: [csharp]                      # File types
     platforms: [all]                   # linux, macos, windows, unix, all
+    size_min: 1000                     # Optional: minimum file size in bytes
+    size_max: 10485760                 # Optional: maximum file size in bytes
     if:
       type: ast
       kind: call
@@ -231,15 +240,6 @@ if:
   type: section_name
   pattern: "UPX"
   regex: true           # Optional
-```
-
-### filesize
-
-```yaml
-if:
-  type: filesize
-  min: 1000
-  max: 10485760
 ```
 
 ### basename

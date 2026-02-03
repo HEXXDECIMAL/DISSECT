@@ -7,10 +7,10 @@ use super::condition::{Condition, NotException};
 use super::context::{ConditionResult, EvaluationContext, StringParams};
 use super::evaluators::{
     eval_ast, eval_base64, eval_basename, eval_exports_count, eval_filesize, eval_hex,
-    eval_import_combination, eval_imports_count, eval_metrics, eval_raw, eval_section_entropy,
-    eval_section_name, eval_section_ratio, eval_string, eval_string_count, eval_structure,
-    eval_symbol, eval_syscall, eval_trait, eval_trait_glob, eval_xor, eval_yara_inline,
-    eval_yara_match,
+    eval_import_combination, eval_imports_count, eval_layer_path, eval_metrics, eval_raw,
+    eval_section_entropy, eval_section_name, eval_section_ratio, eval_string, eval_string_count,
+    eval_structure, eval_symbol, eval_syscall, eval_trait, eval_trait_glob, eval_xor,
+    eval_yara_inline, eval_yara_match,
 };
 use super::types::{default_file_types, default_platforms, FileType, Platform};
 use crate::types::{Criticality, Evidence, Finding, FindingKind};
@@ -476,6 +476,7 @@ impl TraitDefinition {
                 *case_insensitive,
                 ctx,
             ),
+            Condition::LayerPath { value } => eval_layer_path(value, ctx),
         }
     }
 }
@@ -1134,6 +1135,7 @@ impl CompositeTrait {
                 *case_insensitive,
                 ctx,
             ),
+            Condition::LayerPath { value } => eval_layer_path(value, ctx),
         }
     }
 

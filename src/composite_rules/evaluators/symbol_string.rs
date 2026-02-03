@@ -592,3 +592,38 @@ pub fn eval_string_count(
         warnings: Vec::new(),
     }
 }
+
+/// Evaluate layer_path condition - match strings by their encoding layer path.
+/// Layer paths are computed as: meta/layers/{section}/{encoding_chain_joined}
+pub fn eval_layer_path(value: &str, ctx: &EvaluationContext) -> ConditionResult {
+    let mut evidence = Vec::new();
+
+    for string_info in &ctx.report.strings {
+        // Compute layer path from string's section and encoding_chain
+        let section = string_info.section.as_ref().cloned().unwrap_or_else(|| "content".to_string());
+        let layer_path = if string_info.encoding_chain.is_empty() {
+            // No encoding layers - not a layered string, skip
+            continue;
+        } else {
+            let chain_str = string_info.encoding_chain.join("/");
+            format!("meta/layers/{}/{}", section, chain_str)
+        };
+
+        // Check if this string's layer path matches the condition value
+        if layer_path == value {
+            evidence.push(Evidence {
+                method: "layer_path".to_string(),
+                source: "string_extractor".to_string(),
+                value: string_info.value.clone(),
+                location: string_info.offset.clone(),
+            });
+        }
+    }
+
+    ConditionResult {
+        matched: !evidence.is_empty(),
+        evidence,
+        traits: Vec::new(),
+        warnings: Vec::new(),
+    }
+}

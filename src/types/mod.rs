@@ -67,6 +67,7 @@ pub use paths_env::{
     PathAccessType, PathCategory, PathInfo, PathType,
 };
 
+#[allow(unused_imports)]
 pub use binary::{
     AnalysisMetadata, DecodedString, Export, Function, Import, MatchedString, Section, StringInfo,
     StringType, YaraMatch,

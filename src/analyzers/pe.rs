@@ -105,8 +105,9 @@ impl PEAnalyzer {
             None
         };
 
-        // Extract strings using language-aware extraction (Go/Rust) with pre-parsed PE
-        report.strings = self.string_extractor.extract_from_pe(&pe, data, r2_strings);
+        // Extract strings using language-aware extraction (Go/Rust)
+        // Use extract_smart_with_r2 for comprehensive string extraction including StackStrings
+        report.strings = self.string_extractor.extract_smart_with_r2(data, r2_strings);
         tools_used.push("stng".to_string());
 
         // Run YARA scan if engine is loaded
