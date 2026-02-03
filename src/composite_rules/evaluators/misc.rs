@@ -33,11 +33,19 @@ pub fn eval_structure(
         count > 0
     };
 
+    // Calculate precision: base 1.0 + 0.5 for feature + 0.5 for min_sections
+    let mut precision = 1.0f32;
+    precision += 0.5; // feature is always present
+    if min_sections.is_some() {
+        precision += 0.5;
+    }
+
     ConditionResult {
         matched,
         evidence,
         traits: Vec::new(),
         warnings: Vec::new(),
+        precision,
     }
 }
 
@@ -66,6 +74,7 @@ pub fn eval_trait(id: &str, ctx: &EvaluationContext) -> ConditionResult {
             evidence,
             traits: vec![id.to_string()],
             warnings: Vec::new(),
+            precision: 1.0, // Base precision for trait reference confirmation
         };
     }
 
@@ -88,11 +97,13 @@ pub fn eval_trait(id: &str, ctx: &EvaluationContext) -> ConditionResult {
                 .iter()
                 .flat_map(|f| f.evidence.iter().cloned())
                 .collect();
+
             return ConditionResult {
                 matched: true,
                 evidence,
                 traits: vec![id.to_string()],
                 warnings: Vec::new(),
+                precision: 1.0, // Base precision for trait reference confirmation
             };
         }
     } else {
@@ -113,16 +124,24 @@ pub fn eval_trait(id: &str, ctx: &EvaluationContext) -> ConditionResult {
                 .iter()
                 .flat_map(|f| f.evidence.iter().cloned())
                 .collect();
+
             return ConditionResult {
                 matched: true,
                 evidence,
                 traits: vec![id.to_string()],
                 warnings: Vec::new(),
+                precision: 1.0, // Base precision for trait reference confirmation
             };
         }
     }
 
-    ConditionResult::default()
+    ConditionResult {
+        matched: false,
+        evidence: Vec::new(),
+        traits: Vec::new(),
+        warnings: Vec::new(),
+        precision: 0.0,
+    }
 }
 
 /// Evaluate a filesize condition
@@ -133,6 +152,15 @@ pub fn eval_filesize(
 ) -> ConditionResult {
     let size = ctx.binary_data.len();
     let matched = min.is_none_or(|m| size >= m) && max.is_none_or(|m| size <= m);
+
+    // Calculate precision: base 1.0 + 0.5 each for min/max
+    let mut precision = 1.0f32;
+    if min.is_some() {
+        precision += 0.5;
+    }
+    if max.is_some() {
+        precision += 0.5;
+    }
 
     ConditionResult {
         matched,
@@ -148,6 +176,7 @@ pub fn eval_filesize(
         },
         traits: Vec::new(),
         warnings: Vec::new(),
+        precision,
     }
 }
 
@@ -194,6 +223,21 @@ pub fn eval_basename(
         false
     };
 
+    // Calculate precision
+    let mut precision = 0.0f32;
+
+    if exact.is_some() {
+        precision = 2.0;
+    } else if regex.is_some() {
+        precision = 1.5;
+    } else if substr.is_some() {
+        precision = 1.0;
+    }
+
+    if case_insensitive {
+        precision *= 0.5;
+    }
+
     ConditionResult {
         matched,
         evidence: if matched {
@@ -208,6 +252,7 @@ pub fn eval_basename(
         },
         traits: Vec::new(),
         warnings: Vec::new(),
+        precision,
     }
 }
 
@@ -234,7 +279,8 @@ pub fn eval_trait_glob(
                 evidence: Vec::new(),
                 traits: Vec::new(),
                 warnings: Vec::new(),
-            }
+                precision: 0.0,
+            };
         }
     };
 
@@ -290,10 +336,15 @@ pub fn eval_trait_glob(
         }
     };
 
+    // Calculate precision: use 1.0 base for glob pattern matching
+    // Glob patterns are less specific than exact trait references
+    let precision = if matched { 0.5 } else { 0.0 };
+
     ConditionResult {
         matched,
         evidence: if matched { all_evidence } else { Vec::new() },
         traits: matched_traits,
         warnings: Vec::new(),
+        precision,
     }
 }

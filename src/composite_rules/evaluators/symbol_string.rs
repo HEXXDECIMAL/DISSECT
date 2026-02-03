@@ -34,6 +34,7 @@ pub fn eval_symbol(
                 evidence: Vec::new(),
                 traits: Vec::new(),
                 warnings: Vec::new(),
+                precision: 0.0,
             };
         }
     }
@@ -76,11 +77,23 @@ pub fn eval_symbol(
         }
     }
 
+    // Calculate precision based on pattern type
+    let mut precision = 0.0f32;
+
+    if exact.is_some() {
+        precision = 2.0; // Exact match
+    } else if pattern.is_some() {
+        precision = 1.5; // Regex pattern
+    } else if substr.is_some() {
+        precision = 1.0; // Substring match
+    }
+
     ConditionResult {
         matched: !evidence.is_empty(),
         evidence,
         traits: Vec::new(),
         warnings: Vec::new(),
+        precision,
     }
 }
 
@@ -295,11 +308,37 @@ pub fn eval_string(
         }
     }
 
+    // Calculate precision based on constraint specificity
+    let mut precision = 0.0f32;
+
+    // Pattern type scoring: exact > regex/word > substr
+    if params.exact.is_some() {
+        precision += 2.0; // Exact match: most specific
+    } else if params.regex.is_some() || params.word.is_some() {
+        precision += 1.5; // Pattern matching or word boundaries
+    } else if params.substr.is_some() {
+        precision += 1.0; // Substring match: least specific
+    }
+
+    // Modifiers (additive)
+    if !params.exclude_patterns.unwrap_or(&Vec::new()).is_empty() {
+        precision += 0.5; // Exclusion patterns add precision
+    }
+    if params.min_count > 1 {
+        precision += 0.5; // Count constraint adds precision
+    }
+
+    // case_insensitive penalty (multiplicative)
+    if params.case_insensitive {
+        precision *= 0.5;
+    }
+
     ConditionResult {
         matched: evidence.len() >= params.min_count,
         evidence,
         traits: Vec::new(),
         warnings: Vec::new(),
+        precision,
     }
 }
 
@@ -336,7 +375,8 @@ pub fn eval_raw(
                 evidence: Vec::new(),
                 traits: Vec::new(),
                 warnings: Vec::new(),
-            }
+                precision: 0.0,
+            };
         }
     };
 
@@ -402,11 +442,31 @@ pub fn eval_raw(
         }
     }
 
+    // Calculate precision
+    let mut precision = 0.0f32;
+
+    if exact.is_some() {
+        precision = 2.0;
+    } else if compiled_regex.is_some() {
+        precision = 1.5;
+    } else if substr.is_some() {
+        precision = 1.0;
+    }
+
+    if case_insensitive {
+        precision *= 0.5;
+    }
+
+    if min_count > 1 {
+        precision += 0.5;
+    }
+
     ConditionResult {
         matched: !evidence.is_empty(),
         evidence,
         traits: Vec::new(),
         warnings: Vec::new(),
+        precision,
     }
 }
 
@@ -539,11 +599,31 @@ fn eval_encoded_strings_helper(
         }
     }
 
+    // Calculate precision
+    let mut precision = 0.0f32;
+
+    if exact.is_some() {
+        precision = 2.0;
+    } else if regex.is_some() {
+        precision = 1.5;
+    } else if substr.is_some() {
+        precision = 1.0;
+    }
+
+    if case_insensitive {
+        precision *= 0.5;
+    }
+
+    if min_count > 1 {
+        precision += 0.5;
+    }
+
     ConditionResult {
         matched: match_count >= min_count,
         evidence,
         traits: Vec::new(),
         warnings: Vec::new(),
+        precision,
     }
 }
 
@@ -587,6 +667,7 @@ pub fn eval_string_count(
         },
         traits: Vec::new(),
         warnings: Vec::new(),
+        precision: 0.0,
     }
 }
 
@@ -626,5 +707,6 @@ pub fn eval_layer_path(value: &str, ctx: &EvaluationContext) -> ConditionResult 
         evidence,
         traits: Vec::new(),
         warnings: Vec::new(),
+        precision: 0.0,
     }
 }

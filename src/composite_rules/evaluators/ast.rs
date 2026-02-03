@@ -55,7 +55,13 @@ pub fn eval_ast(
 ) -> ConditionResult {
     // Skip AST evaluation for file types that don't support tree-sitter parsing
     if !supports_ast(ctx.file_type) {
-        return ConditionResult::default();
+        return ConditionResult {
+            matched: false,
+            evidence: Vec::new(),
+            traits: Vec::new(),
+            warnings: Vec::new(),
+            precision: 0.0,
+        };
     }
 
     // Advanced mode: use tree-sitter query
@@ -86,6 +92,7 @@ pub fn eval_ast(
             evidence: Vec::new(),
             traits: Vec::new(),
             warnings: Vec::new(),
+            precision: 0.0,
         };
     };
 
@@ -95,6 +102,7 @@ pub fn eval_ast(
             evidence: Vec::new(),
             traits: Vec::new(),
             warnings: Vec::new(),
+            precision: 0.0,
         };
     }
 
@@ -107,6 +115,7 @@ pub fn eval_ast(
                 evidence: Vec::new(),
                 traits: Vec::new(),
                 warnings: Vec::new(),
+                precision: 0.0,
             }
         }
     };
@@ -164,6 +173,7 @@ pub fn eval_ast(
                 evidence: Vec::new(),
                 traits: Vec::new(),
                 warnings: Vec::new(),
+                precision: 0.0,
             }
         }
     };
@@ -175,6 +185,7 @@ pub fn eval_ast(
             evidence: Vec::new(),
             traits: Vec::new(),
             warnings: Vec::new(),
+            precision: 0.0,
         };
     }
 
@@ -186,7 +197,8 @@ pub fn eval_ast(
                 evidence: Vec::new(),
                 traits: Vec::new(),
                 warnings: Vec::new(),
-            }
+                precision: 0.0,
+            };
         }
     };
 
@@ -216,6 +228,7 @@ fn eval_ast_pattern_multi(
             evidence: Vec::new(),
             traits: Vec::new(),
             warnings: vec![AnalysisWarning::AstTooDeep { max_depth: 0 }],
+            precision: 0.0,
         };
     }
 
@@ -229,7 +242,8 @@ fn eval_ast_pattern_multi(
                     evidence: Vec::new(),
                     traits: Vec::new(),
                     warnings: Vec::new(),
-                }
+                    precision: 0.0,
+                };
             }
         },
         MatchMode::Exact => {
@@ -269,11 +283,27 @@ fn eval_ast_pattern_multi(
         });
     }
 
+    // Calculate precision: base 2.0 + 1.0 for node type + 1.0 for pattern + case_insensitive penalty
+    let mut precision = 2.0f32; // Base for AST
+    precision += 1.0; // node_types are always present here (from kind or node)
+
+    // Pattern type specificity
+    match match_mode {
+        MatchMode::Exact => precision += 1.0,  // Most specific
+        MatchMode::Regex => precision += 1.0,  // Pattern matching
+        MatchMode::Substr => precision += 0.5, // Least specific
+    }
+
+    if case_insensitive {
+        precision *= 0.5;
+    }
+
     ConditionResult {
         matched: !evidence.is_empty(),
         evidence,
         traits: Vec::new(),
         warnings,
+        precision,
     }
 }
 
@@ -319,7 +349,8 @@ pub fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResu
                 evidence: Vec::new(),
                 traits: Vec::new(),
                 warnings: Vec::new(),
-            }
+                precision: 0.0,
+            };
         }
     };
 
@@ -351,7 +382,8 @@ pub fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResu
                 evidence: Vec::new(),
                 traits: Vec::new(),
                 warnings: Vec::new(),
-            }
+                precision: 0.0,
+            };
         }
     };
 
@@ -362,6 +394,7 @@ pub fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResu
             evidence: Vec::new(),
             traits: Vec::new(),
             warnings: Vec::new(),
+            precision: 0.0,
         };
     }
 
@@ -373,7 +406,8 @@ pub fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResu
                 evidence: Vec::new(),
                 traits: Vec::new(),
                 warnings: Vec::new(),
-            }
+                precision: 0.0,
+            };
         }
     };
 
@@ -384,6 +418,7 @@ pub fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResu
             evidence: Vec::new(),
             traits: Vec::new(),
             warnings: vec![AnalysisWarning::AstTooDeep { max_depth: 0 }],
+            precision: 0.0,
         };
     }
 
@@ -396,7 +431,8 @@ pub fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResu
                 evidence: Vec::new(),
                 traits: Vec::new(),
                 warnings: Vec::new(),
-            }
+                precision: 0.0,
+            };
         }
     };
 
@@ -467,5 +503,6 @@ pub fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResu
         evidence,
         traits: Vec::new(),
         warnings: Vec::new(),
+        precision: 2.0, // Tree-sitter queries are complex and specific
     }
 }

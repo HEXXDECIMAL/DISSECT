@@ -79,13 +79,27 @@ pub enum AnalysisWarning {
 
 /// Result of evaluating a condition
 #[allow(dead_code)]
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct ConditionResult {
     pub matched: bool,
     pub evidence: Vec<Evidence>,
     pub traits: Vec<String>, // Trait IDs referenced
     /// Anti-analysis warnings (recursion bombs, etc.)
     pub warnings: Vec<AnalysisWarning>,
+    /// Precision points contributed by this condition (higher = more specific)
+    pub precision: f32,
+}
+
+impl Default for ConditionResult {
+    fn default() -> Self {
+        Self {
+            matched: false,
+            evidence: Vec::new(),
+            traits: Vec::new(),
+            warnings: Vec::new(),
+            precision: 0.0,
+        }
+    }
 }
 
 #[allow(dead_code)]
@@ -96,6 +110,7 @@ impl ConditionResult {
             evidence: Vec::new(),
             traits: Vec::new(),
             warnings: Vec::new(),
+            precision: 0.0,
         }
     }
 
@@ -105,11 +120,17 @@ impl ConditionResult {
             evidence,
             traits: Vec::new(),
             warnings: Vec::new(),
+            precision: 0.0,
         }
     }
 
     pub fn with_warning(mut self, warning: AnalysisWarning) -> Self {
         self.warnings.push(warning);
+        self
+    }
+
+    pub fn with_precision(mut self, precision: f32) -> Self {
+        self.precision = precision;
         self
     }
 }

@@ -31,6 +31,7 @@ pub fn eval_metrics(
                 evidence: Vec::new(),
                 traits: Vec::new(),
                 warnings: Vec::new(),
+                precision: 0.0,
             };
         }
     }
@@ -41,6 +42,7 @@ pub fn eval_metrics(
                 evidence: Vec::new(),
                 traits: Vec::new(),
                 warnings: Vec::new(),
+                precision: 0.0,
             };
         }
     }
@@ -53,6 +55,7 @@ pub fn eval_metrics(
                 evidence: Vec::new(),
                 traits: Vec::new(),
                 warnings: Vec::new(),
+                precision: 0.0,
             }
         }
     };
@@ -291,6 +294,7 @@ pub fn eval_metrics(
                 evidence: Vec::new(),
                 traits: Vec::new(),
                 warnings: Vec::new(),
+                precision: 0.0,
             }
         }
     };
@@ -298,6 +302,21 @@ pub fn eval_metrics(
     let min_ok = min.is_none_or(|m| value >= m);
     let max_ok = max.is_none_or(|m| value <= m);
     let matched = min_ok && max_ok;
+
+    // Calculate precision: base 1.0 + 0.5 each for min/max/min_size/max_size
+    let mut precision = 1.0f32;
+    if min.is_some() {
+        precision += 0.5;
+    }
+    if max.is_some() {
+        precision += 0.5;
+    }
+    if min_size.is_some() {
+        precision += 0.5;
+    }
+    if max_size.is_some() {
+        precision += 0.5;
+    }
 
     ConditionResult {
         matched,
@@ -313,5 +332,6 @@ pub fn eval_metrics(
         },
         traits: Vec::new(),
         warnings: Vec::new(),
+        precision,
     }
 }

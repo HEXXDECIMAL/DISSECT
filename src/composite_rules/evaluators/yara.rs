@@ -58,11 +58,18 @@ pub fn eval_yara_match(
         }
     }
 
+    // Calculate precision: base 1.0 + 0.5 if specific rule specified
+    let mut precision = 1.0f32;
+    if rule.is_some() {
+        precision += 0.5;
+    }
+
     ConditionResult {
         matched: !evidence.is_empty(),
         evidence,
         traits: Vec::new(),
         warnings: Vec::new(),
+        precision,
     }
 }
 
@@ -134,6 +141,7 @@ pub fn eval_yara_inline(
                 evidence: Vec::new(),
                 traits: Vec::new(),
                 warnings: Vec::new(),
+                precision: 0.0,
             };
         }
         let rules = compiler.build();
@@ -167,6 +175,7 @@ pub fn eval_yara_inline(
         evidence,
         traits: Vec::new(),
         warnings: Vec::new(),
+        precision: 1.0, // YARA base precision (can't analyze complexity of inline rules)
     }
 }
 
@@ -353,6 +362,7 @@ pub fn eval_hex(
                 }],
                 traits: Vec::new(),
                 warnings: Vec::new(),
+                precision: 0.0,
             };
         }
     };
@@ -363,6 +373,7 @@ pub fn eval_hex(
             evidence: Vec::new(),
             traits: Vec::new(),
             warnings: Vec::new(),
+            precision: 0.0,
         };
     }
 
@@ -442,6 +453,15 @@ pub fn eval_hex(
 
     let matched = matches.len() >= min_count;
 
+    // Calculate precision: base 2.0 (hex patterns are specific) + 0.5 for offset/offset_range + 0.5 if min_count > 1
+    let mut precision = 2.0f32;
+    if offset.is_some() || offset_range.is_some() {
+        precision += 0.5;
+    }
+    if min_count > 1 {
+        precision += 0.5;
+    }
+
     ConditionResult {
         matched,
         evidence: if matched {
@@ -475,6 +495,7 @@ pub fn eval_hex(
         },
         traits: Vec::new(),
         warnings: Vec::new(),
+        precision,
     }
 }
 

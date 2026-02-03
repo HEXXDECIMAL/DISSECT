@@ -57,6 +57,7 @@ pub struct RuleDebugResult {
     pub requirements: String,
     pub condition_results: Vec<ConditionDebugResult>,
     pub context_info: ContextInfo,
+    pub precision: Option<f32>,
 }
 
 /// Information about the analysis context
@@ -159,6 +160,7 @@ impl<'a> RuleDebugger<'a> {
             requirements: format!("Condition: {:?}", describe_condition(&trait_def.r#if)),
             condition_results: Vec::new(),
             context_info: self.context_info(),
+            precision: None,
         };
 
         // Check platform/file type constraints
@@ -223,6 +225,7 @@ impl<'a> RuleDebugger<'a> {
             requirements: build_composite_requirements(composite),
             condition_results: Vec::new(),
             context_info: self.context_info(),
+            precision: None,
         };
 
         // Check platform/file type constraints
@@ -1429,6 +1432,10 @@ pub fn format_debug_output(results: &[RuleDebugResult]) -> String {
         ));
         output.push_str(&format!("  {}\n", result.description.dimmed()));
         output.push_str(&format!("  Requires: {}\n", result.requirements));
+
+        if let Some(precision) = result.precision {
+            output.push_str(&format!("  Precision: {:.1}\n", precision));
+        }
 
         if let Some(reason) = &result.skipped_reason {
             output.push_str(&format!("  {} {}\n", "Skipped:".yellow(), reason));

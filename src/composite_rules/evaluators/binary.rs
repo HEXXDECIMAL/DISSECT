@@ -36,6 +36,18 @@ pub fn eval_imports_count(
     let count = matching_imports.len();
     let matched = min.is_none_or(|m| count >= m) && max.is_none_or(|m| count <= m);
 
+    // Calculate precision: base 1.0 + 0.5 each for min/max/filter
+    let mut precision = 1.0f32;
+    if min.is_some() {
+        precision += 0.5;
+    }
+    if max.is_some() {
+        precision += 0.5;
+    }
+    if filter.is_some() {
+        precision += 0.5;
+    }
+
     ConditionResult {
         matched,
         evidence: if matched {
@@ -55,6 +67,7 @@ pub fn eval_imports_count(
         },
         traits: Vec::new(),
         warnings: Vec::new(),
+        precision,
     }
 }
 
@@ -66,6 +79,15 @@ pub fn eval_exports_count(
 ) -> ConditionResult {
     let count = ctx.report.exports.len();
     let matched = min.is_none_or(|m| count >= m) && max.is_none_or(|m| count <= m);
+
+    // Calculate precision: base 1.0 + 0.5 each for min/max
+    let mut precision = 1.0f32;
+    if min.is_some() {
+        precision += 0.5;
+    }
+    if max.is_some() {
+        precision += 0.5;
+    }
 
     ConditionResult {
         matched,
@@ -91,6 +113,7 @@ pub fn eval_exports_count(
         },
         traits: Vec::new(),
         warnings: Vec::new(),
+        precision,
     }
 }
 
@@ -110,6 +133,7 @@ pub fn eval_section_ratio(
                 evidence: Vec::new(),
                 traits: Vec::new(),
                 warnings: Vec::new(),
+                precision: 0.0,
             }
         }
     };
@@ -130,6 +154,7 @@ pub fn eval_section_ratio(
             evidence: Vec::new(),
             traits: Vec::new(),
             warnings: Vec::new(),
+            precision: 0.0,
         };
     }
 
@@ -145,6 +170,7 @@ pub fn eval_section_ratio(
                     evidence: Vec::new(),
                     traits: Vec::new(),
                     warnings: Vec::new(),
+                    precision: 0.0,
                 }
             }
         };
@@ -162,6 +188,7 @@ pub fn eval_section_ratio(
             evidence: Vec::new(),
             traits: Vec::new(),
             warnings: Vec::new(),
+            precision: 0.0,
         };
     }
 
@@ -169,6 +196,16 @@ pub fn eval_section_ratio(
     let min_ok = min_ratio.is_none_or(|min| ratio >= min);
     let max_ok = max_ratio.is_none_or(|max| ratio <= max);
     let matched = min_ok && max_ok;
+
+    // Calculate precision: base 1.0 + 1.0 for pattern + 0.5 each for min/max ratios
+    let mut precision = 1.0f32;
+    precision += 1.0; // section pattern always present
+    if min_ratio.is_some() {
+        precision += 0.5;
+    }
+    if max_ratio.is_some() {
+        precision += 0.5;
+    }
 
     ConditionResult {
         matched,
@@ -191,6 +228,7 @@ pub fn eval_section_ratio(
         },
         traits: Vec::new(),
         warnings: Vec::new(),
+        precision,
     }
 }
 
@@ -209,7 +247,8 @@ pub fn eval_section_entropy(
                 evidence: Vec::new(),
                 traits: Vec::new(),
                 warnings: Vec::new(),
-            }
+                precision: 0.0,
+            };
         }
     };
 
@@ -233,11 +272,21 @@ pub fn eval_section_entropy(
         }
     }
 
+    // Calculate precision: base 1.0 + 0.5 each for min/max entropy
+    let mut precision = 1.0f32;
+    if min_entropy.is_some() {
+        precision += 0.5;
+    }
+    if max_entropy.is_some() {
+        precision += 0.5;
+    }
+
     ConditionResult {
         matched: any_matched,
         evidence,
         traits: Vec::new(),
         warnings: Vec::new(),
+        precision,
     }
 }
 
@@ -270,11 +319,15 @@ pub fn eval_section_name(
         }
     }
 
+    // Calculate precision: base 1.0 + 1.0 for pattern (regex or substring)
+    let precision = if use_regex { 1.5 } else { 1.0 };
+
     ConditionResult {
         matched: !evidence.is_empty(),
         evidence,
         traits: Vec::new(),
         warnings: Vec::new(),
+        precision,
     }
 }
 
@@ -308,6 +361,7 @@ pub fn eval_import_combination(
                     evidence: Vec::new(),
                     traits: Vec::new(),
                     warnings: Vec::new(),
+                    precision: 0.0,
                 };
             }
             evidence.push(Evidence {
@@ -349,6 +403,7 @@ pub fn eval_import_combination(
                 evidence: Vec::new(),
                 traits: Vec::new(),
                 warnings: Vec::new(),
+                precision: 0.0,
             };
         }
     }
@@ -361,6 +416,7 @@ pub fn eval_import_combination(
                 evidence: Vec::new(),
                 traits: Vec::new(),
                 warnings: Vec::new(),
+                precision: 0.0,
             };
         }
         evidence.push(Evidence {
@@ -371,11 +427,21 @@ pub fn eval_import_combination(
         });
     }
 
+    // Calculate precision: base 2.0 + 0.5 per required item + 0.3 per suspicious item
+    let mut precision = 2.0f32;
+    if let Some(req) = required {
+        precision += (req.len() as f32) * 0.5;
+    }
+    if let Some(susp) = suspicious {
+        precision += (susp.len() as f32) * 0.3;
+    }
+
     ConditionResult {
         matched: true,
         evidence,
         traits: Vec::new(),
         warnings: Vec::new(),
+        precision,
     }
 }
 
@@ -416,10 +482,26 @@ pub fn eval_syscall(
     let min_required = min_count.unwrap_or(1);
     let matched = match_count >= min_required;
 
+    // Calculate precision: base 2.0 + 0.5 for name/number/arch/min_count
+    let mut precision = 2.0f32;
+    if name.is_some() {
+        precision += 0.5;
+    }
+    if number.is_some() {
+        precision += 0.5;
+    }
+    if arch.is_some() {
+        precision += 0.5;
+    }
+    if min_count.is_some() {
+        precision += 0.5;
+    }
+
     ConditionResult {
         matched,
         evidence: if matched { evidence } else { Vec::new() },
         traits: Vec::new(),
         warnings: Vec::new(),
+        precision,
     }
 }

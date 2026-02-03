@@ -619,6 +619,7 @@ impl CompositeTrait {
                     evidence: combined_evidence,
                     traits: Vec::new(),
                     warnings: Vec::new(),
+                    precision: 0.0,
                 }
             }
             (Some(conds), None) => self.eval_requires_all(conds, ctx),
@@ -646,6 +647,7 @@ impl CompositeTrait {
                     evidence: Vec::new(),
                     traits: Vec::new(),
                     warnings: Vec::new(),
+                    precision: 0.0,
                 }
             }
         };
@@ -669,6 +671,7 @@ impl CompositeTrait {
                 evidence: combined_evidence,
                 traits: Vec::new(),
                 warnings: Vec::new(),
+                precision: 0.0,
             }
         } else if !has_positive {
             // No positive conditions and no none - invalid rule
@@ -818,6 +821,7 @@ impl CompositeTrait {
     /// Evaluate ALL conditions must match (AND)
     fn eval_requires_all(&self, conds: &[Condition], ctx: &EvaluationContext) -> ConditionResult {
         let mut all_evidence = Vec::new();
+        let mut total_precision = 0.0f32;
 
         for condition in conds {
             let result = self.eval_condition(condition, ctx);
@@ -827,9 +831,11 @@ impl CompositeTrait {
                     evidence: Vec::new(),
                     traits: Vec::new(),
                     warnings: Vec::new(),
+                    precision: 0.0,
                 };
             }
             all_evidence.extend(result.evidence);
+            total_precision += result.precision; // SUM for 'all'
         }
 
         ConditionResult {
@@ -837,6 +843,7 @@ impl CompositeTrait {
             evidence: all_evidence,
             traits: Vec::new(),
             warnings: Vec::new(),
+            precision: total_precision,
         }
     }
 
@@ -845,20 +852,25 @@ impl CompositeTrait {
     fn eval_requires_any(&self, conds: &[Condition], ctx: &EvaluationContext) -> ConditionResult {
         let mut any_matched = false;
         let mut all_evidence = Vec::new();
+        let mut min_precision = f32::MAX;
 
         for condition in conds {
             let result = self.eval_condition(condition, ctx);
             if result.matched {
                 any_matched = true;
                 all_evidence.extend(result.evidence);
+                min_precision = min_precision.min(result.precision); // MIN for 'any'
             }
         }
+
+        let precision = if any_matched { min_precision } else { 0.0 };
 
         ConditionResult {
             matched: any_matched,
             evidence: all_evidence,
             traits: Vec::new(),
             warnings: Vec::new(),
+            precision,
         }
     }
 
@@ -873,12 +885,14 @@ impl CompositeTrait {
     ) -> ConditionResult {
         let mut matched_count = 0;
         let mut all_evidence = Vec::new();
+        let mut precision_sum = 0.0f32;
 
         for condition in conds.iter() {
             let result = self.eval_condition(condition, ctx);
             if result.matched {
                 matched_count += 1;
                 all_evidence.extend(result.evidence);
+                precision_sum += result.precision;
             }
         }
 
@@ -892,11 +906,19 @@ impl CompositeTrait {
             min_ok && max_ok
         };
 
+        // Calculate precision: average + 0.5 bonus for count constraint
+        let avg_precision = if matched_count > 0 {
+            (precision_sum / matched_count as f32) + 0.5 // +0.5 bonus for count constraint
+        } else {
+            0.0
+        };
+
         ConditionResult {
             matched,
             evidence: if matched { all_evidence } else { Vec::new() },
             traits: Vec::new(),
             warnings: Vec::new(),
+            precision: avg_precision,
         }
     }
 
@@ -910,6 +932,7 @@ impl CompositeTrait {
                     evidence: Vec::new(),
                     traits: Vec::new(),
                     warnings: Vec::new(),
+                    precision: 0.0,
                 };
             }
         }
@@ -924,6 +947,7 @@ impl CompositeTrait {
             }],
             traits: Vec::new(),
             warnings: Vec::new(),
+            precision: 0.5, // Fixed +0.5 for exclusion logic (negative conditions)
         }
     }
 
@@ -1153,6 +1177,7 @@ impl CompositeTrait {
                     evidence: Vec::new(),
                     traits: Vec::new(),
                     warnings: Vec::new(),
+                    precision: 0.0,
                 };
             }
         }
@@ -1219,6 +1244,7 @@ impl CompositeTrait {
             },
             traits: Vec::new(),
             warnings: Vec::new(),
+            precision: 0.0,
         }
     }
 
@@ -1246,6 +1272,7 @@ impl CompositeTrait {
             },
             traits: Vec::new(),
             warnings: Vec::new(),
+            precision: 0.0,
         }
     }
 
