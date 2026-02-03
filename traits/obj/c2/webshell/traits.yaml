@@ -155,6 +155,14 @@ traits:
       type: string
       exact: "WSO Shell"
 
+  - id: wso-version
+    desc: WSO webshell version marker
+    crit: suspicious
+    conf: 0.98
+    if:
+      type: string
+      exact: "WSO_VERSION"
+
   - id: filesman
     desc: FilesMan webshell family
     crit: suspicious
@@ -178,6 +186,15 @@ traits:
     if:
       type: string
       exact: weevely
+
+  - id: indoxploit
+    desc: IndoXploit webshell family
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: string
+      regex: '\bIndoXploit\b'
+      case_insensitive: true
 
 composite_rules:
   # PHP webshell patterns (php tag + shell func + request param)
@@ -218,9 +235,11 @@ composite_rules:
       - id: b374k
       - id: phpspy
       - id: wso-shell
+      - id: wso-version
       - id: filesman
       - id: china-chopper
       - id: weevely
+      - id: indoxploit
 
   # Family identified with generic terminology
   - id: family-identified

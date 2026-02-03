@@ -1,0 +1,161 @@
+# Stowaway Multi-hop Proxy Tool Detection
+# Stowaway is a Go-based penetration testing proxy tool that supports:
+# - Multi-hop SOCKS5 proxy tunneling
+# - SSH tunneling with port forwarding
+# - Reverse/bind shell capabilities
+# - File upload/download
+# - Port scanning and lateral movement
+# Often abused by threat actors for C2 infrastructure
+# GitHub: ph4ntonn/Stowaway
+# MBC: B0030 (C2 Communication), B0024 (Remote Access)
+# ATT&CK: T1090.001 (Internal Proxy), T1572 (Protocol Tunneling)
+
+defaults:
+  for: [elf, macho, pe]
+  mbc: "B0030"
+
+traits:
+  # Stowaway module path - definitive identifier
+  - id: stowaway-module-path
+    desc: Stowaway Go module path
+    crit: suspicious
+    conf: 0.99
+    attack: "T1090"
+    if:
+      type: string
+      regex: 'Stowaway/(cmd|pkg)/(agent|admin|share|protocol)'
+
+  # Stowaway agent startup strings
+  - id: stowaway-agent-startup
+    desc: Stowaway agent startup message
+    crit: suspicious
+    conf: 0.98
+    attack: "T1090"
+    if:
+      type: string
+      regex: '\[\*\] Starting agent node (actively|passively)\.'
+
+  # Stowaway passive reuse patterns (iptables/SO_REUSEPORT)
+  - id: stowaway-port-reuse
+    desc: Stowaway port reuse technique
+    crit: suspicious
+    conf: 0.95
+    attack: "T1090"
+    if:
+      type: string
+      regex: 'reusing (host|port).{0,50}\((SO_REUSEPORT|IPTABLES)\)'
+
+  # Stowaway protocol message types
+  - id: stowaway-proto-messages
+    desc: Stowaway protocol message types
+    crit: suspicious
+    conf: 0.95
+    attack: "T1090"
+    if:
+      type: string
+      regex: 'proto\.(Backward|Forward|Socks|SSH|UDPAss)(Seq|Start|Stop|Data|Fin|Test|Ready)'
+
+  # Stowaway handler functions
+  - id: stowaway-handlers
+    desc: Stowaway handler functions
+    crit: suspicious
+    conf: 0.95
+    attack: "T1090"
+    if:
+      type: string
+      regex: 'handler\.\*(Backward|Forward|SSHTunnel|Socks|Connect|ForceClose)'
+
+  # Stowaway manager patterns
+  - id: stowaway-managers
+    desc: Stowaway manager components
+    crit: suspicious
+    conf: 0.9
+    attack: "T1090"
+    if:
+      type: string
+      regex: '(Backward|Forward|SSHTunnel|Socks|ForceClose)Manager'
+
+  # Stowaway crypto functions
+  - id: stowaway-crypto
+    desc: Stowaway crypto functions
+    crit: notable
+    conf: 0.9
+    if:
+      type: string
+      regex: 'agent_crpyt\.|PassivePreAuth|achieveUUID'
+
+  # Stowaway iptables manipulation
+  - id: stowaway-iptables
+    desc: Stowaway iptables manipulation
+    crit: suspicious
+    conf: 0.95
+    attack: "T1562.004"
+    if:
+      type: string
+      regex: 'iptables -t nat -[ADNXF] (PREROUTING|%s)'
+
+  # Stowaway reconnect pattern
+  - id: stowaway-reconnect
+    desc: Stowaway reconnection pattern
+    crit: suspicious
+    conf: 0.9
+    attack: "T1090"
+    if:
+      type: string
+      substr: "Reconnecting every %d seconds"
+
+composite_rules:
+  # Definitive Stowaway detection via module path
+  # Complexity: all(2) + for(1) = 3, but primary identifier is conf 0.99
+  - id: stowaway-detected
+    desc: Stowaway multi-hop proxy tool detected
+    crit: hostile
+    conf: 0.99
+    mbc: "B0030"
+    attack: "T1090.001"
+    for: [elf, macho, pe]
+    all:
+      - id: stowaway-module-path
+      - id: cap/exec/command/shell/go-shell-strings
+
+  # Stowaway with SSH tunneling
+  # Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
+  - id: stowaway-ssh-tunnel
+    desc: Stowaway with SSH tunneling
+    crit: hostile
+    conf: 0.98
+    mbc: "B0030"
+    attack: "T1572"
+    for: [elf, macho, pe]
+    all:
+      - id: stowaway-handlers
+      - id: stowaway-managers
+      - id: cap/exec/command/shell/go-shell-strings
+
+  # Stowaway with SOCKS proxy and agent startup
+  # Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
+  - id: stowaway-agent
+    desc: Stowaway agent with C2 capabilities
+    crit: hostile
+    conf: 0.98
+    mbc: "B0024"
+    attack: "T1090.001"
+    for: [elf, macho, pe]
+    all:
+      - id: stowaway-agent-startup
+      - id: stowaway-proto-messages
+      - id: cap/exec/command/shell/go-shell-strings
+
+  # Stowaway with iptables manipulation (advanced evasion)
+  # Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
+  - id: stowaway-iptables-evasion
+    desc: Stowaway with iptables evasion
+    crit: hostile
+    conf: 0.98
+    mbc: "B0030"
+    attack: "T1562.004"
+    for: [elf, macho, pe]
+    all:
+      - id: stowaway-iptables
+      - id: stowaway-port-reuse
+      - id: cap/exec/command/shell/go-shell-strings

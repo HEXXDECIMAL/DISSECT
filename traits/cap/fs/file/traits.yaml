@@ -1,0 +1,26 @@
+traits:
+  - id: read-symbols
+    desc: File read symbols
+    crit: inert
+    conf: 0.8
+    if:
+      type: symbol
+      regex: "^(read|fread|pread)$"
+
+  - id: read-ast
+    desc: File read AST nodes
+    crit: inert
+    conf: 0.8
+    if:
+      type: ast
+      kind: call
+      regex: '^fs\.read(File|FileSync)$'
+
+composite_rules:
+  - id: read
+    desc: File read operations
+    crit: inert
+    conf: 0.8
+    any:
+      - id: read-symbols
+      - id: read-ast

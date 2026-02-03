@@ -1,0 +1,218 @@
+# PyPI Supply-Chain Attack Patterns
+# Install-time dropper: download + write executable + execute
+# ATT&CK: T1195.002 (Compromise Software Supply Chain)
+
+defaults:
+  for: [python]
+  attack: "T1195.002"
+
+traits:
+  # === Command Execution in Python ===
+  # os.system, subprocess.call, etc.
+
+  - id: os-system-call
+    desc: os.system() command execution
+    crit: notable
+    conf: 0.85
+    if:
+      type: symbol
+      exact: "os.system"
+
+  - id: os-system-string
+    desc: os.system reference
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      exact: "os.system"
+
+  # === Windows Execution Patterns ===
+  # Windows-specific command execution (start command, cmd.exe)
+
+  - id: windows-start-command
+    desc: Windows start command execution
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      # Pattern: 'start ' or 'start\t' or 'start"' (command in string)
+      regex: "\\bstart\\s+"
+
+  - id: windows-computername-env
+    desc: COMPUTERNAME environment access
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      exact: "COMPUTERNAME"
+
+  # === Executable File Extensions ===
+  # Writing/downloading executable files
+
+  - id: exe-file-extension
+    desc: .exe file extension reference
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: string
+      regex: "\\.exe\\b"
+    not:
+      - "python.exe"
+      - "pip.exe"
+      - regex: "\\bwhich\\b.*\\.exe"
+      - regex: "\\bfind\\b.*\\.exe"
+
+  - id: scr-file-extension
+    desc: .scr file extension (screensaver/executable)
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: string
+      regex: "\\.scr\\b"
+
+  # === Binary File Write Patterns ===
+  # Writing binary content to files (dropper behavior)
+
+  - id: binary-file-write
+    desc: Binary mode file write
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      # open(..., 'wb') pattern
+      regex: "\\bwb\\b"
+
+  - id: open-write-content
+    desc: open().write() to file
+    crit: notable
+    conf: 0.8
+    if:
+      type: symbol
+      regex: "open\\(.*\\)\\.write"
+
+  # === Suspicious URL Patterns ===
+  # Downloads from suspicious domains that look fake/impersonating
+
+  - id: python-release-impersonation-url
+    desc: Fake Python release URL
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: string
+      # Domains pretending to be official Python downloads
+      regex: "https?://[a-z0-9-]*python[a-z0-9-]*\\.[a-z]+/[^\\s]{0,100}\\.(exe|scr|msi|bat|cmd|ps1)"
+    not:
+      - regex: "^https?://(www\\.)?python\\.org/"
+
+  - id: executable-download-url
+    desc: URL ending in executable extension
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: string
+      regex: "https?://[^\\s]+\\.(exe|scr|msi|bat|cmd|ps1|dll)"
+
+  # === Install Hook Pattern ===
+  # setup.py install command override (post-install execution)
+
+  - id: install-run-override
+    desc: Install command run() override
+    crit: notable
+    conf: 0.85
+    if:
+      type: symbol
+      exact: "install.run"
+
+  - id: cmdclass-install
+    desc: cmdclass install hook
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: "cmdclass.{0,50}['\"]install['\"]"
+
+composite_rules:
+  # === Command Execution Composite ===
+  - id: python-command-exec
+    desc: Python command execution
+    crit: notable
+    conf: 0.85
+    count_min: 1
+    any:
+      - id: os-system-call
+      - id: os-system-string
+
+  # === Windows Command Execution ===
+  # Complexity: for(+1) + all(+2) = 3 (SUSPICIOUS)
+  - id: windows-start-exec
+    desc: Windows start command with executable
+    crit: suspicious
+    conf: 0.9
+    all:
+      - id: windows-start-command
+      - id: python-command-exec
+
+  # === Executable Download Pattern ===
+  # HTTP request + executable extension
+  # Complexity: for(+1) + all(+2) = 3 (SUSPICIOUS)
+  - id: executable-download
+    desc: Downloads executable file
+    crit: suspicious
+    conf: 0.9
+    all:
+      - id: cap/comm/http/request/request-python
+      - id: executable-download-url
+
+  # === Binary File Drop ===
+  # Writing binary content to file system
+  # Complexity: for(+1) + all(+2) = 3 (SUSPICIOUS)
+  - id: binary-file-drop
+    desc: Binary file write to disk
+    crit: suspicious
+    conf: 0.85
+    all:
+      - id: binary-file-write
+      - id: exe-file-extension
+
+  # === HOSTILE: PyPI Install-Time Dropper ===
+  # Classic dropper: download exe + write to disk + execute
+  # Complexity: for(+1) + all(+4) = 5 (meets HOSTILE threshold)
+  - id: pypi-install-dropper
+    desc: PyPI install-time dropper
+    crit: hostile
+    conf: 0.95
+    mbc: "E1204"
+    attack: "T1204.002"
+    all:
+      - id: obj/lateral/supply-chain/pypi/install-exfil/setup-py-file
+      - id: cap/comm/http/request/request-python
+      - id: binary-file-write
+      - id: python-command-exec
+
+  # === HOSTILE: Download-Execute Chain ===
+  # Downloads and executes file without needing setup.py context
+  # Complexity: for(+1) + all(+3) = 4 (meets HOSTILE threshold)
+  - id: download-execute-chain
+    desc: Downloads and executes file
+    crit: hostile
+    conf: 0.92
+    mbc: "E1204"
+    attack: "T1204.002"
+    all:
+      - id: executable-download
+      - id: binary-file-write
+      - id: python-command-exec
+
+  # === HOSTILE: Windows Impersonation Dropper ===
+  # Uses fake Python release URL + Windows execution
+  # Complexity: for(+1) + all(+3) = 4 (meets HOSTILE threshold)
+  - id: python-impersonation-dropper
+    desc: Fake Python release dropper
+    crit: hostile
+    conf: 0.98
+    mbc: "E1204"
+    attack: "T1036.005"
+    all:
+      - id: python-release-impersonation-url
+      - id: binary-file-write
+      - id: python-command-exec

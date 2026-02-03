@@ -1,0 +1,126 @@
+# Botkill Detection for Shell Scripts
+# Detects shell scripts that kill competing malware/miners
+# ATT&CK: T1489 (Service Stop), T1562.001 (Impair Defenses)
+# MBC: B0047 (Shutdown Event)
+
+defaults:
+  crit: suspicious
+  attack: "T1489"
+  mbc: "B0047"
+  for: [shell]
+
+traits:
+  # === Mass Process Killing ===
+  - id: mass-pkill
+    desc: Mass process killing via pkill
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: content
+      regex: "\\bpkill\\s+-f\\b"
+      min_count: 10
+
+  - id: mass-kill-pattern
+    desc: Mass process killing via ps/grep/kill
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: content
+      # ps aux | grep X | kill pattern
+      regex: "ps\\s+aux[^|]{0,20}\\|[^|]{0,30}grep[^|]{0,30}\\|[^|]{0,30}(?:kill|xargs[^|]{0,20}kill)"
+      min_count: 10
+
+  - id: netstat-kill-pattern
+    desc: Kills processes by network connection
+    crit: suspicious
+    conf: 0.90
+    if:
+      type: content
+      # netstat | grep IP/port | kill pattern
+      regex: "netstat[^|]{0,20}\\|[^|]{0,30}grep[^|]{0,30}\\|[^|]{0,30}(?:kill|xargs[^|]{0,20}kill)"
+      min_count: 3
+
+  # === Miner-Specific Kills ===
+  - id: miner-process-kill
+    desc: Kills known miner processes
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: content
+      # Common miner process names
+      regex: "(?:pkill|kill)[^;]{0,30}(?:xmrig|minerd|kworkerds|cryptonight|stratum)"
+
+  - id: mining-pool-kill
+    desc: Kills mining pool connections
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: content
+      # Mining pool domains/patterns
+      regex: "(?:grep|pkill)[^;]{0,50}(?:moneropool|crypto-pool|xmrpool|stratum\\.f2pool|monerohash)"
+
+  # === Competitor File Removal ===
+  - id: mass-tmp-removal
+    desc: Mass removal of /tmp files
+    crit: suspicious
+    conf: 0.80
+    if:
+      type: content
+      regex: "rm\\s+-rf\\s+/tmp/"
+      min_count: 10
+
+  - id: competitor-path-removal
+    desc: Removes known malware paths
+    crit: suspicious
+    conf: 0.90
+    if:
+      type: content
+      # Known malware file locations
+      regex: "rm\\s+-rf?\\s+(?:/tmp/kworkerds|/var/tmp/xmrig|/tmp/systemd|/tmp/java)"
+
+  # === Docker Container Killing ===
+  - id: docker-container-kill
+    desc: Kills Docker containers
+    crit: notable
+    conf: 0.80
+    if:
+      type: content
+      regex: "docker\\s+(?:ps|kill|rm)[^;]{0,30}(?:xmr|mine|monero|crypto)"
+
+composite_rules:
+  # Botkill combo: mass process killing + miner targeting + file cleanup
+  # Complexity: all(4) + for(1) = 5 >= 4 ✓ HOSTILE
+  - id: miner-botkill
+    desc: Cryptominer botkill behavior
+    crit: hostile
+    conf: 0.95
+    attack: "T1489"
+    all:
+      - id: mass-pkill
+      - id: miner-process-kill
+      - id: mass-tmp-removal
+      - id: competitor-path-removal
+
+  # Alternative botkill: uses ps/grep/kill pattern instead of pkill
+  # Complexity: all(4) + for(1) = 5 >= 4 ✓ HOSTILE
+  - id: miner-botkill-alt
+    desc: Cryptominer botkill (ps pattern)
+    crit: hostile
+    conf: 0.95
+    attack: "T1489"
+    all:
+      - id: mass-kill-pattern
+      - id: miner-process-kill
+      - id: mass-tmp-removal
+      - id: competitor-path-removal
+
+  # Network-based botkill: kills by IP/port connection
+  # Complexity: all(2) + for(1) = 3 < 4, stays SUSPICIOUS
+  - id: network-botkill
+    desc: Network-based competitor killing
+    crit: suspicious
+    conf: 0.90
+    attack: "T1489"
+    all:
+      - id: netstat-kill-pattern
+      - id: mass-pkill

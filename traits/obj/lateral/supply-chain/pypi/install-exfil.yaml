@@ -1,0 +1,269 @@
+# PyPI Supply-Chain Attack Patterns
+# Install-time system info exfiltration
+# ATT&CK: T1195.002 (Compromise Software Supply Chain)
+
+defaults:
+  for: [python]
+  attack: "T1195.002"
+
+traits:
+  # === Setup.py Install-Time Execution ===
+  # Code that executes at module import level during pip install
+
+  - id: setup-py-file
+    desc: setup.py file detected
+    crit: inert
+    conf: 0.9
+    if:
+      type: basename
+      exact: "setup.py"
+
+  # === Decoy/Placeholder __init__.py Patterns ===
+  # Malicious packages often have minimal __init__.py files that just
+  # print a confirmation message. Legitimate packages have actual code.
+
+  - id: init-py-file
+    desc: __init__.py file detected
+    crit: inert
+    conf: 0.9
+    # Uses default for: [python] from defaults section
+    if:
+      type: basename
+      exact: "__init__.py"
+
+  - id: print-installed-string
+    desc: Prints "installed" confirmation
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      regex: "\\binstalled\\b"
+      case_insensitive: true
+    not:
+      # Legitimate contexts where "installed" is expected
+      - regex: "not\\s+installed"
+      - regex: "is\\s+installed"
+      - regex: "must be installed"
+      - regex: "already\\s+installed"
+      - regex: "packages? installed"
+      - regex: "successfully\\s+installed"
+      - regex: "pip\\s+install"
+
+  - id: placeholder-ellipsis
+    desc: Placeholder ellipsis string
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      # Just dots as placeholder output ("...", "....", etc)
+      regex: "^\\.{2,}$"
+
+  - id: tiny-python-file
+    desc: Tiny Python file
+    crit: inert
+    conf: 0.8
+    if:
+      type: filesize
+      max: 100
+
+  - id: empty-file
+    desc: Empty file (0 bytes)
+    crit: inert
+    conf: 1.0
+    # Uses default for: [python] - archives detect file type from extension/context
+    if:
+      type: filesize
+      max: 0
+
+  - id: setuptools-setup-call
+    desc: setuptools setup() call
+    crit: inert
+    conf: 0.8
+    if:
+      type: symbol
+      exact: "setup"
+
+  # === Suspicious URL Patterns ===
+  # Exfil endpoints commonly seen in supply-chain attacks
+
+  - id: suspicious-php-endpoint
+    desc: PHP endpoint URL
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      regex: "https?://[^/]+/[^'\"\\s]*\\.php"
+
+  - id: version-check-url
+    desc: Suspicious version check URL
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: string
+      # Pattern: Version.php, version.php, check.php etc
+      regex: "https?://[^/]+/[Vv]ersion\\.php|https?://[^/]+/[Cc]heck\\.php"
+
+  # === Base64 Encoding for Exfil ===
+  - id: base64-encode-call
+    desc: base64.b64encode() call
+    crit: notable
+    conf: 0.7
+    if:
+      type: symbol
+      regex: "base64\\.(b64encode|encodestring)"
+
+  - id: base64-encode-string
+    desc: base64 encode reference
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: "base64\\.(b64encode|encodestring)"
+
+  # === Data Concatenation Patterns ===
+  # Malware typically concatenates victim info with delimiters
+
+  - id: triple-hash-delimiter
+    desc: Triple hash data delimiter
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      exact: "###"
+
+  - id: data-concat-pattern
+    desc: String concatenation with delimiter
+    crit: notable
+    conf: 0.75
+    if:
+      type: content
+      # Pattern: var = val1 + "###" + val2 + "###" + ...
+      regex: "=\\s*\\w+\\s*\\+\\s*['\"]###['\"]\\s*\\+\\s*\\w+"
+
+  # === HTTP POST with Data ===
+  - id: urlopen-with-data
+    desc: urllib.urlopen with data parameter
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: content
+      # Both Python 2 and 3 patterns
+      regex: "urlopen\\s*\\([^)]*,\\s*(?:data=)?['\"]?\\w+"
+
+  - id: vid-parameter
+    desc: vid= POST parameter
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: string
+      exact: "vid="
+
+composite_rules:
+  # === Empty __init__.py ===
+  # Malicious PyPI packages often have completely empty __init__.py files
+  # that serve as placeholders. The actual malicious code is in setup.py.
+  # Legitimate packages have at least imports, version, docstring, or __all__.
+  # Complexity: for(+1) + all(+2) = 3 (suspicious is appropriate)
+  - id: empty-init-py
+    desc: Empty __init__.py placeholder
+    crit: suspicious
+    conf: 0.85
+    # Uses default for: [python] from defaults section
+    attack: "T1195.002"
+    all:
+      - id: init-py-file
+      - id: empty-file
+
+  # === Decoy/Placeholder __init__.py ===
+  # Malicious PyPI packages often have minimal __init__.py files that just
+  # confirm installation. This is a supply-chain indicator.
+  # Complexity: for(+1) + all(+3) = 4 (meets threshold)
+  - id: decoy-init-py
+    desc: Decoy __init__.py with install confirmation
+    crit: suspicious
+    conf: 0.85
+    attack: "T1195.002"
+    all:
+      - id: init-py-file
+      - id: tiny-python-file
+      - id: print-installed-string
+
+  # === Stub Python file with Placeholder ===
+  # Malicious typosquat packages often have minimal Python files with
+  # placeholder content like print("...") - provides no real functionality.
+  # Note: basename matching doesn't work for archive members, so we can't check
+  # for __init__.py specifically. This matches any tiny Python file with placeholder.
+  # Complexity: for(+1) + all(+2) = 3 (SUSPICIOUS maintained)
+  - id: stub-placeholder-file
+    desc: Stub Python file with placeholder content
+    crit: suspicious
+    conf: 0.85
+    attack: "T1195.002"
+    all:
+      - id: tiny-python-file
+      - id: placeholder-ellipsis
+
+  # Base64 encoding composite
+  - id: base64-encode
+    desc: Base64 encoding capability
+    crit: notable
+    conf: 0.8
+    count_min: 1
+    any:
+      - id: base64-encode-call
+      - id: base64-encode-string
+
+  # Data collection with delimiter (fingerprint payload)
+  - id: fingerprint-payload-concat
+    desc: Fingerprint data concatenation
+    crit: suspicious
+    conf: 0.9
+    all:
+      - id: triple-hash-delimiter
+    any:
+      - id: obj/discovery/system/getuser-call
+      - id: obj/discovery/system/getuser-string
+      - id: obj/discovery/system/gethostname-call
+      - id: obj/discovery/system/gethostname-string
+
+  # === HOSTILE: PyPI Install-Time Exfiltration ===
+  # Classic pattern: setup.py collects system info, base64 encodes, POSTs to external server
+  # Complexity: for(+1) + all(+4) = 5 (meets HOSTILE threshold)
+
+  - id: pypi-install-exfil
+    desc: PyPI install-time system exfiltration
+    crit: hostile
+    conf: 0.95
+    mbc: "E1041"
+    attack: "T1020"
+    all:
+      - id: setup-py-file
+      - id: obj/discovery/system/python-sysinfo-multi
+      - id: base64-encode
+      - id: cap/comm/http/request/request-python
+
+  # Lighter variant without setup.py check
+  # Complexity: for(+1) + all(+3) = 4 (meets HOSTILE threshold)
+  - id: python-sysinfo-exfil
+    desc: Python system info exfiltration
+    crit: hostile
+    conf: 0.92
+    mbc: "E1041"
+    attack: "T1020"
+    all:
+      - id: obj/discovery/system/python-sysinfo-multi
+      - id: base64-encode
+      - id: cap/comm/http/request/request-python
+
+  # Fingerprint with VID parameter (high confidence)
+  # Complexity: for(+1) + all(+3) = 4 (meets HOSTILE threshold)
+  - id: pypi-vid-exfil
+    desc: PyPI VID exfiltration pattern
+    crit: hostile
+    conf: 0.98
+    mbc: "E1041"
+    attack: "T1020"
+    all:
+      - id: vid-parameter
+      - id: base64-encode
+      - id: cap/comm/http/request/request-python

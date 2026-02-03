@@ -158,6 +158,18 @@ traits:
       kind: call
       regex: "\\$_(GET|POST|REQUEST|COOKIE|SERVER)\\s*\\[[^]]+\\]\\s*\\("
 
+  # HOSTILE: eval of base64-decoded large payload
+  # This pattern is used exclusively by webshells/backdoors
+  - id: eval-base64-large-payload
+    desc: "Large base64 payload decode"
+    crit: suspicious
+    conf: 0.99
+    mbc: "B0030"
+    attack: "T1505.003"
+    if:
+      type: content
+      regex: "base64_decode\\s*\\([\"'][A-Za-z0-9+/=]{500,}"
+
 composite_rules:
   - id: proxy-port
     desc: High port number (proxy/backdoor indicator)

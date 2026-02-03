@@ -120,6 +120,19 @@ composite_rules:
       - id: cap/data/user-input
 
     count_min: 1
+
+  # HOSTILE: eval(base64_decode(...)) pattern - classic PHP backdoor
+  # This pattern has no legitimate use and is a hallmark of PHP webshells
+  - id: php-eval-base64-backdoor
+    desc: "PHP backdoor: eval of base64 payload"
+    crit: hostile
+    conf: 0.99
+    mbc: "B0030"
+    attack: "T1505.003"
+    for: [php]
+    all:
+      - id: eval-base64-large-payload
+      - id: obj/anti-static/obfuscation/code-metrics/php-webshell-pattern
   # Web UI webshell (has HTML interface)
   - id: php-web-ui
     desc: "PHP webshell with web-based user"
@@ -248,3 +261,76 @@ composite_rules:
       - id: cap/fs/read/file
       - id: cap/fs/write/file
       - id: obj/anti-static/obfuscation/encoding
+
+  # === HOSTILE: Full-featured webshell with direct RCE ===
+  # Combines direct user input execution + multiple shell methods + webshell family indicators
+
+  # Hostile: Direct user input used as function call (variable function)
+  # This pattern has no legitimate use - user input directly calls arbitrary functions
+  - id: php-variable-function-backdoor
+    desc: "PHP webshell: user input as function call"
+    crit: hostile
+    conf: 0.99
+    mbc: "B0030"
+    attack: "T1505.003"
+    for: [php]
+    all:
+      - id: dynamic-user-input-call  # $_POST['x']() pattern
+      - id: cap/exec/command/shell   # has shell execution capability
+    any:
+      - id: cap/data/user-input/request
+      - id: cap/fs/write
+      - id: cap/fs/read
+
+  # Hostile: Webshell with backtick RCE from user input
+  - id: php-backtick-rce
+    desc: "PHP webshell: backtick RCE from user input"
+    crit: hostile
+    conf: 0.98
+    mbc: "E1059"
+    attack: "T1059.004"
+    for: [php]
+    all:
+      - id: cap/exec/command/shell/backtick
+      - id: cap/data/user-input/request
+    any:
+      - id: cap/exec/command/shell
+      - id: cap/fs/write
+      - id: obj/persist/session
+
+  # Hostile: WSO webshell family with command execution
+  - id: wso-webshell
+    desc: "WSO webshell family detected"
+    crit: hostile
+    conf: 0.99
+    mbc: "B0030"
+    attack: "T1505.003"
+    for: [php]
+    all:
+      - id: obj/c2/webshell/wso-version
+      - id: cap/exec/command/shell
+    any:
+      - id: cap/data/user-input/request
+      - id: cap/fs/write
+      - id: obj/persist/session
+
+  # Hostile: Full-featured webshell (multiple indicators)
+  # File manager + shell execution + user input + multiple exec methods
+  - id: php-full-webshell
+    desc: "Full-featured PHP webshell"
+    crit: hostile
+    conf: 0.98
+    mbc: "B0030"
+    attack: "T1505.003"
+    for: [php]
+    all:
+      - id: cap/exec/command/shell  # shell execution
+      - id: cap/data/user-input/request  # user input handling
+      - id: cap/fs/write  # file write capability
+    count_min: 2
+    any:
+      - id: obj/c2/webshell/filesman  # FilesMan pattern
+      - id: obj/c2/webshell/wso-version  # WSO family
+      - id: obj/c2/webshell/wso-shell  # WSO family
+      - id: dynamic-user-input-call  # variable function backdoor
+      - id: cap/exec/command/shell/backtick  # backtick RCE

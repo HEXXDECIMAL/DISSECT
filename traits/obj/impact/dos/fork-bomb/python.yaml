@@ -9,7 +9,7 @@ defaults:
 traits:
   # os.fork() call - notable on its own, hostile in loop
   - id: os-fork
-    desc: Process forking via os.fork()
+    desc: os.fork() call
     crit: notable
     conf: 0.8
     if:
@@ -19,7 +19,7 @@ traits:
 
   # multiprocessing.Process - legitimate parallel processing
   - id: multiprocessing
-    desc: Multiprocessing for parallel execution
+    desc: Multiprocessing module
     crit: inert
     conf: 0.9
     if:
@@ -41,7 +41,7 @@ traits:
     crit: inert
     conf: 0.6
     if:
-      type: string
+      type: content
       exact: "while True:"
 
   - id: while-1
@@ -49,43 +49,51 @@ traits:
     crit: inert
     conf: 0.6
     if:
-      type: string
+      type: content
       exact: "while 1:"
 
   - id: for-iter-int
-    desc: Infinite loop with for iter(int,
+    desc: iter(int,1) infinite loop
     crit: inert
     conf: 0.6
     if:
-      type: string
+      type: content
       exact: "for _ in iter(int, 1):"
 
   # Fork call string
   - id: os-fork-string
-    desc: os.fork() function call string
+    desc: os.fork() call
     crit: inert
     conf: 0.6
     if:
-      type: string
-      exact: "os.fork()"
+      type: content
+      substr: "os.fork()"
 
   # Large range loops (4+ digits)
   - id: large-range-loop
-    desc: Loop with large range (10000+)
+    desc: Large range loop
     crit: inert
     conf: 0.6
     if:
-      type: string
+      type: content
       regex: 'for\s+\w+\s+in\s+range\(\d{4,}\):'
 
   # While loops with True or 1
   - id: while-true-or-1
-    desc: While loop with True or
+    desc: Infinite while True loop
     crit: inert
     conf: 0.6
     if:
-      type: string
-      regex: 'while\s+(True|1):'
+      type: content
+      substr: "while True:"
+
+  - id: while-1-loop
+    desc: Infinite while 1 loop
+    crit: inert
+    conf: 0.6
+    if:
+      type: content
+      substr: "while 1:"
 
   # Exclusions (legitimate patterns)
   - id: time-sleep
@@ -196,9 +204,10 @@ composite_rules:
 
   # Helper: Tight loop patterns
   - id: tight-loops
-    desc: Tight loop patterns (while True/1
+    desc: Tight loop patterns
     any:
       - id: while-true-or-1
+      - id: while-1-loop
       - id: large-range-loop
 
   # Helper: Fork with large range or while loop
@@ -219,3 +228,22 @@ composite_rules:
       - id: fork-with-tight-loop
     none:
       - id: legitimate-patterns
+
+  # Helper: Infinite while loop (True or 1)
+  - id: infinite-while
+    desc: Infinite while loop
+    any:
+      - id: while-true-or-1
+      - id: while-1-loop
+
+  # Direct fork bomb detection: infinite loop + os.fork
+  - id: fork-bomb
+    desc: Fork bomb DoS attack
+    crit: hostile
+    conf: 0.95
+    attack: "T1499.004"
+    all:
+      - id: os-fork-string
+      - id: infinite-while
+    none:
+      - id: time-sleep

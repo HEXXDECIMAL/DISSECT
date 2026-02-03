@@ -1,0 +1,59 @@
+# Ruby Dynamic Code Execution Detection
+# Detects eval, instance_eval, and other dynamic code execution patterns
+# ATT&CK: T1059.005 (Command and Scripting Interpreter: Ruby)
+
+defaults:
+  crit: notable
+  attack: "T1059"
+  for: [ruby]
+
+traits:
+  # === Basic Eval Patterns ===
+  - id: eval-call
+    desc: Ruby eval call
+    crit: notable
+    conf: 0.90
+    if:
+      type: content
+      regex: "\\beval\\s*\\("
+
+  - id: instance-eval
+    desc: Ruby instance_eval call
+    crit: notable
+    conf: 0.90
+    if:
+      type: content
+      regex: "\\.instance_eval\\b"
+
+  - id: class-eval
+    desc: Ruby class_eval call
+    crit: notable
+    conf: 0.90
+    if:
+      type: content
+      regex: "\\.class_eval\\b"
+
+  - id: module-eval
+    desc: Ruby module_eval call
+    crit: notable
+    conf: 0.90
+    if:
+      type: content
+      regex: "\\.module_eval\\b"
+
+  # === Module Monkey Patching ===
+  - id: prepend-module
+    desc: Ruby Module prepend
+    crit: notable
+    conf: 0.85
+    if:
+      type: content
+      regex: "\\.prepend\\s+Module\\.new"
+
+  - id: define-method-dynamic
+    desc: Ruby dynamic method definition
+    crit: notable
+    conf: 0.80
+    if:
+      type: content
+      regex: "define_method\\s*\\(\\s*:[a-z_]+"
