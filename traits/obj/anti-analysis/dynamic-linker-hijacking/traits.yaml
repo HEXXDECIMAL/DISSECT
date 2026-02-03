@@ -1,0 +1,175 @@
+# Dynamic Linker Hijacking Patterns
+# Detects techniques for hijacking the dynamic linker for code injection
+# Generic indicator for privilege escalation and malware implantation
+
+traits:
+  - id: ld-preload-env
+    desc: LD_PRELOAD environment variable
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "LD_PRELOAD"
+        - substr: "LD_PRELOAD="
+    notes: "LD_PRELOAD library injection environment variable"
+    attack: "T1547.015"
+
+  - id: ld-audit-env
+    desc: LD_AUDIT environment variable
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    if:
+      type: string
+      substr: "LD_AUDIT"
+    notes: "LD_AUDIT dynamic linker audit hook"
+    attack: "T1547.015"
+
+  - id: ld-debug-env
+    desc: LD_DEBUG environment variable
+    crit: suspicious
+    conf: 0.8
+    for: [elf, shell]
+    if:
+      type: string
+      substr: "LD_DEBUG"
+    notes: "LD_DEBUG dynamic linker debugging"
+    attack: "T1070"
+
+  - id: dlfcn-hook-symbol
+    desc: _dlfcn_hook dynamic linker hook
+    crit: suspicious
+    conf: 0.9
+    for: [elf]
+    if:
+      type: symbol
+      any:
+        - exact: "_dlfcn_hook"
+        - contains: "_dlfcn_hook"
+    notes: "Dynamic linker hook symbol (_dlfcn_hook) for code injection"
+    attack: "T1547.015"
+
+  - id: rtld-next-symbol
+    desc: RTLD_NEXT runtime linker symbol
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "RTLD_NEXT"
+        - substr: "dlsym(RTLD_NEXT"
+    notes: "RTLD_NEXT symbol for intercepting libc functions"
+    attack: "T1547.015"
+
+  - id: dlopen-dlsym-pattern
+    desc: dlopen/dlsym dynamic library loading
+    crit: notable
+    conf: 0.7
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "dlopen"
+        - substr: "dlsym"
+    notes: "Dynamic library loading via dlopen/dlsym"
+    attack: "T1555"
+
+  - id: libc-preload
+    desc: Preload libc library
+    crit: suspicious
+    conf: 0.8
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "libc.so"
+        - substr: "libc-"
+    notes: "Direct libc library reference (potential hijacking)"
+
+  - id: glibc-tunables
+    desc: GLIBC_TUNABLES environment variable
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    if:
+      type: string
+      substr: "GLIBC_TUNABLES"
+    notes: "GLIBC_TUNABLES environment variable (exploit technique)"
+    attack: "T1547.015"
+
+  - id: function-interception
+    desc: Function interception via dlsym
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "dlsym"
+        - substr: "__libc_dlopen_mode"
+    notes: "Function interception pattern"
+    attack: "T1547.015"
+
+composite_rules:
+  - id: ld-environment-hijacking
+    desc: LD environment variable hijacking
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    attack: "T1547.015"
+    notes: |
+      LD environment variable hijacking detected.
+      Indicates:
+      - Dynamic linker manipulation
+      - Library injection preparation
+      - Privilege escalation technique
+    count_min: 2
+    any:
+      - id: ld-preload-env
+      - id: ld-audit-env
+      - id: ld-debug-env
+
+  - id: dynamic-function-interception
+    desc: Dynamic function interception
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    attack: "T1547.015"
+    notes: |
+      Dynamic function interception patterns detected.
+      Indicates:
+      - Hooking libc functions
+      - Intercepting system calls via libc
+    count_min: 2
+    any:
+      - id: rtld-next-symbol
+      - id: dlopen-dlsym-pattern
+      - id: function-interception
+
+  - id: dynamic-linker-hijacking
+    desc: Complete dynamic linker hijacking
+    crit: suspicious
+    conf: 0.9
+    for: [elf, shell]
+    attack: "T1547.015"
+    mbc: "E1104"
+    notes: |
+      Complete dynamic linker hijacking pattern detected.
+      Combines:
+      - LD environment variables (_dlfcn_hook, LD_PRELOAD, LD_AUDIT)
+      - Dynamic function interception (dlsym, RTLD_NEXT)
+      - Runtime library loading
+
+      This indicates:
+      - Sophisticated code injection framework
+      - Privilege escalation capability
+      - Rootkit-level system modification
+    count_min: 2
+    any:
+      - id: dlfcn-hook-symbol
+      - id: ld-environment-hijacking
+      - id: dynamic-function-interception
+

@@ -1,0 +1,166 @@
+# Firewall Tool Abuse Patterns
+# Detects malware manipulating firewall rules for persistence and C2 access
+# Indicators of sophisticated backdoor installation
+
+traits:
+  - id: firewall-cmd-tool
+    desc: firewall-cmd tool invocation detected
+    crit: notable
+    conf: 0.75
+    for: [elf, shell]
+    if:
+      type: string
+      substr: "firewall-cmd"
+    attack: "T1562.004"
+
+  - id: firewall-cmd-add-port
+    desc: firewall-cmd adding port rule
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "--add-port"
+        - substr: "--add-service=ssh"
+        - regex: "firewall-cmd\\s+.*--add-port"
+    attack: "T1562.004"
+
+  - id: firewall-cmd-permanent
+    desc: firewall-cmd permanent rule modification
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "--permanent --add-port=22"
+        - substr: "--permanent --add-service=ssh"
+        - regex: "--permanent.*--add-(port|service)"
+    attack: "T1562.004"
+
+  - id: firewall-cmd-reload
+    desc: firewall-cmd reload or restart
+    crit: suspicious
+    conf: 0.8
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "firewall-cmd --reload"
+        - substr: "firewall-cmd --complete-reload"
+        - substr: "systemctl restart firewalld"
+    attack: "T1562.004"
+
+  - id: ufw-tool
+    desc: ufw firewall management tool
+    crit: notable
+    conf: 0.75
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "ufw "
+        - substr: "ufw allow"
+    attack: "T1562.004"
+
+  - id: ufw-allow-ssh
+    desc: ufw allowing SSH port access
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "ufw allow 22"
+        - substr: "ufw allow ssh"
+        - substr: "ufw allow in 22"
+        - regex: "ufw\\s+allow\\s+(22|ssh)"
+    attack: "T1562.004"
+
+  - id: ufw-enable
+    desc: ufw firewall enable or activate
+    crit: suspicious
+    conf: 0.8
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "ufw enable"
+        - substr: "ufw --force enable"
+    attack: "T1562.004"
+
+  - id: firewall-tool-check
+    desc: checking for firewall tool availability
+    crit: inert
+    conf: 0.5
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "which firewall-cmd"
+        - substr: "which ufw"
+        - substr: "command -v ufw"
+
+  - id: firewalld-service-control
+    desc: firewalld service enable or restart
+    crit: suspicious
+    conf: 0.8
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "systemctl enable firewalld"
+        - substr: "systemctl start firewalld"
+        - substr: "systemctl restart firewalld"
+    attack: "T1562.004"
+
+  - id: port-22-ssh-rule
+    desc: SSH port 22 firewall rule
+    crit: suspicious
+    conf: 0.8
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "--add-port=22"
+        - substr: "allow 22"
+        - substr: "allow ssh"
+    attack: "T1562.004"
+
+composite_rules:
+  - id: firewall-ssh-opening
+    desc: Firewall rule allowing SSH access
+    crit: suspicious
+    conf: 0.9
+    for: [elf, shell]
+    attack: "T1562.004"
+    all:
+      - id: firewall-cmd-tool
+      - id: port-22-ssh-rule
+
+  - id: firewall-persistence-setup
+    desc: Permanent firewall rule installation
+    crit: suspicious
+    conf: 0.9
+    for: [elf, shell]
+    attack: "T1562.004"
+    all:
+      - id: firewall-cmd-permanent
+      - id: firewall-cmd-reload
+
+  - id: firewall-comprehensive-abuse
+    desc: Complete firewall manipulation pattern
+    crit: hostile
+    conf: 0.9
+    for: [elf, shell]
+    attack: "T1562.004"
+    mbc: "E1562"
+    count_min: 3
+    any:
+      - id: firewall-cmd-add-port
+      - id: firewall-cmd-permanent
+      - id: firewall-cmd-reload
+      - id: ufw-allow-ssh
+      - id: ufw-enable
+      - id: firewalld-service-control

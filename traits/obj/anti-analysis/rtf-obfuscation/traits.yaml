@@ -1,0 +1,71 @@
+defaults:
+  for: [rtf]
+  crit: suspicious
+  mbc: B0009          # Anti-Analysis
+  attack: T1027       # Obfuscated Files
+
+traits:
+  - id: rtf-obfuscated-ole-header
+    desc: "OLE header hex obfuscation"
+    if:
+      type: string
+      regex: 'D\s+0\s+C\s+F|0xd0\s+0xcf|objdata\s+[0-9A-Fa-f\s]{8,}'
+    conf: 0.95
+
+  - id: rtf-malformed-header
+    desc: "Malformed RTF header"
+    if:
+      type: string
+      regex: '^\{\\?rtf|{\\rtf[^1]'
+    conf: 0.85
+
+  - id: rtf-excessive-nesting
+    desc: "Excessive brace nesting detected"
+    if:
+      type: string
+      regex: '{{{{{{{{{'
+    conf: 0.9
+    attack: T1204
+
+  - id: rtf-hex-encoded-ole
+    desc: "Hex-encoded OLE header"
+    if:
+      type: string
+      regex: 'D[\s]?0[\s]?C[\s]?F[\s]?1[\s]?1[\s]?E[\s]?0[\s]?A[\s]?1[\s]?B[\s]?1[\s]?1[\s]?A[\s]?E[\s]?1|D0CF11E0A1B11AE1'
+    conf: 0.92
+
+  - id: rtf-null-bytes
+    desc: "RTF with embedded null bytes"
+    if:
+      type: string
+      regex: '\x00'
+    conf: 0.75
+
+  - id: rtf-control-word-obfuscation
+    desc: "Unusual RTF control word patterns"
+    if:
+      type: string
+      regex: '\\\\[a-z]+\s*[a-z]'
+    conf: 0.7
+
+  - id: rtf-mixed-case-controls
+    desc: "Mixed case RTF control words"
+    if:
+      type: string
+      regex: '\\[A-Z][a-z]+|\\[a-z]+[A-Z]'
+    conf: 0.65
+
+  - id: rtf-suspicious-hex-stream
+    desc: "Large hex data stream"
+    if:
+      type: string
+      regex: '\\objdata\s+[0-9A-Fa-f]{1000,}'
+    conf: 0.8
+    crit: suspicious
+
+  - id: rtf-control-replacement
+    desc: "RTF with replacement control codes"
+    if:
+      type: string
+      regex: '\\?\(|\\?\)|\\?\{|\\?\}'
+    conf: 0.65

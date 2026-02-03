@@ -32,6 +32,7 @@ pub mod java_class;
 pub mod macho;
 pub mod package_json;
 pub mod pe;
+pub mod rtf;
 pub mod vsix_manifest;
 
 // Unified source analyzer (handles all tree-sitter languages)
@@ -81,6 +82,11 @@ pub fn analyzer_for_file_type(
         // Compiled AppleScript - binary format
         FileType::AppleScript => Some(Box::new(
             applescript::AppleScriptAnalyzer::new().with_capability_mapper(mapper_or_empty),
+        )),
+
+        // RTF documents - parse for embedded OLE objects
+        FileType::Rtf => Some(Box::new(
+            rtf::RtfAnalyzer::new().with_capability_mapper(mapper_or_empty),
         )),
 
         // Package manifests - structured data parsers
@@ -250,6 +256,7 @@ pub fn detect_file_type_from_path(file_path: &Path) -> FileType {
             "zig" => return FileType::Zig,
             "ex" | "exs" => return FileType::Elixir,
             "scpt" | "applescript" => return FileType::AppleScript,
+            "rtf" => return FileType::Rtf,
             "zip" | "7z" | "rar" | "deb" | "rpm" | "apk" | "ipa" | "xpi" | "epub" | "nupkg"
             | "vsix" | "aar" | "egg" | "whl" | "phar" => return FileType::Archive,
             _ => {}
@@ -270,6 +277,11 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
     // Check for compiled AppleScript magic bytes "Fasd"
     if file_data.starts_with(b"Fasd") {
         return Ok(FileType::AppleScript);
+    }
+
+    // Check for RTF magic bytes
+    if file_data.starts_with(b"{\\rtf") {
+        return Ok(FileType::Rtf);
     }
 
     // Check for Java class files BEFORE Mach-O (both use 0xCAFEBABE)
@@ -699,6 +711,7 @@ pub enum FileType {
     ChromeManifest, // Chrome extension manifest.json
     Archive,
     AppleScript,
+    Rtf,            // Rich Text Format documents
     Unknown,
 }
 
@@ -736,7 +749,8 @@ impl FileType {
             | FileType::PackageJson
             | FileType::VsixManifest
             | FileType::ChromeManifest
-            | FileType::AppleScript => true,
+            | FileType::AppleScript
+            | FileType::Rtf => true,
             FileType::Archive | FileType::Unknown => false, // Skip unknown files by default in dir scans
         }
     }
@@ -798,6 +812,7 @@ impl FileType {
             FileType::ChromeManifest => vec!["json", "manifest.json", "chrome", "extension"],
             FileType::Archive => vec!["zip", "tar", "gz"],
             FileType::AppleScript => vec!["scpt", "applescript"],
+            FileType::Rtf => vec!["rtf", "doc"],
             FileType::Unknown => vec![], // No filtering for unknown types
         }
     }

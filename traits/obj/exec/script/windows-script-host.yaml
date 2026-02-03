@@ -1,0 +1,211 @@
+# Windows Script Host Execution Patterns
+# Detects VBScript/JScript execution via WScript object
+# Generic indicator for script-based malware
+
+traits:
+  - id: wscript-sleep
+    desc: WScript.Sleep timing
+    crit: inert
+    conf: 0.5
+    platforms: [windows]
+    for: [javascript]
+    if:
+      type: string
+      substr: "WScript.Sleep"
+    notes: "WScript.Sleep API (timing/delays)"
+    attack: "T1060"
+
+  - id: wscript-echo
+    desc: WScript.Echo output
+    crit: inert
+    conf: 0.5
+    platforms: [windows]
+    for: [javascript]
+    if:
+      type: string
+      substr: "WScript.Echo"
+    notes: "WScript.Echo API (output/logging)"
+
+  - id: wscript-createobject
+    desc: WScript.CreateObject
+    crit: notable
+    conf: 0.7
+    platforms: [windows]
+    for: [javascript]
+    if:
+      type: string
+      substr: "WScript.CreateObject"
+    notes: "WScript.CreateObject for COM object instantiation"
+    attack: "T1202"
+
+  - id: wscript-getobject
+    desc: WScript.GetObject
+    crit: notable
+    conf: 0.7
+    platforms: [windows]
+    for: [javascript]
+    if:
+      type: string
+      substr: "WScript.GetObject"
+    notes: "WScript.GetObject for existing COM objects"
+    attack: "T1202"
+
+  - id: wscript-arguments
+    desc: WScript.Arguments access
+    crit: notable
+    conf: 0.65
+    platforms: [windows]
+    for: [javascript]
+    if:
+      type: string
+      substr: "WScript.Arguments"
+    notes: "WScript.Arguments (command-line argument access)"
+
+  - id: wscript-scriptfullname
+    desc: WScript.ScriptFullName
+    crit: inert
+    conf: 0.5
+    platforms: [windows]
+    for: [javascript]
+    if:
+      type: string
+      substr: "WScript.ScriptFullName"
+    notes: "WScript.ScriptFullName (script path reference)"
+
+  - id: wscript-shell
+    desc: WScript.Shell object
+    crit: notable
+    conf: 0.75
+    platforms: [windows]
+    for: [javascript]
+    if:
+      type: string
+      substr: "WScript.Shell"
+    notes: "WScript.Shell object (shell command execution)"
+    attack: "T1059.005"
+    mbc: "E1243"
+
+  - id: activexobject-shell
+    desc: ActiveXObject Shell.Application
+    crit: notable
+    conf: 0.8
+    platforms: [windows]
+    for: [javascript]
+    if:
+      type: string
+      substr: "Shell.Application"
+    notes: "Shell.Application COM object (privileged operations)"
+    attack: "T1059.005"
+    mbc: "E1243"
+
+  - id: activexobject-filesystem
+    desc: ActiveXObject FileSystemObject
+    crit: notable
+    conf: 0.8
+    platforms: [windows]
+    for: [javascript]
+    if:
+      type: string
+      substr: "Scripting.FileSystemObject"
+    notes: "FileSystemObject for file operations"
+    attack: "T1566"
+    mbc: "E1082"
+
+composite_rules:
+  - id: wscript-execution
+    desc: Windows Script Host execution
+    crit: suspicious
+    conf: 0.75
+    platforms: [windows]
+    for: [javascript]
+    attack: "T1202"
+    notes: |
+      Windows Script Host (WScript) execution detected.
+
+      WScript provides script automation capabilities:
+      - COM object instantiation
+      - Process execution
+      - File operations
+      - Shell command execution
+
+      Used by:
+      - VBScript/JScript malware
+      - First-stage payloads
+      - Living-off-the-land attacks
+      - Script-based trojans
+
+    count_min: 2
+    any:
+      - id: wscript-createobject
+      - id: wscript-getobject
+      - id: wscript-shell
+      - id: wscript-sleep
+      - id: activexobject-shell
+      - id: activexobject-filesystem
+
+  - id: wscript-com-objects
+    desc: WScript COM object usage
+    crit: suspicious
+    conf: 0.8
+    platforms: [windows]
+    for: [javascript]
+    attack: "T1202"
+    mbc: "E1243"
+    notes: |
+      WScript with dangerous COM object access.
+
+      Indicates:
+      - Shell command capability
+      - File system access
+      - Process execution via COM
+      - Multiple malware capability vectors
+
+    any:
+      - id: wscript-shell
+      - id: activexobject-shell
+      - id: activexobject-filesystem
+
+  - id: wscript-process-execution
+    desc: WScript process execution
+    crit: hostile
+    conf: 0.85
+    platforms: [windows]
+    for: [javascript]
+    attack: "T1202"
+    mbc: "E1243"
+    notes: |
+      WScript execution combined with process creation.
+      Indicates direct malware execution capability.
+
+    all:
+      - id: wscript-execution
+      - id: cap/exec/process/spawn
+
+  - id: script-based-malware
+    desc: Script-based malware framework
+    crit: hostile
+    conf: 0.9
+    platforms: [windows]
+    for: [javascript]
+    attack: "T1202"
+    mbc: "E1243"
+    notes: |
+      Complete script-based malware framework detected.
+
+      Combines:
+      - COM object access (execution capability)
+      - File system operations
+      - Process control
+      - Timing delays (evasion)
+
+      This indicates sophisticated scripted malware
+      with multiple attack vectors.
+
+    count_min: 3
+    any:
+      - id: wscript-shell
+      - id: activexobject-shell
+      - id: activexobject-filesystem
+      - id: wscript-createobject
+      - id: wscript-sleep
+

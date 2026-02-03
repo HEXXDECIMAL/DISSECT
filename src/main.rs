@@ -44,6 +44,7 @@ mod extractors;
 mod output;
 mod path_mapper;
 mod radare2;
+mod rtf;
 mod syscall_names;
 // mod radare2_extended;  // Removed: integrated into radare2.rs
 mod strings;

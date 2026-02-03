@@ -11,6 +11,7 @@ use crate::composite_rules::{
     CompositeTrait, Condition, FileType as RuleFileType, Platform, TraitDefinition,
 };
 use crate::types::{AnalysisReport, Criticality, Finding, FindingKind, TargetInfo};
+use anyhow::Result;
 
 #[test]
 fn test_empty_mapper() {
@@ -2048,5 +2049,50 @@ fn test_precision_traits_with_size_restrictions() {
         precision, 6,
         "Expected precision 6: trait1(pattern+size_min+size_max=3) + trait2(pattern+size_min+size_max=3), got {}",
         precision
+    );
+}
+
+#[test]
+fn test_invalid_yaml_error_message() {
+    // Test that invalid YAML produces helpful error messages showing line numbers
+    // This demonstrates improved error diagnostics for debugging malformed trait definitions
+
+    // Create truly invalid YAML (bad indentation)
+    let invalid_yaml = r#"
+traits:
+  - id: valid-trait
+    desc: This one is fine
+    crit: inert
+    conf: 0.9
+    for: [elf]
+    if:
+      type: string
+      regex: "test"
+
+  - id: invalid-trait
+    desc: This one has indentation error
+    crit: suspicious
+  conf: 0.9
+    for: [elf]
+    if:
+      type: string
+      regex: "test"
+"#;
+
+    // Parse should fail due to indentation
+    let result: Result<serde_yaml::Value> = serde_yaml::from_str(invalid_yaml)
+        .map_err(|e| anyhow::anyhow!("YAML error: {}", e));
+
+    assert!(result.is_err(), "Malformed YAML should fail to parse");
+
+    // The error message should contain line/column information from serde_yaml
+    let error_msg = result.unwrap_err().to_string();
+    println!("Error message:\n{}", error_msg);
+
+    // serde_yaml includes line and column in error messages
+    assert!(
+        error_msg.contains("line") || error_msg.contains("column") || error_msg.contains("position"),
+        "Error should include line/column info: {}",
+        error_msg
     );
 }

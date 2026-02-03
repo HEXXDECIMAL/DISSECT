@@ -28,7 +28,8 @@ traits:
       # Common affiliate networks used for spam
       regex: "\\b(?:hop\\.clickbank\\.net|jvz[0-9]*\\.com|warriorplus\\.com|digistore24\\.com|clickbooth\\.com|shareasale\\.com|cj\\.com|impact\\.com)\\b"
     not:
-      - regex: "^https?://(?:www\\.)?(?:shareasale|cj|impact)\\.com/?$"  # Homepages OK
+      - type: string
+        regex: "^https?://(?:www\\.)?(?:shareasale|cj|impact)\\.com/?$"  # Homepages OK
 
   - id: tid-tracking-param
     desc: tid= tracking parameter in URL
@@ -49,14 +50,6 @@ traits:
       type: string
       regex: "\\bfree\\s+download\\b"
       case_insensitive: true
-
-  - id: setup-py-spam-url
-    desc: Spam URL in setup.py metadata
-    crit: suspicious
-    conf: 0.9
-    if:
-      type: basename
-      exact: "setup.py"
 
   # === Dynamic Dependency Injection ===
   # Reading requirements from external file at install time

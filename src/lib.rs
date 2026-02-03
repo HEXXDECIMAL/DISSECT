@@ -28,6 +28,9 @@ mod strings;
 mod syscall_names;
 mod upx;
 
+// Standalone RTF parser (can be used independently)
+pub mod rtf;
+
 // Public modules
 pub mod analyzers;
 pub mod capabilities;

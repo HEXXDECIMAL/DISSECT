@@ -1,0 +1,122 @@
+# Package Manager Abuse Patterns
+# Detects malware using apt/yum/dnf for dynamic tool installation
+# Indicators of multi-distro compatibility and privilege escalation preparation
+
+traits:
+  - id: apt-get-install
+    desc: apt-get package installation command
+    crit: notable
+    conf: 0.75
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "apt-get install"
+        - substr: "apt install"
+    attack: "T1190"
+
+  - id: apt-get-noninteractive
+    desc: automated apt-get install without interaction
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "apt-get install -y"
+        - substr: "apt install -y"
+        - substr: "DEBIAN_FRONTEND=noninteractive"
+    attack: "T1190"
+
+  - id: yum-install
+    desc: yum package installation command
+    crit: notable
+    conf: 0.75
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "yum install"
+        - substr: "yum -y install"
+    attack: "T1190"
+
+  - id: yum-noninteractive
+    desc: automated yum install without interaction
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    if:
+      type: string
+      substr: "yum install -y"
+    attack: "T1190"
+
+  - id: dnf-install
+    desc: dnf package installation command
+    crit: notable
+    conf: 0.75
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "dnf install"
+        - substr: "dnf -y install"
+    attack: "T1190"
+
+  - id: dnf-noninteractive
+    desc: automated dnf install without interaction
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    if:
+      type: string
+      substr: "dnf install -y"
+    attack: "T1190"
+
+  - id: which-package-check
+    desc: checking for package manager availability
+    crit: inert
+    conf: 0.6
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "which apt-get"
+        - substr: "which yum"
+        - substr: "which dnf"
+
+  - id: package-manager-conditional
+    desc: conditional package manager execution multi-distro
+    crit: notable
+    conf: 0.7
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - regex: "which\\s+(apt-get|yum|dnf).*&&"
+        - regex: "if.*which\\s+(apt-get|yum|dnf)"
+
+composite_rules:
+  - id: package-manager-abuse
+    desc: Malicious package manager usage
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    attack: "T1190"
+    count_min: 2
+    any:
+      - id: apt-get-noninteractive
+      - id: yum-noninteractive
+      - id: dnf-noninteractive
+      - id: package-manager-conditional
+
+  - id: multi-distro-package-targeting
+    desc: Multi-distro package manager targeting
+    crit: suspicious
+    conf: 0.9
+    for: [elf, shell]
+    attack: "T1190"
+    count_min: 2
+    any:
+      - id: apt-get-noninteractive
+      - id: yum-noninteractive
+      - id: dnf-noninteractive

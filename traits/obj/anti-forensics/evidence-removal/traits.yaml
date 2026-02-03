@@ -1,0 +1,254 @@
+# Anti-Forensics Evidence Removal Patterns
+# Detects techniques for removing traces of malicious activity
+# Generic indicator for cover-up and forensics evasion
+
+traits:
+  - id: history-clear-bash
+    desc: Clear bash history
+    crit: suspicious
+    conf: 0.8
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "rm -f ~/.bash_history"
+        - substr: "rm ~/.bash_history"
+        - substr: "cat /dev/null > ~/.bash_history"
+        - substr: "> ~/.bash_history"
+        - substr: "history -c"
+    notes: "Bash history removal"
+    attack: "T1070.003"
+
+  - id: history-clear-shell
+    desc: Clear shell history files
+    crit: suspicious
+    conf: 0.8
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: ".zsh_history"
+        - substr: ".ksh_history"
+        - substr: "history -c"
+        - substr: "HISTFILE=/dev/null"
+    notes: "Shell history clearing"
+    attack: "T1070.003"
+
+  - id: sed-deletion-pattern
+    desc: sed command for pattern deletion
+    crit: suspicious
+    conf: 0.8
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "sed -i"
+        - substr: "sed -i '/"
+        - regex: "sed\\s+-i\\s+'[/\\|]"
+    notes: "sed in-place file modification (likely deletion of traces)"
+    attack: "T1070.003"
+
+  - id: deleted-process-cleanup
+    desc: Cleanup deleted process references
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "(deleted)"
+        - substr: "grep deleted"
+        - regex: "\\(deleted\\)"
+    notes: "References to deleted process cleanup"
+    attack: "T1070.003"
+
+  - id: proc-self-maps
+    desc: /proc/self/maps inspection for anti-forensics
+    crit: suspicious
+    conf: 0.75
+    for: [elf, shell]
+    if:
+      type: string
+      substr: "/proc/self/maps"
+    notes: "Process memory mapping inspection"
+    attack: "T1070"
+
+  - id: pkill-signal-9
+    desc: pkill with kill -9 signal
+    crit: suspicious
+    conf: 0.8
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "pkill -9"
+        - substr: "killall -9"
+        - regex: "kill\\s+-9"
+    notes: "Force kill process (remove evidence)"
+    attack: "T1070.003"
+
+  - id: find-delete-pattern
+    desc: find with delete operation
+    crit: suspicious
+    conf: 0.8
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "-exec rm"
+        - substr: "-delete"
+        - regex: "find\\s+.*-exec\\s+rm"
+    notes: "find command for file deletion"
+    attack: "T1070.003"
+
+  - id: cron-removal
+    desc: Cron job removal
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "rm -f /etc/cron"
+        - substr: "crontab -r"
+        - substr: "rm -f /var/spool/cron"
+        - regex: "rm.*cron"
+    notes: "Cron job cleanup/removal"
+    attack: "T1070.003"
+
+  - id: systemd-cleanup
+    desc: Systemd service removal
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "rm -f /etc/systemd/system/"
+        - substr: "systemctl disable"
+        - substr: "systemctl stop"
+    notes: "Systemd service removal/disabling"
+    attack: "T1070.003"
+
+  - id: syslog-truncate
+    desc: System log truncation
+    crit: suspicious
+    conf: 0.8
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "> /var/log/"
+        - substr: "cat /dev/null > /var/log/"
+        - substr: "truncate -s 0"
+        - regex: ">/var/log/[a-z]+\\.log"
+    notes: "System log file truncation/clearing"
+    attack: "T1070.003"
+
+  - id: wtmp-utmp-clear
+    desc: wtmp/utmp login log clearing
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "/var/log/wtmp"
+        - substr: "/var/log/utmp"
+        - substr: "/var/run/utmp"
+    notes: "Login record (wtmp/utmp) clearing"
+    attack: "T1070.003"
+
+composite_rules:
+  - id: history-cleanup
+    desc: Shell history cleanup
+    crit: suspicious
+    conf: 0.8
+    for: [elf, shell]
+    attack: "T1070.003"
+    notes: |
+      Shell history removal detected.
+      Indicates:
+      - Covering tracks
+      - Forensics evasion
+      - Evidence removal
+    count_min: 2
+    any:
+      - id: history-clear-bash
+      - id: history-clear-shell
+
+  - id: process-cleanup
+    desc: Process trace cleanup
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    attack: "T1070.003"
+    notes: |
+      Process cleanup patterns detected.
+      Indicates:
+      - Removing malware process references
+      - Forensics evasion
+    count_min: 2
+    any:
+      - id: deleted-process-cleanup
+      - id: pkill-signal-9
+      - id: find-delete-pattern
+
+  - id: persistence-cleanup
+    desc: Persistence mechanism cleanup
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    attack: "T1070.003"
+    notes: |
+      Persistence-related cleanup detected.
+      Indicates:
+      - Removing scheduled tasks
+      - Service disabling/removal
+    count_min: 2
+    any:
+      - id: cron-removal
+      - id: systemd-cleanup
+
+  - id: log-cleanup
+    desc: System log cleanup
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    attack: "T1070.003"
+    notes: |
+      Log file cleanup detected.
+      Indicates:
+      - Removing evidence of exploitation
+      - Forensics evasion
+    count_min: 2
+    any:
+      - id: syslog-truncate
+      - id: wtmp-utmp-clear
+
+  - id: comprehensive-evidence-removal
+    desc: Comprehensive evidence removal pattern
+    crit: hostile
+    conf: 0.9
+    for: [elf, shell]
+    attack: "T1070.003"
+    mbc: "E1006"
+    notes: |
+      Complete evidence removal pattern detected.
+      Combines multiple cleanup mechanisms:
+      - History files removal
+      - Process trace cleanup
+      - Persistence mechanism removal
+      - Log file cleanup
+
+      This indicates:
+      - Sophisticated attacker
+      - Forensics-aware malware
+      - Multi-stage cover-up operation
+    count_min: 3
+    any:
+      - id: history-cleanup
+      - id: process-cleanup
+      - id: persistence-cleanup
+      - id: log-cleanup
+

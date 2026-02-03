@@ -1,0 +1,204 @@
+# Account Creation + Privilege Escalation Patterns
+# Detects techniques for creating backdoor accounts with elevated privileges
+# Generic indicator for persistent privileged access installation
+
+traits:
+  - id: useradd-command
+    desc: useradd user creation command
+    crit: notable
+    conf: 0.75
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "useradd"
+        - substr: "adduser"
+        - substr: "/usr/sbin/useradd"
+    notes: "User account creation command"
+    attack: "T1136.001"
+
+  - id: user-bash-shell
+    desc: Create user with bash shell
+    crit: suspicious
+    conf: 0.8
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "-s /bin/bash"
+        - substr: "--shell /bin/bash"
+        - substr: "-s /bin/sh"
+    notes: "User created with interactive shell (not restricted)"
+    attack: "T1136.001"
+
+  - id: sudoers-file-path
+    desc: /etc/sudoers file reference
+    crit: notable
+    conf: 0.7
+    for: [elf, shell]
+    if:
+      type: string
+      substr: "/etc/sudoers"
+    notes: "Sudoers file (privilege escalation configuration)"
+    attack: "T1548.004"
+
+  - id: sudoers-d-path
+    desc: /etc/sudoers.d/ directory reference
+    crit: notable
+    conf: 0.75
+    for: [elf, shell]
+    if:
+      type: string
+      substr: "/etc/sudoers.d/"
+    notes: "Sudoers configuration directory"
+    attack: "T1548.004"
+
+  - id: usermod-wheel
+    desc: usermod add to wheel group
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "usermod -aG wheel"
+        - substr: "usermod -G wheel"
+        - regex: "usermod\\s+.*wheel"
+    notes: "Add user to wheel group (privilege escalation)"
+    attack: "T1548.004"
+
+  - id: usermod-sudo
+    desc: usermod add to sudo group
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "usermod -aG sudo"
+        - substr: "usermod -G sudo"
+        - regex: "usermod\\s+.*sudo"
+    notes: "Add user to sudo group (privilege escalation)"
+    attack: "T1548.004"
+
+  - id: chpasswd-command
+    desc: chpasswd password change command
+    crit: suspicious
+    conf: 0.8
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "chpasswd"
+        - substr: "echo '%s:%s' | chpasswd"
+    notes: "Automated password setting via chpasswd"
+    attack: "T1136.001"
+
+  - id: passwd-command
+    desc: passwd password change command
+    crit: inert
+    conf: 0.5
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "passwd"
+        - substr: "/usr/bin/passwd"
+    notes: "Password modification command"
+
+  - id: visudo-check
+    desc: visudo configuration check
+    crit: notable
+    conf: 0.7
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "visudo -c"
+        - substr: "visudo -q"
+    notes: "Visudo syntax check (before applying sudoers changes)"
+    attack: "T1548.004"
+
+  - id: sudo-nopasswd
+    desc: NOPASSWD sudo directive
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    if:
+      type: string
+      substr: "NOPASSWD"
+    notes: "NOPASSWD sudoers directive (passwordless sudo)"
+    attack: "T1548.004"
+
+  - id: openssl-passwd
+    desc: openssl password hashing
+    crit: notable
+    conf: 0.7
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "openssl passwd"
+        - substr: "openssl passwd -6"
+    notes: "OpenSSL password hash generation"
+    attack: "T1136.001"
+
+composite_rules:
+  - id: account-creation
+    desc: User account creation
+    crit: suspicious
+    conf: 0.8
+    for: [elf, shell]
+    attack: "T1136.001"
+    notes: |
+      User account creation with interactive shell.
+      Indicates:
+      - Backdoor account creation
+      - Persistent system access
+    count_min: 2
+    any:
+      - id: useradd-command
+      - id: user-bash-shell
+      - id: chpasswd-command
+      - id: openssl-passwd
+
+  - id: privilege-escalation-setup
+    desc: Privilege escalation configuration
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    attack: "T1548.004"
+    notes: |
+      Sudoers or wheel group modification for privilege escalation.
+      Indicates:
+      - Privilege escalation installation
+      - Backdoor privilege elevation
+    count_min: 2
+    any:
+      - id: usermod-wheel
+      - id: usermod-sudo
+      - id: sudo-nopasswd
+      - id: visudo-check
+
+  - id: account-privilege-escalation-combo
+    desc: Account creation + privilege escalation
+    crit: hostile
+    conf: 0.9
+    for: [elf, shell]
+    attack: "T1136.001"
+    mbc: "E1015"
+    notes: |
+      Complete backdoor account installation pattern.
+      Combines:
+      - New user account creation with bash shell
+      - Sudoers/wheel group privilege elevation
+      - Password hashing/setting automation
+
+      This indicates:
+      - Persistent privileged backdoor account
+      - Sophisticated attacker capability
+      - Full system compromise
+    all:
+      - id: account-creation
+      - id: privilege-escalation-setup
+

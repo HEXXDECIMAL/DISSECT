@@ -76,14 +76,7 @@ impl CapabilityMapper {
                     || error_chain.contains("invalid condition")
                 {
                     eprintln!("\n❌ FATAL: Invalid trait configuration file\n");
-                    // Print the full error chain which includes file path and line info
-                    for (i, cause) in e.chain().enumerate() {
-                        if i == 0 {
-                            eprintln!("   Error: {}", cause);
-                        } else {
-                            eprintln!("   Caused by: {}", cause);
-                        }
-                    }
+                    eprintln!("   {}", error_chain);
                     eprintln!();
                     std::process::exit(1);
                 }

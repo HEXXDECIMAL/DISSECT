@@ -136,7 +136,7 @@ DISSECT also supports cross-directory reference to match any rule in a directory
 ```yaml
 traits:
   - id: exec/process/terminate
-    desc: Process termination         # Keep ≤5 words
+    desc: Process termination API invocation    # Keep 4-6 words, clear intent
     crit: suspicious
     conf: 0.95
     mbc: "E1562"                       # Optional
@@ -152,6 +152,21 @@ traits:
 ```
 
 **File types:** `all`, `elf`, `macho`, `pe`, `dll`, `so`, `dylib`, `shell`, `python`, `javascript`, `rust`, `java`, `class`, `ruby`, `c`, `go`, `csharp`, `php`
+
+### Description Guidelines
+
+Trait descriptions should be **4-6 words** and clearly describe **what was detected**, not why it's suspicious.
+
+**Good descriptions:**
+- `apt-get package installation command` (4 words, concrete)
+- `automated apt-get install without interaction` (5 words, specific behavior)
+- `SSH configuration file modification` (4 words, clear intent)
+- `firewall rule opening for SSH` (5 words, actionable)
+
+**Avoid:**
+- Too short: `apt install` (not descriptive)
+- Too long: `Malicious automated package manager installation without user interaction for privilege escalation` (vague, should be broken into separate traits)
+- Behavioral interpretation: `Suspicious package installation` (criticality is set elsewhere; describe what, not whether it's bad)
 
 ## Condition Types
 

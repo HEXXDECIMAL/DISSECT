@@ -7,29 +7,9 @@ defaults:
   attack: "T1195.002"
 
 traits:
-  # === Setup.py Install-Time Execution ===
-  # Code that executes at module import level during pip install
-
-  - id: setup-py-file
-    desc: setup.py file detected
-    crit: inert
-    conf: 0.9
-    if:
-      type: basename
-      exact: "setup.py"
-
-  # === Decoy/Placeholder __init__.py Patterns ===
+  # === Decoy/Placeholder Patterns ===
   # Malicious packages often have minimal __init__.py files that just
   # print a confirmation message. Legitimate packages have actual code.
-
-  - id: init-py-file
-    desc: __init__.py file detected
-    crit: inert
-    conf: 0.9
-    # Uses default for: [python] from defaults section
-    if:
-      type: basename
-      exact: "__init__.py"
 
   - id: print-installed-string
     desc: Prints "installed" confirmation

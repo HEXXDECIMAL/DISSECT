@@ -133,16 +133,17 @@ traits:
     crit: suspicious
     conf: 0.9
     mbc: "E1059"
+    for: [javascript]
     if:
       type: basename
-      regex: "^stealer\\."
-      case_insensitive: true
+      regex: "^[Ss]tealer\\."
 
   - id: grabber-basename
     desc: File named grabber
     crit: suspicious
     conf: 0.9
     mbc: "E1059"
+    for: [javascript]
     if:
       type: basename
       regex: "^grabber\\."
