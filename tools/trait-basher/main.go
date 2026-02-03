@@ -11,8 +11,11 @@
 package main
 
 import (
+	"archive/tar"
+	"archive/zip"
 	"bufio"
 	"bytes"
+	"compress/gzip"
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
@@ -186,6 +189,256 @@ type RealFileAnalysis struct {
 	RealPath  string         // The real file path (stripped of ## fragment delimiters)
 	Root      FileAnalysis   // The root/real file entry
 	Fragments []FileAnalysis // All decoded fragment entries (if any)
+}
+
+// archiveExtraction holds information about an extracted archive.
+type archiveExtraction struct {
+	path    string   // Path to extracted archive directory
+	members []string // List of member paths in the archive
+}
+
+// extractArchive extracts an archive to a destination directory and returns member list.
+// Supports: .zip, .tar.gz, .tgz, .7z, .xz
+func extractArchive(ctx context.Context, archivePath, destDir string) (*archiveExtraction, error) {
+	ext := strings.ToLower(filepath.Ext(archivePath))
+
+	// Check for compound extensions
+	base := strings.ToLower(filepath.Base(archivePath))
+	if strings.HasSuffix(base, ".tar.gz") || strings.HasSuffix(base, ".tgz") {
+		ext = ".tar.gz"
+	}
+
+	switch ext {
+	case ".zip":
+		return extractZip(archivePath, destDir)
+	case ".tar.gz", ".tgz":
+		return extractTarGz(archivePath, destDir)
+	case ".7z":
+		return extract7z(ctx, archivePath, destDir)
+	case ".xz":
+		return extractXz(ctx, archivePath, destDir)
+	default:
+		return nil, fmt.Errorf("unsupported archive format: %s", ext)
+	}
+}
+
+// extractZip extracts a ZIP archive.
+func extractZip(archivePath, destDir string) (*archiveExtraction, error) {
+	reader, err := zip.OpenReader(archivePath)
+	if err != nil {
+		return nil, fmt.Errorf("open zip: %w", err)
+	}
+	defer reader.Close()
+
+	var members []string
+	for _, f := range reader.File {
+		path := filepath.Join(destDir, f.Name)
+
+		if f.FileInfo().IsDir() {
+			if err := os.MkdirAll(path, 0o755); err != nil {
+				return nil, fmt.Errorf("create directory: %w", err)
+			}
+			continue
+		}
+
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			return nil, fmt.Errorf("create directory: %w", err)
+		}
+
+		src, err := f.Open()
+		if err != nil {
+			return nil, fmt.Errorf("open file in zip: %w", err)
+		}
+
+		dst, err := os.Create(path)
+		if err != nil {
+			src.Close() //nolint:errcheck
+			return nil, fmt.Errorf("create extracted file: %w", err)
+		}
+
+		if _, err := io.Copy(dst, src); err != nil {
+			src.Close()  //nolint:errcheck
+			dst.Close() //nolint:errcheck
+			return nil, fmt.Errorf("extract file: %w", err)
+		}
+		src.Close()  //nolint:errcheck
+		dst.Close() //nolint:errcheck
+
+		members = append(members, f.Name)
+	}
+
+	return &archiveExtraction{path: destDir, members: members}, nil
+}
+
+// extractTarGz extracts a tar.gz archive.
+func extractTarGz(archivePath, destDir string) (*archiveExtraction, error) {
+	f, err := os.Open(archivePath)
+	if err != nil {
+		return nil, fmt.Errorf("open tar.gz: %w", err)
+	}
+	defer f.Close()
+
+	gr, err := gzip.NewReader(f)
+	if err != nil {
+		return nil, fmt.Errorf("create gzip reader: %w", err)
+	}
+	defer gr.Close()
+
+	tr := tar.NewReader(gr)
+	var members []string
+
+	for {
+		header, err := tr.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, fmt.Errorf("read tar entry: %w", err)
+		}
+
+		path := filepath.Join(destDir, header.Name)
+
+		switch header.Typeflag {
+		case tar.TypeDir:
+			if err := os.MkdirAll(path, 0o755); err != nil {
+				return nil, fmt.Errorf("create directory: %w", err)
+			}
+		case tar.TypeReg:
+			if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+				return nil, fmt.Errorf("create directory: %w", err)
+			}
+			dst, err := os.Create(path)
+			if err != nil {
+				return nil, fmt.Errorf("create extracted file: %w", err)
+			}
+			if _, err := io.CopyN(dst, tr, header.Size); err != nil {
+				dst.Close() //nolint:errcheck
+				return nil, fmt.Errorf("extract file: %w", err)
+			}
+			dst.Close() //nolint:errcheck
+			members = append(members, header.Name)
+		}
+	}
+
+	return &archiveExtraction{path: destDir, members: members}, nil
+}
+
+// extract7z extracts a 7z archive using the `7z` command-line tool.
+// Tries common malware archive passwords: "infected", "infect3d"
+func extract7z(ctx context.Context, archivePath, destDir string) (*archiveExtraction, error) {
+	passwords := []string{"", "infected", "infect3d"}
+	var lastErr error
+
+	for _, pwd := range passwords {
+		args := []string{"x", "-o" + destDir, "-y"}
+		if pwd != "" {
+			args = append(args, "-p"+pwd)
+		}
+		args = append(args, archivePath)
+
+		cmd := exec.CommandContext(ctx, "7z", args...)
+		var stderr bytes.Buffer
+		cmd.Stderr = &stderr
+
+		if err := cmd.Run(); err == nil {
+			// Success - list the extracted files
+			members, err := listDir(destDir)
+			if err != nil {
+				return nil, err
+			}
+			return &archiveExtraction{path: destDir, members: members}, nil
+		}
+		lastErr = errors.New(stderr.String())
+	}
+
+	if lastErr != nil {
+		return nil, fmt.Errorf("extract 7z (all passwords failed): %w", lastErr)
+	}
+	return nil, errors.New("extract 7z failed")
+}
+
+// extractXz extracts an .xz file using the `xz` command-line tool.
+func extractXz(ctx context.Context, archivePath, destDir string) (*archiveExtraction, error) {
+	// For .xz, decompress to a file
+	base := filepath.Base(archivePath)
+	outputPath := filepath.Join(destDir, strings.TrimSuffix(base, ".xz"))
+
+	cmd := exec.CommandContext(ctx, "xz", "-d", "-c", archivePath)
+
+	out, err := os.Create(outputPath)
+	if err != nil {
+		return nil, fmt.Errorf("create output file: %w", err)
+	}
+	defer out.Close()
+
+	cmd.Stdout = out
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+
+	if err := cmd.Run(); err != nil {
+		return nil, fmt.Errorf("extract xz: %w (%s)", err, stderr.String())
+	}
+
+	members := []string{filepath.Base(outputPath)}
+	return &archiveExtraction{path: destDir, members: members}, nil
+}
+
+// listDir recursively lists all files in a directory.
+func listDir(dir string) ([]string, error) {
+	var files []string
+	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			rel, err := filepath.Rel(dir, path)
+			if err != nil {
+				return err
+			}
+			files = append(files, rel)
+		}
+		return nil
+	})
+	return files, err
+}
+
+// archiveMemberStats finds the most notable file (with highest risk) and largest file.
+func archiveMemberStats(archive *ArchiveAnalysis) (mostNotable, largest *FileAnalysis) {
+	riskRank := map[string]int{"inert": 0, "notable": 1, "suspicious": 2, "hostile": 3}
+	maxRisk := -1
+
+	for i, m := range archive.Members {
+		// Find most notable
+		for _, f := range m.Findings {
+			rank := riskRank[strings.ToLower(f.Crit)]
+			if rank > maxRisk {
+				maxRisk = rank
+				mostNotable = &archive.Members[i]
+			}
+		}
+
+		// Find largest (by extracted path size if available)
+		if largest == nil {
+			largest = &archive.Members[i]
+		} else if m.ExtractedPath != "" && largest.ExtractedPath != "" {
+			sizeM, errM := getFileSize(m.ExtractedPath)
+			sizeL, errL := getFileSize(largest.ExtractedPath)
+			if errM == nil && errL == nil && sizeM > sizeL {
+				largest = &archive.Members[i]
+			}
+		}
+	}
+
+	return
+}
+
+// getFileSize returns the size of a file.
+func getFileSize(path string) (int64, error) {
+	info, err := os.Stat(path)
+	if err != nil {
+		return 0, err
+	}
+	return info.Size(), nil
 }
 
 // rootArchive returns the root archive path from a path with archive delimiters.
@@ -815,6 +1068,82 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) erro
 func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid string) error {
 	problematic := archiveProblematicMembers(a, cfg.knownGood)
 
+	// Extract archive (full for --bad, problematic files only for --good)
+	extractDir, err := os.MkdirTemp("", "trait-basher-archive-*")
+	if err != nil {
+		return fmt.Errorf("create extract directory: %w", err)
+	}
+	defer os.RemoveAll(extractDir) //nolint:errcheck,gosec
+
+	var extractedInfo string
+
+	if cfg.knownBad {
+		// --bad mode: extract full archive for comprehensive analysis
+		_, err = extractArchive(ctx, a.ArchivePath, extractDir)
+		if err != nil {
+			return fmt.Errorf("extract archive: %w", err)
+		}
+
+		// Find stats for hints
+		mostNotable, largest := archiveMemberStats(a)
+		var hints []string
+		if mostNotable != nil {
+			hints = append(hints, fmt.Sprintf("Most notable findings in: %s", memberPath(mostNotable.Path)))
+		}
+		if largest != nil {
+			hints = append(hints, fmt.Sprintf("Largest file: %s", memberPath(largest.Path)))
+		}
+
+		extractedInfo = fmt.Sprintf("\n\n## Extracted Archive\nFull archive extracted to: %s\n"+
+			"You can now read the actual source code to understand the malicious behavior.\n",
+			extractDir)
+		if len(hints) > 0 {
+			extractedInfo += "Hints for investigation:\n"
+			for _, h := range hints {
+				extractedInfo += fmt.Sprintf("- %s\n", h)
+			}
+		}
+		extractedInfo += "After analyzing, update the rules in traits/ to detect the malicious behavior found."
+	} else {
+		// --good mode: extract only problematic files
+		extractDir2, err := os.MkdirTemp("", "trait-basher-problematic-*")
+		if err != nil {
+			return fmt.Errorf("create problematic extract directory: %w", err)
+		}
+		defer os.RemoveAll(extractDir2) //nolint:errcheck,gosec
+
+		for _, m := range problematic {
+			if m.ExtractedPath != "" {
+				base := filepath.Base(m.Path)
+				dstPath := filepath.Join(extractDir2, base)
+				if err := os.MkdirAll(filepath.Dir(dstPath), 0o755); err != nil {
+					return fmt.Errorf("create directory: %w", err)
+				}
+				src, err := os.Open(m.ExtractedPath)
+				if err != nil {
+					return fmt.Errorf("open extracted file %s: %w", m.ExtractedPath, err)
+				}
+				dst, err := os.Create(dstPath)
+				if err != nil {
+					src.Close() //nolint:errcheck
+					return fmt.Errorf("create destination file: %w", err)
+				}
+				if _, err := io.Copy(dst, src); err != nil {
+					src.Close()  //nolint:errcheck
+					dst.Close() //nolint:errcheck
+					return fmt.Errorf("copy extracted file: %w", err)
+				}
+				src.Close()  //nolint:errcheck
+				dst.Close() //nolint:errcheck
+			}
+		}
+
+		extractedInfo = fmt.Sprintf("\n\n## Problematic Files\nFalse positive files extracted to: %s\n"+
+			"Review these files to understand why they're being incorrectly flagged.\n"+
+			"Adjust the rules in traits/ to fix the false positives.",
+			extractDir2)
+	}
+
 	var prompt, task string
 	if cfg.knownGood {
 		prompt = fmt.Sprintf(knownGoodArchivePrompt, a.ArchivePath, len(problematic), a.ArchivePath, cfg.repoRoot)
@@ -824,15 +1153,20 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 		task = "Find missing detections in archive (known-bad collection)"
 	}
 
-	var extractedPaths []string
-	for _, m := range problematic {
-		if m.ExtractedPath != "" {
-			extractedPaths = append(extractedPaths, fmt.Sprintf("- %s -> %s", memberPath(m.Path), m.ExtractedPath))
+	prompt += extractedInfo
+
+	// Still include extracted binary samples if available
+	if cfg.knownGood && len(problematic) > 0 {
+		var extractedPaths []string
+		for _, m := range problematic {
+			if m.ExtractedPath != "" {
+				extractedPaths = append(extractedPaths, fmt.Sprintf("- %s", m.ExtractedPath))
+			}
 		}
-	}
-	if len(extractedPaths) > 0 {
-		prompt += fmt.Sprintf("\n\n## Extracted Samples\nProblematic members have been extracted for binary analysis:\n%s\n"+
-			"Use these paths for radare2, strings, objdump, xxd, nm.", strings.Join(extractedPaths, "\n"))
+		if len(extractedPaths) > 0 {
+			prompt += fmt.Sprintf("\nBinary analysis tools available at: %s\n%s",
+				cfg.sampleDir, strings.Join(extractedPaths, "\n"))
+		}
 	}
 
 	critCounts := make(map[string]int)
@@ -854,9 +1188,17 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 	fmt.Fprintf(os.Stderr, "│ Findings: %s\n", strings.Join(critSummary, ", "))
 	fmt.Fprintf(os.Stderr, "│ Task: %s\n", task)
 	fmt.Fprintln(os.Stderr, "├─────────────────────────────────────────────────────────────")
-	fmt.Fprintln(os.Stderr, "│ Prompt:")
+	fmt.Fprintln(os.Stderr, "│ Prompt (abbreviated):")
+	var promptLines []string
 	for line := range strings.SplitSeq(prompt, "\n") {
-		fmt.Fprintf(os.Stderr, "│   %s\n", line)
+		promptLines = append(promptLines, line)
+	}
+	for i, line := range promptLines {
+		if i < 30 || i >= len(promptLines)-5 {
+			fmt.Fprintf(os.Stderr, "│   %s\n", line)
+		} else if i == 30 {
+			fmt.Fprintf(os.Stderr, "│   ... (%d lines) ...\n", len(promptLines)-35)
+		}
 	}
 	fmt.Fprintln(os.Stderr, "└─────────────────────────────────────────────────────────────")
 	fmt.Fprintln(os.Stderr)
@@ -866,7 +1208,7 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 	timedCtx, cancel := context.WithTimeout(ctx, cfg.timeout)
 	defer cancel()
 
-	err := runAIWithStreaming(timedCtx, cfg, prompt, sid)
+	err = runAIWithStreaming(timedCtx, cfg, prompt, sid)
 	fmt.Fprintln(os.Stderr)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "<<< %s failed: %v\n", cfg.provider, err)
