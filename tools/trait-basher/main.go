@@ -224,30 +224,15 @@ func isFragment(path string) bool {
 
 // archiveNeedsReview returns true if any member of the archive needs review.
 // For known-good archives: review if ANY member is flagged (to reduce false positives).
-// For known-bad archives: skip if ANY member is already flagged as malicious.
+// For known-bad archives: review if ANY member is NOT yet flagged (to find missing detections).
 func archiveNeedsReview(a *ArchiveAnalysis, knownGood bool) bool {
-	if knownGood {
-		// Known-good: review if any member is suspicious/hostile (false positive)
-		for _, m := range a.Members {
-			if needsReview(m, knownGood) {
-				return true
-			}
-		}
-		return false
-	}
-
-	// Known-bad: skip if ANY member is already flagged as malicious
+	// Review if ANY member needs review
 	for _, m := range a.Members {
-		for _, finding := range m.Findings {
-			c := strings.ToLower(finding.Crit)
-			if c == "suspicious" || c == "hostile" {
-				return false // Already detected, no review needed
-			}
+		if needsReview(m, knownGood) {
+			return true
 		}
 	}
-
-	// No members detected yet - review the archive
-	return true
+	return false
 }
 
 // archiveProblematicMembers returns the members that need review.
