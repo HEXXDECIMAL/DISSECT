@@ -6,7 +6,7 @@
 //! - **Indexes**: Performance optimization structures for fast trait lookup
 //! - **Models**: YAML parsing structures and data models
 //! - **Parsing**: Default application and type parsing
-//! - **Validation**: Rule validation and complexity analysis
+//! - **Validation**: Rule validation and precision analysis
 //! - **Mapper**: Core CapabilityMapper implementation
 //!
 //! ## Architecture

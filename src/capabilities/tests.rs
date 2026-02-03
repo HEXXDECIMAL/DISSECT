@@ -1013,9 +1013,9 @@ fn test_composite_requires_count_in_chain() {
 
 // ==================== Complexity Calculation Tests ====================
 
-/// Test basic complexity calculation - direct conditions count as 1
+/// Test basic precision calculation - direct conditions count as 1
 #[test]
-fn test_complexity_direct_conditions() {
+fn test_precision_direct_conditions() {
     use std::collections::{HashMap, HashSet};
 
     // Rule with 3 direct string conditions
@@ -1083,7 +1083,7 @@ fn test_complexity_direct_conditions() {
     let composites = vec![rule.clone()];
     let traits = vec![];
 
-    let complexity = validation::calculate_composite_complexity(
+    let precision = validation::calculate_composite_precision(
         "test/three-strings",
         &composites,
         &traits,
@@ -1091,13 +1091,13 @@ fn test_complexity_direct_conditions() {
         &mut visiting,
     );
 
-    // 3 direct conditions = complexity 3
-    assert_eq!(complexity, 3);
+    // 3 direct conditions = precision 3
+    assert_eq!(precision, 3);
 }
 
 /// Test file type filter counting as +1
 #[test]
-fn test_complexity_file_type_filter() {
+fn test_precision_file_type_filter() {
     use std::collections::{HashMap, HashSet};
 
     // Rule with 2 conditions + file type filter
@@ -1154,7 +1154,7 @@ fn test_complexity_file_type_filter() {
     let composites = vec![rule.clone()];
     let traits = vec![];
 
-    let complexity = validation::calculate_composite_complexity(
+    let precision = validation::calculate_composite_precision(
         "test/with-filetype",
         &composites,
         &traits,
@@ -1162,13 +1162,13 @@ fn test_complexity_file_type_filter() {
         &mut visiting,
     );
 
-    // 2 conditions + 1 file type filter = complexity 3
-    assert_eq!(complexity, 3);
+    // 2 conditions + 1 file type filter = precision 3
+    assert_eq!(precision, 3);
 }
 
 /// Test recursive trait reference expansion
 #[test]
-fn test_complexity_recursive_expansion() {
+fn test_precision_recursive_expansion() {
     use std::collections::{HashMap, HashSet};
 
     // Atomic trait (not a composite, counts as 1)
@@ -1199,7 +1199,7 @@ fn test_complexity_recursive_expansion() {
         downgrade: None,
     };
 
-    // Composite A: has 2 direct conditions (complexity 2)
+    // Composite A: has 2 direct conditions (precision 2)
     let composite_a = CompositeTrait {
         id: "test/composite-a".to_string(),
         desc: "Composite A".to_string(),
@@ -1286,7 +1286,7 @@ fn test_complexity_recursive_expansion() {
     let composites = vec![composite_a, composite_b.clone()];
     let traits = vec![trait_def];
 
-    let complexity = validation::calculate_composite_complexity(
+    let precision = validation::calculate_composite_precision(
         "test/composite-b",
         &composites,
         &traits,
@@ -1298,12 +1298,12 @@ fn test_complexity_recursive_expansion() {
     // composite-a has 2 string conditions = 2
     // atomic-trait has 1 base condition = 1
     // Total: 2 + 1 = 3
-    assert_eq!(complexity, 3);
+    assert_eq!(precision, 3);
 }
 
 /// Test cycle detection in trait references
 #[test]
-fn test_complexity_cycle_detection() {
+fn test_precision_cycle_detection() {
     use std::collections::{HashMap, HashSet};
 
     // Composite A references B
@@ -1367,7 +1367,7 @@ fn test_complexity_cycle_detection() {
     let composites = vec![composite_a.clone(), composite_b];
     let traits = vec![];
 
-    let complexity = validation::calculate_composite_complexity(
+    let precision = validation::calculate_composite_precision(
         "test/circular-a",
         &composites,
         &traits,
@@ -1376,13 +1376,13 @@ fn test_complexity_cycle_detection() {
     );
 
     // Cycle detected - should not panic and should return finite value
-    // Cycle is treated as complexity 1
-    assert_eq!(complexity, 1);
+    // Cycle is treated as precision 1
+    assert_eq!(precision, 1);
 }
 
 /// Test caching behavior
 #[test]
-fn test_complexity_caching() {
+fn test_precision_caching() {
     use std::collections::{HashMap, HashSet};
 
     let rule = CompositeTrait {
@@ -1439,7 +1439,7 @@ fn test_complexity_caching() {
     let traits = vec![];
 
     // First call - should calculate and cache
-    let complexity1 = validation::calculate_composite_complexity(
+    let precision1 = validation::calculate_composite_precision(
         "test/cacheable",
         &composites,
         &traits,
@@ -1451,7 +1451,7 @@ fn test_complexity_caching() {
     assert_eq!(cache.get("test/cacheable"), Some(&2));
 
     // Second call - should use cache
-    let complexity2 = validation::calculate_composite_complexity(
+    let precision2 = validation::calculate_composite_precision(
         "test/cacheable",
         &composites,
         &traits,
@@ -1459,17 +1459,17 @@ fn test_complexity_caching() {
         &mut visiting,
     );
 
-    assert_eq!(complexity1, complexity2);
-    assert_eq!(complexity1, 2);
+    assert_eq!(precision1, precision2);
+    assert_eq!(precision1, 2);
 }
 
 /// Test threshold validation - rules < 4 get downgraded from HOSTILE to SUSPICIOUS
 #[test]
-fn test_complexity_threshold_validation() {
-    // Rule with complexity 3 (below threshold)
+fn test_precision_threshold_validation() {
+    // Rule with precision 3 (below threshold)
     let rule_low = CompositeTrait {
-        id: "test/low-complexity".to_string(),
-        desc: "Low complexity".to_string(),
+        id: "test/low-precision".to_string(),
+        desc: "Low precision".to_string(),
         conf: 0.95,
         crit: Criticality::Hostile, // Will be downgraded
         mbc: None,
@@ -1526,10 +1526,10 @@ fn test_complexity_threshold_validation() {
         size_max: None,
     };
 
-    // Rule with complexity 4 (meets threshold)
+    // Rule with precision 4 (meets threshold)
     let rule_high = CompositeTrait {
-        id: "test/high-complexity".to_string(),
-        desc: "High complexity".to_string(),
+        id: "test/high-precision".to_string(),
+        desc: "High precision".to_string(),
         conf: 0.95,
         crit: Criticality::Hostile, // Will NOT be downgraded
         mbc: None,
@@ -1590,26 +1590,26 @@ fn test_complexity_threshold_validation() {
     let traits = vec![];
 
     // Run validation
-    validation::validate_hostile_composite_complexity(&mut composites, &traits, &mut Vec::new());
+    validation::validate_hostile_composite_precision(&mut composites, &traits, &mut Vec::new());
 
-    // Check that low complexity was downgraded
+    // Check that low precision was downgraded
     let low_rule = composites
         .iter()
-        .find(|r| r.id == "test/low-complexity")
+        .find(|r| r.id == "test/low-precision")
         .unwrap();
     assert_eq!(low_rule.crit, Criticality::Suspicious);
 
-    // Check that high complexity was NOT downgraded
+    // Check that high precision was NOT downgraded
     let high_rule = composites
         .iter()
-        .find(|r| r.id == "test/high-complexity")
+        .find(|r| r.id == "test/high-precision")
         .unwrap();
     assert_eq!(high_rule.crit, Criticality::Hostile);
 }
 
-/// Test complexity with mixed condition types (all, any, none)
+/// Test precision with mixed condition types (all, any, none)
 #[test]
-fn test_complexity_mixed_conditions() {
+fn test_precision_mixed_conditions() {
     use std::collections::{HashMap, HashSet};
 
     let rule = CompositeTrait {
@@ -1682,7 +1682,7 @@ fn test_complexity_mixed_conditions() {
     let composites = vec![rule.clone()];
     let traits = vec![];
 
-    let complexity = validation::calculate_composite_complexity(
+    let precision = validation::calculate_composite_precision(
         "test/mixed",
         &composites,
         &traits,
@@ -1691,12 +1691,12 @@ fn test_complexity_mixed_conditions() {
     );
 
     // 1 from 'all' + 1 for 'any' clause + 1 for 'none' clause = 3
-    assert_eq!(complexity, 3);
+    assert_eq!(precision, 3);
 }
 
-/// Test complexity with deeply nested trait references
+/// Test precision with deeply nested trait references
 #[test]
-fn test_complexity_deep_nesting() {
+fn test_precision_deep_nesting() {
     use std::collections::{HashMap, HashSet};
 
     // Level 1: 2 direct conditions
@@ -1835,7 +1835,7 @@ fn test_complexity_deep_nesting() {
     let composites = vec![level1, level2, level3];
     let traits = vec![];
 
-    let complexity = validation::calculate_composite_complexity(
+    let precision = validation::calculate_composite_precision(
         "test/level3",
         &composites,
         &traits,
@@ -1847,22 +1847,22 @@ fn test_complexity_deep_nesting() {
     // level2 has all: [level1, string] = level1(2) + string(1) = 3
     // level1 has all: [string, string] = 2
     // Total: level2(3) + string(1) = 4
-    assert_eq!(complexity, 4);
+    assert_eq!(precision, 4);
 }
 
-/// Test the correct complexity calculation algorithm:
+/// Test the correct precision calculation algorithm:
 /// - File type (not "all"): +1
 /// - any clause (if present): +1
 /// - all clause: +count of elements
 /// - none clause (if present): +1
 #[test]
-fn test_complexity_correct_algorithm() {
+fn test_precision_correct_algorithm() {
     use std::collections::{HashMap, HashSet};
 
     // Test case: file_type + any(8) + all(2) = 1 + 1 + 2 = 4
     let rule = CompositeTrait {
-        id: "test/correct-complexity".to_string(),
-        desc: "Test correct complexity calculation".to_string(),
+        id: "test/correct-precision".to_string(),
+        desc: "Test correct precision calculation".to_string(),
         conf: 0.9,
         crit: Criticality::Hostile,
         mbc: None,
@@ -1921,8 +1921,8 @@ fn test_complexity_correct_algorithm() {
     let composites = vec![rule];
     let traits = vec![];
 
-    let complexity = validation::calculate_composite_complexity(
-        "test/correct-complexity",
+    let precision = validation::calculate_composite_precision(
+        "test/correct-precision",
         &composites,
         &traits,
         &mut cache,
@@ -1931,15 +1931,15 @@ fn test_complexity_correct_algorithm() {
 
     // Expected: file_type(1) + any(1) + all(2) = 4
     assert_eq!(
-        complexity, 4,
-        "Expected complexity 4: file_type(1) + any(1) + all(2), got {}",
-        complexity
+        precision, 4,
+        "Expected precision 4: file_type(1) + any(1) + all(2), got {}",
+        precision
     );
 }
 
-/// Test complexity with traits that have size restrictions
+/// Test precision with traits that have size restrictions
 #[test]
-fn test_complexity_traits_with_size_restrictions() {
+fn test_precision_traits_with_size_restrictions() {
     use std::collections::{HashMap, HashSet};
 
     // Trait 1: string pattern + size restriction
@@ -2033,7 +2033,7 @@ fn test_complexity_traits_with_size_restrictions() {
     let composites = vec![composite];
     let traits = vec![trait1, trait2];
 
-    let complexity = validation::calculate_composite_complexity(
+    let precision = validation::calculate_composite_precision(
         "test/composite-with-sized-traits",
         &composites,
         &traits,
@@ -2045,8 +2045,8 @@ fn test_complexity_traits_with_size_restrictions() {
     // Each trait has: base_condition(1) + size_min(1) + size_max(1) = 3
     // Total: trait1(3) + trait2(3) = 6
     assert_eq!(
-        complexity, 6,
-        "Expected complexity 6: trait1(pattern+size_min+size_max=3) + trait2(pattern+size_min+size_max=3), got {}",
-        complexity
+        precision, 6,
+        "Expected precision 6: trait1(pattern+size_min+size_max=3) + trait2(pattern+size_min+size_max=3), got {}",
+        precision
     );
 }

@@ -24,7 +24,7 @@ use super::parsing::{apply_composite_defaults, apply_trait_defaults};
 use super::validation::{
     autoprefix_trait_refs, collect_trait_refs_from_rule, find_line_number,
     simple_rule_to_composite_rule, validate_composite_trait_only,
-    validate_hostile_composite_complexity,
+    validate_hostile_composite_precision,
 };
 
 /// Maps symbols (function names, library calls) to capability IDs
@@ -385,9 +385,9 @@ impl CapabilityMapper {
         }
         let t_validate = std::time::Instant::now();
 
-        // Post-process HOSTILE composite rules to properly calculate complexity
-        // Now that all rules are loaded, we can recursively calculate true complexity
-        validate_hostile_composite_complexity(
+        // Post-process HOSTILE composite rules to properly calculate precision
+        // Now that all rules are loaded, we can recursively calculate true precision
+        validate_hostile_composite_precision(
             &mut composite_rules,
             &trait_definitions,
             &mut warnings,
@@ -737,8 +737,8 @@ impl CapabilityMapper {
             .map(|raw| apply_composite_defaults(raw, &mappings.defaults))
             .collect();
 
-        // Validate HOSTILE composite complexity
-        validate_hostile_composite_complexity(
+        // Validate HOSTILE composite precision
+        validate_hostile_composite_precision(
             &mut composite_rules,
             &trait_definitions,
             &mut warnings,

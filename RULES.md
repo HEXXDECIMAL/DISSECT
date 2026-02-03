@@ -82,6 +82,8 @@ traits/cap/exec/shell/
 
 **Trait IDs** are relative to directory (auto-prefixed). Use full path for cross-tier references: `cap/exec/shell/subprocess`
 
+DISSECT also supports cross-directory reference to match any rule in a directory: cap/exec/shell/ 
+
 ## Criticality Levels
 
 | Level | Description | Examples |

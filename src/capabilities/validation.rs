@@ -1,8 +1,8 @@
-//! Rule validation and complexity analysis.
+//! Rule validation and precision analysis.
 //!
 //! This module provides validation functions for trait definitions and composite rules:
-//! - Complexity calculation for composite rules (recursive trait reference expansion)
-//! - Validation of HOSTILE composite rules (must meet complexity threshold)
+//! - Precision calculation for composite rules (recursive trait reference expansion)
+//! - Validation of HOSTILE composite rules (must meet precision threshold)
 //! - Validation that composite rules only contain trait references (not inline primitives)
 //! - Auto-prefixing of trait references based on file path
 
@@ -14,25 +14,25 @@ use std::collections::{HashMap, HashSet};
 
 use super::parsing::parse_file_types;
 
-/// Calculate the complexity of a trait definition
+/// Calculate the precision of a trait definition
 /// Counts all filters/conditions that make the trait more precise
-fn calculate_trait_complexity(trait_def: &TraitDefinition) -> usize {
-    let mut complexity = 0;
+fn calculate_trait_precision(trait_def: &TraitDefinition) -> usize {
+    let mut precision = 0;
 
     // Base condition (pattern match, string search, etc.)
-    complexity += 1;
+    precision += 1;
 
     // Size restrictions add precision
     if trait_def.size_min.is_some() {
-        complexity += 1;
+        precision += 1;
     }
     if trait_def.size_max.is_some() {
-        complexity += 1;
+        precision += 1;
     }
 
     // Platform filter (if not All)
     if !trait_def.platforms.contains(&Platform::All) {
-        complexity += 1;
+        precision += 1;
     }
 
     // File type filter (if not All)
@@ -41,40 +41,40 @@ fn calculate_trait_complexity(trait_def: &TraitDefinition) -> usize {
         .iter()
         .any(|ft| matches!(ft, RuleFileType::All))
     {
-        complexity += 1;
+        precision += 1;
     }
 
     // Exception filters (not clause)
     if trait_def.not.is_some() {
-        complexity += 1;
+        precision += 1;
     }
 
     // Conditional skip (unless clause)
     if trait_def.unless.is_some() {
-        complexity += 1;
+        precision += 1;
     }
 
-    complexity
+    precision
 }
 
-/// Calculate the complexity of a composite rule or trait
+/// Calculate the precision of a composite rule or trait
 ///
-/// Complexity is a measure of precision - how many filters/constraints the rule has.
+/// Precision is a measure of how specific/constrained the rule is - how many filters/constraints it has.
 /// This RECURSIVELY counts ALL filters across the entire rule tree:
 /// - Base trait: pattern + size_min + size_max + platform + file_type + not + unless
 /// - Composite: file_type + recursively expanded all/any/none/unless clauses
 ///
-/// IMPORTANT: This is the ONLY place in the codebase for measuring rule complexity/precision.
+/// IMPORTANT: This is the ONLY place in the codebase for measuring rule precision.
 /// Do not duplicate this logic elsewhere.
-pub fn calculate_composite_complexity(
+pub fn calculate_composite_precision(
     rule_id: &str,
     all_composites: &[CompositeTrait],
     all_traits: &[TraitDefinition],
     cache: &mut HashMap<String, usize>,
     visiting: &mut HashSet<String>,
 ) -> usize {
-    if let Some(&complexity) = cache.get(rule_id) {
-        return complexity;
+    if let Some(&precision) = cache.get(rule_id) {
+        return precision;
     }
 
     // Detect cycles
@@ -84,11 +84,11 @@ pub fn calculate_composite_complexity(
 
     // Try to find as composite rule first
     if let Some(rule) = all_composites.iter().find(|r| r.id == rule_id) {
-        let mut complexity = 0;
+        let mut precision = 0;
 
         // File type filter counts as 1 if it's specific
         if !rule.r#for.contains(&RuleFileType::All) {
-            complexity += 1;
+            precision += 1;
         }
 
         // `all` clause: recursively sum all elements
@@ -96,8 +96,8 @@ pub fn calculate_composite_complexity(
             for cond in conditions {
                 match cond {
                     Condition::Trait { id } => {
-                        // Recursively calculate trait/composite complexity
-                        complexity += calculate_composite_complexity(
+                        // Recursively calculate trait/composite precision
+                        precision += calculate_composite_precision(
                             id,
                             all_composites,
                             all_traits,
@@ -107,7 +107,7 @@ pub fn calculate_composite_complexity(
                     }
                     _ => {
                         // Direct condition (string, symbol, etc.)
-                        complexity += 1;
+                        precision += 1;
                     }
                 }
             }
@@ -120,43 +120,43 @@ pub fn calculate_composite_complexity(
             // If it's a single trait reference, expand it and multiply by count
             if conditions.len() == 1 {
                 if let Condition::Trait { id } = &conditions[0] {
-                    let trait_complexity = calculate_composite_complexity(
+                    let trait_precision = calculate_composite_precision(
                         id,
                         all_composites,
                         all_traits,
                         cache,
                         visiting,
                     );
-                    complexity += trait_complexity * count;
+                    precision += trait_precision * count;
                 } else {
                     // Single direct condition
-                    complexity += count;
+                    precision += count;
                 }
             } else {
                 // Multiple conditions in any - add the count requirement
-                complexity += count;
+                precision += count;
             }
         }
 
-        // `none` or `unless` clauses count as 1 for complexity
+        // `none` or `unless` clauses count as 1 for precision
         if rule.none.is_some() {
-            complexity += 1;
+            precision += 1;
         }
         if rule.unless.is_some() {
-            complexity += 1;
+            precision += 1;
         }
 
         visiting.remove(rule_id);
-        cache.insert(rule_id.to_string(), complexity);
-        return complexity;
+        cache.insert(rule_id.to_string(), precision);
+        return precision;
     }
 
     // Not a composite - try to find as a trait definition
     if let Some(trait_def) = all_traits.iter().find(|t| t.id == rule_id) {
-        let complexity = calculate_trait_complexity(trait_def);
+        let precision = calculate_trait_precision(trait_def);
         visiting.remove(rule_id);
-        cache.insert(rule_id.to_string(), complexity);
-        return complexity;
+        cache.insert(rule_id.to_string(), precision);
+        return precision;
     }
 
     // Not found - treat as external/unknown trait (count as 1)
@@ -165,39 +165,39 @@ pub fn calculate_composite_complexity(
     1
 }
 
-/// Validate and downgrade HOSTILE composite rules that don't meet complexity requirements
+/// Validate and downgrade HOSTILE composite rules that don't meet precision requirements
 /// Returns a list of warnings for rules that were downgraded.
-pub(crate) fn validate_hostile_composite_complexity(
+pub(crate) fn validate_hostile_composite_precision(
     composite_rules: &mut [CompositeTrait],
     trait_definitions: &[TraitDefinition],
     warnings: &mut Vec<String>,
 ) {
     let mut cache: HashMap<String, usize> = HashMap::new();
 
-    // First pass: calculate complexity for all HOSTILE rules (immutable borrow)
-    let hostile_complexities: Vec<(String, usize)> = composite_rules
+    // First pass: calculate precision for all HOSTILE rules (immutable borrow)
+    let hostile_precisions: Vec<(String, usize)> = composite_rules
         .iter()
         .filter(|rule| rule.crit == Criticality::Hostile)
         .map(|rule| {
             let mut visiting = std::collections::HashSet::new();
-            let complexity = calculate_composite_complexity(
+            let precision = calculate_composite_precision(
                 &rule.id,
                 composite_rules,
                 trait_definitions,
                 &mut cache,
                 &mut visiting,
             );
-            (rule.id.clone(), complexity)
+            (rule.id.clone(), precision)
         })
         .collect();
 
     // Second pass: downgrade rules that don't meet requirements (mutable borrow)
-    for (rule_id, complexity) in hostile_complexities {
-        if complexity < 4 {
+    for (rule_id, precision) in hostile_precisions {
+        if precision < 4 {
             if let Some(rule) = composite_rules.iter_mut().find(|r| r.id == rule_id) {
                 warnings.push(format!(
-                    "Composite trait '{}' is marked HOSTILE but has complexity {} (need >=4).",
-                    rule_id, complexity
+                    "Composite trait '{}' is marked HOSTILE but has precision {} (need >=4).",
+                    rule_id, precision
                 ));
                 rule.crit = Criticality::Suspicious;
             }
