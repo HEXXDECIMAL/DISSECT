@@ -24,7 +24,7 @@ traits:
     mbc: "E1059.006"
     if:
       type: string
-      exact: "subprocess.Popen("
+      substr: "subprocess.Popen("
 
   - id: run-call
     desc: subprocess.run call
@@ -33,7 +33,7 @@ traits:
     mbc: "E1059.006"
     if:
       type: string
-      exact: "subprocess.run("
+      substr: "subprocess.run("
 
   - id: call
     desc: subprocess.call call
@@ -42,7 +42,7 @@ traits:
     mbc: "E1059.006"
     if:
       type: string
-      exact: "subprocess.call("
+      substr: "subprocess.call("
 
   - id: check-output
     desc: subprocess.check_output call
@@ -51,7 +51,7 @@ traits:
     mbc: "E1059.006"
     if:
       type: string
-      exact: "subprocess.check_output("
+      substr: "subprocess.check_output("
 
   - id: check-call
     desc: subprocess.check_call call
@@ -60,7 +60,7 @@ traits:
     mbc: "E1059.006"
     if:
       type: string
-      exact: "subprocess.check_call("
+      substr: "subprocess.check_call("
 
   # === os.popen detection ===
   - id: os-popen
@@ -70,7 +70,7 @@ traits:
     mbc: "E1059.006"
     if:
       type: string
-      exact: "os.popen("
+      substr: "os.popen("
 
   - id: os-popen-ast
     desc: Executes command via os.popen

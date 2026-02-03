@@ -11,7 +11,7 @@ traits:
     attack: T1543.004
     if:
       type: string
-      exact: "LaunchAgents"
+      substr: "LaunchAgents"
 
   - id: launch-daemons
     desc: LaunchDaemons directory (system-level services)
@@ -21,7 +21,7 @@ traits:
     attack: T1543.004
     if:
       type: string
-      exact: "LaunchDaemons"
+      substr: "LaunchDaemons"
 
   - id: launchctl-command
     desc: launchctl command (manage launchd services)
@@ -40,7 +40,7 @@ traits:
     attack: T1543.004
     if:
       type: string
-      exact: ".plist"
+      substr: ".plist"
 
   - id: run-at-load
     desc: RunAtLoad key (start service at
@@ -50,7 +50,7 @@ traits:
     attack: T1543.004
     if:
       type: string
-      exact: "RunAtLoad"
+      substr: "RunAtLoad"
 
 composite_rules:
   - id: launchd

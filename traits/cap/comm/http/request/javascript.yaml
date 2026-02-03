@@ -15,7 +15,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "axios"
+      substr: "axios"
 
   - id: axios-import-default
     desc: axios default import
@@ -143,7 +143,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "http.request"
+      substr: "http.request"
 
   - id: https-request
     desc: Node.js https.request
@@ -152,7 +152,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "https.request"
+      substr: "https.request"
 
   - id: http-get
     desc: Node.js http.get
@@ -161,7 +161,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "http.get"
+      substr: "http.get"
 
   - id: https-get
     desc: Node.js https.get
@@ -170,7 +170,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "https.get"
+      substr: "https.get"
 
   # === Browser/Universal APIs ===
   - id: fetch-call
@@ -190,7 +190,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "fetch("
+      substr: "fetch("
 
   - id: xmlhttprequest-new
     desc: new XMLHttpRequest()
@@ -199,7 +199,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "new XMLHttpRequest()"
+      substr: "new XMLHttpRequest()"
 
   - id: node-fetch-import
     desc: node-fetch import

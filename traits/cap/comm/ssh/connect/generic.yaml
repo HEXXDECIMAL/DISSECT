@@ -35,7 +35,7 @@ traits:
     attack: "T1021.004"
     if:
       type: string
-      exact: "paramiko"
+      substr: "paramiko"
 
   - id: libssh
     desc: libssh library
@@ -44,7 +44,7 @@ traits:
     attack: "T1021.004"
     if:
       type: string
-      exact: "libssh"
+      substr: "libssh"
 
   - id: openssh
     desc: OpenSSH string
@@ -52,7 +52,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "OpenSSH"
+      substr: "OpenSSH"
 
   - id: ssh-client
     desc: SSHClient class
@@ -61,7 +61,7 @@ traits:
     attack: "T1021.004"
     if:
       type: string
-      exact: "SSHClient"
+      substr: "SSHClient"
 
 composite_rules:
   # SSH connection (migrated from YARA)

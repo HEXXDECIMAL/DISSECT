@@ -9,7 +9,7 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "ALLATORIxDEMO"
+      substr: "ALLATORIxDEMO"
 
 composite_rules:
   # Full-featured Java RAT (STRRat-style)

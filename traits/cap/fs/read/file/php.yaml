@@ -10,7 +10,7 @@ traits:
     for: [php]
     if:
       type: string
-      exact: file_get_contents
+      substr: file_get_contents
 
   - id: fread
     desc: File read via fread
@@ -39,7 +39,7 @@ traits:
     for: [php]
     if:
       type: string
-      exact: readfile
+      substr: readfile
 
   - id: fopen
     desc: File open operation
@@ -57,4 +57,4 @@ traits:
     for: [php]
     if:
       type: string
-      exact: realpath
+      substr: realpath

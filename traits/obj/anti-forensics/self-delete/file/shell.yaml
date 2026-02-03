@@ -12,7 +12,7 @@ traits:
     attack: "T1070.004"
     if:
       type: string
-      exact: "rm $0"
+      substr: "rm $0"
 
   - id: rm-dollar-zero-quoted
     desc: 'rm "$0" self-deletion (quoted)'
@@ -22,7 +22,7 @@ traits:
     attack: "T1070.004"
     if:
       type: string
-      exact: 'rm "$0"'
+      substr: 'rm "$0"'
 
   - id: shred-dollar-zero
     desc: shred $0 self-deletion

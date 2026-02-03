@@ -11,4 +11,4 @@ traits:
     attack: "T1070.004"
     if:
       type: string
-      exact: "unlink(argv[0])"
+      substr: "unlink(argv[0])"

@@ -52,7 +52,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: ".node_modules"
+      substr: ".node_modules"
 
   # === Remote Command Execution Setup ===
 

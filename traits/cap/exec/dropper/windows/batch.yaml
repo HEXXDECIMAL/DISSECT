@@ -136,7 +136,7 @@ traits:
     for: [shell, batch]
     if:
       type: string
-      exact: "EnableDelayedExpansion"
+      substr: "EnableDelayedExpansion"
 
   - id: curl-cmd
     desc: curl command

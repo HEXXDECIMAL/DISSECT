@@ -10,4 +10,4 @@ traits:
     platforms: [linux]
     if:
       type: string
-      exact: "/sys/devices/system/cpu"
+      substr: "/sys/devices/system/cpu"

@@ -22,7 +22,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "PR_SET_NAME"
+      substr: "PR_SET_NAME"
 
   - id: prctl-syscall-x64
     desc: prctl syscall instruction (x86_64)
@@ -40,7 +40,7 @@ traits:
     mbc: "F0004"
     if:
       type: string
-      exact: "/usr/sbin/abrtd"
+      substr: "/usr/sbin/abrtd"
 
   - id: fake-abrtd-name
     desc: Contains abrtd daemon name
@@ -48,7 +48,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "abrtd"
+      substr: "abrtd"
 
   - id: fake-sshd-bracket
     desc: Fake kernel thread name pattern
@@ -57,7 +57,7 @@ traits:
     mbc: "F0004"
     if:
       type: string
-      exact: "[sshd]"
+      substr: "[sshd]"
 
   - id: fake-kworker
     desc: Fake kernel worker thread name
@@ -75,7 +75,7 @@ traits:
     mbc: "F0004"
     if:
       type: string
-      exact: "[migration/"
+      substr: "[migration/"
 
   - id: fake-ksoftirqd
     desc: Fake ksoftirqd thread name
@@ -84,7 +84,7 @@ traits:
     mbc: "F0004"
     if:
       type: string
-      exact: "[ksoftirqd/"
+      substr: "[ksoftirqd/"
 
   - id: fake-kthreadd
     desc: Fake kthreadd thread name
@@ -93,7 +93,7 @@ traits:
     mbc: "F0004"
     if:
       type: string
-      exact: "[kthreadd]"
+      substr: "[kthreadd]"
 
   - id: fake-systemd-path
     desc: Contains systemd path (potential masquerade)
@@ -101,7 +101,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "/lib/systemd/systemd"
+      substr: "/lib/systemd/systemd"
 
   - id: fake-udevd-path
     desc: Contains udevd path (potential masquerade)
@@ -109,7 +109,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "/sbin/udevd"
+      substr: "/sbin/udevd"
 
   - id: fake-rsyslogd-path
     desc: Contains rsyslogd path (potential masquerade)
@@ -117,7 +117,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "/usr/sbin/rsyslogd"
+      substr: "/usr/sbin/rsyslogd"
 
   - id: fake-crond-path
     desc: Contains crond path (potential masquerade)
@@ -125,7 +125,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "/usr/sbin/crond"
+      substr: "/usr/sbin/crond"
 
   - id: fake-atd-path
     desc: Contains atd path (potential masquerade)
@@ -133,7 +133,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "/usr/sbin/atd"
+      substr: "/usr/sbin/atd"
 
   # === argv[0] manipulation micro-traits ===
   - id: strncpy-argv0

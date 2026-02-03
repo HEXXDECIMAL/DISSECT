@@ -6,7 +6,7 @@ traits:
     for: [macho, elf]
     if:
       type: string
-      exact: "targetAddr"
+      substr: "targetAddr"
 
   - id: packets-sent
     desc: References packetsSent counter (Go DDoS
@@ -15,7 +15,7 @@ traits:
     for: [macho, elf]
     if:
       type: string
-      exact: "packetsSent"
+      substr: "packetsSent"
 
   - id: target-scheme
     desc: References targetScheme (Go DDoS pattern)
@@ -24,7 +24,7 @@ traits:
     for: [macho, elf]
     if:
       type: string
-      exact: "targetScheme"
+      substr: "targetScheme"
 
 composite_rules:
   - id: go-ddos-indicators

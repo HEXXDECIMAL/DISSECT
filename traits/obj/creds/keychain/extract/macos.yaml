@@ -163,7 +163,7 @@ traits:
     for: [shell, macho]
     if:
       type: string
-      exact: "find-generic-password"
+      substr: "find-generic-password"
 
   - id: dump-keychain-cli
     desc: security dump-keychain command
@@ -174,7 +174,7 @@ traits:
     for: [shell, macho]
     if:
       type: string
-      exact: "dump-keychain"
+      substr: "dump-keychain"
 
   # === Atomic: Keychain File Paths ===
 
@@ -187,7 +187,7 @@ traits:
     for: [macho, shell, perl, python, ruby]
     if:
       type: string
-      exact: "login.keychain"
+      substr: "login.keychain"
 
   - id: system-path
     desc: System keychain path
@@ -198,7 +198,7 @@ traits:
     for: [macho, shell, perl, python, ruby]
     if:
       type: string
-      exact: "/Library/Keychains/System.keychain"
+      substr: "/Library/Keychains/System.keychain"
 
 composite_rules:
   # security CLI composite

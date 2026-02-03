@@ -10,7 +10,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "oauth"
+      substr: "oauth"
 
   - id: oauth-upper
     desc: OAuth capitalized
@@ -18,7 +18,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "OAuth"
+      substr: "OAuth"
 
   - id: access-token
     desc: access_token reference
@@ -26,7 +26,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "access_token"
+      substr: "access_token"
 
   - id: refresh-token
     desc: refresh_token reference
@@ -34,7 +34,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "refresh_token"
+      substr: "refresh_token"
 
   # === Google OAuth atomic indicators ===
   - id: google-accounts
@@ -43,7 +43,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "accounts.google.com"
+      substr: "accounts.google.com"
 
   - id: googleapis-oauth
     desc: googleapis.com/oauth path
@@ -51,7 +51,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "googleapis.com/oauth"
+      substr: "googleapis.com/oauth"
 
   # === Office365 OAuth atomic indicators ===
   - id: microsoft-login
@@ -60,7 +60,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "login.microsoftonline.com"
+      substr: "login.microsoftonline.com"
 
   - id: microsoft-graph
     desc: graph.microsoft.com domain
@@ -68,7 +68,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "graph.microsoft.com"
+      substr: "graph.microsoft.com"
 
 composite_rules:
   - id: oauth

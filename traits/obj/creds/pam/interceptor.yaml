@@ -13,7 +13,7 @@ traits:
     for: [c, cpp, elf, so]
     if:
       type: string
-      exact: "libpam.so"
+      substr: "libpam.so"
 
   - id: libpam-so-versioned
     desc: libpam.so.0 versioned library
@@ -68,7 +68,7 @@ traits:
     for: [c, cpp, elf, so]
     if:
       type: string
-      exact: "PAM_AUTHTOK"
+      substr: "PAM_AUTHTOK"
 
   # === Authentication functions (symbols) ===
   - id: pam-authenticate

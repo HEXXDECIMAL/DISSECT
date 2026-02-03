@@ -12,7 +12,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "/Google/Chrome"
+      substr: "/Google/Chrome"
 
   - id: brave-path
     desc: Brave browser profile path
@@ -21,7 +21,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "BraveSoftware/Brave-Browser"
+      substr: "BraveSoftware/Brave-Browser"
 
   - id: edge-path
     desc: Microsoft Edge browser profile path
@@ -30,7 +30,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "Microsoft Edge"
+      substr: "Microsoft Edge"
 
   # === Opera path atomic indicators ===
   - id: opera-macos-path
@@ -40,7 +40,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "com.operasoftware.Opera"
+      substr: "com.operasoftware.Opera"
 
   - id: opera-windows-path
     desc: Opera Windows profile path
@@ -49,7 +49,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "Opera Software/Opera"
+      substr: "Opera Software/Opera"
 
   - id: operagx-path
     desc: Opera GX browser profile path
@@ -58,7 +58,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "com.operasoftware.OperaGX"
+      substr: "com.operasoftware.OperaGX"
 
   - id: vivaldi-path
     desc: Vivaldi browser profile path
@@ -67,7 +67,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "Vivaldi"
+      substr: "Vivaldi"
 
   # === Arc path atomic indicators ===
   - id: arc-macos-path
@@ -77,7 +77,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "/Arc/"
+      substr: "/Arc/"
 
   - id: arc-userdata-path
     desc: Arc User Data path
@@ -86,7 +86,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "Arc/User Data"
+      substr: "Arc/User Data"
 
   - id: coccoc-path
     desc: Coccoc browser profile path
@@ -95,7 +95,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "Coccoc"
+      substr: "Coccoc"
 
   - id: cookies-path
     desc: Chromium Cookies file path
@@ -104,7 +104,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "/Cookies"
+      substr: "/Cookies"
 
   - id: local-state
     desc: Chromium Local State file
@@ -113,7 +113,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "Local State"
+      substr: "Local State"
 
   - id: login-data
     desc: Chromium Login Data file reference
@@ -122,7 +122,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "Login Data"
+      substr: "Login Data"
 
   - id: web-data
     desc: Chromium Web Data file (passwords,
@@ -131,7 +131,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "Web Data"
+      substr: "Web Data"
 
   # === Encryption/Decryption Keys ===
 
@@ -142,7 +142,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "encrypted_key"
+      substr: "encrypted_key"
 
   - id: os-crypt
     desc: Chromium os_crypt structure
@@ -151,7 +151,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "os_crypt"
+      substr: "os_crypt"
 
   # === Database Tables ===
 
@@ -162,7 +162,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "credit_cards"
+      substr: "credit_cards"
 
   - id: logins-table
     desc: Chromium logins table reference

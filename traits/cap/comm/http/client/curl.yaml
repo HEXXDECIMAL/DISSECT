@@ -64,7 +64,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "--data-binary"
+      substr: "--data-binary"
 
   - id: curl-at-tmp
     desc: curl @/tmp/ file upload

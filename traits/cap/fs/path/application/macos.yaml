@@ -21,7 +21,7 @@ traits:
     attack: T1083
     if:
       type: string
-      exact: "Firefox/extensions"
+      substr: "Firefox/extensions"
 
   - id: safari-extensions
     desc: Safari/Extensions directory path
@@ -31,7 +31,7 @@ traits:
     attack: T1083
     if:
       type: string
-      exact: "Safari/Extensions"
+      substr: "Safari/Extensions"
 
   - id: chrome-extensions-dir
     desc: /Extensions directory (Chrome extensions)
@@ -41,7 +41,7 @@ traits:
     attack: T1083
     if:
       type: string
-      exact: "/Extensions"
+      substr: "/Extensions"
 
   - id: chrome-directory
     desc: Google/Chrome directory path
@@ -51,7 +51,7 @@ traits:
     attack: T1083
     if:
       type: string
-      exact: "Google/Chrome"
+      substr: "Google/Chrome"
 
 composite_rules:
   - id: chrome-extensions

@@ -9,7 +9,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: botnet
+      substr: botnet
       case_insensitive: true
 
   - id: bot-net-term
@@ -83,7 +83,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: slave
+      substr: slave
       case_insensitive: true
 
   - id: master-node

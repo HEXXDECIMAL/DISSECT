@@ -55,7 +55,7 @@ composite_rules:
   # Detect potential backdoor patterns
   - id: backdoor-indicators
     desc: Go code with backdoor-like characteristics
-    crit: hostile
+    crit: suspicious
     conf: 0.9
     attack: "T1195.001"
     mbc: "B0024"

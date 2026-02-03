@@ -15,7 +15,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "/Applications/Ledger Live.app"
+      substr: "/Applications/Ledger Live.app"
 
   # === pkill atomic indicators ===
   - id: pkill-ledger-live

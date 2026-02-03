@@ -12,7 +12,7 @@ traits:
     attack: "T1014"
     if:
       type: string
-      exact: "/proc/kallsyms"
+      substr: "/proc/kallsyms"
 
   - id: proc-ksyms
     desc: /proc/ksyms legacy kernel symbol file
@@ -22,7 +22,7 @@ traits:
     attack: "T1014"
     if:
       type: string
-      exact: "/proc/ksyms"
+      substr: "/proc/ksyms"
 
   - id: lookup-address
     desc: lookup_address kernel function
@@ -94,7 +94,7 @@ traits:
     for: [elf, c]
     if:
       type: string
-      exact: "/proc/net/tcp"
+      substr: "/proc/net/tcp"
 
   # === Proc Filesystem Hiding ===
   - id: proc-root-readdir
@@ -210,7 +210,7 @@ traits:
     for: [elf, c]
     if:
       type: string
-      exact: "orig_cr0"
+      substr: "orig_cr0"
 
   - id: write-cr0
     desc: write_cr0 function
@@ -255,7 +255,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "__this_module"
+      substr: "__this_module"
 
   - id: vermagic
     desc: vermagic= kernel version magic
@@ -263,7 +263,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "vermagic="
+      substr: "vermagic="
 
   - id: modinfo-section
     desc: .modinfo section
@@ -271,7 +271,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: ".modinfo"
+      substr: ".modinfo"
 
   - id: gnu-linkonce
     desc: .gnu.linkonce section
@@ -279,7 +279,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: ".gnu.linkonce"
+      substr: ".gnu.linkonce"
 
   # === Netfilter Hook Functions ===
   - id: nf-register-hook
@@ -314,7 +314,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: "nf_hookfn"
+      substr: "nf_hookfn"
 
   - id: nf-accept
     desc: NF_ACCEPT verdict
@@ -322,7 +322,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "NF_ACCEPT"
+      substr: "NF_ACCEPT"
 
   - id: nf-drop
     desc: NF_DROP verdict
@@ -330,7 +330,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "NF_DROP"
+      substr: "NF_DROP"
 
   # === VFS Layer Functions ===
   - id: vfs-read
@@ -376,7 +376,7 @@ traits:
     for: [elf, c]
     if:
       type: string
-      exact: "file_operations"
+      substr: "file_operations"
 
   - id: inode-operations
     desc: inode_operations struct
@@ -385,7 +385,7 @@ traits:
     for: [elf, c]
     if:
       type: string
-      exact: "inode_operations"
+      substr: "inode_operations"
 
   # === Diamorphine Rootkit Indicators ===
   - id: diamorphine-name
@@ -406,7 +406,7 @@ traits:
     for: [elf, c]
     if:
       type: string
-      exact: "is_invisible"
+      substr: "is_invisible"
 
   - id: module-hidden
     desc: module_hidden flag
@@ -415,7 +415,7 @@ traits:
     for: [elf, c]
     if:
       type: string
-      exact: "module_hidden"
+      substr: "module_hidden"
 
   - id: hide-module
     desc: hide_module function
@@ -424,7 +424,7 @@ traits:
     for: [elf, c]
     if:
       type: string
-      exact: "hide_module"
+      substr: "hide_module"
 
   - id: give-root
     desc: give_root function
@@ -434,7 +434,7 @@ traits:
     for: [elf, c]
     if:
       type: string
-      exact: "give_root"
+      substr: "give_root"
 
   - id: hacked-kill
     desc: hacked_kill function
@@ -443,7 +443,7 @@ traits:
     for: [elf, c]
     if:
       type: string
-      exact: "hacked_kill"
+      substr: "hacked_kill"
 
   - id: orig-getdents
     desc: orig_getdents function
@@ -452,7 +452,7 @@ traits:
     for: [elf, c]
     if:
       type: string
-      exact: "orig_getdents"
+      substr: "orig_getdents"
 
   # === Reptile Rootkit Indicators ===
   - id: reptile-name
@@ -473,7 +473,7 @@ traits:
     for: [elf, c]
     if:
       type: string
-      exact: "khook"
+      substr: "khook"
 
   - id: kmatryoshka
     desc: kmatryoshka packer marker
@@ -482,7 +482,7 @@ traits:
     for: [elf, c]
     if:
       type: string
-      exact: "kmatryoshka"
+      substr: "kmatryoshka"
 
   - id: reptile-hide
     desc: reptile_hide function
@@ -491,7 +491,7 @@ traits:
     for: [elf, c]
     if:
       type: string
-      exact: "reptile_hide"
+      substr: "reptile_hide"
 
   - id: magic-packet
     desc: YOURMAGICPACKET trigger
@@ -500,7 +500,7 @@ traits:
     for: [elf, c]
     if:
       type: string
-      exact: "YOURMAGICPACKET"
+      substr: "YOURMAGICPACKET"
 
   - id: reptile-cmd
     desc: reptile_cmd backdoor
@@ -509,7 +509,7 @@ traits:
     for: [elf, c]
     if:
       type: string
-      exact: "reptile_cmd"
+      substr: "reptile_cmd"
 
   # === Syslogk Rootkit Indicators ===
   - id: syslogk-name
@@ -530,7 +530,7 @@ traits:
     for: [elf, c]
     if:
       type: string
-      exact: "PgSD93iu"
+      substr: "PgSD93iu"
 
 composite_rules:
   # Kallsyms lookup (migrated from YARA)

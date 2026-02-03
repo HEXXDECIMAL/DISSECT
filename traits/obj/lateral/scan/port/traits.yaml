@@ -16,7 +16,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "%d.%d.%d.%d"
+      substr: "%d.%d.%d.%d"
 
   # === target IP atomic ===
   - id: target-ip-upper
@@ -44,7 +44,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "targetIP"
+      substr: "targetIP"
 
   # === random target atomic ===
   - id: random-target-upper
@@ -90,7 +90,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "getrandip"
+      substr: "getrandip"
 
   # === port scanning atomic ===
   - id: portscan-word
@@ -225,7 +225,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "root123"
+      substr: "root123"
 
   - id: weak-pass-admin123-upper
     desc: Weak password Admin123
@@ -235,7 +235,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "Admin123"
+      substr: "Admin123"
 
   - id: weak-pass-admin123-lower
     desc: Weak password admin123
@@ -245,7 +245,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "admin123"
+      substr: "admin123"
 
   - id: weak-pass-passw0rd
     desc: Weak password Passw0rd
@@ -255,7 +255,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "Passw0rd"
+      substr: "Passw0rd"
 
   - id: weak-pass-qwerty123
     desc: Weak password qwerty123
@@ -265,7 +265,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "qwerty123"
+      substr: "qwerty123"
 
   - id: weak-pass-qwerty
     desc: Weak password qwerty
@@ -275,7 +275,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "qwerty"
+      substr: "qwerty"
 
   # === Atomic: Root/Exploit Terminology ===
 
@@ -287,7 +287,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "root the "
+      substr: "root the "
 
   - id: r00t-leet
     desc: r00t leetspeak
@@ -346,7 +346,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "/etc/hosts"
+      substr: "/etc/hosts"
 
 composite_rules:
   # Target IP reference

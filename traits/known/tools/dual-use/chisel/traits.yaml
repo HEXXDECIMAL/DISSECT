@@ -10,7 +10,7 @@ traits:
     attack: "T1090"
     if:
       type: string
-      exact: "github.com/jpillora/chisel"
+      substr: "github.com/jpillora/chisel"
       case_insensitive: true
 
   - id: tools/tunnel/chisel/func

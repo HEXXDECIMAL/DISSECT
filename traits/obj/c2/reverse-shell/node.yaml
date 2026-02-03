@@ -12,7 +12,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "net.Socket"
+      substr: "net.Socket"
 
   - id: new-net-socket
     desc: new net.Socket creation
@@ -58,7 +58,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "child_process"
+      substr: "child_process"
 
   - id: spawn-call
     desc: spawn function call
@@ -117,7 +117,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: ".on('data'"
+      substr: ".on('data'"
 
   - id: on-data-event-double
     desc: .on("data" event handler
@@ -126,7 +126,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: '.on("data"'
+      substr: '.on("data"'
 
   # === Lock file micro-traits ===
   - id: dot-lock-string
@@ -136,7 +136,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: ".lock"
+      substr: ".lock"
 
   - id: lockfile-string
     desc: lockfile string
@@ -145,7 +145,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "lockfile"
+      substr: "lockfile"
 
   - id: existsSync-call
     desc: existsSync function call
@@ -175,7 +175,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "ngrok.io"
+      substr: "ngrok.io"
 
   - id: ngrok-com
     desc: ngrok.com domain
@@ -184,7 +184,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "ngrok.com"
+      substr: "ngrok.com"
 
   - id: tcp-ngrok
     desc: tcp.ngrok endpoint
@@ -193,7 +193,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "tcp.ngrok"
+      substr: "tcp.ngrok"
 
   # === Tunnel service atomic indicators ===
   - id: serveo-net
@@ -203,7 +203,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "serveo.net"
+      substr: "serveo.net"
 
   - id: localtunnel-me
     desc: localtunnel.me tunnel service
@@ -212,7 +212,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "localtunnel.me"
+      substr: "localtunnel.me"
 
   - id: localhost-run
     desc: localhost.run tunnel service
@@ -221,7 +221,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "localhost.run"
+      substr: "localhost.run"
 
   - id: pinggy-io
     desc: pinggy.io tunnel service
@@ -230,7 +230,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "pinggy.io"
+      substr: "pinggy.io"
 
   # === HTTP exclusion patterns (to avoid FPs) ===
   - id: res-on-data
@@ -240,7 +240,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "res.on('data'"
+      substr: "res.on('data'"
 
   - id: response-on-data
     desc: response.on('data' HTTP response pattern
@@ -249,7 +249,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "response.on('data'"
+      substr: "response.on('data'"
 
   - id: https-get-call
     desc: https.get call

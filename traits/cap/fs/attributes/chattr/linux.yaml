@@ -29,7 +29,7 @@ traits:
     conf: 1.0
     if:
       type: string
-      exact: "chattr -i /sys"
+      substr: "chattr -i /sys"
 
   - id: chattr-recursive-immutable-1
     desc: chattr -R -i (recursive remove

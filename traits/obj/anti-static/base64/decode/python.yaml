@@ -11,7 +11,7 @@ traits:
     attack: "T1140"
     if:
       type: string
-      exact: b64decode
+      substr: b64decode
 
   - id: decode-exec-python
     desc: Base64 decode and execute in

@@ -12,7 +12,7 @@ traits:
     for: [pe, shell]
     if:
       type: string
-      exact: "stopservice"
+      substr: "stopservice"
 
   - id: terminate-process-api
     desc: Windows TerminateProcess API call
@@ -21,7 +21,7 @@ traits:
     for: [pe]
     if:
       type: string
-      exact: "TerminateProcess"
+      substr: "TerminateProcess"
 
   # === EDR/AV process termination verbs (atomic) ===
   - id: kill-keyword
@@ -54,7 +54,7 @@ traits:
     for: [pe, elf]
     if:
       type: string
-      exact: defender
+      substr: defender
       case_insensitive: true
 
   - id: malwarebytes-name
@@ -64,7 +64,7 @@ traits:
     for: [pe, elf]
     if:
       type: string
-      exact: malwarebytes
+      substr: malwarebytes
       case_insensitive: true
 
   - id: kaspersky-name
@@ -74,7 +74,7 @@ traits:
     for: [pe, elf]
     if:
       type: string
-      exact: kaspersky
+      substr: kaspersky
       case_insensitive: true
 
   - id: bitdefender-name
@@ -84,7 +84,7 @@ traits:
     for: [pe, elf]
     if:
       type: string
-      exact: bitdefender
+      substr: bitdefender
       case_insensitive: true
 
   # Avast AV detection - must be specific to avoid nautical term "avast" (meaning "stop")
@@ -113,7 +113,7 @@ traits:
     for: [pe, elf]
     if:
       type: string
-      exact: norton
+      substr: norton
       case_insensitive: true
 
   - id: mcafee-name
@@ -123,7 +123,7 @@ traits:
     for: [pe, elf]
     if:
       type: string
-      exact: mcafee
+      substr: mcafee
       case_insensitive: true
 
   - id: sophos-name
@@ -133,7 +133,7 @@ traits:
     for: [pe, elf]
     if:
       type: string
-      exact: sophos
+      substr: sophos
       case_insensitive: true
 
   - id: eset-lower

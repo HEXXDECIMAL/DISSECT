@@ -68,7 +68,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: "pip install fernet"
+      substr: "pip install fernet"
 
   - id: pip-install-fernet-title
     desc: pip install fernet (titlecase)
@@ -76,7 +76,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: "pip install Fernet"
+      substr: "pip install Fernet"
 
   - id: pip-install-cryptography-lower
     desc: pip install cryptography (lowercase)
@@ -84,7 +84,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "pip install cryptography"
+      substr: "pip install cryptography"
 
   - id: pip-install-cryptography-title
     desc: pip install cryptography (titlecase)
@@ -92,7 +92,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "pip install Cryptography"
+      substr: "pip install Cryptography"
 
   - id: except-keyword
     desc: except keyword

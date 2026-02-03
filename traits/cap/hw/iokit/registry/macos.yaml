@@ -8,4 +8,4 @@ traits:
     platforms: [macos]
     if:
       type: string
-      exact: "IORegistry"
+      substr: "IORegistry"

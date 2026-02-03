@@ -18,7 +18,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "administrator privileges"
+      substr: "administrator privileges"
 
   - id: with-admin-privileges
     desc: "do shell script with admin"
@@ -26,7 +26,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "with administrator privileges"
+      substr: "with administrator privileges"
 
   # ============================================
   # Sudo/Root Patterns

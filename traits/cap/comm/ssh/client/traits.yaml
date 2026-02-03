@@ -14,7 +14,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "ssh-userauth"
+      substr: "ssh-userauth"
 
   - id: libssh
     desc: libssh library reference
@@ -22,7 +22,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "libssh"
+      substr: "libssh"
 
   - id: ssh-version
     desc: SSH protocol version 2.0 string
@@ -30,7 +30,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "SSH-2.0"
+      substr: "SSH-2.0"
 
   # Authentication method strings - normal SSH library indicators
   - id: keyboard-interactive
@@ -39,7 +39,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "keyboard-interactive"
+      substr: "keyboard-interactive"
 
   - id: publickey-auth
     desc: SSH publickey auth method
@@ -47,7 +47,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "publickey"
+      substr: "publickey"
 
   # SSH error messages - normal in any SSH client
   - id: permission-denied
@@ -56,7 +56,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "Permission denied"
+      substr: "Permission denied"
 
   - id: auth-failed
     desc: SSH authentication failed message
@@ -64,7 +64,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "Authentication failed"
+      substr: "Authentication failed"
 
   # JavaScript/Node.js SSH libraries
   - id: ssh2-js

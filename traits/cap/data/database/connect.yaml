@@ -9,7 +9,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "libpq"
+      substr: "libpq"
 
   - id: pqconnect
     desc: PQconnect function
@@ -25,7 +25,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "postgres://"
+      substr: "postgres://"
 
   - id: postgresql-url
     desc: postgresql:// URL scheme
@@ -33,7 +33,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "postgresql://"
+      substr: "postgresql://"
 
   - id: pq-dot
     desc: pq. Go driver
@@ -49,7 +49,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "psycopg2"
+      substr: "psycopg2"
 
   - id: pg8000
     desc: pg8000 Python driver
@@ -57,7 +57,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "pg8000"
+      substr: "pg8000"
 
   # === MySQL micro-traits ===
   - id: libmysql
@@ -66,7 +66,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "libmysql"
+      substr: "libmysql"
 
   - id: mysql-url
     desc: mysql:// URL scheme
@@ -74,7 +74,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "mysql://"
+      substr: "mysql://"
 
   - id: mysql-real-connect
     desc: mysql_real_connect function
@@ -90,7 +90,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "mysqlclient"
+      substr: "mysqlclient"
 
   - id: go-sql-mysql
     desc: go-sql-driver/mysql
@@ -98,7 +98,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "go-sql-driver/mysql"
+      substr: "go-sql-driver/mysql"
 
   - id: pymysql
     desc: PyMySQL driver
@@ -106,7 +106,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "PyMySQL"
+      substr: "PyMySQL"
 
   # === SQLite micro-traits ===
   - id: sqlite3-string
@@ -115,7 +115,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "sqlite3"
+      substr: "sqlite3"
 
   - id: sqlite3-open
     desc: sqlite3_open function
@@ -131,7 +131,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "mattn/go-sqlite3"
+      substr: "mattn/go-sqlite3"
 
   - id: rusqlite
     desc: rusqlite Rust driver
@@ -139,7 +139,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "rusqlite"
+      substr: "rusqlite"
 
   - id: sqlite-format
     desc: SQLite format header
@@ -147,7 +147,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "SQLite format"
+      substr: "SQLite format"
 
   # === MongoDB micro-traits ===
   - id: mongodb-url
@@ -156,7 +156,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "mongodb://"
+      substr: "mongodb://"
 
   - id: mongodb-srv-url
     desc: mongodb+srv:// URL scheme
@@ -164,7 +164,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "mongodb+srv://"
+      substr: "mongodb+srv://"
 
   - id: go-mongodb
     desc: go.mongodb.org driver
@@ -172,7 +172,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "go.mongodb.org"
+      substr: "go.mongodb.org"
 
   - id: pymongo
     desc: pymongo Python driver
@@ -180,7 +180,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "pymongo"
+      substr: "pymongo"
 
   - id: mongoose
     desc: mongoose ODM
@@ -188,7 +188,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "mongoose"
+      substr: "mongoose"
 
   # === Redis micro-traits ===
   - id: redis-url
@@ -197,7 +197,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "redis://"
+      substr: "redis://"
 
   - id: rediss-url
     desc: rediss:// URL scheme
@@ -205,7 +205,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "rediss://"
+      substr: "rediss://"
 
   - id: go-redis
     desc: go-redis driver
@@ -213,7 +213,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "go-redis"
+      substr: "go-redis"
 
   - id: redis-py
     desc: redis-py driver
@@ -221,7 +221,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "redis-py"
+      substr: "redis-py"
 
   - id: hiredis
     desc: hiredis library
@@ -229,7 +229,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "hiredis"
+      substr: "hiredis"
 
   - id: ioredis
     desc: ioredis driver
@@ -237,7 +237,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "ioredis"
+      substr: "ioredis"
 
   # === Elasticsearch micro-traits ===
   - id: elasticsearch-string
@@ -246,7 +246,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "elasticsearch"
+      substr: "elasticsearch"
 
   - id: elastic-co
     desc: elastic.co domain
@@ -254,7 +254,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "elastic.co"
+      substr: "elastic.co"
 
   - id: olivere-elastic
     desc: olivere/elastic Go driver
@@ -262,7 +262,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "olivere/elastic"
+      substr: "olivere/elastic"
 
   - id: es-search-endpoint
     desc: _search ES endpoint
@@ -270,7 +270,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "_search"
+      substr: "_search"
 
   - id: es-bulk-endpoint
     desc: _bulk ES endpoint
@@ -278,7 +278,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "_bulk"
+      substr: "_bulk"
 
   # === Cassandra micro-traits ===
   - id: cassandra-string
@@ -295,7 +295,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "gocql"
+      substr: "gocql"
 
   - id: datastax
     desc: datastax driver
@@ -303,7 +303,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "datastax"
+      substr: "datastax"
 
   - id: cql-url
     desc: cql:// URL scheme
@@ -311,7 +311,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "cql://"
+      substr: "cql://"
 
   # === DynamoDB micro-traits ===
   - id: dynamodb-string
@@ -328,7 +328,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "aws-sdk"
+      substr: "aws-sdk"
 
   # === InfluxDB micro-traits ===
   - id: influxdb-string
@@ -345,7 +345,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "influxdata"
+      substr: "influxdata"
 
   # === SQL micro-traits ===
   - id: sql-select
@@ -394,7 +394,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "database/sql"
+      substr: "database/sql"
 
   - id: sql-open
     desc: sql.Open Go function
@@ -402,7 +402,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "sql.Open"
+      substr: "sql.Open"
 
   # === ORM micro-traits ===
   - id: gorm-io
@@ -411,7 +411,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "gorm.io"
+      substr: "gorm.io"
 
   - id: sqlalchemy
     desc: SQLAlchemy ORM
@@ -419,7 +419,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "sqlalchemy"
+      substr: "sqlalchemy"
 
   - id: hibernate
     desc: Hibernate ORM
@@ -427,7 +427,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "hibernate"
+      substr: "hibernate"
 
   - id: django-db
     desc: django.db ORM
@@ -435,7 +435,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "django.db"
+      substr: "django.db"
 
   - id: sequelize
     desc: Sequelize ORM
@@ -443,7 +443,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "sequelize"
+      substr: "sequelize"
 
   - id: prisma
     desc: Prisma ORM
@@ -451,7 +451,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "prisma"
+      substr: "prisma"
 
   - id: typeorm
     desc: TypeORM ORM
@@ -459,7 +459,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "typeorm"
+      substr: "typeorm"
 
   # === Connection pooling micro-traits ===
   - id: pgxpool
@@ -468,7 +468,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "pgxpool"
+      substr: "pgxpool"
 
   - id: pool-pool
     desc: pool.Pool type
@@ -476,7 +476,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "pool.Pool"
+      substr: "pool.Pool"
 
   - id: max-open-conns
     desc: MaxOpenConns setting
@@ -484,7 +484,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "MaxOpenConns"
+      substr: "MaxOpenConns"
 
   - id: max-idle-conns
     desc: MaxIdleConns setting
@@ -492,7 +492,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "MaxIdleConns"
+      substr: "MaxIdleConns"
 
   - id: connection-pool-string
     desc: connection_pool string
@@ -500,7 +500,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "connection_pool"
+      substr: "connection_pool"
 
   - id: hikaricp
     desc: HikariCP pool
@@ -508,7 +508,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "HikariCP"
+      substr: "HikariCP"
 
 composite_rules:
   # PostgreSQL composite (migrated from YARA)

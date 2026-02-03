@@ -31,7 +31,7 @@ traits:
     r#for: [javascript, typescript]
     if:
       type: string
-      exact: "activate"
+      substr: "activate"
 
   - id: globalState-word
     desc: globalState keyword
@@ -40,7 +40,7 @@ traits:
     r#for: [javascript, typescript]
     if:
       type: string
-      exact: "globalState"
+      substr: "globalState"
 
   - id: postInstall-word
     desc: postInstall keyword
@@ -49,7 +49,7 @@ traits:
     r#for: [javascript, typescript]
     if:
       type: string
-      exact: "postInstall"
+      substr: "postInstall"
 
   - id: exec-pattern
     desc: exec function pattern
@@ -86,7 +86,7 @@ traits:
     r#for: [javascript, typescript]
     if:
       type: string
-      exact: ".npmrc"
+      substr: ".npmrc"
 
   - id: env-file
     desc: .env file reference
@@ -211,7 +211,7 @@ composite_rules:
   # Staged Decryption and Execution inside a VSCode Extension
   - id: staged-dropper
     desc: VSCode extension with staged decryption
-    crit: hostile
+    crit: suspicious
     conf: 0.99
     mbc: "B0032"
     attack: "T1027"
@@ -224,7 +224,7 @@ composite_rules:
   # Extension Persistence via well-known hooks
   - id: persistence
     desc: Extension establishing persistence
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     mbc: "F0011"
     attack: "T1547"

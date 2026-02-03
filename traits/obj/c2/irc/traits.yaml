@@ -12,7 +12,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: PRIVMSG
+      substr: PRIVMSG
 
   - id: irc-nick
     desc: IRC NICK command
@@ -37,7 +37,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: ".login"
+      substr: ".login"
 
   - id: cmd-udp
     desc: Bot UDP attack command
@@ -61,7 +61,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: ".shell"
+      substr: ".shell"
 
   # === Tsunami/Kaiten identifiers ===
   - id: tsunami-name

@@ -12,7 +12,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: xor_key
+      substr: xor_key
 
   - id: xor-encrypt
     desc: XOR encrypt function reference
@@ -20,7 +20,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: xor_encrypt
+      substr: xor_encrypt
 
   - id: xor-decode
     desc: XOR decode function reference
@@ -28,7 +28,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: xor_decode
+      substr: xor_decode
 
   - id: xor-loop
     desc: XOR operation with hex byte

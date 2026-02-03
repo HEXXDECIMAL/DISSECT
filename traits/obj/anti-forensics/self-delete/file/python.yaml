@@ -11,4 +11,4 @@ traits:
     attack: "T1070.004"
     if:
       type: string
-      exact: "os.remove(__file__)"
+      substr: "os.remove(__file__)"

@@ -1,0 +1,563 @@
+# Phishing Kit Detection Traits
+# These patterns detect credential harvesting pages and phishing kits
+
+# === ATOMIC TRAITS ===
+traits:
+  # === Anti-copy mechanism patterns ===
+  - id: oncopy-false
+    desc: "oncopy=\"return false\" HTML attribute"
+    crit: inert
+    conf: 0.6
+    for: [html, javascript]
+    if:
+      type: string
+      exact: "oncopy=\"return false\""
+      case_insensitive: true
+
+  - id: oncut-false
+    desc: "oncut=\"return false\" HTML attribute"
+    crit: inert
+    conf: 0.6
+    for: [html, javascript]
+    if:
+      type: string
+      exact: "oncut=\"return false\""
+      case_insensitive: true
+
+  - id: onpaste-false
+    desc: "onpaste=\"return false\" HTML attribute"
+    crit: inert
+    conf: 0.6
+    for: [html, javascript]
+    if:
+      type: string
+      exact: "onpaste=\"return false\""
+      case_insensitive: true
+
+  - id: oncontextmenu-false
+    desc: "oncontextmenu=\"return false\" HTML attribute"
+    crit: inert
+    conf: 0.6
+    for: [html, javascript]
+    if:
+      type: string
+      exact: "oncontextmenu=\"return false\""
+      case_insensitive: true
+
+  - id: ondragstart-false
+    desc: "ondragstart=\"return false\" HTML attribute"
+    crit: inert
+    conf: 0.6
+    for: [html, javascript]
+    if:
+      type: string
+      exact: "ondragstart=\"return false\""
+      case_insensitive: true
+
+  - id: onselectstart-false
+    desc: "onselectstart=\"return false\" HTML attribute"
+    crit: inert
+    conf: 0.6
+    for: [html, javascript]
+    if:
+      type: string
+      exact: "onselectstart=\"return false\""
+      case_insensitive: true
+
+  - id: js-copy-listener
+    desc: addEventListener('copy') JavaScript pattern
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
+      type: string
+      exact: "addEventListener('copy'"
+
+  - id: js-cut-listener
+    desc: addEventListener('cut') JavaScript pattern
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
+      type: string
+      exact: "addEventListener('cut'"
+
+  - id: js-paste-listener
+    desc: addEventListener('paste') JavaScript pattern
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
+      type: string
+      exact: "addEventListener('paste'"
+
+  - id: js-contextmenu-listener
+    desc: addEventListener('contextmenu') JavaScript pattern
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
+      type: string
+      exact: "addEventListener('contextmenu'"
+
+  # === Honeypot field pattern (complex regex - keep as-is) ===
+  - id: honeypot-field-pattern
+    desc: Honeypot form field for bot
+    crit: suspicious
+    conf: 0.9
+    for: [html, javascript]
+    if:
+      type: string
+      regex: "class=['\"]honeypot|honeypot-field['\"]|display:\\s*none.{0,50}name=['\"]|name=['\"][^'\"]{0,30}honeypot"
+
+  # === Human interaction event listeners ===
+  - id: mousemove-listener
+    desc: addEventListener('mousemove') pattern
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
+      type: string
+      exact: "addEventListener('mousemove'"
+
+  - id: touchstart-listener
+    desc: addEventListener('touchstart') pattern
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
+      type: string
+      exact: "addEventListener('touchstart'"
+
+  - id: scroll-listener
+    desc: addEventListener('scroll') pattern
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
+      type: string
+      exact: "addEventListener('scroll'"
+
+  - id: disabled-class
+    desc: .disabled CSS class reference
+    crit: inert
+    conf: 0.6
+    for: [javascript, html]
+    if:
+      type: string
+      exact: ".disabled"
+
+  - id: disabled-false
+    desc: "disabled=false assignment"
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
+      type: string
+      exact: "disabled=false"
+
+  - id: disabled-false-spaced
+    desc: "disabled = false assignment (with"
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
+      type: string
+      exact: "disabled = false"
+
+  - id: remove-disabled-attr
+    desc: removeAttribute('disabled') call
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
+      type: string
+      exact: "removeAttribute('disabled')"
+
+  # === Microsoft brand impersonation patterns ===
+  - id: microsoft-logo-ref
+    desc: Microsoft_logo reference
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      exact: "Microsoft_logo"
+      case_insensitive: true
+
+  - id: microsoft-svg
+    desc: microsoft.svg file reference
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      exact: "microsoft.svg"
+      case_insensitive: true
+
+  - id: microsoft-span
+    desc: Microsoft</span> HTML pattern
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      exact: "Microsoft</span>"
+      case_insensitive: true
+
+  - id: microsoft-tag
+    desc: ">Microsoft< HTML pattern"
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      exact: ">Microsoft<"
+      case_insensitive: true
+
+  - id: sign-in-text
+    desc: "Sign in text"
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      word: "Sign in"
+
+  - id: sign-in-hyphen
+    desc: Sign-in text (hyphenated)
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      word: "Sign-in"
+
+  - id: ms-email-placeholder
+    desc: "Email, phone, or Skype placeholder"
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      exact: "Email, phone, or Skype"
+
+  # === Google brand impersonation patterns ===
+  - id: google-logo-ref
+    desc: Google_logo reference
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      exact: "Google_logo"
+      case_insensitive: true
+
+  - id: google-svg
+    desc: google.svg file reference
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      exact: "google.svg"
+      case_insensitive: true
+
+  - id: google-span
+    desc: Google</span> HTML pattern
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      exact: "Google</span>"
+      case_insensitive: true
+
+  - id: google-tag
+    desc: ">Google< HTML pattern"
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      exact: ">Google<"
+      case_insensitive: true
+
+  # === Generic login form patterns ===
+  - id: login-word-lower
+    desc: Login word (lowercase)
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      word: "login"
+
+  - id: login-word-title
+    desc: Login word (title case)
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      word: "Login"
+
+  - id: login-word-upper
+    desc: LOGIN word (uppercase)
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      word: "LOGIN"
+
+  - id: log-in-phrase-lower
+    desc: "Log in phrase (lowercase)"
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      exact: "log in"
+
+  - id: log-in-phrase-title
+    desc: "Log in phrase (title case)"
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      exact: "Log in"
+
+  - id: password-input-double
+    desc: "type=\"password\" HTML input"
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      exact: "type=\"password\""
+      case_insensitive: true
+
+  - id: password-input-single
+    desc: "type='password' HTML input"
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      exact: "type='password'"
+      case_insensitive: true
+
+  - id: email-input-double
+    desc: "type=\"email\" HTML input"
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      exact: "type=\"email\""
+      case_insensitive: true
+
+  - id: email-input-single
+    desc: "type='email' HTML input"
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      exact: "type='email'"
+      case_insensitive: true
+
+  - id: email-placeholder-double
+    desc: "placeholder=\"Email\" attribute"
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      exact: "placeholder=\"Email\""
+      case_insensitive: true
+
+  - id: password-placeholder-double
+    desc: "placeholder=\"Password\" attribute"
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      exact: "placeholder=\"Password\""
+      case_insensitive: true
+
+  # === Document sharing lure patterns ===
+  - id: shared-with-phrase
+    desc: "shared with phrase"
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      exact: "shared with"
+      case_insensitive: true
+
+  - id: document-word
+    desc: document word
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      word: "document"
+      case_insensitive: true
+
+  - id: securely-shared-phrase
+    desc: "securely shared phrase"
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      exact: "securely shared"
+      case_insensitive: true
+
+  - id: file-sharing-phrase
+    desc: "file sharing phrase"
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      exact: "file sharing"
+      case_insensitive: true
+
+  - id: pdf-extension
+    desc: .pdf file extension
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      exact: ".pdf"
+      case_insensitive: true
+
+  - id: pdf-icon-text
+    desc: "PDF Icon text"
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      exact: "PDF Icon"
+      case_insensitive: true
+
+  - id: doc-extension
+    desc: .doc file extension
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      exact: ".doc"
+      case_insensitive: true
+
+  - id: xls-extension
+    desc: .xls file extension
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      exact: ".xls"
+      case_insensitive: true
+
+  - id: download-word
+    desc: Download word
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      word: "download"
+      case_insensitive: true
+
+  - id: verify-word
+    desc: verify word
+    crit: inert
+    conf: 0.6
+    for: [html]
+    if:
+      type: string
+      word: "verify"
+      case_insensitive: true
+
+  # === External form submission patterns ===
+  - id: window-location-href-assign
+    desc: window.location.href= assignment
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
+      type: string
+      exact: "window.location.href="
+
+  - id: location-href-assign
+    desc: location.href= assignment
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
+      type: string
+      exact: "location.href="
+
+  - id: submit-listener-double
+    desc: "addEventListener(\"submit\") pattern"
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
+      type: string
+      exact: "addEventListener(\"submit\""
+
+  - id: submit-listener-single
+    desc: addEventListener('submit') pattern
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
+      type: string
+      exact: "addEventListener('submit'"
+
+  # === Suspicious TLD patterns ===
+  - id: icu-tld
+    desc: .icu TLD (commonly abused)
+    crit: inert
+    conf: 0.6
+    for: [html, javascript]
+    if:
+      type: string
+      exact: ".icu"
+
+  - id: xyz-tld
+    desc: .xyz TLD (commonly abused)
+    crit: inert
+    conf: 0.6
+    for: [html, javascript]
+    if:
+      type: string
+      exact: ".xyz"
+
+  - id: tk-tld
+    desc: .tk TLD (free domain, commonly
+    crit: inert
+    conf: 0.6
+    for: [html, javascript]
+    if:
+      type: string
+      exact: ".tk"
+
+  - id: ml-tld
+    desc: .ml TLD (free domain, commonly
+    crit: inert
+    conf: 0.6
+    for: [html, javascript]
+    if:

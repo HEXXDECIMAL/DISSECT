@@ -28,7 +28,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      exact: SO_REUSEPORT
+      substr: SO_REUSEPORT
 
   - id: options-filter
     desc: Socket packet filtering
@@ -36,4 +36,4 @@ traits:
     conf: 0.66
     if:
       type: string
-      exact: SO_ATTACH_FILTER
+      substr: SO_ATTACH_FILTER

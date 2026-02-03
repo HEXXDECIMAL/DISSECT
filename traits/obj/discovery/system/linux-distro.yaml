@@ -17,7 +17,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: "/etc/os-release"
+      substr: "/etc/os-release"
 
   - id: os-release-open
     desc: Open os-release file

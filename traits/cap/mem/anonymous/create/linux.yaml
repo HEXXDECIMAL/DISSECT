@@ -25,4 +25,4 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "MemfdCreate"
+      substr: "MemfdCreate"

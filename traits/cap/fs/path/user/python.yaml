@@ -24,7 +24,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "Path.home()"
+      substr: "Path.home()"
 
   - id: python-path-home-method
     desc: "Path().home() method call"

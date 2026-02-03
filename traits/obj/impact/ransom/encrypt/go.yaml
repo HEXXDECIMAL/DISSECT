@@ -10,7 +10,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "crypto/aes"
+      substr: "crypto/aes"
 
   - id: crypto-cipher
     desc: crypto/cipher import
@@ -18,7 +18,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "crypto/cipher"
+      substr: "crypto/cipher"
 
   - id: crypto-rsa
     desc: crypto/rsa import
@@ -26,7 +26,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "crypto/rsa"
+      substr: "crypto/rsa"
 
   - id: filepath-walk
     desc: filepath.Walk call
@@ -34,7 +34,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "filepath.Walk"
+      substr: "filepath.Walk"
 
   - id: filepath-walkdir
     desc: filepath.WalkDir call
@@ -42,7 +42,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "filepath.WalkDir"
+      substr: "filepath.WalkDir"
 
   - id: ioutil-writefile
     desc: ioutil.WriteFile call
@@ -50,7 +50,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "ioutil.WriteFile"
+      substr: "ioutil.WriteFile"
 
   - id: os-writefile
     desc: os.WriteFile call
@@ -58,7 +58,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "os.WriteFile"
+      substr: "os.WriteFile"
 
   - id: encrypted-ext
     desc: .encrypted extension
@@ -66,7 +66,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: ".encrypted"
+      substr: ".encrypted"
 
   - id: locked-ext
     desc: .locked extension
@@ -74,7 +74,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: ".locked"
+      substr: ".locked"
 
 composite_rules:
   - id: crypto-import

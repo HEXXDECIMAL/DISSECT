@@ -21,7 +21,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: VirtualProtect
+      substr: VirtualProtect
 
   - id: virtualprotectex-win
     desc: Windows VirtualProtectEx API
@@ -29,7 +29,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: VirtualProtectEx
+      substr: VirtualProtectEx
 
   - id: prot-write
     desc: PROT_WRITE memory protection constant
@@ -53,7 +53,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: PAGE_EXECUTE_READWRITE
+      substr: PAGE_EXECUTE_READWRITE
 
   # === Self-overwriting (atomic) ===
   - id: proc-self-mem
@@ -62,7 +62,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: /proc/self/mem
+      substr: /proc/self/mem
 
   - id: proc-self-maps
     desc: /proc/self/maps memory map access
@@ -70,7 +70,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: /proc/self/maps
+      substr: /proc/self/maps
 
   - id: writeprocessmemory
     desc: Windows WriteProcessMemory API
@@ -78,7 +78,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: WriteProcessMemory
+      substr: WriteProcessMemory
 
   - id: self-patch-ref
     desc: Self-patch terminology
@@ -86,7 +86,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "self-patch"
+      substr: "self-patch"
       case_insensitive: true
 
   # === Code cave (atomic) ===
@@ -105,7 +105,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: "slack space"
+      substr: "slack space"
       case_insensitive: true
 
   - id: nop-sled
@@ -125,7 +125,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: SetWindowsHookEx
+      substr: SetWindowsHookEx
 
   - id: inline-hook-ref
     desc: Inline hook terminology
@@ -133,7 +133,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "inline hook"
+      substr: "inline hook"
       case_insensitive: true
 
   - id: detour-ref
@@ -142,7 +142,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: detour
+      substr: detour
       case_insensitive: true
 
   # NOTE: Go runtime uses trampolines legitimately for function calls
@@ -152,7 +152,7 @@ traits:
     conf: 0.3
     if:
       type: string
-      exact: trampoline
+      substr: trampoline
       case_insensitive: true
 
   - id: ld-preload
@@ -178,7 +178,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: IMAGE_IMPORT_DESCRIPTOR
+      substr: IMAGE_IMPORT_DESCRIPTOR
 
   - id: import-address-table
     desc: Import Address Table reference
@@ -186,7 +186,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: ImportAddressTable
+      substr: ImportAddressTable
 
   - id: iat-ref
     desc: IAT abbreviation reference
@@ -202,7 +202,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: .got.plt
+      substr: .got.plt
 
   - id: got-ref
     desc: GOT abbreviation reference
@@ -224,7 +224,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: polymorphic
+      substr: polymorphic
       case_insensitive: true
 
   - id: metamorphic-ref
@@ -233,7 +233,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: metamorphic
+      substr: metamorphic
       case_insensitive: true
 
   - id: self-modifying-ref
@@ -242,7 +242,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "self-modifying"
+      substr: "self-modifying"
       case_insensitive: true
 
   # NOTE: XOR loop patterns are common in legitimate software (crypto, compression,

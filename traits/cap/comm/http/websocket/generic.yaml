@@ -14,7 +14,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "WebSocket"
+      substr: "WebSocket"
 
   - id: websocket-lower
     desc: websocket lowercase reference
@@ -22,7 +22,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "websocket"
+      substr: "websocket"
 
   - id: ws-scheme
     desc: ws:// URL scheme
@@ -30,7 +30,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "ws://"
+      substr: "ws://"
 
   - id: wss-scheme
     desc: wss:// URL scheme
@@ -38,7 +38,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "wss://"
+      substr: "wss://"
 
 composite_rules:
   - id: websocket

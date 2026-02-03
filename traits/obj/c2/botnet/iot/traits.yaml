@@ -14,7 +14,7 @@ traits:
     platforms: [linux]
     if:
       type: string
-      exact: "/bin/busybox"
+      substr: "/bin/busybox"
 
   - id: busybox-wget
     desc: "BusyBox wget payload download"
@@ -124,7 +124,7 @@ traits:
     platforms: [linux]
     if:
       type: string
-      exact: "/proc/self/exe"
+      substr: "/proc/self/exe"
 
   - id: send-func
     desc: "send function"
@@ -175,7 +175,7 @@ traits:
     platforms: [linux]
     if:
       type: string
-      exact: "curl http://"
+      substr: "curl http://"
 
 composite_rules:
   # Helper: curl or wget download command

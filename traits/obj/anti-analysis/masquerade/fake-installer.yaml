@@ -14,7 +14,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "HOMEBREW_PREFIX"
+      substr: "HOMEBREW_PREFIX"
 
   - id: brew-no-install
     desc: "Homebrew no-install marker"
@@ -22,7 +22,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "brew.no_install"
+      substr: "brew.no_install"
 
   - id: homebrew-repo
     desc: "Homebrew repository URL"
@@ -30,7 +30,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "github.com/Homebrew/brew"
+      substr: "github.com/Homebrew/brew"
 
   # === Suspicious Behaviors ===
   - id: dscl-authonly-loop
@@ -85,7 +85,7 @@ composite_rules:
     desc: "Suspicious installer behaviors"
     crit: suspicious
     conf: 0.9
-    count_min: 2
+    count_min: 1
     any:
       - id: dscl-authonly-loop
       - id: homabrews-domain
@@ -100,7 +100,6 @@ composite_rules:
     attack: "T1036.005"
     mbc: "F0004"
     platforms: [macos, linux]
-    r#for: [shell]
     all:
       - id: homebrew-context
       - id: fake-installer-behaviors

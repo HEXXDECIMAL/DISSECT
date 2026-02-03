@@ -13,7 +13,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "/dev/tun"
+      substr: "/dev/tun"
 
   - id: dev-tap
     desc: /dev/tap device
@@ -21,7 +21,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "/dev/tap"
+      substr: "/dev/tap"
 
   - id: tunsetiff-ioctl
     desc: TUNSETIFF ioctl
@@ -29,7 +29,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "TUNSETIFF"
+      substr: "TUNSETIFF"
 
 composite_rules:
   - id: tun

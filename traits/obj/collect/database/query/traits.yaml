@@ -24,7 +24,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "mysql"
+      substr: "mysql"
 
   # === PostgreSQL atomic indicators ===
 
@@ -36,7 +36,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "postgresql"
+      substr: "postgresql"
 
   - id: go-pg-import
     desc: github.com/go-pg import
@@ -46,7 +46,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "github.com/go-pg"
+      substr: "github.com/go-pg"
 
   # === Atomic: LevelDB ===
 

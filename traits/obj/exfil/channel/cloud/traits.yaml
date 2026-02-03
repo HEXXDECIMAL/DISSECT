@@ -12,7 +12,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "s3.amazonaws.com"
+      substr: "s3.amazonaws.com"
 
   - id: s3-upload-method
     desc: S3 upload method call
@@ -33,7 +33,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "api.dropbox.com"
+      substr: "api.dropbox.com"
 
   - id: dropbox-upload-method
     desc: Dropbox upload method
@@ -54,7 +54,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "drive.google.com"
+      substr: "drive.google.com"
 
   - id: googleapis-drive
     desc: Google APIs drive reference

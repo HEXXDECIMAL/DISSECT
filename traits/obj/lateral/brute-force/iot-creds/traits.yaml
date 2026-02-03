@@ -12,7 +12,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "7ujMko0admin"
+      substr: "7ujMko0admin"
 
   - id: mirai-cred-vizxv
     desc: Mirai credential variant (7ujMko0vizxv)
@@ -22,7 +22,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "7ujMko0vizxv"
+      substr: "7ujMko0vizxv"
 
   - id: mirai-cred-juantech
     desc: Mirai credential variant (juantech)
@@ -32,7 +32,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "juantech"
+      substr: "juantech"
 
   - id: mirai-cred-xc3511
     desc: Mirai credential variant (xc3511)
@@ -42,7 +42,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "xc3511"
+      substr: "xc3511"
 
   - id: mirai-cred-jvbzd
     desc: Mirai credential variant (jvbzd)
@@ -52,7 +52,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "jvbzd"
+      substr: "jvbzd"
 
   - id: mirai-cred-smcadmin
     desc: Mirai credential variant (smcadmin)
@@ -62,7 +62,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "smcadmin"
+      substr: "smcadmin"
 
   - id: mirai-cred-gm8182
     desc: Mirai credential variant (GM8182)
@@ -72,7 +72,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "GM8182"
+      substr: "GM8182"
 
   - id: mirai-cred-oelinux
     desc: Mirai credential variant (oelinux123)
@@ -82,7 +82,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "oelinux123"
+      substr: "oelinux123"
 
   - id: mirai-cred-hi3518
     desc: Mirai credential variant (hi3518)
@@ -92,7 +92,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "hi3518"
+      substr: "hi3518"
 
   # Dahua/Hikvision camera credentials
   - id: camera-cred-vizxv
@@ -103,7 +103,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "vizxv"
+      substr: "vizxv"
 
   - id: camera-cred-xmhdipc
     desc: IP camera credential (xmhdipc)
@@ -113,7 +113,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "xmhdipc"
+      substr: "xmhdipc"
 
   # Router default credentials
   - id: router-cred-zte
@@ -124,7 +124,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "Zte521"
+      substr: "Zte521"
 
   - id: router-cred-huawei
     desc: Router credential (telecomadmin)
@@ -134,7 +134,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "telecomadmin"
+      substr: "telecomadmin"
 
   # === Telnet bruteforce atomic indicators ===
   - id: telnet-connect-str
@@ -176,7 +176,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "busybox wget"
+      substr: "busybox wget"
 
   - id: busybox-tftp
     desc: BusyBox tftp download
@@ -186,7 +186,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "busybox tftp"
+      substr: "busybox tftp"
 
   - id: mirai-cred-prefix
     desc: Mirai credential prefix (7ujMko0)
@@ -196,7 +196,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "7ujMko0"
+      substr: "7ujMko0"
 
   - id: telnet-port-scan
     desc: Telnet port 23 scanning indicator
@@ -217,7 +217,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "enable\nshell\nsh"
+      substr: "enable\nshell\nsh"
 
 composite_rules:
   # Telnet bruteforce composite
@@ -248,7 +248,7 @@ composite_rules:
   # Mirai default credentials - requires 3+ credential strings
   - id: mirai-creds
     desc: Mirai botnet default credential list
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     attack: "T1110.001"
     mbc: "E1017"

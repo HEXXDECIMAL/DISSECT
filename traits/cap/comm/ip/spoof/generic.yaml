@@ -33,7 +33,7 @@ traits:
     for: [c, cpp, go, rust, python, shell, elf, macho]
     if:
       type: string
-      exact: "IP_HDRINCL"
+      substr: "IP_HDRINCL"
 
   - id: ipproto-raw-constant
     desc: IPPROTO_RAW socket type
@@ -42,7 +42,7 @@ traits:
     for: [c, cpp, go, rust, python, shell, elf, macho]
     if:
       type: string
-      exact: "IPPROTO_RAW"
+      substr: "IPPROTO_RAW"
 
   - id: sock-raw-constant
     desc: SOCK_RAW socket type
@@ -51,7 +51,7 @@ traits:
     for: [c, cpp, go, rust, python, shell, elf, macho]
     if:
       type: string
-      exact: "SOCK_RAW"
+      substr: "SOCK_RAW"
 
   - id: raw-socket-keyword
     desc: raw socket keyword
@@ -69,7 +69,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "syncookie"
+      substr: "syncookie"
 
   - id: syn-cookie-lower
     desc: syn_cookie or syncookie

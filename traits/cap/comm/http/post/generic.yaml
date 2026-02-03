@@ -22,7 +22,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "http.post"
+      substr: "http.post"
 
   - id: requests-post-call
     desc: requests.post call
@@ -30,7 +30,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "requests.post"
+      substr: "requests.post"
 
   # === HTTP form data atomic indicators ===
   - id: multipart-form
@@ -39,7 +39,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "multipart/form-data"
+      substr: "multipart/form-data"
 
   - id: formdata-class
     desc: FormData class
@@ -47,7 +47,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "FormData"
+      substr: "FormData"
 
   - id: enctype-attr
     desc: enctype attribute
@@ -55,7 +55,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "enctype"
+      substr: "enctype"
 
 composite_rules:
   - id: post

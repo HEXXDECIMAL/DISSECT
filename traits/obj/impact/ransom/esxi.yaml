@@ -90,7 +90,7 @@ traits:
     for: [elf]
     if:
       type: string
-      exact: "esxcli"
+      substr: "esxcli"
 
   # ESXi world-id parameter (used to target specific VMs)
   - id: esxi-world-id-param

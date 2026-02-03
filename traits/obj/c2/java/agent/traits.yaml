@@ -14,7 +14,7 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "remote-cmd"
+      substr: "remote-cmd"
 
   - id: power-shell-string
     desc: PowerShell execution command
@@ -25,7 +25,7 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "power-shell"
+      substr: "power-shell"
 
   # Download and execute
   - id: down-n-exec-string
@@ -37,7 +37,7 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "down-n-exec"
+      substr: "down-n-exec"
 
   - id: up-n-exec-string
     desc: Upload and execute command
@@ -48,7 +48,7 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "up-n-exec"
+      substr: "up-n-exec"
 
   # Remote desktop/screen
   - id: remote-screen-string
@@ -60,7 +60,7 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "remote-screen"
+      substr: "remote-screen"
 
   - id: hrdp-new-string
     desc: Hidden RDP session command
@@ -71,7 +71,7 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "hrdp-new"
+      substr: "hrdp-new"
 
   - id: hrdp-res-string
     desc: Hidden RDP resume command
@@ -82,7 +82,7 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "hrdp-res"
+      substr: "hrdp-res"
 
   # File management
   - id: file-manager-string
@@ -94,7 +94,7 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "file-manager"
+      substr: "file-manager"
 
   # Proxy/tunneling
   - id: rev-proxy-string
@@ -106,7 +106,7 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "rev-proxy"
+      substr: "rev-proxy"
 
   # Encryption commands (ransomware indicator)
   - id: rw-encrypt-string
@@ -118,7 +118,7 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "rw-encrypt"
+      substr: "rw-encrypt"
 
   - id: rw-decrypt-string
     desc: Ransomware decrypt command
@@ -129,4 +129,4 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "rw-decrypt"
+      substr: "rw-decrypt"

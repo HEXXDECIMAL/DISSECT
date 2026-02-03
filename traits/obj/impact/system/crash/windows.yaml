@@ -14,7 +14,7 @@ traits:
     conf: 0.98
     if:
       type: string
-      exact: "NtRaiseHardError"
+      substr: "NtRaiseHardError"
 
   # RtlAdjustPrivilege - enables shutdown privilege
   - id: rtl-adjust-privilege
@@ -23,7 +23,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "RtlAdjustPrivilege"
+      substr: "RtlAdjustPrivilege"
 
   # Shutdown privilege constant (19)
   - id: shutdown-privilege
@@ -61,7 +61,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "from ctypes import"
+      substr: "from ctypes import"
 
   # YARA-based detection traits
   - id: bsod-trigger-yara

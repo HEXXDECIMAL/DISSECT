@@ -58,7 +58,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "child_process"
+      substr: "child_process"
 
   # === Shell invocation atomic indicators ===
   - id: bash-single-quote
@@ -86,7 +86,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "'/bin/sh'"
+      substr: "'/bin/sh'"
 
   - id: bin-sh-double-quote
     desc: /bin/sh in double quotes
@@ -95,7 +95,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: '"/bin/sh"'
+      substr: '"/bin/sh"'
 
   - id: sh-single-quote
     desc: sh in single quotes
@@ -134,7 +134,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "stdout"
+      substr: "stdout"
 
   - id: stderr-capture
     desc: Standard error capture
@@ -143,7 +143,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "stderr"
+      substr: "stderr"
 
   - id: silent-true
     desc: Silent execution flag (hides output)
@@ -163,7 +163,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "ignoreReturnCode"
+      substr: "ignoreReturnCode"
 
   # === Base64 decode atomic indicators ===
   - id: base64-dash-d
@@ -175,7 +175,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "base64 -d"
+      substr: "base64 -d"
 
   - id: base64-dash-decode
     desc: Base64 decode long flag
@@ -186,7 +186,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "base64 --decode"
+      substr: "base64 --decode"
 
   - id: echo-pipe
     desc: Echo piped to command
@@ -219,7 +219,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "bash /tmp/"
+      substr: "bash /tmp/"
 
   - id: tmp-sh-exec
     desc: Execute sh from /tmp
@@ -230,7 +230,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "sh /tmp/"
+      substr: "sh /tmp/"
 
   - id: tmp-dot-exec
     desc: Execute ./tmp path
@@ -241,7 +241,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "./tmp/"
+      substr: "./tmp/"
 
   # === Function constructor atomic indicators ===
   - id: function-dot-constructor
@@ -305,7 +305,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "spawn("
+      substr: "spawn("
 
   - id: import-meta-url
     desc: import.meta.url reference (ESM self-reference)
@@ -314,7 +314,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "import.meta.url"
+      substr: "import.meta.url"
 
   - id: process-argv-ref
     desc: process.argv reference
@@ -323,7 +323,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "process.argv"
+      substr: "process.argv"
 
   - id: filename-ref
     desc: __filename reference (CJS self-reference)
@@ -332,7 +332,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "__filename"
+      substr: "__filename"
 
 composite_rules:
   # Process respawning (persistence via self-restart) - migrated from YARA

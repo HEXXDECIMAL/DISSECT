@@ -11,7 +11,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "NPM_TOKEN"
+      substr: "NPM_TOKEN"
 
   - id: node-auth-token
     desc: NODE_AUTH_TOKEN environment variable access
@@ -21,7 +21,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "NODE_AUTH_TOKEN"
+      substr: "NODE_AUTH_TOKEN"
 
   # === npm config token atomic indicators ===
   - id: npm-config-token-lower
@@ -53,7 +53,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: ".npmrc"
+      substr: ".npmrc"
 
   - id: npmrc-word
     desc: npmrc word reference
@@ -63,7 +63,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "npmrc"
+      substr: "npmrc"
 
 composite_rules:
   # npm config token composite

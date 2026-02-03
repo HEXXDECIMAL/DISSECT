@@ -46,7 +46,7 @@ traits:
     for: [elf, macho, pe]
     if:
       type: string
-      exact: "http.NewRequest"
+      substr: "http.NewRequest"
 
   - id: go-http-client-do-string
     desc: net/http.(*Client).Do string in binary
@@ -55,7 +55,7 @@ traits:
     for: [elf, macho, pe]
     if:
       type: string
-      exact: "net/http.(*Client).Do"
+      substr: "net/http.(*Client).Do"
 
   - id: go-http-header-set-string
     desc: Header.Set string in binary
@@ -64,5 +64,5 @@ traits:
     for: [elf, macho, pe]
     if:
       type: string
-      exact: "Header.Set"
+      substr: "Header.Set"
 

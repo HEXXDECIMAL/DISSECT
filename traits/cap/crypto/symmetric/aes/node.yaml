@@ -55,7 +55,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "aes-128-ctr"
+      substr: "aes-128-ctr"
 
   - id: aes128ctr-nodash
     desc: AES-128-CTR without dashes
@@ -65,7 +65,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "aes128ctr"
+      substr: "aes128ctr"
 
   # === AES-256-CBC atomic indicators ===
   - id: aes-256-cbc-dash
@@ -76,7 +76,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "aes-256-cbc"
+      substr: "aes-256-cbc"
 
   - id: aes256cbc-nodash
     desc: AES-256-CBC without dashes
@@ -86,7 +86,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "aes256cbc"
+      substr: "aes256cbc"
 
   # === AES-256-GCM atomic indicators ===
   - id: aes-256-gcm-dash
@@ -97,7 +97,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "aes-256-gcm"
+      substr: "aes-256-gcm"
 
   - id: aes256gcm-nodash
     desc: AES-256-GCM without dashes
@@ -107,7 +107,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "aes256gcm"
+      substr: "aes256gcm"
 
   - id: dns-resolve-txt
     desc: DNS TXT record resolution
@@ -116,7 +116,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "resolveTxt"
+      substr: "resolveTxt"
 
   # === AES algorithm string ===
   - id: aes-algorithm
@@ -186,7 +186,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "gunzip"
+      substr: "gunzip"
 
   - id: inflate-function
     desc: inflate decompression function
@@ -195,7 +195,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "inflate"
+      substr: "inflate"
 
   - id: deflate-function
     desc: deflate compression function
@@ -204,7 +204,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "deflate"
+      substr: "deflate"
 
 composite_rules:
   # Crypto require composite

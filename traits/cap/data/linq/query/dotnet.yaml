@@ -8,7 +8,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "System.Linq.Expressions"
+      substr: "System.Linq.Expressions"
 
   - id: expression-visitor
     desc: ExpressionVisitor class
@@ -16,7 +16,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "ExpressionVisitor"
+      substr: "ExpressionVisitor"
 
   - id: lambda-expression
     desc: LambdaExpression class
@@ -24,7 +24,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "LambdaExpression"
+      substr: "LambdaExpression"
 
   - id: linq-queries
     desc: LINQ query operations
@@ -32,7 +32,7 @@ traits:
     conf: 0.70
     if:
       type: string
-      exact: "System.Linq"
+      substr: "System.Linq"
 
   # === Expression compilation atomic indicators ===
   - id: compile-call
@@ -49,7 +49,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "Expression.Lambda"
+      substr: "Expression.Lambda"
 
 composite_rules:
   - id: linq-expressions

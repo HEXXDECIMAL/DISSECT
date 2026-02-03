@@ -11,7 +11,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "/var/lib/dbus/machine-id"
+      substr: "/var/lib/dbus/machine-id"
 
   - id: etc-machine-id
     desc: /etc/machine-id path
@@ -20,7 +20,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "/etc/machine-id"
+      substr: "/etc/machine-id"
 
   - id: machine-id-string
     desc: machine-id string
@@ -29,7 +29,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "machine-id"
+      substr: "machine-id"
 
   - id: machineguid
     desc: MachineGuid registry key
@@ -38,7 +38,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "MachineGuid"
+      substr: "MachineGuid"
 
   - id: machineid-camel
     desc: MachineId string
@@ -47,7 +47,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "MachineId"
+      substr: "MachineId"
 
   - id: product-uuid-path
     desc: DMI product_uuid path
@@ -56,7 +56,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "/sys/class/dmi/id/product_uuid"
+      substr: "/sys/class/dmi/id/product_uuid"
 
   - id: product-uuid-string
     desc: product_uuid string
@@ -65,7 +65,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "product_uuid"
+      substr: "product_uuid"
 
   # === DMI/SMBIOS micro-traits ===
   - id: dmi-class-path
@@ -75,7 +75,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "/sys/class/dmi/id/"
+      substr: "/sys/class/dmi/id/"
 
   - id: dmi-devices-path
     desc: /sys/devices/virtual/dmi/id/ path
@@ -84,7 +84,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "/sys/devices/virtual/dmi/id/"
+      substr: "/sys/devices/virtual/dmi/id/"
 
   - id: sys-vendor
     desc: sys_vendor DMI field
@@ -93,7 +93,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "sys_vendor"
+      substr: "sys_vendor"
 
   - id: product-name
     desc: product_name DMI field
@@ -102,7 +102,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "product_name"
+      substr: "product_name"
 
   - id: product-serial
     desc: product_serial DMI field
@@ -111,7 +111,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "product_serial"
+      substr: "product_serial"
 
   - id: board-serial
     desc: board_serial DMI field
@@ -120,7 +120,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "board_serial"
+      substr: "board_serial"
 
   - id: bios-vendor
     desc: bios_vendor DMI field
@@ -129,7 +129,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "bios_vendor"
+      substr: "bios_vendor"
 
   - id: bios-version
     desc: bios_version DMI field
@@ -138,7 +138,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "bios_version"
+      substr: "bios_version"
 
   - id: dmidecode-cmd
     desc: dmidecode command
@@ -147,7 +147,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "dmidecode"
+      substr: "dmidecode"
 
   # === CPU info micro-traits ===
   - id: proc-cpuinfo
@@ -157,7 +157,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "/proc/cpuinfo"
+      substr: "/proc/cpuinfo"
 
   - id: cpu-model-name
     desc: model name CPU field
@@ -166,7 +166,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "model name"
+      substr: "model name"
 
   - id: cpu-family
     desc: cpu family field
@@ -175,7 +175,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "cpu family"
+      substr: "cpu family"
 
   - id: cpu-cores
     desc: cpu cores field
@@ -184,7 +184,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "cpu cores"
+      substr: "cpu cores"
 
   - id: lscpu-cmd
     desc: lscpu command
@@ -193,7 +193,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "lscpu"
+      substr: "lscpu"
 
   # === Network interface micro-traits ===
   - id: sys-class-net
@@ -203,7 +203,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "/sys/class/net/"
+      substr: "/sys/class/net/"
 
   - id: hwaddr
     desc: HWaddr MAC prefix
@@ -212,7 +212,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "HWaddr"
+      substr: "HWaddr"
 
   - id: ether-prefix
     desc: '"ether " MAC prefix'
@@ -243,7 +243,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "SIOCGIFHWADDR"
+      substr: "SIOCGIFHWADDR"
 
   - id: ip-link-cmd
     desc: ip link command
@@ -252,7 +252,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "ip link"
+      substr: "ip link"
 
   - id: ifconfig-cmd
     desc: ifconfig command
@@ -261,7 +261,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "ifconfig"
+      substr: "ifconfig"
 
   # === Disk serial micro-traits ===
   - id: sys-block
@@ -271,7 +271,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "/sys/block/"
+      substr: "/sys/block/"
 
   - id: device-serial
     desc: /device/serial path
@@ -280,7 +280,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "/device/serial"
+      substr: "/device/serial"
 
   - id: hdio-get-identity
     desc: HDIO_GET_IDENTITY ioctl
@@ -289,7 +289,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "HDIO_GET_IDENTITY"
+      substr: "HDIO_GET_IDENTITY"
 
   - id: hdparm-cmd
     desc: hdparm -i command
@@ -298,7 +298,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "hdparm -i"
+      substr: "hdparm -i"
 
   - id: lsblk-cmd
     desc: lsblk command
@@ -307,7 +307,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "lsblk"
+      substr: "lsblk"
 
   - id: blkid-cmd
     desc: blkid command
@@ -316,7 +316,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "blkid"
+      substr: "blkid"
 
   - id: serial-short
     desc: serial_short udev field
@@ -325,7 +325,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "serial_short"
+      substr: "serial_short"
 
   - id: id-serial
     desc: ID_SERIAL udev field
@@ -334,7 +334,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "ID_SERIAL"
+      substr: "ID_SERIAL"
 
   # === OS info micro-traits ===
   - id: os-release
@@ -344,7 +344,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "/etc/os-release"
+      substr: "/etc/os-release"
 
   - id: lsb-release
     desc: /etc/lsb-release path
@@ -353,7 +353,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "/etc/lsb-release"
+      substr: "/etc/lsb-release"
 
   - id: redhat-release
     desc: /etc/redhat-release path
@@ -362,7 +362,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "/etc/redhat-release"
+      substr: "/etc/redhat-release"
 
   - id: debian-version
     desc: /etc/debian_version path
@@ -371,7 +371,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "/etc/debian_version"
+      substr: "/etc/debian_version"
 
   - id: centos-release
     desc: /etc/centos-release path
@@ -380,7 +380,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "/etc/centos-release"
+      substr: "/etc/centos-release"
 
   - id: proc-version
     desc: /proc/version path
@@ -389,7 +389,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "/proc/version"
+      substr: "/proc/version"
 
   - id: uname-a-cmd
     desc: uname -a command
@@ -398,7 +398,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "uname -a"
+      substr: "uname -a"
 
   - id: hostnamectl-cmd
     desc: hostnamectl command
@@ -407,7 +407,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "hostnamectl"
+      substr: "hostnamectl"
 
   # === Hostname micro-traits ===
   - id: gethostname-func
@@ -426,7 +426,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "/etc/hostname"
+      substr: "/etc/hostname"
 
   - id: hostname-env
     desc: HOSTNAME env variable
@@ -435,7 +435,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "HOSTNAME"
+      substr: "HOSTNAME"
 
   - id: getfqdn-func
     desc: getfqdn function
@@ -444,7 +444,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "getfqdn"
+      substr: "getfqdn"
 
   # === User info micro-traits ===
   - id: getlogin-func
@@ -490,7 +490,7 @@ traits:
     attack: "T1033"
     if:
       type: string
-      exact: "whoami"
+      substr: "whoami"
 
   - id: id-u-cmd
     desc: id -u command
@@ -499,7 +499,7 @@ traits:
     attack: "T1033"
     if:
       type: string
-      exact: "id -u"
+      substr: "id -u"
 
   - id: etc-passwd
     desc: /etc/passwd path
@@ -508,7 +508,7 @@ traits:
     attack: "T1033"
     if:
       type: string
-      exact: "/etc/passwd"
+      substr: "/etc/passwd"
 
   # === Hardware UUID micro-traits ===
   - id: generate-hwid
@@ -518,7 +518,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "GenerateHardwareId"
+      substr: "GenerateHardwareId"
 
   - id: get-hwid
     desc: GetHardwareId function
@@ -527,7 +527,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "GetHardwareId"
+      substr: "GetHardwareId"
 
   - id: hardware-id-string
     desc: hardware_id string
@@ -554,7 +554,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "fingerprint"
+      substr: "fingerprint"
 
 composite_rules:
   # Machine ID composite (migrated from YARA)

@@ -20,7 +20,7 @@ traits:
     for: [macho, shell]
     if:
       type: string
-      exact: "screencapture"
+      substr: "screencapture"
 
   - id: pil-imagegrab
     desc: Python PIL screenshot capture
@@ -30,7 +30,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "ImageGrab"
+      substr: "ImageGrab"
 
   - id: cg-window-capture
     desc: macOS CGWindow capture
@@ -40,7 +40,7 @@ traits:
     for: [macho]
     if:
       type: string
-      exact: "CGWindowListCreateImageFromArray"
+      substr: "CGWindowListCreateImageFromArray"
 
   - id: screensaver-engine
     desc: macOS ScreenSaver control
@@ -50,7 +50,7 @@ traits:
     for: [macho, shell]
     if:
       type: string
-      exact: "ScreenSaverEngine"
+      substr: "ScreenSaverEngine"
 
   - id: system-events
     desc: macOS System Events control
@@ -60,7 +60,7 @@ traits:
     for: [macho, shell]
     if:
       type: string
-      exact: 'tell application "System Events"'
+      substr: 'tell application "System Events"'
 
   - id: window-watcher
     desc: macOS window/application monitoring
@@ -70,7 +70,7 @@ traits:
     for: [macho]
     if:
       type: string
-      exact: "frontmostApplication"
+      substr: "frontmostApplication"
 
   - id: screen-locked
     desc: macOS screen lock detection
@@ -80,7 +80,7 @@ traits:
     for: [macho]
     if:
       type: string
-      exact: "CGSSessionScreenIsLocked"
+      substr: "CGSSessionScreenIsLocked"
 
   # NOTE: MIT-MAGIC-COOKIE-1 is the standard X11 authentication mechanism, not UI manipulation.
   # It's used by all X11 libraries (libX11, libICE, libSM, etc.) for normal authentication.
@@ -94,7 +94,7 @@ traits:
     for: [elf, shell]
     if:
       type: string
-      exact: "Xsession"
+      substr: "Xsession"
 
   - id: hid-idle-time
     desc: macOS HID idle time detection
@@ -104,7 +104,7 @@ traits:
     for: [macho]
     if:
       type: string
-      exact: "HIDIdleTime"
+      substr: "HIDIdleTime"
 
   - id: process-identifier
     desc: macOS process identifier access
@@ -114,7 +114,7 @@ traits:
     for: [macho]
     if:
       type: string
-      exact: "processIdentifier"
+      substr: "processIdentifier"
 
 composite_rules:
   - id: macos-spy-detected

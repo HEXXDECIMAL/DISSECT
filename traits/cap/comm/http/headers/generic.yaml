@@ -14,7 +14,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "Mozilla/4.0"
+      substr: "Mozilla/4.0"
 
   - id: ua-curl
     desc: curl User-Agent
@@ -38,7 +38,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "Python-urllib"
+      substr: "Python-urllib"
 
   # === Authorization header atomic indicators ===
   - id: auth-header
@@ -47,7 +47,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "Authorization:"
+      substr: "Authorization:"
 
   - id: bearer-token
     desc: Bearer token authentication
@@ -55,7 +55,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "Bearer "
+      substr: "Bearer "
 
   - id: basic-auth
     desc: Basic authentication
@@ -63,7 +63,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "Basic "
+      substr: "Basic "
 
   - id: headers-encoding
     desc: Accept-Encoding header
@@ -71,7 +71,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      exact: Accept-Encoding
+      substr: Accept-Encoding
 
   # === Custom HTTP headers (commonly used in malware) ===
   - id: header-user
@@ -128,7 +128,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "X-User"
+      substr: "X-User"
 
   - id: x-header-client
     desc: X-Client header
@@ -136,7 +136,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "X-Client"
+      substr: "X-Client"
 
   - id: x-header-bot
     desc: X-Bot header
@@ -144,7 +144,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "X-Bot"
+      substr: "X-Bot"
 
   - id: x-header-build
     desc: X-Build header
@@ -152,7 +152,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "X-Build"
+      substr: "X-Build"
 
   - id: x-header-hwid
     desc: X-HWID header
@@ -160,7 +160,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "X-HWID"
+      substr: "X-HWID"
 
   # === Multipart form data ===
   - id: multipart-form-data
@@ -169,7 +169,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "multipart/form-data"
+      substr: "multipart/form-data"
 
   - id: boundary-param
     desc: boundary= parameter
@@ -193,7 +193,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "Content-Disposition: form-data"
+      substr: "Content-Disposition: form-data"
 
 composite_rules:
   - id: headers-auth

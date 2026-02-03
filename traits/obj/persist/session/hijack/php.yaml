@@ -11,7 +11,7 @@ traits:
     r#for: [php]
     if:
       type: string
-      exact: session_start
+      substr: session_start
 
   - id: destroy
     desc: PHP session destruction
@@ -20,7 +20,7 @@ traits:
     r#for: [php]
     if:
       type: string
-      exact: session_destroy
+      substr: session_destroy
 
   - id: regenerate
     desc: PHP session ID regeneration
@@ -29,7 +29,7 @@ traits:
     r#for: [php]
     if:
       type: string
-      exact: session_regenerate_id
+      substr: session_regenerate_id
 
   - id: id-access
     desc: Direct session ID manipulation

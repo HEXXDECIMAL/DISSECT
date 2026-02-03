@@ -12,7 +12,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "systemctl status"
+      substr: "systemctl status"
 
   - id: systemctl-show
     desc: systemctl show command
@@ -21,7 +21,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "systemctl show"
+      substr: "systemctl show"
 
   - id: systemctl-list
     desc: systemctl list command
@@ -30,7 +30,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "systemctl list"
+      substr: "systemctl list"
 
   - id: systemctl-is-active
     desc: systemctl is-active command
@@ -39,7 +39,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "systemctl is-active"
+      substr: "systemctl is-active"
 
   - id: systemctl-is-enabled
     desc: systemctl is-enabled command
@@ -48,7 +48,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "systemctl is-enabled"
+      substr: "systemctl is-enabled"
 
   - id: journalctl-command
     desc: journalctl command
@@ -66,7 +66,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "systemd-journal"
+      substr: "systemd-journal"
 
   - id: systemd-dbus-interface
     desc: org.freedesktop.systemd1 D-Bus interface
@@ -74,7 +74,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "org.freedesktop.systemd1"
+      substr: "org.freedesktop.systemd1"
 
   - id: dbus-get-unit
     desc: GetUnit D-Bus method
@@ -92,7 +92,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "crontab -l"
+      substr: "crontab -l"
 
   - id: crontab-edit
     desc: crontab -e command
@@ -101,7 +101,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "crontab -e"
+      substr: "crontab -e"
 
   - id: cron-d-path
     desc: /etc/cron.d/ path
@@ -110,7 +110,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "/etc/cron.d/"
+      substr: "/etc/cron.d/"
 
   - id: crontab-file
     desc: /etc/crontab file
@@ -119,7 +119,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "/etc/crontab"
+      substr: "/etc/crontab"
 
   - id: cron-spool-path
     desc: /var/spool/cron path
@@ -128,7 +128,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "/var/spool/cron"
+      substr: "/var/spool/cron"
 
   - id: at-command-time
     desc: "at command with time specification"
@@ -183,7 +183,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "apt-get"
+      substr: "apt-get"
 
   - id: apt-install
     desc: apt install command
@@ -192,7 +192,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "apt install"
+      substr: "apt install"
 
   - id: dpkg-command
     desc: dpkg command
@@ -210,7 +210,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "/var/lib/dpkg"
+      substr: "/var/lib/dpkg"
 
   - id: yum-install
     desc: yum install command
@@ -219,7 +219,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "yum install"
+      substr: "yum install"
 
   - id: dnf-install
     desc: dnf install command
@@ -228,7 +228,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "dnf install"
+      substr: "dnf install"
 
   - id: rpm-command
     desc: "rpm - command"
@@ -237,7 +237,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "rpm -"
+      substr: "rpm -"
 
   - id: apk-add
     desc: apk add command (Alpine)
@@ -246,7 +246,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "apk add"
+      substr: "apk add"
 
   - id: pacman-install
     desc: pacman -S command (Arch)
@@ -255,7 +255,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "pacman -S"
+      substr: "pacman -S"
 
   - id: apt-cache-path
     desc: /var/cache/apt path
@@ -264,7 +264,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "/var/cache/apt"
+      substr: "/var/cache/apt"
 
   - id: rpm-lib-path
     desc: /var/lib/rpm path
@@ -273,7 +273,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "/var/lib/rpm"
+      substr: "/var/lib/rpm"
 
   # === log management patterns ===
   - id: var-log-path
@@ -283,7 +283,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "/var/log/"
+      substr: "/var/log/"
 
   - id: syslog-ref
     desc: syslog reference
@@ -319,7 +319,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "syslog-ng"
+      substr: "syslog-ng"
 
   - id: tail-follow
     desc: tail -f command
@@ -328,7 +328,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "tail -f"
+      substr: "tail -f"
 
   - id: less-command
     desc: "less command (with space)"
@@ -429,7 +429,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "ip addr"
+      substr: "ip addr"
 
   - id: ip-route-command
     desc: ip route command
@@ -438,7 +438,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "ip route"
+      substr: "ip route"
 
   - id: ip-link-command
     desc: ip link command
@@ -447,7 +447,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "ip link"
+      substr: "ip link"
 
   - id: ifconfig-command
     desc: ifconfig command
@@ -510,7 +510,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "systemd-resolved"
+      substr: "systemd-resolved"
 
   - id: iptables-command
     desc: iptables command
@@ -547,7 +547,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "mount "
+      substr: "mount "
 
   - id: umount-command
     desc: umount command
@@ -565,7 +565,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "/etc/fstab"
+      substr: "/etc/fstab"
 
   - id: lvcreate-command
     desc: lvcreate command
@@ -647,7 +647,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "tar -"
+      substr: "tar -"
 
   - id: rsync-command
     desc: rsync command
@@ -665,7 +665,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "cp -a"
+      substr: "cp -a"
 
   - id: dd-if-pattern
     desc: "dd if= pattern"
@@ -674,7 +674,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "dd if="
+      substr: "dd if="
 
   - id: dump-command
     desc: dump command
@@ -739,7 +739,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "ps aux"
+      substr: "ps aux"
 
   - id: ps-ef-command
     desc: ps -ef command
@@ -748,7 +748,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "ps -ef"
+      substr: "ps -ef"
 
   - id: top-command
     desc: "top - command"
@@ -757,7 +757,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "top -"
+      substr: "top -"
 
   - id: htop-command
     desc: htop command
@@ -775,7 +775,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "kill -9"
+      substr: "kill -9"
 
   - id: killall-command
     desc: killall command
@@ -811,7 +811,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "/proc/loadavg"
+      substr: "/proc/loadavg"
 
   - id: proc-meminfo
     desc: /proc/meminfo file
@@ -820,7 +820,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "/proc/meminfo"
+      substr: "/proc/meminfo"
 
   # === SSH administration patterns ===
   - id: sshd-config-file
@@ -830,7 +830,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "sshd_config"
+      substr: "sshd_config"
 
   - id: etc-ssh-path
     desc: /etc/ssh/ path
@@ -839,7 +839,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "/etc/ssh/"
+      substr: "/etc/ssh/"
 
   - id: ssh-keygen-command
     desc: ssh-keygen command
@@ -848,7 +848,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "ssh-keygen"
+      substr: "ssh-keygen"
 
   - id: ssh-copy-id-command
     desc: ssh-copy-id command
@@ -857,7 +857,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "ssh-copy-id"
+      substr: "ssh-copy-id"
 
   - id: authorized-keys-file
     desc: authorized_keys file
@@ -866,7 +866,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "authorized_keys"
+      substr: "authorized_keys"
 
   - id: ssh-command
     desc: "ssh - command"
@@ -875,7 +875,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "ssh -"
+      substr: "ssh -"
 
   - id: scp-command
     desc: "scp command (with space)"
@@ -903,7 +903,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "docker "
+      substr: "docker "
 
   - id: docker-compose-command
     desc: docker-compose command
@@ -912,7 +912,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "docker-compose"
+      substr: "docker-compose"
 
   - id: docker-sock-path
     desc: /var/run/docker.sock path
@@ -921,7 +921,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "/var/run/docker.sock"
+      substr: "/var/run/docker.sock"
 
   - id: podman-command
     desc: "podman command (with space)"
@@ -930,7 +930,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "podman "
+      substr: "podman "
 
   - id: buildah-command
     desc: buildah command
@@ -994,7 +994,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "node_exporter"
+      substr: "node_exporter"
 
   - id: alertmanager-ref
     desc: alertmanager reference

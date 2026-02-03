@@ -141,7 +141,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "/bin/sh"
+      substr: "/bin/sh"
     platforms: [unix, linux, macos]
     for: [pe, elf, macho, dll, so, dylib]
 
@@ -153,7 +153,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "/bin/bash"
+      substr: "/bin/bash"
     platforms: [unix, linux, macos]
     for: [pe, elf, macho, dll, so, dylib]
 

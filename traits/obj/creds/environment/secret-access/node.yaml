@@ -21,7 +21,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: ".ssh/id_rsa"
+      substr: ".ssh/id_rsa"
 
   - id: aws-credentials-file
     desc: AWS credentials file path
@@ -29,7 +29,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: ".aws/credentials"
+      substr: ".aws/credentials"
 
   - id: kube-config-file
     desc: Kubernetes config path
@@ -37,7 +37,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: ".kube/config"
+      substr: ".kube/config"
 
   # === AWS env atomic indicators ===
   - id: env-aws-access-key
@@ -46,7 +46,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "process.env.AWS_ACCESS_KEY"
+      substr: "process.env.AWS_ACCESS_KEY"
 
   - id: env-aws-secret
     desc: AWS_SECRET env access
@@ -54,7 +54,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "process.env.AWS_SECRET"
+      substr: "process.env.AWS_SECRET"
 
   - id: env-aws-session-token
     desc: AWS_SESSION_TOKEN env access
@@ -62,7 +62,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "process.env.AWS_SESSION_TOKEN"
+      substr: "process.env.AWS_SESSION_TOKEN"
 
   # === Git token atomic indicators ===
   - id: env-github-token
@@ -71,7 +71,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "process.env.GITHUB_TOKEN"
+      substr: "process.env.GITHUB_TOKEN"
 
   - id: env-gitlab-token
     desc: GITLAB_TOKEN env access
@@ -79,7 +79,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "process.env.GITLAB_TOKEN"
+      substr: "process.env.GITLAB_TOKEN"
 
   - id: env-gh-token
     desc: GH_TOKEN env access
@@ -87,7 +87,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "process.env.GH_TOKEN"
+      substr: "process.env.GH_TOKEN"
 
   - id: env-bitbucket-token
     desc: BITBUCKET_TOKEN env access
@@ -95,7 +95,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "process.env.BITBUCKET_TOKEN"
+      substr: "process.env.BITBUCKET_TOKEN"
 
   # === NPM token atomic indicators ===
   - id: env-npm-token
@@ -104,7 +104,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "process.env.NPM_TOKEN"
+      substr: "process.env.NPM_TOKEN"
 
   - id: env-npm-auth-token
     desc: NPM_AUTH_TOKEN env access
@@ -112,7 +112,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "process.env.NPM_AUTH_TOKEN"
+      substr: "process.env.NPM_AUTH_TOKEN"
 
   - id: env-node-auth-token
     desc: NODE_AUTH_TOKEN env access
@@ -120,7 +120,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "process.env.NODE_AUTH_TOKEN"
+      substr: "process.env.NODE_AUTH_TOKEN"
 
   # === Discord token atomic indicators ===
   - id: env-discord-token
@@ -129,7 +129,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "process.env.DISCORD_TOKEN"
+      substr: "process.env.DISCORD_TOKEN"
 
   - id: env-discord-bot-token
     desc: DISCORD_BOT_TOKEN env access
@@ -137,7 +137,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "process.env.DISCORD_BOT_TOKEN"
+      substr: "process.env.DISCORD_BOT_TOKEN"
 
   - id: env-discord-client-secret
     desc: DISCORD_CLIENT_SECRET env access
@@ -145,7 +145,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "process.env.DISCORD_CLIENT_SECRET"
+      substr: "process.env.DISCORD_CLIENT_SECRET"
 
   # === Slack token atomic indicators ===
   - id: env-slack-token
@@ -154,7 +154,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "process.env.SLACK_TOKEN"
+      substr: "process.env.SLACK_TOKEN"
 
   - id: env-slack-bot-token
     desc: SLACK_BOT_TOKEN env access
@@ -162,7 +162,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "process.env.SLACK_BOT_TOKEN"
+      substr: "process.env.SLACK_BOT_TOKEN"
 
   - id: env-slack-webhook
     desc: SLACK_WEBHOOK env access
@@ -170,7 +170,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "process.env.SLACK_WEBHOOK"
+      substr: "process.env.SLACK_WEBHOOK"
 
   # === Database atomic indicators ===
   - id: env-database-url
@@ -179,7 +179,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "process.env.DATABASE_URL"
+      substr: "process.env.DATABASE_URL"
 
   - id: env-mongodb-uri
     desc: MONGODB_URI env access
@@ -187,7 +187,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "process.env.MONGODB_URI"
+      substr: "process.env.MONGODB_URI"
 
   - id: env-postgres-prefix
     desc: POSTGRES_ env prefix access
@@ -211,7 +211,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "process.env.REDIS_URL"
+      substr: "process.env.REDIS_URL"
 
   # === Crypto/wallet atomic indicators ===
   - id: env-wallet-prefix
@@ -228,7 +228,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "process.env.MNEMONIC"
+      substr: "process.env.MNEMONIC"
 
   - id: env-seed-phrase
     desc: SEED_PHRASE env access
@@ -236,7 +236,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "process.env.SEED_PHRASE"
+      substr: "process.env.SEED_PHRASE"
 
   - id: env-private-key
     desc: PRIVATE_KEY env access
@@ -244,7 +244,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "process.env.PRIVATE_KEY"
+      substr: "process.env.PRIVATE_KEY"
 
   - id: env-eth-private
     desc: ETH_PRIVATE env access
@@ -261,7 +261,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "process.env.CI_TOKEN"
+      substr: "process.env.CI_TOKEN"
 
   - id: env-circle-token
     desc: CIRCLE_TOKEN env access
@@ -269,7 +269,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "process.env.CIRCLE_TOKEN"
+      substr: "process.env.CIRCLE_TOKEN"
 
   - id: env-travis-token
     desc: TRAVIS_TOKEN env access
@@ -277,7 +277,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "process.env.TRAVIS_TOKEN"
+      substr: "process.env.TRAVIS_TOKEN"
 
   - id: env-jenkins-prefix
     desc: JENKINS_ env prefix access

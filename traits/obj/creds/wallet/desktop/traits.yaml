@@ -33,7 +33,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "default_wallet"
+      substr: "default_wallet"
 
   # === Coinomi atomic indicators ===
   - id: coinomi-wallets-dir
@@ -58,7 +58,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "com.coinomi"
+      substr: "com.coinomi"
 
   # === Exodus atomic indicators ===
   - id: exodus-wallet-dir
@@ -67,7 +67,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "Exodus/exodus.wallet"
+      substr: "Exodus/exodus.wallet"
 
   - id: exodus-passphrase
     desc: exodus passphrase
@@ -83,7 +83,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "com.exodus"
+      substr: "com.exodus"
 
   # === Atomic Wallet atomic indicators ===
   - id: atomic-local-storage
@@ -92,7 +92,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "atomic/Local Storage"
+      substr: "atomic/Local Storage"
 
   - id: atomic-wallet-name
     desc: Atomic Wallet name
@@ -100,7 +100,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "Atomic Wallet"
+      substr: "Atomic Wallet"
 
   - id: atomic-bundle
     desc: com.atomicwallet bundle
@@ -108,7 +108,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "com.atomicwallet"
+      substr: "com.atomicwallet"
 
   # === Wasabi atomic indicators ===
   - id: walletwasabi-lower
@@ -117,7 +117,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: ".walletwasabi"
+      substr: ".walletwasabi"
 
   - id: walletwasabi-upper
     desc: .WalletWasabi directory
@@ -125,7 +125,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: ".WalletWasabi"
+      substr: ".WalletWasabi"
 
   - id: wasabiwallet-name
     desc: WasabiWallet name
@@ -133,7 +133,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "WasabiWallet"
+      substr: "WasabiWallet"
 
   # === Binance atomic indicators ===
   - id: binance-app-store
@@ -142,7 +142,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "Binance/app-store.json"
+      substr: "Binance/app-store.json"
 
   - id: binance-aspect
     desc: "@aspect-binance package"
@@ -150,7 +150,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "@aspect-binance"
+      substr: "@aspect-binance"
 
   - id: binance-bundle
     desc: com.binance bundle
@@ -158,7 +158,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "com.binance"
+      substr: "com.binance"
 
   # === TonKeeper atomic indicators ===
   - id: tonkeeper-desktop
@@ -167,7 +167,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "@tonkeeper/desktop"
+      substr: "@tonkeeper/desktop"
 
   - id: tonkeeper-config
     desc: tonkeeper config.json
@@ -183,7 +183,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "com.ton-keeper"
+      substr: "com.ton-keeper"
 
   # === Ledger atomic indicators ===
   - id: ledger-live-dir
@@ -192,7 +192,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "Ledger Live/"
+      substr: "Ledger Live/"
 
   - id: ledgerhq-package
     desc: "@ledgerhq package"
@@ -200,7 +200,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "@ledgerhq"
+      substr: "@ledgerhq"
 
   - id: ledger-accounts
     desc: ledger accounts
@@ -217,7 +217,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "@trezor/suite-desktop"
+      substr: "@trezor/suite-desktop"
 
   - id: trezor-suite
     desc: trezor suite
@@ -234,7 +234,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "Guarda/Local Storage"
+      substr: "Guarda/Local Storage"
 
   - id: guarda-bundle
     desc: com.guarda bundle
@@ -242,7 +242,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "com.guarda"
+      substr: "com.guarda"
 
   # === Bitcoin Core atomic indicators ===
   - id: bitcoin-wallet-dat
@@ -251,7 +251,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: ".bitcoin/wallet.dat"
+      substr: ".bitcoin/wallet.dat"
 
   - id: bitcoin-wallets-dir
     desc: .bitcoin/wallets directory
@@ -259,7 +259,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: ".bitcoin/wallets"
+      substr: ".bitcoin/wallets"
 
   - id: bitcoin-app-wallets
     desc: Bitcoin/wallets directory
@@ -267,7 +267,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "Bitcoin/wallets"
+      substr: "Bitcoin/wallets"
 
   # === Ethereum/Mist atomic indicators ===
   - id: ethereum-keystore
@@ -276,7 +276,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "Ethereum/keystore"
+      substr: "Ethereum/keystore"
 
   - id: mist-keystore
     desc: Mist/keystore
@@ -284,7 +284,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "Mist/keystore"
+      substr: "Mist/keystore"
 
   - id: doteth-keystore
     desc: .ethereum/keystore
@@ -292,7 +292,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: ".ethereum/keystore"
+      substr: ".ethereum/keystore"
 
   # === Monero atomic indicators ===
   - id: monero-wallets
@@ -301,7 +301,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "Monero/wallets"
+      substr: "Monero/wallets"
 
   - id: bitmonero-wallets
     desc: .bitmonero/wallets
@@ -309,7 +309,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: ".bitmonero/wallets"
+      substr: ".bitmonero/wallets"
 
   # === Litecoin atomic indicators ===
   - id: litecoin-wallet-dat
@@ -318,7 +318,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: ".litecoin/wallet.dat"
+      substr: ".litecoin/wallet.dat"
 
   - id: litecoin-wallets
     desc: Litecoin/wallets
@@ -326,7 +326,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "Litecoin/wallets"
+      substr: "Litecoin/wallets"
 
   # === Dash atomic indicators ===
   - id: dashcore-wallets
@@ -335,7 +335,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "DashCore/wallets"
+      substr: "DashCore/wallets"
 
   - id: dash-wallet-dat
     desc: .dashcore/wallet.dat
@@ -343,7 +343,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: ".dashcore/wallet.dat"
+      substr: ".dashcore/wallet.dat"
 
   # Electrum-LTC
   - id: electrum-ltc
@@ -352,7 +352,7 @@ traits:
     crit: suspicious
     if:
       type: string
-      exact: ".electrum-ltc/wallets"
+      substr: ".electrum-ltc/wallets"
 
   # Electron Cash (BCH)
   - id: electron-cash
@@ -361,7 +361,7 @@ traits:
     crit: suspicious
     if:
       type: string
-      exact: ".electron-cash/wallets"
+      substr: ".electron-cash/wallets"
 
   # === Dogecoin atomic indicators ===
   - id: dogecoin-wallets
@@ -370,7 +370,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "Dogecoin/wallets"
+      substr: "Dogecoin/wallets"
 
   - id: dogecoin-wallet-dat
     desc: .dogecoin/wallet.dat
@@ -378,7 +378,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: ".dogecoin/wallet.dat"
+      substr: ".dogecoin/wallet.dat"
 
 composite_rules:
   # === Wallet composites ===

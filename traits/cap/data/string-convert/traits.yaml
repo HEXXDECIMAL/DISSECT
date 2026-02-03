@@ -1,0 +1,114 @@
+# String Conversion Operations
+# Character set and string conversion APIs
+
+defaults:
+  for: ["pe", "dll"]
+  platforms: ["windows"]
+
+traits:
+  # === ANSI/Unicode Conversion ===
+  - id: multi-byte-to-wide-char
+    desc: Convert ANSI to Unicode
+    crit: inert
+    conf: 0.70
+    if:
+      type: symbol
+      exact: "MultiByteToWideChar"
+
+  - id: wide-char-to-multi-byte
+    desc: Convert Unicode to ANSI
+    crit: inert
+    conf: 0.70
+    if:
+      type: symbol
+      exact: "WideCharToMultiByte"
+
+  # === String Operations ===
+  - id: lstrlen-ansi
+    desc: Get ANSI string length
+    crit: inert
+    conf: 0.70
+    if:
+      type: symbol
+      exact: "lstrlenA"
+
+  - id: lstrlen-unicode
+    desc: Get Unicode string length
+    crit: inert
+    conf: 0.70
+    if:
+      type: symbol
+      exact: "lstrlenW"
+
+  - id: lstrcpy-ansi
+    desc: Copy ANSI string
+    crit: inert
+    conf: 0.70
+    if:
+      type: symbol
+      exact: "lstrcpyA"
+
+  - id: lstrcpyn-unicode
+    desc: Copy Unicode string (length-limited)
+    crit: inert
+    conf: 0.70
+    if:
+      type: symbol
+      exact: "lstrcpynW"
+
+  - id: lstrcat-unicode
+    desc: Concatenate Unicode strings
+    crit: inert
+    conf: 0.70
+    if:
+      type: symbol
+      exact: "lstrcatW"
+
+  - id: lstrcmp-ansi
+    desc: Compare ANSI strings
+    crit: inert
+    conf: 0.70
+    if:
+      type: symbol
+      exact: "lstrcmpA"
+
+  - id: lstrcmp-unicode
+    desc: Compare Unicode strings
+    crit: inert
+    conf: 0.70
+    if:
+      type: symbol
+      exact: "lstrcmpW"
+
+  - id: lstrcmpi-ansi
+    desc: Case-insensitive ANSI comparison
+    crit: inert
+    conf: 0.70
+    if:
+      type: symbol
+      exact: "lstrcmpiA"
+
+  - id: lstrcmpi-unicode
+    desc: Case-insensitive Unicode comparison
+    crit: inert
+    conf: 0.70
+    if:
+      type: symbol
+      exact: "lstrcmpiW"
+
+  # === String Formatting ===
+  - id: wsprintf-ansi
+    desc: Format ANSI string
+    crit: inert
+    conf: 0.70
+    if:
+      type: symbol
+      exact: "wsprintfA"
+
+  - id: wsprintf-unicode
+    desc: Format Unicode string
+    crit: inert
+    conf: 0.70
+    if:
+      type: symbol
+      exact: "wsprintfW"

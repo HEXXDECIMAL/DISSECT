@@ -59,7 +59,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "/AdCore.framework/"
+      substr: "/AdCore.framework/"
 
   - id: adid-framework
     desc: AdID.framework usage
@@ -67,7 +67,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "/AdID.framework/"
+      substr: "/AdID.framework/"
 
   - id: limitadtracking-framework
     desc: LimitAdTracking.framework usage
@@ -75,7 +75,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "/LimitAdTracking.framework/"
+      substr: "/LimitAdTracking.framework/"
 
   # === Privacy framework atomic indicators ===
   - id: apptrackingtransparency-framework
@@ -84,7 +84,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "/AppTrackingTransparency.framework/"
+      substr: "/AppTrackingTransparency.framework/"
 
   - id: privacycontentprediction-framework
     desc: PrivacyContentPrediction.framework usage
@@ -92,14 +92,14 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "/PrivacyContentPrediction.framework/"
+      substr: "/PrivacyContentPrediction.framework/"
 
   - id: private-framework
     desc: Apple private framework usage
     conf: 0.85
     if:
       type: string
-      exact: "/System/Library/PrivateFrameworks"
+      substr: "/System/Library/PrivateFrameworks"
 
   - id: system-framework
     desc: Apple system framework path
@@ -107,7 +107,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "/System/Library/Frameworks"
+      substr: "/System/Library/Frameworks"
 
   - id: launchd-plist
     desc: launchd plist embedding
@@ -115,7 +115,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "launchd.plist"
+      substr: "launchd.plist"
 
   # === IPC Mechanisms ===
 

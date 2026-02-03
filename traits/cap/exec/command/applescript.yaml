@@ -20,7 +20,7 @@ traits:
     attack: "T1059.004"
     if:
       type: string
-      exact: "sysoexec"
+      substr: "sysoexec"
 
   - id: sysoload-string
     desc: "sysoload Apple Event in string"
@@ -28,7 +28,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "sysoload"
+      substr: "sysoload"
 
   - id: sysodela-string
     desc: "sysodela Apple Event in string"
@@ -36,7 +36,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "sysodela"
+      substr: "sysodela"
 
   # ============================================
   # Application References (in source)
@@ -47,7 +47,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "System Settings"
+      substr: "System Settings"
 
   - id: ref-system-prefs
     desc: "References System Preferences"
@@ -55,7 +55,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "System Preferences"
+      substr: "System Preferences"
 
   - id: ref-keychain
     desc: "References Keychain Access"
@@ -64,7 +64,7 @@ traits:
     attack: "T1555.001"
     if:
       type: string
-      exact: "Keychain Access"
+      substr: "Keychain Access"
 
   - id: ref-terminal
     desc: "References Terminal"

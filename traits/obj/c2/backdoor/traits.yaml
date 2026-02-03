@@ -119,7 +119,7 @@ traits:
     for: [elf, macho]
     if:
       type: string
-      exact: "os/exec.(*Cmd).childStdin"
+      substr: "os/exec.(*Cmd).childStdin"
 
 composite_rules:
   # Perl socket-open reverse shell (migrated from YARA)

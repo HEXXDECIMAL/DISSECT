@@ -29,7 +29,7 @@ traits:
     attack: T1543.002
     if:
       type: string
-      exact: "/etc/systemd"
+      substr: "/etc/systemd"
 
   - id: lib-systemd-path
     desc: /lib/systemd directory path (default services)
@@ -39,7 +39,7 @@ traits:
     attack: T1543.002
     if:
       type: string
-      exact: "/lib/systemd"
+      substr: "/lib/systemd"
 
   - id: service-extension
     desc: .service file extension (systemd unit
@@ -48,7 +48,7 @@ traits:
     attack: T1543.002
     if:
       type: string
-      exact: ".service"
+      substr: ".service"
 
   - id: systemctl-enable
     desc: systemctl enable command (persistent service)
@@ -58,7 +58,7 @@ traits:
     attack: T1543.002
     if:
       type: string
-      exact: "systemctl enable"
+      substr: "systemctl enable"
 
 composite_rules:
   - id: systemd

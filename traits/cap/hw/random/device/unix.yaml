@@ -8,4 +8,4 @@ traits:
     platforms: [linux, macos, unix]
     if:
       type: string
-      exact: "/dev/urandom"
+      substr: "/dev/urandom"

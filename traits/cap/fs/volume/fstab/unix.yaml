@@ -13,7 +13,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "/etc/fstab"
+      substr: "/etc/fstab"
 
   - id: etc-mtab
     desc: /etc/mtab mount table file
@@ -21,7 +21,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "/etc/mtab"
+      substr: "/etc/mtab"
 
   - id: fstab-mntent
     desc: Parse mount table entries via

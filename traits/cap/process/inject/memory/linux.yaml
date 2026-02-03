@@ -16,7 +16,7 @@ traits:
     attack: "T1055"
     if:
       type: string
-      exact: "PTRACE_ATTACH"
+      substr: "PTRACE_ATTACH"
 
   - id: ptrace-poketext
     desc: PTRACE_POKETEXT for code injection
@@ -26,7 +26,7 @@ traits:
     attack: "T1055"
     if:
       type: string
-      exact: "PTRACE_POKETEXT"
+      substr: "PTRACE_POKETEXT"
 
   # === Process VM operations ===
   - id: process-vm-writev

@@ -14,7 +14,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: DNSCAT_SECRET
+      substr: DNSCAT_SECRET
 
   - id: dnscat-name
     desc: dnscat2 tool name reference
@@ -22,7 +22,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: dnscat
+      substr: dnscat
       case_insensitive: true
 
   - id: dnscat-session
@@ -31,7 +31,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: SESSION_STATE_ESTABLISHED
+      substr: SESSION_STATE_ESTABLISHED
 
   - id: dnscat-packet
     desc: dnscat2 packet debug message
@@ -39,7 +39,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "MSG packet"
+      substr: "MSG packet"
 
   # === iodine atomic indicators ===
   - id: iodine-name
@@ -48,7 +48,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: iodine
+      substr: iodine
 
   - id: tun-device
     desc: TUN device access for tunneling
@@ -56,7 +56,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: /dev/net/tun
+      substr: /dev/net/tun
 
   - id: dns-tunnel-phrase
     desc: DNS tunnel terminology
@@ -64,7 +64,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "dns tunnel"
+      substr: "dns tunnel"
       case_insensitive: true
 
   # === Generic DNS tunnel indicators ===
@@ -74,7 +74,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "dns exfil"
+      substr: "dns exfil"
       case_insensitive: true
 
   - id: dns-c2
@@ -83,7 +83,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "dns c2"
+      substr: "dns c2"
       case_insensitive: true
 
   - id: subdomain-encode
@@ -100,7 +100,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "TXT record"
+      substr: "TXT record"
 
   - id: dns-beacon
     desc: DNS beacon terminology
@@ -108,7 +108,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "dns beacon"
+      substr: "dns beacon"
       case_insensitive: true
 
   # === DoH C2 indicators ===
@@ -118,7 +118,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: cloudflare-dns.com/dns-query
+      substr: cloudflare-dns.com/dns-query
 
   - id: doh-google
     desc: Google DoH endpoint
@@ -126,7 +126,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: dns.google/dns-query
+      substr: dns.google/dns-query
 
   - id: doh-quad9
     desc: Quad9 DoH endpoint
@@ -134,7 +134,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: dns.quad9.net/dns-query
+      substr: dns.quad9.net/dns-query
 
   - id: doh-content-type
     desc: DoH content type header
@@ -142,7 +142,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: application/dns-message
+      substr: application/dns-message
 
   - id: doh-json-content
     desc: DoH JSON content type
@@ -150,7 +150,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: application/dns-json
+      substr: application/dns-json
 
 composite_rules:
   # dnscat2 protocol

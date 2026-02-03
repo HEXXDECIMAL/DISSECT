@@ -9,7 +9,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: ">/dev/null"
+      substr: ">/dev/null"
 
   - id: stderr-redirect
     desc: Stderr redirect 2>&1
@@ -26,7 +26,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "| bash"
+      substr: "| bash"
 
   - id: pipe-sh
     desc: Pipe to sh
@@ -42,7 +42,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "| /bin/sh"
+      substr: "| /bin/sh"
 
 composite_rules:
   # Helper: Output suppression

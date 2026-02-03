@@ -23,7 +23,7 @@ traits:
     for: [javascript, typescript, python]
     if:
       type: string
-      exact: "generateKeyPair"
+      substr: "generateKeyPair"
 
   - id: public-encrypt
     desc: publicEncrypt function
@@ -32,7 +32,7 @@ traits:
     for: [javascript, typescript, python]
     if:
       type: string
-      exact: "publicEncrypt"
+      substr: "publicEncrypt"
 
   - id: private-decrypt
     desc: privateDecrypt function
@@ -41,7 +41,7 @@ traits:
     for: [javascript, typescript, python]
     if:
       type: string
-      exact: "privateDecrypt"
+      substr: "privateDecrypt"
 
   - id: begin-rsa-key
     desc: BEGIN RSA key header
@@ -50,7 +50,7 @@ traits:
     for: [javascript, typescript, python]
     if:
       type: string
-      exact: "-----BEGIN RSA"
+      substr: "-----BEGIN RSA"
 
   - id: begin-public-key
     desc: BEGIN PUBLIC KEY header
@@ -59,7 +59,7 @@ traits:
     for: [javascript, typescript, python]
     if:
       type: string
-      exact: "-----BEGIN PUBLIC KEY"
+      substr: "-----BEGIN PUBLIC KEY"
 
   - id: crypto-module
     desc: crypto module
@@ -68,7 +68,7 @@ traits:
     for: [javascript, typescript, python]
     if:
       type: string
-      exact: "crypto"
+      substr: "crypto"
 
   # === File iteration (atomic) ===
   - id: readdir-sync
@@ -78,7 +78,7 @@ traits:
     for: [javascript, typescript, python]
     if:
       type: string
-      exact: "readdirSync"
+      substr: "readdirSync"
 
   - id: walk-sync
     desc: walkSync function
@@ -87,7 +87,7 @@ traits:
     for: [javascript, typescript, python]
     if:
       type: string
-      exact: "walkSync"
+      substr: "walkSync"
 
   - id: glob-module
     desc: glob module
@@ -105,7 +105,7 @@ traits:
     for: [javascript, typescript, python]
     if:
       type: string
-      exact: "readdir"
+      substr: "readdir"
 
   - id: os-walk
     desc: os.walk function
@@ -114,7 +114,7 @@ traits:
     for: [javascript, typescript, python]
     if:
       type: string
-      exact: "os.walk"
+      substr: "os.walk"
 
   # === Encryption (atomic) ===
   - id: encrypt-fn
@@ -124,7 +124,7 @@ traits:
     for: [javascript, typescript, python]
     if:
       type: string
-      exact: "encrypt"
+      substr: "encrypt"
 
   - id: cipher-keyword
     desc: cipher keyword
@@ -133,7 +133,7 @@ traits:
     for: [javascript, typescript, python]
     if:
       type: string
-      exact: "cipher"
+      substr: "cipher"
 
   - id: create-cipheriv
     desc: createCipheriv function
@@ -142,7 +142,7 @@ traits:
     for: [javascript, typescript, python]
     if:
       type: string
-      exact: "createCipheriv"
+      substr: "createCipheriv"
 
   - id: aes-keyword
     desc: AES keyword
@@ -161,7 +161,7 @@ traits:
     for: [javascript, typescript, python]
     if:
       type: string
-      exact: "writeFileSync"
+      substr: "writeFileSync"
 
   - id: writefile-fn
     desc: writeFile function
@@ -170,7 +170,7 @@ traits:
     for: [javascript, typescript, python]
     if:
       type: string
-      exact: "writeFile"
+      substr: "writeFile"
 
   - id: open-paren
     desc: open( function
@@ -179,7 +179,7 @@ traits:
     for: [javascript, typescript, python]
     if:
       type: string
-      exact: "open("
+      substr: "open("
 
   # === Ransom note (atomic) ===
   - id: files-encrypted-msg
@@ -189,7 +189,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      exact: "your files have been encrypted"
+      substr: "your files have been encrypted"
       case_insensitive: true
 
   - id: pay-bitcoin-msg
@@ -199,7 +199,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      exact: "pay bitcoin"
+      substr: "pay bitcoin"
       case_insensitive: true
 
   - id: pay-btc-msg
@@ -209,7 +209,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      exact: "pay btc"
+      substr: "pay btc"
       case_insensitive: true
 
   - id: decrypt-files-msg
@@ -219,7 +219,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      exact: "decrypt your files"
+      substr: "decrypt your files"
       case_insensitive: true
 
   - id: bitcoin-wallet-msg
@@ -229,7 +229,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      exact: "bitcoin wallet"
+      substr: "bitcoin wallet"
       case_insensitive: true
 
   - id: restore-files-msg
@@ -239,7 +239,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      exact: "restore your files"
+      substr: "restore your files"
       case_insensitive: true
 
   - id: send-payment-msg
@@ -249,7 +249,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      exact: "send payment"
+      substr: "send payment"
       case_insensitive: true
 
   - id: ransom-identifier
@@ -268,7 +268,7 @@ traits:
     for: [javascript, typescript, python]
     if:
       type: string
-      exact: "renameSync"
+      substr: "renameSync"
 
   - id: rename-fn
     desc: rename( function
@@ -277,7 +277,7 @@ traits:
     for: [javascript, typescript, python]
     if:
       type: string
-      exact: "rename("
+      substr: "rename("
 
   - id: os-rename
     desc: os.rename function
@@ -286,7 +286,7 @@ traits:
     for: [javascript, typescript, python]
     if:
       type: string
-      exact: "os.rename"
+      substr: "os.rename"
 
   # === Encrypted extensions (atomic) ===
   - id: ext-encrypted
@@ -296,7 +296,7 @@ traits:
     for: [javascript, typescript, python]
     if:
       type: string
-      exact: ".encrypted"
+      substr: ".encrypted"
 
   - id: ext-locked
     desc: .locked extension
@@ -305,7 +305,7 @@ traits:
     for: [javascript, typescript, python]
     if:
       type: string
-      exact: ".locked"
+      substr: ".locked"
 
   - id: ext-enc
     desc: .enc extension
@@ -323,7 +323,7 @@ traits:
     for: [javascript, typescript, python]
     if:
       type: string
-      exact: ".crypt"
+      substr: ".crypt"
 
   # === Medusa ransomware (atomic) ===
   - id: medusa-name
@@ -333,7 +333,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: medusa
+      substr: medusa
       case_insensitive: true
 
   - id: polymorphic-keyword
@@ -343,7 +343,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: polymorphic
+      substr: polymorphic
       case_insensitive: true
 
   - id: mutate-keyword
@@ -353,7 +353,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: mutate
+      substr: mutate
 
   # === Shadow copy deletion (atomic) ===
   - id: vssadmin-delete

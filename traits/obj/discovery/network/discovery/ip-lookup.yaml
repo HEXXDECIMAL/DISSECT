@@ -10,7 +10,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "ipify.org"
+      substr: "ipify.org"
 
   - id: ipinfo
     desc: ipinfo.io IP lookup service
@@ -20,7 +20,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "ipinfo.io"
+      substr: "ipinfo.io"
 
   - id: ifconfig-me
     desc: ifconfig.me IP lookup service
@@ -30,7 +30,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "ifconfig.me"
+      substr: "ifconfig.me"
 
   - id: icanhazip
     desc: icanhazip.com IP lookup service
@@ -40,7 +40,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "icanhazip"
+      substr: "icanhazip"
 
   - id: wtfismyip
     desc: wtfismyip.com IP lookup service
@@ -50,7 +50,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "wtfismyip"
+      substr: "wtfismyip"
 
   - id: iplogger
     desc: iplogger.org IP logging service
@@ -60,7 +60,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "iplogger.org"
+      substr: "iplogger.org"
 
   - id: ifconfig-io
     desc: ifconfig.io IP lookup service
@@ -70,7 +70,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "ifconfig.io"
+      substr: "ifconfig.io"
 
   - id: ifconfig-co
     desc: ifconfig.co IP lookup service
@@ -80,7 +80,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "ifconfig.co"
+      substr: "ifconfig.co"
 
   - id: ident-me
     desc: ident.me IP lookup service
@@ -90,7 +90,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "ident.me"
+      substr: "ident.me"
 
   - id: checkip-amazonaws
     desc: AWS checkip service
@@ -100,7 +100,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "checkip.amazonaws.com"
+      substr: "checkip.amazonaws.com"
 
   # Base64 encoded variants (common evasion)
   - id: ipify-b64
@@ -111,7 +111,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "aXBpZnkub3Jn"
+      substr: "aXBpZnkub3Jn"
 
   - id: ipinfo-b64
     desc: ipinfo.io (base64 encoded)
@@ -121,7 +121,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "aXBpbmZvLmlv"
+      substr: "aXBpbmZvLmlv"
 
   - id: wtfismyip-b64
     desc: wtfismyip (base64 encoded)
@@ -131,7 +131,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "d3RmaXNteWlw"
+      substr: "d3RmaXNteWlw"
 
   - id: iplogger-b64
     desc: iplogger.org (base64 encoded)
@@ -141,7 +141,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "aXBsb2dnZXIub3Jn"
+      substr: "aXBsb2dnZXIub3Jn"
 
   - id: icanhazip-b64
     desc: icanhazip.com (base64 encoded)
@@ -151,7 +151,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "aWNhbmhhemlw"
+      substr: "aWNhbmhhemlw"
 
   - id: checkip-amazonaws-b64
     desc: checkip.amazonaws.com (base64 encoded)
@@ -161,7 +161,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "Y2hlY2tpcC5hbWF6b25hd3MuY29t"
+      substr: "Y2hlY2tpcC5hbWF6b25hd3MuY29t"
 
   - id: ifconfig-me-b64
     desc: ifconfig.me (base64 encoded)
@@ -171,7 +171,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "aWZjb25maWcubWU="
+      substr: "aWZjb25maWcubWU="
 
   - id: ifconfig-io-b64
     desc: ifconfig.io (base64 encoded)
@@ -181,7 +181,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "aWZjb25maWcuaW8="
+      substr: "aWZjb25maWcuaW8="
 
   - id: ifconfig-co-b64
     desc: ifconfig.co (base64 encoded)
@@ -191,7 +191,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "aWZjb25maWcuY28="
+      substr: "aWZjb25maWcuY28="
 
   - id: ident-me-b64
     desc: ident.me (base64 encoded)
@@ -201,7 +201,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "aWRlbnQubWU="
+      substr: "aWRlbnQubWU="
 
   # NOTE: The YARA rule below remains because DISSECT doesn't yet support
   # XOR obfuscation (xor(1-255)) in native traits. Once XOR support is added,

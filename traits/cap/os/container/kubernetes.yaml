@@ -11,7 +11,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: KUBERNETES_SERVICE
+      substr: KUBERNETES_SERVICE
 
   - id: secrets-path
     desc: Kubernetes secrets path
@@ -19,4 +19,4 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: /var/run/secrets/kubernetes
+      substr: /var/run/secrets/kubernetes

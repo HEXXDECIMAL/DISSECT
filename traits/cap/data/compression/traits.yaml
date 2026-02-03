@@ -9,7 +9,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "liblzma"
+      substr: "liblzma"
 
   - id: lzma-prefix
     desc: lzma_ function prefix
@@ -33,7 +33,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "LzmaEnc"
+      substr: "LzmaEnc"
 
   - id: lzmadec
     desc: LzmaDec SDK function
@@ -41,7 +41,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "LzmaDec"
+      substr: "LzmaDec"
 
   - id: lzma-ok
     desc: LZMA_OK status
@@ -49,7 +49,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "LZMA_OK"
+      substr: "LZMA_OK"
 
   # === Zlib micro-traits ===
   - id: deflate
@@ -74,7 +74,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "z_stream"
+      substr: "z_stream"
 
   - id: libz-so
     desc: libz.so library
@@ -82,7 +82,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "libz.so"
+      substr: "libz.so"
 
   - id: zlib-string
     desc: zlib string
@@ -115,7 +115,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "libbz2"
+      substr: "libbz2"
 
   - id: bzip2-string
     desc: bzip2 string
@@ -123,7 +123,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "bzip2"
+      substr: "bzip2"
 
   # === Zstd micro-traits ===
   - id: zstd-compress
@@ -148,7 +148,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "ZSTD_CCtx"
+      substr: "ZSTD_CCtx"
 
   - id: libzstd
     desc: libzstd library
@@ -156,7 +156,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "libzstd"
+      substr: "libzstd"
 
   # === LZ4 micro-traits ===
   - id: lz4-compress
@@ -181,7 +181,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "liblz4"
+      substr: "liblz4"
 
 composite_rules:
   # LZMA composite (migrated from YARA)

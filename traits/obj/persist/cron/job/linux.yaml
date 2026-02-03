@@ -21,7 +21,7 @@ traits:
     attack: T1053.003
     if:
       type: string
-      exact: "/etc/cron"
+      substr: "/etc/cron"
 
   - id: var-spool-cron-path
     desc: /var/spool/cron directory path (user cron
@@ -31,7 +31,7 @@ traits:
     attack: T1053.003
     if:
       type: string
-      exact: "/var/spool/cron"
+      substr: "/var/spool/cron"
 
   - id: cron-d-path
     desc: /etc/cron.d directory path (additional system
@@ -41,7 +41,7 @@ traits:
     attack: T1053.003
     if:
       type: string
-      exact: "/etc/cron.d"
+      substr: "/etc/cron.d"
 
 composite_rules:
   - id: cron

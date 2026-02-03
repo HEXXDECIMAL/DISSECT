@@ -13,7 +13,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "pycookiecheat"
+      substr: "pycookiecheat"
 
   - id: kooky
     desc: Go cookie theft library (kooky)
@@ -23,7 +23,7 @@ traits:
     for: [go, elf, macho, pe]
     if:
       type: string
-      exact: "browserutils/kooky"
+      substr: "browserutils/kooky"
 
   - id: browser-cookie3
     desc: Python browser-cookie3 library
@@ -33,7 +33,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "browser_cookie3"
+      substr: "browser_cookie3"
 
   # === HackBrowserData atomic indicators ===
   - id: hackbrowserdata-lower
@@ -54,7 +54,7 @@ traits:
     mbc: "B0028"
     if:
       type: string
-      exact: "HackBrowserData"
+      substr: "HackBrowserData"
 
   # === Browser Path Patterns ===
   - id: google-chrome-path
@@ -64,7 +64,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "Google/Chrome"
+      substr: "Google/Chrome"
 
   - id: chromium-string
     desc: Chromium browser name
@@ -82,7 +82,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "Microsoft/Edge"
+      substr: "Microsoft/Edge"
 
   - id: brave-software-path
     desc: BraveSoftware path component
@@ -91,7 +91,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "BraveSoftware"
+      substr: "BraveSoftware"
 
   - id: opera-string
     desc: Opera browser name
@@ -146,7 +146,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "Local State"
+      substr: "Local State"
 
   # === Additional Browser Names ===
   - id: chrome-string
@@ -184,7 +184,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "encrypted_key"
+      substr: "encrypted_key"
 
   - id: logins-json-file
     desc: logins.json Firefox password file
@@ -193,7 +193,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "logins.json"
+      substr: "logins.json"
 
   - id: key4-db-file
     desc: key4.db Firefox key database
@@ -202,7 +202,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "key4.db"
+      substr: "key4.db"
 
   # === Decryption Methods ===
   - id: crypt-unprotect-data-str
@@ -212,7 +212,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "CryptUnprotectData"
+      substr: "CryptUnprotectData"
 
   - id: aes-string
     desc: AES encryption/decryption string
@@ -268,7 +268,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "api.telegram.org"
+      substr: "api.telegram.org"
 
   - id: multipart-form-data
     desc: multipart/form-data content type
@@ -277,7 +277,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "multipart/form-data"
+      substr: "multipart/form-data"
 
   - id: post-method
     desc: .post( HTTP method call
@@ -296,7 +296,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "import sqlite3"
+      substr: "import sqlite3"
 
   - id: import-crypto-aes
     desc: from Crypto.Cipher import AES
@@ -305,7 +305,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "from Crypto.Cipher import AES"
+      substr: "from Crypto.Cipher import AES"
 
   - id: import-win32crypt
     desc: from win32crypt import CryptUnprotectData
@@ -314,7 +314,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "from win32crypt import CryptUnprotectData"
+      substr: "from win32crypt import CryptUnprotectData"
 
   - id: import-requests
     desc: import requests statement
@@ -323,7 +323,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "import requests"
+      substr: "import requests"
 
   # === Windows Environment Variables ===
   - id: localappdata-var
@@ -333,7 +333,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "LOCALAPPDATA"
+      substr: "LOCALAPPDATA"
 
   - id: appdata-var
     desc: APPDATA environment variable
@@ -342,7 +342,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "APPDATA"
+      substr: "APPDATA"
 
   - id: google-chrome-windows-path
     desc: Google\Chrome Windows path
@@ -361,7 +361,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "password_value"
+      substr: "password_value"
 
   - id: username-value-field
     desc: username_value database column
@@ -370,7 +370,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "username_value"
+      substr: "username_value"
 
   - id: origin-url-field
     desc: origin_url database column
@@ -379,7 +379,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "origin_url"
+      substr: "origin_url"
 
   # === Additional Exfil Endpoints ===
   - id: discord-webhook-simple
@@ -398,7 +398,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "ipinfo.io"
+      substr: "ipinfo.io"
 
 composite_rules:
   # === Helper composites ===

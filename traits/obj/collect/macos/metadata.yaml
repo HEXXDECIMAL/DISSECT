@@ -16,7 +16,7 @@ traits:
     attack: "T1083"
     if:
       type: string
-      exact: ".DS_Store"
+      substr: ".DS_Store"
 
   - id: localized-folder
     desc: ".localized folder marker"
@@ -24,7 +24,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: ".localized"
+      substr: ".localized"
 
   # === macOS system directories ===
   - id: applications-dir
@@ -34,7 +34,7 @@ traits:
     attack: "T1083"
     if:
       type: string
-      exact: "/Applications"
+      substr: "/Applications"
 
   - id: library-dir
     desc: "~/Library directory reference"

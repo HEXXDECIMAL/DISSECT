@@ -11,7 +11,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: "os.utime("
+      substr: "os.utime("
 
   - id: os-utime-ast
     desc: os.utime() timestamp modification
@@ -33,7 +33,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "os.path.getatime("
+      substr: "os.path.getatime("
 
   - id: os-getmtime
     desc: os.path.getmtime() modification time query
@@ -41,7 +41,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "os.path.getmtime("
+      substr: "os.path.getmtime("
 
 composite_rules:
   - id: timestamp-modification

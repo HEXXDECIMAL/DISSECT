@@ -14,7 +14,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      exact: "DeleteFile(argv[0])"
+      substr: "DeleteFile(argv[0])"
 
   # VBS file deletion (dropper cleanup)
   - id: vbs-file-delete

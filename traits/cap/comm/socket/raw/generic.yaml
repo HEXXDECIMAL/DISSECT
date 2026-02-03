@@ -13,7 +13,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "raw socket"
+      substr: "raw socket"
       case_insensitive: true
 
   - id: proc-net-raw
@@ -22,7 +22,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: /proc/net/raw
+      substr: /proc/net/raw
 
 composite_rules:
   - id: raw

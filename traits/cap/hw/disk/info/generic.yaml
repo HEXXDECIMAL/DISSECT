@@ -10,4 +10,4 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "DiskFreeSpace"
+      substr: "DiskFreeSpace"

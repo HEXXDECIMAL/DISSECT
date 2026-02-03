@@ -11,7 +11,7 @@ traits:
     for: [c]
     if:
       type: string
-      exact: "vmlinux.h"
+      substr: "vmlinux.h"
 
   # eBPF helper functions header (libbpf)
   - id: bpf-helpers-h
@@ -82,7 +82,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "SO_ATTACH_FILTER"
+      substr: "SO_ATTACH_FILTER"
 
   - id: so-attach-bpf
     desc: SO_ATTACH_BPF socket option
@@ -90,7 +90,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "SO_ATTACH_BPF"
+      substr: "SO_ATTACH_BPF"
 
   # === Raw Packet Capture ===
   - id: af-packet
@@ -99,7 +99,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "AF_PACKET"
+      substr: "AF_PACKET"
 
   - id: sock-raw
     desc: SOCK_RAW socket type
@@ -107,7 +107,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "SOCK_RAW"
+      substr: "SOCK_RAW"
 
   # === Magic/Trigger Packet Patterns ===
   - id: magic-packet
@@ -116,7 +116,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "magic_packet"
+      substr: "magic_packet"
 
   - id: trigger-packet
     desc: trigger_packet string
@@ -124,7 +124,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "trigger_packet"
+      substr: "trigger_packet"
 
   - id: knock-string
     desc: knock string reference
@@ -143,7 +143,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: "port_knock"
+      substr: "port_knock"
 
   - id: sequence-string
     desc: knock sequence string reference
@@ -162,7 +162,7 @@ traits:
     for: [elf, c]
     if:
       type: string
-      exact: "bpf_program"
+      substr: "bpf_program"
 
   - id: bpf-prefix
     desc: BPF_ prefix
@@ -206,7 +206,7 @@ traits:
     for: [elf, c]
     if:
       type: string
-      exact: "IPPROTO_ICMP"
+      substr: "IPPROTO_ICMP"
 
   - id: ipproto-udp
     desc: IPPROTO_UDP protocol
@@ -215,7 +215,7 @@ traits:
     for: [elf, c]
     if:
       type: string
-      exact: "IPPROTO_UDP"
+      substr: "IPPROTO_UDP"
 
   # === XDP Return Values ===
   # XDP_TX is particularly suspicious - reflects packets back out the interface
@@ -413,7 +413,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "bpftrace"
+      substr: "bpftrace"
 
   - id: bcc-lib
     desc: BCC library
@@ -430,7 +430,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "libbpf"
+      substr: "libbpf"
 
   - id: bpf-probe-read
     desc: bpf_probe_read function
@@ -456,7 +456,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "bpf_kprobe"
+      substr: "bpf_kprobe"
 
   - id: bpf-tracepoint
     desc: bpf_tracepoint function
@@ -464,7 +464,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "bpf_tracepoint"
+      substr: "bpf_tracepoint"
 
   - id: cilium
     desc: Cilium observability
@@ -472,7 +472,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "cilium"
+      substr: "cilium"
 
   - id: falco
     desc: Falco security
@@ -480,7 +480,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "falco"
+      substr: "falco"
 
   - id: tracee
     desc: Tracee observability
@@ -488,7 +488,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "tracee"
+      substr: "tracee"
 
   # === Uprobe Attachment ===
   - id: uprobe-attach

@@ -84,7 +84,7 @@ traits:
     for: [php]
     if:
       type: string
-      exact: "SCRIPT_FILENAME"
+      substr: "SCRIPT_FILENAME"
 
   - id: http-user-agent
     desc: Access to HTTP User-Agent header
@@ -93,7 +93,7 @@ traits:
     for: [php]
     if:
       type: string
-      exact: "HTTP_USER_AGENT"
+      substr: "HTTP_USER_AGENT"
 
   - id: http-referer
     desc: Access to HTTP Referer header
@@ -102,7 +102,7 @@ traits:
     for: [php]
     if:
       type: string
-      exact: "HTTP_REFERER"
+      substr: "HTTP_REFERER"
 
   # === extract atomic indicators ===
   - id: extract-get

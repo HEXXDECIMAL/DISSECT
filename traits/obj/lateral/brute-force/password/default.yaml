@@ -61,7 +61,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "admin123"
+      substr: "admin123"
 
   - id: literal-default
     desc: "Default credential: default"
@@ -98,7 +98,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "vizxv"
+      substr: "vizxv"
 
   # === IoT ZTE credential atomic indicators ===
   - id: iot-zte521
@@ -109,7 +109,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "Zte521"
+      substr: "Zte521"
 
   - id: iot-pte521
     desc: "Default IoT credential: Pte521"
@@ -119,7 +119,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "Pte521"
+      substr: "Pte521"
 
   - id: iot-pon521
     desc: "Default IoT credential: Pon521"
@@ -129,7 +129,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "Pon521"
+      substr: "Pon521"
 
   - id: iot-zxic521
     desc: "Default IoT credential: Zxic521"
@@ -139,7 +139,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "Zxic521"
+      substr: "Zxic521"
 
   - id: iot-oelinux
     desc: "Default IoT credential: oelinux123"
@@ -149,7 +149,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "oelinux123"
+      substr: "oelinux123"
 
   - id: iot-xc35
     desc: "Default IoT credential: xc3511 (Hikvision)"
@@ -159,7 +159,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "xc3511"
+      substr: "xc3511"
 
   - id: telnet-combo
     desc: "Telnet username:password combo format"

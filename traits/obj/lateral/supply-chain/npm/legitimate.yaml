@@ -141,7 +141,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "\"use strict\""
+      substr: "\"use strict\""
 
   - id: void-zero
     desc: "void 0 pattern (minifier output)"
@@ -150,7 +150,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "void 0"
+      substr: "void 0"
 
   - id: esmodule-export
     desc: __esModule property
@@ -159,7 +159,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "__esModule"
+      substr: "__esModule"
 
   - id: object-define-property
     desc: Object.defineProperty call
@@ -168,7 +168,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "Object.defineProperty"
+      substr: "Object.defineProperty"
 
 # Legitimate JavaScript Code Patterns
 # These patterns are typically PRESENT in legitimate code and ABSENT in malware
@@ -352,7 +352,7 @@ traits:
     r#for: [javascript]
     if:
       type: string
-      exact: "'use strict'"
+      substr: "'use strict'"
 
   # Test block patterns
   - id: describe-with-string
@@ -389,7 +389,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "expect("
+      substr: "expect("
 
   - id: assert-method
     desc: assert. method call
@@ -398,7 +398,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "assert."
+      substr: "assert."
 
   - id: should-assertion
     desc: .should. assertion pattern
@@ -407,7 +407,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: ".should."
+      substr: ".should."
 
   # Has assertion library usage
   - id: has-assertions
@@ -822,7 +822,7 @@ traits:
     r#for: [packagejson]
     if:
       type: string
-      exact: '"browserslist":'
+      substr: '"browserslist":'
 
   # Package entry point fields
   - id: pkg-main-field
@@ -832,7 +832,7 @@ traits:
     for: [packagejson]
     if:
       type: string
-      exact: "\"main\":"
+      substr: "\"main\":"
 
   - id: pkg-module-field
     desc: "\"module\": field in package.json"
@@ -841,7 +841,7 @@ traits:
     for: [packagejson]
     if:
       type: string
-      exact: "\"module\":"
+      substr: "\"module\":"
 
   - id: pkg-exports-field-entry
     desc: "\"exports\": field in package.json"
@@ -850,7 +850,7 @@ traits:
     for: [packagejson]
     if:
       type: string
-      exact: "\"exports\":"
+      substr: "\"exports\":"
 
   - id: pkg-types-field
     desc: "\"types\": field in package.json"
@@ -859,7 +859,7 @@ traits:
     for: [packagejson]
     if:
       type: string
-      exact: "\"types\":"
+      substr: "\"types\":"
 
   # NPM script fields
   - id: pkg-test-script-field
@@ -869,7 +869,7 @@ traits:
     for: [packagejson]
     if:
       type: string
-      exact: "\"test\":"
+      substr: "\"test\":"
 
   - id: pkg-build-script-field
     desc: "\"build\": script in package.json"
@@ -878,7 +878,7 @@ traits:
     for: [packagejson]
     if:
       type: string
-      exact: "\"build\":"
+      substr: "\"build\":"
 
   - id: pkg-lint-script-field
     desc: "\"lint\": script in package.json"
@@ -887,7 +887,7 @@ traits:
     for: [packagejson]
     if:
       type: string
-      exact: "\"lint\":"
+      substr: "\"lint\":"
 
   - id: pkg-format-script-field
     desc: "\"format\": script in package.json"
@@ -896,7 +896,7 @@ traits:
     for: [packagejson]
     if:
       type: string
-      exact: "\"format\":"
+      substr: "\"format\":"
 
   - id: pkg-dev-script-field
     desc: "\"dev\": script in package.json"
@@ -905,7 +905,7 @@ traits:
     for: [packagejson]
     if:
       type: string
-      exact: "\"dev\":"
+      substr: "\"dev\":"
 
   - id: pkg-start-script-field
     desc: "\"start\": script in package.json"
@@ -914,7 +914,7 @@ traits:
     for: [packagejson]
     if:
       type: string
-      exact: "\"start\":"
+      substr: "\"start\":"
 
   # Has CI badge indicators (usually in description or homepage)
   - id: ci-badge-reference
@@ -974,7 +974,7 @@ traits:
     r#for: [packagejson]
     if:
       type: string
-      exact: '"optionalDependencies":'
+      substr: '"optionalDependencies":'
 
   # Has cpu/os restrictions
   - id: has-platform-restrictions
@@ -1068,7 +1068,7 @@ traits:
     r#for: [packagejson]
     if:
       type: string
-      exact: '"prepublishOnly":'
+      substr: '"prepublishOnly":'
 
   # Has repository field
   - id: has-repository
@@ -1138,7 +1138,7 @@ traits:
     r#for: [packagejson]
     if:
       type: string
-      exact: '"peerDependencies":'
+      substr: '"peerDependencies":'
 
   # Has devDependencies (development tooling)
   - id: has-dev-deps
@@ -1148,7 +1148,7 @@ traits:
     r#for: [packagejson]
     if:
       type: string
-      exact: '"devDependencies":'
+      substr: '"devDependencies":'
 
   # Uses established test framework
   - id: uses-test-framework
@@ -1208,7 +1208,7 @@ traits:
     r#for: [packagejson]
     if:
       type: string
-      exact: '"funding":'
+      substr: '"funding":'
 
   # Has bugs/issues URL
   - id: has-bugs-url
@@ -1238,7 +1238,7 @@ traits:
     r#for: [packagejson]
     if:
       type: string
-      exact: '"contributors":'
+      substr: '"contributors":'
 
   # Has workspaces (monorepo)
   - id: has-workspaces
@@ -1248,7 +1248,7 @@ traits:
     r#for: [packagejson]
     if:
       type: string
-      exact: '"workspaces":'
+      substr: '"workspaces":'
 
   # Has private field
   - id: is-private
@@ -1258,7 +1258,7 @@ traits:
     r#for: [packagejson]
     if:
       type: string
-      exact: '"private": true'
+      substr: '"private": true'
 
   # Uses semantic versioning dependencies
   - id: semver-deps
@@ -1278,7 +1278,7 @@ traits:
     r#for: [packagejson]
     if:
       type: string
-      exact: '"publishConfig":'
+      substr: '"publishConfig":'
 # Test File Context Markers
 # These patterns indicate code is in a test context
 # Helps reduce false positives from test fixtures
@@ -1291,7 +1291,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "describe("
+      substr: "describe("
 
   - id: it-call
     desc: it() function call
@@ -1309,7 +1309,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "test("
+      substr: "test("
 
   - id: jest-word
     desc: jest keyword
@@ -1327,7 +1327,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "jest.mock"
+      substr: "jest.mock"
 
   - id: before-each-call
     desc: beforeEach hook
@@ -1355,7 +1355,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "before("
+      substr: "before("
 
   - id: after-call
     desc: after() hook
@@ -1364,7 +1364,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "after("
+      substr: "after("
 
   - id: chai-word
     desc: chai keyword
@@ -1411,7 +1411,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: ".test."
+      substr: ".test."
 
   - id: dot-spec-filename
     desc: .spec. in filename
@@ -1420,7 +1420,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: ".spec."
+      substr: ".spec."
 
   - id: underscore-test-filename
     desc: _test. in filename
@@ -1429,7 +1429,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "_test."
+      substr: "_test."
 
   - id: underscore-spec-filename
     desc: _spec. in filename
@@ -1438,7 +1438,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "_spec."
+      substr: "_spec."
 
   - id: tests-directory
     desc: /__tests__/ directory
@@ -1447,7 +1447,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "/__tests__/"
+      substr: "/__tests__/"
 
   - id: mocks-directory
     desc: /__mocks__/ directory
@@ -1456,7 +1456,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "/__mocks__/"
+      substr: "/__mocks__/"
 
   # Test fixture/mock data markers
   - id: fixtures-word
@@ -1493,7 +1493,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "__mocks__"
+      substr: "__mocks__"
 
   - id: jest-fn-call
     desc: jest.fn() mock function
@@ -1502,7 +1502,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "jest.fn()"
+      substr: "jest.fn()"
 
   - id: sinon-stub-call
     desc: sinon.stub call
@@ -1511,7 +1511,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "sinon.stub"
+      substr: "sinon.stub"
 
   - id: faker-word
     desc: faker keyword
@@ -1540,7 +1540,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "require('cypress')"
+      substr: "require('cypress')"
 
   - id: cypress-import
     desc: from 'cypress'
@@ -1549,7 +1549,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "from 'cypress'"
+      substr: "from 'cypress'"
 
   - id: cypress-cy-command
     desc: cy. Cypress command
@@ -1567,7 +1567,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "require('playwright')"
+      substr: "require('playwright')"
 
   - id: playwright-import
     desc: from 'playwright'
@@ -1576,7 +1576,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "from 'playwright'"
+      substr: "from 'playwright'"
 
   - id: playwright-scoped-import
     desc: from '@playwright
@@ -1585,7 +1585,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "from '@playwright"
+      substr: "from '@playwright"
 
   - id: puppeteer-require
     desc: require('puppeteer')
@@ -1594,7 +1594,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "require('puppeteer')"
+      substr: "require('puppeteer')"
 
   - id: puppeteer-import
     desc: from 'puppeteer'
@@ -1603,7 +1603,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "from 'puppeteer'"
+      substr: "from 'puppeteer'"
 
   - id: selenium-require
     desc: require('selenium import
@@ -1612,7 +1612,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "require('selenium"
+      substr: "require('selenium"
 
   - id: selenium-import
     desc: from 'selenium import
@@ -1621,7 +1621,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "from 'selenium"
+      substr: "from 'selenium"
 
   - id: webdriver-require
     desc: require('webdriver import
@@ -1630,7 +1630,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "require('webdriver"
+      substr: "require('webdriver"
 
   - id: webdriver-import
     desc: from 'webdriver import
@@ -1639,7 +1639,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "from 'webdriver"
+      substr: "from 'webdriver"
 
   - id: nightwatch-require
     desc: require('nightwatch')
@@ -1648,7 +1648,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "require('nightwatch')"
+      substr: "require('nightwatch')"
 
   - id: nightwatch-import
     desc: from 'nightwatch'
@@ -1657,7 +1657,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "from 'nightwatch'"
+      substr: "from 'nightwatch'"
 
   # Testing Library import patterns
   - id: testing-library-import
@@ -1667,7 +1667,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "@testing-library"
+      substr: "@testing-library"
 
   - id: testing-library-from
     desc: from '@testing-library
@@ -1676,7 +1676,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "from '@testing-library"
+      substr: "from '@testing-library"
 
   - id: testing-library-require
     desc: require('@testing-library
@@ -1685,7 +1685,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "require('@testing-library"
+      substr: "require('@testing-library"
 
   # Testing Library method patterns
   - id: screen-get-by
@@ -1695,7 +1695,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "screen.getBy"
+      substr: "screen.getBy"
 
   - id: screen-find-by
     desc: screen.findBy query
@@ -1704,7 +1704,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "screen.findBy"
+      substr: "screen.findBy"
 
   - id: screen-query-by
     desc: screen.queryBy query
@@ -1713,7 +1713,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "screen.queryBy"
+      substr: "screen.queryBy"
 
   - id: screen-get-all-by
     desc: screen.getAllBy query
@@ -1722,7 +1722,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "screen.getAllBy"
+      substr: "screen.getAllBy"
 
   - id: fire-event-method
     desc: fireEvent. method
@@ -1731,7 +1731,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "fireEvent."
+      substr: "fireEvent."
 
   - id: user-event-method
     desc: userEvent. method
@@ -1740,7 +1740,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "userEvent."
+      substr: "userEvent."
 
   - id: render-call-test
     desc: render() call
@@ -1749,7 +1749,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "render("
+      substr: "render("
 
   - id: wait-for-call
     desc: waitFor() call
@@ -1758,7 +1758,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "waitFor("
+      substr: "waitFor("
 
   # Test configuration file markers
   - id: jest-config-ref
@@ -1768,7 +1768,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "jest.config"
+      substr: "jest.config"
 
   - id: jest-setup-files
     desc: setupFilesAfterEnv Jest option
@@ -1804,7 +1804,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "karma.conf"
+      substr: "karma.conf"
 
   - id: vitest-config-ref
     desc: vitest.config reference
@@ -1813,7 +1813,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "vitest.config"
+      substr: "vitest.config"
 
   # Coverage markers
   - id: coverage-markers

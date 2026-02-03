@@ -13,7 +13,7 @@ traits:
     attack: "T1059.006"
     if:
       type: string
-      exact: "socket("
+      substr: "socket("
 
   - id: open-call
     desc: Perl open( call
@@ -21,7 +21,7 @@ traits:
     conf: 0.3
     if:
       type: string
-      exact: "open("
+      substr: "open("
 
   - id: fd-redirect
     desc: Perl file descriptor redirect (>&)

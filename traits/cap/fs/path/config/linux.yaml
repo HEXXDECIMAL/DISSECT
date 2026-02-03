@@ -17,7 +17,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      exact: /etc/hosts
+      substr: /etc/hosts
 
   - id: config-resolv
     desc: Reference to /etc/resolv.conf
@@ -25,7 +25,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      exact: /etc/resolv.conf
+      substr: /etc/resolv.conf
 
   - id: config-initd
     desc: Reference to /etc/init.d scripts

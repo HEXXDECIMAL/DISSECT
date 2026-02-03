@@ -31,7 +31,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "pynput.keyboard"
+      substr: "pynput.keyboard"
 
   - id: keyboard-on-press
     desc: keyboard.on_press hook
@@ -42,7 +42,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "keyboard.on_press"
+      substr: "keyboard.on_press"
 
 composite_rules:
   # Clipboard access composite

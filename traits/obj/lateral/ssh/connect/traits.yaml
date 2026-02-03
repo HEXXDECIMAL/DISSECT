@@ -46,7 +46,7 @@ traits:
     platforms: [linux, macos, unix]
     if:
       type: string
-      exact: "StrictHostKeyChecking"
+      substr: "StrictHostKeyChecking"
 
   - id: known-hosts-bypass
     desc: UserKnownHostsFile reference (bypass known hosts)
@@ -56,7 +56,7 @@ traits:
     platforms: [linux, macos, unix]
     if:
       type: string
-      exact: "UserKnownHostsFile"
+      substr: "UserKnownHostsFile"
 
   - id: connect-timeout
     desc: ConnectTimeout reference (scripted SSH)
@@ -66,7 +66,7 @@ traits:
     platforms: [linux, macos, unix]
     if:
       type: string
-      exact: "ConnectTimeout"
+      substr: "ConnectTimeout"
 
   # === Atomic: SSH Key Files ===
   # NOTE: id_rsa, authorized_keys, known_hosts are defined in cred/ssh/key/
@@ -90,7 +90,7 @@ traits:
     platforms: [linux, macos, unix]
     if:
       type: string
-      exact: "IdentityFile"
+      substr: "IdentityFile"
 
   - id: ssh-config-parse
     desc: Parses SSH config for hostnames
@@ -131,7 +131,7 @@ traits:
     platforms: [linux, unix]
     if:
       type: string
-      exact: "getent ahostsv4"
+      substr: "getent ahostsv4"
 
   # === Atomic: Remote Payload Delivery ===
 

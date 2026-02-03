@@ -11,7 +11,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "dd if=/dev/zero"
+      substr: "dd if=/dev/zero"
 
   - id: dd-random
     desc: dd if=/dev/urandom command
@@ -19,7 +19,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "dd if=/dev/urandom"
+      substr: "dd if=/dev/urandom"
 
   - id: shred-flag
     desc: shred command with flag
@@ -27,7 +27,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "shred -"
+      substr: "shred -"
 
   - id: shred-dev
     desc: shred with /dev/ path
@@ -43,7 +43,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "shred --force"
+      substr: "shred --force"
 
   # === Disk device atomic indicators ===
   - id: dev-sda
@@ -52,7 +52,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "/dev/sda"
+      substr: "/dev/sda"
 
   - id: dev-hda
     desc: /dev/hda device access
@@ -60,7 +60,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "/dev/hda"
+      substr: "/dev/hda"
 
   - id: dev-nvme
     desc: /dev/nvme device access
@@ -76,7 +76,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "/dev/vda"
+      substr: "/dev/vda"
 
 composite_rules:
   - id: disk

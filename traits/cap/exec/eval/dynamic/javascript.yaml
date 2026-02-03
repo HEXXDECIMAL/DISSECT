@@ -105,7 +105,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "runInContext"
+      substr: "runInContext"
 
   - id: runInNewContext-call
     desc: runInNewContext call
@@ -115,7 +115,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "runInNewContext"
+      substr: "runInNewContext"
 
   # === IIFE patterns ===
   - id: iife-pattern

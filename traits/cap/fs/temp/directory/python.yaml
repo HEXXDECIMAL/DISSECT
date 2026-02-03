@@ -9,7 +9,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      exact: gettempdir
+      substr: gettempdir
 
   - id: directory-python-symbol
     desc: Gets temp directory path

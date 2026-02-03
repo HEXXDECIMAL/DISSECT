@@ -10,7 +10,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "SOCK_STREAM"
+      substr: "SOCK_STREAM"
 
   - id: net-dial
     desc: net.Dial Go function
@@ -18,7 +18,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "net.Dial"
+      substr: "net.Dial"
 
   - id: tcp-conn
     desc: TCPConn type
@@ -26,7 +26,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "TCPConn"
+      substr: "TCPConn"
 
   - id: create-socket
     desc: CreateSocket function
@@ -34,7 +34,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "CreateSocket"
+      substr: "CreateSocket"
 
 composite_rules:
   # TCP connection (migrated from YARA)

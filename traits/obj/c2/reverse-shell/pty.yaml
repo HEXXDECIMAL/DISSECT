@@ -12,7 +12,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "pty.spawn"
+      substr: "pty.spawn"
 
   - id: import-pty
     desc: import pty statement
@@ -22,7 +22,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "import pty"
+      substr: "import pty"
 
   - id: python-socket
     desc: socket module reference
@@ -31,7 +31,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "socket"
+      substr: "socket"
 
   # === Python subprocess micro-traits ===
   - id: socket-socket
@@ -41,7 +41,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "socket.socket"
+      substr: "socket.socket"
 
   - id: socket-connect
     desc: .connect( socket method
@@ -50,7 +50,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: ".connect("
+      substr: ".connect("
 
   - id: subprocess-ref
     desc: subprocess module reference
@@ -59,7 +59,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "subprocess"
+      substr: "subprocess"
 
   - id: stdin-pipe
     desc: stdin= pipe argument
@@ -68,7 +68,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "stdin="
+      substr: "stdin="
 
   - id: stdout-pipe
     desc: stdout= pipe argument
@@ -77,7 +77,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "stdout="
+      substr: "stdout="
 
   - id: stderr-pipe
     desc: stderr= pipe argument
@@ -86,7 +86,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "stderr="
+      substr: "stderr="
 
   # === Node.js PTY micro-traits ===
   - id: node-pty-module
@@ -97,7 +97,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "node-pty"
+      substr: "node-pty"
 
   - id: pty-spawn-node
     desc: pty.spawn call (Node.js)
@@ -107,7 +107,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "pty.spawn"
+      substr: "pty.spawn"
 
   - id: pty-js-require
     desc: require('pty.js') call
@@ -117,7 +117,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "require('pty.js')"
+      substr: "require('pty.js')"
 
   - id: net-socket-node
     desc: net.Socket reference
@@ -126,7 +126,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "net.Socket"
+      substr: "net.Socket"
 
   - id: socket-connect-node
     desc: socket.connect call
@@ -135,7 +135,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "socket.connect"
+      substr: "socket.connect"
 
   - id: websocket-ref
     desc: WebSocket reference
@@ -144,7 +144,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "WebSocket"
+      substr: "WebSocket"
 
   # === STDIO piping micro-traits ===
   - id: stdin-string
@@ -154,7 +154,7 @@ traits:
     for: [python, javascript, typescript]
     if:
       type: string
-      exact: "stdin"
+      substr: "stdin"
 
   - id: stdout-string
     desc: stdout string reference
@@ -163,7 +163,7 @@ traits:
     for: [python, javascript, typescript]
     if:
       type: string
-      exact: "stdout"
+      substr: "stdout"
 
   - id: stderr-string
     desc: stderr string reference
@@ -172,7 +172,7 @@ traits:
     for: [python, javascript, typescript]
     if:
       type: string
-      exact: "stderr"
+      substr: "stderr"
 
   - id: dot-pipe
     desc: .pipe( method call
@@ -181,7 +181,7 @@ traits:
     for: [python, javascript, typescript]
     if:
       type: string
-      exact: ".pipe("
+      substr: ".pipe("
 
   - id: pipe-constant
     desc: PIPE constant reference
@@ -200,7 +200,7 @@ traits:
     for: [python, javascript, shell]
     if:
       type: string
-      exact: "isatty"
+      substr: "isatty"
 
   - id: ttyname-call
     desc: ttyname function call
@@ -209,7 +209,7 @@ traits:
     for: [python, javascript, shell]
     if:
       type: string
-      exact: "ttyname"
+      substr: "ttyname"
 
   - id: dev-tty
     desc: /dev/tty device reference
@@ -218,7 +218,7 @@ traits:
     for: [python, javascript, shell]
     if:
       type: string
-      exact: "/dev/tty"
+      substr: "/dev/tty"
 
   - id: term-env
     desc: TERM= environment setting
@@ -227,7 +227,7 @@ traits:
     for: [python, javascript, shell]
     if:
       type: string
-      exact: "TERM="
+      substr: "TERM="
 
   - id: xterm-ref
     desc: xterm terminal reference
@@ -236,7 +236,7 @@ traits:
     for: [python, javascript, shell]
     if:
       type: string
-      exact: "xterm"
+      substr: "xterm"
 
   - id: stty-cmd
     desc: stty command reference

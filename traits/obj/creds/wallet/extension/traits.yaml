@@ -15,7 +15,7 @@ traits:
     if:
       type: string
       # MetaMask Chrome extension ID
-      exact: "nkbihfbeogaeaoehlefnkodbefgpgknn"
+      substr: "nkbihfbeogaeaoehlefnkodbefgpgknn"
 
   - id: phantom
     desc: Phantom wallet extension ID (Solana)
@@ -25,7 +25,7 @@ traits:
     mbc: "B0028"
     if:
       type: string
-      exact: "bfnaelmomeimhlpmgjnjophhpkkoljpa"
+      substr: "bfnaelmomeimhlpmgjnjophhpkkoljpa"
 
   - id: trust-wallet
     desc: Trust Wallet extension ID
@@ -35,7 +35,7 @@ traits:
     mbc: "B0028"
     if:
       type: string
-      exact: "egjidjbpglichdcondbcbdnbeeppgdph"
+      substr: "egjidjbpglichdcondbcbdnbeeppgdph"
 
   - id: binance
     desc: Binance Wallet extension ID
@@ -45,7 +45,7 @@ traits:
     mbc: "B0028"
     if:
       type: string
-      exact: "fhbohimaelbohpjbbldcngcnapndodjp"
+      substr: "fhbohimaelbohpjbbldcngcnapndodjp"
 
   - id: coinbase
     desc: Coinbase Wallet extension ID
@@ -55,7 +55,7 @@ traits:
     mbc: "B0028"
     if:
       type: string
-      exact: "hnfanknocfeofbddgcijnmhnfnkdnaad"
+      substr: "hnfanknocfeofbddgcijnmhnfnkdnaad"
 
   - id: tronlink
     desc: TronLink wallet extension ID
@@ -65,7 +65,7 @@ traits:
     mbc: "B0028"
     if:
       type: string
-      exact: "ibnejdfjmmkpcnlpebklmnkoeoihofec"
+      substr: "ibnejdfjmmkpcnlpebklmnkoeoihofec"
 
   - id: nami
     desc: Nami wallet extension ID (Cardano)
@@ -75,7 +75,7 @@ traits:
     mbc: "B0028"
     if:
       type: string
-      exact: "lpfcbjknijpeeillifnkikgncikgfhdo"
+      substr: "lpfcbjknijpeeillifnkikgncikgfhdo"
 
   - id: temple
     desc: Temple wallet extension ID (Tezos)
@@ -85,7 +85,7 @@ traits:
     mbc: "B0028"
     if:
       type: string
-      exact: "ookjlbkiijinhpmnjffcofjonbfbgaoc"
+      substr: "ookjlbkiijinhpmnjffcofjonbfbgaoc"
 
   - id: petra
     desc: Petra wallet extension ID (Aptos)
@@ -95,7 +95,7 @@ traits:
     mbc: "B0028"
     if:
       type: string
-      exact: "ejjladinnckdgjemekebdpeokbikhfci"
+      substr: "ejjladinnckdgjemekebdpeokbikhfci"
 
   - id: martian
     desc: Martian wallet extension ID (Aptos)
@@ -105,7 +105,7 @@ traits:
     mbc: "B0028"
     if:
       type: string
-      exact: "efbglgofoippbgcjepnhiblaibcnclgk"
+      substr: "efbglgofoippbgcjepnhiblaibcnclgk"
 
   - id: pontem
     desc: Pontem wallet extension ID (Aptos)
@@ -115,7 +115,7 @@ traits:
     mbc: "B0028"
     if:
       type: string
-      exact: "phkbamefinggmakgklpkljjmgibohnba"
+      substr: "phkbamefinggmakgklpkljjmgibohnba"
 
   - id: exodus
     desc: Exodus wallet extension ID
@@ -125,7 +125,7 @@ traits:
     mbc: "B0028"
     if:
       type: string
-      exact: "aholpfdialjgjfhomihkjbmgjidlcdno"
+      substr: "aholpfdialjgjfhomihkjbmgjidlcdno"
 
   - id: keplr
     desc: Keplr wallet extension ID (Cosmos)
@@ -135,7 +135,7 @@ traits:
     mbc: "B0028"
     if:
       type: string
-      exact: "dmkamcknogkgcdfhhbddcghachkejeap"
+      substr: "dmkamcknogkgcdfhhbddcghachkejeap"
 
   - id: rabby
     desc: Rabby wallet extension ID
@@ -145,7 +145,7 @@ traits:
     mbc: "B0028"
     if:
       type: string
-      exact: "acmacodkjbdgmoleebolmdjonilkdbch"
+      substr: "acmacodkjbdgmoleebolmdjonilkdbch"
 
   - id: brave
     desc: Brave Wallet extension ID
@@ -155,7 +155,7 @@ traits:
     mbc: "B0028"
     if:
       type: string
-      exact: "odbfpeeihdkbihmopkbjmoonfanlbfcl"
+      substr: "odbfpeeihdkbihmopkbjmoonfanlbfcl"
 
   # === Desktop/Universal Wallets (referenced in strings) ===
 

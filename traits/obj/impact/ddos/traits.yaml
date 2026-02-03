@@ -11,7 +11,7 @@ traits:
     for: [elf, macho, pe, so, dylib]
     if:
       type: string
-      exact: "SOCK_RAW"
+      substr: "SOCK_RAW"
 
   - id: ipproto-tcp
     desc: IPPROTO_TCP constant
@@ -20,7 +20,7 @@ traits:
     for: [elf, macho, pe, so, dylib]
     if:
       type: string
-      exact: "IPPROTO_TCP"
+      substr: "IPPROTO_TCP"
 
   - id: syn-flood-string
     desc: syn_flood string reference
@@ -48,7 +48,7 @@ traits:
     for: [elf, macho, pe, so, dylib]
     if:
       type: string
-      exact: "udpbuf"
+      substr: "udpbuf"
 
   - id: sock-dgram
     desc: SOCK_DGRAM socket type
@@ -57,7 +57,7 @@ traits:
     for: [elf, macho, pe, so, dylib]
     if:
       type: string
-      exact: "SOCK_DGRAM"
+      substr: "SOCK_DGRAM"
 
   - id: sendto-func
     desc: sendto function

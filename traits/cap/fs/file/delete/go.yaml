@@ -36,7 +36,7 @@ traits:
     for: [elf, macho, pe]
     if:
       type: string
-      exact: "os.Remove"
+      substr: "os.Remove"
 
   - id: os-RemoveAll-string
     desc: os.RemoveAll string in binary
@@ -45,4 +45,4 @@ traits:
     for: [elf, macho, pe]
     if:
       type: string
-      exact: "os.RemoveAll"
+      substr: "os.RemoveAll"

@@ -14,7 +14,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "NoteStore.sqlite"
+      substr: "NoteStore.sqlite"
 
   # NoteStore write-ahead log
   - id: notestore-wal
@@ -22,7 +22,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "NoteStore.sqlite-wal"
+      substr: "NoteStore.sqlite-wal"
 
   # NoteStore shared memory
   - id: notestore-shm
@@ -30,7 +30,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "NoteStore.sqlite-shm"
+      substr: "NoteStore.sqlite-shm"
 
   # Notes group container path
   - id: notes-container
@@ -38,7 +38,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "group.com.apple.notes"
+      substr: "group.com.apple.notes"
 
   # Notes Accounts directory
   - id: notes-accounts

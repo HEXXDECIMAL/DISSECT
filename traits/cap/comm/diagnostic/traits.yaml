@@ -80,26 +80,26 @@ traits:
     desc: tcpdump packet capture
     if:
       type: string
-      exact: tcpdump
+      substr: tcpdump
 
   - id: wireshark
     desc: Wireshark analyzer
     if:
       type: string
-      exact: wireshark
+      substr: wireshark
 
   - id: tshark
     desc: tshark CLI analyzer
     if:
       type: string
-      exact: tshark
+      substr: tshark
 
   # === Connection info ===
   - id: netstat
     desc: netstat command
     if:
       type: string
-      exact: netstat
+      substr: netstat
 
   - id: ss
     desc: ss socket statistics
@@ -112,58 +112,58 @@ traits:
     desc: lsof network listing
     if:
       type: string
-      exact: "lsof -i"
+      substr: "lsof -i"
 
   # === Interface info ===
   - id: ifconfig
     desc: ifconfig command
     if:
       type: string
-      exact: ifconfig
+      substr: ifconfig
 
   - id: ip-addr
     desc: ip addr command
     if:
       type: string
-      exact: "ip addr"
+      substr: "ip addr"
 
   - id: ip-link
     desc: ip link command
     if:
       type: string
-      exact: "ip link"
+      substr: "ip link"
 
   # === Bandwidth testing ===
   - id: iperf
     desc: iperf bandwidth test
     if:
       type: string
-      exact: iperf
+      substr: iperf
 
   - id: iperf3
     desc: iperf3 bandwidth test
     if:
       type: string
-      exact: iperf3
+      substr: iperf3
 
   - id: speedtest
     desc: speedtest utility
     if:
       type: string
-      exact: speedtest
+      substr: speedtest
 
   # === Latency testing ===
   - id: hping
     desc: hping packet tool
     if:
       type: string
-      exact: hping
+      substr: hping
 
   - id: fping
     desc: fping fast ping
     if:
       type: string
-      exact: fping
+      substr: fping
 
   # === HTTP testing ===
   - id: curl
@@ -196,19 +196,19 @@ traits:
     desc: iptables command
     if:
       type: string
-      exact: iptables
+      substr: iptables
 
   - id: ip6tables
     desc: ip6tables command
     if:
       type: string
-      exact: ip6tables
+      substr: ip6tables
 
   - id: iptables-save
     desc: iptables-save command
     if:
       type: string
-      exact: iptables-save
+      substr: iptables-save
 
   # === Firewall: nftables ===
   - id: nft
@@ -221,20 +221,20 @@ traits:
     desc: nftables reference
     if:
       type: string
-      exact: nftables
+      substr: nftables
 
   # === Firewall: firewalld/ufw ===
   - id: firewall-cmd
     desc: firewall-cmd utility
     if:
       type: string
-      exact: firewall-cmd
+      substr: firewall-cmd
 
   - id: firewalld
     desc: firewalld service
     if:
       type: string
-      exact: firewalld
+      substr: firewalld
 
   - id: ufw
     desc: ufw firewall

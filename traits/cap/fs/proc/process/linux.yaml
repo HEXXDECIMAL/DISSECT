@@ -17,7 +17,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      exact: /proc/self/exe
+      substr: /proc/self/exe
 
   - id: process-self-cmdline
     desc: Read own command line via
@@ -25,7 +25,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      exact: /proc/self/cmdline
+      substr: /proc/self/cmdline
 
   - id: process-self-status
     desc: Read own process status via
@@ -33,7 +33,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      exact: /proc/self/status
+      substr: /proc/self/status
 
   - id: process-self-maps
     desc: Read own process memory maps
@@ -41,7 +41,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      exact: /proc/self/maps
+      substr: /proc/self/maps
 
   - id: process-pid-maps
     desc: Read process memory maps via

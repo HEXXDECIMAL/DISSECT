@@ -16,7 +16,7 @@ traits:
     for: [macho]
     if:
       type: string
-      exact: "IOPlatformUUID"
+      substr: "IOPlatformUUID"
 
   - id: iokit-registry-entry
     desc: "Accesses macOS device driver registry"
@@ -52,7 +52,7 @@ traits:
     for: [macho]
     if:
       type: string
-      exact: "IOPlatformSerialNumber"
+      substr: "IOPlatformSerialNumber"
 
   - id: ioservice-plane
     desc: "References IOKit service plane (hardware"
@@ -61,7 +61,7 @@ traits:
     for: [macho]
     if:
       type: string
-      exact: "IOService"
+      substr: "IOService"
 
 composite_rules:
   # IOKit registry access composite

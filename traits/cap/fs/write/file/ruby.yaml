@@ -46,7 +46,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: ".binmode"
+      substr: ".binmode"
 
   - id: binmode-symbol
     desc: binmode symbol
@@ -80,7 +80,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: "File.chmod"
+      substr: "File.chmod"
 
   - id: chmod-call-string
     desc: ".chmod( string"
@@ -88,7 +88,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: ".chmod("
+      substr: ".chmod("
 
   - id: chmod-symbol
     desc: chmod symbol
@@ -105,7 +105,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "chmod(0777)"
+      substr: "chmod(0777)"
 
   - id: chmod-0777-space
     desc: "chmod 0777 string"
@@ -113,7 +113,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "chmod 0777"
+      substr: "chmod 0777"
 
   - id: chmod-0o777
     desc: "chmod(0o777) string"
@@ -121,7 +121,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "chmod(0o777)"
+      substr: "chmod(0o777)"
 
   # File deletion
   - id: file-delete-string
@@ -130,7 +130,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: "File.delete"
+      substr: "File.delete"
 
   - id: file-unlink-string
     desc: File.unlink string
@@ -138,7 +138,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: "File.unlink"
+      substr: "File.unlink"
 
   - id: delete-symbol
     desc: delete symbol
@@ -163,7 +163,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "FileUtils.rm_rf"
+      substr: "FileUtils.rm_rf"
 
   - id: rm-rf-symbol
     desc: rm_rf symbol
@@ -180,7 +180,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "'fileutils'"
+      substr: "'fileutils'"
 
   - id: fileutils-double-quote
     desc: '"fileutils" require string'
@@ -188,7 +188,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: '"fileutils"'
+      substr: '"fileutils"'
 
 composite_rules:
   - id: ruby-file-open-write-binary

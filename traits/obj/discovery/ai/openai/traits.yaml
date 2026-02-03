@@ -7,7 +7,7 @@ traits:
     for: [pe, elf, macho, python, javascript]
     if:
       type: string
-      exact: "Azure.AI.OpenAI"
+      substr: "Azure.AI.OpenAI"
 
   - id: openai-ref
     desc: OpenAI reference
@@ -16,7 +16,7 @@ traits:
     for: [pe, elf, macho, python, javascript]
     if:
       type: string
-      exact: "OpenAI"
+      substr: "OpenAI"
 
 composite_rules:
   # OpenAI client composite

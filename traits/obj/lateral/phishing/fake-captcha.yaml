@@ -10,7 +10,7 @@ traits:
     r#for: [javascript, typescript, html]
     if:
       type: string
-      exact: 'Verify you are human'
+      substr: 'Verify you are human'
       case_insensitive: true
 
   - id: completing-action-text
@@ -20,7 +20,7 @@ traits:
     r#for: [javascript, typescript, html]
     if:
       type: string
-      exact: 'completing the action below'
+      substr: 'completing the action below'
 
   - id: cloudflare-turnstile-url
     desc: Reference to Cloudflare Turnstile product
@@ -29,7 +29,7 @@ traits:
     r#for: [javascript, typescript, html]
     if:
       type: string
-      exact: 'cloudflare.com/products/turnstile'
+      substr: 'cloudflare.com/products/turnstile'
 
   - id: success-text
     desc: Success message text
@@ -38,7 +38,7 @@ traits:
     r#for: [javascript, typescript, html]
     if:
       type: string
-      exact: 'Success!'
+      substr: 'Success!'
 
   - id: verifying-text
     desc: Verifying progress text
@@ -47,7 +47,7 @@ traits:
     r#for: [javascript, typescript, html]
     if:
       type: string
-      exact: 'Verifying...'
+      substr: 'Verifying...'
 
   - id: spinner-i-element
     desc: Spinner UI element identifier
@@ -56,7 +56,7 @@ traits:
     r#for: [javascript, typescript, html]
     if:
       type: string
-      exact: 'spinner-i'
+      substr: 'spinner-i'
 
   - id: vfclick-element
     desc: Verification click element identifier
@@ -65,7 +65,7 @@ traits:
     r#for: [javascript, typescript, html]
     if:
       type: string
-      exact: 'vfclick'
+      substr: 'vfclick'
 
   # reCAPTCHA patterns
   - id: not-a-robot-text
@@ -75,7 +75,7 @@ traits:
     r#for: [javascript, typescript, html]
     if:
       type: string
-      exact: "I'm not a robot"
+      substr: "I'm not a robot"
       case_insensitive: true
 
   - id: recaptcha-checkbox-element
@@ -85,7 +85,7 @@ traits:
     r#for: [javascript, typescript, html]
     if:
       type: string
-      exact: 'recaptcha-checkbox'
+      substr: 'recaptcha-checkbox'
 
   - id: google-recaptcha-url
     desc: Reference to Google reCAPTCHA URL
@@ -94,7 +94,7 @@ traits:
     r#for: [javascript, typescript, html]
     if:
       type: string
-      exact: 'google.com/recaptcha'
+      substr: 'google.com/recaptcha'
 
 # === Composite Rules ===
 composite_rules:

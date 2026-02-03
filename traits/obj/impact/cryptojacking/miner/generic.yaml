@@ -11,7 +11,7 @@ traits:
     attack: "T1496"
     if:
       type: string
-      exact: "stratum+tcp"
+      substr: "stratum+tcp"
 
   # NOTE: Removed standalone "pool" keyword detection - too many false positives
   # "pool" is ubiquitous in programming (memory pool, thread pool, connection pool)
@@ -39,7 +39,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "xmrig"
+      substr: "xmrig"
 
   - id: monero-str
     desc: monero reference
@@ -47,7 +47,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "monero"
+      substr: "monero"
 
   - id: hashrate-str
     desc: hashrate keyword
@@ -55,7 +55,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "hashrate"
+      substr: "hashrate"
 
   - id: wallet-word
     desc: wallet keyword
@@ -71,7 +71,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "coinhive"
+      substr: "coinhive"
 
   - id: cryptonight-str
     desc: cryptonight algorithm
@@ -79,7 +79,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "cryptonight"
+      substr: "cryptonight"
 
   # === XMRig atomic indicators (legacy) ===
   - id: xmrig-lower
@@ -88,7 +88,7 @@ traits:
     conf: 0.55
     if:
       type: string
-      exact: "xmrig"
+      substr: "xmrig"
 
   - id: xmrig-pascal
     desc: XMRig (PascalCase)
@@ -96,7 +96,7 @@ traits:
     conf: 0.55
     if:
       type: string
-      exact: "XMRig"
+      substr: "XMRig"
 
   - id: miner-stratum
     desc: Stratum mining protocol

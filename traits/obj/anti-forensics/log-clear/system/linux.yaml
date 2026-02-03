@@ -109,7 +109,7 @@ traits:
     attack: "T1070.003"
     if:
       type: string
-      exact: "history -c"
+      substr: "history -c"
 
   - id: history-r
     desc: history -r reload history command
@@ -118,7 +118,7 @@ traits:
     mbc: "F0005"
     if:
       type: string
-      exact: "history -r"
+      substr: "history -r"
 
   - id: unset-histfile
     desc: unset HISTFILE command
@@ -128,7 +128,7 @@ traits:
     attack: "T1070.003"
     if:
       type: string
-      exact: "unset HISTFILE"
+      substr: "unset HISTFILE"
 
   - id: truncate-var-log
     desc: truncate /var/log command

@@ -12,7 +12,7 @@ traits:
     for: [php]
     if:
       type: string
-      exact: file_put_contents
+      substr: file_put_contents
 
   - id: fwrite
     desc: File write via fwrite
@@ -54,4 +54,4 @@ traits:
     for: [php]
     if:
       type: string
-      exact: move_uploaded_file
+      substr: move_uploaded_file

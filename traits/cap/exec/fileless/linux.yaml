@@ -13,7 +13,7 @@ traits:
     for: [python, c, shell]
     if:
       type: string
-      exact: "memfd_create"
+      substr: "memfd_create"
 
   - id: sys-memfd-create
     desc: SYS_memfd_create constant
@@ -22,7 +22,7 @@ traits:
     for: [python, c, shell]
     if:
       type: string
-      exact: "SYS_memfd_create"
+      substr: "SYS_memfd_create"
 
   - id: syscall-319
     desc: memfd_create syscall number 319
@@ -40,7 +40,7 @@ traits:
     for: [python, c, shell]
     if:
       type: string
-      exact: "MFD_CLOEXEC"
+      substr: "MFD_CLOEXEC"
 
   - id: libc-syscall
     desc: libc.syscall call
@@ -49,7 +49,7 @@ traits:
     for: [python, c, shell]
     if:
       type: string
-      exact: "libc.syscall"
+      substr: "libc.syscall"
 
   - id: syscall-paren
     desc: syscall( invocation
@@ -58,7 +58,7 @@ traits:
     for: [python, c, shell]
     if:
       type: string
-      exact: "syscall("
+      substr: "syscall("
 
   # === proc/self/fd indicators (atomic) ===
   - id: proc-self-fd
@@ -68,7 +68,7 @@ traits:
     for: [python, c, shell]
     if:
       type: string
-      exact: "/proc/self/fd"
+      substr: "/proc/self/fd"
 
   - id: proc-self-fd-slash
     desc: /proc/self/fd/ path
@@ -77,7 +77,7 @@ traits:
     for: [python, c, shell]
     if:
       type: string
-      exact: "/proc/self/fd/"
+      substr: "/proc/self/fd/"
 
   # === exec indicators (atomic) ===
   - id: execv-fn
@@ -87,7 +87,7 @@ traits:
     for: [python, c, shell]
     if:
       type: string
-      exact: "execv"
+      substr: "execv"
 
   - id: execve-fn
     desc: execve function call
@@ -96,7 +96,7 @@ traits:
     for: [python, c, shell]
     if:
       type: string
-      exact: "execve"
+      substr: "execve"
 
   - id: execl-fn
     desc: execl function call
@@ -105,7 +105,7 @@ traits:
     for: [python, c, shell]
     if:
       type: string
-      exact: "execl"
+      substr: "execl"
 
   - id: os-exec
     desc: os.exec Python call
@@ -114,7 +114,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "os.exec"
+      substr: "os.exec"
 
   - id: subprocess-mod
     desc: subprocess module
@@ -123,7 +123,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "subprocess"
+      substr: "subprocess"
 
   # === ctypes indicators (atomic) ===
   - id: ctypes-mod
@@ -133,7 +133,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "ctypes"
+      substr: "ctypes"
 
   - id: ctypes-cdll
     desc: CDLL ctypes class
@@ -151,7 +151,7 @@ traits:
     for: [python, c]
     if:
       type: string
-      exact: "libc.so"
+      substr: "libc.so"
 
   - id: dot-syscall
     desc: .syscall( call
@@ -160,7 +160,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: ".syscall("
+      substr: ".syscall("
 
   # === download indicators (atomic) ===
   - id: requests-get
@@ -170,7 +170,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "requests.get"
+      substr: "requests.get"
 
   - id: urllib-mod
     desc: urllib module
@@ -179,7 +179,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "urllib"
+      substr: "urllib"
 
   - id: http-client
     desc: http.client module
@@ -188,7 +188,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "http.client"
+      substr: "http.client"
 
   - id: dot-content
     desc: .content response attribute
@@ -197,7 +197,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: ".content"
+      substr: ".content"
 
   # === write indicators (atomic) ===
   - id: os-write
@@ -207,7 +207,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "os.write("
+      substr: "os.write("
 
   - id: write-fd
     desc: write(fd call
@@ -216,7 +216,7 @@ traits:
     for: [python, c]
     if:
       type: string
-      exact: "write(fd"
+      substr: "write(fd"
 
   - id: os-lseek
     desc: os.lseek function
@@ -225,7 +225,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "os.lseek("
+      substr: "os.lseek("
 
   - id: seek-set
     desc: SEEK_SET constant
@@ -234,7 +234,7 @@ traits:
     for: [python, c]
     if:
       type: string
-      exact: "SEEK_SET"
+      substr: "SEEK_SET"
 
   # === shared memory indicators (atomic) ===
   - id: shm-open
@@ -244,7 +244,7 @@ traits:
     for: [python, c, shell]
     if:
       type: string
-      exact: "shm_open"
+      substr: "shm_open"
 
   - id: mmap-fn
     desc: mmap function
@@ -262,7 +262,7 @@ traits:
     for: [python, c, shell]
     if:
       type: string
-      exact: "/dev/shm"
+      substr: "/dev/shm"
 
 composite_rules:
   # Exec function composite

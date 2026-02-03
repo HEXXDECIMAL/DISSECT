@@ -15,7 +15,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "\\Start Menu\\Programs\\Startup"
+      substr: "\\Start Menu\\Programs\\Startup"
 
   - id: appdata-startup
     desc: AppData Roaming Startup path
@@ -24,7 +24,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
+      substr: "AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
 
   - id: shell-startup
     desc: shell:startup special folder
@@ -33,7 +33,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "shell:startup"
+      substr: "shell:startup"
 
   # === Registry Run key atomic indicators ===
   - id: software-run-key
@@ -43,7 +43,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"
+      substr: "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"
 
   - id: hkcu-run
     desc: HKCU Run key reference
@@ -70,7 +70,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "CurrentVersion\\Run"
+      substr: "CurrentVersion\\Run"
 
   # === RunOnce atomic indicators ===
   - id: currentversion-runonce
@@ -80,7 +80,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "CurrentVersion\\RunOnce"
+      substr: "CurrentVersion\\RunOnce"
 
   - id: runonce-word
     desc: RunOnce keyword
@@ -89,7 +89,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "RunOnce"
+      substr: "RunOnce"
 
   # === Python winreg atomic indicators ===
   - id: import-winreg
@@ -100,7 +100,7 @@ traits:
     r#for: [python]
     if:
       type: string
-      exact: "import winreg"
+      substr: "import winreg"
 
   - id: from-winreg
     desc: from winreg import
@@ -110,7 +110,7 @@ traits:
     r#for: [python]
     if:
       type: string
-      exact: "from winreg"
+      substr: "from winreg"
 
   - id: underscore-winreg
     desc: _winreg module (Python 2)
@@ -120,7 +120,7 @@ traits:
     r#for: [python]
     if:
       type: string
-      exact: "_winreg"
+      substr: "_winreg"
 
   - id: openkey-hkey
     desc: OpenKey HKEY call
@@ -140,7 +140,7 @@ traits:
     r#for: [python]
     if:
       type: string
-      exact: "SetValueEx"
+      substr: "SetValueEx"
 
   - id: createkey
     desc: CreateKey call
@@ -150,7 +150,7 @@ traits:
     r#for: [python]
     if:
       type: string
-      exact: "CreateKey"
+      substr: "CreateKey"
 
   # === Scheduled tasks atomic indicators ===
   - id: schtasks-create-cmd
@@ -178,7 +178,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "ITaskScheduler"
+      substr: "ITaskScheduler"
 
   - id: taskscheduler-word
     desc: TaskScheduler keyword
@@ -187,7 +187,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "TaskScheduler"
+      substr: "TaskScheduler"
 
   # === Service installation atomic indicators ===
   - id: sc-create-cmd
@@ -206,7 +206,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "CreateService"
+      substr: "CreateService"
 
   - id: installservice-fn
     desc: InstallService function
@@ -215,7 +215,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "InstallService"
+      substr: "InstallService"
 
   - id: win32serviceutil-mod
     desc: win32serviceutil module
@@ -224,7 +224,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "win32serviceutil"
+      substr: "win32serviceutil"
 
   # === PowerShell registry atomic indicators ===
   - id: set-itemproperty-run
@@ -262,7 +262,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "__EventFilter"
+      substr: "__EventFilter"
 
   - id: wmi-filtertoconsumer
     desc: __FilterToConsumerBinding class
@@ -271,7 +271,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "__FilterToConsumerBinding"
+      substr: "__FilterToConsumerBinding"
 
   - id: wmi-commandlineconsumer
     desc: CommandLineEventConsumer class
@@ -280,7 +280,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "CommandLineEventConsumer"
+      substr: "CommandLineEventConsumer"
 
   - id: wmi-activescriptconsumer
     desc: ActiveScriptEventConsumer class
@@ -289,7 +289,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "ActiveScriptEventConsumer"
+      substr: "ActiveScriptEventConsumer"
 
   # === Executable payload atomic indicators ===
   - id: exe-extension
@@ -335,7 +335,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "powershell"
+      substr: "powershell"
 
   - id: cmd-exe
     desc: cmd.exe reference
@@ -344,7 +344,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "cmd.exe"
+      substr: "cmd.exe"
 
 composite_rules:
   # Startup folder composite

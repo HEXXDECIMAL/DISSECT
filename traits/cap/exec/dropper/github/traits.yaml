@@ -17,7 +17,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "os.chmod("
+      substr: "os.chmod("
 
 composite_rules:
   # Python exec/chmod composite

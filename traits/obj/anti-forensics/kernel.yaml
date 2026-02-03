@@ -69,7 +69,7 @@ traits:
     for: [c, elf, shell]
     if:
       type: string
-      exact: "/dev/kmsg"
+      substr: "/dev/kmsg"
 
   - id: do-syslog-symbol
     desc: do_syslog kernel function
@@ -179,7 +179,7 @@ traits:
     for: [c, elf]
     if:
       type: string
-      exact: "TASKSTATS_CMD_ATTR_PID"
+      substr: "TASKSTATS_CMD_ATTR_PID"
 
   - id: esrch-constant
     desc: ESRCH error constant (No such
@@ -188,7 +188,7 @@ traits:
     for: [c, elf]
     if:
       type: string
-      exact: "ESRCH"
+      substr: "ESRCH"
 
   # === Audit System Functions ===
   - id: audit-log-start
@@ -216,7 +216,7 @@ traits:
     for: [c, elf]
     if:
       type: string
-      exact: "NETLINK_AUDIT"
+      substr: "NETLINK_AUDIT"
 
   # === Audit Log Field Patterns ===
   - id: pid-equals

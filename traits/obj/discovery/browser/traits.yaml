@@ -12,7 +12,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "Chrome"
+      substr: "Chrome"
 
   - id: firefox-name
     desc: Firefox browser name
@@ -22,7 +22,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "Firefox"
+      substr: "Firefox"
 
   - id: safari-name
     desc: Safari browser name
@@ -32,7 +32,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "Safari"
+      substr: "Safari"
 
   - id: edge-name
     desc: Edge browser name
@@ -66,7 +66,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "Brave"
+      substr: "Brave"
 
   # === Browser data file atomic indicators ===
   - id: history-file
@@ -102,7 +102,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "places.sqlite"
+      substr: "places.sqlite"
 
   - id: logins-json
     desc: Firefox logins.json
@@ -112,7 +112,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "logins.json"
+      substr: "logins.json"
 
   # === Bookmarks ===
   - id: bookmarks-word
@@ -123,7 +123,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: bookmarks
+      substr: bookmarks
       case_insensitive: true
 
   - id: bookmarks-plist
@@ -134,7 +134,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "Bookmarks.plist"
+      substr: "Bookmarks.plist"
 
   # === Local storage ===
   - id: local-storage-dir
@@ -166,7 +166,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "chrome-extension://"
+      substr: "chrome-extension://"
 
   - id: extensions-hash-path
     desc: Extensions path with hash
@@ -196,7 +196,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "/BrowserSupport/Extensions"
+      substr: "/BrowserSupport/Extensions"
 
   # === Opera/Brave specific ===
   - id: opera-stable

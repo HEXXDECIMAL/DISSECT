@@ -23,7 +23,7 @@ traits:
     attack: "T1496"
     if:
       type: string
-      exact: "c3pool"
+      substr: "c3pool"
 
   - id: pool-f2pool
     desc: F2Pool mining pool
@@ -32,7 +32,7 @@ traits:
     attack: "T1496"
     if:
       type: string
-      exact: "f2pool"
+      substr: "f2pool"
 
   - id: pool-hashvault
     desc: HashVault mining pool
@@ -41,7 +41,7 @@ traits:
     attack: "T1496"
     if:
       type: string
-      exact: "hashvault"
+      substr: "hashvault"
 
   - id: pool-monerohash
     desc: MoneroHash mining pool
@@ -50,7 +50,7 @@ traits:
     attack: "T1496"
     if:
       type: string
-      exact: "monerohash"
+      substr: "monerohash"
 
   - id: pool-xmrpool
     desc: XMRPool mining pool
@@ -59,7 +59,7 @@ traits:
     attack: "T1496"
     if:
       type: string
-      exact: "xmrpool"
+      substr: "xmrpool"
 
   - id: pool-supportxmr
     desc: SupportXMR mining pool
@@ -68,7 +68,7 @@ traits:
     attack: "T1496"
     if:
       type: string
-      exact: "supportxmr"
+      substr: "supportxmr"
 
   - id: pool-minergate
     desc: MinerGate mining pool
@@ -77,7 +77,7 @@ traits:
     attack: "T1496"
     if:
       type: string
-      exact: "minergate"
+      substr: "minergate"
 
   - id: pool-crypto-pool
     desc: Crypto-pool mining pool
@@ -86,7 +86,7 @@ traits:
     attack: "T1496"
     if:
       type: string
-      exact: "crypto-pool"
+      substr: "crypto-pool"
 
   - id: pool-moneropool
     desc: Moneropool mining pool
@@ -95,7 +95,7 @@ traits:
     attack: "T1496"
     if:
       type: string
-      exact: "moneropool"
+      substr: "moneropool"
 
   # === Atomic: Mining Software ===
 
@@ -106,7 +106,7 @@ traits:
     attack: "T1496"
     if:
       type: string
-      exact: "xmrig"
+      substr: "xmrig"
       case_insensitive: true
 
   - id: cryptonight
@@ -163,7 +163,7 @@ traits:
     attack: "T1496"
     if:
       type: string
-      exact: "--donate-level"
+      substr: "--donate-level"
 
   - id: tls-fingerprint
     desc: Mining TLS fingerprint option
@@ -172,7 +172,7 @@ traits:
     attack: "T1496"
     if:
       type: string
-      exact: "--tls-fingerprint"
+      substr: "--tls-fingerprint"
 
   - id: miner-name
     desc: Miner name configuration
@@ -181,7 +181,7 @@ traits:
     attack: "T1496"
     if:
       type: string
-      exact: "miner_name"
+      substr: "miner_name"
 
   - id: miner-url
     desc: Miner URL configuration
@@ -190,7 +190,7 @@ traits:
     attack: "T1496"
     if:
       type: string
-      exact: "miner_url"
+      substr: "miner_url"
 
   - id: normal-hashing
     desc: Normal hashing configuration
@@ -199,7 +199,7 @@ traits:
     attack: "T1496"
     if:
       type: string
-      exact: '"normalHashing": true,'
+      substr: '"normalHashing": true,'
 
   # === Atomic: Memory Optimization ===
 
@@ -211,7 +211,7 @@ traits:
     for: [elf]
     if:
       type: string
-      exact: "vm.nr_hugepages"
+      substr: "vm.nr_hugepages"
 
   - id: nmi-watchdog
     desc: NMI watchdog disable (mining optimization)
@@ -221,7 +221,7 @@ traits:
     for: [elf]
     if:
       type: string
-      exact: "kernel.nmi_watchdog"
+      substr: "kernel.nmi_watchdog"
 
   # === Atomic: Argon2 (Memory-Hard) ===
 
@@ -232,7 +232,7 @@ traits:
     attack: "T1496"
     if:
       type: string
-      exact: "argon2d"
+      substr: "argon2d"
 
   # === Atomic: Mining Indicators ===
 
@@ -245,7 +245,7 @@ traits:
     attack: "T1496"
     if:
       type: string
-      exact: "wallet"
+      substr: "wallet"
 
   # NOTE: Go runtime uses /proc/self legitimately for memory management
   # Moved to inert - only meaningful with other mining indicators
@@ -255,7 +255,7 @@ traits:
     conf: 0.3
     if:
       type: string
-      exact: "/proc/self"
+      substr: "/proc/self"
 
   # NOTE: "NUMA" can appear in Go and other runtimes for memory optimization.
   # Only meaningful with other mining indicators.

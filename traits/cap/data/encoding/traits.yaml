@@ -9,7 +9,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "google.protobuf"
+      substr: "google.protobuf"
 
   - id: proto-extension
     desc: .proto file extension
@@ -17,7 +17,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: ".proto"
+      substr: ".proto"
 
   - id: protobuf-string
     desc: protobuf string
@@ -25,7 +25,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "protobuf"
+      substr: "protobuf"
 
   - id: parse-from-string
     desc: ParseFromString method
@@ -33,7 +33,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "ParseFromString"
+      substr: "ParseFromString"
 
   - id: serialize-to-string
     desc: SerializeToString method
@@ -41,7 +41,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "SerializeToString"
+      substr: "SerializeToString"
 
   - id: protoc-string
     desc: protoc compiler
@@ -49,7 +49,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "protoc"
+      substr: "protoc"
 
   # === JSON micro-traits ===
   - id: json-marshal-go
@@ -58,7 +58,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "json.Marshal"
+      substr: "json.Marshal"
 
   - id: json-unmarshal-go
     desc: Go json.Unmarshal
@@ -66,7 +66,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "json.Unmarshal"
+      substr: "json.Unmarshal"
 
   - id: json-parse-js
     desc: JavaScript JSON.parse
@@ -74,7 +74,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "JSON.parse"
+      substr: "JSON.parse"
 
   - id: json-stringify-js
     desc: JavaScript JSON.stringify
@@ -82,7 +82,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "JSON.stringify"
+      substr: "JSON.stringify"
 
   - id: serde-json
     desc: Rust serde_json
@@ -90,7 +90,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "serde_json"
+      substr: "serde_json"
 
   - id: nlohmann-json
     desc: C++ nlohmann/json
@@ -98,7 +98,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "nlohmann/json"
+      substr: "nlohmann/json"
 
   - id: rapidjson
     desc: rapidjson library
@@ -106,7 +106,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "rapidjson"
+      substr: "rapidjson"
 
   - id: cjson
     desc: cJSON library
@@ -114,7 +114,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "cJSON"
+      substr: "cJSON"
 
   # === YAML micro-traits ===
   - id: yaml-v2
@@ -123,7 +123,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "yaml.v2"
+      substr: "yaml.v2"
 
   - id: yaml-v3
     desc: yaml.v3 Go library
@@ -131,7 +131,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "yaml.v3"
+      substr: "yaml.v3"
 
   - id: pyyaml
     desc: PyYAML library
@@ -139,7 +139,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "PyYAML"
+      substr: "PyYAML"
 
   - id: yaml-safe-load
     desc: yaml.safe_load Python
@@ -147,7 +147,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "yaml.safe_load"
+      substr: "yaml.safe_load"
 
   - id: serde-yaml
     desc: Rust serde_yaml
@@ -155,7 +155,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "serde_yaml"
+      substr: "serde_yaml"
 
   - id: yaml-cpp
     desc: yaml-cpp library
@@ -163,7 +163,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "yaml-cpp"
+      substr: "yaml-cpp"
 
   # === XML micro-traits ===
   - id: encoding-xml
@@ -172,7 +172,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "encoding/xml"
+      substr: "encoding/xml"
 
   - id: xml-etree
     desc: Python xml.etree
@@ -180,7 +180,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "xml.etree"
+      substr: "xml.etree"
 
   - id: lxml
     desc: lxml library
@@ -196,7 +196,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "libxml2"
+      substr: "libxml2"
 
   - id: tinyxml
     desc: tinyxml library
@@ -204,7 +204,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "tinyxml"
+      substr: "tinyxml"
 
   - id: pugixml
     desc: pugixml library
@@ -212,7 +212,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "pugixml"
+      substr: "pugixml"
 
   - id: xerces
     desc: xerces library
@@ -220,7 +220,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "xerces"
+      substr: "xerces"
 
   # === MessagePack micro-traits ===
   - id: msgpack-lower
@@ -229,7 +229,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "msgpack"
+      substr: "msgpack"
 
   - id: msgpack-camel
     desc: MessagePack string
@@ -237,7 +237,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "MessagePack"
+      substr: "MessagePack"
 
   - id: msgpack-go
     desc: Go vmihailenco/msgpack
@@ -245,7 +245,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "vmihailenco/msgpack"
+      substr: "vmihailenco/msgpack"
 
   # === CBOR micro-traits ===
   - id: cbor-lower
@@ -271,7 +271,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "org.apache.avro"
+      substr: "org.apache.avro"
 
   - id: avsc-extension
     desc: .avsc file extension
@@ -279,7 +279,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: ".avsc"
+      substr: ".avsc"
 
   # === Apache Thrift micro-traits ===
   - id: thrift-lower
@@ -288,7 +288,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "thrift"
+      substr: "thrift"
 
   - id: thrift-apache
     desc: apache.thrift
@@ -296,7 +296,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "apache.thrift"
+      substr: "apache.thrift"
 
   - id: thrift-extension
     desc: .thrift file extension
@@ -304,7 +304,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: ".thrift"
+      substr: ".thrift"
 
   # === FlatBuffers micro-traits ===
   - id: flatbuffers-string
@@ -313,7 +313,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "flatbuffers"
+      substr: "flatbuffers"
 
   - id: flatbuffer-builder
     desc: FlatBufferBuilder class
@@ -321,7 +321,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "FlatBufferBuilder"
+      substr: "FlatBufferBuilder"
 
   - id: fbs-extension
     desc: .fbs file extension
@@ -338,7 +338,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "capnp"
+      substr: "capnp"
 
   - id: capnproto-string
     desc: capnproto string
@@ -346,7 +346,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "capnproto"
+      substr: "capnproto"
 
   - id: capnp-extension
     desc: .capnp file extension
@@ -354,7 +354,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: ".capnp"
+      substr: ".capnp"
 
   # === BSON micro-traits ===
   - id: bson-lower
@@ -379,7 +379,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "go.mongodb.org/mongo-driver/bson"
+      substr: "go.mongodb.org/mongo-driver/bson"
 
   # === Python pickle micro-traits ===
   - id: pickle-load
@@ -388,7 +388,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "pickle.load"
+      substr: "pickle.load"
 
   - id: pickle-dump
     desc: pickle.dump
@@ -396,7 +396,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "pickle.dump"
+      substr: "pickle.dump"
 
   - id: cpickle
     desc: cPickle
@@ -404,7 +404,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "cPickle"
+      substr: "cPickle"
 
   - id: pickle-unpickler
     desc: pickle.Unpickler
@@ -412,7 +412,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "pickle.Unpickler"
+      substr: "pickle.Unpickler"
 
   # === Go gob micro-traits ===
   - id: encoding-gob
@@ -421,7 +421,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "encoding/gob"
+      substr: "encoding/gob"
 
   - id: gob-newencoder
     desc: gob.NewEncoder
@@ -429,7 +429,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "gob.NewEncoder"
+      substr: "gob.NewEncoder"
 
   - id: gob-newdecoder
     desc: gob.NewDecoder
@@ -437,7 +437,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "gob.NewDecoder"
+      substr: "gob.NewDecoder"
 
 composite_rules:
   # Protocol Buffers composite (migrated from YARA)

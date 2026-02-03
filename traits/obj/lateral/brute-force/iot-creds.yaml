@@ -48,7 +48,7 @@ traits:
     conf: 0.95
     if:
       type: string
-      exact: "/proc/net/tcp"
+      substr: "/proc/net/tcp"
 
   # === Shell execution in static binaries ===
   - id: bin-sh-string
@@ -57,7 +57,7 @@ traits:
     conf: 0.95
     if:
       type: string
-      exact: "/bin/sh"
+      substr: "/bin/sh"
 
   # === Telnet/SSH Brute-Force Indicators ===
   - id: busybox-command-injection

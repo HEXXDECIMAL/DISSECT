@@ -18,7 +18,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: sys.exit
+      substr: sys.exit
 
   - id: process-exit
     desc: Node.js process.exit call
@@ -27,4 +27,4 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: process.exit
+      substr: process.exit

@@ -11,7 +11,7 @@ traits:
     attack: "T1552.001"
     if:
       type: string
-      exact: "GITHUB_TOKEN"
+      substr: "GITHUB_TOKEN"
 
   - id: gh-token-var
     desc: GH_TOKEN environment variable
@@ -20,7 +20,7 @@ traits:
     attack: "T1552.001"
     if:
       type: string
-      exact: "GH_TOKEN"
+      substr: "GH_TOKEN"
 
   - id: aws-access-key
     desc: AWS_ACCESS_KEY environment variable access
@@ -47,7 +47,7 @@ traits:
     attack: "T1552.001"
     if:
       type: string
-      exact: "API_KEY"
+      substr: "API_KEY"
 
   - id: secret-key-generic
     desc: Generic SECRET_KEY environment variable access
@@ -56,7 +56,7 @@ traits:
     attack: "T1552.001"
     if:
       type: string
-      exact: "SECRET_KEY"
+      substr: "SECRET_KEY"
 
   - id: discord-token
     desc: DISCORD_TOKEN environment variable access
@@ -65,7 +65,7 @@ traits:
     attack: "T1552.001"
     if:
       type: string
-      exact: "DISCORD_TOKEN"
+      substr: "DISCORD_TOKEN"
 
   - id: slack-token
     desc: SLACK_TOKEN environment variable access
@@ -74,7 +74,7 @@ traits:
     attack: "T1552.001"
     if:
       type: string
-      exact: "SLACK_TOKEN"
+      substr: "SLACK_TOKEN"
 
   - id: openai-api-key
     desc: OPENAI_API_KEY environment variable access
@@ -83,7 +83,7 @@ traits:
     attack: "T1552.001"
     if:
       type: string
-      exact: "OPENAI_API_KEY"
+      substr: "OPENAI_API_KEY"
 
   - id: anthropic-api-key
     desc: ANTHROPIC_API_KEY environment variable access
@@ -92,7 +92,7 @@ traits:
     attack: "T1552.001"
     if:
       type: string
-      exact: "ANTHROPIC_API_KEY"
+      substr: "ANTHROPIC_API_KEY"
 
 composite_rules:
   # GitHub token indicators (OR)

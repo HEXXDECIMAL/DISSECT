@@ -79,7 +79,7 @@ traits:
     for: [shell, elf, macho]
     if:
       type: string
-      exact: "httpd.conf"
+      substr: "httpd.conf"
 
   - id: apache2-conf-path
     desc: apache2.conf configuration file
@@ -88,7 +88,7 @@ traits:
     for: [shell, elf, macho]
     if:
       type: string
-      exact: "apache2.conf"
+      substr: "apache2.conf"
 
   - id: nginx-conf-path
     desc: nginx.conf configuration file
@@ -97,7 +97,7 @@ traits:
     for: [shell, elf, macho]
     if:
       type: string
-      exact: "nginx.conf"
+      substr: "nginx.conf"
 
   - id: sites-available-path
     desc: sites-available configuration directory
@@ -106,7 +106,7 @@ traits:
     for: [shell, elf, macho]
     if:
       type: string
-      exact: "sites-available"
+      substr: "sites-available"
 
   - id: sites-enabled-path
     desc: sites-enabled configuration directory
@@ -115,7 +115,7 @@ traits:
     for: [shell, elf, macho]
     if:
       type: string
-      exact: "sites-enabled"
+      substr: "sites-enabled"
 
   # === HTTP server CLI arguments ===
   - id: bind-port-80
@@ -180,7 +180,7 @@ traits:
     for: [go]
     if:
       type: string
-      exact: "ServeMux"
+      substr: "ServeMux"
 
   - id: http-server-type
     desc: Go http.Server type
@@ -189,7 +189,7 @@ traits:
     for: [go]
     if:
       type: string
-      exact: "http.Server"
+      substr: "http.Server"
 
   - id: listenandserve-call
     desc: Go ListenAndServe call
@@ -198,7 +198,7 @@ traits:
     for: [go]
     if:
       type: string
-      exact: "ListenAndServe"
+      substr: "ListenAndServe"
 
   - id: listenandservetls-call
     desc: Go ListenAndServeTLS call
@@ -207,7 +207,7 @@ traits:
     for: [go]
     if:
       type: string
-      exact: "ListenAndServeTLS"
+      substr: "ListenAndServeTLS"
 
   # === Node.js HTTP server ===
   - id: http-createserver-call
@@ -217,7 +217,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "http.createServer"
+      substr: "http.createServer"
 
   - id: https-createserver-call
     desc: Node.js https.createServer()
@@ -226,7 +226,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "https.createServer"
+      substr: "https.createServer"
 
   - id: server-listen-call
     desc: server.listen() call

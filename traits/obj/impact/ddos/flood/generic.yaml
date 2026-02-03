@@ -52,7 +52,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "udp_flood"
+      substr: "udp_flood"
 
   - id: tcp-flood
     desc: TCP flood attack function
@@ -63,7 +63,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "tcp_flood"
+      substr: "tcp_flood"
 
   - id: tcpraw-flood
     desc: TCP raw flood attack function
@@ -74,7 +74,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "tcpraw_flood"
+      substr: "tcpraw_flood"
 
   - id: flooder
     desc: Flooder tool reference
@@ -96,7 +96,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "stresser"
+      substr: "stresser"
 
   - id: tsource-engine
     desc: TSource Engine Query (DDoS amplification)
@@ -107,7 +107,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "TSource Engine Query"
+      substr: "TSource Engine Query"
 
   - id: icmp-flood
     desc: ICMP flood attack
@@ -118,7 +118,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "ICMPFLOOD"
+      substr: "ICMPFLOOD"
 
   - id: blacknurse
     desc: BlackNurse ICMP attack
@@ -129,7 +129,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "BLACKNURSE"
+      substr: "BLACKNURSE"
 
   - id: hydrasyn
     desc: HYDRASYN DDoS attack
@@ -140,7 +140,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "HYDRASYN"
+      substr: "HYDRASYN"
 
   - id: flood-operation
     desc: Flood operation message
@@ -151,7 +151,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "Flood operation"
+      substr: "Flood operation"
 
   - id: starting-flood
     desc: Starting flood message
@@ -162,7 +162,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "Starting Flood"
+      substr: "Starting Flood"
 
 composite_rules:
   - id: syn-ack-flood-combo

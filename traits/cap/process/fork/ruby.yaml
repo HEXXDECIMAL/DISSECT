@@ -10,7 +10,7 @@ traits:
     r#for: [ruby]
     if:
       type: string
-      exact: "Process.fork"
+      substr: "Process.fork"
 
   - id: fork-brace-block
     desc: fork with brace block

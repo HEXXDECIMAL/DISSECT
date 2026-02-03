@@ -20,7 +20,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "InsecureSkipVerify"
+      substr: "InsecureSkipVerify"
 
   - id: cert-none
     desc: CERT_NONE (Python)
@@ -28,7 +28,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "CERT_NONE"
+      substr: "CERT_NONE"
 
   - id: verify-mode-none
     desc: verify_mode = ssl.CERT_NONE (Python)
@@ -36,7 +36,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "verify_mode = ssl.CERT_NONE"
+      substr: "verify_mode = ssl.CERT_NONE"
 
   - id: reject-unauthorized-false
     desc: rejectUnauthorized false (Node.js)
@@ -44,7 +44,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "rejectUnauthorized: false"
+      substr: "rejectUnauthorized: false"
 
 composite_rules:
   # Skip SSL certificate verification (migrated from YARA)

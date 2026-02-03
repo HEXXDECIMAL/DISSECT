@@ -22,7 +22,7 @@ traits:
     r#for: [python, shell, c]
     if:
       type: string
-      exact: "mprotect"
+      substr: "mprotect"
 
   - id: rwx-prot-bytes
     desc: RWX protection bytes (PROT_READ|WRITE|EXEC =

@@ -12,7 +12,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: dmidecode
+      substr: dmidecode
 
   - id: dmi-sysfs
     desc: DMI sysfs path access
@@ -20,7 +20,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: /sys/class/dmi
+      substr: /sys/class/dmi
 
   - id: dmi-product-name
     desc: DMI product_name field
@@ -28,7 +28,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: product_name
+      substr: product_name
 
   - id: dmi-sys-vendor
     desc: DMI sys_vendor field
@@ -36,7 +36,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: sys_vendor
+      substr: sys_vendor
 
   - id: dmi-bios-vendor
     desc: DMI bios_vendor field
@@ -44,4 +44,4 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: bios_vendor
+      substr: bios_vendor

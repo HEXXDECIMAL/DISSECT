@@ -7,7 +7,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: "ConfigurationManager"
+      substr: "ConfigurationManager"
 
   # === AppSettings atomic indicators ===
   - id: appsettings-pascal
@@ -16,7 +16,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "AppSettings"
+      substr: "AppSettings"
 
   - id: appsettings-lower
     desc: appsettings (lowercase)
@@ -24,7 +24,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "appsettings"
+      substr: "appsettings"
 
   # === Environment variable atomic indicators ===
   - id: get-env-var
@@ -33,7 +33,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "GetEnvironmentVariable"
+      substr: "GetEnvironmentVariable"
 
   - id: environment-class
     desc: Environment class access

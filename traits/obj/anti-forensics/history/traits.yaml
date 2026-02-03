@@ -22,7 +22,7 @@ traits:
     attack: "T1070.003"
     if:
       type: string
-      exact: "export HISTFILE="
+      substr: "export HISTFILE="
 
   - id: unset-histfile
     desc: unset HISTFILE command
@@ -32,7 +32,7 @@ traits:
     attack: "T1070.003"
     if:
       type: string
-      exact: "unset HISTFILE"
+      substr: "unset HISTFILE"
 
   - id: histsize-zero
     desc: HISTSIZE=0 disables history
@@ -42,7 +42,7 @@ traits:
     attack: "T1070.003"
     if:
       type: string
-      exact: "HISTSIZE=0"
+      substr: "HISTSIZE=0"
 
   - id: histfilesize-zero
     desc: HISTFILESIZE=0 disables history file
@@ -52,7 +52,7 @@ traits:
     attack: "T1070.003"
     if:
       type: string
-      exact: "HISTFILESIZE=0"
+      substr: "HISTFILESIZE=0"
 
   # === MySQL History Clearing ===
   - id: mysql-histfile-devnull
@@ -73,7 +73,7 @@ traits:
     attack: "T1070.003"
     if:
       type: string
-      exact: "export MYSQL_HISTFILE="
+      substr: "export MYSQL_HISTFILE="
 
   # === PROMPT_COMMAND Clearing ===
   - id: unset-prompt-command
@@ -84,7 +84,7 @@ traits:
     attack: "T1070.003"
     if:
       type: string
-      exact: "unset PROMPT_COMMAND"
+      substr: "unset PROMPT_COMMAND"
 
   - id: prompt-command-empty
     desc: "PROMPT_COMMAND='' empty string"
@@ -94,7 +94,7 @@ traits:
     attack: "T1070.003"
     if:
       type: string
-      exact: "PROMPT_COMMAND=''"
+      substr: "PROMPT_COMMAND=''"
 
   - id: prompt-command-unset
     desc: PROMPT_COMMAND= assignment
@@ -104,7 +104,7 @@ traits:
     attack: "T1070.003"
     if:
       type: string
-      exact: "PROMPT_COMMAND="
+      substr: "PROMPT_COMMAND="
 
   # Note: TERM variable traits moved to os/env/terminal.yaml
   # (terminal configuration is not anti-forensics)

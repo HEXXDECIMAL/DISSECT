@@ -12,7 +12,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "Apple Development"
+      substr: "Apple Development"
 
   - id: apple-distribution
     desc: Apple Distribution certificate
@@ -20,7 +20,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "Apple Distribution"
+      substr: "Apple Distribution"
 
   - id: developer-id
     desc: Developer ID certificate
@@ -28,7 +28,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "Developer ID"
+      substr: "Developer ID"
 
   # === Codesign requirement atomic indicators ===
   - id: anchor-apple
@@ -37,7 +37,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "anchor apple"
+      substr: "anchor apple"
 
   - id: certificate-leaf
     desc: certificate leaf requirement
@@ -45,7 +45,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "certificate leaf"
+      substr: "certificate leaf"
 
 composite_rules:
   - id: signed

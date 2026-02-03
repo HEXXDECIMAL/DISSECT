@@ -198,7 +198,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "child_process"
+      substr: "child_process"
 
   # === INSTALL-TIME STEALTH PATTERNS ===
   # Malware that checks if running during npm install to hide output
@@ -422,7 +422,7 @@ composite_rules:
   # npm package with interpreter dropper (hostile combination)
   - id: interpreter-dropper-package
     desc: npm package that downloads and
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     attack: "T1195.002"
     mbc: "B0024"

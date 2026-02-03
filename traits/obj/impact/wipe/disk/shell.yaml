@@ -26,7 +26,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "^/dev"
+      substr: "^/dev"
 
   # xargs symbol - used for parallel execution
   - id: xargs-cmd

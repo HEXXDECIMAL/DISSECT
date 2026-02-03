@@ -14,7 +14,7 @@ traits:
     attack: "T1562"
     if:
       type: string
-      exact: "ntdll"
+      substr: "ntdll"
 
   - id: rtl-unwind
     desc: Runtime library unwind operation

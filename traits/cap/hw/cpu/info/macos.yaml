@@ -10,4 +10,4 @@ traits:
     platforms: [macos]
     if:
       type: string
-      exact: "CpuInfoAndModel"
+      substr: "CpuInfoAndModel"

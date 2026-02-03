@@ -11,7 +11,7 @@ traits:
     for: [c]
     if:
       type: string
-      exact: "p_check_integrity"
+      substr: "p_check_integrity"
 
   - id: p-dump-task-f
     desc: p_dump_task_f LKRG function
@@ -21,7 +21,7 @@ traits:
     for: [c]
     if:
       type: string
-      exact: "p_dump_task_f"
+      substr: "p_dump_task_f"
 
   - id: p-cmp-creds
     desc: p_cmp_creds LKRG function
@@ -31,7 +31,7 @@ traits:
     for: [c]
     if:
       type: string
-      exact: "p_cmp_creds"
+      substr: "p_cmp_creds"
 
   - id: p-cmp-tasks
     desc: p_cmp_tasks LKRG function
@@ -41,7 +41,7 @@ traits:
     for: [c]
     if:
       type: string
-      exact: "p_cmp_tasks"
+      substr: "p_cmp_tasks"
 
   - id: ed-task-add
     desc: ed_task_add LKRG function
@@ -51,7 +51,7 @@ traits:
     for: [c]
     if:
       type: string
-      exact: "ed_task_add"
+      substr: "ed_task_add"
 
   - id: p-exploit-detection-init
     desc: p_exploit_detection_init LKRG function
@@ -61,7 +61,7 @@ traits:
     for: [c]
     if:
       type: string
-      exact: "p_exploit_detection_init"
+      substr: "p_exploit_detection_init"
 
   # === Generic Kernel Security Functions ===
   - id: check-integrity

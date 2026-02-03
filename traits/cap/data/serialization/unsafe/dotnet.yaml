@@ -7,7 +7,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "Newtonsoft.Json"
+      substr: "Newtonsoft.Json"
 
   - id: json-system
     desc: System.Text.Json serialization
@@ -15,7 +15,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "System.Text.Json"
+      substr: "System.Text.Json"
 
   - id: xml-serializer
     desc: XML serialization capability
@@ -32,4 +32,4 @@ traits:
     mbc: "C0026"
     if:
       type: string
-      exact: "BinaryFormatter"
+      substr: "BinaryFormatter"

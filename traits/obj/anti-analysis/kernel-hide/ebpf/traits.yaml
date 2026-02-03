@@ -38,7 +38,7 @@ traits:
     for: [c, elf]
     if:
       type: string
-      exact: 'SEC("uprobe/'
+      substr: 'SEC("uprobe/'
 
   # === XDP Packet Structures ===
   - id: xdp-md-struct
@@ -48,7 +48,7 @@ traits:
     for: [c, elf]
     if:
       type: string
-      exact: "struct xdp_md"
+      substr: "struct xdp_md"
 
   - id: xdp-data-end
     desc: XDP data_end pointer
@@ -57,7 +57,7 @@ traits:
     for: [c, elf]
     if:
       type: string
-      exact: "data_end"
+      substr: "data_end"
 
   - id: xdp-iph
     desc: IP header struct reference
@@ -100,7 +100,7 @@ traits:
     for: [go]
     if:
       type: string
-      exact: "github.com/cilium/ebpf"
+      substr: "github.com/cilium/ebpf"
 
   - id: libbpfgo
     desc: github.com/aquasecurity/libbpfgo library
@@ -109,7 +109,7 @@ traits:
     for: [go]
     if:
       type: string
-      exact: "github.com/aquasecurity/libbpfgo"
+      substr: "github.com/aquasecurity/libbpfgo"
 
   - id: datadog-ebpf
     desc: github.com/DataDog/ebpf library
@@ -118,7 +118,7 @@ traits:
     for: [go]
     if:
       type: string
-      exact: "github.com/DataDog/ebpf"
+      substr: "github.com/DataDog/ebpf"
 
   - id: ebpf-new-collection
     desc: ebpf.NewCollection function
@@ -127,7 +127,7 @@ traits:
     for: [go]
     if:
       type: string
-      exact: "ebpf.NewCollection"
+      substr: "ebpf.NewCollection"
 
   - id: ebpf-new-program
     desc: ebpf.NewProgram function
@@ -136,7 +136,7 @@ traits:
     for: [go]
     if:
       type: string
-      exact: "ebpf.NewProgram"
+      substr: "ebpf.NewProgram"
 
   - id: load-pinned-program
     desc: LoadPinnedProgram function
@@ -145,7 +145,7 @@ traits:
     for: [go]
     if:
       type: string
-      exact: "LoadPinnedProgram"
+      substr: "LoadPinnedProgram"
 
   # === Offensive Intent ===
   - id: rootkit-string
@@ -237,7 +237,7 @@ traits:
     for: [c, elf]
     if:
       type: string
-      exact: "tp/syscalls/sys_exit_getdents64"
+      substr: "tp/syscalls/sys_exit_getdents64"
 
   - id: d-reclen
     desc: d_reclen dirent field
@@ -246,7 +246,7 @@ traits:
     for: [c, elf]
     if:
       type: string
-      exact: "d_reclen"
+      substr: "d_reclen"
 
   # === Uprobe Hooking ===
   - id: crypt-verify
@@ -256,7 +256,7 @@ traits:
     for: [c, elf]
     if:
       type: string
-      exact: "crypt_verify"
+      substr: "crypt_verify"
 
   - id: password-string
     desc: Password string reference
@@ -277,7 +277,7 @@ traits:
     for: [c, elf]
     if:
       type: string
-      exact: "http_routes"
+      substr: "http_routes"
 
   - id: http-edit
     desc: HTTP_EDIT action
@@ -286,7 +286,7 @@ traits:
     for: [c, elf]
     if:
       type: string
-      exact: "HTTP_EDIT"
+      substr: "HTTP_EDIT"
 
   - id: http-drop
     desc: HTTP_DROP action
@@ -295,7 +295,7 @@ traits:
     for: [c, elf]
     if:
       type: string
-      exact: "HTTP_DROP"
+      substr: "HTTP_DROP"
 
   # NOTE: This trait is only meaningful in eBPF/XDP packet manipulation context.
   # It's used in the http-manipulation composite rule which requires sec-xdp.

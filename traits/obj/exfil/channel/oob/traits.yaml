@@ -113,7 +113,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "requestbin.com"
+      substr: "requestbin.com"
 
   - id: requestbin-net
     desc: RequestBin.net OOB endpoint
@@ -123,7 +123,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "requestbin.net"
+      substr: "requestbin.net"
 
   - id: webhook-site
     desc: Exfiltrates data to Webhook.site OOB
@@ -133,7 +133,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "webhook.site"
+      substr: "webhook.site"
 
   - id: dnslog-cn
     desc: Exfiltrates data to DNSLog.cn OOB
@@ -143,7 +143,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "dnslog.cn"
+      substr: "dnslog.cn"
 
   - id: canarytokens
     desc: Accesses Canarytokens OOB domain (potential
@@ -153,7 +153,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "canarytokens.com"
+      substr: "canarytokens.com"
 
   - id: oastify-b64
     desc: Base64-encoded Oastify OOB domain indicator
@@ -162,7 +162,7 @@ traits:
     for: [python, javascript]
     if:
       type: string
-      exact: "b2FzdGlmeS5jb20"
+      substr: "b2FzdGlmeS5jb20"
 
   - id: oast-fun-b64
     desc: Base64-encoded OAST.fun OOB domain indicator
@@ -171,7 +171,7 @@ traits:
     for: [python, javascript]
     if:
       type: string
-      exact: "b2FzdC5mdW4"
+      substr: "b2FzdC5mdW4"
 
   - id: http-b64
     desc: Base64-encoded HTTP protocol indicator
@@ -180,7 +180,7 @@ traits:
     for: [python, javascript]
     if:
       type: string
-      exact: "aHR0cDovL"
+      substr: "aHR0cDovL"
 
   - id: https-b64
     desc: Base64-encoded HTTPS protocol indicator
@@ -189,7 +189,7 @@ traits:
     for: [python, javascript]
     if:
       type: string
-      exact: "aHR0cHM6Ly"
+      substr: "aHR0cHM6Ly"
 
   # NOTE: Discord webhook traits are defined in comm/messaging/discord/
   # NOTE: Telegram bot traits are defined in comm/messaging/telegram/

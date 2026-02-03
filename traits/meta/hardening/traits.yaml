@@ -72,7 +72,7 @@ traits:
     for: [macho]
     if:
       type: string
-      exact: "Failed to enter sandbox"
+      substr: "Failed to enter sandbox"
 
   # === Hardened Runtime (macOS) ===
 
@@ -83,7 +83,7 @@ traits:
     for: [macho]
     if:
       type: string
-      exact: "runtime"
+      substr: "runtime"
 
   # === seccomp (Linux) ===
 
@@ -121,7 +121,7 @@ traits:
     for: [elf]
     if:
       type: string
-      exact: "PR_SET_SECCOMP"
+      substr: "PR_SET_SECCOMP"
 
   - id: seccomp-mode-filter
     desc: Linux seccomp filter mode constant
@@ -130,7 +130,7 @@ traits:
     for: [elf]
     if:
       type: string
-      exact: "SECCOMP_MODE_FILTER"
+      substr: "SECCOMP_MODE_FILTER"
 
   # === Pledge/Unveil (OpenBSD) ===
 

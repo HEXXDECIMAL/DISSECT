@@ -9,7 +9,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      exact: /proc/net/dev
+      substr: /proc/net/dev
 
   - id: network-route
     desc: Read routing table from /proc/net/route
@@ -17,4 +17,4 @@ traits:
     conf: 0.66
     if:
       type: string
-      exact: /proc/net/route
+      substr: /proc/net/route

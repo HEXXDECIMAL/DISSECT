@@ -87,7 +87,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "process.binding"
+      substr: "process.binding"
 
   # Function constructor patterns
   - id: new-function-call
@@ -97,7 +97,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "new Function("
+      substr: "new Function("
 
   - id: function-constructor-access
     desc: Function.constructor access
@@ -106,7 +106,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "Function.constructor"
+      substr: "Function.constructor"
 
   - id: function-direct-call
     desc: Direct Function constructor call
@@ -115,7 +115,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "Function("
+      substr: "Function("
 
   # HTTP method patterns
   - id: request-method-call
@@ -125,7 +125,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: ".request("
+      substr: ".request("
 
   # Base64 decoding patterns
   - id: atob-call
@@ -135,7 +135,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "atob("
+      substr: "atob("
 
   - id: buffer-from-call
     desc: Buffer.from conversion
@@ -144,7 +144,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "Buffer.from"
+      substr: "Buffer.from"
 
   # Long base64-like string (20+ chars)
   - id: base64-long-string

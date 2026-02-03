@@ -11,7 +11,7 @@ traits:
     attack: "T1071"
     if:
       type: string
-      exact: Socket.tcp_server
+      substr: Socket.tcp_server
 
   - id: ruby-tcp-socket
     desc: TCP socket connection

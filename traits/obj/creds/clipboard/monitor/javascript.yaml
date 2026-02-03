@@ -11,7 +11,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "pbpaste"
+      substr: "pbpaste"
 
   - id: js-powershell-clipboard
     desc: Accesses system clipboard via PowerShell
@@ -31,7 +31,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "xclip"
+      substr: "xclip"
 
 composite_rules:
   - id: js-clipboard-exfil

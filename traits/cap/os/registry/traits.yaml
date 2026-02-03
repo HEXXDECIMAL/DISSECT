@@ -13,7 +13,7 @@ traits:
     conf: 0.90
     if:
       type: string
-      exact: "advapi32"
+      substr: "advapi32"
 
   # === Registry Library References ===
   - id: registry-lib

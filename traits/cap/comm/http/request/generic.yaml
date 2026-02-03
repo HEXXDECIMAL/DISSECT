@@ -12,7 +12,7 @@ traits:
     attack: "T1071.001"
     if:
       type: string
-      exact: "httpRequest"
+      substr: "httpRequest"
 
   - id: user-agent-header
     desc: User-Agent header
@@ -22,7 +22,7 @@ traits:
     attack: "T1071.001"
     if:
       type: string
-      exact: "User-Agent"
+      substr: "User-Agent"
 
   - id: http-version
     desc: HTTP/1.x version string
@@ -32,7 +32,7 @@ traits:
     attack: "T1071.001"
     if:
       type: string
-      exact: "HTTP/1."
+      substr: "HTTP/1."
 
   # === Network exfiltration atomic indicators ===
   - id: requests-post
@@ -57,7 +57,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: "urllib"
+      substr: "urllib"
 
   - id: socket-dot
     desc: socket module usage
@@ -87,7 +87,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: "XMLHttpRequest"
+      substr: "XMLHttpRequest"
 
 composite_rules:
   # HTTP request composite (migrated from YARA)

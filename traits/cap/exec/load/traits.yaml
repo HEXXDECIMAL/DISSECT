@@ -9,7 +9,7 @@ traits:
     conf: 0.3
     if:
       type: string
-      exact: "libssl"
+      substr: "libssl"
 
   - id: libcrypto-ref
     desc: libcrypto library reference
@@ -17,7 +17,7 @@ traits:
     conf: 0.3
     if:
       type: string
-      exact: "libcrypto"
+      substr: "libcrypto"
 
   - id: libcurl-ref
     desc: libcurl library reference
@@ -25,7 +25,7 @@ traits:
     conf: 0.3
     if:
       type: string
-      exact: "libcurl"
+      substr: "libcurl"
 
   - id: libssh-ref
     desc: libssh library reference
@@ -33,7 +33,7 @@ traits:
     conf: 0.3
     if:
       type: string
-      exact: "libssh"
+      substr: "libssh"
 
   # === System Libraries ===
   - id: gnu-coreutils-ref
@@ -42,7 +42,7 @@ traits:
     conf: 0.3
     if:
       type: string
-      exact: "GNU coreutils"
+      substr: "GNU coreutils"
 
   - id: glibc-ref
     desc: glibc reference
@@ -50,7 +50,7 @@ traits:
     conf: 0.3
     if:
       type: string
-      exact: "glibc"
+      substr: "glibc"
 
   - id: libc-characteristic-symbols
     desc: Characteristic system library exports
@@ -111,7 +111,7 @@ traits:
     conf: 0.3
     if:
       type: string
-      exact: "systemd"
+      substr: "systemd"
 
   - id: system-debug-lib
     desc: System debug library
@@ -234,7 +234,7 @@ traits:
     for: [elf, macho]
     if:
       type: string
-      exact: "is a shell keyword"
+      substr: "is a shell keyword"
 
   - id: shell-builtin-marker
     desc: Shell interpreter builtin marker
@@ -339,7 +339,7 @@ traits:
     if:
       type: string
       # X11 standard authentication mechanism, used by all X11 IPC libraries
-      exact: "MIT-MAGIC-COOKIE-1"
+      substr: "MIT-MAGIC-COOKIE-1"
 
 composite_rules:
   # X11 IPC libraries (ICE, SM) - these are network/IPC libraries by design

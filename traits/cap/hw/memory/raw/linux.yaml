@@ -10,7 +10,7 @@ traits:
     platforms: [linux, unix]
     if:
       type: string
-      exact: "/dev/kmem"
+      substr: "/dev/kmem"
 
   - id: dev-mem
     desc: Access raw system memory (/dev/mem)
@@ -20,7 +20,7 @@ traits:
     platforms: [linux]
     if:
       type: string
-      exact: "/dev/mem"
+      substr: "/dev/mem"
     # X11 DGA (Direct Graphics Access) libraries legitimately use /dev/mem
     # for direct video memory access - this is core DGA functionality
     downgrade:

@@ -10,4 +10,4 @@ traits:
     for: [rust]
     if:
       type: string
-      exact: "qhsafetray.exe"
+      substr: "qhsafetray.exe"

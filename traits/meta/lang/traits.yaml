@@ -25,7 +25,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "GNU C"
+      substr: "GNU C"
 
   - id: gnuc-macro
     desc: __GNUC__ macro
@@ -33,7 +33,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "__GNUC__"
+      substr: "__GNUC__"
 
   - id: libgcc
     desc: libgcc library
@@ -41,7 +41,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "libgcc"
+      substr: "libgcc"
 
   # === Clang micro-traits ===
   - id: clang-string
@@ -50,7 +50,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "clang"
+      substr: "clang"
 
   - id: llvm-string
     desc: LLVM string
@@ -66,7 +66,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "__clang__"
+      substr: "__clang__"
 
   - id: libllvm
     desc: libLLVM library
@@ -74,7 +74,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "libLLVM"
+      substr: "libLLVM"
 
   # === MSVC micro-traits ===
   - id: msvc-string
@@ -91,7 +91,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "_MSC_VER"
+      substr: "_MSC_VER"
 
   - id: vcruntime
     desc: vcruntime library
@@ -107,7 +107,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "Microsoft Visual"
+      substr: "Microsoft Visual"
 
   # === Intel micro-traits ===
   - id: intel-r
@@ -116,7 +116,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "Intel(R)"
+      substr: "Intel(R)"
 
   - id: intel-compiler
     desc: __INTEL_COMPILER macro
@@ -124,7 +124,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "__INTEL_COMPILER"
+      substr: "__INTEL_COMPILER"
 
   - id: icc-string
     desc: icc compiler string
@@ -140,7 +140,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "libiomp"
+      substr: "libiomp"
 
   # === musl micro-traits ===
   - id: musl-libc
@@ -149,7 +149,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "musl libc"
+      substr: "musl libc"
 
   - id: musl-prefix
     desc: musl- prefix
@@ -157,7 +157,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "musl-"
+      substr: "musl-"
 
   - id: musl-macro
     desc: __musl__ macro
@@ -165,7 +165,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "__musl__"
+      substr: "__musl__"
 
   # === Static linking micro-traits ===
   - id: statically-linked
@@ -174,7 +174,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "statically linked"
+      substr: "statically linked"
 
   - id: ld-linux-interp
     desc: /lib/ld-linux interpreter
@@ -191,7 +191,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: ".debug_info"
+      substr: ".debug_info"
 
   - id: debug-line-section
     desc: .debug_line section
@@ -199,7 +199,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: ".debug_line"
+      substr: ".debug_line"
 
   - id: debug-str-section
     desc: .debug_str section
@@ -207,7 +207,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: ".debug_str"
+      substr: ".debug_str"
 
   - id: stab-section
     desc: .stab section
@@ -215,7 +215,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: ".stab"
+      substr: ".stab"
 
   - id: stabstr-section
     desc: .stabstr section
@@ -223,7 +223,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: ".stabstr"
+      substr: ".stabstr"
 
   # === LTO micro-traits ===
   - id: llvmbc-section
@@ -232,7 +232,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: ".llvmbc"
+      substr: ".llvmbc"
 
   - id: llvmlto-section
     desc: .llvmlto section
@@ -240,7 +240,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: ".llvmlto"
+      substr: ".llvmlto"
 
   - id: lto-string
     desc: LTO string
@@ -256,7 +256,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "-flto"
+      substr: "-flto"
 
   # === PIE micro-traits ===
   - id: pie-macro
@@ -265,7 +265,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "__pie__"
+      substr: "__pie__"
 
   - id: fpie-flag
     desc: -fPIE flag
@@ -273,7 +273,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "-fPIE"
+      substr: "-fPIE"
 
   - id: got-plt-section
     desc: .got.plt section
@@ -281,7 +281,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: ".got.plt"
+      substr: ".got.plt"
 
   # === Stack protector micro-traits ===
   - id: stack-chk-fail
@@ -298,7 +298,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "__stack_chk_guard"
+      substr: "__stack_chk_guard"
 
   - id: fstack-protector
     desc: -fstack-protector flag
@@ -306,7 +306,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "-fstack-protector"
+      substr: "-fstack-protector"
 
   # === FORTIFY_SOURCE micro-traits ===
   - id: fortify-fail
@@ -331,7 +331,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "_chk@"
+      substr: "_chk@"
 
   - id: memcpy-chk
     desc: __memcpy_chk function
@@ -356,7 +356,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "GNU_RELRO"
+      substr: "GNU_RELRO"
 
   - id: got-section
     desc: .got section
@@ -373,7 +373,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: "arm-linux-gnu"
+      substr: "arm-linux-gnu"
 
   - id: aarch64-linux-gnu
     desc: aarch64-linux-gnu cross compiler
@@ -381,7 +381,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: "aarch64-linux-gnu"
+      substr: "aarch64-linux-gnu"
 
   - id: mips-linux-gnu
     desc: mips-linux-gnu cross compiler
@@ -389,7 +389,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: "mips-linux-gnu"
+      substr: "mips-linux-gnu"
 
   - id: powerpc-linux-gnu
     desc: powerpc-linux-gnu cross compiler
@@ -397,7 +397,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: "powerpc-linux-gnu"
+      substr: "powerpc-linux-gnu"
 
   - id: x86-64-linux-musl
     desc: x86_64-linux-musl cross compiler
@@ -405,7 +405,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: "x86_64-linux-musl"
+      substr: "x86_64-linux-musl"
 
   - id: cross-suffix
     desc: -cross suffix
@@ -413,7 +413,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "-cross"
+      substr: "-cross"
 
 composite_rules:
   # GCC composite (migrated from YARA)

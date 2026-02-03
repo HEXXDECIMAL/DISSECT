@@ -12,7 +12,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "metasploit"
+      substr: "metasploit"
       case_insensitive: true
 
   - id: msfpayload
@@ -23,7 +23,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "msfpayload"
+      substr: "msfpayload"
 
   - id: metasploit-url
     desc: Metasploit website reference
@@ -52,7 +52,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "Payload: "
+      substr: "Payload: "
 
   - id: shh-bin-path
     desc: Suspicious /shh/bin path (typosquat)
@@ -61,7 +61,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "/shh/bin"
+      substr: "/shh/bin"
 
   # === Atomic: Network Scanners ===
 
@@ -107,7 +107,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "masscan"
+      substr: "masscan"
 
   - id: masscan-config
     desc: Masscan configuration patterns
@@ -155,7 +155,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "exec.(*Cmd).Run"
+      substr: "exec.(*Cmd).Run"
 
   # === Atomic: Tunneling Tools ===
 
@@ -167,7 +167,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "jpillora/chisel"
+      substr: "jpillora/chisel"
 
   - id: chisel-functions
     desc: Chisel tunnel tool function signatures
@@ -199,7 +199,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "Dliv3/Venom"
+      substr: "Dliv3/Venom"
 
   - id: venom-agent-path
     desc: Venom agent path reference
@@ -209,7 +209,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "/Venom/agent"
+      substr: "/Venom/agent"
 
   - id: venom-agent-name
     desc: Venom agent name reference
@@ -219,7 +219,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "venom_agent"
+      substr: "venom_agent"
 
   # === Atomic: Web Recon ===
 
@@ -231,7 +231,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "dirbuster"
+      substr: "dirbuster"
 
   # === Atomic: SMB Tools ===
 
@@ -243,7 +243,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "NTLM HASH"
+      substr: "NTLM HASH"
 
   - id: smbexec-hashpass
     desc: SMBExec HASH PASS substitution indicator
@@ -253,7 +253,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      exact: "HASH PASS: Substituting"
+      substr: "HASH PASS: Substituting"
 
   # === Atomic: Process Snooping ===
 
@@ -265,7 +265,7 @@ traits:
     platforms: [linux]
     if:
       type: string
-      exact: "dominicbreuker/pspy"
+      substr: "dominicbreuker/pspy"
 
   - id: pspy-functions
     desc: pspy tool function signatures

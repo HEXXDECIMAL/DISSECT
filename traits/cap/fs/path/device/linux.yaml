@@ -19,7 +19,7 @@ traits:
     conf: 1.0
     if:
       type: string
-      exact: "/dev/null"
+      substr: "/dev/null"
 
   - id: dev-shm
     desc: /dev/shm/ (shared memory, legitimate)
@@ -27,7 +27,7 @@ traits:
     conf: 1.0
     if:
       type: string
-      exact: "/dev/shm/"
+      substr: "/dev/shm/"
 
   - id: dev-sda
     desc: /dev/sda device
@@ -35,7 +35,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "/dev/sda"
+      substr: "/dev/sda"
 
   - id: dev-hda
     desc: /dev/hda device
@@ -43,7 +43,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "/dev/hda"
+      substr: "/dev/hda"
 
   - id: dev-nvme
     desc: /dev/nvme device
@@ -51,7 +51,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "/dev/nvme"
+      substr: "/dev/nvme"
 
 composite_rules:
   - id: device-dev

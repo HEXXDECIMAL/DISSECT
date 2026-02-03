@@ -6,4 +6,4 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "executeCommand"
+      substr: "executeCommand"

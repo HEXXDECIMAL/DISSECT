@@ -15,7 +15,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: ".config/autostart"
+      substr: ".config/autostart"
 
   - id: etc-xdg-autostart
     desc: /etc/xdg/autostart directory
@@ -23,7 +23,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "/etc/xdg/autostart"
+      substr: "/etc/xdg/autostart"
 
   - id: xdg-config-autostart
     desc: XDG_CONFIG_HOME autostart
@@ -40,7 +40,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: ".desktop"
+      substr: ".desktop"
 
   - id: desktop-entry-header
     desc: "[Desktop Entry] header"
@@ -48,7 +48,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "[Desktop Entry]"
+      substr: "[Desktop Entry]"
 
   - id: x-gnome-autostart
     desc: X-GNOME-Autostart directive
@@ -56,7 +56,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "X-GNOME-Autostart"
+      substr: "X-GNOME-Autostart"
 
   # === User systemd atomic indicators ===
   - id: config-systemd-user
@@ -65,7 +65,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: ".config/systemd/user"
+      substr: ".config/systemd/user"
 
   - id: local-share-systemd-user
     desc: .local/share/systemd/user directory
@@ -73,7 +73,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: ".local/share/systemd/user"
+      substr: ".local/share/systemd/user"
 
   - id: systemctl-user-enable
     desc: systemctl --user enable
@@ -91,7 +91,7 @@ traits:
     attack: "T1037.004"
     if:
       type: string
-      exact: "/etc/rc.local"
+      substr: "/etc/rc.local"
 
   - id: etc-rc-d-rc-local
     desc: /etc/rc.d/rc.local file
@@ -100,7 +100,7 @@ traits:
     attack: "T1037.004"
     if:
       type: string
-      exact: "/etc/rc.d/rc.local"
+      substr: "/etc/rc.d/rc.local"
 
   # === init.d atomic indicators ===
   - id: etc-init-d
@@ -111,7 +111,7 @@ traits:
     r#for: [shell, elf, macho, python]
     if:
       type: string
-      exact: "/etc/init.d/"
+      substr: "/etc/init.d/"
 
   - id: init-script-header
     desc: LSB init script header
@@ -132,7 +132,7 @@ traits:
     r#for: [shell, elf, macho, python]
     if:
       type: string
-      exact: "update-rc.d"
+      substr: "update-rc.d"
 
   - id: chkconfig-cmd
     desc: chkconfig command
@@ -142,7 +142,7 @@ traits:
     r#for: [shell, elf, macho, python]
     if:
       type: string
-      exact: "chkconfig"
+      substr: "chkconfig"
 
   # === Desktop entry exec atomic indicators ===
   - id: exec-eq-directive
@@ -151,7 +151,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "Exec="
+      substr: "Exec="
 
   - id: hidden-false-directive
     desc: Hidden=false directive
@@ -159,7 +159,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "Hidden=false"
+      substr: "Hidden=false"
 
   - id: type-application-directive
     desc: Type=Application directive
@@ -167,7 +167,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "Type=Application"
+      substr: "Type=Application"
 
 composite_rules:
   # XDG autostart composite

@@ -9,7 +9,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "CMakeFiles"
+      substr: "CMakeFiles"
 
   - id: cmake-min-required
     desc: cmake_minimum_required directive
@@ -17,7 +17,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "cmake_minimum_required"
+      substr: "cmake_minimum_required"
 
   - id: cmake-prefix
     desc: CMAKE_ variable prefix
@@ -33,7 +33,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "CMakeLists.txt"
+      substr: "CMakeLists.txt"
 
   # === Meson micro-traits ===
   - id: meson-build
@@ -42,7 +42,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "meson.build"
+      substr: "meson.build"
 
   - id: meson-options
     desc: meson_options file
@@ -50,7 +50,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "meson_options"
+      substr: "meson_options"
 
   - id: meson-private
     desc: meson-private directory
@@ -58,7 +58,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "meson-private"
+      substr: "meson-private"
 
   # === Bazel micro-traits ===
   - id: bazel-out
@@ -67,7 +67,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "bazel-out"
+      substr: "bazel-out"
 
   - id: workspace-file
     desc: WORKSPACE file
@@ -75,7 +75,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "WORKSPACE"
+      substr: "WORKSPACE"
 
   - id: build-bazel
     desc: BUILD.bazel file
@@ -83,7 +83,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "BUILD.bazel"
+      substr: "BUILD.bazel"
 
   - id: bazel-tools
     desc: "@bazel_tools reference"
@@ -91,7 +91,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "@bazel_tools"
+      substr: "@bazel_tools"
 
   # === Autotools micro-traits ===
   - id: configure-ac
@@ -100,7 +100,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "configure.ac"
+      substr: "configure.ac"
 
   - id: makefile-am
     desc: Makefile.am file
@@ -108,7 +108,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "Makefile.am"
+      substr: "Makefile.am"
 
   - id: config-h-in
     desc: config.h.in file
@@ -116,7 +116,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "config.h.in"
+      substr: "config.h.in"
 
   - id: package-version
     desc: PACKAGE_VERSION variable
@@ -124,7 +124,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "PACKAGE_VERSION"
+      substr: "PACKAGE_VERSION"
 
   - id: ac-init
     desc: AC_INIT macro
@@ -132,7 +132,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "AC_INIT"
+      substr: "AC_INIT"
 
   # === Cargo micro-traits ===
   - id: cargo-toml
@@ -141,7 +141,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "Cargo.toml"
+      substr: "Cargo.toml"
 
   - id: cargo-namespace
     desc: "cargo:: namespace"
@@ -149,7 +149,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "cargo::"
+      substr: "cargo::"
 
   - id: registry-src
     desc: /registry/src/ path
@@ -157,7 +157,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "/registry/src/"
+      substr: "/registry/src/"
 
   - id: dot-cargo
     desc: .cargo/ directory
@@ -165,7 +165,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: ".cargo/"
+      substr: ".cargo/"
 
   # === Go modules micro-traits ===
   - id: go-mod
@@ -174,7 +174,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "go.mod"
+      substr: "go.mod"
 
   - id: go-sum
     desc: go.sum file
@@ -182,7 +182,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "go.sum"
+      substr: "go.sum"
 
   - id: go-pkg-mod
     desc: go/pkg/mod directory
@@ -190,7 +190,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "go/pkg/mod"
+      substr: "go/pkg/mod"
 
   - id: gopath-env
     desc: GOPATH environment variable
@@ -198,7 +198,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "GOPATH"
+      substr: "GOPATH"
 
   # === npm/yarn micro-traits ===
   - id: package-json
@@ -207,7 +207,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "package.json"
+      substr: "package.json"
 
   - id: node-modules
     desc: node_modules directory
@@ -215,7 +215,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "node_modules"
+      substr: "node_modules"
 
   - id: package-lock-json
     desc: package-lock.json file
@@ -223,7 +223,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "package-lock.json"
+      substr: "package-lock.json"
 
   - id: yarn-lock
     desc: yarn.lock file
@@ -231,7 +231,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "yarn.lock"
+      substr: "yarn.lock"
 
   # === pip/setuptools micro-traits ===
   - id: setup-py
@@ -240,7 +240,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "setup.py"
+      substr: "setup.py"
 
   - id: pyproject-toml
     desc: pyproject.toml file
@@ -248,7 +248,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "pyproject.toml"
+      substr: "pyproject.toml"
 
   - id: requirements-txt
     desc: requirements.txt file
@@ -256,7 +256,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "requirements.txt"
+      substr: "requirements.txt"
 
   - id: site-packages
     desc: site-packages directory
@@ -264,7 +264,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "site-packages"
+      substr: "site-packages"
 
   # === GitHub Actions micro-traits ===
   - id: github-actions-env
@@ -273,7 +273,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "GITHUB_ACTIONS"
+      substr: "GITHUB_ACTIONS"
 
   - id: github-run-id
     desc: GITHUB_RUN_ID environment variable
@@ -281,7 +281,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "GITHUB_RUN_ID"
+      substr: "GITHUB_RUN_ID"
 
   - id: github-sha
     desc: GITHUB_SHA environment variable
@@ -289,7 +289,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "GITHUB_SHA"
+      substr: "GITHUB_SHA"
 
   - id: actions-checkout
     desc: actions/checkout action
@@ -297,7 +297,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "actions/checkout"
+      substr: "actions/checkout"
 
   - id: github-workflows
     desc: .github/workflows directory
@@ -305,7 +305,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: ".github/workflows"
+      substr: ".github/workflows"
 
   - id: github-runner-worker
     desc: GitHub Actions Runner.Worker process
@@ -313,7 +313,7 @@ traits:
     conf: 0.95
     if:
       type: string
-      exact: "Runner.Worker"
+      substr: "Runner.Worker"
 
   - id: github-runner-listener
     desc: GitHub Actions Runner.Listener process
@@ -321,7 +321,7 @@ traits:
     conf: 0.95
     if:
       type: string
-      exact: "Runner.Listener"
+      substr: "Runner.Listener"
 
   # === GitLab CI micro-traits ===
   - id: ci-pipeline-id
@@ -330,7 +330,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "CI_PIPELINE_ID"
+      substr: "CI_PIPELINE_ID"
 
   - id: ci-job-id
     desc: CI_JOB_ID variable
@@ -338,7 +338,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "CI_JOB_ID"
+      substr: "CI_JOB_ID"
 
   - id: gitlab-ci-env
     desc: GITLAB_CI variable
@@ -346,7 +346,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "GITLAB_CI"
+      substr: "GITLAB_CI"
 
   - id: gitlab-ci-yml
     desc: .gitlab-ci.yml file
@@ -354,7 +354,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: ".gitlab-ci.yml"
+      substr: ".gitlab-ci.yml"
 
   # === Jenkins micro-traits ===
   - id: jenkins-url
@@ -363,7 +363,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "JENKINS_URL"
+      substr: "JENKINS_URL"
 
   - id: build-number
     desc: BUILD_NUMBER variable
@@ -371,7 +371,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "BUILD_NUMBER"
+      substr: "BUILD_NUMBER"
 
   - id: job-name
     desc: JOB_NAME variable
@@ -379,7 +379,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "JOB_NAME"
+      substr: "JOB_NAME"
 
   - id: jenkinsfile
     desc: Jenkinsfile
@@ -387,7 +387,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "Jenkinsfile"
+      substr: "Jenkinsfile"
 
   # === CircleCI micro-traits ===
   - id: circleci-env
@@ -396,7 +396,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "CIRCLECI"
+      substr: "CIRCLECI"
 
   - id: circle-build-num
     desc: CIRCLE_BUILD_NUM variable
@@ -404,7 +404,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "CIRCLE_BUILD_NUM"
+      substr: "CIRCLE_BUILD_NUM"
 
   - id: circleci-config
     desc: .circleci/config file
@@ -412,7 +412,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: ".circleci/config"
+      substr: ".circleci/config"
 
   # === Docker micro-traits ===
   - id: dockerfile
@@ -421,7 +421,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "Dockerfile"
+      substr: "Dockerfile"
 
   - id: docker-env-prefix
     desc: DOCKER_ environment prefix
@@ -437,7 +437,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "/.dockerenv"
+      substr: "/.dockerenv"
 
   - id: docker-entrypoint
     desc: /docker-entrypoint path
@@ -445,7 +445,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "/docker-entrypoint"
+      substr: "/docker-entrypoint"
 
   # === Reproducible build micro-traits ===
   - id: source-date-epoch
@@ -454,7 +454,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "SOURCE_DATE_EPOCH"
+      substr: "SOURCE_DATE_EPOCH"
 
   - id: reproducible-string
     desc: REPRODUCIBLE string
@@ -462,7 +462,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "REPRODUCIBLE"
+      substr: "REPRODUCIBLE"
 
   - id: build-id-string
     desc: build-id string
@@ -470,7 +470,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "build-id"
+      substr: "build-id"
 
   - id: debuglink-string
     desc: debuglink string
@@ -478,7 +478,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "debuglink"
+      substr: "debuglink"
 
 composite_rules:
   # CMake composite (migrated from YARA)

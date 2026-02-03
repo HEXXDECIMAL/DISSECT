@@ -41,4 +41,4 @@ traits:
     conf: 0.80
     if:
       type: string
-      exact: "brotli"
+      substr: "brotli"

@@ -16,7 +16,7 @@ traits:
     for: [javascript, typescript, python, shell, ruby, php]
     if:
       type: string
-      exact: "ru_RU"
+      substr: "ru_RU"
 
   - id: locale-ru-ru-dash
     desc: Russian locale (ru-RU)
@@ -25,7 +25,7 @@ traits:
     for: [javascript, typescript, python, shell, ruby, php]
     if:
       type: string
-      exact: "ru-RU"
+      substr: "ru-RU"
 
   - id: locale-russian-word
     desc: Russian language string
@@ -72,7 +72,7 @@ traits:
     for: [javascript, typescript, python, shell, ruby, php]
     if:
       type: string
-      exact: "Europe/Moscow"
+      substr: "Europe/Moscow"
 
   - id: tz-europe-minsk
     desc: Europe/Minsk timezone string
@@ -81,7 +81,7 @@ traits:
     for: [javascript, typescript, python, shell, ruby, php]
     if:
       type: string
-      exact: "Europe/Minsk"
+      substr: "Europe/Minsk"
 
   - id: tz-europe-kiev
     desc: Europe/Kiev timezone string
@@ -90,7 +90,7 @@ traits:
     for: [javascript, typescript, python, shell, ruby, php]
     if:
       type: string
-      exact: "Europe/Kiev"
+      substr: "Europe/Kiev"
 
   - id: tz-europe-kyiv
     desc: Europe/Kyiv timezone string
@@ -99,7 +99,7 @@ traits:
     for: [javascript, typescript, python, shell, ruby, php]
     if:
       type: string
-      exact: "Europe/Kyiv"
+      substr: "Europe/Kyiv"
 
   - id: tz-asia-almaty
     desc: Asia/Almaty timezone string
@@ -108,7 +108,7 @@ traits:
     for: [javascript, typescript, python, shell, ruby, php]
     if:
       type: string
-      exact: "Asia/Almaty"
+      substr: "Asia/Almaty"
 
   # === JavaScript-specific timezone APIs ===
   - id: js-intl-datetime-options

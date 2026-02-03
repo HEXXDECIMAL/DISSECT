@@ -21,7 +21,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "libcurl"
+      substr: "libcurl"
 
   - id: curlopt-ref
     desc: CURLOPT constant
@@ -29,7 +29,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "CURLOPT"
+      substr: "CURLOPT"
 
   # === wget atomic indicators ===
   - id: wget-cmd
@@ -46,7 +46,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "/usr/bin/wget"
+      substr: "/usr/bin/wget"
 
   # === fetch atomic indicators ===
   # NOTE: "fetch(" is too generic for binaries - matches C++ method names like
@@ -58,7 +58,7 @@ traits:
     for: [shell, javascript, typescript, python]
     if:
       type: string
-      exact: "fetch("
+      substr: "fetch("
 
   - id: urllib-urlretrieve
     desc: urllib urlretrieve
@@ -66,7 +66,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "urllib.request.urlretrieve"
+      substr: "urllib.request.urlretrieve"
 
 composite_rules:
   - id: curl

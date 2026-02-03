@@ -34,14 +34,14 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: ".config/gcloud"
+      substr: ".config/gcloud"
 
   - id: gcp-default-credentials
     desc: GCP application default credentials
     conf: 0.8
     if:
       type: string
-      exact: "application_default_credentials.json"
+      substr: "application_default_credentials.json"
 
   # === Atomic: Azure ===
   - id: azure-config
@@ -49,7 +49,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: ".azure"
+      substr: ".azure"
 
   # === Atomic: Environment Files ===
   - id: dotenv-request
@@ -57,7 +57,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "GET /.env"
+      substr: "GET /.env"
 
   # .env file is common in development - only suspicious when reading/fetching it
   - id: dotenv-file
@@ -78,7 +78,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      exact: "169.254.169.254"
+      substr: "169.254.169.254"
 
   - id: aws-imds-path
     desc: AWS instance metadata path
@@ -88,7 +88,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      exact: "instance-data/latest/meta-data"
+      substr: "instance-data/latest/meta-data"
 
   - id: aws-iam-creds-path
     desc: AWS IAM security credentials path
@@ -98,7 +98,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      exact: "iam/security-credentials"
+      substr: "iam/security-credentials"
 
   # === GCP metadata (atomic) ===
   - id: gcp-metadata-host
@@ -109,7 +109,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      exact: "metadata.google.internal"
+      substr: "metadata.google.internal"
 
   - id: gcp-compute-metadata
     desc: GCP compute metadata path
@@ -119,7 +119,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      exact: "computeMetadata/v1"
+      substr: "computeMetadata/v1"
 
   # === Azure IMDS (atomic) ===
   - id: azure-metadata-identity

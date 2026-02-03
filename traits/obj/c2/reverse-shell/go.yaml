@@ -13,7 +13,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "os/exec.Command"
+      substr: "os/exec.Command"
 
   - id: exec-cmd-start
     desc: exec.(*Cmd).Start reference
@@ -21,7 +21,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: "exec.(*Cmd).Start"
+      substr: "exec.(*Cmd).Start"
 
   - id: exec-cmd-run
     desc: exec.(*Cmd).Run reference
@@ -29,7 +29,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: "exec.(*Cmd).Run"
+      substr: "exec.(*Cmd).Run"
 
   # === Go pipe micro-traits ===
   - id: stdin-pipe
@@ -38,7 +38,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "StdinPipe"
+      substr: "StdinPipe"
 
   - id: stdout-pipe
     desc: StdoutPipe reference
@@ -46,7 +46,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: "StdoutPipe"
+      substr: "StdoutPipe"
 
   - id: stderr-pipe
     desc: StderrPipe reference
@@ -54,7 +54,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: "StderrPipe"
+      substr: "StderrPipe"
 
   # === Shell path micro-traits ===
   - id: cmd-exe
@@ -63,7 +63,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "cmd.exe"
+      substr: "cmd.exe"
 
 composite_rules:
   # Go connection composite

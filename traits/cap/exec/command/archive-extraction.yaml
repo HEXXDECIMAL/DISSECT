@@ -50,7 +50,7 @@ traits:
     conf: 0.70
     if:
       type: string
-      exact: "zipfile"
+      substr: "zipfile"
 
   # === Archive Path Patterns ===
   - id: temp-archive-path

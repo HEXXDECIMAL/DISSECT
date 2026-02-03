@@ -41,7 +41,7 @@ composite_rules:
 
   - id: github-runner-memory-dumper
     desc: Dumps GitHub Actions Runner memory
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     r#for: [python, javascript, shell, rust, go]
     all:

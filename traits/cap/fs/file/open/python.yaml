@@ -29,7 +29,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "Cookies"
+      substr: "Cookies"
 
   - id: key4-db-path
     desc: Firefox key database
@@ -37,7 +37,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "key4.db"
+      substr: "key4.db"
 
   - id: exodus-wallet-path
     desc: Exodus cryptocurrency wallet
@@ -45,7 +45,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "exodus.wallet"
+      substr: "exodus.wallet"
 
   - id: wallet-dat-path
     desc: Bitcoin wallet.dat file
@@ -53,7 +53,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "wallet.dat"
+      substr: "wallet.dat"
 
 composite_rules:
   # Helper: Any sensitive file path

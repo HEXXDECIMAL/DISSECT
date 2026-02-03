@@ -13,7 +13,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "'net/http'"
+      substr: "'net/http'"
 
   - id: net-http-double-quote
     desc: '"net/http" require string'
@@ -21,7 +21,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: '"net/http"'
+      substr: '"net/http"'
 
   - id: uri-single-quote
     desc: "'uri' require string"
@@ -45,7 +45,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "'base64'"
+      substr: "'base64'"
 
   - id: base64-double-quote
     desc: '"base64" require string'
@@ -53,7 +53,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: '"base64"'
+      substr: '"base64"'
 
   - id: resolv-single-quote
     desc: "'resolv' require string"
@@ -61,7 +61,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "'resolv'"
+      substr: "'resolv'"
 
   - id: resolv-double-quote
     desc: '"resolv" require string'
@@ -69,7 +69,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: '"resolv"'
+      substr: '"resolv"'
 
   - id: socket-single-quote
     desc: "'socket' require string"
@@ -77,7 +77,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: "'socket'"
+      substr: "'socket'"
 
   - id: socket-double-quote
     desc: '"socket" require string'
@@ -85,7 +85,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: '"socket"'
+      substr: '"socket"'
 
   - id: tempfile-single-quote
     desc: "'tempfile' require string"
@@ -93,7 +93,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "'tempfile'"
+      substr: "'tempfile'"
 
   - id: tempfile-double-quote
     desc: '"tempfile" require string'
@@ -101,7 +101,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: '"tempfile"'
+      substr: '"tempfile"'
 
   - id: open-uri-single-quote
     desc: "'open-uri' require string"
@@ -109,7 +109,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: "'open-uri'"
+      substr: "'open-uri'"
 
   - id: open-uri-double-quote
     desc: '"open-uri" require string'
@@ -117,7 +117,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: '"open-uri"'
+      substr: '"open-uri"'
 
   - id: pty-single-quote
     desc: "'pty' require string"

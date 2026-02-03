@@ -23,7 +23,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "Russian"
+      substr: "Russian"
 
   # Timezone checks for CIS region
   - id: moscow-timezone
@@ -32,7 +32,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "Europe/Moscow"
+      substr: "Europe/Moscow"
 
   - id: minsk-timezone
     desc: Minsk timezone check
@@ -40,7 +40,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "Europe/Minsk"
+      substr: "Europe/Minsk"
 
   - id: kiev-timezone
     desc: Kyiv timezone check
@@ -48,7 +48,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "Europe/Kiev"
+      substr: "Europe/Kiev"
 
   # Environment variable locale checks
   - id: lang-env-check
@@ -58,7 +58,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "process.env.LANG"
+      substr: "process.env.LANG"
 
   - id: lc-all-env-check
     desc: LC_ALL environment variable access
@@ -67,7 +67,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "process.env.LC_ALL"
+      substr: "process.env.LC_ALL"
 
   - id: language-env-check
     desc: LANGUAGE environment variable access
@@ -76,7 +76,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "process.env.LANGUAGE"
+      substr: "process.env.LANGUAGE"
 
   # Timezone offset check (JavaScript)
   - id: timezone-offset-js

@@ -70,7 +70,7 @@ traits:
     conf: 0.95
     if:
       type: string
-      exact: "payment-sources"
+      substr: "payment-sources"
 
   # Discord relationships endpoint (friends list)
   - id: api-relationships
@@ -115,7 +115,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "Discord"
+      substr: "Discord"
 
   # Discord Canary path
   - id: discord-canary-path
@@ -161,7 +161,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: "users/@me"
+      substr: "users/@me"
 
   # Discord webhook exfil
   - id: webhook-exfil
@@ -179,7 +179,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "api.telegram.org"
+      substr: "api.telegram.org"
 
   # Chrome browser profile path for token theft
   - id: chrome-browser
@@ -243,7 +243,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "AppData"
+      substr: "AppData"
 
   # extractTokens function - common in token stealers
   - id: extract-tokens-fn
@@ -279,7 +279,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "webappsstore.sqlite"
+      substr: "webappsstore.sqlite"
 
   # Firefox ls-archive.sqlite - local storage archive
   - id: firefox-ls-archive
@@ -297,7 +297,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "storage/default"
+      substr: "storage/default"
 
   # Firefox ls/data.sqlite - Discord local storage
   - id: firefox-ls-data

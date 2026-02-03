@@ -14,7 +14,7 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "reboot"
+      substr: "reboot"
 
   - id: shutdown-string
     desc: System shutdown command
@@ -25,7 +25,7 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "shutdown"
+      substr: "shutdown"
 
   - id: uninstall-string
     desc: Self-uninstall command
@@ -36,7 +36,7 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "uninstall"
+      substr: "uninstall"
 
   - id: disconnect-string
     desc: Disconnect from C2 command
@@ -46,7 +46,7 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "disconnect"
+      substr: "disconnect"
 
   # Process management
   - id: processes-string
@@ -58,7 +58,7 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "processes"
+      substr: "processes"
 
   # Persistence
   - id: startup-list-string
@@ -70,7 +70,7 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "startup-list"
+      substr: "startup-list"
 
   # Privilege escalation
   - id: chk-priv-string
@@ -82,7 +82,7 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "chk-priv"
+      substr: "chk-priv"
 
   - id: req-priv-string
     desc: Request elevated privileges command
@@ -93,4 +93,4 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "req-priv"
+      substr: "req-priv"

@@ -12,7 +12,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "api.etherscan.io"
+      substr: "api.etherscan.io"
 
   - id: etherscan-api-suffix
     desc: Etherscan API path (etherscan.io/api)
@@ -22,7 +22,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "etherscan.io/api"
+      substr: "etherscan.io/api"
 
   # BSCScan API (Binance Smart Chain)
   - id: bscscan-api
@@ -55,7 +55,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "eth_call"
+      substr: "eth_call"
 
   - id: eth-getstorageat
     desc: eth_getStorageAt RPC method
@@ -65,7 +65,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "eth_getStorageAt"
+      substr: "eth_getStorageAt"
 
   - id: contract-keyword
     desc: contract keyword
@@ -116,7 +116,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "arweave.net/"
+      substr: "arweave.net/"
 
   - id: ar-io-net
     desc: AR-IO.net gateway
@@ -126,7 +126,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "ar-io.net/"
+      substr: "ar-io.net/"
 
 composite_rules:
   # Etherscan API composite

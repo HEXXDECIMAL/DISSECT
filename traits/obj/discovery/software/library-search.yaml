@@ -84,7 +84,7 @@ traits:
     for: [c, elf]
     if:
       type: string
-      exact: "x86_64"
+      substr: "x86_64"
 
   - id: arch-aarch64
     desc: aarch64 architecture string
@@ -93,7 +93,7 @@ traits:
     for: [c, elf]
     if:
       type: string
-      exact: "aarch64"
+      substr: "aarch64"
 
   - id: arch-i386
     desc: i386 architecture string

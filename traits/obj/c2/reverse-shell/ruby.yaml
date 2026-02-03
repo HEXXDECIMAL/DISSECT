@@ -14,7 +14,7 @@ traits:
     attack: "T1059"
     if:
       type: string
-      exact: "TCPSocket"
+      substr: "TCPSocket"
 
   - id: tcpsocket-new
     desc: TCPSocket.new call
@@ -42,7 +42,7 @@ traits:
     attack: "T1059"
     if:
       type: string
-      exact: "IO.popen"
+      substr: "IO.popen"
 
   - id: io-popen-ast
     desc: IO.popen AST pattern

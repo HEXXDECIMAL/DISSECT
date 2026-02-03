@@ -42,7 +42,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      exact: "KVMKVMKVM"
+      substr: "KVMKVMKVM"
 
   - id: vendor-vmware
     desc: VMware hypervisor vendor string
@@ -51,7 +51,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      exact: VMware
+      substr: VMware
       case_insensitive: true
 
   # === VirtualBox hypervisor atomic indicators ===
@@ -62,7 +62,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      exact: VirtualBox
+      substr: VirtualBox
       case_insensitive: true
 
   - id: vendor-vbox-short
@@ -83,7 +83,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      exact: "Hyper-V"
+      substr: "Hyper-V"
       case_insensitive: true
 
   - id: vendor-microsoft-hv
@@ -93,7 +93,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      exact: "Microsoft Hv"
+      substr: "Microsoft Hv"
       case_insensitive: true
 
   - id: vendor-qemu
@@ -112,7 +112,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      exact: Parallels
+      substr: Parallels
 
   - id: vendor-bhyve
     desc: bhyve hypervisor vendor string
@@ -121,7 +121,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      exact: bhyve
+      substr: bhyve
 
   # === CPUID hypervisor bit check ===
   - id: cpuid-check
@@ -141,7 +141,7 @@ traits:
     for: [python, shell, javascript]
     if:
       type: string
-      exact: VBoxGuest
+      substr: VBoxGuest
 
   - id: file-vbox-mouse
     desc: VirtualBox mouse driver file
@@ -150,7 +150,7 @@ traits:
     for: [python, shell, javascript]
     if:
       type: string
-      exact: VBoxMouse
+      substr: VBoxMouse
 
   - id: file-vbox-sf
     desc: VirtualBox shared folders file
@@ -159,7 +159,7 @@ traits:
     for: [python, shell, javascript]
     if:
       type: string
-      exact: VBoxSF
+      substr: VBoxSF
 
   - id: file-vmware-tools
     desc: VMware tools binary
@@ -168,7 +168,7 @@ traits:
     for: [python, shell, javascript]
     if:
       type: string
-      exact: vmware-tools
+      substr: vmware-tools
 
   - id: file-vmtoolsd
     desc: VMware tools daemon
@@ -177,7 +177,7 @@ traits:
     for: [python, shell, javascript]
     if:
       type: string
-      exact: vmtoolsd
+      substr: vmtoolsd
 
   - id: file-vmhgfs
     desc: VMware host-guest filesystem
@@ -186,7 +186,7 @@ traits:
     for: [python, shell, javascript]
     if:
       type: string
-      exact: /vmhgfs
+      substr: /vmhgfs
 
   - id: file-qemu-ga
     desc: QEMU guest agent
@@ -195,7 +195,7 @@ traits:
     for: [python, shell, javascript]
     if:
       type: string
-      exact: qemu-ga
+      substr: qemu-ga
 
   - id: file-dev-vda
     desc: QEMU/KVM virtio disk device
@@ -204,7 +204,7 @@ traits:
     for: [python, shell, javascript]
     if:
       type: string
-      exact: /dev/vda
+      substr: /dev/vda
 
   # === VM MAC address prefixes (atomic) ===
   - id: mac-vmware-1
@@ -214,7 +214,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      exact: "00:0c:29"
+      substr: "00:0c:29"
       case_insensitive: true
 
   - id: mac-vmware-2
@@ -224,7 +224,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      exact: "00:50:56"
+      substr: "00:50:56"
       case_insensitive: true
 
   - id: mac-vmware-3
@@ -234,7 +234,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      exact: "00:05:69"
+      substr: "00:05:69"
       case_insensitive: true
 
   - id: mac-vbox
@@ -244,7 +244,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      exact: "08:00:27"
+      substr: "08:00:27"
       case_insensitive: true
 
   - id: mac-xen
@@ -254,7 +254,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      exact: "00:16:3e"
+      substr: "00:16:3e"
       case_insensitive: true
 
   - id: mac-hyperv
@@ -264,7 +264,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      exact: "00:15:5d"
+      substr: "00:15:5d"
       case_insensitive: true
 
   - id: mac-parallels
@@ -274,7 +274,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      exact: "00:1c:42"
+      substr: "00:1c:42"
       case_insensitive: true
 
   - id: mac-qemu
@@ -284,7 +284,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      exact: "52:54:00"
+      substr: "52:54:00"
       case_insensitive: true
 
   # === Hardware model VM check ===

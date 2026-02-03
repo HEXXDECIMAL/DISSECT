@@ -42,7 +42,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "Firefox/Profiles"
+      substr: "Firefox/Profiles"
 
   - id: waterfox-profiles
     desc: Waterfox/Profiles path
@@ -51,7 +51,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "Waterfox/Profiles"
+      substr: "Waterfox/Profiles"
 
   - id: palemoon-profiles
     desc: Pale Moon/Profiles path
@@ -60,7 +60,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "Pale Moon/Profiles"
+      substr: "Pale Moon/Profiles"
 
   - id: cookies-sqlite
     desc: Firefox cookies.sqlite database
@@ -69,7 +69,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "cookies.sqlite"
+      substr: "cookies.sqlite"
 
   - id: formhistory-sqlite
     desc: Firefox formhistory.sqlite database
@@ -78,7 +78,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "formhistory.sqlite"
+      substr: "formhistory.sqlite"
 
   - id: logins-json
     desc: Firefox logins.json file
@@ -87,7 +87,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "logins.json"
+      substr: "logins.json"
 
   - id: key4-db
     desc: Firefox key4.db (master password database)
@@ -96,7 +96,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "key4.db"
+      substr: "key4.db"
 
   - id: cert9-db
     desc: Firefox cert9.db certificate store
@@ -105,7 +105,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "cert9.db"
+      substr: "cert9.db"
 
   # === NSS Library (used for decryption) ===
 
@@ -116,7 +116,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "nssPrivate"
+      substr: "nssPrivate"
 
   # === NSS3 library atomic indicators ===
   - id: nss3-word
@@ -135,7 +135,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      exact: "libnss3"
+      substr: "libnss3"
 
   - id: pk11-decrypt
     desc: Firefox PK11SDR_Decrypt function
@@ -145,7 +145,7 @@ traits:
     mbc: "B0028"
     if:
       type: string
-      exact: "PK11SDR_Decrypt"
+      substr: "PK11SDR_Decrypt"
 
   # === SQL Queries ===
 

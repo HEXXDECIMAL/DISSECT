@@ -11,7 +11,7 @@ traits:
     for: [go]
     if:
       type: string
-      exact: "if err != nil"
+      substr: "if err != nil"
 
   - id: go-errors-new
     desc: Go errors.New function
@@ -20,7 +20,7 @@ traits:
     for: [go]
     if:
       type: string
-      exact: "errors.New"
+      substr: "errors.New"
 
   - id: go-fmt-errorf
     desc: Go fmt.Errorf function
@@ -29,7 +29,7 @@ traits:
     for: [go]
     if:
       type: string
-      exact: "fmt.Errorf"
+      substr: "fmt.Errorf"
 
   # === Atomic: Rust Error Handling ===
 
@@ -40,7 +40,7 @@ traits:
     for: [rust]
     if:
       type: string
-      exact: "Result<"
+      substr: "Result<"
 
   - id: rust-unwrap-or
     desc: Rust unwrap_or method
@@ -49,7 +49,7 @@ traits:
     for: [rust]
     if:
       type: string
-      exact: "unwrap_or"
+      substr: "unwrap_or"
 
   - id: rust-expect-method
     desc: Rust expect() method
@@ -58,7 +58,7 @@ traits:
     for: [rust]
     if:
       type: string
-      exact: "expect("
+      substr: "expect("
 
   # === Atomic: Generic Try/Catch ===
 
@@ -69,7 +69,7 @@ traits:
     for: [javascript, python, java, csharp]
     if:
       type: string
-      exact: "try {"
+      substr: "try {"
 
   - id: catch-keyword
     desc: catch keyword
@@ -107,7 +107,7 @@ traits:
     for: [go]
     if:
       type: string
-      exact: "log.Print"
+      substr: "log.Print"
 
   - id: logger-lower
     desc: logger reference (lowercase)
@@ -152,7 +152,7 @@ traits:
     for: [python, javascript, java]
     if:
       type: string
-      exact: "log.info"
+      substr: "log.info"
 
   - id: log-info-title
     desc: log.Info method (title case -
@@ -161,7 +161,7 @@ traits:
     for: [go]
     if:
       type: string
-      exact: "log.Info"
+      substr: "log.Info"
 
   - id: log-debug-lower
     desc: log.debug method (lowercase)
@@ -170,7 +170,7 @@ traits:
     for: [python, javascript, java]
     if:
       type: string
-      exact: "log.debug"
+      substr: "log.debug"
 
   - id: log-debug-title
     desc: log.Debug method (title case -
@@ -179,7 +179,7 @@ traits:
     for: [go]
     if:
       type: string
-      exact: "log.Debug"
+      substr: "log.Debug"
 
   - id: log-error-lower
     desc: log.error method (lowercase)
@@ -188,7 +188,7 @@ traits:
     for: [python, javascript, java]
     if:
       type: string
-      exact: "log.error"
+      substr: "log.error"
 
   - id: log-error-title
     desc: log.Error method (title case -
@@ -197,7 +197,7 @@ traits:
     for: [go]
     if:
       type: string
-      exact: "log.Error"
+      substr: "log.Error"
 
   # === Atomic: Configuration Management ===
 
@@ -208,7 +208,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "config.yaml"
+      substr: "config.yaml"
 
   - id: config-json-file
     desc: config.json filename
@@ -217,7 +217,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "config.json"
+      substr: "config.json"
 
   - id: config-toml-file
     desc: config.toml filename
@@ -226,7 +226,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "config.toml"
+      substr: "config.toml"
 
   - id: dotenv-file
     desc: .env file reference
@@ -291,7 +291,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "Version:"
+      substr: "Version:"
 
   - id: version-v1
     desc: v1. version prefix
@@ -338,7 +338,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "--help"
+      substr: "--help"
 
   - id: help-short-flag
     desc: -h flag
@@ -356,7 +356,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "usage:"
+      substr: "usage:"
 
   - id: usage-title
     desc: "Usage: label (title case)"
@@ -365,7 +365,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "Usage:"
+      substr: "Usage:"
 
   - id: options-title
     desc: "Options: label"
@@ -374,7 +374,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "Options:"
+      substr: "Options:"
 
   - id: usage-upper
     desc: "USAGE: label (uppercase)"
@@ -383,7 +383,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "USAGE:"
+      substr: "USAGE:"
 
   # === Atomic: License Information ===
 
@@ -394,7 +394,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "MIT License"
+      substr: "MIT License"
 
   - id: apache-license-text
     desc: Apache License text
@@ -403,7 +403,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "Apache License"
+      substr: "Apache License"
 
   - id: gpl-word
     desc: GPL license reference
@@ -448,7 +448,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "SPDX-License-Identifier"
+      substr: "SPDX-License-Identifier"
 
   # === Atomic: Documentation Strings ===
 
@@ -504,7 +504,7 @@ traits:
     for: [java, javascript, php]
     if:
       type: string
-      exact: "@param"
+      substr: "@param"
 
   - id: return-annotation
     desc: "@return annotation"
@@ -513,7 +513,7 @@ traits:
     for: [java, javascript, php]
     if:
       type: string
-      exact: "@return"
+      substr: "@return"
 
   - id: sphinx-param
     desc: "Sphinx :param: directive"
@@ -522,7 +522,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: ":param"
+      substr: ":param"
 
   - id: sphinx-returns
     desc: "Sphinx :returns: directive"
@@ -531,7 +531,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: ":returns:"
+      substr: ":returns:"
 
   # === Atomic: Test Code ===
 
@@ -542,7 +542,7 @@ traits:
     for: [go]
     if:
       type: string
-      exact: "TestMain"
+      substr: "TestMain"
 
   - id: go-test-file
     desc: Go test file suffix
@@ -551,7 +551,7 @@ traits:
     for: [go]
     if:
       type: string
-      exact: "_test.go"
+      substr: "_test.go"
 
   - id: python-test-file
     desc: Python test file suffix
@@ -560,7 +560,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "_test.py"
+      substr: "_test.py"
 
   - id: unittest-module
     desc: unittest module
@@ -587,7 +587,7 @@ traits:
     for: [rust]
     if:
       type: string
-      exact: "#[test]"
+      substr: "#[test]"
 
   - id: go-testing-t
     desc: Go testing.T type
@@ -596,7 +596,7 @@ traits:
     for: [go]
     if:
       type: string
-      exact: "testing.T"
+      substr: "testing.T"
 
   # === Atomic: Metrics/Telemetry ===
 

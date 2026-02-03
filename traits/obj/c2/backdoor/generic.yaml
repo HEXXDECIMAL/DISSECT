@@ -22,7 +22,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: VCPUInfoBackdoor
+      substr: VCPUInfoBackdoor
 
   - id: guest-backdoor-ops
     desc: Guest backdoor ops (VMware legitimate)
@@ -30,7 +30,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: gGuestBackdoorOps
+      substr: gGuestBackdoorOps
 
   - id: backdoor-comment
     desc: Backdoor comment (documentation)
@@ -38,7 +38,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "# backdoor:"
+      substr: "# backdoor:"
 
   # === Backdoor shell variants ===
   - id: backdoor-shell-ref

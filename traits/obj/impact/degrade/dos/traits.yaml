@@ -20,7 +20,7 @@ traits:
     for: [python, pe]
     if:
       type: string
-      exact: "RtlAdjustPrivilege(19, 1,"
+      substr: "RtlAdjustPrivilege(19, 1,"
 
   # NOTE: EDR-specific traits (stopservice, edr-kill) are defined in impact/degrade/edr/
   # Use impact/degrade/edr directory reference in composite rules
@@ -33,7 +33,7 @@ traits:
     for: [pe]
     if:
       type: string
-      exact: "TerminateProcess"
+      substr: "TerminateProcess"
 
   - id: osascript-quit
     desc: macOS application quit via osascript

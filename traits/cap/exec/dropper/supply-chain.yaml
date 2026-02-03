@@ -11,7 +11,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "extractFull"
+      substr: "extractFull"
 
   - id: extract-call
     desc: extract() call
@@ -29,7 +29,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "unzip"
+      substr: "unzip"
 
   - id: 7z-ref
     desc: 7z reference
@@ -47,7 +47,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "password:"
+      substr: "password:"
 
   - id: password-equals
     desc: password= parameter
@@ -56,7 +56,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "password="
+      substr: "password="
 
   - id: p-flag
     desc: -p flag
@@ -76,7 +76,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "7zip-bin"
+      substr: "7zip-bin"
 
   - id: node-7z-module
     desc: node-7z module
@@ -86,7 +86,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "node-7z"
+      substr: "node-7z"
 
   - id: path7za
     desc: path7za reference
@@ -96,7 +96,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "path7za"
+      substr: "path7za"
 
   - id: 7z-exe
     desc: 7z.exe reference
@@ -106,7 +106,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "7z.exe"
+      substr: "7z.exe"
 
   # === Executable search atomic indicators ===
   - id: endswith-exe
@@ -217,7 +217,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "process.env.TEMP"
+      substr: "process.env.TEMP"
 
   - id: process-env-tmp
     desc: process.env.TMP reference
@@ -226,7 +226,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "process.env.TMP"
+      substr: "process.env.TMP"
 
   - id: os-tmpdir
     desc: os.tmpdir() call
@@ -244,7 +244,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "/tmp/"
+      substr: "/tmp/"
 
   # === Archive extension atomics ===
   - id: zip-ext
@@ -687,7 +687,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "WScript.Shell"
+      substr: "WScript.Shell"
 
   - id: msxml2-xmlhttp
     desc: MSXML2.XMLHTTP object
@@ -696,7 +696,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "MSXML2.XMLHTTP"
+      substr: "MSXML2.XMLHTTP"
 
   - id: microsoft-xmlhttp
     desc: Microsoft.XMLHTTP object
@@ -705,7 +705,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "Microsoft.XMLHTTP"
+      substr: "Microsoft.XMLHTTP"
 
   # Batch file generation (echo >> pattern)
   - id: batch-echo
@@ -733,7 +733,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "ADODB.Stream"
+      substr: "ADODB.Stream"
 
   # Shell.Application namespace (ZIP extraction)
   - id: shell-namespace
@@ -759,7 +759,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "bin.base64"
+      substr: "bin.base64"
 
   # Scripting.FileSystemObject
   - id: fso
@@ -768,7 +768,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "Scripting.FileSystemObject"
+      substr: "Scripting.FileSystemObject"
 
   # Batch escape function
   - id: batch-escape
@@ -786,7 +786,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "%appdata%"
+      substr: "%appdata%"
 
   - id: appdata-double
     desc: "%%appdata%% reference"
@@ -794,7 +794,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "%%appdata%%"
+      substr: "%%appdata%%"
 
   # EXE to batch dropper builder
   - id: exe-to-batch

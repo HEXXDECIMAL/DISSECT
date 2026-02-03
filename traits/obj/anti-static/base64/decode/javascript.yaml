@@ -14,7 +14,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      exact: "atob("
+      substr: "atob("
 
   - id: decode-exec-js
     desc: Base64 decode and execute
@@ -22,7 +22,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      exact: "eval(atob("
+      substr: "eval(atob("
 
   # Double/nested atob - strong obfuscation signal
   - id: nested-atob

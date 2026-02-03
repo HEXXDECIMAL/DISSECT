@@ -11,4 +11,4 @@ traits:
     attack: "T1071.001"
     if:
       type: string
-      exact: "express()"
+      substr: "express()"

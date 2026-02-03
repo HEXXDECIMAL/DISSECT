@@ -39,7 +39,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "IPPROTO_ICMP"
+      substr: "IPPROTO_ICMP"
 
 composite_rules:
   - id: services-icmp

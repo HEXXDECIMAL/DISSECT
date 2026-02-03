@@ -17,7 +17,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: aPack
+      substr: aPack
 
   - id: petite-marker
     desc: Petite packer marker
@@ -25,7 +25,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: petite
+      substr: petite
 
   - id: themida-marker
     desc: Themida packer marker
@@ -33,7 +33,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: Themida
+      substr: Themida
 
   - id: vmprotect-marker
     desc: VMProtect packer marker
@@ -41,7 +41,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: VMProtect
+      substr: VMProtect
 
   # Section-based detection (migrated from YARA)
   - id: upx-section

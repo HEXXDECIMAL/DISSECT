@@ -13,7 +13,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "VMware"
+      substr: "VMware"
 
   # === VirtualBox atomic indicators ===
   - id: virtualbox-word
@@ -96,7 +96,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: "GenuineIntel"
+      substr: "GenuineIntel"
 
   - id: authenticamd
     desc: AuthenticAMD CPU vendor string
@@ -105,7 +105,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: "AuthenticAMD"
+      substr: "AuthenticAMD"
 
 composite_rules:
   # VirtualBox string composite

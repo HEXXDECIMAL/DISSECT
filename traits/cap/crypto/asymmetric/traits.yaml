@@ -20,7 +20,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "RSA_public_decrypt"
+      substr: "RSA_public_decrypt"
 
   - id: rsa-public-encrypt
     desc: RSA_public_encrypt reference
@@ -28,7 +28,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "RSA_public_encrypt"
+      substr: "RSA_public_encrypt"
 
   - id: evp-pkey-ref
     desc: EVP_PKEY reference
@@ -36,7 +36,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: "EVP_PKEY"
+      substr: "EVP_PKEY"
 
 composite_rules:
   - id: rsa-operations

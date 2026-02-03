@@ -86,7 +86,7 @@ traits:
     for: [elf, macho]
     if:
       type: string
-      exact: "github.com/robotn/gohook"
+      substr: "github.com/robotn/gohook"
 
   # === Python pynput atomic indicators ===
   - id: pynput-import-keyboard
@@ -95,7 +95,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "from pynput import keyboard"
+      substr: "from pynput import keyboard"
 
   - id: pynput-keyboard-import
     desc: from pynput.keyboard import
@@ -137,7 +137,7 @@ traits:
     for: [rust]
     if:
       type: string
-      exact: "extern crate rdev"
+      substr: "extern crate rdev"
 
   # === AppleScript Keystroke Capture ===
   - id: osascript-lower
@@ -201,7 +201,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "key code"
+      substr: "key code"
 
   - id: key-code-title
     desc: Key Code phrase (title case)
@@ -210,7 +210,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "Key Code"
+      substr: "Key Code"
 
   - id: key-code-upper
     desc: KEY CODE phrase (uppercase)
@@ -219,7 +219,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "KEY CODE"
+      substr: "KEY CODE"
 
   - id: key-down-lower
     desc: key down phrase (lowercase)
@@ -228,7 +228,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "key down"
+      substr: "key down"
 
   - id: key-down-title
     desc: Key Down phrase (title case)
@@ -237,7 +237,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "Key Down"
+      substr: "Key Down"
 
   - id: key-down-upper
     desc: KEY DOWN phrase (uppercase)
@@ -246,7 +246,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "KEY DOWN"
+      substr: "KEY DOWN"
 
   - id: system-events-lower
     desc: system events phrase (lowercase)
@@ -255,7 +255,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "system events"
+      substr: "system events"
 
   - id: system-events-title
     desc: System Events phrase (title case)
@@ -264,7 +264,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "System Events"
+      substr: "System Events"
 
   - id: system-events-upper
     desc: SYSTEM EVENTS phrase (uppercase)
@@ -273,7 +273,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "SYSTEM EVENTS"
+      substr: "SYSTEM EVENTS"
 
   # === JXA (JavaScript for Automation) ===
   - id: application-call
@@ -283,7 +283,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "Application("
+      substr: "Application("
 
   - id: keycode-camel
     desc: keyCode property
@@ -302,7 +302,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "require('applescript')"
+      substr: "require('applescript')"
 
   - id: require-applescript-double
     desc: 'require("applescript") import'
@@ -311,7 +311,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: 'require("applescript")'
+      substr: 'require("applescript")'
 
   - id: node-osascript
     desc: node-osascript library
@@ -320,7 +320,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "node-osascript"
+      substr: "node-osascript"
 
   - id: run-applescript
     desc: run-applescript function
@@ -329,7 +329,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "run-applescript"
+      substr: "run-applescript"
 
   - id: exec-sync
     desc: execSync function

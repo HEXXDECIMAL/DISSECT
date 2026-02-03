@@ -15,7 +15,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "window.ethereum"
+      substr: "window.ethereum"
 
   - id: window-bracket-ethereum
     desc: window["ethereum"] access
@@ -49,7 +49,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "eth_requestAccounts"
+      substr: "eth_requestAccounts"
 
   - id: eth-accounts-method
     desc: eth_accounts method
@@ -57,7 +57,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "eth_accounts"
+      substr: "eth_accounts"
 
   - id: eth-send-transaction-method
     desc: eth_sendTransaction method
@@ -65,7 +65,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "eth_sendTransaction"
+      substr: "eth_sendTransaction"
 
   # ERC-20 function selectors
   - id: erc20-approve
@@ -74,14 +74,14 @@ traits:
     crit: suspicious
     if:
       type: string
-      exact: "0x095ea7b3"
+      substr: "0x095ea7b3"
 
   - id: erc20-transfer
     desc: "ERC-20 token transfer function selector"
     conf: 0.8
     if:
       type: string
-      exact: "0xa9059cbb"
+      substr: "0xa9059cbb"
 
   - id: erc20-transferFrom
     desc: "ERC-20 token transferFrom function selector"
@@ -89,7 +89,7 @@ traits:
     crit: suspicious
     if:
       type: string
-      exact: "0x23b872dd"
+      substr: "0x23b872dd"
 
   # === Drainer function atomic ===
   - id: function-drain
@@ -130,7 +130,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "runmask"
+      substr: "runmask"
 
   - id: newdlocal-function
     desc: newdlocal function
@@ -138,7 +138,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "newdlocal"
+      substr: "newdlocal"
 
   - id: checkethereumw-function
     desc: checkethereumw function
@@ -146,7 +146,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "checkethereumw"
+      substr: "checkethereumw"
 
   # MAX_UINT256 constant - used for unlimited token approval
   - id: max-uint256-approval
@@ -155,7 +155,7 @@ traits:
     crit: suspicious
     if:
       type: string
-      exact: "MAX_UINT256"
+      substr: "MAX_UINT256"
 
   # setApprovalForAll - NFT bulk approval
   - id: set-approval-for-all
@@ -164,7 +164,7 @@ traits:
     crit: suspicious
     if:
       type: string
-      exact: "setApprovalForAll"
+      substr: "setApprovalForAll"
 
 composite_rules:
   # Ethereum provider composite

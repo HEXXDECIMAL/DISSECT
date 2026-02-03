@@ -68,7 +68,7 @@ traits:
     for: [php]
     if:
       type: string
-      exact: CURLOPT_FOLLOWLOCATION
+      substr: CURLOPT_FOLLOWLOCATION
 
   - id: file-upload
     desc: cURL file upload capability (CURLFile)
@@ -88,7 +88,7 @@ traits:
     for: [php]
     if:
       type: string
-      exact: CURLOPT_POSTFIELDS
+      substr: CURLOPT_POSTFIELDS
 
   - id: user-agent-set
     desc: Custom User-Agent header configuration
@@ -97,7 +97,7 @@ traits:
     for: [php]
     if:
       type: string
-      exact: CURLOPT_USERAGENT
+      substr: CURLOPT_USERAGENT
 
   - id: referer-set
     desc: Custom Referer header configuration
@@ -106,4 +106,4 @@ traits:
     for: [php]
     if:
       type: string
-      exact: CURLOPT_REFERER
+      substr: CURLOPT_REFERER

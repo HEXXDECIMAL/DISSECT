@@ -15,4 +15,4 @@ traits:
     for: [shell, elf, macho, python]
     if:
       type: string
-      exact: "mkfifo"
+      substr: "mkfifo"

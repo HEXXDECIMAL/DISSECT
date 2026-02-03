@@ -29,7 +29,7 @@ traits:
     platforms: [linux]
     if:
       type: string
-      exact: "prepare_creds"
+      substr: "prepare_creds"
 
 composite_rules:
   # Dummy Test Rule

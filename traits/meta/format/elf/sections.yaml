@@ -12,7 +12,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: ".init_array"
+      substr: ".init_array"
 
   - id: fini-array
     desc: .fini_array section reference
@@ -20,7 +20,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: ".fini_array"
+      substr: ".fini_array"
 
   - id: ctors
     desc: .ctors section reference
@@ -28,7 +28,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: ".ctors"
+      substr: ".ctors"
 
   - id: dtors
     desc: .dtors section reference
@@ -36,7 +36,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: ".dtors"
+      substr: ".dtors"
 
   - id: preinit-array
     desc: .preinit_array section reference
@@ -44,7 +44,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: ".preinit_array"
+      substr: ".preinit_array"
 
   # === Symbol Versioning ===
   - id: gnu-version
@@ -53,7 +53,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: ".gnu.version"
+      substr: ".gnu.version"
 
   - id: gnu-hash
     desc: .gnu.hash section reference
@@ -61,7 +61,7 @@ traits:
     conf: 0.3
     if:
       type: string
-      exact: ".gnu.hash"
+      substr: ".gnu.hash"
 
 composite_rules:
   # NOTE: Constructor/destructor sections are standard for virtually all shared

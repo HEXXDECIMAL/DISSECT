@@ -58,7 +58,7 @@ traits:
     platforms: [linux, macos]
     if:
       type: string
-      exact: "/dev/null"
+      substr: "/dev/null"
 
   # NOTE: chdir is a basic filesystem operation used by countless legitimate tools.
   # Too common to be notable.
@@ -136,7 +136,7 @@ traits:
     platforms: [linux, macos, unix]
     if:
       type: string
-      exact: "_sigchild"
+      substr: "_sigchild"
 
   - id: sigchld-handler-string
     desc: sigchld_handler string
@@ -146,7 +146,7 @@ traits:
     platforms: [linux, macos, unix]
     if:
       type: string
-      exact: "sigchld_handler"
+      substr: "sigchld_handler"
 
   - id: handle-sigchld-string
     desc: handle_sigchld string
@@ -156,7 +156,7 @@ traits:
     platforms: [linux, macos, unix]
     if:
       type: string
-      exact: "handle_sigchld"
+      substr: "handle_sigchld"
 
 composite_rules:
   # NOTE: fork/daemon are basic process primitives used by many legitimate

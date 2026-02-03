@@ -14,7 +14,7 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "chrome-pass"
+      substr: "chrome-pass"
 
   - id: firefox-pass-string
     desc: Firefox password stealing indicator
@@ -25,7 +25,7 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "fox-pass"
+      substr: "fox-pass"
 
   - id: ie-pass-string
     desc: Internet Explorer password stealing indicator
@@ -36,7 +36,7 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "ie-pass"
+      substr: "ie-pass"
 
   - id: all-pass-string
     desc: All passwords collection indicator
@@ -47,7 +47,7 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "all-pass"
+      substr: "all-pass"
 
   - id: save-all-pass-string
     desc: Save all passwords indicator
@@ -58,7 +58,7 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "save-all-pass"
+      substr: "save-all-pass"
 
   # Email client passwords
   - id: outlook-pass-string
@@ -70,7 +70,7 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "outlook-pass"
+      substr: "outlook-pass"
 
   - id: thunderbird-pass-string
     desc: Thunderbird password stealing indicator
@@ -81,7 +81,7 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "tb-pass"
+      substr: "tb-pass"
 
   - id: foxmail-pass-string
     desc: Foxmail password stealing indicator
@@ -92,7 +92,7 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "foxmail-pass"
+      substr: "foxmail-pass"
 
   # Keylogging
   - id: keylogger-string
@@ -104,7 +104,7 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "keylogger"
+      substr: "keylogger"
 
   - id: o-keylogger-string
     desc: Keylogger toggle command
@@ -115,4 +115,4 @@ traits:
     for: [class]
     if:
       type: string
-      exact: "o-keylogger"
+      substr: "o-keylogger"

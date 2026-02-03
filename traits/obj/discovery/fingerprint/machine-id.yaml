@@ -14,7 +14,7 @@ traits:
     for: [javascript, typescript, python, shell, elf, macho]
     if:
       type: string
-      exact: "/etc/machine-id"
+      substr: "/etc/machine-id"
 
   - id: dbus-machine-id
     desc: /var/lib/dbus/machine-id file
@@ -23,7 +23,7 @@ traits:
     for: [javascript, typescript, python, shell, elf, macho]
     if:
       type: string
-      exact: "/var/lib/dbus/machine-id"
+      substr: "/var/lib/dbus/machine-id"
 
   - id: windows-machine-guid
     desc: Windows MachineGuid reference
@@ -32,7 +32,7 @@ traits:
     for: [javascript, typescript, powershell, pe]
     if:
       type: string
-      exact: "MachineGuid"
+      substr: "MachineGuid"
 
   # === Node.js machine-id package atomic indicators ===
   - id: require-node-machine-id
@@ -70,7 +70,7 @@ traits:
     for: [javascript, typescript, shell, python, macho]
     if:
       type: string
-      exact: "system_profiler SPHardwareDataType"
+      substr: "system_profiler SPHardwareDataType"
 
   - id: ioplatform-uuid
     desc: IOPlatformUUID reference
@@ -79,7 +79,7 @@ traits:
     for: [javascript, typescript, shell, python, macho]
     if:
       type: string
-      exact: "IOPlatformUUID"
+      substr: "IOPlatformUUID"
 
   - id: ioreg-serial
     desc: ioreg IOPlatformSerialNumber
@@ -107,7 +107,7 @@ traits:
     for: [javascript, typescript, powershell, shell]
     if:
       type: string
-      exact: "wmic csproduct get uuid"
+      substr: "wmic csproduct get uuid"
 
   # === CPU ID atomic indicators ===
   - id: proc-cpuinfo
@@ -117,7 +117,7 @@ traits:
     for: [javascript, typescript, python, shell, elf]
     if:
       type: string
-      exact: "/proc/cpuinfo"
+      substr: "/proc/cpuinfo"
 
   - id: processor-id
     desc: processor id reference
@@ -135,7 +135,7 @@ traits:
     for: [javascript, typescript, python, shell, elf, pe, macho]
     if:
       type: string
-      exact: "cpuid"
+      substr: "cpuid"
 
   # === Disk serial atomic indicators ===
   - id: hdparm-info
@@ -154,7 +154,7 @@ traits:
     for: [javascript, typescript, shell, elf]
     if:
       type: string
-      exact: "smartctl"
+      substr: "smartctl"
 
   - id: wmic-diskdrive-serial
     desc: wmic diskdrive get serialnumber
@@ -163,7 +163,7 @@ traits:
     for: [javascript, typescript, shell, powershell, pe]
     if:
       type: string
-      exact: "wmic diskdrive get serialnumber"
+      substr: "wmic diskdrive get serialnumber"
 
   # === BIOS serial atomic indicators ===
   - id: dmidecode-cmd
@@ -173,7 +173,7 @@ traits:
     for: [javascript, typescript, shell, elf]
     if:
       type: string
-      exact: "dmidecode"
+      substr: "dmidecode"
 
   - id: wmic-bios-serial
     desc: wmic bios get serialnumber
@@ -182,7 +182,7 @@ traits:
     for: [javascript, typescript, shell, powershell, pe]
     if:
       type: string
-      exact: "wmic bios get serialnumber"
+      substr: "wmic bios get serialnumber"
 
   # === Node.js os module hardware fingerprint patterns ===
   - id: network-interfaces-call
@@ -192,7 +192,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "networkInterfaces"
+      substr: "networkInterfaces"
 
   - id: cpus-call
     desc: cpus() call
@@ -201,7 +201,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "cpus()"
+      substr: "cpus()"
 
   - id: totalmem-call
     desc: totalmem() call
@@ -210,7 +210,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "totalmem"
+      substr: "totalmem"
 
   - id: hostname-call
     desc: hostname() call
@@ -219,7 +219,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "hostname()"
+      substr: "hostname()"
 
   - id: userinfo-call
     desc: userInfo() call
@@ -228,7 +228,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "userInfo()"
+      substr: "userInfo()"
 
   - id: platform-call
     desc: platform() call
@@ -237,7 +237,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "platform()"
+      substr: "platform()"
 
   - id: arch-call
     desc: arch() call
@@ -246,7 +246,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "arch()"
+      substr: "arch()"
 
   - id: release-call
     desc: release() call
@@ -255,7 +255,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "release()"
+      substr: "release()"
 
   # === Unique identifier keywords ===
   - id: machine-id-keyword
@@ -265,7 +265,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "machine-id"
+      substr: "machine-id"
 
   - id: uuid-keyword
     desc: uuid keyword

@@ -154,7 +154,7 @@ traits:
     attack: "T1105"
     if:
       type: string
-      exact: "bullethost.cloud"
+      substr: "bullethost.cloud"
 
   - id: anonfiles-com
     desc: Anonfiles.com file hosting
@@ -163,7 +163,7 @@ traits:
     attack: "T1105"
     if:
       type: string
-      exact: "anonfiles.com"
+      substr: "anonfiles.com"
 
   - id: gofile-io
     desc: Gofile.io file hosting
@@ -172,7 +172,7 @@ traits:
     attack: "T1105"
     if:
       type: string
-      exact: "gofile.io"
+      substr: "gofile.io"
 
   - id: transfer-sh
     desc: Transfer.sh file hosting
@@ -181,7 +181,7 @@ traits:
     attack: "T1105"
     if:
       type: string
-      exact: "transfer.sh"
+      substr: "transfer.sh"
 
   - id: tmpfiles-org
     desc: Tmpfiles.org file hosting
@@ -190,7 +190,7 @@ traits:
     attack: "T1105"
     if:
       type: string
-      exact: "tmpfiles.org"
+      substr: "tmpfiles.org"
 
   - id: catbox-moe
     desc: Catbox.moe file hosting
@@ -199,7 +199,7 @@ traits:
     attack: "T1105"
     if:
       type: string
-      exact: "catbox.moe"
+      substr: "catbox.moe"
 
   - id: uguu-se
     desc: Uguu.se file hosting
@@ -208,7 +208,7 @@ traits:
     attack: "T1105"
     if:
       type: string
-      exact: "uguu.se"
+      substr: "uguu.se"
 
   - id: pomf-cat
     desc: Pomf.cat file hosting
@@ -217,7 +217,7 @@ traits:
     attack: "T1105"
     if:
       type: string
-      exact: "pomf.cat"
+      substr: "pomf.cat"
 
   - id: 0x0-st
     desc: 0x0.st file hosting
@@ -226,7 +226,7 @@ traits:
     attack: "T1105"
     if:
       type: string
-      exact: "0x0.st"
+      substr: "0x0.st"
 
   - id: file-io
     desc: File.io file hosting
@@ -235,7 +235,7 @@ traits:
     attack: "T1105"
     if:
       type: string
-      exact: "file.io"
+      substr: "file.io"
 
   - id: filedropper-com
     desc: Filedropper.com file hosting
@@ -244,7 +244,7 @@ traits:
     attack: "T1105"
     if:
       type: string
-      exact: "filedropper.com"
+      substr: "filedropper.com"
 
   # Cloud storage abuse for payload hosting
   - id: appwrite-storage
@@ -300,7 +300,7 @@ traits:
     attack: "T1041"
     if:
       type: string
-      exact: "/report.php"
+      substr: "/report.php"
 
   - id: php-beacon
     desc: PHP beacon endpoint
@@ -309,7 +309,7 @@ traits:
     attack: "T1041"
     if:
       type: string
-      exact: "/beacon.php"
+      substr: "/beacon.php"
 
   - id: php-gate
     desc: PHP gate endpoint
@@ -318,7 +318,7 @@ traits:
     attack: "T1041"
     if:
       type: string
-      exact: "/gate.php"
+      substr: "/gate.php"
 
   # Internal API probing
   - id: internal-api-probe
@@ -595,7 +595,7 @@ traits:
     attack: "T1572"
     if:
       type: string
-      exact: "jpillora/chisel"
+      substr: "jpillora/chisel"
 
 composite_rules:
   - id: c2-domain

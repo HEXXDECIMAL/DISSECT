@@ -22,7 +22,7 @@ traits:
     attack: "T1070.001"
     if:
       type: string
-      exact: "Clear-EventLog"
+      substr: "Clear-EventLog"
 
 composite_rules:
   # Log clear composite

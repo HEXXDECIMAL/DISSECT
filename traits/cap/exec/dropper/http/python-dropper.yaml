@@ -60,7 +60,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "64bit"
+      substr: "64bit"
 
   # === Multiple persistence locations (dropper behavior) ===
   - id: multi-persist-dirs

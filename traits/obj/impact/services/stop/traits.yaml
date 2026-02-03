@@ -13,7 +13,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "esxcli"
+      substr: "esxcli"
 
   - id: systemctl-stop
     desc: Systemd service stop
@@ -53,7 +53,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "vmsvc/getallvms"
+      substr: "vmsvc/getallvms"
 
   # === Database service termination (atomic) ===
   - id: kill-mysql-kill
@@ -143,7 +143,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: ".onion"
+      substr: ".onion"
 
   - id: word-encrypted
     desc: Encrypted keyword
@@ -151,7 +151,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: encrypted
+      substr: encrypted
       case_insensitive: true
 
   - id: word-ransom
@@ -160,7 +160,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: ransom
+      substr: ransom
       case_insensitive: true
 
   - id: tor-service-stop
@@ -193,7 +193,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: bitcoin
+      substr: bitcoin
       case_insensitive: true
 
   - id: word-victim
@@ -202,7 +202,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: victim
+      substr: victim
       case_insensitive: true
 
   - id: word-company
@@ -211,7 +211,7 @@ traits:
     conf: 0.3
     if:
       type: string
-      exact: company
+      substr: company
 
   - id: phrase-your-data
     desc: Your data phrase
@@ -219,7 +219,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: "your data"
+      substr: "your data"
 
 composite_rules:
   # Individual database kill composites

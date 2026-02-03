@@ -17,7 +17,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "rot13"
+      substr: "rot13"
 
   - id: codecs-rot13
     desc: codecs ROT13 decoding

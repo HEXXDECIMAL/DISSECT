@@ -27,7 +27,7 @@ traits:
     attack: "T1059.004"
     if:
       type: string
-      exact: "do shell script"
+      substr: "do shell script"
 
   # ============================================
   # Timing (syso.dela)
@@ -57,7 +57,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "load script"
+      substr: "load script"
 
   # ============================================
   # URL/Location Opening
@@ -94,7 +94,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "open location"
+      substr: "open location"
 
   - id: open-url-cmd
     desc: "open URL (command)"
@@ -102,7 +102,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "open URL"
+      substr: "open URL"
 
   # ============================================
   # Application Control

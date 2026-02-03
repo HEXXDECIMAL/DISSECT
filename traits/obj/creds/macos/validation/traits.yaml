@@ -77,7 +77,7 @@ traits:
     attack: "T1003.008"
     if:
       type: string
-      exact: "/var/db/dslocal"
+      substr: "/var/db/dslocal"
 
   - id: shadow-hash-data
     desc: ShadowHashData reference
@@ -86,7 +86,7 @@ traits:
     attack: "T1003.008"
     if:
       type: string
-      exact: "ShadowHashData"
+      substr: "ShadowHashData"
 
   - id: etc-shadow
     desc: /etc/shadow file
@@ -95,7 +95,7 @@ traits:
     attack: "T1003.008"
     if:
       type: string
-      exact: "/etc/shadow"
+      substr: "/etc/shadow"
 
   # Credential keyword atomic indicators moved to data/text/generic.yaml
 

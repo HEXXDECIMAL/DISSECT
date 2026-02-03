@@ -15,7 +15,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "socks5h"
+      substr: "socks5h"
 
   # SOCKS4a protocol (hostname resolution via proxy)
   - id: socks4a-proto
@@ -24,7 +24,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "socks4a"
+      substr: "socks4a"
 
   # Onion domain handling
   - id: onion-domain-handling

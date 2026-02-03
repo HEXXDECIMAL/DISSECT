@@ -11,7 +11,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "readVNCs"
+      substr: "readVNCs"
 
   - id: scanner/vncjew/iptables-ref
     desc: Reference to iptables firewall utility
@@ -20,7 +20,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "iptables"
+      substr: "iptables"
 
   - id: scanner/vncjew/masscan-ref
     desc: Reference to masscan network scanner
@@ -29,7 +29,7 @@ traits:
     r#for: [elf]
     if:
       type: string
-      exact: "masscan"
+      substr: "masscan"
 
 composite_rules:
   - id: scanner/vncjew/detected

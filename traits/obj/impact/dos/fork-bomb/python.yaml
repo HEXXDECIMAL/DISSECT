@@ -33,7 +33,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "import os"
+      substr: "import os"
 
   # Infinite loop patterns
   - id: while-true
@@ -102,7 +102,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "time.sleep"
+      substr: "time.sleep"
 
   - id: worker-keyword-lower
     desc: worker keyword (lowercase)
@@ -110,7 +110,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "worker"
+      substr: "worker"
 
   - id: worker-keyword-upper
     desc: WORKER keyword (uppercase)
@@ -118,7 +118,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "WORKER"
+      substr: "WORKER"
 
   - id: worker-keyword-title
     desc: Worker keyword (titlecase)
@@ -126,7 +126,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "Worker"
+      substr: "Worker"
 
   - id: pool-keyword
     desc: Pool keyword
@@ -142,7 +142,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "daemon"
+      substr: "daemon"
 
   - id: daemon-keyword-upper
     desc: DAEMON keyword (uppercase)
@@ -150,7 +150,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "DAEMON"
+      substr: "DAEMON"
 
   - id: daemon-keyword-title
     desc: Daemon keyword (titlecase)
@@ -158,7 +158,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "Daemon"
+      substr: "Daemon"
 
 composite_rules:
   # Helper: Infinite loop patterns

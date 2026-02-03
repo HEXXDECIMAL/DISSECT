@@ -12,7 +12,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "/etc/cron.d/"
+      substr: "/etc/cron.d/"
 
   - id: etc-crontab
     desc: /etc/crontab file
@@ -20,7 +20,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "/etc/crontab"
+      substr: "/etc/crontab"
 
   - id: var-spool-cron
     desc: /var/spool/cron directory
@@ -28,7 +28,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "/var/spool/cron"
+      substr: "/var/spool/cron"
 
   - id: crontab-dash
     desc: crontab command with dash
@@ -36,7 +36,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "crontab -"
+      substr: "crontab -"
 
   # Download cradles
   - id: curl-silent
@@ -45,7 +45,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "curl -s"
+      substr: "curl -s"
 
   - id: wget-quiet
     desc: wget -q (quiet mode)
@@ -53,7 +53,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "wget -q"
+      substr: "wget -q"
 
   - id: wget-stdout
     desc: wget -O - (output to
@@ -61,7 +61,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "wget -O -"
+      substr: "wget -O -"
 
   # Base64 decode
   - id: base64-d
@@ -70,7 +70,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "base64 -d"
+      substr: "base64 -d"
 
   - id: base64-decode
     desc: base64 --decode long form
@@ -78,7 +78,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "base64 --decode"
+      substr: "base64 --decode"
 
   # Hidden file paths
   - id: tmp-hidden
@@ -87,7 +87,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "/tmp/."
+      substr: "/tmp/."
 
   - id: var-tmp-hidden
     desc: Hidden file in /var/tmp
@@ -95,7 +95,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "/var/tmp/."
+      substr: "/var/tmp/."
 
   - id: dev-shm-hidden
     desc: Hidden file in /dev/shm
@@ -103,7 +103,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "/dev/shm/."
+      substr: "/dev/shm/."
 
   # Additional cron keywords
   - id: crontab-keyword
@@ -112,7 +112,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "crontab"
+      substr: "crontab"
 
   - id: etc-cron
     desc: /etc/cron path prefix
@@ -120,7 +120,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "/etc/cron"
+      substr: "/etc/cron"
 
 composite_rules:
   # Helper: Cron paths

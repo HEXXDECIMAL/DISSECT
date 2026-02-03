@@ -8,7 +8,7 @@ traits:
     for: [elf, macho]
     if:
       type: string
-      exact: "dlsym"
+      substr: "dlsym"
 
   - id: dlsym-symbol
     desc: dlsym function symbol
@@ -26,7 +26,7 @@ traits:
     for: [elf, macho]
     if:
       type: string
-      exact: "dladdr"
+      substr: "dladdr"
 
   - id: getprocaddress
     desc: Windows GetProcAddress
@@ -36,4 +36,4 @@ traits:
     for: [pe]
     if:
       type: string
-      exact: "GetProcAddress"
+      substr: "GetProcAddress"

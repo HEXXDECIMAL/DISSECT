@@ -13,7 +13,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: SOCKS4
+      substr: SOCKS4
 
   - id: socks5-proto
     desc: SOCKS5 protocol reference
@@ -21,7 +21,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: SOCKS5
+      substr: SOCKS5
 
   - id: socks5-string
     desc: socks5 string
@@ -45,7 +45,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "socks://"
+      substr: "socks://"
 
   # NOTE: Removed standalone "1080" pattern - too many false positives.
   # "1080" appears in 1080p resolution, font metrics, timestamps, etc.

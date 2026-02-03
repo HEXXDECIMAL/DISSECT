@@ -11,7 +11,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: /.dockerenv
+      substr: /.dockerenv
 
   - id: docker-sock
     desc: Docker socket path
@@ -19,4 +19,4 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: /run/docker.sock
+      substr: /run/docker.sock

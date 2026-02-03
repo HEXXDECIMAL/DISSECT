@@ -8,7 +8,7 @@ composite_rules:
   # Complexity: all(2) + any(1) + file_types(1) = 4
   - id: obfuscated-dropper
     desc: Obfuscated PowerShell dropper
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     mbc: "B0030"
     attack: "T1059.001"

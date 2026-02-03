@@ -49,7 +49,7 @@ traits:
     for: [php]
     if:
       type: string
-      exact: password_hash
+      substr: password_hash
 
   - id: password-verify
     desc: Password verification
@@ -58,4 +58,4 @@ traits:
     for: [php]
     if:
       type: string
-      exact: password_verify
+      substr: password_verify

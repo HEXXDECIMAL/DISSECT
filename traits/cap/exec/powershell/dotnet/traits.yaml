@@ -17,7 +17,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "System.Management.Automation"
+      substr: "System.Management.Automation"
 
   - id: sma-host
     desc: System.Management.Automation.Host import
@@ -25,7 +25,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "System.Management.Automation.Host"
+      substr: "System.Management.Automation.Host"
 
   - id: sma-runspaces
     desc: Runspaces namespace import
@@ -33,7 +33,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "System.Management.Automation.Runspaces"
+      substr: "System.Management.Automation.Runspaces"
 
   # === PowerShell Runspace ===
   - id: runspace-factory

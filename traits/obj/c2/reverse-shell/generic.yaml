@@ -20,7 +20,7 @@ traits:
     attack: "T1059"
     if:
       type: string
-      exact: "revshell"
+      substr: "revshell"
 
   # === Exclusion patterns ===
   - id: elastic-license
@@ -29,7 +29,7 @@ traits:
     conf: 0.3
     if:
       type: string
-      exact: "\"license\": \"Elastic License v2\""
+      substr: "\"license\": \"Elastic License v2\""
 
 composite_rules:
   # Reverse shell string match

@@ -109,7 +109,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: "detached: true"
+      substr: "detached: true"
 
   - id: detached-colon-true
     desc: detached:true spawn option
@@ -117,7 +117,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: "detached:true"
+      substr: "detached:true"
 
   # === IIFE patterns ===
   - id: iife-start

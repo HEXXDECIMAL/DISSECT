@@ -15,7 +15,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "XMLHttpRequest.prototype"
+      substr: "XMLHttpRequest.prototype"
 
   - id: xhr-bracket-access
     desc: XMLHttpRequest bracket notation access

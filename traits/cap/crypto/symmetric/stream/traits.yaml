@@ -34,7 +34,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "StreamCipherError"
+      substr: "StreamCipherError"
 
 composite_rules:
   # Rust stream cipher implementation - core constant is required

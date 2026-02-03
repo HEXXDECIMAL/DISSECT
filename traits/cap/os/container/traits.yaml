@@ -11,4 +11,4 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: /proc/1/cgroup
+      substr: /proc/1/cgroup

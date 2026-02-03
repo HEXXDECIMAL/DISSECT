@@ -9,7 +9,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      exact: /proc/1/cgroup
+      substr: /proc/1/cgroup
 
   - id: container-self-cgroup
     desc: Check own cgroup to detect
@@ -17,4 +17,4 @@ traits:
     conf: 0.66
     if:
       type: string
-      exact: /proc/self/cgroup
+      substr: /proc/self/cgroup

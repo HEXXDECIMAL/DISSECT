@@ -15,7 +15,7 @@ traits:
     for: [php]
     if:
       type: string
-      exact: "<?php"
+      substr: "<?php"
       case_insensitive: true
 
   - id: php-system
@@ -25,7 +25,7 @@ traits:
     for: [php]
     if:
       type: string
-      exact: "system("
+      substr: "system("
 
   - id: php-exec
     desc: PHP exec() function call
@@ -34,7 +34,7 @@ traits:
     for: [php]
     if:
       type: string
-      exact: "exec("
+      substr: "exec("
 
   - id: php-shell-exec
     desc: PHP shell_exec() function call
@@ -43,7 +43,7 @@ traits:
     for: [php]
     if:
       type: string
-      exact: "shell_exec("
+      substr: "shell_exec("
 
   - id: php-get
     desc: PHP $_GET parameter access
@@ -52,7 +52,7 @@ traits:
     for: [php]
     if:
       type: string
-      exact: "$_GET["
+      substr: "$_GET["
 
   - id: php-post
     desc: PHP $_POST parameter access
@@ -61,7 +61,7 @@ traits:
     for: [php]
     if:
       type: string
-      exact: "$_POST["
+      substr: "$_POST["
 
   - id: php-request
     desc: PHP $_REQUEST parameter access
@@ -70,7 +70,7 @@ traits:
     for: [php]
     if:
       type: string
-      exact: "$_REQUEST["
+      substr: "$_REQUEST["
 
   # === JSP webshell atomic indicators ===
   - id: jsp-runtime
@@ -80,7 +80,7 @@ traits:
     for: [java]
     if:
       type: string
-      exact: "Runtime.getRuntime()"
+      substr: "Runtime.getRuntime()"
 
   - id: jsp-exec
     desc: Java .exec() method call
@@ -89,7 +89,7 @@ traits:
     for: [java]
     if:
       type: string
-      exact: ".exec("
+      substr: ".exec("
 
   - id: jsp-get-param
     desc: JSP request.getParameter call
@@ -98,7 +98,7 @@ traits:
     for: [java]
     if:
       type: string
-      exact: "request.getParameter"
+      substr: "request.getParameter"
 
   # === Generic webshell identifiers ===
   - id: identifier
@@ -153,7 +153,7 @@ traits:
     conf: 0.95
     if:
       type: string
-      exact: "WSO Shell"
+      substr: "WSO Shell"
 
   - id: wso-version
     desc: WSO webshell version marker
@@ -161,7 +161,7 @@ traits:
     conf: 0.98
     if:
       type: string
-      exact: "WSO_VERSION"
+      substr: "WSO_VERSION"
 
   - id: filesman
     desc: FilesMan webshell family
@@ -169,7 +169,7 @@ traits:
     conf: 0.95
     if:
       type: string
-      exact: FilesMan
+      substr: FilesMan
 
   - id: china-chopper
     desc: China Chopper webshell family
@@ -177,7 +177,7 @@ traits:
     conf: 0.95
     if:
       type: string
-      exact: "China Chopper"
+      substr: "China Chopper"
 
   - id: weevely
     desc: weevely webshell family
@@ -185,7 +185,7 @@ traits:
     conf: 0.95
     if:
       type: string
-      exact: weevely
+      substr: weevely
 
   - id: indoxploit
     desc: IndoXploit webshell family

@@ -34,7 +34,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "with hidden answer"
+      substr: "with hidden answer"
 
   # ============================================
   # Fake System Dialog

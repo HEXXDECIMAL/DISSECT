@@ -11,7 +11,7 @@ traits:
     conf: 0.70
     if:
       type: string
-      exact: "System.Reflection"
+      substr: "System.Reflection"
 
   - id: activator
     desc: Dynamic object instantiation via Activator
@@ -19,7 +19,7 @@ traits:
     conf: 0.80
     if:
       type: string
-      exact: "Activator"
+      substr: "Activator"
 
   # === Property info atomic indicators ===
   - id: property-info-class
@@ -28,7 +28,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "PropertyInfo"
+      substr: "PropertyInfo"
 
   - id: get-properties-method
     desc: GetProperties method reference
@@ -36,7 +36,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "GetProperties"
+      substr: "GetProperties"
 
   # === Method info atomic indicators ===
   - id: method-info-class
@@ -45,7 +45,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "MethodInfo"
+      substr: "MethodInfo"
 
   - id: get-method-call
     desc: GetMethod call reference
@@ -53,7 +53,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "GetMethod"
+      substr: "GetMethod"
 
   - id: get-methods-call
     desc: GetMethods call reference
@@ -61,7 +61,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "GetMethods"
+      substr: "GetMethods"
 
   # === Type info atomic indicators ===
   - id: get-type-call
@@ -70,7 +70,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "GetType("
+      substr: "GetType("
 
   - id: typeof-call
     desc: typeof( call reference
@@ -78,7 +78,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "typeof("
+      substr: "typeof("
 
   - id: type-info-class
     desc: TypeInfo class reference
@@ -86,7 +86,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "TypeInfo"
+      substr: "TypeInfo"
 
 composite_rules:
   # Property info composite

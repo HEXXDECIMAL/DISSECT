@@ -22,7 +22,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "spawn("
+      substr: "spawn("
 
   - id: detached-option
     desc: Detached process option
@@ -30,7 +30,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "detached:"
+      substr: "detached:"
 
   # PM2 process manager spawn
   - id: pm2-spawn

@@ -69,7 +69,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "libev: "
+      substr: "libev: "
 
   # === libuv micro-traits ===
   - id: uv-loop-init
@@ -183,7 +183,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: "ARES_SUCCESS"
+      substr: "ARES_SUCCESS"
 
   # === libevent micro-traits ===
   - id: event-base-new
@@ -249,7 +249,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "boost::asio"
+      substr: "boost::asio"
 
   - id: io-service
     desc: io_service class
@@ -257,7 +257,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: "io_service"
+      substr: "io_service"
 
   - id: io-context
     desc: io_context class
@@ -265,7 +265,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: "io_context"
+      substr: "io_context"
 
   - id: async-read
     desc: async_read function
@@ -273,7 +273,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: "async_read"
+      substr: "async_read"
 
   - id: async-write
     desc: async_write function
@@ -281,7 +281,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: "async_write"
+      substr: "async_write"
 
   - id: async-connect
     desc: async_connect function
@@ -289,7 +289,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: "async_connect"
+      substr: "async_connect"
 
   - id: deadline-timer
     desc: deadline_timer class
@@ -297,7 +297,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: "deadline_timer"
+      substr: "deadline_timer"
 
   # === Tokio micro-traits ===
   - id: tokio-namespace
@@ -307,7 +307,7 @@ traits:
     for: [elf, macho, rust]
     if:
       type: string
-      exact: "tokio::"
+      substr: "tokio::"
 
   - id: tokio-runtime
     desc: tokio_runtime reference
@@ -316,7 +316,7 @@ traits:
     for: [elf, macho, rust]
     if:
       type: string
-      exact: "tokio_runtime"
+      substr: "tokio_runtime"
 
   - id: tokio-net
     desc: "tokio::net module"
@@ -325,7 +325,7 @@ traits:
     for: [elf, macho, rust]
     if:
       type: string
-      exact: "tokio::net"
+      substr: "tokio::net"
 
   - id: tokio-spawn
     desc: "tokio::spawn function"
@@ -334,7 +334,7 @@ traits:
     for: [elf, macho, rust]
     if:
       type: string
-      exact: "tokio::spawn"
+      substr: "tokio::spawn"
 
   - id: tokio-cargo
     desc: tokio- cargo dependency
@@ -343,7 +343,7 @@ traits:
     for: [elf, macho, rust]
     if:
       type: string
-      exact: "tokio-"
+      substr: "tokio-"
 
   # === epoll/kqueue micro-traits ===
   - id: epoll-create

@@ -94,7 +94,7 @@ traits:
     attack: "T1036.004"
     if:
       type: string
-      exact: "cli_set_process_title"
+      substr: "cli_set_process_title"
 
   # === Daemonization ===
   - id: posix-setsid
@@ -104,7 +104,7 @@ traits:
     mbc: "F0004"
     if:
       type: string
-      exact: "posix_setsid"
+      substr: "posix_setsid"
 
   # === Process Fork ===
   - id: pcntl-fork
@@ -113,7 +113,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: "pcntl_fork"
+      substr: "pcntl_fork"
 
 composite_rules:
   # PHP reverse shell via socket + shell execution + interactive shell

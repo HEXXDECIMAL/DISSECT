@@ -17,7 +17,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "import win32clipboard"
+      substr: "import win32clipboard"
 
   - id: win32-get-clipboard
     desc: win32clipboard.GetClipboardData
@@ -26,7 +26,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "win32clipboard.GetClipboardData"
+      substr: "win32clipboard.GetClipboardData"
 
   - id: win32-set-clipboard
     desc: win32clipboard.SetClipboardData
@@ -35,7 +35,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "win32clipboard.SetClipboardData"
+      substr: "win32clipboard.SetClipboardData"
 
   - id: win32-open-clipboard
     desc: win32clipboard.OpenClipboard
@@ -44,7 +44,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "win32clipboard.OpenClipboard"
+      substr: "win32clipboard.OpenClipboard"
 
   # === pyperclip atomic indicators ===
   - id: import-pyperclip
@@ -53,7 +53,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "import pyperclip"
+      substr: "import pyperclip"
 
   - id: pyperclip-paste
     desc: pyperclip.paste
@@ -61,7 +61,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "pyperclip.paste"
+      substr: "pyperclip.paste"
 
   - id: pyperclip-copy
     desc: pyperclip.copy
@@ -69,7 +69,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "pyperclip.copy"
+      substr: "pyperclip.copy"
 
   # === wxPython clipboard atomic indicators ===
   - id: wx-clipboard
@@ -78,7 +78,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "wx.Clipboard"
+      substr: "wx.Clipboard"
 
   - id: clipboard-getdata
     desc: clipboard.GetData
@@ -86,7 +86,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "clipboard.GetData"
+      substr: "clipboard.GetData"
 
   - id: wx-theclipboard
     desc: wx.TheClipboard
@@ -94,7 +94,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "wx.TheClipboard"
+      substr: "wx.TheClipboard"
 
   # === tkinter clipboard atomic indicators ===
   - id: clipboard-get-method
@@ -103,7 +103,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: ".clipboard_get()"
+      substr: ".clipboard_get()"
 
   - id: clipboard-clear-method
     desc: .clipboard_clear() method
@@ -111,7 +111,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: ".clipboard_clear()"
+      substr: ".clipboard_clear()"
 
   # === Windows clipboard chain atomic ===
   - id: set-clipboard-viewer
@@ -121,7 +121,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "SetClipboardViewer("
+      substr: "SetClipboardViewer("
 
   - id: wm-drawclipboard
     desc: WM_DRAWCLIPBOARD message
@@ -130,7 +130,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "WM_DRAWCLIPBOARD"
+      substr: "WM_DRAWCLIPBOARD"
 
   - id: wm-changecbchain
     desc: WM_CHANGECBCHAIN message
@@ -139,7 +139,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "WM_CHANGECBCHAIN"
+      substr: "WM_CHANGECBCHAIN"
 
   # === pynput clipboard atomic ===
   - id: pynput-import-clipboard
@@ -148,7 +148,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "from pynput import clipboard"
+      substr: "from pynput import clipboard"
 
   - id: pynput-clipboard-mod
     desc: pynput.clipboard module
@@ -156,7 +156,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "pynput.clipboard"
+      substr: "pynput.clipboard"
 
   # === Network exfil atomic (require clipboard context) ===
   - id: requests-post-clip
@@ -224,7 +224,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "WndProc"
+      substr: "WndProc"
 
   - id: message-loop-str
     desc: '"message loop" string'
@@ -233,7 +233,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "message loop"
+      substr: "message loop"
 
   - id: getclipboarddata-fn
     desc: GetClipboardData function
@@ -241,7 +241,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "GetClipboardData"
+      substr: "GetClipboardData"
 
 composite_rules:
   # win32clipboard composite

@@ -13,7 +13,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "socket("
+      substr: "socket("
 
   # === Perl open micro-trait ===
   - id: perl-open
@@ -22,7 +22,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: "open("
+      substr: "open("
 
   # === Perl redirect micro-trait ===
   - id: perl-redir

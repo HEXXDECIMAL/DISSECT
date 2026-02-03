@@ -66,7 +66,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "tempfile.NamedTemporaryFile"
+      substr: "tempfile.NamedTemporaryFile"
 
   - id: python-tempfile-mkstemp
     desc: "tempfile.mkstemp usage"
@@ -74,7 +74,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "tempfile.mkstemp"
+      substr: "tempfile.mkstemp"
 
   - id: python-tempfile-mkdtemp
     desc: "tempfile.mkdtemp usage"
@@ -82,7 +82,7 @@ traits:
     crit: inert
     if:
       type: string
-      exact: "tempfile.mkdtemp"
+      substr: "tempfile.mkdtemp"
 
   # === HTTP request atomic indicators ===
   - id: python-requests-get

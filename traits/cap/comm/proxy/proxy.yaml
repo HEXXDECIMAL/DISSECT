@@ -17,4 +17,4 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "github.com/armon/go-socks5"
+      substr: "github.com/armon/go-socks5"

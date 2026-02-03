@@ -9,7 +9,7 @@ traits:
     platforms: [linux]
     if:
       type: string
-      exact: "wpa_supplicant"
+      substr: "wpa_supplicant"
 
   - id: wps-supplicant
     desc: WPS supplicant wireless access
@@ -18,4 +18,4 @@ traits:
     platforms: [linux]
     if:
       type: string
-      exact: "wps_supplicant"
+      substr: "wps_supplicant"

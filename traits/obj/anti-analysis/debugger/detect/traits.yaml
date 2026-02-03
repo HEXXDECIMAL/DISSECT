@@ -13,7 +13,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "PTRACE_TRACEME"
+      substr: "PTRACE_TRACEME"
     platforms: [linux, unix]
 
   - id: pt-deny-attach
@@ -24,7 +24,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "PT_DENY_ATTACH"
+      substr: "PT_DENY_ATTACH"
     platforms: [macos]
 
   # === Process inspection micro-traits ===
@@ -35,7 +35,7 @@ traits:
     attack: "T1622"
     if:
       type: string
-      exact: "TracerPid"
+      substr: "TracerPid"
     platforms: [linux]
 
   - id: ld-debug
@@ -46,7 +46,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "LD_DEBUG"
+      substr: "LD_DEBUG"
     platforms: [linux]
 
   # Windows
@@ -58,7 +58,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "IsDebuggerPresent"
+      substr: "IsDebuggerPresent"
     platforms: [windows]
     for: [pe, dll]
 
@@ -70,7 +70,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "CheckRemoteDebuggerPresent"
+      substr: "CheckRemoteDebuggerPresent"
     platforms: [windows]
 
   - id: win-ntqueryinfo
@@ -81,7 +81,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "NtQueryInformationProcess"
+      substr: "NtQueryInformationProcess"
     platforms: [windows]
 
   - id: win-unhandledexception
@@ -92,7 +92,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "UnhandledExceptionFilter"
+      substr: "UnhandledExceptionFilter"
     platforms: [windows]
 
   - id: win-queryperformance
@@ -103,7 +103,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "QueryPerformanceCounter"
+      substr: "QueryPerformanceCounter"
     platforms: [windows]
 
 composite_rules:

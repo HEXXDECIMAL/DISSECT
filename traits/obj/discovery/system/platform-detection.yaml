@@ -42,7 +42,7 @@ traits:
     conf: 0.60
     if:
       type: string
-      exact: "Windows"
+      substr: "Windows"
 
   - id: os-check-linux
     desc: Linux OS detection string
@@ -50,7 +50,7 @@ traits:
     conf: 0.60
     if:
       type: string
-      exact: "Linux"
+      substr: "Linux"
 
   - id: os-check-darwin
     desc: Darwin/macOS detection string
@@ -58,7 +58,7 @@ traits:
     conf: 0.60
     if:
       type: string
-      exact: "Darwin"
+      substr: "Darwin"
 
   # === Cross-Platform Branching ===
   - id: os-conditional-exec
@@ -84,7 +84,7 @@ traits:
     conf: 0.50
     if:
       type: string
-      exact: "ipconfig"
+      substr: "ipconfig"
 
   - id: unix-ifconfig
     desc: Unix ifconfig command
@@ -92,7 +92,7 @@ traits:
     conf: 0.50
     if:
       type: string
-      exact: "ifconfig"
+      substr: "ifconfig"
 
   - id: windows-tasklist
     desc: Windows tasklist command
@@ -100,7 +100,7 @@ traits:
     conf: 0.50
     if:
       type: string
-      exact: "tasklist"
+      substr: "tasklist"
 
   - id: unix-ps
     desc: Unix ps command
@@ -108,7 +108,7 @@ traits:
     conf: 0.50
     if:
       type: string
-      exact: "ps -ef"
+      substr: "ps -ef"
 
 composite_rules:
   # === Platform Detection Composites ===

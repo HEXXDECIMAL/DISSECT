@@ -13,7 +13,7 @@ traits:
     attack: "T1552.004"
     if:
       type: string
-      exact: "/.ssh"
+      substr: "/.ssh"
 
   - id: dot-dot-ssh
     desc: ..ssh/ path reference
@@ -22,7 +22,7 @@ traits:
     attack: "T1552.004"
     if:
       type: string
-      exact: "..ssh/"
+      substr: "..ssh/"
 
   # === Atomic: SSH Private Keys ===
   # NOTE: These are marked as notable (not suspicious) because the filename
@@ -76,7 +76,7 @@ traits:
     attack: "T1552.004"
     if:
       type: string
-      exact: "authorized_keys"
+      substr: "authorized_keys"
 
   - id: known-hosts
     desc: SSH known_hosts file reference
@@ -85,7 +85,7 @@ traits:
     attack: "T1552.004"
     if:
       type: string
-      exact: "known_hosts"
+      substr: "known_hosts"
 
   # === Atomic: PuTTY (Windows) ===
   - id: putty-sessions
@@ -96,7 +96,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "Software\\SimonTatham\\PuTTY\\Sessions"
+      substr: "Software\\SimonTatham\\PuTTY\\Sessions"
 
   # === Atomic: SSHD network process indicators ===
   - id: sshd-net-bracket
@@ -105,7 +105,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "sshd: [net]"
+      substr: "sshd: [net]"
 
   - id: sshd-accepted-bracket
     desc: SSHD accepted process reference
@@ -113,7 +113,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "sshd: [accepted]"
+      substr: "sshd: [accepted]"
 
   - id: sshd-proc-ref
     desc: SSHD process reference
@@ -152,7 +152,7 @@ traits:
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
-      exact: "sniff_ssh"
+      substr: "sniff_ssh"
 
   - id: sniff-ssh-title
     desc: Sniff_ssh function name (titlecase)
@@ -161,7 +161,7 @@ traits:
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
-      exact: "Sniff_ssh"
+      substr: "Sniff_ssh"
 
   - id: sniff-ssh-upper
     desc: SNIFF_SSH constant (uppercase)
@@ -170,7 +170,7 @@ traits:
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
-      exact: "SNIFF_SSH"
+      substr: "SNIFF_SSH"
 
   - id: ssh-sniff-lower
     desc: ssh_sniff function name (lowercase)
@@ -179,7 +179,7 @@ traits:
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
-      exact: "ssh_sniff"
+      substr: "ssh_sniff"
 
   - id: ssh-sniff-title
     desc: Ssh_sniff function name (titlecase)
@@ -188,7 +188,7 @@ traits:
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
-      exact: "Ssh_sniff"
+      substr: "Ssh_sniff"
 
   - id: ssh-sniff-upper
     desc: SSH_SNIFF constant (uppercase)
@@ -197,7 +197,7 @@ traits:
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
-      exact: "SSH_SNIFF"
+      substr: "SSH_SNIFF"
 
   - id: sshpass-keyword
     desc: sshpass tool reference
@@ -215,7 +215,7 @@ traits:
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
-      exact: "ssh_password"
+      substr: "ssh_password"
 
   - id: ssh-cred-identifier
     desc: ssh_cred variable
@@ -224,7 +224,7 @@ traits:
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
-      exact: "ssh_cred"
+      substr: "ssh_cred"
 
   - id: sshdone-identifier
     desc: SSH operation completion flag variable
@@ -233,7 +233,7 @@ traits:
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
-      exact: "sshdone"
+      substr: "sshdone"
 
   # === Atomic: Password File Storage ===
   - id: sshpass-txt-file
@@ -252,7 +252,7 @@ traits:
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
-      exact: "ssh_pass.log"
+      substr: "ssh_pass.log"
 
   - id: password-txt-file
     desc: password.txt file
@@ -261,7 +261,7 @@ traits:
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
-      exact: "password.txt"
+      substr: "password.txt"
 
   - id: credentials-txt-file
     desc: credentials.txt file
@@ -270,7 +270,7 @@ traits:
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
-      exact: "credentials.txt"
+      substr: "credentials.txt"
 
   # === Atomic: SSH host verification bypass ===
   - id: stricthostkey-bypass
@@ -280,7 +280,7 @@ traits:
     attack: "T1021.004"
     if:
       type: string
-      exact: "StrictHostKeyChecking=no"
+      substr: "StrictHostKeyChecking=no"
     downgrade:
       any:
         # SSH tools legitimately document/use this option

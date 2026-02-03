@@ -12,7 +12,7 @@ traits:
     conf: 0.3
     if:
       type: string
-      exact: "__libc_start"
+      substr: "__libc_start"
 
   - id: rtld-default-ref
     desc: RTLD_DEFAULT macro reference
@@ -20,7 +20,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: "RTLD_DEFAULT"
+      substr: "RTLD_DEFAULT"
 
   # === IFUNC Resolvers ===
   - id: ifunc-ref
@@ -29,7 +29,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: "IFUNC"
+      substr: "IFUNC"
 
   - id: resolver-suffix
     desc: _resolver function suffix
@@ -37,7 +37,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: "_resolver"
+      substr: "_resolver"
 
   - id: getauxval-ref
     desc: getauxval function reference

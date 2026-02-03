@@ -9,4 +9,4 @@ traits:
     attack: "T1027"
     if:
       type: string
-      exact: "BlankOBF"
+      substr: "BlankOBF"

@@ -21,7 +21,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "env.HOME"
+      substr: "env.HOME"
 
   - id: dollar-home
     desc: $HOME variable reference
@@ -31,7 +31,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "$HOME"
+      substr: "$HOME"
 
   - id: appdata
     desc: Windows APPDATA lookup
@@ -41,7 +41,7 @@ traits:
     for: [pe, python, javascript]
     if:
       type: string
-      exact: "APPDATA"
+      substr: "APPDATA"
 
   - id: localappdata
     desc: Windows LOCALAPPDATA lookup
@@ -51,7 +51,7 @@ traits:
     for: [pe, python, javascript]
     if:
       type: string
-      exact: "LOCALAPPDATA"
+      substr: "LOCALAPPDATA"
 
   - id: userprofile
     desc: Windows USERPROFILE lookup
@@ -61,7 +61,7 @@ traits:
     for: [pe, python, javascript]
     if:
       type: string
-      exact: "USERPROFILE"
+      substr: "USERPROFILE"
 
   # === Username environment atomic indicators ===
   - id: env-username
@@ -88,7 +88,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "LOGNAME"
+      substr: "LOGNAME"
 
   # NOTE: Go runtime and standard library use getuid/getpwuid legitimately
   # for user information. Downgraded to inert for atomic indicators.
@@ -100,7 +100,7 @@ traits:
     for: [elf, macho]
     if:
       type: string
-      exact: "getuid"
+      substr: "getuid"
 
   - id: getpwuid
     desc: Get password entry by UID
@@ -110,7 +110,7 @@ traits:
     for: [elf, macho]
     if:
       type: string
-      exact: "getpwuid"
+      substr: "getpwuid"
 
   - id: getpwnam
     desc: Get password entry by name
@@ -120,7 +120,7 @@ traits:
     for: [elf, macho]
     if:
       type: string
-      exact: "getpwnam"
+      substr: "getpwnam"
 
   - id: dscl
     desc: macOS Directory Service CLI
@@ -140,7 +140,7 @@ traits:
     for: [macho, shell]
     if:
       type: string
-      exact: "dsenableroot"
+      substr: "dsenableroot"
 
   - id: whoami
     desc: Current user lookup
@@ -151,7 +151,7 @@ traits:
     for: [shell, elf, macho, pe, python]
     if:
       type: string
-      exact: "whoami"
+      substr: "whoami"
 
   - id: etc-passwd
     desc: Password file access
@@ -161,7 +161,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "/etc/passwd"
+      substr: "/etc/passwd"
 
   - id: finger
     desc: Finger command for user info
@@ -183,7 +183,7 @@ traits:
     for: [shell, elf, macho]
     if:
       type: string
-      exact: "/usr/bin/last"
+      substr: "/usr/bin/last"
 
   - id: w-cmd
     desc: W command for user sessions
@@ -193,7 +193,7 @@ traits:
     for: [shell, elf, macho]
     if:
       type: string
-      exact: "/usr/bin/w"
+      substr: "/usr/bin/w"
 
 composite_rules:
   # HOME environment composite

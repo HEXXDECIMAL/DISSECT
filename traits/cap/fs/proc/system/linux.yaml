@@ -9,7 +9,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      exact: /proc/cpuinfo
+      substr: /proc/cpuinfo
 
   - id: system-meminfo
     desc: Get memory info from /proc/meminfo
@@ -17,7 +17,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      exact: /proc/meminfo
+      substr: /proc/meminfo
 
   - id: system-stat
     desc: Get system statistics from /proc/stat
@@ -25,7 +25,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      exact: /proc/stat
+      substr: /proc/stat
 
   - id: system-osrelease
     desc: Get kernel version from /proc/sys/kernel/osrelease
@@ -33,4 +33,4 @@ traits:
     conf: 0.66
     if:
       type: string
-      exact: /proc/sys/kernel/osrelease
+      substr: /proc/sys/kernel/osrelease

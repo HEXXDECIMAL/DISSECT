@@ -17,7 +17,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "import pyHook"
+      substr: "import pyHook"
 
   - id: from-pyhook
     desc: from pyHook import
@@ -26,7 +26,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "from pyHook"
+      substr: "from pyHook"
 
   - id: pyhook-hookmanager
     desc: pyHook.HookManager
@@ -35,7 +35,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "pyHook.HookManager"
+      substr: "pyHook.HookManager"
 
   # === pyWinhook atomic indicators ===
   - id: import-pywinhook
@@ -45,7 +45,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "import pyWinhook"
+      substr: "import pyWinhook"
 
   - id: from-pywinhook
     desc: from pyWinhook import
@@ -54,7 +54,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "from pyWinhook"
+      substr: "from pyWinhook"
 
   - id: pywinhook-hookmanager
     desc: pyWinhook.HookManager
@@ -63,7 +63,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      exact: "pyWinhook.HookManager"
+      substr: "pyWinhook.HookManager"
 
   # === keyboard module atomic indicators ===
   - id: import-keyboard
@@ -72,7 +72,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "import keyboard"
+      substr: "import keyboard"
 
   - id: keyboard-on-press
     desc: keyboard.on_press function
@@ -80,7 +80,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "keyboard.on_press"
+      substr: "keyboard.on_press"
 
   - id: keyboard-hook
     desc: keyboard.hook function
@@ -88,7 +88,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "keyboard.hook"
+      substr: "keyboard.hook"
 
   - id: keyboard-record
     desc: keyboard.record function
@@ -96,7 +96,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "keyboard.record"
+      substr: "keyboard.record"
 
   # === pynput atomic indicators ===
   - id: keyboard-listener
@@ -105,7 +105,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "keyboard.Listener("
+      substr: "keyboard.Listener("
 
   - id: on-press-eq
     desc: on_press= parameter
@@ -137,7 +137,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: ".HookKeyboard()"
+      substr: ".HookKeyboard()"
 
   # KeyDown event handler
   - id: python-keydown-handler
@@ -170,7 +170,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: ".write("
+      substr: ".write("
 
   - id: keydown-keyword
     desc: KeyDown keyword
@@ -178,7 +178,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "KeyDown"
+      substr: "KeyDown"
 
   - id: on-press-keyword
     desc: on_press keyword
@@ -186,7 +186,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "on_press"
+      substr: "on_press"
 
   - id: on-release-keyword
     desc: on_release keyword
@@ -194,7 +194,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "on_release"
+      substr: "on_release"
 
   # === Network exfil atomic indicators ===
   - id: requests-post
@@ -203,7 +203,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "requests.post"
+      substr: "requests.post"
 
   - id: requests-get
     desc: requests.get call
@@ -211,7 +211,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: "requests.get"
+      substr: "requests.get"
 
   - id: urllib-module
     desc: urllib module
@@ -219,7 +219,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: "urllib"
+      substr: "urllib"
 
   - id: socket-call
     desc: socket. call

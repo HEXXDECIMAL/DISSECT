@@ -11,7 +11,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "WScript.Shell"
+      substr: "WScript.Shell"
 
   # Scripting.FileSystemObject
   - id: filesystem-object-string
@@ -21,7 +21,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "FileSystemObject"
+      substr: "FileSystemObject"
 
   # ActiveXObject creation
   - id: activex-object-string
@@ -31,7 +31,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "ActiveXObject"
+      substr: "ActiveXObject"
 
   # Shell.Application (explorer shell)
   - id: shell-application-string
@@ -41,7 +41,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "Shell.Application"
+      substr: "Shell.Application"
 
   # MSXML HTTP request
   - id: msxml2-xmlhttp-string
@@ -51,7 +51,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "MSXML2.XMLHTTP"
+      substr: "MSXML2.XMLHTTP"
 
   - id: microsoft-xmlhttp-string
     desc: Microsoft.XMLHTTP string reference
@@ -60,7 +60,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "Microsoft.XMLHTTP"
+      substr: "Microsoft.XMLHTTP"
 
   - id: msxml2-serverxmlhttp-string
     desc: Msxml2.ServerXMLHTTP string reference
@@ -69,7 +69,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "Msxml2.ServerXMLHTTP"
+      substr: "Msxml2.ServerXMLHTTP"
 
   # WMI scripting
   - id: winmgmts-string
@@ -79,7 +79,7 @@ traits:
     for: [javascript, typescript, powershell]
     if:
       type: string
-      exact: "winmgmts:"
+      substr: "winmgmts:"
 
   - id: wbemscripting-locator-string
     desc: WbemScripting.SWbemLocator string reference
@@ -88,7 +88,7 @@ traits:
     for: [javascript, typescript, powershell]
     if:
       type: string
-      exact: "WbemScripting.SWbemLocator"
+      substr: "WbemScripting.SWbemLocator"
 
   # ADODB stream (file operations)
   - id: adodb-stream-string
@@ -98,7 +98,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "ADODB.Stream"
+      substr: "ADODB.Stream"
 
   # Schedule.Service (task scheduler)
   - id: schedule-service-string
@@ -108,7 +108,7 @@ traits:
     for: [javascript, typescript, powershell]
     if:
       type: string
-      exact: "Schedule.Service"
+      substr: "Schedule.Service"
 
   - id: win32-scheduledjob-string
     desc: Win32_ScheduledJob string reference
@@ -117,7 +117,7 @@ traits:
     for: [javascript, typescript, powershell]
     if:
       type: string
-      exact: "Win32_ScheduledJob"
+      substr: "Win32_ScheduledJob"
 
   # Registry manipulation keywords
   - id: regread-method
@@ -127,7 +127,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "RegRead"
+      substr: "RegRead"
 
   - id: regwrite-method
     desc: RegWrite method call
@@ -136,7 +136,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "RegWrite"
+      substr: "RegWrite"
 
   - id: regdelete-method
     desc: RegDelete method call
@@ -145,7 +145,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "RegDelete"
+      substr: "RegDelete"
 
   - id: hklm-hive
     desc: HKLM registry hive reference
@@ -173,7 +173,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "WinHttp"
+      substr: "WinHttp"
 
   # Method calls
   - id: run-method
@@ -183,7 +183,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: ".Run("
+      substr: ".Run("
 
   - id: exec-method
     desc: .Exec method call
@@ -192,7 +192,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: ".Exec("
+      substr: ".Exec("
 
   - id: savetofile-method
     desc: SaveToFile method call
@@ -201,7 +201,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "SaveToFile"
+      substr: "SaveToFile"
 
 # === Composite Rules ===
 composite_rules:

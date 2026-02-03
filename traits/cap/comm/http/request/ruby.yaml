@@ -32,7 +32,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "open-uri"
+      substr: "open-uri"
 
   - id: uri-method
     desc: URI parsing method

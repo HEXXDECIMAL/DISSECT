@@ -114,7 +114,7 @@ traits:
     for: [macho]
     if:
       type: string
-      exact: "NSBundle"
+      substr: "NSBundle"
 
   - id: ctypes-windll
     desc: Python ctypes Windows DLL
@@ -135,7 +135,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "ctypes.CDLL"
+      substr: "ctypes.CDLL"
 
   - id: cdll-paren
     desc: CDLL( call pattern
@@ -173,7 +173,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "__file__"
+      substr: "__file__"
 
   - id: dirname-call
     desc: dirname function call
@@ -211,7 +211,7 @@ traits:
     for: [java, class]
     if:
       type: string
-      exact: "loadReplacementClass"
+      substr: "loadReplacementClass"
 
 composite_rules:
   # Helper composites

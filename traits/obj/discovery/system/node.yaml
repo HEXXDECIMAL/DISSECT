@@ -89,7 +89,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: __dirname
+      substr: __dirname
 
   # Network interfaces
   - id: node-network

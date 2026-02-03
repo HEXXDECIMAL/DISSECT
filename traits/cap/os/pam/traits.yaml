@@ -50,7 +50,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "libpam.so"
+      substr: "libpam.so"
 
   - id: libpam-string
     desc: libpam library reference
@@ -58,7 +58,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "libpam"
+      substr: "libpam"
 
   # PAM module API functions (symbols)
   - id: pam-sm-authenticate-symbol
@@ -108,7 +108,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "pam_handle_t"
+      substr: "pam_handle_t"
 
   - id: pam-get-item-symbol
     desc: pam_get_item function symbol
@@ -125,7 +125,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "/etc/pam.d/"
+      substr: "/etc/pam.d/"
 
   - id: pam-conf-path
     desc: /etc/pam.conf file path
@@ -133,7 +133,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "/etc/pam.conf"
+      substr: "/etc/pam.conf"
 
   # PAM module names (strings)
   - id: pam-unix-module
@@ -142,7 +142,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "pam_unix"
+      substr: "pam_unix"
 
   - id: pam-permit-module
     desc: pam_permit module reference
@@ -150,7 +150,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "pam_permit"
+      substr: "pam_permit"
 
   - id: pam-deny-module
     desc: pam_deny module reference
@@ -158,7 +158,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "pam_deny"
+      substr: "pam_deny"
 
   # PAM control flags (strings)
   # NOTE: Generic words like "required" and "sufficient" are too broad.

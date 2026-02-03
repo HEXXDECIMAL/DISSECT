@@ -11,7 +11,7 @@ traits:
     for: [elf, macho, python]
     if:
       type: string
-      exact: "openpty"
+      substr: "openpty"
 
   - id: pty-open-call
     desc: pty.Open call
@@ -21,7 +21,7 @@ traits:
     for: [elf, macho, python]
     if:
       type: string
-      exact: "pty.Open"
+      substr: "pty.Open"
 
   # POSIX pseudoterminal functions (used on macOS/BSD for PTY creation)
   # These are notable (not suspicious) because many legitimate programs use PTY:
@@ -136,7 +136,7 @@ traits:
     for: [elf]
     if:
       type: string
-      exact: "vhangup"
+      substr: "vhangup"
 
   # NOTE: getpass is a standard libc function used by legitimate programs
   # (shells, sudo, passwd, etc.) to read passwords from terminal without echo.
@@ -160,7 +160,7 @@ traits:
     for: [elf, macho]
     if:
       type: string
-      exact: "setupterm"
+      substr: "setupterm"
 
   # === Python PTY atomic indicators ===
   - id: import-pty
@@ -171,7 +171,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "import pty"
+      substr: "import pty"
 
   - id: from-pty-import
     desc: from pty import statement
@@ -191,7 +191,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "pty.spawn"
+      substr: "pty.spawn"
 
   # NOTE: Generic symbols (dup2, fork, execve, setsid, socket, connect, recv, send)
   # are defined in their canonical locations under cap/process/ and cap/comm/.

@@ -105,7 +105,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: '"dependencies":'
+      substr: '"dependencies":'
 
   - id: pkg-preinstall-hook
     desc: Package has preinstall hook
@@ -113,7 +113,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: '"preinstall":'
+      substr: '"preinstall":'
 
   - id: pkg-postinstall-hook
     desc: Package has postinstall hook
@@ -121,7 +121,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: '"postinstall":'
+      substr: '"postinstall":'
 
   - id: pkg-install-hook
     desc: Package has install hook
@@ -129,7 +129,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: '"install":'
+      substr: '"install":'
 
   - id: pkg-version-001
     desc: Package version 0.0.1 (brand new)
@@ -137,7 +137,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: '"version": "0.0.1"'
+      substr: '"version": "0.0.1"'
 
   - id: pkg-repository
     desc: Package has repository field
@@ -145,7 +145,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: '"repository":'
+      substr: '"repository":'
 
   # Package writes to node_modules (persistence)
   - id: node-modules-write
@@ -254,7 +254,7 @@ traits:
     r#for: [javascript, typescript, packagejson]
     if:
       type: string
-      exact: "oast.fun"
+      substr: "oast.fun"
 
   - id: oastify-domain
     desc: oastify.com exfil domain
@@ -263,7 +263,7 @@ traits:
     r#for: [javascript, typescript, packagejson]
     if:
       type: string
-      exact: "oastify.com"
+      substr: "oastify.com"
 
   - id: oast-me-domain
     desc: oast.me exfil domain
@@ -272,7 +272,7 @@ traits:
     r#for: [javascript, typescript, packagejson]
     if:
       type: string
-      exact: "oast.me"
+      substr: "oast.me"
 
   - id: webhook-site-domain
     desc: webhook.site exfil domain
@@ -281,7 +281,7 @@ traits:
     r#for: [javascript, typescript, packagejson]
     if:
       type: string
-      exact: "webhook.site"
+      substr: "webhook.site"
 
   - id: pipedream-domain
     desc: pipedream.net exfil domain
@@ -290,7 +290,7 @@ traits:
     r#for: [javascript, typescript, packagejson]
     if:
       type: string
-      exact: "pipedream.net"
+      substr: "pipedream.net"
 
   - id: discord-webhook
     desc: Discord webhook exfil endpoint
@@ -299,7 +299,7 @@ traits:
     r#for: [javascript, typescript, packagejson]
     if:
       type: string
-      exact: "discord.com/api/webhooks"
+      substr: "discord.com/api/webhooks"
 
   # === Placeholder/Default Author Patterns ===
   # Malicious packages often use placeholder author values

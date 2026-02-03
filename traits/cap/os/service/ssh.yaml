@@ -16,7 +16,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "/usr/sbin/sshd"
+      substr: "/usr/sbin/sshd"
 
   - id: ssh-service
     desc: SSH service reference
@@ -24,4 +24,4 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: "ssh.service"
+      substr: "ssh.service"

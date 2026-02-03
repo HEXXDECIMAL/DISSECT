@@ -89,7 +89,7 @@ traits:
     for: [elf]
     if:
       type: string
-      exact: "/usr/sbin/auditd"
+      substr: "/usr/sbin/auditd"
 
   - id: acpid-path
     desc: acpid daemon path reference
@@ -98,7 +98,7 @@ traits:
     for: [elf]
     if:
       type: string
-      exact: "/usr/sbin/acpid"
+      substr: "/usr/sbin/acpid"
 
   - id: atd-path
     desc: atd daemon path reference
@@ -107,7 +107,7 @@ traits:
     for: [elf]
     if:
       type: string
-      exact: "/usr/sbin/atd"
+      substr: "/usr/sbin/atd"
 
   # prctl symbol - can be used to change process name
   - id: prctl-symbol

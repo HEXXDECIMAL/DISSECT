@@ -10,7 +10,7 @@ traits:
     for: [c]
     if:
       type: string
-      exact: "struct icmphdr"
+      substr: "struct icmphdr"
 
   - id: icmp-rcv
     desc: ICMP receive handler
@@ -18,7 +18,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "icmp_rcv"
+      substr: "icmp_rcv"
 
   # Magic trigger values
   # NOTE: The standalone value "1337" is far too common in legitimate software
@@ -39,7 +39,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "0x539"
+      substr: "0x539"
 
   # NOTE: Removed magic-keyword-lower, magic-keyword-upper, magic-keyword-title
   # The word "magic" is extremely common in legitimate software (file magic,
@@ -111,7 +111,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "revshell"
+      substr: "revshell"
 
   - id: revshell-keyword-upper
     desc: REVSHELL keyword (uppercase)
@@ -119,7 +119,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "REVSHELL"
+      substr: "REVSHELL"
 
   - id: revshell-keyword-title
     desc: Revshell keyword (titlecase)
@@ -127,7 +127,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "Revshell"
+      substr: "Revshell"
 
   # ICMP protocol constant
   - id: icmp-echo-const
@@ -136,7 +136,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "ICMP_ECHO"
+      substr: "ICMP_ECHO"
 
 composite_rules:
   # Helper: ICMP handling context

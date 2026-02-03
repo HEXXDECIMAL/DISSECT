@@ -25,7 +25,7 @@ traits:
     for: [elf, macho, pe, shell, python]
     if:
       type: string
-      exact: "joe sandbox"
+      substr: "joe sandbox"
       case_insensitive: true
 
   - id: any-run
@@ -35,7 +35,7 @@ traits:
     for: [elf, macho, pe, shell, python]
     if:
       type: string
-      exact: "any.run"
+      substr: "any.run"
 
   - id: hybrid-analysis
     desc: Hybrid Analysis sandbox reference
@@ -44,7 +44,7 @@ traits:
     for: [elf, macho, pe, shell, python]
     if:
       type: string
-      exact: "hybrid-analysis"
+      substr: "hybrid-analysis"
       case_insensitive: true
 
   - id: virustotal
@@ -54,7 +54,7 @@ traits:
     for: [elf, macho, pe, shell, python]
     if:
       type: string
-      exact: virustotal
+      substr: virustotal
       case_insensitive: true
 
   # === Analysis tools ===
@@ -95,7 +95,7 @@ traits:
     for: [elf, macho, pe, shell, python]
     if:
       type: string
-      exact: "process hacker"
+      substr: "process hacker"
       case_insensitive: true
 
   - id: x64dbg
@@ -136,7 +136,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "atomic-sleep"
+      substr: "atomic-sleep"
 
   - id: js-date-now-timeout
     desc: Date.now with setTimeout
@@ -166,7 +166,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: debugger
+      substr: debugger
 
   - id: js-func-tostring
     desc: Function.toString check
@@ -177,7 +177,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: function.toString
+      substr: function.toString
 
   - id: js-console-log-tostring
     desc: console.log.toString check
@@ -188,7 +188,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "console.log.toString"
+      substr: "console.log.toString"
 
   - id: js-console-warn-tostring
     desc: console.warn.toString check
@@ -199,7 +199,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "console.warn.toString"
+      substr: "console.warn.toString"
 
   - id: js-console-error-tostring
     desc: console.error.toString check
@@ -210,7 +210,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "console.error.toString"
+      substr: "console.error.toString"
 
   - id: js-react-devtools
     desc: React DevTools detection
@@ -221,7 +221,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: __REACT_DEVTOOLS
+      substr: __REACT_DEVTOOLS
 
   - id: js-vue-devtools
     desc: Vue DevTools detection
@@ -232,7 +232,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: __VUE_DEVTOOLS
+      substr: __VUE_DEVTOOLS
 
   # Headless browser detection (atomic)
   - id: js-navigator-webdriver
@@ -242,7 +242,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "navigator.webdriver"
+      substr: "navigator.webdriver"
 
   - id: js-plugins-length-zero
     desc: navigator.plugins.length zero check

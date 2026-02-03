@@ -11,7 +11,7 @@ traits:
     for: [html, javascript]
     if:
       type: string
-      exact: "oncopy=\"return false\""
+      substr: "oncopy=\"return false\""
       case_insensitive: true
 
   - id: oncut-false
@@ -21,7 +21,7 @@ traits:
     for: [html, javascript]
     if:
       type: string
-      exact: "oncut=\"return false\""
+      substr: "oncut=\"return false\""
       case_insensitive: true
 
   - id: onpaste-false
@@ -31,7 +31,7 @@ traits:
     for: [html, javascript]
     if:
       type: string
-      exact: "onpaste=\"return false\""
+      substr: "onpaste=\"return false\""
       case_insensitive: true
 
   - id: oncontextmenu-false
@@ -41,7 +41,7 @@ traits:
     for: [html, javascript]
     if:
       type: string
-      exact: "oncontextmenu=\"return false\""
+      substr: "oncontextmenu=\"return false\""
       case_insensitive: true
 
   - id: ondragstart-false
@@ -51,7 +51,7 @@ traits:
     for: [html, javascript]
     if:
       type: string
-      exact: "ondragstart=\"return false\""
+      substr: "ondragstart=\"return false\""
       case_insensitive: true
 
   - id: onselectstart-false
@@ -61,7 +61,7 @@ traits:
     for: [html, javascript]
     if:
       type: string
-      exact: "onselectstart=\"return false\""
+      substr: "onselectstart=\"return false\""
       case_insensitive: true
 
   - id: js-copy-listener
@@ -71,7 +71,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "addEventListener('copy'"
+      substr: "addEventListener('copy'"
 
   - id: js-cut-listener
     desc: addEventListener('cut') JavaScript pattern
@@ -80,7 +80,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "addEventListener('cut'"
+      substr: "addEventListener('cut'"
 
   - id: js-paste-listener
     desc: addEventListener('paste') JavaScript pattern
@@ -89,7 +89,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "addEventListener('paste'"
+      substr: "addEventListener('paste'"
 
   - id: js-contextmenu-listener
     desc: addEventListener('contextmenu') JavaScript pattern
@@ -98,7 +98,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "addEventListener('contextmenu'"
+      substr: "addEventListener('contextmenu'"
 
   # === Honeypot field pattern (complex regex - keep as-is) ===
   - id: honeypot-field-pattern
@@ -118,7 +118,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "addEventListener('mousemove'"
+      substr: "addEventListener('mousemove'"
 
   - id: touchstart-listener
     desc: addEventListener('touchstart') pattern
@@ -127,7 +127,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "addEventListener('touchstart'"
+      substr: "addEventListener('touchstart'"
 
   - id: scroll-listener
     desc: addEventListener('scroll') pattern
@@ -136,7 +136,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "addEventListener('scroll'"
+      substr: "addEventListener('scroll'"
 
   - id: disabled-class
     desc: .disabled CSS class reference
@@ -145,7 +145,7 @@ traits:
     for: [javascript, html]
     if:
       type: string
-      exact: ".disabled"
+      substr: ".disabled"
 
   - id: disabled-false
     desc: "disabled=false assignment"
@@ -154,7 +154,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "disabled=false"
+      substr: "disabled=false"
 
   - id: disabled-false-spaced
     desc: "disabled = false assignment (with"
@@ -163,7 +163,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "disabled = false"
+      substr: "disabled = false"
 
   - id: remove-disabled-attr
     desc: removeAttribute('disabled') call
@@ -172,7 +172,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "removeAttribute('disabled')"
+      substr: "removeAttribute('disabled')"
 
   # === Microsoft brand impersonation patterns ===
   - id: microsoft-logo-ref
@@ -182,7 +182,7 @@ traits:
     for: [html]
     if:
       type: string
-      exact: "Microsoft_logo"
+      substr: "Microsoft_logo"
       case_insensitive: true
 
   - id: microsoft-svg
@@ -192,7 +192,7 @@ traits:
     for: [html]
     if:
       type: string
-      exact: "microsoft.svg"
+      substr: "microsoft.svg"
       case_insensitive: true
 
   - id: microsoft-span
@@ -202,7 +202,7 @@ traits:
     for: [html]
     if:
       type: string
-      exact: "Microsoft</span>"
+      substr: "Microsoft</span>"
       case_insensitive: true
 
   - id: microsoft-tag
@@ -212,7 +212,7 @@ traits:
     for: [html]
     if:
       type: string
-      exact: ">Microsoft<"
+      substr: ">Microsoft<"
       case_insensitive: true
 
   - id: sign-in-text
@@ -240,7 +240,7 @@ traits:
     for: [html]
     if:
       type: string
-      exact: "Email, phone, or Skype"
+      substr: "Email, phone, or Skype"
 
   # === Google brand impersonation patterns ===
   - id: google-logo-ref
@@ -250,7 +250,7 @@ traits:
     for: [html]
     if:
       type: string
-      exact: "Google_logo"
+      substr: "Google_logo"
       case_insensitive: true
 
   - id: google-svg
@@ -260,7 +260,7 @@ traits:
     for: [html]
     if:
       type: string
-      exact: "google.svg"
+      substr: "google.svg"
       case_insensitive: true
 
   - id: google-span
@@ -270,7 +270,7 @@ traits:
     for: [html]
     if:
       type: string
-      exact: "Google</span>"
+      substr: "Google</span>"
       case_insensitive: true
 
   - id: google-tag
@@ -280,7 +280,7 @@ traits:
     for: [html]
     if:
       type: string
-      exact: ">Google<"
+      substr: ">Google<"
       case_insensitive: true
 
   # === Generic login form patterns ===
@@ -318,7 +318,7 @@ traits:
     for: [html]
     if:
       type: string
-      exact: "log in"
+      substr: "log in"
 
   - id: log-in-phrase-title
     desc: "Log in phrase (title case)"
@@ -327,7 +327,7 @@ traits:
     for: [html]
     if:
       type: string
-      exact: "Log in"
+      substr: "Log in"
 
   - id: password-input-double
     desc: "type=\"password\" HTML input"
@@ -336,7 +336,7 @@ traits:
     for: [html]
     if:
       type: string
-      exact: "type=\"password\""
+      substr: "type=\"password\""
       case_insensitive: true
 
   - id: password-input-single
@@ -346,7 +346,7 @@ traits:
     for: [html]
     if:
       type: string
-      exact: "type='password'"
+      substr: "type='password'"
       case_insensitive: true
 
   - id: email-input-double
@@ -356,7 +356,7 @@ traits:
     for: [html]
     if:
       type: string
-      exact: "type=\"email\""
+      substr: "type=\"email\""
       case_insensitive: true
 
   - id: email-input-single
@@ -366,7 +366,7 @@ traits:
     for: [html]
     if:
       type: string
-      exact: "type='email'"
+      substr: "type='email'"
       case_insensitive: true
 
   - id: email-placeholder-double
@@ -376,7 +376,7 @@ traits:
     for: [html]
     if:
       type: string
-      exact: "placeholder=\"Email\""
+      substr: "placeholder=\"Email\""
       case_insensitive: true
 
   - id: password-placeholder-double
@@ -386,7 +386,7 @@ traits:
     for: [html]
     if:
       type: string
-      exact: "placeholder=\"Password\""
+      substr: "placeholder=\"Password\""
       case_insensitive: true
 
   # === Document sharing lure patterns ===
@@ -397,7 +397,7 @@ traits:
     for: [html]
     if:
       type: string
-      exact: "shared with"
+      substr: "shared with"
       case_insensitive: true
 
   - id: document-word
@@ -417,7 +417,7 @@ traits:
     for: [html]
     if:
       type: string
-      exact: "securely shared"
+      substr: "securely shared"
       case_insensitive: true
 
   - id: file-sharing-phrase
@@ -427,7 +427,7 @@ traits:
     for: [html]
     if:
       type: string
-      exact: "file sharing"
+      substr: "file sharing"
       case_insensitive: true
 
   - id: pdf-extension
@@ -447,7 +447,7 @@ traits:
     for: [html]
     if:
       type: string
-      exact: "PDF Icon"
+      substr: "PDF Icon"
       case_insensitive: true
 
   - id: doc-extension
@@ -498,7 +498,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "window.location.href="
+      substr: "window.location.href="
 
   - id: location-href-assign
     desc: location.href= assignment
@@ -507,7 +507,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "location.href="
+      substr: "location.href="
 
   - id: submit-listener-double
     desc: "addEventListener(\"submit\") pattern"
@@ -516,7 +516,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "addEventListener(\"submit\""
+      substr: "addEventListener(\"submit\""
 
   - id: submit-listener-single
     desc: addEventListener('submit') pattern
@@ -525,7 +525,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "addEventListener('submit'"
+      substr: "addEventListener('submit'"
 
   # === Suspicious TLD patterns ===
   - id: icu-tld
@@ -607,7 +607,7 @@ traits:
     for: [html, javascript]
     if:
       type: string
-      exact: ".work"
+      substr: ".work"
 
   - id: click-tld
     desc: .click TLD (commonly abused)
@@ -616,7 +616,7 @@ traits:
     for: [html, javascript]
     if:
       type: string
-      exact: ".click"
+      substr: ".click"
 
   # === Typosquatting patterns ===
   - id: siemensergy-typo
@@ -726,7 +726,7 @@ traits:
     for: [html, javascript]
     if:
       type: string
-      exact: "login."
+      substr: "login."
 
   - id: login-prefix-title
     desc: "Login. subdomain prefix (title case)"
@@ -735,7 +735,7 @@ traits:
     for: [html, javascript]
     if:
       type: string
-      exact: "Login."
+      substr: "Login."
 
   - id: signin-prefix-lower
     desc: "signin. subdomain prefix (lowercase)"
@@ -744,7 +744,7 @@ traits:
     for: [html, javascript]
     if:
       type: string
-      exact: "signin."
+      substr: "signin."
 
   - id: signin-prefix-title
     desc: "Signin. subdomain prefix (title case)"
@@ -753,7 +753,7 @@ traits:
     for: [html, javascript]
     if:
       type: string
-      exact: "Signin."
+      substr: "Signin."
 
   # === Bot detection patterns ===
   - id: navigator-webdriver
@@ -763,7 +763,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "navigator.webdriver"
+      substr: "navigator.webdriver"
 
   - id: navigator-plugins-length
     desc: navigator.plugins.length property access
@@ -772,7 +772,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "navigator.plugins.length"
+      substr: "navigator.plugins.length"
 
   - id: screen-width
     desc: screen.width property access
@@ -781,7 +781,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "screen.width"
+      substr: "screen.width"
 
   - id: screen-height
     desc: screen.height property access
@@ -790,7 +790,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "screen.height"
+      substr: "screen.height"
 
   - id: headless-chrome-string
     desc: HeadlessChrome user agent string
@@ -799,7 +799,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "HeadlessChrome"
+      substr: "HeadlessChrome"
 
   - id: phantomjs-string
     desc: PhantomJS user agent string
@@ -808,7 +808,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "PhantomJS"
+      substr: "PhantomJS"
 
   - id: selenium-string
     desc: Selenium detection string
@@ -817,7 +817,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "Selenium"
+      substr: "Selenium"
 
   - id: puppeteer-string
     desc: puppeteer detection string
@@ -847,7 +847,7 @@ traits:
     for: [html]
     if:
       type: string
-      exact: "flaticon.com"
+      substr: "flaticon.com"
 
   - id: wikimedia-cdn
     desc: wikimedia.org CDN reference
@@ -856,7 +856,7 @@ traits:
     for: [html]
     if:
       type: string
-      exact: "wikimedia.org"
+      substr: "wikimedia.org"
 
   - id: wikipedia-cdn
     desc: wikipedia.org reference
@@ -865,7 +865,7 @@ traits:
     for: [html]
     if:
       type: string
-      exact: "wikipedia.org"
+      substr: "wikipedia.org"
 
   - id: logo-keyword
     desc: logo keyword
@@ -922,7 +922,7 @@ traits:
     for: [html]
     if:
       type: string
-      exact: "recipient_email_placeholder"
+      substr: "recipient_email_placeholder"
 
   - id: multiple-email-addresses
     desc: Multiple email addresses in quotes

@@ -12,7 +12,7 @@ traits:
     for: ["*"]
     if:
       type: string
-      exact: "capsh"
+      substr: "capsh"
 
   - id: getgroups
     desc: Get group list
@@ -22,7 +22,7 @@ traits:
     for: [elf, macho]
     if:
       type: string
-      exact: "getgroups"
+      substr: "getgroups"
 
   # NOTE: getgid/getegid/geteuid are extremely common POSIX functions used by
   # virtually every program that needs user/group information. Mark as inert
@@ -65,7 +65,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "/etc/group"
+      substr: "/etc/group"
 
   - id: etc-sudoers
     desc: Sudoers file access
@@ -75,7 +75,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "/etc/sudoers"
+      substr: "/etc/sudoers"
 
   # === Linux capability atomic indicators ===
   - id: cap-get-file
@@ -86,7 +86,7 @@ traits:
     for: [elf]
     if:
       type: string
-      exact: "cap_get_file"
+      substr: "cap_get_file"
 
   - id: cap-set-file
     desc: cap_set_file function
@@ -96,7 +96,7 @@ traits:
     for: [elf]
     if:
       type: string
-      exact: "cap_set_file"
+      substr: "cap_set_file"
 
   - id: sudo-l
     desc: Sudo permission listing
@@ -116,7 +116,7 @@ traits:
     for: [elf]
     if:
       type: string
-      exact: "cap_get_proc"
+      substr: "cap_get_proc"
 
   - id: cap-set-proc
     desc: Set process capabilities
@@ -126,7 +126,7 @@ traits:
     for: [elf]
     if:
       type: string
-      exact: "cap_set_proc"
+      substr: "cap_set_proc"
 
 composite_rules:
   # Linux capability get/set composite

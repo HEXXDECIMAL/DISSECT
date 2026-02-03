@@ -37,7 +37,7 @@ traits:
     r#for: [javascript, typescript]
     if:
       type: string
-      exact: "globalState"
+      substr: "globalState"
 
   # === Extension Activation atomic indicators ===
   - id: function-activate
@@ -47,7 +47,7 @@ traits:
     r#for: [javascript, typescript]
     if:
       type: string
-      exact: "function activate"
+      substr: "function activate"
 
   - id: async-function-activate
     desc: async function activate definition
@@ -56,7 +56,7 @@ traits:
     r#for: [javascript, typescript]
     if:
       type: string
-      exact: "async function activate"
+      substr: "async function activate"
 
   - id: export-activate
     desc: export activate pattern
@@ -75,7 +75,7 @@ traits:
     r#for: [javascript, typescript]
     if:
       type: string
-      exact: "function deactivate"
+      substr: "function deactivate"
 
   - id: export-deactivate
     desc: export deactivate pattern
@@ -94,7 +94,7 @@ traits:
     r#for: [javascript, typescript]
     if:
       type: string
-      exact: "vscode.commands"
+      substr: "vscode.commands"
 
   - id: vscode-window
     desc: vscode.window reference
@@ -103,7 +103,7 @@ traits:
     r#for: [javascript, typescript]
     if:
       type: string
-      exact: "vscode.window"
+      substr: "vscode.window"
 
   - id: vscode-workspace
     desc: vscode.workspace reference
@@ -112,7 +112,7 @@ traits:
     r#for: [javascript, typescript]
     if:
       type: string
-      exact: "vscode.workspace"
+      substr: "vscode.workspace"
 
   - id: vscode-extensions
     desc: vscode.extensions reference
@@ -121,7 +121,7 @@ traits:
     r#for: [javascript, typescript]
     if:
       type: string
-      exact: "vscode.extensions"
+      substr: "vscode.extensions"
 
   # === process.env atomic indicator ===
   - id: process-env
@@ -131,7 +131,7 @@ traits:
     r#for: [javascript, typescript]
     if:
       type: string
-      exact: "process.env"
+      substr: "process.env"
 
   - id: clipboard-write
     desc: VSCode clipboard write access
@@ -160,7 +160,7 @@ traits:
     r#for: [javascript, typescript]
     if:
       type: string
-      exact: "sendTelemetryEvent"
+      substr: "sendTelemetryEvent"
 
 composite_rules:
   # VSCode context helpers

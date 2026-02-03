@@ -22,7 +22,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      exact: resolv.conf
+      substr: resolv.conf
 
   # === Reverse lookup atomic indicators ===
   - id: in-addr-arpa
@@ -31,7 +31,7 @@ traits:
     conf: 0.56
     if:
       type: string
-      exact: ".in-addr.arpa"
+      substr: ".in-addr.arpa"
 
   - id: ip6-arpa
     desc: ip6.arpa reverse lookup
@@ -39,7 +39,7 @@ traits:
     conf: 0.56
     if:
       type: string
-      exact: "ip6.arpa"
+      substr: "ip6.arpa"
 
   # === DNS TXT query micro-traits ===
   - id: txt-record-string
@@ -64,7 +64,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "DNS_TYPE_TXT"
+      substr: "DNS_TYPE_TXT"
 
   - id: t-txt-constant
     desc: T_TXT constant
@@ -72,7 +72,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "T_TXT"
+      substr: "T_TXT"
 
   - id: ns-t-txt-constant
     desc: ns_t_txt constant
@@ -80,7 +80,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "ns_t_txt"
+      substr: "ns_t_txt"
 
 composite_rules:
   # DNS TXT query composite (migrated from YARA)

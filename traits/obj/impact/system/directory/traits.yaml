@@ -86,7 +86,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "rmtree"
+      substr: "rmtree"
 
   - id: rm-rf-cmd
     desc: rm -rf command
@@ -111,7 +111,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "Windows"
+      substr: "Windows"
 
   - id: system32-ref
     desc: System32 directory reference
@@ -119,7 +119,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "System32"
+      substr: "System32"
 
   - id: etc-dir-ref
     desc: /etc directory reference
@@ -135,7 +135,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "/boot"
+      substr: "/boot"
 
   - id: usr-dir-ref
     desc: /usr directory reference

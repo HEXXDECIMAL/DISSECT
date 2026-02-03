@@ -26,7 +26,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "RTLD_NEXT"
+      substr: "RTLD_NEXT"
 
   # === Massive Code Injection Indicators ===
   - id: massive-code-blob
@@ -102,7 +102,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: "libsystemd"
+      substr: "libsystemd"
 
   - id: mm-answer-keyallowed
     desc: mm_answer_keyallowed SSH function
@@ -110,7 +110,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "mm_answer_keyallowed"
+      substr: "mm_answer_keyallowed"
 
   - id: mm-answer-authpassword
     desc: mm_answer_authpassword SSH function
@@ -118,7 +118,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "mm_answer_authpassword"
+      substr: "mm_answer_authpassword"
 
   - id: pubkey-auth-ref
     desc: pubkey_auth reference
@@ -126,7 +126,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "pubkey_auth"
+      substr: "pubkey_auth"
 
   # === glibc hijacking patterns ===
   - id: rtld-global-ref
@@ -136,7 +136,7 @@ traits:
     for: [elf]
     if:
       type: string
-      exact: "__rtld_global"
+      substr: "__rtld_global"
 
   - id: la-symbind-ref
     desc: la_symbind audit hook
@@ -145,7 +145,7 @@ traits:
     for: [elf]
     if:
       type: string
-      exact: "la_symbind"
+      substr: "la_symbind"
 
 composite_rules:
   # === Symbol interposition ===

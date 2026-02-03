@@ -60,7 +60,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "Googlebot"
+      substr: "Googlebot"
 
   - id: bingbot-ua
     desc: bingbot User-Agent
@@ -68,7 +68,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "bingbot"
+      substr: "bingbot"
 
   - id: baiduspider-ua
     desc: Baiduspider User-Agent
@@ -76,7 +76,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "Baiduspider"
+      substr: "Baiduspider"
 
   - id: yandexbot-ua
     desc: YandexBot User-Agent
@@ -84,7 +84,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "YandexBot"
+      substr: "YandexBot"
 
   - id: duckduckbot-ua
     desc: DuckDuckBot User-Agent
@@ -92,7 +92,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "DuckDuckBot"
+      substr: "DuckDuckBot"
 
   - id: wget-download
     desc: wget download command (payload fetching)

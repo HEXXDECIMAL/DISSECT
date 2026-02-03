@@ -11,4 +11,4 @@ traits:
     attack: "T1071"
     if:
       type: string
-      exact: net.Listen
+      substr: net.Listen

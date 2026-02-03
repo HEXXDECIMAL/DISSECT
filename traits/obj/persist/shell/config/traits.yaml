@@ -10,7 +10,7 @@ traits:
     attack: T1546.004
     if:
       type: string
-      exact: ".bash_profile"
+      substr: ".bash_profile"
     downgrade:
       any:
         - id: cap/exec/load/system-lib-marker
@@ -22,7 +22,7 @@ traits:
     attack: T1546.004
     if:
       type: string
-      exact: ".bashrc"
+      substr: ".bashrc"
     downgrade:
       any:
         - id: cap/exec/load/system-lib-marker
@@ -34,7 +34,7 @@ traits:
     attack: T1546.004
     if:
       type: string
-      exact: ".bash_login"
+      substr: ".bash_login"
 
   - id: bash-logout
     desc: .bash_logout shell configuration file
@@ -43,7 +43,7 @@ traits:
     attack: T1546.004
     if:
       type: string
-      exact: ".bash_logout"
+      substr: ".bash_logout"
 
   - id: profile
     desc: .profile shell configuration file
@@ -67,7 +67,7 @@ traits:
     attack: T1546.004
     if:
       type: string
-      exact: "/etc/profile"
+      substr: "/etc/profile"
 
   - id: etc-bashrc
     desc: /etc/bashrc system-wide shell configuration
@@ -76,7 +76,7 @@ traits:
     attack: T1546.004
     if:
       type: string
-      exact: "/etc/bashrc"
+      substr: "/etc/bashrc"
 
   # Zsh persistence
   - id: zshrc
@@ -86,7 +86,7 @@ traits:
     attack: T1546.004
     if:
       type: string
-      exact: ".zshrc"
+      substr: ".zshrc"
     downgrade:
       any:
         - id: cap/exec/load/system-lib-marker
@@ -98,7 +98,7 @@ traits:
     attack: T1546.004
     if:
       type: string
-      exact: ".zprofile"
+      substr: ".zprofile"
     downgrade:
       any:
         - id: cap/exec/load/system-lib-marker
@@ -110,7 +110,7 @@ traits:
     attack: T1546.004
     if:
       type: string
-      exact: ".zlogin"
+      substr: ".zlogin"
 
   - id: zlogout
     desc: .zlogout shell configuration file
@@ -119,7 +119,7 @@ traits:
     attack: T1546.004
     if:
       type: string
-      exact: ".zlogout"
+      substr: ".zlogout"
 
   - id: etc-zshrc
     desc: /etc/zshrc system-wide shell configuration
@@ -128,7 +128,7 @@ traits:
     attack: T1546.004
     if:
       type: string
-      exact: "/etc/zshrc"
+      substr: "/etc/zshrc"
 
   # Hardcoded paths (more suspicious)
   - id: hardcoded-profile
@@ -168,7 +168,7 @@ traits:
     conf: 1.0
     if:
       type: string
-      exact: "POSIXLY_CORRECT"
+      substr: "POSIXLY_CORRECT"
 
   - id: cshrc-file
     desc: .cshrc file (C shell, not
@@ -176,7 +176,7 @@ traits:
     conf: 1.0
     if:
       type: string
-      exact: ".cshrc"
+      substr: ".cshrc"
 
   - id: tcsh-keyword
     desc: tcsh keyword (shell name)

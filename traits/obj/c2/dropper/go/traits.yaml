@@ -44,7 +44,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "syscall.Exec"
+      substr: "syscall.Exec"
 
   # memfd_create for fileless execution (Linux)
   - id: memfd-create

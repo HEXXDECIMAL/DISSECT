@@ -11,7 +11,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "X-aws-ec2-metadata-token"
+      substr: "X-aws-ec2-metadata-token"
 
   - id: aws-metadata-endpoint
     desc: AWS EC2 metadata endpoint
@@ -21,7 +21,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "169.254.169.254"
+      substr: "169.254.169.254"
 
   - id: aws-imds-v2
     desc: AWS IMDSv2 token TTL header
@@ -31,7 +31,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "X-aws-ec2-metadata-token-ttl-seconds"
+      substr: "X-aws-ec2-metadata-token-ttl-seconds"
 
   - id: aws-iam-credentials
     desc: AWS IAM credentials metadata path
@@ -41,7 +41,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "/latest/meta-data/iam/security-credentials"
+      substr: "/latest/meta-data/iam/security-credentials"
 
   - id: aws-user-data
     desc: AWS EC2 user-data endpoint
@@ -51,7 +51,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "/latest/user-data"
+      substr: "/latest/user-data"
 
   # GCP Metadata
   - id: gcp-metadata-flavor
@@ -62,7 +62,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "Metadata-Flavor"
+      substr: "Metadata-Flavor"
 
   - id: gcp-metadata-endpoint
     desc: GCP metadata endpoint
@@ -72,7 +72,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "metadata.google.internal"
+      substr: "metadata.google.internal"
 
   - id: gcp-access-token
     desc: GCP service account access token
@@ -82,7 +82,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "/computeMetadata/v1/instance/service-accounts/default/token"
+      substr: "/computeMetadata/v1/instance/service-accounts/default/token"
 
   - id: gcp-service-accounts-path
     desc: GCP service accounts metadata path
@@ -92,7 +92,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "/computeMetadata/v1/instance/service-accounts"
+      substr: "/computeMetadata/v1/instance/service-accounts"
 
   # Azure Metadata
   - id: azure-metadata-endpoint
@@ -103,7 +103,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "169.254.169.254/metadata/instance"
+      substr: "169.254.169.254/metadata/instance"
 
   - id: azure-metadata-header
     desc: Azure metadata header
@@ -113,7 +113,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "Metadata:true"
+      substr: "Metadata:true"
 
   - id: azure-identity-token
     desc: Azure managed identity token endpoint
@@ -123,7 +123,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "/metadata/identity/oauth2/token"
+      substr: "/metadata/identity/oauth2/token"
 
   # HTTP Request Primitives
   - id: http-get-method
@@ -160,7 +160,7 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "requests.get"
+      substr: "requests.get"
 
 composite_rules:
   - id: metadata-harvesting

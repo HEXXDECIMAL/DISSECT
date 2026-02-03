@@ -12,7 +12,7 @@ traits:
     attack: "T1059"
     if:
       type: string
-      exact: "sh -i"
+      substr: "sh -i"
 
   - id: bin-sh-interactive
     desc: Interactive shell invocation with full
@@ -21,4 +21,4 @@ traits:
     attack: "T1059"
     if:
       type: string
-      exact: "/bin/sh -i"
+      substr: "/bin/sh -i"

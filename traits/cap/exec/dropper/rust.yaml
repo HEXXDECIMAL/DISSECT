@@ -9,7 +9,7 @@ traits:
     for: [rust]
     if:
       type: string
-      exact: "client.get"
+      substr: "client.get"
 
   - id: write-body
     desc: Write HTTP body to file
@@ -18,7 +18,7 @@ traits:
     for: [rust]
     if:
       type: string
-      exact: ".write(&body)"
+      substr: ".write(&body)"
 
   - id: spawn-call
     desc: Process spawn call
@@ -27,7 +27,7 @@ traits:
     for: [rust]
     if:
       type: string
-      exact: ".spawn()"
+      substr: ".spawn()"
 
 composite_rules:
   - id: rust-download-exec

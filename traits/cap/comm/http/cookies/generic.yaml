@@ -10,7 +10,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "Cookie:"
+      substr: "Cookie:"
 
   - id: set-cookie-header
     desc: Set-Cookie header
@@ -18,7 +18,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "Set-Cookie:"
+      substr: "Set-Cookie:"
 
   - id: cookiejar-ref
     desc: cookiejar reference
@@ -26,7 +26,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "cookiejar"
+      substr: "cookiejar"
 
   - id: http-cookiejar
     desc: http.cookiejar module
@@ -34,7 +34,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "http.cookiejar"
+      substr: "http.cookiejar"
 
 composite_rules:
   - id: cookies

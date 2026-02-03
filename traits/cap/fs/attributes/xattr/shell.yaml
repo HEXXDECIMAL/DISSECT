@@ -39,7 +39,7 @@ traits:
     conf: 1.0
     if:
       type: string
-      exact: "xattr -d -r -s com.apple.quarantine"
+      substr: "xattr -d -r -s com.apple.quarantine"
 
   - id: xattr-quarantine-remove-2
     desc: xattr -d -r com.apple.quarantine (legitimate
@@ -47,7 +47,7 @@ traits:
     conf: 1.0
     if:
       type: string
-      exact: "xattr -d -r com.apple.quarantine"
+      substr: "xattr -d -r com.apple.quarantine"
 
 composite_rules:
   - id: xattr-patterns

@@ -20,7 +20,7 @@ traits:
     r#for: [elf, macho]
     if:
       type: string
-      exact: "PROT_EXEC"
+      substr: "PROT_EXEC"
 
 # === Composite Rules ===
 composite_rules:

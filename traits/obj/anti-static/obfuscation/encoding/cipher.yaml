@@ -46,7 +46,7 @@ traits:
     mbc: "C0026"
     if:
       type: string
-      exact: "0123456789abcdef"
+      substr: "0123456789abcdef"
 
   # NOTE: Base64 charset is common in any binary that encodes data - downgraded to inert
   - id: hardcoded-base64-charset

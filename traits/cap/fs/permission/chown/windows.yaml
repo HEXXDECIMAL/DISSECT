@@ -10,7 +10,7 @@ traits:
     conf: 0.55
     if:
       type: string
-      exact: "takeown"
+      substr: "takeown"
 
   - id: takeown-upper
     desc: TAKEOWN command (uppercase)
@@ -18,7 +18,7 @@ traits:
     conf: 0.55
     if:
       type: string
-      exact: "TAKEOWN"
+      substr: "TAKEOWN"
 
   - id: chown-takeown-force
     desc: Forcibly take ownership of files

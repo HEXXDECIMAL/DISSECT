@@ -13,7 +13,7 @@ traits:
     platforms: [macos]
     if:
       type: string
-      exact: "/Library/Cookies"
+      substr: "/Library/Cookies"
 
   - id: binarycookies
     desc: macOS binary cookies file
@@ -23,7 +23,7 @@ traits:
     platforms: [macos]
     if:
       type: string
-      exact: ".binarycookies"
+      substr: ".binarycookies"
 
   - id: cookies-binarycookies
     desc: Safari Cookies.binarycookies file
@@ -33,7 +33,7 @@ traits:
     platforms: [macos]
     if:
       type: string
-      exact: "Cookies.binarycookies"
+      substr: "Cookies.binarycookies"
 
   - id: history-db
     desc: Safari History.db file
@@ -43,7 +43,7 @@ traits:
     platforms: [macos]
     if:
       type: string
-      exact: "History.db"
+      substr: "History.db"
 
   - id: localstorage
     desc: Safari LocalStorage path
@@ -53,7 +53,7 @@ traits:
     platforms: [macos]
     if:
       type: string
-      exact: "Safari/LocalStorage"
+      substr: "Safari/LocalStorage"
 
 composite_rules:
   - id: cookie-theft

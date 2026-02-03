@@ -11,4 +11,4 @@ traits:
     attack: "T1140"
     if:
       type: string
-      exact: base64_decode
+      substr: base64_decode

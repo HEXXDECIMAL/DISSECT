@@ -46,7 +46,7 @@ traits:
     for: [c]
     if:
       type: string
-      exact: "kallsyms_lookup_name"
+      substr: "kallsyms_lookup_name"
 
   - id: syscall-table-str
     desc: __syscall_table reference
@@ -1185,7 +1185,7 @@ traits:
     for: [elf, c]
     if:
       type: string
-      exact: "SYS_memfd_create"
+      substr: "SYS_memfd_create"
 
   - id: finit-module-call
     desc: finit_module function call
@@ -1203,7 +1203,7 @@ traits:
     for: [elf, c]
     if:
       type: string
-      exact: "SYS_finit_module"
+      substr: "SYS_finit_module"
 
   # ============================================================
   # MEMORY PROTECTION BYPASS (PTE) - micro-traits
@@ -1226,7 +1226,7 @@ traits:
     for: [c]
     if:
       type: string
-      exact: "_PAGE_RW"
+      substr: "_PAGE_RW"
 
   - id: page-nx-flag
     desc: _PAGE_NX memory protection flag
@@ -1235,7 +1235,7 @@ traits:
     for: [c]
     if:
       type: string
-      exact: "_PAGE_NX"
+      substr: "_PAGE_NX"
 
   # ============================================================
   # ELF BINARY PATCHING - micro-traits

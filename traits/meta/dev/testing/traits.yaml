@@ -11,7 +11,7 @@ traits:
     for: [cpp]
     if:
       type: string
-      exact: "testing::Test"
+      substr: "testing::Test"
 
   - id: gtest-macro-prefix
     desc: GTEST_ macro prefix
@@ -20,7 +20,7 @@ traits:
     for: [cpp]
     if:
       type: string
-      exact: "GTEST_"
+      substr: "GTEST_"
 
   - id: gtest-test-f
     desc: TEST_F macro
@@ -29,7 +29,7 @@ traits:
     for: [cpp]
     if:
       type: string
-      exact: "TEST_F("
+      substr: "TEST_F("
 
   - id: gtest-expect-prefix
     desc: EXPECT_ macro prefix
@@ -38,7 +38,7 @@ traits:
     for: [cpp]
     if:
       type: string
-      exact: "EXPECT_"
+      substr: "EXPECT_"
 
   - id: gtest-assert-prefix
     desc: ASSERT_ macro prefix
@@ -47,7 +47,7 @@ traits:
     for: [cpp]
     if:
       type: string
-      exact: "ASSERT_"
+      substr: "ASSERT_"
 
   - id: gtest-word
     desc: gtest reference
@@ -67,7 +67,7 @@ traits:
     for: [cpp]
     if:
       type: string
-      exact: "Catch::"
+      substr: "Catch::"
 
   - id: catch2-macro-prefix
     desc: CATCH_ macro prefix
@@ -76,7 +76,7 @@ traits:
     for: [cpp]
     if:
       type: string
-      exact: "CATCH_"
+      substr: "CATCH_"
 
   - id: catch2-test-case
     desc: TEST_CASE macro
@@ -85,7 +85,7 @@ traits:
     for: [cpp]
     if:
       type: string
-      exact: "TEST_CASE"
+      substr: "TEST_CASE"
 
   - id: catch2-section
     desc: SECTION macro
@@ -114,7 +114,7 @@ traits:
     for: [java]
     if:
       type: string
-      exact: "org.junit"
+      substr: "org.junit"
 
   - id: junit-test-annotation
     desc: "@Test annotation"
@@ -123,7 +123,7 @@ traits:
     for: [java]
     if:
       type: string
-      exact: "@Test"
+      substr: "@Test"
 
   - id: junit-assert-equals
     desc: assertEquals method
@@ -170,7 +170,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "def test_"
+      substr: "def test_"
 
   - id: pytest-decorator
     desc: "@pytest decorator"
@@ -179,7 +179,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "@pytest"
+      substr: "@pytest"
 
   - id: pytest-conftest
     desc: conftest.py file
@@ -188,7 +188,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "conftest.py"
+      substr: "conftest.py"
 
   - id: python-assert-statement
     desc: "assert statement"
@@ -197,7 +197,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "assert "
+      substr: "assert "
 
   # === Atomic: Go testing ===
 
@@ -208,7 +208,7 @@ traits:
     for: [go]
     if:
       type: string
-      exact: "testing.T"
+      substr: "testing.T"
 
   - id: go-testing-m
     desc: testing.M type
@@ -217,7 +217,7 @@ traits:
     for: [go]
     if:
       type: string
-      exact: "testing.M"
+      substr: "testing.M"
 
   - id: go-testing-b
     desc: testing.B type
@@ -226,7 +226,7 @@ traits:
     for: [go]
     if:
       type: string
-      exact: "testing.B"
+      substr: "testing.B"
 
   - id: go-func-test
     desc: "func Test prefix"
@@ -235,7 +235,7 @@ traits:
     for: [go]
     if:
       type: string
-      exact: "func Test"
+      substr: "func Test"
 
   - id: go-t-error
     desc: t.Error method
@@ -244,7 +244,7 @@ traits:
     for: [go]
     if:
       type: string
-      exact: "t.Error"
+      substr: "t.Error"
 
   - id: go-t-fatal
     desc: t.Fatal method
@@ -253,7 +253,7 @@ traits:
     for: [go]
     if:
       type: string
-      exact: "t.Fatal"
+      substr: "t.Fatal"
 
   # === Atomic: Rust testing ===
 
@@ -264,7 +264,7 @@ traits:
     for: [rust]
     if:
       type: string
-      exact: "#[test]"
+      substr: "#[test]"
 
   - id: rust-cfg-test
     desc: "#[cfg(test)] attribute"
@@ -273,7 +273,7 @@ traits:
     for: [rust]
     if:
       type: string
-      exact: "#[cfg(test)]"
+      substr: "#[cfg(test)]"
 
   - id: rust-assert-macro
     desc: "assert! macro"
@@ -282,7 +282,7 @@ traits:
     for: [rust]
     if:
       type: string
-      exact: "assert!"
+      substr: "assert!"
 
   - id: rust-assert-eq-macro
     desc: "assert_eq! macro"
@@ -291,7 +291,7 @@ traits:
     for: [rust]
     if:
       type: string
-      exact: "assert_eq!"
+      substr: "assert_eq!"
 
   - id: rust-cargo-test
     desc: cargo test command
@@ -300,7 +300,7 @@ traits:
     for: [rust]
     if:
       type: string
-      exact: "cargo test"
+      substr: "cargo test"
 
   # === Atomic: Jest (JavaScript) ===
 
@@ -320,7 +320,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "describe("
+      substr: "describe("
 
   - id: jest-it
     desc: "it() function"
@@ -338,7 +338,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "expect("
+      substr: "expect("
 
   - id: jest-to-be
     desc: "toBe() matcher"
@@ -347,7 +347,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "toBe("
+      substr: "toBe("
 
   - id: jest-to-equal
     desc: "toEqual() matcher"
@@ -356,7 +356,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "toEqual("
+      substr: "toEqual("
 
   # === Atomic: Mocha (JavaScript) ===
 
@@ -378,7 +378,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "before("
+      substr: "before("
 
   - id: mocha-after
     desc: "after() hook"
@@ -387,7 +387,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      exact: "after("
+      substr: "after("
 
   # === Atomic: RSpec (Ruby) ===
 
@@ -416,7 +416,7 @@ traits:
     for: [ruby]
     if:
       type: string
-      exact: "describe "
+      substr: "describe "
 
   - id: rspec-context
     desc: "context statement"
@@ -425,7 +425,7 @@ traits:
     for: [ruby]
     if:
       type: string
-      exact: "context "
+      substr: "context "
 
   - id: rspec-expect
     desc: "expect() function"
@@ -434,7 +434,7 @@ traits:
     for: [ruby]
     if:
       type: string
-      exact: "expect("
+      substr: "expect("
 
   # === Atomic: Fuzzing ===
 
@@ -519,7 +519,7 @@ traits:
     for: [cpp]
     if:
       type: string
-      exact: "google/benchmark"
+      substr: "google/benchmark"
 
   - id: go-benchmark-type
     desc: Go testing.B benchmark type
@@ -528,7 +528,7 @@ traits:
     for: [go]
     if:
       type: string
-      exact: "testing.B"
+      substr: "testing.B"
 
   - id: criterion-bench
     desc: Criterion benchmark library

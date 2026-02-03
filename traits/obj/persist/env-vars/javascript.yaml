@@ -82,7 +82,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      exact: "Local"
+      substr: "Local"
     not:
       - "localhost"
       - "localization"

@@ -32,7 +32,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "--sequesterRsrc"
+      substr: "--sequesterRsrc"
 
   - id: ditto-rsrc-flag
     desc: ditto -rsrc flag
@@ -74,7 +74,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "/tmp/out.zip"
+      substr: "/tmp/out.zip"
 
   - id: var-tmp-zip
     desc: zip file in /var/tmp

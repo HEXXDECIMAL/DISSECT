@@ -10,7 +10,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "LD_PRELOAD"
+      substr: "LD_PRELOAD"
 
   - id: ld-library-path-env
     desc: References LD_LIBRARY_PATH environment variable
@@ -18,7 +18,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "LD_LIBRARY_PATH"
+      substr: "LD_LIBRARY_PATH"
 
   # === Hooking infrastructure micro-traits ===
   # NOTE: dlsym-call moved to cap/exec/dylib/load/dlsym (proper taxonomy).
@@ -30,7 +30,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "RTLD_NEXT"
+      substr: "RTLD_NEXT"
 
   - id: dlsym-rtld-next-pattern
     desc: dlsym(RTLD_NEXT pattern
@@ -54,7 +54,7 @@ traits:
     for: [elf]
     if:
       type: string
-      exact: "skullseclabs"
+      substr: "skullseclabs"
 
   - id: dnscat-string
     desc: DNSCAT C2 string
@@ -63,7 +63,7 @@ traits:
     for: [elf]
     if:
       type: string
-      exact: "DNSCAT"
+      substr: "DNSCAT"
 
   - id: hooked-string
     desc: Hooked function indicator
@@ -72,7 +72,7 @@ traits:
     for: [elf]
     if:
       type: string
-      exact: "Hooked"
+      substr: "Hooked"
 
   # NOTE: "Static" as a standalone string is too generic - appears in debug info,
   # type systems, and graphics libraries. This trait is only meaningful in combination
@@ -142,7 +142,7 @@ traits:
     for: [elf, c]
     if:
       type: string
-      exact: "/proc/self"
+      substr: "/proc/self"
 
   - id: proc-pid-pattern
     desc: /proc/[pid] path pattern
@@ -160,7 +160,7 @@ traits:
     for: [elf, c]
     if:
       type: string
-      exact: "/proc/net"
+      substr: "/proc/net"
 
   - id: hide-pid-string
     desc: hide_pid string reference
@@ -225,7 +225,7 @@ traits:
     for: [elf]
     if:
       type: string
-      exact: ".backup_ld.so"
+      substr: ".backup_ld.so"
 
   # Dynamic linker hook symbol (_dlfcn_hook)
   - id: dlfcn-hook-symbol
@@ -237,7 +237,7 @@ traits:
     for: [elf]
     if:
       type: string
-      exact: "_dlfcn_hook"
+      substr: "_dlfcn_hook"
 
   # ld.so.preload file path (rootkit installation target)
   - id: ld-so-preload-file
@@ -249,7 +249,7 @@ traits:
     for: [elf, shell]
     if:
       type: string
-      exact: "/etc/ld.so.preload"
+      substr: "/etc/ld.so.preload"
 
   # ld.so.preload clearing (removing hooks or preparing for new ones)
   - id: ld-so-preload-clear
@@ -285,7 +285,7 @@ traits:
     for: [elf]
     if:
       type: string
-      exact: "__libc_dlopen_mode"
+      substr: "__libc_dlopen_mode"
 
 composite_rules:
   # LD_PRELOAD env composite (migrated from YARA)

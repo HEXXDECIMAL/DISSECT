@@ -188,7 +188,7 @@ traits:
     conf: 0.98
     if:
       type: string
-      exact: "github.com/kgretzky/evilginx2"
+      substr: "github.com/kgretzky/evilginx2"
 
   - id: core-package
     desc: Evilginx2 core package reference
@@ -231,7 +231,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "phishlet hostname"
+      substr: "phishlet hostname"
 
   - id: phishlet-version
     desc: Phishlet version reference
@@ -258,7 +258,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "createPhishUrl"
+      substr: "createPhishUrl"
 
   - id: phish-domain
     desc: Phishing domain configuration
@@ -266,7 +266,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "getPhishDomain"
+      substr: "getPhishDomain"
 
   # === Session/credential capture ===
 
@@ -305,7 +305,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "replaceHostWithPhished"
+      substr: "replaceHostWithPhished"
 
   - id: force-post
     desc: Force POST interception

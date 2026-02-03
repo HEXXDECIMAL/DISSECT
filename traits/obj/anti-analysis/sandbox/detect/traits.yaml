@@ -12,7 +12,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "DESKTOP-19OLLTD"
+      substr: "DESKTOP-19OLLTD"
 
   - id: hostname-b0t93d6
     desc: DESKTOP-B0T93D6 sandbox hostname
@@ -22,7 +22,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "DESKTOP-B0T93D6"
+      substr: "DESKTOP-B0T93D6"
 
   - id: hostname-vrsqlag
     desc: DESKTOP-VRSQLAG sandbox hostname
@@ -32,7 +32,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "DESKTOP-VRSQLAG"
+      substr: "DESKTOP-VRSQLAG"
 
   - id: hostname-john-pc
     desc: JOHN-PC sandbox hostname
@@ -42,7 +42,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "JOHN-PC"
+      substr: "JOHN-PC"
 
   - id: hostname-julia-pc
     desc: JULIA-PC sandbox hostname
@@ -52,7 +52,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "JULIA-PC"
+      substr: "JULIA-PC"
 
   - id: hostname-lisa-pc
     desc: LISA-PC sandbox hostname
@@ -62,7 +62,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "LISA-PC"
+      substr: "LISA-PC"
 
   - id: username-sandbox
     desc: Common sandbox usernames
@@ -98,7 +98,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "C:\\analysis"
+      substr: "C:\\analysis"
 
   - id: path-c-sandbox
     desc: C:\sandbox sandbox path
@@ -108,7 +108,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "C:\\sandbox"
+      substr: "C:\\sandbox"
 
   - id: path-tmp-analysis
     desc: /tmp/analysis sandbox path
@@ -118,7 +118,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "/tmp/analysis"
+      substr: "/tmp/analysis"
 
 composite_rules:
   # Sandbox hostname composite

@@ -14,7 +14,7 @@ traits:
     platforms: [linux]
     if:
       type: string
-      exact: "/dev/shm/"
+      substr: "/dev/shm/"
 
   - id: proc-self-fd
     desc: "Access /proc/self/fd for file descriptor"

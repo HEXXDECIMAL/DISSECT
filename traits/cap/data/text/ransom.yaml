@@ -9,7 +9,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "your files"
+      substr: "your files"
       case_insensitive: true
 
   - id: files-have-been-phrase
@@ -18,7 +18,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "files have been"
+      substr: "files have been"
       case_insensitive: true
 
   - id: pay-bitcoin-phrase

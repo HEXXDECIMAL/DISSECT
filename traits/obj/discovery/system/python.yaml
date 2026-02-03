@@ -65,7 +65,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "getmac"
+      substr: "getmac"
 
   - id: ifconfig-cmd
     desc: ifconfig command for network info
@@ -73,7 +73,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "ifconfig"
+      substr: "ifconfig"
 
   - id: uuid-getnode
     desc: uuid.getnode() for MAC address
@@ -81,7 +81,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "uuid.getnode()"
+      substr: "uuid.getnode()"
 
 composite_rules:
   # Username discovery composite

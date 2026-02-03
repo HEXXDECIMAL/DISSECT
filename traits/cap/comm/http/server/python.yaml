@@ -15,7 +15,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "http.server"
+      substr: "http.server"
 
   - id: simplehttpserver-module
     desc: SimpleHTTPServer module (Python 2)
@@ -24,7 +24,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "SimpleHTTPServer"
+      substr: "SimpleHTTPServer"
 
   - id: basehttpserver-module
     desc: BaseHTTPServer module (Python 2)
@@ -33,7 +33,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "BaseHTTPServer"
+      substr: "BaseHTTPServer"
 
   - id: http-server-import
     desc: from http.server import
@@ -69,7 +69,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "SimpleHTTPRequestHandler"
+      substr: "SimpleHTTPRequestHandler"
 
   # === Flask framework ===
   - id: flask-import
@@ -125,7 +125,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "django.core.wsgi"
+      substr: "django.core.wsgi"
 
   - id: django-runserver
     desc: Django runserver command
@@ -134,7 +134,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "runserver"
+      substr: "runserver"
 
   # === FastAPI framework ===
   - id: fastapi-import
@@ -201,7 +201,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "gunicorn"
+      substr: "gunicorn"
 
   - id: uvicorn-import
     desc: Uvicorn ASGI server import
@@ -210,7 +210,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "uvicorn"
+      substr: "uvicorn"
 
   - id: wsgiref-module
     desc: wsgiref module (built-in WSGI)
@@ -219,7 +219,7 @@ traits:
     for: [python]
     if:
       type: string
-      exact: "wsgiref"
+      substr: "wsgiref"
 
 composite_rules:
   # Helper composites

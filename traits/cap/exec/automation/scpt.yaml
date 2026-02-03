@@ -17,7 +17,7 @@ traits:
     conf: 0.95
     if:
       type: string
-      exact: "Finder"
+      substr: "Finder"
 
   # ============================================
   # System Applications (notable)
@@ -29,7 +29,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "System Settings"
+      substr: "System Settings"
 
   - id: system-preferences
     desc: "Targets System Preferences"
@@ -38,7 +38,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      exact: "System Preferences"
+      substr: "System Preferences"
 
   - id: system-events
     desc: "Targets System Events"
@@ -46,7 +46,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: "System Events"
+      substr: "System Events"
 
   - id: safari
     desc: "Targets Safari"
@@ -55,7 +55,7 @@ traits:
     attack: "T1185"
     if:
       type: string
-      exact: "Safari"
+      substr: "Safari"
 
   # ============================================
   # Sensitive Applications (suspicious)
@@ -67,7 +67,7 @@ traits:
     attack: "T1059.004"
     if:
       type: string
-      exact: "Terminal"
+      substr: "Terminal"
 
   - id: keychain-access
     desc: "Targets Keychain Access"
@@ -76,7 +76,7 @@ traits:
     attack: "T1555.001"
     if:
       type: string
-      exact: "Keychain Access"
+      substr: "Keychain Access"
 
   - id: security-agent
     desc: "Targets Security Agent"
@@ -85,7 +85,7 @@ traits:
     attack: "T1548"
     if:
       type: string
-      exact: "SecurityAgent"
+      substr: "SecurityAgent"
 
 composite_rules:
   # ============================================

@@ -9,7 +9,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "SqlConnection"
+      substr: "SqlConnection"
 
   - id: db-connection-class
     desc: DbConnection class
@@ -17,7 +17,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "DbConnection"
+      substr: "DbConnection"
 
   - id: oledb-connection-class
     desc: OleDbConnection class
@@ -25,7 +25,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "OleDbConnection"
+      substr: "OleDbConnection"
 
   - id: odbc-connection-class
     desc: OdbcConnection class
@@ -33,7 +33,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "OdbcConnection"
+      substr: "OdbcConnection"
 
   # === SQL command atomic indicators ===
   - id: execute-nonquery
@@ -42,7 +42,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "ExecuteNonQuery"
+      substr: "ExecuteNonQuery"
 
   - id: execute-scalar
     desc: ExecuteScalar method
@@ -50,7 +50,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "ExecuteScalar"
+      substr: "ExecuteScalar"
 
   - id: execute-reader
     desc: ExecuteReader method
@@ -58,7 +58,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "ExecuteReader"
+      substr: "ExecuteReader"
 
   - id: sql-command-class
     desc: SqlCommand class
@@ -66,7 +66,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "SqlCommand"
+      substr: "SqlCommand"
 
   - id: db-command-class
     desc: DbCommand class
@@ -74,7 +74,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "DbCommand"
+      substr: "DbCommand"
 
   # === Connection string atomic indicators ===
   - id: connection-string-singular
@@ -83,7 +83,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "ConnectionString"
+      substr: "ConnectionString"
 
   - id: connection-strings-plural
     desc: ConnectionStrings property
@@ -91,7 +91,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "ConnectionStrings"
+      substr: "ConnectionStrings"
 
   # === SQL parameter atomic indicators ===
   - id: sql-parameter-class
@@ -100,7 +100,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "SqlParameter"
+      substr: "SqlParameter"
 
   - id: db-parameter-class
     desc: DbParameter class
@@ -108,7 +108,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "DbParameter"
+      substr: "DbParameter"
 
   - id: add-with-value
     desc: AddWithValue method
@@ -116,7 +116,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "AddWithValue"
+      substr: "AddWithValue"
 
   # === Data adapter atomic indicators ===
   - id: sql-data-adapter-class
@@ -125,7 +125,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "SqlDataAdapter"
+      substr: "SqlDataAdapter"
 
   - id: data-adapter-class
     desc: DataAdapter class
@@ -133,7 +133,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "DataAdapter"
+      substr: "DataAdapter"
 
   - id: fill-method
     desc: Fill method

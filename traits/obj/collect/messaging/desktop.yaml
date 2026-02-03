@@ -15,7 +15,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "Telegram Desktop/tdata"
+      substr: "Telegram Desktop/tdata"
 
   - id: telegram-tdata-desktop-win
     desc: Telegram Desktop tdata Windows path
@@ -31,14 +31,14 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "Telegram/tdata"
+      substr: "Telegram/tdata"
 
   - id: telegram-key-datas
     desc: "Telegram Desktop key_datas file"
     conf: 0.9
     if:
       type: string
-      exact: "key_datas"
+      substr: "key_datas"
 
   - id: telegram-map-hash
     desc: Telegram map file hash
@@ -46,7 +46,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "D877F783D5D3EF8C"
+      substr: "D877F783D5D3EF8C"
 
   - id: telegram-map-numbered
     desc: Telegram numbered map files
@@ -64,7 +64,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "discord/Local Storage/leveldb"
+      substr: "discord/Local Storage/leveldb"
 
   - id: discord-leveldb-upper
     desc: Discord LevelDB storage (capitalized)
@@ -72,7 +72,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "Discord/Local Storage/leveldb"
+      substr: "Discord/Local Storage/leveldb"
 
   - id: discord-ldb-ext
     desc: LDB database extension
@@ -93,7 +93,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "Signal/config.json"
+      substr: "Signal/config.json"
 
   - id: signal-sql-db
     desc: Signal SQLite database path
@@ -101,7 +101,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "Signal/sql/db.sqlite"
+      substr: "Signal/sql/db.sqlite"
 
   # === Slack Desktop atomic indicators ===
 
@@ -111,7 +111,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "Slack/storage"
+      substr: "Slack/storage"
 
   - id: slack-indexeddb-path
     desc: Slack IndexedDB path
@@ -119,7 +119,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "Slack/IndexedDB"
+      substr: "Slack/IndexedDB"
 
   # === WhatsApp Desktop atomic indicators ===
 
@@ -129,7 +129,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "WhatsApp/IndexedDB"
+      substr: "WhatsApp/IndexedDB"
 
   - id: whatsapp-localstorage-path
     desc: WhatsApp Local Storage path
@@ -137,7 +137,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "WhatsApp/Local Storage"
+      substr: "WhatsApp/Local Storage"
 
 composite_rules:
   # Telegram tdata composite

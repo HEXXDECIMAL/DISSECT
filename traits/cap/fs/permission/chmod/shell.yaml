@@ -21,7 +21,7 @@ traits:
     attack: T1222
     if:
       type: string
-      exact: "chmod(0666)"
+      substr: "chmod(0666)"
 
   - id: chmod-777-shell
     desc: chmod 777 command (world-writable+executable)
@@ -41,7 +41,7 @@ traits:
     attack: T1222
     if:
       type: string
-      exact: "chmod(0777)"
+      substr: "chmod(0777)"
 
   - id: chmod-777-python
     desc: chmod(...777) Python-style call
@@ -59,7 +59,7 @@ traits:
     conf: 1.0
     if:
       type: string
-      exact: "chmod 1777"
+      substr: "chmod 1777"
 
   - id: chmod-01777-sticky
     desc: chmod 01777 (sticky bit, octal
@@ -67,7 +67,7 @@ traits:
     conf: 1.0
     if:
       type: string
-      exact: "chmod 01777"
+      substr: "chmod 01777"
 
   - id: chmod-777-var-tmp
     desc: chmod 0777 /var/tmp (legitimate temp

@@ -12,7 +12,7 @@ traits:
     attack: "T1016"
     if:
       type: string
-      exact: "api.db-ip.com"
+      substr: "api.db-ip.com"
 
   - id: db-ip-v2
     desc: db-ip.com/v2 endpoint
@@ -21,7 +21,7 @@ traits:
     attack: "T1016"
     if:
       type: string
-      exact: "db-ip.com/v2"
+      substr: "db-ip.com/v2"
 
   - id: ipinfo-io
     desc: ipinfo.io geolocation API
@@ -30,7 +30,7 @@ traits:
     attack: "T1016"
     if:
       type: string
-      exact: "ipinfo.io"
+      substr: "ipinfo.io"
 
   - id: ipapi-api
     desc: ip-api.com geolocation API
@@ -39,7 +39,7 @@ traits:
     attack: "T1016"
     if:
       type: string
-      exact: "ip-api.com"
+      substr: "ip-api.com"
 
   - id: api-ipify
     desc: api.ipify.org endpoint
@@ -48,7 +48,7 @@ traits:
     attack: "T1016"
     if:
       type: string
-      exact: "api.ipify.org"
+      substr: "api.ipify.org"
 
   - id: ipify-org
     desc: ipify.org domain
@@ -57,7 +57,7 @@ traits:
     attack: "T1016"
     if:
       type: string
-      exact: "ipify.org"
+      substr: "ipify.org"
 
   - id: ipgeolocation-api
     desc: ipgeolocation.io API
@@ -66,7 +66,7 @@ traits:
     attack: "T1016"
     if:
       type: string
-      exact: "ipgeolocation.io"
+      substr: "ipgeolocation.io"
 
   - id: geoip-maxmind
     desc: geoip.maxmind.com endpoint
@@ -75,7 +75,7 @@ traits:
     attack: "T1016"
     if:
       type: string
-      exact: "geoip.maxmind.com"
+      substr: "geoip.maxmind.com"
 
   - id: maxmind-geoip
     desc: maxmind.com/geoip endpoint
@@ -84,7 +84,7 @@ traits:
     attack: "T1016"
     if:
       type: string
-      exact: "maxmind.com/geoip"
+      substr: "maxmind.com/geoip"
 
   - id: freegeoip-app
     desc: freegeoip.app domain
@@ -93,7 +93,7 @@ traits:
     attack: "T1016"
     if:
       type: string
-      exact: "freegeoip.app"
+      substr: "freegeoip.app"
 
   - id: freegeoip-net
     desc: freegeoip.net domain
@@ -102,7 +102,7 @@ traits:
     attack: "T1016"
     if:
       type: string
-      exact: "freegeoip.net"
+      substr: "freegeoip.net"
 
   - id: freegeoip-io
     desc: freegeoip.io domain
@@ -111,7 +111,7 @@ traits:
     attack: "T1016"
     if:
       type: string
-      exact: "freegeoip.io"
+      substr: "freegeoip.io"
 
   # NOTE: Generic IP lookup services (checkip.amazonaws.com, icanhazip.com, ifconfig.me, etc.)
   # are defined in discovery/network/discovery/ip-lookup.yaml
@@ -171,7 +171,7 @@ traits:
     attack: "T1016"
     if:
       type: string
-      exact: '"city":'
+      substr: '"city":'
 
   - id: region-field
     desc: Region JSON field (geo profiling)
@@ -180,7 +180,7 @@ traits:
     attack: "T1016"
     if:
       type: string
-      exact: '"region":'
+      substr: '"region":'
 
   - id: freegeoip-generic
     desc: freegeoip reference (generic)
@@ -189,7 +189,7 @@ traits:
     attack: "T1016"
     if:
       type: string
-      exact: "freegeoip"
+      substr: "freegeoip"
 
 composite_rules:
   # DB-IP API composite

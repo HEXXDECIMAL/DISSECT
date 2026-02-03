@@ -10,7 +10,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "method:"
+      substr: "method:"
 
   - id: post-method-single
     desc: POST method (single quotes)
@@ -37,7 +37,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "application/json"
+      substr: "application/json"
 
   # HTTP GET with query params (data in URL)
   - id: node-get-params
@@ -150,7 +150,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "axios.post"
+      substr: "axios.post"
 
   - id: fetch-call
     desc: fetch() call
@@ -159,7 +159,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "fetch("
+      substr: "fetch("
 
   # === HTTP library atomic indicators ===
   - id: axios-import
@@ -169,7 +169,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "axios"
+      substr: "axios"
 
 composite_rules:
   # Helper composites

@@ -35,7 +35,7 @@ traits:
     for: [elf, macho, pe]
     if:
       type: string
-      exact: "aes.NewCipher"
+      substr: "aes.NewCipher"
 
   - id: go-cfb-encrypter-string
     desc: cipher.NewCFBEncrypter string in binary
@@ -44,4 +44,4 @@ traits:
     for: [elf, macho, pe]
     if:
       type: string
-      exact: "cipher.NewCFBEncrypter"
+      substr: "cipher.NewCFBEncrypter"

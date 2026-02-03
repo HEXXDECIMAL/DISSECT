@@ -15,4 +15,4 @@ traits:
     attack: "T1140"
     if:
       type: string
-      exact: "base64 -d"
+      substr: "base64 -d"

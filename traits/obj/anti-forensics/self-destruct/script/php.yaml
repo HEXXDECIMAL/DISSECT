@@ -12,7 +12,7 @@ traits:
     for: [php]
     if:
       type: string
-      exact: unlink
+      substr: unlink
 
   - id: script-self-delete
     desc: Script self-deletion pattern (SCRIPT_FILENAME +

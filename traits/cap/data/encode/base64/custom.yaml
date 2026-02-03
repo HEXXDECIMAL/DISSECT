@@ -24,7 +24,7 @@ traits:
     for: [elf, macho, pe, so, dylib, dll]
     if:
       type: string
-      exact: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+      substr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
   # === Base64 decode lookup table ===
   # NOTE: Downgraded to inert for compiled binaries. Only flag in scripts.
@@ -46,7 +46,7 @@ traits:
     for: [python, javascript, shell, ruby, php]
     if:
       type: string
-      exact: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+      substr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
   # === Base64 padding patterns ===
   - id: padding-char

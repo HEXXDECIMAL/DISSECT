@@ -13,7 +13,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      exact: PTRACE_TRACEME
+      substr: PTRACE_TRACEME
 
   # NOTE: /proc/self/status detection is in traits.yaml as 'proc-status'
 

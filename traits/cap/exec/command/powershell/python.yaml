@@ -27,7 +27,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "RealtekHDAudio"
+      substr: "RealtekHDAudio"
 
   - id: masq-windowsupdate
     desc: "Masquerades as Windows Update process"
@@ -35,7 +35,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "WindowsUpdate"
+      substr: "WindowsUpdate"
 
   - id: masq-lsass
     desc: "Masquerades as lsass process"
@@ -43,7 +43,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "lsass"
+      substr: "lsass"
 
   - id: masq-svchost
     desc: "Masquerades as svchost process"
@@ -51,7 +51,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "svchost"
+      substr: "svchost"
 
 composite_rules:
   # System masquerade composite

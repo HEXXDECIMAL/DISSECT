@@ -22,7 +22,7 @@ traits:
     attack: "T1014"
     if:
       type: string
-      exact: "hide_pid"
+      substr: "hide_pid"
 
   - id: hide-file
     desc: hide_file function
@@ -32,7 +32,7 @@ traits:
     attack: "T1014"
     if:
       type: string
-      exact: "hide_file"
+      substr: "hide_file"
 
   # === LD_PRELOAD Injection ===
   - id: ld-preload-file
@@ -43,7 +43,7 @@ traits:
     attack: "T1574.006"
     if:
       type: string
-      exact: "/etc/ld.so.preload"
+      substr: "/etc/ld.so.preload"
 
 composite_rules:
   # Linux userspace rootkit (migrated from YARA)

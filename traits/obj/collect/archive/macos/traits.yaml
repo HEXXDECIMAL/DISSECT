@@ -24,7 +24,7 @@ traits:
     attack: "T1560.001"
     if:
       type: string
-      exact: "--sequesterRsrc"
+      substr: "--sequesterRsrc"
 
   - id: ditto-zip-output
     desc: ditto with .zip output
@@ -80,7 +80,7 @@ traits:
     attack: "T1560.001"
     if:
       type: string
-      exact: "tar --create"
+      substr: "tar --create"
 
   - id: gzip-compress
     desc: gzip compression
@@ -154,7 +154,7 @@ traits:
     attack: "T1074.001"
     if:
       type: string
-      exact: "/tmp/out."
+      substr: "/tmp/out."
 
   # Temp zip file staging
   - id: tmp-zip-staging

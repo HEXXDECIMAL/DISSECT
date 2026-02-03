@@ -14,7 +14,7 @@ traits:
     for: [c, elf, shell]
     if:
       type: string
-      exact: "security.selinux"
+      substr: "security.selinux"
 
   - id: setxattr-symbol
     desc: setxattr function
@@ -60,7 +60,7 @@ traits:
     for: [shell, c, elf]
     if:
       type: string
-      exact: "unconfined_u:"
+      substr: "unconfined_u:"
 
   - id: unconfined-r-label
     desc: unconfined_r SELinux role
@@ -69,7 +69,7 @@ traits:
     for: [shell, c, elf]
     if:
       type: string
-      exact: "unconfined_r:"
+      substr: "unconfined_r:"
 
   - id: unconfined-t-label
     desc: unconfined_t SELinux type
@@ -78,7 +78,7 @@ traits:
     for: [shell, c, elf]
     if:
       type: string
-      exact: "unconfined_t"
+      substr: "unconfined_t"
 
   - id: object-r-label
     desc: object_r SELinux role
@@ -87,7 +87,7 @@ traits:
     for: [shell, c, elf]
     if:
       type: string
-      exact: "object_r:"
+      substr: "object_r:"
 
   # === Enforcement mode commands ===
   - id: setenforce-command
@@ -115,7 +115,7 @@ traits:
     for: [shell, c, elf]
     if:
       type: string
-      exact: "/sys/fs/selinux/enforce"
+      substr: "/sys/fs/selinux/enforce"
 
   - id: selinux-enforce-legacy
     desc: /selinux/enforce legacy path
@@ -124,7 +124,7 @@ traits:
     for: [shell, c, elf]
     if:
       type: string
-      exact: "/selinux/enforce"
+      substr: "/selinux/enforce"
 
   - id: permissive-keyword
     desc: Permissive mode keyword
@@ -161,7 +161,7 @@ traits:
     for: [shell, c, elf]
     if:
       type: string
-      exact: "/etc/selinux"
+      substr: "/etc/selinux"
 
   # NOTE: SELinux policy files have specific naming patterns.
   # Must avoid matching generic "policy" words in C++ std::locale, exception handlers, etc.
@@ -201,7 +201,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "selinux=0"
+      substr: "selinux=0"
 
   - id: enforcing-equals-zero
     desc: enforcing=0 kernel parameter
@@ -210,7 +210,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "enforcing=0"
+      substr: "enforcing=0"
 
   - id: selinux-disabled-config
     desc: SELINUX=disabled config
@@ -219,7 +219,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "SELINUX=disabled"
+      substr: "SELINUX=disabled"
 
   - id: selinux-permissive-config
     desc: SELINUX=permissive config
@@ -228,7 +228,7 @@ traits:
     for: [shell]
     if:
       type: string
-      exact: "SELINUX=permissive"
+      substr: "SELINUX=permissive"
 
   # === Runtime kernel patching ===
   - id: selinux-state-symbol
@@ -256,7 +256,7 @@ traits:
     for: [c, elf]
     if:
       type: string
-      exact: "fake_enforce"
+      substr: "fake_enforce"
 
   - id: sel-read-enforce-symbol
     desc: sel_read_enforce function

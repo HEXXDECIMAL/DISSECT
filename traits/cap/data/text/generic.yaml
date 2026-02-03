@@ -14,31 +14,31 @@ traits:
     desc: overflow keyword
     if:
       type: string
-      exact: "overflow"
+      substr: "overflow"
 
   - id: offset
     desc: offset keyword
     if:
       type: string
-      exact: "offset"
+      substr: "offset"
 
   - id: address
     desc: address keyword
     if:
       type: string
-      exact: "address"
+      substr: "address"
 
   - id: padding
     desc: padding keyword
     if:
       type: string
-      exact: "padding"
+      substr: "padding"
 
   - id: buffer
     desc: buffer keyword
     if:
       type: string
-      exact: "buffer"
+      substr: "buffer"
 
   # === Credential Terms ===
   - id: token
@@ -51,7 +51,7 @@ traits:
     desc: password keyword
     if:
       type: string
-      exact: "password"
+      substr: "password"
       case_insensitive: true
 
   - id: pwd
@@ -65,14 +65,14 @@ traits:
     desc: credential keyword
     if:
       type: string
-      exact: "credential"
+      substr: "credential"
       case_insensitive: true
 
   - id: secret
     desc: secret keyword
     if:
       type: string
-      exact: "secret"
+      substr: "secret"
       case_insensitive: true
 
   # === Command/Execution Terms ===
@@ -80,44 +80,44 @@ traits:
     desc: command keyword
     if:
       type: string
-      exact: "command"
+      substr: "command"
 
   - id: output
     desc: output keyword
     if:
       type: string
-      exact: "output"
+      substr: "output"
 
   - id: execute
     desc: execute keyword
     if:
       type: string
-      exact: "execute"
+      substr: "execute"
 
   - id: payload
     desc: payload keyword
     if:
       type: string
-      exact: "payload"
+      substr: "payload"
 
   - id: exploit
     desc: exploit keyword
     if:
       type: string
-      exact: "exploit"
+      substr: "exploit"
 
   # === Network Terms ===
   - id: socket
     desc: socket keyword
     if:
       type: string
-      exact: "socket"
+      substr: "socket"
 
   - id: connect
     desc: connect keyword
     if:
       type: string
-      exact: "connect"
+      substr: "connect"
 
   - id: send
     desc: send keyword
@@ -136,7 +136,7 @@ traits:
     desc: runtime keyword
     if:
       type: string
-      exact: "runtime"
+      substr: "runtime"
 
   - id: tmp
     desc: tmp keyword

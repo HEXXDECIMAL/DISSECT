@@ -13,70 +13,70 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: SSL_library_init
+      substr: SSL_library_init
 
   - id: ssl-ctx-new
     desc: OpenSSL SSL_CTX_new
     conf: 0.7
     if:
       type: string
-      exact: SSL_CTX_new
+      substr: SSL_CTX_new
 
   - id: ssl-new
     desc: OpenSSL SSL_new
     conf: 0.7
     if:
       type: string
-      exact: SSL_new
+      substr: SSL_new
 
   - id: ssl-connect
     desc: OpenSSL SSL_connect
     conf: 0.7
     if:
       type: string
-      exact: SSL_connect
+      substr: SSL_connect
 
   - id: ssl-read
     desc: OpenSSL SSL_read
     conf: 0.7
     if:
       type: string
-      exact: SSL_read
+      substr: SSL_read
 
   - id: ssl-write
     desc: OpenSSL SSL_write
     conf: 0.7
     if:
       type: string
-      exact: SSL_write
+      substr: SSL_write
 
   - id: tls-v1-method
     desc: TLSv1_method
     conf: 0.8
     if:
       type: string
-      exact: TLSv1_method
+      substr: TLSv1_method
 
   - id: tls-v1-2-method
     desc: TLSv1_2_method
     conf: 0.8
     if:
       type: string
-      exact: TLSv1_2_method
+      substr: TLSv1_2_method
 
   - id: tls-method
     desc: TLS_method
     conf: 0.8
     if:
       type: string
-      exact: TLS_method
+      substr: TLS_method
 
   - id: openssl-version
     desc: OpenSSL version string
     conf: 0.9
     if:
       type: string
-      exact: "OpenSSL "
+      substr: "OpenSSL "
 
   # === Hash function atomic indicators ===
   - id: md5-init
@@ -84,77 +84,77 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: MD5_Init
+      substr: MD5_Init
 
   - id: md5-update
     desc: MD5_Update function
     conf: 0.6
     if:
       type: string
-      exact: MD5_Update
+      substr: MD5_Update
 
   - id: md5-final
     desc: MD5_Final function
     conf: 0.6
     if:
       type: string
-      exact: MD5_Final
+      substr: MD5_Final
 
   - id: sha1-init
     desc: SHA1_Init function
     conf: 0.6
     if:
       type: string
-      exact: SHA1_Init
+      substr: SHA1_Init
 
   - id: sha1-update
     desc: SHA1_Update function
     conf: 0.6
     if:
       type: string
-      exact: SHA1_Update
+      substr: SHA1_Update
 
   - id: sha256-init
     desc: SHA256_Init function
     conf: 0.6
     if:
       type: string
-      exact: SHA256_Init
+      substr: SHA256_Init
 
   - id: sha256-update
     desc: SHA256_Update function
     conf: 0.6
     if:
       type: string
-      exact: SHA256_Update
+      substr: SHA256_Update
 
   - id: sha512-init
     desc: SHA512_Init function
     conf: 0.6
     if:
       type: string
-      exact: SHA512_Init
+      substr: SHA512_Init
 
   - id: go-crypto-sha256
     desc: Go crypto/sha256 package
     conf: 0.8
     if:
       type: string
-      exact: crypto/sha256
+      substr: crypto/sha256
 
   - id: go-crypto-sha512
     desc: Go crypto/sha512 package
     conf: 0.8
     if:
       type: string
-      exact: crypto/sha512
+      substr: crypto/sha512
 
   - id: go-crypto-md5
     desc: Go crypto/md5 package
     conf: 0.8
     if:
       type: string
-      exact: crypto/md5
+      substr: crypto/md5
 
   # === GnuTLS atomic indicators ===
   - id: gnutls-init
@@ -162,28 +162,28 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: gnutls_init
+      substr: gnutls_init
 
   - id: gnutls-handshake
     desc: gnutls_handshake function
     conf: 0.7
     if:
       type: string
-      exact: gnutls_handshake
+      substr: gnutls_handshake
 
   - id: gnutls-record-send
     desc: gnutls_record_send function
     conf: 0.7
     if:
       type: string
-      exact: gnutls_record_send
+      substr: gnutls_record_send
 
   - id: gnutls-record-recv
     desc: gnutls_record_recv function
     conf: 0.7
     if:
       type: string
-      exact: gnutls_record_recv
+      substr: gnutls_record_recv
 
   - id: gnutls-certificate
     desc: gnutls_certificate_ prefix
@@ -204,7 +204,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      exact: GnuTLS
+      substr: GnuTLS
 
   # === NSS atomic indicators ===
   - id: nss-init
@@ -212,7 +212,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: NSS_Init
+      substr: NSS_Init
 
   - id: nss-pk11
     desc: PK11_ prefix
@@ -247,7 +247,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: libnss
+      substr: libnss
 
   # === libsodium atomic indicators ===
   - id: sodium-init
@@ -255,56 +255,56 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: sodium_init
+      substr: sodium_init
 
   - id: sodium-secretbox
     desc: crypto_secretbox function
     conf: 0.8
     if:
       type: string
-      exact: crypto_secretbox
+      substr: crypto_secretbox
 
   - id: sodium-box
     desc: crypto_box function
     conf: 0.8
     if:
       type: string
-      exact: crypto_box
+      substr: crypto_box
 
   - id: sodium-sign
     desc: crypto_sign function
     conf: 0.8
     if:
       type: string
-      exact: crypto_sign
+      substr: crypto_sign
 
   - id: sodium-hash
     desc: crypto_hash function
     conf: 0.8
     if:
       type: string
-      exact: crypto_hash
+      substr: crypto_hash
 
   - id: sodium-pwhash
     desc: crypto_pwhash function
     conf: 0.8
     if:
       type: string
-      exact: crypto_pwhash
+      substr: crypto_pwhash
 
   - id: sodium-randombytes
     desc: randombytes function
     conf: 0.7
     if:
       type: string
-      exact: randombytes
+      substr: randombytes
 
   - id: libsodium
     desc: libsodium library
     conf: 0.9
     if:
       type: string
-      exact: libsodium
+      substr: libsodium
 
   # === Rust crypto atomic indicators ===
   - id: rust-ring
@@ -312,49 +312,49 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "ring::"
+      substr: "ring::"
 
   - id: rust-rustls
     desc: Rust rustls crate
     conf: 0.8
     if:
       type: string
-      exact: "rustls::"
+      substr: "rustls::"
 
   - id: rust-aes
     desc: Rust aes crate
     conf: 0.7
     if:
       type: string
-      exact: "aes::"
+      substr: "aes::"
 
   - id: rust-chacha
     desc: Rust chacha20poly1305
     conf: 0.8
     if:
       type: string
-      exact: chacha20poly1305
+      substr: chacha20poly1305
 
   - id: rust-rsa
     desc: Rust rsa crate
     conf: 0.7
     if:
       type: string
-      exact: "rsa::"
+      substr: "rsa::"
 
   - id: rust-ed25519
     desc: Rust ed25519
     conf: 0.8
     if:
       type: string
-      exact: ed25519
+      substr: ed25519
 
   - id: cargo-registry
     desc: Cargo registry path
     conf: 0.6
     if:
       type: string
-      exact: /cargo/registry/src/
+      substr: /cargo/registry/src/
 
   # === Go crypto atomic indicators ===
   - id: go-crypto-tls
@@ -362,56 +362,56 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: crypto/tls
+      substr: crypto/tls
 
   - id: go-crypto-x509
     desc: Go crypto/x509 package
     conf: 0.8
     if:
       type: string
-      exact: crypto/x509
+      substr: crypto/x509
 
   - id: go-crypto-rsa
     desc: Go crypto/rsa package
     conf: 0.8
     if:
       type: string
-      exact: crypto/rsa
+      substr: crypto/rsa
 
   - id: go-crypto-ecdsa
     desc: Go crypto/ecdsa package
     conf: 0.8
     if:
       type: string
-      exact: crypto/ecdsa
+      substr: crypto/ecdsa
 
   - id: go-crypto-aes
     desc: Go crypto/aes package
     conf: 0.8
     if:
       type: string
-      exact: crypto/aes
+      substr: crypto/aes
 
   - id: go-crypto-cipher
     desc: Go crypto/cipher package
     conf: 0.8
     if:
       type: string
-      exact: crypto/cipher
+      substr: crypto/cipher
 
   - id: go-crypto-rand
     desc: Go crypto/rand package
     conf: 0.8
     if:
       type: string
-      exact: crypto/rand
+      substr: crypto/rand
 
   - id: go-x-crypto
     desc: Go golang.org/x/crypto
     conf: 0.8
     if:
       type: string
-      exact: golang.org/x/crypto
+      substr: golang.org/x/crypto
 
   # === Certificate handling atomic indicators ===
   - id: x509-prefix
@@ -442,28 +442,28 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "-----BEGIN"
+      substr: "-----BEGIN"
 
   - id: pem-end
     desc: PEM end marker
     conf: 0.7
     if:
       type: string
-      exact: "-----END"
+      substr: "-----END"
 
   - id: ssl-certs-path
     desc: System SSL certs path
     conf: 0.8
     if:
       type: string
-      exact: /etc/ssl/certs
+      substr: /etc/ssl/certs
 
   - id: ca-certificates
     desc: CA certificates reference
     conf: 0.8
     if:
       type: string
-      exact: ca-certificates
+      substr: ca-certificates
 
   # === Secure random atomic indicators ===
   - id: dev-urandom
@@ -471,49 +471,49 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: /dev/urandom
+      substr: /dev/urandom
 
   - id: dev-random
     desc: /dev/random access
     conf: 0.7
     if:
       type: string
-      exact: /dev/random
+      substr: /dev/random
 
   - id: rand-bytes
     desc: RAND_bytes function
     conf: 0.8
     if:
       type: string
-      exact: RAND_bytes
+      substr: RAND_bytes
 
   - id: getrandom
     desc: getrandom syscall
     conf: 0.8
     if:
       type: string
-      exact: getrandom
+      substr: getrandom
 
   - id: arc4random
     desc: arc4random function
     conf: 0.8
     if:
       type: string
-      exact: arc4random
+      substr: arc4random
 
   - id: getentropy
     desc: getentropy function
     conf: 0.8
     if:
       type: string
-      exact: getentropy
+      substr: getentropy
 
   - id: secrandomcopybytes
     desc: SecRandomCopyBytes (macOS)
     conf: 0.8
     if:
       type: string
-      exact: SecRandomCopyBytes
+      substr: SecRandomCopyBytes
 
   # === KDF atomic indicators ===
   - id: pbkdf2
@@ -521,7 +521,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: PBKDF2
+      substr: PBKDF2
       case_insensitive: true
 
   - id: scrypt
@@ -529,7 +529,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: scrypt
+      substr: scrypt
       case_insensitive: true
 
   - id: argon2
@@ -537,7 +537,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: argon2
+      substr: argon2
       case_insensitive: true
 
   - id: bcrypt
@@ -545,7 +545,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: bcrypt
+      substr: bcrypt
       case_insensitive: true
 
   - id: hkdf
@@ -560,14 +560,14 @@ traits:
     conf: 0.75
     if:
       type: string
-      exact: EVP_PKEY_derive
+      substr: EVP_PKEY_derive
 
   - id: pkcs5-pbkdf2
     desc: PKCS5_PBKDF2_HMAC function
     conf: 0.75
     if:
       type: string
-      exact: PKCS5_PBKDF2_HMAC
+      substr: PKCS5_PBKDF2_HMAC
 
 composite_rules:
   # OpenSSL TLS (3+ SSL functions or any TLS method or version string)

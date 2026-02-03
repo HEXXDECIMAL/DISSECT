@@ -9,4 +9,4 @@ traits:
     for: [elf]
     if:
       type: string
-      exact: "dl_iterate_phdr"
+      substr: "dl_iterate_phdr"

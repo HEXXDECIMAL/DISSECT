@@ -24,7 +24,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "os.system"
+      substr: "os.system"
 
   # === Windows Execution Patterns ===
   # Windows-specific command execution (start command, cmd.exe)
@@ -44,7 +44,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      exact: "COMPUTERNAME"
+      substr: "COMPUTERNAME"
 
   # === Executable File Extensions ===
   # Writing/downloading executable files

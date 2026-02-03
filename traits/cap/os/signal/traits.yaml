@@ -1,0 +1,32 @@
+# Signal Handling
+# C runtime signal handlers
+
+defaults:
+  for: ["pe", "dll"]
+  platforms: ["windows"]
+
+traits:
+  # === Signal Management ===
+  - id: signal
+    desc: Install signal handler
+    crit: inert
+    conf: 0.90
+    if:
+      type: symbol
+      exact: "signal"
+
+  - id: raise
+    desc: Send signal to self
+    crit: inert
+    conf: 0.85
+    if:
+      type: symbol
+      exact: "raise"
+
+  - id: abort
+    desc: Abort program execution
+    crit: inert
+    conf: 0.90
+    if:
+      type: symbol
+      exact: "abort"

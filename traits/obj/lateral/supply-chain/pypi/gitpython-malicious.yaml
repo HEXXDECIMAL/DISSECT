@@ -17,7 +17,7 @@ traits:
     conf: 0.70
     if:
       type: string
-      exact: "gitpython"
+      substr: "gitpython"
 
   - id: git-module-import
     desc: Git module import
