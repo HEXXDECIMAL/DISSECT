@@ -3,212 +3,6 @@
 # ATT&CK: T1105 (Ingress Tool Transfer), T1140 (Deobfuscate/Decode)
 
 traits:
-  # === Password-protected extraction atomics ===
-  - id: extract-full
-    desc: extractFull call
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "extractFull"
-
-  - id: extract-call
-    desc: extract() call
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "extract\\("
-
-  - id: unzip-call
-    desc: unzip reference
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "unzip"
-
-  - id: 7z-ref
-    desc: 7z reference
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "7z"
-
-  - id: password-colon
-    desc: "password: parameter"
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "password:"
-
-  - id: password-equals
-    desc: password= parameter
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "password="
-
-  - id: p-flag
-    desc: -p flag
-    crit: inert
-    conf: 0.4
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "-p"
-
-  # === 7-zip atomic indicators ===
-  - id: 7zip-bin-module
-    desc: 7zip-bin module
-    crit: inert
-    conf: 0.6
-    attack: "T1140"
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "7zip-bin"
-
-  - id: node-7z-module
-    desc: node-7z module
-    crit: inert
-    conf: 0.6
-    attack: "T1140"
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "node-7z"
-
-  - id: path7za
-    desc: path7za reference
-    crit: inert
-    conf: 0.6
-    attack: "T1140"
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "path7za"
-
-  - id: 7z-exe
-    desc: 7z.exe reference
-    crit: inert
-    conf: 0.6
-    attack: "T1140"
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "7z.exe"
-
-  # === Executable search atomic indicators ===
-  - id: endswith-exe
-    desc: endsWith .exe check
-    crit: inert
-    conf: 0.6
-    attack: "T1105"
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "endsWith\\(['\"]\\.(exe)['\"]\\)"
-
-  - id: endswith-bat
-    desc: endsWith .bat check
-    crit: inert
-    conf: 0.6
-    attack: "T1105"
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "endsWith\\(['\"]\\.(bat)['\"]\\)"
-
-  - id: endswith-cmd
-    desc: endsWith .cmd check
-    crit: inert
-    conf: 0.6
-    attack: "T1105"
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "endsWith\\(['\"]\\.(cmd)['\"]\\)"
-
-  - id: endswith-ps1
-    desc: endsWith .ps1 check
-    crit: inert
-    conf: 0.6
-    attack: "T1105"
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "endsWith\\(['\"]\\.(ps1)['\"]\\)"
-
-  - id: endswith-sh
-    desc: endsWith .sh check
-    crit: inert
-    conf: 0.6
-    attack: "T1105"
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "endsWith\\(['\"]\\.(sh)['\"]\\)"
-
-  - id: endswith-elf
-    desc: endsWith .elf check
-    crit: inert
-    conf: 0.6
-    attack: "T1105"
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "endsWith\\(['\"]\\.(elf)['\"]\\)"
-
-  - id: endswith-bin
-    desc: endsWith .bin check
-    crit: inert
-    conf: 0.6
-    attack: "T1105"
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "endsWith\\(['\"]\\.(bin)['\"]\\)"
-
-  - id: find-exe-pattern
-    desc: find() with .exe pattern
-    crit: inert
-    conf: 0.6
-    attack: "T1105"
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "find\\([^)]*\\.exe"
-
-  - id: find-bat-pattern
-    desc: find() with .bat pattern
-    crit: inert
-    conf: 0.6
-    attack: "T1105"
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "find\\([^)]*\\.bat"
-
-  - id: find-cmd-pattern
-    desc: find() with .cmd pattern
-    crit: inert
-    conf: 0.6
-    attack: "T1105"
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "find\\([^)]*\\.cmd"
-
   # === Temp directory atomics ===
   - id: process-env-temp
     desc: process.env.TEMP reference
@@ -246,43 +40,6 @@ traits:
       type: string
       substr: "/tmp/"
 
-  # === Archive extension atomics ===
-  - id: zip-ext
-    desc: .zip extension
-    crit: inert
-    conf: 0.4
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: ".zip"
-
-  - id: 7z-ext
-    desc: .7z extension
-    crit: inert
-    conf: 0.4
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: ".7z"
-
-  - id: tar-ext
-    desc: .tar extension
-    crit: inert
-    conf: 0.4
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: ".tar"
-
-  - id: rar-ext
-    desc: .rar extension
-    crit: inert
-    conf: 0.4
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: ".rar"
-
   # === Spawn/exec atomics ===
   - id: spawn-paren
     desc: spawn() call
@@ -310,60 +67,6 @@ traits:
     if:
       type: string
       regex: "execFile\\("
-
-  # === Exe-related atomics ===
-  - id: exe-ext
-    desc: .exe extension
-    crit: inert
-    conf: 0.4
-    for: [javascript, typescript]
-    if:
-      type: string
-      word: ".exe"
-
-  - id: exepath-var
-    desc: exePath variable
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      word: "exePath"
-
-  - id: exefile-var
-    desc: exeFile variable
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      word: "exeFile"
-
-  # Download zip file
-  - id: download-zip
-    desc: Downloads zip archive from remote
-    crit: suspicious
-    conf: 0.85
-    attack: "T1105"
-    for: [javascript, typescript]
-    if:
-      type: yara
-      source: |
-        rule download_zip {
-          strings:
-            $dl1 = "https.get" ascii
-            $dl2 = "http.get" ascii
-            $dl3 = "fetch(" ascii
-            $dl4 = "axios.get" ascii
-            $dl5 = "request(" ascii
-            $zip1 = ".zip" ascii
-            $zip2 = ".7z" ascii
-            $zip3 = "application/zip" ascii
-            $write1 = "createWriteStream" ascii
-            $write2 = "writeFileSync" ascii
-          condition:
-            any of ($dl*) and any of ($zip*) and any of ($write*)
-        }
 
   # === Python exec atomic indicators ===
   - id: py-os-system
@@ -897,11 +600,7 @@ composite_rules:
     for: [javascript, typescript]
     count_min: 1
     any:
-      - id: extract-full
-      - id: extract-call
-      - id: unzip-call
-      - id: 7z-ref
-      - id: node-7z-module
+      - id: dropper/archive
 
   # Password parameter composite
   - id: password-param
@@ -911,9 +610,7 @@ composite_rules:
     for: [javascript, typescript]
     count_min: 1
     any:
-      - id: password-colon
-      - id: password-equals
-      - id: p-flag
+      - id: dropper/archive
 
   # Password-protected archive extraction
   - id: password-extract
@@ -935,10 +632,7 @@ composite_rules:
     for: [javascript, typescript]
     count_min: 1
     any:
-      - id: 7zip-bin-module
-      - id: node-7z-module
-      - id: path7za
-      - id: 7z-exe
+      - id: dropper/archive
 
   # Temp directory composite
   - id: temp-dir-ref
@@ -961,10 +655,7 @@ composite_rules:
     for: [javascript, typescript]
     count_min: 1
     any:
-      - id: zip-ext
-      - id: 7z-ext
-      - id: tar-ext
-      - id: rar-ext
+      - id: dropper/archive
 
   # Download to temp then extract
   - id: temp-extract
@@ -997,9 +688,7 @@ composite_rules:
     for: [javascript, typescript]
     count_min: 1
     any:
-      - id: exe-ext
-      - id: exepath-var
-      - id: exefile-var
+      - id: dropper/executable
 
   # Spawn executable after extraction
   - id: extract-execute
@@ -1022,16 +711,7 @@ composite_rules:
     for: [javascript, typescript]
     count_min: 1
     any:
-      - id: endswith-exe
-      - id: endswith-bat
-      - id: endswith-cmd
-      - id: endswith-ps1
-      - id: endswith-sh
-      - id: endswith-elf
-      - id: endswith-bin
-      - id: find-exe-pattern
-      - id: find-bat-pattern
-      - id: find-cmd-pattern
+      - id: dropper/executable
 
   # Python exec composite
   - id: python-exec-call
@@ -1112,8 +792,8 @@ composite_rules:
     for: [javascript, typescript]
     all:
       - id: dropper/archive/download-zip
-      - id: dropper/archive/exe-search
-      - id: dropper/archive/extract-execute
+      - id: exe-search
+      - id: extract-execute
 
   # Complete dropper lifecycle (Fetch + Write + Execute)
   - id: fetch-write-execute
