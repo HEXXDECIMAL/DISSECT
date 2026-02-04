@@ -235,7 +235,9 @@ impl StringExtractor {
     /// 3. Merges results from both methods, deduplicating by value
     pub fn extract_smart(&self, data: &[u8]) -> Vec<StringInfo> {
         // Build stng options with garbage filtering enabled
-        let opts = ExtractOptions::new(self.min_length).with_garbage_filter(true);
+        let opts = ExtractOptions::new(self.min_length)
+            .with_garbage_filter(true)
+            .with_xor(None);
 
         // Run both extractions in parallel
         let (lang_strings, basic_strings) = rayon::join(
@@ -283,8 +285,10 @@ impl StringExtractor {
         // Convert r2 strings to stng format if provided
         let stng_r2 = r2_strings.map(|r2s| r2_to_stng(r2s, self.min_length));
 
-        // Build stng options with garbage filtering and optional r2 strings
-        let mut opts = ExtractOptions::new(self.min_length).with_garbage_filter(true);
+        // Build stng options with garbage filtering, XOR detection, and optional r2 strings
+        let mut opts = ExtractOptions::new(self.min_length)
+            .with_garbage_filter(true)
+            .with_xor(None);
         if let Some(r2) = stng_r2 {
             opts = opts.with_r2_strings(r2);
         }
@@ -338,7 +342,9 @@ impl StringExtractor {
         r2_strings: Option<Vec<R2String>>,
     ) -> Vec<StringInfo> {
         let stng_r2 = r2_strings.map(|r2s| r2_to_stng(r2s, self.min_length));
-        let mut opts = ExtractOptions::new(self.min_length).with_garbage_filter(true);
+        let mut opts = ExtractOptions::new(self.min_length)
+            .with_garbage_filter(true)
+            .with_xor(None);
         if let Some(r2) = stng_r2 {
             opts = opts.with_r2_strings(r2);
         }
@@ -365,7 +371,9 @@ impl StringExtractor {
         r2_strings: Option<Vec<R2String>>,
     ) -> Vec<StringInfo> {
         let stng_r2 = r2_strings.map(|r2s| r2_to_stng(r2s, self.min_length));
-        let mut opts = ExtractOptions::new(self.min_length).with_garbage_filter(true);
+        let mut opts = ExtractOptions::new(self.min_length)
+            .with_garbage_filter(true)
+            .with_xor(None);
         if let Some(r2) = stng_r2 {
             opts = opts.with_r2_strings(r2);
         }
@@ -392,7 +400,9 @@ impl StringExtractor {
         r2_strings: Option<Vec<R2String>>,
     ) -> Vec<StringInfo> {
         let stng_r2 = r2_strings.map(|r2s| r2_to_stng(r2s, self.min_length));
-        let mut opts = ExtractOptions::new(self.min_length).with_garbage_filter(true);
+        let mut opts = ExtractOptions::new(self.min_length)
+            .with_garbage_filter(true)
+            .with_xor(None);
         if let Some(r2) = stng_r2 {
             opts = opts.with_r2_strings(r2);
         }

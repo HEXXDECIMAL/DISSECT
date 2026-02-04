@@ -1,0 +1,168 @@
+# User-Agent Spoofing and HTTP Fingerprinting
+# Detects XOR-encoded User-Agent strings used for C2 communication and HTTP evasion
+# ATT&CK: T1036.005 (Masquerading as Legitimate Software)
+# MBC: E1014 (HTTP Communication)
+
+traits:
+  # === XOR-Encoded User-Agent Strings ===
+  - id: user-agent-windows10-chrome-xor
+    desc: "Windows 10 Chrome User-Agent"
+    crit: suspicious
+    conf: 0.9
+    for: [elf, shell]
+    if:
+      type: string
+      substr: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.89 Safari/537.36"
+    notes: "XOR-encoded Windows 10 Chrome 62.0 User-Agent for HTTP spoofing"
+    attack: "T1036.005"
+
+  - id: user-agent-windows81-chrome-xor
+    desc: "Windows 8.1 Chrome User-Agent"
+    crit: suspicious
+    conf: 0.9
+    for: [elf, shell]
+    if:
+      type: string
+      substr: "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.106 Safari/537.36"
+    notes: "XOR-encoded Windows 8.1 Chrome 51.0 User-Agent for HTTP spoofing"
+    attack: "T1036.005"
+
+  - id: user-agent-windows7-chrome-xor
+    desc: "Windows 7 Chrome User-Agent"
+    crit: suspicious
+    conf: 0.9
+    for: [elf, shell]
+    if:
+      type: string
+      substr: "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.109 Safari/537.36"
+    notes: "XOR-encoded Windows 7 Chrome 48.0 User-Agent for HTTP spoofing"
+    attack: "T1036.005"
+
+  - id: user-agent-windows81-firefox-xor
+    desc: "Windows 8.1 Firefox User-Agent"
+    crit: suspicious
+    conf: 0.9
+    for: [elf, shell]
+    if:
+      type: string
+      substr: "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:50.0) Gecko/20100101 Firefox/50.0"
+    notes: "XOR-encoded Windows 8.1 Firefox 50.0 User-Agent for HTTP spoofing"
+    attack: "T1036.005"
+
+  - id: user-agent-macos-safari-xor
+    desc: "macOS Safari User-Agent"
+    crit: suspicious
+    conf: 0.9
+    for: [elf, shell]
+    if:
+      type: string
+      substr: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/601.7.7 (KHTML, like Gecko) Version/9.1.2 Safari/601.7.7"
+    notes: "XOR-encoded macOS Safari User-Agent for cross-platform HTTP spoofing"
+    attack: "T1036.005"
+
+  # === User-Agent Library Pattern ===
+  - id: user-agent-library-marker
+    desc: "User-Agent library indicator"
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    if:
+      type: string
+      regex: "AppleWebKit/537\\.|AppleWebKit/601\\.7\\.|KHTML, like Gecko"
+    notes: "Pattern matching multiple User-Agent string library presence"
+    attack: "T1036.005"
+
+  - id: multi-os-targeting-pattern
+    desc: "Multi-OS targeting pattern"
+    crit: suspicious
+    conf: 0.8
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "Windows NT 6.1"
+        - substr: "Windows NT 6.3"
+        - substr: "Windows NT 10.0"
+        - substr: "Macintosh; Intel Mac OS X"
+    notes: "Presence of multiple OS-specific User-Agent strings indicates cross-platform targeting"
+    attack: "T1036.005"
+
+composite_rules:
+  - id: xor-user-agent-spoofing
+    desc: "XOR User-Agent spoofing"
+    crit: suspicious
+    conf: 0.92
+    for: [elf, shell]
+    attack: "T1036.005"
+    mbc: "E1014"
+    notes: "Single XOR-encoded User-Agent string for HTTP client masquerading"
+    any:
+      - id: user-agent-windows10-chrome-xor
+      - id: user-agent-windows81-chrome-xor
+      - id: user-agent-windows7-chrome-xor
+      - id: user-agent-windows81-firefox-xor
+      - id: user-agent-macos-safari-xor
+
+  - id: user-agent-library-detection
+    desc: "User-Agent library detection"
+    crit: suspicious
+    conf: 0.9
+    for: [elf, shell]
+    attack: "T1036.005"
+    mbc: "E1014"
+    notes: |
+      Multiple User-Agent strings detected indicating:
+      - Coordinated HTTP fingerprinting library
+      - Cross-platform campaign targeting
+      - Sophisticated C2 communication or scanning
+    all:
+      - id: user-agent-library-marker
+      - id: multi-os-targeting-pattern
+
+  - id: mirai-http-client-spoofing
+    desc: "Mirai HTTP client spoofing"
+    crit: hostile
+    conf: 0.95
+    for: [elf, shell]
+    attack: "T1036.005"
+    mbc: "E1014"
+    notes: |
+      Mirai botnet with sophisticated HTTP client fingerprinting.
+
+      Attack Pattern:
+      - Multiple XOR-encoded User-Agent strings
+      - Cross-OS targeting (Windows 7/8.1/10, macOS)
+      - Multi-browser targeting (Chrome, Firefox, Safari)
+
+      Indicates:
+      - HTTP-based C2 communication
+      - Evasion of User-Agent-based filtering
+      - Professional campaign coordination
+    all:
+      - id: known/malware/botnet/mirai
+      - id: user-agent-library-detection
+
+  - id: http-fingerprinting-campaign
+    desc: "HTTP fingerprinting campaign"
+    crit: hostile
+    conf: 0.94
+    for: [elf, shell]
+    attack: "T1036.005"
+    mbc: "E1014"
+    notes: |
+      Advanced HTTP client spoofing with User-Agent library.
+
+      Campaign Characteristics:
+      - 5+ User-Agent variants for different systems
+      - XOR encoding for anti-forensics
+      - Mimics legitimate browsers (Chrome, Firefox, Safari)
+      - Targets multiple Windows versions and macOS
+
+      Suggests:
+      - Coordinated botnet infrastructure
+      - Professional malware development
+      - Sophisticated campaign management
+    all:
+      - id: xor-user-agent-spoofing
+      - id: user-agent-library-marker
+

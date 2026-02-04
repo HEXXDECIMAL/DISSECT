@@ -1322,8 +1322,8 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
                 strings.len(),
                 target
             ));
-            output.push_str(&format!("{:<10} {:<14} {}\n", "OFFSET", "TYPE", "VALUE"));
-            output.push_str(&format!("{:-<10} {:-<14} {:-<20}\n", "", "", ""));
+            output.push_str(&format!("{:<10} {:<14} {:<12} {}\n", "OFFSET", "TYPE", "ENCODING", "VALUE"));
+            output.push_str(&format!("{:-<10} {:-<14} {:-<12} {:-<20}\n", "", "", "", ""));
             for s in strings {
                 let offset = s.offset.unwrap_or_else(|| "unknown".to_string());
 
@@ -1333,7 +1333,13 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
                     format!("{:?}", s.string_type)
                 };
 
-                let mut val_display = s.value.clone();
+                let encoding_str = s.encoding_chain.join("+");
+
+                // Escape control characters for display
+                let mut val_display = s.value
+                    .replace('\n', "\\n")
+                    .replace('\r', "\\r")
+                    .replace('\t', "\\t");
 
                 if s.string_type == crate::types::StringType::Base64 {
                     use base64::{engine::general_purpose, Engine as _};
@@ -1357,8 +1363,8 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
                 }
 
                 output.push_str(&format!(
-                    "{:<10} {:<14} {}\n",
-                    offset, stype_str, val_display
+                    "{:<10} {:<14} {:<12} {}\n",
+                    offset, stype_str, encoding_str, val_display
                 ));
             }
             Ok(output)

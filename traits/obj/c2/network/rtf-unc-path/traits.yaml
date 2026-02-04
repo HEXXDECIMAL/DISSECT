@@ -51,3 +51,46 @@ traits:
       type: string
       regex: '6400610076007700770072006F006F0074'
     conf: 0.9
+
+  - id: c2-domain-indicator
+    desc: "C2 domain reference (freefoodaid, etc.)"
+    if:
+      type: string
+      regex: 'freefoodaid|freefood|foodaid'
+    conf: 0.95
+    crit: suspicious
+    attack: T1071
+
+  - id: c2-domain-utf16-encoded
+    desc: "C2 domain in UTF-16LE encoding"
+    if:
+      type: string
+      regex: '66007200650065006600'
+    conf: 0.9
+    crit: suspicious
+    attack: T1071
+
+  - id: email-account-reference
+    desc: "Email account reference"
+    if:
+      type: string
+      regex: '[a-zA-Z0-9\.\-_]+@[a-zA-Z0-9\.\-]+\.[a-zA-Z]{2,}'
+    conf: 0.75
+    attack: T1598
+
+  - id: suspicious-remote-path-init
+    desc: "Remote path with init parameter"
+    if:
+      type: string
+      regex: '\\.lNk\?init=|\\\\tables\\\\.{0,50}init|HYPERLINK.{0,50}init'
+    conf: 0.9
+    crit: suspicious
+    attack: T1204
+
+  - id: file-handler-protocol
+    desc: "File handler protocol"
+    if:
+      type: string
+      regex: 'file://|mhtml:|mk:|about:|data:'
+    conf: 0.85
+    attack: T1204

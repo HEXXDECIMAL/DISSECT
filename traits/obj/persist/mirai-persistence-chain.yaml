@@ -1,0 +1,163 @@
+# Mirai Complete Persistence Chain
+# Detects complete Mirai persistence strategy combining multiple techniques
+# ATT&CK: T1547 (Boot or Logon Autostart Execution)
+# MBC: B0014 (Persistence)
+
+traits:
+  # === Individual Persistence Components ===
+  - id: mirai-persistent-service
+    desc: "Persistent service"
+    crit: suspicious
+    conf: 0.8
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "/usr/lib/systemd/systemd"
+        - substr: "systemd"
+    notes: "Systemd service hijacking for persistence"
+    attack: "T1547"
+
+  - id: mirai-backdoor-daemons
+    desc: "Backdoor daemon processes"
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "telnetd"
+        - substr: "sshd"
+        - substr: "dropbear"
+        - substr: "httpd"
+    notes: "Multiple backdoor daemon processes"
+    attack: "T1021.004"
+
+  - id: mirai-process-monitoring
+    desc: "Process monitoring"
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    if:
+      type: string
+      substr: "watchdog"
+    notes: "Watchdog process monitoring for persistence"
+    attack: "T1547"
+
+  - id: mirai-malware-competition
+    desc: "Competing malware elimination"
+    crit: suspicious
+    conf: 0.9
+    for: [elf, shell]
+    if:
+      type: string
+      any:
+        - substr: "SHINJI"
+        - substr: "/Killer"
+    notes: "Kill competing malware to ensure dominance"
+    attack: "T1531"
+
+  # === Persistence Activation ===
+  - id: mirai-enable-services
+    desc: "Enable services on startup"
+    crit: suspicious
+    conf: 0.8
+    for: [elf, shell]
+    if:
+      type: string
+      substr: "enable"
+    notes: "Service startup enablement"
+    attack: "T1547"
+
+composite_rules:
+  # Layer 1 handled directly by mirai-backdoor-daemons trait
+
+  - id: mirai-persistence-layer-2
+    desc: "Mirai service persistence"
+    crit: suspicious
+    conf: 0.9
+    for: [elf, shell]
+    attack: "T1547"
+    notes: "Layer 2: Systemd/init persistence for automatic startup"
+    any:
+      - id: mirai-persistent-service
+      - id: mirai-enable-services
+
+  - id: mirai-persistence-layer-3
+    desc: "Mirai monitoring and competition"
+    crit: suspicious
+    conf: 0.9
+    for: [elf, shell]
+    attack: "T1547"
+    notes: "Layer 3: Watchdog monitoring + competitor elimination"
+    all:
+      - id: mirai-process-monitoring
+      - id: mirai-malware-competition
+
+  - id: mirai-complete-persistence-chain
+    desc: "Mirai complete persistence"
+    crit: hostile
+    conf: 0.95
+    for: [elf, shell]
+    attack: "T1547"
+    mbc: "B0014"
+    notes: |
+      Complete Mirai persistence strategy with 3 layers:
+
+      Layer 1 - Backdoor Persistence:
+        Telnet, SSH, Dropbear daemons for direct shell access
+        Survives process crashes via layer 3
+
+      Layer 2 - Service Persistence:
+        Systemd/init system hijacking
+        Ensures restart on reboot
+
+      Layer 3 - Monitoring & Competition:
+        Watchdog process monitors malware health
+        Killer process eliminates competing botnets
+        Ensures exclusive system control
+
+      Result: Multi-layered persistence resistant to simple removal.
+    all:
+      - id: mirai-backdoor-daemons
+      - id: mirai-persistence-layer-2
+      - id: mirai-persistence-layer-3
+
+  - id: mirai-sophisticated-resilience
+    desc: "Mirai sophisticated resilience"
+    crit: hostile
+    conf: 0.95
+    for: [elf, shell]
+    attack: "T1547"
+    mbc: "B0014"
+    notes: |
+      Mirai implements sophisticated multi-stage persistence and resilience:
+
+      1. SERVICE PERSISTENCE:
+         - Systemd service installation
+         - Automatic startup on boot
+         - Survives system restart
+
+      2. PROCESS PERSISTENCE:
+         - Watchdog monitors main process
+         - Restarts if malware crashes
+         - Survives process termination
+
+      3. BACKDOOR PERSISTENCE:
+         - Telnet/SSH services for direct access
+         - Multiple access paths if main process fails
+         - Persistent remote control capability
+
+      4. COMPETITIVE PERSISTENCE:
+         - Killer process eliminates competitors
+         - Ensures exclusive resource access
+         - Maintains botnet control
+
+      This layered approach indicates:
+      - Professional malware engineering
+      - Deep understanding of Linux persistence
+      - Designed for high uptime and reliability
+      - Difficult to remove without expert intervention
+    all:
+      - id: known/malware/botnet/mirai
+      - id: mirai-complete-persistence-chain

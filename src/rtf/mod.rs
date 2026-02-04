@@ -34,6 +34,10 @@ pub mod ole_extractor;
 pub mod parser;
 pub mod types;
 
+// Public API re-exports for convenience
+// Used by external consumers of the rtf module
+#[allow(unused_imports)]
 pub use error::{RtfError, Result};
 pub use parser::RtfParser;
+#[allow(unused_imports)]
 pub use types::{OleHeader, OleObject, RtfDocument, SuspiciousFlag};
