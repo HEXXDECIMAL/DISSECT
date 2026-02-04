@@ -1681,7 +1681,13 @@ fn test_rules_debug(
     capability_mapper.evaluate_and_merge_findings(&mut report, &binary_data, None);
 
     // Create debugger and debug each rule
-    let debugger = test_rules::RuleDebugger::new(&capability_mapper, &report, &binary_data);
+    let debugger = test_rules::RuleDebugger::new(
+        &capability_mapper,
+        &report,
+        &binary_data,
+        &capability_mapper.composite_rules,
+        capability_mapper.trait_definitions(),
+    );
 
     let mut results = Vec::new();
     for rule_id in &rule_ids {
@@ -1775,7 +1781,13 @@ fn test_match_debug(
     let report = create_analysis_report(path, &file_type, &binary_data, &capability_mapper)?;
 
     // Create debugger to access search functions
-    let debugger = RuleDebugger::new(&capability_mapper, &report, &binary_data);
+    let debugger = RuleDebugger::new(
+        &capability_mapper,
+        &report,
+        &binary_data,
+        &capability_mapper.composite_rules,
+        capability_mapper.trait_definitions(),
+    );
     let context_info = debugger.context_info();
 
     // Perform the requested search
@@ -2159,8 +2171,13 @@ fn test_match_debug(
                 if let Ok(alt_report) =
                     create_analysis_report(path, &alt_type, &binary_data, &capability_mapper)
                 {
-                    let alt_debugger =
-                        RuleDebugger::new(&capability_mapper, &alt_report, &binary_data);
+                    let alt_debugger = RuleDebugger::new(
+                        &capability_mapper,
+                        &alt_report,
+                        &binary_data,
+                        &capability_mapper.composite_rules,
+                        capability_mapper.trait_definitions(),
+                    );
                     let alt_context = alt_debugger.context_info();
 
                     // Quick check if search would work with this type

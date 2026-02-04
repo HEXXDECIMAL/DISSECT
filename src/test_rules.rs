@@ -8,11 +8,14 @@
 //! - Context about available data (strings, symbols, etc.)
 
 use crate::capabilities::CapabilityMapper;
+use crate::capabilities::validation::calculate_composite_precision;
 use crate::composite_rules::{
-    eval_trait, Condition, EvaluationContext, FileType as RuleFileType, Platform,
+    eval_trait, Condition, CompositeTrait, EvaluationContext, FileType as RuleFileType,
+    Platform, TraitDefinition,
 };
 use crate::types::{AnalysisReport, Evidence};
 use colored::Colorize;
+use std::collections::{HashMap, HashSet};
 
 /// Result of debugging a single condition
 #[derive(Debug)]
@@ -81,6 +84,8 @@ pub struct RuleDebugger<'a> {
     binary_data: &'a [u8],
     file_type: RuleFileType,
     platform: Platform,
+    composites: &'a [CompositeTrait],
+    traits: &'a [TraitDefinition],
 }
 
 impl<'a> RuleDebugger<'a> {
@@ -88,6 +93,8 @@ impl<'a> RuleDebugger<'a> {
         mapper: &'a CapabilityMapper,
         report: &'a AnalysisReport,
         binary_data: &'a [u8],
+        composites: &'a [CompositeTrait],
+        traits: &'a [TraitDefinition],
     ) -> Self {
         let platform = detect_platform(&report.target.file_type);
         let file_type = detect_file_type(&report.target.file_type);
@@ -98,6 +105,8 @@ impl<'a> RuleDebugger<'a> {
             binary_data,
             file_type,
             platform,
+            composites,
+            traits,
         }
     }
 
@@ -151,6 +160,17 @@ impl<'a> RuleDebugger<'a> {
         // We need to find the trait by ID
         let trait_def = self.find_trait_definition(rule_id)?;
 
+        // Calculate precision
+        let mut cache = HashMap::new();
+        let mut visiting = HashSet::new();
+        let precision_value = calculate_composite_precision(
+            rule_id,
+            self.composites,
+            self.traits,
+            &mut cache,
+            &mut visiting,
+        );
+
         let mut result = RuleDebugResult {
             rule_id: trait_def.id.clone(),
             rule_type: "trait".to_string(),
@@ -160,7 +180,7 @@ impl<'a> RuleDebugger<'a> {
             requirements: format!("Condition: {:?}", describe_condition(&trait_def.r#if)),
             condition_results: Vec::new(),
             context_info: self.context_info(),
-            precision: None,
+            precision: Some(precision_value as f32),
         };
 
         // Check platform/file type constraints
@@ -216,6 +236,17 @@ impl<'a> RuleDebugger<'a> {
     fn debug_composite(&self, rule_id: &str) -> Option<RuleDebugResult> {
         let composite = self.find_composite_rule(rule_id)?;
 
+        // Calculate precision
+        let mut cache = HashMap::new();
+        let mut visiting = HashSet::new();
+        let precision_value = calculate_composite_precision(
+            rule_id,
+            self.composites,
+            self.traits,
+            &mut cache,
+            &mut visiting,
+        );
+
         let mut result = RuleDebugResult {
             rule_id: composite.id.clone(),
             rule_type: "composite".to_string(),
@@ -225,7 +256,7 @@ impl<'a> RuleDebugger<'a> {
             requirements: build_composite_requirements(composite),
             condition_results: Vec::new(),
             context_info: self.context_info(),
-            precision: None,
+            precision: Some(precision_value as f32),
         };
 
         // Check platform/file type constraints

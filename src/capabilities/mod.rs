@@ -29,7 +29,7 @@ mod indexes;
 mod mapper;
 mod models;
 mod parsing;
-mod validation;
+pub mod validation;
 
 // Re-export public API
 pub use mapper::CapabilityMapper;
