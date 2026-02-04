@@ -1,6 +1,7 @@
 //! Mach-O binary analyzer for macOS executables.
 
 use crate::amos_cipher::AMOSCipherAnalyzer;
+use crate::analyzers::macho_codesign;
 use crate::analyzers::Analyzer;
 use crate::capabilities::CapabilityMapper;
 use crate::entropy::{calculate_entropy, EntropyLevel};
@@ -75,8 +76,23 @@ impl MachOAnalyzer {
         let mut report = AnalysisReport::new(target);
         let mut tools_used = vec!["goblin".to_string()];
 
+        // Parse code signature early for metrics and findings
+        let codesig_data: Option<macho_codesign::CodeSignature> =
+            macho.load_commands.iter().find_map(|lc| {
+                if let goblin::mach::load_command::CommandVariant::CodeSignature(cs) = &lc.command {
+                    macho_codesign::parse_code_signature(data, cs.dataoff, cs.datasize).ok()
+                } else {
+                    None
+                }
+            });
+
         // Analyze header and structure
-        self.analyze_structure(&macho, &mut report)?;
+        self.analyze_structure_with_signature(&macho, &mut report, codesig_data.as_ref())?;
+
+        // Generate signature findings from parsed code signature
+        if let Some(ref codesig) = codesig_data {
+            self.generate_signature_findings(codesig, &mut report);
+        }
 
         // Extract imports and map to capabilities
         self.analyze_imports(file_path, &macho, &mut report)?;
@@ -99,8 +115,32 @@ impl MachOAnalyzer {
             if let Ok(batched) = self.radare2.extract_batched(file_path) {
                 // Compute metrics from batched data
                 let binary_metrics = self.radare2.compute_metrics_from_batched(&batched);
+
+                // Create Mach-O specific metrics from parsed code signature
+                let mut macho_metrics = MachoMetrics::default();
+                if let Some(ref codesig) = codesig_data {
+                    macho_metrics.has_entitlements = !codesig.entitlements.is_empty();
+                    macho_metrics.signature_type =
+                        Some(codesig.signature_type.as_str().to_string());
+                    macho_metrics.team_identifier = codesig.team_id.clone();
+
+                    // Count dangerous entitlements
+                    let mut dangerous_count = 0u32;
+                    for (ent_key, _) in &codesig.entitlements {
+                        if ent_key.contains("disable-library-validation")
+                            || ent_key.contains("allow-jit")
+                            || ent_key.contains("unsigned-executable-memory")
+                            || ent_key.contains("debugger")
+                        {
+                            dangerous_count += 1;
+                        }
+                    }
+                    macho_metrics.dangerous_entitlements = dangerous_count;
+                }
+
                 report.metrics = Some(Metrics {
                     binary: Some(binary_metrics),
+                    macho: Some(macho_metrics),
                     ..Default::default()
                 });
 
@@ -244,7 +284,7 @@ impl MachOAnalyzer {
             }],
         });
 
-        // 3. Code signature trait
+        // 3. Code signature trait - parse detailed signature information
         let has_signature = macho.load_commands.iter().any(|lc| {
             matches!(
                 lc.command,
@@ -253,6 +293,7 @@ impl MachOAnalyzer {
         });
 
         if has_signature {
+            // Basic presence marker
             report.findings.push(Finding {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
@@ -408,7 +449,12 @@ impl MachOAnalyzer {
         Ok(())
     }
 
-    fn analyze_structure(&self, macho: &MachO, report: &mut AnalysisReport) -> Result<()> {
+    fn analyze_structure_with_signature(
+        &self,
+        macho: &MachO,
+        report: &mut AnalysisReport,
+        _codesig: Option<&macho_codesign::CodeSignature>,
+    ) -> Result<()> {
         // Binary format
         report.structure.push(StructuralFeature {
             id: "binary/format/macho".to_string(),
@@ -593,6 +639,140 @@ impl MachOAnalyzer {
         Ok(())
     }
 
+    /// Generate findings from parsed code signature data
+    fn generate_signature_findings(
+        &self,
+        codesig: &macho_codesign::CodeSignature,
+        report: &mut AnalysisReport,
+    ) {
+        // Signature type trait - uniquely identifies the signature type
+        let sig_type = codesig.signature_type.as_str();
+        report.findings.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
+            id: format!("meta/signed/type/{}", sig_type),
+            desc: format!("Signature type: {}", sig_type),
+            conf: 1.0,
+            crit: Criticality::Notable,
+            mbc: None,
+            attack: None,
+            evidence: vec![Evidence {
+                method: "code_signature".to_string(),
+                source: "codesign_parser".to_string(),
+                value: sig_type.to_string(),
+                location: None,
+            }],
+        });
+
+        // Team ID trait (if present) - uniquely identifies the team
+        if let Some(team_id) = &codesig.team_id {
+            let desc = codesig
+                .authorities
+                .first()
+                .map(|auth| format!("{} ({})", auth, team_id))
+                .unwrap_or_else(|| format!("Team: {}", team_id));
+
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
+                id: format!("meta/signed/team/{}", team_id),
+                desc,
+                conf: 1.0,
+                crit: Criticality::Notable,
+                mbc: None,
+                attack: None,
+                evidence: vec![Evidence {
+                    method: "cms_certificate".to_string(),
+                    source: "codesign_parser".to_string(),
+                    value: team_id.clone(),
+                    location: None,
+                }],
+            });
+        }
+
+        // Authority traits - uniquely identifies each signing authority
+        for authority in &codesig.authorities {
+            let authority_id = authority.to_lowercase().replace(' ', "-").replace('*', "");
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
+                id: format!("meta/signed/authority/{}", authority_id),
+                desc: format!("Signed by: {}", authority),
+                conf: 0.95,
+                crit: Criticality::Notable,
+                mbc: None,
+                attack: None,
+                evidence: vec![Evidence {
+                    method: "certificate".to_string(),
+                    source: "codesign_parser".to_string(),
+                    value: authority.clone(),
+                    location: None,
+                }],
+            });
+        }
+
+        // Identifier trait - uniquely identifies the bundle
+        if let Some(identifier) = &codesig.identifier {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
+                id: format!("meta/sign/id/{}", identifier),
+                desc: format!("Bundle identifier: {}", identifier),
+                conf: 1.0,
+                crit: Criticality::Notable,
+                mbc: None,
+                attack: None,
+                evidence: vec![Evidence {
+                    method: "code_directory".to_string(),
+                    source: "codesign_parser".to_string(),
+                    value: identifier.clone(),
+                    location: None,
+                }],
+            });
+        }
+
+        // Entitlements traits
+        for (entitlement_key, _value) in &codesig.entitlements {
+            let ent_trait_id = format!("meta/entitlement/{}", entitlement_key);
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
+                id: ent_trait_id,
+                desc: format!("Entitlement: {}", entitlement_key),
+                conf: 1.0,
+                crit: determine_entitlement_criticality(entitlement_key),
+                mbc: None,
+                attack: None,
+                evidence: vec![Evidence {
+                    method: "entitlements_plist".to_string(),
+                    source: "codesign_parser".to_string(),
+                    value: entitlement_key.clone(),
+                    location: None,
+                }],
+            });
+        }
+
+        // Hardened runtime flag
+        if codesig.has_hardened_runtime {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
+                id: "meta/hardened-runtime".to_string(),
+                desc: "Hardened runtime enabled".to_string(),
+                conf: 1.0,
+                crit: Criticality::Inert,
+                mbc: None,
+                attack: None,
+                evidence: vec![Evidence {
+                    method: "code_directory_flags".to_string(),
+                    source: "codesign_parser".to_string(),
+                    value: "0x00010000".to_string(),
+                    location: None,
+                }],
+            });
+        }
+    }
+
     fn arch_name(&self, macho: &MachO) -> String {
         match macho.header.cputype {
             0x01000007 => "x86_64".to_string(),
@@ -769,6 +949,26 @@ impl MachOAnalyzer {
             }
         }
     }
+}
+
+/// Determine criticality of an entitlement based on its key
+fn determine_entitlement_criticality(entitlement_key: &str) -> Criticality {
+    // Sensitive privacy entitlements
+    if entitlement_key.contains("personal-information") || entitlement_key.contains("device.") {
+        return Criticality::Notable;
+    }
+
+    // Dangerous security-related entitlements
+    if entitlement_key.contains("disable-library-validation")
+        || entitlement_key.contains("allow-jit")
+        || entitlement_key.contains("debugger")
+        || entitlement_key.contains("unsigned-executable-memory")
+    {
+        return Criticality::Suspicious;
+    }
+
+    // Default for other entitlements
+    Criticality::Notable
 }
 
 impl Default for MachOAnalyzer {

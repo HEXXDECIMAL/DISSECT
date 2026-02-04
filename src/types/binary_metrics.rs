@@ -365,6 +365,14 @@ pub struct MachoMetrics {
     #[serde(default, skip_serializing_if = "is_false")]
     pub stripped: bool,
 
+    // === Code Signing ===
+    /// Signature type (adhoc, developer-id, platform, app-store)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub signature_type: Option<String>,
+    /// Team identifier from certificate
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub team_identifier: Option<String>,
+
     // === Entitlements ===
     /// Has entitlements
     #[serde(default, skip_serializing_if = "is_false")]

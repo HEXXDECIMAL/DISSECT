@@ -30,6 +30,7 @@ pub mod chrome_manifest;
 pub mod elf;
 pub mod java_class;
 pub mod macho;
+pub mod macho_codesign;
 pub mod package_json;
 pub mod pe;
 pub mod rtf;
@@ -711,7 +712,7 @@ pub enum FileType {
     ChromeManifest, // Chrome extension manifest.json
     Archive,
     AppleScript,
-    Rtf,            // Rich Text Format documents
+    Rtf, // Rich Text Format documents
     Unknown,
 }
 

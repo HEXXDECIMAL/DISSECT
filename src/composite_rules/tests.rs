@@ -78,8 +78,6 @@ fn test_symbol_condition() {
         }]),
         any: None,
 
-
-
         none: None,
         unless: None,
         not: None,
@@ -142,8 +140,6 @@ fn test_all() {
             },
         ]),
         any: None,
-
-
 
         none: None,
         unless: None,
@@ -256,8 +252,6 @@ fn test_string_exact_condition() {
         }]),
         any: None,
 
-
-
         none: None,
         unless: None,
         not: None,
@@ -312,8 +306,6 @@ fn test_any() {
                 compiled_regex: None,
             },
         ]),
-
-
 
         none: None,
         unless: None,

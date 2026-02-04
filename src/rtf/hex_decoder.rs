@@ -1,4 +1,4 @@
-use crate::rtf::error::{RtfError, Result};
+use crate::rtf::error::{Result, RtfError};
 
 /// Decode a hex string into bytes. Tolerates whitespace.
 /// RTF uses ASCII hex encoding where binary data is represented as two-character hex strings.

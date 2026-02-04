@@ -1,4 +1,4 @@
-use crate::rtf::error::{RtfError, Result};
+use crate::rtf::error::{Result, RtfError};
 use crate::rtf::hex_decoder::decode_hex_tolerant;
 use crate::rtf::ole_extractor;
 use crate::rtf::types::*;
@@ -125,8 +125,7 @@ impl RtfParser {
 
         // Find all \object...{\object directives
         // Look for patterns like: {\object\objemb...{\*\objdata ...}}
-        let re = Regex::new(r"\{\\object[^}]*\}")
-            .expect("object regex should compile");
+        let re = Regex::new(r"\{\\object[^}]*\}").expect("object regex should compile");
 
         for m in re.find_iter(text) {
             let object_str = m.as_str();
@@ -181,8 +180,8 @@ impl RtfParser {
     /// Extract objdata hex string from object directive
     fn extract_objdata(&self, object_str: &str) -> Option<(String, Vec<u8>)> {
         // Extract class name (e.g., "Word.Document.8")
-        let class_re = Regex::new(r#"\\objclass\s+"([^"]+)"?"#)
-            .expect("class regex should compile");
+        let class_re =
+            Regex::new(r#"\\objclass\s+"([^"]+)"?"#).expect("class regex should compile");
         let class_name = class_re
             .captures(object_str)
             .and_then(|c| c.get(1))
@@ -243,18 +242,15 @@ impl RtfParser {
 
     /// Extract charset from control words
     fn extract_charset(&self, words: &[ControlWord]) -> Option<String> {
-        words
-            .iter()
-            .find(|w| w.name == "charset")
-            .and_then(|w| {
-                w.parameter.map(|p| match p {
-                    0 => "ANSI".to_string(),
-                    1 => "Default".to_string(),
-                    2 => "Symbol".to_string(),
-                    238 => "Eastern European".to_string(),
-                    _ => format!("Unknown({})", p),
-                })
+        words.iter().find(|w| w.name == "charset").and_then(|w| {
+            w.parameter.map(|p| match p {
+                0 => "ANSI".to_string(),
+                1 => "Default".to_string(),
+                2 => "Symbol".to_string(),
+                238 => "Eastern European".to_string(),
+                _ => format!("Unknown({})", p),
             })
+        })
     }
 }
 
@@ -267,8 +263,7 @@ impl Default for RtfParser {
 /// Extract UNC path from RTF control sequences
 fn extract_unc_path(text: &str) -> Option<String> {
     // Look for \\server@SSL\path patterns
-    let re = Regex::new(r"\\\\([^\s\\]+)@SSL\\([^\s}]+)")
-        .expect("unc regex should compile");
+    let re = Regex::new(r"\\\\([^\s\\]+)@SSL\\([^\s}]+)").expect("unc regex should compile");
 
     if let Some(caps) = re.captures(text) {
         let server = caps.get(1).map(|m| m.as_str()).unwrap_or("");
@@ -334,7 +329,10 @@ mod tests {
     fn test_excessive_nesting() {
         let bomb = format!("{{\\rtf1{}", "{".repeat(101));
         let parser = RtfParser::new();
-        assert!(matches!(parser.parse(bomb.as_bytes()), Err(RtfError::ExcessiveNesting { .. })));
+        assert!(matches!(
+            parser.parse(bomb.as_bytes()),
+            Err(RtfError::ExcessiveNesting { .. })
+        ));
     }
 
     #[test]

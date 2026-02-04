@@ -274,7 +274,6 @@ fn validate_decrypted_content(plaintext: &[u8]) -> bool {
     }
 
     // Check for common code patterns
-    
 
     text.contains("function")
         || text.contains("const ")

@@ -177,7 +177,10 @@ fn split_trait_id(id: &str) -> (String, String) {
     };
 
     if parts.len() > start_idx + 1 {
-        (parts[start_idx].to_string(), parts[start_idx + 1..].join("/"))
+        (
+            parts[start_idx].to_string(),
+            parts[start_idx + 1..].join("/"),
+        )
     } else if parts.len() > start_idx {
         (parts[start_idx].to_string(), parts[start_idx].to_string())
     } else {
@@ -480,11 +483,7 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
         };
 
         // File header with summary
-        output.push_str(&format!(
-            "├─ {}{}\n",
-            file.path.bright_white(),
-            summary
-        ));
+        output.push_str(&format!("├─ {}{}\n", file.path.bright_white(), summary));
         output.push_str("│\n");
 
         // Sort namespaces by criticality then name

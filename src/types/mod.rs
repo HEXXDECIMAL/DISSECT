@@ -99,7 +99,7 @@ pub use language_metrics::{
     GoMetrics, JavaScriptMetrics, PythonMetrics, RustMetrics, ShellMetrics,
 };
 
-pub use binary_metrics::BinaryMetrics;
+pub use binary_metrics::{BinaryMetrics, MachoMetrics};
 
 pub use scores::Metrics;
 

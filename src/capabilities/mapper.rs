@@ -178,11 +178,9 @@ impl CapabilityMapper {
 
         // Sort results back to original order since par_iter doesn't preserve order
         let mut sorted_results: Vec<_> = results;
-        sorted_results.sort_by_key(|r| {
-            match r {
-                Ok((idx, _, _)) => *idx,
-                Err(_) => std::usize::MAX,
-            }
+        sorted_results.sort_by_key(|r| match r {
+            Ok((idx, _, _)) => *idx,
+            Err(_) => std::usize::MAX,
         });
 
         if timing {
@@ -298,9 +296,11 @@ impl CapabilityMapper {
                         "Rule ID '{}' defined as both trait and composite rule - trait will be used",
                         trait_def.id
                     ));
-                    if let Some(comp_file) = rule_source_files.iter()
+                    if let Some(comp_file) = rule_source_files
+                        .iter()
                         .find(|(id, _)| *id == &trait_def.id)
-                        .map(|(_, f)| f) {
+                        .map(|(_, f)| f)
+                    {
                         warnings.push(format!("  Trait: {}", path.display()));
                         warnings.push(format!("  Composite (will be replaced): {}", comp_file));
                     }

@@ -28,29 +28,29 @@ pub struct ControlWord {
 /// Represents an embedded OLE object
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OleObject {
-    pub class_name: String,              // e.g., "Word.Document.8"
-    pub objdata: Vec<u8>,                // Hex-decoded bytes
-    pub ole_header: Option<OleHeader>,   // If valid OLE header found
-    pub offset: usize,                   // Position in RTF file
+    pub class_name: String,            // e.g., "Word.Document.8"
+    pub objdata: Vec<u8>,              // Hex-decoded bytes
+    pub ole_header: Option<OleHeader>, // If valid OLE header found
+    pub offset: usize,                 // Position in RTF file
     pub suspicious_flags: Vec<SuspiciousFlag>,
 }
 
 /// OLE compound document header
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OleHeader {
-    pub magic: [u8; 8],        // Should be D0CF11E0A1B11AE1
-    pub is_obfuscated: bool,   // Whitespace in hex encoding
+    pub magic: [u8; 8],      // Should be D0CF11E0A1B11AE1
+    pub is_obfuscated: bool, // Whitespace in hex encoding
 }
 
 /// Suspicious patterns found in the document
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum SuspiciousFlag {
-    UncPath(String),              // \\host@SSL\path
-    ObfuscatedOleHeader,          // Whitespace in hex encoding
-    ObjUpdateDirective,           // \objupdate detected
-    MalformedHeader,              // Invalid RTF header
-    ExcessiveNesting,             // Likely zip bomb
-    WebdavPath,                   // davwwwroot path
+    UncPath(String),     // \\host@SSL\path
+    ObfuscatedOleHeader, // Whitespace in hex encoding
+    ObjUpdateDirective,  // \objupdate detected
+    MalformedHeader,     // Invalid RTF header
+    ExcessiveNesting,    // Likely zip bomb
+    WebdavPath,          // davwwwroot path
 }
 
 /// Document-level metadata

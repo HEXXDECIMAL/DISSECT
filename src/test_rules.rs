@@ -7,11 +7,11 @@
 //! - Regex patterns being used
 //! - Context about available data (strings, symbols, etc.)
 
-use crate::capabilities::CapabilityMapper;
 use crate::capabilities::validation::calculate_composite_precision;
+use crate::capabilities::CapabilityMapper;
 use crate::composite_rules::{
-    eval_trait, Condition, CompositeTrait, EvaluationContext, FileType as RuleFileType,
-    Platform, TraitDefinition,
+    eval_trait, CompositeTrait, Condition, EvaluationContext, FileType as RuleFileType, Platform,
+    TraitDefinition,
 };
 use crate::types::{AnalysisReport, Evidence};
 use colored::Colorize;

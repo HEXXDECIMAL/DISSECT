@@ -172,7 +172,10 @@ fn main() -> Result<()> {
     }
 
     // Print banner to stderr (status info never goes to stdout)
-    eprintln!("DISSECT v{} • Deep static analysis tool\n", env!("CARGO_PKG_VERSION"));
+    eprintln!(
+        "DISSECT v{} • Deep static analysis tool\n",
+        env!("CARGO_PKG_VERSION")
+    );
 
     let format = args.format();
 
@@ -609,7 +612,6 @@ fn scan_paths(
         }
     }
 
-
     // Use Mutex to safely collect results from parallel threads
     let all_reports = Arc::new(Mutex::new(Vec::new()));
 
@@ -740,7 +742,10 @@ fn scan_paths(
                                         print!("{}", formatted);
                                     }
                                     Err(e) => {
-                                        eprintln!("Error formatting report for {}: {}", path_str, e);
+                                        eprintln!(
+                                            "Error formatting report for {}: {}",
+                                            path_str, e
+                                        );
                                     }
                                 },
                                 Err(e) => {
@@ -786,7 +791,6 @@ fn scan_paths(
         Err(()) // Skip archives if files already failed
     };
 
-
     // If --error-if was triggered, return the error
     if files_result.is_err() || archives_result.is_err() {
         if let Some(msg) = error_if_message.lock().unwrap().take() {
@@ -816,9 +820,7 @@ fn scan_paths(
             });
             Ok(serde_json::to_string(&summary).unwrap_or_default())
         }
-        cli::OutputFormat::Terminal => {
-            Ok(String::new())
-        }
+        cli::OutputFormat::Terminal => Ok(String::new()),
     }
 }
 
@@ -1195,8 +1197,14 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
                 strings.len(),
                 target
             ));
-            output.push_str(&format!("{:<10} {:<14} {:<12} {}\n", "OFFSET", "TYPE", "ENCODING", "VALUE"));
-            output.push_str(&format!("{:-<10} {:-<14} {:-<12} {:-<20}\n", "", "", "", ""));
+            output.push_str(&format!(
+                "{:<10} {:<14} {:<12} {}\n",
+                "OFFSET", "TYPE", "ENCODING", "VALUE"
+            ));
+            output.push_str(&format!(
+                "{:-<10} {:-<14} {:-<12} {:-<20}\n",
+                "", "", "", ""
+            ));
             for s in strings {
                 let offset = s.offset.unwrap_or_else(|| "unknown".to_string());
 
@@ -1209,7 +1217,8 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
                 let encoding_str = s.encoding_chain.join("+");
 
                 // Escape control characters for display
-                let mut val_display = s.value
+                let mut val_display = s
+                    .value
                     .replace('\n', "\\n")
                     .replace('\r', "\\r")
                     .replace('\t', "\\t");

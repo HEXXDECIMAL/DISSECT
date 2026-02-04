@@ -2036,8 +2036,8 @@ traits:
 "#;
 
     // Parse should fail due to indentation
-    let result: Result<serde_yaml::Value> = serde_yaml::from_str(invalid_yaml)
-        .map_err(|e| anyhow::anyhow!("YAML error: {}", e));
+    let result: Result<serde_yaml::Value> =
+        serde_yaml::from_str(invalid_yaml).map_err(|e| anyhow::anyhow!("YAML error: {}", e));
 
     assert!(result.is_err(), "Malformed YAML should fail to parse");
 
@@ -2047,7 +2047,9 @@ traits:
 
     // serde_yaml includes line and column in error messages
     assert!(
-        error_msg.contains("line") || error_msg.contains("column") || error_msg.contains("position"),
+        error_msg.contains("line")
+            || error_msg.contains("column")
+            || error_msg.contains("position"),
         "Error should include line/column info: {}",
         error_msg
     );

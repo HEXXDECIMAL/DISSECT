@@ -1,4 +1,4 @@
-use crate::rtf::error::{RtfError, Result};
+use crate::rtf::error::{Result, RtfError};
 use crate::rtf::types::OleHeader;
 
 /// OLE compound document magic bytes (8 bytes)

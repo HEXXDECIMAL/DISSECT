@@ -489,7 +489,11 @@ impl RawContentRegexIndex {
                 }
 
                 // If we still can't build the regex set, this is a fatal error
-                eprintln!("\n❌ FATAL: Failed to compile regex set ({} patterns):\n   {}\n", pattern_strs.len(), e);
+                eprintln!(
+                    "\n❌ FATAL: Failed to compile regex set ({} patterns):\n   {}\n",
+                    pattern_strs.len(),
+                    e
+                );
                 eprintln!("   This usually means the combined regex patterns are too complex.");
                 eprintln!("   Consider splitting patterns into smaller trait definitions.\n");
                 std::process::exit(1);
