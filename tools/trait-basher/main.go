@@ -38,132 +38,125 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-const knownGoodPrompt = `Fix false positive trait matches in this KNOWN-GOOD file.
+// Shared prompt building blocks (LLM-optimized)
 
-File: %s
-Expected: This file is KNOWN-GOOD (legitimate software)
-Problem: DISSECT flagged it as suspicious/hostile - these are false positives
+const keyConstraints = `## Key Constraints (Do Not Violate)
+- **YAML is valid**: DISSECT's strict parser already validated it. Only edit trait logic, not formatting.
+- **Preserve structure**: Keep indentation, spacing, and file organization identical.
+- **No new files**: Only modify existing traits/ YAML files.
+- **One fix per trait**: Don't over-engineer; each trait should do one thing well.`
 
-## Your Task
-1. Run: ` + "`dissect %s --format jsonl`" + ` to see the current findings
-2. Read RULES.md and TAXONOMY.md for syntax/taxonomy reference
-3. Analyze what the file actually does (read it, understand its purpose)
-4. For each finding that doesn't match actual behavior, fix using ONE of (in priority order):
-   a) TAXONOMY: Move trait to correct location (e.g., cap/comm/http/client not obj/c2/beacon)
-   b) PATTERNS: Make patterns more specific to avoid legitimate usage:
-      - Add ` + "`near:` or `near_lines:`" + ` to require proximity to suspicious behavior
-      - Use ` + "`size_min:`" + ` / ` + "`size_max:`" + ` to exclude legitimate executables (e.g., malware: 50KB, legitimate: 50MB)
-      - Restrict ` + "`for:`" + ` file types (elf/pe/macho only) to exclude scripts/interpreted code
-      - Require multiple patterns together via ` + "`all:`" + ` in composites to add context
-   c) EXCLUSIONS: Add ` + "`not:`" + ` conditions to filter known-good strings (e.g., ` + "`not: [\"myapp.exe\"]`" + `)
-   d) EXCEPTIONS: Add ` + "`unless:`" + ` (skip if benign indicator found) or ` + "`downgrade:`" + ` (reduce severity) - last resort
-5. Validate: Run dissect again - all findings should match actual capabilities
+const successCriteria = `## Success Criteria
+✓ All false positive findings are gone (or downgraded to inert/notable)
+✓ No new false positives introduced
+✓ Changes are minimal and focused (3-5 edits max)
+✓ Run dissect again - shows improvement`
 
-## Specificity Tips
-- **near/near_lines**: If a string only matters near a socket/exec call, use ` + "`near: 200`" + `
-- **size**: Legitimate tools embed data; malware is compact. Use ` + "`size_min: 1000`" + ` / ` + "`size_max: 50000`" + `
-- **Scope**: Narrow trait scope (e.g., method-level) beats global scope
-- **Context**: A domain string + networking call = C2. Domain string alone = innocent.
-
-## Debug Commands
+const debugCommands = `## Debug & Validate
 ` + "```" + `
-dissect test-rules <file> --rules "rule-id"           # why does rule match/fail?
-dissect test-match <file> --type string --pattern X   # test individual conditions
-` + "```" + `
+dissect %s --format jsonl                   # see current findings
+dissect test-rules %s --rules "rule-id"     # debug single rule
+dissect test-match %s --type string --pattern "X"  # test patterns
+` + "```" + ``
 
-Traits: %s/traits/ | Reorganize don't delete | Skip cargo test | Only analyze this file`
+const goodPromptTask = `## Strategy: Fix False Positives
+**Priority Order** (try in this order):
+1. **Taxonomy**: Trait in wrong directory? Move it (e.g., cap/ not obj/)
+2. **Patterns**: Too broad? Add constraints:
+   - ` + "`near: 200`" + ` - require proximity to suspicious code
+   - ` + "`size_min/max`" + ` - filter by file size (legitimate: large, malware: compact)
+   - ` + "`for: [elf, macho, pe]`" + ` - restrict to binaries (skip scripts)
+   - ` + "`all:`" + ` in composites - combine weak signals into strong one
+3. **Exclusions**: Known-good patterns? Add ` + "`not:`" + ` filters
+4. **Exceptions**: Last resort - ` + "`unless:`" + ` or ` + "`downgrade:`" + `
 
-const knownBadPrompt = `Add missing detection for this KNOWN-BAD malware sample.
+**Do Not**: Create new traits, change criticality levels arbitrarily, or break YAML structure.`
 
-File: %s
-Expected: This file is KNOWN-BAD (malware)
-Problem: DISSECT did not flag it as suspicious/hostile - detection is missing
+const goodPromptArchiveTask = `## Strategy: Fix False Positives in Archive
+**Priority Order** (try in this order):
+1. **Taxonomy**: Trait in wrong directory? Move it (e.g., cap/ not obj/)
+2. **Patterns**: Too broad? Add constraints:
+   - ` + "`near: 200`" + ` - require proximity to suspicious code
+   - ` + "`size_min/max`" + ` - legitimate installers are huge, malware is compact
+   - ` + "`for: [elf, macho, pe]`" + ` - restrict to binaries only
+   - ` + "`all:`" + ` in composites - combine weak signals, don't flag individually
+3. **Exclusions**: Known-good strings? Add ` + "`not:`" + ` filters
+4. **Exceptions**: Last resort - ` + "`unless:`" + ` or ` + "`downgrade:`" + `
 
-NOTE: If file is genuinely benign (README, docs, unmodified dependency), skip it.
+**Do Not**: Create new traits, add new files, or break YAML structure.`
 
-## Your Task
-1. Run: ` + "`dissect %s --format jsonl`" + ` to see the current findings
-2. Read RULES.md and TAXONOMY.md for syntax/taxonomy reference
-3. Reverse engineer: radare2, nm, strings, objdump, xxd - identify malicious capabilities
-4. Create/modify traits using GENERIC behavioral patterns (not file-specific signatures):
-   - cap/ = neutral mechanics (socket, exec, file ops) - capabilities that could be benign
-   - obj/ = attacker intent (combine caps: socket + exec → reverse-shell) - malicious objectives
-   - known/ = ONLY for specific malware family names (e.g., known/malware/apt/cozy-bear, known/malware/trojan/emotet)
-   - Cross-language when possible (base64+exec works in Python, JS, Shell)
-   - Trait refs: use obj/exec/ to match directory (all exec-type objectives) or obj/exec/shell for exact, avoids obfuscation brittleness
-5. Validate: Run dissect again - should be suspicious or hostile
+const badPromptTask = `## Strategy: Add Missing Detection
+**Approach**:
+1. Reverse engineer the file (strings, radare2, nm, objdump)
+2. Identify malicious capability (socket + exec = reverse-shell, etc.)
+3. Use GENERIC patterns, not file-specific signatures
+4. Trait namespaces:
+   - cap/X = neutral capability (socket, exec, file ops) - could be benign
+   - obj/X = attacker objective (combine multiple caps) - clearly malicious
+   - known/ = ONLY for named malware families (apt/cozy-bear, trojan/emotet)
+5. Cross-language when possible (base64+exec works in Python, JS, Shell)
 
-## Debug Commands
-` + "```" + `
-dissect test-rules <file> --rules "rule-id"           # why does rule match/fail?
-dissect test-match <file> --type string --pattern X   # test individual conditions
-` + "```" + `
+**Do Not**: Create file-specific rules, add unrelated traits, or ignore YAML structure.`
 
-Traits: %s/traits/ | Skip cargo test | Only analyze this file`
+const badPromptArchiveTask = `## Strategy: Add Missing Detection to Archive
+**Approach**:
+1. For each problematic member: reverse engineer (strings, radare2, nm, objdump)
+2. Identify malicious capability (socket + exec = reverse-shell, etc.)
+3. Use GENERIC patterns, not file-specific signatures
+4. Trait namespaces:
+   - cap/X = neutral capability (socket, exec, file ops) - could be benign
+   - obj/X = attacker objective (combine multiple caps) - clearly malicious
+   - known/ = ONLY for named malware families (apt/cozy-bear, trojan/emotet)
+5. Cross-language patterns when possible (base64+exec in Python, JS, Shell)
 
-const knownGoodArchivePrompt = `Fix false positive trait matches in this KNOWN-GOOD archive.
+**Do Not**: Create file-specific rules, add unrelated traits, or break YAML format.`
 
-Archive: %s
-Expected: This archive is KNOWN-GOOD (legitimate software)
-Problem: %d members flagged as suspicious/hostile - these are false positives
+// Helper function to build prompts from blocks
+func buildGoodPrompt(isArchive bool, path string, archiveCount int, repoRoot string) string {
+	var header string
+	var taskBlock string
+	var traitNote string
+	var debugCmd string
 
-## Your Task
-1. Run: ` + "`dissect %s --format jsonl`" + ` to see the current findings for all members
-2. Read RULES.md and TAXONOMY.md for syntax/taxonomy reference
-3. Focus on problematic members (the ones with suspicious/hostile findings)
-4. For each false positive finding, fix using ONE of (in priority order):
-   a) TAXONOMY: Move trait to correct location (e.g., cap/comm/http/client not obj/c2/beacon)
-   b) PATTERNS: Make patterns more specific to avoid legitimate usage:
-      - Add ` + "`near:` or `near_lines:`" + ` to require proximity to suspicious behavior
-      - Use ` + "`size_min:`" + ` / ` + "`size_max:`" + ` to exclude size patterns (malware: 50-500KB; legitimate: 1-100MB)
-      - Restrict ` + "`for:`" + ` file types (e.g., elf/pe/macho) to exclude libraries/plugins
-      - Combine patterns via ` + "`all:`" + ` composites instead of single-trait flags
-   c) EXCLUSIONS: Add ` + "`not:`" + ` conditions to filter known-good strings
-   d) EXCEPTIONS: Add ` + "`unless:`" + ` or ` + "`downgrade:`" + ` - use sparingly
-5. Validate: Run dissect again - all findings should match actual capabilities
+	if isArchive {
+		header = fmt.Sprintf("# Fix False Positives in KNOWN-GOOD Archive\n\n**Archive**: %s\n**Problem**: %d members flagged as suspicious/hostile\n**Task**: Remove false positive findings\n", path, archiveCount)
+		taskBlock = goodPromptArchiveTask
+		traitNote = "Reorganize don't delete | Skip cargo test | Focus on this archive"
+		debugCmd = path
+	} else {
+		header = fmt.Sprintf("# Fix False Positives in KNOWN-GOOD File\n\n**File**: %s\n**Problem**: Flagged as suspicious/hostile\n**Task**: Remove false positive findings\n", path)
+		taskBlock = goodPromptTask
+		traitNote = "Reorganize don't delete | Skip cargo test | Only analyze this file"
+		debugCmd = path
+	}
 
-## Specificity Tips
-- **near/near_lines**: If pattern only matters in a tight context, use proximity constraints
-- **filesize**: Legitimate installers are large; malware payloads are compact. Be size-aware.
-- **File types**: Don't flag .py, .js, .rb for binary-specific traits (socket, exec imports)
-- **Composites**: Combine weak signals (domain + base64 + socket) rather than flagging individually
+	debug := fmt.Sprintf(debugCommands, debugCmd, debugCmd, debugCmd)
 
-## Debug Commands
-` + "```" + `
-dissect test-rules <file> --rules "rule-id"           # why does rule match/fail?
-dissect test-match <file> --type string --pattern X   # test individual conditions
-` + "```" + `
+	return fmt.Sprintf("%s\n%s\n\n%s\n\n%s\n\n%s\n\n%s\n\nTraits: %s/traits/ | %s", header, keyConstraints, taskBlock, successCriteria, debug, repoRoot, traitNote)
+}
 
-Traits: %s/traits/ | Reorganize don't delete | Skip cargo test | Focus on this archive`
+func buildBadPrompt(isArchive bool, path string, archiveCount int, repoRoot string) string {
+	var header string
+	var taskBlock string
+	var traitNote string
+	var debugCmd string
 
-const knownBadArchivePrompt = `Add missing detection for this KNOWN-BAD malware archive.
+	if isArchive {
+		header = fmt.Sprintf("# Add Missing Detection for KNOWN-BAD Archive\n\n**Archive**: %s\n**Problem**: %d members not flagged as suspicious/hostile\n**Task**: Detect malicious behavior\n\n*Note: Skip genuinely benign files (README, docs, unmodified dependencies)*\n", path, archiveCount)
+		taskBlock = badPromptArchiveTask
+		traitNote = "Skip cargo test | Focus on this archive"
+		debugCmd = path
+	} else {
+		header = fmt.Sprintf("# Add Missing Detection for KNOWN-BAD File\n\n**File**: %s\n**Problem**: Not flagged as suspicious/hostile\n**Task**: Detect malicious behavior\n\n*Note: Skip if genuinely benign (README, docs, unmodified dependency)*\n", path)
+		taskBlock = badPromptTask
+		traitNote = "Skip cargo test | Only analyze this file"
+		debugCmd = path
+	}
 
-Archive: %s
-Expected: This archive is KNOWN-BAD (malware)
-Problem: %d members not flagged as suspicious/hostile - detection is missing
+	debug := fmt.Sprintf(debugCommands, debugCmd, debugCmd, debugCmd)
 
-NOTE: If some files are genuinely benign (README, docs, unmodified dependencies), skip them.
-
-## Your Task
-1. Run: ` + "`dissect %s --format jsonl`" + ` to see the current findings for all members
-2. Read RULES.md and TAXONOMY.md for syntax/taxonomy reference
-3. Focus on problematic members (the ones WITHOUT suspicious/hostile findings)
-4. Reverse engineer: radare2, nm, strings, objdump, xxd - identify malicious capabilities
-5. Create/modify traits using GENERIC behavioral patterns (not file-specific signatures):
-   - cap/ = neutral mechanics (socket, exec, file ops) - capabilities that could be benign
-   - obj/ = attacker intent (combine caps: socket + exec → reverse-shell) - malicious objectives
-   - known/ = ONLY for specific malware family names (e.g., known/malware/apt/cozy-bear, known/malware/trojan/emotet)
-   - Cross-language when possible (base64+exec works in Python, JS, Shell)
-   - Trait refs: use obj/exec/ to match directory (all exec-type objectives) or obj/exec/shell for exact, avoids obfuscation brittleness
-6. Validate: Run dissect again - should be suspicious or hostile
-
-## Debug Commands
-` + "```" + `
-dissect test-rules <file> --rules "rule-id"           # why does rule match/fail?
-dissect test-match <file> --type string --pattern X   # test individual conditions
-` + "```" + `
-
-Traits: %s/traits/ | Skip cargo test | Focus on this archive`
+	return fmt.Sprintf("%s\n%s\n\n%s\n\n%s\n\n%s\n\nTraits: %s/traits/ | %s", header, keyConstraints, taskBlock, successCriteria, debug, repoRoot, traitNote)
+}
 
 type config struct {
 	db          *sql.DB
@@ -1065,10 +1058,10 @@ func sanityCheck(ctx context.Context, cfg *config) error {
 func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) error {
 	var prompt, task string
 	if cfg.knownGood {
-		prompt = fmt.Sprintf(knownGoodPrompt, f.Path, f.Path, cfg.repoRoot)
+		prompt = buildGoodPrompt(false, f.Path, 0, cfg.repoRoot)
 		task = "Review for false positives (known-good collection)"
 	} else {
-		prompt = fmt.Sprintf(knownBadPrompt, f.Path, f.Path, cfg.repoRoot)
+		prompt = buildBadPrompt(false, f.Path, 0, cfg.repoRoot)
 		task = "Find missing detections (known-bad collection)"
 	}
 
@@ -1213,10 +1206,10 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 
 	var prompt, task string
 	if cfg.knownGood {
-		prompt = fmt.Sprintf(knownGoodArchivePrompt, a.ArchivePath, len(problematic), a.ArchivePath, cfg.repoRoot)
+		prompt = buildGoodPrompt(true, a.ArchivePath, len(problematic), cfg.repoRoot)
 		task = "Review archive for false positives (known-good collection)"
 	} else {
-		prompt = fmt.Sprintf(knownBadArchivePrompt, a.ArchivePath, len(problematic), a.ArchivePath, cfg.repoRoot)
+		prompt = buildBadPrompt(true, a.ArchivePath, len(problematic), cfg.repoRoot)
 		task = "Find missing detections in archive (known-bad collection)"
 	}
 

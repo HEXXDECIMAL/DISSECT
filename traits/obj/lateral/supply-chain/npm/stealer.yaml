@@ -135,7 +135,7 @@ traits:
     mbc: "E1059"
     for: [javascript]
     if:
-      type: basename
+      type: string
       regex: "^[Ss]tealer\\."
 
   - id: grabber-basename
@@ -145,7 +145,7 @@ traits:
     mbc: "E1059"
     for: [javascript]
     if:
-      type: basename
+      type: string
       regex: "^grabber\\."
       case_insensitive: true
 
