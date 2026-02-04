@@ -87,7 +87,7 @@ traits:
 
 composite_rules:
   # Binary file operations composite
-  - id: binary-file-ops
+  - id: binary-read-write-ops
     desc: "Binary file read/write operations"
     crit: notable
     conf: 0.7
@@ -113,4 +113,4 @@ composite_rules:
     any:
       - id: fread-func
       - id: fwrite-func
-      - id: binary-file-ops
+      - id: binary-read-write-ops

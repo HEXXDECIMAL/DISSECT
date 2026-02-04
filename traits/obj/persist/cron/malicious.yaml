@@ -72,7 +72,7 @@ traits:
       type: string
       substr: "base64 -d"
 
-  - id: base64-decode
+  - id: base64-decode-flag
     desc: base64 --decode long form
     crit: inert
     conf: 0.6
@@ -160,7 +160,7 @@ composite_rules:
     desc: Base64 decode operations
     any:
       - id: base64-d
-      - id: base64-decode
+      - id: base64-decode-flag
 
   # Helper: Hidden paths
   - id: hidden-paths

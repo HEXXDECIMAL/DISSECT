@@ -16,16 +16,16 @@ traits:
       type: hex
       pattern: "0F 31"
 
-  - id: clock-gettime
-    desc: clock_gettime function
+  - id: sys-clock-gettime
+    desc: clock_gettime function (syscall)
     crit: inert
     conf: 0.4
     if:
       type: string
       regex: '\bclock_gettime\b'
 
-  - id: gettimeofday
-    desc: gettimeofday function
+  - id: sys-gettimeofday
+    desc: gettimeofday function (syscall)
     crit: inert
     conf: 0.4
     if:
@@ -53,6 +53,6 @@ composite_rules:
       - id: rdtsc
     needs: 1
     any:
-      - id: clock-gettime
-      - id: gettimeofday
+      - id: sys-clock-gettime
+      - id: sys-gettimeofday
       - id: time-func

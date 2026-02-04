@@ -118,8 +118,8 @@ composite_rules:
       - id: bitstransfer
 
   # HTTP POST composite
-  - id: post
-    desc: "Performs HTTP POST request"
+  - id: ps-post
+    desc: "Performs HTTP POST request (PowerShell)"
     crit: suspicious
     conf: 0.85
     all:

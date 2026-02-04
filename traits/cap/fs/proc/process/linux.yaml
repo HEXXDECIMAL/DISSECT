@@ -88,8 +88,8 @@ traits:
       type: string
       regex: '/proc/[^/]+/fd'
 
-  - id: process-pid-exe
-    desc: Read process executable path via
+  - id: linux-process-pid-exe
+    desc: Process exe path via /proc
     crit: notable
     conf: 0.66
     if:

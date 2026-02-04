@@ -254,7 +254,7 @@ traits:
       type: content
       regex: "['\"]tag['\"]"
 
-  - id: mutation-observer
+  - id: ext-mutation-observer
     desc: MutationObserver DOM monitoring
     crit: inert
     conf: 0.9
@@ -297,7 +297,7 @@ composite_rules:
       - id: chrome-webRequest
 
   # Uninstall tracking - adware pattern
-  - id: uninstall-tracking
+  - id: ext-uninstall-tracking
     desc: Uninstall tracking callback
     crit: suspicious
     conf: 0.9
@@ -377,7 +377,7 @@ composite_rules:
       - id: tag-param-literal
 
   # Amazon affiliate hijacking (specific)
-  - id: amazon-affiliate-hijack
+  - id: ext-amazon-affiliate-hijack
     desc: Amazon affiliate hijacking
     crit: suspicious
     conf: 0.95
@@ -396,7 +396,7 @@ composite_rules:
     attack: "T1565.001"
     for: [javascript]
     all:
-      - id: mutation-observer
+      - id: ext-mutation-observer
       - id: href-assignment
       - id: url-param-modification
     any:
@@ -412,6 +412,6 @@ composite_rules:
     for: [javascript]
     all:
       - id: chrome-extension-context
-      - id: mutation-observer
+      - id: ext-mutation-observer
       - id: href-assignment
       - id: url-param-modification

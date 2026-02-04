@@ -86,8 +86,8 @@ traits:
       regex: "python[23]?\\s+-c\\s+['\"]import socket.{0,100}subprocess.{0,50}connect"
 
   # Perl reverse shell
-  - id: reverse-shell-perl
-    desc: Perl reverse shell pattern
+  - id: sh-reverse-shell-perl
+    desc: Perl socket reverse shell
     crit: suspicious
     conf: 0.95
     attack: "T1059"
@@ -125,8 +125,8 @@ traits:
       regex: 'netcat\s+-e\s+/bin/(ba)?sh'
 
   # Ruby reverse shell
-  - id: reverse-shell-ruby
-    desc: Ruby reverse shell pattern
+  - id: sh-reverse-shell-ruby
+    desc: Ruby socket reverse shell
     crit: suspicious
     conf: 0.95
     attack: "T1059"

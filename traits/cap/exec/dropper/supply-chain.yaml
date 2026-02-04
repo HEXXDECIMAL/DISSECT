@@ -355,8 +355,8 @@ traits:
       regex: "password:\\s*['\"][^'\"]+['\"]"
 
   # === Spawn/exec atomic indicators ===
-  - id: spawn-call
-    desc: spawn() call
+  - id: supply-chain-spawn-call
+    desc: spawn() call (supply-chain)
     crit: inert
     conf: 0.5
     for: [javascript, typescript]
@@ -734,7 +734,7 @@ composite_rules:
     for: [javascript, typescript]
     needs: 1
     any:
-      - id: spawn-call
+      - id: supply-chain-spawn-call
       - id: exec-call-js
       - id: execfile-call
 

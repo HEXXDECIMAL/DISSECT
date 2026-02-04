@@ -1,50 +1,70 @@
+![DISSECT](media/logo-small.jpg)
+
 # DISSECT
 
-*Deep static analysis that sees what others miss.*
+Deep static analysis for threat detection across binaries and source code. AST-aware, not regex-blind.
 
-DISSECT combines abstract syntax tree inspection with binary reverse engineering to detect threats across every format that matters. It's built for threat hunters, supply chain defenders, and anyone who needs to know what untrusted code actually does—before running it.
+DISSECT understands code semantics—it won't mistake a string literal `"exec"` for actual execution. It combines abstract syntax tree inspection with binary reverse engineering to detect capabilities and behaviors across 20+ languages and three binary formats in a single pass.
 
-## The Problem It Solves
+## Why It Exists
 
-Most analysis tools treat code as text, using regex patterns that confuse `subprocess.call()` with a string literal containing those words. Others specialize: binaries only, or source only. DISSECT bridges that gap. It understands both AST semantics and binary internals, letting you detect supply chain attacks by diffing versions, analyze compiled code in three binary formats, and work with fifteen languages in a single pass.
+Most tools are either:
+- **Text-based**: YARA/regex patterns that hallucinate threats in benign strings
+- **Single-format**: Handle binaries or source, not both
+- **Language-blind**: Ignore syntax trees, miss semantic intent
 
-## What DISSECT Analyzes
+DISSECT does all three. It's built for supply chain defenders and threat hunters who need AST-level certainty for source code and deep symbol/string analysis for binaries. It catches what obfuscation and polymorphism hide from simpler tools.
 
-**Binaries**: Mach-O (macOS), ELF (Linux), PE (Windows)
-**Source Code**: Shell, Python, JavaScript, TypeScript, Go, Rust, Java, Ruby, C, PHP, Lua, Perl, PowerShell, C#, Swift
-**Package Metadata**: Chrome manifests, VSCode extensions (VSIX), npm packages
-**Archives**: ZIP, TAR (and variants), 7z—unpacked and analyzed recursively
-**Bytecode**: Java .class files and JAR archives via constant pool analysis
+## What It Analyzes
 
-## Getting Started
+**Binaries**: Mach-O, ELF, PE
+**Source**: Shell, Python, JavaScript, TypeScript, Go, Rust, Java, Ruby, C, PHP, Lua, Perl, PowerShell, C#, Swift, Objective-C, Groovy, Scala, Zig, Elixir
+**Packages**: npm, Chrome extensions, VSCode extensions
+**Archives**: ZIP, TAR, 7z, RAR, XAR (unpacked recursively)
+**Bytecode**: Java .class files and JAR constant pool analysis
+
+## Quick Start
 
 ```bash
 cargo build --release
 
-# Analyze a single binary or source file
-dissect /bin/ls --json -o report.json
-dissect suspicious.py
+# Single target
+dissect binary-or-source.py
 
-# Detect supply chain attacks
-dissect diff old-version/ new-version/
+# Supply chain diffing
+dissect diff old-version/ new-version/ --json
 
 # Deep inspection
-dissect symbols malware.exe
-dissect strings firmware.bin -m 10
+dissect symbols firmware.bin
+dissect strings malware.exe --min-length 10
 ```
 
-## Smart Payload Detection
+## Detection Philosophy
 
-DISSECT automatically decodes obfuscated payloads: Base64, hex, AMOS cipher keys, AES constants, and XOR key material. This catches encrypted C2 communications and compressed malicious code that would slip past simpler tools.
+Rules follow [MBC (Malware Behavior Catalog)](https://github.com/MBCProject/mbc-markdown) hierarchy:
 
-## Understanding the Results
+- **Traits** (`cap/`): Atomic detections—individual capabilities with no judgment
+- **Composites** (`obj/`): Behavioral patterns—traits combined into tactics and objectives
+- **Known** (`known/`): Malware families and tool signatures
 
-Results come as structured JSON—perfect for ML pipelines and integration with DIVINE assessments. In your terminal, findings appear color-coded (🔴 hostile, 🟡 suspicious, 🔵 notable) with confidence scores. A score of 1.0 means AST-level certainty; 0.7–0.9 indicates heuristic matching.
+Confidence ranges from 1.0 (AST-level certainty) to heuristic matches (0.7–0.9). Criticality is independent of confidence—a socket import is certain but inert; a Telegram API endpoint is uncertain but hostile.
 
-## Learn More
+## Output
 
-- [RULES.md](./RULES.md) — How to write detection rules and the philosophy behind them
-- [TAXONOMY.md](./TAXONOMY.md) — The complete MBC-mapped capability taxonomy (791 traits)
+Structured JSON for integration with threat intel platforms, SOAR systems, or ML pipelines. Terminal output is color-coded: 🔴 hostile, 🟡 suspicious, 🔵 notable, ⚪ inert.
+
+## Under the Hood
+
+- **Tree-sitter** for language-aware AST traversal
+- **Radare2/Rizin** for deep binary reverse engineering (functions, control flow, syscalls, sections)
+- **Goblin** for binary header parsing (Mach-O, ELF, PE)
+- **YARA-X** for signature matching
+- **Payload decoding**: Base64, hex, AES, XOR key material, AMOS ciphers
+
+## Documentation
+
+- [RULES.md](./RULES.md) — Rule design and MBC philosophy
+- [TAXONOMY.md](./TAXONOMY.md) — Full trait catalog (791 detections)
 
 ## License
 

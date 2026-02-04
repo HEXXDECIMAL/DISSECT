@@ -10,8 +10,8 @@ defaults:
 
 traits:
   # === Download and execute function patterns ===
-  - id: download-and-execute-func
-    desc: download_and_execute function
+  - id: py-download-and-execute-func
+    desc: download_and_execute function (Python)
     crit: suspicious
     conf: 0.9
     if:

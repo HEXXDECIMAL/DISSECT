@@ -299,8 +299,8 @@ traits:
       type: string
       substr: randombytes
 
-  - id: libsodium
-    desc: libsodium library
+  - id: libsodium-string
+    desc: libsodium library string reference
     conf: 0.9
     if:
       type: string
@@ -633,12 +633,12 @@ composite_rules:
       - id: libnss
 
   # libsodium (2+ functions or library name)
-  - id: libsodium
+  - id: libsodium-usage
     desc: libsodium modern crypto library usage
     conf: 0.8
     needs: 2
     any:
-      - id: cap/crypto/legitimate/libsodium
+      - id: libsodium-string
       - id: sodium-init
       - id: sodium-secretbox
       - id: sodium-box

@@ -12,8 +12,8 @@ defaults:
   attack: "T1070.006"
 
 composite_rules:
-  - id: timestomp
-    desc: File timestamp modification (evasion context)
+  - id: unix-timestomp
+    desc: File timestamp modification (Unix evasion context)
     crit: suspicious
     conf: 0.7
     any:

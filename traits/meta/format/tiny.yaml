@@ -19,7 +19,7 @@ traits:
       type: filesize
       max: 1024
 
-  - id: dominant-text-section
+  - id: text-section-ratio-dominant
     desc: ".text section is >75% of"
     if:
       type: section_ratio

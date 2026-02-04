@@ -3,8 +3,8 @@
 
 traits:
   # POSIX symbols that appear across multiple languages and binaries
-  - id: ruby-system
-    desc: system() command execution
+  - id: rb-system-symbol
+    desc: system() command execution (symbol)
     crit: notable
     conf: 0.95
     attack: "T1059"

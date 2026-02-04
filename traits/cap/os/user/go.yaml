@@ -1,7 +1,7 @@
 # Go User Information
 traits:
-  - id: home-dir
-    desc: "Get user home directory"
+  - id: go-home-dir
+    desc: "Get user home directory (Go)"
     crit: inert
     conf: 0.9
     for: [go, macho, elf, pe]

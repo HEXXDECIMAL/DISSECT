@@ -28,7 +28,7 @@ traits:
       regex: "w[3e]b[_\\s]*sh[e3]ll"
       case_insensitive: true
 
-  - id: backdoor-ref
+  - id: traits-backdoor-ref
     desc: Backdoor terminology reference
     crit: suspicious
     conf: 0.75

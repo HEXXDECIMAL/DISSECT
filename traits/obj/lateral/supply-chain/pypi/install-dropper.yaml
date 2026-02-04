@@ -10,7 +10,7 @@ traits:
   # === Command Execution in Python ===
   # os.system, subprocess.call, etc.
 
-  - id: os-system-call
+  - id: os-system-symbol
     desc: os.system() command execution
     crit: notable
     conf: 0.85
@@ -139,7 +139,7 @@ composite_rules:
     conf: 0.85
     needs: 1
     any:
-      - id: os-system-call
+      - id: os-system-symbol
       - id: os-system-string
 
   # === Windows Command Execution ===

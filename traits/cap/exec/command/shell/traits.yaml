@@ -16,8 +16,8 @@ traits:
       regex: 'exec\.\(\*Cmd\)\.Run|os/exec\.Command'
 
 composite_rules:
-  - id: shell-execution
-    desc: Shell command execution
+  - id: go-shell-execution
+    desc: Shell command execution (Go)
     crit: notable
     conf: 0.9
     any:

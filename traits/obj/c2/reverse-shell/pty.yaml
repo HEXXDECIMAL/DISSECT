@@ -61,8 +61,8 @@ traits:
       type: string
       substr: "subprocess"
 
-  - id: stdin-pipe
-    desc: stdin= pipe argument
+  - id: py-stdin-pipe
+    desc: stdin= pipe argument (Python)
     crit: notable
     conf: 0.6
     for: [python]
@@ -70,8 +70,8 @@ traits:
       type: string
       substr: "stdin="
 
-  - id: stdout-pipe
-    desc: stdout= pipe argument
+  - id: py-stdout-pipe
+    desc: stdout= pipe argument (Python)
     crit: inert
     conf: 0.4
     for: [python]
@@ -79,8 +79,8 @@ traits:
       type: string
       substr: "stdout="
 
-  - id: stderr-pipe
-    desc: stderr= pipe argument
+  - id: py-stderr-pipe
+    desc: stderr= pipe argument (Python)
     crit: inert
     conf: 0.4
     for: [python]
@@ -89,7 +89,7 @@ traits:
       substr: "stderr="
 
   # === Node.js PTY micro-traits ===
-  - id: node-pty-module
+  - id: pty-node-module-ref
     desc: node-pty module reference
     crit: notable
     conf: 0.7
@@ -320,8 +320,8 @@ composite_rules:
       - id: import-pty
 
   # Shell path composite
-  - id: shell-path
-    desc: Shell executable path
+  - id: py-shell-path
+    desc: Shell executable path (Python)
     crit: notable
     conf: 0.5
     needs: 1
@@ -339,7 +339,7 @@ composite_rules:
     all:
       - id: python-pty-module
     any:
-      - id: shell-path
+      - id: py-shell-path
       - id: python-socket
 
   # Python pipe composite
@@ -350,9 +350,9 @@ composite_rules:
     for: [python]
     needs: 1
     any:
-      - id: stdin-pipe
-      - id: stdout-pipe
-      - id: stderr-pipe
+      - id: py-stdin-pipe
+      - id: py-stdout-pipe
+      - id: py-stderr-pipe
 
   # Python socket shell (migrated from YARA)
   - id: python-socket-shell
@@ -375,7 +375,7 @@ composite_rules:
     for: [javascript, typescript]
     needs: 1
     any:
-      - id: node-pty-module
+      - id: pty-node-module-ref
       - id: pty-spawn-node
       - id: pty-js-require
 

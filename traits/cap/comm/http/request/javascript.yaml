@@ -173,8 +173,8 @@ traits:
       substr: "https.get"
 
   # === Browser/Universal APIs ===
-  - id: fetch-call
-    desc: fetch() API call
+  - id: js-fetch-call
+    desc: fetch() API call (JavaScript)
     crit: inert
     conf: 0.8
     for: [javascript, typescript]
@@ -299,7 +299,7 @@ composite_rules:
     any:
       - { id: request-axios }
       - { id: node-http }
-      - { id: fetch-call }
+      - { id: js-fetch-call }
       - { id: fetch-string }
       - { id: xmlhttprequest-new }
       - { id: node-fetch-import }

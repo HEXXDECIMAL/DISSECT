@@ -20,7 +20,7 @@ traits:
       type: string
       substr: ".write(&body)"
 
-  - id: spawn-call
+  - id: rust-spawn-call
     desc: Process spawn call
     crit: inert
     conf: 0.6
@@ -40,4 +40,4 @@ composite_rules:
     all:
       - id: client-get
       - id: write-body
-      - id: spawn-call
+      - id: rust-spawn-call

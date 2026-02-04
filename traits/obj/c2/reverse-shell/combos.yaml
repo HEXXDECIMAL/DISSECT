@@ -1,7 +1,7 @@
 # Composite Shell Capabilities
 
 composite_rules:
-  - id: reverse-shell
+  - id: combo-reverse-shell
     desc: Classic reverse shell pattern (socket
     crit: suspicious
     mbc: "B0030.002"

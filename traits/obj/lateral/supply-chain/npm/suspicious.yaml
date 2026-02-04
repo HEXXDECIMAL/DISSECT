@@ -458,7 +458,7 @@ composite_rules:
       - id: dangerous-requires
 
   # Install hooks composite
-  - id: install-hooks
+  - id: npm-suspicious-install-hooks
     desc: Package has install hooks
     crit: notable
     conf: 0.85
@@ -474,7 +474,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     all:
-      - id: install-hooks
+      - id: npm-suspicious-install-hooks
     none:
       - id: pkg-dependencies
 
@@ -496,7 +496,7 @@ composite_rules:
     conf: 0.8
     all:
       - id: pkg-version-001
-      - id: install-hooks
+      - id: npm-suspicious-install-hooks
 
   # Missing metadata with hooks - migrated from YARA
   - id: missing-metadata-hooks
@@ -504,7 +504,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     all:
-      - id: install-hooks
+      - id: npm-suspicious-install-hooks
     none:
       - id: pkg-repository
 

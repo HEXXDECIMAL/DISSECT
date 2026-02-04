@@ -42,8 +42,8 @@ traits:
       exact: lutimes
 
 composite_rules:
-  - id: timestamp-modification
-    desc: File timestamp modification syscall
+  - id: unix-timestamp-modification
+    desc: File timestamp modification syscall (Unix)
     conf: 0.6
     any:
       - id: utime-syscall

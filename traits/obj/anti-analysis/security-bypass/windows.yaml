@@ -204,7 +204,7 @@ composite_rules:
       - id: amsi-bypass-reflection
 
   # Combined Windows security bypass
-  - id: bypass
+  - id: windows-bypass
     desc: Windows security bypass detected
     crit: suspicious
     conf: 0.95

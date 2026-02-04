@@ -4,7 +4,7 @@
 
 traits:
   # === Lifecycle hook atomic indicators ===
-  - id: preinstall-hook
+  - id: npm-malicious-preinstall-hook
     desc: preinstall lifecycle hook
     crit: inert
     conf: 0.6
@@ -21,7 +21,7 @@ composite_rules:
     for: [packagejson]
     needs: 1
     any:
-      - id: preinstall-hook
+      - id: npm-malicious-preinstall-hook
       - id: postinstall-hook
 
   # Download command helpers

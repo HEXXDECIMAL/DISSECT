@@ -761,7 +761,7 @@ traits:
       regex: '\\.editorconfig'
 
   # Has .npmignore or files field (publishing awareness)
-  - id: has-publish-config
+  - id: has-npmignore-or-files
     desc: Package has publishing configuration
     crit: inert
     conf: 0.85

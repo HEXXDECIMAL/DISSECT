@@ -4,7 +4,7 @@
 
 traits:
   # === Machine ID micro-traits ===
-  - id: dbus-machine-id
+  - id: fp-dbus-machine-id
     desc: dbus machine-id path
     crit: notable
     conf: 0.7
@@ -13,7 +13,7 @@ traits:
       type: string
       substr: "/var/lib/dbus/machine-id"
 
-  - id: etc-machine-id
+  - id: fp-etc-machine-id
     desc: /etc/machine-id path
     crit: notable
     conf: 0.7
@@ -140,7 +140,7 @@ traits:
       type: string
       substr: "bios_version"
 
-  - id: dmidecode-cmd
+  - id: fp-dmidecode-cmd
     desc: dmidecode command
     crit: notable
     conf: 0.7
@@ -150,7 +150,7 @@ traits:
       substr: "dmidecode"
 
   # === CPU info micro-traits ===
-  - id: proc-cpuinfo
+  - id: fp-proc-cpuinfo
     desc: /proc/cpuinfo path
     crit: inert
     conf: 0.4
@@ -565,8 +565,8 @@ composite_rules:
     attack: "T1082"
     needs: 1
     any:
-      - id: dbus-machine-id
-      - id: etc-machine-id
+      - id: fp-dbus-machine-id
+      - id: fp-etc-machine-id
       - id: machine-id-string
       - id: machineguid
       - id: machineid-camel
@@ -599,7 +599,7 @@ composite_rules:
     needs: 1
     any:
       - id: dmi-fields
-      - id: dmidecode-cmd
+      - id: fp-dmidecode-cmd
 
   # CPU info helper
   - id: cpu-fields
@@ -631,7 +631,7 @@ composite_rules:
     conf: 0.4
     attack: "T1082"
     all:
-      - id: proc-cpuinfo
+      - id: fp-proc-cpuinfo
       - id: cpu-fields
 
   # Network interface composite (migrated from YARA)
@@ -651,7 +651,7 @@ composite_rules:
       - id: ifconfig-cmd
 
   # Disk serial composite (migrated from YARA)
-  - id: disk-serial
+  - id: fp-disk-serial
     desc: Disk serial number fingerprinting
     crit: notable
     conf: 0.75
@@ -737,5 +737,5 @@ composite_rules:
       - id: machine-id
       - id: cpu-info
       - id: network-interfaces
-      - id: disk-serial
+      - id: fp-disk-serial
       - id: os-info

@@ -111,7 +111,7 @@ composite_rules:
       - id: cmd-exe
 
   # Go reverse shell (migrated from YARA)
-  - id: reverse-shell
+  - id: go-reverse-shell
     desc: Go reverse shell implementation patterns
     crit: suspicious
     conf: 0.85
