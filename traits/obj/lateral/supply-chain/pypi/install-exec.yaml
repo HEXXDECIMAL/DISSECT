@@ -4,7 +4,7 @@
 # ATT&CK: T1195.002 (Supply Chain Compromise: Compromise Software Supply Chain)
 
 defaults:
-  r#for: [python]
+  for: [python]
   mbc: "B0030"
   attack: "T1195.002"
 

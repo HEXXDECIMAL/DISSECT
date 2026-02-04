@@ -108,7 +108,7 @@ traits:
     crit: inert
     conf: 0.6
     attack: "T1037.004"
-    r#for: [shell, elf, macho, python]
+    for: [shell, elf, macho, python]
     if:
       type: string
       substr: "/etc/init.d/"
@@ -129,7 +129,7 @@ traits:
     crit: inert
     conf: 0.7
     attack: "T1037.004"
-    r#for: [shell, elf, macho, python]
+    for: [shell, elf, macho, python]
     if:
       type: string
       substr: "update-rc.d"
@@ -139,7 +139,7 @@ traits:
     crit: inert
     conf: 0.7
     attack: "T1037.004"
-    r#for: [shell, elf, macho, python]
+    for: [shell, elf, macho, python]
     if:
       type: string
       substr: "chkconfig"
@@ -219,7 +219,7 @@ composite_rules:
     conf: 0.85
     crit: suspicious
     attack: "T1037.004"
-    r#for: [shell, elf, macho, python]
+    for: [shell, elf, macho, python]
     platforms: [all]
     count_min: 1
     any:
@@ -256,7 +256,7 @@ composite_rules:
     conf: 0.95
     attack: "T1547.013"
     mbc: "F0006"
-    r#for: [shell, python, elf]
+    for: [shell, python, elf]
     all:
       - id: linux-xdg-autostart-dir
       - id: linux-desktop-entry-exec

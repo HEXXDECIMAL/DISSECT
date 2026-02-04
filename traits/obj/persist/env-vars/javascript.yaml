@@ -3,7 +3,7 @@
 # ATT&CK: T1574.007 (Hijack Execution Flow: Path Interception)
 
 defaults:
-  r#for: [javascript]
+  for: [javascript]
 
 traits:
   # === PATH manipulation patterns (AST-based) ===
@@ -103,7 +103,7 @@ traits:
       type: string
       regex: '[A-Za-z]+\\\\[A-Za-z]+\\\\[A-Za-z]+'
     not:
-      - "node_modules"  # Common in legitimate paths
+      - "node_modules" # Common in legitimate paths
       - "package.json"
 
 composite_rules:
@@ -114,8 +114,8 @@ composite_rules:
     conf: 0.85
     attack: "T1574.007"
     mbc: "E1574.007"
-    r#for: [javascript]  # +1 complexity
-    all:  # +3 complexity (3 required patterns)
+    for: [javascript] # +1 complexity
+    all: # +3 complexity (3 required patterns)
       - id: path-prepending-pattern
       - id: windows-path-backslash
       - id: env-localappdata
@@ -127,8 +127,8 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1574.007"
-    r#for: [javascript]  # +1
-    all:  # +2
+    for: [javascript] # +1
+    all: # +2
       - id: env-path-assignment
       - id: windows-path-backslash
     # Total complexity: 3 (1 + 2 = 3)
@@ -139,11 +139,11 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1574.007"
-    r#for: [javascript]  # +1
-    all:  # +2 (2 rules)
+    for: [javascript] # +1
+    all: # +2 (2 rules)
       - id: suspicious-python-version
       - id: windows-path-backslash
-    any:  # +1
+    any: # +1
       - id: env-localappdata
       - id: appdata-string
     # Total complexity: 4 (1 + 2 + 1 = 4)
@@ -153,11 +153,11 @@ composite_rules:
     desc: Windows AppData path construction
     crit: notable
     conf: 0.7
-    r#for: [javascript]  # +1
-    all:  # +2
+    for: [javascript] # +1
+    all: # +2
       - id: appdata-string
       - id: localappdata-string
-    any:  # +1
+    any: # +1
       - id: env-localappdata
       - id: obj/discovery/system/os-homedir-call
     # Total complexity: 4 (1 + 2 + 1 = 4)

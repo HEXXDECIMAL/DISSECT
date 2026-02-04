@@ -7,72 +7,72 @@ traits:
     desc: Text prompting user to verify
     crit: inert
     conf: 0.5
-    r#for: [javascript, typescript, html]
+    for: [javascript, typescript, html]
     if:
       type: string
-      substr: 'Verify you are human'
+      substr: "Verify you are human"
       case_insensitive: true
 
   - id: completing-action-text
     desc: Text about completing action below
     crit: inert
     conf: 0.4
-    r#for: [javascript, typescript, html]
+    for: [javascript, typescript, html]
     if:
       type: string
-      substr: 'completing the action below'
+      substr: "completing the action below"
 
   - id: cloudflare-turnstile-url
     desc: Reference to Cloudflare Turnstile product
     crit: inert
     conf: 0.6
-    r#for: [javascript, typescript, html]
+    for: [javascript, typescript, html]
     if:
       type: string
-      substr: 'cloudflare.com/products/turnstile'
+      substr: "cloudflare.com/products/turnstile"
 
   - id: success-text
     desc: Success message text
     crit: inert
     conf: 0.3
-    r#for: [javascript, typescript, html]
+    for: [javascript, typescript, html]
     if:
       type: string
-      substr: 'Success!'
+      substr: "Success!"
 
   - id: verifying-text
     desc: Verifying progress text
     crit: inert
     conf: 0.3
-    r#for: [javascript, typescript, html]
+    for: [javascript, typescript, html]
     if:
       type: string
-      substr: 'Verifying...'
+      substr: "Verifying..."
 
   - id: spinner-i-element
     desc: Spinner UI element identifier
     crit: inert
     conf: 0.4
-    r#for: [javascript, typescript, html]
+    for: [javascript, typescript, html]
     if:
       type: string
-      substr: 'spinner-i'
+      substr: "spinner-i"
 
   - id: vfclick-element
     desc: Verification click element identifier
     crit: inert
     conf: 0.5
-    r#for: [javascript, typescript, html]
+    for: [javascript, typescript, html]
     if:
       type: string
-      substr: 'vfclick'
+      substr: "vfclick"
 
   # reCAPTCHA patterns
   - id: not-a-robot-text
     desc: reCAPTCHA "I'm not a robot"
     crit: inert
     conf: 0.6
-    r#for: [javascript, typescript, html]
+    for: [javascript, typescript, html]
     if:
       type: string
       substr: "I'm not a robot"
@@ -82,19 +82,19 @@ traits:
     desc: reCAPTCHA checkbox element identifier
     crit: inert
     conf: 0.6
-    r#for: [javascript, typescript, html]
+    for: [javascript, typescript, html]
     if:
       type: string
-      substr: 'recaptcha-checkbox'
+      substr: "recaptcha-checkbox"
 
   - id: google-recaptcha-url
     desc: Reference to Google reCAPTCHA URL
     crit: inert
     conf: 0.6
-    r#for: [javascript, typescript, html]
+    for: [javascript, typescript, html]
     if:
       type: string
-      substr: 'google.com/recaptcha'
+      substr: "google.com/recaptcha"
 
 # === Composite Rules ===
 composite_rules:
@@ -103,7 +103,7 @@ composite_rules:
     desc: Cloudflare Turnstile UI elements present
     crit: inert
     conf: 0.6
-    r#for: [javascript, typescript, html]
+    for: [javascript, typescript, html]
     any:
       - id: spinner-i-element
       - id: vfclick-element
@@ -113,7 +113,7 @@ composite_rules:
     desc: Multiple Turnstile verification text patterns
     crit: notable
     conf: 0.7
-    r#for: [javascript, typescript, html]
+    for: [javascript, typescript, html]
     count_min: 3
     any:
       - id: verify-human-text
@@ -127,7 +127,7 @@ composite_rules:
     desc: Verify human text with UI
     crit: notable
     conf: 0.8
-    r#for: [javascript, typescript, html]
+    for: [javascript, typescript, html]
     all:
       - id: verify-human-text
       - id: turnstile-ui-elements
@@ -138,7 +138,7 @@ composite_rules:
     conf: 0.95
     mbc: "B0021"
     attack: "T1204.001"
-    r#for: [javascript, typescript, html]
+    for: [javascript, typescript, html]
     any:
       - id: turnstile-text-patterns
       - id: turnstile-verify-with-ui
@@ -150,7 +150,7 @@ composite_rules:
     conf: 0.9
     mbc: "B0021"
     attack: "T1204.001"
-    r#for: [javascript, typescript, html]
+    for: [javascript, typescript, html]
     all:
       - id: not-a-robot-text
       - id: recaptcha-checkbox-element

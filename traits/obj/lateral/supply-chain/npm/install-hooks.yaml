@@ -11,10 +11,9 @@ traits:
     conf: 0.85
     mbc: "B0024"
     attack: "T1059"
-    r#for: [packagejson]
+    for: [packagejson]
     if:
       type: content
-
 
 # === Composite Rules ===
 composite_rules:
@@ -23,7 +22,7 @@ composite_rules:
     desc: Script uses download tools
     crit: inert
     conf: 0.6
-    r#for: [packagejson]
+    for: [packagejson]
     any:
       - id: curl-keyword
       - id: wget-keyword
@@ -33,7 +32,7 @@ composite_rules:
     desc: Script pipes to shell or
     crit: inert
     conf: 0.6
-    r#for: [packagejson]
+    for: [packagejson]
     any:
       - id: pipe-to-sh
       - id: pipe-to-bash
@@ -48,7 +47,7 @@ composite_rules:
     conf: 0.95
     mbc: "B0024"
     attack: "T1105"
-    r#for: [packagejson]
+    for: [packagejson]
     all:
       - id: download-tools
     any:

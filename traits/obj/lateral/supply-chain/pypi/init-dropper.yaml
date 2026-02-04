@@ -5,7 +5,7 @@
 # MBC: B0024 (Dropper)
 
 defaults:
-  r#for: [python]
+  for: [python]
   mbc: "B0024"
   attack: "T1195.002"
 

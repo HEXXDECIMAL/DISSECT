@@ -22,7 +22,7 @@ traits:
     conf: 0.9
     if:
       type: content
-      regex: '/bin/-[a-zA-Z0-9_]+'
+      regex: "/bin/-[a-zA-Z0-9_]+"
 
   - id: dash-file-sbin
     desc: Dash-prefix file in /sbin
@@ -30,7 +30,7 @@ traits:
     conf: 0.9
     if:
       type: content
-      regex: '/sbin/-[a-zA-Z0-9_]+'
+      regex: "/sbin/-[a-zA-Z0-9_]+"
 
   - id: dash-file-usr
     desc: Dash-prefix file in /usr
@@ -38,7 +38,7 @@ traits:
     conf: 0.9
     if:
       type: content
-      regex: '/usr/(s?bin|local)/-[a-zA-Z0-9_]+'
+      regex: "/usr/(s?bin|local)/-[a-zA-Z0-9_]+"
 
   - id: dash-file-tmp
     desc: Dash-prefix file in /tmp
@@ -46,7 +46,7 @@ traits:
     conf: 0.85
     if:
       type: content
-      regex: '/(tmp|var/tmp|dev/shm)/-[a-zA-Z0-9_]+'
+      regex: "/(tmp|var/tmp|dev/shm)/-[a-zA-Z0-9_]+"
 
   # === Copy to dash-prefix path ===
   - id: cp-to-dash-file
@@ -103,7 +103,7 @@ composite_rules:
     conf: 0.95
     attack: "T1036.005"
     mbc: "F0004"
-    r#for: [shell]
+    for: [shell]
     all:
       - id: cp-to-dash-file
       - id: exec-dot-slash-dash

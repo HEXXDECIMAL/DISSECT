@@ -3,7 +3,7 @@
 # These help identify setup.py context for supply-chain analysis
 
 defaults:
-  r#for: [python]
+  for: [python]
   crit: notable
 
 traits:
@@ -79,7 +79,7 @@ traits:
     desc: Directory masquerading as file (e.g.
     crit: suspicious
     conf: 0.8
-    r#for: [all]
+    for: [all]
     if:
       type: string
       regex: "os\\.path\\.join\\(.{0,100}\\.py.{0,30}\\)"

@@ -5,7 +5,7 @@
 # MBC: C0042 (Modify Security Privileges)
 
 defaults:
-  r#for: [elf, macho, so, dylib, c]
+  for: [elf, macho, so, dylib, c]
   platforms: [linux, macos, unix]
 
 traits:

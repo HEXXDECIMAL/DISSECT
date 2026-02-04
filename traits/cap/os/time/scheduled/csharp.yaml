@@ -11,7 +11,7 @@ traits:
       type: ast
       node: member_access_expression
       exact: "DateTime.Now"
-    r#for: [csharp]
+    for: [csharp]
 
   - id: datetime-utcnow
     desc: Current UTC time access
@@ -22,7 +22,7 @@ traits:
       type: ast
       node: member_access_expression
       exact: "DateTime.UtcNow"
-    r#for: [csharp]
+    for: [csharp]
 
   - id: hardcoded-datetime
     desc: Hardcoded date/time value (potential logic
@@ -34,4 +34,4 @@ traits:
       type: ast
       node: object_creation_expression
       exact: "new DateTime"
-    r#for: [csharp]
+    for: [csharp]

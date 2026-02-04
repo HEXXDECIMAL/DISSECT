@@ -76,7 +76,7 @@ composite_rules:
     crit: suspicious
     conf: 0.92
     attack: "T1059"
-    r#for: [python, shell]
+    for: [python, shell]
     count_min: 1
     any:
       - id: decoded-shell-command

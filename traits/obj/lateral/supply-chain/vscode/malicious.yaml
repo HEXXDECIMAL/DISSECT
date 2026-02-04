@@ -9,7 +9,7 @@ traits:
     desc: Uses VSCode API (extension marker)
     crit: inert
     conf: 1.0
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     if:
       type: yara
       source: |
@@ -28,7 +28,7 @@ traits:
     desc: activate keyword
     crit: inert
     conf: 0.7
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     if:
       type: string
       substr: "activate"
@@ -37,7 +37,7 @@ traits:
     desc: globalState keyword
     crit: inert
     conf: 0.7
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     if:
       type: string
       substr: "globalState"
@@ -46,7 +46,7 @@ traits:
     desc: postInstall keyword
     crit: inert
     conf: 0.7
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     if:
       type: string
       substr: "postInstall"
@@ -55,7 +55,7 @@ traits:
     desc: exec function pattern
     crit: inert
     conf: 0.7
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     if:
       type: string
       regex: "exec(Sync|Async)?"
@@ -65,7 +65,7 @@ traits:
     desc: .ssh directory reference
     crit: notable
     conf: 0.7
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     if:
       type: string
       exact: ".ssh"
@@ -74,7 +74,7 @@ traits:
     desc: .aws directory reference
     crit: notable
     conf: 0.7
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     if:
       type: string
       exact: ".aws"
@@ -83,7 +83,7 @@ traits:
     desc: .npmrc file reference
     crit: notable
     conf: 0.7
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     if:
       type: string
       substr: ".npmrc"
@@ -92,7 +92,7 @@ traits:
     desc: .env file reference
     crit: notable
     conf: 0.6
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     if:
       type: string
       exact: ".env"
@@ -101,7 +101,7 @@ traits:
     desc: readFile function pattern
     crit: inert
     conf: 0.6
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     if:
       type: string
       regex: "read(File|FileSync)"
@@ -110,7 +110,7 @@ traits:
     desc: POST HTTP method
     crit: inert
     conf: 0.6
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     if:
       type: string
       exact: "POST"
@@ -120,7 +120,7 @@ traits:
     desc: Uses VSCode namespace
     crit: inert
     conf: 1.0
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     if:
       type: string
       regex: "vscode\\."
@@ -130,7 +130,7 @@ traits:
     desc: References persistence locations (startup/autorun paths)
     crit: notable
     conf: 0.8
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     if:
       type: string
       regex: "APPDATA|Startup|crontab|launchd|systemd"
@@ -140,7 +140,7 @@ traits:
     desc: File write or copy operations
     crit: inert
     conf: 1.0
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     if:
       type: string
       regex: "write(File|FileSync)|copy(File|FileSync)"
@@ -151,7 +151,7 @@ composite_rules:
     desc: State management markers (globalState or
     crit: notable
     conf: 0.75
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     count_min: 1
     any:
       - id: globalState-word
@@ -162,7 +162,7 @@ composite_rules:
     desc: Sensitive credential file/directory paths
     crit: notable
     conf: 0.8
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     count_min: 1
     any:
       - id: ssh-dir
@@ -175,7 +175,7 @@ composite_rules:
     desc: HTTP send methods
     crit: notable
     conf: 0.7
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     count_min: 1
     any:
       - id: post-method
@@ -189,7 +189,7 @@ composite_rules:
     conf: 0.95
     mbc: "B0024"
     attack: "T1059"
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     all:
       - id: activate-word
       - id: state-markers
@@ -202,7 +202,7 @@ composite_rules:
     conf: 0.9
     mbc: "E1519"
     attack: "T1555"
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     all:
       - id: credential-paths
       - id: readFile-pattern
@@ -215,7 +215,7 @@ composite_rules:
     conf: 0.99
     mbc: "B0032"
     attack: "T1027"
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     all:
       - id: js-decrypt-eval
       - id: api-usage
@@ -228,7 +228,7 @@ composite_rules:
     conf: 0.95
     mbc: "F0011"
     attack: "T1547"
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     all:
       - id: api-usage
       - id: persistence-locations

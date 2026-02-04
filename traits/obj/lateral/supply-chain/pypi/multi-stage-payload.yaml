@@ -98,7 +98,7 @@ composite_rules:
     crit: suspicious
     conf: 0.90
     attack: "T1105"
-    r#for: [python]
+    for: [python]
     count_min: 2
     any:
       - id: ast-multiple-git-clones

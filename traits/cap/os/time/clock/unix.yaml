@@ -4,7 +4,7 @@
 # and time package. Downgraded to inert to avoid false positives.
 
 defaults:
-  r#for: [elf, macho, so, dylib, c]
+  for: [elf, macho, so, dylib, c]
 
 traits:
   - id: get

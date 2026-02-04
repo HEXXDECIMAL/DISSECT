@@ -6,7 +6,7 @@ traits:
     crit: inert
     conf: 1.0
     platforms: [linux, macos, unix]
-    r#for: [elf, macho, so, dylib, c]
+    for: [elf, macho, so, dylib, c]
     if:
       type: symbol
       regex: "^_?madvise$"

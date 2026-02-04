@@ -8,7 +8,7 @@ traits:
     conf: 0.7
     attack: "T1055"
     platforms: [windows]
-    r#for: [pe, dll]
+    for: [pe, dll]
     if:
       type: symbol
       regex: "VirtualQuery$"
@@ -19,7 +19,7 @@ traits:
     conf: 0.8
     attack: "T1055"
     platforms: [windows]
-    r#for: [pe, dll]
+    for: [pe, dll]
     if:
       type: symbol
       regex: "VirtualQueryEx"

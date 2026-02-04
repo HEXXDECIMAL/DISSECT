@@ -27,7 +27,7 @@ composite_rules:
     crit: hostile
     conf: 0.95
     attack: "T1041"
-    r#for: [ruby]
+    for: [ruby]
     all:
       - id: cap/os/sysinfo/socket-hostname
       - id: cap/os/sysinfo/socket-ip-address

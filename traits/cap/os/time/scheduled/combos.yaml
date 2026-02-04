@@ -9,7 +9,7 @@ composite_rules:
     mbc: "E1562"
     attack: "T1562"
     conf: 0.95
-    r#for: [all]
+    for: [all]
     all:
       - id: cap/exec/process/current-process
       - id: cap/exec/process/terminate
@@ -21,7 +21,7 @@ composite_rules:
     mbc: "B0009"
     attack: "T1497"
     conf: 0.9
-    r#for: [all]
+    for: [all]
     all:
       - id: instantiation
 
@@ -32,7 +32,7 @@ composite_rules:
     mbc: "B0003"
     attack: "T1480.001"
     conf: 0.95
-    r#for: [all]
+    for: [all]
     all:
       - id: hardcoded-datetime
       - id: cap/exec/process/current-process
@@ -45,7 +45,7 @@ composite_rules:
     mbc: "B0003"
     attack: "T1480.001"
     conf: 0.95
-    r#for: [all]
+    for: [all]
     all:
       - id: hardcoded-datetime
       - id: instantiation
@@ -59,7 +59,7 @@ composite_rules:
     mbc: "B0003"
     attack: "T1195.001"
     conf: 0.95
-    r#for: [all]
+    for: [all]
     all:
       - id: sqlcommand
     any:
@@ -74,7 +74,7 @@ composite_rules:
     mbc: "B0003"
     attack: "T1480.001"
     conf: 0.98
-    r#for: [all]
+    for: [all]
     near_lines: 30 # All patterns must be within 30 lines
     all:
       - id: hardcoded-datetime

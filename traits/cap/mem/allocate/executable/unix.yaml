@@ -7,7 +7,7 @@ traits:
     crit: inert
     conf: 0.5
     platforms: [linux, macos, unix]
-    r#for: [elf, macho]
+    for: [elf, macho]
     if:
       type: symbol
       exact: "mmap"
@@ -17,7 +17,7 @@ traits:
     crit: inert
     conf: 0.6
     platforms: [linux, macos, unix]
-    r#for: [elf, macho]
+    for: [elf, macho]
     if:
       type: string
       substr: "PROT_EXEC"
@@ -30,7 +30,7 @@ composite_rules:
     conf: 0.75
     attack: "T1055"
     platforms: [linux, macos, unix]
-    r#for: [elf, macho]
+    for: [elf, macho]
     all:
       - id: mmap-symbol
       - id: prot-exec-const

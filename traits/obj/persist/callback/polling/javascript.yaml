@@ -8,7 +8,7 @@ traits:
     desc: setInterval with http
     crit: inert
     conf: 0.6
-    r#for: [javascript]
+    for: [javascript]
     if:
       type: string
       regex: "setInterval.{0,100}http"
@@ -17,7 +17,7 @@ traits:
     desc: setInterval with axios
     crit: inert
     conf: 0.6
-    r#for: [javascript]
+    for: [javascript]
     if:
       type: string
       regex: "setInterval.{0,100}axios"
@@ -26,7 +26,7 @@ traits:
     desc: setInterval with fetch
     crit: inert
     conf: 0.6
-    r#for: [javascript]
+    for: [javascript]
     if:
       type: string
       regex: "setInterval.{0,100}fetch"
@@ -35,7 +35,7 @@ traits:
     desc: setInterval with function callback
     crit: inert
     conf: 0.7
-    r#for: [javascript]
+    for: [javascript]
     if:
       type: string
       regex: "setInterval\\s*\\(\\s*function"
@@ -44,7 +44,7 @@ traits:
     desc: setTimeout in recursive pattern
     crit: notable
     conf: 0.7
-    r#for: [javascript]
+    for: [javascript]
     if:
       type: string
       regex: "setTimeout.{0,100}setTimeout"
@@ -55,7 +55,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1053"
-    r#for: [javascript]
+    for: [javascript]
     count_min: 1
     any:
       - id: setInterval-http-call

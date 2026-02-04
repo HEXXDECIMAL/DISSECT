@@ -17,7 +17,7 @@ traits:
     for: [shell, python]
     if:
       type: content
-      regex: 'sudo python3?'
+      regex: "sudo python3?"
 
   - id: double-base64-encode
     desc: Double base64 encoding pattern
@@ -43,7 +43,7 @@ composite_rules:
     desc: Dumps GitHub Actions Runner memory
     crit: suspicious
     conf: 0.95
-    r#for: [python, javascript, shell, rust, go]
+    for: [python, javascript, shell, rust, go]
     all:
       - id: github-actions-targeting
       - id: cap/fs/proc/process/process-pid-mem
@@ -60,7 +60,7 @@ composite_rules:
     desc: Harvests secrets from GitHub Actions
     crit: hostile
     conf: 0.95
-    r#for: [shell, python, javascript]
+    for: [shell, python, javascript]
     all:
       - id: github-actions-targeting
       - id: github-actions-secret-marker-helper

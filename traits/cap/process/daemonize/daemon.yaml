@@ -47,7 +47,7 @@ composite_rules:
     conf: 0.85
     crit: notable
     platforms: [linux]
-    r#for: [elf]
+    for: [elf]
     all:
       - id: process-fork
       - id: process-setsid
@@ -57,7 +57,7 @@ composite_rules:
     conf: 0.9
     crit: notable
     platforms: [linux]
-    r#for: [elf]
+    for: [elf]
     all:
       - id: process-fork
       - id: process-setsid
@@ -68,7 +68,7 @@ composite_rules:
     conf: 0.85
     crit: notable
     platforms: [macos]
-    r#for: [macho]
+    for: [macho]
     all:
       - id: process-fork-macos
       - id: process-setsid
@@ -78,7 +78,7 @@ composite_rules:
     conf: 0.9
     crit: notable
     platforms: [macos]
-    r#for: [macho]
+    for: [macho]
     all:
       - id: process-fork-macos
       - id: process-setsid

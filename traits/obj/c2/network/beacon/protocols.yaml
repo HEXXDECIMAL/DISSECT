@@ -17,7 +17,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: "cmd[_-]?type.{0,50}==.{0,50}[\"']?[0-9]{3}[\"']?"
+      regex: 'cmd[_-]?type.{0,50}==.{0,50}["'']?[0-9]{3}["'']?'
 
   - id: c2-response-code-extract
     desc: C2 response code extraction
@@ -140,7 +140,7 @@ composite_rules:
     conf: 0.95
     attack: "T1071.001"
     mbc: "B0030"
-    r#for: [python, javascript]
+    for: [python, javascript]
     count_min: 3
     any:
       - id: c2-cmd-info-collection

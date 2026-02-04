@@ -4,7 +4,7 @@
 # ATT&CK: T1219 (Remote Access Software), T1059.007 (Command and Scripting Interpreter: JavaScript)
 
 defaults:
-  r#for: [javascript]
+  for: [javascript]
 
 traits:
   # === Runtime Dependency Installation (Evasion) ===
@@ -128,8 +128,8 @@ composite_rules:
     conf: 0.95
     attack: "T1027.009"
     mbc: "E1027"
-    r#for: [javascript]  # +1 complexity
-    all:  # +3 complexity
+    for: [javascript] # +1 complexity
+    all: # +3 complexity
       - id: npm-install-runtime-exec
       - id: cap/exec/eval/invoke/shell-eval
       - id: npm-prefix-install
@@ -141,8 +141,8 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1574.007"
-    r#for: [javascript]  # +1
-    all:  # +2
+    for: [javascript] # +1
+    all: # +2
       - id: module-paths-push
       - id: hidden-node-modules
     # Total complexity: 3 (1 + 2 = 3)
@@ -154,8 +154,8 @@ composite_rules:
     conf: 0.95
     attack: "T1219"
     mbc: "B0022"
-    r#for: [javascript]  # +1
-    all:  # +3
+    for: [javascript] # +1
+    all: # +3
       - id: socket-command-handler
       - id: obj/c2/network/http-listener/socket-io
       - id: cap/exec/command/shell/js-child-process
@@ -167,11 +167,11 @@ composite_rules:
     crit: hostile
     conf: 0.95
     attack: "T1219"
-    r#for: [javascript]  # +1
-    all:  # +2
+    for: [javascript] # +1
+    all: # +2
       - id: runtime-npm-install
       - id: module-path-tampering
-    any:  # +1
+    any: # +1
       - id: socket-command-handler
       - id: obj/c2/network/http-listener/socket-io
     # Total complexity: 4 (1 + 2 + 1 = 4)
@@ -182,11 +182,11 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1082"
-    r#for: [javascript]  # +1
-    all:  # +2
+    for: [javascript] # +1
+    all: # +2
       - id: hostname-username-concatenation
       - id: client-uuid-pattern
-    any:  # +1
+    any: # +1
       - id: process-id-collection
       - id: obj/discovery/system/os-homedir-call
     # Total complexity: 4 (1 + 2 + 1 = 4)

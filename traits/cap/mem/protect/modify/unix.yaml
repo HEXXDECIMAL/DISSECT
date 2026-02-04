@@ -8,7 +8,7 @@ traits:
     conf: 1.0
     attack: "T1055"
     platforms: [linux, macos, unix]
-    r#for: [elf, macho, so, dylib, c]
+    for: [elf, macho, so, dylib, c]
     if:
       type: symbol
       regex: "^_?mprotect$"
@@ -19,7 +19,7 @@ traits:
     conf: 0.7
     attack: "T1055"
     platforms: [linux, macos, unix]
-    r#for: [python, shell, c]
+    for: [python, shell, c]
     if:
       type: string
       substr: "mprotect"
@@ -30,7 +30,7 @@ traits:
     conf: 0.6
     attack: "T1055"
     platforms: [linux, macos, unix]
-    r#for: [elf, macho, so, dylib]
+    for: [elf, macho, so, dylib]
     if:
       type: hex
       pattern: "07 00 00 00"

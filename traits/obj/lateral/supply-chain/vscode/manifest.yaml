@@ -7,7 +7,7 @@ traits:
     desc: Identity XML tag
     crit: inert
     conf: 0.9
-    r#for: [vsixmanifest]
+    for: [vsixmanifest]
     if:
       type: content
 
@@ -61,15 +61,14 @@ traits:
     conf: 0.85
     if:
       type: content
-      regex: '<Tags>[^<]*__ext_'
-
+      regex: "<Tags>[^<]*__ext_"
 
 composite_rules:
   - id: identity
     desc: VSCode extension identity metadata
     crit: inert
     conf: 1.0
-    r#for: [vsixmanifest]
+    for: [vsixmanifest]
     all:
       - id: identity-tag
       - id: publisher-attr
@@ -80,7 +79,7 @@ composite_rules:
     desc: Extension manifest contains external links
     crit: inert
     conf: 0.8
-    r#for: [vsixmanifest]
+    for: [vsixmanifest]
     count_min: 1
     any:
       - id: link-source

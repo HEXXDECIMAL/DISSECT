@@ -8,7 +8,7 @@ traits:
     conf: 0.85
     attack: "T1055"
     platforms: [windows]
-    r#for: [python]
+    for: [python]
     if:
       type: ast
       kind: call

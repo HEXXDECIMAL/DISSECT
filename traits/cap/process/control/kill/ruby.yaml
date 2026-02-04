@@ -6,7 +6,7 @@ traits:
     crit: notable
     conf: 0.90
     platforms: [all]
-    r#for: [ruby]
+    for: [ruby]
     if:
       type: symbol
       regex: "Process\\.kill"

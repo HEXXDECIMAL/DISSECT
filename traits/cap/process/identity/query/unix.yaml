@@ -2,7 +2,7 @@
 # NOTE: Go runtime uses getuid/getpid legitimately for process management
 
 defaults:
-  r#for: [elf, macho, so, dylib, c]
+  for: [elf, macho, so, dylib, c]
 
 traits:
   # NOTE: Go runtime uses getuid/geteuid legitimately - downgraded to inert

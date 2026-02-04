@@ -54,7 +54,7 @@ composite_rules:
     conf: 0.9
     crit: notable
     platforms: [linux]
-    r#for: [elf]
+    for: [elf]
     any:
       - id: setuid-syscall
       - id: setreuid-syscall
@@ -65,7 +65,7 @@ composite_rules:
     conf: 0.9
     crit: notable
     platforms: [linux]
-    r#for: [elf]
+    for: [elf]
     any:
       - id: setgid-syscall
       - id: setregid-syscall

@@ -8,7 +8,7 @@ traits:
     crit: notable
     conf: 0.6
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       word: "admin"
@@ -18,7 +18,7 @@ traits:
     crit: notable
     conf: 0.6
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       word: "root"
@@ -32,7 +32,7 @@ traits:
     crit: suspicious
     conf: 0.8
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       # Avoid matching ASCII character tables (0123456789...)
@@ -47,7 +47,7 @@ traits:
     crit: notable
     conf: 0.4
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       # Require credential list context: control chars as delimiters or user:password format
@@ -58,7 +58,7 @@ traits:
     crit: suspicious
     conf: 0.85
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       substr: "admin123"
@@ -68,7 +68,7 @@ traits:
     crit: notable
     conf: 0.5
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       # Word "default" alone is common - require it with control char prefix
@@ -84,7 +84,7 @@ traits:
     crit: notable
     conf: 0.7
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       # Match guest in credential context (user:pass combo or with control chars)
@@ -95,7 +95,7 @@ traits:
     crit: suspicious
     conf: 0.95
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       substr: "vizxv"
@@ -106,7 +106,7 @@ traits:
     crit: suspicious
     conf: 0.9
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       substr: "Zte521"
@@ -116,7 +116,7 @@ traits:
     crit: suspicious
     conf: 0.9
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       substr: "Pte521"
@@ -126,7 +126,7 @@ traits:
     crit: suspicious
     conf: 0.9
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       substr: "Pon521"
@@ -136,7 +136,7 @@ traits:
     crit: suspicious
     conf: 0.9
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       substr: "Zxic521"
@@ -146,7 +146,7 @@ traits:
     crit: suspicious
     conf: 0.95
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       substr: "oelinux123"
@@ -156,7 +156,7 @@ traits:
     crit: suspicious
     conf: 0.95
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       substr: "xc3511"
@@ -166,7 +166,7 @@ traits:
     crit: suspicious
     conf: 0.8
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       regex: "\\b(root|admin|user|guest|support):(root|admin|[a-zA-Z0-9]{4,12})\\b"
@@ -178,7 +178,7 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     count_min: 1
     any:
       - id: iot-zte521
@@ -192,7 +192,7 @@ composite_rules:
     conf: 0.9
     mbc: "E1040"
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     count_min: 4
     any:
       - id: admin-password

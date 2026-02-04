@@ -6,7 +6,7 @@
 # secondary payloads while hiding all I/O. Common in supply-chain attacks.
 
 defaults:
-  r#for: [javascript, typescript]
+  for: [javascript, typescript]
 
 traits:
   # === Detached spawn execution indicators ===

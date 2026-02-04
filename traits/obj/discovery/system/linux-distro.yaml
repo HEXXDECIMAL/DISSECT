@@ -112,7 +112,7 @@ composite_rules:
     conf: 0.85
     attack: "T1082"
     mbc: "B0012"
-    r#for: [python, shell]
+    for: [python, shell]
     count_min: 1
     any:
       - id: distro-debian-check

@@ -7,7 +7,7 @@ traits:
     crit: inert
     conf: 0.7
     platforms: [all]
-    r#for: [ruby]
+    for: [ruby]
     if:
       type: string
       substr: "Process.fork"
@@ -17,7 +17,7 @@ traits:
     crit: inert
     conf: 0.6
     platforms: [all]
-    r#for: [ruby]
+    for: [ruby]
     if:
       type: string
       regex: "\\bfork\\s*\\{"
@@ -27,7 +27,7 @@ traits:
     crit: inert
     conf: 0.6
     platforms: [all]
-    r#for: [ruby]
+    for: [ruby]
     if:
       type: string
       regex: "\\bfork\\s*do\\b"
@@ -37,7 +37,7 @@ traits:
     crit: inert
     conf: 0.6
     platforms: [all]
-    r#for: [ruby]
+    for: [ruby]
     if:
       type: string
       regex: "\\bfork\\s*\\("
@@ -49,7 +49,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     platforms: [all]
-    r#for: [ruby]
+    for: [ruby]
     count_min: 1
     any:
       - id: fork-brace-block
@@ -61,7 +61,7 @@ composite_rules:
     crit: notable
     conf: 0.88
     platforms: [all]
-    r#for: [ruby]
+    for: [ruby]
     count_min: 1
     any:
       - id: process-fork

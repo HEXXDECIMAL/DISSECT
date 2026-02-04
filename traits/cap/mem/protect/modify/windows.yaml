@@ -8,7 +8,7 @@ traits:
     conf: 0.9
     attack: "T1055"
     platforms: [windows]
-    r#for: [pe, dll]
+    for: [pe, dll]
     if:
       type: symbol
       regex: "VirtualProtect$"
@@ -19,7 +19,7 @@ traits:
     conf: 0.85
     attack: "T1055"
     platforms: [windows]
-    r#for: [pe, dll]
+    for: [pe, dll]
     if:
       type: symbol
       regex: "VirtualProtectEx"

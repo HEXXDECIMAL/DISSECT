@@ -9,7 +9,7 @@ traits:
     crit: suspicious
     conf: 0.85
     attack: "T1195.001"
-    r#for: [packagejson]
+    for: [packagejson]
     if:
       type: yara
       source: |
@@ -41,7 +41,7 @@ traits:
     crit: suspicious
     conf: 0.85
     attack: "T1195.001"
-    r#for: [javascript]
+    for: [javascript]
     if:
       type: yara
       source: |
@@ -70,7 +70,7 @@ traits:
     conf: 0.9
     attack: "T1195.001"
     mbc: "B0024"
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     if:
       type: yara
       source: |
@@ -98,7 +98,7 @@ traits:
     conf: 0.9
     attack: "T1195.001"
     mbc: "B0024"
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     if:
       type: yara
       source: |
@@ -124,7 +124,7 @@ traits:
     crit: suspicious
     conf: 0.85
     attack: "T1195.001"
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     if:
       type: yara
       source: |
@@ -150,7 +150,7 @@ traits:
     crit: suspicious
     conf: 0.8
     attack: "T1195.001"
-    r#for: [javascript, typescript, packagejson]
+    for: [javascript, typescript, packagejson]
     if:
       type: yara
       source: |
@@ -179,7 +179,7 @@ traits:
     conf: 0.9
     attack: "T1195.001"
     mbc: "B0024"
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     if:
       type: yara
       source: |
@@ -203,4 +203,3 @@ traits:
           condition:
             any of ($crypto*) and any of ($steal*) and any of ($exfil*)
         }
-

@@ -8,10 +8,9 @@ traits:
     desc: preinstall lifecycle hook
     crit: inert
     conf: 0.6
-    r#for: [packagejson]
+    for: [packagejson]
     if:
       type: content
-
 
 composite_rules:
   # Lifecycle hook helpers
@@ -19,7 +18,7 @@ composite_rules:
     desc: NPM lifecycle hook (preinstall or
     crit: inert
     conf: 0.6
-    r#for: [packagejson]
+    for: [packagejson]
     count_min: 1
     any:
       - id: preinstall-hook
@@ -30,7 +29,7 @@ composite_rules:
     desc: Download command (curl or wget)
     crit: notable
     conf: 0.7
-    r#for: [packagejson]
+    for: [packagejson]
     count_min: 1
     any:
       - id: curl-command
@@ -41,7 +40,7 @@ composite_rules:
     desc: Pipe to shell interpreter
     crit: notable
     conf: 0.75
-    r#for: [packagejson]
+    for: [packagejson]
     count_min: 1
     any:
       - id: pipe-to-bash
@@ -53,7 +52,7 @@ composite_rules:
     desc: Node inline eval (node -e
     crit: notable
     conf: 0.8
-    r#for: [packagejson]
+    for: [packagejson]
     count_min: 1
     any:
       - id: node-dash-e
@@ -66,7 +65,7 @@ composite_rules:
     conf: 0.95
     attack: "T1195.002"
     mbc: "B0024"
-    r#for: [packagejson]
+    for: [packagejson]
     all:
       - id: lifecycle-hook
       - id: download-command
@@ -79,7 +78,7 @@ composite_rules:
     conf: 0.95
     attack: "T1059.007"
     mbc: "B0024"
-    r#for: [packagejson]
+    for: [packagejson]
     all:
       - id: lifecycle-hook
       - id: node-eval
@@ -90,7 +89,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1195.002"
-    r#for: [packagejson]
+    for: [packagejson]
     all:
       - id: lifecycle-hook
       - id: child-process-module

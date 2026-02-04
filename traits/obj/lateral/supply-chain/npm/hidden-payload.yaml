@@ -7,7 +7,7 @@
 # then eval()s the result.
 
 defaults:
-  r#for: [javascript]
+  for: [javascript]
 
 traits:
   # === Non-code file references (payload containers) ===

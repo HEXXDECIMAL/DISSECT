@@ -3,7 +3,7 @@
 # Helps distinguish install-time vs runtime behavior
 
 defaults:
-  r#for: [javascript]
+  for: [javascript]
 
 traits:
   # === INSTALL-TIME BEHAVIOR (Suspicious Context) ===
@@ -426,7 +426,7 @@ composite_rules:
     conf: 0.95
     attack: "T1195.002"
     mbc: "B0024"
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     any:
       - id: python-interpreter-exec
       - id: node-interpreter-exec
@@ -441,8 +441,8 @@ composite_rules:
     conf: 0.95
     attack: "T1195.002"
     mbc: "B0022"
-    r#for: [javascript]  # +1 complexity
-    all:                       # +3 complexity (3 required patterns)
+    for: [javascript] # +1 complexity
+    all: # +3 complexity (3 required patterns)
       - id: obj/anti-static/obfuscation/code-metrics
       - id: obj/anti-static/obfuscation/strings/js-version-marker
       - id: obj/anti-static/obfuscation/strings/js-charat-loop
@@ -455,7 +455,7 @@ composite_rules:
     conf: 0.98
     attack: "T1195.002"
     mbc: "B0032"
-    r#for: [javascript]
+    for: [javascript]
     all:
       - id: obj/anti-static/obfuscation/strings/js-string-deobfuscation
       - id: cap/exec/eval/dynamic/Function-constructor

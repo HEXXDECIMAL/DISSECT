@@ -9,7 +9,7 @@ traits:
     crit: suspicious
     conf: 0.8
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       substr: "7ujMko0admin"
@@ -19,7 +19,7 @@ traits:
     crit: suspicious
     conf: 0.8
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       substr: "7ujMko0vizxv"
@@ -29,7 +29,7 @@ traits:
     crit: suspicious
     conf: 0.75
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       substr: "juantech"
@@ -39,7 +39,7 @@ traits:
     crit: suspicious
     conf: 0.8
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       substr: "xc3511"
@@ -49,7 +49,7 @@ traits:
     crit: suspicious
     conf: 0.8
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       substr: "jvbzd"
@@ -59,7 +59,7 @@ traits:
     crit: suspicious
     conf: 0.75
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       substr: "smcadmin"
@@ -69,7 +69,7 @@ traits:
     crit: suspicious
     conf: 0.8
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       substr: "GM8182"
@@ -79,7 +79,7 @@ traits:
     crit: suspicious
     conf: 0.8
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       substr: "oelinux123"
@@ -89,7 +89,7 @@ traits:
     crit: suspicious
     conf: 0.8
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       substr: "hi3518"
@@ -100,7 +100,7 @@ traits:
     crit: suspicious
     conf: 0.75
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       substr: "vizxv"
@@ -110,7 +110,7 @@ traits:
     crit: suspicious
     conf: 0.8
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       substr: "xmhdipc"
@@ -121,7 +121,7 @@ traits:
     crit: suspicious
     conf: 0.75
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       substr: "Zte521"
@@ -131,7 +131,7 @@ traits:
     crit: suspicious
     conf: 0.75
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       substr: "telecomadmin"
@@ -142,7 +142,7 @@ traits:
     crit: notable
     conf: 0.6
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       regex: "(?i)telnet connect"
@@ -152,7 +152,7 @@ traits:
     crit: notable
     conf: 0.6
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       regex: "(?i)telnet scanner"
@@ -162,7 +162,7 @@ traits:
     crit: notable
     conf: 0.6
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       regex: "(?i)telnet brute"
@@ -173,7 +173,7 @@ traits:
     crit: notable
     conf: 0.7
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       substr: "busybox wget"
@@ -183,7 +183,7 @@ traits:
     crit: notable
     conf: 0.7
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       substr: "busybox tftp"
@@ -193,7 +193,7 @@ traits:
     crit: suspicious
     conf: 0.8
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       substr: "7ujMko0"
@@ -203,7 +203,7 @@ traits:
     crit: suspicious
     conf: 0.75
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       regex: "port 23 open"
@@ -214,7 +214,7 @@ traits:
     crit: suspicious
     conf: 0.8
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     if:
       type: string
       substr: "enable\nshell\nsh"
@@ -226,7 +226,7 @@ composite_rules:
     crit: suspicious
     conf: 0.7
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     count_min: 1
     any:
       - id: telnet-connect-str
@@ -239,7 +239,7 @@ composite_rules:
     crit: suspicious
     conf: 0.8
     attack: "T1110.001"
-    r#for: [elf]
+    for: [elf]
     count_min: 1
     any:
       - id: busybox-wget
@@ -252,7 +252,7 @@ composite_rules:
     conf: 0.95
     attack: "T1110.001"
     mbc: "E1017"
-    r#for: [elf]
+    for: [elf]
     count_min: 3
     any:
       - id: mirai-cred-admin

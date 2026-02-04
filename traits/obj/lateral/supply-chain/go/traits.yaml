@@ -2,7 +2,7 @@
 # Metrics-based detection of supply chain attack patterns in Go code
 
 defaults:
-  r#for: [go]
+  for: [go]
 
 traits:
   - id: many-init-functions
@@ -59,7 +59,7 @@ composite_rules:
     conf: 0.9
     attack: "T1195.001"
     mbc: "B0024"
-    r#for: [go]
+    for: [go]
     all:
       - id: cap/exec/command/go-exec-command
       - id: cap/comm/socket/go-network-dial
@@ -72,7 +72,7 @@ composite_rules:
     conf: 0.95
     attack: "T1195.001"
     mbc: "B0024"
-    r#for: [go]
+    for: [go]
     all:
       - id: many-init-functions
     any:

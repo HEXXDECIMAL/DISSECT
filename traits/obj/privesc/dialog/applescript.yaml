@@ -4,7 +4,7 @@
 
 defaults:
   # osascript can be invoked from any language: python subprocess, ruby system(), etc.
-  r#for: [applescript, shell, python, ruby, perl, javascript, elf, macho]
+  for: [applescript, shell, python, ruby, perl, javascript, elf, macho]
   platforms: [macos]
   attack: "T1548.004"
 

@@ -133,7 +133,7 @@ traits:
     crit: inert
     conf: 0.9
     platforms: [linux]
-    r#for: [elf]
+    for: [elf]
     if:
       type: symbol
       regex: "^_?execve$"
@@ -143,7 +143,7 @@ traits:
     crit: inert
     conf: 0.9
     platforms: [linux, macos]
-    r#for: [elf, macho]
+    for: [elf, macho]
     if:
       type: symbol
       regex: "^_?system$"
@@ -327,7 +327,7 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     attack: "T1587.001"
-    r#for: [all]
+    for: [all]
     count_min: 2
     any:
       - id: msfpayload
@@ -341,7 +341,7 @@ composite_rules:
     conf: 0.9
     attack: "T1046"
     platforms: [linux]
-    r#for: [elf]
+    for: [elf]
     all:
       - id: masscan-ref
       - id: exec-capability

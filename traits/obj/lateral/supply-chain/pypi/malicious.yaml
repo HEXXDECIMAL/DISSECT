@@ -4,7 +4,7 @@
 # Generic behaviors (reverse shells, obfuscation) should be in their objective directories
 
 defaults:
-  r#for: [python]
+  for: [python]
   attack: "T1195.002"
 
 traits:

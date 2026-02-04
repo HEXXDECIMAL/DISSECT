@@ -72,7 +72,7 @@ composite_rules:
     crit: suspicious
     conf: 0.92
     attack: "T1195.001"
-    r#for: [python]
+    for: [python]
     count_min: 2
     any:
       - id: ast-custom-install-class

@@ -3,7 +3,7 @@
 # Generic JS behaviors should be in their objective directories
 
 defaults:
-  r#for: [packagejson]
+  for: [packagejson]
 
 traits:
   # === Export detection micro-traits ===
@@ -11,7 +11,7 @@ traits:
     desc: CommonJS module.exports pattern
     crit: inert
     conf: 0.8
-    r#for: [javascript]
+    for: [javascript]
     if:
       type: ast
       kind: assignment
@@ -21,7 +21,7 @@ traits:
     desc: CommonJS exports.{0,50} pattern
     crit: inert
     conf: 0.8
-    r#for: [javascript]
+    for: [javascript]
     if:
       type: ast
       kind: assignment
@@ -31,7 +31,7 @@ traits:
     desc: ESM export statement
     crit: inert
     conf: 0.8
-    r#for: [javascript]
+    for: [javascript]
     if:
       type: ast
       node: export_statement
@@ -42,7 +42,7 @@ traits:
     desc: require('os') import
     crit: inert
     conf: 0.7
-    r#for: [javascript]
+    for: [javascript]
     if:
       type: ast
       language: javascript
@@ -57,7 +57,7 @@ traits:
     desc: require('child_process') import
     crit: notable
     conf: 0.8
-    r#for: [javascript]
+    for: [javascript]
     if:
       type: ast
       language: javascript
@@ -72,7 +72,7 @@ traits:
     desc: require('https') import
     crit: inert
     conf: 0.7
-    r#for: [javascript]
+    for: [javascript]
     if:
       type: ast
       language: javascript
@@ -87,7 +87,7 @@ traits:
     desc: require('fs') import
     crit: inert
     conf: 0.7
-    r#for: [javascript]
+    for: [javascript]
     if:
       type: ast
       language: javascript
@@ -152,7 +152,7 @@ traits:
     desc: Package writes to node_modules directory
     crit: suspicious
     conf: 0.9
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     if:
       type: string
       regex: "(?:writeFile|writeFileSync|appendFile)\\s*\\([^)]*node_modules"
@@ -162,7 +162,7 @@ traits:
     desc: Reads .npmrc file (token theft)
     crit: suspicious
     conf: 0.9
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     if:
       type: string
       regex: "(?:readFile|readFileSync)\\s*\\([^)]*\\.npmrc"
@@ -172,7 +172,7 @@ traits:
     desc: Writes to package.json file
     crit: suspicious
     conf: 0.9
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     if:
       type: string
       regex: "writeFileSync\\s*\\([^)]*package\\.json|writeFile\\s*\\([^)]*package\\.json"
@@ -191,7 +191,7 @@ traits:
     desc: child.unref() call (orphan process)
     crit: notable
     conf: 0.75
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     if:
       type: ast
       kind: call
@@ -201,7 +201,7 @@ traits:
     desc: spawn().unref() call (orphan process)
     crit: notable
     conf: 0.75
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     if:
       type: string
       regex: "spawn\\([^)]+\\)\\.unref\\(\\)"
@@ -211,7 +211,7 @@ traits:
     desc: "stdio: 'ignore' pattern"
     crit: inert
     conf: 0.7
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     if:
       type: string
       regex: "stdio:\\s*['\"]ignore['\"]"
@@ -220,7 +220,7 @@ traits:
     desc: "stdio: [...ignore...] pattern"
     crit: inert
     conf: 0.7
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     if:
       type: string
       regex: "stdio:\\s*\\[.{0,50}ignore"
@@ -230,7 +230,7 @@ traits:
     desc: Bug bounty or security research
     crit: notable
     conf: 0.9
-    r#for: [javascript, packagejson]
+    for: [javascript, packagejson]
     if:
       type: string
       regex: "bug\\s*bounty|hackerone|bugcrowd|security\\s*research|proof\\s*of\\s*concept|PoC|benign\\s*test"
@@ -241,7 +241,7 @@ traits:
     desc: Small file under 5KB
     crit: inert
     conf: 0.7
-    r#for: [javascript]
+    for: [javascript]
     if:
       type: filesize
       max: 5120
@@ -251,7 +251,7 @@ traits:
     desc: oast.fun exfil domain
     crit: suspicious
     conf: 0.9
-    r#for: [javascript, typescript, packagejson]
+    for: [javascript, typescript, packagejson]
     if:
       type: string
       substr: "oast.fun"
@@ -260,7 +260,7 @@ traits:
     desc: oastify.com exfil domain
     crit: suspicious
     conf: 0.9
-    r#for: [javascript, typescript, packagejson]
+    for: [javascript, typescript, packagejson]
     if:
       type: string
       substr: "oastify.com"
@@ -269,7 +269,7 @@ traits:
     desc: oast.me exfil domain
     crit: suspicious
     conf: 0.9
-    r#for: [javascript, typescript, packagejson]
+    for: [javascript, typescript, packagejson]
     if:
       type: string
       substr: "oast.me"
@@ -278,7 +278,7 @@ traits:
     desc: webhook.site exfil domain
     crit: suspicious
     conf: 0.9
-    r#for: [javascript, typescript, packagejson]
+    for: [javascript, typescript, packagejson]
     if:
       type: string
       substr: "webhook.site"
@@ -287,7 +287,7 @@ traits:
     desc: pipedream.net exfil domain
     crit: suspicious
     conf: 0.9
-    r#for: [javascript, typescript, packagejson]
+    for: [javascript, typescript, packagejson]
     if:
       type: string
       substr: "pipedream.net"
@@ -296,7 +296,7 @@ traits:
     desc: Discord webhook exfil endpoint
     crit: suspicious
     conf: 0.9
-    r#for: [javascript, typescript, packagejson]
+    for: [javascript, typescript, packagejson]
     if:
       type: string
       substr: "discord.com/api/webhooks"
@@ -431,7 +431,7 @@ composite_rules:
     desc: Module has exports
     crit: inert
     conf: 0.8
-    r#for: [javascript]
+    for: [javascript]
     count_min: 1
     any:
       - id: module-exports-pattern
@@ -443,7 +443,7 @@ composite_rules:
     desc: Dangerous Node.js API imports
     crit: notable
     conf: 0.8
-    r#for: [javascript]
+    for: [javascript]
     count_min: 3
     any:
       - id: require-os
@@ -456,7 +456,7 @@ composite_rules:
     desc: Tiny npm package using dangerous
     crit: suspicious
     conf: 0.85
-    r#for: [javascript]
+    for: [javascript]
     all:
       - id: small-file-5k
       - id: dangerous-requires
@@ -517,7 +517,7 @@ composite_rules:
     desc: Orphan child process (unref pattern)
     crit: suspicious
     conf: 0.85
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     count_min: 1
     any:
       - id: child-dot-unref
@@ -528,7 +528,7 @@ composite_rules:
     desc: Silent process execution (stdio ignored)
     crit: notable
     conf: 0.8
-    r#for: [javascript, typescript]
+    for: [javascript, typescript]
     count_min: 1
     any:
       - id: stdio-ignore-string
@@ -539,7 +539,7 @@ composite_rules:
     desc: Multiple OOB exfiltration endpoints
     crit: suspicious
     conf: 0.9
-    r#for: [javascript, typescript, packagejson]
+    for: [javascript, typescript, packagejson]
     count_min: 2
     any:
       - id: oast-fun-domain
@@ -636,4 +636,3 @@ composite_rules:
       - id: dependency-confusion-claim
       - id: obj/lateral/supply-chain/npm/no-repository-field
       - id: obj/lateral/supply-chain/npm/no-bugs-field
-

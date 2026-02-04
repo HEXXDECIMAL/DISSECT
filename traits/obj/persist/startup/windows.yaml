@@ -97,7 +97,7 @@ traits:
     crit: inert
     conf: 0.5
     platforms: [windows]
-    r#for: [python]
+    for: [python]
     if:
       type: string
       substr: "import winreg"
@@ -107,7 +107,7 @@ traits:
     crit: inert
     conf: 0.5
     platforms: [windows]
-    r#for: [python]
+    for: [python]
     if:
       type: string
       substr: "from winreg"
@@ -117,7 +117,7 @@ traits:
     crit: inert
     conf: 0.5
     platforms: [windows]
-    r#for: [python]
+    for: [python]
     if:
       type: string
       substr: "_winreg"
@@ -127,7 +127,7 @@ traits:
     crit: inert
     conf: 0.6
     platforms: [windows]
-    r#for: [python]
+    for: [python]
     if:
       type: string
       regex: "OpenKey.{0,30}HKEY"
@@ -137,7 +137,7 @@ traits:
     crit: inert
     conf: 0.6
     platforms: [windows]
-    r#for: [python]
+    for: [python]
     if:
       type: string
       substr: "SetValueEx"
@@ -147,7 +147,7 @@ traits:
     crit: inert
     conf: 0.6
     platforms: [windows]
-    r#for: [python]
+    for: [python]
     if:
       type: string
       substr: "CreateKey"
@@ -389,7 +389,7 @@ composite_rules:
     conf: 0.7
     crit: notable
     platforms: [windows]
-    r#for: [python]
+    for: [python]
     count_min: 1
     any:
       - id: import-winreg
@@ -401,7 +401,7 @@ composite_rules:
     desc: "Accesses Windows registry via Python"
     conf: 0.8
     platforms: [windows]
-    r#for: [python]
+    for: [python]
     count_min: 1
     any:
       - id: import-winreg
@@ -511,7 +511,7 @@ composite_rules:
     attack: "T1547.001"
     mbc: "F0006"
     platforms: [windows]
-    r#for: [python]
+    for: [python]
     all:
       - id: windows-python-winreg-import
       - id: windows-registry-run-access

@@ -9,7 +9,7 @@ traits:
     conf: 0.9
     attack: "T1055"
     platforms: [windows]
-    r#for: [pe, dll]
+    for: [pe, dll]
     if:
       type: yara
       source: |
@@ -26,7 +26,7 @@ traits:
     crit: notable
     conf: 0.8
     platforms: [linux]
-    r#for: [elf]
+    for: [elf]
     if:
       type: symbol
       regex: "^_?(execve|fexecve)$"
@@ -36,7 +36,7 @@ traits:
     crit: notable
     conf: 0.8
     platforms: [windows, linux, macos]
-    r#for: [python]
+    for: [python]
     if:
       type: ast
       kind: call
@@ -47,7 +47,7 @@ traits:
     crit: notable
     conf: 0.8
     platforms: [windows, linux, macos]
-    r#for: [python]
+    for: [python]
     if:
       type: ast
       kind: call
@@ -61,7 +61,7 @@ composite_rules:
     attack: "T1055"
     mbc: "B0033"
     platforms: [linux]
-    r#for: [elf]
+    for: [elf]
     all:
       - id: cap/mem/anonymous/create/memfd-create
     any:
@@ -75,7 +75,7 @@ composite_rules:
     attack: "T1055"
     mbc: "B0033"
     platforms: [windows]
-    r#for: [python]
+    for: [python]
     all:
       - id: cap/mem/protect/modify/virtualprotect-ctypes
     any:

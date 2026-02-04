@@ -7,7 +7,7 @@ traits:
     desc: source .bashrc
     crit: inert
     conf: 0.7
-    r#for: [javascript]
+    for: [javascript]
     if:
       type: string
       regex: 'source\s+\.bashrc'
@@ -16,7 +16,7 @@ traits:
     desc: source .bash_profile
     crit: inert
     conf: 0.7
-    r#for: [javascript]
+    for: [javascript]
     if:
       type: string
       regex: 'source\s+\.bash_profile'
@@ -25,7 +25,7 @@ traits:
     desc: source .profile
     crit: inert
     conf: 0.7
-    r#for: [javascript]
+    for: [javascript]
     if:
       type: string
       regex: 'source\s+\.profile'
@@ -34,7 +34,7 @@ traits:
     desc: source .zshrc
     crit: inert
     conf: 0.7
-    r#for: [javascript]
+    for: [javascript]
     if:
       type: string
       regex: 'source\s+\.zshrc'
@@ -43,7 +43,7 @@ traits:
     desc: Manually manipulates PATH environment variable
     crit: notable
     conf: 0.8
-    r#for: [javascript]
+    for: [javascript]
     if:
       type: string
       regex: 'process\.env\.PATH\s*='
@@ -54,7 +54,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1546.004"
-    r#for: [javascript]
+    for: [javascript]
     count_min: 1
     any:
       - id: source-bashrc

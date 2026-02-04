@@ -8,7 +8,7 @@ traits:
     crit: notable
     conf: 0.7
     mbc: "B0028"
-    r#for: [php]
+    for: [php]
     if:
       type: string
       substr: session_start
@@ -17,7 +17,7 @@ traits:
     desc: PHP session destruction
     crit: notable
     conf: 0.7
-    r#for: [php]
+    for: [php]
     if:
       type: string
       substr: session_destroy
@@ -26,7 +26,7 @@ traits:
     desc: PHP session ID regeneration
     crit: notable
     conf: 0.75
-    r#for: [php]
+    for: [php]
     if:
       type: string
       substr: session_regenerate_id
@@ -36,7 +36,7 @@ traits:
     crit: suspicious
     conf: 0.8
     mbc: "B0028"
-    r#for: [php]
+    for: [php]
     if:
       type: string
       regex: "session_id\\s*\\("

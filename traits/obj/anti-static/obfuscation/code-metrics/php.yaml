@@ -13,7 +13,7 @@ traits:
     desc: "High entropy strings (base64/gzinflate encoded)"
     crit: suspicious
     conf: 0.85
-    r#for: [php]
+    for: [php]
     if:
       type: metrics
       field: strings.avg_entropy
@@ -23,7 +23,7 @@ traits:
     desc: "Obfuscated PHP variable names"
     crit: suspicious
     conf: 0.8
-    r#for: [php]
+    for: [php]
     if:
       type: metrics
       field: identifiers.avg_entropy
