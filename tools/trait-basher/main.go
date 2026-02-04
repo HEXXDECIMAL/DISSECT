@@ -41,13 +41,15 @@ import (
 // Shared prompt building blocks (LLM-optimized)
 
 const keyConstraints = `## Key Constraints (Do Not Violate)
+- **Read documentation**: Check RULES.md and TAXONOMY.md to understand naming conventions and design principles
 - **YAML is valid**: DISSECT's strict parser already validated it. Only edit trait logic, not formatting.
 - **Preserve structure**: Keep indentation, spacing, and file organization identical.
 - **No new files**: Only modify existing traits/ YAML files.
 - **One fix per trait**: Don't over-engineer; each trait should do one thing well.`
 
 const successCriteria = `## Success Criteria
-✓ All false positive findings are gone (or downgraded to inert/notable)
+✓ All false positive findings are fixed (incorrect matches removed or constrained)
+✓ Remaining findings accurately describe what the program actually does
 ✓ No new false positives introduced
 ✓ Changes are minimal and focused (3-5 edits max)
 ✓ Run dissect again - shows improvement`
@@ -59,31 +61,60 @@ const debugCommands = `## Debug & Validate
 %s test-match %s --type string --pattern "X"  # test patterns
 ` + "```" + ``
 
+const falsePositiveDefinition = `## What Is a False Positive?
+A **false positive** is a finding that DOES NOT match what the program actually does.
+- If the program DOES execute code → "exec" finding is CORRECT, not a false positive
+- If the program DOES read files → "file_read" finding is CORRECT, not a false positive
+- If the program DOES open sockets → "socket" finding is CORRECT, not a false positive
+
+A finding is only a false positive if:
+- The rule incorrectly matched something that doesn't indicate that behavior
+- The pattern is too broad and matches unrelated benign code
+- The finding is in the wrong file or context
+
+**Expected**: Known-good software has findings! Notable and suspicious findings are normal if they accurately describe what the code does. The goal is ACCURATE findings, not zero findings.`
+
 const goodPromptTask = `## Strategy: Fix False Positives
+Review findings and identify which are actually false positives (incorrect matches).
+Keep findings that accurately describe the code's behavior, even if suspicious.
+
 **Priority Order** (try in this order):
 1. **Taxonomy**: Trait in wrong directory? Move it (e.g., cap/ not obj/)
-2. **Patterns**: Too broad? Add constraints:
+2. **Patterns**: Too broad? Refine the pattern itself to be more accurate:
    - ` + "`near: 200`" + ` - require proximity to suspicious code
    - ` + "`size_min/max`" + ` - filter by file size (legitimate: large, malware: compact)
    - ` + "`for: [elf, macho, pe]`" + ` - restrict to binaries (skip scripts)
    - ` + "`all:`" + ` in composites - combine weak signals into strong one
-3. **Exclusions**: Known-good patterns? Add ` + "`not:`" + ` filters
-4. **Exceptions**: Last resort - ` + "`unless:`" + ` or ` + "`downgrade:`" + `
+3. **Exclusions**: Too specific? Add ` + "`not:`" + ` filters to exclude known-good patterns
+4. **Reorganize**: Create new traits if it makes the logic clearer or more maintainable
+5. **Exceptions** (last resort): Only use ` + "`unless:`" + ` or ` + "`downgrade:`" + ` if fixing the pattern is impractical
 
-**Do Not**: Create new traits, change criticality levels arbitrarily, or break YAML structure.`
+**Prefer**: Fixing queries to be accurate over adding exceptions. A well-tuned pattern is better than a broad pattern with exceptions.
+
+**If deleting or renaming a trait**: Update all references to it (in composites, depends, etc.). Consider what the composite trait was trying to accomplish and fix the reference appropriately.
+
+**Do Not**: Change criticality levels arbitrarily, remove accurate findings, or break YAML structure.`
 
 const goodPromptArchiveTask = `## Strategy: Fix False Positives in Archive
+Review findings and identify which are actually false positives (incorrect matches).
+Keep findings that accurately describe the code's behavior, even if suspicious.
+
 **Priority Order** (try in this order):
 1. **Taxonomy**: Trait in wrong directory? Move it (e.g., cap/ not obj/)
-2. **Patterns**: Too broad? Add constraints:
+2. **Patterns**: Too broad? Refine the pattern itself to be more accurate:
    - ` + "`near: 200`" + ` - require proximity to suspicious code
    - ` + "`size_min/max`" + ` - legitimate installers are huge, malware is compact
    - ` + "`for: [elf, macho, pe]`" + ` - restrict to binaries only
    - ` + "`all:`" + ` in composites - combine weak signals, don't flag individually
-3. **Exclusions**: Known-good strings? Add ` + "`not:`" + ` filters
-4. **Exceptions**: Last resort - ` + "`unless:`" + ` or ` + "`downgrade:`" + `
+3. **Exclusions**: Known-good strings? Add ` + "`not:`" + ` filters to exclude them
+4. **Reorganize**: Create new traits if it makes the logic clearer or more maintainable
+5. **Exceptions** (last resort): Only use ` + "`unless:`" + ` or ` + "`downgrade:`" + ` if fixing the pattern is impractical
 
-**Do Not**: Create new traits, add new files, or break YAML structure.`
+**Prefer**: Fixing queries to be accurate over adding exceptions. A well-tuned pattern is better than a broad pattern with exceptions.
+
+**If deleting or renaming a trait**: Update all references to it (in composites, depends, etc.). Consider what the composite trait was trying to accomplish and fix the reference appropriately.
+
+**Do Not**: Change criticality levels arbitrarily, remove accurate findings, or break YAML structure.`
 
 const badPromptTask = `## Strategy: Add Missing Detection
 **Approach**:
@@ -95,6 +126,9 @@ const badPromptTask = `## Strategy: Add Missing Detection
    - obj/X = attacker objective (combine multiple caps) - clearly malicious
    - known/ = ONLY for named malware families (apt/cozy-bear, trojan/emotet)
 5. Cross-language when possible (base64+exec works in Python, JS, Shell)
+6. Create new traits if needed - they should be generic and reusable across samples
+
+**If deleting or renaming a trait**: Update all references to it (in composites, depends, etc.). Consider what the composite trait was trying to accomplish and fix the reference appropriately.
 
 **Do Not**: Create file-specific rules, add unrelated traits, or ignore YAML structure.`
 
@@ -108,6 +142,9 @@ const badPromptArchiveTask = `## Strategy: Add Missing Detection to Archive
    - obj/X = attacker objective (combine multiple caps) - clearly malicious
    - known/ = ONLY for named malware families (apt/cozy-bear, trojan/emotet)
 5. Cross-language patterns when possible (base64+exec in Python, JS, Shell)
+6. Create new traits if needed - they should be generic and reusable across samples
+
+**If deleting or renaming a trait**: Update all references to it (in composites, depends, etc.). Consider what the composite trait was trying to accomplish and fix the reference appropriately.
 
 **Do Not**: Create file-specific rules, add unrelated traits, or break YAML format.`
 
@@ -115,47 +152,41 @@ const badPromptArchiveTask = `## Strategy: Add Missing Detection to Archive
 func buildGoodPrompt(isArchive bool, path string, archiveCount int, repoRoot, dissectBin string) string {
 	var header string
 	var taskBlock string
-	var traitNote string
 	var debugCmd string
 
 	if isArchive {
 		header = fmt.Sprintf("# Fix False Positives in KNOWN-GOOD Archive\n\n**Archive**: %s\n**Problem**: %d members flagged as suspicious/hostile\n**Task**: Remove false positive findings\n", path, archiveCount)
 		taskBlock = goodPromptArchiveTask
-		traitNote = "Reorganize don't delete | Skip cargo test | Focus on this archive"
 		debugCmd = path
 	} else {
 		header = fmt.Sprintf("# Fix False Positives in KNOWN-GOOD File\n\n**File**: %s\n**Problem**: Flagged as suspicious/hostile\n**Task**: Remove false positive findings\n", path)
 		taskBlock = goodPromptTask
-		traitNote = "Reorganize don't delete | Skip cargo test | Only analyze this file"
 		debugCmd = path
 	}
 
 	debug := fmt.Sprintf(debugCommands, dissectBin, debugCmd, dissectBin, debugCmd, dissectBin, debugCmd)
 
-	return fmt.Sprintf("%s\n%s\n\n%s\n\n%s\n\n%s\n\n%s\n\nTraits: %s/traits/ | %s", header, keyConstraints, taskBlock, successCriteria, debug, repoRoot, traitNote)
+	return fmt.Sprintf("%s\n%s\n\n%s\n\n%s\n\n%s\n\n%s\n\nTraits: %s/traits/", header, falsePositiveDefinition, keyConstraints, taskBlock, successCriteria, debug, repoRoot)
 }
 
 func buildBadPrompt(isArchive bool, path string, archiveCount int, repoRoot, dissectBin string) string {
 	var header string
 	var taskBlock string
-	var traitNote string
 	var debugCmd string
 
 	if isArchive {
 		header = fmt.Sprintf("# Add Missing Detection for KNOWN-BAD Archive\n\n**Archive**: %s\n**Problem**: %d members not flagged as suspicious/hostile\n**Task**: Detect malicious behavior\n\n*Note: Skip genuinely benign files (README, docs, unmodified dependencies)*\n", path, archiveCount)
 		taskBlock = badPromptArchiveTask
-		traitNote = "Skip cargo test | Focus on this archive"
 		debugCmd = path
 	} else {
 		header = fmt.Sprintf("# Add Missing Detection for KNOWN-BAD File\n\n**File**: %s\n**Problem**: Not flagged as suspicious/hostile\n**Task**: Detect malicious behavior\n\n*Note: Skip if genuinely benign (README, docs, unmodified dependency)*\n", path)
 		taskBlock = badPromptTask
-		traitNote = "Skip cargo test | Only analyze this file"
 		debugCmd = path
 	}
 
 	debug := fmt.Sprintf(debugCommands, dissectBin, debugCmd, dissectBin, debugCmd, dissectBin, debugCmd)
 
-	return fmt.Sprintf("%s\n%s\n\n%s\n\n%s\n\n%s\n\nTraits: %s/traits/ | %s", header, keyConstraints, taskBlock, successCriteria, debug, repoRoot, traitNote)
+	return fmt.Sprintf("%s\n%s\n\n%s\n\n%s\n\n%s\n\nTraits: %s/traits/", header, keyConstraints, taskBlock, successCriteria, debug, repoRoot)
 }
 
 type config struct {
@@ -534,7 +565,7 @@ func main() {
 	useCargo := flag.Bool("cargo", true, "Use 'cargo run --release' instead of dissect binary")
 	timeout := flag.Duration("timeout", 20*time.Minute, "Maximum time for each AI invocation")
 	flush := flag.Bool("flush", false, "Clear analysis cache and reprocess all files")
-	rescanAfter := flag.Int("rescan-after", 4, "Restart scan after reviewing N files to verify fixes (0 = disabled)")
+	rescanAfter := flag.Int("rescan-after", 1, "Restart scan after reviewing N files to verify fixes (0 = disabled)")
 
 	flag.Parse()
 
@@ -667,7 +698,7 @@ func main() {
 	}
 
 	// Use streaming analysis - process each archive as it completes.
-	// Loop and restart after every 4 reviews to catch fixed files.
+	// Loop and restart after reviewing N files to catch fixed files.
 	for {
 		stats, err := streamAnalyzeAndReview(ctx, cfg, dbMode)
 		if err != nil {
@@ -681,9 +712,9 @@ func main() {
 			break
 		}
 
-		// Clear the counter for the next batch of 4 files
-		fmt.Fprintf(os.Stderr, "Waiting 2 seconds before restarting scan...\n")
-		time.Sleep(2 * time.Second)
+		// Restart to verify fixes on the next batch
+		fmt.Fprintf(os.Stderr, "Waiting 1 second before restarting scan...\n")
+		time.Sleep(1 * time.Second)
 	}
 
 	fmt.Fprint(os.Stderr, "Run \"git diff traits/\" to see changes.\n")
@@ -696,7 +727,7 @@ type streamStats struct {
 	skippedCached      int
 	skippedNoReview    int
 	totalFiles         int
-	shouldRestart      bool // Set to true when we've reviewed 4 files and should rescan
+	shouldRestart      bool // Set to true when rescan limit reached
 }
 
 // streamState tracks the current processing state as we stream files.
@@ -709,7 +740,7 @@ type streamState struct {
 	currentRealFile    *RealFileAnalysis
 	currentRealPath    string
 	filesReviewedCount int  // Count of files sent to LLM for review
-	stopProcessing     bool // Set to true when we've reviewed 4 files
+	stopProcessing     bool // Set to true when rescan limit reached
 }
 
 // streamAnalyzeAndReview streams dissect output and reviews archives as they complete.
@@ -745,7 +776,7 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 			continue
 		}
 
-		// If we've hit the 4-file review limit, just consume remaining lines without processing
+		// If we've hit the rescan limit, just consume remaining lines without processing
 		if state.stopProcessing {
 			n++
 			if time.Since(last) > 100*time.Millisecond {
@@ -1087,6 +1118,34 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) erro
 		task = "Find missing detections (known-bad collection)"
 	}
 
+	// Add suspicious/hostile findings for good files
+	if cfg.knownGood {
+		var suspicious, hostile []Finding
+		for _, finding := range f.Findings {
+			switch strings.ToLower(finding.Crit) {
+			case "hostile":
+				hostile = append(hostile, finding)
+			case "suspicious":
+				suspicious = append(suspicious, finding)
+			}
+		}
+		if len(hostile) > 0 || len(suspicious) > 0 {
+			prompt += "\n\n## Suspicious/Hostile Findings to Review\n"
+			if len(hostile) > 0 {
+				prompt += "**Hostile:**\n"
+				for _, finding := range hostile {
+					prompt += fmt.Sprintf("- `%s`: %s\n", finding.ID, finding.Desc)
+				}
+			}
+			if len(suspicious) > 0 {
+				prompt += "**Suspicious:**\n"
+				for _, finding := range suspicious {
+					prompt += fmt.Sprintf("- `%s`: %s\n", finding.ID, finding.Desc)
+				}
+			}
+		}
+	}
+
 	if f.ExtractedPath != "" {
 		prompt += fmt.Sprintf("\n\n## Extracted Sample\nThe file has been extracted to: %s\n"+
 			"Use this path for binary analysis tools (radare2, strings, objdump, xxd, nm).", f.ExtractedPath)
@@ -1236,6 +1295,36 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 	}
 
 	prompt += extractedInfo
+
+	// Add suspicious/hostile findings summary for good archives
+	if cfg.knownGood {
+		var suspicious, hostile []Finding
+		for _, m := range problematic {
+			for _, finding := range m.Findings {
+				switch strings.ToLower(finding.Crit) {
+				case "hostile":
+					hostile = append(hostile, finding)
+				case "suspicious":
+					suspicious = append(suspicious, finding)
+				}
+			}
+		}
+		if len(hostile) > 0 || len(suspicious) > 0 {
+			prompt += "\n\n## Suspicious/Hostile Findings to Review\n"
+			if len(hostile) > 0 {
+				prompt += "**Hostile:**\n"
+				for _, finding := range hostile {
+					prompt += fmt.Sprintf("- `%s`: %s\n", finding.ID, finding.Desc)
+				}
+			}
+			if len(suspicious) > 0 {
+				prompt += "**Suspicious:**\n"
+				for _, finding := range suspicious {
+					prompt += fmt.Sprintf("- `%s`: %s\n", finding.ID, finding.Desc)
+				}
+			}
+		}
+	}
 
 	// Still include extracted binary samples if available
 	if cfg.knownGood && len(problematic) > 0 {

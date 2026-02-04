@@ -1,450 +1,134 @@
 # DISSECT Rule Writing Guide
 
-## Philosophy
+## Quick Overview
 
-**Traits are atomic observations.** A single detectable pattern: a symbol, string, or AST node.
+**Traits** = atomic observations (single pattern)
+**Composites** = traits combined via boolean logic
+**Criticality** = independent from confidence (1.0 certain but inert socket vs 0.8 uncertain but hostile Telegram API)
 
-**Composite rules are behavioral interpretations.** Traits combined to describe capabilities: reverse shell = `socket + dup2 + exec`.
+See [TAXONOMY.md](./TAXONOMY.md) for the complete tier structure and directory organization.
 
-**Criticality is independent of confidence.** A socket import is certain (confidence: 1.0) but benign (inert). A Telegram API match is uncertain (confidence: 0.8) but hostile.
+**Three-tier hierarchy:**
+- `cap/*` - Observable capabilities (what code can do)
+- `obj/*` - Attacker objectives (what code likely wants to do)
+- `known/*` - Specific malware/tool signatures
+- `meta/*` - Informational file properties
 
-## Taxonomy
+## Trait Placement
 
-Rules follow a three-tier hierarchy based on [MBC (Malware Behavior Catalog)](https://github.com/MBCProject/mbc-markdown). See [TAXONOMY.md](./TAXONOMY.md) for the complete structure.
-
-| Tier | Prefix | Purpose | Criticality Range |
-|------|--------|---------|-------------------|
-| **Capabilities** | `cap/` | What code *can do* (value-neutral) | inert → notable → suspicious |
-| **Objectives** | `obj/` | What code *likely wants* to do | notable → suspicious → hostile |
-| **Known** | `known/` | Specific malware/tool signatures | suspicious → hostile |
-| **Meta** | `meta/` | File properties (informational) | inert |
-
-**Capabilities** (`cap/`) - MBC Micro-behaviors:
-
-| Prefix | Description |
-|---|---|
-| `cap/comm/` | Network communication |
-| `cap/crypto/` | Cryptography |
-| `cap/data/` | Data transformation |
-| `cap/exec/` | Code execution |
-| `cap/fs/` | Filesystem access |
-| `cap/hw/` | Hardware interaction |
-| `cap/mem/` | Memory operations |
-| `cap/os/` | OS integration |
-| `cap/process/` | Process control |
-
-**Objectives** (`obj/`) - MBC Objectives:
-
-| Prefix | Description |
-|---|---|
-| `obj/anti-analysis/` | Evade dynamic analysis |
-| `obj/anti-forensics/` | Cover tracks |
-| `obj/anti-static/` | Evade static analysis |
-| `obj/c2/` | Command & control |
-| `obj/collect/` | Information gathering |
-| `obj/creds/` | Credential theft |
-| `obj/discovery/` | Environment reconnaissance |
-| `obj/exfil/` | Data exfiltration |
-| `obj/impact/` | Destructive operations |
-| `obj/lateral/` | Lateral movement |
-| `obj/persist/` | Persistence mechanisms |
-| `obj/privesc/` | Privilege escalation |
-
-**Known** (`known/`): Malware families (`known/malware/`) and security tools (`known/tools/`).
-
-## Trait Placement (CRITICAL)
-
-**Generic capabilities NEVER go in `known/`.** Only family-unique identifiers belong there.
-
-```yaml
-# known/malware/backdoor/examplebot/traits.yaml - CORRECT
-traits:
-  - id: marker  # Malware-specific only (auto-prefixed to known/malware/backdoor/examplebot/marker)
-    if: { type: string, exact: "ExampleBot_v2.1" }
-
-composite_rules:
-  - id: detected
-    all:
-      - id: marker                       # Local reference
-      - id: cap/exec/shell/bin-sh        # From cap/exec/shell/
-      - id: cap/comm/proxy/socks5-proto  # From cap/comm/proxy/
-```
-
-## File Organization
-
-```
-traits/cap/exec/shell/
-├── traits.yaml      # Primary definitions
-├── combos.yaml      # Composite rules
-├── linux.yaml       # Platform-specific
-└── python.yaml      # Language-specific
-```
-
-**Trait IDs** are relative to directory (auto-prefixed). Use full path for cross-tier references: `cap/exec/shell/subprocess`
-
-DISSECT also supports cross-directory reference to match any rule in a directory: cap/exec/shell/ 
+- Generic capabilities NEVER go in `known/` - only family-unique signatures there
+- IDs are auto-prefixed by directory
+- Cross-tier references use full paths: `cap/exec/shell/subprocess`
+- Cross-directory match: `cap/exec/shell/` matches all in directory
 
 ## Criticality Levels
 
-| Level | Description | Examples |
-|-------|-------------|----------|
-| `inert` | Universal baseline | `open()`, `read()`, `malloc()` |
-| `notable` | Defines program purpose | `socket()`, `exec()`, `eval()` |
-| `suspicious` | Hides intent/crosses boundaries | VM detection, obfuscation |
-| `hostile` | Attack patterns, no legitimate use | Reverse shell, ransomware |
+| Level | Use When |
+|-------|----------|
+| `inert` | Universal baseline (`open()`, `read()`, `malloc()`) |
+| `notable` | Defines program purpose (`socket()`, `exec()`, `eval()`) |
+| `suspicious` | Hides intent/crosses boundaries (VM detection, obfuscation) |
+| `hostile` | Attack patterns, no legitimate use (reverse shell, ransomware) |
 
-**When in doubt:** Notable > Inert, Notable > Suspicious, Suspicious > Hostile
+**HOSTILE composites require complexity ≥ 4**, else downgraded to SUSPICIOUS. Complexity: `any:` (+1), `all:` (+N), `file_types:`/`size_min:`/`size_max:` (+1 each).
 
-### HOSTILE Complexity Requirement
-
-**HOSTILE composites require complexity ≥ 4** or they're downgraded to SUSPICIOUS.
-
-**Complexity calculation:**
-- `any:` → +1 (regardless of sub-pattern count)
-- `all:` → +N (N = number of rules)
-- `file_types:`, `size_min:`, `size_max:` → +1 each
-- Referenced composites with `all:` add recursively
-
-```yaml
-# Complexity = 4 ✓ HOSTILE maintained
-- id: good-trojan
-  crit: hostile
-  file_types: [javascript]  # +1
-  all:                       # +3
-    - id: pattern-a
-    - id: pattern-b
-    - id: pattern-c
-```
-
-### Count Operators
-
-| Operator | Description |
-|----------|-------------|
-| `needs: N` | At least N must match |
-| `count_max: N` | At most N can match |
-| `count_exact: N` | Exactly N must match |
-
-### Size Constraints
-
-| Operator | Description |
-|----------|-------------|
-| `size_min: N` | Minimum file size in bytes |
-| `size_max: N` | Maximum file size in bytes |
-
-## Trait Definitions
+## Trait Definition Fields
 
 ```yaml
 traits:
-  - id: exec/process/terminate
-    desc: Process termination API invocation    # Keep 4-6 words, clear intent
-    crit: suspicious
-    conf: 0.95
-    mbc: "E1562"                       # Optional
-    attack: "T1562"                    # Optional
-    for: [csharp]                      # File types
-    platforms: [all]                   # linux, macos, windows, unix, all
-    size_min: 1000                     # Optional: minimum file size in bytes
-    size_max: 10485760                 # Optional: maximum file size in bytes
-    if:
+  - id: exec/process/terminate          # Trait ID (relative to directory)
+    desc: Process termination API call   # 4-6 words: what was detected, not why it's suspicious
+    crit: suspicious                     # inert, notable, suspicious, hostile
+    conf: 0.95                           # Confidence (0.0-1.0)
+    mbc: "E1562"                         # Optional MBC code
+    attack: "T1562"                      # Optional ATT&CK code
+    for: [csharp]                        # File types: elf, macho, pe, dll, so, dylib, shell, python, javascript, rust, java, class, ruby, c, go, csharp, php, all
+    platforms: [all]                     # linux, macos, windows, unix, all
+    size_min: 1000                       # Minimum file size (bytes, optional)
+    size_max: 10485760                   # Maximum file size (bytes, optional)
+    if:                                  # Condition (see Condition Types section)
       type: ast
       kind: call
       exact: ".Kill("
 ```
 
-**File types:** `all`, `elf`, `macho`, `pe`, `dll`, `so`, `dylib`, `shell`, `python`, `javascript`, `rust`, `java`, `class`, `ruby`, `c`, `go`, `csharp`, `php`
+Descriptions: concrete, 4-6 words, describe the observation (not the judgment).
 
-### Description Guidelines
+## Condition Types Reference
 
-Trait descriptions should be **4-6 words** and clearly describe **what was detected**, not why it's suspicious.
+**ast** - Parse source code. Kinds: call, function, class, import, string, comment, assignment, argument, return, binary_op, identifier, attribute, subscript, conditional, loop. Match with: `exact:`, `regex:`, or `query:` (tree-sitter).
 
-**Good descriptions:**
-- `apt-get package installation command` (4 words, concrete)
-- `automated apt-get install without interaction` (5 words, specific behavior)
-- `SSH configuration file modification` (4 words, clear intent)
-- `firewall rule opening for SSH` (5 words, actionable)
+**symbol** - Function imports/exports. Match with: `exact:`, `regex:`. Preview: `dissect symbols <file>`.
 
-**Avoid:**
-- Too short: `apt install` (not descriptive)
-- Too long: `Malicious automated package manager installation without user interaction for privilege escalation` (vague, should be broken into separate traits)
-- Behavioral interpretation: `Suspicious package installation` (criticality is set elsewhere; describe what, not whether it's bad)
+**string** - Extracted strings. Match with: `substr:`, `exact:`, `regex:`, `word:`. Modifiers: `min_count:`, `case_insensitive:`, `exclude_patterns:` (filter matches). Preview: `dissect strings <file>`.
 
-## Condition Types
+**hex** - Byte patterns. Syntax: `7F 45 4C 46` (literals), `??` (any byte), `[N]` (skip N), `[N-M]` (gap range). Optional: `offset:`, `offset_range:`, `min_count:`, `extract_wildcards:`.
 
-### ast
+**content** - Raw file bytes. Match with: `substr:`, `exact:`, `regex:`. (Less precise than string.)
 
-Match patterns in parsed source code.
+**yara** - Yara rules. Use sparingly; prefer traits + composites.
 
-```yaml
-# Simple mode (recommended)
-if:
-  type: ast
-  kind: call              # call, function, class, import, string, etc.
-  exact: "eval"           # or regex:
+**basename** - Filename match. Match with: `exact:`, `substr:`, `regex:`. Optional: `case_insensitive:`.
 
-# Advanced mode (tree-sitter query)
-if:
-  type: ast
-  query: |
-    (call_expression function: (identifier) @fn)
-    (#eq? @fn "eval")
-```
+**trait_glob** - Match traits by pattern. Fields: `pattern:`, `match:` (any/all/number).
 
-**Kinds:** `call`, `function`, `class`, `import`, `string`, `comment`, `assignment`, `argument`, `return`, `binary_op`, `identifier`, `attribute`, `subscript`, `conditional`, `loop`
+**base64** - Base64-decoded strings. Match with: `substr:`, `exact:`, `regex:`, `word:`. Modifiers: `min_count:`, `case_insensitive:`.
 
-### symbol
+**xor** - XOR-decoded strings (with optional key). Match with: `substr:`, `exact:`, `regex:`, `word:`. Modifiers: `min_count:`, `case_insensitive:`.
 
-Match function imports/exports. Use `dissect symbols <file>` to preview.
+**syscall** - Direct syscall usage patterns. Match with: `exact:`, `regex:`.
 
-```yaml
-if:
-  type: symbol
-  exact: "socket"    # or regex:
-```
+**section_name** - Binary section name matching. Match with: `exact:`, `substr:`, `regex:`. Optional: `case_insensitive:`.
 
-### string
+**layer_path** - String encoding layer path matching. Match with: `exact:`, `regex:`.
 
-Match extracted strings. Use `dissect strings <file>` to preview.
-
-```yaml
-if:
-  type: string
-  substr: "http://"      # or exact:, regex:, word:
-  min_count: 1
-  case_insensitive: false
-```
-
-### hex
-
-Match byte patterns with wildcards and gaps.
-
-```yaml
-if:
-  type: hex
-  pattern: "7F 45 4C 46"        # ELF magic
-  pattern: "31 ?? 48 83"        # ?? = any byte
-  pattern: "00 03 [4] 00 04"    # [N] = skip N bytes
-  pattern: "00 03 [2-8] 00"     # [N-M] = variable gap
-  offset: 0                      # Optional: only at position
-```
-
-### content
-
-Search raw file bytes (less precise than `string`).
-
-```yaml
-if:
-  type: content
-  substr: "eval("          # or exact:, regex:
-```
-
-### yara
-
-Use sparingly. Prefer traits + composites.
-
-```yaml
-if:
-  type: yara
-  source: |
-    rule detect { strings: $a = "UPX!" condition: $a at 0 }
-```
-
-### section_name
-
-Match binary section names.
-
-```yaml
-if:
-  type: section_name
-  pattern: "UPX"
-  regex: true           # Optional
-```
-
-### basename
-
-Match basename (final path component). Useful for special files like `__init__.py`, `setup.py`.
-
-```yaml
-if:
-  type: basename
-  exact: "__init__.py"     # or substr:, regex:
-  case_insensitive: false
-```
-
-### trait_glob
-
-Match multiple traits by pattern.
-
-```yaml
-if:
-  type: trait_glob
-  pattern: "xdp-*"
-  match: "any"    # any, all, or number
-```
-
-## Binary Analysis Conditions
-
-For `elf`, `macho`, `pe` only.
-
-### section_entropy
-
-```yaml
-if:
-  type: section_entropy
-  section: "^\\.text"
-  min_entropy: 7.0    # >7.0 = encrypted/packed
-```
-
-### section_ratio
-
-```yaml
-if:
-  type: section_ratio
-  section: "^__const"
-  compare_to: "total"
-  min_ratio: 0.8
-```
-
-### import_combination
-
-```yaml
-if:
-  type: import_combination
-  required: ["kernel32.dll"]
-  suspicious: ["VirtualAlloc", "WriteProcessMemory"]
-  min_suspicious: 2
-```
-
-### metrics
-
-```yaml
-if:
-  type: metrics
-  field: "identifiers.avg_entropy"
-  min: 3.5
-  max: 5.0
-```
+**Binary-only** (elf/macho/pe): `section_entropy`, `section_ratio`, `import_combination`, `metrics`.
 
 ## Composite Rules
 
-Combine traits with boolean logic. Capabilities combine into objectives.
+Combine traits with boolean logic (all/any/none). Example:
 
 ```yaml
-# obj/c2/reverse-shell/combos.yaml
 composite_rules:
   - id: reverse-shell
-    desc: "Reverse shell"
+    desc: Reverse shell pattern
     crit: hostile
     conf: 0.95
     for: [elf, macho]
-    all:                    # AND - all must match
+    all:                              # AND
       - id: cap/comm/socket/create
       - id: cap/process/fd/dup2
       - id: cap/exec/shell
-    any:                    # OR - at least one
+    any:                              # OR
       - id: pattern-a
       - id: pattern-b
-    none:                   # NOT - none can match
+    none:                             # NOT
       - id: legitimate-use
 ```
 
-Composites can reference other composites. Circular dependencies handled gracefully.
+Composites can reference other composites. Circular dependencies are handled.
 
-## Exception Directives
+## Exception/Modifier Directives
 
-### `not:` - String-Level Exceptions
+**`not:`** - Filter matched strings. Match with: `exact:`, `regex:`, or substring.
 
-Filter matched strings from evidence.
+**`unless:`** - Skip trait if condition matches. Accepts trait refs or inline conditions.
 
-```yaml
-- id: hardcoded-domain
-  if: { type: string, regex: "\\b[a-z0-9]+\\.com\\b" }
-  not:
-    - "apple.com"              # Substring match
-    - exact: "github.com"      # Full match
-    - regex: "^192\\.168\\."   # Pattern
-```
+**`downgrade:`** - Reduce criticality one level if condition matches. Chain: hostile→suspicious→notable→inert.
 
-### `unless:` - File-Level Skip
+**Proximity** - `near_bytes:` (evidence within N bytes), `near_lines:` (evidence within N lines).
 
-Skip trait/composite if any condition matches. Supports trait references and inline conditions.
+**Counts** - `needs:` N (minimum from `any:` operator that must match).
 
-```yaml
-- id: network-connect
-  if: { type: symbol, pattern: "connect" }
-  unless:
-    - id: meta/format/system-binary    # Trait reference
-    - type: basename                    # Inline condition
-      regex: "^lib.*\\.so"
-```
+## Reference Codes
 
-### `downgrade:` - Context-Based Criticality
+- **ATT&CK**: `T1234` (technique) or `T1234.001` (sub-technique)
+- **MBC**: `B0001` (behavior), `C0015` (micro-behavior), `E1234` (ATT&CK+MBC)
 
-Reduce criticality by one level when conditions match. Drops: hostile→suspicious→notable→inert.
+## Debugging Commands
 
-```yaml
-- id: bash-history
-  crit: suspicious
-  if: { type: string, substr: ".bash_history" }
-  downgrade:
-    any:                    # At least one must match
-      - type: basename
-        exact: "bash"
-      - type: basename
-        exact: "sh"
-    # Also supports:
-    # all: [...]           # All must match
-    # none: [...]          # None can match
-    # needs: N         # At least N must match
-```
-
-Use for expected behavior: bash referencing `.bash_history`, chrome referencing `History`, ssh tools using `StrictHostKeyChecking=no`.
-
-## Proximity Constraints
-
-```yaml
-scope: method      # Same code scope
-near: 100          # Within N bytes
-near_lines: 10     # Within N lines
-within: exec/eval  # Inside another trait's span
-```
-
-## MBC/ATT&CK Reference
-
-| Prefix | Meaning |
-|--------|---------|
-| B0XXX | Behavioral objective |
-| E1XXX | Enterprise ATT&CK |
-| C0XXX | Micro-behavior |
-| F0XXX | File/defense ops |
-
-## Testing & Debugging
-
-```bash
-dissect /path/to/file              # Analyze
-dissect --json /path/to/file       # JSON output
-dissect -v /path/to/file           # Verbose
-dissect symbols <file>             # View extracted symbols
-dissect strings <file>             # View extracted strings
-```
-
-### test-rules
-
-Debug why rules match or fail.
-
-```bash
-dissect test-rules <FILE> --rules "rule1,rule2"
-```
-
-Shows: match status, complexity breakdown, condition evaluation, and all extracted strings/symbols.
-
-### test-match
-
-Test ad-hoc patterns without creating rules.
-
-```bash
-dissect test-match <FILE> --type string --method contains --pattern "http://"
-dissect test-match <FILE> --type symbol --method exact --pattern "socket"
-dissect test-match <FILE> --type content --method regex --pattern "eval\\("
-```
-
-Options: `--type` (string/symbol/content), `--method` (exact/contains/regex/word), `--file-type`, `--case-insensitive`
+`dissect /path/to/file` - Analyze
+`dissect symbols <file>` - View extracted symbols
+`dissect strings <file>` - View extracted strings
+`dissect test-rules <FILE> --rules "rule1,rule2"` - Debug rule matching
+`dissect test-match <FILE> --type string|symbol|content --method exact|contains|regex --pattern "X"` - Test ad-hoc patterns
