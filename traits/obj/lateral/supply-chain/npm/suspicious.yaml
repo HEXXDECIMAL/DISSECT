@@ -159,7 +159,7 @@ traits:
 
   # Reads .npmrc (token theft)
   - id: npmrc-read
-    desc: Reads .npmrc file (potential token
+    desc: Reads .npmrc file (token theft)
     crit: suspicious
     conf: 0.9
     r#for: [javascript, typescript]
