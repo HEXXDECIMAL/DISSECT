@@ -64,7 +64,7 @@ use clap::Parser;
 use rayon::prelude::*;
 use serde::Serialize;
 use std::fs;
-use std::io::{BufRead, IsTerminal};
+use std::io::BufRead;
 use std::path::Path;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
@@ -172,14 +172,7 @@ fn main() -> Result<()> {
     }
 
     // Print banner to stderr (status info never goes to stdout)
-    eprintln!("DISSECT v{}", env!("CARGO_PKG_VERSION"));
-    eprintln!("Deep static analysis tool\n");
-    if disabled.any_disabled() {
-        eprintln!(
-            "Disabled components: {}",
-            disabled.disabled_names().join(", ")
-        );
-    }
+    eprintln!("DISSECT v{} • Deep static analysis tool\n", env!("CARGO_PKG_VERSION"));
 
     let format = args.format();
 
@@ -552,10 +545,7 @@ fn scan_paths(
     include_all_files: bool,
     sample_extraction: Option<&types::SampleExtractionConfig>,
 ) -> Result<String> {
-    use indicatif::{ProgressBar, ProgressStyle};
     use walkdir::WalkDir;
-
-    eprintln!("Scanning {} path(s)...\n", paths.len());
 
     // Load capability mapper once and share across all threads
     let capability_mapper = Arc::new(crate::capabilities::CapabilityMapper::new());
@@ -619,31 +609,6 @@ fn scan_paths(
         }
     }
 
-    eprintln!(
-        "Found {} files and {} archives to analyze\n",
-        all_files.len(),
-        archives_found.len()
-    );
-
-    // Create progress bar for terminal output only when stdout is a TTY
-    // JSONL output is streaming so don't use progress bar there either
-    let total_items = all_files.len() + archives_found.len();
-    let is_tty = std::io::stdout().is_terminal();
-    let pb = if matches!(format, cli::OutputFormat::Terminal)
-        && is_tty
-        && !matches!(format, cli::OutputFormat::Jsonl)
-    {
-        let bar = ProgressBar::new(total_items as u64);
-        bar.set_style(
-            ProgressStyle::default_bar()
-                .template("[{elapsed_precise}] {bar:40.cyan/blue} {pos}/{len} {msg}")
-                .unwrap()
-                .progress_chars("█▓▒░ "),
-        );
-        Some(Arc::new(bar))
-    } else {
-        None
-    };
 
     // Use Mutex to safely collect results from parallel threads
     let all_reports = Arc::new(Mutex::new(Vec::new()));
@@ -657,15 +622,6 @@ fn scan_paths(
         // Check if another thread already triggered --error-if
         if error_if_triggered.load(Ordering::Relaxed) {
             return Err(());
-        }
-
-        let path = Path::new(&path_str);
-
-        if let Some(ref bar) = pb {
-            bar.set_message(format!(
-                "Analyzing {}",
-                path.file_name().unwrap_or_default().to_string_lossy()
-            ));
         }
 
         match analyze_file_with_shared_mapper(
@@ -685,29 +641,14 @@ fn scan_paths(
                         match output::parse_json_v2(&json) {
                             Ok(report) => match output::format_terminal(&report) {
                                 Ok(formatted) => {
-                                    if let Some(ref bar) = pb {
-                                        bar.println(formatted);
-                                    } else {
-                                        print!("{}", formatted);
-                                    }
+                                    print!("{}", formatted);
                                 }
                                 Err(e) => {
-                                    let msg =
-                                        format!("Error formatting report for {}: {}", path_str, e);
-                                    if let Some(ref bar) = pb {
-                                        bar.println(msg);
-                                    } else {
-                                        eprintln!("{}", msg);
-                                    }
+                                    eprintln!("Error formatting report for {}: {}", path_str, e);
                                 }
                             },
                             Err(e) => {
-                                let msg = format!("Error parsing JSON for {}: {}", path_str, e);
-                                if let Some(ref bar) = pb {
-                                    bar.println(msg);
-                                } else {
-                                    eprintln!("{}", msg);
-                                }
+                                eprintln!("Error parsing JSON for {}: {}", path_str, e);
                             }
                         }
                     }
@@ -737,12 +678,7 @@ fn scan_paths(
                 // Check if this is an --error-if failure - stop processing
                 if err_str.contains("--error-if") {
                     error_if_triggered.store(true, Ordering::Relaxed);
-                    if let Some(ref bar) = pb {
-                        bar.println(format!("✗ {}: {}", path_str, e));
-                        bar.inc(1);
-                    } else {
-                        eprintln!("✗ {}: {}", path_str, e);
-                    }
+                    eprintln!("✗ {}: {}", path_str, e);
                     let mut msg = error_if_message.lock().unwrap();
                     if msg.is_none() {
                         *msg = Some(err_str);
@@ -750,20 +686,10 @@ fn scan_paths(
                     return Err(()); // Short-circuit parallel iteration
                 }
 
-                if pb.is_none() {
-                    eprintln!("✗ {}: {}", path_str, e);
-                } else {
-                    // Show error but keep progress bar
-                    if let Some(ref bar) = pb {
-                        bar.println(format!("✗ {}: {}", path_str, e));
-                    }
-                }
+                eprintln!("✗ {}: {}", path_str, e);
             }
         }
 
-        if let Some(ref bar) = pb {
-            bar.inc(1);
-        }
         Ok(())
     });
 
@@ -773,15 +699,6 @@ fn scan_paths(
             // Check if another thread already triggered --error-if
             if error_if_triggered.load(Ordering::Relaxed) {
                 return Err(());
-            }
-
-            let path = Path::new(&path_str);
-
-            if let Some(ref bar) = pb {
-                bar.set_message(format!(
-                    "Extracting {}",
-                    path.file_name().unwrap_or_default().to_string_lossy()
-                ));
             }
 
             // For JSONL format, use true streaming analysis for archives
@@ -799,9 +716,6 @@ fn scan_paths(
                     Err(e) => {
                         eprintln!("✗ {}: {}", path_str, e);
                     }
-                }
-                if let Some(ref bar) = pb {
-                    bar.inc(1);
                 }
                 return Ok(());
             }
@@ -823,22 +737,10 @@ fn scan_paths(
                             match output::parse_json_v2(&json) {
                                 Ok(report) => match output::format_terminal(&report) {
                                     Ok(formatted) => {
-                                        if let Some(ref bar) = pb {
-                                            bar.println(formatted);
-                                        } else {
-                                            print!("{}", formatted);
-                                        }
+                                        print!("{}", formatted);
                                     }
                                     Err(e) => {
-                                        let msg = format!(
-                                            "Error formatting report for {}: {}",
-                                            path_str, e
-                                        );
-                                        if let Some(ref bar) = pb {
-                                            bar.println(msg);
-                                        } else {
-                                            eprintln!("{}", msg);
-                                        }
+                                        eprintln!("Error formatting report for {}: {}", path_str, e);
                                     }
                                 },
                                 Err(e) => {
@@ -847,11 +749,7 @@ fn scan_paths(
                                         "DEBUG: JSON preview: {}",
                                         &json[..json.len().min(500)]
                                     );
-                                    let msg = format!("Error parsing JSON for {}: {}", path_str, e);
-                                    if let Some(ref bar) = pb {
-                                        bar.println(msg.clone());
-                                    }
-                                    eprintln!("{}", msg);
+                                    eprintln!("Error parsing JSON for {}: {}", path_str, e);
                                 }
                             }
                         }
@@ -870,12 +768,7 @@ fn scan_paths(
                     // Check if this is an --error-if failure - stop processing
                     if err_str.contains("--error-if") {
                         error_if_triggered.store(true, Ordering::Relaxed);
-                        if let Some(ref bar) = pb {
-                            bar.println(format!("✗ {}: {}", path_str, e));
-                            bar.inc(1);
-                        } else {
-                            eprintln!("✗ {}: {}", path_str, e);
-                        }
+                        eprintln!("✗ {}: {}", path_str, e);
                         let mut msg = error_if_message.lock().unwrap();
                         if msg.is_none() {
                             *msg = Some(err_str);
@@ -883,29 +776,16 @@ fn scan_paths(
                         return Err(()); // Short-circuit parallel iteration
                     }
 
-                    if pb.is_none() {
-                        eprintln!("✗ {}: {}", path_str, e);
-                    } else {
-                        // Show error but keep progress bar
-                        if let Some(ref bar) = pb {
-                            bar.println(format!("✗ {}: {}", path_str, e));
-                        }
-                    }
+                    eprintln!("✗ {}: {}", path_str, e);
                 }
             }
 
-            if let Some(ref bar) = pb {
-                bar.inc(1);
-            }
             Ok(())
         })
     } else {
         Err(()) // Skip archives if files already failed
     };
 
-    if let Some(ref bar) = pb {
-        bar.finish_with_message("Scan complete");
-    }
 
     // If --error-if was triggered, return the error
     if files_result.is_err() || archives_result.is_err() {
@@ -937,14 +817,7 @@ fn scan_paths(
             Ok(serde_json::to_string(&summary).unwrap_or_default())
         }
         cli::OutputFormat::Terminal => {
-            // For terminal, show summary
-            let mut output = String::new();
-            output.push_str("\n📊 Scan Summary\n");
-            output.push_str(&format!("  Files analyzed: {}\n", all_files.len()));
-            output.push_str(&format!("  Archives analyzed: {}\n", archives_found.len()));
-            output.push_str(&format!("  Total reports: {}\n", reports.len()));
-            output.push_str("  Analysis complete\n\n");
-            Ok(output)
+            Ok(String::new())
         }
     }
 }

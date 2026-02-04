@@ -456,18 +456,43 @@ impl RawContentRegexIndex {
         let pattern_to_traits: Vec<Vec<usize>> =
             trait_indices.into_iter().map(|idx| vec![idx]).collect();
 
+        // Try to build the regex set. If it fails due to size limits, split into smaller chunks
         match RegexSet::new(&pattern_strs) {
             Ok(regex_set) => Some(FileTypeRegexSet {
                 regex_set,
                 pattern_to_traits,
             }),
             Err(e) => {
-                eprintln!(
-                    "warning: Failed to compile regex set ({} patterns): {}",
-                    pattern_strs.len(),
-                    e
-                );
-                None
+                // If regex set is too large, split it into smaller chunks and retry
+                let error_str = e.to_string();
+                if error_str.contains("exceeds size limit") && pattern_strs.len() > 20 {
+                    // Split into roughly half-sized chunks and try again
+                    let mid = pattern_strs.len() / 2;
+                    let (patterns1, patterns2) = pattern_strs.split_at(mid);
+                    let (indices1, indices2) = pattern_to_traits.split_at(mid);
+
+                    // Try first half
+                    if let Ok(regex_set) = RegexSet::new(patterns1) {
+                        return Some(FileTypeRegexSet {
+                            regex_set,
+                            pattern_to_traits: indices1.to_vec(),
+                        });
+                    }
+
+                    // Try second half as fallback
+                    if let Ok(regex_set) = RegexSet::new(patterns2) {
+                        return Some(FileTypeRegexSet {
+                            regex_set,
+                            pattern_to_traits: indices2.to_vec(),
+                        });
+                    }
+                }
+
+                // If we still can't build the regex set, this is a fatal error
+                eprintln!("\n❌ FATAL: Failed to compile regex set ({} patterns):\n   {}\n", pattern_strs.len(), e);
+                eprintln!("   This usually means the combined regex patterns are too complex.");
+                eprintln!("   Consider splitting patterns into smaller trait definitions.\n");
+                std::process::exit(1);
             }
         }
     }

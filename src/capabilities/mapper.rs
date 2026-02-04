@@ -62,10 +62,6 @@ impl CapabilityMapper {
         // YAML parse errors or invalid trait configurations are fatal
         match Self::from_directory("traits") {
             Ok(mapper) => {
-                eprintln!("✅ Loaded capabilities from traits/ directory");
-                eprintln!("   {} symbol mappings", mapper.symbol_map.len());
-                eprintln!("   {} trait definitions", mapper.trait_definitions.len());
-                eprintln!("   {} composite rules", mapper.composite_rules.len());
                 return mapper;
             }
             Err(e) => {
@@ -88,8 +84,6 @@ impl CapabilityMapper {
 
         match Self::from_yaml("capabilities.yaml") {
             Ok(mapper) => {
-                eprintln!("✅ Loaded capabilities from capabilities.yaml");
-                eprintln!("   {} symbol mappings", mapper.symbol_map.len());
                 return mapper;
             }
             Err(e) => {

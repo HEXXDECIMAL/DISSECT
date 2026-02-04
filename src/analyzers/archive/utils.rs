@@ -214,10 +214,8 @@ pub(crate) fn detect_archive_type_with_magic(path: &Path) -> std::io::Result<&'s
 
             if magic[0..2] == [0x1f, 0x8b] {
                 Ok("tar.gz") // Alpine APK
-            } else if magic == [b'P', b'K', 0x03, 0x04] {
-                Ok("zip") // Android APK
             } else {
-                Ok("zip") // Default to Android
+                Ok("zip") // Android APK (default)
             }
         }
         "pkg" => {

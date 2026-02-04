@@ -43,6 +43,7 @@ fn supports_ast(file_type: FileType) -> bool {
 
 /// Evaluate unified AST condition
 /// Handles both simple mode (kind/node + exact/substr/regex) and advanced mode (query)
+#[allow(clippy::too_many_arguments)]
 pub fn eval_ast(
     kind: Option<&str>,
     node: Option<&str>,

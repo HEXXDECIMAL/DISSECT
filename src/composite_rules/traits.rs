@@ -1336,8 +1336,8 @@ impl CompositeTrait {
         for i in 0..line_numbers.len() {
             let start_line = line_numbers[i];
             let mut count = 0;
-            for j in i..line_numbers.len() {
-                if line_numbers[j] - start_line <= max_line_span {
+            for &line in line_numbers[i..].iter() {
+                if line - start_line <= max_line_span {
                     count += 1;
                     if count >= min_required {
                         return true;
@@ -1387,8 +1387,8 @@ impl CompositeTrait {
         for i in 0..byte_offsets.len() {
             let start_offset = byte_offsets[i];
             let mut count = 0;
-            for j in i..byte_offsets.len() {
-                if byte_offsets[j] - start_offset <= max_byte_span {
+            for &offset in byte_offsets[i..].iter() {
+                if offset - start_offset <= max_byte_span {
                     count += 1;
                     if count >= min_required {
                         return true;

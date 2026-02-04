@@ -408,6 +408,9 @@ pub fn parse_json_v2(json: &str) -> Result<AnalysisReport> {
 pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
     let mut output = String::new();
 
+    // Compile ANSI strip regex once, outside all loops
+    let ansi_re = regex::Regex::new(r"\x1b\[[0-9;]*m").unwrap();
+
     // Iterate over files that have findings
     for file in &report.files {
         // Skip files with no findings
@@ -415,18 +418,10 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
             continue;
         }
 
-        // File header with risk indicator
-        let risk_indicator = match file.risk {
-            Some(Criticality::Hostile) => "🛑".to_string(),
-            Some(Criticality::Suspicious) => "🟡".to_string(),
-            Some(Criticality::Notable) => "🔵".to_string(),
-            _ => "".to_string(),
-        };
-
+        // File header
         output.push_str(&format!(
-            "├─ {} {}\n",
-            file.path.bright_white(),
-            risk_indicator
+            "├─ {}\n",
+            file.path.bright_white()
         ));
         output.push_str("│\n");
 
@@ -466,13 +461,10 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
                 .then_with(|| namespace_long_name(a).cmp(namespace_long_name(b)))
         });
 
-        // Compile ANSI strip regex once, outside all loops
-        let ansi_re = regex::Regex::new(r"\x1b\[[0-9;]*m").unwrap();
-
         // Render each namespace
         for ns in &namespaces {
             let findings = by_namespace.get(ns).unwrap();
-            output.push_str(&format!("│     ≡ {}\n", namespace_long_name(ns)));
+            output.push_str(&format!("│ ≡ {}\n", namespace_long_name(ns)));
 
             let mut sorted_findings = findings.clone();
             sorted_findings.sort_by(|a, b| b.crit.cmp(&a.crit).then_with(|| a.id.cmp(&b.id)));
@@ -492,18 +484,18 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
                 };
 
                 if evidence.is_empty() {
-                    output.push_str(&format!("│       {}\n", content));
+                    output.push_str(&format!("│   {}\n", content));
                 } else {
                     // Strip ANSI codes for accurate length measurement
                     let display_len = ansi_re
                         .replace_all(&format!("{}: {}", content, evidence), "")
                         .len();
                     if display_len > 120 {
-                        output.push_str(&format!("│       {}\n", content));
-                        output.push_str(&format!("│           {}\n", evidence.bright_black()));
+                        output.push_str(&format!("│   {}\n", content));
+                        output.push_str(&format!("│     {}\n", evidence.bright_black()));
                     } else {
                         output.push_str(&format!(
-                            "│       {}{} {}\n",
+                            "│   {}{} {}\n",
                             content,
                             ":".bright_black(),
                             evidence.bright_black()
@@ -521,7 +513,6 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
         output.push_str("│  No findings\n");
     }
 
-    output.push_str("│\n");
     Ok(output)
 }
 
