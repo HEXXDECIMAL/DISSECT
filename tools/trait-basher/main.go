@@ -1077,6 +1077,8 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) erro
 			"Use this path for binary analysis tools (radare2, strings, objdump, xxd, nm).", f.ExtractedPath)
 	}
 
+	fmt.Fprintf(os.Stderr, ">>> Preparing to invoke %s (session: %s)\n", cfg.provider, sid)
+
 	critCounts := make(map[string]int)
 	for _, finding := range f.Findings {
 		critCounts[strings.ToLower(finding.Crit)]++
@@ -1116,18 +1118,22 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) erro
 	timedCtx, cancel := context.WithTimeout(ctx, cfg.timeout)
 	defer cancel()
 
+	fmt.Fprintf(os.Stderr, ">>> About to start AI process with timeout %s\n", cfg.timeout)
 	if err := runAIWithStreaming(timedCtx, cfg, prompt, sid); err != nil {
 		fmt.Fprintln(os.Stderr)
 		fmt.Fprintf(os.Stderr, "<<< %s failed: %v\n", cfg.provider, err)
 		return err
 	}
 	fmt.Fprintln(os.Stderr)
-	fmt.Fprintf(os.Stderr, "<<< %s finished\n", cfg.provider)
+	fmt.Fprintf(os.Stderr, "<<< %s finished successfully\n", cfg.provider)
 	return nil
 }
 
 func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid string) error {
 	problematic := archiveProblematicMembers(a, cfg.knownGood)
+
+	fmt.Fprintf(os.Stderr, ">>> Preparing to invoke %s for archive (session: %s)\n", cfg.provider, sid)
+	fmt.Fprintf(os.Stderr, ">>> Archive: %s (%d members, %d problematic)\n", a.ArchivePath, len(a.Members), len(problematic))
 
 	// Extract archive (full for --bad, problematic files only for --good)
 	extractDir, err := os.MkdirTemp("", "trait-basher-archive-*")
@@ -1269,18 +1275,21 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 	timedCtx, cancel := context.WithTimeout(ctx, cfg.timeout)
 	defer cancel()
 
+	fmt.Fprintf(os.Stderr, ">>> About to start AI process with timeout %s\n", cfg.timeout)
 	err = runAIWithStreaming(timedCtx, cfg, prompt, sid)
 	fmt.Fprintln(os.Stderr)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "<<< %s failed: %v\n", cfg.provider, err)
 		return err
 	}
-	fmt.Fprintf(os.Stderr, "<<< %s finished\n", cfg.provider)
+	fmt.Fprintf(os.Stderr, "<<< %s finished successfully\n", cfg.provider)
 	return nil
 }
 
 func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) error {
 	var cmd *exec.Cmd
+
+	fmt.Fprintf(os.Stderr, ">>> Setting up %s command (%s provider)\n", cfg.provider, cfg.provider)
 
 	switch cfg.provider {
 	case "claude":
@@ -1293,6 +1302,7 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 		}
 		if cfg.model != "" {
 			args = append(args, "--model", cfg.model)
+			fmt.Fprintf(os.Stderr, ">>> Using Claude model: %s\n", cfg.model)
 		}
 		cmd = exec.CommandContext(ctx, "claude", args...)
 	case "gemini":
@@ -1305,12 +1315,16 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 		}
 		if cfg.model != "" {
 			args = append(args, "--model", cfg.model)
+			fmt.Fprintf(os.Stderr, ">>> Using Gemini model: %s\n", cfg.model)
+		} else {
+			fmt.Fprintf(os.Stderr, ">>> Using default Gemini model\n")
 		}
 		cmd = exec.CommandContext(ctx, "gemini", args...)
 	case "opencode":
 		args := []string{"-p", prompt}
 		if cfg.model != "" {
 			args = append(args, "--model", cfg.model)
+			fmt.Fprintf(os.Stderr, ">>> Using OpenCode model: %s\n", cfg.model)
 		}
 		cmd = exec.CommandContext(ctx, "opencode", args...)
 	default:
@@ -1321,6 +1335,8 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 
 	// Print the exact command being executed
 	fmt.Fprintf(os.Stderr, ">>> Command: %s %s\n", cmd.Path, strings.Join(cmd.Args[1:], " "))
+	fmt.Fprintf(os.Stderr, ">>> Working directory: %s\n", cmd.Dir)
+	fmt.Fprintf(os.Stderr, ">>> Prompt size: %d bytes\n", len(prompt))
 
 	if devNull, err := os.Open(os.DevNull); err == nil {
 		cmd.Stdin = devNull
@@ -1337,68 +1353,114 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 		return fmt.Errorf("could not create stderr pipe: %w", err)
 	}
 
+	fmt.Fprintf(os.Stderr, ">>> Starting process...\n")
 	if err := cmd.Start(); err != nil {
 		return fmt.Errorf("could not start %s: %w", cfg.provider, err)
 	}
+	fmt.Fprintf(os.Stderr, ">>> Process started (PID: %d)\n", cmd.Process.Pid)
 
 	var stderrLines []string
 	var stderrMu sync.Mutex
 	done := make(chan struct{})
 	go func() {
 		scanner := bufio.NewScanner(stdout)
+		lineCount := 0
 		for scanner.Scan() {
+			lineCount++
 			displayStreamEvent(scanner.Text())
 		}
+		fmt.Fprintf(os.Stderr, ">>> stdout closed after %d lines\n", lineCount)
 		done <- struct{}{}
 	}()
 
 	go func() {
 		scanner := bufio.NewScanner(stderr)
+		lineCount := 0
 		for scanner.Scan() {
 			line := scanner.Text()
+			lineCount++
 			fmt.Fprintf(os.Stderr, "  [stderr] %s\n", line)
 			stderrMu.Lock()
 			stderrLines = append(stderrLines, line)
 			stderrMu.Unlock()
 		}
+		if lineCount > 0 {
+			fmt.Fprintf(os.Stderr, ">>> stderr closed after %d lines\n", lineCount)
+		}
 		done <- struct{}{}
 	}()
 
 	finished := 0
+	ticker := time.NewTicker(5 * time.Second)
+	defer ticker.Stop()
+
 	for finished < 2 {
 		select {
 		case <-done:
 			finished++
+			fmt.Fprintf(os.Stderr, ">>> Stream %d/2 finished\n", finished)
+		case <-ticker.C:
+			if cmd.ProcessState == nil {
+				fmt.Fprintf(os.Stderr, ">>> Still running (PID: %d, timeout remaining: %s)\n",
+					cmd.Process.Pid, timeRemaining(ctx))
+			}
 		case <-ctx.Done():
-			fmt.Fprintln(os.Stderr, "\n  [timeout] timed out, killing process...")
+			fmt.Fprintln(os.Stderr, "\n>>> [timeout] timed out, killing process...")
 			io.Copy(io.Discard, stdout) //nolint:errcheck,gosec // drain pipes on timeout
 			io.Copy(io.Discard, stderr) //nolint:errcheck,gosec // drain pipes on timeout
 			cmd.Process.Kill()          //nolint:errcheck,gosec // best-effort kill on timeout
+			fmt.Fprintf(os.Stderr, ">>> Process killed (PID: %d)\n", cmd.Process.Pid)
 			return fmt.Errorf("timeout: %w", ctx.Err())
 		}
 	}
 
+	fmt.Fprintf(os.Stderr, ">>> Waiting for process to exit...\n")
 	err = cmd.Wait()
 	exitCode := cmd.ProcessState.ExitCode()
-	fmt.Fprintf(os.Stderr, "\n<<< Process exited with code %d\n", exitCode)
+	fmt.Fprintf(os.Stderr, ">>> Process exited with code %d\n", exitCode)
 
 	if err != nil {
 		if ctx.Err() == context.DeadlineExceeded {
 			return errors.New("exceeded time limit")
 		}
 		stderrMu.Lock()
-		lastLines := stderrLines
-		if len(lastLines) > 5 {
-			lastLines = lastLines[len(lastLines)-5:]
-		}
+		allStderr := strings.Join(stderrLines, "\n")
 		stderrMu.Unlock()
-		if len(lastLines) > 0 {
-			return fmt.Errorf("%s exited with error: %w\nLast stderr output:\n  %s",
-				cfg.provider, err, strings.Join(lastLines, "\n  "))
+
+		// Build comprehensive error message
+		errMsg := fmt.Sprintf("%s exited with code %d\n\n", cfg.provider, exitCode)
+		errMsg += fmt.Sprintf("Command: %s %s\n", cmd.Path, strings.Join(cmd.Args[1:], " "))
+		errMsg += fmt.Sprintf("Working directory: %s\n", cmd.Dir)
+
+		if allStderr != "" {
+			errMsg += fmt.Sprintf("\nFull stderr output:\n%s\n", allStderr)
+		} else {
+			errMsg += "\n(no stderr output)\n"
 		}
-		return fmt.Errorf("%s exited with error: %w", cfg.provider, err)
+
+		fmt.Fprintf(os.Stderr, "\n>>> %s\n", errMsg)
+		return fmt.Errorf("%s", errMsg)
 	}
 	return nil
+}
+
+// timeRemaining returns a human-readable string for remaining context time.
+func timeRemaining(ctx context.Context) string {
+	deadline, ok := ctx.Deadline()
+	if !ok {
+		return "unlimited"
+	}
+	remaining := time.Until(deadline)
+	if remaining <= 0 {
+		return "0s"
+	}
+	if remaining < time.Minute {
+		return fmt.Sprintf("%ds", int(remaining.Seconds()))
+	}
+	if remaining < time.Hour {
+		return fmt.Sprintf("%dm%ds", int(remaining.Minutes()), int(remaining.Seconds())%60)
+	}
+	return fmt.Sprintf("%dh%dm", int(remaining.Hours()), int(remaining.Minutes())%60)
 }
 
 // displayStreamEvent parses a stream-json line and displays relevant info.
