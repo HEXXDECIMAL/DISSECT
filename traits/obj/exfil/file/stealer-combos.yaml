@@ -20,31 +20,7 @@ composite_rules:
       - id: obj/collect/file-targeting/stealer-extension-list
       - id: obj/creds/wallet/mnemonic/wallet-word
 
-  # Combination 2: Binary file modes + network = exfiltration
-  # NOTE: Excludes legitimate binaries that naturally combine file I/O with networking:
-  # - Debuggers (gdb, lldb) - remote debugging
-  # - X11 IPC libraries (libICE, libSM) - session management uses sockets + file auth
-  # - Network libraries (libcurl, libssl) - inherently do both
-  - id: binary-file-network-exfil
-    desc: "Binary file operations with network"
-    crit: suspicious
-    conf: 0.9
-    attack: "T1041"
-    for: [elf, macho, pe]
-    all:
-      - id: cap/fs/file-ops/binary-file-ops
-    needs: 1
-    any:
-      - id: cap/comm/download/curl/libcurl-http
-      - id: cap/comm/socket/create
-    none:
-      - id: cap/exec/load/debugger-tool-marker
-      - id: cap/exec/load/x11-ipc-lib-marker
-      - id: cap/exec/load/network-lib-marker
-      - id: cap/exec/load/graphics-lib-marker
-      - id: cap/exec/load/system-lib-marker
-
-  # Combination 3: fcopyfile + network (macOS)
+  # Combination 2: fcopyfile + network (macOS)
   - id: macos-file-copy-exfil
     desc: "macOS file copying with network"
     crit: suspicious
@@ -59,7 +35,7 @@ composite_rules:
       - id: cap/comm/download/curl/libcurl-http
       - id: cap/comm/socket/create
 
-  # Combination 4: Directory traversal + file extensions + network
+  # Combination 3: Directory traversal + file extensions + network
   # NOTE: Excludes system libraries (libc) which provide these primitives
   - id: recursive-file-theft
     desc: "Recursive directory scan with file"
@@ -82,7 +58,7 @@ composite_rules:
       - id: cap/exec/load/network-lib-marker
       - id: cap/exec/load/debugger-tool-marker
 
-  # Combination 5: Hardware UUID + base64 = fingerprint encoding
+  # Combination 4: Hardware UUID + base64 = fingerprint encoding
   - id: encoded-hardware-fingerprint
     desc: "Hardware fingerprint with base64 encoding"
     crit: suspicious
@@ -97,7 +73,7 @@ composite_rules:
       - id: obj/discovery/fingerprint/machine-id
       - id: obj/discovery/fingerprint/hardware-uuid
 
-  # Combination 6: Custom base64 + XOR + network = obfuscated exfil
+  # Combination 5: Custom base64 + XOR + network = obfuscated exfil
   - id: obfuscated-exfiltration
     desc: "Multi-layer encoding with network (obfuscated"
     crit: hostile
@@ -113,7 +89,7 @@ composite_rules:
       - id: cap/comm/download/curl/libcurl-http
       - id: cap/comm/socket/create
 
-  # Combination 7: libcurl + fingerprinting + obfuscation
+  # Combination 6: libcurl + fingerprinting + obfuscation
   - id: stealer-trifecta
     desc: "Complete stealer pattern (network +"
     crit: hostile

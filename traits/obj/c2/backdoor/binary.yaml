@@ -264,7 +264,7 @@ composite_rules:
       - id: cap/exec/load/system-lib-marker
       - id: cap/exec/load/x11-ipc-lib-marker
       - id: cap/exec/load/graphics-lib-marker
-      - id: cap/exec/go-runtime-marker
+      - id: cap/exec/load/go-runtime/
       - id: cap/exec/load/debugger-tool-marker
 
   - id: unexpected-process-ops
@@ -279,7 +279,7 @@ composite_rules:
       - id: cap/exec/command/shell/c-popen
       - id: cap/exec/command/shell/bin-sh
     none:
-      - id: cap/exec/go-runtime-marker
+      - id: cap/exec/load/go-runtime/
       - id: cap/exec/load/shell-interpreter
       - id: cap/exec/load/system-lib-marker
       # Compiler tools legitimately spawn processes for compilation

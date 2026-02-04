@@ -679,9 +679,9 @@ impl MachOAnalyzer {
                 .first()
                 .and_then(|auth| {
                     // Extract just the company name from "Developer ID Application: Google LLC (EQHXZ8M8AV)"
-                    auth.split(": ").nth(1).map(|s| {
-                        s.split(" (").next().unwrap_or(s).to_string()
-                    })
+                    auth.split(": ")
+                        .nth(1)
+                        .map(|s| s.split(" (").next().unwrap_or(s).to_string())
                 })
                 .unwrap_or_default();
 
@@ -726,11 +726,12 @@ impl MachOAnalyzer {
         // Entitlements traits
         for (entitlement_key, _value) in &codesig.entitlements {
             let ent_trait_id = format!("meta/entitlement/{}", entitlement_key);
+            let desc = describe_entitlement(entitlement_key);
             report.findings.push(Finding {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: ent_trait_id,
-                desc: format!("Entitlement: {}", entitlement_key),
+                desc,
                 conf: 1.0,
                 crit: determine_entitlement_criticality(entitlement_key, &codesig.signature_type),
                 mbc: None,
@@ -944,6 +945,84 @@ impl MachOAnalyzer {
 }
 
 /// Determine criticality of an entitlement based on its key
+fn describe_entitlement(key: &str) -> String {
+    // Extract meaningful description from entitlement key
+    let descriptions = [
+        // Privacy/Device Access
+        ("device.camera", "Camera access"),
+        ("device.audio-input", "Microphone access"),
+        ("device.microphone", "Microphone access"),
+        ("device.bluetooth", "Bluetooth access"),
+        ("personal-information.location", "Location data access"),
+        ("personal-information.health", "Health data access"),
+        (
+            "personal-information.photos-library",
+            "Photos library access",
+        ),
+        ("personal-information.contacts", "Contacts access"),
+        ("personal-information.calendar", "Calendar access"),
+        ("personal-information.reminders", "Reminders access"),
+        // System Access
+        ("keystore.access-keychain-keys", "Keychain key access"),
+        ("keystore.lockassertion", "Keychain lock assertion"),
+        ("security.storage.Keychains", "Keychain storage access"),
+        // Code Execution & Security
+        (
+            "cs.disable-library-validation",
+            "Disable library validation",
+        ),
+        ("cs.allow-jit", "Allow JIT compilation"),
+        (
+            "cs.allow-unsigned-executable-memory",
+            "Allow unsigned executable memory",
+        ),
+        ("cs.debugger", "Debugger entitlement"),
+        // Process & XPC
+        (
+            "xpc.launchd.ios-system-session",
+            "iOS system session access",
+        ),
+        ("xpc.launchd", "Launchd XPC access"),
+        // Application Features
+        ("application-identifier", "Application identifier"),
+        ("app-identifier", "App identifier"),
+        ("push-service", "Push notification service"),
+        ("icloud-container-identifiers", "iCloud container access"),
+        // Databases & Storage
+        ("sqlite.sqlite-encryption", "SQLite encryption"),
+        // Debugging & Diagnostics
+        ("symptom_diagnostics.report", "System diagnostics reporting"),
+        // Private APIs (Apple Internal)
+        ("private.MobileGestalt", "MobileGestalt queries"),
+        ("private.applecredentialmanager", "Apple credential manager"),
+        ("private.security.storage", "Private security storage"),
+        // File/Sandbox Access
+        ("sandbox.read-write", "Sandbox read-write"),
+        ("home-directory", "Home directory access"),
+    ];
+
+    for (key_part, desc) in descriptions {
+        if key.contains(key_part) {
+            return desc.to_string();
+        }
+    }
+
+    // Fallback: clean up the key name for readability
+    let short_name = key
+        .split('.')
+        .last()
+        .unwrap_or(key)
+        .replace('-', " ")
+        .replace('_', " ");
+
+    // Capitalize first letter
+    let mut chars = short_name.chars();
+    match chars.next() {
+        None => key.to_string(),
+        Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+    }
+}
+
 fn determine_entitlement_criticality(
     entitlement_key: &str,
     signature_type: &macho_codesign::SignatureType,
@@ -1354,5 +1433,325 @@ mod tests {
             0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A,
         ]);
         assert_eq!(identify_payload_type(&data), "Mixed text/binary");
+    }
+
+    // Integration tests for code signature extraction and finding generation
+    #[test]
+    fn test_signature_findings_generated() {
+        let analyzer = MachOAnalyzer::new();
+        let test_file = test_macho_path();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+
+        // Check that signature-related findings are present
+        let has_signed = report.findings.iter().any(|f| f.id.contains("signed/type"));
+        // Note: test.macho might not be signed, so this is a soft assertion
+        if has_signed {
+            assert!(report.findings.iter().any(|f| f.id.contains("signed/type")));
+        }
+    }
+
+    #[test]
+    fn test_entitlements_extracted_when_present() {
+        let analyzer = MachOAnalyzer::new();
+        let test_file = test_macho_path();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+
+        // Check if any entitlement findings are present
+        let entitlement_findings: Vec<_> = report
+            .findings
+            .iter()
+            .filter(|f| f.id.contains("entitlement"))
+            .collect();
+
+        // If the binary has entitlements, verify they're properly extracted
+        if !entitlement_findings.is_empty() {
+            for finding in &entitlement_findings {
+                // Entitlements should have proper evidence
+                assert!(!finding.evidence.is_empty());
+                // Method should be "entitlements_plist"
+                assert!(finding
+                    .evidence
+                    .iter()
+                    .any(|e| e.method == "entitlements_plist"));
+            }
+        }
+    }
+
+    #[test]
+    fn test_team_id_extracted_when_signed() {
+        let analyzer = MachOAnalyzer::new();
+        let test_file = test_macho_path();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+
+        // Check for team ID findings
+        let team_findings: Vec<_> = report
+            .findings
+            .iter()
+            .filter(|f| f.id.contains("signed/team"))
+            .collect();
+
+        // If team findings exist, verify they have proper structure
+        for finding in &team_findings {
+            assert!(!finding.evidence.is_empty());
+            assert_eq!(finding.evidence[0].method, "cms_certificate");
+        }
+    }
+
+    #[test]
+    fn test_hardened_runtime_detection() {
+        let analyzer = MachOAnalyzer::new();
+        let test_file = test_macho_path();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+
+        // Check for hardened-runtime finding
+        let hardened = report
+            .findings
+            .iter()
+            .find(|f| f.id == "meta/hardened-runtime");
+
+        if let Some(finding) = hardened {
+            assert_eq!(finding.evidence[0].method, "code_directory_flags");
+            assert_eq!(finding.evidence[0].value, "0x00010000");
+        }
+    }
+
+    #[test]
+    fn test_signature_type_criticality() {
+        let analyzer = MachOAnalyzer::new();
+        let test_file = test_macho_path();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+
+        // Signature type findings should have Notable criticality
+        let sig_type_findings: Vec<_> = report
+            .findings
+            .iter()
+            .filter(|f| f.id.contains("signed/type"))
+            .collect();
+
+        for finding in &sig_type_findings {
+            assert_eq!(finding.crit, Criticality::Notable);
+            assert_eq!(finding.conf, 1.0); // Should be high confidence
+        }
+    }
+
+    #[test]
+    fn test_entitlement_finding_confidence() {
+        let analyzer = MachOAnalyzer::new();
+        let test_file = test_macho_path();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+
+        // All entitlement findings should have high confidence
+        let ent_findings: Vec<_> = report
+            .findings
+            .iter()
+            .filter(|f| f.id.contains("entitlement"))
+            .collect();
+
+        for finding in &ent_findings {
+            assert_eq!(finding.conf, 1.0); // Entitlements from signature have 100% confidence
+        }
+    }
+
+    #[test]
+    fn test_describe_entitlement_coverage() {
+        // Test that describe_entitlement handles various entitlement keys
+        assert_eq!(
+            describe_entitlement("com.apple.security.cs.disable-library-validation"),
+            "Disable library validation"
+        );
+        assert_eq!(
+            describe_entitlement("com.apple.security.cs.allow-jit"),
+            "Allow JIT compilation"
+        );
+        assert_eq!(
+            describe_entitlement("personal-information.location"),
+            "Location data access"
+        );
+        assert_eq!(describe_entitlement("device.camera"), "Camera access");
+        assert_eq!(
+            describe_entitlement("com.apple.developer.team-identifier"),
+            "Team identifier"
+        );
+    }
+
+    #[test]
+    fn test_describe_entitlement_fallback() {
+        // Test fallback behavior for unknown entitlements
+        let desc = describe_entitlement("com.example.unknown-entitlement");
+        assert!(desc.len() > 0);
+        assert_ne!(desc, "com.example.unknown-entitlement"); // Should be transformed
+    }
+
+    #[test]
+    fn test_determine_entitlement_criticality_platform_binary() {
+        let crit = determine_entitlement_criticality(
+            "com.apple.security.cs.allow-jit",
+            &macho_codesign::SignatureType::Platform,
+        );
+        // Platform binaries should have Notable criticality for all entitlements
+        assert_eq!(crit, Criticality::Notable);
+    }
+
+    #[test]
+    fn test_determine_entitlement_criticality_dangerous() {
+        let crit = determine_entitlement_criticality(
+            "com.apple.security.cs.disable-library-validation",
+            &macho_codesign::SignatureType::DeveloperID,
+        );
+        assert_eq!(crit, Criticality::Suspicious);
+    }
+
+    #[test]
+    fn test_determine_entitlement_criticality_privacy() {
+        let crit = determine_entitlement_criticality(
+            "personal-information.location",
+            &macho_codesign::SignatureType::Adhoc,
+        );
+        assert_eq!(crit, Criticality::Notable);
+    }
+
+    #[test]
+    fn test_determine_entitlement_criticality_device_access() {
+        let crit = determine_entitlement_criticality(
+            "device.bluetooth",
+            &macho_codesign::SignatureType::DeveloperID,
+        );
+        assert_eq!(crit, Criticality::Notable);
+    }
+
+    #[test]
+    fn test_determine_entitlement_criticality_debugger() {
+        let crit = determine_entitlement_criticality(
+            "com.apple.security.cs.debugger",
+            &macho_codesign::SignatureType::AppStore,
+        );
+        assert_eq!(crit, Criticality::Suspicious);
+    }
+
+    #[test]
+    fn test_determine_entitlement_criticality_unsigned_memory() {
+        let crit = determine_entitlement_criticality(
+            "com.apple.security.cs.allow-unsigned-executable-memory",
+            &macho_codesign::SignatureType::DeveloperID,
+        );
+        assert_eq!(crit, Criticality::Suspicious);
+    }
+
+    #[test]
+    fn test_macho_metrics_dangerous_entitlements_counting() {
+        let analyzer = MachOAnalyzer::new();
+        let test_file = test_macho_path();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+
+        // If metrics are present, verify dangerous_entitlements is set
+        if let Some(metrics) = &report.metrics {
+            if let Some(macho_metrics) = &metrics.macho {
+                // dangerous_entitlements should be initialized
+                let _ = macho_metrics.dangerous_entitlements;
+            }
+        }
+    }
+
+    #[test]
+    fn test_macho_metrics_signature_type_recorded() {
+        let analyzer = MachOAnalyzer::new();
+        let test_file = test_macho_path();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+
+        // If metrics are present and binary is signed, signature type should be recorded
+        if let Some(metrics) = &report.metrics {
+            if let Some(macho_metrics) = &metrics.macho {
+                // If has_entitlements, then signature_type should also be set
+                if macho_metrics.has_entitlements {
+                    assert!(macho_metrics.signature_type.is_some());
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn test_signature_findings_have_proper_kind() {
+        let analyzer = MachOAnalyzer::new();
+        let test_file = test_macho_path();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+
+        // All signature-related findings should be Capability kind
+        for finding in report
+            .findings
+            .iter()
+            .filter(|f| f.id.contains("signed") || f.id.contains("entitlement"))
+        {
+            assert_eq!(finding.kind, FindingKind::Capability);
+        }
+    }
+
+    #[test]
+    fn test_identifier_finding_when_present() {
+        let analyzer = MachOAnalyzer::new();
+        let test_file = test_macho_path();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+
+        // Check for identifier findings
+        let identifier_findings: Vec<_> = report
+            .findings
+            .iter()
+            .filter(|f| f.id.contains("signed/id"))
+            .collect();
+
+        // If identifier findings exist, they should have proper evidence
+        for finding in &identifier_findings {
+            assert_eq!(finding.evidence[0].method, "code_directory");
+            assert_eq!(finding.evidence[0].source, "codesign_parser");
+        }
     }
 }

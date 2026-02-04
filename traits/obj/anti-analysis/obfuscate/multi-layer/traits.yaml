@@ -97,4 +97,3 @@ composite_rules:
     all:
       - id: xor-plus-base64-obfuscation
       - id: multi-codec-obfuscation
-

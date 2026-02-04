@@ -58,5 +58,5 @@ composite_rules:
     all:
       - id: dns-resolve-txt
     any:
-      - id: cap/process/timing/setInterval
-      - id: cap/process/timing/setTimeout
+      - id: cap/time/schedule/timers/
+      - id: cap/time/schedule/timers/

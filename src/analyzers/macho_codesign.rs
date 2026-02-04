@@ -173,7 +173,6 @@ fn parse_superblob(data: &[u8]) -> Result<HashMap<u32, Vec<u8>>> {
             continue;
         }
 
-
         // Store blob data (skip 8-byte header)
         let blob_data = &data[blob_offset + 8..blob_offset + blob_size];
         blobs.insert(blob_magic, blob_data.to_vec());
@@ -242,68 +241,76 @@ fn parse_entitlements_blob(data: &[u8]) -> Result<HashMap<String, EntitlementVal
             tracing::debug!("Processing dict element: {}", root.tag_name().name());
             if root.tag_name().name() == "dict" {
                 tracing::debug!("Root is dict, parsing entitlements");
-            let mut current_key: Option<String> = None;
-            let mut key_count = 0;
+                let mut current_key: Option<String> = None;
+                let mut key_count = 0;
 
-            for child in root.children() {
-                if !child.is_element() {
-                    continue;
-                }
-
-                let tag_name = child.tag_name().name();
-                tracing::debug!("Processing element: {}", tag_name);
-
-                match tag_name {
-                    "key" => {
-                        current_key = child.text().map(|s| s.to_string());
-                        tracing::debug!("Found key: {:?}", current_key);
+                for child in root.children() {
+                    if !child.is_element() {
+                        continue;
                     }
-                    "true" => {
-                        if let Some(key) = current_key.take() {
-                            tracing::debug!("Adding boolean entitlement: {} = true", key);
-                            entitlements.insert(key, EntitlementValue::Boolean(true));
-                            key_count += 1;
+
+                    let tag_name = child.tag_name().name();
+                    tracing::debug!("Processing element: {}", tag_name);
+
+                    match tag_name {
+                        "key" => {
+                            current_key = child.text().map(|s| s.to_string());
+                            tracing::debug!("Found key: {:?}", current_key);
                         }
-                    }
-                    "false" => {
-                        if let Some(key) = current_key.take() {
-                            tracing::debug!("Adding boolean entitlement: {} = false", key);
-                            entitlements.insert(key, EntitlementValue::Boolean(false));
-                            key_count += 1;
-                        }
-                    }
-                    "string" => {
-                        if let Some(key) = current_key.take() {
-                            if let Some(text) = child.text() {
-                                tracing::debug!("Adding string entitlement: {} = {}", key, text);
-                                entitlements
-                                    .insert(key, EntitlementValue::String(text.to_string()));
+                        "true" => {
+                            if let Some(key) = current_key.take() {
+                                tracing::debug!("Adding boolean entitlement: {} = true", key);
+                                entitlements.insert(key, EntitlementValue::Boolean(true));
                                 key_count += 1;
                             }
                         }
-                    }
-                    "array" => {
-                        if let Some(key) = current_key.take() {
-                            let mut array_values = Vec::new();
-                            for array_child in child.children() {
-                                if array_child.is_element()
-                                    && array_child.tag_name().name() == "string"
-                                {
-                                    if let Some(text) = array_child.text() {
-                                        array_values.push(text.to_string());
-                                    }
+                        "false" => {
+                            if let Some(key) = current_key.take() {
+                                tracing::debug!("Adding boolean entitlement: {} = false", key);
+                                entitlements.insert(key, EntitlementValue::Boolean(false));
+                                key_count += 1;
+                            }
+                        }
+                        "string" => {
+                            if let Some(key) = current_key.take() {
+                                if let Some(text) = child.text() {
+                                    tracing::debug!(
+                                        "Adding string entitlement: {} = {}",
+                                        key,
+                                        text
+                                    );
+                                    entitlements
+                                        .insert(key, EntitlementValue::String(text.to_string()));
+                                    key_count += 1;
                                 }
                             }
-                            tracing::debug!("Adding array entitlement: {} with {} values", key, array_values.len());
-                            entitlements.insert(key, EntitlementValue::Array(array_values));
-                            key_count += 1;
+                        }
+                        "array" => {
+                            if let Some(key) = current_key.take() {
+                                let mut array_values = Vec::new();
+                                for array_child in child.children() {
+                                    if array_child.is_element()
+                                        && array_child.tag_name().name() == "string"
+                                    {
+                                        if let Some(text) = array_child.text() {
+                                            array_values.push(text.to_string());
+                                        }
+                                    }
+                                }
+                                tracing::debug!(
+                                    "Adding array entitlement: {} with {} values",
+                                    key,
+                                    array_values.len()
+                                );
+                                entitlements.insert(key, EntitlementValue::Array(array_values));
+                                key_count += 1;
+                            }
+                        }
+                        _ => {
+                            tracing::debug!("Skipping unexpected element: {}", tag_name);
                         }
                     }
-                    _ => {
-                        tracing::debug!("Skipping unexpected element: {}", tag_name);
-                    }
                 }
-            }
                 tracing::debug!("Parsed dict with {} entitlements", key_count);
             } else {
                 tracing::debug!("First element is not dict: {}", root.tag_name().name());
@@ -315,7 +322,10 @@ fn parse_entitlements_blob(data: &[u8]) -> Result<HashMap<String, EntitlementVal
         tracing::debug!("No root element found");
     }
 
-    tracing::debug!("parse_entitlements_blob: extracted {} entitlements", entitlements.len());
+    tracing::debug!(
+        "parse_entitlements_blob: extracted {} entitlements",
+        entitlements.len()
+    );
     Ok(entitlements)
 }
 
@@ -324,7 +334,6 @@ fn extract_certificate_info(cms_data: &[u8]) -> (Option<String>, SignatureType, 
     let mut team_id = None;
     let mut authorities = Vec::new();
     let mut signature_type = SignatureType::Unknown;
-
 
     // Look for DER-encoded patterns in certificate
     // This is a simplified approach - full PKCS#7 parsing would be complex
@@ -350,7 +359,6 @@ fn extract_certificate_info(cms_data: &[u8]) -> (Option<String>, SignatureType, 
             }
         }
     }
-
 
     // Pick the CN that has "Developer ID" or "Mac Developer" (leaf cert, not intermediate)
     for cn in &all_cns {
@@ -529,5 +537,351 @@ mod tests {
         assert_eq!(SignatureType::Adhoc.as_str(), "adhoc");
         assert_eq!(SignatureType::DeveloperID.as_str(), "developer-id");
         assert_eq!(SignatureType::Platform.as_str(), "platform");
+        assert_eq!(SignatureType::AppStore.as_str(), "app-store");
+        assert_eq!(SignatureType::Unknown.as_str(), "unknown");
+    }
+
+    #[test]
+    fn test_entitlement_value_types() {
+        let bool_ent = EntitlementValue::Boolean(true);
+        match bool_ent {
+            EntitlementValue::Boolean(b) => assert!(b),
+            _ => panic!("Expected boolean"),
+        }
+
+        let str_ent = EntitlementValue::String("test".to_string());
+        match str_ent {
+            EntitlementValue::String(s) => assert_eq!(s, "test"),
+            _ => panic!("Expected string"),
+        }
+
+        let arr_ent = EntitlementValue::Array(vec!["a".to_string(), "b".to_string()]);
+        match arr_ent {
+            EntitlementValue::Array(a) => assert_eq!(a.len(), 2),
+            _ => panic!("Expected array"),
+        }
+    }
+
+    #[test]
+    fn test_parse_superblob_invalid_magic() {
+        let data = vec![0xBA, 0xD0, 0xBA, 0xD0, 0x00, 0x00, 0x00, 0x10];
+        let result = parse_superblob(&data);
+        assert!(result.is_err());
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("Invalid superblob magic"));
+    }
+
+    #[test]
+    fn test_parse_superblob_too_small() {
+        let data = vec![0xFA, 0xDE, 0x0C];
+        let result = parse_superblob(&data);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_parse_empty_entitlements_blob() {
+        let data = vec![];
+        let result = parse_entitlements_blob(&data);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_parse_entitlements_blob_simple_boolean() {
+        // Minimal valid plist with one boolean entitlement
+        let plist = r#"<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+<dict>
+    <key>com.apple.security.debugger</key>
+    <true/>
+</dict>
+</plist>"#;
+
+        let result = parse_entitlements_blob(plist.as_bytes());
+        assert!(result.is_ok());
+        let ents = result.unwrap();
+        assert_eq!(ents.len(), 1);
+        assert!(ents.contains_key("com.apple.security.debugger"));
+        if let Some(EntitlementValue::Boolean(b)) = ents.get("com.apple.security.debugger") {
+            assert!(*b);
+        } else {
+            panic!("Expected boolean entitlement");
+        }
+    }
+
+    #[test]
+    fn test_parse_entitlements_blob_string_value() {
+        let plist = r#"<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+<dict>
+    <key>com.apple.developer.team-identifier</key>
+    <string>ABCD1234EF</string>
+</dict>
+</plist>"#;
+
+        let result = parse_entitlements_blob(plist.as_bytes());
+        assert!(result.is_ok());
+        let ents = result.unwrap();
+        assert_eq!(ents.len(), 1);
+        if let Some(EntitlementValue::String(s)) = ents.get("com.apple.developer.team-identifier") {
+            assert_eq!(s, "ABCD1234EF");
+        } else {
+            panic!("Expected string entitlement");
+        }
+    }
+
+    #[test]
+    fn test_parse_entitlements_blob_array_value() {
+        let plist = r#"<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+<dict>
+    <key>com.apple.developer.icloud-container-identifiers</key>
+    <array>
+        <string>iCloud.com.example.app</string>
+        <string>iCloud.com.example.shared</string>
+    </array>
+</dict>
+</plist>"#;
+
+        let result = parse_entitlements_blob(plist.as_bytes());
+        assert!(result.is_ok());
+        let ents = result.unwrap();
+        if let Some(EntitlementValue::Array(arr)) =
+            ents.get("com.apple.developer.icloud-container-identifiers")
+        {
+            assert_eq!(arr.len(), 2);
+            assert!(arr.contains(&"iCloud.com.example.app".to_string()));
+            assert!(arr.contains(&"iCloud.com.example.shared".to_string()));
+        } else {
+            panic!("Expected array entitlement");
+        }
+    }
+
+    #[test]
+    fn test_parse_entitlements_blob_mixed_types() {
+        let plist = r#"<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+<dict>
+    <key>com.apple.security.debugger</key>
+    <true/>
+    <key>com.apple.developer.team-identifier</key>
+    <string>ABCD1234EF</string>
+    <key>com.apple.developer.icloud-container-identifiers</key>
+    <array>
+        <string>iCloud.com.example</string>
+    </array>
+    <key>com.apple.security.allow-unsigned-executable-memory</key>
+    <false/>
+</dict>
+</plist>"#;
+
+        let result = parse_entitlements_blob(plist.as_bytes());
+        assert!(result.is_ok());
+        let ents = result.unwrap();
+        assert_eq!(ents.len(), 4);
+        assert!(ents.contains_key("com.apple.security.debugger"));
+        assert!(ents.contains_key("com.apple.developer.team-identifier"));
+        assert!(ents.contains_key("com.apple.developer.icloud-container-identifiers"));
+        assert!(ents.contains_key("com.apple.security.allow-unsigned-executable-memory"));
+    }
+
+    #[test]
+    fn test_parse_entitlements_blob_with_doctype() {
+        let plist = r#"<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>com.apple.security.debugger</key>
+    <true/>
+</dict>
+</plist>"#;
+
+        let result = parse_entitlements_blob(plist.as_bytes());
+        assert!(result.is_ok());
+        let ents = result.unwrap();
+        assert_eq!(ents.len(), 1);
+    }
+
+    #[test]
+    fn test_check_hardened_runtime_flag_set() {
+        let mut cd_data = vec![0u8; 40];
+        // Code directory flags are at offset 32 (version=0, flags=4-7, but actual flag bits at 32)
+        // Set hardened runtime flag (0x00010000) at offset 32
+        cd_data[32] = 0x00;
+        cd_data[33] = 0x01;
+        cd_data[34] = 0x00;
+        cd_data[35] = 0x00;
+
+        assert!(check_hardened_runtime_flag(&cd_data));
+    }
+
+    #[test]
+    fn test_check_hardened_runtime_flag_not_set() {
+        let cd_data = vec![0u8; 36];
+        assert!(!check_hardened_runtime_flag(&cd_data));
+    }
+
+    #[test]
+    fn test_check_hardened_runtime_flag_too_small() {
+        let cd_data = vec![0u8; 35];
+        assert!(!check_hardened_runtime_flag(&cd_data));
+    }
+
+    #[test]
+    fn test_extract_der_string_utf8() {
+        // Simplified test: OU tag followed by UTF8String type and length
+        let mut data = vec![0x00; 100];
+        let tag_pos = 10;
+        data[tag_pos] = 0x55; // OID class
+        data[tag_pos + 1] = 0x04; // OID number
+        data[tag_pos + 2] = 0x0B; // OID sub (OU)
+        data[tag_pos + 3] = 0x0C; // UTF8String type
+        data[tag_pos + 4] = 5; // Length
+        let test_string = b"ABCD1";
+        data[tag_pos + 5..tag_pos + 10].copy_from_slice(test_string);
+
+        let result = extract_der_string(&data, &[0x55, 0x04, 0x0B]);
+        assert!(result.is_some());
+        assert_eq!(result.unwrap(), "ABCD1");
+    }
+
+    #[test]
+    fn test_extract_der_string_invalid_type() {
+        let mut data = vec![0x00; 100];
+        let tag_pos = 10;
+        data[tag_pos] = 0x55;
+        data[tag_pos + 1] = 0x04;
+        data[tag_pos + 2] = 0x0B;
+        data[tag_pos + 3] = 0xFF; // Invalid string type
+        data[tag_pos + 4] = 5;
+
+        let result = extract_der_string(&data, &[0x55, 0x04, 0x0B]);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_extract_der_string_not_found() {
+        let data = vec![0x00; 100];
+        let result = extract_der_string(&data, &[0x55, 0x04, 0x0B]);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_extract_identifier_valid() {
+        let mut cd_data = vec![0u8; 100];
+        // Set ident_offset at position 12-15 to point to offset 50
+        cd_data[12] = 0x00;
+        cd_data[13] = 0x00;
+        cd_data[14] = 0x00;
+        cd_data[15] = 50;
+
+        // Place identifier string at offset 50
+        let identifier = b"com.example.app";
+        cd_data[50..50 + identifier.len()].copy_from_slice(identifier);
+        cd_data[50 + identifier.len()] = 0; // null terminator
+
+        let result = extract_identifier(&cd_data);
+        assert!(result.is_some());
+        assert_eq!(result.unwrap(), "com.example.app");
+    }
+
+    #[test]
+    fn test_extract_identifier_too_small() {
+        let cd_data = vec![0u8; 10];
+        let result = extract_identifier(&cd_data);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_extract_identifier_offset_out_of_bounds() {
+        let mut cd_data = vec![0u8; 50];
+        // Set ident_offset to 100 (beyond data size)
+        cd_data[12] = 0x00;
+        cd_data[13] = 0x00;
+        cd_data[14] = 0x00;
+        cd_data[15] = 100;
+
+        let result = extract_identifier(&cd_data);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_code_signature_with_entitlements() {
+        // Test by parsing actual entitlements blob
+        let plist = r#"<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+<dict>
+    <key>com.apple.security.debugger</key>
+    <true/>
+    <key>com.apple.developer.team-identifier</key>
+    <string>ABCD1234EF</string>
+</dict>
+</plist>"#;
+
+        let result = parse_entitlements_blob(plist.as_bytes());
+        assert!(result.is_ok());
+
+        let ents = result.unwrap();
+        assert_eq!(ents.len(), 2);
+        assert!(ents.contains_key("com.apple.security.debugger"));
+        assert!(ents.contains_key("com.apple.developer.team-identifier"));
+    }
+
+    #[test]
+    fn test_extract_certificate_info_developer_id() {
+        // Create synthetic DER data with Developer ID certificate
+        let mut cms_data = vec![0u8; 500];
+
+        // Insert CN: "Developer ID Application: Example Corp (ABCD1234EF)"
+        let cn_oid = &[0x55, 0x04, 0x03];
+        let cn_str = b"Developer ID Application: Example Corp (ABCD1234EF)";
+        let cn_pos = 100;
+        cms_data[cn_pos..cn_pos + 3].copy_from_slice(cn_oid);
+        cms_data[cn_pos + 3] = 0x0C; // UTF8String
+        cms_data[cn_pos + 4] = cn_str.len() as u8;
+        cms_data[cn_pos + 5..cn_pos + 5 + cn_str.len()].copy_from_slice(cn_str);
+
+        // Insert OU: "ABCD1234EF" (team ID)
+        let ou_oid = &[0x55, 0x04, 0x0B];
+        let ou_str = b"ABCD1234EF";
+        let ou_pos = 200;
+        cms_data[ou_pos..ou_pos + 3].copy_from_slice(ou_oid);
+        cms_data[ou_pos + 3] = 0x0C; // UTF8String
+        cms_data[ou_pos + 4] = ou_str.len() as u8;
+        cms_data[ou_pos + 5..ou_pos + 5 + ou_str.len()].copy_from_slice(ou_str);
+
+        let (team_id, sig_type, authorities) = extract_certificate_info(&cms_data);
+
+        assert_eq!(team_id, Some("ABCD1234EF".to_string()));
+        assert!(matches!(sig_type, SignatureType::DeveloperID));
+        assert!(!authorities.is_empty());
+    }
+
+    #[test]
+    fn test_extract_certificate_info_adhoc() {
+        // Empty CMS data results in adhoc signature
+        let cms_data = vec![0u8; 100];
+        let (team_id, sig_type, _) = extract_certificate_info(&cms_data);
+
+        assert_eq!(team_id, None);
+        assert!(matches!(sig_type, SignatureType::Adhoc));
+    }
+
+    #[test]
+    fn test_extract_certificate_info_platform() {
+        let mut cms_data = vec![0u8; 500];
+
+        // Insert CN: "Mac Developer: Example (XYZ9876543)"
+        let cn_oid = &[0x55, 0x04, 0x03];
+        let cn_str = b"Mac Developer: Example (XYZ9876543)";
+        let cn_pos = 100;
+        cms_data[cn_pos..cn_pos + 3].copy_from_slice(cn_oid);
+        cms_data[cn_pos + 3] = 0x0C;
+        cms_data[cn_pos + 4] = cn_str.len() as u8;
+        cms_data[cn_pos + 5..cn_pos + 5 + cn_str.len()].copy_from_slice(cn_str);
+
+        let (_, sig_type, _) = extract_certificate_info(&cms_data);
+        assert!(matches!(sig_type, SignatureType::Platform));
     }
 }

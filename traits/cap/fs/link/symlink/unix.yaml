@@ -15,9 +15,9 @@ traits:
       regex: symlink|symlinkat
 
   - id: symlink-read
-    desc: Read value of symbolic link
-    crit: inert
-    conf: 0.66
+    desc: Read symbolic link target path
+    crit: notable
+    conf: 0.8
     if:
       type: symbol
       regex: readlink|readlinkat

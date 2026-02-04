@@ -131,7 +131,7 @@ composite_rules:
     attack: "T1505.003"
     for: [php]
     all:
-      - id: eval-base64-large-payload
+      - id: obj/c2/webshell/backdoor/eval-base64-large-payload
       - id: obj/anti-static/obfuscation/code-metrics/php-webshell-pattern
   # Web UI webshell (has HTML interface)
   - id: php-web-ui
@@ -196,7 +196,7 @@ composite_rules:
     attack: "T1027"
     for: [php]
     all:
-      - id: cap/exec/dynamic-call
+      - id: cap/exec/command/shell/
     any:
       - id: obj/anti-static/obfuscation/code-metrics/php-obfuscated-vars
       - id: obj/anti-static/obfuscation/code-metrics/php-encoded-strings
@@ -211,7 +211,7 @@ composite_rules:
     attack: "T1027"
     for: [php]
     all:
-      - id: cap/exec/dynamic-call
+      - id: cap/exec/command/shell/
       - id: obj/anti-static/obfuscation/code-metrics/php-high-non-ascii-ratio
 
   - id: php-non-ascii-identifiers-backdoor
@@ -234,7 +234,7 @@ composite_rules:
     attack: "T1505.003"
     for: [php]
     all:
-      - id: cap/exec/dynamic-call
+      - id: cap/exec/command/shell/
     any:
       - id: cap/data/user-input/request/get
       - id: cap/data/user-input/request/post
@@ -275,7 +275,7 @@ composite_rules:
     attack: "T1505.003"
     for: [php]
     all:
-      - id: dynamic-user-input-call  # $_POST['x']() pattern
+      - id: obj/c2/webshell/backdoor/dynamic-user-input-call  # $_POST['x']() pattern
       - id: cap/exec/command/shell   # has shell execution capability
     any:
       - id: cap/data/user-input/request
@@ -332,5 +332,5 @@ composite_rules:
       - id: obj/c2/webshell/filesman  # FilesMan pattern
       - id: obj/c2/webshell/wso-version  # WSO family
       - id: obj/c2/webshell/wso-shell  # WSO family
-      - id: dynamic-user-input-call  # variable function backdoor
+      - id: obj/c2/webshell/backdoor/dynamic-user-input-call  # variable function backdoor
       - id: cap/exec/command/shell/backtick  # backtick RCE

@@ -5,11 +5,11 @@
 traits:
   # Symbolic link operations
   - id: readlink
-    desc: Read value of symbolic link
-    crit: inert
+    desc: Read symbolic link target path
+    crit: notable
     mbc: "E1083"
     attack: "T1083"
-    conf: 0.5
+    conf: 0.8
     for: [elf, macho, so, dylib, c]
     if:
       type: symbol
@@ -54,11 +54,11 @@ traits:
 
   # File metadata operations
   - id: stat
-    desc: Get file status and metadata
-    crit: inert
+    desc: Read file status and metadata
+    crit: notable
     mbc: "E1083"
     attack: "T1083"
-    conf: 0.4
+    conf: 0.8
     for: [elf, macho, so, dylib, c]
     if:
       type: symbol
@@ -79,11 +79,11 @@ traits:
 
   # Extended attributes (macOS/Linux)
   - id: getxattr
-    desc: Get extended file attributes
-    crit: inert
+    desc: Read extended file attribute value
+    crit: notable
     mbc: "E1083"
     attack: "T1083"
-    conf: 0.5
+    conf: 0.75
     for: [elf, macho, so, dylib, c]
     if:
       type: symbol
@@ -91,11 +91,11 @@ traits:
     platforms: [macos, linux]
 
   - id: listxattr
-    desc: List extended file attributes
-    crit: inert
+    desc: Enumerate extended file attributes
+    crit: notable
     mbc: "E1083"
     attack: "T1083"
-    conf: 0.5
+    conf: 0.75
     for: [elf, macho, so, dylib, c]
     if:
       type: symbol

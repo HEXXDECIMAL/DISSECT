@@ -11,8 +11,8 @@ composite_rules:
     conf: 0.95
     for: [all]
     all:
-      - id: cap/exec/process/current-process
-      - id: cap/exec/process/terminate
+      - id: cap/exec/process/spawn/
+      - id: cap/process/terminate/
 
   # Probabilistic execution: Random number decides whether to execute
   - id: probabilistic-execution
@@ -35,8 +35,8 @@ composite_rules:
     for: [all]
     all:
       - id: hardcoded-datetime
-      - id: cap/exec/process/current-process
-      - id: cap/exec/process/terminate
+      - id: cap/exec/process/spawn/
+      - id: cap/process/terminate/
 
   # Logic bomb with probabilistic self-destruct
   - id: logic-bomb-probabilistic-self-destruct
@@ -49,8 +49,8 @@ composite_rules:
     all:
       - id: hardcoded-datetime
       - id: instantiation
-      - id: cap/exec/process/current-process
-      - id: cap/exec/process/terminate
+      - id: cap/exec/process/spawn/
+      - id: cap/process/terminate/
 
   # Supply chain: SQL library with malicious payload
   - id: supply-chain-sql-backdoor
@@ -63,8 +63,8 @@ composite_rules:
     all:
       - id: sqlcommand
     any:
-      - id: cap/exec/process/terminate
-      - id: cap/exec/process/start
+      - id: cap/process/terminate/
+      - id: cap/exec/eval/invoke/
       - id: cap/exec/reflection/assembly-load
 
   # Concentrated malicious code: all behaviors within 30 lines (tight proximity)
@@ -78,4 +78,4 @@ composite_rules:
     near_lines: 30 # All patterns must be within 30 lines
     all:
       - id: hardcoded-datetime
-      - id: cap/exec/process/terminate
+      - id: cap/process/terminate/

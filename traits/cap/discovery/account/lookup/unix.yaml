@@ -1,0 +1,38 @@
+# User and Group Lookup
+# Detects resolution of numeric IDs to account names
+# MBC: E1083 (File and Directory Discovery)
+# ATT&CK: T1083, T1087
+
+defaults:
+  for: [elf, macho, so, dylib, c]
+  mbc: E1083
+  attack: T1083
+
+traits:
+  - id: user-lookup
+    desc: Convert user ID to username
+    crit: notable
+    conf: 0.8
+    if:
+      type: symbol
+      regex: "getpwuid|user_from_uid"
+
+  - id: group-lookup
+    desc: Convert group ID to group name
+    crit: notable
+    conf: 0.8
+    if:
+      type: symbol
+      regex: "getgrgid|group_from_gid"
+
+composite_rules:
+  - id: account-name-resolution
+    desc: Enumerate account names from IDs
+    crit: notable
+    conf: 0.85
+    mbc: E1083
+    attack: T1087
+    needs: 1
+    any:
+      - id: user-lookup
+      - id: group-lookup

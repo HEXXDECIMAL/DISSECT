@@ -15,9 +15,9 @@ traits:
       regex: setxattr|fsetxattr|lsetxattr
 
   - id: xattr-get
-    desc: Get extended file attribute value
-    crit: inert
-    conf: 0.66
+    desc: Read extended file attribute value
+    crit: notable
+    conf: 0.75
     if:
       type: symbol
       regex: getxattr|fgetxattr|lgetxattr
@@ -31,9 +31,9 @@ traits:
       regex: removexattr|fremovexattr|lremovexattr
 
   - id: xattr-list
-    desc: List extended file attributes
-    crit: inert
-    conf: 0.66
+    desc: Enumerate extended file attributes
+    crit: notable
+    conf: 0.75
     if:
       type: symbol
       regex: listxattr|flistxattr|llistxattr

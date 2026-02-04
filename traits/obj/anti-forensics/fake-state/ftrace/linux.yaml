@@ -1,85 +1,7 @@
-# Kernel Anti-Forensics and Deception
-# Detects real-time sanitization of kernel logs, audit records, and forensic data
+# Ftrace Deception and Fake State Logic (Linux-specific)
+# Detects fake state and rootkit deception patterns using ftrace hooks
 
 traits:
-  # === Kernel Taint Erasure ===
-  - id: tainted-mask
-    desc: tainted_mask kernel variable
-    crit: inert
-    conf: 0.8
-    for: [c, elf]
-    if:
-      type: symbol
-      exact: "tainted_mask"
-
-  - id: taint-mask
-    desc: taint_mask kernel variable
-    crit: inert
-    conf: 0.8
-    for: [c, elf]
-    if:
-      type: symbol
-      exact: "taint_mask"
-
-  # Kernel Taint Erasure (AST)
-  - id: kernel-taint-assign
-    desc: Direct assignment to kernel taint
-    crit: suspicious
-    conf: 1.0
-    attack: "T1562.001"
-    for: [c]
-    if:
-      type: ast
-      kind: assignment
-      exact: "*taint_mask_ptr = 0"
-
-  # === Log Sanitization Functions ===
-  - id: filter-kmsg
-    desc: filter_kmsg function
-    crit: inert
-    conf: 0.75
-    for: [c, elf]
-    if:
-      type: symbol
-      exact: "filter_kmsg"
-
-  - id: filter-taint
-    desc: filter_taint function
-    crit: inert
-    conf: 0.75
-    for: [c, elf]
-    if:
-      type: symbol
-      exact: "filter_taint"
-
-  - id: sanitize-log
-    desc: sanitize_log function
-    crit: inert
-    conf: 0.75
-    for: [c, elf]
-    if:
-      type: symbol
-      exact: "sanitize_log"
-
-  # === Kernel Log Paths ===
-  - id: dev-kmsg-path
-    desc: /dev/kmsg kernel message device
-    crit: inert
-    conf: 0.7
-    for: [c, elf, shell]
-    if:
-      type: string
-      substr: "/dev/kmsg"
-
-  - id: do-syslog-symbol
-    desc: do_syslog kernel function
-    crit: inert
-    conf: 0.7
-    for: [c, elf]
-    if:
-      type: symbol
-      exact: "do_syslog"
-
   # === Rootkit Keywords (case variants) ===
   - id: singularity-lower
     desc: singularity keyword (lowercase)
@@ -162,81 +84,6 @@ traits:
       type: string
       word: "TAINT"
 
-  # === TaskStats API ===
-  - id: taskstats-user-cmd
-    desc: taskstats_user_cmd kernel function
-    crit: inert
-    conf: 0.8
-    for: [c, elf]
-    if:
-      type: symbol
-      exact: "taskstats_user_cmd"
-
-  - id: taskstats-cmd-attr-pid
-    desc: TASKSTATS_CMD_ATTR_PID constant
-    crit: inert
-    conf: 0.8
-    for: [c, elf]
-    if:
-      type: string
-      substr: "TASKSTATS_CMD_ATTR_PID"
-
-  - id: esrch-constant
-    desc: ESRCH error constant (No such
-    crit: inert
-    conf: 0.6
-    for: [c, elf]
-    if:
-      type: string
-      substr: "ESRCH"
-
-  # === Audit System Functions ===
-  - id: audit-log-start
-    desc: audit_log_start kernel function
-    crit: inert
-    conf: 0.75
-    for: [c, elf]
-    if:
-      type: symbol
-      exact: "audit_log_start"
-
-  - id: netlink-unicast
-    desc: netlink_unicast kernel function
-    crit: inert
-    conf: 0.7
-    for: [c, elf]
-    if:
-      type: symbol
-      exact: "netlink_unicast"
-
-  - id: netlink-audit-constant
-    desc: NETLINK_AUDIT constant
-    crit: inert
-    conf: 0.75
-    for: [c, elf]
-    if:
-      type: string
-      substr: "NETLINK_AUDIT"
-
-  # === Audit Log Field Patterns ===
-  - id: pid-equals
-    desc: "pid= audit log field"
-    crit: inert
-    conf: 0.6
-    for: [c, elf]
-    if:
-      type: string
-      exact: "pid="
-
-  - id: ino-equals
-    desc: "ino= audit log field"
-    crit: inert
-    conf: 0.6
-    for: [c, elf]
-    if:
-      type: string
-      exact: "ino="
-
   # === Fake State Variables ===
   - id: ftrace-enabled
     desc: ftrace_enabled kernel variable
@@ -293,29 +140,6 @@ traits:
          (#match? @copy_fn "copy_to_user"))
 
 composite_rules:
-  # === Helper composites ===
-  - id: taint-mask-symbols
-    desc: Kernel taint mask variables
-    for: [c, elf]
-    any:
-      - { id: tainted-mask }
-      - { id: taint-mask }
-
-  - id: log-filter-functions
-    desc: Log filtering/sanitization functions
-    for: [c, elf]
-    any:
-      - { id: filter-kmsg }
-      - { id: filter-taint }
-      - { id: sanitize-log }
-
-  - id: kmsg-access
-    desc: Kernel message log access
-    for: [c, elf, shell]
-    any:
-      - { id: dev-kmsg-path }
-      - { id: do-syslog-symbol }
-
   - id: singularity-keyword
     desc: Singularity keyword (case variants)
     for: [c, elf]
@@ -367,21 +191,6 @@ composite_rules:
         - id: cap/exec/load/system-lib-marker
         - id: cap/exec/load/debugger-tool-marker
 
-  - id: audit-functions
-    desc: Audit system functions
-    for: [c, elf]
-    any:
-      - { id: audit-log-start }
-      - { id: netlink-unicast }
-      - { id: netlink-audit-constant }
-
-  - id: audit-fields
-    desc: Audit log field patterns
-    for: [c, elf]
-    any:
-      - { id: pid-equals }
-      - { id: ino-equals }
-
   - id: ftrace-state-vars
     desc: Ftrace state variables
     for: [c, elf]
@@ -395,39 +204,6 @@ composite_rules:
     any:
       - { id: saved-ftrace-value }
       - { id: ftrace-write-intercepted }
-
-
-  - id: log-sanitization
-    desc: Real-time filtering of dmesg or
-    crit: suspicious
-    conf: 0.95
-    attack: "T1562.001"
-    for: [c, elf]
-    all:
-      - { id: kmsg-access }
-      - { id: log-filter-functions }
-      - { id: rootkit-keywords }
-
-  - id: taskstats-deception
-    desc: Blinds TaskStats netlink API to
-    crit: suspicious
-    conf: 1.0
-    attack: "T1562.001"
-    for: [c, elf]
-    all:
-      - { id: taskstats-user-cmd }
-      - { id: taskstats-cmd-attr-pid }
-      - { id: esrch-constant }
-
-  - id: audit-blinding
-    desc: Intercepts and drops Linux Auditing
-    crit: suspicious
-    conf: 0.95
-    attack: "T1562.001"
-    for: [c, elf]
-    all:
-      - { id: audit-functions }
-      - { id: audit-fields }
 
   - id: fake-state-logic
     desc: Divergent logic where READ returns
@@ -450,4 +226,3 @@ composite_rules:
     any:
       - { id: fake-state-logic }
       - { id: deception-read-hook }
-      - { id: kernel/rootkit/copy-to-user-call }

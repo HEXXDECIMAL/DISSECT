@@ -8,9 +8,9 @@ defaults:
 traits:
   # fts API functions
   - id: fts-open
-    desc: fts_open function (open directory hierarchy)
-    crit: inert
-    conf: 0.7
+    desc: Open filesystem hierarchy via fts
+    crit: notable
+    conf: 0.8
     mbc: E1083
     attack: T1083
     if:
@@ -18,9 +18,9 @@ traits:
       regex: "_?fts_open"
 
   - id: fts-read
-    desc: fts_read function (read directory entry)
-    crit: inert
-    conf: 0.7
+    desc: Read directory entries via fts
+    crit: notable
+    conf: 0.8
     mbc: E1083
     attack: T1083
     if:
@@ -28,9 +28,9 @@ traits:
       regex: "_?fts_read"
 
   - id: fts-children
-    desc: fts_children function (get child entries)
-    crit: inert
-    conf: 0.7
+    desc: Get child entries from filesystem hierarchy
+    crit: notable
+    conf: 0.8
     mbc: E1083
     attack: T1083
     if:
@@ -38,7 +38,7 @@ traits:
       regex: "_?fts_children"
 
   - id: fts-set
-    desc: fts_set function (set directory options)
+    desc: Modify filesystem traversal options
     crit: inert
     conf: 0.7
     mbc: E1083
@@ -48,7 +48,7 @@ traits:
       regex: "_?fts_set"
 
   - id: fts-close
-    desc: fts_close function (close directory hierarchy)
+    desc: Close filesystem hierarchy traversal
     crit: inert
     conf: 0.7
     mbc: E1083

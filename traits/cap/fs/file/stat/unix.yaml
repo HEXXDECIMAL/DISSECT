@@ -7,9 +7,9 @@ defaults:
 
 traits:
   - id: stat
-    desc: Get file status/metadata
-    crit: inert
-    conf: 0.66
+    desc: Read file status and metadata
+    crit: notable
+    conf: 0.8
     if:
       type: symbol
       regex: stat|lstat|fstat|fstatat|stat64|lstat64|fstat64

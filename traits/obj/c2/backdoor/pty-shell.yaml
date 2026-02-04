@@ -36,15 +36,6 @@ traits:
       type: symbol
       regex: "^(tcgetattr|tcsetattr|cfmakeraw|cfsetispeed|cfsetospeed)$"
 
-  # Network socket symbols
-  - id: socket-symbols
-    desc: Network socket symbols
-    crit: notable
-    conf: 0.9
-    if:
-      type: symbol
-      regex: "^(socket|connect|bind|listen|accept)$"
-
   # File descriptor duplication - for redirecting I/O to socket
   - id: dup2-symbol
     desc: dup2 file descriptor symbol
@@ -94,7 +85,7 @@ composite_rules:
     for: [elf]
     all:
       - id: pty-alloc-symbols
-      - id: socket-symbols
+      - id: cap/comm/socket/
       - id: dup2-symbol
 
   # Full PTY backdoor with terminal control
@@ -110,7 +101,7 @@ composite_rules:
     all:
       - id: pty-alloc-symbols
       - id: termios-symbols
-      - id: socket-symbols
+      - id: cap/comm/socket/
       - id: daemon-symbols
 
   # Bind shell with PTY - waits for incoming connections
@@ -123,6 +114,6 @@ composite_rules:
     for: [elf]
     all:
       - id: pty-alloc-symbols
-      - id: socket-symbols
+      - id: cap/comm/socket/
       - id: dup2-symbol
       - id: cap/exec/command/shell/shell-symbols

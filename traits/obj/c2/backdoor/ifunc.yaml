@@ -18,7 +18,7 @@ composite_rules:
       - id: meta/format/elf/ifunc
     none:
       - id: cap/exec/load/system-lib-marker  # Exclude glibc/libm
-      - id: cap/exec/go-runtime-marker
+      - id: cap/exec/load/go-runtime/
 
   # === Sensitive Target Functions ===
   - id: ifunc-security-resolver

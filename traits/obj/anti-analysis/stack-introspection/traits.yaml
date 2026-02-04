@@ -77,5 +77,5 @@ composite_rules:
     mbc: "B0032"
     all:
       - id: stack-introspection-suite
-      - id: obj/anti-analysis/evasion-suite/evasion-aware-malware
+      - id: obj/anti-analysis/evasion/suite/
 
