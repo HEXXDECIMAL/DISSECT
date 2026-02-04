@@ -1,0 +1,18 @@
+# Device I/O Control
+# MBC: OB0007 (Discovery) → E1082 (System Information Discovery)
+# ATT&CK: T1082 (System Information Discovery)
+
+defaults:
+  for: [elf, macho, so, dylib, c]
+
+traits:
+  - id: ioctl
+    desc: Device control operations
+    crit: notable
+    mbc: "E1082"
+    attack: "T1082"
+    conf: 0.5
+    if:
+      type: symbol
+      regex: ioctl
+    platforms: [unix, linux, macos]
