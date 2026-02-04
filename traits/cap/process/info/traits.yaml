@@ -7,8 +7,8 @@ defaults:
 
 traits:
   - id: getpid
-    desc: getpid system call (process ID
-    crit: notable
+    desc: Get current process identifier
+    crit: inert
     conf: 0.5
     if:
       type: symbol

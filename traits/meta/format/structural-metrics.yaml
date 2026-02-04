@@ -49,13 +49,3 @@ traits:
       field: binary.avg_complexity
       max: 3
 
-  # === Section Metrics ===
-
-  - id: dominant-text-section
-    desc: "Binary with dominant .text section"
-    crit: notable
-    conf: 0.6
-    if:
-      type: metrics
-      field: binary.largest_section_ratio
-      min: 0.75

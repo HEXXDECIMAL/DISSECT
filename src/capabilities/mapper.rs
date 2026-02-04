@@ -56,8 +56,6 @@ impl CapabilityMapper {
     }
 
     pub fn new() -> Self {
-        let debug = std::env::var("DISSECT_DEBUG").is_ok();
-
         // Try to load from capabilities directory, fall back to single file
         // YAML parse errors or invalid trait configurations are fatal
         match Self::from_directory("traits") {
@@ -76,9 +74,8 @@ impl CapabilityMapper {
                     eprintln!();
                     std::process::exit(1);
                 }
-                if debug {
-                    eprintln!("⚠️  Failed to load from traits/ directory: {:#}", e);
-                }
+                // Always show non-parse errors
+                eprintln!("⚠️  Failed to load from traits/ directory: {:#}", e);
             }
         }
 
@@ -101,15 +98,13 @@ impl CapabilityMapper {
                     eprintln!();
                     std::process::exit(1);
                 }
-                if debug {
-                    eprintln!("⚠️  Failed to load from capabilities.yaml: {:#}", e);
-                }
+                // Always show non-parse errors
+                eprintln!("⚠️  Failed to load from capabilities.yaml: {:#}", e);
             }
         }
 
-        eprintln!("❌ FATAL: Failed to load capabilities from any source");
-        eprintln!("   Tried: traits/ directory, capabilities.yaml");
-        eprintln!("   Set DISSECT_DEBUG=1 for detailed errors\n");
+        eprintln!("\n❌ FATAL: Failed to load capabilities from any source");
+        eprintln!("   Tried: traits/ directory, capabilities.yaml\n");
         std::process::exit(1);
     }
 

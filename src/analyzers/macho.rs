@@ -645,13 +645,21 @@ impl MachOAnalyzer {
         codesig: &macho_codesign::CodeSignature,
         report: &mut AnalysisReport,
     ) {
-        // Signature type trait - uniquely identifies the signature type
+        // Signature type trait - uniquely identified by the type itself
         let sig_type = codesig.signature_type.as_str();
+        let sig_type_desc = match codesig.signature_type {
+            macho_codesign::SignatureType::DeveloperID => "Developer ID Application",
+            macho_codesign::SignatureType::AppStore => "Mac App Store",
+            macho_codesign::SignatureType::Platform => "macOS Platform Binary",
+            macho_codesign::SignatureType::Adhoc => "Ad-hoc Signature",
+            macho_codesign::SignatureType::Unknown => "Unknown Signature",
+        };
+
         report.findings.push(Finding {
             kind: FindingKind::Capability,
             trait_refs: vec![],
             id: format!("meta/signed/type/{}", sig_type),
-            desc: format!("Signature type: {}", sig_type),
+            desc: sig_type_desc.to_string(),
             conf: 1.0,
             crit: Criticality::Notable,
             mbc: None,
@@ -664,13 +672,18 @@ impl MachOAnalyzer {
             }],
         });
 
-        // Team ID trait (if present) - uniquely identifies the team
+        // Team ID trait (if present) - complete trait ID includes the team ID
         if let Some(team_id) = &codesig.team_id {
             let desc = codesig
                 .authorities
                 .first()
-                .map(|auth| format!("{} ({})", auth, team_id))
-                .unwrap_or_else(|| format!("Team: {}", team_id));
+                .and_then(|auth| {
+                    // Extract just the company name from "Developer ID Application: Google LLC (EQHXZ8M8AV)"
+                    auth.split(": ").nth(1).map(|s| {
+                        s.split(" (").next().unwrap_or(s).to_string()
+                    })
+                })
+                .unwrap_or_default();
 
             report.findings.push(Finding {
                 kind: FindingKind::Capability,
@@ -690,34 +703,13 @@ impl MachOAnalyzer {
             });
         }
 
-        // Authority traits - uniquely identifies each signing authority
-        for authority in &codesig.authorities {
-            let authority_id = authority.to_lowercase().replace(' ', "-").replace('*', "");
-            report.findings.push(Finding {
-                kind: FindingKind::Capability,
-                trait_refs: vec![],
-                id: format!("meta/signed/authority/{}", authority_id),
-                desc: format!("Signed by: {}", authority),
-                conf: 0.95,
-                crit: Criticality::Notable,
-                mbc: None,
-                attack: None,
-                evidence: vec![Evidence {
-                    method: "certificate".to_string(),
-                    source: "codesign_parser".to_string(),
-                    value: authority.clone(),
-                    location: None,
-                }],
-            });
-        }
-
-        // Identifier trait - uniquely identifies the bundle
+        // Identifier trait - complete trait ID includes the bundle identifier
         if let Some(identifier) = &codesig.identifier {
             report.findings.push(Finding {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
-                id: format!("meta/sign/id/{}", identifier),
-                desc: format!("Bundle identifier: {}", identifier),
+                id: format!("meta/signed/id/{}", identifier),
+                desc: "Identifier".to_string(),
                 conf: 1.0,
                 crit: Criticality::Notable,
                 mbc: None,

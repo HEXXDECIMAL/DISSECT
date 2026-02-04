@@ -103,7 +103,6 @@ traits:
             $l1 = "PTRACE_TRACEME" ascii fullword
             $l2 = "/proc/self/status" ascii fullword
             // macOS
-            $m1 = "sysctl" ascii fullword
             $m2 = "P_TRACED" ascii fullword
           condition:
             any of them

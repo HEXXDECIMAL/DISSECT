@@ -259,35 +259,86 @@ fn extract_certificate_info(cms_data: &[u8]) -> (Option<String>, SignatureType, 
     let mut authorities = Vec::new();
     let mut signature_type = SignatureType::Unknown;
 
+
     // Look for DER-encoded patterns in certificate
     // This is a simplified approach - full PKCS#7 parsing would be complex
 
-    // Search for OU field (Organizational Unit) which typically contains team ID
-    // DER tag for OU is 0x55 0x04 0x0B
-    if let Some(team) = extract_der_string(cms_data, &[0x55, 0x04, 0x0B]) {
-        team_id = Some(team.trim().to_string());
-    }
+    // Find all CN and OU values, then pick the one that looks like the leaf cert
+    let mut all_cns = Vec::new();
+    let mut all_ous = Vec::new();
 
-    // Search for CN (Common Name) for signer information
-    // DER tag for CN is 0x55 0x04 0x03
-    if let Some(cn) = extract_der_string(cms_data, &[0x55, 0x04, 0x03]) {
-        authorities.push(cn.trim().to_string());
-
-        // Determine signature type from CN
-        if cn.contains("Developer ID Application") {
-            signature_type = SignatureType::DeveloperID;
-        } else if cn.contains("Developer ID Installer") {
-            signature_type = SignatureType::DeveloperID;
-        } else if cn.contains("Mac Developer") || cn.contains("iPhone Developer") {
-            signature_type = SignatureType::Platform;
-        } else if cn.contains("3rd Party Mac Developer") {
-            signature_type = SignatureType::Platform;
-        } else if cn.contains("Apple") {
-            signature_type = SignatureType::Platform;
+    // Extract all OU fields
+    for i in 0..cms_data.len().saturating_sub(5) {
+        if &cms_data[i..i + 3] == &[0x55, 0x04, 0x0B] {
+            if let Some(ou) = extract_der_string(&cms_data[i..], &[0x55, 0x04, 0x0B]) {
+                all_ous.push(ou);
+            }
         }
     }
 
-    // If no valid signature type found from certificate, assume adhoc
+    // Extract all CN fields
+    for i in 0..cms_data.len().saturating_sub(5) {
+        if &cms_data[i..i + 3] == &[0x55, 0x04, 0x03] {
+            if let Some(cn) = extract_der_string(&cms_data[i..], &[0x55, 0x04, 0x03]) {
+                all_cns.push(cn);
+            }
+        }
+    }
+
+
+    // Pick the CN that has "Developer ID" or "Mac Developer" (leaf cert, not intermediate)
+    for cn in &all_cns {
+        if cn.contains("Developer ID Application: ")
+            || cn.contains("Developer ID Installer: ")
+            || cn.contains("Mac Developer: ")
+            || cn.contains("iPhone Developer: ")
+            || cn.contains("3rd Party Mac Developer: ")
+        {
+            let cn_trimmed = cn.trim().to_string();
+            authorities.push(cn_trimmed.clone());
+
+            // Determine signature type from CN
+            if cn.contains("Developer ID Application") {
+                signature_type = SignatureType::DeveloperID;
+            } else if cn.contains("Developer ID Installer") {
+                signature_type = SignatureType::DeveloperID;
+            } else if cn.contains("Mac Developer") || cn.contains("iPhone Developer") {
+                signature_type = SignatureType::Platform;
+            } else if cn.contains("3rd Party Mac Developer") {
+                signature_type = SignatureType::Platform;
+            }
+            break;
+        }
+    }
+
+    // Pick the OU that looks like a team ID (alphanumeric, 10-11 chars)
+    for ou in &all_ous {
+        let ou_trimmed = ou.trim();
+        // Team IDs are typically 10 alphanumeric characters
+        if ou_trimmed.len() >= 8
+            && ou_trimmed.len() <= 12
+            && ou_trimmed.chars().all(|c| c.is_ascii_alphanumeric())
+        {
+            team_id = Some(ou_trimmed.to_string());
+            break;
+        }
+    }
+
+    // If no developer/platform cert found, check if we have Apple Root CA or other CAs
+    if matches!(signature_type, SignatureType::Unknown) {
+        // Check if any CN has "Apple" in it
+        for cn in &all_cns {
+            if cn.contains("Apple") && (cn.contains("Root") || cn.contains("Code")) {
+                signature_type = SignatureType::Platform;
+                if authorities.is_empty() {
+                    authorities.push(cn.trim().to_string());
+                }
+                break;
+            }
+        }
+    }
+
+    // If still no signature type and no team ID, assume adhoc
     if matches!(signature_type, SignatureType::Unknown) && team_id.is_none() {
         signature_type = SignatureType::Adhoc;
     }
@@ -296,12 +347,24 @@ fn extract_certificate_info(cms_data: &[u8]) -> (Option<String>, SignatureType, 
 }
 
 /// Extract DER-encoded string from certificate data
-/// Looks for pattern: tag_bytes [length] [string_data]
+/// After OID tag, there's a string type byte (0x0C UTF8String, 0x13 PrintableString, etc),
+/// then length, then data
 fn extract_der_string(data: &[u8], tag: &[u8]) -> Option<String> {
-    for i in 0..data.len().saturating_sub(tag.len()) {
+    for i in 0..data.len().saturating_sub(tag.len() + 2) {
         if &data[i..i + tag.len()] == tag {
-            // Found tag, next byte should be length
-            let len_pos = i + tag.len();
+            // Found OID tag, next byte should be string type (0x0C, 0x13, 0x16, etc)
+            let type_pos = i + tag.len();
+            if type_pos >= data.len() {
+                continue;
+            }
+
+            let string_type = data[type_pos];
+            // Valid ASN.1 string types
+            if ![0x0C, 0x13, 0x16, 0x1A, 0x1B, 0x1C].contains(&string_type) {
+                continue;
+            }
+
+            let len_pos = type_pos + 1;
             if len_pos >= data.len() {
                 continue;
             }

@@ -260,14 +260,12 @@ fn format_evidence(finding: &Finding) -> String {
         .evidence
         .iter()
         .filter_map(|e| {
-            // Skip if evidence is already in the description
-            if finding.desc.contains(&e.value) {
-                None
-            } else {
+            if seen.insert(e.value.clone()) {
                 Some(e.value.clone())
+            } else {
+                None
             }
         })
-        .filter(|v| seen.insert(v.clone()))
         .take(5)
         .collect();
 

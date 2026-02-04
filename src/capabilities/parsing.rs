@@ -94,11 +94,11 @@ pub(crate) fn apply_trait_defaults(
         ));
     }
 
-    // Warn about overly long descriptions (> 5 words)
+    // Warn about overly long descriptions (> 7 words)
     let word_count = raw.desc.split_whitespace().count();
-    if word_count > 5 {
+    if word_count > 7 {
         warnings.push(format!(
-            "Trait '{}' has an overly long description ({} words, max 5 recommended).",
+            "Trait '{}' has an overly long description ({} words, max 7 recommended).",
             raw.id, word_count
         ));
     }

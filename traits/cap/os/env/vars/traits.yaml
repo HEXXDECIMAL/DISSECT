@@ -69,7 +69,7 @@ composite_rules:
         - id: cap/exec/load/graphics-lib-marker
         - id: cap/exec/load/system-lib-marker
 
-  - id: env-modify
+  - id: set
     desc: Environment variable modification
     crit: notable
     conf: 0.5
