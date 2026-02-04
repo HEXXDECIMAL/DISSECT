@@ -125,7 +125,7 @@ impl CapabilityMapper {
         }
 
         // First, collect all YAML file paths
-        let yaml_files: Vec<_> = walkdir::WalkDir::new(dir_path)
+        let mut yaml_files: Vec<_> = walkdir::WalkDir::new(dir_path)
             .follow_links(false)
             .into_iter()
             .filter_map(|e| e.ok())
@@ -139,6 +139,9 @@ impl CapabilityMapper {
             })
             .map(|entry| entry.path().to_path_buf())
             .collect();
+
+        // Sort files deterministically by path to ensure consistent loading order across OSes
+        yaml_files.sort();
 
         if yaml_files.is_empty() {
             anyhow::bail!("No YAML files found in {}", dir_path.display());
@@ -154,9 +157,11 @@ impl CapabilityMapper {
         let t_parse = std::time::Instant::now();
 
         // Load all YAML files in parallel, preserving path for prefix calculation
+        // Use indexed_map to preserve sorted order
         let results: Vec<_> = yaml_files
             .par_iter()
-            .map(|path| {
+            .enumerate()
+            .map(|(idx, path)| {
                 if debug {
                     eprintln!("   📄 Loading: {}", path.display());
                 }
@@ -167,9 +172,18 @@ impl CapabilityMapper {
                 let mappings: TraitMappings = serde_yaml::from_str(&content)
                     .with_context(|| format!("Failed to parse YAML in {:?}", path))?;
 
-                Ok::<_, anyhow::Error>((path.clone(), mappings))
+                Ok::<_, anyhow::Error>((idx, path.clone(), mappings))
             })
             .collect();
+
+        // Sort results back to original order since par_iter doesn't preserve order
+        let mut sorted_results: Vec<_> = results;
+        sorted_results.sort_by_key(|r| {
+            match r {
+                Ok((idx, _, _)) => *idx,
+                Err(_) => std::usize::MAX,
+            }
+        });
 
         if timing {
             eprintln!("[TIMING] Parsed YAML files: {:?}", t_parse.elapsed());
@@ -178,16 +192,16 @@ impl CapabilityMapper {
 
         // Merge all results, collecting errors to report all at once
         let mut symbol_map = HashMap::new();
-        let mut trait_definitions = Vec::new();
-        let mut composite_rules = Vec::new();
+        let mut trait_definitions: Vec<TraitDefinition> = Vec::new();
+        let mut composite_rules: Vec<CompositeTrait> = Vec::new();
         let mut rule_source_files: HashMap<String, String> = HashMap::new(); // rule_id -> file_path
         let mut files_processed = 0;
         let mut warnings: Vec<String> = Vec::new();
         let mut parse_errors: Vec<String> = Vec::new();
 
-        for result in results {
+        for result in sorted_results {
             let (path, mappings) = match result {
-                Ok(r) => r,
+                Ok((_idx, p, m)) => (p, m),
                 Err(e) => {
                     // Format error with full chain (includes filename from context)
                     parse_errors.push(format!("{:#}", e));
@@ -267,6 +281,33 @@ impl CapabilityMapper {
                         trait_def.id, path, warning
                     ));
                 }
+
+                // Check for ID conflicts with previously loaded traits (cross-file duplicates)
+                if trait_definitions.iter().any(|t| t.id == trait_def.id) {
+                    warnings.push(format!(
+                        "Trait ID '{}' defined in multiple files - last definition wins",
+                        trait_def.id
+                    ));
+                    // Remove the old one so we add the new one
+                    trait_definitions.retain(|t| t.id != trait_def.id);
+                }
+
+                // Check for ID conflicts with composite rules
+                if composite_rules.iter().any(|r| r.id == trait_def.id) {
+                    warnings.push(format!(
+                        "Rule ID '{}' defined as both trait and composite rule - trait will be used",
+                        trait_def.id
+                    ));
+                    if let Some(comp_file) = rule_source_files.iter()
+                        .find(|(id, _)| *id == &trait_def.id)
+                        .map(|(_, f)| f) {
+                        warnings.push(format!("  Trait: {}", path.display()));
+                        warnings.push(format!("  Composite (will be replaced): {}", comp_file));
+                    }
+                    // Remove the composite rule
+                    composite_rules.retain(|r| r.id != trait_def.id);
+                }
+
                 trait_definitions.push(trait_def);
             }
 
@@ -326,6 +367,28 @@ impl CapabilityMapper {
                     // Also auto-prefix trait references within the rule's conditions
                     autoprefix_trait_refs(&mut rule, prefix);
                 }
+
+                // Check for duplicate rule ID with other composite rules
+                if let Some(existing) = composite_rules.iter().position(|r| r.id == rule.id) {
+                    warnings.push(format!(
+                        "Composite rule '{}' defined in multiple files - last definition wins",
+                        rule.id
+                    ));
+                    composite_rules.remove(existing);
+                }
+
+                // Check for ID conflicts with trait definitions
+                if trait_definitions.iter().any(|t| t.id == rule.id) {
+                    warnings.push(format!(
+                        "Rule ID '{}' defined as both trait and composite rule - composite will be used",
+                        rule.id
+                    ));
+                    warnings.push(format!("  Trait (will be replaced): (already loaded)"));
+                    warnings.push(format!("  Composite: {}", path.display()));
+                    // Remove the trait definition
+                    trait_definitions.retain(|t| t.id != rule.id);
+                }
+
                 // Track source file for error reporting
                 rule_source_files.insert(rule.id.clone(), path.display().to_string());
                 composite_rules.push(rule);

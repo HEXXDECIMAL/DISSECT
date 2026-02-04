@@ -58,8 +58,8 @@ traits:
       substr: "enctype"
 
 composite_rules:
-  - id: post
-    desc: Makes HTTP POST requests
+  - id: post-method-detection
+    desc: Makes HTTP POST requests (method detection)
     crit: notable
     conf: 0.66
     needs: 1
