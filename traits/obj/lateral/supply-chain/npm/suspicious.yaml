@@ -45,7 +45,6 @@ traits:
     for: [javascript]
     if:
       type: ast
-      language: javascript
       query: |
         ((call_expression
           function: (identifier) @fn
@@ -60,7 +59,6 @@ traits:
     for: [javascript]
     if:
       type: ast
-      language: javascript
       query: |
         ((call_expression
           function: (identifier) @fn
@@ -75,7 +73,6 @@ traits:
     for: [javascript]
     if:
       type: ast
-      language: javascript
       query: |
         ((call_expression
           function: (identifier) @fn
@@ -90,7 +87,6 @@ traits:
     for: [javascript]
     if:
       type: ast
-      language: javascript
       query: |
         ((call_expression
           function: (identifier) @fn
@@ -432,7 +428,7 @@ composite_rules:
     crit: inert
     conf: 0.8
     for: [javascript]
-    count_min: 1
+    needs: 1
     any:
       - id: module-exports-pattern
       - id: exports-dot-pattern
@@ -444,7 +440,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     for: [javascript]
-    count_min: 3
+    needs: 3
     any:
       - id: require-os
       - id: require-child-process
@@ -466,7 +462,7 @@ composite_rules:
     desc: Package has install hooks
     crit: notable
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: pkg-preinstall-hook
       - id: pkg-postinstall-hook
@@ -487,7 +483,7 @@ composite_rules:
     desc: Package has multiple install lifecycle
     crit: suspicious
     conf: 0.85
-    count_min: 2
+    needs: 2
     any:
       - id: pkg-preinstall-hook
       - id: pkg-postinstall-hook
@@ -518,7 +514,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     for: [javascript, typescript]
-    count_min: 1
+    needs: 1
     any:
       - id: child-dot-unref
       - id: spawn-unref
@@ -529,7 +525,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     for: [javascript, typescript]
-    count_min: 1
+    needs: 1
     any:
       - id: stdio-ignore-string
       - id: stdio-ignore-array
@@ -540,7 +536,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     for: [javascript, typescript, packagejson]
-    count_min: 2
+    needs: 2
     any:
       - id: oast-fun-domain
       - id: oastify-domain
@@ -614,7 +610,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     for: [packagejson]
-    count_min: 1
+    needs: 1
     any:
       - id: desc-dependency-confusion
       - id: desc-placeholder-package

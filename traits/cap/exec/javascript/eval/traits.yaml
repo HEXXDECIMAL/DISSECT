@@ -356,7 +356,7 @@ composite_rules:
     crit: notable
     conf: 0.75
     for: [javascript]
-    count_min: 1
+    needs: 1
     any:
       - id: bash-single-quote
       - id: bash-double-quote
@@ -367,7 +367,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [javascript]
-    count_min: 1
+    needs: 1
     any:
       - id: bin-sh-single-quote
       - id: bin-sh-double-quote
@@ -382,7 +382,7 @@ composite_rules:
     mbc: "C0026"
     attack: "T1140"
     for: [javascript]
-    count_min: 1
+    needs: 1
     any:
       - id: base64-dash-d
       - id: base64-dash-decode
@@ -395,7 +395,7 @@ composite_rules:
     mbc: "B0024"
     attack: "T1059"
     for: [javascript]
-    count_min: 1
+    needs: 1
     any:
       - id: tmp-bash-exec
       - id: tmp-sh-exec
@@ -409,7 +409,7 @@ composite_rules:
     mbc: "B0024"
     attack: "T1059.007"
     for: [javascript, typescript]
-    count_min: 1
+    needs: 1
     any:
       - id: function-dot-constructor
       - id: new-function

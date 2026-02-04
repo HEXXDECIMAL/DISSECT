@@ -13,7 +13,6 @@ traits:
     if:
       type: content
 
-
 composite_rules:
   # Infinite loop composite
   - id: infinite-loop
@@ -22,7 +21,7 @@ composite_rules:
     conf: 0.9
     attack: "T1027"
     for: [javascript]
-    count_min: 1
+    needs: 1
     any:
       - id: while-not-not-array
       - id: while-not-zero
@@ -35,7 +34,7 @@ composite_rules:
     conf: 0.85
     attack: "T1027"
     for: [javascript]
-    count_min: 1
+    needs: 1
     any:
       - id: push-shift-pattern
       - id: shift-push-pattern
@@ -47,7 +46,7 @@ composite_rules:
     conf: 0.8
     attack: "T1027"
     for: [javascript]
-    count_min: 1
+    needs: 1
     any:
       - id: buffer-from-hex-word
       - id: buffer-from-hex-single
@@ -60,7 +59,7 @@ composite_rules:
     conf: 0.85
     attack: "T1027"
     for: [javascript]
-    count_min: 1
+    needs: 1
     any:
       - id: string-fromcharcode
       - id: fromcharcode-call

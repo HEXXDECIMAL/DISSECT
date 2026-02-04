@@ -79,7 +79,6 @@ traits:
     if:
       type: string
       regex: '/usr/sbin/(auditd|cron[d]?|acpid|atd|sshd|rsyslogd|syslogd|smartd|ntpd)'
-      min_count: 3
 
   # Individual daemon path references
   - id: auditd-path

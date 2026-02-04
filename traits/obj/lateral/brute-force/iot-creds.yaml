@@ -19,7 +19,6 @@ traits:
       type: string
       # Common router admin passwords
       regex: "^(admin123|admin1234|root123|1234567890|123456|password|default)$"
-      min_count: 3
 
   - id: iot-vendor-creds
     desc: IoT vendor default credentials
@@ -29,7 +28,6 @@ traits:
       type: string
       # Specific IoT device vendor passwords (hikvision, cisco, zte, etc.)
       regex: "^(hikvision|cisco123|Zte521|vstarcam2015|xmhdipc|icatch99|hslwificam|dreambox|telnetadmin|telecomadmin|e8telnet|e8ehome|juantech|ipcam_rt5350|GM8182|hi3518|hg2x0|xc3511|xc12345|oelinux123|grouter|solokey|instar|OxhlwSG8|S2fGqNFs|tlJwpbo6|7ujMko0admin|7ujMko0vizxv|antslq|fiberinst)$"
-      min_count: 3
 
   - id: mirai-style-creds
     desc: Mirai-style credential patterns
@@ -39,7 +37,6 @@ traits:
       type: string
       # Well-known Mirai/botnet credential patterns
       regex: "^(root|admin|support|user|guest|supervisor|daemon|service|enable|system|ubnt|mother|login|shell|root621|root123|admin1234|888888|666666|12345|54321|pass)$"
-      min_count: 10
 
   # === Network Scanning Indicators ===
   - id: proc-net-tcp

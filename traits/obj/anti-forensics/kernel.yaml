@@ -283,7 +283,6 @@ traits:
     for: [c]
     if:
       type: ast
-      language: c
       query: |
         ((call_expression
           function: (identifier) @copy_fn
@@ -447,7 +446,7 @@ composite_rules:
     conf: 0.95
     attack: "T1562.001"
     for: [c, elf]
-    count_min: 2
+    needs: 2
     any:
       - { id: fake-state-logic }
       - { id: deception-read-hook }

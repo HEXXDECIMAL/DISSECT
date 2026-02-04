@@ -23,6 +23,7 @@ fn default_confidence() -> f32 {
 
 /// Conditions for a downgrade level (supports composite syntax)
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct DowngradeConditions {
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub any: Option<Vec<Condition>>,
@@ -31,15 +32,12 @@ pub struct DowngradeConditions {
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub none: Option<Vec<Condition>>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub count_exact: Option<usize>,
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub count_min: Option<usize>,
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub count_max: Option<usize>,
+    pub needs: Option<usize>,
 }
 
 /// Definition of an atomic observable trait
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct TraitDefinition {
     pub id: String,
     pub desc: String,
@@ -481,6 +479,7 @@ impl TraitDefinition {
 
 /// Boolean logic for combining conditions/traits
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct CompositeTrait {
     pub id: String,
     pub desc: String,
@@ -516,24 +515,24 @@ pub struct CompositeTrait {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub all: Option<Vec<Condition>>,
 
-    /// List of conditions - use count_min/count_max/count_exact to control how many must match
+    /// List of conditions - use `needs` to control how many must match
     #[serde(skip_serializing_if = "Option::is_none")]
     pub any: Option<Vec<Condition>>,
 
-    /// Exactly this many conditions from `any` must match (rare - use count_min for "at least N")
+    /// Minimum number of conditions from `any` that must match
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub count_exact: Option<usize>,
-
-    /// At least this many conditions from `any` must match (most common usage)
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub count_min: Option<usize>,
-
-    /// At most this many conditions from `any` can match
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub count_max: Option<usize>,
+    pub needs: Option<usize>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub none: Option<Vec<Condition>>,
+
+    /// Proximity constraint: at least count_min findings must be within N lines
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub near_lines: Option<usize>,
+
+    /// Proximity constraint: at least count_min findings must be within N bytes/characters
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub near_bytes: Option<usize>,
 
     /// File-level skip conditions - skip entire rule if ANY condition matches
     #[serde(skip_serializing_if = "Option::is_none", default)]
@@ -624,18 +623,9 @@ impl CompositeTrait {
             }
             (Some(conds), None) => self.eval_requires_all(conds, ctx),
             (None, Some(conds)) => {
-                // Handle count constraints on `any` conditions
-                let has_count_constraint = self.count_exact.is_some()
-                    || self.count_min.is_some()
-                    || self.count_max.is_some();
-                if has_count_constraint {
-                    self.eval_count_constraints(
-                        conds,
-                        self.count_exact,
-                        self.count_min,
-                        self.count_max,
-                        ctx,
-                    )
+                // Handle needs constraint on `any` conditions
+                if let Some(required_count) = self.needs {
+                    self.eval_count_constraints(conds, None, Some(required_count), None, ctx)
                 } else {
                     self.eval_requires_any(conds, ctx)
                 }
@@ -681,6 +671,18 @@ impl CompositeTrait {
         };
 
         if result.matched {
+            // Check proximity constraints (near_lines, near_bytes)
+            let evidence = match self.check_proximity_constraints(result.evidence) {
+                Some(ev) => ev,
+                None => return None, // Proximity constraint failed
+            };
+
+            // Boost precision if proximity constraints were applied
+            let mut precision_boost = 0.0;
+            if self.near_lines.is_some() || self.near_bytes.is_some() {
+                precision_boost = 1.0;
+            }
+
             let mut final_crit = self.crit;
 
             // Check downgrade conditions
@@ -701,16 +703,18 @@ impl CompositeTrait {
                 }
             }
 
+            let boosted_conf = (self.conf + precision_boost).min(1.0);
+
             Some(Finding {
                 id: self.id.clone(),
                 kind: FindingKind::Capability,
                 desc: self.desc.clone(),
-                conf: self.conf,
+                conf: boosted_conf,
                 crit: final_crit,
                 mbc: self.mbc.clone(),
                 attack: self.attack.clone(),
                 trait_refs: vec![],
-                evidence: result.evidence,
+                evidence,
             })
         } else {
             None
@@ -1274,6 +1278,131 @@ impl CompositeTrait {
             warnings: Vec::new(),
             precision: 0.0,
         }
+    }
+
+    /// Check if evidence satisfies proximity constraints
+    /// Returns None if constraints fail, otherwise returns the filtered evidence
+    fn check_proximity_constraints(&self, evidence: Vec<Evidence>) -> Option<Vec<Evidence>> {
+        // If no proximity constraints, pass through
+        if self.near_lines.is_none() && self.near_bytes.is_none() {
+            return Some(evidence);
+        }
+
+        // Get the minimum required matches (needs or 1)
+        let min_required = self.needs.unwrap_or(1).max(1);
+
+        // Check near_lines constraint
+        if let Some(max_line_span) = self.near_lines {
+            if !self.evidence_within_line_range(&evidence, max_line_span, min_required) {
+                return None;
+            }
+        }
+
+        // Check near_bytes constraint
+        if let Some(max_byte_span) = self.near_bytes {
+            if !self.evidence_within_byte_range(&evidence, max_byte_span, min_required) {
+                return None;
+            }
+        }
+
+        Some(evidence)
+    }
+
+    /// Check if at least min_required evidence items have line numbers within max_line_span
+    /// Location format is "line:column" (e.g., "42:5")
+    fn evidence_within_line_range(
+        &self,
+        evidence: &[Evidence],
+        max_line_span: usize,
+        min_required: usize,
+    ) -> bool {
+        // Extract line numbers from evidence
+        let mut line_numbers: Vec<usize> = evidence
+            .iter()
+            .filter_map(|e| {
+                e.location.as_ref().and_then(|loc| {
+                    loc.split(':')
+                        .next()
+                        .and_then(|line_str| line_str.parse::<usize>().ok())
+                })
+            })
+            .collect();
+
+        if line_numbers.len() < min_required {
+            return false; // Not enough evidence with line numbers
+        }
+
+        // Sort to find the smallest window
+        line_numbers.sort_unstable();
+
+        // Check all possible windows of size max_line_span to see if we can fit min_required items
+        for i in 0..line_numbers.len() {
+            let start_line = line_numbers[i];
+            let mut count = 0;
+            for j in i..line_numbers.len() {
+                if line_numbers[j] - start_line <= max_line_span {
+                    count += 1;
+                    if count >= min_required {
+                        return true;
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+
+        false
+    }
+
+    /// Check if at least min_required evidence items have byte offsets within max_byte_span
+    /// Location format can be "line:column" where we extract the byte offset, or direct byte offsets
+    fn evidence_within_byte_range(
+        &self,
+        evidence: &[Evidence],
+        max_byte_span: usize,
+        min_required: usize,
+    ) -> bool {
+        // Extract byte offsets from evidence
+        let mut byte_offsets: Vec<usize> = evidence
+            .iter()
+            .filter_map(|e| {
+                e.location.as_ref().and_then(|loc| {
+                    // Try to parse as direct byte offset first
+                    if let Ok(offset) = loc.parse::<usize>() {
+                        return Some(offset);
+                    }
+                    // Otherwise try "line:column" format - column is often byte position within line
+                    loc.split(':')
+                        .nth(1)
+                        .and_then(|col_str| col_str.parse::<usize>().ok())
+                })
+            })
+            .collect();
+
+        if byte_offsets.len() < min_required {
+            return false; // Not enough evidence with byte offsets
+        }
+
+        // Sort to find the smallest window
+        byte_offsets.sort_unstable();
+
+        // Check all possible windows of size max_byte_span
+        for i in 0..byte_offsets.len() {
+            let start_offset = byte_offsets[i];
+            let mut count = 0;
+            for j in i..byte_offsets.len() {
+                if byte_offsets[j] - start_offset <= max_byte_span {
+                    count += 1;
+                    if count >= min_required {
+                        return true;
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+
+        false
     }
 
     /// Returns true if this rule has negative (none) conditions

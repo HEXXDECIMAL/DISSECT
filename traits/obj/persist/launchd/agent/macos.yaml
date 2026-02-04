@@ -59,7 +59,7 @@ composite_rules:
     conf: 0.66
     mbc: B0028
     attack: T1543.004
-    count_min: 2
+    needs: 2
     any:
       - id: launch-agents
       - id: launch-daemons

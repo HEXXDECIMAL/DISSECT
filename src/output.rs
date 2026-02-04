@@ -162,12 +162,24 @@ fn risk_emoji(crit: &Criticality) -> &'static str {
 }
 
 /// Get risk level name
-/// Split trait ID into namespace and rest (e.g., "intel/discover/process/getuid" -> ("intel", "discover/process/getuid"))
-/// For IDs without a slash, use the ID itself as both namespace and rest
+/// Split trait ID into namespace and rest, skipping "cap"/"obj" prefixes
+/// e.g., "cap/exec/command/subprocess" -> ("exec", "command/subprocess")
+/// e.g., "obj/anti-analysis/debugger/detect" -> ("anti-analysis", "debugger/detect")
+/// e.g., "intel/discover/process/getuid" -> ("intel", "discover/process/getuid")
 fn split_trait_id(id: &str) -> (String, String) {
     let parts: Vec<&str> = id.split('/').collect();
-    if parts.len() > 1 {
-        (parts[0].to_string(), parts[1..].join("/"))
+
+    // Skip "cap" or "obj" prefix if present
+    let start_idx = if parts.len() > 1 && (parts[0] == "cap" || parts[0] == "obj") {
+        1
+    } else {
+        0
+    };
+
+    if parts.len() > start_idx + 1 {
+        (parts[start_idx].to_string(), parts[start_idx + 1..].join("/"))
+    } else if parts.len() > start_idx {
+        (parts[start_idx].to_string(), parts[start_idx].to_string())
     } else {
         (id.to_string(), id.to_string())
     }

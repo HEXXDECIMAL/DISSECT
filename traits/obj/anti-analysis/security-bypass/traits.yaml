@@ -346,7 +346,6 @@ composite_rules:
       - { id: unconfined-labels }
       - { id: object-r-label }
 
-
   # NOTE: Debuggers may have SELinux policy file references for:
   # - Analyzing security contexts of target processes
   # - Understanding SELinux-related crashes/issues
@@ -403,7 +402,7 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     for: [shell, c, elf]
-    count_min: 2
+    needs: 2
     any:
       - { id: xattr-manipulation }
       - { id: unconfined-context }

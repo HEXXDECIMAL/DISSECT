@@ -169,7 +169,7 @@ composite_rules:
     desc: Mnemonic or seed phrase terminology
     crit: notable
     conf: 0.7
-    count_min: 2
+    needs: 2
     any:
       - id: mnemonic-word
       - id: seed-phrase-underscore
@@ -182,7 +182,7 @@ composite_rules:
     desc: Wallet or cryptocurrency context
     crit: notable
     conf: 0.7
-    count_min: 2
+    needs: 2
     any:
       - id: wallet-word
       - id: crypto-word
@@ -195,7 +195,7 @@ composite_rules:
     desc: Private key variable or property
     crit: notable
     conf: 0.7
-    count_min: 1
+    needs: 1
     any:
       - id: private-key-underscore
       - id: privatekey-nospace
@@ -206,7 +206,7 @@ composite_rules:
     desc: Keystore reference
     crit: notable
     conf: 0.7
-    count_min: 1
+    needs: 1
     any:
       - id: keystore-singular
       - id: keystores-plural
@@ -216,7 +216,7 @@ composite_rules:
     desc: Wallet derivation path pattern
     crit: notable
     conf: 0.7
-    count_min: 1
+    needs: 1
     any:
       - id: derivation-path-words
       - id: bip44-path-prefix
@@ -226,7 +226,7 @@ composite_rules:
     desc: BIP-39 or wordlist reference
     crit: notable
     conf: 0.7
-    count_min: 1
+    needs: 1
     any:
       - id: bip39-exact
       - id: bip-39-hyphen
@@ -253,7 +253,7 @@ composite_rules:
     attack: "T1555"
     mbc: "B0028"
     for: [python, javascript, elf, pe, macho]
-    count_min: 3
+    needs: 3
     any:
       - id: mnemonic-terms
       - id: private-key-var

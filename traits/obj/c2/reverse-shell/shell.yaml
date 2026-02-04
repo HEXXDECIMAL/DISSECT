@@ -53,7 +53,7 @@ traits:
     for: [shell]
     if:
       type: string
-      regex: '/dev/tcp/.{0,128}Host:'
+      regex: "/dev/tcp/.{0,128}Host:"
 
   # === mkfifo netcat atomic indicators ===
   - id: mkfifo-cmd
@@ -164,7 +164,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     for: [shell, packagejson]
-    count_min: 1
+    needs: 1
     any:
       - id: nc-exec-sh
       - id: ncat-exec-sh

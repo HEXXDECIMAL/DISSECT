@@ -89,7 +89,7 @@ composite_rules:
     desc: Dash-prefix file in system path
     crit: suspicious
     conf: 0.9
-    count_min: 1
+    needs: 1
     any:
       - id: dash-file-bin
       - id: dash-file-sbin

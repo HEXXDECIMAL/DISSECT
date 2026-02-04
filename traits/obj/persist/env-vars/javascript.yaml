@@ -26,7 +26,6 @@ traits:
     attack: "T1574.007"
     if:
       type: ast
-      language: javascript
       query: |
         ((assignment_expression
           left: (member_expression

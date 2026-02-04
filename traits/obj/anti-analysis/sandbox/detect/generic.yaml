@@ -269,7 +269,7 @@ composite_rules:
     crit: suspicious
     conf: 0.8
     for: [javascript, typescript]
-    count_min: 1
+    needs: 1
     any:
       - id: js-atomic-sleep
       - id: js-date-now-timeout
@@ -281,7 +281,7 @@ composite_rules:
     crit: suspicious
     conf: 0.8
     for: [javascript, typescript]
-    count_min: 1
+    needs: 1
     any:
       - id: js-navigator-webdriver
       - id: js-plugins-length-zero
@@ -293,7 +293,7 @@ composite_rules:
     crit: suspicious
     conf: 0.66
     for: [elf, macho, pe, shell, python]
-    count_min: 2
+    needs: 2
     any:
       - id: cuckoo
       - id: joe-sandbox
@@ -316,7 +316,7 @@ composite_rules:
     mbc: "B0001"
     attack: "T1622"
     for: [javascript, typescript]
-    count_min: 1
+    needs: 1
     any:
       - id: js-console-log-tostring
       - id: js-console-warn-tostring
@@ -330,7 +330,7 @@ composite_rules:
     mbc: "B0001"
     attack: "T1622"
     for: [javascript, typescript]
-    count_min: 2
+    needs: 2
     any:
       - id: js-debugger-stmt
       - id: js-func-tostring

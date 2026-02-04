@@ -262,7 +262,7 @@ composite_rules:
     desc: Memory protection modification (mprotect/VirtualProtect)
     crit: notable
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: mprotect-unix
       - id: virtualprotect-win
@@ -283,7 +283,7 @@ composite_rules:
     desc: Self-overwriting code patterns
     crit: suspicious
     conf: 0.8
-    count_min: 1
+    needs: 1
   # Code cave injection
     any:
       - id: proc-self-maps
@@ -294,7 +294,7 @@ composite_rules:
     desc: Code cave or slack space
     crit: suspicious
     conf: 0.75
-    count_min: 2
+    needs: 2
     any:
       - id: codecave-ref
       - id: slack-space-ref
@@ -306,7 +306,7 @@ composite_rules:
     desc: Dynamic interposition hook patterns
     crit: notable
     conf: 0.7
-    count_min: 1
+    needs: 1
     any:
       - id: setwindowshook
       - id: inline-hook-ref
@@ -320,7 +320,7 @@ composite_rules:
     desc: Import Address Table hooking
     crit: notable
     conf: 0.7
-    count_min: 2
+    needs: 2
     any:
       - id: import-descriptor
       - id: import-address-table
@@ -335,7 +335,7 @@ composite_rules:
     desc: Polymorphic or metamorphic code indicators
     crit: suspicious
     conf: 0.75
-    count_min: 2
+    needs: 2
     any:
       - id: polymorphic-ref
       - id: metamorphic-ref

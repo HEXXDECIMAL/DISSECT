@@ -421,7 +421,7 @@ composite_rules:
     desc: Compiled with GCC
     crit: benign
     conf: 0.9
-    count_min: 1
+    needs: 1
     any:
       - id: gcc-comment
       - id: gcc-prefix
@@ -434,7 +434,7 @@ composite_rules:
     desc: Compiled with Clang/LLVM
     crit: benign
     conf: 0.9
-    count_min: 1
+    needs: 1
     any:
       - id: clang-string
       - id: llvm-string
@@ -446,7 +446,7 @@ composite_rules:
     desc: Compiled with Microsoft Visual C++
     crit: benign
     conf: 0.9
-    count_min: 1
+    needs: 1
     any:
       - id: msvc-string
       - id: msc-ver
@@ -458,7 +458,7 @@ composite_rules:
     desc: Compiled with Intel compiler
     crit: benign
     conf: 0.9
-    count_min: 1
+    needs: 1
     any:
       - id: intel-r
       - id: intel-compiler
@@ -470,7 +470,7 @@ composite_rules:
     desc: Linked with musl libc
     crit: benign
     conf: 0.9
-    count_min: 1
+    needs: 1
     any:
       - id: musl-libc
       - id: musl-prefix
@@ -482,7 +482,7 @@ composite_rules:
     desc: Binary contains debug symbols
     crit: benign
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: dwarf-debug
       - id: stab-debug
@@ -492,7 +492,7 @@ composite_rules:
     desc: DWARF debug sections
     crit: benign
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: debug-info-section
       - id: debug-line-section
@@ -512,7 +512,7 @@ composite_rules:
     desc: Link Time Optimization enabled
     crit: benign
     conf: 0.8
-    count_min: 1
+    needs: 1
     any:
       - id: llvmbc-section
       - id: llvmlto-section
@@ -524,7 +524,7 @@ composite_rules:
     desc: Position Independent Executable (PIE)
     crit: benign
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: pie-macro
       - id: fpie-flag
@@ -535,7 +535,7 @@ composite_rules:
     desc: Stack protector/canary enabled
     crit: benign
     conf: 0.9
-    count_min: 1
+    needs: 1
     any:
       - id: stack-chk-fail
       - id: stack-chk-guard
@@ -546,7 +546,7 @@ composite_rules:
     desc: FORTIFY_SOURCE hardening enabled
     crit: benign
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: fortify-fail
       - id: chk-fail
@@ -559,7 +559,7 @@ composite_rules:
     desc: RELRO hardening enabled
     crit: benign
     conf: 0.8
-    count_min: 1
+    needs: 1
     any:
       - id: gnu-relro
       - id: got-section
@@ -569,7 +569,7 @@ composite_rules:
     desc: Cross-compiled binary (different target arch)
     crit: notable
     conf: 0.75
-    count_min: 1
+    needs: 1
     any:
       - id: arm-linux-gnu
       - id: aarch64-linux-gnu

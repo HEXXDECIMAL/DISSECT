@@ -18,7 +18,6 @@ traits:
     conf: 0.85
     if:
       type: ast
-      language: python
       query: |
         ((call
           function: (attribute

@@ -114,7 +114,7 @@ composite_rules:
     desc: SSH client library
     crit: notable
     conf: 0.75
-    count_min: 2
+    needs: 2
     any:
       - id: ssh-userauth
       - id: libssh

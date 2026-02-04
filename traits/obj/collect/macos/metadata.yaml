@@ -80,7 +80,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     attack: "T1083"
-    count_min: 2
+    needs: 2
     any:
       - id: applications-dir
       - id: library-dir
@@ -96,7 +96,7 @@ composite_rules:
     attack: "T1083"
     all:
       - id: ds-store
-    count_min: 1
+    needs: 1
     any:
       - id: user-directory-enum
       - id: cap/fs/directory/traverse

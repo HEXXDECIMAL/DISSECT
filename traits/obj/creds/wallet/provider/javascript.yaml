@@ -171,7 +171,7 @@ composite_rules:
   - id: ethereum-provider
     desc: "Web3 wallet provider access (window.ethereum)"
     conf: 0.75
-    count_min: 1
+    needs: 1
     any:
       - id: window-dot-ethereum
       - id: window-bracket-ethereum
@@ -180,7 +180,7 @@ composite_rules:
   - id: ethereum-request
     desc: "Ethereum wallet request API"
     conf: 0.8
-    count_min: 1
+    needs: 1
     any:
       - id: ethereum-request-call
       - id: request-bracket-call
@@ -189,7 +189,7 @@ composite_rules:
   - id: ethereum-provider-or-request
     desc: "Ethereum provider access or request"
     conf: 0.75
-    count_min: 1
+    needs: 1
     any:
       - id: ethereum-provider
       - id: ethereum-request
@@ -198,7 +198,7 @@ composite_rules:
   - id: eth-request-accounts
     desc: "Request wallet accounts (eth_requestAccounts)"
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: eth-request-accounts-method
       - id: eth-accounts-method
@@ -208,7 +208,7 @@ composite_rules:
   - id: wallet-transaction-method
     desc: "Wallet transaction methods"
     conf: 0.8
-    count_min: 1
+    needs: 1
     any:
       - id: eth-send-transaction-method
       - id: erc20-approve
@@ -221,7 +221,7 @@ composite_rules:
     desc: "Suspicious wallet drainer function names"
     conf: 0.9
     crit: suspicious
-    count_min: 1
+    needs: 1
     any:
       - id: function-drain
       - id: function-steal
@@ -236,7 +236,7 @@ composite_rules:
     desc: "Drainer action function patterns"
     conf: 0.85
     crit: suspicious
-    count_min: 1
+    needs: 1
     any:
       - id: function-drain
       - id: function-steal
@@ -246,7 +246,7 @@ composite_rules:
   - id: drainer-indicator
     desc: "Wallet drainer indicators"
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: drainer-function-names
       - id: max-uint256-approval

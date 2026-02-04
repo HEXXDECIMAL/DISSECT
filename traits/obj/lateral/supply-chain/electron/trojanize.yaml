@@ -133,7 +133,7 @@ composite_rules:
     desc: Crypto wallet path targeting
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: atomic-wallet-path
       - id: exodus-wallet-path
@@ -153,7 +153,7 @@ composite_rules:
     desc: C2 installation beacon
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: install-status-beacon
       - id: http-ip-url

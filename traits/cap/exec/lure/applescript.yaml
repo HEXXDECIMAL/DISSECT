@@ -133,7 +133,7 @@ composite_rules:
     desc: Missing components/extensions message
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: missing-extensions
       - id: missing-required-ext
@@ -144,7 +144,7 @@ composite_rules:
     desc: User action prompt text
     crit: notable
     conf: 0.75
-    count_min: 1
+    needs: 1
     any:
       - id: click-button
       - id: press-continue
@@ -154,7 +154,7 @@ composite_rules:
     desc: Update-related lure message
     crit: notable
     conf: 0.8
-    count_min: 1
+    needs: 1
     any:
       - id: system-update
       - id: check-updates
@@ -164,7 +164,7 @@ composite_rules:
     desc: Compatibility-related lure message
     crit: suspicious
     conf: 0.9
-    count_min: 1
+    needs: 1
     any:
       - id: compat-wizard
       - id: compat-issue

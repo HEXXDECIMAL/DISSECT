@@ -16,7 +16,6 @@ traits:
         - substr: "cat /dev/null > ~/.bash_history"
         - substr: "> ~/.bash_history"
         - substr: "history -c"
-    notes: "Bash history removal"
     attack: "T1070.003"
 
   - id: history-clear-shell
@@ -31,7 +30,6 @@ traits:
         - substr: ".ksh_history"
         - substr: "history -c"
         - substr: "HISTFILE=/dev/null"
-    notes: "Shell history clearing"
     attack: "T1070.003"
 
   - id: sed-deletion-pattern
@@ -45,7 +43,6 @@ traits:
         - substr: "sed -i"
         - substr: "sed -i '/"
         - regex: "sed\\s+-i\\s+'[/\\|]"
-    notes: "sed in-place file modification (likely deletion of traces)"
     attack: "T1070.003"
 
   - id: deleted-process-cleanup
@@ -59,7 +56,6 @@ traits:
         - substr: "(deleted)"
         - substr: "grep deleted"
         - regex: "\\(deleted\\)"
-    notes: "References to deleted process cleanup"
     attack: "T1070.003"
 
   - id: proc-self-maps
@@ -70,7 +66,6 @@ traits:
     if:
       type: string
       substr: "/proc/self/maps"
-    notes: "Process memory mapping inspection"
     attack: "T1070"
 
   - id: pkill-signal-9
@@ -84,7 +79,6 @@ traits:
         - substr: "pkill -9"
         - substr: "killall -9"
         - regex: "kill\\s+-9"
-    notes: "Force kill process (remove evidence)"
     attack: "T1070.003"
 
   - id: find-delete-pattern
@@ -98,7 +92,6 @@ traits:
         - substr: "-exec rm"
         - substr: "-delete"
         - regex: "find\\s+.*-exec\\s+rm"
-    notes: "find command for file deletion"
     attack: "T1070.003"
 
   - id: cron-removal
@@ -113,7 +106,6 @@ traits:
         - substr: "crontab -r"
         - substr: "rm -f /var/spool/cron"
         - regex: "rm.*cron"
-    notes: "Cron job cleanup/removal"
     attack: "T1070.003"
 
   - id: systemd-cleanup
@@ -127,7 +119,6 @@ traits:
         - substr: "rm -f /etc/systemd/system/"
         - substr: "systemctl disable"
         - substr: "systemctl stop"
-    notes: "Systemd service removal/disabling"
     attack: "T1070.003"
 
   - id: syslog-truncate
@@ -142,7 +133,6 @@ traits:
         - substr: "cat /dev/null > /var/log/"
         - substr: "truncate -s 0"
         - regex: ">/var/log/[a-z]+\\.log"
-    notes: "System log file truncation/clearing"
     attack: "T1070.003"
 
   - id: wtmp-utmp-clear
@@ -156,7 +146,6 @@ traits:
         - substr: "/var/log/wtmp"
         - substr: "/var/log/utmp"
         - substr: "/var/run/utmp"
-    notes: "Login record (wtmp/utmp) clearing"
     attack: "T1070.003"
 
 composite_rules:
@@ -166,13 +155,7 @@ composite_rules:
     conf: 0.8
     for: [elf, shell]
     attack: "T1070.003"
-    notes: |
-      Shell history removal detected.
-      Indicates:
-      - Covering tracks
-      - Forensics evasion
-      - Evidence removal
-    count_min: 2
+    needs: 2
     any:
       - id: history-clear-bash
       - id: history-clear-shell
@@ -183,12 +166,7 @@ composite_rules:
     conf: 0.85
     for: [elf, shell]
     attack: "T1070.003"
-    notes: |
-      Process cleanup patterns detected.
-      Indicates:
-      - Removing malware process references
-      - Forensics evasion
-    count_min: 2
+    needs: 2
     any:
       - id: deleted-process-cleanup
       - id: pkill-signal-9
@@ -200,12 +178,7 @@ composite_rules:
     conf: 0.85
     for: [elf, shell]
     attack: "T1070.003"
-    notes: |
-      Persistence-related cleanup detected.
-      Indicates:
-      - Removing scheduled tasks
-      - Service disabling/removal
-    count_min: 2
+    needs: 2
     any:
       - id: cron-removal
       - id: systemd-cleanup
@@ -216,12 +189,7 @@ composite_rules:
     conf: 0.85
     for: [elf, shell]
     attack: "T1070.003"
-    notes: |
-      Log file cleanup detected.
-      Indicates:
-      - Removing evidence of exploitation
-      - Forensics evasion
-    count_min: 2
+    needs: 2
     any:
       - id: syslog-truncate
       - id: wtmp-utmp-clear
@@ -233,19 +201,7 @@ composite_rules:
     for: [elf, shell]
     attack: "T1070.003"
     mbc: "E1006"
-    notes: |
-      Complete evidence removal pattern detected.
-      Combines multiple cleanup mechanisms:
-      - History files removal
-      - Process trace cleanup
-      - Persistence mechanism removal
-      - Log file cleanup
-
-      This indicates:
-      - Sophisticated attacker
-      - Forensics-aware malware
-      - Multi-stage cover-up operation
-    count_min: 3
+    needs: 3
     any:
       - id: history-cleanup
       - id: process-cleanup

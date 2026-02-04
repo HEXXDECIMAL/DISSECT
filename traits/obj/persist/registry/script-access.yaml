@@ -12,7 +12,6 @@ traits:
     if:
       type: string
       substr: "RegWrite"
-    notes: "Registry write operation (persistence/configuration)"
     attack: "T1547.001"
     mbc: "F0006"
 
@@ -25,7 +24,6 @@ traits:
     if:
       type: string
       substr: "RegRead"
-    notes: "Registry read operation (data exfiltration)"
     attack: "T1012"
     mbc: "E1563"
 
@@ -38,7 +36,6 @@ traits:
     if:
       type: string
       substr: "RegDelete"
-    notes: "Registry delete operation (anti-forensics/cleanup)"
     attack: "T1562.004"
     mbc: "E1006"
 
@@ -53,7 +50,6 @@ traits:
       any:
         - substr: "HKEY_LOCAL_MACHINE"
         - substr: "HKLM"
-    notes: "Registry HKEY_LOCAL_MACHINE access (system-wide)"
     attack: "T1012"
 
   - id: hkey-current-user
@@ -67,7 +63,6 @@ traits:
       any:
         - substr: "HKEY_CURRENT_USER"
         - substr: "HKCU"
-    notes: "Registry HKEY_CURRENT_USER access (user-specific)"
     attack: "T1012"
 
   - id: run-key-reference
@@ -81,7 +76,6 @@ traits:
       any:
         - substr: "\\Run"
         - substr: "\\RunOnce"
-    notes: "Registry Run/RunOnce key (persistence mechanism)"
     attack: "T1547.001"
     mbc: "F0006"
 
@@ -94,16 +88,7 @@ composite_rules:
     for: [javascript]
     attack: "T1012"
     mbc: "E1563"
-    notes: |
-      Registry operations via script detected.
-
-      Indicates:
-      - Configuration modification
-      - System settings changes
-      - Credential storage access
-      - Anti-analysis/anti-forensics
-
-    count_min: 2
+    needs: 2
     any:
       - id: script-regwrite
       - id: script-regread
@@ -117,16 +102,6 @@ composite_rules:
     for: [javascript]
     attack: "T1547.001"
     mbc: "F0006"
-    notes: |
-      Registry persistence mechanism detected.
-
-      Combines registry write with Run key modification.
-
-      Indicates:
-      - Persistence installation
-      - Automatic startup on reboot
-      - System-wide execution
-
     all:
       - id: script-regwrite
       - id: run-key-reference
@@ -139,16 +114,6 @@ composite_rules:
     for: [javascript]
     attack: "T1562.004"
     mbc: "E1006"
-    notes: |
-      Registry deletion/cleanup detected.
-
-      Indicates:
-      - Anti-forensics
-      - Trace removal
-      - Evidence destruction
-      - Evasion awareness
-
     all:
       - id: script-regdelete
       - id: obj/anti-forensics
-

@@ -121,7 +121,7 @@ composite_rules:
     desc: Ethereum address regex pattern (0x...40
     conf: 0.9
     crit: suspicious
-    count_min: 1
+    needs: 1
     any:
       - id: ethereum-regex-40
       - id: ethereum-regex-boundary
@@ -131,7 +131,7 @@ composite_rules:
     desc: Litecoin address regex pattern
     conf: 0.9
     crit: suspicious
-    count_min: 1
+    needs: 1
     any:
       - id: litecoin-segwit-regex
       - id: litecoin-legacy-regex
@@ -141,7 +141,7 @@ composite_rules:
     desc: "Multiple cryptocurrency wallet regex patterns"
     crit: suspicious
     conf: 0.95
-    count_min: 2
+    needs: 2
     any:
       - id: ethereum-regex-short
       - id: bitcoin-legacy-regex-short

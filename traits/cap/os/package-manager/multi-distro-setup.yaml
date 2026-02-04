@@ -13,7 +13,6 @@ traits:
     if:
       type: string
       substr: "which apt-get"
-    notes: "Debian/Ubuntu package manager check"
 
   - id: yum-available
     desc: Check for yum availability
@@ -23,7 +22,6 @@ traits:
     if:
       type: string
       substr: "which yum"
-    notes: "RedHat/CentOS package manager check"
 
   - id: dnf-available
     desc: Check for dnf availability
@@ -33,7 +31,6 @@ traits:
     if:
       type: string
       substr: "which dnf"
-    notes: "Fedora/RHEL 8+ package manager check"
 
   # === Sudo Installation Patterns ===
   - id: apt-install-sudo
@@ -44,7 +41,6 @@ traits:
     if:
       type: string
       substr: "apt-get install -y sudo"
-    notes: "Ensures sudo is installed on Debian systems"
     attack: "T1548.004"
 
   - id: yum-install-sudo
@@ -55,7 +51,6 @@ traits:
     if:
       type: string
       substr: "yum install -y sudo"
-    notes: "Ensures sudo is installed on RedHat systems"
     attack: "T1548.004"
 
   - id: dnf-install-sudo
@@ -66,7 +61,6 @@ traits:
     if:
       type: string
       substr: "dnf install -y sudo"
-    notes: "Ensures sudo is installed on Fedora/RHEL 8+ systems"
     attack: "T1548.004"
 
   # === Multi-Distro Patterns ===
@@ -81,7 +75,6 @@ traits:
         - substr: "apt-get"
         - substr: "yum"
         - substr: "dnf"
-    notes: "Detection of multiple Linux distribution types"
 
   - id: conditional-install
     desc: Conditional installation based on availability
@@ -91,7 +84,6 @@ traits:
     if:
       type: string
       substr: ">/dev/null 2>&1 &&"
-    notes: "Typical pattern for conditional command execution"
 
 composite_rules:
   - id: apt-distro-targeting
@@ -125,14 +117,10 @@ composite_rules:
     conf: 0.9
     for: [elf, shell]
     attack: "T1548.004"
-    notes: |
-      Malware deploys sudo across multiple Linux distributions.
-      Indicates privilege escalation preparation.
-      Suggests malware targets diverse environments.
     all:
       - id: conditional-install
       - id: all-distros-targeted
-        count_min: 2
+        needs: 2
 
   - id: distribution-agnostic-attack
     desc: Distribution-agnostic attack infrastructure
@@ -140,18 +128,10 @@ composite_rules:
     conf: 0.85
     for: [elf, shell]
     attack: "T1195.001"
-    notes: |
-      Malware implements cross-distribution payload deployment.
-      Pattern indicates sophisticated attackers:
-      - Adapt to multiple Linux variants
-      - Prepare infrastructure across platforms
-      - Indicate planned mass deployment
-
-      Common in botnet/worm-class malware.
     all:
       - id: multi-distro-detection
       - id: all-distros-targeted
-        count_min: 2
+        needs: 2
 
   - id: kinsing-multi-distro-setup
     desc: Kinsing multi-distribution setup
@@ -159,14 +139,6 @@ composite_rules:
     conf: 0.9
     for: [elf, shell]
     attack: "T1548.004"
-    notes: |
-      Kinsing implements cross-distribution privilege escalation.
-      Deploys sudo across:
-      - Debian/Ubuntu systems (apt-get)
-      - RedHat/CentOS systems (yum)
-      - Fedora/RHEL 8+ systems (dnf)
-
-      Indicates botnet designed for mass deployment.
     all:
       - id: kinsing-identifier
       - id: multi-distro-sudo-deployment

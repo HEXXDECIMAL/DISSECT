@@ -203,7 +203,7 @@ composite_rules:
     conf: 0.7
     attack: "T1033"
     for: [all]
-    count_min: 1
+    needs: 1
     any:
       - id: getenv-home
       - id: env-dot-home
@@ -216,7 +216,7 @@ composite_rules:
     conf: 0.75
     attack: "T1033"
     for: [all]
-    count_min: 1
+    needs: 1
     any:
       - id: username-var
       - id: user-var
@@ -229,7 +229,7 @@ composite_rules:
     conf: 0.8
     attack: "T1033"
     for: [shell, elf, macho, pe, python]
-    count_min: 1
+    needs: 1
     any:
       - id: whoami
       - id: etc-passwd
@@ -246,7 +246,7 @@ composite_rules:
     conf: 0.4
     attack: "T1033"
     for: [elf, macho]
-    count_min: 1
+    needs: 1
     any:
       - id: getpwnam
       - id: getuid

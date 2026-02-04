@@ -19,6 +19,7 @@ pub(crate) struct TraitInfo {
 
 /// File-level defaults that apply to all traits in a file
 #[derive(Debug, Deserialize, Default, Clone)]
+#[serde(deny_unknown_fields)]
 pub(crate) struct TraitDefaults {
     #[serde(default, alias = "for", alias = "file_types")]
     pub(crate) r#for: Option<Vec<String>>,
@@ -36,6 +37,7 @@ pub(crate) struct TraitDefaults {
 
 /// Raw trait definition for parsing (fields can be absent to inherit defaults)
 #[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub(crate) struct RawTraitDefinition {
     pub(crate) id: String,
     #[serde(alias = "description")]
@@ -68,6 +70,7 @@ pub(crate) struct RawTraitDefinition {
 
 /// Raw composite rule for parsing (fields can be absent to inherit defaults)
 #[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub(crate) struct RawCompositeRule {
     #[serde(alias = "capability")]
     pub(crate) id: String,
@@ -94,17 +97,20 @@ pub(crate) struct RawCompositeRule {
     pub(crate) all: Option<Vec<crate::composite_rules::Condition>>,
     #[serde(default, alias = "requires_any", alias = "conditions")]
     pub(crate) any: Option<Vec<crate::composite_rules::Condition>>,
+    /// Minimum number of conditions that must match (for `any` lists)
     #[serde(default)]
-    pub(crate) count_exact: Option<usize>,
-    #[serde(default)]
-    pub(crate) count_min: Option<usize>,
-    #[serde(default)]
-    pub(crate) count_max: Option<usize>,
+    pub(crate) needs: Option<usize>,
     #[serde(default, alias = "requires_none")]
     pub(crate) none: Option<Vec<crate::composite_rules::Condition>>,
     // Single condition (for simple composite rules)
     #[serde(default, alias = "if")]
     pub(crate) condition: Option<crate::composite_rules::Condition>,
+    // Proximity constraint: all evidence must be within N lines
+    #[serde(default)]
+    pub(crate) near_lines: Option<usize>,
+    // Proximity constraint: all evidence must be within N bytes/characters
+    #[serde(default)]
+    pub(crate) near_bytes: Option<usize>,
     // File-level skip conditions
     #[serde(default)]
     pub(crate) unless: Option<Vec<crate::composite_rules::Condition>>,
@@ -117,6 +123,7 @@ pub(crate) struct RawCompositeRule {
 
 /// YAML file structure
 #[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub(crate) struct TraitMappings {
     #[serde(default)]
     pub(crate) defaults: TraitDefaults,
@@ -136,6 +143,7 @@ pub(crate) struct TraitMappings {
 
 /// Simple rule with platform/file type constraints
 #[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub(crate) struct SimpleRule {
     pub(crate) symbol: String,
     pub(crate) capability: String,
@@ -151,6 +159,7 @@ pub(crate) struct SimpleRule {
 
 /// Legacy symbol mapping format
 #[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub(crate) struct SymbolMapping {
     pub(crate) symbol: String,
     pub(crate) capability: String,

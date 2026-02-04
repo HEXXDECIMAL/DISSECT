@@ -91,7 +91,7 @@ composite_rules:
     for: [c, elf]
     all:
       - id: syscall-fn
-    count_min: 1
+    needs: 1
     any:
       - id: nr-getdents
       - id: nr-getdents64

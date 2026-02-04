@@ -510,7 +510,7 @@ composite_rules:
     for: [python, javascript, elf, pe, macho]
     all:
       - id: all-browsers
-        count_min: 2
+        needs: 2
       - id: credential-files
 
   # Helper composite
@@ -530,9 +530,9 @@ composite_rules:
     for: [python, javascript, elf, pe, macho]
     all:
       - id: all-browsers
-        count_min: 2
+        needs: 2
       - id: credential-files
-        count_min: 2
+        needs: 2
       - id: decryption-methods
       - id: sqlite-or-exfil
 
@@ -548,5 +548,5 @@ composite_rules:
       - id: python-imports
       - id: windows-paths
       - id: password-fields
-        count_min: 2
+        needs: 2
       - id: exfiltration-channels

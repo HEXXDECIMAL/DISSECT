@@ -9,7 +9,7 @@ composite_rules:
     mbc: "OB0003"
     attack: "T1041"
     for: [python]
-    count_min: 4
+    needs: 4
     all:
       - id: obj/discovery/system
       - id: cap/comm/http/request
@@ -25,7 +25,7 @@ composite_rules:
     mbc: "B0023"
     attack: "T1059"
     for: [python]
-    count_min: 4
+    needs: 4
     all:
       - id: obj/anti-static/obfuscation/strings
       - id: obj/lateral/supply-chain
@@ -38,7 +38,7 @@ composite_rules:
     mbc: "E1082"
     attack: "T1082"
     for: [python]
-    count_min: 3
+    needs: 3
     all:
       - id: obj/anti-analysis/aliasing/python-std-alias
       - id: obj/discovery/system
@@ -52,7 +52,7 @@ composite_rules:
     attack: "T1074"
     for: [python]
     near_lines: 100
-    count_min: 4
+    needs: 4
     all:
       - id: obj/discovery/system
     any:

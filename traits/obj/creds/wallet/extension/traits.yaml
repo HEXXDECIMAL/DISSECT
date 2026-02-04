@@ -222,7 +222,7 @@ composite_rules:
     attack: "T1555.003"
     mbc: "B0028"
     for: [python, javascript, elf, pe, macho]
-    count_min: 3
+    needs: 3
     any:
       - id: metamask
       - id: phantom

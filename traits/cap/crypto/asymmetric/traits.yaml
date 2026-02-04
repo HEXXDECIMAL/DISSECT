@@ -43,9 +43,8 @@ composite_rules:
     desc: RSA cryptographic operations
     crit: notable
     conf: 0.6
-    count_min: 1
+    needs: 1
     any:
       - id: rsa-public-decrypt
       - id: rsa-public-encrypt
       - id: evp-pkey-ref
-

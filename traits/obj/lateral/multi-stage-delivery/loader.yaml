@@ -13,7 +13,6 @@ traits:
       type: import_combination
       required: ["LoadLibrary", "GetProcAddress"]
       min_suspicious: 2
-    notes: "Enables flexible runtime module loading"
     attack: "T1129"
     mbc: "C0007"
 
@@ -27,7 +26,6 @@ traits:
       type: import_combination
       suspicious: ["CreateRemoteThread", "WriteProcessMemory", "VirtualAllocEx"]
       min_suspicious: 1
-    notes: "Capability to inject code into other processes"
     attack: "T1055"
     mbc: "C0041"
 
@@ -40,23 +38,6 @@ composite_rules:
     mbc: "B0024"
     platforms: [windows]
     for: [pe]
-    notes: |
-      Complete multi-stage loader pattern:
-      1. Embedded obfuscated payload (encoded blob)
-      2. Dynamic module loading (flexible injection)
-      3. Remote code injection (deploy into running process)
-
-      Generic pattern seen in:
-      - Emotet (multi-encoding + dynamic loading)
-      - Trickbot (DLL loader + injection)
-      - Ryuk (encoded payload + injection)
-      - Maze, ZeuS, Dridex, IcedID
-
-      This combination indicates Stage 1 malware designed to:
-      - Avoid static analysis (encoding)
-      - Adapt to environment (dynamic loading)
-      - Execute in target process (injection)
-
     all:
       - id: cap/data/encode/payload/embedded-obfuscated-payload
       - id: dynamic-library-loading
@@ -70,13 +51,7 @@ composite_rules:
     mbc: "B0024"
     platforms: [windows]
     for: [pe]
-    notes: |
-      Multiple code execution techniques available indicates:
-      - Flexible deployment strategy
-      - Expected defensive measures
-      - Can adapt injection method by environment
-
-    count_min: 3
+    needs: 3
     any:
       - id: obj/process/injection/remote-thread-pattern
       - id: obj/process/injection/process-hollowing

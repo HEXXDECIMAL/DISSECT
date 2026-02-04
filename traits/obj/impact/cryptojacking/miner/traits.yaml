@@ -274,7 +274,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     attack: "T1496"
-    count_min: 1
+    needs: 1
     any:
       - id: monero-lower
       - id: monero-title
@@ -287,7 +287,7 @@ composite_rules:
     conf: 0.95
     attack: "T1496"
     mbc: "B0036"
-    count_min: 2
+    needs: 2
     any:
       - id: stratum-protocol
       - id: pool-c3pool

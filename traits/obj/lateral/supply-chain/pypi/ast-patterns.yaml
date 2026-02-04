@@ -39,7 +39,7 @@ traits:
       type: ast
       kind: call
       exact: "\\.clone\\(.{0,50}\\)"
-      count_min: 2
+      needs: 2
 
   # === AST Pattern: Environment Set in Method ===
   - id: ast-env-set-in-method
@@ -60,7 +60,7 @@ traits:
       type: ast
       kind: call
       exact: "(clone|rename|startfile)"
-      count_min: 3
+      needs: 3
 
   # === AST Pattern: cmdclass with Custom Install ===
   - id: ast-cmdclass-install-override
@@ -80,7 +80,7 @@ composite_rules:
     conf: 0.90
     attack: "T1195.001"
     for: [python]
-    count_min: 2
+    needs: 2
     any:
       - id: ast-import-in-method
       - id: ast-install-method-override

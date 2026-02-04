@@ -102,7 +102,7 @@ composite_rules:
     conf: 0.85
     for: [elf, shell]
     attack: "T1190"
-    count_min: 2
+    needs: 2
     any:
       - id: apt-get-noninteractive
       - id: yum-noninteractive
@@ -115,7 +115,7 @@ composite_rules:
     conf: 0.9
     for: [elf, shell]
     attack: "T1190"
-    count_min: 2
+    needs: 2
     any:
       - id: apt-get-noninteractive
       - id: yum-noninteractive

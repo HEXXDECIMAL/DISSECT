@@ -13,7 +13,6 @@ traits:
     if:
       type: string
       substr: "@GOLJ]LM"
-    notes: "XOR-encoded infection marker pattern"
     attack: "T1027"
 
   - id: xor-marker-extended
@@ -24,7 +23,6 @@ traits:
     if:
       type: string
       substr: "EFE)@GOLJ]LM)HNH@G"
-    notes: "Extended XOR obfuscated marker"
     attack: "T1027"
 
   # === Obfuscation Patterns ===
@@ -36,7 +34,6 @@ traits:
     if:
       type: string
       regex: "[a-zA-Z0-9]{4,}\\t$"
-    notes: "Strings terminated with tab - likely encoded"
     attack: "T1027"
 
   - id: unusual-character-combinations
@@ -47,7 +44,6 @@ traits:
     if:
       type: string
       regex: "[^a-zA-Z0-9]{8,}"
-    notes: "Long sequences of special characters suggest encoding"
     attack: "T1027"
 
   # === Known XOR Key Indicators ===
@@ -59,7 +55,6 @@ traits:
     if:
       type: string
       substr: "\\x00\\x00"
-    notes: "Null bytes suggesting XOR encoding with 0x00"
     attack: "T1027"
 
 composite_rules:
@@ -69,12 +64,6 @@ composite_rules:
     conf: 0.85
     for: [elf, shell]
     attack: "T1027"
-    notes: |
-      Detected XOR-encoded strings and markers.
-      Pattern indicates:
-      - String obfuscation
-      - Anti-analysis technique
-      - Possible XOR cipher with specific key
     any:
       - id: xor-infection-marker
       - id: xor-marker-extended
@@ -87,13 +76,6 @@ composite_rules:
     for: [elf, shell]
     attack: "T1027"
     mbc: "B0041"
-    notes: |
-      Evidence of XOR or simple substitution cipher:
-      - Infection markers with special characters
-      - Tab-terminated strings
-      - Unusual character sequences
-
-      Indicates anti-analysis via string encoding.
     any:
       - id: xor-encoded-strings
       - id: unusual-character-combinations
@@ -106,14 +88,6 @@ composite_rules:
     for: [elf, shell]
     attack: "T1027"
     mbc: "B0041"
-    notes: |
-      Mirai botnet with XOR string obfuscation.
-      Pattern combines:
-      - Mirai identification
-      - XOR-encoded strings
-      - Infection markers
-
-      Indicates anti-analysis protection for botnet.
     all:
       - id: known/malware/botnet/mirai
       - id: xor-obfuscation-evidence

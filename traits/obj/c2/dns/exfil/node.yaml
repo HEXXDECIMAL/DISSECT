@@ -18,7 +18,7 @@ composite_rules:
     desc: Node.js DNS resolve function (potential
     crit: notable
     conf: 0.8
-    count_min: 1
+    needs: 1
     any:
       - id: cap/comm/dns/lookup/node/dns-resolve-call
       - id: cap/comm/dns/lookup/node/dns-resolve4-call
@@ -30,7 +30,7 @@ composite_rules:
     conf: 0.9
     mbc: "C0002"
     attack: "T1071.004"
-    count_min: 1
+    needs: 1
     any:
       - id: cap/comm/dns/lookup/node/dns-resolveTxt-method
       - id: cap/comm/dns/lookup/node/resolveTxt-call

@@ -43,7 +43,6 @@ traits:
     for: [python]
     if:
       type: ast
-      language: python
       query: |
         ((call
           function: (identifier) @func
@@ -126,7 +125,7 @@ composite_rules:
     desc: "Decoding functions for encoded payloads"
     crit: notable
     conf: 0.7
-    count_min: 1
+    needs: 1
     any:
       - id: b64decode-call
       - id: fromhex-call

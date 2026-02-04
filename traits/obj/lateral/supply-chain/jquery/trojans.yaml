@@ -14,14 +14,9 @@ composite_rules:
     crit: hostile
     conf: 0.98
     all:
-      - {id: meta/library/jquery/library}
-      - {id: meta/library/jquery/version-string}
-      - {id: cap/exec/dropper/activex-object}
-    explanation: |
-      This file contains jQuery library signatures but uses ActiveXObject.
-      Real jQuery may detect ActiveXObject for IE compatibility checks, but
-      doesn't use it for command execution or malicious operations.
-      This is a trojanized library - a supply chain attack.
+      - { id: meta/library/jquery/library }
+      - { id: meta/library/jquery/version-string }
+      - { id: cap/exec/dropper/activex-object }
 
   # jQuery + Reverse Shell = HOSTILE
   - id: trojanized-reverse-shell
@@ -29,13 +24,9 @@ composite_rules:
     crit: hostile
     conf: 0.98
     all:
-      - {id: meta/library/jquery/library}
-      - {id: meta/library/jquery/version-string}
-      - {id: obj/c2/reverse-shell/node/socket-with-exec}
-    explanation: |
-      This jQuery library contains reverse shell capabilities.
-      Real jQuery doesn't create reverse shells.
-      This is a trojanized library - a supply chain attack.
+      - { id: meta/library/jquery/library }
+      - { id: meta/library/jquery/version-string }
+      - { id: obj/c2/reverse-shell/node/socket-with-exec }
 
   # jQuery + Base64 Eval = HOSTILE (hidden payload)
   - id: trojanized-base64-eval
@@ -43,13 +34,9 @@ composite_rules:
     crit: hostile
     conf: 0.95
     all:
-      - {id: meta/library/jquery/library}
-      - {id: meta/library/jquery/version-string}
-      - {id: obj/anti-static/obfuscation/base64-eval}
-    explanation: |
-      This jQuery library uses base64+eval to hide malicious code.
-      Real jQuery doesn't use base64+eval obfuscation patterns.
-      This is a trojanized library - a supply chain attack.
+      - { id: meta/library/jquery/library }
+      - { id: meta/library/jquery/version-string }
+      - { id: obj/anti-static/obfuscation/base64-eval }
 
   # jQuery + Credential Access = HOSTILE
   - id: trojanized-credential-access
@@ -57,31 +44,23 @@ composite_rules:
     crit: hostile
     conf: 0.98
     all:
-      - {id: meta/library/jquery/library}
-      - {id: meta/library/jquery/version-string}
+      - { id: meta/library/jquery/library }
+      - { id: meta/library/jquery/version-string }
     any:
-      - {id: obj/creds/browser/chromium/login-data}
-      - {id: obj/creds/browser/firefox/cookies-sqlite}
-    explanation: |
-      This jQuery library accesses credential stores.
-      Real jQuery never accesses browser credentials.
-      This is a trojanized library - a supply chain attack.
+      - { id: obj/creds/browser/chromium/login-data }
+      - { id: obj/creds/browser/firefox/cookies-sqlite }
 
-  # jQuery + Command Execution = HOSTILE  
+  # jQuery + Command Execution = HOSTILE
   - id: trojanized-exec
     desc: "jQuery library with command execution"
     crit: hostile
     conf: 0.98
     all:
-      - {id: meta/library/jquery/library}
-      - {id: meta/library/jquery/version-string}
+      - { id: meta/library/jquery/library }
+      - { id: meta/library/jquery/version-string }
     any:
-      - {id: cap/exec/command/shell}
-      - {id: cap/exec/command/node/child-process}
-    explanation: |
-      This jQuery library executes system commands or spawns processes.
-      Real jQuery is a DOM manipulation library and never executes commands.
-      This is a trojanized library - a supply chain attack.
+      - { id: cap/exec/command/shell }
+      - { id: cap/exec/command/node/child-process }
 
   # jQuery + Network Backdoor = HOSTILE
   - id: trojanized-backdoor
@@ -89,9 +68,6 @@ composite_rules:
     crit: hostile
     conf: 0.95
     all:
-      - {id: meta/library/jquery/library}
-      - {id: meta/library/jquery/version-string}
-      - {id: obj/c2/infrastructure/domain/suspicious}
-    explanation: |
-      This jQuery library communicates with suspicious domains.
-      This is a trojanized library - a supply chain attack.
+      - { id: meta/library/jquery/library }
+      - { id: meta/library/jquery/version-string }
+      - { id: obj/c2/infrastructure/domain/suspicious }

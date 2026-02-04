@@ -12,7 +12,6 @@ traits:
     if:
       type: symbol
       exact: "FindFirstFileExW"
-    notes: "Used to search filesystem for target files"
     attack: "T1083"
     mbc: "C0000"
 
@@ -25,7 +24,6 @@ traits:
     if:
       type: symbol
       exact: "FindNextFileW"
-    notes: "Iterates through enumerated files"
     attack: "T1083"
     mbc: "C0000"
 
@@ -38,7 +36,6 @@ traits:
     if:
       type: symbol
       exact: "FindClose"
-    notes: "Cleanup for file enumeration handles"
 
 composite_rules:
   - id: file-enumeration-targeting
@@ -49,21 +46,6 @@ composite_rules:
     for: [pe]
     attack: "T1083"
     mbc: "C0000"
-    notes: |
-      Detects file system enumeration pattern common in:
-      - Ransomware (searching for files to encrypt)
-      - Worms (searching for files to infect)
-      - Data exfiltration (searching for specific file types)
-      - Information gathering
-
-      Pattern: FindFirstFileExW + FindNextFileW
-      Indicates: Systematic file targeting capability
-
-      Seen in:
-      - Ryuk, Conti, LockBit (ransomware)
-      - Emotet, Trickbot (worms/mass infection)
-      - Carbanak, Fin7 (data targeting)
-
     all:
       - id: file-find-api
       - id: file-iterate-api
@@ -76,15 +58,6 @@ composite_rules:
     for: [pe]
     attack: "T1083"
     mbc: "C0000"
-    notes: |
-      Combines file enumeration with file access APIs.
-      Indicates actual file operations following search.
-
-      Pattern suggests:
-      1. Search filesystem (FindFirstFileExW)
-      2. Iterate results (FindNextFileW)
-      3. Access files (CreateFileW)
-
     all:
       - id: file-enumeration-targeting
       - id: cap/fs/file/open

@@ -14,7 +14,7 @@ traits:
     attack: "T1505.003"
     if:
       type: string
-      regex: "<input[^>]*type=['\"]password['\"]"
+      regex: '<input[^>]*type=[''"]password[''"]'
 
   - id: ajax-handler
     desc: AJAX request handler pattern
@@ -175,7 +175,7 @@ composite_rules:
     desc: High port number (proxy/backdoor indicator)
     crit: suspicious
     conf: 0.8
-    count_min: 1
+    needs: 1
     any:
       - id: port-30000
       - id: port-31337-php

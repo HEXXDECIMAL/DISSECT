@@ -71,7 +71,7 @@ composite_rules:
     desc: ELF constructor/destructor functions
     crit: inert
     conf: 0.5
-    count_min: 2
+    needs: 2
     any:
       - id: init-array
       - id: fini-array

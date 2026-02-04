@@ -20,7 +20,6 @@ traits:
     if:
       type: string
       regex: "^[0-9a-fA-F]{20000,}$"
-      min_count: 1
 
   # Custom encoding alphabet (64 chars with special characters)
   # Malware often uses custom base64-like alphabets for obfuscation
@@ -41,7 +40,6 @@ traits:
       # - Does NOT start with __ (excludes C++ mangled names)
       # - Is not all alphanumeric (must have real special chars)
       regex: "^[^_][a-zA-Z0-9><=*%#!()@$&+\\-_]{59,65}$"
-      min_count: 1
     # Filter out standard base64 and common false positives
     not:
       - exact: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"

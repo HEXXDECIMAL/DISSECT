@@ -13,7 +13,6 @@ traits:
     if:
       type: string
       substr: "stm_hi3511_dvr"
-    notes: "Targets STMicroelectronics Hi3511 DVR SoC"
     attack: "T1046"
 
   - id: hi3511-chipset-app
@@ -24,7 +23,6 @@ traits:
     if:
       type: string
       substr: "app/hi3511"
-    notes: "Hi3511 application targeting"
     attack: "T1046"
 
   # === Generic DVR Identification ===
@@ -36,7 +34,6 @@ traits:
     if:
       type: string
       substr: "gmDVR"
-    notes: "Generic DVR malware identifier"
     attack: "T1046"
 
   # === Hikvision Firmware ===
@@ -48,7 +45,6 @@ traits:
     if:
       type: string
       substr: "dvr_main _8182T"
-    notes: "Targets Hikvision 8182T DVR firmware"
     attack: "T1046"
 
   - id: anko-dvr-sample
@@ -59,7 +55,6 @@ traits:
     if:
       type: string
       substr: "ankosample _8182T"
-    notes: "Targets Anko DVR application"
     attack: "T1046"
 
   # === DaVinci CCTV Platform ===
@@ -71,7 +66,6 @@ traits:
     if:
       type: string
       substr: "home/Davinci"
-    notes: "Targets DaVinci CCTV/IP camera platform"
     attack: "T1046"
 
   # === Kylin DVR Platform ===
@@ -83,7 +77,6 @@ traits:
     if:
       type: string
       substr: "var/Kylin"
-    notes: "Targets Kylin DVR/NVR platform"
     attack: "T1046"
 
   # === DVR GUI/App Paths ===
@@ -95,7 +88,6 @@ traits:
     if:
       type: string
       substr: "mnt/mtd/app/gui"
-    notes: "DVR GUI application path"
     attack: "T1046"
 
 composite_rules:
@@ -105,7 +97,6 @@ composite_rules:
     conf: 0.95
     for: [elf, shell]
     attack: "T1046"
-    notes: "Targets STMicroelectronics Hi3511 DVR SoC specifically"
     any:
       - id: hi3511-dvr-soc
       - id: hi3511-chipset-app
@@ -116,7 +107,6 @@ composite_rules:
     conf: 0.9
     for: [elf, shell]
     attack: "T1046"
-    notes: "Targets DVR/CCTV devices across multiple platforms"
     any:
       - id: gm-dvr-identifier
       - id: hikvision-firmware-targeting
@@ -130,14 +120,6 @@ composite_rules:
     for: [elf, shell]
     attack: "T1046"
     mbc: "B0041"
-    notes: |
-      Malware targeting DVR/CCTV platforms.
-      Evidence includes:
-      - DVR model identification (Hi3511, gmDVR, DaVinci, Kylin)
-      - Firmware/app-specific paths
-      - DVR GUI/application references
-
-      Indicates sophisticated DVR-focused malware campaign.
     any:
       - id: hi3511-specific-targeting
       - id: generic-dvr-targeting
@@ -149,9 +131,6 @@ composite_rules:
     for: [elf, shell]
     attack: "T1046"
     mbc: "B0041"
-    notes: |
-      Complete Mirai campaign targeting DVR devices.
-      Combines Mirai identification with DVR-specific exploitation.
     all:
       - id: known/malware/botnet/mirai
       - id: dvr-specific-targeting

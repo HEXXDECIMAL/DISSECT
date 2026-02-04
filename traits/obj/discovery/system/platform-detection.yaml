@@ -117,7 +117,7 @@ composite_rules:
     crit: notable
     conf: 0.80
     attack: "T1082"
-    count_min: 2
+    needs: 2
     any:
       - id: platform-system-call
       - id: platform-node-call
@@ -130,7 +130,7 @@ composite_rules:
     attack: "T1082"
     mbc: "B0012"
     for: [python, javascript]
-    count_min: 2
+    needs: 2
     any:
       - id: os-check-windows
       - id: os-check-linux

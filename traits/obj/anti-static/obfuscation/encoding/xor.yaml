@@ -86,7 +86,7 @@ traits:
   # NOTE: "char_map" is extremely common in font libraries (FreeType, HarfBuzz)
   # where it refers to character-to-glyph mappings. Only flag as obfuscation
   # when combined with other obfuscation indicators (e.g., XOR, decrypt symbols).
-  # Removed from standalone matching; only used in composite rules with count_min: 2
+  # Removed from standalone matching; only used in composite rules with needs: 2
   - id: char-map-symbol
     desc: char_map symbol
     crit: inert
@@ -111,7 +111,7 @@ traits:
   #   if:
   #     type: string
   #     regex: "\\b[a-zA-Z0-9]{31}\\b"
-  #     count_min: 1
+  #     needs: 1
   #
   # - id: xor-key-multibyte-16-32
   #   desc: 16-32 byte random-looking key in
@@ -121,7 +121,7 @@ traits:
   #   if:
   #     type: string
   #     regex: "\\b[a-zA-Z0-9]{16,32}\\b"
-  #     count_min: 1
+  #     needs: 1
   - id: xor-key-embedded-homabrews
     desc: "Known homabrews.org XOR key"
     crit: suspicious
@@ -144,7 +144,7 @@ composite_rules:
     desc: "XOR decryption loop pattern"
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: xor-decode-symbol
       - id: decode-xor-symbol
@@ -156,7 +156,7 @@ composite_rules:
     desc: "Table-based decoding function"
     crit: notable
     conf: 0.7
-    count_min: 1
+    needs: 1
     any:
       - id: decode-table-symbol
       - id: table-decode-symbol

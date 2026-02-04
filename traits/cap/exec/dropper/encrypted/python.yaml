@@ -51,7 +51,7 @@ composite_rules:
     desc: Decrypts and loads code from encrypted file
     crit: suspicious
     conf: 0.95
-    count_min: 3
+    needs: 3
     any:
       - id: cap/crypto/symmetric/aes/pyaes-gcm
       - id: cap/crypto/symmetric/aes/pyaes-ctr

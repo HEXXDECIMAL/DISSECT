@@ -14,7 +14,6 @@ traits:
     if:
       type: string
       substr: "/var/spool/cron"
-    notes: "User-specific crontab files location"
     attack: "T1070.004"
 
   - id: etc-crontab-target
@@ -25,7 +24,6 @@ traits:
     if:
       type: string
       substr: "/etc/crontab"
-    notes: "System-wide crontab file"
     attack: "T1070.004"
 
   - id: etc-cron-d-target
@@ -36,7 +34,6 @@ traits:
     if:
       type: string
       substr: "/etc/cron.d"
-    notes: "Cron job drop-in directory"
     attack: "T1070.004"
 
   - id: cron-frequent-targets
@@ -51,7 +48,6 @@ traits:
         - substr: "/etc/cron.hourly"
         - substr: "/etc/cron.weekly"
         - substr: "/etc/cron.monthly"
-    notes: "Scheduled cron job directories"
     attack: "T1070.004"
 
   # === Evidence Removal Methods ===
@@ -65,9 +61,8 @@ traits:
       all:
         - substr: "sed -i"
         - any:
-          - substr: "/var/spool/cron"
-          - substr: "/etc/crontab"
-    notes: "In-place sed editing of cron files"
+            - substr: "/var/spool/cron"
+            - substr: "/etc/crontab"
     attack: "T1070.004"
 
   - id: sed-deleted-pattern-cron
@@ -78,7 +73,6 @@ traits:
     if:
       type: string
       substr: "sed -i"
-    notes: "Sed pattern for removing (deleted) process evidence"
     attack: "T1070.004"
 
   - id: rm-cron-files
@@ -89,7 +83,6 @@ traits:
     if:
       type: string
       substr: "rm -f /var/spool/cron"
-    notes: "Complete deletion of user crontab directory"
     attack: "T1070.004"
 
   - id: crontab-command
@@ -100,7 +93,6 @@ traits:
     if:
       type: string
       word: "crontab"
-    notes: "crontab command interaction"
 
   # === File Test & Iteration ===
   - id: cron-file-test
@@ -111,7 +103,6 @@ traits:
     if:
       type: string
       substr: "[ -f"
-    notes: "File existence check, typical in cleanup loops"
     attack: "T1070.004"
 
   - id: cron-loop-iteration
@@ -122,7 +113,6 @@ traits:
     if:
       type: string
       substr: "for crontab in"
-    notes: "Iterative processing of multiple cron files"
     attack: "T1070.004"
 
 composite_rules:
@@ -154,18 +144,10 @@ composite_rules:
     conf: 0.9
     for: [elf, shell]
     attack: "T1070.004"
-    notes: |
-      Malware performs comprehensive crontab cleanup:
-      1. Iterate through crontab files
-      2. Test for file existence
-      3. Remove evidence using sed (deleted process removal)
-      4. Bulk delete with rm -f
-
-      Indicates forensics-aware malware covering tracks.
     all:
       - id: cron-loop-removal
       - id: cron-location-targeting
-        count_min: 2
+        needs: 2
 
   - id: spool-cron-bulk-wipeout
     desc: Complete /var/spool/cron wipeout
@@ -174,14 +156,6 @@ composite_rules:
     for: [elf, shell]
     attack: "T1070.004"
     mbc: "B0005"
-    notes: |
-      Aggressive removal pattern:
-      - Target /var/spool/cron/* (all user crontabs)
-      - Target /etc/crontab (system crontab)
-      - Remove all references in sed patterns
-      - Perform rm -f to delete entire directories
-
-      Indicates malware eliminating all evidence of scheduled tasks.
     all:
       - id: rm-cron-files
       - id: var-spool-cron-target
@@ -194,26 +168,6 @@ composite_rules:
     for: [elf, shell]
     attack: "T1070.004"
     mbc: "B0005"
-    notes: |
-      Complete malware evidence removal strategy targeting cron:
-
-      1. Locate and iterate through all cron file locations:
-         - /var/spool/cron/* (user crontabs)
-         - /etc/crontab (system crontab)
-         - /etc/cron.d/ (cron jobs)
-         - /etc/cron.{daily,hourly,weekly,monthly}/
-
-      2. For each file:
-         - Test existence with [ -f ]
-         - Use sed -i to remove (deleted) process references
-         - Remove all malware/competitor process evidence
-
-      3. Final cleanup:
-         - Bulk delete /var/spool/cron/*
-         - Ensure no trace of scheduled tasks remain
-
-      Pattern indicates highly sophisticated, forensics-aware malware
-      implementing multi-stage evidence destruction.
     all:
       - id: cron-file-cleanup
       - id: spool-cron-bulk-wipeout
@@ -224,15 +178,6 @@ composite_rules:
     conf: 0.9
     for: [elf, shell]
     attack: "T1070.004"
-    notes: |
-      Kinsing performs systematic cron evidence removal:
-      - Targets both user crontabs (/var/spool/cron)
-      - Targets system crontab (/etc/crontab)
-      - Removes all (deleted) process references
-      - Eliminates evidence of previous malware/competitors
-      - Uses sed for precision removal, rm for bulk deletion
-
-      Part of comprehensive forensics evasion strategy.
     all:
       - id: kinsing-identifier
       - id: comprehensive-cron-evidence-removal

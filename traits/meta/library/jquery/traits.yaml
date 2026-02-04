@@ -47,12 +47,8 @@ composite_rules:
     desc: "File contains jQuery library"
     crit: benign
     conf: 0.9
-    count_min: 1
+    needs: 1
     any:
-      - {id: version-string}
-      - {id: domain}
-      - {id: copyright}
-    explanation: |
-      This file contains jQuery library signatures. jQuery is a popular JavaScript
-      library used by millions of websites for DOM manipulation and AJAX.
-      The presence of jQuery itself is not suspicious.
+      - { id: version-string }
+      - { id: domain }
+      - { id: copyright }

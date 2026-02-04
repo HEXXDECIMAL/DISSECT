@@ -58,7 +58,7 @@ composite_rules:
     conf: 0.8
     mbc: "F0015"
     attack: "T1574.006"
-    count_min: 1
+    needs: 1
     any:
       - id: ld-preload
       - id: ld-audit

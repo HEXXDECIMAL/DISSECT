@@ -85,7 +85,7 @@ composite_rules:
     crit: notable
     conf: 0.85
     attack: "T1071.001"
-    count_min: 3
+    needs: 3
     any:
       - id: json-content-type
       - id: json-charset-utf8
@@ -98,7 +98,7 @@ composite_rules:
     attack: "T1041"
     mbc: "B0030"
     for: [python, javascript]
-    count_min: 3
+    needs: 3
     any:
       - id: json-data-post
       - id: base64-json-payload
@@ -113,7 +113,7 @@ composite_rules:
     attack: "T1071.001"
     mbc: "B0030"
     platforms: [all]
-    count_min: 2
+    needs: 2
     all:
       - id: json-c2-headers
       - id: json-exfiltration

@@ -137,7 +137,7 @@ composite_rules:
     desc: Python command execution
     crit: notable
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: os-system-call
       - id: os-system-string

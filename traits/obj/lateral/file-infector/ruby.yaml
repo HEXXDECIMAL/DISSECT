@@ -119,7 +119,7 @@ composite_rules:
     crit: notable
     conf: 0.80
     attack: "T1083"
-    count_min: 2
+    needs: 2
     any:
       - id: recursive-dir-traverse
       - id: recursive-call-self
@@ -132,7 +132,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1027"
-    count_min: 2
+    needs: 2
     any:
       - id: file-extension-rename
       - id: cap/data/text/split-string
@@ -143,7 +143,7 @@ composite_rules:
     crit: suspicious
     conf: 0.92
     attack: "T1059"
-    count_min: 3
+    needs: 3
     any:
       - id: self-file-reference
       - id: read-self-content

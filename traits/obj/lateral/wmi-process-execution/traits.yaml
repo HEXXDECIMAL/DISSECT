@@ -12,7 +12,6 @@ traits:
     if:
       type: string
       substr: "winmgmts:"
-    notes: "Windows Management Instrumentation connection (fileless malware technique)"
     attack: "T1047"
     mbc: "E1043"
 
@@ -25,7 +24,6 @@ traits:
     if:
       type: string
       substr: "Win32_Process"
-    notes: "WMI process management class (process execution)"
     attack: "T1047"
     mbc: "E1043"
 
@@ -38,7 +36,6 @@ traits:
     if:
       type: string
       substr: "Win32_ProcessStartup"
-    notes: "WMI process startup configuration (process execution control)"
     attack: "T1047"
     mbc: "E1043"
 
@@ -51,7 +48,6 @@ traits:
     if:
       type: string
       substr: "GetObject("
-    notes: "GetObject API for COM/WMI objects"
     attack: "T1047"
 
   - id: hidden-window-flag
@@ -67,7 +63,6 @@ traits:
         - substr: "ShowWindow=0"
         - substr: "SW_HIDE"
         - regex: "ShowWindow\\s*=\\s*0"
-    notes: "Process execution with hidden window (SW_HIDE flag)"
     attack: "T1027"
     mbc: "E1003"
 
@@ -80,7 +75,6 @@ traits:
     if:
       type: string
       substr: ".Create("
-    notes: "Direct process creation method call"
     attack: "T1047"
     mbc: "E1043"
 
@@ -93,24 +87,7 @@ composite_rules:
     for: [javascript]
     attack: "T1047"
     mbc: "E1043"
-    notes: |
-      WMI-based process execution detected.
-
-      WMI (Windows Management Instrumentation) provides
-      fileless malware execution capability:
-
-      - No child process parent relationship
-      - Difficult to detect without behavioral monitoring
-      - Used by advanced malware and APT groups
-      - Typical in Emotet, Trickbot, Wizard Spider
-
-      Execution via:
-      - GetObject("winmgmts:...")
-      - Win32_Process class
-      - Win32_ProcessStartup configuration
-      - .Create() method invocation
-
-    count_min: 2
+    needs: 2
     any:
       - id: wmi-connection
       - id: win32-process-query
@@ -125,16 +102,6 @@ composite_rules:
     for: [javascript]
     attack: "T1047"
     mbc: "E1043"
-    notes: |
-      Complete WMI fileless malware pattern.
-      Combines process execution with hidden execution.
-
-      This indicates:
-      - Sophisticated malware development
-      - Intended evasion of traditional detection
-      - Professional threat actor capabilities
-      - Likely advanced malware or APT
-
     all:
       - id: wmi-process-spawn
       - id: hidden-window-flag
@@ -147,10 +114,6 @@ composite_rules:
     for: [javascript]
     attack: "T1047"
     mbc: "E1080"
-    notes: |
-      WMI process execution with network capability.
-      Indicates lateral movement or remote exploitation.
-
     all:
       - id: wmi-process-spawn
       - id: cap/comm

@@ -105,7 +105,7 @@ composite_rules:
 
   - id: crypto-trading-facade
     desc: Crypto trading code patterns
-    count_min: 2
+    needs: 2
     any:
       - id: defi-protocol-ref
       - id: token-swap-pattern

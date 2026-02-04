@@ -65,7 +65,7 @@ composite_rules:
     desc: "Program can delay execution (sleep/timing)"
     crit: inert
     conf: 0.5
-    count_min: 1
+    needs: 1
     any:
       - id: sleep-func
       - id: usleep-func
@@ -81,7 +81,7 @@ composite_rules:
     crit: notable
     conf: 0.4
     attack: "T1497.003"
-    count_min: 1
+    needs: 1
     any:
       - id: clock-gettime
       - id: gettimeofday
@@ -102,7 +102,7 @@ composite_rules:
     attack: "T1497.003"
     all:
       - id: delay-capability
-    count_min: 1
+    needs: 1
     any:
       - id: cap/comm/socket/create
       - id: cap/comm/download/curl/libcurl-http

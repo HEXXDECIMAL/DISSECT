@@ -15,7 +15,6 @@ traits:
         - exact: "QueryPerformanceCounter"
         - exact: "gettimeofday"
         - exact: "clock_gettime"
-    notes: "Used to detect timing anomalies in virtualized environments"
     mbc: "C0025"
 
   - id: cpu-feature-check
@@ -27,7 +26,6 @@ traits:
     if:
       type: symbol
       exact: "IsProcessorFeaturePresent"
-    notes: "CPU feature checks can detect VM/emulation"
     mbc: "B0009"
 
 composite_rules:
@@ -39,22 +37,7 @@ composite_rules:
     mbc: "B0001"
     platforms: [all]
     for: [pe, elf, macho]
-    notes: |
-      Multiple anti-analysis checks indicate deliberate evasion.
-      Suggests sophisticated malware, not commodity.
-
-      Pattern seen in:
-      - Banking trojans (Trickbot, ZeuS, Emotet)
-      - Ransomware (Ryuk, Conti, LockBit)
-      - APT malware (Carbanak, Fin7)
-
-      Checks multiple environments:
-      - Debugger presence (human analysis)
-      - VM environment (sandboxed analysis)
-      - Timing anomalies (virtualization detection)
-      - CPU features (emulation detection)
-
-    count_min: 2
+    needs: 2
     any:
       - id: timing-check-api
       - id: cpu-feature-check
@@ -69,11 +52,6 @@ composite_rules:
     mbc: "B0005"
     platforms: [all]
     for: [pe, elf, macho]
-    notes: |
-      Combines defensive measures (avoid detection) with
-      aggressive measures (cover tracks). This combination is
-      HOSTILE-level indicator of professional malware.
-
     all:
       - id: evasion-aware-malware
     any:

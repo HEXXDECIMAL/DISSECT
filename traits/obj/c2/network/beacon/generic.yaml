@@ -52,7 +52,7 @@ traits:
     if:
       type: string
       regex: "User-Agent:"
-      count_min: 3
+      needs: 3
   # === Bot User-Agent atomic indicators ===
   - id: googlebot-ua
     desc: Googlebot User-Agent
@@ -188,7 +188,7 @@ composite_rules:
     conf: 0.85
     mbc: "B0030"
     attack: "T1071.001"
-    count_min: 1
+    needs: 1
     any:
       - id: post-template
       - id: get-template
@@ -199,7 +199,7 @@ composite_rules:
     conf: 0.85
     mbc: "B0030"
     attack: "T1071.001"
-    count_min: 1
+    needs: 1
     any:
       - id: googlebot-ua
       - id: bingbot-ua

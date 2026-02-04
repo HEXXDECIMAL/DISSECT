@@ -63,7 +63,6 @@ traits:
     attack: "T1059.007"
     if:
       type: ast
-      language: javascript
       query: |
         ((call_expression
           function: (member_expression
@@ -75,17 +74,6 @@ traits:
          (#match? @event_name "command|cmd|exec|run"))
 
   # === Client Fingerprinting ===
-
-  - id: hostname-username-concatenation
-    desc: Hostname and username concatenation
-    crit: notable
-    conf: 0.75
-    attack: "T1082"
-    if:
-      type: symbol
-      regex: '.{0,50}\\.hostname'
-    all_strings:
-      - "$"
 
   - id: client-uuid-pattern
     desc: Client UUID identification field
@@ -111,7 +99,6 @@ traits:
     conf: 0.7
     if:
       type: ast
-      language: javascript
       query: |
         ((call_expression
           function: (member_expression

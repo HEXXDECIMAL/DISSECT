@@ -25,7 +25,7 @@ composite_rules:
     crit: suspicious
     conf: 0.93
     attack: "T1059"
-    count_min: 2
+    needs: 2
     any:
       - id: gtfobins-ruby-marker
       - id: cap/exec/dylib/ruby-ffi-dlopen
@@ -37,7 +37,7 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     attack: "T1068"
-    count_min: 2
+    needs: 2
     any:
       - id: gtfobins-ruby-marker
       - id: obj/privesc/setuid/ruby-setuid
@@ -49,7 +49,7 @@ composite_rules:
     crit: notable
     conf: 0.75
     attack: "T1083"
-    count_min: 2
+    needs: 2
     any:
       - id: gtfobins-ruby-marker
       - id: cap/fs/file/read/ruby-file-read
@@ -61,7 +61,7 @@ composite_rules:
     crit: suspicious
     conf: 0.93
     attack: "T1059"
-    count_min: 2
+    needs: 2
     any:
       - id: gtfobins-ruby-marker
       - id: obj/c2/reverse-shell/tcpsocket-ref
@@ -74,7 +74,7 @@ composite_rules:
     crit: notable
     conf: 0.80
     attack: "T1059"
-    count_min: 2
+    needs: 2
     any:
       - id: gtfobins-ruby-marker
       - id: cap/exec/command/shell/ruby-shell-exec

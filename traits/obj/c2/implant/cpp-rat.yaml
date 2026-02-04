@@ -102,7 +102,6 @@ traits:
     if:
       type: string
       regex: '(OSInfo:%s|MachineName:%s|LanIP:%s|Userame:%s|OSBits:%s|GateWay:%s)'
-      min_count: 3
 
   # === File Operation Indicators ===
   # FileOP (File Operations) patterns for remote file management

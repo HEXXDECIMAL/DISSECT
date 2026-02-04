@@ -83,7 +83,7 @@ composite_rules:
     mbc: "F0004"
     attack: "T1036.004"
     for: [php]
-    count_min: 1
+    needs: 1
     any:
       - id: cli-set-process-title
       - id: setproctitle

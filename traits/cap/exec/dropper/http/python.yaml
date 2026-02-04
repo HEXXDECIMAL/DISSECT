@@ -72,7 +72,7 @@ composite_rules:
     desc: Python HTTP library usage
     crit: notable
     conf: 0.6
-    count_min: 1
+    needs: 1
     any:
       - id: requests-get
       - id: requests-post
@@ -84,7 +84,7 @@ composite_rules:
     desc: Python HTTP download function call
     crit: notable
     conf: 0.6
-    count_min: 1
+    needs: 1
     any:
       - id: requests-get
       - id: requests-post
@@ -96,7 +96,7 @@ composite_rules:
     desc: Temporary directory access
     crit: notable
     conf: 0.5
-    count_min: 1
+    needs: 1
     any:
       - id: tmp-path
       - id: tempfile-module
@@ -106,7 +106,7 @@ composite_rules:
     desc: Home directory access
     crit: notable
     conf: 0.5
-    count_min: 1
+    needs: 1
     any:
       - id: expanduser-home
       - id: path-home-call
@@ -117,7 +117,7 @@ composite_rules:
     desc: Subprocess execution
     crit: notable
     conf: 0.5
-    count_min: 1
+    needs: 1
     any:
       - id: cap/exec/command/subprocess/python/popen
       - id: cap/exec/command/subprocess/python/run-call
@@ -128,7 +128,7 @@ composite_rules:
     desc: Code or process execution
     crit: notable
     conf: 0.5
-    count_min: 1
+    needs: 1
     any:
       - id: cap/exec/command/subprocess/python/popen
       - id: cap/exec/command/subprocess/python/run-call
@@ -142,7 +142,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1105"
-    count_min: 1
+    needs: 1
     any:
       - id: path-payload
       - id: path-stage
@@ -158,7 +158,7 @@ composite_rules:
   - id: tmp-dropper
     desc: "HTTP download to temp and"
     conf: 0.9
-    count_min: 3
+    needs: 3
     any:
       - id: python-http-lib
       - id: python-tmp-dir
@@ -170,7 +170,7 @@ composite_rules:
     desc: "HTTP download to home directory"
     conf: 0.95
     crit: suspicious
-    count_min: 3
+    needs: 3
     any:
       - id: python-http-download-call
       - id: python-home-dir
@@ -191,7 +191,7 @@ composite_rules:
     desc: Multiple download function definitions
     crit: suspicious
     conf: 0.85
-    count_min: 2
+    needs: 2
     any:
       - id: def-download
       - id: def-fetch

@@ -36,7 +36,7 @@ composite_rules:
     desc: TUN/TAP device usage
     crit: notable
     conf: 0.66
-    count_min: 1
+    needs: 1
     any:
       - id: dev-tun
       - id: dev-tap

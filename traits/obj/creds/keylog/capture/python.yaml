@@ -235,7 +235,7 @@ composite_rules:
     desc: "Windows keyboard hooking (pyHook)"
     conf: 0.85
     platforms: [windows]
-    count_min: 1
+    needs: 1
     any:
       - id: import-pyhook
       - id: from-pyhook
@@ -246,7 +246,7 @@ composite_rules:
     desc: "Windows keyboard hooking (pyWinhook)"
     conf: 0.85
     platforms: [windows]
-    count_min: 1
+    needs: 1
     any:
       - id: import-pywinhook
       - id: from-pywinhook
@@ -256,7 +256,7 @@ composite_rules:
   - id: python-keyboard
     desc: "Cross-platform keyboard capture (keyboard module)"
     conf: 0.8
-    count_min: 1
+    needs: 1
     any:
       - id: import-keyboard
       - id: keyboard-on-press
@@ -267,7 +267,7 @@ composite_rules:
   - id: python-pynput-listener
     desc: "Keyboard listener via pynput"
     conf: 0.8
-    count_min: 1
+    needs: 1
     any:
       - id: keyboard-listener
       - id: on-press-eq
@@ -278,7 +278,7 @@ composite_rules:
     desc: "Import of keylogging library"
     crit: notable
     conf: 0.8
-    count_min: 1
+    needs: 1
     any:
       - id: import-pyhook
       - id: import-pywinhook
@@ -290,7 +290,7 @@ composite_rules:
     desc: "File open for writing or"
     crit: notable
     conf: 0.7
-    count_min: 1
+    needs: 1
     any:
       - id: file-open-append
       - id: file-open-write
@@ -300,7 +300,7 @@ composite_rules:
     desc: "Write call or key event"
     crit: notable
     conf: 0.7
-    count_min: 1
+    needs: 1
     any:
       - id: dot-write
       - id: keydown-keyword
@@ -311,7 +311,7 @@ composite_rules:
     desc: "Keyboard hook setup method"
     crit: notable
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: python-hook-keyboard
       - id: keyboard-listener
@@ -322,7 +322,7 @@ composite_rules:
     desc: "Network library for potential exfiltration"
     crit: notable
     conf: 0.7
-    count_min: 1
+    needs: 1
     any:
       - id: requests-post
       - id: requests-get
@@ -334,7 +334,7 @@ composite_rules:
     desc: "Key event handler callbacks"
     crit: notable
     conf: 0.8
-    count_min: 1
+    needs: 1
     any:
       - id: keydown-keyword
       - id: on-press-keyword

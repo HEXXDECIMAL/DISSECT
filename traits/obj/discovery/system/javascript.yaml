@@ -179,9 +179,9 @@ composite_rules:
     conf: 0.95
     for: [javascript, typescript]
     all:
-      - {id: os-hostname-call}
-      - {id: os-userinfo-call}
-      - {id: os-platform-call}
+      - { id: os-hostname-call }
+      - { id: os-userinfo-call }
+      - { id: os-platform-call }
 
   # System profiling: at least 3 sensitive system info functions
   - id: js-sysinfo-multi
@@ -189,14 +189,14 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     for: [javascript, typescript]
-    count_min: 3
+    needs: 3
     any:
-      - {id: os-hostname-call}
-      - {id: os-userinfo-call}
-      - {id: os-homedir-call}
-      - {id: os-networkinterfaces-call}
-      - {id: process-cwd-call}
-      - {id: process-env-access}
+      - { id: os-hostname-call }
+      - { id: os-userinfo-call }
+      - { id: os-homedir-call }
+      - { id: os-networkinterfaces-call }
+      - { id: process-cwd-call }
+      - { id: process-env-access }
 
   # User identification: hostname + userinfo (core victim ID)
   - id: js-victim-id
@@ -205,8 +205,8 @@ composite_rules:
     conf: 0.85
     for: [javascript, typescript]
     all:
-      - {id: os-hostname-call}
-      - {id: os-userinfo-call}
+      - { id: os-hostname-call }
+      - { id: os-userinfo-call }
 
   - id: js-profiling-exfil
     desc: JavaScript system profiling with exfiltration
@@ -229,7 +229,7 @@ composite_rules:
     crit: inert
     conf: 0.7
     for: [javascript, typescript]
-    count_min: 1
+    needs: 1
     any:
       - id: process-platform-content
       - id: process-arch-content
@@ -244,7 +244,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     for: [javascript, typescript]
-    count_min: 2
+    needs: 2
     any:
       - id: process-platform-content
       - id: process-arch-content

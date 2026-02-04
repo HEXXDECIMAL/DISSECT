@@ -355,7 +355,7 @@ composite_rules:
     crit: suspicious
     conf: 0.75
     platforms: [all]
-    count_min: 1
+    needs: 1
     any:
       - id: target-ip-upper
       - id: target-ip-lower
@@ -367,7 +367,7 @@ composite_rules:
     crit: suspicious
     conf: 0.8
     platforms: [all]
-    count_min: 1
+    needs: 1
     any:
       - id: random-target-upper
       - id: random-target-lower
@@ -381,7 +381,7 @@ composite_rules:
     crit: notable
     conf: 0.5
     platforms: [all]
-    count_min: 1
+    needs: 1
     any:
       - id: portscan-word
       - id: scan-port
@@ -393,7 +393,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     platforms: [all]
-    count_min: 1
+    needs: 1
     any:
       - id: probe-word
       - id: banner-grab
@@ -404,7 +404,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     platforms: [all]
-    count_min: 1
+    needs: 1
     any:
       - id: target-host
       - id: target-port
@@ -420,7 +420,7 @@ composite_rules:
     conf: 0.7
     attack: "T1110.001"
     platforms: [all]
-    count_min: 1
+    needs: 1
     any:
       - id: weak-pass-admin123-upper
       - id: weak-pass-admin123-lower
@@ -432,7 +432,7 @@ composite_rules:
     conf: 0.7
     attack: "T1110.001"
     platforms: [all]
-    count_min: 1
+    needs: 1
     any:
       - id: weak-pass-qwerty123
       - id: weak-pass-qwerty
@@ -449,7 +449,7 @@ composite_rules:
     conf: 0.85
     attack: "T1068"
     platforms: [all]
-    count_min: 1
+    needs: 1
     any:
       - id: root-the-phrase
       - id: r00t-leet
@@ -463,7 +463,7 @@ composite_rules:
     crit: inert
     conf: 0.6
     platforms: [all]
-    count_min: 1
+    needs: 1
     any:
       - id: sym-gethostbyname
       - id: sym-getaddrinfo
@@ -476,7 +476,7 @@ composite_rules:
     crit: inert
     conf: 0.6
     platforms: [all]
-    count_min: 1
+    needs: 1
     any:
       - id: sym-socket
       - id: sym-connect

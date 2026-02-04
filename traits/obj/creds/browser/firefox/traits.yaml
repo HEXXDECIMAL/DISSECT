@@ -177,7 +177,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     attack: "T1555.003"
-    count_min: 1
+    needs: 1
     any:
       - id: firefox-profiles
       - id: waterfox-profiles
@@ -211,7 +211,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1555.003"
-    count_min: 1
+    needs: 1
     any:
       - id: nss3-word
       - id: libnss3-ref

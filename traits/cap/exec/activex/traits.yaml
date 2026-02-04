@@ -12,7 +12,6 @@ traits:
     if:
       type: string
       substr: "Scripting.FileSystemObject"
-    notes: "FileSystemObject COM - file I/O operations"
     attack: "T1566"
     mbc: "E1082"
 
@@ -25,7 +24,6 @@ traits:
     if:
       type: string
       substr: "WScript.Shell"
-    notes: "WScript.Shell COM - shell command execution"
     attack: "T1059.005"
     mbc: "E1243"
 
@@ -38,7 +36,6 @@ traits:
     if:
       type: string
       substr: "Shell.Application"
-    notes: "Shell.Application COM - privileged operations"
     attack: "T1059.005"
     mbc: "E1243"
 
@@ -53,7 +50,6 @@ traits:
       any:
         - substr: "MSXML2.XMLHTTP"
         - substr: "MSXML.XMLHTTP"
-    notes: "MSXML2.XMLHTTP COM - HTTP network requests"
     attack: "T1071"
     mbc: "C0005"
 
@@ -66,7 +62,6 @@ traits:
     if:
       type: string
       substr: "WinHTTP.WinHTTPRequest"
-    notes: "WinHTTP COM - HTTP/HTTPS requests"
     attack: "T1071"
     mbc: "C0005"
 
@@ -81,7 +76,6 @@ traits:
       any:
         - substr: "Scripting.Dictionary"
         - substr: "Scripting.FileSystemObject"
-    notes: "Scripting runtime COM objects"
 
   - id: activex-wmi
     desc: WbemScripting.SWbemLocator
@@ -92,7 +86,6 @@ traits:
     if:
       type: string
       substr: "WbemScripting.SWbemLocator"
-    notes: "WMI access via COM (process execution)"
     attack: "T1047"
     mbc: "E1043"
 
@@ -107,7 +100,6 @@ traits:
       any:
         - substr: "ADODB.Stream"
         - substr: "ADODB.Recordset"
-    notes: "ADODB COM - data stream/database operations"
     attack: "T1566"
 
   - id: activex-object-create
@@ -119,7 +111,6 @@ traits:
     if:
       type: string
       substr: "new ActiveXObject("
-    notes: "ActiveXObject instantiation (COM object creation)"
     attack: "T1202"
 
 composite_rules:
@@ -131,15 +122,6 @@ composite_rules:
     for: [javascript]
     attack: "T1071"
     mbc: "C0005"
-    notes: |
-      Network communication via COM objects.
-
-      Indicates:
-      - HTTP/HTTPS requests
-      - Command & control communication
-      - Data exfiltration capability
-      - Remote payload download
-
     any:
       - id: activex-xmlhttp
       - id: activex-winhttp
@@ -152,15 +134,6 @@ composite_rules:
     for: [javascript]
     attack: "T1071"
     mbc: "C0005"
-    notes: |
-      File operations combined with network capability.
-
-      Indicates:
-      - Dropper malware
-      - Payload download and execution
-      - Data stealing with network upload
-      - Worm propagation
-
     all:
       - id: activex-filesystem
       - id: activex-network-access
@@ -173,15 +146,6 @@ composite_rules:
     for: [javascript]
     attack: "T1059.005"
     mbc: "E1243"
-    notes: |
-      Shell execution capability via COM objects.
-
-      Indicates:
-      - Command execution
-      - Process spawning
-      - Arbitrary code execution
-      - Command & control capability
-
     any:
       - id: activex-wshell
       - id: activex-shell-app
@@ -195,19 +159,7 @@ composite_rules:
     for: [javascript]
     attack: "T1202"
     mbc: "E1243"
-    notes: |
-      Complete malware toolkit via COM objects.
-
-      Combines:
-      - File system access
-      - Shell command execution
-      - Network communication
-      - Process/WMI execution
-
-      This indicates sophisticated script-based malware
-      with comprehensive attack capabilities.
-
-    count_min: 3
+    needs: 3
     any:
       - id: activex-filesystem
       - id: activex-wshell

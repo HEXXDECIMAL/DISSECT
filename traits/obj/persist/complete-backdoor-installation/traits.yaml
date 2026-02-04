@@ -10,17 +10,6 @@ composite_rules:
     for: [elf, shell]
     attack: "T1098.004"
     mbc: "E1015"
-    notes: |
-      Complete account creation and SSH key injection pattern.
-      Combines:
-      - New user account creation with bash shell
-      - SSH authorized_keys file modification
-      - Persistent passwordless SSH access installation
-
-      This indicates:
-      - Permanent backdoor account with SSH access
-      - Attacker-controlled system access
-      - Sophisticated persistence mechanism
     all:
       - id: obj/persist/account-privilege-escalation/useradd-command
       - id: obj/persist/account-privilege-escalation/user-bash-shell
@@ -33,16 +22,6 @@ composite_rules:
     for: [elf, shell]
     attack: "T1136.001"
     mbc: "E1015"
-    notes: |
-      Automated account setup with privilege elevation.
-      Combines:
-      - Password automated setting (chpasswd/openssl)
-      - Privilege escalation setup (sudoers/wheel)
-
-      This indicates:
-      - Complete backdoor account creation
-      - Privileged access installation
-      - Automated account setup
     all:
       - id: obj/persist/account-privilege-escalation/chpasswd-command
       - id: obj/persist/account-privilege-escalation/privilege-escalation-setup
@@ -54,20 +33,6 @@ composite_rules:
     for: [elf, shell]
     attack: "T1098.004"
     mbc: "E1015"
-    notes: |
-      Complete multi-vector backdoor installation pattern.
-      Combines all persistence techniques:
-      - Account creation with bash shell
-      - Automated password setting
-      - Privilege escalation (sudoers/wheel)
-      - SSH key injection for passwordless access
-      - SSH daemon restart/reload for activation
-
-      This indicates:
-      - Comprehensive system compromise
-      - Permanent attacker access guaranteed
-      - Professional-grade malware installation
-      - Sophisticated attack chain execution
     all:
       - id: obj/persist/account-privilege-escalation/account-creation
       - id: obj/persist/account-privilege-escalation/privilege-escalation-setup

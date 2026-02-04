@@ -1297,7 +1297,7 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     for: [elf, c]
-    count_min: 1
+    needs: 1
     any:
       - id: memfd-create-call
       - id: sys-memfd-create-ref
@@ -1308,7 +1308,7 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     for: [elf, c]
-    count_min: 1
+    needs: 1
     any:
       - id: finit-module-call
       - id: sys-finit-module-ref
@@ -1330,7 +1330,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     for: [c]
-    count_min: 1
+    needs: 1
     any:
       - id: page-rw-flag
       - id: page-nx-flag
@@ -1398,7 +1398,7 @@ composite_rules:
     conf: 0.9
     attack: "T1014"
     for: [c]
-    count_min: 2
+    needs: 2
     any:
       - id: syscall-table-str
       - id: dirent-include-str
@@ -1411,7 +1411,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     for: [c]
-    count_min: 1
+    needs: 1
     any:
       - id: cr0-variable-str
       - id: force-order-str
@@ -1425,7 +1425,7 @@ composite_rules:
     for: [c]
     all:
       - id: linkage-include-str
-    count_min: 2
+    needs: 2
     any:
       - id: kprobes-include-str
       - id: dirent-include-str
@@ -1443,7 +1443,7 @@ composite_rules:
     all:
       - id: linkage-include-str
       - id: kprobes-kallsyms
-    count_min: 1
+    needs: 1
     any:
       - id: syscall-hook-setup
       - id: cr0-bypass

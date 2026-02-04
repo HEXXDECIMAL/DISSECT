@@ -181,7 +181,7 @@ composite_rules:
     crit: notable
     conf: 0.75
     for: [shell]
-    count_min: 1
+    needs: 1
     any:
       - id: uid-var
       - id: uid-check-pattern
@@ -192,7 +192,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [shell]
-    count_min: 1
+    needs: 1
     any:
       - id: dev-grep-pattern
       - id: proc-mounts-read
@@ -206,7 +206,7 @@ composite_rules:
     mbc: "E1561"
     attack: "T1561.002"
     for: [shell]
-    count_min: 1
+    needs: 1
     any:
       - id: dd-dev-zero
       - id: dd-of-dev
@@ -220,7 +220,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [shell]
-    count_min: 1
+    needs: 1
     any:
       - id: xargs-cmd
       - id: xargs-parallel-flag

@@ -8,7 +8,7 @@ composite_rules:
     crit: notable
     conf: 0.75
     for: [c, elf]
-    count_min: 1
+    needs: 1
     any:
       - id: cap/os/bpf/ssl-openssl-fn
       - id: cap/os/bpf/ssl-gnutls-fn
@@ -21,7 +21,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     for: [c, elf]
-    count_min: 1
+    needs: 1
     any:
       - id: cap/os/bpf/uprobe-attach
       - id: cap/os/bpf/uprobe-sec
@@ -32,7 +32,7 @@ composite_rules:
     crit: notable
     conf: 0.75
     for: [c, elf]
-    count_min: 1
+    needs: 1
     any:
       - id: cap/os/bpf/bpf-ring-buffer
       - id: cap/os/bpf/bpf-ringbuf

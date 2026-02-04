@@ -19,7 +19,7 @@ traits:
     if:
       type: syscall
       name: ["dup2", "dup3"]
-      count_min: 2
+      needs: 2
   - id: syscall-socket-linux
     desc: Linux socket/socketcall syscall for network
     crit: notable
@@ -60,7 +60,7 @@ traits:
     if:
       type: syscall
       name: ["dup2"]
-      count_min: 2
+      needs: 2
   - id: syscall-socket-macos
     desc: macOS socket syscall for network
     crit: notable

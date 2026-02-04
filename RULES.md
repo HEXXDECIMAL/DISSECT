@@ -120,7 +120,7 @@ DISSECT also supports cross-directory reference to match any rule in a directory
 
 | Operator | Description |
 |----------|-------------|
-| `count_min: N` | At least N must match |
+| `needs: N` | At least N must match |
 | `count_max: N` | At most N can match |
 | `count_exact: N` | Exactly N must match |
 
@@ -394,7 +394,7 @@ Reduce criticality by one level when conditions match. Drops: hostile→suspicio
     # Also supports:
     # all: [...]           # All must match
     # none: [...]          # None can match
-    # count_min: N         # At least N must match
+    # needs: N         # At least N must match
 ```
 
 Use for expected behavior: bash referencing `.bash_history`, chrome referencing `History`, ssh tools using `StrictHostKeyChecking=no`.

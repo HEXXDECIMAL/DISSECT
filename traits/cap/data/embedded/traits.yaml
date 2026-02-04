@@ -175,7 +175,7 @@ composite_rules:
     conf: 0.75
     mbc: "F0001.006"
     attack: "T1027.009"
-    count_min: 2
+    needs: 2
     any:
       - id: zstd-magic
       - id: lzma-magic

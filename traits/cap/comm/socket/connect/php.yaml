@@ -50,7 +50,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     for: [php]
-    count_min: 1
+    needs: 1
     any:
       - id: connect-php
       - id: stream-socket-client

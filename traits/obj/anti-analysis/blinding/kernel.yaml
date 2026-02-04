@@ -134,7 +134,7 @@ composite_rules:
     conf: 1.0
     attack: "T1562.001"
     for: [c]
-    count_min: 1
+    needs: 1
     any:
       - id: p-check-integrity
       - id: p-dump-task-f
@@ -150,7 +150,7 @@ composite_rules:
     conf: 0.9
     attack: "T1562.001"
     for: [c, elf]
-    count_min: 1
+    needs: 1
     any:
       - id: check-integrity
       - id: validate-sp
@@ -165,7 +165,7 @@ composite_rules:
     conf: 0.95
     attack: "T1562.001"
     for: [c]
-    count_min: 2
+    needs: 2
     any:
       - id: lkrg
       - id: hook-security-logic

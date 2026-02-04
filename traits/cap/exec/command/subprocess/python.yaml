@@ -79,7 +79,6 @@ traits:
     mbc: "C0017"
     if:
       type: ast
-      language: python
       query: |
         ((call
           function: (attribute
@@ -96,7 +95,6 @@ traits:
     mbc: "C0017"
     if:
       type: ast
-      language: python
       query: |
         ((call
           function: (attribute
@@ -113,7 +111,7 @@ composite_rules:
     desc: subprocess module methods
     crit: notable
     conf: 0.75
-    count_min: 1
+    needs: 1
     any:
       - id: popen
       - id: run-call

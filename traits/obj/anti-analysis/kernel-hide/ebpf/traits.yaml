@@ -319,7 +319,7 @@ composite_rules:
     conf: 0.95
     attack: "T1014"
     for: [c, elf]
-    count_min: 1
+    needs: 1
     any:
       - id: sec-syscall-enter
       - id: sec-syscall-exit
@@ -330,7 +330,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [c, elf]
-    count_min: 3
+    needs: 3
     any:
       - id: xdp-data-end
       - id: xdp-iph
@@ -359,7 +359,7 @@ composite_rules:
     crit: inert
     conf: 0.6
     for: [c, elf]
-    count_min: 1
+    needs: 1
     any:
       - id: sec-syscall-enter
       - id: sec-syscall-exit
@@ -388,7 +388,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     for: [c, elf]
-    count_min: 1
+    needs: 1
     any:
       - id: sec-xdp
       - id: xdp-md-struct
@@ -399,7 +399,7 @@ composite_rules:
     crit: notable
     conf: 0.9
     for: [go]
-    count_min: 1
+    needs: 1
     any:
       - id: cilium-ebpf
       - id: libbpfgo
@@ -414,7 +414,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     for: [go]
-    count_min: 1
+    needs: 1
     any:
       - id: sec-syscall-enter
       - id: sec-syscall-exit
@@ -427,7 +427,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [go]
-    count_min: 1
+    needs: 1
     any:
       - id: rootkit-string
       - id: hide-string
@@ -445,13 +445,12 @@ composite_rules:
       - id: go-ebpf-sections
       - id: go-offensive-intent
 
-
   # Sensitive file helper
   - id: sensitive-file-ref
     desc: Sensitive system file references
     crit: notable
     conf: 0.7
-    count_min: 1
+    needs: 1
     any:
       - id: sudoers-ref
       - id: shadow-ref
@@ -497,7 +496,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [c, elf]
-    count_min: 1
+    needs: 1
     any:
       - id: crypt-verify
       - id: password-string
@@ -508,7 +507,7 @@ composite_rules:
     crit: suspicious
     conf: 0.8
     for: [c, elf]
-    count_min: 1
+    needs: 1
     any:
       - id: http-routes
       - id: http-edit
@@ -533,7 +532,7 @@ composite_rules:
     conf: 0.95
     attack: "T1014"
     for: [c, elf, go]
-    count_min: 2
+    needs: 2
     any:
       - id: syscall-hooking
       - id: xdp-backdoor

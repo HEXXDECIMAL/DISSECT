@@ -40,7 +40,7 @@ composite_rules:
     desc: "Iteration or loop pattern"
     crit: inert
     conf: 0.5
-    count_min: 1
+    needs: 1
     any:
       - id: for-loop
       - id: while-loop

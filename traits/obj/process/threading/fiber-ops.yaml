@@ -12,7 +12,6 @@ traits:
     if:
       type: symbol
       exact: "FlsAlloc"
-    notes: "Allocates fiber-local storage slot"
     attack: "T1129"
 
   - id: fls-getvalue-api
@@ -24,7 +23,6 @@ traits:
     if:
       type: symbol
       exact: "FlsGetValue"
-    notes: "Retrieves fiber-local storage value"
     attack: "T1129"
 
   - id: fls-setvalue-api
@@ -36,7 +34,6 @@ traits:
     if:
       type: symbol
       exact: "FlsSetValue"
-    notes: "Sets fiber-local storage value"
     attack: "T1129"
 
   - id: fls-free-api
@@ -48,7 +45,6 @@ traits:
     if:
       type: symbol
       exact: "FlsFree"
-    notes: "Frees fiber-local storage slot"
 
 composite_rules:
   - id: fiber-local-storage-ops
@@ -58,27 +54,7 @@ composite_rules:
     platforms: [windows]
     for: [pe]
     attack: "T1129"
-    notes: |
-      Uses Fiber Local Storage instead of Thread Local Storage.
-
-      FLS characteristics:
-      - Works with thread pool scenarios
-      - Multiple fibers can exist in single thread
-      - Less commonly used than TLS (suspicious!)
-      - Effective for thread-pool-based command processing
-
-      Why use FLS instead of TLS?
-      - Supports lightweight threading models
-      - Enables complex fiber-based scheduling
-      - Less monitored by security tools
-      - Alternative threading model for evasion
-
-      Seen in:
-      - Advanced thread pool malware
-      - Loader malware (Chrysalis ConsoleApplication2.exe)
-      - Sophisticated C&C servers
-
-    count_min: 2
+    needs: 2
     any:
       - id: fls-alloc-api
       - id: fls-getvalue-api
@@ -91,10 +67,6 @@ composite_rules:
     platforms: [windows]
     for: [pe]
     attack: "T1129"
-    notes: |
-      Sophisticated threading model using fibers and thread pools.
-      Indicates advanced malware infrastructure.
-
     all:
       - id: fiber-local-storage-ops
       - id: cap/process/thread/create
@@ -106,11 +78,6 @@ composite_rules:
     platforms: [windows]
     for: [pe]
     attack: "T1129"
-    notes: |
-      Complete fiber-based scheduling and dispatch system.
-      Indicates sophisticated alternative threading model.
-
     all:
       - id: thread-pool-based-malware
       - id: cap/exec/command
-

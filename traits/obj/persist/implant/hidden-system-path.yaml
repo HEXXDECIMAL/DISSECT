@@ -111,7 +111,7 @@ composite_rules:
     conf: 0.95
     attack: "T1564.001"
     mbc: "F0005"
-    count_min: 1
+    needs: 1
     any:
       - id: usr-bin-hidden-dir
       - id: bin-hidden-dir
@@ -128,7 +128,7 @@ composite_rules:
     conf: 0.9
     attack: "T1564.001"
     mbc: "F0005"
-    count_min: 1
+    needs: 1
     any:
       - id: home-hidden-dir-exec
       - id: var-www-hidden-dir

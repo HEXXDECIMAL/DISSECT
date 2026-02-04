@@ -13,7 +13,6 @@ traits:
     if:
       type: string
       substr: "/usr/lib/systemd/systemd"
-    notes: "Base64-encoded systemd service for persistent execution"
     attack: "T1547"
 
   - id: base64-ssh-sftp-path
@@ -24,7 +23,6 @@ traits:
     if:
       type: string
       substr: "/usr/libexec/openssh/sftp-server"
-    notes: "Base64-encoded OpenSSH SFTP subsystem for backdoor access"
     attack: "T1021.004"
 
   # === Base64-Encoded DVR Targeting Paths ===
@@ -36,7 +34,6 @@ traits:
     if:
       type: string
       substr: "usr/dvr_main _8182T_1108"
-    notes: "Base64-encoded Hikvision 8182T firmware target (revision 1108)"
     attack: "T1046"
 
   - id: base64-anko-dvr-path
@@ -47,7 +44,6 @@ traits:
     if:
       type: string
       substr: "anko-app/ankosample _8182T_1104"
-    notes: "Base64-encoded Anko DVR application target (revision 1104)"
     attack: "T1046"
 
   # === Generic Base64 Encoding Pattern ===
@@ -59,7 +55,6 @@ traits:
     if:
       type: string
       regex: "^/[a-z]{2,}[a-z_/]*$"
-    notes: "Common pattern for base64-encoded system paths and binaries"
     attack: "T1027.001"
 
   - id: base64-suspicious-encoding
@@ -70,7 +65,6 @@ traits:
     if:
       type: string
       regex: "[a-zA-Z0-9+/]={1,3}$"
-    notes: "Base64-like padding patterns suggesting encoded content"
     attack: "T1027.001"
 
 composite_rules:
@@ -80,9 +74,6 @@ composite_rules:
     conf: 0.93
     for: [elf, shell]
     attack: "T1046"
-    notes: |
-      Base64-encoded DVR/CCTV platform targeting path detected.
-      Indicates obfuscated device-specific exploitation.
     any:
       - id: base64-hikvision-firmware-path
       - id: base64-anko-dvr-path
@@ -94,9 +85,6 @@ composite_rules:
     for: [elf, shell]
     attack: "T1027.001"
     mbc: "F0001"
-    notes: |
-      Multiple base64-encoded system paths detected.
-      Indicates systematic string obfuscation strategy.
     all:
       - id: base64-path-prefix
       - id: base64-suspicious-encoding
@@ -108,13 +96,6 @@ composite_rules:
     for: [elf, shell]
     attack: "T1027.001"
     mbc: "F0001"
-    notes: |
-      Mirai botnet with base64-encoded sensitive paths.
-      Pattern combines:
-      - Mirai identification
-      - Base64-encoded persistence mechanisms
-      - Base64-encoded backdoor infrastructure
-      - Base64-encoded DVR targeting
     all:
       - id: known/malware/botnet/mirai
       - id: base64-obfuscation-evidence

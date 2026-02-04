@@ -324,17 +324,10 @@ impl<'a> RuleDebugger<'a> {
             }
         }
 
-        // Check count constraints for 'any'
+        // Check needs constraint for 'any'
         let any_satisfied = if composite.any.is_some() {
-            let has_count = composite.count_min.is_some()
-                || composite.count_max.is_some()
-                || composite.count_exact.is_some();
-
-            if has_count {
-                let min_ok = composite.count_min.is_none_or(|m| any_matched_count >= m);
-                let max_ok = composite.count_max.is_none_or(|m| any_matched_count <= m);
-                let exact_ok = composite.count_exact.is_none_or(|e| any_matched_count == e);
-                min_ok && max_ok && exact_ok
+            if let Some(needed) = composite.needs {
+                any_matched_count >= needed
             } else {
                 any_matched_count > 0
             }
@@ -360,28 +353,15 @@ impl<'a> RuleDebugger<'a> {
         }
 
         if !any_results.is_empty() {
-            let count_info = if composite.count_min.is_some()
-                || composite.count_max.is_some()
-                || composite.count_exact.is_some()
-            {
-                let min = composite
-                    .count_min
-                    .map_or("0".to_string(), |m| m.to_string());
-                let max = composite
-                    .count_max
-                    .map_or("*".to_string(), |m| m.to_string());
-                if let Some(exact) = composite.count_exact {
-                    format!("exactly {}", exact)
-                } else {
-                    format!("{}-{}", min, max)
-                }
+            let count_info = if let Some(needed) = composite.needs {
+                format!("at least {}", needed)
             } else {
                 "at least 1".to_string()
             };
 
             let mut group = ConditionDebugResult::new(
                 format!(
-                    "any: ({}/{}) [need {}]",
+                    "any: ({}/{}) [{}]",
                     any_matched_count,
                     any_results.len(),
                     count_info
@@ -1270,17 +1250,8 @@ fn build_composite_requirements(composite: &crate::composite_rules::CompositeTra
     }
 
     if let Some(any) = &composite.any {
-        let count_desc = if let Some(exact) = composite.count_exact {
-            format!("exactly {}", exact)
-        } else {
-            let min = composite.count_min.unwrap_or(1);
-            if let Some(max) = composite.count_max {
-                format!("{}-{}", min, max)
-            } else {
-                format!("{}", min)
-            }
-        };
-        parts.push(format!("any: {} of {} conditions", count_desc, any.len()));
+        let needed = composite.needs.unwrap_or(1);
+        parts.push(format!("any: needs {} of {} conditions", needed, any.len()));
     }
 
     if let Some(none) = &composite.none {

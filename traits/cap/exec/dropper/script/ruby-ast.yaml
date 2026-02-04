@@ -27,7 +27,7 @@ traits:
     if:
       type: ast
       kind: call
-      exact: '.binmode'
+      exact: ".binmode"
 
   # === File Chmod 777 ===
   - id: ruby-ast-chmod-777
@@ -38,7 +38,7 @@ traits:
     if:
       type: ast
       kind: call
-      exact: '.chmod(0777)'
+      exact: ".chmod(0777)"
 
   # === Base64 Decode in DNS Resolution ===
   - id: ruby-ast-base64-dns
@@ -49,7 +49,7 @@ traits:
     if:
       type: ast
       kind: call
-      exact: 'Base64.decode64'
+      exact: "Base64.decode64"
 
   # === System Execution in Method ===
   - id: ruby-ast-system-in-method
@@ -60,7 +60,7 @@ traits:
     if:
       type: ast
       kind: call
-      exact: 'system('
+      exact: "system("
 
   # === File Open Binary Write ===
   - id: ruby-ast-file-open-wb
@@ -69,7 +69,6 @@ traits:
     conf: 0.82
     if:
       type: ast
-      language: ruby
       query: |
         ((call
           receiver: (constant) @const
@@ -87,7 +86,7 @@ composite_rules:
     crit: suspicious
     conf: 0.93
     attack: "T1059"
-    count_min: 4
+    needs: 4
     any:
       - id: ruby-ast-http-in-method
       - id: ruby-ast-file-binmode-write

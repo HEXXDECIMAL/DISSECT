@@ -89,7 +89,7 @@ composite_rules:
     desc: Process stdio suppressed
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: stdio-ignore-array
       - id: stdio-ignore-string

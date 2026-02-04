@@ -47,7 +47,7 @@ composite_rules:
     desc: "File is a compression library"
     crit: benign
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: lzma-marker
       - id: xz-marker

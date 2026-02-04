@@ -13,7 +13,6 @@ traits:
     if:
       type: string
       word: "telnet"
-    notes: "Telnet service for remote access"
     attack: "T1021.004"
 
   - id: telnetd-daemon
@@ -24,7 +23,6 @@ traits:
     if:
       type: string
       word: "telnetd"
-    notes: "Telnet daemon installation"
     attack: "T1021.004"
 
   # === SSH Backdoor ===
@@ -36,7 +34,6 @@ traits:
     if:
       type: string
       word: "sshd"
-    notes: "SSH daemon for encrypted remote access"
     attack: "T1021.004"
 
   - id: dropbear-lightweight-ssh
@@ -47,7 +44,6 @@ traits:
     if:
       type: string
       word: "dropbear"
-    notes: "Lightweight SSH server (common on IoT/embedded)"
     attack: "T1021.004"
 
   # === Shell Access ===
@@ -59,7 +55,6 @@ traits:
     if:
       type: string
       word: "bash"
-    notes: "Shell binary reference"
 
   - id: system-call
     desc: "System call"
@@ -69,7 +64,6 @@ traits:
     if:
       type: string
       word: "system"
-    notes: "System function for command execution"
 
 composite_rules:
   - id: telnet-backdoor-setup
@@ -79,7 +73,6 @@ composite_rules:
     for: [elf, shell]
     attack: "T1021.004"
     mbc: "E1037"
-    notes: "Telnet service installation for remote shell access"
     any:
       - id: telnet-service
       - id: telnetd-daemon
@@ -91,7 +84,6 @@ composite_rules:
     for: [elf, shell]
     attack: "T1021.004"
     mbc: "E1037"
-    notes: "SSH/Dropbear installation for encrypted remote access"
     any:
       - id: sshd-service
       - id: dropbear-lightweight-ssh
@@ -103,12 +95,6 @@ composite_rules:
     for: [elf, shell]
     attack: "T1021.004"
     mbc: "E1037"
-    notes: |
-      Remote shell backdoor installation pattern.
-      Indicates:
-      - Persistent remote access capability
-      - Telnet (unencrypted) and/or SSH (encrypted) access
-      - Enables attacker shell execution on compromised device
     all:
       - id: telnet-backdoor-setup
       - id: ssh-backdoor-setup
@@ -120,12 +106,6 @@ composite_rules:
     for: [elf, shell]
     attack: "T1021.004"
     mbc: "E1037"
-    notes: |
-      Mirai botnet installing remote shell backdoors.
-      Enables:
-      - Remote command execution via telnet/SSH
-      - Persistent C2 access independent of botnet process
-      - Interactive shell for attacker operations
     all:
       - id: known/malware/botnet/mirai
       - id: remote-shell-backdoor

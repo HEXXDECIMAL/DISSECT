@@ -10,7 +10,7 @@ composite_rules:
     desc: Botnet-related patterns
     crit: notable
     conf: 0.75
-    count_min: 1
+    needs: 1
     any:
       - id: cap/data/text/botnet/botnet-term
       - id: cap/data/text/botnet/bot-net-term
@@ -21,7 +21,7 @@ composite_rules:
     desc: Zombie botnet specific patterns
     crit: notable
     conf: 0.6
-    count_min: 1
+    needs: 1
     any:
       - id: cap/data/text/botnet/zombie-bot
       - id: cap/data/text/botnet/bot-zombie
@@ -30,7 +30,7 @@ composite_rules:
     desc: Bot agent patterns
     crit: notable
     conf: 0.66
-    count_min: 2
+    needs: 2
     any:
       - id: cap/data/text/botnet/bot-agent
       - id: cap/data/text/botnet/agent-bot

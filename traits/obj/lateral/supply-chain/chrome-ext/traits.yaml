@@ -289,7 +289,7 @@ composite_rules:
     crit: inert
     conf: 0.95
     for: [javascript]
-    count_min: 1
+    needs: 1
     any:
       - id: chrome-runtime
       - id: chrome-tabs
@@ -328,7 +328,7 @@ composite_rules:
     for: [javascript]
     all:
       - id: chrome-extension-context
-    count_min: 2
+    needs: 2
     any:
       - id: chrome-cookies
       - id: chrome-history
@@ -343,7 +343,7 @@ composite_rules:
     crit: notable
     conf: 0.85
     for: [javascript]
-    count_min: 2
+    needs: 2
     any:
       - id: url-searchparams-api
       - id: url-params-set
@@ -356,7 +356,7 @@ composite_rules:
     crit: notable
     conf: 0.85
     for: [javascript]
-    count_min: 2
+    needs: 2
     any:
       - id: amazon-product-url-pattern
       - id: amazon-hostname-check

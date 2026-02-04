@@ -93,7 +93,7 @@ composite_rules:
     crit: notable
     conf: 0.75
     attack: "T1105"
-    count_min: 2
+    needs: 2
     any:
       - id: tar-extract
       - id: tar-gzip-extract
@@ -106,7 +106,7 @@ composite_rules:
     conf: 0.85
     attack: "T1105"
     for: [python, shell]
-    count_min: 2
+    needs: 2
     any:
       - id: temp-archive-path
       - id: hidden-archive-path
@@ -121,7 +121,7 @@ composite_rules:
     attack: "T1204"
     mbc: "E1105"
     platforms: [all]
-    count_min: 2
+    needs: 2
     all:
       - id: archive-extraction
       - id: extract-then-execute

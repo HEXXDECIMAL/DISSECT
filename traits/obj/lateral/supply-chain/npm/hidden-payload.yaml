@@ -129,7 +129,7 @@ composite_rules:
     crit: inert
     conf: 0.6
     for: [javascript, typescript]
-    count_min: 1
+    needs: 1
     any:
       - id: license-file-reference
       - id: readme-file-reference
@@ -144,7 +144,7 @@ composite_rules:
     attack: "T1027"
     mbc: "B0032"
     for: [javascript, typescript]
-    count_min: 1
+    needs: 1
     any:
       - id: eval-function-call-arg
       - id: eval-method-call-arg
@@ -154,7 +154,7 @@ composite_rules:
     crit: inert
     conf: 0.6
     for: [javascript, typescript]
-    count_min: 1
+    needs: 1
     any:
       - id: fs-readfile-call
       - id: fs-readfilesync-call

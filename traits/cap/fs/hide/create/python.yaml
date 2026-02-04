@@ -104,18 +104,18 @@ traits:
         - '".aws"'
         - '".npm"'
         - '".pyc"'
-        - '".pt"'   # PyTorch model file extension
-        - '".so"'   # Shared object extension
-        - '".py"'   # Python file extension
-        - '".js"'   # JavaScript file extension
-        - '".ts"'   # TypeScript file extension
-        - '".go"'   # Go file extension
-        - '".rs"'   # Rust file extension
-        - '".rb"'   # Ruby file extension
-        - '".md"'   # Markdown file extension
-        - '".sh"'   # Shell script extension
-        - '".c"'    # C file extension
-        - '".h"'    # Header file extension
+        - '".pt"' # PyTorch model file extension
+        - '".so"' # Shared object extension
+        - '".py"' # Python file extension
+        - '".js"' # JavaScript file extension
+        - '".ts"' # TypeScript file extension
+        - '".go"' # Go file extension
+        - '".rs"' # Rust file extension
+        - '".rb"' # Ruby file extension
+        - '".md"' # Markdown file extension
+        - '".sh"' # Shell script extension
+        - '".c"' # C file extension
+        - '".h"' # Header file extension
 
 composite_rules:
   # File write or makedirs composite
@@ -123,7 +123,7 @@ composite_rules:
     desc: File write or directory creation
     crit: notable
     conf: 0.8
-    count_min: 2
+    needs: 2
     any:
       - id: python-os-makedirs
       - id: python-open-write

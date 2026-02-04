@@ -96,7 +96,7 @@ composite_rules:
     desc: "Compacted shell malware pattern"
     crit: suspicious
     conf: 0.85
-    count_min: 2
+    needs: 2
     any:
       - id: obj/anti-static/obfuscation/code-metrics/sh-single-char-vars
       - id: obj/anti-static/obfuscation/code-metrics/sh-long-lines

@@ -367,7 +367,7 @@ composite_rules:
     desc: Accessing sensitive configuration files
     crit: suspicious
     conf: 0.7
-    count_min: 1
+    needs: 1
     any:
       - id: dotenv-file
       - id: ssh-id-rsa
@@ -379,7 +379,7 @@ composite_rules:
     desc: Accesses AWS credentials from environment
     crit: suspicious
     conf: 0.9
-    count_min: 1
+    needs: 1
     any:
       - id: env-aws-access-key
       - id: env-aws-secret
@@ -390,7 +390,7 @@ composite_rules:
     desc: Accesses Git service tokens from
     crit: suspicious
     conf: 0.9
-    count_min: 1
+    needs: 1
     any:
       - id: env-github-token
       - id: env-gitlab-token
@@ -402,7 +402,7 @@ composite_rules:
     desc: Accesses NPM authentication tokens
     crit: suspicious
     conf: 0.95
-    count_min: 1
+    needs: 1
     any:
       - id: env-npm-token
       - id: env-npm-auth-token
@@ -413,7 +413,7 @@ composite_rules:
     desc: Accesses Discord bot/user tokens
     crit: suspicious
     conf: 0.9
-    count_min: 1
+    needs: 1
     any:
       - id: env-discord-token
       - id: env-discord-bot-token
@@ -424,7 +424,7 @@ composite_rules:
     desc: Accesses Slack tokens from environment
     crit: suspicious
     conf: 0.9
-    count_min: 1
+    needs: 1
     any:
       - id: env-slack-token
       - id: env-slack-bot-token
@@ -435,7 +435,7 @@ composite_rules:
     desc: Accesses database connection strings
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: env-database-url
       - id: env-mongodb-uri
@@ -448,7 +448,7 @@ composite_rules:
     desc: Accesses cryptocurrency private keys
     crit: suspicious
     conf: 0.95
-    count_min: 1
+    needs: 1
     any:
       - id: env-wallet-prefix
       - id: env-mnemonic
@@ -461,7 +461,7 @@ composite_rules:
     desc: Accesses CI/CD pipeline tokens
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: env-ci-token
       - id: env-circle-token
@@ -474,7 +474,7 @@ composite_rules:
     desc: Accesses cloud provider credentials
     crit: suspicious
     conf: 0.9
-    count_min: 1
+    needs: 1
     any:
       - id: env-google-prefix
       - id: env-gcp-prefix
@@ -487,7 +487,7 @@ composite_rules:
     desc: Accesses entire process.env object
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: json-stringify-env
       - id: object-keys-env
@@ -501,7 +501,7 @@ composite_rules:
     attack: "T1552.001"
     mbc: "B0028"
     for: [javascript, typescript]
-    count_min: 3
+    needs: 3
     any:
       - id: node-aws
       - id: node-git-token

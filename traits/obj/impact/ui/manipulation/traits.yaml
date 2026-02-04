@@ -124,10 +124,9 @@ composite_rules:
     attack: "T1010"
     mbc: "B0042"
     for: [macho]
-    requires_any_n:
-      count_min: 2
-      any:
-        - id: screen-locked
-        - id: hid-idle-time
-        - id: window-watcher
-        - id: process-identifier
+    needs: 2
+    any:
+      - id: screen-locked
+      - id: hid-idle-time
+      - id: window-watcher
+      - id: process-identifier

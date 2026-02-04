@@ -12,7 +12,6 @@ traits:
     if:
       type: symbol
       exact: "AcquireSRWLockExclusive"
-    notes: "Acquires exclusive reader/writer lock"
     attack: "T1129"
 
   - id: srw-lock-release
@@ -24,7 +23,6 @@ traits:
     if:
       type: symbol
       exact: "ReleaseSRWLockExclusive"
-    notes: "Releases exclusive reader/writer lock"
     attack: "T1129"
 
   - id: srw-lock-shared
@@ -38,7 +36,6 @@ traits:
       any:
         - exact: "AcquireSRWLockShared"
         - exact: "ReleaseSRWLockShared"
-    notes: "Shared reader/writer lock operations"
     attack: "T1129"
 
   - id: condition-variable-wait
@@ -52,7 +49,6 @@ traits:
       any:
         - exact: "SleepConditionVariableSRW"
         - exact: "SleepConditionVariableCS"
-    notes: "Thread sleeps on condition variable"
     attack: "T1129"
 
   - id: condition-variable-signal
@@ -66,7 +62,6 @@ traits:
       any:
         - exact: "WakeConditionVariable"
         - exact: "WakeAllConditionVariable"
-    notes: "Signals waiting threads via condition variable"
     attack: "T1129"
 
   - id: slist-initialize
@@ -78,7 +73,6 @@ traits:
     if:
       type: symbol
       exact: "InitializeSListHead"
-    notes: "Initializes interlocked singly-linked list"
     attack: "T1129"
 
   - id: slist-operations
@@ -93,7 +87,6 @@ traits:
         - substr: "InterlockedPushEntrySList"
         - substr: "InterlockedPopEntrySList"
         - substr: "InterlockedFlushSList"
-    notes: "Interlocked SList push/pop/flush operations"
     attack: "T1129"
 
 composite_rules:
@@ -104,15 +97,7 @@ composite_rules:
     platforms: [windows]
     for: [pe]
     attack: "T1129"
-    notes: |
-      Reader/Writer lock synchronization patterns.
-
-      Indicates:
-      - Multi-reader or exclusive writer access
-      - Shared resource protection
-      - Sophisticated thread coordination
-
-    count_min: 2
+    needs: 2
     any:
       - id: srw-lock-acquire
       - id: srw-lock-release
@@ -125,14 +110,6 @@ composite_rules:
     platforms: [windows]
     for: [pe]
     attack: "T1129"
-    notes: |
-      Condition variable synchronization patterns.
-
-      Indicates:
-      - Thread signaling mechanisms
-      - Producer/consumer patterns
-      - Event-driven thread coordination
-
     any:
       - id: condition-variable-wait
       - id: condition-variable-signal
@@ -144,14 +121,6 @@ composite_rules:
     platforms: [windows]
     for: [pe]
     attack: "T1129"
-    notes: |
-      Interlocked singly-linked list operations.
-
-      Indicates:
-      - Lock-free data structures
-      - High-performance queuing
-      - Sophisticated synchronization
-
     any:
       - id: slist-initialize
       - id: slist-operations
@@ -163,11 +132,7 @@ composite_rules:
     platforms: [windows]
     for: [pe]
     attack: "T1129"
-    notes: |
-      Combination of advanced synchronization primitives.
-      Indicates professional-grade multi-threaded implementation.
-
-    count_min: 2
+    needs: 2
     any:
       - id: srw-lock-ops
       - id: condition-variable-ops
@@ -181,22 +146,6 @@ composite_rules:
     for: [pe]
     attack: "T1129"
     mbc: "E1030"
-    notes: |
-      Professional multi-threaded server using advanced synchronization.
-      Combines thread creation with sophisticated coordination primitives.
-
-      Indicates:
-      - Command server infrastructure (C2, RAT)
-      - Distributed ransomware workers
-      - Botnet node management
-      - Professional malware development
-
-      Seen in:
-      - Darkside ransomware (SRW + condition variables)
-      - Advanced RAT command servers
-      - Professional botnet infrastructure
-
     all:
       - id: cap/process/create
       - id: advanced-sync-primitives
-

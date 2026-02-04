@@ -52,7 +52,7 @@ composite_rules:
     attack: "T1071.001"
     mbc: "B0030"
     platforms: [all]
-    count_min: 1
+    needs: 1
     any:
       - id: webhostapp-domain
       - id: free-webhost-domain

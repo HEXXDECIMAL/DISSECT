@@ -9,7 +9,7 @@ composite_rules:
     desc: Variable names suggesting command output
     crit: inert
     conf: 0.3
-    count_min: 1
+    needs: 1
     any:
       - id: cap/data/text/generic/output
       - id: cap/data/text/generic/command

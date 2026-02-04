@@ -85,7 +85,7 @@ composite_rules:
     conf: 0.66
     mbc: "E1561"
     attack: "T1561"
-    count_min: 1
+    needs: 1
     any:
       - id: dd-zero
       - id: dd-random
@@ -97,7 +97,7 @@ composite_rules:
     desc: Direct disk device access
     crit: suspicious
     conf: 0.66
-    count_min: 1
+    needs: 1
     any:
       - id: dev-sda
       - id: dev-hda

@@ -81,7 +81,7 @@ composite_rules:
     desc: Cryptographic imports
     crit: notable
     conf: 0.6
-    count_min: 1
+    needs: 1
     any:
       - id: crypto-aes
       - id: crypto-cipher
@@ -91,7 +91,7 @@ composite_rules:
     desc: Filesystem walk function
     crit: notable
     conf: 0.6
-    count_min: 1
+    needs: 1
     any:
       - id: filepath-walk
       - id: filepath-walkdir
@@ -100,7 +100,7 @@ composite_rules:
     desc: File write function
     crit: notable
     conf: 0.6
-    count_min: 1
+    needs: 1
     any:
       - id: ioutil-writefile
       - id: os-writefile
@@ -109,7 +109,7 @@ composite_rules:
     desc: Encryption-related extension
     crit: notable
     conf: 0.6
-    count_min: 1
+    needs: 1
     any:
       - id: encrypted-ext
       - id: locked-ext

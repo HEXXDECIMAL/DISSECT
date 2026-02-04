@@ -179,7 +179,7 @@ composite_rules:
     desc: Layer 7 DDoS identifier string
     crit: notable
     conf: 0.7
-    count_min: 1
+    needs: 1
     any:
       - id: slowloris-string
       - id: layer7-string
@@ -190,7 +190,7 @@ composite_rules:
     desc: Multi-vector DDoS tool (multiple attack
     crit: suspicious
     conf: 0.95
-    count_min: 2
+    needs: 2
     any:
       - id: syn-flood-logic
       - id: udp-flood-logic

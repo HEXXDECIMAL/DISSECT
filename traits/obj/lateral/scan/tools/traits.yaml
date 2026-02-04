@@ -105,7 +105,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     attack: "T1046"
-    count_min: 1
+    needs: 1
     any:
       - id: masscan-cmd
       - id: masscan-rate
@@ -117,7 +117,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     attack: "T1046"
-    count_min: 1
+    needs: 1
     any:
       - id: zgrab-cmd
       - id: zgrab-senders
@@ -129,7 +129,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     attack: "T1046"
-    count_min: 1
+    needs: 1
     any:
       - id: pnscan-cmd
       - id: pnscan-response

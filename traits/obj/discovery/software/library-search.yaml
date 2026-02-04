@@ -151,7 +151,7 @@ composite_rules:
     conf: 0.7
     mbc: "E1083"
     attack: "T1518"
-    count_min: 3
+    needs: 3
     any:
       - id: lib-path
       - id: usr-lib-path
@@ -162,7 +162,7 @@ composite_rules:
     desc: Architecture detection strings
     crit: inert
     conf: 0.5
-    count_min: 2
+    needs: 2
     any:
       - id: arch-x86-64
       - id: arch-aarch64
@@ -174,7 +174,7 @@ composite_rules:
     desc: SSL/TLS library search targets
     crit: notable
     conf: 0.8
-    count_min: 1
+    needs: 1
     any:
       - id: libssl-so
       - id: libcrypto-so
@@ -186,7 +186,7 @@ composite_rules:
     desc: Library resolver function patterns
     crit: notable
     conf: 0.75
-    count_min: 1
+    needs: 1
     any:
       - id: resolve-library-fn
       - id: global-search-library-fn
@@ -202,7 +202,7 @@ composite_rules:
     attack: "T1518"
     all:
       - id: lib-path-enum
-    count_min: 1
+    needs: 1
     any:
       - id: arch-detection
       - id: lib-resolver-fn

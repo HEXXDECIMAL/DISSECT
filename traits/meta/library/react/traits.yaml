@@ -65,13 +65,9 @@ composite_rules:
     desc: "File contains React library"
     crit: benign
     conf: 0.9
-    count_min: 1
+    needs: 1
     any:
-      - {id: version-banner}
-      - {id: copyright}
-      - {id: package-name}
-      - {id: react-object}
-    explanation: |
-      This file contains React library signatures. React is a popular JavaScript
-      library for building user interfaces, used by millions of websites.
-      The presence of React itself is not suspicious.
+      - { id: version-banner }
+      - { id: copyright }
+      - { id: package-name }
+      - { id: react-object }

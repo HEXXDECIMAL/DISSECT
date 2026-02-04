@@ -65,7 +65,7 @@ composite_rules:
     desc: SOCKS proxy usage
     crit: notable
     conf: 0.66
-    count_min: 1
+    needs: 1
     any:
       - id: socks4-proto
       - id: socks5-proto

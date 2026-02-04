@@ -15,7 +15,7 @@ composite_rules:
     desc: Curl POST with data (potential
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: cap/comm/http/client/shell/curl-d-flag
       - id: cap/comm/http/client/shell/curl-data-flag
@@ -30,7 +30,7 @@ composite_rules:
     desc: Curl file upload
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: cap/comm/http/client/shell/curl-f-flag
       - id: cap/comm/http/client/shell/curl-form-flag
@@ -45,7 +45,7 @@ composite_rules:
     desc: Wget POST request (potential exfiltration)
     crit: suspicious
     conf: 0.8
-    count_min: 1
+    needs: 1
     any:
       - id: cap/comm/http/client/shell/wget-post-data
       - id: cap/comm/http/client/shell/wget-post-file
@@ -59,7 +59,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1048"
-    count_min: 1
+    needs: 1
     any:
       - id: cap/comm/http/client/shell/nc-stdin-redirect
       - id: cap/comm/http/client/shell/cat-pipe-nc

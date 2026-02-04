@@ -574,7 +574,7 @@ composite_rules:
   - id: openssl-tls
     desc: OpenSSL TLS library usage (legitimate)
     conf: 0.8
-    count_min: 3
+    needs: 3
     any:
       - id: tls-v1-method
       - id: tls-v1-2-method
@@ -591,7 +591,7 @@ composite_rules:
   - id: hash-functions
     desc: Standard cryptographic hash function usage
     conf: 0.75
-    count_min: 2
+    needs: 2
     any:
       - id: md5-init
       - id: md5-update
@@ -609,7 +609,7 @@ composite_rules:
   - id: gnutls
     desc: GnuTLS library usage (legitimate)
     conf: 0.8
-    count_min: 2
+    needs: 2
     any:
       - id: gnutls-version
       - id: gnutls-init
@@ -623,7 +623,7 @@ composite_rules:
   - id: nss
     desc: Mozilla NSS crypto library usage
     conf: 0.8
-    count_min: 2
+    needs: 2
     any:
       - id: nss-init
       - id: nss-pk11
@@ -636,7 +636,7 @@ composite_rules:
   - id: libsodium
     desc: libsodium modern crypto library usage
     conf: 0.8
-    count_min: 2
+    needs: 2
     any:
       - id: cap/crypto/legitimate/libsodium
       - id: sodium-init
@@ -651,7 +651,7 @@ composite_rules:
   - id: rust-crypto
     desc: Rust cryptographic crate usage
     conf: 0.75
-    count_min: 1
+    needs: 1
     any:
       - id: rust-ring
       - id: rust-rustls
@@ -664,7 +664,7 @@ composite_rules:
   - id: go-crypto
     desc: Go standard crypto package usage
     conf: 0.8
-    count_min: 2
+    needs: 2
     any:
       - id: go-crypto-tls
       - id: go-crypto-x509
@@ -679,7 +679,7 @@ composite_rules:
   - id: certificate-handling
     desc: X.509 certificate handling (legitimate)
     conf: 0.8
-    count_min: 2
+    needs: 2
     any:
       - id: ssl-certs-path
       - id: ca-certificates
@@ -693,7 +693,7 @@ composite_rules:
   - id: secure-random
     desc: Secure random number generation
     conf: 0.8
-    count_min: 1
+    needs: 1
     any:
       - id: dev-urandom
       - id: dev-random
@@ -707,7 +707,7 @@ composite_rules:
   - id: key-derivation
     desc: Key derivation function usage
     conf: 0.75
-    count_min: 1
+    needs: 1
     any:
       - id: pbkdf2
       - id: scrypt

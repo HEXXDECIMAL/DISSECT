@@ -598,7 +598,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
-    count_min: 1
+    needs: 1
     any:
       - id: dropper/archive
 
@@ -608,7 +608,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
-    count_min: 1
+    needs: 1
     any:
       - id: dropper/archive
 
@@ -630,7 +630,7 @@ composite_rules:
     conf: 0.8
     attack: "T1140"
     for: [javascript, typescript]
-    count_min: 1
+    needs: 1
     any:
       - id: dropper/archive
 
@@ -640,7 +640,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     for: [javascript, typescript]
-    count_min: 1
+    needs: 1
     any:
       - id: process-env-temp
       - id: process-env-tmp
@@ -653,7 +653,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     for: [javascript, typescript]
-    count_min: 1
+    needs: 1
     any:
       - id: dropper/archive
 
@@ -674,7 +674,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
-    count_min: 1
+    needs: 1
     any:
       - id: spawn-paren
       - id: exec-paren
@@ -686,7 +686,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     for: [javascript, typescript]
-    count_min: 1
+    needs: 1
     any:
       - id: dropper/executable
 
@@ -709,7 +709,7 @@ composite_rules:
     conf: 0.9
     attack: "T1105"
     for: [javascript, typescript]
-    count_min: 1
+    needs: 1
     any:
       - id: dropper/executable
 
@@ -720,7 +720,7 @@ composite_rules:
     conf: 0.85
     attack: "T1059"
     for: [python]
-    count_min: 1
+    needs: 1
     any:
       - id: py-os-system
       - id: py-exec-call
@@ -732,7 +732,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
-    count_min: 1
+    needs: 1
     any:
       - id: spawn-call
       - id: exec-call-js
@@ -744,7 +744,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     for: [javascript]
-    count_min: 1
+    needs: 1
     any:
       - id: wscript-shell
       - id: msxml2-xmlhttp
@@ -756,7 +756,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
-    count_min: 1
+    needs: 1
     any:
       - id: buffer-from-base64
       - id: atob-call
@@ -767,7 +767,7 @@ composite_rules:
     desc: MSXml2 Base64 decoding
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: msxml2-base64
       - id: bin-base64
@@ -777,7 +777,7 @@ composite_rules:
     desc: Payload drop to %appdata%
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: appdata-single
       - id: appdata-double
@@ -900,10 +900,6 @@ composite_rules:
       - { id: dropper/builder/activex-object }
       - { id: cap/exec/javascript/es6-features/modern-javascript }
       - { id: cap/exec/javascript/es6-features/template-literals }
-    explanation: |
-      ActiveXObject is obsolete (IE-only, deprecated 2015). Modern JavaScript
-      using ES6+ features has no legitimate reason to use it. This indicates
-      malicious code masquerading as modern JavaScript.
 
   # ActiveXObject + any network operation = likely malicious
   - id: activex-network
@@ -919,9 +915,6 @@ composite_rules:
       - { id: cap/comm/http/client }
       - { id: cap/comm/socket/connect }
       - { id: cap/comm/dns/lookup }
-    explanation: |
-      ActiveXObject combined with network operations is a classic pattern for
-      command-and-control (C2) malware or droppers that download payloads.
 
   # ActiveXObject + command execution
   - id: activex-exec
@@ -937,6 +930,3 @@ composite_rules:
       - { id: cap/exec/command/shell }
       - { id: cap/exec/command/direct }
       - { id: dropper/builder/wscript-shell }
-    explanation: |
-      ActiveXObject combined with command execution provides full shell access.
-      This is a classic backdoor or remote access trojan (RAT) pattern.

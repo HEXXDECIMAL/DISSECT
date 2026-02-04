@@ -16,7 +16,6 @@ traits:
         - exact: "GetEnvironmentStringsA"
         - exact: "FreeEnvironmentStringsW"
         - exact: "GetEnvironmentVariable"
-    notes: "Accesses system environment variables"
 
   - id: console-check-api
     desc: Console environment check
@@ -30,7 +29,6 @@ traits:
         - exact: "GetConsoleMode"
         - exact: "GetConsoleOutputCP"
         - exact: "GetConsoleScreenBufferInfo"
-    notes: "Checks for console environment (sandbox detection)"
     attack: "T1497"
     mbc: "B0001"
 
@@ -43,7 +41,6 @@ traits:
     if:
       type: symbol
       exact: "WriteConsoleW"
-    notes: "Writes to console (may indicate output logging)"
 
 composite_rules:
   - id: console-environment-detection
@@ -54,22 +51,7 @@ composite_rules:
     for: [pe]
     attack: "T1497.001"
     mbc: "B0001"
-    notes: |
-      Checks for console environment indicators.
-
-      Sandbox detection via:
-      - Console not available (detected via GetConsoleMode failure)
-      - Console output properties (GetConsoleOutputCP)
-      - Console buffer info (GetConsoleScreenBufferInfo)
-
-      Analysis environment often missing console or has unusual properties.
-
-      Seen in:
-      - Advanced loaders (Chrysalis ConsoleApplication2.exe)
-      - Sandbox-aware malware
-      - Environment-adaptive trojans
-
-    count_min: 2
+    needs: 2
     any:
       - id: console-check-api
       - id: write-console-api
@@ -82,10 +64,6 @@ composite_rules:
     for: [pe, elf, macho]
     attack: "T1497"
     mbc: "B0001"
-    notes: |
-      Combines environment probing with evasion awareness.
-      Indicates behavior modification based on environment.
-
     any:
       - id: getenv-api
       - id: console-environment-detection
@@ -98,11 +76,6 @@ composite_rules:
     for: [pe, elf, macho]
     attack: "T1497"
     mbc: "B0001"
-    notes: |
-      Environment checks combined with control flow changes.
-      Indicates actual behavior adaptation.
-
     all:
       - id: environment-aware-malware
       - id: cap/data/control-flow
-

@@ -62,7 +62,7 @@ composite_rules:
     desc: Makes HTTP POST requests
     crit: notable
     conf: 0.66
-    count_min: 1
+    needs: 1
     any:
       - id: post-method
       - id: http-post-call
@@ -72,7 +72,7 @@ composite_rules:
     desc: HTTP form data upload
     crit: notable
     conf: 0.66
-    count_min: 1
+    needs: 1
     any:
       - id: multipart-form
       - id: formdata-class

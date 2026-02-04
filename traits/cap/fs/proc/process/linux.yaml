@@ -119,7 +119,6 @@ traits:
     for: [python]
     if:
       type: ast
-      language: python
       query: |
         ((call
           function: (attribute

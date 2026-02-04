@@ -202,7 +202,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     for: [php]
-    count_min: 1
+    needs: 1
     any:
       - id: extract-get
       - id: extract-post
@@ -215,7 +215,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     for: [php]
-    count_min: 1
+    needs: 1
     any:
       - id: parse-str-get
       - id: parse-str-post

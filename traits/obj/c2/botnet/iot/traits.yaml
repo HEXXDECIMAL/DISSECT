@@ -185,7 +185,7 @@ composite_rules:
     conf: 0.3
     for: [elf]
     platforms: [linux]
-    count_min: 1
+    needs: 1
     any:
       - id: curl-cmd
       - id: wget-cmd
@@ -197,7 +197,7 @@ composite_rules:
     conf: 0.6
     for: [elf]
     platforms: [linux]
-    count_min: 1
+    needs: 1
     any:
       - id: pipe-sh
       - id: pipe-bash
@@ -224,7 +224,7 @@ composite_rules:
     attack: "T1059.004"
     for: [elf]
     platforms: [linux]
-    count_min: 1
+    needs: 1
     any:
       - id: download-pipe-shell
       - id: output-pipe-sh
@@ -236,7 +236,7 @@ composite_rules:
     conf: 0.3
     for: [elf]
     platforms: [linux]
-    count_min: 1
+    needs: 1
     any:
       - id: send-func
       - id: sendto-func
@@ -266,7 +266,7 @@ composite_rules:
     attack: "T1110.001"
     for: [elf]
     platforms: [linux]
-    count_min: 2
+    needs: 2
     any:
       - id: obj/lateral/brute-force/iot-creds/mirai-cred-admin
       - id: busybox
@@ -280,7 +280,7 @@ composite_rules:
     attack: "T1105"
     for: [elf]
     platforms: [linux]
-    count_min: 2
+    needs: 2
     any:
       - id: busybox-wget
       - id: busybox-tftp

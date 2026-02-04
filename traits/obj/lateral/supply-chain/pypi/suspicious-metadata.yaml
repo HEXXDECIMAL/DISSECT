@@ -78,7 +78,7 @@ composite_rules:
     conf: 0.80
     attack: "T1036.005"
     for: [python]
-    count_min: 3
+    needs: 3
     any:
       - id: minimal-description
       - id: placeholder-author
@@ -92,7 +92,7 @@ composite_rules:
     attack: "T1036.005"
     mbc: "F0004"
     platforms: [all]
-    count_min: 4
+    needs: 4
     any:
       - id: suspicious-setup-metadata
       - id: empty-keywords

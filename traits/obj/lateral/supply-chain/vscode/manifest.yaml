@@ -32,7 +32,6 @@ traits:
     if:
       type: content
       regex: 'github\.com/?["'']'
-      min_count: 2
 
   # Links section but no actual repository content
   - id: links-source-stub
@@ -80,7 +79,7 @@ composite_rules:
     crit: inert
     conf: 0.8
     for: [vsixmanifest]
-    count_min: 1
+    needs: 1
     any:
       - id: link-source
       - id: link-github
@@ -93,7 +92,7 @@ composite_rules:
     conf: 0.95
     attack: "T1036.005"
     mbc: "B0033"
-    count_min: 1
+    needs: 1
     any:
       - id: stub-github-link
       - id: multiple-stub-links

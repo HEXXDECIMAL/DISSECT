@@ -202,7 +202,7 @@ composite_rules:
     desc: Russian locale indicator
     crit: notable
     conf: 0.75
-    count_min: 1
+    needs: 1
     any:
       - id: locale-ru-ru-underscore
       - id: locale-ru-ru-dash
@@ -213,7 +213,7 @@ composite_rules:
     desc: CIS region locale indicator
     crit: notable
     conf: 0.7
-    count_min: 1
+    needs: 1
     any:
       - id: russian-locale
       - id: locale-uk-ua
@@ -225,7 +225,7 @@ composite_rules:
     desc: CIS region timezone check
     crit: notable
     conf: 0.75
-    count_min: 1
+    needs: 1
     any:
       - id: tz-europe-moscow
       - id: tz-europe-minsk
@@ -238,7 +238,7 @@ composite_rules:
     desc: Locale environment variable checks
     crit: notable
     conf: 0.6
-    count_min: 2
+    needs: 2
     any:
       - id: env-lang-check
       - id: env-lc-all-check
@@ -251,7 +251,7 @@ composite_rules:
     crit: notable
     conf: 0.65
     for: [javascript, typescript]
-    count_min: 1
+    needs: 1
     any:
       - id: js-intl-datetime-options
       - id: js-gettimezoneoffset
@@ -263,7 +263,7 @@ composite_rules:
     desc: Russian region geofencing
     crit: suspicious
     conf: 0.9
-    count_min: 2
+    needs: 2
     any:
       - id: russian-locale
       - id: cis-timezone
@@ -276,7 +276,7 @@ composite_rules:
     desc: CIS region geofencing evasion
     crit: suspicious
     conf: 0.85
-    count_min: 2
+    needs: 2
     any:
       - id: cis-locale
       - id: cis-timezone

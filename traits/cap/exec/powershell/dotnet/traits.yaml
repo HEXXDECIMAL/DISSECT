@@ -94,7 +94,7 @@ composite_rules:
     conf: 0.9
     attack: "T1059.001"
     for: [pe, dll, csharp]
-    count_min: 2
+    needs: 2
     any:
       - id: sma-namespace
       - id: sma-host

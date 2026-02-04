@@ -167,7 +167,7 @@ composite_rules:
     crit: suspicious
     conf: 0.6
     for: [elf]
-    count_min: 2
+    needs: 2
     any:
       - id: lzma-crc64-table
       - id: lzma-crc64
@@ -271,7 +271,7 @@ composite_rules:
     desc: Process operations in utility library
     crit: suspicious
     conf: 0.75
-    count_min: 3
+    needs: 3
     any:
       - id: cap/process/fork/fork
       - id: cap/exec/command/shell/c-execve
@@ -294,7 +294,7 @@ composite_rules:
     desc: Cryptographic operations in non-crypto library
     crit: suspicious
     conf: 0.75
-    count_min: 2
+    needs: 2
     any:
       - id: cap/crypto/symmetric/aes/binary/aes-sbox-bytes
       - id: cap/crypto/asymmetric/rsa-operations
@@ -305,7 +305,7 @@ composite_rules:
     desc: Unexpected capability combination in library
     crit: suspicious
     conf: 0.8
-    count_min: 2
+    needs: 2
     any:
       - id: unexpected-socket-ops
       - id: unexpected-process-ops

@@ -13,7 +13,6 @@ traits:
     if:
       type: content
 
-
 composite_rules:
   # Shell execute composite
   - id: sh-execute
@@ -23,7 +22,7 @@ composite_rules:
     mbc: "C0059"
     attack: "T1059.004"
     for: [all]
-    count_min: 1
+    needs: 1
     any:
       - id: sh-execute-cmd
       - id: bash-execute-cmd
@@ -37,7 +36,7 @@ composite_rules:
     mbc: "B0024"
     attack: "T1059.004"
     for: [shell, elf, macho, pe]
-    count_min: 1
+    needs: 1
     any:
       - id: pipe-to-sh
       - id: pipe-to-bash

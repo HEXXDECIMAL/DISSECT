@@ -198,7 +198,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
-    count_min: 1
+    needs: 1
     any:
       - id: axios-post-call
       - id: node-https-request
@@ -211,7 +211,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
-    count_min: 1
+    needs: 1
     any:
       - id: axios-import
       - id: node-https-request

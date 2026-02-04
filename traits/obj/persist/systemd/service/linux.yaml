@@ -67,7 +67,7 @@ composite_rules:
     conf: 0.66
     mbc: B0028
     attack: T1543.002
-    count_min: 2
+    needs: 2
     any:
       - id: systemd-keyword
       - id: systemctl-command

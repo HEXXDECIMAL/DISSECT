@@ -22,7 +22,6 @@ traits:
     if:
       type: string
       regex: '[A-Za-z][A-Za-z0-9_]{6,14}\.\(\*[A-Za-z][A-Za-z0-9_]{6,14}\)\.(Encrypt|Decrypt)$'
-    min_count: 2
     not:
       - "QUIC"
       - "TLS"
@@ -136,7 +135,6 @@ traits:
     if:
       type: string
       regex: '\b[a-z][a-z0-9]{6,9}\.\(\*[A-Z][a-zA-Z0-9]{6,9}\)\.'
-    min_count: 3
 
   # Go crypto/rsa EncryptOAEP - asymmetric encryption for ransomware
   - id: go-rsa-encrypt-oaep

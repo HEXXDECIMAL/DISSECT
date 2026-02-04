@@ -72,15 +72,12 @@ composite_rules:
     crit: notable
     conf: 0.9
     for: [javascript, typescript]
-    count_min: 2
+    needs: 2
     any:
-      - {id: arrow-function}
-      - {id: async-await}
-      - {id: es6-class}
-      - {id: template-literal}
-      - {id: const-let}
-      - {id: destructuring}
-      - {id: spread-operator}
-    explanation: |
-      This code uses modern JavaScript (ES6+) syntax. Modern code should not
-      use obsolete technologies like ActiveXObject (IE-only, deprecated 2015).
+      - { id: arrow-function }
+      - { id: async-await }
+      - { id: es6-class }
+      - { id: template-literal }
+      - { id: const-let }
+      - { id: destructuring }
+      - { id: spread-operator }

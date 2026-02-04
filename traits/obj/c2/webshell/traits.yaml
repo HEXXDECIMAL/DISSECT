@@ -212,7 +212,7 @@ composite_rules:
       - id: php-post
       - id: php-request
 
-    count_min: 1
+    needs: 1
   # JSP webshell patterns
   - id: jsp-shell
     desc: JSP webshell implementation patterns
@@ -228,7 +228,7 @@ composite_rules:
     desc: Known webshell family identifier
     crit: notable
     conf: 0.9
-    count_min: 1
+    needs: 1
     any:
       - id: c99shell
       - id: r57shell

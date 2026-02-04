@@ -12,7 +12,6 @@ traits:
     if:
       type: symbol
       exact: "AddAtomA"
-    notes: "AddAtomA creates/modifies global atom table entries"
     mbc: "C0041"
 
   - id: getatomnama-api
@@ -24,7 +23,6 @@ traits:
     if:
       type: symbol
       exact: "GetAtomNameA"
-    notes: "GetAtomNameA retrieves atom data, used in callback delivery"
     mbc: "C0041"
 
   - id: globalgetatomname-api
@@ -36,7 +34,6 @@ traits:
     if:
       type: symbol
       exact: "GlobalGetAtomName"
-    notes: "Alternative atom access method"
 
 composite_rules:
   - id: atom-bombing-capable
@@ -47,11 +44,6 @@ composite_rules:
     mbc: "C0041"
     platforms: [windows]
     for: [pe]
-    notes: |
-      Atom bombing uses Windows global atom table to deliver shellcode.
-      Bypasses some traditional DLL injection detection.
-      Requires paired atom manipulation APIs.
-
     all:
       - id: addatoma-api
       - id: getatomnama-api

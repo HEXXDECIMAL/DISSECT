@@ -63,7 +63,7 @@ composite_rules:
       - id: cap/comm/http/curl/ssl-verify-disable
       - id: cap/comm/http/curl/ssl-host-disable
 
-    count_min: 1
+    needs: 1
 
   # Timestamp manipulation (anti-forensic)
   - id: php-timestomp
@@ -103,7 +103,7 @@ composite_rules:
       - id: cap/fs/write
       - id: cap/fs/write
 
-    count_min: 1
+    needs: 1
   # Command execution webshell
   - id: php-rce
     desc: "PHP webshell with remote command"
@@ -119,7 +119,7 @@ composite_rules:
       - id: cap/data/user-input
       - id: cap/data/user-input
 
-    count_min: 1
+    needs: 1
 
   # HOSTILE: eval(base64_decode(...)) pattern - classic PHP backdoor
   # This pattern has no legitimate use and is a hallmark of PHP webshells
@@ -167,7 +167,7 @@ composite_rules:
     mbc: "B0032"
     attack: "T1027"
     for: [php]
-    count_min: 2
+    needs: 2
     any:
       - id: obj/anti-static/obfuscation
       - id: obj/anti-static/obfuscation
@@ -327,7 +327,7 @@ composite_rules:
       - id: cap/exec/command/shell  # shell execution
       - id: cap/data/user-input/request  # user input handling
       - id: cap/fs/write  # file write capability
-    count_min: 2
+    needs: 2
     any:
       - id: obj/c2/webshell/filesman  # FilesMan pattern
       - id: obj/c2/webshell/wso-version  # WSO family

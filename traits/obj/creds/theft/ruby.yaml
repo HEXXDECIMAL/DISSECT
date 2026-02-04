@@ -26,7 +26,7 @@ traits:
     attack: "T1056"
     if:
       type: string
-      regex: 'password.{0,50}rescue|email.{0,50}password'
+      regex: "password.{0,50}rescue|email.{0,50}password"
 
   # === Global Variable for Storage ===
   - id: global-var-storage
@@ -46,7 +46,7 @@ traits:
     attack: "T1056"
     if:
       type: string
-      regex: 'email.{0,50}password|<<.{0,50}rescue'
+      regex: "email.{0,50}password|<<.{0,50}rescue"
 
 composite_rules:
   # === Authentication Credential Theft ===
@@ -55,7 +55,7 @@ composite_rules:
     crit: suspicious
     conf: 0.93
     attack: "T1056"
-    count_min: 3
+    needs: 3
     any:
       - id: auth-hook-ruby
       - id: password-theft-ruby

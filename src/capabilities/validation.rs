@@ -113,9 +113,9 @@ pub fn calculate_composite_precision(
             }
         }
 
-        // `any` clause: use count requirement, recursively expand for single trait
+        // `any` clause: use needs requirement, recursively expand for single trait
         if let Some(ref conditions) = rule.any {
-            let count = rule.count_exact.or(rule.count_min).unwrap_or(1);
+            let count = rule.needs.unwrap_or(1);
 
             // If it's a single trait reference, expand it and multiply by count
             if conditions.len() == 1 {
@@ -359,10 +359,10 @@ pub(crate) fn simple_rule_to_composite_rule(rule: super::models::SimpleRule) -> 
             compiled_regex: None,
         }]),
         any: None,
-        count_exact: None,
-        count_min: None,
-        count_max: None,
+        needs: None,
         none: None,
+        near_lines: None,
+        near_bytes: None,
         unless: None,
         not: None,
         downgrade: None,

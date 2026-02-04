@@ -9,7 +9,6 @@ traits:
     for: [python]
     if:
       type: ast
-      language: python
       query: |
         ((assignment
           left: (identifier) @var

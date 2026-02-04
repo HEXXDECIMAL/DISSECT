@@ -487,7 +487,7 @@ composite_rules:
     conf: 0.85
     platforms: [windows]
     for: [pe, dll]
-    count_min: 2
+    needs: 2
     any:
       - { id: windows-hook }
       - { id: windows-rawinput }

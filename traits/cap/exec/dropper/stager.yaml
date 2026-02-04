@@ -39,7 +39,7 @@ composite_rules:
   - id: arm-direct-network-shellcode
     desc: "ARM direct network syscalls"
     crit: suspicious
-    count_min: 2
+    needs: 2
     any:
       - id: cap/comm/syscall/arm/svc-socket
       - id: cap/comm/syscall/arm/svc-connect

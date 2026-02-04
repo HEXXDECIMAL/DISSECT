@@ -18,7 +18,6 @@ traits:
     if:
       type: content
       regex: "\\bpkill\\s+-f\\b"
-      min_count: 10
 
   - id: mass-kill-pattern
     desc: Mass process killing via ps/grep/kill
@@ -28,7 +27,6 @@ traits:
       type: content
       # ps aux | grep X | kill pattern
       regex: "ps\\s+aux[^|]{0,20}\\|[^|]{0,30}grep[^|]{0,30}\\|[^|]{0,30}(?:kill|xargs[^|]{0,20}kill)"
-      min_count: 10
 
   - id: netstat-kill-pattern
     desc: Kills processes by network connection
@@ -38,7 +36,6 @@ traits:
       type: content
       # netstat | grep IP/port | kill pattern
       regex: "netstat[^|]{0,20}\\|[^|]{0,30}grep[^|]{0,30}\\|[^|]{0,30}(?:kill|xargs[^|]{0,20}kill)"
-      min_count: 3
 
   # === Miner-Specific Kills ===
   - id: miner-process-kill
@@ -67,7 +64,6 @@ traits:
     if:
       type: content
       regex: "rm\\s+-rf\\s+/tmp/"
-      min_count: 10
 
   - id: competitor-path-removal
     desc: Removes known malware paths

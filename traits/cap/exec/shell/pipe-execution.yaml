@@ -330,7 +330,7 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     attack: "T1059.004"
-    count_min: 1
+    needs: 1
     any:
       - id: curl-pipe-sh
       - id: curl-pipe-bash
@@ -344,7 +344,7 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     attack: "T1059.004"
-    count_min: 1
+    needs: 1
     any:
       - id: wget-pipe-sh
       - id: wget-pipe-bash
@@ -358,7 +358,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     attack: "T1059.004"
-    count_min: 1
+    needs: 1
     any:
       - id: eval-curl-subshell
       - id: eval-curl-backtick
@@ -371,7 +371,7 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     attack: "T1027"
-    count_min: 1
+    needs: 1
     any:
       - id: base64-d-pipe-sh
       - id: base64-d-pipe-bash
@@ -384,7 +384,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1059.004"
-    count_min: 1
+    needs: 1
     any:
       - id: bash-curl-process-sub
       - id: sh-curl-process-sub

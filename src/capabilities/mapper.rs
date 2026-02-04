@@ -182,16 +182,24 @@ impl CapabilityMapper {
         }
         let t_merge = std::time::Instant::now();
 
-        // Merge all results
+        // Merge all results, collecting errors to report all at once
         let mut symbol_map = HashMap::new();
         let mut trait_definitions = Vec::new();
         let mut composite_rules = Vec::new();
         let mut rule_source_files: HashMap<String, String> = HashMap::new(); // rule_id -> file_path
         let mut files_processed = 0;
         let mut warnings: Vec<String> = Vec::new();
+        let mut parse_errors: Vec<String> = Vec::new();
 
         for result in results {
-            let (path, mappings) = result?;
+            let (path, mappings) = match result {
+                Ok(r) => r,
+                Err(e) => {
+                    // Format error with full chain (includes filename from context)
+                    parse_errors.push(format!("{:#}", e));
+                    continue;
+                }
+            };
             files_processed += 1;
 
             // Calculate the prefix from the directory path relative to traits/
@@ -651,6 +659,19 @@ impl CapabilityMapper {
                 raw_content_regex_index.total_patterns,
                 t_raw_regex_index.elapsed()
             );
+        }
+
+        // Parse errors are fatal - print all and exit if any exist
+        if !parse_errors.is_empty() {
+            eprintln!(
+                "\n❌ FATAL: {} YAML parsing error(s) found:\n",
+                parse_errors.len()
+            );
+            for error in &parse_errors {
+                eprintln!("   {}", error);
+            }
+            eprintln!("\n   Fix these issues in the YAML files before continuing.\n");
+            std::process::exit(1);
         }
 
         // Warnings are fatal - print all and exit if any exist

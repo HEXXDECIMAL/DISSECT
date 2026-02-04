@@ -11,17 +11,7 @@ composite_rules:
     mbc: "B0030"
     platforms: [all]
     for: [pe, elf, macho, shell, python]
-    notes: |
-      Detects malware with 3+ hardcoded C2 addresses.
-      Indicates intentional redundancy for resilience against blocking.
-
-      Pattern seen in: Emotet (100+ C2s), Trickbot (20+ IPs),
-      Dridex, Conficker, Zeroaccess, and other botnets.
-
-      Generic principle: Multiple C2 addresses = deliberate failover design,
-      not accidental duplication. Professional malware expects blocking.
-
-    count_min: 3
+    needs: 3
     any:
       - id: obj/c2/infrastructure/ip
       - id: obj/c2/infrastructure/domain
@@ -34,11 +24,7 @@ composite_rules:
     mbc: "B0030"
     platforms: [all]
     for: [pe, elf, macho, shell]
-    notes: |
-      Multiple communication methods (HTTP, DNS, P2P) indicate
-      sophisticated C2 infrastructure with redundant channels.
-
-    count_min: 2
+    needs: 2
     any:
       - id: obj/c2/infrastructure/ip
       - id: obj/c2/infrastructure/domain

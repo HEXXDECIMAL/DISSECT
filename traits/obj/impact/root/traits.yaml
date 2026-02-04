@@ -12,7 +12,6 @@ traits:
     platforms: [linux]
     if:
       type: ast
-      language: c
       query: |
         ((assignment_expression
           left: (field_expression

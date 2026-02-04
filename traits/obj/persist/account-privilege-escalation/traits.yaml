@@ -14,7 +14,6 @@ traits:
         - substr: "useradd"
         - substr: "adduser"
         - substr: "/usr/sbin/useradd"
-    notes: "User account creation command"
     attack: "T1136.001"
 
   - id: user-bash-shell
@@ -28,7 +27,6 @@ traits:
         - substr: "-s /bin/bash"
         - substr: "--shell /bin/bash"
         - substr: "-s /bin/sh"
-    notes: "User created with interactive shell (not restricted)"
     attack: "T1136.001"
 
   - id: sudoers-file-path
@@ -39,7 +37,6 @@ traits:
     if:
       type: string
       substr: "/etc/sudoers"
-    notes: "Sudoers file (privilege escalation configuration)"
     attack: "T1548.004"
 
   - id: sudoers-d-path
@@ -50,7 +47,6 @@ traits:
     if:
       type: string
       substr: "/etc/sudoers.d/"
-    notes: "Sudoers configuration directory"
     attack: "T1548.004"
 
   - id: usermod-wheel
@@ -64,7 +60,6 @@ traits:
         - substr: "usermod -aG wheel"
         - substr: "usermod -G wheel"
         - regex: "usermod\\s+.*wheel"
-    notes: "Add user to wheel group (privilege escalation)"
     attack: "T1548.004"
 
   - id: usermod-sudo
@@ -78,7 +73,6 @@ traits:
         - substr: "usermod -aG sudo"
         - substr: "usermod -G sudo"
         - regex: "usermod\\s+.*sudo"
-    notes: "Add user to sudo group (privilege escalation)"
     attack: "T1548.004"
 
   - id: chpasswd-command
@@ -91,7 +85,6 @@ traits:
       any:
         - substr: "chpasswd"
         - substr: "echo '%s:%s' | chpasswd"
-    notes: "Automated password setting via chpasswd"
     attack: "T1136.001"
 
   - id: passwd-command
@@ -104,7 +97,6 @@ traits:
       any:
         - substr: "passwd"
         - substr: "/usr/bin/passwd"
-    notes: "Password modification command"
 
   - id: visudo-check
     desc: visudo configuration check
@@ -116,7 +108,6 @@ traits:
       any:
         - substr: "visudo -c"
         - substr: "visudo -q"
-    notes: "Visudo syntax check (before applying sudoers changes)"
     attack: "T1548.004"
 
   - id: sudo-nopasswd
@@ -127,7 +118,6 @@ traits:
     if:
       type: string
       substr: "NOPASSWD"
-    notes: "NOPASSWD sudoers directive (passwordless sudo)"
     attack: "T1548.004"
 
   - id: openssl-passwd
@@ -140,7 +130,6 @@ traits:
       any:
         - substr: "openssl passwd"
         - substr: "openssl passwd -6"
-    notes: "OpenSSL password hash generation"
     attack: "T1136.001"
 
 composite_rules:
@@ -150,12 +139,7 @@ composite_rules:
     conf: 0.8
     for: [elf, shell]
     attack: "T1136.001"
-    notes: |
-      User account creation with interactive shell.
-      Indicates:
-      - Backdoor account creation
-      - Persistent system access
-    count_min: 2
+    needs: 2
     any:
       - id: useradd-command
       - id: user-bash-shell
@@ -168,12 +152,7 @@ composite_rules:
     conf: 0.85
     for: [elf, shell]
     attack: "T1548.004"
-    notes: |
-      Sudoers or wheel group modification for privilege escalation.
-      Indicates:
-      - Privilege escalation installation
-      - Backdoor privilege elevation
-    count_min: 2
+    needs: 2
     any:
       - id: usermod-wheel
       - id: usermod-sudo
@@ -187,17 +166,6 @@ composite_rules:
     for: [elf, shell]
     attack: "T1136.001"
     mbc: "E1015"
-    notes: |
-      Complete backdoor account installation pattern.
-      Combines:
-      - New user account creation with bash shell
-      - Sudoers/wheel group privilege elevation
-      - Password hashing/setting automation
-
-      This indicates:
-      - Persistent privileged backdoor account
-      - Sophisticated attacker capability
-      - Full system compromise
     all:
       - id: account-creation
       - id: privilege-escalation-setup

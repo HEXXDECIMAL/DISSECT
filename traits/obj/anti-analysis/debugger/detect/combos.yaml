@@ -21,7 +21,7 @@ composite_rules:
     conf: 0.9
     platforms: [windows]
     for: [pe, dll]
-    count_min: 2
+    needs: 2
     any:
       - id: win-isdebuggerpresent
       - id: win-unhandledexception
@@ -35,7 +35,7 @@ composite_rules:
     conf: 0.95
     platforms: [linux]
     for: [elf]
-    count_min: 2
+    needs: 2
     any:
       - id: ld-debug
       - id: proc-status

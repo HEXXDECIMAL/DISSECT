@@ -14,13 +14,9 @@ composite_rules:
     crit: hostile
     conf: 0.98
     all:
-      - {id: meta/library/vue/library}
-      - {id: meta/library/vue/version-string}
-      - {id: cap/exec/dropper/activex-object}
-    explanation: |
-      This file contains Vue.js library signatures but uses ActiveXObject.
-      Real Vue never uses ActiveXObject for any purpose.
-      This is a trojanized library - a supply chain attack.
+      - { id: meta/library/vue/library }
+      - { id: meta/library/vue/version-string }
+      - { id: cap/exec/dropper/activex-object }
 
   # Vue + Reverse Shell = HOSTILE
   - id: trojanized-reverse-shell
@@ -28,13 +24,9 @@ composite_rules:
     crit: hostile
     conf: 0.98
     all:
-      - {id: meta/library/vue/library}
-      - {id: meta/library/vue/version-string}
-      - {id: obj/c2/reverse-shell/node/socket-with-exec}
-    explanation: |
-      This Vue library contains reverse shell capabilities.
-      Real Vue is a UI framework and doesn't create reverse shells.
-      This is a trojanized library - a supply chain attack.
+      - { id: meta/library/vue/library }
+      - { id: meta/library/vue/version-string }
+      - { id: obj/c2/reverse-shell/node/socket-with-exec }
 
   # Vue + Base64 Eval = HOSTILE (hidden payload)
   - id: trojanized-base64-eval
@@ -42,13 +34,9 @@ composite_rules:
     crit: hostile
     conf: 0.95
     all:
-      - {id: meta/library/vue/library}
-      - {id: meta/library/vue/version-string}
-      - {id: obj/anti-static/obfuscation/base64-eval}
-    explanation: |
-      This Vue library uses base64+eval to hide malicious code.
-      Real Vue doesn't use base64+eval obfuscation patterns.
-      This is a trojanized library - a supply chain attack.
+      - { id: meta/library/vue/library }
+      - { id: meta/library/vue/version-string }
+      - { id: obj/anti-static/obfuscation/base64-eval }
 
   # Vue + Credential Access = HOSTILE
   - id: trojanized-credential-access
@@ -56,15 +44,11 @@ composite_rules:
     crit: hostile
     conf: 0.98
     all:
-      - {id: meta/library/vue/library}
-      - {id: meta/library/vue/version-string}
+      - { id: meta/library/vue/library }
+      - { id: meta/library/vue/version-string }
     any:
-      - {id: obj/creds/browser/chromium/login-data}
-      - {id: obj/creds/browser/firefox/cookies-sqlite}
-    explanation: |
-      This Vue library accesses credential stores.
-      Real Vue never accesses browser credentials.
-      This is a trojanized library - a supply chain attack.
+      - { id: obj/creds/browser/chromium/login-data }
+      - { id: obj/creds/browser/firefox/cookies-sqlite }
 
   # Vue + Command Execution = HOSTILE
   - id: trojanized-exec
@@ -72,15 +56,11 @@ composite_rules:
     crit: hostile
     conf: 0.98
     all:
-      - {id: meta/library/vue/library}
-      - {id: meta/library/vue/version-string}
+      - { id: meta/library/vue/library }
+      - { id: meta/library/vue/version-string }
     any:
-      - {id: cap/exec/command/shell}
-      - {id: cap/exec/command/node/child-process}
-    explanation: |
-      This Vue library executes system commands or spawns processes.
-      Real Vue is a UI framework and never executes commands.
-      This is a trojanized library - a supply chain attack.
+      - { id: cap/exec/command/shell }
+      - { id: cap/exec/command/node/child-process }
 
   # Vue + Network Backdoor = HOSTILE
   - id: trojanized-backdoor
@@ -88,9 +68,6 @@ composite_rules:
     crit: hostile
     conf: 0.95
     all:
-      - {id: meta/library/vue/library}
-      - {id: meta/library/vue/version-string}
-      - {id: obj/c2/infrastructure/domain/suspicious}
-    explanation: |
-      This Vue library communicates with suspicious domains.
-      This is a trojanized library - a supply chain attack.
+      - { id: meta/library/vue/library }
+      - { id: meta/library/vue/version-string }
+      - { id: obj/c2/infrastructure/domain/suspicious }

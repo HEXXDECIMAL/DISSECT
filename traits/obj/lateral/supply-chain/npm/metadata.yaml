@@ -74,7 +74,7 @@ composite_rules:
     crit: inert
     conf: 0.5
     for: [packagejson]
-    count_min: 2
+    needs: 2
     any:
       - id: desc-lightweight
       - id: desc-modern-web-apps

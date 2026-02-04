@@ -62,7 +62,7 @@ composite_rules:
     conf: 0.9
     mbc: "F0005"
     for: [shell]
-    count_min: 1
+    needs: 1
     any:
       - id: nohup-hidden-output
     all:

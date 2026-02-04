@@ -145,7 +145,7 @@ composite_rules:
     desc: Telegram Desktop tdata directory
     crit: suspicious
     conf: 0.9
-    count_min: 1
+    needs: 1
     any:
       - id: telegram-tdata-desktop
       - id: telegram-tdata-desktop-win
@@ -167,7 +167,7 @@ composite_rules:
     desc: Discord LevelDB storage
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: discord-leveldb-lower
       - id: discord-leveldb-upper
@@ -177,7 +177,7 @@ composite_rules:
     desc: Signal Desktop configuration
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: signal-config-json
       - id: signal-sql-db
@@ -187,7 +187,7 @@ composite_rules:
     desc: Slack Desktop storage
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: slack-storage-path
       - id: slack-indexeddb-path
@@ -197,7 +197,7 @@ composite_rules:
     desc: WhatsApp Desktop storage
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: whatsapp-indexeddb-path
       - id: whatsapp-localstorage-path
@@ -229,7 +229,7 @@ composite_rules:
     conf: 0.95
     attack: "T1005"
     for: [shell, python, applescript, macho, elf, pe]
-    count_min: 2
+    needs: 2
     any:
       - id: telegram-tdata
       - id: discord-leveldb

@@ -314,7 +314,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [python]
-    count_min: 1
+    needs: 1
     any:
       - id: pty-spawn
       - id: import-pty
@@ -324,7 +324,7 @@ composite_rules:
     desc: Shell executable path
     crit: notable
     conf: 0.5
-    count_min: 1
+    needs: 1
     any:
       - id: cap/exec/command/shell/generic/bin-sh
       - id: cap/exec/command/shell/generic/bin-bash
@@ -348,7 +348,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     for: [python]
-    count_min: 1
+    needs: 1
     any:
       - id: stdin-pipe
       - id: stdout-pipe
@@ -373,7 +373,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
-    count_min: 1
+    needs: 1
     any:
       - id: node-pty-module
       - id: pty-spawn-node
@@ -385,7 +385,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     for: [javascript, typescript]
-    count_min: 1
+    needs: 1
     any:
       - id: net-socket-node
       - id: socket-connect-node
@@ -407,7 +407,7 @@ composite_rules:
     desc: Standard I/O references
     crit: inert
     conf: 0.4
-    count_min: 2
+    needs: 2
     any:
       - id: stdin-string
       - id: stdout-string
@@ -418,7 +418,7 @@ composite_rules:
     desc: Pipe methods
     crit: inert
     conf: 0.5
-    count_min: 1
+    needs: 1
     any:
       - id: dot-pipe
       - id: pipe-constant
@@ -428,7 +428,7 @@ composite_rules:
     desc: Socket connection pattern
     crit: notable
     conf: 0.6
-    count_min: 1
+    needs: 1
     any:
       - id: python-socket
       - id: socket-connect
@@ -450,7 +450,7 @@ composite_rules:
     desc: TTY device markers
     crit: notable
     conf: 0.5
-    count_min: 1
+    needs: 1
     any:
       - id: isatty-call
       - id: ttyname-call
@@ -461,7 +461,7 @@ composite_rules:
     desc: Terminal setup markers
     crit: inert
     conf: 0.4
-    count_min: 1
+    needs: 1
     any:
       - id: term-env
       - id: xterm-ref
@@ -477,7 +477,7 @@ composite_rules:
     conf: 0.7
     attack: "T1059"
     for: [python, javascript, shell]
-    count_min: 3
+    needs: 3
     any:
       - id: tty-markers
       - id: terminal-setup
@@ -493,7 +493,7 @@ composite_rules:
     conf: 0.95
     attack: "T1059.004"
     for: [shell, packagejson]
-    count_min: 1
+    needs: 1
     any:
       - id: socat-exec-sh
       - id: socat-tcp-exec
@@ -506,7 +506,7 @@ composite_rules:
     conf: 0.9
     attack: "T1059.004"
     for: [shell, packagejson]
-    count_min: 1
+    needs: 1
     any:
       - id: telnet-pipe
       - id: mknod-telnet

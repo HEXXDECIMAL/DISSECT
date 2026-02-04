@@ -13,7 +13,6 @@ traits:
     if:
       type: string
       substr: "mkqNJzBGm<X:cxE?z{{ppPj=JNmblNp1"
-    notes: "XOR + Base64 doubly-encoded string (unknown purpose - likely credential or command)"
     attack: "T1027"
 
   - id: doubly-encoded-secret-2
@@ -24,7 +23,6 @@ traits:
     if:
       type: string
       substr: "B=z<cx?XEDXXK_=0Y<JEBCSs0Bg<h0?dpoSML;m?CY0gzSSY"
-    notes: "XOR + Base64 doubly-encoded string (unknown purpose - likely credential or command)"
     attack: "T1027"
 
   # === Encoding Stack Markers ===
@@ -41,7 +39,6 @@ traits:
         - substr: ">" # XOR artifacts
         - substr: "{" # XOR artifacts
         - substr: "}" # XOR artifacts
-    notes: "Presence of base64 and XOR-like characters suggests mixed encoding"
     attack: "T1027"
 
   # === Encoding Sophistication Pattern ===
@@ -53,7 +50,6 @@ traits:
     if:
       type: string
       regex: "[A-Za-z0-9+/]{20,}[=]{0,3}"
-    notes: "Long base64-like strings suggest complex encryption scheme"
     attack: "T1027"
 
 composite_rules:
@@ -64,19 +60,6 @@ composite_rules:
     for: [elf, shell]
     attack: "T1027"
     mbc: "B0010"
-    notes: |
-      Doubly-encoded string detected (XOR + Base64 combination).
-
-      Encoding Stack:
-      1. Original plaintext (credential or command)
-      2. Base64 encoding
-      3. XOR encoding with specific key
-      4. Binary storage
-
-      Indicates:
-      - Multi-layer anti-forensics
-      - Defense against string scanning
-      - Professional encryption implementation
     any:
       - id: doubly-encoded-secret-1
       - id: doubly-encoded-secret-2
@@ -88,19 +71,6 @@ composite_rules:
     for: [elf, shell]
     attack: "T1027"
     mbc: "B0010"
-    notes: |
-      Multiple encoding techniques detected in binary.
-
-      Observed Patterns:
-      - Single-layer: Base64 encoding
-      - Single-layer: XOR encoding
-      - Dual-layer: XOR + Base64
-      - Universal coverage: Sensitive strings protected
-
-      Suggests:
-      - Encryption sophistication > typical malware
-      - Intentional defense against analysis
-      - Professional development team
     all:
       - id: mixed-encoding-indicators
       - id: encryption-sophistication-marker
@@ -112,30 +82,6 @@ composite_rules:
     for: [elf, shell]
     attack: "T1027"
     mbc: "B0010"
-    notes: |
-      Mirai botnet with advanced multi-layer obfuscation strategy.
-
-      Encoding Architecture:
-      Layer 1 - User-Agent Strings: XOR encoding
-        - 5 distinct User-Agent variants
-        - Cross-OS targeting (Windows/macOS)
-        - HTTP client fingerprinting
-
-      Layer 2 - System Paths: Base64 encoding
-        - Persistence: /usr/lib/systemd/systemd
-        - Backdoor: /usr/libexec/openssh/sftp-server
-        - Targeting: DVR paths (Hikvision, Anko)
-
-      Layer 3 - Secrets: Dual encoding (XOR + Base64)
-        - Unknown credentials or commands
-        - Requires multi-step decryption
-        - Defeats trivial analysis
-
-      Strategic Implications:
-      - Professional anti-forensics capability
-      - Coordinated campaign infrastructure
-      - Defense against automated detection
-      - Suggests state-sponsored or organized crime origin
     all:
       - id: known/malware/botnet/mirai
       - id: xor-plus-base64-obfuscation
@@ -148,27 +94,6 @@ composite_rules:
     for: [elf, shell]
     attack: "T1027"
     mbc: "B0010"
-    notes: |
-      Advanced obfuscation strategy combining multiple techniques.
-
-      Detection of:
-      ✓ XOR-encoded User-Agent library (HTTP spoofing)
-      ✓ Base64-encoded persistence paths (systemd hijacking)
-      ✓ Base64-encoded backdoor infrastructure (SSH access)
-      ✓ Base64-encoded platform targeting (DVR exploitation)
-      ✓ Doubly-encoded secrets (credential/command storage)
-
-      This multi-layered approach indicates:
-      - Professional malware engineering
-      - Deep understanding of forensic analysis techniques
-      - Intentional defense design
-      - Likely organized threat actor (not script kiddie)
-
-      Coverage Impact:
-      - Prevents basic string scanning
-      - Defeats simple pattern matching
-      - Requires DISSECT multi-codec analysis
-      - Reduces analyst time with automated obfuscation removal
     all:
       - id: xor-plus-base64-obfuscation
       - id: multi-codec-obfuscation

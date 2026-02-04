@@ -5,63 +5,63 @@
 traits:
   # === Anti-copy mechanism patterns ===
   - id: oncopy-false
-    desc: "oncopy=\"return false\" HTML attribute"
+    desc: 'oncopy="return false" HTML attribute'
     crit: inert
     conf: 0.6
     for: [html, javascript]
     if:
       type: string
-      substr: "oncopy=\"return false\""
+      substr: 'oncopy="return false"'
       case_insensitive: true
 
   - id: oncut-false
-    desc: "oncut=\"return false\" HTML attribute"
+    desc: 'oncut="return false" HTML attribute'
     crit: inert
     conf: 0.6
     for: [html, javascript]
     if:
       type: string
-      substr: "oncut=\"return false\""
+      substr: 'oncut="return false"'
       case_insensitive: true
 
   - id: onpaste-false
-    desc: "onpaste=\"return false\" HTML attribute"
+    desc: 'onpaste="return false" HTML attribute'
     crit: inert
     conf: 0.6
     for: [html, javascript]
     if:
       type: string
-      substr: "onpaste=\"return false\""
+      substr: 'onpaste="return false"'
       case_insensitive: true
 
   - id: oncontextmenu-false
-    desc: "oncontextmenu=\"return false\" HTML attribute"
+    desc: 'oncontextmenu="return false" HTML attribute'
     crit: inert
     conf: 0.6
     for: [html, javascript]
     if:
       type: string
-      substr: "oncontextmenu=\"return false\""
+      substr: 'oncontextmenu="return false"'
       case_insensitive: true
 
   - id: ondragstart-false
-    desc: "ondragstart=\"return false\" HTML attribute"
+    desc: 'ondragstart="return false" HTML attribute'
     crit: inert
     conf: 0.6
     for: [html, javascript]
     if:
       type: string
-      substr: "ondragstart=\"return false\""
+      substr: 'ondragstart="return false"'
       case_insensitive: true
 
   - id: onselectstart-false
-    desc: "onselectstart=\"return false\" HTML attribute"
+    desc: 'onselectstart="return false" HTML attribute'
     crit: inert
     conf: 0.6
     for: [html, javascript]
     if:
       type: string
-      substr: "onselectstart=\"return false\""
+      substr: 'onselectstart="return false"'
       case_insensitive: true
 
   - id: js-copy-listener
@@ -330,13 +330,13 @@ traits:
       substr: "Log in"
 
   - id: password-input-double
-    desc: "type=\"password\" HTML input"
+    desc: 'type="password" HTML input'
     crit: inert
     conf: 0.6
     for: [html]
     if:
       type: string
-      substr: "type=\"password\""
+      substr: 'type="password"'
       case_insensitive: true
 
   - id: password-input-single
@@ -350,13 +350,13 @@ traits:
       case_insensitive: true
 
   - id: email-input-double
-    desc: "type=\"email\" HTML input"
+    desc: 'type="email" HTML input'
     crit: inert
     conf: 0.6
     for: [html]
     if:
       type: string
-      substr: "type=\"email\""
+      substr: 'type="email"'
       case_insensitive: true
 
   - id: email-input-single
@@ -370,23 +370,23 @@ traits:
       case_insensitive: true
 
   - id: email-placeholder-double
-    desc: "placeholder=\"Email\" attribute"
+    desc: 'placeholder="Email" attribute'
     crit: inert
     conf: 0.6
     for: [html]
     if:
       type: string
-      substr: "placeholder=\"Email\""
+      substr: 'placeholder="Email"'
       case_insensitive: true
 
   - id: password-placeholder-double
-    desc: "placeholder=\"Password\" attribute"
+    desc: 'placeholder="Password" attribute'
     crit: inert
     conf: 0.6
     for: [html]
     if:
       type: string
-      substr: "placeholder=\"Password\""
+      substr: 'placeholder="Password"'
       case_insensitive: true
 
   # === Document sharing lure patterns ===
@@ -510,13 +510,13 @@ traits:
       substr: "location.href="
 
   - id: submit-listener-double
-    desc: "addEventListener(\"submit\") pattern"
+    desc: 'addEventListener("submit") pattern'
     crit: inert
     conf: 0.6
     for: [javascript]
     if:
       type: string
-      substr: "addEventListener(\"submit\""
+      substr: 'addEventListener("submit"'
 
   - id: submit-listener-single
     desc: addEventListener('submit') pattern
@@ -932,7 +932,7 @@ traits:
     if:
       type: string
       regex: "[\"'][a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}[\"']"
-      count_min: 2
+      needs: 2
   # === Auth lure atomic indicators ===
   - id: auth-required-phrase
     desc: Authentication required phrase
@@ -1024,37 +1024,36 @@ composite_rules:
     conf: 0.85
     attack: T1566
     for: [html, javascript]
-    count_min: 2
+    needs: 2
     any:
-      - {id: oncopy-false}
-      - {id: oncut-false}
-      - {id: onpaste-false}
-      - {id: oncontextmenu-false}
-      - {id: ondragstart-false}
-      - {id: onselectstart-false}
-      - {id: js-copy-listener}
-      - {id: js-cut-listener}
-      - {id: js-paste-listener}
-      - {id: js-contextmenu-listener}
-
+      - { id: oncopy-false }
+      - { id: oncut-false }
+      - { id: onpaste-false }
+      - { id: oncontextmenu-false }
+      - { id: ondragstart-false }
+      - { id: onselectstart-false }
+      - { id: js-copy-listener }
+      - { id: js-cut-listener }
+      - { id: js-paste-listener }
+      - { id: js-contextmenu-listener }
 
   # Human verification interaction
   - id: human-interaction-events
     desc: Human interaction event listeners
     for: [javascript]
     any:
-      - {id: mousemove-listener}
-      - {id: touchstart-listener}
-      - {id: scroll-listener}
+      - { id: mousemove-listener }
+      - { id: touchstart-listener }
+      - { id: scroll-listener }
 
   - id: disabled-manipulation
     desc: Disabled state manipulation patterns
     for: [javascript, html]
     any:
-      - {id: disabled-class}
-      - {id: disabled-false}
-      - {id: disabled-false-spaced}
-      - {id: remove-disabled-attr}
+      - { id: disabled-class }
+      - { id: disabled-false }
+      - { id: disabled-false-spaced }
+      - { id: remove-disabled-attr }
 
   - id: human-verification
     desc: Requires human interaction before enabling
@@ -1062,44 +1061,44 @@ composite_rules:
     conf: 0.8
     for: [javascript, html]
     all:
-      - {id: human-interaction-events}
-      - {id: disabled-manipulation}
+      - { id: human-interaction-events }
+      - { id: disabled-manipulation }
 
   # Microsoft brand impersonation
   - id: microsoft-logo
     desc: Microsoft logo references
     for: [html]
     any:
-      - {id: microsoft-logo-ref}
-      - {id: microsoft-svg}
+      - { id: microsoft-logo-ref }
+      - { id: microsoft-svg }
 
   - id: microsoft-brand
     desc: Microsoft brand text references
     for: [html]
     any:
-      - {id: microsoft-span}
-      - {id: microsoft-tag}
+      - { id: microsoft-span }
+      - { id: microsoft-tag }
 
   - id: signin-text
     desc: Sign in text patterns
     for: [html]
     any:
-      - {id: sign-in-text}
-      - {id: sign-in-hyphen}
+      - { id: sign-in-text }
+      - { id: sign-in-hyphen }
 
   - id: microsoft-logo-or-brand
     desc: Microsoft logo or brand references
     for: [html]
     any:
-      - {id: microsoft-logo}
-      - {id: microsoft-brand}
+      - { id: microsoft-logo }
+      - { id: microsoft-brand }
 
   - id: microsoft-signin-or-email
     desc: Microsoft signin text or email
     for: [html]
     any:
-      - {id: signin-text}
-      - {id: ms-email-placeholder}
+      - { id: signin-text }
+      - { id: ms-email-placeholder }
 
   - id: microsoft-impersonation
     desc: Microsoft brand impersonation
@@ -1108,30 +1107,30 @@ composite_rules:
     attack: T1566.002
     for: [html, javascript]
     all:
-      - {id: microsoft-logo-or-brand}
-      - {id: microsoft-signin-or-email}
+      - { id: microsoft-logo-or-brand }
+      - { id: microsoft-signin-or-email }
 
   # Google brand impersonation
   - id: google-logo
     desc: Google logo references
     for: [html]
     any:
-      - {id: google-logo-ref}
-      - {id: google-svg}
+      - { id: google-logo-ref }
+      - { id: google-svg }
 
   - id: google-brand
     desc: Google brand text references
     for: [html]
     any:
-      - {id: google-span}
-      - {id: google-tag}
+      - { id: google-span }
+      - { id: google-tag }
 
   - id: google-logo-or-brand
     desc: Google logo or brand references
     for: [html]
     any:
-      - {id: google-logo}
-      - {id: google-brand}
+      - { id: google-logo }
+      - { id: google-brand }
 
   - id: google-impersonation
     desc: Google brand impersonation
@@ -1140,50 +1139,50 @@ composite_rules:
     attack: T1566.002
     for: [html, javascript]
     all:
-      - {id: google-logo-or-brand}
-      - {id: signin-text}
+      - { id: google-logo-or-brand }
+      - { id: signin-text }
 
   # Generic login form
   - id: login-text
     desc: Login/sign in text patterns
     for: [html]
     any:
-      - {id: login-word-lower}
-      - {id: login-word-title}
-      - {id: login-word-upper}
-      - {id: log-in-phrase-lower}
-      - {id: log-in-phrase-title}
-      - {id: sign-in-text}
-      - {id: sign-in-hyphen}
+      - { id: login-word-lower }
+      - { id: login-word-title }
+      - { id: login-word-upper }
+      - { id: log-in-phrase-lower }
+      - { id: log-in-phrase-title }
+      - { id: sign-in-text }
+      - { id: sign-in-hyphen }
 
   - id: password-input
     desc: Password input fields
     for: [html]
     any:
-      - {id: password-input-double}
-      - {id: password-input-single}
+      - { id: password-input-double }
+      - { id: password-input-single }
 
   - id: email-input
     desc: Email input fields
     for: [html]
     any:
-      - {id: email-input-double}
-      - {id: email-input-single}
+      - { id: email-input-double }
+      - { id: email-input-single }
 
   - id: credential-placeholders
     desc: Credential input placeholders
     for: [html]
     any:
-      - {id: email-placeholder-double}
-      - {id: password-placeholder-double}
+      - { id: email-placeholder-double }
+      - { id: password-placeholder-double }
 
   - id: credential-inputs
     desc: Password or email input fields
     for: [html]
     any:
-      - {id: password-input}
-      - {id: email-input}
-      - {id: credential-placeholders}
+      - { id: password-input }
+      - { id: email-input }
+      - { id: credential-placeholders }
 
   - id: login-form
     desc: Suspicious login form with credential
@@ -1192,41 +1191,41 @@ composite_rules:
     attack: T1566
     for: [html, javascript]
     all:
-      - {id: login-text}
-      - {id: credential-inputs}
+      - { id: login-text }
+      - { id: credential-inputs }
 
   # Document sharing lure
   - id: sharing-phrases
     desc: Document sharing phrases
     for: [html]
     any:
-      - {id: shared-with-phrase}
-      - {id: document-word}
-      - {id: securely-shared-phrase}
-      - {id: file-sharing-phrase}
+      - { id: shared-with-phrase }
+      - { id: document-word }
+      - { id: securely-shared-phrase }
+      - { id: file-sharing-phrase }
 
   - id: document-extensions
     desc: Document file extensions
     for: [html]
     any:
-      - {id: pdf-extension}
-      - {id: pdf-icon-text}
-      - {id: doc-extension}
-      - {id: xls-extension}
+      - { id: pdf-extension }
+      - { id: pdf-icon-text }
+      - { id: doc-extension }
+      - { id: xls-extension }
 
   - id: document-actions
     desc: Document action keywords
     for: [html]
     any:
-      - {id: download-word}
-      - {id: verify-word}
+      - { id: download-word }
+      - { id: verify-word }
 
   - id: document-indicators
     desc: Document file extensions or action
     for: [html]
     any:
-      - {id: document-extensions}
-      - {id: document-actions}
+      - { id: document-extensions }
+      - { id: document-actions }
 
   - id: document-lure
     desc: Fake document sharing lure
@@ -1235,45 +1234,45 @@ composite_rules:
     attack: T1566.002
     for: [html, javascript]
     all:
-      - {id: sharing-phrases}
-      - {id: document-indicators}
+      - { id: sharing-phrases }
+      - { id: document-indicators }
 
   # External form action with suspicious TLD
   - id: location-redirect
     desc: Window location redirect patterns
     for: [javascript]
     any:
-      - {id: window-location-href-assign}
-      - {id: location-href-assign}
+      - { id: window-location-href-assign }
+      - { id: location-href-assign }
 
   - id: submit-listener
     desc: Form submit event listeners
     for: [javascript]
     any:
-      - {id: submit-listener-double}
-      - {id: submit-listener-single}
+      - { id: submit-listener-double }
+      - { id: submit-listener-single }
 
   - id: suspicious-tlds
     desc: Suspicious/commonly abused TLDs
     for: [html, javascript]
     any:
-      - {id: icu-tld}
-      - {id: xyz-tld}
-      - {id: tk-tld}
-      - {id: ml-tld}
-      - {id: ga-tld}
-      - {id: cf-tld}
-      - {id: gq-tld}
-      - {id: top-tld}
-      - {id: work-tld}
-      - {id: click-tld}
+      - { id: icu-tld }
+      - { id: xyz-tld }
+      - { id: tk-tld }
+      - { id: ml-tld }
+      - { id: ga-tld }
+      - { id: cf-tld }
+      - { id: gq-tld }
+      - { id: top-tld }
+      - { id: work-tld }
+      - { id: click-tld }
 
   - id: form-submission-patterns
     desc: Form submission or location redirect
     for: [javascript]
     any:
-      - {id: location-redirect}
-      - {id: submit-listener}
+      - { id: location-redirect }
+      - { id: submit-listener }
 
   - id: external-form-action
     desc: Form submits to suspicious external
@@ -1282,50 +1281,50 @@ composite_rules:
     attack: T1566
     for: [html, javascript]
     all:
-      - {id: form-submission-patterns}
-      - {id: suspicious-tlds}
+      - { id: form-submission-patterns }
+      - { id: suspicious-tlds }
 
   # Typosquatting domain detection
   - id: siemens-typosquats
     desc: Siemens brand typosquats
     for: [html, javascript]
     any:
-      - {id: siemensergy-typo}
-      - {id: siemans-typo}
-      - {id: siemnes-typo}
+      - { id: siemensergy-typo }
+      - { id: siemans-typo }
+      - { id: siemnes-typo }
 
   - id: microsoft-typosquats
     desc: Microsoft brand typosquats
     for: [html, javascript]
     any:
-      - {id: microsoft-typo-capital-f}
-      - {id: micorsoft-typo}
-      - {id: micosoft-typo}
-      - {id: microsft-typo}
+      - { id: microsoft-typo-capital-f }
+      - { id: micorsoft-typo }
+      - { id: micosoft-typo }
+      - { id: microsft-typo }
 
   - id: google-typosquats
     desc: Google brand typosquats
     for: [html, javascript]
     any:
-      - {id: gooogle-typo}
-      - {id: goggle-typo}
-      - {id: gogle-typo}
+      - { id: gooogle-typo }
+      - { id: goggle-typo }
+      - { id: gogle-typo }
 
   - id: login-subdomain-prefix
     desc: Login subdomain prefix patterns
     for: [html, javascript]
     any:
-      - {id: login-prefix-lower}
-      - {id: login-prefix-title}
-      - {id: signin-prefix-lower}
-      - {id: signin-prefix-title}
+      - { id: login-prefix-lower }
+      - { id: login-prefix-title }
+      - { id: signin-prefix-lower }
+      - { id: signin-prefix-title }
 
   - id: login-subdomain-with-suspicious-tld
     desc: Login subdomain with suspicious TLD
     for: [html, javascript]
     all:
-      - {id: login-subdomain-prefix}
-      - {id: suspicious-tlds}
+      - { id: login-subdomain-prefix }
+      - { id: suspicious-tlds }
 
   - id: typosquat-domain
     desc: Typosquatting domain pattern (brand impersonation)
@@ -1334,10 +1333,10 @@ composite_rules:
     attack: T1566.002
     for: [html, javascript]
     any:
-      - {id: siemens-typosquats}
-      - {id: microsoft-typosquats}
-      - {id: google-typosquats}
-      - {id: login-subdomain-with-suspicious-tld}
+      - { id: siemens-typosquats }
+      - { id: microsoft-typosquats }
+      - { id: google-typosquats }
+      - { id: login-subdomain-with-suspicious-tld }
 
   # Bot detection evasion
   - id: bot-detection
@@ -1346,33 +1345,33 @@ composite_rules:
     conf: 0.85
     attack: T1566
     for: [javascript, html]
-    count_min: 2
+    needs: 2
     any:
-      - {id: navigator-webdriver}
-      - {id: navigator-plugins-length}
-      - {id: screen-width}
-      - {id: screen-height}
-      - {id: headless-chrome-string}
-      - {id: phantomjs-string}
-      - {id: selenium-string}
-      - {id: puppeteer-string}
-      - {id: bot-user-agent-pattern}
+      - { id: navigator-webdriver }
+      - { id: navigator-plugins-length }
+      - { id: screen-width }
+      - { id: screen-height }
+      - { id: headless-chrome-string }
+      - { id: phantomjs-string }
+      - { id: selenium-string }
+      - { id: puppeteer-string }
+      - { id: bot-user-agent-pattern }
 
   # Brand CDN icon impersonation
   - id: external-cdn
     desc: External CDN references
     for: [html]
     any:
-      - {id: flaticon-cdn}
-      - {id: wikimedia-cdn}
-      - {id: wikipedia-cdn}
+      - { id: flaticon-cdn }
+      - { id: wikimedia-cdn }
+      - { id: wikipedia-cdn }
 
   - id: logo-icon-keywords
     desc: Logo or icon keywords
     for: [html]
     any:
-      - {id: logo-keyword}
-      - {id: icon-keyword}
+      - { id: logo-keyword }
+      - { id: icon-keyword }
 
   - id: brand-cdn-icons
     desc: External CDN icons for brand
@@ -1381,17 +1380,17 @@ composite_rules:
     attack: T1566.002
     for: [html, javascript]
     all:
-      - {id: external-cdn}
-      - {id: logo-icon-keywords}
-      - {id: brand-names-pattern}
+      - { id: external-cdn }
+      - { id: logo-icon-keywords }
+      - { id: brand-names-pattern }
 
   # Targeted email pre-filling
   - id: readonly-email-value
     desc: Pre-filled email value with readonly
     for: [html]
     all:
-      - {id: pre-filled-email-value}
-      - {id: readonly-attr}
+      - { id: pre-filled-email-value }
+      - { id: readonly-attr }
 
   - id: targeted-email
     desc: Pre-filled target email address
@@ -1400,9 +1399,9 @@ composite_rules:
     attack: T1566.001
     for: [html, javascript]
     any:
-      - {id: readonly-email-value}
-      - {id: email-placeholder-ref}
-      - {id: multiple-email-addresses}
+      - { id: readonly-email-value }
+      - { id: email-placeholder-ref }
+      - { id: multiple-email-addresses }
 
   # Auth required lure
   - id: auth-required-lure
@@ -1412,12 +1411,12 @@ composite_rules:
     attack: T1566
     for: [html, javascript]
     any:
-      - {id: auth-required-phrase}
-      - {id: auth-needed-phrase}
-      - {id: verification-required-phrase}
-      - {id: verification-needed-phrase}
-      - {id: verify-email-phrase}
-      - {id: verify-identity-phrase}
-      - {id: verify-account-phrase}
-      - {id: confirm-email-phrase}
-      - {id: confirm-identity-phrase}
+      - { id: auth-required-phrase }
+      - { id: auth-needed-phrase }
+      - { id: verification-required-phrase }
+      - { id: verification-needed-phrase }
+      - { id: verify-email-phrase }
+      - { id: verify-identity-phrase }
+      - { id: verify-account-phrase }
+      - { id: confirm-email-phrase }
+      - { id: confirm-identity-phrase }

@@ -450,18 +450,15 @@ fn test_apply_composite_defaults_applies_all_defaults() {
         file_types: None,
         all: None,
         any: None,
-        count_exact: None,
-
-        count_min: None,
-
-        count_max: None,
-
+        needs: None,
         none: None,
         unless: None,
         not: None,
         downgrade: None,
         size_min: None,
         size_max: None,
+        near_lines: None,
+        near_bytes: None,
         condition: Some(Condition::String {
             exact: Some("test".to_string()),
             regex: None,
@@ -507,18 +504,15 @@ fn test_apply_composite_defaults_unset_with_none() {
         file_types: None,                          // Use default
         all: None,
         any: None,
-        count_exact: None,
-
-        count_min: None,
-
-        count_max: None,
-
+        needs: None,
         none: None,
         unless: None,
         not: None,
         downgrade: None,
         size_min: None,
         size_max: None,
+        near_lines: None,
+        near_bytes: None,
         condition: Some(Condition::String {
             exact: Some("test".to_string()),
             regex: None,
@@ -714,11 +708,9 @@ fn test_composite_referencing_atomic_trait() {
             id: "test/atomic-trait".to_string(),
         }]),
         any: None,
-        count_exact: None,
-
-        count_min: None,
-
-        count_max: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
 
         none: None,
         unless: None,
@@ -753,11 +745,9 @@ fn test_composite_of_composites_two_levels() {
             id: "test/atomic-trait".to_string(),
         }]),
         any: None,
-        count_exact: None,
-
-        count_min: None,
-
-        count_max: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
 
         none: None,
         unless: None,
@@ -780,11 +770,9 @@ fn test_composite_of_composites_two_levels() {
             id: "test/composite-a".to_string(),
         }]),
         any: None,
-        count_exact: None,
-
-        count_min: None,
-
-        count_max: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
 
         none: None,
         unless: None,
@@ -824,11 +812,9 @@ fn test_composite_three_level_chain() {
             id: requires.to_string(),
         }]),
         any: None,
-        count_exact: None,
-
-        count_min: None,
-
-        count_max: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
 
         none: None,
         unless: None,
@@ -875,11 +861,9 @@ fn test_composite_circular_dependency_handled() {
             id: "circular/b".to_string(),
         }]),
         any: None,
-        count_exact: None,
-
-        count_min: None,
-
-        count_max: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
 
         none: None,
         unless: None,
@@ -902,11 +886,9 @@ fn test_composite_circular_dependency_handled() {
             id: "circular/a".to_string(),
         }]),
         any: None,
-        count_exact: None,
-
-        count_min: None,
-
-        count_max: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
 
         none: None,
         unless: None,
@@ -945,11 +927,9 @@ fn test_composite_prefix_matching_in_chain() {
             id: "discovery/system".to_string(), // Prefix match
         }]),
         any: None,
-        count_exact: None,
-
-        count_min: None,
-
-        count_max: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
 
         none: None,
         unless: None,
@@ -992,9 +972,9 @@ fn test_composite_requires_count_in_chain() {
                 id: "feat/c".to_string(),
             },
         ]),
-        count_exact: None,
-        count_min: None,
-        count_max: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
         none: None,
         unless: None,
         not: None,
@@ -1065,11 +1045,9 @@ fn test_precision_direct_conditions() {
             },
         ]),
         any: None,
-        count_exact: None,
-
-        count_min: None,
-
-        count_max: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
 
         none: None,
         unless: None,
@@ -1136,11 +1114,9 @@ fn test_precision_file_type_filter() {
             },
         ]),
         any: None,
-        count_exact: None,
-
-        count_min: None,
-
-        count_max: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
 
         none: None,
         unless: None,
@@ -1235,11 +1211,9 @@ fn test_precision_recursive_expansion() {
             },
         ]),
         any: None,
-        count_exact: None,
-
-        count_min: None,
-
-        count_max: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
 
         none: None,
         unless: None,
@@ -1268,11 +1242,9 @@ fn test_precision_recursive_expansion() {
             },
         ]),
         any: None,
-        count_exact: None,
-
-        count_min: None,
-
-        count_max: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
 
         none: None,
         unless: None,
@@ -1321,11 +1293,9 @@ fn test_precision_cycle_detection() {
             id: "test/circular-b".to_string(),
         }]),
         any: None,
-        count_exact: None,
-
-        count_min: None,
-
-        count_max: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
 
         none: None,
         unless: None,
@@ -1349,11 +1319,9 @@ fn test_precision_cycle_detection() {
             id: "test/circular-a".to_string(),
         }]),
         any: None,
-        count_exact: None,
-
-        count_min: None,
-
-        count_max: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
 
         none: None,
         unless: None,
@@ -1420,11 +1388,9 @@ fn test_precision_caching() {
             },
         ]),
         any: None,
-        count_exact: None,
-
-        count_min: None,
-
-        count_max: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
 
         none: None,
         unless: None,
@@ -1513,11 +1479,9 @@ fn test_precision_threshold_validation() {
             },
         ]),
         any: None,
-        count_exact: None,
-
-        count_min: None,
-
-        count_max: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
 
         none: None,
         unless: None,
@@ -1573,11 +1537,9 @@ fn test_precision_threshold_validation() {
             },
         ]),
         any: None,
-        count_exact: None,
-
-        count_min: None,
-
-        count_max: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
 
         none: None,
         unless: None,
@@ -1657,9 +1619,9 @@ fn test_precision_mixed_conditions() {
                 compiled_excludes: Vec::new(),
             },
         ]),
-        count_exact: None,
-        count_min: None,
-        count_max: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
         none: Some(vec![Condition::String {
             exact: Some("string4".to_string()),
             regex: None,
@@ -1735,11 +1697,9 @@ fn test_precision_deep_nesting() {
             },
         ]),
         any: None,
-        count_exact: None,
-
-        count_min: None,
-
-        count_max: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
 
         none: None,
         unless: None,
@@ -1776,11 +1736,9 @@ fn test_precision_deep_nesting() {
             },
         ]),
         any: None,
-        count_exact: None,
-
-        count_min: None,
-
-        count_max: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
 
         none: None,
         unless: None,
@@ -1817,11 +1775,9 @@ fn test_precision_deep_nesting() {
             },
         ]),
         any: None,
-        count_exact: None,
-
-        count_min: None,
-
-        count_max: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
 
         none: None,
         unless: None,
@@ -1906,9 +1862,9 @@ fn test_precision_correct_algorithm() {
                 id: "test/any-8".to_string(),
             },
         ]),
-        count_exact: None,
-        count_min: None,
-        count_max: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
         none: None,
         unless: None,
         not: None,
@@ -2018,9 +1974,9 @@ fn test_precision_traits_with_size_restrictions() {
             },
         ]),
         any: None,
-        count_exact: None,
-        count_min: None,
-        count_max: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
         none: None,
         unless: None,
         not: None,

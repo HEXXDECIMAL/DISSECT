@@ -61,7 +61,7 @@ composite_rules:
     conf: 0.85
     attack: "T1070.004"
     for: [python, shell]
-    count_min: 2
+    needs: 2
     any:
       - id: touch-marker-file
       - id: hidden-tmp-marker
@@ -74,7 +74,7 @@ composite_rules:
     attack: "T1070.004"
     mbc: "F0005"
     for: [python, shell]
-    count_min: 2
+    needs: 2
     any:
       - id: marker-file-creation
       - id: execution-tracker

@@ -46,7 +46,6 @@ traits:
     if:
       type: content
       regex: "crontab\\s+-l\\s*\\|\\s*sed"
-      min_count: 5
 
 composite_rules:
   # Cron persistence with remote payload

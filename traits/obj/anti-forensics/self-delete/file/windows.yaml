@@ -48,4 +48,3 @@ traits:
       type: string
       regex: "del.{0,100}\\.vbs|Remove-Item.{0,100}\\.vbs"
       case_insensitive: true
-      min_count: 3

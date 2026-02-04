@@ -98,7 +98,7 @@ composite_rules:
     desc: "Performs HTTP request"
     crit: notable
     conf: 0.9
-    count_min: 1
+    needs: 1
     any:
       - id: invoke-webrequest
       - id: invoke-restmethod
@@ -110,7 +110,7 @@ composite_rules:
     desc: "Downloads content from URL"
     crit: notable
     conf: 0.9
-    count_min: 1
+    needs: 1
     any:
       - id: invoke-webrequest
       - id: invoke-restmethod
@@ -146,7 +146,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1041"
-    count_min: 2
+    needs: 2
     any:
       - id: webclient-upload
       - id: http-post-method

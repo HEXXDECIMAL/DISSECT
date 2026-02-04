@@ -227,7 +227,7 @@ composite_rules:
     desc: MySQL service termination
     crit: notable
     conf: 0.6
-    count_min: 1
+    needs: 1
     any:
       - id: kill-mysql-kill
       - id: kill-mysql-stop
@@ -236,7 +236,7 @@ composite_rules:
     desc: PostgreSQL service termination
     crit: notable
     conf: 0.6
-    count_min: 1
+    needs: 1
     any:
       - id: kill-postgres-kill
       - id: kill-postgres-stop
@@ -245,7 +245,7 @@ composite_rules:
     desc: Oracle service termination
     crit: notable
     conf: 0.6
-    count_min: 1
+    needs: 1
     any:
       - id: kill-oracle-kill
       - id: kill-oracle-stop
@@ -254,7 +254,7 @@ composite_rules:
     desc: MSSQL service termination
     crit: notable
     conf: 0.6
-    count_min: 1
+    needs: 1
     any:
       - id: kill-mssql-kill
       - id: kill-mssql-stop
@@ -263,7 +263,7 @@ composite_rules:
     desc: MongoDB service termination
     crit: notable
     conf: 0.6
-    count_min: 1
+    needs: 1
     any:
       - id: kill-mongodb-kill
       - id: kill-mongodb-stop
@@ -272,7 +272,7 @@ composite_rules:
     desc: Database service termination
     crit: suspicious
     conf: 0.9
-    count_min: 1
+    needs: 1
     any:
       - id: kill-mysql
       - id: kill-postgres
@@ -290,7 +290,7 @@ composite_rules:
     all:
       - id: esxcli
       - id: onion-domain
-    count_min: 1
+    needs: 1
     any:
       - id: word-encrypted
       - id: word-ransom

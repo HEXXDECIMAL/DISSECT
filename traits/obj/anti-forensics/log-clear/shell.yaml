@@ -75,7 +75,6 @@ traits:
     if:
       type: content
       regex: "rm\\s+-[rf]+\\s+/var/log/\\*|for\\s+[^;]{0,30}in\\s+/var/log/|find\\s+/var/log"
-      min_count: 1
 
   # find + exec rm pattern for mass log deletion
   - id: find-exec-rm-log

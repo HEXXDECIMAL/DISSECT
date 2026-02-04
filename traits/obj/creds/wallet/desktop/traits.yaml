@@ -386,7 +386,7 @@ composite_rules:
     desc: Electrum wallet targeting
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: electrum-wallets-dir
       - id: electrum-wallet-file
@@ -396,7 +396,7 @@ composite_rules:
     desc: Coinomi wallet targeting
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: coinomi-wallets-dir
       - id: coinomi-wallet-dat
@@ -406,7 +406,7 @@ composite_rules:
     desc: Exodus wallet targeting
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: exodus-wallet-dir
       - id: exodus-passphrase
@@ -416,7 +416,7 @@ composite_rules:
     desc: Atomic Wallet targeting
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: atomic-local-storage
       - id: atomic-wallet-name
@@ -426,7 +426,7 @@ composite_rules:
     desc: Wasabi wallet targeting
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: walletwasabi-lower
       - id: walletwasabi-upper
@@ -436,7 +436,7 @@ composite_rules:
     desc: Binance wallet targeting
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: binance-app-store
       - id: binance-aspect
@@ -446,7 +446,7 @@ composite_rules:
     desc: TonKeeper wallet targeting
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: tonkeeper-desktop
       - id: tonkeeper-config
@@ -456,7 +456,7 @@ composite_rules:
     desc: Ledger wallet targeting
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: ledger-live-dir
       - id: ledgerhq-package
@@ -466,7 +466,7 @@ composite_rules:
     desc: Trezor wallet targeting
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: trezor-desktop
       - id: trezor-suite
@@ -475,7 +475,7 @@ composite_rules:
     desc: Guarda wallet targeting
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: guarda-local-storage
       - id: guarda-bundle
@@ -484,7 +484,7 @@ composite_rules:
     desc: Bitcoin Core wallet targeting
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: bitcoin-wallet-dat
       - id: bitcoin-wallets-dir
@@ -494,7 +494,7 @@ composite_rules:
     desc: Ethereum wallet targeting
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: ethereum-keystore
       - id: mist-keystore
@@ -504,7 +504,7 @@ composite_rules:
     desc: Monero wallet targeting
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: monero-wallets
       - id: bitmonero-wallets
@@ -513,7 +513,7 @@ composite_rules:
     desc: Litecoin wallet targeting
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: litecoin-wallet-dat
       - id: litecoin-wallets
@@ -523,7 +523,7 @@ composite_rules:
     desc: Dash wallet targeting
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: dashcore-wallets
       - id: dash-wallet-dat
@@ -532,7 +532,7 @@ composite_rules:
     desc: Dogecoin wallet targeting
     crit: suspicious
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: dogecoin-wallets
       - id: dogecoin-wallet-dat
@@ -545,7 +545,7 @@ composite_rules:
     attack: "T1555"
     mbc: "B0028"
     for: [python, javascript, elf, pe, macho, applescript, shell]
-    count_min: 3
+    needs: 3
     any:
       - id: electrum
       - id: coinomi

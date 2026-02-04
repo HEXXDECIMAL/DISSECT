@@ -19,7 +19,7 @@ traits:
       type: ast
       kind: call
       exact: "\\.clone\\("
-      count_min: 2
+      needs: 2
 
   # === AST Pattern: GitPython Clone ===
   - id: ast-gitpython-clone
@@ -99,7 +99,7 @@ composite_rules:
     conf: 0.90
     attack: "T1105"
     for: [python]
-    count_min: 2
+    needs: 2
     any:
       - id: ast-multiple-git-clones
       - id: ast-gitpython-clone

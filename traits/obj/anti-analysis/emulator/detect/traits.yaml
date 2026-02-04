@@ -115,7 +115,7 @@ composite_rules:
     mbc: "B0009"
     attack: "T1497.001"
     conf: 0.6
-    count_min: 1
+    needs: 1
     any:
       - id: virtualbox-word
       - id: vbox-string
@@ -130,7 +130,7 @@ composite_rules:
     mbc: "B0009"
     attack: "T1497.001"
     conf: 0.5
-    count_min: 1
+    needs: 1
     any:
       - id: qemu-upper
       - id: qemu-lower
@@ -142,7 +142,7 @@ composite_rules:
     mbc: "B0009"
     attack: "T1497.001"
     conf: 0.6
-    count_min: 1
+    needs: 1
     any:
       - id: vmxh-string
       - id: vbox-string
@@ -155,7 +155,7 @@ composite_rules:
     crit: notable
     mbc: "B0009"
     conf: 0.5
-    count_min: 1
+    needs: 1
     any:
       - id: genuineintel
       - id: authenticamd

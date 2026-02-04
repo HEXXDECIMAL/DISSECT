@@ -50,7 +50,7 @@ composite_rules:
     desc: Dynamic proxy generation (Castle, etc.)
     crit: notable
     conf: 0.80
-    count_min: 1
+    needs: 1
     any:
       - id: proxy-generator
       - id: iinterceptor-interface
@@ -61,7 +61,7 @@ composite_rules:
     desc: Method interception capability
     crit: notable
     conf: 0.75
-    count_min: 1
+    needs: 1
     any:
       - id: iinterceptor-interface
       - id: interceptor-class

@@ -190,7 +190,7 @@ composite_rules:
     desc: "Ransom note message patterns"
     crit: suspicious
     conf: 0.85
-    count_min: 2
+    needs: 2
     any:
       - id: network-penetrated
       - id: recover-files-msg
@@ -204,7 +204,7 @@ composite_rules:
     desc: "Ransomware contact patterns"
     crit: notable
     conf: 0.75
-    count_min: 1
+    needs: 1
     any:
       - id: protonmail-contact
       - id: onionmail-contact
@@ -216,7 +216,7 @@ composite_rules:
     desc: "Ransomware file targeting"
     crit: notable
     conf: 0.75
-    count_min: 1
+    needs: 1
     any:
       - id: extension-target-list
       - id: multi-extension-pattern
@@ -226,7 +226,7 @@ composite_rules:
     desc: "Encryption code artifacts"
     crit: notable
     conf: 0.75
-    count_min: 1
+    needs: 1
     any:
       - id: encrypt-decrypt-func
       - id: mbedtls-aes-encrypt

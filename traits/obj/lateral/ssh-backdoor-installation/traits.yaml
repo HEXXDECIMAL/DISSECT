@@ -11,7 +11,6 @@ traits:
     if:
       type: string
       substr: "/etc/ssh/sshd_config"
-    notes: "SSH daemon config file access"
 
   - id: authorized-keys-path
     desc: SSH authorized_keys credential file
@@ -23,7 +22,6 @@ traits:
       any:
         - substr: "authorized_keys"
         - substr: ".ssh/authorized_keys"
-    notes: "SSH authorized_keys file access"
     attack: "T1098.004"
 
   - id: ssh-key-generation
@@ -38,7 +36,6 @@ traits:
         - substr: "id_rsa"
         - substr: "id_dsa"
         - substr: "id_ecdsa"
-    notes: "SSH key generation or reference"
     attack: "T1098.004"
 
   - id: sshd-restart
@@ -53,7 +50,6 @@ traits:
         - substr: "service sshd restart"
         - substr: "sshd -t"
         - regex: "sshd\\s+-t"
-    notes: "SSH daemon restart/reload (apply config changes)"
     attack: "T1547.002"
 
   - id: sshd-config-backup
@@ -67,7 +63,6 @@ traits:
         - substr: "sshd_config.bak"
         - substr: "sshd_config.backup"
         - regex: "sshd_config\\.bak\\.[0-9]"
-    notes: "SSH config backup before modification"
 
   - id: ssh-permit-root
     desc: PermitRootLogin configuration
@@ -79,7 +74,6 @@ traits:
       any:
         - substr: "PermitRootLogin"
         - substr: "PermitRootLogin yes"
-    notes: "SSH PermitRootLogin directive (allows root login)"
     attack: "T1021.004"
 
   - id: ssh-password-auth
@@ -92,7 +86,6 @@ traits:
       any:
         - substr: "PasswordAuthentication yes"
         - substr: "PubkeyAuthentication no"
-    notes: "SSH authentication method configuration"
     attack: "T1021.004"
 
   - id: ssh-port-config
@@ -105,7 +98,6 @@ traits:
       any:
         - regex: "Port\\s+[0-9]+"
         - substr: "Port 22"
-    notes: "SSH daemon port configuration"
 
 composite_rules:
   - id: ssh-config-modification
@@ -114,13 +106,7 @@ composite_rules:
     conf: 0.85
     for: [elf, shell]
     attack: "T1021.004"
-    notes: |
-      SSH daemon configuration modification detected.
-      Indicates:
-      - Persistent SSH access installation
-      - Authorization bypass attempts
-      - Potential backdoor installation
-    count_min: 2
+    needs: 2
     any:
       - id: sshd-config-path
       - id: sshd-restart
@@ -134,17 +120,6 @@ composite_rules:
     for: [elf, shell]
     attack: "T1098.004"
     mbc: "C0027"
-    notes: |
-      Complete SSH backdoor installation pattern.
-      Combines:
-      - SSH config modification
-      - Authorized keys manipulation
-      - Daemon restart for persistence
-
-      This indicates:
-      - Persistent remote access installation
-      - Attacker-controlled SSH access
-      - Full system compromise capability
     all:
       - id: ssh-config-modification
       - id: authorized-keys-path
@@ -155,9 +130,6 @@ composite_rules:
     conf: 0.85
     for: [elf, shell]
     attack: "T1555.003"
-    notes: |
-      SSH credential file access pattern.
-      Indicates credential theft or lateral movement via SSH.
     all:
       - id: authorized-keys-path
       - id: ssh-key-generation

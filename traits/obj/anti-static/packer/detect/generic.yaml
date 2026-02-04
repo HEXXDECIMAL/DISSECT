@@ -73,7 +73,7 @@ composite_rules:
     conf: 0.66
     mbc: "F0001"
     attack: "T1027.002"
-    count_min: 1
+    needs: 1
     any:
       - id: upx-marker
       - id: aspack-marker

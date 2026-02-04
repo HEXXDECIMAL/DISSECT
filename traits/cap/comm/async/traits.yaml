@@ -392,7 +392,7 @@ composite_rules:
     desc: libev event loop library usage
     crit: notable
     conf: 0.7
-    count_min: 3
+    needs: 3
     any:
       - id: ev-loop
       - id: ev-io-start
@@ -408,7 +408,7 @@ composite_rules:
     desc: libuv async I/O library usage
     crit: notable
     conf: 0.7
-    count_min: 3
+    needs: 3
     any:
       - id: uv-loop-init
       - id: uv-run
@@ -424,7 +424,7 @@ composite_rules:
     desc: c-ares async DNS resolver library
     crit: notable
     conf: 0.7
-    count_min: 2
+    needs: 2
     any:
       - id: ares-init
       - id: ares-gethostbyname
@@ -438,7 +438,7 @@ composite_rules:
     desc: libevent async I/O library usage
     crit: notable
     conf: 0.7
-    count_min: 3
+    needs: 3
     any:
       - id: event-base-new
       - id: event-base-dispatch
@@ -453,7 +453,7 @@ composite_rules:
     desc: Boost.Asio async I/O library usage
     crit: notable
     conf: 0.7
-    count_min: 3
+    needs: 3
     any:
       - id: boost-asio-namespace
       - id: io-service
@@ -469,7 +469,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [elf, macho, rust]
-    count_min: 1
+    needs: 1
     any:
       - id: tokio-namespace
       - id: tokio-runtime
@@ -482,7 +482,7 @@ composite_rules:
     desc: Direct epoll usage for async
     crit: notable
     conf: 0.65
-    count_min: 2
+    needs: 2
     any:
       - id: epoll-create
       - id: epoll-ctl
@@ -502,7 +502,7 @@ composite_rules:
     desc: Direct epoll/kqueue usage for async
     crit: notable
     conf: 0.65
-    count_min: 1
+    needs: 1
     any:
       - id: epoll-usage
       - id: kqueue-usage
@@ -516,7 +516,7 @@ composite_rules:
     desc: Uses high-performance async I/O library
     crit: notable
     conf: 0.75
-    count_min: 1
+    needs: 1
     any:
       - id: libev
       - id: c-ares

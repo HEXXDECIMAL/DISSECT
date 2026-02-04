@@ -89,7 +89,7 @@ composite_rules:
     desc: Gets current system username
     crit: notable
     conf: 0.85
-    count_min: 1
+    needs: 1
     any:
       - id: python-getpass-user
       - id: python-getpass-user-symbol
@@ -99,7 +99,7 @@ composite_rules:
     desc: Collects hardware MAC addresses for
     crit: notable
     conf: 0.8
-    count_min: 1
+    needs: 1
     any:
       - id: getmac-module
       - id: ifconfig-cmd
@@ -111,7 +111,7 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     near_lines: 80
-    count_min: 3
+    needs: 3
     any:
       - id: python-platform-system
       - id: python-mac-discovery

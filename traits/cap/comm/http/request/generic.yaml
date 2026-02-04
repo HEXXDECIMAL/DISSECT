@@ -97,7 +97,7 @@ composite_rules:
     conf: 0.66
     mbc: "C0002"
     attack: "T1071.001"
-    count_min: 1
+    needs: 1
     any:
       - id: http-request-func
       - id: user-agent-header
@@ -111,7 +111,7 @@ composite_rules:
     desc: HTTP client library usage
     crit: inert
     conf: 0.7
-    count_min: 1
+    needs: 1
     any:
       - id: requests-post
       - id: requests-get

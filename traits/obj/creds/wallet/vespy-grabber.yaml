@@ -135,7 +135,7 @@ composite_rules:
     conf: 0.99
     attack: "T1649"
     for: [python]
-    count_min: 3
+    needs: 3
     any:
       - id: procdump-download
       - id: vespy-marker-file
@@ -148,7 +148,7 @@ composite_rules:
     attack: "T1649"
     mbc: "B0020"
     platforms: [windows]
-    count_min: 3
+    needs: 3
     any:
       - id: atomic-wallet-target
       - id: electrum-wallet-target

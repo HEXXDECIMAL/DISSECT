@@ -65,13 +65,9 @@ composite_rules:
     desc: "File contains Vue.js library"
     crit: benign
     conf: 0.9
-    count_min: 1
+    needs: 1
     any:
-      - {id: version-string}
-      - {id: copyright}
-      - {id: vue-global}
-      - {id: vue-component}
-    explanation: |
-      This file contains Vue.js library signatures. Vue is a popular JavaScript
-      framework for building user interfaces, used by millions of websites.
-      The presence of Vue itself is not suspicious.
+      - { id: version-string }
+      - { id: copyright }
+      - { id: vue-global }
+      - { id: vue-component }

@@ -203,7 +203,7 @@ composite_rules:
     crit: notable
     conf: 0.9
     attack: T1546.004
-    count_min: 3
+    needs: 3
     any:
       - id: bash-profile
       - id: bash-login

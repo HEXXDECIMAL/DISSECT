@@ -394,7 +394,7 @@ composite_rules:
     desc: Python interpreter with inline code
     crit: suspicious
     conf: 0.8
-    count_min: 1
+    needs: 1
     any:
       - id: python-c-flag
       - id: python-stdin-flag
@@ -404,7 +404,7 @@ composite_rules:
     desc: Node interpreter with inline code
     crit: suspicious
     conf: 0.8
-    count_min: 1
+    needs: 1
     any:
       - id: node-e-flag
       - id: node-eval-flag
@@ -414,7 +414,7 @@ composite_rules:
     desc: Process spawn or exec function
     crit: notable
     conf: 0.8
-    count_min: 1
+    needs: 1
     any:
       - id: spawn-call
       - id: exec-call
@@ -474,7 +474,7 @@ composite_rules:
     mbc: "B0024"
     attack: "T1195.002"
     for: [javascript]
-    count_min: 1
+    needs: 1
     any:
       - id: is-preinstall-check
       - id: not-is-preinstall-guard
@@ -486,7 +486,7 @@ composite_rules:
     crit: notable
     conf: 0.75
     for: [javascript]
-    count_min: 1
+    needs: 1
     any:
       - id: cap/comm/http/post/post
       - id: obj/exfil/http/node/node-post-json

@@ -101,7 +101,7 @@ composite_rules:
     crit: notable
     conf: 0.80
     attack: "T1082"
-    count_min: 1
+    needs: 1
     any:
       - id: etc-os-release-read
       - id: os-release-open
@@ -113,7 +113,7 @@ composite_rules:
     attack: "T1082"
     mbc: "B0012"
     for: [python, shell]
-    count_min: 1
+    needs: 1
     any:
       - id: distro-debian-check
       - id: distro-fedora-check
@@ -128,7 +128,7 @@ composite_rules:
     attack: "T1082"
     mbc: "B0012"
     platforms: [linux]
-    count_min: 2
+    needs: 2
     any:
       - id: debian-specific-exec
       - id: fedora-specific-exec

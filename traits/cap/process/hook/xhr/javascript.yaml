@@ -97,7 +97,7 @@ composite_rules:
   - id: prototype-access
     desc: "XMLHttpRequest prototype access (potential hooking)"
     conf: 0.8
-    count_min: 1
+    needs: 1
     any:
       - id: xhr-prototype-access
       - id: xhr-bracket-access
@@ -107,7 +107,7 @@ composite_rules:
     desc: "XMLHttpRequest.open method hooking"
     conf: 0.85
     crit: suspicious
-    count_min: 1
+    needs: 1
     any:
       - id: xhr-prototype-open-eq
       - id: xhr-bracket-open-eq
@@ -117,7 +117,7 @@ composite_rules:
     desc: "XMLHttpRequest.send method hooking"
     conf: 0.85
     crit: suspicious
-    count_min: 1
+    needs: 1
     any:
       - id: xhr-prototype-send-eq
       - id: xhr-bracket-send-eq
@@ -127,7 +127,7 @@ composite_rules:
     desc: "fetch API hooking"
     conf: 0.85
     crit: suspicious
-    count_min: 1
+    needs: 1
     any:
       - id: window-fetch-eq
       - id: globalthis-fetch-eq

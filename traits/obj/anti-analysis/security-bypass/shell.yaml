@@ -139,7 +139,7 @@ composite_rules:
       - id: apparmor-stop
       - id: ufw-disable
       - id: iptables-flush
-    count_min: 3
+    needs: 3
 
   # Firewall + SELinux + AppArmor disable is a strong malware indicator
   # Complexity: all(3) + for(1) = 4 >= 4 ✓ HOSTILE

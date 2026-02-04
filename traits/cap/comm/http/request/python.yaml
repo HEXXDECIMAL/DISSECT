@@ -78,7 +78,6 @@ traits:
     for: [python]
     if:
       type: ast
-      language: python
       query: |
         ((call
           function: (attribute
@@ -95,7 +94,7 @@ composite_rules:
     desc: "Performs HTTP request (urllib, requests,"
     crit: inert
     conf: 0.9
-    count_min: 1
+    needs: 1
     any:
       - id: requests-get
       - id: requests-post
@@ -111,7 +110,7 @@ composite_rules:
     desc: "Performs HTTP GET request"
     crit: notable
     conf: 0.9
-    count_min: 1
+    needs: 1
     any:
       - id: requests-get
       - id: httpx-get
@@ -121,7 +120,7 @@ composite_rules:
     desc: "Performs HTTP POST request (Exfiltration"
     crit: notable
     conf: 0.9
-    count_min: 1
+    needs: 1
     any:
       - id: requests-post
       - id: httpx-post

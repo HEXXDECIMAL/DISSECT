@@ -540,7 +540,7 @@ composite_rules:
     conf: 0.85
     mbc: "F0015"
     attack: "T1014"
-    count_min: 1
+    needs: 1
     any:
       - id: proc-kallsyms
       - id: proc-ksyms
@@ -553,7 +553,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     for: [elf, c]
-    count_min: 1
+    needs: 1
     any:
       - id: tcp4-seq-show
       - id: tcp6-seq-show
@@ -568,7 +568,7 @@ composite_rules:
     mbc: "F0015"
     attack: "T1014"
     for: [elf, c]
-    count_min: 1
+    needs: 1
     any:
       - id: tcp-seq-funcs
       - id: proc-net-tcp
@@ -579,7 +579,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     for: [elf, c]
-    count_min: 2
+    needs: 2
     any:
       - id: proc-root-readdir
       - id: proc-iterate
@@ -595,7 +595,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [elf, c]
-    count_min: 1
+    needs: 1
     any:
       - id: sys-getpriority
       - id: sys-getdents
@@ -608,7 +608,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     for: [elf, c]
-    count_min: 1
+    needs: 1
     any:
       - id: orig-cr0
       - id: write-cr0
@@ -622,7 +622,7 @@ composite_rules:
     mbc: "F0015"
     attack: "T1014"
     for: [elf, c]
-    count_min: 1
+    needs: 1
     any:
       - id: syscall-table-hook
       - id: cr0-manipulation
@@ -642,7 +642,7 @@ composite_rules:
     desc: Kernel module format markers
     crit: inert
     conf: 0.5
-    count_min: 3
+    needs: 3
     any:
       - id: init-module
       - id: cleanup-module
@@ -657,7 +657,7 @@ composite_rules:
     desc: Netfilter hook registration functions
     crit: notable
     conf: 0.8
-    count_min: 1
+    needs: 1
     any:
       - id: nf-register-hook
       - id: nf-register-net-hook
@@ -669,7 +669,7 @@ composite_rules:
     desc: Netfilter verdict values
     crit: inert
     conf: 0.5
-    count_min: 1
+    needs: 1
     any:
       - id: nf-accept
       - id: nf-drop
@@ -681,7 +681,7 @@ composite_rules:
     conf: 0.85
     mbc: "F0015"
     attack: "T1014"
-    count_min: 2
+    needs: 2
     any:
       - id: nf-registration
       - id: nf-verdicts
@@ -692,7 +692,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [elf, c]
-    count_min: 1
+    needs: 1
     any:
       - id: file-operations
       - id: inode-operations
@@ -703,7 +703,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     for: [elf, c]
-    count_min: 1
+    needs: 1
     any:
       - id: vfs-read
       - id: vfs-write
@@ -728,7 +728,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     for: [elf, c]
-    count_min: 1
+    needs: 1
     any:
       - id: module-hidden
       - id: hide-module
@@ -752,7 +752,7 @@ composite_rules:
     mbc: "F0015"
     attack: "T1014"
     for: [elf, c]
-    count_min: 1
+    needs: 1
     any:
       - id: diamorphine-name
       - id: diamorphine-with-behavior
@@ -776,7 +776,7 @@ composite_rules:
     mbc: "F0015"
     attack: "T1014"
     for: [elf, c]
-    count_min: 1
+    needs: 1
     any:
       - id: reptile-name
       - id: reptile-markers
@@ -787,7 +787,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     for: [elf, c]
-    count_min: 2
+    needs: 2
     any:
       - id: khook
       - id: kmatryoshka
@@ -813,7 +813,7 @@ composite_rules:
     mbc: "F0015"
     attack: "T1014"
     for: [elf, c]
-    count_min: 1
+    needs: 1
     any:
       - id: syslogk-behavior
       - id: syslogk-name
@@ -838,7 +838,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     for: [elf, c]
-    count_min: 1
+    needs: 1
     any:
       - id: syscall-hook
       - id: proc-hiding-funcs

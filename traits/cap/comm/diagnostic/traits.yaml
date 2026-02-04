@@ -246,7 +246,7 @@ composite_rules:
   # Network troubleshooting tools
   - id: troubleshoot
     desc: Network troubleshooting utilities
-    count_min: 1
+    needs: 1
     any:
       - id: ping
       - id: ping6
@@ -263,7 +263,7 @@ composite_rules:
   # Network monitoring
   - id: monitoring
     desc: Network monitoring utilities
-    count_min: 1
+    needs: 1
     any:
       - id: tcpdump
       - id: wireshark
@@ -278,7 +278,7 @@ composite_rules:
   # Network performance
   - id: performance
     desc: Network performance testing
-    count_min: 1
+    needs: 1
     any:
       - id: iperf
       - id: iperf3
@@ -293,7 +293,7 @@ composite_rules:
   # Firewall management
   - id: firewall
     desc: Firewall management utilities
-    count_min: 1
+    needs: 1
     any:
       - id: iptables
       - id: ip6tables

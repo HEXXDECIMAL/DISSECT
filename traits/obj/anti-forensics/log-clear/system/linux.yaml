@@ -146,7 +146,7 @@ composite_rules:
     desc: Reference to system log file
     crit: notable
     conf: 0.66
-    count_min: 1
+    needs: 1
     any:
       - id: var-log-wtmp
       - id: var-log-btmp
@@ -164,7 +164,7 @@ composite_rules:
     conf: 0.8
     mbc: "F0005"
     attack: "T1070.001"
-    count_min: 1
+    needs: 1
     any:
       - id: redirect-var-log
       - id: echo-redirect-var-log
@@ -184,7 +184,7 @@ composite_rules:
     for: [shell]
     all:
       - id: log-clear
-    count_min: 2
+    needs: 2
     any:
       - id: var-log-wtmp
       - id: var-log-btmp

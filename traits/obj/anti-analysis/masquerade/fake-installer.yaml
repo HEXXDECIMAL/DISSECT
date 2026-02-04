@@ -74,7 +74,7 @@ composite_rules:
     desc: "Homebrew context markers"
     crit: inert
     conf: 0.6
-    count_min: 2
+    needs: 2
     any:
       - id: homebrew-prefix
       - id: brew-no-install
@@ -85,7 +85,7 @@ composite_rules:
     desc: "Suspicious installer behaviors"
     crit: suspicious
     conf: 0.9
-    count_min: 1
+    needs: 1
     any:
       - id: dscl-authonly-loop
       - id: homabrews-domain

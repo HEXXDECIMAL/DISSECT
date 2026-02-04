@@ -115,7 +115,7 @@ composite_rules:
     mbc: "B0001"
     attack: "T1622"
     platforms: [linux]
-    count_min: 1
+    needs: 1
     any:
       - id: cap/os/syscall/ptrace
       - id: cap/fs/proc/process/process-self-status
@@ -129,7 +129,7 @@ composite_rules:
     mbc: "B0001.m01"
     attack: "T1622"
     conf: 0.8
-    count_min: 1
+    needs: 1
     any:
       - id: ptrace-traceme
       - id: pt-deny-attach
@@ -142,7 +142,7 @@ composite_rules:
     attack: "T1622"
     conf: 0.9
     platforms: [windows]
-    count_min: 1
+    needs: 1
     any:
       - id: win-isdebuggerpresent
       - id: win-checkremotedebugger
@@ -155,7 +155,7 @@ composite_rules:
     mbc: "B0001"
     attack: "T1622"
     conf: 0.85
-    count_min: 2
+    needs: 2
     any:
       - id: ptrace-traceme-or-deny
       - id: process-inspection

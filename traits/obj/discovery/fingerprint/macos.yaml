@@ -84,7 +84,7 @@ composite_rules:
     for: [macho]
     all:
       - id: ioplatformuuid
-    count_min: 1
+    needs: 1
     any:
       - id: iokit-registry-entry
       - id: iokit-registry-property
@@ -95,7 +95,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     for: [macho]
-    count_min: 2
+    needs: 2
     any:
       - id: ioplatformuuid
       - id: ioplatformserialnum

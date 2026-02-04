@@ -14,7 +14,6 @@ traits:
     if:
       type: string
       substr: "ls -l /proc/*/exe"
-    notes: "Searches for processes marked as (deleted) in /proc filesystem"
     attack: "T1070.004"
 
   - id: grep-deleted-process
@@ -25,7 +24,6 @@ traits:
     if:
       type: string
       substr: "grep deleted"
-    notes: "Filters for deleted process references - evidence hunting"
     attack: "T1070.004"
 
   - id: awk-proc-extraction
@@ -36,7 +34,6 @@ traits:
     if:
       type: string
       substr: "awk -F/"
-    notes: "Extracts PID field from /proc entries for targeted killing"
     attack: "T1070.004"
 
   # === Process Termination for Cleanup ===
@@ -48,7 +45,6 @@ traits:
     if:
       type: string
       substr: "kill -9"
-    notes: "Forcibly terminates deleted processes"
     attack: "T1070.004"
 
   - id: pkill-deleted-pattern
@@ -59,7 +55,6 @@ traits:
     if:
       type: string
       substr: "pkill -9 -f '(deleted)'"
-    notes: "Pattern-based process killing of deleted references"
     attack: "T1070.004"
 
   # === Evidence Removal from Shell Configs ===
@@ -71,7 +66,6 @@ traits:
     if:
       type: string
       substr: ".bashrc"
-    notes: "Targets bash shell configuration file"
     attack: "T1070.004"
 
   - id: sed-bash-profile-cleanup
@@ -82,7 +76,6 @@ traits:
     if:
       type: string
       substr: ".bash_profile"
-    notes: "Targets bash login profile file"
     attack: "T1070.004"
 
   - id: sed-profile-cleanup
@@ -93,7 +86,6 @@ traits:
     if:
       type: string
       substr: ".profile"
-    notes: "Targets generic shell profile file"
     attack: "T1070.004"
 
   - id: sed-zshrc-cleanup
@@ -104,7 +96,6 @@ traits:
     if:
       type: string
       substr: ".zshrc"
-    notes: "Targets zsh shell configuration file"
     attack: "T1070.004"
 
   # === Sed-based Pattern Removal ===
@@ -116,7 +107,6 @@ traits:
     if:
       type: string
       substr: "sed -i"
-    notes: "In-place sed editing to remove evidence patterns"
     attack: "T1070.004"
 
   - id: sed-deleted-regex-pattern
@@ -127,7 +117,6 @@ traits:
     if:
       type: string
       substr: "\\|/usr/bin/\\..* (deleted)|d"
-    notes: "Specific sed pattern removing /usr/bin/* (deleted) references"
     attack: "T1070.004"
 
   - id: sed-generic-deleted-removal
@@ -140,7 +129,6 @@ traits:
       any:
         - substr: ": \\+.*deleted"
         - substr: "(deleted)|d"
-    notes: "Sed patterns removing evidence of deleted processes"
     attack: "T1070.004"
 
   # === Home Directory Targeting ===
@@ -152,7 +140,6 @@ traits:
     if:
       type: string
       substr: "/root /home"
-    notes: "Targets both root and user home directories"
     attack: "T1070.004"
 
 composite_rules:
@@ -190,15 +177,6 @@ composite_rules:
     for: [elf, shell]
     attack: "T1070.004"
     mbc: "B0005"
-    notes: |
-      Sophisticated forensics evasion pattern:
-      1. Search /proc filesystem for deleted processes
-      2. Extract PIDs using awk/grep
-      3. Forcibly terminate with SIGKILL
-      4. Remove evidence from shell configuration files
-      5. Use sed to remove specific deleted process references
-
-      Indicates forensics-aware malware designed to cover its tracks.
     all:
       - id: deleted-process-detection
       - id: deleted-process-termination
@@ -209,14 +187,10 @@ composite_rules:
     conf: 0.85
     for: [elf, shell]
     attack: "T1070.004"
-    notes: |
-      Malware iterates through home directories and removes evidence
-      from all shell configuration files (.bashrc, .bash_profile, .profile, .zshrc).
-      Pattern indicates multi-user system targeting.
     all:
       - id: home-directory-iteration
       - id: shell-config-evidence-removal
-        count_min: 2
+        needs: 2
       - id: deleted-pattern-removal-methods
 
   - id: aggressive-evidence-removal
@@ -226,15 +200,6 @@ composite_rules:
     for: [elf, shell]
     attack: "T1070.004"
     mbc: "B0005"
-    notes: |
-      Malware implements comprehensive evidence removal strategy:
-      - Searches for and kills competing malware processes
-      - Removes evidence from process lists
-      - Cleans shell history across all home directories
-      - Uses sed to remove specific forensic artifacts
-      - Indicates highly sophisticated, forensics-aware malware
-
-      Combined with other Kinsing patterns indicates complete evidence destruction.
     all:
       - id: comprehensive-deleted-cleanup
       - id: targeted-shell-cleanup

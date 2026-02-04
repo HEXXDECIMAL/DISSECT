@@ -35,7 +35,7 @@ composite_rules:
     desc: "Reference to a temporary directory"
     crit: inert
     conf: 0.4
-    count_min: 1
+    needs: 1
     any:
       - id: tmp-ref
       - id: tempfile-ref

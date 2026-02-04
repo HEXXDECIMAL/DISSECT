@@ -11,31 +11,7 @@ composite_rules:
     for: [pe, elf, macho]
     attack: "T1043"
     mbc: "C0002"
-    notes: |
-      Detects multiple IP addresses embedded directly in binary.
-
-      Pattern: 5+ distinct IP addresses in strings/code
-
-      Indicates:
-      - Botnet infrastructure
-      - Hardcoded C&C servers
-      - Failover/redundancy mechanism
-      - Self-contained malware (doesn't fetch URLs)
-
-      Typical counts by malware type:
-      - Botnet: 20-100+ IPs (ConsoleApplication2.exe has 89!)
-      - Worm: 10-50 IPs
-      - RAT: 5-15 IPs
-      - Loader: 5-10 IPs
-
-      Seen in:
-      - Conficker (50+ IPs)
-      - Mirai variants (100+ IPs)
-      - Emotet (variable, often 30+)
-      - Trickbot (20-50 per variant)
-      - Chrysalis (89 in ConsoleApplication2.exe)
-
-    count_min: 5
+    needs: 5
     any:
       - id: cap/comm/ip
 
@@ -47,11 +23,7 @@ composite_rules:
     for: [pe, elf, macho]
     attack: "T1043"
     mbc: "C0002"
-    notes: |
-      Large C2 infrastructure indicates sophisticated malware.
-      Suggests professional development and maintenance.
-
-    count_min: 20
+    needs: 20
     any:
       - id: cap/comm/ip
 
@@ -63,10 +35,6 @@ composite_rules:
     for: [pe, elf, macho]
     attack: "T1043"
     mbc: "C0002"
-    notes: |
-      Combines hardcoded IPs with other C2 characteristics.
-      Indicates self-propagating or autonomous malware.
-
     all:
       - id: embedded-c2-list
       - id: cap/comm/tcp/connect
@@ -79,10 +47,6 @@ composite_rules:
     for: [pe, elf, macho]
     attack: "T1043"
     mbc: "C0002"
-    notes: |
-      Complete botnet infrastructure detected.
-      Indicates this is a command server or node.
-
     all:
       - id: distributed-c2-redundancy
       - id: cap/comm/socket

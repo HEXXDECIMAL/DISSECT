@@ -15,7 +15,6 @@ traits:
     if:
       type: string
       regex: '(\$\w{10,}\s*=\s*\d+;?[\r\n\s]+){5,}'
-      min_count: 1
 
   - id: ps1-mass-array-assignment
     desc: "Massive block of array assignments"
@@ -24,7 +23,6 @@ traits:
     if:
       type: string
       regex: '(\$\w{5,}\s*\+?=\s*@\((\s*["\x27]\w+["\x27]\s*,?)+\)[\r\n\s]+){3,}'
-      min_count: 1
 
   - id: ps1-char-array-cast
     desc: "Cast to char array (obfuscation)"

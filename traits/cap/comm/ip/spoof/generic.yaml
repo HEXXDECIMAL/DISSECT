@@ -104,7 +104,7 @@ composite_rules:
     desc: SYN cookie manipulation
     crit: suspicious
     conf: 0.66
-    count_min: 1
+    needs: 1
     any:
       - {id: syncookie-word}
       - {id: syn-cookie-lower}

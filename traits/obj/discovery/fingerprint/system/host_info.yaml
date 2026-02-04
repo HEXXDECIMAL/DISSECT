@@ -76,7 +76,7 @@ composite_rules:
     desc: Detailed system information gathering strings
     crit: suspicious
     conf: 0.8
-    count_min: 3
+    needs: 3
     any:
       - {id: lanip-label}
       - {id: gateway-label}

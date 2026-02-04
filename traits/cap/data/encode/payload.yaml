@@ -12,8 +12,6 @@ traits:
     if:
       type: string
       regex: "^[A-Za-z0-9+/]{200,}={0,2}$"
-      min_count: 1
-    notes: "Large base64 strings often encode binary payloads"
     attack: "T1140"
     mbc: "C0043"
 
@@ -26,8 +24,6 @@ traits:
     if:
       type: string
       regex: "^[0-9A-Fa-f]{200,}$"
-      min_count: 1
-    notes: "Long hex strings encode binary data"
     attack: "T1140"
     mbc: "C0043"
 
@@ -41,7 +37,6 @@ traits:
       type: section_entropy
       section: "^\\.rdata"
       min_entropy: 6.5
-    notes: "High entropy suggests encrypted or compressed payloads"
 
 composite_rules:
   - id: embedded-obfuscated-payload
@@ -52,10 +47,6 @@ composite_rules:
     mbc: "C0043"
     platforms: [all]
     for: [pe, elf, macho]
-    notes: |
-      Detects encoded/compressed payloads embedded in binary.
-      Indicates multi-stage malware with obfuscated second-stage.
-
     any:
       - id: large-base64-payload
       - id: large-hex-payload

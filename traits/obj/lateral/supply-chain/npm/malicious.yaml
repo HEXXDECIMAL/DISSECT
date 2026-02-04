@@ -19,7 +19,7 @@ composite_rules:
     crit: inert
     conf: 0.6
     for: [packagejson]
-    count_min: 1
+    needs: 1
     any:
       - id: preinstall-hook
       - id: postinstall-hook
@@ -30,7 +30,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [packagejson]
-    count_min: 1
+    needs: 1
     any:
       - id: curl-command
       - id: wget-command
@@ -41,7 +41,7 @@ composite_rules:
     crit: notable
     conf: 0.75
     for: [packagejson]
-    count_min: 1
+    needs: 1
     any:
       - id: pipe-to-bash
       - id: pipe-to-sh
@@ -53,7 +53,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     for: [packagejson]
-    count_min: 1
+    needs: 1
     any:
       - id: node-dash-e
       - id: node-eval-flag

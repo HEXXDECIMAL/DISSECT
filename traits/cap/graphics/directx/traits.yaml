@@ -12,7 +12,6 @@ traits:
     if:
       type: symbol
       exact: "CreateDXGIFactory"
-    notes: "DirectX Graphics Infrastructure factory - GPU access"
     attack: "T1657"
 
   - id: directx-device-api
@@ -27,7 +26,6 @@ traits:
         - exact: "CreateDXGIFactory1"
         - exact: "D3D11CreateDevice"
         - exact: "D3D12CreateDevice"
-    notes: "DirectX device creation - GPU compute access"
     attack: "T1657"
 
   - id: cuda-runtime-api
@@ -41,7 +39,6 @@ traits:
       any:
         - substr: "cudaMemcpy"
         - substr: "cudaLaunchKernel"
-    notes: "CUDA GPU compute - parallel processing capability"
     attack: "T1657"
 
 composite_rules:
@@ -53,20 +50,6 @@ composite_rules:
     for: [pe]
     attack: "T1657"
     mbc: "E1030"
-    notes: |
-      GPU/graphics access via DirectX factory creation.
-
-      Indicates:
-      - GPU compute capability
-      - Graphics rendering
-      - Potential GPU-accelerated operations
-
-      Seen in:
-      - Cryptocurrency miners (GPU acceleration)
-      - Ransomware with GPU-optimized encryption
-      - Advanced graphics/video processing
-      - Machine learning inference
-
     any:
       - id: directx-factory-api
       - id: directx-device-api
@@ -79,10 +62,6 @@ composite_rules:
     for: [pe, elf]
     attack: "T1657"
     mbc: "E1030"
-    notes: |
-      GPU compute access via DirectX or CUDA.
-      Indicates professional GPU-accelerated malware.
-
     any:
       - id: gpu-graphics-access
       - id: cuda-runtime-api

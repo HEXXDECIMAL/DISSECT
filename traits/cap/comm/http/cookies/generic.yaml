@@ -41,7 +41,7 @@ composite_rules:
     desc: HTTP cookie handling
     crit: inert
     conf: 0.66
-    count_min: 1
+    needs: 1
     any:
       - id: cookie-header
       - id: set-cookie-header

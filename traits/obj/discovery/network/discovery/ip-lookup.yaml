@@ -267,8 +267,7 @@ composite_rules:
     attack: "T1016.001"
     mbc: "B0046"
     for: [all]
-    count_min: 2
+    needs: 2
     any:
       - { id: plaintext-ip-services }
       - { id: base64-ip-services }
-

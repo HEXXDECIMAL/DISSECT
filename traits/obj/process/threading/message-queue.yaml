@@ -12,7 +12,6 @@ traits:
     if:
       type: symbol
       exact: "PeekMessageA"
-    notes: "Polls Windows message queue without blocking"
     attack: "T1129"
     mbc: "C0019"
 
@@ -25,7 +24,6 @@ traits:
     if:
       type: symbol
       exact: "PostThreadMessageA"
-    notes: "Posts messages to thread queue for IPC"
     attack: "T1129"
     mbc: "C0019"
 
@@ -38,7 +36,6 @@ traits:
     if:
       type: symbol
       exact: "GetMessageA"
-    notes: "Retrieves and waits for messages from queue"
     attack: "T1129"
     mbc: "C0019"
 
@@ -51,34 +48,13 @@ composite_rules:
     for: [pe]
     attack: "T1129"
     mbc: "C0019"
-    notes: |
-      Detects message queue-based inter-thread communication.
-
-      Pattern: CreateThread + PeekMessageA/GetMessageA + PostThreadMessageA
-
-      Alternative to direct injection model:
-      - Creates worker threads
-      - Communicates via message queues
-      - Server-like command processing
-      - Avoids direct API calls that trigger detection
-
-      Indicates:
-      - RAT/Remote Access Trojan
-      - C&C command processing
-      - Sophisticated malware avoiding direct injection
-
-      Seen in:
-      - Advanced RATs (AsyncRAT variants)
-      - Loader malware (Chrysalis loader2)
-      - Command-and-control servers
-
     all:
       - id: cap/process/create
       - id: cap/process/threading
     any:
       - id: peek-message-api
       - id: get-message-api
-    count_min: 1
+    needs: 1
 
   - id: message-based-command-server
     desc: Message queue command server pattern
@@ -88,10 +64,6 @@ composite_rules:
     for: [pe]
     attack: "T1129"
     mbc: "C0019"
-    notes: |
-      Combines message posting and retrieval for IPC.
-      Indicates bidirectional command communication.
-
     all:
       - id: message-queue-threading
       - id: post-message-api
@@ -104,10 +76,6 @@ composite_rules:
     for: [pe]
     attack: "T1129"
     mbc: "C0019"
-    notes: |
-      Complete message-based command dispatch system.
-      Indicates professional malware infrastructure.
-
     all:
       - id: message-based-command-server
       - id: cap/exec/command

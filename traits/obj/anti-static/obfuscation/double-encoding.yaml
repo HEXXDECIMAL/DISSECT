@@ -93,7 +93,7 @@ composite_rules:
     crit: suspicious
     conf: 0.90
     attack: "T1027"
-    count_min: 2
+    needs: 2
     any:
       - id: rot13-decode
       - id: codecs-rot13
@@ -106,7 +106,7 @@ composite_rules:
     attack: "T1027"
     mbc: "E1014"
     for: [python, javascript]
-    count_min: 2
+    needs: 2
     any:
       - id: base64-then-decode
       - id: base64-with-codecs
@@ -119,7 +119,7 @@ composite_rules:
     attack: "T1027"
     mbc: "E1014"
     platforms: [all]
-    count_min: 3
+    needs: 3
     any:
       - id: rot13-decode
       - id: base64-with-codecs

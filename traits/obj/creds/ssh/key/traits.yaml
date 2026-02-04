@@ -364,7 +364,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     attack: "T1552.004"
-    count_min: 1
+    needs: 1
     any:
       - id: slash-dot-ssh
       - id: dot-dot-ssh
@@ -375,7 +375,7 @@ composite_rules:
     desc: SSHD network process reference
     crit: suspicious
     conf: 0.8
-    count_min: 1
+    needs: 1
     any:
       - id: sshd-net-bracket
       - id: sshd-accepted-bracket

@@ -13,7 +13,6 @@ traits:
       any:
         - substr: "LD_PRELOAD"
         - substr: "LD_PRELOAD="
-    notes: "LD_PRELOAD library injection environment variable"
     attack: "T1547.015"
 
   - id: ld-audit-env
@@ -24,7 +23,6 @@ traits:
     if:
       type: string
       substr: "LD_AUDIT"
-    notes: "LD_AUDIT dynamic linker audit hook"
     attack: "T1547.015"
 
   - id: ld-debug-env
@@ -35,7 +33,6 @@ traits:
     if:
       type: string
       substr: "LD_DEBUG"
-    notes: "LD_DEBUG dynamic linker debugging"
     attack: "T1070"
 
   - id: dlfcn-hook-symbol
@@ -48,7 +45,6 @@ traits:
       any:
         - exact: "_dlfcn_hook"
         - contains: "_dlfcn_hook"
-    notes: "Dynamic linker hook symbol (_dlfcn_hook) for code injection"
     attack: "T1547.015"
 
   - id: rtld-next-symbol
@@ -61,7 +57,6 @@ traits:
       any:
         - substr: "RTLD_NEXT"
         - substr: "dlsym(RTLD_NEXT"
-    notes: "RTLD_NEXT symbol for intercepting libc functions"
     attack: "T1547.015"
 
   - id: dlopen-dlsym-pattern
@@ -74,7 +69,6 @@ traits:
       any:
         - substr: "dlopen"
         - substr: "dlsym"
-    notes: "Dynamic library loading via dlopen/dlsym"
     attack: "T1555"
 
   - id: libc-preload
@@ -87,7 +81,6 @@ traits:
       any:
         - substr: "libc.so"
         - substr: "libc-"
-    notes: "Direct libc library reference (potential hijacking)"
 
   - id: glibc-tunables
     desc: GLIBC_TUNABLES environment variable
@@ -97,7 +90,6 @@ traits:
     if:
       type: string
       substr: "GLIBC_TUNABLES"
-    notes: "GLIBC_TUNABLES environment variable (exploit technique)"
     attack: "T1547.015"
 
   - id: function-interception
@@ -110,7 +102,6 @@ traits:
       any:
         - substr: "dlsym"
         - substr: "__libc_dlopen_mode"
-    notes: "Function interception pattern"
     attack: "T1547.015"
 
 composite_rules:
@@ -120,13 +111,7 @@ composite_rules:
     conf: 0.85
     for: [elf, shell]
     attack: "T1547.015"
-    notes: |
-      LD environment variable hijacking detected.
-      Indicates:
-      - Dynamic linker manipulation
-      - Library injection preparation
-      - Privilege escalation technique
-    count_min: 2
+    needs: 2
     any:
       - id: ld-preload-env
       - id: ld-audit-env
@@ -138,12 +123,7 @@ composite_rules:
     conf: 0.85
     for: [elf, shell]
     attack: "T1547.015"
-    notes: |
-      Dynamic function interception patterns detected.
-      Indicates:
-      - Hooking libc functions
-      - Intercepting system calls via libc
-    count_min: 2
+    needs: 2
     any:
       - id: rtld-next-symbol
       - id: dlopen-dlsym-pattern
@@ -156,18 +136,7 @@ composite_rules:
     for: [elf, shell]
     attack: "T1547.015"
     mbc: "E1104"
-    notes: |
-      Complete dynamic linker hijacking pattern detected.
-      Combines:
-      - LD environment variables (_dlfcn_hook, LD_PRELOAD, LD_AUDIT)
-      - Dynamic function interception (dlsym, RTLD_NEXT)
-      - Runtime library loading
-
-      This indicates:
-      - Sophisticated code injection framework
-      - Privilege escalation capability
-      - Rootkit-level system modification
-    count_min: 2
+    needs: 2
     any:
       - id: dlfcn-hook-symbol
       - id: ld-environment-hijacking

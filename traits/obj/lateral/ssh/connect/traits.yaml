@@ -145,7 +145,7 @@ composite_rules:
     conf: 0.9
     attack: "T1021.004"
     platforms: [all]
-    count_min: 1
+    needs: 1
     any:
       - id: ssh-attack-suffix
       - id: attack-ssh-prefix
@@ -157,8 +157,7 @@ composite_rules:
     conf: 0.85
     attack: "T1021.004"
     platforms: [linux, macos, unix]
-    count_min: 1
+    needs: 1
     any:
       - id: ssh-bash-history
       - id: scp-bash-history
-

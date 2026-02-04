@@ -12,7 +12,6 @@ traits:
     if:
       type: symbol
       exact: "RtlCaptureContext"
-    notes: "Captures CPU context for advanced stack manipulation"
     attack: "T1062"
     mbc: "B0032"
 
@@ -25,7 +24,6 @@ traits:
     if:
       type: symbol
       exact: "RtlLookupFunctionEntry"
-    notes: "Retrieves function entry info from stack tables"
     attack: "T1062"
     mbc: "B0032"
 
@@ -38,7 +36,6 @@ traits:
     if:
       type: symbol
       exact: "RtlVirtualUnwind"
-    notes: "Performs manual stack unwinding for introspection"
     attack: "T1062"
     mbc: "B0032"
 
@@ -51,7 +48,6 @@ traits:
     if:
       type: symbol
       exact: "RtlAddFunctionTable"
-    notes: "Modifies exception handling function tables"
     attack: "T1062"
     mbc: "B0032"
 
@@ -64,26 +60,7 @@ composite_rules:
     for: [pe]
     attack: "T1062"
     mbc: "B0032"
-    notes: |
-      Detects sophisticated stack/exception manipulation for anti-debugging.
-
-      Techniques:
-      - Stack frame inspection (RtlCaptureContext)
-      - Function entry enumeration (RtlLookupFunctionEntry)
-      - Manual stack unwinding (RtlVirtualUnwind)
-      - Exception handler manipulation (RtlAddFunctionTable)
-
-      Indicates advanced anti-debugging/anti-analysis:
-      - Detects debuggers by inspecting stack
-      - Detects exception handlers
-      - Detects function preambles
-
-      Seen in:
-      - APT malware (Carbanak, Fin7, APT33)
-      - Sophisticated banking trojans (Trickbot variants)
-      - Loader malware (Chrysalis family)
-
-    count_min: 2
+    needs: 2
     any:
       - id: rtl-capture-context
       - id: rtl-lookup-entry
@@ -98,10 +75,6 @@ composite_rules:
     for: [pe]
     attack: "T1062"
     mbc: "B0032"
-    notes: |
-      Combines stack introspection with anti-analysis checks.
-      Indicates highly sophisticated malware.
-
     all:
       - id: stack-introspection-suite
       - id: obj/anti-analysis/evasion-suite/evasion-aware-malware

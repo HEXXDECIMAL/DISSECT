@@ -133,7 +133,7 @@ composite_rules:
     conf: 0.85
     attack: "T1027"
     for: [python]
-    count_min: 1
+    needs: 1
     any:
       - id: large-base64-string
       - id: large-hex-string

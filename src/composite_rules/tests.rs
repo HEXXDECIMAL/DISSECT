@@ -77,16 +77,16 @@ fn test_symbol_condition() {
             compiled_regex: None,
         }]),
         any: None,
-        count_exact: None,
 
-        count_min: None,
 
-        count_max: None,
 
         none: None,
         unless: None,
         not: None,
         downgrade: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
     };
 
     let result = rule.evaluate(&ctx);
@@ -142,16 +142,16 @@ fn test_all() {
             },
         ]),
         any: None,
-        count_exact: None,
 
-        count_min: None,
 
-        count_max: None,
 
         none: None,
         unless: None,
         not: None,
         downgrade: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
     };
 
     let result = rule.evaluate(&ctx);
@@ -206,13 +206,13 @@ fn test_count() {
                 compiled_regex: None,
             },
         ]),
-        count_exact: None,
-        count_min: None,
-        count_max: None,
         none: None,
         unless: None,
         not: None,
         downgrade: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
     };
 
     let result = rule.evaluate(&ctx);
@@ -255,16 +255,16 @@ fn test_string_exact_condition() {
             compiled_excludes: Vec::new(),
         }]),
         any: None,
-        count_exact: None,
 
-        count_min: None,
 
-        count_max: None,
 
         none: None,
         unless: None,
         not: None,
         downgrade: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
     };
 
     let result = rule.evaluate(&ctx);
@@ -312,16 +312,16 @@ fn test_any() {
                 compiled_regex: None,
             },
         ]),
-        count_exact: None,
 
-        count_min: None,
 
-        count_max: None,
 
         none: None,
         unless: None,
         not: None,
         downgrade: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
     };
 
     let result = rule.evaluate(&ctx);
@@ -706,9 +706,7 @@ fn test_downgrade_to_notable() {
             }]),
             all: None,
             none: None,
-            count_exact: None,
-            count_min: None,
-            count_max: None,
+            needs: None,
         }),
     };
 
@@ -772,9 +770,7 @@ fn test_downgrade_one_level() {
             }]),
             all: None,
             none: None,
-            count_exact: None,
-            count_min: None,
-            count_max: None,
+            needs: None,
         }),
     };
 
@@ -826,9 +822,7 @@ fn test_downgrade_no_match_keeps_original() {
             }]),
             all: None,
             none: None,
-            count_exact: None,
-            count_min: None,
-            count_max: None,
+            needs: None,
         }),
     };
 
@@ -893,9 +887,7 @@ fn test_downgrade_from_hostile() {
             }]),
             all: None,
             none: None,
-            count_exact: None,
-            count_min: None,
-            count_max: None,
+            needs: None,
         }),
     };
 
@@ -984,9 +976,7 @@ fn test_all_three_directives_combined() {
             }]),
             all: None,
             none: None,
-            count_exact: None,
-            count_min: None,
-            count_max: None,
+            needs: None,
         }),
     };
 
@@ -1774,13 +1764,13 @@ fn test_basename_in_composite_rule() {
             case_insensitive: false,
         }]),
         any: None,
-        count_exact: None,
-        count_min: None,
-        count_max: None,
         none: None,
         unless: None,
         not: None,
         downgrade: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
     };
 
     let result = rule.evaluate(&ctx);
@@ -1838,15 +1828,15 @@ fn test_composite_unless_skips_rule() {
             compiled_regex: None,
         }]),
         any: None,
-        count_exact: None,
-        count_min: None,
-        count_max: None,
         none: None,
         unless: Some(vec![Condition::Trait {
             id: "file/signed/apple".to_string(),
         }]),
         not: None,
         downgrade: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
     };
 
     // Should return None because unless condition matches
@@ -1890,15 +1880,15 @@ fn test_composite_unless_allows_rule() {
             compiled_regex: None,
         }]),
         any: None,
-        count_exact: None,
-        count_min: None,
-        count_max: None,
         none: None,
         unless: Some(vec![Condition::Trait {
             id: "file/signed/apple".to_string(),
         }]),
         not: None,
         downgrade: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
     };
 
     // Should return Some because unless condition doesn't match
@@ -1943,9 +1933,6 @@ fn test_composite_unless_with_basename() {
             compiled_regex: None,
         }]),
         all: None,
-        count_exact: None,
-        count_min: None,
-        count_max: None,
         none: None,
         // Skip if this looks like libX11 itself
         unless: Some(vec![Condition::Basename {
@@ -1956,6 +1943,9 @@ fn test_composite_unless_with_basename() {
         }]),
         not: None,
         downgrade: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
     };
 
     // Should return None because the basename matches libX11.so
@@ -2010,9 +2000,6 @@ fn test_composite_unless_multiple_conditions_any_matches() {
             compiled_regex: None,
         }]),
         any: None,
-        count_exact: None,
-        count_min: None,
-        count_max: None,
         none: None,
         // Multiple unless conditions - any match should skip the rule
         unless: Some(vec![
@@ -2036,6 +2023,9 @@ fn test_composite_unless_multiple_conditions_any_matches() {
         ]),
         not: None,
         downgrade: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
     };
 
     // Should return None because the second unless condition (string regex) matches

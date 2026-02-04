@@ -227,7 +227,7 @@ composite_rules:
     crit: suspicious
     conf: 0.7
     attack: "T1555.003"
-    count_min: 1
+    needs: 1
     any:
       - id: opera-macos-path
       - id: opera-windows-path
@@ -238,7 +238,7 @@ composite_rules:
     crit: suspicious
     conf: 0.7
     attack: "T1555.003"
-    count_min: 1
+    needs: 1
     any:
       - id: arc-macos-path
       - id: arc-userdata-path
@@ -249,7 +249,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     attack: "T1555.003"
-    count_min: 1
+    needs: 1
     any:
       - id: chromium-cookie-sql
       - id: firefox-cookie-sql
@@ -301,7 +301,7 @@ composite_rules:
     attack: "T1555.003"
     mbc: "B0028"
     for: [python, javascript, applescript, shell, elf, pe, macho]
-    count_min: 3
+    needs: 3
     any:
       - { id: chrome-path }
       - { id: brave-path }

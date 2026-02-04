@@ -156,7 +156,7 @@ composite_rules:
     for: [elf, shell]
     attack: "T1562.004"
     mbc: "E1562"
-    count_min: 3
+    needs: 3
     any:
       - id: firewall-cmd-add-port
       - id: firewall-cmd-permanent
