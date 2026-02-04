@@ -732,7 +732,7 @@ impl MachOAnalyzer {
                 id: ent_trait_id,
                 desc: format!("Entitlement: {}", entitlement_key),
                 conf: 1.0,
-                crit: determine_entitlement_criticality(entitlement_key),
+                crit: determine_entitlement_criticality(entitlement_key, &codesig.signature_type),
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -944,13 +944,22 @@ impl MachOAnalyzer {
 }
 
 /// Determine criticality of an entitlement based on its key
-fn determine_entitlement_criticality(entitlement_key: &str) -> Criticality {
+fn determine_entitlement_criticality(
+    entitlement_key: &str,
+    signature_type: &macho_codesign::SignatureType,
+) -> Criticality {
+    // Platform binaries: all entitlements are Notable
+    // (Apple control what goes in platform binaries)
+    if matches!(signature_type, macho_codesign::SignatureType::Platform) {
+        return Criticality::Notable;
+    }
+
     // Sensitive privacy entitlements
     if entitlement_key.contains("personal-information") || entitlement_key.contains("device.") {
         return Criticality::Notable;
     }
 
-    // Dangerous security-related entitlements
+    // Dangerous security-related entitlements (only suspicious for non-platform binaries)
     if entitlement_key.contains("disable-library-validation")
         || entitlement_key.contains("allow-jit")
         || entitlement_key.contains("debugger")
