@@ -54,9 +54,9 @@ const successCriteria = `## Success Criteria
 
 const debugCommands = `## Debug & Validate
 ` + "```" + `
-dissect %s --format jsonl                   # see current findings
-dissect test-rules %s --rules "rule-id"     # debug single rule
-dissect test-match %s --type string --pattern "X"  # test patterns
+%s %s --format jsonl                   # see current findings
+%s test-rules %s --rules "rule-id"     # debug single rule
+%s test-match %s --type string --pattern "X"  # test patterns
 ` + "```" + ``
 
 const goodPromptTask = `## Strategy: Fix False Positives
@@ -112,7 +112,7 @@ const badPromptArchiveTask = `## Strategy: Add Missing Detection to Archive
 **Do Not**: Create file-specific rules, add unrelated traits, or break YAML format.`
 
 // Helper function to build prompts from blocks
-func buildGoodPrompt(isArchive bool, path string, archiveCount int, repoRoot string) string {
+func buildGoodPrompt(isArchive bool, path string, archiveCount int, repoRoot, dissectBin string) string {
 	var header string
 	var taskBlock string
 	var traitNote string
@@ -130,12 +130,12 @@ func buildGoodPrompt(isArchive bool, path string, archiveCount int, repoRoot str
 		debugCmd = path
 	}
 
-	debug := fmt.Sprintf(debugCommands, debugCmd, debugCmd, debugCmd)
+	debug := fmt.Sprintf(debugCommands, dissectBin, debugCmd, dissectBin, debugCmd, dissectBin, debugCmd)
 
 	return fmt.Sprintf("%s\n%s\n\n%s\n\n%s\n\n%s\n\n%s\n\nTraits: %s/traits/ | %s", header, keyConstraints, taskBlock, successCriteria, debug, repoRoot, traitNote)
 }
 
-func buildBadPrompt(isArchive bool, path string, archiveCount int, repoRoot string) string {
+func buildBadPrompt(isArchive bool, path string, archiveCount int, repoRoot, dissectBin string) string {
 	var header string
 	var taskBlock string
 	var traitNote string
@@ -153,7 +153,7 @@ func buildBadPrompt(isArchive bool, path string, archiveCount int, repoRoot stri
 		debugCmd = path
 	}
 
-	debug := fmt.Sprintf(debugCommands, debugCmd, debugCmd, debugCmd)
+	debug := fmt.Sprintf(debugCommands, dissectBin, debugCmd, dissectBin, debugCmd, dissectBin, debugCmd)
 
 	return fmt.Sprintf("%s\n%s\n\n%s\n\n%s\n\n%s\n\nTraits: %s/traits/ | %s", header, keyConstraints, taskBlock, successCriteria, debug, repoRoot, traitNote)
 }
@@ -162,6 +162,7 @@ type config struct {
 	db          *sql.DB
 	dirs        []string
 	repoRoot    string
+	dissectBin  string // Path to dissect binary
 	provider    string
 	model       string
 	sampleDir   string
@@ -606,6 +607,39 @@ func main() {
 
 	ctx := context.Background()
 
+	// Build or locate dissect binary
+	if *useCargo {
+		fmt.Fprint(os.Stderr, "Building release binary with cargo build --release...\n")
+
+		cmd := exec.CommandContext(ctx, "cargo", "build", "--release")
+		cmd.Dir = resolvedRoot
+
+		var stderr bytes.Buffer
+		cmd.Stderr = &stderr
+
+		if err := cmd.Run(); err != nil {
+			//nolint:gocritic // exitAfterDefer: defers won't run after log.Fatalf, acceptable for fatal errors
+			log.Fatalf("cargo build --release failed: %v (%s)", err, stderr.String())
+		}
+
+		// Determine binary path based on OS
+		binName := "dissect"
+		if runtime.GOOS == "windows" {
+			binName = "dissect.exe"
+		}
+		cfg.dissectBin = filepath.Join(resolvedRoot, "target", "release", binName)
+
+		// Verify the binary exists
+		if _, err := os.Stat(cfg.dissectBin); err != nil {
+			//nolint:gocritic // exitAfterDefer: defers won't run after log.Fatalf, acceptable for fatal errors
+			log.Fatalf("binary not found at %s: %v", cfg.dissectBin, err)
+		}
+
+		fmt.Fprintf(os.Stderr, "Built release binary: %s\n", cfg.dissectBin)
+	} else {
+		cfg.dissectBin = "dissect"
+	}
+
 	// Sanity check: run dissect on /bin/ls to catch code errors early.
 	if err := sanityCheck(ctx, cfg); err != nil {
 		//nolint:gocritic // exitAfterDefer: defers won't run after log.Fatalf, acceptable for fatal errors
@@ -702,8 +736,8 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 	scanner := bufio.NewScanner(stdout)
 	scanner.Buffer(make([]byte, 128*1024*1024), 128*1024*1024) // 128MB buffer
 
-	fileCount := 0
-	lastProgress := time.Now()
+	n := 0
+	last := time.Now()
 
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
@@ -713,10 +747,10 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 
 		// If we've hit the 4-file review limit, just consume remaining lines without processing
 		if state.stopProcessing {
-			fileCount++
-			if time.Since(lastProgress) > 100*time.Millisecond {
-				fmt.Fprintf(os.Stderr, "\r  Consuming remaining scan results... %d files", fileCount)
-				lastProgress = time.Now()
+			n++
+			if time.Since(last) > 100*time.Millisecond {
+				fmt.Fprintf(os.Stderr, "\r  Consuming remaining scan results... %d files", n)
+				last = time.Now()
 			}
 			continue
 		}
@@ -730,11 +764,11 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 			continue
 		}
 
-		fileCount++
+		n++
 
-		if time.Since(lastProgress) > 100*time.Millisecond {
-			fmt.Fprintf(os.Stderr, "\r  Scanning... %d files processed", fileCount)
-			lastProgress = time.Now()
+		if time.Since(last) > 100*time.Millisecond {
+			fmt.Fprintf(os.Stderr, "\r  Scanning... %d files processed", n)
+			last = time.Now()
 		}
 
 		f := FileAnalysis{
@@ -768,7 +802,7 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 		return state.stats, fmt.Errorf("dissect failed: %w", err)
 	}
 
-	fmt.Fprintf(os.Stderr, "\r  Scanned %d files total                    \n", fileCount)
+	fmt.Fprintf(os.Stderr, "\r  Scanned %d files total                    \n", n)
 	return state.stats, nil
 }
 
@@ -778,25 +812,16 @@ func buildDissectCommand(ctx context.Context, cfg *config) *exec.Cmd {
 		sampleMaxRisk = "hostile"
 	}
 
-	var cmd *exec.Cmd
+	args := []string{
+		"--format", "jsonl",
+		"--sample-dir", cfg.sampleDir,
+		"--sample-max-risk", sampleMaxRisk,
+	}
+	args = append(args, cfg.dirs...)
+
+	cmd := exec.CommandContext(ctx, cfg.dissectBin, args...)
 	if cfg.useCargo {
-		args := []string{
-			"run", "--release", "--",
-			"--format", "jsonl",
-			"--sample-dir", cfg.sampleDir,
-			"--sample-max-risk", sampleMaxRisk,
-		}
-		args = append(args, cfg.dirs...)
-		cmd = exec.CommandContext(ctx, "cargo", args...)
-		cmd.Dir = cfg.repoRoot
-	} else {
-		args := []string{
-			"--format", "jsonl",
-			"--sample-dir", cfg.sampleDir,
-			"--sample-max-risk", sampleMaxRisk,
-		}
-		args = append(args, cfg.dirs...)
-		cmd = exec.CommandContext(ctx, "dissect", args...)
+		cmd.Dir = cfg.repoRoot // Run from repo root if using cargo
 	}
 	return cmd
 }
@@ -1028,12 +1053,9 @@ func sanityCheck(ctx context.Context, cfg *config) error {
 	const testFile = "/bin/ls"
 	fmt.Fprintf(os.Stderr, "Sanity check: running dissect on %s...\n", testFile)
 
-	var cmd *exec.Cmd
+	cmd := exec.CommandContext(ctx, cfg.dissectBin, "--format", "jsonl", testFile)
 	if cfg.useCargo {
-		cmd = exec.CommandContext(ctx, "cargo", "run", "--release", "--", "--format", "jsonl", testFile)
-		cmd.Dir = cfg.repoRoot
-	} else {
-		cmd = exec.CommandContext(ctx, "dissect", "--format", "jsonl", testFile)
+		cmd.Dir = cfg.repoRoot // Run from repo root if using cargo
 	}
 
 	var stdout, stderr bytes.Buffer
@@ -1058,10 +1080,10 @@ func sanityCheck(ctx context.Context, cfg *config) error {
 func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) error {
 	var prompt, task string
 	if cfg.knownGood {
-		prompt = buildGoodPrompt(false, f.Path, 0, cfg.repoRoot)
+		prompt = buildGoodPrompt(false, f.Path, 0, cfg.repoRoot, cfg.dissectBin)
 		task = "Review for false positives (known-good collection)"
 	} else {
-		prompt = buildBadPrompt(false, f.Path, 0, cfg.repoRoot)
+		prompt = buildBadPrompt(false, f.Path, 0, cfg.repoRoot, cfg.dissectBin)
 		task = "Find missing detections (known-bad collection)"
 	}
 
@@ -1206,10 +1228,10 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 
 	var prompt, task string
 	if cfg.knownGood {
-		prompt = buildGoodPrompt(true, a.ArchivePath, len(problematic), cfg.repoRoot)
+		prompt = buildGoodPrompt(true, a.ArchivePath, len(problematic), cfg.repoRoot, cfg.dissectBin)
 		task = "Review archive for false positives (known-good collection)"
 	} else {
-		prompt = buildBadPrompt(true, a.ArchivePath, len(problematic), cfg.repoRoot)
+		prompt = buildBadPrompt(true, a.ArchivePath, len(problematic), cfg.repoRoot, cfg.dissectBin)
 		task = "Find missing detections in archive (known-bad collection)"
 	}
 
@@ -1357,28 +1379,28 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 	done := make(chan struct{})
 	go func() {
 		scanner := bufio.NewScanner(stdout)
-		lineCount := 0
+		n := 0
 		for scanner.Scan() {
-			lineCount++
+			n++
 			displayStreamEvent(scanner.Text())
 		}
-		fmt.Fprintf(os.Stderr, ">>> stdout closed after %d lines\n", lineCount)
+		fmt.Fprintf(os.Stderr, ">>> stdout closed after %d lines\n", n)
 		done <- struct{}{}
 	}()
 
 	go func() {
 		scanner := bufio.NewScanner(stderr)
-		lineCount := 0
+		n := 0
 		for scanner.Scan() {
 			line := scanner.Text()
-			lineCount++
+			n++
 			fmt.Fprintf(os.Stderr, "  [stderr] %s\n", line)
 			stderrMu.Lock()
 			stderrLines = append(stderrLines, line)
 			stderrMu.Unlock()
 		}
-		if lineCount > 0 {
-			fmt.Fprintf(os.Stderr, ">>> stderr closed after %d lines\n", lineCount)
+		if n > 0 {
+			fmt.Fprintf(os.Stderr, ">>> stderr closed after %d lines\n", n)
 		}
 		done <- struct{}{}
 	}()
