@@ -166,17 +166,18 @@ dissect test-match <file> --type string --pattern X   # test individual conditio
 Traits: %s/traits/ | Skip cargo test | Focus on this archive`
 
 type config struct {
-	db        *sql.DB
-	dirs      []string
-	repoRoot  string
-	provider  string
-	model     string
-	sampleDir string
-	timeout   time.Duration
-	knownGood bool
-	knownBad  bool
-	useCargo  bool
-	flush     bool
+	db          *sql.DB
+	dirs        []string
+	repoRoot    string
+	provider    string
+	model       string
+	sampleDir   string
+	timeout     time.Duration
+	knownGood   bool
+	knownBad    bool
+	useCargo    bool
+	flush       bool
+	rescanAfter int // Number of files to review before restarting scan (0 = disabled)
 }
 
 // Finding represents a matched trait/capability.
@@ -277,11 +278,11 @@ func extractZip(archivePath, destDir string) (*archiveExtraction, error) {
 		}
 
 		if _, err := io.Copy(dst, src); err != nil {
-			src.Close()  //nolint:errcheck
+			src.Close() //nolint:errcheck
 			dst.Close() //nolint:errcheck
 			return nil, fmt.Errorf("extract file: %w", err)
 		}
-		src.Close()  //nolint:errcheck
+		src.Close() //nolint:errcheck
 		dst.Close() //nolint:errcheck
 
 		members = append(members, f.Name)
@@ -441,8 +442,8 @@ func archiveMemberStats(archive *ArchiveAnalysis) (mostNotable, largest *FileAna
 		if largest == nil {
 			largest = &archive.Members[i]
 		} else if m.ExtractedPath != "" && largest.ExtractedPath != "" {
-			sizeM, errM := getFileSize(m.ExtractedPath)
-			sizeL, errL := getFileSize(largest.ExtractedPath)
+			sizeM, errM := fileSize(m.ExtractedPath)
+			sizeL, errL := fileSize(largest.ExtractedPath)
 			if errM == nil && errL == nil && sizeM > sizeL {
 				largest = &archive.Members[i]
 			}
@@ -452,8 +453,8 @@ func archiveMemberStats(archive *ArchiveAnalysis) (mostNotable, largest *FileAna
 	return
 }
 
-// getFileSize returns the size of a file.
-func getFileSize(path string) (int64, error) {
+// fileSize returns the size of a file.
+func fileSize(path string) (int64, error) {
 	info, err := os.Stat(path)
 	if err != nil {
 		return 0, err
@@ -488,11 +489,6 @@ func realFilePath(path string) string {
 		return path[:idx]
 	}
 	return path
-}
-
-// isFragment returns true if this path represents an encoded/decoded fragment.
-func isFragment(path string) bool {
-	return strings.Contains(path, "##")
 }
 
 // archiveNeedsReview returns true if any member of the archive needs review.
@@ -544,6 +540,7 @@ func main() {
 	useCargo := flag.Bool("cargo", true, "Use 'cargo run --release' instead of dissect binary")
 	timeout := flag.Duration("timeout", 20*time.Minute, "Maximum time for each AI invocation")
 	flush := flag.Bool("flush", false, "Clear analysis cache and reprocess all files")
+	rescanAfter := flag.Int("rescan-after", 4, "Restart scan after reviewing N files to verify fixes (0 = disabled)")
 
 	flag.Parse()
 
@@ -596,21 +593,22 @@ func main() {
 		db.Close() //nolint:errcheck,gosec // best-effort cleanup on fatal error
 		log.Fatalf("Could not create sample directory: %v", err)
 	}
-	defer func() { os.RemoveAll(sampleDir) }() //nolint:errcheck,gosec // best-effort cleanup
-	defer func() { db.Close() }()              //nolint:errcheck,gosec // best-effort cleanup
+	defer os.RemoveAll(sampleDir) //nolint:errcheck,gosec // best-effort cleanup
+	defer db.Close()              //nolint:errcheck,gosec // best-effort cleanup
 
 	cfg := &config{
-		dirs:      dirs,
-		repoRoot:  resolvedRoot,
-		provider:  *provider,
-		model:     *model,
-		timeout:   *timeout,
-		knownGood: *knownGood,
-		knownBad:  *knownBad,
-		useCargo:  *useCargo,
-		flush:     *flush,
-		db:        db,
-		sampleDir: sampleDir,
+		dirs:        dirs,
+		repoRoot:    resolvedRoot,
+		provider:    *provider,
+		model:       *model,
+		timeout:     *timeout,
+		knownGood:   *knownGood,
+		knownBad:    *knownBad,
+		useCargo:    *useCargo,
+		flush:       *flush,
+		db:          db,
+		sampleDir:   sampleDir,
+		rescanAfter: *rescanAfter,
 	}
 
 	ctx := context.Background()
@@ -642,13 +640,25 @@ func main() {
 	}
 
 	// Use streaming analysis - process each archive as it completes.
-	stats, err := streamAnalyzeAndReview(ctx, cfg, dbMode)
-	if err != nil {
-		log.Fatalf("Analysis failed: %v", err)
+	// Loop and restart after every 4 reviews to catch fixed files.
+	for {
+		stats, err := streamAnalyzeAndReview(ctx, cfg, dbMode)
+		if err != nil {
+			log.Fatalf("Analysis failed: %v", err)
+		}
+
+		if !stats.shouldRestart {
+			// No more files to review
+			fmt.Fprintf(os.Stderr, "\nDone. Reviewed %d archives, %d standalone files. Skipped %d (cached), %d (no review needed).\n",
+				stats.archivesReviewed, stats.standaloneReviewed, stats.skippedCached, stats.skippedNoReview)
+			break
+		}
+
+		// Clear the counter for the next batch of 4 files
+		fmt.Fprintf(os.Stderr, "Waiting 2 seconds before restarting scan...\n")
+		time.Sleep(2 * time.Second)
 	}
 
-	fmt.Fprintf(os.Stderr, "\nDone. Reviewed %d archives, %d standalone files. Skipped %d (cached), %d (no review needed).\n",
-		stats.archivesReviewed, stats.standaloneReviewed, stats.skippedCached, stats.skippedNoReview)
 	fmt.Fprint(os.Stderr, "Run \"git diff traits/\" to see changes.\n")
 }
 
@@ -659,6 +669,7 @@ type streamStats struct {
 	skippedCached      int
 	skippedNoReview    int
 	totalFiles         int
+	shouldRestart      bool // Set to true when we've reviewed 4 files and should rescan
 }
 
 // streamState tracks the current processing state as we stream files.
@@ -670,6 +681,8 @@ type streamState struct {
 	currentArchivePath string
 	currentRealFile    *RealFileAnalysis
 	currentRealPath    string
+	filesReviewedCount int  // Count of files sent to LLM for review
+	stopProcessing     bool // Set to true when we've reviewed 4 files
 }
 
 // streamAnalyzeAndReview streams dissect output and reviews archives as they complete.
@@ -702,6 +715,16 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		if line == "" {
+			continue
+		}
+
+		// If we've hit the 4-file review limit, just consume remaining lines without processing
+		if state.stopProcessing {
+			fileCount++
+			if time.Since(lastProgress) > 100*time.Millisecond {
+				fmt.Fprintf(os.Stderr, "\r  Consuming remaining scan results... %d files", fileCount)
+				lastProgress = time.Now()
+			}
 			continue
 		}
 
@@ -821,7 +844,7 @@ func processFileEntry(ctx context.Context, state *streamState, f FileAnalysis, a
 			RealPath:  fPath,
 			Fragments: []FileAnalysis{},
 		}
-		if isFragment(f.Path) {
+		if strings.Contains(f.Path, "##") {
 			// This entry itself is a fragment; root file entry may come later
 			newReal.Fragments = []FileAnalysis{f}
 		} else {
@@ -901,6 +924,14 @@ func processCompletedArchive(ctx context.Context, state *streamState) {
 			fmt.Fprintf(os.Stderr, "Warning: could not record analysis for %s: %v\n", archive.ArchivePath, err)
 		}
 		state.stats.archivesReviewed++
+		state.filesReviewedCount++
+
+		// After reviewing N files, restart the scan to pick up any fixes (if rescanAfter > 0)
+		if state.cfg.rescanAfter > 0 && state.filesReviewedCount >= state.cfg.rescanAfter {
+			fmt.Fprintf(os.Stderr, "\n⚡ Reviewed %d files - restarting scan to verify fixes\n\n", state.cfg.rescanAfter)
+			state.stopProcessing = true
+			state.stats.shouldRestart = true
+		}
 	}
 }
 
@@ -960,6 +991,14 @@ func processRealFile(ctx context.Context, state *streamState) {
 			fmt.Fprintf(os.Stderr, "Warning: could not record analysis for %s: %v\n", rf.RealPath, err)
 		}
 		state.stats.standaloneReviewed++
+		state.filesReviewedCount++
+
+		// After reviewing N files, restart the scan to pick up any fixes (if rescanAfter > 0)
+		if state.cfg.rescanAfter > 0 && state.filesReviewedCount >= state.cfg.rescanAfter {
+			fmt.Fprintf(os.Stderr, "\n⚡ Reviewed %d files - restarting scan to verify fixes\n\n", state.cfg.rescanAfter)
+			state.stopProcessing = true
+			state.stats.shouldRestart = true
+		}
 	}
 }
 
@@ -1058,15 +1097,15 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) erro
 	fmt.Fprintf(os.Stderr, "│ Task: %s\n", task)
 	fmt.Fprintln(os.Stderr, "├─────────────────────────────────────────────────────────────")
 	fmt.Fprintln(os.Stderr, "│ Prompt (abbreviated):")
-	var promptLines []string
-	for line := range strings.SplitSeq(prompt, "\n") {
-		promptLines = append(promptLines, line)
+	var lines []string
+	for ln := range strings.SplitSeq(prompt, "\n") {
+		lines = append(lines, ln)
 	}
-	for i, line := range promptLines {
-		if i < 20 || i >= len(promptLines)-5 {
-			fmt.Fprintf(os.Stderr, "│   %s\n", line)
+	for i, ln := range lines {
+		if i < 20 || i >= len(lines)-5 {
+			fmt.Fprintf(os.Stderr, "│   %s\n", ln)
 		} else if i == 20 {
-			fmt.Fprintf(os.Stderr, "│   ... (%d lines of findings JSON) ...\n", len(promptLines)-25)
+			fmt.Fprintf(os.Stderr, "│   ... (%d lines of findings JSON) ...\n", len(lines)-25)
 		}
 	}
 	fmt.Fprintln(os.Stderr, "└─────────────────────────────────────────────────────────────")
@@ -1151,11 +1190,11 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 					return fmt.Errorf("create destination file: %w", err)
 				}
 				if _, err := io.Copy(dst, src); err != nil {
-					src.Close()  //nolint:errcheck
+					src.Close() //nolint:errcheck
 					dst.Close() //nolint:errcheck
 					return fmt.Errorf("copy extracted file: %w", err)
 				}
-				src.Close()  //nolint:errcheck
+				src.Close() //nolint:errcheck
 				dst.Close() //nolint:errcheck
 			}
 		}
@@ -1211,15 +1250,15 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 	fmt.Fprintf(os.Stderr, "│ Task: %s\n", task)
 	fmt.Fprintln(os.Stderr, "├─────────────────────────────────────────────────────────────")
 	fmt.Fprintln(os.Stderr, "│ Prompt (abbreviated):")
-	var promptLines []string
-	for line := range strings.SplitSeq(prompt, "\n") {
-		promptLines = append(promptLines, line)
+	var lines []string
+	for ln := range strings.SplitSeq(prompt, "\n") {
+		lines = append(lines, ln)
 	}
-	for i, line := range promptLines {
-		if i < 30 || i >= len(promptLines)-5 {
-			fmt.Fprintf(os.Stderr, "│   %s\n", line)
+	for i, ln := range lines {
+		if i < 30 || i >= len(lines)-5 {
+			fmt.Fprintf(os.Stderr, "│   %s\n", ln)
 		} else if i == 30 {
-			fmt.Fprintf(os.Stderr, "│   ... (%d lines) ...\n", len(promptLines)-35)
+			fmt.Fprintf(os.Stderr, "│   ... (%d lines) ...\n", len(lines)-35)
 		}
 	}
 	fmt.Fprintln(os.Stderr, "└─────────────────────────────────────────────────────────────")
@@ -1259,8 +1298,10 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 	case "gemini":
 		args := []string{
 			"-p", prompt,
+			"--verbose",
 			"--yolo",
 			"--output-format", "stream-json",
+			"--resume", "latest",
 		}
 		if cfg.model != "" {
 			args = append(args, "--model", cfg.model)
@@ -1278,9 +1319,12 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 
 	cmd.Dir = cfg.repoRoot
 
+	// Print the exact command being executed
+	fmt.Fprintf(os.Stderr, ">>> Command: %s %s\n", cmd.Path, strings.Join(cmd.Args[1:], " "))
+
 	if devNull, err := os.Open(os.DevNull); err == nil {
 		cmd.Stdin = devNull
-		defer func() { devNull.Close() }() //nolint:errcheck,gosec // best-effort cleanup
+		defer devNull.Close() //nolint:errcheck,gosec // best-effort cleanup
 	}
 
 	stdout, err := cmd.StdoutPipe()
@@ -1334,7 +1378,11 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 		}
 	}
 
-	if err := cmd.Wait(); err != nil {
+	err = cmd.Wait()
+	exitCode := cmd.ProcessState.ExitCode()
+	fmt.Fprintf(os.Stderr, "\n<<< Process exited with code %d\n", exitCode)
+
+	if err != nil {
 		if ctx.Err() == context.DeadlineExceeded {
 			return errors.New("exceeded time limit")
 		}
@@ -1515,7 +1563,7 @@ func hashFile(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer func() { f.Close() }() //nolint:errcheck,gosec // best-effort cleanup
+	defer f.Close() //nolint:errcheck,gosec // best-effort cleanup
 
 	h := sha256.New()
 	if _, err := io.Copy(h, f); err != nil {
