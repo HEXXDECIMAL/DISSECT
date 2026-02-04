@@ -35,8 +35,8 @@ traits:
     conf: 0.95
     if:
       type: string
-      # Well-known Mirai/botnet credential patterns
-      regex: "^(root|admin|support|user|guest|supervisor|daemon|service|enable|system|ubnt|mother|login|shell|root621|root123|admin1234|888888|666666|12345|54321|pass)$"
+      # Mirai-specific hardcoded patterns (not generic words)
+      regex: "^(ubnt|root621|root123|admin1234|888888|666666|7ujMko0)$"
 
   # === Network Scanning Indicators ===
   - id: proc-net-tcp

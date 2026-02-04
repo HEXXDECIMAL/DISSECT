@@ -870,7 +870,7 @@ traits:
     if:
       type: ast
       node: preproc_def
-      regex: "SIG[A-Z]+"
+      regex: "^SIG[A-Z]+$"
 
   - id: signal-switch-handler
     desc: Signal-based switch handler (command dispatch)

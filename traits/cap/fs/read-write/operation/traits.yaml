@@ -49,7 +49,7 @@ traits:
     for: [elf, macho, so, dylib, c]
     if:
       type: symbol
-      regex: link
+      exact: link
     platforms: [unix, linux, macos]
 
   # File metadata operations

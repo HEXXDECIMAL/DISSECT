@@ -8,7 +8,7 @@ defaults:
 traits:
   # Signal sending
   - id: kill
-    desc: Send signal to process (terminate,
+    desc: Send signal to process
     crit: notable
     mbc: "E1562"
     attack: "T1562"
@@ -31,7 +31,7 @@ traits:
 
   # Signal handling
   - id: signal
-    desc: Install signal handler (catch or
+    desc: Install signal handler
     crit: notable
     mbc: "F0004"
     attack: "T1562.001"

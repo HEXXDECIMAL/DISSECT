@@ -53,7 +53,7 @@ traits:
     conf: 0.8
     for: [elf, shell]
     if:
-      type: string
+      type: base64
       regex: "^/[a-z]{2,}[a-z_/]*$"
     attack: "T1027.001"
 

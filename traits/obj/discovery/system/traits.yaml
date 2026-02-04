@@ -134,7 +134,7 @@ traits:
 
   # macOS-specific system information
   - id: host_info
-    desc: Get host information (macOS Mach
+    desc: Get host information (macOS Mach)
     crit: notable
     mbc: "E1082"
     attack: "T1082"
@@ -145,7 +145,7 @@ traits:
     platforms: [macos]
 
   - id: host_statistics
-    desc: Get host statistics (macOS Mach
+    desc: Get host statistics (macOS Mach)
     crit: notable
     mbc: "E1082"
     attack: "T1082"

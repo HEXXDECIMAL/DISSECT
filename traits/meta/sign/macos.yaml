@@ -47,6 +47,56 @@ traits:
       type: string
       substr: "certificate leaf"
 
+  # === Signature Type (parsed from code signature blob) ===
+  - id: as/adhoc
+    desc: Ad-hoc code signature
+    crit: notable
+    conf: 1.0
+    if:
+      type: trait
+      id: meta/signed/as/adhoc
+
+  - id: as/developer-id
+    desc: Developer ID signed application
+    crit: inert
+    conf: 1.0
+    if:
+      type: trait
+      id: meta/signed/as/developer-id
+
+  - id: as/platform
+    desc: Apple platform binary
+    crit: inert
+    conf: 1.0
+    if:
+      type: trait
+      id: meta/signed/as/platform
+
+  - id: as/app-store
+    desc: Mac App Store signed application
+    crit: inert
+    conf: 1.0
+    if:
+      type: trait
+      id: meta/signed/as/app-store
+
+  - id: as/unknown
+    desc: Unknown signature type
+    crit: inert
+    conf: 1.0
+    if:
+      type: trait
+      id: meta/signed/as/unknown
+
+  # === Hardened Runtime ===
+  - id: hardened-runtime
+    desc: Hardened runtime enabled
+    crit: inert
+    conf: 1.0
+    if:
+      type: trait
+      id: meta/hardened-runtime
+
 composite_rules:
   - id: signed
     desc: Apple code signature markers
