@@ -185,40 +185,46 @@ fn split_trait_id(id: &str) -> (String, String) {
     }
 }
 
-/// Convert namespace to long name, falling back to original if no mapping exists
-fn namespace_long_name(ns: &str) -> &str {
-    match ns {
-        "c2" => "C2",
-        "intel" => "discovery",
-        "crypto" => "crypto",
-        "exfil" => "exfiltration",
-        "exec" => "execution",
-        "fs" => "filesystem",
-        "hw" => "hardware",
-        "net" => "network",
-        "os" => "OS",
-        "3P" => "third-party",
-        "persistence" => "persistence",
-        "anti-analysis" => "anti-analysis",
-        "anti-static" => "static evasion",
-        "evasion" => "evasion",
-        "privesc" => "privilege escalation",
-        "process" => "process",
-        "mem" => "memory",
-        "data" => "data",
-        "impact" => "impact",
-        "access" => "access",
-        "credential" => "credentials",
-        "cred" => "credentials",
-        "lateral" => "lateral movement",
-        "kernel" => "kernel",
-        "reflect" => "reflection",
-        "archive" => "archive",
-        "comm" => "network",
-        "collect" => "collection",
-        "feat" => "features",
-        "known-malware" => "known malware",
-        _ => ns,
+/// Convert namespace to long name, capitalizing if no explicit mapping exists
+fn namespace_long_name(ns: &str) -> String {
+    let mapped = match ns {
+        "c2" => Some("COMMAND & CONTROL"),
+        "crypto" => Some("CRYPTOGRAPHY"),
+        "exfil" => Some("EXFILTRATION"),
+        "exec" => Some("EXECUTION"),
+        "fs" => Some("FILESYSTEM"),
+        "hw" => Some("HARDWARE"),
+        "comm" => Some("COMMUNICATION"),
+        "os" => Some("OS"),
+        "anti-analysis" => Some("ANTI-ANALYSIS"),
+        "anti-static" => Some("STATIC EVASION"),
+        "anti-forensics" => Some("ANTI-FORENSICS"),
+        "privesc" => Some("PRIVILEGE ESCALATION"),
+        "process" => Some("PROCESS"),
+        "mem" => Some("MEMORY"),
+        "data" => Some("DATA"),
+        "impact" => Some("IMPACT"),
+        "creds" => Some("CREDENTIALS"),
+        "lateral" => Some("LATERAL MOVEMENT"),
+        "persist" => Some("PERSISTENCE"),
+        "discovery" => Some("DISCOVERY"),
+        "exploit" => Some("EXPLOIT"),
+        "collect" => Some("COLLECTION"),
+        "graphics" => Some("GRAPHICS"),
+        "interop" => Some("INTEROPERABILITY"),
+        "io" => Some("INPUT/OUTPUT"),
+        "time" => Some("TIME"),
+        "ui" => Some("USER INTERFACE"),
+        "meta" => Some("METADATA"),
+        _ => None,
+    };
+
+    match mapped {
+        Some(name) => name.to_string(),
+        None => {
+            // Full uppercase and replace hyphens with spaces for unknown namespaces
+            ns.replace('-', " ").to_uppercase()
+        }
     }
 }
 
@@ -418,13 +424,6 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
             continue;
         }
 
-        // File header
-        output.push_str(&format!(
-            "├─ {}\n",
-            file.path.bright_white()
-        ));
-        output.push_str("│\n");
-
         // Aggregate findings by directory path
         let aggregated = aggregate_findings_by_directory(&file.findings);
 
@@ -438,9 +437,12 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
             continue;
         }
 
-        // Group by namespace
+        // Group by namespace and count criticality levels
         let mut by_namespace: HashMap<String, Vec<&Finding>> = HashMap::new();
         let mut ns_max_crit: HashMap<String, Criticality> = HashMap::new();
+        let mut hostile_count = 0;
+        let mut suspicious_count = 0;
+        let mut notable_count = 0;
 
         for finding in &filtered {
             let (ns, _) = split_trait_id(&finding.id);
@@ -449,7 +451,41 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
                 ns_max_crit.insert(ns.clone(), finding.crit);
             }
             by_namespace.entry(ns).or_default().push(finding);
+
+            // Count by criticality
+            match finding.crit {
+                Criticality::Hostile => hostile_count += 1,
+                Criticality::Suspicious => suspicious_count += 1,
+                Criticality::Notable => notable_count += 1,
+                _ => {}
+            }
         }
+
+        // Build summary for file header
+        let mut summary_parts = Vec::new();
+        if hostile_count > 0 {
+            summary_parts.push(format!("🛑 {} hostile", hostile_count));
+        }
+        if suspicious_count > 0 {
+            summary_parts.push(format!("🟡 {} suspicious", suspicious_count));
+        }
+        if notable_count > 0 {
+            summary_parts.push(format!("🔵 {} notable", notable_count));
+        }
+
+        let summary = if !summary_parts.is_empty() {
+            format!(" • {}", summary_parts.join(" • "))
+        } else {
+            String::new()
+        };
+
+        // File header with summary
+        output.push_str(&format!(
+            "├─ {}{}\n",
+            file.path.bright_white(),
+            summary
+        ));
+        output.push_str("│\n");
 
         // Sort namespaces by criticality then name
         let mut namespaces: Vec<String> = by_namespace.keys().cloned().collect();
@@ -458,13 +494,13 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
             let crit_b = ns_max_crit.get(b).unwrap_or(&Criticality::Inert);
             crit_b
                 .cmp(crit_a)
-                .then_with(|| namespace_long_name(a).cmp(namespace_long_name(b)))
+                .then_with(|| namespace_long_name(a).cmp(&namespace_long_name(b)))
         });
 
         // Render each namespace
         for ns in &namespaces {
             let findings = by_namespace.get(ns).unwrap();
-            output.push_str(&format!("│ ≡ {}\n", namespace_long_name(ns)));
+            output.push_str(&format!("│ ◇ {}\n", &namespace_long_name(ns)));
 
             let mut sorted_findings = findings.clone();
             sorted_findings.sort_by(|a, b| b.crit.cmp(&a.crit).then_with(|| a.id.cmp(&b.id)));
@@ -492,7 +528,7 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
                         .len();
                     if display_len > 120 {
                         output.push_str(&format!("│   {}\n", content));
-                        output.push_str(&format!("│     {}\n", evidence.bright_black()));
+                        output.push_str(&format!("│      {}\n", evidence.bright_black()));
                     } else {
                         output.push_str(&format!(
                             "│   {}{} {}\n",
@@ -505,6 +541,8 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
             }
             output.push_str("│\n");
         }
+        // Consistent blank line after each file
+        output.push_str("│\n");
     }
 
     // If no files had findings, show a simple message
@@ -939,17 +977,16 @@ mod tests {
 
     #[test]
     fn test_namespace_long_name() {
-        assert_eq!(namespace_long_name("c2"), "C2");
-        assert_eq!(namespace_long_name("intel"), "discovery");
-        assert_eq!(namespace_long_name("crypto"), "crypto");
-        assert_eq!(namespace_long_name("3P"), "third-party");
-        assert_eq!(namespace_long_name("credential"), "credentials");
-        assert_eq!(namespace_long_name("cred"), "credentials");
-        assert_eq!(namespace_long_name("anti-static"), "static evasion");
-        assert_eq!(namespace_long_name("comm"), "network");
-        assert_eq!(namespace_long_name("collect"), "collection");
-        assert_eq!(namespace_long_name("impact"), "impact");
-        assert_eq!(namespace_long_name("unknown"), "unknown");
+        assert_eq!(namespace_long_name("c2"), "COMMAND & CONTROL");
+        assert_eq!(namespace_long_name("discovery"), "DISCOVERY");
+        assert_eq!(namespace_long_name("crypto"), "CRYPTOGRAPHY");
+        assert_eq!(namespace_long_name("creds"), "CREDENTIALS");
+        assert_eq!(namespace_long_name("anti-static"), "STATIC EVASION");
+        assert_eq!(namespace_long_name("comm"), "COMMUNICATION");
+        assert_eq!(namespace_long_name("collect"), "COLLECTION");
+        assert_eq!(namespace_long_name("impact"), "IMPACT");
+        assert_eq!(namespace_long_name("meta"), "METADATA");
+        assert_eq!(namespace_long_name("unknown"), "Unknown");
     }
 
     #[test]
