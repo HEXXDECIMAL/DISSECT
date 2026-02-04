@@ -216,7 +216,11 @@ pub(crate) fn apply_composite_defaults(
     let criticality = match &raw.crit {
         Some(v) if v.eq_ignore_ascii_case("none") => Criticality::Inert,
         Some(v) => parse_criticality(v),
-        None => Criticality::Inert,
+        None => defaults
+            .crit
+            .as_deref()
+            .map(parse_criticality)
+            .unwrap_or(Criticality::Inert),
     };
 
     // Handle single condition by converting to requires_all

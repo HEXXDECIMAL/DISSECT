@@ -274,7 +274,9 @@ fn validate_decrypted_content(plaintext: &[u8]) -> bool {
     }
 
     // Check for common code patterns
-    let has_code_patterns = text.contains("function")
+    
+
+    text.contains("function")
         || text.contains("const ")
         || text.contains("let ")
         || text.contains("var ")
@@ -286,9 +288,7 @@ fn validate_decrypted_content(plaintext: &[u8]) -> bool {
         || text.contains("def ")
         || text.contains("if ")
         || text.contains("for ")
-        || text.contains("while ");
-
-    has_code_patterns
+        || text.contains("while ")
 }
 
 /// Detect the type of decrypted payload

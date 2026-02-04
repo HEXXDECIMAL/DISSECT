@@ -672,10 +672,7 @@ impl CompositeTrait {
 
         if result.matched {
             // Check proximity constraints (near_lines, near_bytes)
-            let evidence = match self.check_proximity_constraints(result.evidence) {
-                Some(ev) => ev,
-                None => return None, // Proximity constraint failed
-            };
+            let evidence = self.check_proximity_constraints(result.evidence)?;
 
             // Boost precision if proximity constraints were applied
             let mut precision_boost = 0.0;

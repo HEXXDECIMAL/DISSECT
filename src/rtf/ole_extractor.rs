@@ -68,7 +68,7 @@ pub fn find_ole_headers(data: &[u8]) -> Vec<(usize, OleHeader)> {
 }
 
 fn is_hex_digit(b: u8) -> bool {
-    matches!(b, b'0'..=b'9' | b'a'..=b'f' | b'A'..=b'F')
+    b.is_ascii_hexdigit()
 }
 
 fn is_whitespace(b: u8) -> bool {

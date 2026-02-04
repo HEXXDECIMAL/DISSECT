@@ -112,10 +112,10 @@ impl StringMatchIndex {
     /// Returns None if no useful literal can be extracted (pattern starts with metachar).
     fn extract_regex_literal(pattern: &str) -> Option<String> {
         let mut literal = String::new();
-        let mut chars = pattern.chars().peekable();
+        let chars = pattern.chars().peekable();
         let mut in_escape = false;
 
-        while let Some(c) = chars.next() {
+        for c in chars {
             if in_escape {
                 // Handle escaped characters
                 match c {
@@ -180,15 +180,13 @@ impl StringMatchIndex {
                             ci_patterns.push(exact_str.clone());
                             ci_pattern_to_traits.push(vec![trait_idx]);
                         }
+                    } else if let Some(&pattern_idx) = pattern_map.get(exact_str) {
+                        pattern_to_traits[pattern_idx].push(trait_idx);
                     } else {
-                        if let Some(&pattern_idx) = pattern_map.get(exact_str) {
-                            pattern_to_traits[pattern_idx].push(trait_idx);
-                        } else {
-                            let pattern_idx = patterns.len();
-                            pattern_map.insert(exact_str.clone(), pattern_idx);
-                            patterns.push(exact_str.clone());
-                            pattern_to_traits.push(vec![trait_idx]);
-                        }
+                        let pattern_idx = patterns.len();
+                        pattern_map.insert(exact_str.clone(), pattern_idx);
+                        patterns.push(exact_str.clone());
+                        pattern_to_traits.push(vec![trait_idx]);
                     }
                 }
                 // Regex string patterns - extract literal prefix for pre-filtering

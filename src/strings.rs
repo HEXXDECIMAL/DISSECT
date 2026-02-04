@@ -52,7 +52,7 @@ fn is_likely_base64(s: &str) -> bool {
 /// Check if a string looks like hex-encoded data
 fn is_likely_hex(s: &str) -> bool {
     // Hex strings are [0-9a-fA-F]+, must be even length and >= 32 chars
-    if s.len() < 32 || s.len() % 2 != 0 {
+    if s.len() < 32 || !s.len().is_multiple_of(2) {
         return false;
     }
 

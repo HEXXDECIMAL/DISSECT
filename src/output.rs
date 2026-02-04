@@ -466,6 +466,9 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
                 .then_with(|| namespace_long_name(a).cmp(namespace_long_name(b)))
         });
 
+        // Compile ANSI strip regex once, outside all loops
+        let ansi_re = regex::Regex::new(r"\x1b\[[0-9;]*m").unwrap();
+
         // Render each namespace
         for ns in &namespaces {
             let findings = by_namespace.get(ns).unwrap();
@@ -492,7 +495,6 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
                     output.push_str(&format!("│       {}\n", content));
                 } else {
                     // Strip ANSI codes for accurate length measurement
-                    let ansi_re = regex::Regex::new(r"\x1b\[[0-9;]*m").unwrap();
                     let display_len = ansi_re
                         .replace_all(&format!("{}: {}", content, evidence), "")
                         .len();

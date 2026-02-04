@@ -223,9 +223,7 @@ impl RtfParser {
                     }
                 }
                 '}' => {
-                    if current_depth > 0 {
-                        current_depth -= 1;
-                    }
+                    current_depth = current_depth.saturating_sub(1);
                 }
                 _ => {}
             }
@@ -288,7 +286,7 @@ fn detect_hex_obfuscation(text: &str) -> bool {
     let mut found_spacing = false;
 
     for &b in bytes {
-        let is_hex = matches!(b, b'0'..=b'9' | b'a'..=b'f' | b'A'..=b'F');
+        let is_hex = b.is_ascii_hexdigit();
         let is_ws = matches!(b, b' ' | b'\t' | b'\n' | b'\r');
 
         if is_hex {

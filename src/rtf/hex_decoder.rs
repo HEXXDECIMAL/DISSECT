@@ -34,7 +34,7 @@ pub fn decode_hex_tolerant(input: &str) -> Result<Vec<u8>> {
 /// Decode hex string without tolerance for whitespace
 pub fn decode_hex_strict(input: &str) -> Result<Vec<u8>> {
     let bytes = input.as_bytes();
-    if bytes.len() % 2 != 0 {
+    if !bytes.len().is_multiple_of(2) {
         return Err(RtfError::HexDecodeError {
             position: bytes.len(),
             reason: "hex string has odd length".to_string(),
