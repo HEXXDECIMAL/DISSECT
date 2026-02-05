@@ -22,7 +22,7 @@ fn create_test_context<'a>(report: &'a AnalysisReport, data: &'a [u8]) -> Evalua
         report,
         binary_data: data,
         file_type: FileType::Elf,
-        platform: Platform::Linux,
+        platforms: vec![Platform::Linux],
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,

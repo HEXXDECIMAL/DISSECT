@@ -22,13 +22,13 @@ pub fn eval_symbol(
     ctx: &EvaluationContext,
 ) -> ConditionResult {
     // Check platform constraint
-    // Match if: trait allows All platforms, OR context is All (no --platform specified),
-    // OR trait explicitly includes the context platform
+    // Match if: trait allows All platforms, OR context includes All (no --platforms filter),
+    // OR trait's platforms intersect with context's platforms
     if let Some(plats) = platforms {
-        if !plats.contains(&ctx.platform)
-            && !plats.contains(&Platform::All)
-            && ctx.platform != Platform::All
-        {
+        let platform_match = plats.contains(&Platform::All)
+            || ctx.platforms.contains(&Platform::All)
+            || plats.iter().any(|p| ctx.platforms.contains(p));
+        if !platform_match {
             return ConditionResult {
                 matched: false,
                 evidence: Vec::new(),

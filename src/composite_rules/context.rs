@@ -9,7 +9,8 @@ pub struct EvaluationContext<'a> {
     pub report: &'a AnalysisReport,
     pub binary_data: &'a [u8],
     pub file_type: FileType,
-    pub platform: Platform,
+    /// Platform filter(s) from CLI - rules match if their platforms intersect with these
+    pub platforms: Vec<Platform>,
     /// Additional findings from previous evaluation iterations (for composite chaining)
     pub additional_findings: Option<&'a [Finding]>,
     /// Cached parsed AST (to avoid re-parsing for each ast_pattern trait)
@@ -24,7 +25,7 @@ impl<'a> EvaluationContext<'a> {
         report: &'a AnalysisReport,
         binary_data: &'a [u8],
         file_type: FileType,
-        platform: Platform,
+        platforms: Vec<Platform>,
         additional_findings: Option<&'a [Finding]>,
         cached_ast: Option<&'a tree_sitter::Tree>,
     ) -> Self {
@@ -43,7 +44,7 @@ impl<'a> EvaluationContext<'a> {
             report,
             binary_data,
             file_type,
-            platform,
+            platforms,
             additional_findings,
             cached_ast,
             finding_id_index: Some(index),

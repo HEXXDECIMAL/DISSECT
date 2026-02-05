@@ -175,9 +175,13 @@ impl TraitDefinition {
 
     /// Check if trait applies to current platform/file type
     fn matches_target(&self, ctx: &EvaluationContext) -> bool {
+        // Platform matches if:
+        // - Rule allows all platforms, OR
+        // - Context includes all platforms (no filtering), OR
+        // - Rule's platforms intersect with context's platforms
         let platform_match = self.platforms.contains(&Platform::All)
-            || ctx.platform == Platform::All
-            || self.platforms.contains(&ctx.platform);
+            || ctx.platforms.contains(&Platform::All)
+            || self.platforms.iter().any(|p| ctx.platforms.contains(p));
 
         let file_type_match = self.r#for.contains(&FileType::All)
             || ctx.file_type == FileType::All
@@ -789,9 +793,13 @@ impl CompositeTrait {
 
     /// Check if rule applies to current platform/file type
     fn matches_target(&self, ctx: &EvaluationContext) -> bool {
+        // Platform matches if:
+        // - Rule allows all platforms, OR
+        // - Context includes all platforms (no filtering), OR
+        // - Rule's platforms intersect with context's platforms
         let platform_match = self.platforms.contains(&Platform::All)
-            || ctx.platform == Platform::All
-            || self.platforms.contains(&ctx.platform);
+            || ctx.platforms.contains(&Platform::All)
+            || self.platforms.iter().any(|p| ctx.platforms.contains(p));
 
         let file_type_match = self.r#for.contains(&FileType::All)
             || ctx.file_type == FileType::All
@@ -1166,13 +1174,13 @@ impl CompositeTrait {
         ctx: &EvaluationContext,
     ) -> ConditionResult {
         // Check platform constraint
-        // Match if: trait allows All platforms, OR context is All (no --platform specified),
-        // OR trait explicitly includes the context platform
+        // Match if: trait allows All platforms, OR context includes All (no --platforms filter),
+        // OR trait's platforms intersect with context's platforms
         if let Some(plats) = platforms {
-            if !plats.contains(&ctx.platform)
-                && !plats.contains(&Platform::All)
-                && ctx.platform != Platform::All
-            {
+            let platform_match = plats.contains(&Platform::All)
+                || ctx.platforms.contains(&Platform::All)
+                || plats.iter().any(|p| ctx.platforms.contains(p));
+            if !platform_match {
                 return ConditionResult {
                     matched: false,
                     evidence: Vec::new(),

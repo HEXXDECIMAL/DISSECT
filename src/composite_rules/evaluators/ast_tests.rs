@@ -25,7 +25,7 @@ fn create_test_context<'a>(
         report,
         binary_data: data,
         file_type,
-        platform: Platform::Linux,
+        platforms: vec![Platform::Linux],
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,

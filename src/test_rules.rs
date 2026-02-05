@@ -67,7 +67,7 @@ pub struct RuleDebugResult {
 #[derive(Debug, Default)]
 pub struct ContextInfo {
     pub file_type: String,
-    pub platform: String,
+    pub platforms: String,
     pub string_count: usize,
     pub symbol_count: usize,
     pub import_count: usize,
@@ -83,7 +83,7 @@ pub struct RuleDebugger<'a> {
     report: &'a AnalysisReport,
     binary_data: &'a [u8],
     file_type: RuleFileType,
-    platform: Platform,
+    platforms: Vec<Platform>,
     composites: &'a [CompositeTrait],
     traits: &'a [TraitDefinition],
 }
@@ -96,7 +96,8 @@ impl<'a> RuleDebugger<'a> {
         composites: &'a [CompositeTrait],
         traits: &'a [TraitDefinition],
     ) -> Self {
-        let platform = detect_platform(&report.target.file_type);
+        // Use Platform::All for debugging to show all potentially matching rules
+        let platforms = vec![Platform::All];
         let file_type = detect_file_type(&report.target.file_type);
 
         Self {
@@ -104,7 +105,7 @@ impl<'a> RuleDebugger<'a> {
             report,
             binary_data,
             file_type,
-            platform,
+            platforms,
             composites,
             traits,
         }
@@ -128,7 +129,7 @@ impl<'a> RuleDebugger<'a> {
 
         ContextInfo {
             file_type: format!("{:?}", self.file_type),
-            platform: format!("{:?}", self.platform),
+            platforms: format!("{:?}", self.platforms),
             string_count: strings.len(),
             symbol_count: symbols.len(),
             import_count: self.report.imports.len(),
@@ -184,10 +185,9 @@ impl<'a> RuleDebugger<'a> {
         };
 
         // Check platform/file type constraints
-        let platform_match = trait_def
-            .platforms
-            .iter()
-            .any(|p| *p == Platform::All || *p == self.platform);
+        let platform_match = trait_def.platforms.contains(&Platform::All)
+            || self.platforms.contains(&Platform::All)
+            || trait_def.platforms.iter().any(|p| self.platforms.contains(p));
         let file_type_match = trait_def
             .r#for
             .iter()
@@ -195,8 +195,8 @@ impl<'a> RuleDebugger<'a> {
 
         if !platform_match {
             result.skipped_reason = Some(format!(
-                "Platform mismatch: rule requires {:?}, file is {:?}",
-                trait_def.platforms, self.platform
+                "Platform mismatch: rule requires {:?}, context has {:?}",
+                trait_def.platforms, self.platforms
             ));
             return Some(result);
         }
@@ -260,10 +260,9 @@ impl<'a> RuleDebugger<'a> {
         };
 
         // Check platform/file type constraints
-        let platform_match = composite
-            .platforms
-            .iter()
-            .any(|p| *p == Platform::All || *p == self.platform);
+        let platform_match = composite.platforms.contains(&Platform::All)
+            || self.platforms.contains(&Platform::All)
+            || composite.platforms.iter().any(|p| self.platforms.contains(p));
         let file_type_match = composite
             .r#for
             .iter()
@@ -271,8 +270,8 @@ impl<'a> RuleDebugger<'a> {
 
         if !platform_match {
             result.skipped_reason = Some(format!(
-                "Platform mismatch: rule requires {:?}, file is {:?}",
-                composite.platforms, self.platform
+                "Platform mismatch: rule requires {:?}, context has {:?}",
+                composite.platforms, self.platforms
             ));
             return Some(result);
         }
@@ -391,7 +390,7 @@ impl<'a> RuleDebugger<'a> {
             report: self.report,
             binary_data: self.binary_data,
             file_type: self.file_type,
-            platform: self.platform.clone(),
+            platforms: self.platforms.clone(),
             additional_findings: None,
             cached_ast: None,
             finding_id_index: None,
@@ -926,7 +925,7 @@ impl<'a> RuleDebugger<'a> {
             report: self.report,
             binary_data: self.binary_data,
             file_type: self.file_type,
-            platform: self.platform.clone(),
+            platforms: self.platforms.clone(),
             additional_findings: None,
             cached_ast: None,
             finding_id_index: None,
@@ -1111,7 +1110,7 @@ impl<'a> RuleDebugger<'a> {
             report: self.report,
             binary_data: self.binary_data,
             file_type: self.file_type,
-            platform: self.platform.clone(),
+            platforms: self.platforms.clone(),
             additional_findings: None,
             cached_ast: None,
             finding_id_index: None,
@@ -1362,15 +1361,6 @@ fn evaluate_condition_simple(
     crate::composite_rules::context::ConditionResult::no_match()
 }
 
-fn detect_platform(file_type: &str) -> Platform {
-    match file_type.to_lowercase().as_str() {
-        "elf" | "so" => Platform::Linux,
-        "macho" | "dylib" => Platform::MacOS,
-        "pe" | "dll" | "exe" => Platform::Windows,
-        _ => Platform::All,
-    }
-}
-
 fn detect_file_type(file_type: &str) -> RuleFileType {
     match file_type.to_lowercase().as_str() {
         "elf" => RuleFileType::Elf,
@@ -1438,9 +1428,9 @@ pub fn format_debug_output(results: &[RuleDebugResult]) -> String {
 
         // Context info
         output.push_str(&format!(
-            "  Context: file_type={}, platform={}, strings={}, symbols={}, findings={}\n",
+            "  Context: file_type={}, platforms={}, strings={}, symbols={}, findings={}\n",
             result.context_info.file_type,
-            result.context_info.platform,
+            result.context_info.platforms,
             result.context_info.string_count,
             result.context_info.symbol_count,
             result.context_info.finding_count

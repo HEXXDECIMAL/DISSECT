@@ -16,6 +16,41 @@
 
 use clap::{Parser, Subcommand};
 
+/// Parse comma-separated platforms string into a vector of Platform values
+/// Returns vec![Platform::All] if input is empty or "all"
+pub fn parse_platforms(s: &str) -> Vec<crate::composite_rules::Platform> {
+    use crate::composite_rules::Platform;
+
+    if s.is_empty() {
+        return vec![Platform::All];
+    }
+
+    let platforms: Vec<Platform> = s
+        .split(',')
+        .map(|p| p.trim().to_lowercase())
+        .filter(|p| !p.is_empty())
+        .filter_map(|p| match p.as_str() {
+            "all" => Some(Platform::All),
+            "linux" => Some(Platform::Linux),
+            "macos" | "darwin" => Some(Platform::MacOS),
+            "windows" | "win" => Some(Platform::Windows),
+            "unix" => Some(Platform::Unix),
+            "android" => Some(Platform::Android),
+            "ios" => Some(Platform::Ios),
+            unknown => {
+                eprintln!("⚠️  Unknown platform '{}', ignoring", unknown);
+                None
+            }
+        })
+        .collect();
+
+    if platforms.is_empty() || platforms.contains(&Platform::All) {
+        vec![Platform::All]
+    } else {
+        platforms
+    }
+}
+
 /// Default passwords to try for encrypted zip files (common malware sample passwords)
 pub const DEFAULT_ZIP_PASSWORDS: &[&str] =
     &["infected", "infect3d", "malware", "virus", "password"];
@@ -153,15 +188,17 @@ pub struct Args {
     #[arg(long)]
     pub all_files: bool,
 
-    /// Directory to extract samples for external analysis tools (radare2, objdump, etc.)
-    /// Files are named by SHA256 hash for deduplication
-    #[arg(long, value_name = "PATH")]
-    pub sample_dir: Option<String>,
+    /// Filter rules by target platform(s) (comma-separated, default: all)
+    /// Examples: --platforms linux,macos or --platforms windows
+    /// Valid values: all, linux, macos, windows, unix, android, ios
+    #[arg(long, value_name = "PLATFORMS", default_value = "all")]
+    pub platforms: String,
 
-    /// Only extract samples at or below this risk level (requires --sample-dir)
-    /// Values: inert, notable, suspicious, hostile (default: notable)
-    #[arg(long, value_name = "LEVEL", default_value = "notable")]
-    pub sample_max_risk: String,
+    /// Directory to extract all analyzed files for external tools or review.
+    /// Files are written to <dir>/<sha256>/<original-path> preserving structure.
+    /// When set, disables in-memory extraction (all files written to disk).
+    #[arg(long, value_name = "DIR")]
+    pub extract_dir: Option<String>,
 }
 
 impl Args {
@@ -196,10 +233,9 @@ impl Args {
         })
     }
 
-    /// Parse --sample-max-risk flag into a criticality level (only if --sample-dir is set)
-    pub fn sample_max_risk_level(&self) -> Option<crate::types::Criticality> {
-        self.sample_dir.as_ref()?;
-        Some(parse_criticality_level(&self.sample_max_risk))
+    /// Parse --platforms flag into a vector of Platform values
+    pub fn platforms(&self) -> Vec<crate::composite_rules::Platform> {
+        parse_platforms(&self.platforms)
     }
 }
 
@@ -825,5 +861,90 @@ mod tests {
         assert!(levels.contains(&crate::types::Criticality::Suspicious));
         assert!(levels.contains(&crate::types::Criticality::Hostile));
         assert!(levels.contains(&crate::types::Criticality::Notable));
+    }
+
+    // Platform parsing tests
+    #[test]
+    fn test_parse_platforms_default() {
+        use crate::composite_rules::Platform;
+        let platforms = parse_platforms("all");
+        assert_eq!(platforms, vec![Platform::All]);
+    }
+
+    #[test]
+    fn test_parse_platforms_empty() {
+        use crate::composite_rules::Platform;
+        let platforms = parse_platforms("");
+        assert_eq!(platforms, vec![Platform::All]);
+    }
+
+    #[test]
+    fn test_parse_platforms_single() {
+        use crate::composite_rules::Platform;
+        assert_eq!(parse_platforms("linux"), vec![Platform::Linux]);
+        assert_eq!(parse_platforms("macos"), vec![Platform::MacOS]);
+        assert_eq!(parse_platforms("darwin"), vec![Platform::MacOS]);
+        assert_eq!(parse_platforms("windows"), vec![Platform::Windows]);
+        assert_eq!(parse_platforms("win"), vec![Platform::Windows]);
+        assert_eq!(parse_platforms("unix"), vec![Platform::Unix]);
+        assert_eq!(parse_platforms("android"), vec![Platform::Android]);
+        assert_eq!(parse_platforms("ios"), vec![Platform::Ios]);
+    }
+
+    #[test]
+    fn test_parse_platforms_multiple() {
+        use crate::composite_rules::Platform;
+        let platforms = parse_platforms("linux,macos");
+        assert_eq!(platforms.len(), 2);
+        assert!(platforms.contains(&Platform::Linux));
+        assert!(platforms.contains(&Platform::MacOS));
+    }
+
+    #[test]
+    fn test_parse_platforms_with_spaces() {
+        use crate::composite_rules::Platform;
+        let platforms = parse_platforms(" linux , macos , windows ");
+        assert_eq!(platforms.len(), 3);
+        assert!(platforms.contains(&Platform::Linux));
+        assert!(platforms.contains(&Platform::MacOS));
+        assert!(platforms.contains(&Platform::Windows));
+    }
+
+    #[test]
+    fn test_parse_platforms_case_insensitive() {
+        use crate::composite_rules::Platform;
+        assert_eq!(parse_platforms("LINUX"), vec![Platform::Linux]);
+        assert_eq!(parse_platforms("MacOS"), vec![Platform::MacOS]);
+        assert_eq!(parse_platforms("Windows"), vec![Platform::Windows]);
+    }
+
+    #[test]
+    fn test_parse_platforms_all_overrides() {
+        use crate::composite_rules::Platform;
+        // If "all" is in the list, it should return just [All]
+        let platforms = parse_platforms("linux,all,macos");
+        assert_eq!(platforms, vec![Platform::All]);
+    }
+
+    #[test]
+    fn test_parse_platforms_unknown_ignored() {
+        use crate::composite_rules::Platform;
+        let platforms = parse_platforms("linux,freebsd,macos");
+        // freebsd should be ignored, only linux and macos
+        assert_eq!(platforms.len(), 2);
+        assert!(platforms.contains(&Platform::Linux));
+        assert!(platforms.contains(&Platform::MacOS));
+    }
+
+    #[test]
+    fn test_platforms_cli_flag() {
+        let args = Args::try_parse_from(["dissect", "--platforms", "linux,macos", "file.bin"]).unwrap();
+        assert_eq!(args.platforms, "linux,macos");
+    }
+
+    #[test]
+    fn test_platforms_default_value() {
+        let args = Args::try_parse_from(["dissect", "file.bin"]).unwrap();
+        assert_eq!(args.platforms, "all");
     }
 }

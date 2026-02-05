@@ -105,45 +105,53 @@ pub use scores::Metrics;
 
 use std::path::PathBuf;
 
-/// Configuration for optional sample extraction (--sample-dir flag)
+/// Configuration for file extraction (--extract-dir flag)
 ///
-/// When configured, analyzed files matching the risk criteria are written to
-/// a directory for external tools (radare2, objdump) to analyze.
+/// When configured, all analyzed files are written to disk for external tools
+/// (radare2, objdump, trait-basher) to access. Files are organized as:
+/// `<extract_dir>/<sha256>/<relative_path>` preserving original structure.
 #[derive(Debug, Clone)]
 pub struct SampleExtractionConfig {
-    /// Directory to write extracted samples
-    pub sample_dir: PathBuf,
-    /// Maximum risk level to extract (files at this level or below)
-    pub max_risk: Criticality,
+    /// Base directory for extracted files
+    pub extract_dir: PathBuf,
 }
 
 impl SampleExtractionConfig {
     /// Create a new extraction config
-    pub fn new(sample_dir: PathBuf, max_risk: Criticality) -> Self {
-        Self {
-            sample_dir,
-            max_risk,
-        }
+    pub fn new(extract_dir: PathBuf) -> Self {
+        Self { extract_dir }
     }
 
-    /// Check if a file should be extracted based on its risk level
-    pub fn should_extract(&self, risk: Option<Criticality>) -> bool {
-        let file_risk = risk.unwrap_or(Criticality::Inert);
-        file_risk <= self.max_risk
-    }
+    /// Extract file data, returning the path if successful.
+    ///
+    /// Files are written to `<extract_dir>/<sha256>/<relative_path>` where:
+    /// - `sha256` is the hash of the file content (for deduplication)
+    /// - `relative_path` preserves original structure (e.g., "inner/lib/file.py")
+    ///
+    /// For archive members like "archive.zip!!inner/lib/file.py", pass
+    /// "inner/lib/file.py" as relative_path.
+    ///
+    /// For standalone files, pass just the basename (e.g., "script.py").
+    pub fn extract(&self, sha256: &str, relative_path: &str, data: &[u8]) -> Option<PathBuf> {
+        // Build path: <extract_dir>/<sha256>/<relative_path>
+        let sha_dir = self.extract_dir.join(sha256);
+        let full_path = sha_dir.join(relative_path);
 
-    /// Extract file data to sample directory, returning the path if successful
-    /// Uses SHA256 as filename for automatic deduplication
-    pub fn extract(&self, sha256: &str, data: &[u8]) -> Option<PathBuf> {
-        let path = self.sample_dir.join(sha256);
-        // Only write if file doesn't exist (deduplication)
-        if !path.exists() {
-            if let Err(e) = std::fs::write(&path, data) {
-                tracing::warn!("Failed to extract sample {}: {}", sha256, e);
+        // Create parent directories if needed
+        if let Some(parent) = full_path.parent() {
+            if let Err(e) = std::fs::create_dir_all(parent) {
+                tracing::warn!("Failed to create directory {:?}: {}", parent, e);
                 return None;
             }
         }
-        Some(path)
+
+        // Write file (overwrite if exists - same sha256 means same content)
+        if let Err(e) = std::fs::write(&full_path, data) {
+            tracing::warn!("Failed to extract {}: {}", full_path.display(), e);
+            return None;
+        }
+
+        Some(full_path)
     }
 }
 

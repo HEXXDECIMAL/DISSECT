@@ -40,6 +40,8 @@ pub struct CapabilityMapper {
     string_match_index: StringMatchIndex,
     /// Index for batched raw content regex matching
     raw_content_regex_index: RawContentRegexIndex,
+    /// Platform filter(s) for rule evaluation (default: [All])
+    platforms: Vec<Platform>,
 }
 
 impl CapabilityMapper {
@@ -52,7 +54,19 @@ impl CapabilityMapper {
             trait_index: TraitIndex::new(),
             string_match_index: StringMatchIndex::default(),
             raw_content_regex_index: RawContentRegexIndex::default(),
+            platforms: vec![Platform::All],
         }
+    }
+
+    /// Set the platform filter(s) for rule evaluation
+    /// Pass vec![Platform::All] to match all platforms (default)
+    pub fn with_platforms(mut self, platforms: Vec<Platform>) -> Self {
+        self.platforms = if platforms.is_empty() {
+            vec![Platform::All]
+        } else {
+            platforms
+        };
+        self
     }
 
     pub fn new() -> Self {
@@ -746,6 +760,7 @@ impl CapabilityMapper {
             trait_index,
             string_match_index,
             raw_content_regex_index,
+            platforms: vec![Platform::All],
         })
     }
 
@@ -842,6 +857,7 @@ impl CapabilityMapper {
             trait_index,
             string_match_index,
             raw_content_regex_index,
+            platforms: vec![Platform::All],
         })
     }
 
@@ -939,6 +955,8 @@ impl CapabilityMapper {
 
     /// Evaluate trait definitions against an analysis report with optional cached AST
     /// Returns findings detected from trait definitions
+    ///
+    /// Platform filtering is controlled by the `platform` field set via `with_platform()`.
     pub fn evaluate_traits_with_ast(
         &self,
         report: &AnalysisReport,
@@ -947,12 +965,17 @@ impl CapabilityMapper {
     ) -> Vec<Finding> {
         let timing = std::env::var("DISSECT_TIMING").is_ok();
 
-        // Determine platform and file type from report
-        let platform = self.detect_platform(&report.target.file_type);
+        // Determine file type from report (platform comes from self.platform)
         let file_type = self.detect_file_type(&report.target.file_type);
 
-        let ctx =
-            EvaluationContext::new(report, binary_data, file_type, platform, None, cached_ast);
+        let ctx = EvaluationContext::new(
+            report,
+            binary_data,
+            file_type,
+            self.platforms.clone(),
+            None,
+            cached_ast,
+        );
 
         // Use trait index to only evaluate applicable traits
         // This dramatically reduces work for specific file types
@@ -1157,21 +1180,22 @@ impl CapabilityMapper {
     }
 
     /// Evaluate trait definitions against an analysis report (without cached AST)
-    /// Backwards-compatible wrapper for evaluate_traits_with_ast
+    /// Wrapper for evaluate_traits_with_ast
     pub fn evaluate_traits(&self, report: &AnalysisReport, binary_data: &[u8]) -> Vec<Finding> {
         self.evaluate_traits_with_ast(report, binary_data, None)
     }
 
     /// Evaluate composite rules against an analysis report
     /// Returns additional findings detected by composite rules
+    ///
+    /// Platform filtering is controlled by the `platform` field set via `with_platform()`.
     pub fn evaluate_composite_rules(
         &self,
         report: &AnalysisReport,
         binary_data: &[u8],
         cached_ast: Option<&tree_sitter::Tree>,
     ) -> Vec<Finding> {
-        // Determine platform and file type from report
-        let platform = self.detect_platform(&report.target.file_type);
+        // Determine file type from report (platform comes from self.platform)
         let file_type = self.detect_file_type(&report.target.file_type);
 
         let mut all_findings: Vec<Finding> = Vec::new();
@@ -1195,7 +1219,7 @@ impl CapabilityMapper {
                 report,
                 binary_data,
                 file_type,
-                platform.clone(),
+                self.platforms.clone(),
                 if all_findings.is_empty() {
                     None
                 } else {
@@ -1236,7 +1260,7 @@ impl CapabilityMapper {
             report,
             binary_data,
             file_type,
-            platform.clone(),
+            self.platforms.clone(),
             if all_findings.is_empty() {
                 None
             } else {
@@ -1272,7 +1296,6 @@ impl CapabilityMapper {
             binary_data,
             cached_ast,
             file_type,
-            &platform,
         );
 
         all_findings
@@ -1287,7 +1310,6 @@ impl CapabilityMapper {
         binary_data: &[u8],
         cached_ast: Option<&tree_sitter::Tree>,
         file_type: RuleFileType,
-        platform: &Platform,
     ) {
         use rustc_hash::FxHashMap;
 
@@ -1305,7 +1327,7 @@ impl CapabilityMapper {
                 report,
                 binary_data,
                 file_type,
-                platform.clone(),
+                self.platforms.clone(),
                 Some(findings),
                 cached_ast,
             );
@@ -1346,6 +1368,9 @@ impl CapabilityMapper {
     /// from atomic traits to composite rules. Analyzers should use this method instead of
     /// calling evaluate_traits() and evaluate_composite_rules() separately.
     ///
+    /// Platform filtering is controlled by the `platform` field set via `with_platform()`.
+    /// Default is `Platform::All` which matches all rules regardless of platform.
+    ///
     /// # Arguments
     /// * `report` - Mutable reference to the analysis report to merge findings into
     /// * `binary_data` - Raw file data for content-based matching
@@ -1382,16 +1407,6 @@ impl CapabilityMapper {
             if !report.findings.iter().any(|f| f.id == finding.id) {
                 report.findings.push(finding);
             }
-        }
-    }
-
-    /// Detect platform from file type string
-    fn detect_platform(&self, file_type: &str) -> Platform {
-        match file_type.to_lowercase().as_str() {
-            "elf" | "so" => Platform::Linux,
-            "macho" | "dylib" => Platform::MacOS,
-            "pe" | "dll" | "exe" => Platform::Windows,
-            _ => Platform::All,
         }
     }
 

@@ -198,18 +198,18 @@ fn main() -> Result<()> {
     // Collect error_if levels for criticality checking
     let error_if_levels = args.error_if_levels();
 
-    // Create sample extraction config if --sample-dir is specified
-    let sample_extraction = args.sample_dir.as_ref().map(|dir| {
+    // Create extraction config if --extract-dir is specified
+    let sample_extraction = args.extract_dir.as_ref().map(|dir| {
         let path = std::path::PathBuf::from(dir);
         // Ensure directory exists
         if let Err(e) = std::fs::create_dir_all(&path) {
-            eprintln!("Warning: could not create sample directory {}: {}", dir, e);
+            eprintln!("Warning: could not create extract directory {}: {}", dir, e);
         }
-        let max_risk = args
-            .sample_max_risk_level()
-            .unwrap_or(types::Criticality::Notable);
-        types::SampleExtractionConfig::new(path, max_risk)
+        types::SampleExtractionConfig::new(path)
     });
+
+    // Parse platforms once before match (avoids borrow issues in match arms)
+    let platforms = args.platforms();
 
     let result = match args.command {
         Some(cli::Command::Analyze {
@@ -238,6 +238,7 @@ fn main() -> Result<()> {
                     args.verbose,
                     args.all_files,
                     sample_extraction.as_ref(),
+                    platforms.clone(),
                 )?
             } else {
                 // Multiple targets or directory - use scan
@@ -251,6 +252,7 @@ fn main() -> Result<()> {
                     args.verbose,
                     args.all_files,
                     sample_extraction.as_ref(),
+                    platforms.clone(),
                 )?
             }
         }
@@ -267,6 +269,7 @@ fn main() -> Result<()> {
             args.verbose,
             args.all_files,
             sample_extraction.as_ref(),
+            platforms.clone(),
         )?,
         Some(cli::Command::Diff { old, new }) => diff_analysis(&old, &new, &format)?,
         Some(cli::Command::Strings { target, min_length }) => {
@@ -274,7 +277,7 @@ fn main() -> Result<()> {
         }
         Some(cli::Command::Symbols { target }) => extract_symbols(&target, &format)?,
         Some(cli::Command::TestRules { target, rules }) => {
-            test_rules_debug(&target, &rules, &disabled)?
+            test_rules_debug(&target, &rules, &disabled, platforms.clone())?
         }
         Some(cli::Command::TestMatch {
             target,
@@ -293,6 +296,7 @@ fn main() -> Result<()> {
             min_count,
             case_insensitive,
             &disabled,
+            platforms.clone(),
         )?,
         None => {
             // No subcommand - use paths from top-level args
@@ -313,6 +317,7 @@ fn main() -> Result<()> {
                 args.verbose,
                 args.all_files,
                 sample_extraction.as_ref(),
+                platforms.clone(),
             )?
         }
     };
@@ -340,6 +345,7 @@ fn analyze_file(
     verbose: bool,
     all_files: bool,
     sample_extraction: Option<&types::SampleExtractionConfig>,
+    platforms: Vec<composite_rules::Platform>,
 ) -> Result<String> {
     let _start = std::time::Instant::now();
     let path = Path::new(target);
@@ -360,6 +366,7 @@ fn analyze_file(
             verbose,
             all_files,
             sample_extraction,
+            platforms,
         );
     }
 
@@ -372,7 +379,7 @@ fn analyze_file(
 
     // Load capability mapper
     let t1 = std::time::Instant::now();
-    let capability_mapper = crate::capabilities::CapabilityMapper::new();
+    let capability_mapper = crate::capabilities::CapabilityMapper::new().with_platforms(platforms.clone());
     eprintln!("[TIMING] CapabilityMapper::new(): {:?}", t1.elapsed());
 
     // Load YARA rules (unless YARA is disabled)
@@ -546,11 +553,14 @@ fn scan_paths(
     verbose: bool,
     include_all_files: bool,
     sample_extraction: Option<&types::SampleExtractionConfig>,
+    platforms: Vec<composite_rules::Platform>,
 ) -> Result<String> {
     use walkdir::WalkDir;
 
     // Load capability mapper once and share across all threads
-    let capability_mapper = Arc::new(crate::capabilities::CapabilityMapper::new());
+    let capability_mapper = Arc::new(
+        crate::capabilities::CapabilityMapper::new().with_platforms(platforms.clone()),
+    );
 
     // Pre-load YARA engine once and share across all threads
     let shared_yara_engine: Option<Arc<YaraEngine>> = if disabled.yara {
@@ -1504,6 +1514,7 @@ fn test_rules_debug(
     target: &str,
     rules: &str,
     _disabled: &cli::DisabledComponents,
+    platforms: Vec<composite_rules::Platform>,
 ) -> Result<String> {
     let path = Path::new(target);
     if !path.exists() {
@@ -1524,7 +1535,7 @@ fn test_rules_debug(
     eprintln!("Detected file type: {:?}", file_type);
 
     // Load capability mapper
-    let capability_mapper = crate::capabilities::CapabilityMapper::new();
+    let capability_mapper = crate::capabilities::CapabilityMapper::new().with_platforms(platforms);
 
     // Read file data
     let binary_data = fs::read(path)?;
@@ -1610,6 +1621,7 @@ fn test_match_debug(
     min_count: usize,
     case_insensitive: bool,
     _disabled: &cli::DisabledComponents,
+    platforms: Vec<composite_rules::Platform>,
 ) -> Result<String> {
     use crate::test_rules::{find_matching_strings, find_matching_symbols, RuleDebugger};
     use colored::Colorize;
@@ -1627,7 +1639,7 @@ fn test_match_debug(
     };
 
     // Load capability mapper
-    let capability_mapper = crate::capabilities::CapabilityMapper::new();
+    let capability_mapper = crate::capabilities::CapabilityMapper::new().with_platforms(platforms);
 
     // Read file data
     let binary_data = fs::read(path)?;

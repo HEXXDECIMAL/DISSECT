@@ -323,12 +323,19 @@ impl ArchiveAnalyzer {
         // Compute summary
         file_analysis.compute_summary();
 
-        // Extract sample to disk if configured and file meets criteria
+        // Extract file to disk if configured
         if let Some(ref config) = self.sample_extraction {
-            if config.should_extract(file_analysis.risk) {
-                if let Some(extracted_path) = config.extract(&file_analysis.sha256, data) {
-                    file_analysis.extracted_path = Some(extracted_path.display().to_string());
-                }
+            // Build relative path preserving structure:
+            // - For nested archives like "inner.tar.gz!lib/file.py", use "inner.tar.gz/lib/file.py"
+            // - For simple paths like "lib/file.py", use as-is
+            let extract_relative_path = match &self.archive_path_prefix {
+                Some(prefix) => format!("{}/{}", prefix.replace('!', "/"), relative_path),
+                None => relative_path.to_string(),
+            };
+            if let Some(extracted_path) =
+                config.extract(&file_analysis.sha256, &extract_relative_path, data)
+            {
+                file_analysis.extracted_path = Some(extracted_path.display().to_string());
             }
         }
 
