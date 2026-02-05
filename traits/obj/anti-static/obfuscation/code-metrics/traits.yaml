@@ -464,7 +464,7 @@ composite_rules:
       - id: obj/anti-static/obfuscation/code-metrics/py-many-high-entropy-identifiers
       - id: obj/anti-static/obfuscation/code-metrics/high-entropy-function-names
       - id: obj/anti-static/obfuscation/code-metrics/low-identifier-reuse
-    unless:
+    none:
       - type: basename
         regex: '^(avx|sse|neon|simd|intrinsic|vpclmul|pclmul|aes).*\.rs$|(test_|_test\.|\btest\b).*\.(py|js|ts)$'
 

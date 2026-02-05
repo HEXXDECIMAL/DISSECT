@@ -42,11 +42,13 @@ traits:
     attack: "T1027"
 
   # === Encoding Sophistication Pattern ===
+  # Note: Large binaries (Rust, Golang) contain Unicode/locale tables matching this pattern
   - id: encryption-sophistication-marker
     desc: "Encryption sophistication"
     crit: suspicious
     conf: 0.8
     for: [elf]
+    size_max: 500000  # Compact malware; exclude large binaries with lookup tables
     if:
       type: string
       regex: "[A-Za-z0-9+/]{40,}[=]{0,3}"

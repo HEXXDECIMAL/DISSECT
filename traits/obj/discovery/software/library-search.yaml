@@ -49,6 +49,9 @@ traits:
     if:
       type: string
       regex: "\\blibssl\\.so"
+    unless:
+      - type: content
+        regex: "^\\s*[*/#].*libssl\\.so"
 
   - id: libcrypto-so
     desc: libcrypto shared library reference
@@ -57,6 +60,9 @@ traits:
     if:
       type: string
       regex: "\\blibcrypto\\.so"
+    unless:
+      - type: content
+        regex: "^\\s*[*/#].*libcrypto\\.so"
 
   - id: libgnutls-so
     desc: libgnutls shared library reference
@@ -65,6 +71,9 @@ traits:
     if:
       type: string
       regex: "\\blibgnutls\\.so"
+    unless:
+      - type: content
+        regex: "^\\s*[*/#].*libgnutls\\.so"
 
   - id: libnss-so
     desc: libnss shared library reference
@@ -73,6 +82,9 @@ traits:
     if:
       type: string
       regex: "\\blibnss(?:3|ssl3)?\\.so"
+    unless:
+      - type: content
+        regex: "^\\s*[*/#].*libnss(?:3|ssl3)?\\.so"
 
   # === Architecture Detection Strings ===
   # Architecture strings used for targeting specific library builds
