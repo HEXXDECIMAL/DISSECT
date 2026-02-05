@@ -1,0 +1,63 @@
+# HTTP Requests - Objective-C NSURLSession
+# MBC: C0002 (HTTP Communication)
+# ATT&CK: T1071.001
+
+defaults:
+  mbc: "C0002"
+  attack: "T1071.001"
+
+traits:
+  # === NSURLSession atomic indicators ===
+  - id: nsurlsession-shared
+    desc: NSURLSession shared session
+    crit: inert
+    conf: 0.6
+    for: [macho, dylib]
+    if:
+      type: symbol
+      regex: "sharedSession"
+
+  - id: nsurlrequest-init
+    desc: NSURLRequest initialization
+    crit: inert
+    conf: 0.6
+    for: [macho, dylib]
+    if:
+      type: symbol
+      regex: "requestWithURL"
+
+  - id: nsurlresponse-handle
+    desc: NSURLResponse handling
+    crit: inert
+    conf: 0.6
+    for: [macho, dylib]
+    if:
+      type: symbol
+      regex: "dataTaskWithRequest"
+
+  - id: nsurlsession-post
+    desc: NSURLSession POST requests
+    crit: notable
+    conf: 0.7
+    for: [macho, dylib]
+    if:
+      type: string
+      exact: "POST"
+
+  - id: content-type-json
+    desc: Content-Type JSON header
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      substr: "Content-Type"
+
+composite_rules:
+  - id: nsurlsession-http-request
+    desc: NSURLSession HTTP request with POST
+    crit: notable
+    conf: 0.80
+    for: [macho, dylib]
+    all:
+      - id: nsurlsession-shared
+      - id: nsurlrequest-init

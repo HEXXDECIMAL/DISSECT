@@ -1,0 +1,153 @@
+# HTTP-based Go C2 Beacon Detection
+# Detects Go binaries using HTTP/HTTPS for C2 communication
+# Includes Geacon and similar beacon-style implants
+# ATT&CK: T1071.001 (Web Protocols), T1029 (Scheduled Transfer)
+# MBC: B0030 (C2 Communication)
+
+defaults:
+  crit: suspicious
+  attack: "T1071.001"
+  mbc: "B0030"
+  for: [elf, macho, pe]
+  platforms: [all]
+
+traits:
+  # === HTTP/HTTPS Indicators ===
+  - id: http-versions
+    desc: HTTP protocol versions in strings
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      regex: "HTTP/(1\\.0|1\\.1|2\\.0)"
+
+  - id: http-methods
+    desc: HTTP methods (GET, POST, HEAD)
+    crit: inert
+    conf: 0.60
+    if:
+      type: string
+      regex: "^(GET|POST|HEAD|PUT|DELETE|PATCH) "
+
+  - id: http-headers-general
+    desc: HTTP header keywords
+    crit: inert
+    conf: 0.65
+    if:
+      type: string
+      regex: "(User-Agent|Content-Type|Content-Length|Authorization|Cookie|Accept)"
+
+  # === Network Communication ===
+  - id: go-dial-string
+    desc: Network dial pattern in strings
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      regex: "\\*net\\.dialer|net\\.DialTCP|net\\.Dial"
+
+  - id: go-listen-string
+    desc: Network listen pattern in strings
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      regex: "net\\.Listen|net\\.ListenTCP"
+
+  - id: go-http-client
+    desc: Go HTTP client pattern
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      regex: "http\\.Client|http\\.Do|http\\.Get|http\\.Post"
+
+  # === Domain/Configuration ===
+  - id: domain-keyword
+    desc: Domain configuration keyword
+    crit: suspicious
+    conf: 0.80
+    if:
+      type: string
+      substr: "; Domain"
+
+  - id: http-config-keyword
+    desc: HTTP configuration keyword
+    crit: suspicious
+    conf: 0.80
+    if:
+      type: string
+      substr: "; HttpOnL"
+
+  - id: c2-marker
+    desc: C2 identifier in strings
+    crit: suspicious
+    conf: 0.75
+    if:
+      type: string
+      regex: "=!c2|c2\\s*=|c2Handler|c2Server"
+
+  # === Callback/Beacon Patterns ===
+  - id: callback-pattern
+    desc: Callback function pattern
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      regex: "(callback|Callback|CallBack).{0,50}Handler"
+
+  - id: polling-pattern
+    desc: Polling/beacon loop pattern
+    crit: notable
+    conf: 0.70
+    if:
+      type: string
+      regex: "(poll|beacon|heartbeat|tick).{0,50}loop|loop.{0,50}(poll|beacon|heartbeat)"
+      case_insensitive: true
+
+  # === WebSocket Support (alternate C2 channel) ===
+  - id: websocket-support
+    desc: WebSocket communication support
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      substr: "websocket"
+
+composite_rules:
+  # HTTP/HTTPS beacon with network communication
+  - id: http-beacon-network
+    desc: HTTP beacon network comms
+    crit: suspicious
+    conf: 0.90
+    attack: "T1071.001"
+    for: [elf, macho, pe]
+    needs: 2
+    all:
+      - id: http-versions
+      - id: go-dial-string
+
+  # Go HTTP beacon with config markers
+  - id: http-beacon-configured
+    desc: HTTP beacon C2 config
+    crit: suspicious
+    conf: 0.92
+    attack: "T1071.001"
+    for: [elf, macho, pe]
+    needs: 2
+    all:
+      - id: http-versions
+      - id: domain-keyword
+
+  # Full HTTP C2 beacon (high confidence)
+  - id: http-c2-beacon-detected
+    desc: HTTP-based C2 beacon
+    crit: hostile
+    conf: 0.95
+    attack: "T1071.001"
+    mbc: "B0030"
+    for: [elf, macho, pe]
+    needs: 2
+    all:
+      - id: http-beacon-network
+      - id: go-http-client
