@@ -158,9 +158,10 @@ Keep findings that accurately describe the code's behavior, even if suspicious.
    - ` + "`all:`" + ` in composites - combine weak signals into strong one
 3. **Exclusions**: Too specific? Add ` + "`not:`" + ` filters to exclude known-good patterns
 4. **Reorganize**: Create new traits if it makes the logic clearer or more maintainable
-5. **Exceptions** (last resort): Only use ` + "`unless:`" + ` or ` + "`downgrade:`" + ` if fixing the pattern is impractical
+5. **Downgrade**: If detection is correct but criticality too high, use ` + "`downgrade:`" + ` to lower severity for specific cases
+6. **Unless** (last resort): Only use ` + "`unless:`" + ` to completely suppress findings if fixing the pattern is impractical
 
-**Prefer**: Fixing queries to be accurate over adding exceptions. A well-tuned pattern is better than a broad pattern with exceptions.
+**Prefer**: Fixing queries to be accurate over adding exceptions. If the detection IS correct but severity is wrong, use ` + "`downgrade:`" + ` instead of ` + "`unless:`" + `.
 
 **If deleting or renaming a trait**: Update all references to it (in composites, depends, etc.). Consider what the composite trait was trying to accomplish and fix the reference appropriately.
 
@@ -179,9 +180,10 @@ Keep findings that accurately describe the code's behavior, even if suspicious.
    - ` + "`all:`" + ` in composites - combine weak signals, don't flag individually
 3. **Exclusions**: Known-good strings? Add ` + "`not:`" + ` filters to exclude them
 4. **Reorganize**: Create new traits if it makes the logic clearer or more maintainable
-5. **Exceptions** (last resort): Only use ` + "`unless:`" + ` or ` + "`downgrade:`" + ` if fixing the pattern is impractical
+5. **Downgrade**: If detection is correct but criticality too high, use ` + "`downgrade:`" + ` to lower severity for specific cases
+6. **Unless** (last resort): Only use ` + "`unless:`" + ` to completely suppress findings if fixing the pattern is impractical
 
-**Prefer**: Fixing queries to be accurate over adding exceptions. A well-tuned pattern is better than a broad pattern with exceptions.
+**Prefer**: Fixing queries to be accurate over adding exceptions. If the detection IS correct but severity is wrong, use ` + "`downgrade:`" + ` instead of ` + "`unless:`" + `.
 
 **If deleting or renaming a trait**: Update all references to it (in composites, depends, etc.). Consider what the composite trait was trying to accomplish and fix the reference appropriately.
 
@@ -257,7 +259,7 @@ func buildBadPrompt(isArchive bool, path string, count int, root, bin string) st
 	return b.String()
 }
 
-type config struct {
+type config struct { //nolint:govet // field alignment optimized for readability, not size
 	db          *sql.DB
 	dirs        []string
 	repoRoot    string
@@ -738,8 +740,8 @@ func main() {
 		db.Close() //nolint:errcheck,gosec // best-effort cleanup on fatal error
 		log.Fatalf("Could not create sample directory: %v", err)
 	}
-	defer os.RemoveAll(sampleDir) //nolint:errcheck,gosec // best-effort cleanup
-	defer db.Close()              //nolint:errcheck,gosec // best-effort cleanup
+	defer os.RemoveAll(sampleDir) //nolint:errcheck // best-effort cleanup
+	defer db.Close()              //nolint:errcheck // best-effort cleanup
 
 	cfg := &config{
 		dirs:        dirs,
@@ -770,7 +772,6 @@ func main() {
 		cmd.Stderr = &stderr
 
 		if err := cmd.Run(); err != nil {
-			//nolint:gocritic // exitAfterDefer: defers won't run after log.Fatalf, acceptable for fatal errors
 			log.Fatalf("cargo build --release failed: %v (%s)", err, stderr.String())
 		}
 
@@ -783,7 +784,6 @@ func main() {
 
 		// Verify the binary exists
 		if _, err := os.Stat(cfg.dissectBin); err != nil {
-			//nolint:gocritic // exitAfterDefer: defers won't run after log.Fatalf, acceptable for fatal errors
 			log.Fatalf("binary not found at %s: %v", cfg.dissectBin, err)
 		}
 
@@ -794,7 +794,6 @@ func main() {
 
 	// Sanity check: run dissect on /bin/ls to catch code errors early.
 	if err := sanityCheck(ctx, cfg); err != nil {
-		//nolint:gocritic // exitAfterDefer: defers won't run after log.Fatalf, acceptable for fatal errors
 		log.Fatalf("Sanity check failed: %v", err)
 	}
 
@@ -1370,7 +1369,7 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 	if err != nil {
 		return fmt.Errorf("create extract directory: %w", err)
 	}
-	defer os.RemoveAll(dir) //nolint:errcheck,gosec // best-effort cleanup of temp directory
+	defer os.RemoveAll(dir) //nolint:errcheck // best-effort cleanup of temp directory
 
 	var info string
 
@@ -1408,7 +1407,7 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 		if err != nil {
 			return fmt.Errorf("create problematic extract directory: %w", err)
 		}
-		defer os.RemoveAll(dir2) //nolint:errcheck,gosec // best-effort cleanup of temp directory
+		defer os.RemoveAll(dir2) //nolint:errcheck // best-effort cleanup of temp directory
 
 		for _, m := range prob {
 			if m.ExtractedPath == "" {
@@ -1602,8 +1601,8 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 	// Many CLIs switch to block-buffered output when stdout is a pipe,
 	// causing output to appear hung. PTY makes the CLI think it's
 	// connected to a terminal, forcing immediate output.
-	fmt.Fprintf(os.Stderr, ">>> Starting process with PTY...\n")
-	ptmx, err := pty.Start(cmd)
+	fmt.Fprint(os.Stderr, ">>> Starting process with PTY...\n")
+	ptmx, err := pty.StartWithSize(cmd, &pty.Winsize{Rows: 50, Cols: 200})
 	if err != nil {
 		return fmt.Errorf("could not start %s with pty: %w", cfg.provider, err)
 	}
@@ -1621,6 +1620,7 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 	// PTY combines stdout and stderr into a single stream
 	go func() {
 		sc := bufio.NewScanner(ptmx)
+		sc.Buffer(make([]byte, 1024*1024), 10*1024*1024) // 10MB max line size for large JSON
 		n := 0
 		for sc.Scan() {
 			ln := sc.Text()
@@ -1633,7 +1633,11 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 			lastActive = time.Now()
 			activeMu.Unlock()
 		}
-		fmt.Fprintf(os.Stderr, ">>> PTY closed after %d lines\n", n)
+		if err := sc.Err(); err != nil {
+			fmt.Fprintf(os.Stderr, ">>> PTY scanner error after %d lines: %v\n", n, err)
+		} else {
+			fmt.Fprintf(os.Stderr, ">>> PTY closed after %d lines (EOF)\n", n)
+		}
 		done <- struct{}{}
 	}()
 
