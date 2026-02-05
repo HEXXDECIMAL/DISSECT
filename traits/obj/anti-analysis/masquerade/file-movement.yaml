@@ -48,6 +48,7 @@ traits:
     desc: Suspicious folder name
     crit: suspicious
     conf: 0.75
+    for: [python]
     if:
       type: string
       regex: "(grabber|logger|stealer|bot).{0,50}(test|tmp|temp|boot|lmao)|^[a-z]{10,20}\\.(exe|dll)$"

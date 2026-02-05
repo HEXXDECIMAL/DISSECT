@@ -336,3 +336,5 @@ composite_rules:
       - id: socks5-proto
       - id: socks-default-port
       - id: socks-server-ref
+    none:
+      - id: meta/signed/type/platform

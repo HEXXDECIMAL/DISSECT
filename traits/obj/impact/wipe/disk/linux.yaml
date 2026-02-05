@@ -11,7 +11,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      substr: "dd if=/dev/zero"
+      regex: "dd\\s+if=/dev/zero.{0,50}of=/dev/"
 
   - id: dd-random
     desc: dd if=/dev/urandom command

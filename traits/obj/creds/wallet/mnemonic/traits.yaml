@@ -86,6 +86,9 @@ traits:
     desc: mnemonic term
     crit: inert
     conf: 0.5
+    # Restrict to high-level languages where wallet code typically appears
+    # Exclude assembly scripts and system-level code where "mnemonic" refers to processor instructions
+    for: [python, javascript, csharp, java, go]
     if:
       type: string
       substr: "mnemonic"

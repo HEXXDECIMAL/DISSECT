@@ -19,6 +19,8 @@ traits:
       type: string
       # Common router admin passwords
       regex: "^(admin123|admin1234|root123|1234567890|123456|password|default)$"
+    not:
+      - id: meta/signed/type/platform
 
   - id: iot-vendor-creds
     desc: IoT vendor default credentials
@@ -52,6 +54,7 @@ traits:
     desc: Shell path string /bin/sh
     crit: notable
     conf: 0.95
+    for: [elf, macho, python, go]
     if:
       type: string
       substr: "/bin/sh"

@@ -185,6 +185,9 @@ composite_rules:
       - id: vm-runIn-method
       - id: runInContext-call
       - id: runInNewContext-call
+    unless:
+      - type: basename
+        regex: "test.*\\.js$|.*\\.test\\.js$|.*\\.spec\\.js$"
 
   # IIFE with obfuscation indicators
   - id: obfuscated-iife

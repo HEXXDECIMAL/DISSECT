@@ -21,6 +21,15 @@ traits:
     if:
       type: string
       substr: "screencapture"
+    # Downgrade for legitimate system components like ReplayKit that implement screen capture
+    downgrade:
+      any:
+        # Check for Apple bundle identifier (indicates system component)
+        - type: string
+          regex: "com\\.apple\\.[a-z][a-z0-9.-]+"
+        # Check for Apple project marker (indicates system framework)
+        - type: string
+          regex: "@\\(#\\)PROGRAM:[a-z]+\\s+PROJECT:[A-Za-z]+-[0-9]+"
 
   - id: pil-imagegrab
     desc: Python PIL screenshot capture
@@ -71,6 +80,16 @@ traits:
     if:
       type: string
       substr: "frontmostApplication"
+    # Downgrade for legitimate system components like ReplayKit that need to identify
+    # which application is being recorded for screen capture
+    downgrade:
+      any:
+        # Check for Apple bundle identifier (indicates system component)
+        - type: string
+          regex: "com\\.apple\\.[a-z][a-z0-9.-]+"
+        # Check for Apple project marker (indicates system framework)
+        - type: string
+          regex: "@\\(#\\)PROGRAM:[a-z]+\\s+PROJECT:[A-Za-z]+-[0-9]+"
 
   - id: screen-locked
     desc: macOS screen lock detection
@@ -115,6 +134,16 @@ traits:
     if:
       type: string
       substr: "processIdentifier"
+    # Downgrade for legitimate system components like ReplayKit that need process
+    # identifiers for recording metadata and application tracking
+    downgrade:
+      any:
+        # Check for Apple bundle identifier (indicates system component)
+        - type: string
+          regex: "com\\.apple\\.[a-z][a-z0-9.-]+"
+        # Check for Apple project marker (indicates system framework)
+        - type: string
+          regex: "@\\(#\\)PROGRAM:[a-z]+\\s+PROJECT:[A-Za-z]+-[0-9]+"
 
 composite_rules:
   - id: macos-spy-detected
@@ -130,3 +159,8 @@ composite_rules:
       - id: hid-idle-time
       - id: window-watcher
       - id: process-identifier
+    # Downgrade for legitimate system components like ReplayKit that need to monitor
+    # UI state for screen recording (e.g., which app is being recorded, if screen is locked)
+    downgrade:
+      any:
+        - id: meta/apple/system-component

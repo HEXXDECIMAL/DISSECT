@@ -26,7 +26,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: "(?i)compatibility issue"
+      regex: "(?i)\\b(this|your|the)\\s+\\w+\\s+(has\\s+)?compatibility\\s+issue"
 
   - id: file-not-opened
     desc: "File couldn't be opened lure"

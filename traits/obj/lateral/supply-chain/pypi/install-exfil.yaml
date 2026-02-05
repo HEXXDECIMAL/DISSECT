@@ -55,6 +55,22 @@ traits:
       type: filesize
       max: 0
 
+  - id: init-py-file
+    desc: __init__.py file
+    crit: inert
+    conf: 1.0
+    if:
+      type: basename
+      exact: "__init__.py"
+
+  - id: setup-py-file
+    desc: setup.py file
+    crit: inert
+    conf: 1.0
+    if:
+      type: basename
+      exact: "setup.py"
+
   - id: setuptools-setup-call
     desc: setuptools setup() call
     crit: inert
@@ -220,7 +236,7 @@ composite_rules:
       - id: setup-py-file
       - id: obj/discovery/system/python-sysinfo-multi
       - id: base64-encode
-      - id: cap/comm/http/request/request-python
+      - id: cap/comm/http/request/python/request-python
 
   # Lighter variant without setup.py check
   # Complexity: for(+1) + all(+3) = 4 (meets HOSTILE threshold)
@@ -233,7 +249,7 @@ composite_rules:
     all:
       - id: obj/discovery/system/python-sysinfo-multi
       - id: base64-encode
-      - id: cap/comm/http/request/request-python
+      - id: cap/comm/http/request/python/request-python
 
   # Fingerprint with VID parameter (high confidence)
   # Complexity: for(+1) + all(+3) = 4 (meets HOSTILE threshold)
@@ -246,4 +262,4 @@ composite_rules:
     all:
       - id: vid-parameter
       - id: base64-encode
-      - id: cap/comm/http/request/request-python
+      - id: cap/comm/http/request/python/request-python

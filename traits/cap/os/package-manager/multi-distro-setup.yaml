@@ -83,7 +83,10 @@ traits:
     for: [elf, shell]
     if:
       type: string
-      substr: ">/dev/null 2>&1 &&"
+      any:
+        - regex: "which\\s+(apt-get|yum|dnf)\\s+.*>/dev/null.*&&\\s*(apt-get|yum|dnf)"
+        - regex: "command\\s+-v\\s+(apt-get|yum|dnf)\\s+.*>/dev/null.*&&\\s*(apt-get|yum|dnf)"
+        - regex: "type\\s+(apt-get|yum|dnf)\\s+.*>/dev/null.*&&\\s*(apt-get|yum|dnf)"
 
 composite_rules:
   - id: apt-distro-targeting

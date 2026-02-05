@@ -106,7 +106,7 @@ traits:
     for: [elf, shell]
     if:
       type: string
-      substr: "sed -i"
+      substr: "(deleted)"
     attack: "T1070.004"
 
   - id: sed-deleted-regex-pattern

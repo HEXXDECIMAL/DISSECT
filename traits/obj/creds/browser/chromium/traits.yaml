@@ -102,9 +102,14 @@ traits:
     crit: suspicious
     conf: 0.75
     attack: "T1555.003"
+    for: [python, javascript, shell, elf, pe]
     if:
       type: string
       substr: "/Cookies"
+      not:
+        - "entitlement"
+        - "plist"
+        - "com.apple"
 
   - id: local-state
     desc: Chromium Local State file
@@ -171,7 +176,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      word: "logins"
+      substr: "Login Data"
 
   # === SQL Queries (high confidence) ===
 

@@ -136,6 +136,7 @@ traits:
     crit: suspicious
     conf: 0.8
     mbc: "B0032"
+    for: [php]
     if:
       type: ast
       kind: binary_op
@@ -146,6 +147,7 @@ traits:
     crit: suspicious
     conf: 0.95
     mbc: "B0032"
+    for: [php]
     if:
       type: ast
       node: for_statement
@@ -214,6 +216,7 @@ traits:
     crit: suspicious
     conf: 0.8
     mbc: "B0032"
+    for: [php]
     if:
       type: ast
       kind: call
@@ -223,6 +226,7 @@ traits:
     desc: Dynamic variable function call (e.g.
     crit: suspicious
     conf: 0.95
+    for: [php]
     if:
       type: ast
       kind: call
@@ -253,6 +257,7 @@ traits:
     crit: suspicious
     conf: 0.8
     mbc: "B0032"
+    for: [php]
     if:
       type: ast
       kind: call

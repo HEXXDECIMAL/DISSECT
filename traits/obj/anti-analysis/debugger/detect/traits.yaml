@@ -144,6 +144,8 @@ composite_rules:
     any:
       - id: ptrace-traceme
       - id: pt-deny-attach
+    none:
+      - id: meta/signed/type/platform
 
   # Windows debugger detection composite
   - id: win-debugger-detect

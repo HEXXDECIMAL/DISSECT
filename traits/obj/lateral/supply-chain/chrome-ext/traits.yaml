@@ -177,8 +177,8 @@ traits:
     conf: 0.9
     for: [javascript]
     if:
-      type: string
-      substr: "sendMessage"
+      type: content
+      regex: "chrome\\.runtime\\.sendMessage|runtime\\.sendMessage"
 
   - id: onMessage
     desc: chrome.runtime.onMessage listener

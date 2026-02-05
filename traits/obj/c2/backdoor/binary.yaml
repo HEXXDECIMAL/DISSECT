@@ -220,6 +220,8 @@ composite_rules:
       - id: mm-answer-keyallowed
       - id: mm-answer-authpassword
       - id: pubkey-auth-ref
+    none:
+      - id: meta/signed/type/platform
 
   # === glibc hijack ===
   # NOTE: dlopen + dlsym is extremely common in legitimate binaries (graphics drivers, plugins, etc.)

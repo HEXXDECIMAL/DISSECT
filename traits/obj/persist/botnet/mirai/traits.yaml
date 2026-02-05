@@ -61,7 +61,10 @@ traits:
     for: [elf, shell]
     if:
       type: string
-      substr: "enable"
+      any:
+        - regex: "systemctl\\s+enable"
+        - regex: "chkconfig\\s+.*on"
+        - regex: "update-rc\\.d\\s+.*enable"
     attack: "T1547"
 
 composite_rules:

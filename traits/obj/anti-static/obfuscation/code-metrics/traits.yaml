@@ -49,15 +49,16 @@ traits:
       type: metrics
       field: identifiers.avg_entropy
       min: 2.5
+      min_size: 2048
 
   - id: many-high-entropy-identifiers
     desc: "Many high-entropy identifiers (>20% have"
     crit: suspicious
     conf: 0.9
     # NOTE: Shell has its own threshold (40%) in code-metrics/shell.yaml
+    # NOTE: Python has own threshold (35%) - single-letter vars are legitimate
     for:
       [
-        python,
         javascript,
         typescript,
         php,
@@ -74,6 +75,17 @@ traits:
       type: metrics
       field: identifiers.high_entropy_ratio
       min: 0.20
+      min_size: 2048
+
+  - id: py-many-high-entropy-identifiers
+    desc: "Many high-entropy identifiers (>35% have"
+    crit: suspicious
+    conf: 0.9
+    for: [python]
+    if:
+      type: metrics
+      field: identifiers.high_entropy_ratio
+      min: 0.35
 
   - id: excessive-single-char-vars
     desc: "Excessive single-character variable names (>30%)"
@@ -97,10 +109,35 @@ traits:
     desc: "Sequential identifiers (a, b, c,"
     crit: notable
     conf: 0.8
+    # Exclude Python - single-letter loop/parameter vars are standard
+    for:
+      [
+        javascript,
+        typescript,
+        php,
+        ruby,
+        perl,
+        go,
+        rust,
+        java,
+        lua,
+        csharp,
+        powershell,
+      ]
     if:
       type: metrics
       field: identifiers.sequential_names
       min: 5
+
+  - id: py-sequential-identifiers
+    desc: "Excessive sequential identifiers (a, b, c, >15%)"
+    crit: notable
+    conf: 0.8
+    for: [python]
+    if:
+      type: metrics
+      field: identifiers.sequential_names
+      min: 15
 
   - id: low-identifier-reuse
     desc: "Low identifier reuse (each variable"
@@ -110,7 +147,7 @@ traits:
       type: metrics
       field: identifiers.reuse_ratio
       max: 0.15
-      min_size: 512
+      min_size: 2048
 
   # === High Entropy Function Names ===
 
@@ -205,6 +242,7 @@ traits:
       type: metrics
       field: strings.avg_entropy
       min: 4.0
+      min_size: 2048
 
   # NOTE: Small/simple programs legitimately have few strings.
   # Only meaningful combined with other obfuscation indicators.
@@ -244,6 +282,22 @@ traits:
     desc: "Very long lines (>500 chars"
     crit: suspicious
     conf: 0.85
+    # Exclude Perl: POD documentation legitimately has long lines
+    for:
+      [
+        python,
+        javascript,
+        typescript,
+        shell,
+        php,
+        ruby,
+        go,
+        rust,
+        java,
+        lua,
+        csharp,
+        powershell,
+      ]
     if:
       type: metrics
       field: text.max_line_length
@@ -253,6 +307,24 @@ traits:
     desc: "High overall text entropy (encoded"
     crit: suspicious
     conf: 0.8
+    # Exclude Perl: legitimate code generators (e.g., cryptographic lookup tables)
+    # have naturally high entropy from hex data and special characters
+    # Exclude Rust: benchmark and test files legitimately contain diverse string data
+    # (multiple languages, emoji) with naturally high entropy
+    for:
+      [
+        python,
+        javascript,
+        typescript,
+        shell,
+        php,
+        ruby,
+        go,
+        java,
+        lua,
+        csharp,
+        powershell,
+      ]
     if:
       type: metrics
       field: text.char_entropy
@@ -313,6 +385,7 @@ composite_rules:
       - id: obj/anti-static/obfuscation/code-metrics/low-whitespace
       - id: obj/anti-static/obfuscation/code-metrics/no-comments
       - id: obj/anti-static/obfuscation/code-metrics/sequential-identifiers
+      - id: obj/anti-static/obfuscation/code-metrics/py-sequential-identifiers
 
   - id: identifier-obfuscation
     desc: "Identifier obfuscation (random/encoded names)"
@@ -323,6 +396,7 @@ composite_rules:
     any:
       - id: obj/anti-static/obfuscation/code-metrics/high-entropy-identifiers
       - id: obj/anti-static/obfuscation/code-metrics/many-high-entropy-identifiers
+      - id: obj/anti-static/obfuscation/code-metrics/py-many-high-entropy-identifiers
       - id: obj/anti-static/obfuscation/code-metrics/high-entropy-function-names
       - id: obj/anti-static/obfuscation/code-metrics/low-identifier-reuse
 

@@ -58,6 +58,38 @@ traits:
       type: symbol
       exact: "getpass.getuser"
 
+  - id: getuser-call
+    desc: getuser() function call
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      regex: "getuser\\s*\\("
+
+  - id: getuser-string
+    desc: getuser string reference
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      substr: "getuser"
+
+  - id: gethostname-call
+    desc: gethostname() function call
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      regex: "gethostname\\s*\\("
+
+  - id: gethostname-string
+    desc: gethostname string reference
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      substr: "gethostname"
+
   # === MAC address discovery (atomic) ===
   - id: getmac-module
     desc: getmac module for MAC address
@@ -104,6 +136,19 @@ composite_rules:
       - id: getmac-module
       - id: ifconfig-cmd
       - id: uuid-getnode
+
+  # Multiple system information collection
+  - id: python-sysinfo-multi
+    desc: Collects multiple system information items
+    crit: suspicious
+    conf: 0.9
+    needs: 2
+    any:
+      - id: python-platform-system
+      - id: python-platform-machine
+      - id: python-getpass-user
+      - id: gethostname-call
+      - id: getuser-call
 
   # Composite: Intensive system enumeration (Alias-resistant)
   - id: python-enumeration

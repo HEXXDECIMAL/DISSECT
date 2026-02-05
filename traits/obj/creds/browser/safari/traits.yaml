@@ -11,9 +11,14 @@ traits:
     conf: 0.8
     attack: "T1555.003"
     platforms: [macos]
+    for: [python, javascript, shell]
     if:
       type: string
       substr: "/Library/Cookies"
+      not:
+        - "entitlement"
+        - "plist"
+        - "com.apple"
 
   - id: binarycookies
     desc: macOS binary cookies file

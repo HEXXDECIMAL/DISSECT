@@ -76,7 +76,7 @@ traits:
     conf: 0.90
     if:
       type: string
-      regex: "(extract|unzip|tar).{0,50}(exec|run|open|subprocess)"
+      regex: "\\b(extract|unzip|tar)\\s*\\(.{0,50}(exec|run|subprocess)\\(|\\b(extract|unzip|tar).{0,30}(\\||>).{0,20}(exec|bash|sh|python)"
 
   - id: extract-to-temp
     desc: Extract payload to temp

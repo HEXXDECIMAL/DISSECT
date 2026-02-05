@@ -33,7 +33,7 @@ traits:
     conf: 0.90
     if:
       type: content
-      regex: "obfuscated|obfuscator"
+      regex: "pyobfuscate\\s*=\\s*\\(|https://pyobfuscate\\.com|obfuscated|obfuscator"
 
   # === Variable Name Obfuscation ===
   - id: underscore-only-variables

@@ -40,7 +40,7 @@ traits:
     desc: "Unusual character combinations"
     crit: suspicious
     conf: 0.65
-    for: [elf, shell]
+    for: [elf]
     if:
       type: string
       regex: "[^a-zA-Z0-9]{8,}"

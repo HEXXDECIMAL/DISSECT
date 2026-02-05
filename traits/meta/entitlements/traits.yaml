@@ -190,7 +190,7 @@ traits:
   # === Keychain Entitlements ===
   - id: keychain-access
     desc: Keychain access
-    crit: suspicious
+    crit: notable
     conf: 1.0
     if:
       type: trait
@@ -218,6 +218,11 @@ composite_rules:
       - id: photos-library
       - id: contacts
       - id: calendar
+    # Downgrade for legitimate system components that have multiple entitlements by design
+    # (e.g., ReplayKit daemon for screen recording needs camera + microphone)
+    downgrade:
+      any:
+        - id: meta/apple/system-component
 
   - id: highly-privileged
     desc: Highly privileged entitlements

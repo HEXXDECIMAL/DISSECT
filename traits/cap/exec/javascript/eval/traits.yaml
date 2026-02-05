@@ -334,6 +334,18 @@ traits:
       type: string
       substr: "__filename"
 
+  # === Dynamic method invocation atomic indicators ===
+  - id: prototype-bracket-apply
+    desc: Prototype bracket access with apply invocation
+    crit: suspicious
+    conf: 0.9
+    mbc: "B0024"
+    attack: "T1059.007"
+    for: [javascript, typescript]
+    if:
+      type: content
+      regex: "prototype\\s*\\[.{0,50}\\]\\s*\\.apply\\s*\\("
+
 composite_rules:
   # Process respawning (persistence via self-restart) - migrated from YARA
   - id: self-respawn

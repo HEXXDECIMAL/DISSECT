@@ -76,6 +76,9 @@ traits:
     if:
       type: string
       regex: "\\bcr0\\b"
+    downgrade:
+      none:
+        - id: kernel-module-header
 
   - id: force-order-str
     desc: __force_order variable (CR0 compiler barrier)
@@ -917,7 +920,7 @@ traits:
     if:
       type: ast
       kind: assignment
-      regex: "\\^="
+      regex: "(current->|task->|p->)(flags|f_flags)\\s*\\^="
 
   - id: current-macro-ref
     desc: Current task reference macro
@@ -1129,7 +1132,7 @@ traits:
     if:
       type: ast
       kind: function
-      regex: "^[a-z]{3,5}[0-9]?_"
+      regex: "^(?!CRYPTO|OpenSSL)([a-z]{2,3}[a-z0-9]{2,4}|[a-f0-9]{6,}|x[a-f0-9]{5,})_"
 
   - id: underscore-heavy-naming
     desc: Heavy underscore usage in names
@@ -1415,6 +1418,9 @@ composite_rules:
     any:
       - id: cr0-variable-str
       - id: force-order-str
+    downgrade:
+      none:
+        - id: kernel-module-header
 
   # Rootkit header pattern (kernel module with hooking)
   - id: rootkit-header

@@ -79,6 +79,7 @@ traits:
       type: metrics
       field: functions.total
       max: 0
+      min_size: 2048
 
 composite_rules:
   - id: sh-encoded-dropper

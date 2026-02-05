@@ -10,7 +10,7 @@ ifdef SCCACHE
 export RUSTC_WRAPPER := $(SCCACHE)
 endif
 
-.PHONY: all build debug release test lint clean coverage ci help
+.PHONY: all build debug release test lint clean coverage ci help regenerate-testdata
 
 # Default target
 all: build
@@ -20,14 +20,15 @@ help: ## Show this help
 	@echo "Usage: make [target]"
 	@echo ""
 	@echo "Targets:"
-	@echo "  build    - Build in debug mode (default)"
-	@echo "  debug    - Build in debug mode"
-	@echo "  release  - Build in release mode"
-	@echo "  test     - Run all tests (unit + integration)"
-	@echo "  lint     - Run code formatting and linting checks"
-	@echo "  coverage - Generate code coverage report"
-	@echo "  ci       - Run all CI checks (test + lint)"
-	@echo "  clean    - Clean all build artifacts"
+	@echo "  build                 - Build in debug mode (default)"
+	@echo "  debug                 - Build in debug mode"
+	@echo "  release               - Build in release mode"
+	@echo "  test                  - Run all tests (unit + integration)"
+	@echo "  lint                  - Run code formatting and linting checks"
+	@echo "  coverage              - Generate code coverage report"
+	@echo "  ci                    - Run all CI checks (test + lint)"
+	@echo "  regenerate-testdata   - Regenerate integration test snapshots from ~/data/dissect"
+	@echo "  clean                 - Clean all build artifacts"
 
 build: debug ## Build in debug mode (default)
 
@@ -88,6 +89,11 @@ clean: ## Clean all build artifacts
 	cargo clean
 	rm -rf $(OUT_DIR)
 	@echo "✓ Clean complete"
+
+regenerate-testdata: release ## Regenerate integration test snapshots
+	@echo "Regenerating test data from ~/data/dissect..."
+	cargo build --release --quiet --bin regenerate_testdata
+	./target/release/regenerate_testdata
 
 $(OUT_DIR):
 	mkdir -p $(OUT_DIR)

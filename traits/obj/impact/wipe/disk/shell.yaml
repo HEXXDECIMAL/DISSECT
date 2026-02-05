@@ -74,7 +74,7 @@ traits:
     for: [shell]
     if:
       type: content
-      regex: 'dd\s+if=/dev/zero'
+      regex: 'dd\s+if=/dev/zero.{0,50}of=/dev/'
 
   # YARA-based patterns for content that isn't extracted by AST
   - id: dd-dev-zero
@@ -88,8 +88,8 @@ traits:
       source: |
         rule dd_dev_zero {
           strings:
-            $dd_zero = /dd\s+[^\n]*if=\/dev\/zero/ ascii
-            $dd_urandom = /dd\s+[^\n]*if=\/dev\/u?random/ ascii
+            $dd_zero = /dd\s+[^\n]*if=\/dev\/zero[^\n]*of=\/dev\// ascii
+            $dd_urandom = /dd\s+[^\n]*if=\/dev\/u?random[^\n]*of=\/dev\// ascii
           condition:
             any of them
         }

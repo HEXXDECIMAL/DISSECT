@@ -96,7 +96,7 @@ traits:
             $ext9 = ".vmss" ascii wide
             $ext10 = ".log" ascii wide
             $path1 = "/vmfs/volumes" ascii
-            $path2 = "/datastore" ascii
+            $path2 = "/vmfs/volumes/datastore" ascii
           condition:
             4 of ($ext*) or any of ($path*)
         }

@@ -51,3 +51,5 @@ composite_rules:
       - id: large-base64-payload
       - id: large-hex-payload
       - id: payload-blob-metrics
+    none:
+      - id: meta/signed/type/platform

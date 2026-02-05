@@ -64,7 +64,7 @@ traits:
     conf: 0.9
     if:
       type: content
-      regex: '\./-[a-zA-Z0-9_]+'
+      regex: '(exec|\.\/|\$\(|`)\s*\./-[a-zA-Z0-9_]+'
 
   # === Delete with double-dash terminator ===
   - id: rm-double-dash

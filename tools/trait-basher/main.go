@@ -565,7 +565,7 @@ func main() {
 	useCargo := flag.Bool("cargo", true, "Use 'cargo run --release' instead of dissect binary")
 	timeout := flag.Duration("timeout", 20*time.Minute, "Maximum time for each AI invocation")
 	flush := flag.Bool("flush", false, "Clear analysis cache and reprocess all files")
-	rescanAfter := flag.Int("rescan-after", 1, "Restart scan after reviewing N files to verify fixes (0 = disabled)")
+	rescanAfter := flag.Int("rescan-after", 4, "Restart scan after reviewing N files to verify fixes (0 = disabled)")
 
 	flag.Parse()
 
@@ -776,22 +776,41 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 			continue
 		}
 
-		// If we've hit the rescan limit, just consume remaining lines without processing
-		if state.stopProcessing {
-			n++
-			if time.Since(last) > 100*time.Millisecond {
-				fmt.Fprintf(os.Stderr, "\r  Consuming remaining scan results... %d files", n)
-				last = time.Now()
-			}
-			continue
-		}
-
 		var entry jsonlEntry
 		if err := json.Unmarshal([]byte(line), &entry); err != nil {
 			continue
 		}
 
 		if entry.Type != "file" {
+			continue
+		}
+
+		// If we've hit the rescan limit, just consume remaining lines without processing
+		if state.stopProcessing {
+			n++
+			if time.Since(last) > 100*time.Millisecond {
+				// Calculate trait statistics
+				critCounts := make(map[string]int)
+				for _, finding := range entry.Findings {
+					critCounts[strings.ToLower(finding.Crit)]++
+				}
+
+				// Build stats string
+				var statsParts []string
+				for _, level := range []string{"hostile", "suspicious", "notable", "inert"} {
+					if count := critCounts[level]; count > 0 {
+						statsParts = append(statsParts, fmt.Sprintf("%s: %d", level, count))
+					}
+				}
+
+				filename := filepath.Base(entry.Path)
+				if len(statsParts) > 0 {
+					fmt.Fprintf(os.Stderr, "\r  Consuming remaining scan results... %d files (processing: %s [%s])", n, filename, strings.Join(statsParts, ", "))
+				} else {
+					fmt.Fprintf(os.Stderr, "\r  Consuming remaining scan results... %d files (processing: %s)", n, filename)
+				}
+				last = time.Now()
+			}
 			continue
 		}
 

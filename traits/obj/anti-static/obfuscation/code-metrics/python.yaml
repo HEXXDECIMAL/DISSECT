@@ -66,4 +66,4 @@ composite_rules:
       - id: obj/anti-static/obfuscation/code-metrics/no-comments
     any:
       - id: obj/anti-static/obfuscation/code-metrics/single-char-function-names
-      - id: obj/anti-static/obfuscation/code-metrics/high-entropy-identifiers
+      - id: obj/anti-static/obfuscation/code-metrics/py-many-high-entropy-identifiers

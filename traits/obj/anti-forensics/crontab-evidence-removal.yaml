@@ -72,7 +72,11 @@ traits:
     for: [elf, shell]
     if:
       type: string
-      substr: "sed -i"
+      all:
+        - substr: "sed -i"
+        - any:
+            - substr: "/var/spool/cron"
+            - substr: "/etc/cron"
     attack: "T1070.004"
 
   - id: rm-cron-files

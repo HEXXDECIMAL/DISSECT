@@ -297,6 +297,11 @@ composite_rules:
     all:
       - id: nsbundle
       - id: dl-function
+    # Downgrade for legitimate system components that use NSBundle + dynamic loading
+    # (e.g., ReplayKit daemon, plugin systems, framework code)
+    downgrade:
+      any:
+        - id: meta/apple/system-component
 
   # NOTE: dlopen/dlsym is common in many legitimate programs including shells
   # (bash uses it for loadable builtins), interpreters, plugin systems, and

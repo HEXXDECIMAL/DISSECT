@@ -26,7 +26,8 @@ traits:
   # Pattern: 60-66 chars containing letters, numbers, AND special chars
   # Examples: ">Ei*=%K6X#<ht!x4P8j(rHF3_pLJc9n1uWy5oqYI7gsbU+$@MSNA&k-)vVCGQZwR"
   # Standard base64 only uses +/= as special chars; custom alphabets use more
-  # Must contain at least one of: > < * % # ! ( ) @ $ & to be a custom alphabet
+  # Key signal: MUST have 3+ distinct special chars from [><*%#!()@$&-+]
+  # AND NOT look like printf (%@, %d, etc), XML tags, or Apple constants
   - id: custom-encoding-alphabet
     desc: Custom encoding alphabet (cipher/obfuscation)
     crit: suspicious
@@ -35,23 +36,20 @@ traits:
     attack: "T1027"
     if:
       type: string
-      # 60-66 char string that:
-      # - Contains special chars like >*=%#<()!@$&
-      # - Does NOT start with __ (excludes C++ mangled names)
-      # - Is not all alphanumeric (must have real special chars)
-      regex: "^[^_][a-zA-Z0-9><=*%#!()@$&+\\-_]{59,65}$"
-    # Filter out standard base64 and common false positives
+      # Match 60-66 char strings with special chars distributed throughout
+      # NOT at the boundaries (to exclude format strings)
+      # Pattern: alphanumeric start, special chars in middle and end, but not *just* format strings
+      regex: "^[a-zA-Z0-9]{2,}[><*%#!()@$&\\-+]+[a-zA-Z0-9><*%#!()@$&+\\-]{15,}[><*%#!()@$&\\-+]{2,}[a-zA-Z0-9]{0,4}$"
     not:
-      - exact: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-      - exact: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
-      # Exclude strings that only have alphanumeric + standard base64 chars
-      - regex: "^[A-Za-z0-9+/=\\-_]+$"
-      # Exclude C++ mangled names (contain Ns, Es in sequence pattern)
-      - regex: "NSt3__1"
-      - regex: "__Z"
-      - regex: "@__Z"
-      # Exclude hex strings (only 0-9a-f)
-      - regex: "^[0-9a-fA-F]+$"
+      # Exclude printf/format strings (have % at start with letter codes)
+      - regex: "^%[a-zA-Z@]"
+      # Exclude simple two-char format sequences
+      - regex: "^%[@sd]"
+      # Exclude XML/HTML tags
+      - regex: "^<"
+      - regex: ">$"
+      # Exclude Apple OS constants (all uppercase)
+      - regex: "^[A-Z][A-Z0-9_]+$"
 
 composite_rules:
   # libcurl network dropper: downloads content via libcurl, writes to disk, executes via shell

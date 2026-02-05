@@ -33,6 +33,8 @@ composite_rules:
     any:
       - id: cap/exec/command/shell/bin-sh
       - id: cap/exec/command/shell/bin-bash
+    none:
+      - id: meta/signed/type/platform
     # Downgrade for legitimate network servers/debuggers/system libraries
     downgrade:
       any:
