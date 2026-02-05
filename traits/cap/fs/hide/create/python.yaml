@@ -91,32 +91,18 @@ traits:
       regex: "open\\([^)]+[\"']w"
 
   # Hidden directory with short cryptic name (.n2, .x, .tmp2)
+  # Only match in contexts suggesting directory creation, not file extensions
   - id: python-cryptic-hidden
     desc: "Cryptic hidden directory name (likely"
     conf: 0.85
     if:
       type: string
-      # Short hidden names that don't match known config dirs
-      regex: "[\"']\\.[a-z][a-z0-9]?[\"']"
-      exclude_patterns:
-        - '".git"'
-        - '".ssh"'
-        - '".aws"'
-        - '".npm"'
-        - '".pyc"'
-        - '".pt"' # PyTorch model file extension
-        - '".so"' # Shared object extension
-        - '".py"' # Python file extension
-        - '".js"' # JavaScript file extension
-        - '".ts"' # TypeScript file extension
-        - '".go"' # Go file extension
-        - '".rs"' # Rust file extension
-        - '".rb"' # Ruby file extension
-        - '".md"' # Markdown file extension
-        - '".sh"' # Shell script extension
-        - '".c"' # C file extension
-        - '".h"' # Header file extension
-        - "'.h'" # Header file extension (single quotes)
+      # Match hidden dir pattern in os.path.join, Path /operator, or makedirs context
+      # Explicitly exclude file extensions (.py, .js, .go, etc.) by matching directory patterns
+      regex: "(os\\.path\\.join|/\\s*[\"']\\.|makedirs|mkdir)\\([^)]*[\"']\\.[a-z][a-z0-9]?[\"']"
+      not:
+        # Exclude common file extensions
+        - regex: "[\"']\\.(py|js|ts|go|rs|rb|md|sh|c|h|pyc|pt|so|git|ssh|aws|npm)[\"']"
 
 composite_rules:
   # File write or makedirs composite

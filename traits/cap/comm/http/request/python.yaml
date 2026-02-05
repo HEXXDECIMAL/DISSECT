@@ -87,6 +87,9 @@ traits:
             (string) @url))
          (#match? @obj "^(requests|urqt|urllib|urllib2|req|r|client|http|session|httpx)$")
          (#match? @meth "^(get|post|urlopen|urlretrieve|request)$"))
+    unless:
+      - type: basename
+        regex: '(test_|_test\.|\.test\.|\.spec\.).*\.(py)$'
 
 composite_rules:
   # HTTP request composite

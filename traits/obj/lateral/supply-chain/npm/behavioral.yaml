@@ -388,6 +388,47 @@ traits:
       # Unusual: importing test/harness in non-test file
       regex: "require\\s*\\(\\s*['\"][^'\"]*(?:test|spec)[/\\\\]harness[^'\"]*['\"]\\s*\\)"
 
+  # === C2 DATA SERVER PATTERNS ===
+  # Detects server infrastructure packages: express + socket.io + file upload
+
+  - id: express-fileupload-dep
+    desc: express-fileupload dependency
+    crit: notable
+    conf: 0.8
+    for: [javascript, all]
+    if:
+      type: symbol
+      exact: "express-fileupload"
+
+  - id: socket-io-dep
+    desc: socket.io dependency
+    crit: notable
+    conf: 0.8
+    for: [javascript, all]
+    if:
+      type: symbol
+      exact: "socket.io"
+
+  - id: express-dep
+    desc: express dependency
+    crit: inert
+    conf: 0.9
+    for: [javascript, all]
+    if:
+      type: symbol
+      exact: "express"
+
+  - id: base64-encode-function
+    desc: base64 encoding function/method
+    crit: notable
+    conf: 0.7
+    mbc: "E1041"
+    attack: "T1041"
+    for: [javascript]
+    if:
+      type: content
+      regex: "toString\\s*\\(\\s*['\"]base64['\"]\\s*\\)|Buffer\\.from\\s*\\([^)]*\\)['\"]base64"
+
 composite_rules:
   # Python interpreter exec composite
   - id: python-interpreter-exec
@@ -593,3 +634,20 @@ composite_rules:
       - id: hex-require-bracket-method
       - id: obj/anti-static/obfuscation/strings/js-hex-escape
       - id: settimeout-code-exec
+
+  # === C2 DATA SERVER COMPOSITES ===
+
+  # C2 server infrastructure pattern (express + socket.io + file-upload)
+  # Pattern: C2 receiver server that collects file uploads and broadcasts over WebSocket
+  # Complexity: for(+1) + all(+3) = 4 (meets HOSTILE threshold)
+  - id: c2-data-server
+    desc: C2 data collection/exfiltration server
+    crit: suspicious
+    conf: 0.92
+    mbc: "B0030"
+    attack: "T1041"
+    for: [javascript, all]
+    all:
+      - id: express-fileupload-dep
+      - id: socket-io-dep
+      - id: express-dep

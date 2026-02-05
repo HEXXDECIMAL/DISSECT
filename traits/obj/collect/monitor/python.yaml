@@ -44,6 +44,41 @@ traits:
       type: string
       substr: "keyboard.on_press"
 
+  # === Screen capture atomic indicators ===
+  - id: mss-library
+    desc: mss screen capture library
+    crit: notable
+    conf: 0.95
+    mbc: "B0002"
+    attack: "T1113"
+    for: [python]
+    if:
+      type: content
+      regex: '(?:^|\s)import\s+mss|from\s+mss'
+      case_insensitive: true
+
+  - id: pil-imagegrab
+    desc: PIL ImageGrab screen capture
+    crit: notable
+    conf: 0.95
+    mbc: "B0002"
+    attack: "T1113"
+    for: [python]
+    if:
+      type: string
+      regex: 'ImageGrab\.grab|from.{0,50}PIL.{0,50}import.{0,50}ImageGrab'
+
+  - id: pyautogui-screenshot
+    desc: pyautogui screenshot capture
+    crit: notable
+    conf: 0.95
+    mbc: "B0002"
+    attack: "T1113"
+    for: [python]
+    if:
+      type: string
+      regex: 'pyautogui\.screenshot'
+
 composite_rules:
   # Clipboard access composite
   - id: clipboard-access
@@ -68,3 +103,17 @@ composite_rules:
     any:
       - id: pynput-keyboard
       - id: keyboard-on-press
+
+  # Screen capture composite
+  - id: screen-capture
+    desc: Captures screen display (potential spyware)
+    crit: suspicious
+    conf: 0.9
+    mbc: "B0002"
+    attack: "T1113"
+    for: [python]
+    needs: 1
+    any:
+      - id: mss-library
+      - id: pil-imagegrab
+      - id: pyautogui-screenshot

@@ -173,13 +173,13 @@ traits:
       substr: "writeFile"
 
   - id: open-paren
-    desc: open( function
+    desc: open( function for file write
     crit: inert
     conf: 0.3
     for: [javascript, typescript, python]
     if:
       type: string
-      substr: "open("
+      regex: "open\\([^)]*[\"'][wa][\"']"
 
   # === Ransom note (atomic) ===
   - id: files-encrypted-msg
@@ -445,7 +445,7 @@ composite_rules:
     crit: inert
     conf: 0.4
     for: [javascript, typescript, python]
-    needs: 1
+    needs: 2
     any:
       - id: writefile-sync
       - id: writefile-fn

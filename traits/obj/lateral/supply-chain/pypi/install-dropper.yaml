@@ -35,8 +35,9 @@ traits:
     conf: 0.85
     if:
       type: string
-      # Pattern: 'start ' or 'start\t' or 'start"' (command in string)
-      regex: "\\bstart\\s+"
+      # Pattern: 'start' command followed by executable/path
+      # Matches: start notepad.exe, start calc, etc. (not "start with")
+      regex: "\\bstart\\s+['\"]?[a-zA-Z0-9._\\\\/-]+\\.(exe|bat|cmd|ps1|scr|msi|com)"
     unless:
       - type: basename
         regex: "\\.pyc$"

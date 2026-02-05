@@ -30,6 +30,7 @@ traits:
     desc: Moscow timezone check
     crit: suspicious
     conf: 0.85
+    for: [elf, macho, pe]
     if:
       type: string
       substr: "Europe/Moscow"
@@ -38,6 +39,7 @@ traits:
     desc: Minsk timezone check
     crit: notable
     conf: 0.8
+    for: [elf, macho, pe]
     if:
       type: string
       substr: "Europe/Minsk"
@@ -46,6 +48,7 @@ traits:
     desc: Kyiv timezone check
     crit: notable
     conf: 0.7
+    for: [elf, macho, pe]
     if:
       type: string
       substr: "Europe/Kiev"

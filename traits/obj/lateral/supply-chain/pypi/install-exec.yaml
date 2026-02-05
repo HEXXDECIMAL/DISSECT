@@ -129,6 +129,7 @@ traits:
   # NOTE: YARA kept for dependency-injection - requires combining try/except ImportError
   # with pip install patterns in a specific structural way that's difficult to express
   # with simple atomic + composite rules
+  # Requires subprocess execution, not just sys.executable reference
   - id: dependency-injection-yara
     desc: "Package installs additional dependencies at"
     crit: suspicious
@@ -145,9 +146,13 @@ traits:
             $except = /except\s*(ImportError)?:/
             $import = /import\s+\\w+/ ascii
             $pip_install = "pip install" ascii nocase
-            $sys_exec = "sys.executable" ascii
+            $subprocess = "subprocess" ascii
+            // Legitimate test code markers
+            $pytest = "pytest" ascii
+            $test = "def test_" ascii
           condition:
-            $try and $except and $import and ($pip_install or $sys_exec)
+            $try and $except and $import and $pip_install and $subprocess and
+            not any of ($pytest, $test)
         }
 
 composite_rules:

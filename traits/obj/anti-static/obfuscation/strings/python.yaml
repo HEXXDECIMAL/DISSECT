@@ -110,14 +110,15 @@ traits:
       type: string
       substr: "marshal.loads"
 
-  # Reverse byte order - anti-analysis technique
+  # Reverse byte order in encoded/hex data - anti-analysis technique
+  # Avoid false positives from legitimate slice operations by requiring context
   - id: reverse-bytes
-    desc: Reverses byte order before processing
+    desc: Reverses byte order of encoded data
     crit: suspicious
     conf: 0.9
     if:
       type: content
-      regex: "\\[::-1\\]"
+      regex: "(?:fromhex|b64decode|unhexlify)\\(.{0,50}\\[::-1\\]|\\[::-1\\].{0,50}(?:fromhex|b64decode|unhexlify)"
 
 composite_rules:
   # Decode functions composite

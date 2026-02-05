@@ -65,6 +65,7 @@ traits:
     desc: C2 info collection command (501)
     crit: suspicious
     conf: 0.75
+    for: [elf, macho, pe]
     if:
       type: string
       exact: "501"
@@ -75,6 +76,7 @@ traits:
     desc: C2 command execution (502)
     crit: suspicious
     conf: 0.75
+    for: [elf, macho, pe]
     if:
       type: string
       exact: "502"
@@ -85,6 +87,7 @@ traits:
     desc: C2 download command (503)
     crit: suspicious
     conf: 0.75
+    for: [elf, macho, pe]
     if:
       type: string
       exact: "503"
@@ -95,6 +98,7 @@ traits:
     desc: C2 self-terminate command (504)
     crit: suspicious
     conf: 0.75
+    for: [elf, macho, pe]
     if:
       type: string
       exact: "504"

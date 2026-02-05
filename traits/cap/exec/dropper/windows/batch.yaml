@@ -235,6 +235,47 @@ traits:
       regex: "-OutFile"
       case_insensitive: true
 
+  # Go build stealth compilation
+  - id: go-build-cmd
+    desc: Go build command
+    crit: inert
+    conf: 0.8
+    for: [shell, batch]
+    if:
+      type: string
+      regex: "(?i)\\bgo\\s+build\\b"
+
+  - id: go-ldflags-strip
+    desc: Go strip flag in ldflags
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0032"
+    attack: "T1027"
+    for: [shell, batch]
+    if:
+      type: string
+      regex: "-s\\s+-w|\\s-s\\s+|\\s-s\\b"
+
+  - id: go-ldflags-hide-gui
+    desc: Go hide GUI window flag
+    crit: suspicious
+    conf: 0.85
+    mbc: "F0005"
+    attack: "T1564"
+    for: [shell, batch]
+    if:
+      type: string
+      regex: "(?i)-H=windowsgui"
+
+  - id: go-linkmode-external
+    desc: Go external linkmode compilation
+    crit: notable
+    conf: 0.7
+    for: [shell, batch]
+    if:
+      type: string
+      regex: "(?i)linkmode=external"
+
 composite_rules:
   # Download tool composite
   - id: download-tool
@@ -298,3 +339,17 @@ composite_rules:
     any:
       - id: outfile-param
       - id: powershell-download
+
+  # Go build stealth compilation pattern
+  - id: go-build-stealth
+    desc: Go build with stealth flags
+    crit: suspicious
+    conf: 0.92
+    mbc: "B0032"
+    attack: "T1027"
+    for: [shell, batch]
+    all:
+      - id: go-build-cmd
+    any:
+      - id: go-ldflags-strip
+      - id: go-ldflags-hide-gui

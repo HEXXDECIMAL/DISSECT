@@ -8,6 +8,18 @@ defaults:
   mbc: "B0032"
 
 traits:
+  # === Known Obfuscation Markers ===
+  # "Xixa" is a known marker used by Spirit malware family for payload obfuscation
+  - id: xixa-marker
+    desc: Xixa obfuscation marker string
+    crit: suspicious
+    conf: 0.95
+    for: [elf]
+    attack: "T1027.002"
+    mbc: "B0032"
+    if:
+      type: string
+      exact: "Xixa"
   # === Section Ratio Indicators ===
 
   - id: large-const-section
@@ -211,3 +223,19 @@ composite_rules:
     any:
       - id: obj/persist/daemon/init/macos-double-fork-daemon
       - id: cap/exec/command/shell/shell-execution
+
+  - id: obfuscated-elf-daemon-dropper
+    desc: "Obfuscated ELF daemon dropper (embedded payload"
+    crit: hostile
+    conf: 0.88
+    attack: "T1027"
+    mbc: "B0032"
+    for: [elf]
+    platforms: [linux]
+    # Complexity: all(2) + any(2) + file_types(1) = 5 >= 4 ✓
+    all:
+      - id: cap/data/embedded/lzma-magic
+      - id: obj/persist/daemon/init/daemon-fork
+    any:
+      - id: cap/exec/command/shell/shell-execution
+      - id: cap/exec/command/shell/go-shell-execution

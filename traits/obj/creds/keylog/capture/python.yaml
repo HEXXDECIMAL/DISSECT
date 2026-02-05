@@ -165,12 +165,12 @@ traits:
       regex: "open\\([^)]+[\"']w[\"']"
 
   - id: dot-write
-    desc: .write() method call
+    desc: .write() method call on file handle
     crit: inert
     conf: 0.4
     if:
       type: string
-      substr: ".write("
+      regex: "(file|f|handle|log|stream|out)\\.write\\("
 
   - id: keydown-keyword
     desc: KeyDown keyword
@@ -297,10 +297,10 @@ composite_rules:
 
   # Write or key handler composite
   - id: python-write-or-key-handler
-    desc: "Write call or key event"
+    desc: "Write call or key event handler"
     crit: notable
     conf: 0.7
-    needs: 1
+    needs: 2
     any:
       - id: dot-write
       - id: keydown-keyword

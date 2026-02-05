@@ -10,3 +10,36 @@ traits:
     if:
       type: string
       substr: "BlankOBF"
+
+  - id: pyinstaller-bundling
+    desc: PyInstaller executable bundling
+    crit: suspicious
+    conf: 0.9
+    attack: "T1027"
+    for: [shell, batch, powershell]
+    if:
+      type: content
+      regex: "(?:pyinstaller|pyi-makespec)\\s+"
+      case_insensitive: true
+
+composite_rules:
+  - id: malware-bundler
+    desc: Obfuscates malware with bundling tool
+    crit: hostile
+    conf: 0.95
+    attack: "T1027"
+    for: [shell, batch, powershell]
+    all:
+      - id: cap/data/text/suspicious-repo-name
+      - id: pyinstaller-bundling
+
+  - id: pyinstaller-screenshotter-rat
+    desc: PyInstaller bundling screen capture RAT
+    crit: hostile
+    conf: 0.95
+    attack: "T1027"
+    mbc: "B0032"
+    for: [shell, batch, powershell]
+    all:
+      - id: pyinstaller-bundling
+      - id: obj/collect/monitor/screen-capture

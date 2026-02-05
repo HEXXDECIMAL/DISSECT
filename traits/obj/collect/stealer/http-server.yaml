@@ -1,0 +1,92 @@
+# HTTP Server-based Data Collection/Stealer
+# Detects exfiltration data collection via HTTP endpoints
+# MBC: OB0003 (Stealer)
+# ATT&CK: T1041 (Exfiltration Over C2 Channel)
+
+defaults:
+  attack: "T1041"
+  mbc: "OB0003"
+
+traits:
+  # === Data extraction from request ===
+  - id: extract-from-request-json
+    desc: Extract data from JSON request body
+    crit: notable
+    conf: 0.8
+    for: [python]
+    if:
+      type: content
+      regex: "request\\.json|request\\.get_json"
+
+  - id: extract-from-request-form
+    desc: Extract data from form request
+    crit: notable
+    conf: 0.8
+    for: [python]
+    if:
+      type: content
+      regex: "request\\.form|request\\.args"
+
+  - id: extract-from-request-data
+    desc: Extract data from request data field
+    crit: notable
+    conf: 0.75
+    for: [python]
+    if:
+      type: content
+      substr: "request.data"
+
+  # === Data storage ===
+  - id: file-write-storage
+    desc: Write file to persistent storage
+    crit: notable
+    conf: 0.75
+    for: [python]
+    if:
+      type: content
+      regex: "open\\(.{0,30}[\"'][wa]"
+
+  - id: file-store-variable
+    desc: Store data to file variable
+    crit: inert
+    conf: 0.5
+    for: [python]
+    if:
+      type: content
+      regex: "file\\.write\\(|f\\.write\\("
+
+  # === Exfiltration endpoint pattern ===
+  - id: http-post-endpoint
+    desc: HTTP POST method handler
+    crit: notable
+    conf: 0.8
+    for: [python]
+    if:
+      type: content
+      regex: "@app\\.post\\(|@route.{0,30}POST"
+
+  - id: http-root-endpoint
+    desc: HTTP endpoint at root path
+    crit: notable
+    conf: 0.7
+    for: [python]
+    if:
+      type: content
+      regex: "@.{0,30}(route|post).{0,20}['\"]/?['\"]"
+
+composite_rules:
+  # Data collection with HTTP server storage
+  - id: data-collection-with-storage
+    desc: Collects and stores exfiltrated data on HTTP server
+    crit: suspicious
+    conf: 0.9
+    for: [python]
+    attack: "T1041"
+    mbc: "OB0003"
+    all:
+      - id: http-post-endpoint
+      - id: file-write-storage
+    any:
+      - id: extract-from-request-json
+      - id: extract-from-request-form
+      - id: extract-from-request-data

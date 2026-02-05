@@ -319,6 +319,9 @@ traits:
       field: comments.total
       max: 0
       min_size: 2048
+    unless:
+      - type: basename
+        regex: '(test_|_test\.|\.test\.|\.spec\.).*\.(py|js|ts|go|php|rb|java)$'
 
   - id: very-low-comment-ratio
     desc: "Very low comment-to-code ratio (<1%)"
@@ -329,6 +332,9 @@ traits:
       field: comments.to_code_ratio
       max: 0.01
       min_size: 2048
+    unless:
+      - type: basename
+        regex: '(test_|_test\.|\.test\.|\.spec\.).*\.(py|js|ts|go|php|rb|java)$'
 
   - id: very-long-lines
     desc: "Very long lines (>500 chars"
@@ -460,7 +466,7 @@ composite_rules:
       - id: obj/anti-static/obfuscation/code-metrics/low-identifier-reuse
     unless:
       - type: basename
-        regex: '^(avx|sse|neon|simd|intrinsic|vpclmul|pclmul|aes).*\.rs$'
+        regex: '^(avx|sse|neon|simd|intrinsic|vpclmul|pclmul|aes).*\.rs$|(test_|_test\.|\btest\b).*\.(py|js|ts)$'
 
   - id: generated-code
     desc: "Machine-generated or transformed code"

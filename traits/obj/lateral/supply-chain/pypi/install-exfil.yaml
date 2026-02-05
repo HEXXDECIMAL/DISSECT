@@ -17,7 +17,8 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: "\\binstalled\\b"
+      # Match: print("...installed..."), output("...installed"), or return with installed as confirmation
+      regex: "(?:print|send|http|request|post)\\s*\\([^)]{0,100}\\binstalled\\b"
       case_insensitive: true
     not:
       # Legitimate contexts where "installed" is expected
@@ -28,6 +29,10 @@ traits:
       - regex: "packages? installed"
       - regex: "successfully\\s+installed"
       - regex: "pip\\s+install"
+      # Common legitimate patterns
+      - regex: "ImportError.*installed"
+      - regex: "devtools"
+      - regex: "sqlalchemy"
 
   - id: placeholder-ellipsis
     desc: Placeholder ellipsis string

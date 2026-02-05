@@ -17,8 +17,8 @@ traits:
     conf: 0.85
     if:
       type: string
-      # Common router admin passwords
-      regex: "^(admin123|admin1234|root123|1234567890|123456|password|default)$"
+      # Common router admin passwords (specific credentials, not generic words)
+      regex: "^(admin123|admin1234|root123|1234567890|123456|password)$"
     not:
       - id: meta/signed/type/platform
 

@@ -1,0 +1,81 @@
+# Display Screen Capture - Python
+# Detects screen capture library usage
+# MBC: B0002 (Screen Capture)
+# ATT&CK: T1113 (Screen Capture)
+
+traits:
+  # === MSS Library ===
+  - id: mss-import
+    desc: mss screen capture library
+    crit: notable
+    conf: 0.95
+    mbc: "B0002"
+    attack: "T1113"
+    for: [python]
+    if:
+      type: content
+      regex: '(?:^|\s)import\s+mss|from\s+mss'
+      case_insensitive: true
+
+  - id: mss-screenshot
+    desc: mss.shot() screen capture
+    crit: notable
+    conf: 0.95
+    mbc: "B0002"
+    attack: "T1113"
+    for: [python]
+    if:
+      type: content
+      regex: '\.shot\(|mss\.mss\(\)'
+
+  # === PIL/Pillow ImageGrab ===
+  - id: pil-imagegrab
+    desc: PIL ImageGrab screen capture
+    crit: notable
+    conf: 0.95
+    mbc: "B0002"
+    attack: "T1113"
+    for: [python]
+    if:
+      type: content
+      regex: 'ImageGrab\.grab|from.{0,50}PIL.{0,50}import.{0,50}ImageGrab'
+
+  # === Pyautogui ===
+  - id: pyautogui-screenshot
+    desc: pyautogui.screenshot screen capture
+    crit: notable
+    conf: 0.95
+    mbc: "B0002"
+    attack: "T1113"
+    for: [python]
+    if:
+      type: content
+      regex: 'pyautogui\.screenshot|pyautogui\.locateOnScreen'
+
+  # === Generic screenshot method ===
+  - id: screenshot-method
+    desc: screenshot method call
+    crit: notable
+    conf: 0.7
+    mbc: "B0002"
+    attack: "T1113"
+    for: [python]
+    if:
+      type: content
+      regex: '\.screenshot\(|screenshot_now\('
+
+composite_rules:
+  # Screen capture library composite
+  - id: screen-capture
+    desc: Screen capture library usage
+    crit: notable
+    conf: 0.95
+    for: [python]
+    mbc: "B0002"
+    attack: "T1113"
+    needs: 1
+    any:
+      - id: mss-import
+      - id: mss-screenshot
+      - id: pil-imagegrab
+      - id: pyautogui-screenshot

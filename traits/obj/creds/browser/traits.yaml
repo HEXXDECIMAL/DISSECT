@@ -35,6 +35,18 @@ traits:
       type: string
       substr: "browser_cookie3"
 
+  # === Cookie Exfiltration Receiver ===
+  - id: cookie-exfil-receiver
+    desc: Cookie data reception (HTTP server receiving cookies)
+    crit: suspicious
+    conf: 0.85
+    attack: "T1555.003"
+    for: [python, javascript, go]
+    if:
+      type: ast
+      kind: subscript
+      regex: "cookie\\['(domain|name|value)'\\]"
+
   # === HackBrowserData atomic indicators ===
   - id: hackbrowserdata-lower
     desc: hackbrowserdata lowercase reference
@@ -494,6 +506,18 @@ composite_rules:
       - { id: password-value-field }
       - { id: username-value-field }
       - { id: origin-url-field }
+
+  # === Cookie Exfiltration Composites ===
+  - id: cookie-exfil-http
+    desc: Cookie exfiltration via HTTP server
+    crit: suspicious
+    conf: 0.9
+    attack: "T1555.003"
+    mbc: "B0028"
+    for: [python, javascript]
+    all:
+      - id: cookie-exfil-receiver
+      - id: cap/comm/http/server
 
   # === Main detection composites ===
   - id: hackbrowserdata
