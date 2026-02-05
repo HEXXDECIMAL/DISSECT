@@ -63,45 +63,45 @@ traits:
   # === Command Codes ===
   - id: c2-cmd-info-collection
     desc: C2 info collection command (501)
-    crit: suspicious
-    conf: 0.75
+    crit: notable
+    conf: 0.5
     for: [elf, macho, pe]
     if:
       type: string
-      exact: "501"
+      regex: "(?:cmd|command|code|type)[\\s=:]*501"
     not:
       - regex: "HTTP/[0-9]\\.[0-9] 501"
 
   - id: c2-cmd-exec
     desc: C2 command execution (502)
-    crit: suspicious
-    conf: 0.75
+    crit: notable
+    conf: 0.5
     for: [elf, macho, pe]
     if:
       type: string
-      exact: "502"
+      regex: "(?:cmd|command|code|type)[\\s=:]*502"
     not:
       - regex: "HTTP/[0-9]\\.[0-9] 502"
 
   - id: c2-cmd-download
     desc: C2 download command (503)
-    crit: suspicious
-    conf: 0.75
+    crit: notable
+    conf: 0.5
     for: [elf, macho, pe]
     if:
       type: string
-      exact: "503"
+      regex: "(?:cmd|command|code|type)[\\s=:]*503"
     not:
       - regex: "HTTP/[0-9]\\.[0-9] 503"
 
   - id: c2-cmd-kill
     desc: C2 self-terminate command (504)
-    crit: suspicious
-    conf: 0.75
+    crit: notable
+    conf: 0.5
     for: [elf, macho, pe]
     if:
       type: string
-      exact: "504"
+      regex: "(?:cmd|command|code|type)[\\s=:]*504"
     not:
       - regex: "HTTP/[0-9]\\.[0-9] 504"
 
