@@ -104,7 +104,7 @@ pub struct Args {
     #[arg(value_name = "PATH")]
     pub paths: Vec<String>,
 
-    /// Output as JSON (machine-readable). Shorthand for --format json.
+    /// Output as JSONL (machine-readable, streaming). Shorthand for --format jsonl.
     #[arg(long)]
     pub json: bool,
 
@@ -178,10 +178,13 @@ impl Args {
     pub fn format(&self) -> OutputFormat {
         // --format takes precedence over --json
         if let Some(format) = self.format {
+            if matches!(format, OutputFormat::Json) {
+                eprintln!("⚠️  WARNING: --format json is deprecated and will be removed in v2.0. Use --format jsonl instead.");
+            }
             return format;
         }
         if self.json {
-            OutputFormat::Json
+            OutputFormat::Jsonl
         } else {
             OutputFormat::Terminal
         }
@@ -505,7 +508,7 @@ mod tests {
     fn test_parse_json_flag() {
         let args = Args::try_parse_from(["dissect", "--json", "file.bin"]).unwrap();
         assert!(args.json);
-        assert!(matches!(args.format(), OutputFormat::Json));
+        assert!(matches!(args.format(), OutputFormat::Jsonl));
     }
 
     #[test]
@@ -548,7 +551,7 @@ mod tests {
         .unwrap();
 
         assert!(args.json);
-        assert!(matches!(args.format(), OutputFormat::Json));
+        assert!(matches!(args.format(), OutputFormat::Jsonl));
         assert_eq!(args.output, Some("output.json".to_string()));
         assert!(args.verbose);
         assert!(args.third_party_yara); // Third-party YARA explicitly enabled

@@ -27,29 +27,25 @@ gcloud projects add-iam-policy-binding "${GCP_PROJECT}" \
 echo "Building image with apko/melange..."
 ./build-apko.sh
 
-# Push image to GCR using crane
-echo "Pushing image to ${APP_IMAGE}:latest..."
+# Push image to GCR using gcloud builds
+echo "Building and pushing image to ${APP_IMAGE}:latest..."
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-OCI_DIR="${SCRIPT_DIR}/dist/apko-build"
-if [ ! -d "${OCI_DIR}" ]; then
-  echo "❌ OCI directory not found: ${OCI_DIR}"
+
+# Use gcloud builds submit to build from Dockerfile
+# First check if Dockerfile exists
+if [ ! -f "${SCRIPT_DIR}/Dockerfile" ]; then
+  echo "❌ Dockerfile not found"
   exit 1
 fi
 
-# Try to push using the layout directory
-# crane expects OCI layout format with index.json at root
-cd "${OCI_DIR}"
-if command -v podman >/dev/null 2>&1; then
-  echo "Using podman to push image..."
-  podman push -v "oci:." "${APP_IMAGE}:latest"
-else
-  echo "podman not found, attempting with crane..."
-  # Use crane pull to load from OCI layout, then push
-  crane push . "${APP_IMAGE}:latest" 2>&1 || {
-    echo "Error pushing image"
-    exit 1
-  }
-fi
+# Create a GCS bucket for build artifacts if needed
+BUILD_BUCKET="gs://dissect-builds-${GCP_PROJECT}"
+
+gcloud builds submit \
+  --tag "${APP_IMAGE}:latest" \
+  --project "${GCP_PROJECT}" \
+  --file "${SCRIPT_DIR}/Dockerfile" \
+  "${SCRIPT_DIR}" || exit 1
 
 # Deploy to Cloud Run
 echo "Deploying to Cloud Run..."

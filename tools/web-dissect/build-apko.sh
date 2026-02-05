@@ -39,6 +39,12 @@ else
 fi
 
 echo ""
+echo "=== Copying dissect binary to dist ==="
+cp "${DISSECT_BIN}" "${OUTPUT_DIR}/dissect"
+chmod +x "${OUTPUT_DIR}/dissect"
+echo "✓ dissect copied to ${OUTPUT_DIR}/dissect"
+
+echo ""
 echo "=== Creating overlay with binaries and templates ==="
 mkdir -p "${OVERLAY_DIR}/usr/local/bin" "${OVERLAY_DIR}/templates"
 cp "${OUTPUT_DIR}/web-dissect" "${OVERLAY_DIR}/usr/local/bin/web-dissect"
@@ -104,9 +110,10 @@ rm -rf layer-tmp
 echo "✓ Application files added"
 
 echo ""
-echo "=== OCI image ready for deployment ==="
-echo "✓ OCI directory: ${TEMP_BUILD}"
-echo "  (Keep this directory for pushing with crane)"
+echo "=== Creating deployable OCI archive ==="
+cd "${OUTPUT_DIR}"
+tar -czf dissect-web-image.tar.gz -C apko-build blobs/ index.json oci-layout
+echo "✓ OCI archive: ${OUTPUT_DIR}/dissect-web-image.tar.gz"
 
 echo ""
 echo "Build complete!"
