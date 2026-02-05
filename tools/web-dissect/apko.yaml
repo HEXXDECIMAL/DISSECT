@@ -1,0 +1,25 @@
+contents:
+  repositories:
+    - https://dl-cdn.alpinelinux.org/alpine/v3.19/main
+    - https://dl-cdn.alpinelinux.org/alpine/v3.19/community
+
+  packages:
+    - ca-certificates
+    - tzdata
+    - radare2
+
+accounts:
+  groups:
+    - groupname: nonroot
+      gid: 65532
+  users:
+    - username: nonroot
+      uid: 65532
+      gid: 65532
+
+entrypoint:
+  command: /usr/local/bin/web-dissect
+
+environment:
+  PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  PORT: "8080"

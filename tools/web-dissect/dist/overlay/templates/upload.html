@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DISSECT</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: monospace;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+            background: white;
+            color: black;
+            line-height: 1.6;
+        }
+        h1 {
+            font-size: 24px;
+            margin: 0 0 10px 0;
+        }
+        p {
+            margin: 0 0 30px 0;
+            color: #666;
+        }
+        form {
+            border: 1px solid black;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        input[type="file"] {
+            display: block;
+            margin: 0 0 20px 0;
+            padding: 10px;
+            border: 1px solid black;
+            width: 100%;
+        }
+        button {
+            font-family: monospace;
+            padding: 10px 20px;
+            border: 1px solid black;
+            background: white;
+            color: black;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #f0f0f0;
+        }
+        button:active {
+            background: #e0e0e0;
+        }
+        .info {
+            margin: 30px 0;
+            padding: 20px;
+            border-left: 2px solid black;
+        }
+        .info h2 {
+            font-size: 14px;
+            margin: 0 0 10px 0;
+        }
+        .info ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .info li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>DISSECT</h1>
+    <p>Static analysis for binaries and source code</p>
+
+    <form method="POST" action="/upload" enctype="multipart/form-data">
+        <input type="file" name="file" required accept="*/*">
+        <button type="submit">Analyze</button>
+    </form>
+
+    <div class="info">
+        <h2>What is DISSECT?</h2>
+        <ul>
+            <li>Binary analysis and trait detection</li>
+            <li>Automatic file format identification</li>
+            <li>Deep inspection of executables and archives</li>
+            <li>Security-focused static analysis</li>
+        </ul>
+    </div>
+
+    <div class="info">
+        <h2>Supported Formats</h2>
+        <ul>
+            <li>ELF, Mach-O, PE executables</li>
+            <li>Archives: tar, zip, 7z, rar, gzip</li>
+            <li>Containers: squashfs, ext4, iso</li>
+            <li>Source code and text files</li>
+        </ul>
+    </div>
+</body>
+</html>
