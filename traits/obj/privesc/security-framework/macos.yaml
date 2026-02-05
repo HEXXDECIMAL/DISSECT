@@ -1,0 +1,20 @@
+# macOS Security Framework Privilege Escalation
+# Detects privilege escalation attempts using Apple's Security Framework APIs
+# ATT&CK: T1548.004 (Abuse Elevation Control Mechanism)
+
+defaults:
+  for: [macho, dylib, c]
+  platforms: [macos]
+  attack: "T1548.004"
+
+composite_rules:
+  - id: auth-privesc-api-combo
+    desc: "Authorization APIs for privilege escalation"
+    crit: suspicious
+    conf: 0.9
+    for: [macho, dylib, c]
+    platforms: [macos]
+    any:
+      - id: cap/process/identity/auth-create
+      - id: cap/process/identity/auth-copy-rights
+      - id: cap/process/identity/auth-execute-with-privileges

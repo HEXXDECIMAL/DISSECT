@@ -251,6 +251,8 @@ type archiveExtraction struct {
 // extractArchive extracts an archive to a destination directory and returns member list.
 // Supports: .zip, .tar, .tar.gz, .tgz, .7z, .xz
 func extractArchive(ctx context.Context, archivePath, destDir string) (*archiveExtraction, error) {
+	fmt.Fprintf(os.Stderr, "  [debug] extractArchive: %s -> %s\n", archivePath, destDir)
+
 	ext := strings.ToLower(filepath.Ext(archivePath))
 
 	// Check for compound extensions
@@ -259,9 +261,11 @@ func extractArchive(ctx context.Context, archivePath, destDir string) (*archiveE
 		ext = ".tar.gz"
 	}
 
+	fmt.Fprintf(os.Stderr, "  [debug] Detected archive format: %s\n", ext)
+
 	switch ext {
 	case ".zip":
-		return extractZip(archivePath, destDir)
+		return extractZip(ctx, archivePath, destDir)
 	case ".tar":
 		return extractTar(archivePath, destDir)
 	case ".tar.gz", ".tgz":
@@ -275,17 +279,105 @@ func extractArchive(ctx context.Context, archivePath, destDir string) (*archiveE
 	}
 }
 
-// extractZip extracts a ZIP archive.
-func extractZip(archivePath, destDir string) (*archiveExtraction, error) {
+// isZipEncrypted checks if a ZIP archive is encrypted by examining the file headers.
+func isZipEncrypted(archivePath string) bool {
 	reader, err := zip.OpenReader(archivePath)
 	if err != nil {
-		return nil, fmt.Errorf("open zip: %w", err)
+		// If we can't open it, assume encrypted to trigger password attempts
+		fmt.Fprintf(os.Stderr, "  [debug] Failed to open ZIP for encryption check: %v\n", err)
+		return true
 	}
 	defer reader.Close()
 
+	// Check first file's encryption flag (bit 0 of Flags field)
+	if len(reader.File) > 0 {
+		encrypted := reader.File[0].Flags&0x1 != 0
+		fmt.Fprintf(os.Stderr, "  [debug] ZIP has %d files, first file encrypted flag: %v\n", len(reader.File), encrypted)
+		return encrypted
+	}
+	fmt.Fprintf(os.Stderr, "  [debug] ZIP is empty\n")
+	return false
+}
+
+// extractZipWithPassword extracts an encrypted ZIP archive using the `7z` command-line tool.
+// Tries common malware archive passwords: "infected", "infect3d", "malware", "virus", "password"
+func extractZipWithPassword(ctx context.Context, archivePath, destDir string) (*archiveExtraction, error) {
+	passwords := []string{"infected", "infect3d", "malware", "virus", "password"}
+	var lastErr error
+
+	fmt.Fprintf(os.Stderr, "  [debug] Attempting to extract encrypted ZIP with 7z: %s\n", archivePath)
+	fmt.Fprintf(os.Stderr, "  [debug] Destination: %s\n", destDir)
+
+	for i, pwd := range passwords {
+		fmt.Fprintf(os.Stderr, "  [debug] Trying password %d/%d: %s\n", i+1, len(passwords), pwd)
+
+		args := []string{"x", "-o" + destDir, "-y", "-p" + pwd, archivePath}
+
+		fmt.Fprintf(os.Stderr, "  [debug] Command: 7z %v\n", args)
+
+		// Create a context with timeout to prevent hanging on password prompt
+		timeoutCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+		cmd := exec.CommandContext(timeoutCtx, "7z", args...)
+
+		// Close stdin so 7z doesn't wait for user input
+		cmd.Stdin = nil
+
+		var stdout, stderr bytes.Buffer
+		cmd.Stdout = &stdout
+		cmd.Stderr = &stderr
+
+		if err := cmd.Run(); err == nil {
+			fmt.Fprintf(os.Stderr, "  [debug] 7z extraction succeeded with password: %s\n", pwd)
+			cancel()
+			// Success - list the extracted files
+			members, err := listDir(destDir)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "  [debug] Failed to list extracted files: %v\n", err)
+				return nil, err
+			}
+			fmt.Fprintf(os.Stderr, "  [debug] Extracted %d files: %v\n", len(members), members)
+			return &archiveExtraction{path: destDir, members: members}, nil
+		}
+		cancel()
+
+		stderrMsg := stderr.String()
+		stdoutMsg := stdout.String()
+		fmt.Fprintf(os.Stderr, "  [debug] 7z failed - stdout: %s, stderr: %s\n", stdoutMsg, stderrMsg)
+		lastErr = fmt.Errorf("stdout: %s, stderr: %s", stdoutMsg, stderrMsg)
+	}
+
+	if lastErr != nil {
+		return nil, fmt.Errorf("extract encrypted zip (all passwords failed): %w", lastErr)
+	}
+	return nil, errors.New("extract encrypted zip failed")
+}
+
+// extractZip extracts a ZIP archive.
+func extractZip(ctx context.Context, archivePath, destDir string) (*archiveExtraction, error) {
+	fmt.Fprintf(os.Stderr, "  [debug] extractZip called for: %s\n", archivePath)
+	// Check if encrypted and delegate to password-based extractor
+	if isZipEncrypted(archivePath) {
+		fmt.Fprintf(os.Stderr, "  [debug] Archive appears to be encrypted, using password-based extraction\n")
+		return extractZipWithPassword(ctx, archivePath, destDir)
+	}
+	fmt.Fprintf(os.Stderr, "  [debug] Archive appears unencrypted, using standard Go ZIP extraction\n")
+
+	reader, err := zip.OpenReader(archivePath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "  [debug] Failed to open ZIP reader: %v\n", err)
+		fmt.Fprintf(os.Stderr, "  [debug] Falling back to 7z extraction for potentially corrupted ZIP\n")
+		// Fall back to 7z for corrupted ZIPs
+		return extract7zFallback(ctx, archivePath, destDir)
+	}
+	defer reader.Close()
+
+	fmt.Fprintf(os.Stderr, "  [debug] ZIP reader opened, processing %d files\n", len(reader.File))
+
 	var members []string
-	for _, f := range reader.File {
+	for i, f := range reader.File {
 		path := filepath.Join(destDir, f.Name)
+
+		fmt.Fprintf(os.Stderr, "  [debug] Processing file %d/%d: %s (encrypted: %v)\n", i+1, len(reader.File), f.Name, f.Flags&0x1 != 0)
 
 		if f.FileInfo().IsDir() {
 			if err := os.MkdirAll(path, 0o755); err != nil {
@@ -300,6 +392,7 @@ func extractZip(archivePath, destDir string) (*archiveExtraction, error) {
 
 		src, err := f.Open()
 		if err != nil {
+			fmt.Fprintf(os.Stderr, "  [debug] Failed to open file in ZIP: %v\n", err)
 			return nil, fmt.Errorf("open file in zip: %w", err)
 		}
 
@@ -310,9 +403,12 @@ func extractZip(archivePath, destDir string) (*archiveExtraction, error) {
 		}
 
 		if _, err := io.Copy(dst, src); err != nil {
+			fmt.Fprintf(os.Stderr, "  [debug] Failed to copy file data for %s: %v\n", f.Name, err)
 			src.Close() //nolint:errcheck
 			dst.Close() //nolint:errcheck
-			return nil, fmt.Errorf("extract file: %w", err)
+			// If a single file fails, fall back to 7z
+			fmt.Fprintf(os.Stderr, "  [debug] Falling back to 7z due to file extraction error\n")
+			return extract7zFallback(ctx, archivePath, destDir)
 		}
 		src.Close() //nolint:errcheck
 		dst.Close() //nolint:errcheck
@@ -320,6 +416,7 @@ func extractZip(archivePath, destDir string) (*archiveExtraction, error) {
 		members = append(members, f.Name)
 	}
 
+	fmt.Fprintf(os.Stderr, "  [debug] Successfully extracted %d files with standard ZIP extraction\n", len(members))
 	return &archiveExtraction{path: destDir, members: members}, nil
 }
 
@@ -423,24 +520,66 @@ func extractTarGz(archivePath, destDir string) (*archiveExtraction, error) {
 	return &archiveExtraction{path: destDir, members: members}, nil
 }
 
-// extract7z extracts a 7z archive using the `7z` command-line tool.
-// Tries common malware archive passwords: "infected", "infect3d"
-func extract7z(ctx context.Context, archivePath, destDir string) (*archiveExtraction, error) {
-	passwords := []string{"", "infected", "infect3d"}
-	var lastErr error
+// extract7zFallback attempts to extract any archive using 7z with passwords.
+// Used as a fallback when standard Go ZIP extraction fails (corruption or other issues).
+func extract7zFallback(ctx context.Context, archivePath, destDir string) (*archiveExtraction, error) {
+	passwords := []string{"infected", "infect3d", "malware", "virus", "password"}
+	fmt.Fprintf(os.Stderr, "  [debug] Attempting 7z fallback extraction with passwords\n")
 
-	for _, pwd := range passwords {
-		args := []string{"x", "-o" + destDir, "-y"}
-		if pwd != "" {
-			args = append(args, "-p"+pwd)
-		}
-		args = append(args, archivePath)
+	for i, pwd := range passwords {
+		fmt.Fprintf(os.Stderr, "  [debug] Fallback trying password %d/%d: %s\n", i+1, len(passwords), pwd)
 
-		cmd := exec.CommandContext(ctx, "7z", args...)
-		var stderr bytes.Buffer
+		args := []string{"x", "-o" + destDir, "-y", "-p" + pwd, archivePath}
+
+		timeoutCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+		cmd := exec.CommandContext(timeoutCtx, "7z", args...)
+		cmd.Stdin = nil
+
+		var stdout, stderr bytes.Buffer
+		cmd.Stdout = &stdout
 		cmd.Stderr = &stderr
 
 		if err := cmd.Run(); err == nil {
+			fmt.Fprintf(os.Stderr, "  [debug] 7z fallback extraction succeeded with password: %s\n", pwd)
+			cancel()
+			members, err := listDir(destDir)
+			if err != nil {
+				return nil, err
+			}
+			return &archiveExtraction{path: destDir, members: members}, nil
+		}
+		cancel()
+		fmt.Fprintf(os.Stderr, "  [debug] Fallback password attempt failed: %s\n", stderr.String())
+	}
+
+	return nil, fmt.Errorf("7z fallback extraction failed (tried %d passwords)", len(passwords))
+}
+
+// extract7z extracts a 7z archive using the `7z` command-line tool.
+// Tries common malware archive passwords: "infected", "infect3d"
+func extract7z(ctx context.Context, archivePath, destDir string) (*archiveExtraction, error) {
+	passwords := []string{"infected", "infect3d"}
+	var lastErr error
+
+	for i, pwd := range passwords {
+		fmt.Fprintf(os.Stderr, "  [debug] Trying 7z password %d/%d: %s\n", i+1, len(passwords), pwd)
+
+		args := []string{"x", "-o" + destDir, "-y", "-p" + pwd, archivePath}
+
+		// Create a context with timeout to prevent hanging on password prompt
+		timeoutCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+		cmd := exec.CommandContext(timeoutCtx, "7z", args...)
+
+		// Close stdin so 7z doesn't wait for user input
+		cmd.Stdin = nil
+
+		var stdout, stderr bytes.Buffer
+		cmd.Stdout = &stdout
+		cmd.Stderr = &stderr
+
+		if err := cmd.Run(); err == nil {
+			fmt.Fprintf(os.Stderr, "  [debug] 7z extraction succeeded with password: %s\n", pwd)
+			cancel()
 			// Success - list the extracted files
 			members, err := listDir(destDir)
 			if err != nil {
@@ -448,7 +587,9 @@ func extract7z(ctx context.Context, archivePath, destDir string) (*archiveExtrac
 			}
 			return &archiveExtraction{path: destDir, members: members}, nil
 		}
+		cancel()
 		lastErr = errors.New(stderr.String())
+		fmt.Fprintf(os.Stderr, "  [debug] 7z password attempt failed: %v\n", lastErr)
 	}
 
 	if lastErr != nil {
@@ -488,6 +629,7 @@ func listDir(dir string) ([]string, error) {
 	var files []string
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
+			fmt.Fprintf(os.Stderr, "  [debug] listDir walk error at %s: %v\n", path, err)
 			return err
 		}
 		if !info.IsDir() {
@@ -496,6 +638,7 @@ func listDir(dir string) ([]string, error) {
 				return err
 			}
 			files = append(files, rel)
+			fmt.Fprintf(os.Stderr, "  [debug] Found file: %s (size: %d bytes)\n", rel, info.Size())
 		}
 		return nil
 	})
@@ -1304,10 +1447,13 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 
 	if cfg.knownBad {
 		// --bad mode: extract full archive for comprehensive analysis
-		_, err = extractArchive(ctx, a.ArchivePath, extractDir)
+		fmt.Fprintf(os.Stderr, "  [debug] Starting full archive extraction for --bad mode\n")
+		extraction, err := extractArchive(ctx, a.ArchivePath, extractDir)
 		if err != nil {
+			fmt.Fprintf(os.Stderr, "  [debug] Archive extraction failed: %v\n", err)
 			return fmt.Errorf("extract archive: %w", err)
 		}
+		fmt.Fprintf(os.Stderr, "  [debug] Archive extraction succeeded, %d members extracted\n", len(extraction.members))
 
 		// Find stats for hints
 		mostNotable, largest := archiveMemberStats(a)

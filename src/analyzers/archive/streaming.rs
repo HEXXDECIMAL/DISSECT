@@ -787,7 +787,7 @@ impl ArchiveAnalyzer {
                 let mut found_encrypted = false;
                 for i in 0..archive.len().min(10) {
                     match archive.by_index(i) {
-                        Ok(entry) => {
+                        Ok(_) => {
                             // Successfully read entry without password means not encrypted (or dir)
                             tracing::debug!("Entry {} read successfully without password", i);
                         }
