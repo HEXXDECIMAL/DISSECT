@@ -61,6 +61,8 @@ traits:
     desc: wallet keyword
     crit: inert
     conf: 0.4
+    # Restrict to languages where miners typically appear, exclude Swift/macOS contexts
+    for: [python, shell, javascript, go]
     if:
       type: string
       word: "wallet"

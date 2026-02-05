@@ -195,19 +195,20 @@ func buildBadPrompt(isArchive bool, path string, archiveCount int, repoRoot, dis
 }
 
 type config struct {
-	db          *sql.DB
-	dirs        []string
-	repoRoot    string
-	dissectBin  string // Path to dissect binary
-	provider    string
-	model       string
-	sampleDir   string
-	timeout     time.Duration
-	knownGood   bool
-	knownBad    bool
-	useCargo    bool
-	flush       bool
-	rescanAfter int // Number of files to review before restarting scan (0 = disabled)
+	db           *sql.DB
+	dirs         []string
+	repoRoot     string
+	dissectBin   string // Path to dissect binary
+	provider     string
+	model        string
+	sampleDir    string
+	timeout      time.Duration
+	idleTimeout  time.Duration // Kill LLM if no output for this duration
+	knownGood    bool
+	knownBad     bool
+	useCargo     bool
+	flush        bool
+	rescanAfter  int // Number of files to review before restarting scan (0 = disabled)
 }
 
 // Finding represents a matched trait/capability.
@@ -772,6 +773,7 @@ func main() {
 	repoRoot := flag.String("repo-root", "", "Path to DISSECT repo root (auto-detected if not specified)")
 	useCargo := flag.Bool("cargo", true, "Use 'cargo run --release' instead of dissect binary")
 	timeout := flag.Duration("timeout", 20*time.Minute, "Maximum time for each AI invocation")
+	idleTimeout := flag.Duration("idle-timeout", 8*time.Minute, "Kill LLM if no output for this duration")
 	flush := flag.Bool("flush", false, "Clear analysis cache and reprocess all files")
 	rescanAfter := flag.Int("rescan-after", 4, "Restart scan after reviewing N files to verify fixes (0 = disabled)")
 
@@ -835,6 +837,7 @@ func main() {
 		provider:    *provider,
 		model:       *model,
 		timeout:     *timeout,
+		idleTimeout: *idleTimeout,
 		knownGood:   *knownGood,
 		knownBad:    *knownBad,
 		useCargo:    *useCargo,
@@ -897,6 +900,7 @@ func main() {
 	}
 	fmt.Fprintf(os.Stderr, "Mode: %s\n", mode)
 	fmt.Fprintf(os.Stderr, "Repo root: %s\n", cfg.repoRoot)
+	fmt.Fprintf(os.Stderr, "LLM timeout: %v (session max), %v (idle)\n", cfg.timeout, cfg.idleTimeout)
 	fmt.Fprintf(os.Stderr, "Streaming analysis of %v...\n\n", cfg.dirs)
 
 	// Database mode (good/bad, not known-good/known-bad).
@@ -1163,34 +1167,79 @@ func processCompletedArchive(ctx context.Context, state *streamState) {
 	state.stats.totalFiles += len(archive.Members)
 
 	if !archiveNeedsReview(archive, state.cfg.knownGood) {
+		// Log why archive was skipped
+		mode := "bad"
+		if state.cfg.knownGood {
+			mode = "good"
+		}
+		fmt.Fprintf(os.Stderr, "  [skip] Archive %s (--%-4s): no members need review\n", filepath.Base(archive.ArchivePath), mode)
 		state.stats.skippedNoReview++
 		return
 	}
 
 	h := hashString(archive.ArchivePath)
 	if wasAnalyzed(ctx, state.cfg.db, h, state.dbMode) {
+		fmt.Fprintf(os.Stderr, "  [skip] Archive %s: already analyzed (cache hit)\n", filepath.Base(archive.ArchivePath))
 		state.stats.skippedCached++
 		return
 	}
 
 	problematic := archiveProblematicMembers(archive, state.cfg.knownGood)
+	skipped := len(archive.Members) - len(problematic)
 	fmt.Fprintf(os.Stderr, "\n📦 Archive complete: %s\n", archive.ArchivePath)
-	fmt.Fprintf(os.Stderr, "   Members: %d total, %d need review\n", len(archive.Members), len(problematic))
+	fmt.Fprintf(os.Stderr, "   Members: %d total, %d need review, %d filtered\n", len(archive.Members), len(problematic), skipped)
+
+	// Log which members were filtered out
+	if skipped > 0 && skipped <= 5 {
+		// Show filtered members in --good mode details
+		if state.cfg.knownGood {
+			for _, m := range archive.Members {
+				if !needsReview(m, state.cfg.knownGood) {
+					findings := ""
+					for _, f := range m.Findings {
+						findings += f.Crit + " "
+					}
+					if findings == "" {
+						findings = "none"
+					}
+					fmt.Fprintf(os.Stderr, "      - %s (%s): not critical enough\n", memberPath(m.Path), strings.TrimSpace(findings))
+				}
+			}
+		}
+	}
 
 	rank := map[string]int{"inert": 0, "notable": 1, "suspicious": 2, "hostile": 3}
+	fmt.Fprintf(os.Stderr, "   Members requiring review:\n")
 	for i, m := range problematic {
 		if i >= 3 {
 			fmt.Fprintf(os.Stderr, "   ... and %d more\n", len(problematic)-3)
 			break
 		}
 		var maxCrit string
+		critCounts := make(map[string]int)
 		for _, f := range m.Findings {
+			critCounts[strings.ToLower(f.Crit)]++
 			if rank[strings.ToLower(f.Crit)] > rank[strings.ToLower(maxCrit)] {
 				maxCrit = f.Crit
 			}
 		}
-		fmt.Fprintf(os.Stderr, "   - %s (%s)\n", memberPath(m.Path), maxCrit)
+		// Build finding summary
+		var findingParts []string
+		for _, level := range []string{"hostile", "suspicious", "notable"} {
+			if count := critCounts[level]; count > 0 {
+				findingParts = append(findingParts, fmt.Sprintf("%d %s", count, level))
+			}
+		}
+		findingStr := strings.Join(findingParts, ", ")
+		fmt.Fprintf(os.Stderr, "   - %s (%s)\n", memberPath(m.Path), findingStr)
 	}
+
+	// Log decision to review
+	reason := "has suspicious/hostile findings"
+	if state.cfg.knownBad {
+		reason = "missing detections on known-bad sample"
+	}
+	fmt.Fprintf(os.Stderr, "   [review] Submitting to %s: %s\n", state.cfg.provider, reason)
 
 	sid := generateSessionID()
 	if err := invokeAIArchive(ctx, state.cfg, archive, sid); err != nil {
@@ -1220,6 +1269,12 @@ func processRealFile(ctx context.Context, state *streamState) {
 	state.stats.totalFiles++
 
 	if !realFileNeedsReview(rf, state.cfg.knownGood) {
+		// Log why file was skipped
+		mode := "bad"
+		if state.cfg.knownGood {
+			mode = "good"
+		}
+		fmt.Fprintf(os.Stderr, "  [skip] File %s (--%-4s): no suspicious/hostile findings\n", filepath.Base(rf.RealPath), mode)
 		state.stats.skippedNoReview++
 		return
 	}
@@ -1229,6 +1284,7 @@ func processRealFile(ctx context.Context, state *streamState) {
 		h = hashString(rf.RealPath)
 	}
 	if wasAnalyzed(ctx, state.cfg.db, h, state.dbMode) {
+		fmt.Fprintf(os.Stderr, "  [skip] File %s: already analyzed (cache hit)\n", filepath.Base(rf.RealPath))
 		state.stats.skippedCached++
 		return
 	}
@@ -1258,6 +1314,13 @@ func processRealFile(ctx context.Context, state *streamState) {
 	if maxCrit != "" {
 		fmt.Fprintf(os.Stderr, "   Risk: %s, Findings: %d\n", maxCrit, len(aggregated.Findings))
 	}
+
+	// Log decision to review
+	reason := "has suspicious/hostile findings"
+	if state.cfg.knownBad {
+		reason = "missing detections on known-bad sample"
+	}
+	fmt.Fprintf(os.Stderr, "   [review] Submitting to %s: %s\n", state.cfg.provider, reason)
 
 	sid := generateSessionID()
 	if err := invokeAI(ctx, state.cfg, aggregated, sid); err != nil {
@@ -1695,6 +1758,8 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 
 	var stderrLines []string
 	var stderrMu sync.Mutex
+	var lastActivity time.Time = time.Now()
+	var activityMu sync.Mutex
 	done := make(chan struct{})
 	go func() {
 		scanner := bufio.NewScanner(stdout)
@@ -1702,6 +1767,9 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 		for scanner.Scan() {
 			n++
 			displayStreamEvent(scanner.Text())
+			activityMu.Lock()
+			lastActivity = time.Now()
+			activityMu.Unlock()
 		}
 		fmt.Fprintf(os.Stderr, ">>> stdout closed after %d lines\n", n)
 		done <- struct{}{}
@@ -1717,6 +1785,9 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 			stderrMu.Lock()
 			stderrLines = append(stderrLines, line)
 			stderrMu.Unlock()
+			activityMu.Lock()
+			lastActivity = time.Now()
+			activityMu.Unlock()
 		}
 		if n > 0 {
 			fmt.Fprintf(os.Stderr, ">>> stderr closed after %d lines\n", n)
@@ -1735,8 +1806,22 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 			fmt.Fprintf(os.Stderr, ">>> Stream %d/2 finished\n", finished)
 		case <-ticker.C:
 			if cmd.ProcessState == nil {
-				fmt.Fprintf(os.Stderr, ">>> Still running (PID: %d, timeout remaining: %s)\n",
-					cmd.Process.Pid, timeRemaining(ctx))
+				activityMu.Lock()
+				timeSinceLastActivity := time.Since(lastActivity)
+				activityMu.Unlock()
+
+				// Check idle timeout
+				if timeSinceLastActivity > cfg.idleTimeout {
+					fmt.Fprintf(os.Stderr, "\n>>> [idle timeout] No output for %v, killing process...\n", cfg.idleTimeout)
+					io.Copy(io.Discard, stdout) //nolint:errcheck,gosec // drain pipes on timeout
+					io.Copy(io.Discard, stderr) //nolint:errcheck,gosec // drain pipes on timeout
+					cmd.Process.Kill()          //nolint:errcheck,gosec // best-effort kill on timeout
+					fmt.Fprintf(os.Stderr, ">>> Process killed (PID: %d)\n", cmd.Process.Pid)
+					return fmt.Errorf("idle timeout: no output for %v", cfg.idleTimeout)
+				}
+
+				fmt.Fprintf(os.Stderr, ">>> Still running (PID: %d, idle: %v, timeout remaining: %s)\n",
+					cmd.Process.Pid, timeSinceLastActivity.Round(time.Second), timeRemaining(ctx))
 			}
 		case <-ctx.Done():
 			fmt.Fprintln(os.Stderr, "\n>>> [timeout] timed out, killing process...")

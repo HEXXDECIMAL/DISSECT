@@ -130,6 +130,8 @@ traits:
     desc: wallet term
     crit: inert
     conf: 0.5
+    # Restrict to high-level languages where wallet code appears, exclude system libraries
+    for: [python, javascript, csharp, java, go, ruby, php]
     if:
       type: string
       word: "wallet"
@@ -138,6 +140,8 @@ traits:
     desc: crypto term
     crit: inert
     conf: 0.5
+    # Restrict to languages where wallet code appears, exclude system headers (C/C++)
+    for: [python, javascript, csharp, java, go, ruby, php]
     if:
       type: string
       word: "crypto"

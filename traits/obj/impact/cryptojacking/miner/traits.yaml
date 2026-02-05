@@ -243,6 +243,8 @@ traits:
     crit: inert
     conf: 0.3
     attack: "T1496"
+    # Restrict to languages where miners typically appear, avoid iOS/macOS libraries
+    for: [python, shell, javascript, go, c, elf]
     if:
       type: string
       substr: "wallet"

@@ -203,3 +203,73 @@ traits:
           condition:
             any of ($crypto*) and any of ($steal*) and any of ($exfil*)
         }
+
+  # nanopb framework marker - legitimately used for protobuf
+  - id: nanopb-framework
+    desc: nanopb protobuf framework
+    crit: inert
+    conf: 0.9
+    for: [macho, dylib]
+    if:
+      type: string
+      substr: "nanopb"
+
+  # Binary framework marker - detect Protobuf framework
+  - id: framework-binary-marker
+    desc: Protobuf framework binary detected
+    crit: inert
+    conf: 0.95
+    for: [macho, dylib]
+    if:
+      type: string
+      substr: "GPB"
+
+composite_rules:
+  # Trojanized framework pattern: legitimate library name + embedded payload + file deletion capability
+  - id: suspicious-trojanized-framework
+    desc: Likely trojanized framework with embedded payload and suspicious capabilities
+    crit: suspicious
+    conf: 0.9
+    attack: "T1195.001"
+    mbc: "B0024"
+    for: [macho, dylib, elf, so]
+    all:
+      - id: framework-binary-marker
+      - id: cap/data/embedded/lzma-magic
+      - id: cap/fs/file/delete/delete
+
+  # Even more suspicious: trojanized framework with socket binding (network capability)
+  - id: trojanized-framework-networked
+    desc: Trojanized framework with network and payload capabilities
+    crit: suspicious
+    conf: 0.92
+    attack: "T1195.001"
+    mbc: "B0024"
+    for: [macho, dylib, elf, so]
+    all:
+      - id: suspicious-trojanized-framework
+      - id: cap/comm/socket/bind/bind
+
+  # Most suspicious: trojanized framework with C2 communication
+  - id: trojanized-framework-with-c2
+    desc: Trojanized framework with command & control indicators
+    crit: hostile
+    conf: 0.95
+    attack: "T1195.001"
+    mbc: "B0024"
+    for: [macho, dylib, elf, so]
+    all:
+      - id: trojanized-framework-networked
+      - id: obj/c2/infrastructure/domain/hardcoded-domain-com
+
+  # nanopb in wallet app with iOS code injection framework
+  - id: nanopb-with-ios-injection
+    desc: Protobuf library with iOS code injection framework
+    crit: suspicious
+    conf: 0.85
+    attack: "T1195.001"
+    mbc: "B0024"
+    for: [macho, dylib, ipa]
+    all:
+      - id: nanopb-framework
+      - id: cap/exec/inject/ios-framework/cbinjection-framework

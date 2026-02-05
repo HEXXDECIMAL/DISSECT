@@ -1,16 +1,21 @@
 #!/bin/bash
 set -exuo pipefail
 
-# Build script for web-dissect using apko (no VMs required on macOS)
-# Builds binaries natively, then assembles OCI image with apko
+# Disable macOS resource fork files in tarballs
+export COPYFILE_DISABLE=1
+
+# Build script for web-dissect using apko + custom APK package
+# Simple approach: create APK manually (it's just a tar.gz), then apko includes it
 # Prerequisites: apko, go 1.24+, cargo/rust, dissect binary
 
 REPO_ROOT=$(git rev-parse --show-toplevel)
 BUILD_DIR="${REPO_ROOT}/tools/web-dissect"
 OUTPUT_DIR="${BUILD_DIR}/dist"
-OVERLAY_DIR="${OUTPUT_DIR}/overlay"
+OCI_BUILD="${OUTPUT_DIR}/apko-build"
+APK_REPO="${BUILD_DIR}/apk-repo"
+APK_ARCH_REPO="${APK_REPO}/x86_64"
 
-mkdir -p "${OUTPUT_DIR}" "${OVERLAY_DIR}"
+mkdir -p "${OUTPUT_DIR}" "${APK_ARCH_REPO}"
 
 echo "=== Building web-dissect Go binary (native) ==="
 cd "${BUILD_DIR}"
@@ -39,88 +44,104 @@ else
 fi
 
 echo ""
-echo "=== Copying dissect binary to dist ==="
-cp "${DISSECT_BIN}" "${OUTPUT_DIR}/dissect"
-chmod +x "${OUTPUT_DIR}/dissect"
-echo "✓ dissect copied to ${OUTPUT_DIR}/dissect"
+echo "=== Creating APK package ==="
+
+# Create temporary directory for APK contents
+APK_TMP=$(mktemp -d)
+trap "rm -rf ${APK_TMP}" EXIT
+
+# Create .PKGINFO metadata file
+cat > "${APK_TMP}/.PKGINFO" <<'EOF'
+pkgname = dissect-tools
+pkgver = 0.0.1-r0
+pkgdesc = web-dissect and dissect binaries
+url = https://example.com
+builddate = 1
+packager = build <build@example.com>
+size = 0
+installed_size = 0
+origin = dissect-tools
+maintainer = build <build@example.com>
+arch = x86_64
+EOF
+
+# Create filesystem directories and copy binaries
+mkdir -p "${APK_TMP}/usr/local/bin" "${APK_TMP}/templates"
+cp "${OUTPUT_DIR}/web-dissect" "${APK_TMP}/usr/local/bin/web-dissect"
+chmod +x "${APK_TMP}/usr/local/bin/web-dissect"
+cp "${DISSECT_BIN}" "${APK_TMP}/usr/local/bin/dissect"
+chmod +x "${APK_TMP}/usr/local/bin/dissect"
+cp -r "${BUILD_DIR}/templates/"* "${APK_TMP}/templates/" 2>/dev/null || true
+
+# Create the APK file (tar.gz with .PKGINFO at root)
+cd "${APK_TMP}"
+tar --exclude='._*' -czf "${APK_ARCH_REPO}/dissect-tools-0.0.1-r0.apk" .
+echo "✓ APK created: dissect-tools-0.0.1-r0.apk"
 
 echo ""
-echo "=== Creating overlay with binaries and templates ==="
-mkdir -p "${OVERLAY_DIR}/usr/local/bin" "${OVERLAY_DIR}/templates"
-cp "${OUTPUT_DIR}/web-dissect" "${OVERLAY_DIR}/usr/local/bin/web-dissect"
-chmod +x "${OVERLAY_DIR}/usr/local/bin/web-dissect"
-cp "${DISSECT_BIN}" "${OVERLAY_DIR}/usr/local/bin/dissect"
-chmod +x "${OVERLAY_DIR}/usr/local/bin/dissect"
-cp -r "${BUILD_DIR}/templates/"* "${OVERLAY_DIR}/templates/"
-echo "✓ Overlay created at ${OVERLAY_DIR}"
+echo "=== Creating APKINDEX ==="
+
+# Create APKINDEX file
+APK_CHECKSUM=$(sha256sum "${APK_ARCH_REPO}/dissect-tools-0.0.1-r0.apk" | awk '{print $1}')
+APK_SIZE=$(stat -f%z "${APK_ARCH_REPO}/dissect-tools-0.0.1-r0.apk" 2>/dev/null || stat -c%s "${APK_ARCH_REPO}/dissect-tools-0.0.1-r0.apk")
+
+cat > "${APK_TMP}/APKINDEX" <<EOF
+C:Q1z3DKXJ0kKmlBsH6hVX9qbUo=
+P:dissect-tools
+V:0.0.1-r0
+A:x86_64
+M:Q1z3DKXJ0kKmlBsH6hVX9qbUo=
+D:
+o:dissect-tools
+m:build
+L:GPL
+t:1
+c:abc1234567890
+S:${APK_SIZE}
+I:${APK_SIZE}
+Z:${APK_CHECKSUM}
+EOF
+
+# Create APKINDEX.tar.gz
+cd "${APK_TMP}"
+tar --exclude='._*' -czf "${APK_ARCH_REPO}/APKINDEX.tar.gz" APKINDEX
+echo "✓ APKINDEX created"
+
+# List what we created
+echo ""
+echo "APK Repository contents:"
+ls -lh "${APK_ARCH_REPO}/"
 
 echo ""
-echo "=== Building base image with apko (amd64) ==="
-TEMP_BUILD="${OUTPUT_DIR}/apko-build"
-mkdir -p "${TEMP_BUILD}"
-cd "${TEMP_BUILD}"
+echo "=== Building OCI image with apko ==="
+rm -rf "${OCI_BUILD}"
+mkdir -p "${OCI_BUILD}"
 
-# Build image directory (apko outputs directory layout)
 apko build \
   --arch amd64 \
+  --ignore-signatures \
+  --repository-append "${APK_REPO}" \
   "${BUILD_DIR}/apko.yaml" \
   "dissect-web:latest" \
-  .
-echo "✓ Base image built"
+  "${OCI_BUILD}"
+echo "✓ OCI image built with dissect-tools package"
 
 # Verify OCI structure
-if [ ! -f "index.json" ] || [ ! -d "blobs" ]; then
-  echo "❌ OCI image structure not found"
-  ls -la
+if [ ! -f "${OCI_BUILD}/index.json" ] || [ ! -d "${OCI_BUILD}/blobs" ]; then
+  echo "❌ OCI image structure not found at ${OCI_BUILD}"
+  ls -la "${OCI_BUILD}" || true
   exit 1
 fi
 
 echo ""
-echo "=== Adding application files ==="
-# Find the gzipped layer blob (not JSON blobs)
-BLOB=$(find blobs/sha256 -type f -exec sh -c 'file "$1" | grep -q "gzip" && echo "$1"' _ {} \;)
-if [ -z "$BLOB" ]; then
-  echo "❌ No gzipped layer blob found in OCI image"
-  exit 1
-fi
-
-# Extract layer, add files, re-compress
-mkdir -p layer-tmp
-cd layer-tmp
-
-# Extract the gzipped blob (ignore device creation errors which aren't critical)
-tar -xzf "../${BLOB}" 2>&1 | grep -v "Can't create" || true
-echo "✓ Extracted gzipped blob"
-
-mkdir -p usr/local/bin templates
-cp "${OUTPUT_DIR}/web-dissect" usr/local/bin/web-dissect
-chmod +x usr/local/bin/web-dissect
-cp "${DISSECT_BIN}" usr/local/bin/dissect
-chmod +x usr/local/bin/dissect
-cp -r "${BUILD_DIR}/templates/"* templates/ 2>/dev/null || true
-
-# Recreate blob with gzip compression
-cd ..
-BLOB_NAME=$(basename "${BLOB}")
-BLOB_DIR=$(dirname "${BLOB}")
-tar -czf "${BLOB_NAME}.new" -C layer-tmp .
-rm "${BLOB}"
-mv "${BLOB_NAME}.new" "${BLOB}"
-rm -rf layer-tmp
-echo "✓ Application files added"
-
+echo "✓ Build complete!"
 echo ""
-echo "=== Creating deployable OCI archive ==="
-cd "${OUTPUT_DIR}"
-tar -czf dissect-web-image.tar.gz -C apko-build blobs/ index.json oci-layout
-echo "✓ OCI archive: ${OUTPUT_DIR}/dissect-web-image.tar.gz"
-
-echo ""
-echo "Build complete!"
+echo "OCI layout directory: ${OCI_BUILD}"
+echo "APK repository: ${APK_REPO}"
 echo ""
 echo "Next steps:"
-echo "  1. Push to GCR:"
-echo "     crane push ${OUTPUT_DIR}/dissect-web-amd64.tar gcr.io/PROJECT/dissect-web:latest"
+echo "  1. Push to GCR with crane:"
+echo "     crane push ${OCI_BUILD} gcr.io/hexx-tools/dissect-web:latest"
 echo ""
 echo "  2. Or deploy to Cloud Run:"
-echo "     make deploy GCP_PROJECT=hexx-tools GCS_BUCKET=hexx-divine"
+echo "     GCP_PROJECT=hexx-tools GCS_BUCKET=hexx-divine make deploy"

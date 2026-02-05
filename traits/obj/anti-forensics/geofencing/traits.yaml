@@ -106,13 +106,14 @@ traits:
   # NOTE: This trait is inherently noisy because legitimate software (Node.js with locale data,
   # timezone databases, i18n libraries) contains these country codes as data.
   # Downgraded from notable to inert - use only in composite rules with actual geofencing logic.
+  # Require context (quoted/array context, comparison, or "countries" variable) to reduce false positives.
   - id: cis-country-codes
     desc: CIS country code check
     crit: inert
     conf: 0.3
     if:
       type: string
-      regex: "\\b(RU|BY|KZ|UA|UZ|AZ|AM|GE|MD|TJ|TM|KG)\\b"
+      regex: "(['\"]RU['\"]|['\"]BY['\"]|['\"]KZ['\"]|['\"]UA['\"]|['\"]UZ['\"]|['\"]AZ['\"]|['\"]AM['\"]|['\"]GE['\"]|['\"]MD['\"]|['\"]TJ['\"]|['\"]TM['\"]|['\"]KG['\"]|\\[.{0,50}['\"]RU['\"]|\\[.{0,50}['\"]BY['\"]|countries.{0,20}['\"]RU['\"]|countries.{0,20}['\"]BY['\"]|==\\s*['\"]RU['\"]|==\\s*['\"]BY['\"]|==\\s*['\"]UA['\"]) "
 
 composite_rules:
   # Locale environment checks

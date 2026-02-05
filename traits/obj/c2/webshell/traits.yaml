@@ -201,10 +201,10 @@ traits:
     desc: HTTP error response message (access denied/forbidden)
     crit: notable
     conf: 0.7
-    for: [all]
+    for: [php, java, ruby, python, javascript, shell]
     if:
       type: string
-      regex: '(?i)(access\s+(?:is\s+)?denied|(?:access|permission)\s+(?:denied|forbidden)|error\s+\d{3})'
+      regex: '(?i)(access\s+(?:is\s+)?denied|(?:access|permission)\s+(?:denied|forbidden))'
 
 composite_rules:
   # PHP webshell patterns (php tag + shell func + request param)

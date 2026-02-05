@@ -1,5 +1,6 @@
 #!/bin/bash
-# Deploy web-dissect to Google Cloud Run using apko/melange and crane
+# Deploy web-dissect to Google Cloud Run using apko + crane
+# Uses only apko, crane, and gcloud - no Cloud Build or Docker required
 #
 # usage:
 #   make deploy GCP_PROJECT=my-project GCS_BUCKET=my-bucket
@@ -10,42 +11,51 @@ GCP_PROJECT="${1:-${GCP_PROJECT:?GCP_PROJECT not set}}"
 GCS_BUCKET="${2:-${GCS_BUCKET:?GCS_BUCKET not set}}"
 REGION="us-central1"
 APP_NAME="dissect-web"
-REGISTRY="${GCP_PROJECT}"
-APP_IMAGE="gcr.io/${REGISTRY}/${APP_NAME}"
+APP_IMAGE="gcr.io/${GCP_PROJECT}/${APP_NAME}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# Ensure gcloud is authenticated
+if ! gcloud auth list --filter=status:ACTIVE --format='value(account)' | grep -q .; then
+	echo "❌ gcloud not authenticated. Run: gcloud auth login"
+	exit 1
+fi
 
 # Ensure service account exists
+echo "Setting up service account..."
 gcloud iam service-accounts list --project "${GCP_PROJECT}" | grep -q "${APP_NAME}@${GCP_PROJECT}.iam.gserviceaccount.com" ||
 	{ gcloud iam service-accounts create "${APP_NAME}" --project "${GCP_PROJECT}"; sleep 2; }
 
-# Grant storage.objectCreator role for GCS uploads
+# Grant necessary IAM roles
+echo "Granting IAM roles..."
 gcloud projects add-iam-policy-binding "${GCP_PROJECT}" \
 	--member "serviceAccount:${APP_NAME}@${GCP_PROJECT}.iam.gserviceaccount.com" \
 	--role roles/storage.objectCreator \
 	--quiet || true
 
-# Build image with apko/melange
-echo "Building image with apko/melange..."
-./build-apko.sh
+gcloud projects add-iam-policy-binding "${GCP_PROJECT}" \
+	--member "serviceAccount:${APP_NAME}@${GCP_PROJECT}.iam.gserviceaccount.com" \
+	--role roles/run.admin \
+	--quiet || true
 
-# Push image to GCR using gcloud builds
-echo "Building and pushing image to ${APP_IMAGE}:latest..."
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# Build OCI image using apko (outputs OCI layout directory)
+echo "Building OCI image with apko..."
+"${SCRIPT_DIR}/build-apko.sh"
 
-# Use gcloud builds submit to build from Dockerfile
-# First check if Dockerfile exists
-if [ ! -f "${SCRIPT_DIR}/Dockerfile" ]; then
-  echo "❌ Dockerfile not found"
-  exit 1
+# Get the OCI layout directory from build-apko.sh
+OCI_BUILD="${SCRIPT_DIR}/dist/apko-build"
+
+if [ ! -f "${OCI_BUILD}/index.json" ] || [ ! -d "${OCI_BUILD}/blobs" ]; then
+	echo "❌ OCI image structure not found at ${OCI_BUILD}"
+	exit 1
 fi
 
-# Create a GCS bucket for build artifacts if needed
-BUILD_BUCKET="gs://dissect-builds-${GCP_PROJECT}"
+# Configure gcloud auth for crane
+echo "Configuring authentication for crane..."
+gcloud auth configure-docker gcr.io --quiet
 
-gcloud builds submit \
-  --tag "${APP_IMAGE}:latest" \
-  --project "${GCP_PROJECT}" \
-  --file "${SCRIPT_DIR}/Dockerfile" \
-  "${SCRIPT_DIR}" || exit 1
+# Push OCI image directly to GCR using crane
+echo "Publishing image to ${APP_IMAGE}:latest using crane..."
+crane push "${OCI_BUILD}" "${APP_IMAGE}:latest"
 
 # Deploy to Cloud Run
 echo "Deploying to Cloud Run..."
@@ -55,9 +65,16 @@ gcloud run deploy "${APP_NAME}" \
 	--service-account="${APP_NAME}@${GCP_PROJECT}.iam.gserviceaccount.com" \
 	--project "${GCP_PROJECT}" \
 	--allow-unauthenticated \
-	--set-env-vars GCS_BUCKET="${GCS_BUCKET}" \
+	--set-env-vars "GCS_BUCKET=${GCS_BUCKET}" \
 	--memory 2Gi \
 	--timeout 120s
 
 echo "✓ Deployed ${APP_NAME} to Cloud Run"
-echo "Service URL: https://${APP_NAME}-$(gcloud run services describe ${APP_NAME} --project ${GCP_PROJECT} --region ${REGION} --format='value(status.url)' | cut -d'/' -f3)"
+
+# Get the service URL
+SERVICE_URL=$(gcloud run services describe "${APP_NAME}" \
+	--project "${GCP_PROJECT}" \
+	--region "${REGION}" \
+	--format='value(status.url)')
+
+echo "Service URL: ${SERVICE_URL}"

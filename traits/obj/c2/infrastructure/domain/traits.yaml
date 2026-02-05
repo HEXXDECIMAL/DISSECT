@@ -45,12 +45,16 @@ traits:
       - "debian.org"
       - "ubuntu.com"
       - "redhat.com"
+      # Cryptography & security libraries
+      - "openssl.org"
       # Documentation
       - "w3.org"
       - "ietf.org"
       - "example.com"
       - "example.org"
       - "example.net"
+      # Binary data/internal strings (false positives)
+      - "cstr.com"
 
   - id: hardcoded-domain-suspicious-pattern
     desc: "Hardcoded suspicious TLD domain pattern"

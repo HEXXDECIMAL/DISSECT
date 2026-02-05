@@ -10,4 +10,6 @@ traits:
     conf: 0.75
     if:
       type: symbol
-      regex: bind
+      regex: "^bind$|\\bbind\\(|\\bbind\\s"
+      not:
+        - exact: "dyld_stub_binder"
