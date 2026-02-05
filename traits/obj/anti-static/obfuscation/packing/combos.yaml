@@ -4,11 +4,13 @@
 composite_rules:
   - id: embedded-compression
     desc: Embedded compressed payload
-    crit: suspicious
+    crit: notable
     conf: 0.90
     attack: "T1140"
     mbc: "C0032"
     for: ["pe", "dll"]
+    # Bootloaders and firmware commonly embed compressed payloads
+    # Downgraded to notable - not suspicious without additional packing indicators
     any:
       - id: cap/data/encode/compression/lzma-signature
       - id: cap/data/encode/compression/lzma-magic

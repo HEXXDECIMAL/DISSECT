@@ -70,7 +70,7 @@ traits:
 
   - id: master-passwd
     desc: BSD master.passwd file access
-    crit: suspicious
+    crit: notable
     conf: 0.9
     attack: "T1003.008"
     platforms: [macos, unix]
@@ -100,6 +100,6 @@ composite_rules:
     mbc: "E1003.008"
     platforms: [linux, unix]
     for: [elf]
-    any:
+    all:
       - id: getspnam
       - id: shadow-file

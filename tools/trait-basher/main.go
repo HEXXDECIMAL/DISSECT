@@ -57,6 +57,7 @@ const successCriteria = `## Success Criteria
 const debugCommands = `## Debug & Validate
 ` + "```" + `
 %s %s --format jsonl                   # see current findings
+%s strings %s                            # reveal XOR/AES/base64 hidden data
 %s test-rules %s --rules "rule-id"     # debug single rule
 %s test-match %s --type string --pattern "X"  # test patterns
 ` + "```" + ``
@@ -119,6 +120,8 @@ Keep findings that accurately describe the code's behavior, even if suspicious.
 const badPromptTask = `## Strategy: Add Missing Detection
 **Approach**:
 1. Reverse engineer the file (strings, radare2, nm, objdump)
+   - **Use ` + "`dissect strings`" + `** to automatically reveal hidden data: XOR/AES/base64 encoded payloads, command strings, and obfuscated content
+   - This exposes both encoded and decoded content for better pattern matching
 2. Identify malicious capability (socket + exec = reverse-shell, etc.)
 3. Use GENERIC patterns, not file-specific signatures
 4. Trait namespaces:
@@ -135,6 +138,8 @@ const badPromptTask = `## Strategy: Add Missing Detection
 const badPromptArchiveTask = `## Strategy: Add Missing Detection to Archive
 **Approach**:
 1. For each problematic member: reverse engineer (strings, radare2, nm, objdump)
+   - **Use ` + "`dissect strings`" + ` on suspicious members** to reveal hidden data: XOR/AES/base64 encoded payloads, command strings, and obfuscated content
+   - This exposes both encoded and decoded content for better pattern matching
 2. Identify malicious capability (socket + exec = reverse-shell, etc.)
 3. Use GENERIC patterns, not file-specific signatures
 4. Trait namespaces:
@@ -567,15 +572,26 @@ func realFilePath(path string) string {
 
 // archiveNeedsReview returns true if any member of the archive needs review.
 // For known-good archives: review if ANY member is flagged (to reduce false positives).
-// For known-bad archives: review if ANY member is NOT yet flagged (to find missing detections).
+// For known-bad archives: review if NO members are detected yet (once 1 member is detected, archive is done).
 func archiveNeedsReview(a *ArchiveAnalysis, knownGood bool) bool {
-	// Review if ANY member needs review
+	if knownGood {
+		// Known-good: review if ANY member has findings
+		for _, m := range a.Members {
+			if needsReview(m, knownGood) {
+				return true
+			}
+		}
+		return false
+	}
+	// Known-bad: review only if ALL members are undetected (archive is done once any member detected)
 	for _, m := range a.Members {
-		if needsReview(m, knownGood) {
-			return true
+		if !needsReview(m, knownGood) {
+			// Found a member with findings - archive is already flagged, skip it
+			return false
 		}
 	}
-	return false
+	// All members are undetected - archive needs review
+	return true
 }
 
 // archiveProblematicMembers returns the members that need review.

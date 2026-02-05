@@ -9,19 +9,21 @@ traits:
   # === LZMA Compression ===
   - id: lzma-signature
     desc: Embedded LZMA compressed data
-    crit: suspicious
+    crit: notable
     conf: 0.95
     attack: "T1140"
     mbc: "C0032"
+    # Bootloaders use LZMA for firmware/kernel compression; not inherently suspicious
     if:
       type: content
       substr: "$lzma"
 
   - id: lzma-magic
     desc: LZMA magic bytes
-    crit: suspicious
+    crit: notable
     conf: 0.95
     attack: "T1140"
+    # Bootloaders legitimately use LZMA compression for firmware/kernel payloads
     if:
       type: hex
       pattern: "5D 00 00 80"

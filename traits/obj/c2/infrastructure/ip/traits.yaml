@@ -16,6 +16,9 @@ traits:
     conf: 0.85
     mbc: "C0002"
     attack: "T1071.001"
+    # Exclude PE/bootloader files where string extraction is unreliable
+    # (instruction bytes get parsed as IPs). More reliable in ELF/scripts.
+    for: [elf, shell, python, ruby, javascript, php]
     if:
       type: string
       regex: '\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b'
@@ -24,6 +27,8 @@ traits:
       - regex: '^(127\.|0\.|255\.|192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[01])\.)'
       - exact: "0.0.0.0"
       - exact: "255.255.255.255"
+      # Exclude version strings (semantic versioning: low octets like 1.x.x.x, x.1.x.x, etc.)
+      - regex: '^[0-3]\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$'
       # Exclude RFC section references (version-like numbers)
       - exact: "2.2.3.1"
       - exact: "3.3.4.1"

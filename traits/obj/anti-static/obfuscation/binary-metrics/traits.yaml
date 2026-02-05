@@ -414,8 +414,8 @@ composite_rules:
     needs: 2
     any:
       - id: obj/anti-static/obfuscation/binary-metrics/high-overall-entropy
-      - id: obj/anti-static/obfuscation/binary-metrics/no-functions
-      - id: obj/anti-static/obfuscation/binary-metrics/dominant-section
+      - id: obj/anti-static/obfuscation/binary-metrics/very-high-entropy
+      - id: obj/anti-static/obfuscation/binary-metrics/high-code-entropy
       - id: obj/anti-static/obfuscation/binary-metrics/wx-sections
 
   - id: binary-heavily-packed

@@ -32,6 +32,8 @@ traits:
     conf: 0.7
     mbc: "F0001.006"
     attack: "T1027.009"
+    # Bootloaders and firmware files legitimately embed LZMA-compressed payloads
+    # Only flag as suspicious if combined with other packing indicators
     if:
       type: yara
       source: |
@@ -91,10 +93,12 @@ traits:
 
   - id: elf-magic-embedded
     desc: Embedded ELF binary
-    crit: suspicious
+    crit: notable
     conf: 0.8
     mbc: "F0001.006"
     attack: "T1027.009"
+    # Bootloaders and firmware files legitimately embed ELF firmware/kernel images
+    # This is especially common in EFI bootloaders which may contain firmware updates
     if:
       type: yara
       source: |

@@ -98,6 +98,7 @@ traits:
     conf: 0.8
     # Exclude Rust (single-letter vars are standard in mathematical/algorithm code)
     # Exclude small files (tiny scopes where single-letter vars are expected)
+    # Perl modules often have minimal boilerplate, so require larger files for this detection
     for:
       [
         python,
@@ -106,7 +107,6 @@ traits:
         shell,
         php,
         ruby,
-        perl,
         java,
         lua,
         csharp,
@@ -116,6 +116,21 @@ traits:
       type: metrics
       field: identifiers.single_char_ratio
       min: 0.30
+      min_size: 1024
+    unless:
+      - type: basename
+        regex: "\\.d\\.ts$"
+
+  - id: perl-excessive-single-char-vars
+    desc: "Excessive single-character variables (Perl)"
+    crit: suspicious
+    conf: 0.8
+    for: [perl]
+    if:
+      type: metrics
+      field: identifiers.single_char_ratio
+      min: 0.30
+      min_size: 4096
     unless:
       - type: basename
         regex: "\\.d\\.ts$"
@@ -457,6 +472,7 @@ composite_rules:
       - id: obj/anti-static/obfuscation/code-metrics/numeric-suffix-identifiers
       - id: obj/anti-static/obfuscation/code-metrics/single-char-function-names
       - id: obj/anti-static/obfuscation/code-metrics/excessive-single-char-vars
+      - id: obj/anti-static/obfuscation/code-metrics/perl-excessive-single-char-vars
       - id: obj/anti-static/obfuscation/code-metrics/single-char-params
 
   - id: string-hiding

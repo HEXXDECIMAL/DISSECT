@@ -76,9 +76,15 @@ traits:
     desc: USER environment variable
     crit: notable
     conf: 0.5
+    for: [shell, elf, macho, pe, python, ruby, javascript]
     if:
       type: string
       word: "USER"
+    not:
+      # Exclude FTP protocol documentation (USER is FTP command)
+      - regex: '^\s*USER\s+(user|fwuser)(@|$)'
+      # Exclude variable names that contain USER but aren't env access
+      - regex: 'USERNAME|USERPROFILE|USERID'
 
   - id: logname-var
     desc: LOGNAME environment variable
