@@ -56,7 +56,7 @@ traits:
 
   - id: process-execpath-spawn
     desc: Spawn using process.execPath
-    crit: suspicious
+    crit: inert
     conf: 0.9
     mbc: "B0024"
     attack: "T1059.007"

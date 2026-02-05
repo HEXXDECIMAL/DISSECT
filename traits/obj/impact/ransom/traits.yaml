@@ -186,7 +186,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: '(data (will be|is) lost|lost forever|cannot.{0,20}recover|unrecoverable)'
+      regex: '(data (will be|is) lost|lost forever|cannot.{0,20}recover|unrecoverable.{0,30}(pay|ransom|decrypt|restore))'
       case_insensitive: true
 
   # Desktop ransom note pattern

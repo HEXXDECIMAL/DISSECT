@@ -388,9 +388,11 @@ composite_rules:
   # === Compression library supply chain backdoor ===
   # A compression library (lzma, zlib, etc.) with:
   # 1. Multiple embedded compressed payloads (hidden stage)
-  # 2. Geofencing/country code checks (CIS exclusion typical of state actors)
+  # 2. Actual geofencing logic, not just country code data (CIS exclusion typical of state actors)
   # This is a very strong indicator of supply chain compromise like XZ Utils backdoor
-  # Complexity: all(2) + for(1) + any(3 min 1) = 4 minimum
+  # Complexity: all(2) + for(1) + any(2 min 1) = 4 minimum
+  # NOTE: Excludes cis-country-codes alone since legitimate software (Node.js) contains
+  # country codes in timezone/locale data without malicious intent
   - id: compression-lib-backdoor
     desc: Compression library with hidden payload and geofencing
     crit: hostile
@@ -400,7 +402,6 @@ composite_rules:
       - id: meta/library/compression/compression-lib
       - id: cap/data/embedded/multiple-compressed-payloads
     any:
-      - id: obj/anti-forensics/geofencing/cis-country-codes
       - id: obj/anti-forensics/geofencing/russian-system-check
       - id: obj/anti-forensics/geofencing/cis-timezone-checks
 

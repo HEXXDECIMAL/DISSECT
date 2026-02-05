@@ -33,7 +33,24 @@ traits:
     conf: 0.60
     if:
       type: string
-      regex: "install_requires.{0,50}discord|discord\\.py.{0,50}install"
+      substr: "discord"
+      min_count: 1
+
+  - id: dependency-dhooks
+    desc: dhooks Discord webhook library
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      regex: "'dhooks'|\"dhooks\"|install_requires.{0,100}dhooks"
+
+  - id: dependency-mss
+    desc: mss screenshot capture library
+    crit: notable
+    conf: 0.70
+    if:
+      type: string
+      regex: "'mss'|\"mss\"|install_requires.{0,100}mss"
 
   - id: dependency-requests-sockets
     desc: requests and sockets combo
@@ -80,3 +97,15 @@ composite_rules:
       - id: dependency-sockets
       - id: dependency-discord-py
       - id: suspicious-dep-combo
+
+  - id: discord-stealer-bot
+    desc: Discord stealer bot with webhook exfiltration
+    crit: hostile
+    conf: 0.95
+    attack: "T1195.001"
+    mbc: "B0030"
+    for: [python]
+    all:
+      - id: dependency-dhooks
+      - id: dependency-mss
+      - id: dependency-discord-py

@@ -299,6 +299,23 @@ impl ArchiveAnalyzer {
                 }
             }
 
+            // Python package metadata - use generic analyzer
+            FileType::PkgInfo => {
+                if let Some(mapper) = &self.capability_mapper {
+                    let temp = tempfile::NamedTempFile::new()?;
+                    std::fs::write(temp.path(), data)?;
+
+                    if let Some(analyzer) =
+                        crate::analyzers::analyzer_for_file_type(file_type, Some(mapper.clone()))
+                    {
+                        if let Ok(report) = analyzer.analyze(temp.path()) {
+                            file_analysis.findings = report.findings;
+                            file_analysis.strings = report.strings;
+                        }
+                    }
+                }
+            }
+
             // Unknown files are skipped before reaching analyze_in_memory
             FileType::Unknown => unreachable!("Unknown files should be filtered before analysis"),
         }

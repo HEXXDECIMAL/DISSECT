@@ -40,20 +40,31 @@ traits:
 
   - id: tiny-python-file
     desc: Tiny Python file
-    crit: inert
+    crit: suspicious
     conf: 0.8
     if:
       type: filesize
       max: 100
+      min: 1
 
   - id: empty-file
     desc: Empty file (0 bytes)
     crit: inert
     conf: 1.0
-    # Uses default for: [python] - archives detect file type from extension/context
+    # Empty __init__.py files are completely normal in Python packages
+    # Only flag as suspicious if not an __init__.py file
     if:
       type: filesize
       max: 0
+
+  - id: webhook-package-name
+    desc: Package name contains webhook
+    crit: notable
+    conf: 0.9
+    if:
+      type: string
+      exact: "webhook"
+      case_insensitive: true
 
   - id: init-py-file
     desc: __init__.py file
@@ -155,20 +166,19 @@ traits:
       exact: "vid="
 
 composite_rules:
-  # === Empty __init__.py ===
-  # Malicious PyPI packages often have completely empty __init__.py files
-  # that serve as placeholders. The actual malicious code is in setup.py.
-  # Legitimate packages have at least imports, version, docstring, or __all__.
-  # Complexity: for(+1) + all(+2) = 3 (suspicious is appropriate)
-  - id: empty-init-py
-    desc: Empty __init__.py placeholder
+  # === Empty __init__.py in webhook/exfil-targeting package ===
+  # When an empty __init__.py appears in a package with "webhook" in the name,
+  # it's highly suspicious - suggests supply-chain attack targeting Discord users
+  # or webhook-based exfiltration infrastructure.
+  # Complexity: all(+3) = 3 (suspicious, not quite hostile due to archive limitations)
+  - id: empty-init-webhook-package
+    desc: Empty __init__.py in webhook-focused package
     crit: suspicious
-    conf: 0.85
-    # Uses default for: [python] from defaults section
+    conf: 0.9
     attack: "T1195.002"
     all:
-      - id: init-py-file
       - id: empty-file
+      - id: webhook-package-name
 
   # === Decoy/Placeholder __init__.py ===
   # Malicious PyPI packages often have minimal __init__.py files that just
@@ -252,10 +262,10 @@ composite_rules:
       - id: cap/comm/http/request/python/request-python
 
   # Fingerprint with VID parameter (high confidence)
-  # Complexity: for(+1) + all(+3) = 4 (meets HOSTILE threshold)
+  # Complexity: for(+1) + all(+3) = 4 (meets SUSPICIOUS threshold; HOSTILE would need >=4)
   - id: pypi-vid-exfil
     desc: PyPI VID exfiltration pattern
-    crit: hostile
+    crit: suspicious
     conf: 0.98
     mbc: "E1041"
     attack: "T1020"
@@ -263,3 +273,4 @@ composite_rules:
       - id: vid-parameter
       - id: base64-encode
       - id: cap/comm/http/request/python/request-python
+

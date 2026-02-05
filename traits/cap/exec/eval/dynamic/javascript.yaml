@@ -135,7 +135,7 @@ traits:
     for: [javascript]
     if:
       type: content
-      regex: 'var\s+\w+\s*=\s*[^;]{5,200};\s*\w+\s*\('
+      regex: 'var\s+\w+\s*=\s*function\s*\([^)]*\)\s*\{|var\s+\w+\s*=\s*\(\s*\)\s*=>'
 
 composite_rules:
   - id: eval-function-reference
@@ -198,7 +198,11 @@ composite_rules:
     for: [javascript]
     all:
       - id: iife-pattern
-      - id: obj/anti-static/obfuscation/code-metrics
+    any:
+      - id: obj/anti-static/obfuscation/code-metrics/high-entropy-identifiers
+      - id: obj/anti-static/obfuscation/code-metrics/high-entropy-strings
+      - id: obj/anti-static/obfuscation/code-metrics/no-comments
+      - id: obj/anti-static/obfuscation/code-metrics/very-long-lines
 
   # Constructed function immediately executed
   - id: dynamic-code-execution

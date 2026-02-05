@@ -348,6 +348,64 @@ traits:
       type: string
       substr: "/etc/hosts"
 
+  # === Atomic: Probing/Scanning Keywords ===
+
+  - id: probing-keyword
+    desc: Probing keyword (explicit scanning intent)
+    crit: notable
+    conf: 0.75
+    platforms: [all]
+    if:
+      type: string
+      regex: '\b[Pp]robing\b'
+
+  - id: port-number-ftp
+    desc: FTP port number (21)
+    crit: inert
+    conf: 0.6
+    platforms: [all]
+    if:
+      type: string
+      regex: '\b21\b'
+
+  - id: port-number-ssh
+    desc: SSH port number (22)
+    crit: inert
+    conf: 0.6
+    platforms: [all]
+    if:
+      type: string
+      regex: '\b22\b'
+
+  - id: port-number-http
+    desc: HTTP port number (80)
+    crit: inert
+    conf: 0.6
+    platforms: [all]
+    if:
+      type: string
+      regex: '\b80\b'
+
+  - id: port-number-https
+    desc: HTTPS port number (443)
+    crit: inert
+    conf: 0.6
+    platforms: [all]
+    if:
+      type: string
+      regex: '\b443\b'
+
+  # === RPC Service Enumeration ===
+
+  - id: rpc-enum-pmap
+    desc: RPC portmapper enumeration function
+    crit: suspicious
+    conf: 0.95
+    platforms: [all]
+    if:
+      type: symbol
+      regex: "^_?pmap_(getmaps|clnt_call|getport)$"
+
 composite_rules:
   # Target IP reference
   - id: target-ip-ref
@@ -480,3 +538,28 @@ composite_rules:
     any:
       - id: sym-socket
       - id: sym-connect
+
+  # Service port detection
+  - id: service-port
+    desc: Common service port numbers
+    crit: inert
+    conf: 0.6
+    platforms: [all]
+    needs: 1
+    any:
+      - id: port-number-ftp
+      - id: port-number-ssh
+      - id: port-number-http
+      - id: port-number-https
+
+  # Shell script probing pattern
+  - id: probing-with-ports
+    desc: Probing script with service ports
+    crit: suspicious
+    conf: 0.8
+    attack: "T1046"
+    mbc: "E1046"
+    for: [shell]
+    all:
+      - id: probing-keyword
+      - id: service-port

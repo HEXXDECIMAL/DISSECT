@@ -169,6 +169,8 @@ traits:
 
 composite_rules:
   # Multiple embedded compressed payloads is suspicious
+  # NOTE: Excludes gzip since it's ubiquitous in legitimate binaries (Node.js, curl, etc.)
+  # Requires 2+ of the more suspicious compression formats (LZMA/XZ/ZSTD/BZIP2)
   - id: multiple-compressed-payloads
     desc: Multiple embedded compressed payloads
     crit: suspicious
@@ -180,5 +182,4 @@ composite_rules:
       - id: zstd-magic
       - id: lzma-magic
       - id: xz-magic
-      - id: gzip-magic
       - id: bzip2-magic

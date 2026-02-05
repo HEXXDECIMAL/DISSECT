@@ -100,10 +100,13 @@ traits:
       regex: "Intl\\.DateTimeFormat.{0,50}resolvedOptions.{0,30}timeZone"
 
   # CIS country codes
+  # NOTE: This trait is inherently noisy because legitimate software (Node.js with locale data,
+  # timezone databases, i18n libraries) contains these country codes as data.
+  # Downgraded from notable to inert - use only in composite rules with actual geofencing logic.
   - id: cis-country-codes
     desc: CIS country code check
-    crit: notable
-    conf: 0.8
+    crit: inert
+    conf: 0.3
     if:
       type: string
       regex: "\\b(RU|BY|KZ|UA|UZ|AZ|AM|GE|MD|TJ|TM|KG)\\b"

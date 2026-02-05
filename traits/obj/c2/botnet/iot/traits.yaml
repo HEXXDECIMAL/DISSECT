@@ -286,3 +286,16 @@ composite_rules:
       - id: busybox-tftp
       - id: busybox-ftpget
       - id: curl-http-download
+
+  - id: shellcode-stager-botnet
+    desc: "Shellcode stager with botnet self-propagation"
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0030"
+    attack: "T1105"
+    for: [elf]
+    platforms: [linux]
+    all:
+      - id: proc-self-exe
+      - id: cap/mem/protect/modify/rwx-prot-bytes
+      - id: known/tools/offensive/stagers/x64-jmp-register

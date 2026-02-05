@@ -196,6 +196,16 @@ traits:
       regex: '\bIndoXploit\b'
       case_insensitive: true
 
+  # === HTTP error response pages in web directories ===
+  - id: http-error-response
+    desc: HTTP error response message (access denied/forbidden)
+    crit: notable
+    conf: 0.7
+    for: [all]
+    if:
+      type: string
+      regex: '(?i)(access\s+(?:is\s+)?denied|(?:access|permission)\s+(?:denied|forbidden)|error\s+\d{3})'
+
 composite_rules:
   # PHP webshell patterns (php tag + shell func + request param)
   - id: php-shell

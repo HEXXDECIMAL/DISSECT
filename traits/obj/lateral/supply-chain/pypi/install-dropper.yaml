@@ -37,6 +37,9 @@ traits:
       type: string
       # Pattern: 'start ' or 'start\t' or 'start"' (command in string)
       regex: "\\bstart\\s+"
+    unless:
+      - type: basename
+        regex: "\\.pyc$"
 
   - id: windows-computername-env
     desc: COMPUTERNAME environment access

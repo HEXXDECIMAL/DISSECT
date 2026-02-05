@@ -43,8 +43,11 @@ traits:
     for: [elf]
     if:
       type: string
-      regex: "[^a-zA-Z0-9]{8,}"
+      regex: "[^a-zA-Z0-9\\s\\.,\\-_/\\\\:@]{8,}"
     attack: "T1027"
+    unless:
+      - id: cap/exec/load/system-lib-marker
+      - id: cap/interface/usage/usage-help
 
   # === Known XOR Key Indicators ===
   - id: xor-key-null-pattern

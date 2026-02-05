@@ -1,0 +1,80 @@
+# Shell Script Network Scanning
+# Detects shell scripts that perform network reconnaissance/scanning
+# ATT&CK: T1046 (Network Service Discovery)
+# MBC: E1046
+
+defaults:
+  attack: "T1046"
+  mbc: "E1046"
+  for: [shell]
+
+traits:
+  # === xargs-based scanning patterns ===
+
+  - id: xargs-network-loop
+    desc: xargs executing command per line
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: content
+      # cat FILE | xargs -l COMMAND (line-based execution)
+      regex: "cat\\s+\\S+\\s*\\|\\s*xargs\\s+[^\\n]*-l[^\\n]*\\."
+
+  - id: xargs-call-script
+    desc: xargs executing local script
+    crit: notable
+    conf: 0.8
+    if:
+      type: content
+      # xargs calling ./ script (dot prefix = hidden/local)
+      regex: "xargs\\s+[^\\n]*\\./\\.[a-z_]+"
+
+  - id: pipe-loop-pattern
+    desc: Pipe to xargs for iteration
+    crit: notable
+    conf: 0.7
+    if:
+      type: content
+      # Generic pipe to xargs pattern
+      regex: "\\|\\s*xargs\\s+[^\\n]*-[a-z]*l"
+
+  # === Scanner invocation patterns ===
+
+  - id: script-probes-port
+    desc: Shell script probes specific port
+    crit: notable
+    conf: 0.75
+    if:
+      type: content
+      # Script references specific port (FTP=21, SSH=22, HTTP=80, etc)
+      regex: "\\b(21|22|23|25|53|80|110|139|143|443|445|3306|3389)\\b"
+
+  - id: script-loops-ips
+    desc: Script loops over IP addresses
+    crit: notable
+    conf: 0.8
+    if:
+      type: content
+      # Common patterns: for each $1, for i in IPs, while read ip, etc
+      regex: "(?:for\\s+\\$1|while\\s+read|xargs\\s+[^\\n]*\\.)"
+
+  - id: dotfiles-in-script
+    desc: References hidden scripts
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: content
+      # Calling /.SCRIPT or ./.SCRIPT (covert execution)
+      regex: "\\./\\.\\w+|/\\.\\w+\\s"
+
+composite_rules:
+  # xargs-based loop with dotfiles: characteristic of statdx-scan style
+  # Complexity: all(3) + for(1) = 4 >= 4 ✓ SUSPICIOUS->HOSTILE upgrade
+  - id: xargs-dotfile-loop
+    desc: xargs looping with hidden script calls
+    crit: suspicious
+    conf: 0.90
+    all:
+      - id: xargs-network-loop
+      - id: dotfiles-in-script
+      - id: pipe-loop-pattern

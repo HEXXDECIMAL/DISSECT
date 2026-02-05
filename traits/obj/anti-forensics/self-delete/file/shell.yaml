@@ -34,6 +34,16 @@ traits:
       type: string
       regex: 'shred\s+(-[a-z]+\s+)?["'']?\$0["'']?'
 
+  - id: rm-install-artifacts
+    desc: Delete installer/setup artifacts
+    crit: suspicious
+    conf: 0.75
+    mbc: "F0007"
+    attack: "T1070.004"
+    if:
+      type: string
+      regex: 'rm\s+(-[rf]+\s+)+(install|setup|\.install|INSTALL|\.tar|\.tar\.gz|\.zip)'
+
 composite_rules:
   # Self-deleting shell script (migrated from YARA)
   - id: self-delete-shell
@@ -47,3 +57,4 @@ composite_rules:
       - id: rm-dollar-zero
       - id: rm-dollar-zero-quoted
       - id: shred-dollar-zero
+      - id: rm-install-artifacts

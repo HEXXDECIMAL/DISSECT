@@ -57,6 +57,8 @@ traits:
     conf: 0.9
     # NOTE: Shell has its own threshold (40%) in code-metrics/shell.yaml
     # NOTE: Python has own threshold (35%) - single-letter vars are legitimate
+    # NOTE: Rust intrinsic headers (avx2.rs, vpclmulqdq.rs, etc) have legitimate high-entropy from SIMD/crypto naming
+    # NOTE: Database adapters and similar library code have legitimate high-entropy from domain-specific terminology
     for:
       [
         javascript,
@@ -76,6 +78,9 @@ traits:
       field: identifiers.high_entropy_ratio
       min: 0.20
       min_size: 2048
+    unless:
+      - type: basename
+        regex: '^[a-z]+\d+\.rs$|^(avx|sse|neon|simd|intrinsic|vpclmul|pclmul|aes).*\.rs$|.*adapter\.(rb|py|php|js|ts)$'
 
   - id: py-many-high-entropy-identifiers
     desc: "Many high-entropy identifiers (>35% have"
@@ -91,25 +96,52 @@ traits:
     desc: "Excessive single-character variable names (>30%)"
     crit: suspicious
     conf: 0.8
+    # Exclude Rust (single-letter vars are standard in mathematical/algorithm code)
+    # Exclude small files (tiny scopes where single-letter vars are expected)
+    for:
+      [
+        python,
+        javascript,
+        typescript,
+        shell,
+        php,
+        ruby,
+        perl,
+        java,
+        lua,
+        csharp,
+        powershell,
+      ]
     if:
       type: metrics
       field: identifiers.single_char_ratio
       min: 0.30
+    unless:
+      - type: basename
+        regex: "\\.d\\.ts$"
 
   - id: numeric-suffix-identifiers
     desc: "Many numeric suffix identifiers (var1,"
     crit: notable
     conf: 0.75
+    # Exclude small files (testing, vectors, small utilities) where numeric suffixes are standard
+    # Exclude Rust intrinsic/SIMD files where array indices and test vectors are normal
     if:
       type: metrics
       field: identifiers.numeric_suffix_count
       min: 5
+    unless:
+      - type: filesize
+        max: 15000
+      - type: basename
+        regex: '^(test|spec|mock|stub).*\.rs$|^(avx|sse|neon|simd|intrinsic|vpclmul|pclmul|aes).*\.rs$|.*test.*\.(js|ts|py)$'
 
   - id: sequential-identifiers
     desc: "Sequential identifiers (a, b, c,"
     crit: notable
     conf: 0.8
     # Exclude Python - single-letter loop/parameter vars are standard
+    # Exclude Rust - single-letter vars are standard in mathematical/algorithm/SIMD code
     for:
       [
         javascript,
@@ -118,7 +150,6 @@ traits:
         ruby,
         perl,
         go,
-        rust,
         java,
         lua,
         csharp,
@@ -138,6 +169,9 @@ traits:
       type: metrics
       field: identifiers.sequential_names
       min: 15
+    unless:
+      - type: basename
+        regex: '\.pyc$'
 
   - id: low-identifier-reuse
     desc: "Low identifier reuse (each variable"
@@ -194,6 +228,9 @@ traits:
       type: metrics
       field: functions.anonymous
       min: 5
+    unless:
+      - type: basename
+        regex: "test.*\\.js$|.*\\.test\\.js$|.*\\.spec\\.js$|.*\\.test\\.ts$|.*\\.spec\\.ts$|.*test.*\\.py$|.*_test\\.py$|.*spec.*\\.rb$|.*_spec\\.rb$|\\.window\\.js$"
 
   - id: high-function-density
     desc: "High function density (>20 functions"
@@ -283,6 +320,7 @@ traits:
     crit: suspicious
     conf: 0.85
     # Exclude Perl: POD documentation legitimately has long lines
+    # Exclude Python bytecode: .pyc files are binary, long "lines" are serialization artifacts
     for:
       [
         python,
@@ -302,6 +340,9 @@ traits:
       type: metrics
       field: text.max_line_length
       min: 500
+    unless:
+      - type: basename
+        regex: "\\.pyc$"
 
   - id: high-text-entropy
     desc: "High overall text entropy (encoded"
@@ -339,6 +380,9 @@ traits:
       field: text.whitespace_ratio
       max: 0.10
       min_size: 512
+    unless:
+      - type: basename
+        regex: '\.pyc$'
 
   # === Complexity Anomalies ===
 
@@ -399,6 +443,9 @@ composite_rules:
       - id: obj/anti-static/obfuscation/code-metrics/py-many-high-entropy-identifiers
       - id: obj/anti-static/obfuscation/code-metrics/high-entropy-function-names
       - id: obj/anti-static/obfuscation/code-metrics/low-identifier-reuse
+    unless:
+      - type: basename
+        regex: '^(avx|sse|neon|simd|intrinsic|vpclmul|pclmul|aes).*\.rs$'
 
   - id: generated-code
     desc: "Machine-generated or transformed code"

@@ -45,7 +45,65 @@ traits:
       type: string
       substr: "/etc/ld.so.preload"
 
+  # === Directory listing hooking ===
+  - id: readdir-hook
+    desc: Exported readdir function (directory listing hook)
+    crit: suspicious
+    conf: 0.85
+    mbc: "F0015"
+    attack: "T1014"
+    for: [elf]
+    if:
+      type: symbol
+      regex: "^readdir"
+
+  - id: getdents-hook
+    desc: Exported getdents function (directory listing hook)
+    crit: suspicious
+    conf: 0.85
+    mbc: "F0015"
+    attack: "T1014"
+    for: [elf]
+    if:
+      type: symbol
+      regex: "^getdents"
+
+  # === Process Filtering Functions ===
+  - id: filter-process-name
+    desc: Process filtering function reference
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0003"
+    attack: "T1014"
+    if:
+      type: string
+      regex: "(process_to_filter|filter_process|hide_process|should_hide|filtered_process)"
+
+  - id: original-readdir-backup
+    desc: Backed-up original readdir function
+    crit: suspicious
+    conf: 0.85
+    mbc: "F0015"
+    attack: "T1014"
+    if:
+      type: string
+      regex: "^original_readdir"
+
 composite_rules:
+  # Direct hooked library rootkit (exported function hooking)
+  - id: hooked-library
+    desc: Userspace rootkit library with hooked functions
+    crit: suspicious
+    conf: 0.9
+    mbc: "F0015"
+    attack: "T1014"
+    for: [elf]
+    all:
+      - id: cap/exec/dylib/load/dlsym
+    any:
+      - id: readdir-hook
+      - id: getdents-hook
+
   # Linux userspace rootkit (migrated from YARA)
   - id: rootkit
     desc: Linux rootkit patterns
@@ -61,3 +119,19 @@ composite_rules:
       - id: ld-preload-file
       - id: readdir-hook
       - id: getdents-hook
+
+  # === HOSTILE: Process-Hiding Rootkit Library ===
+  # Detects userspace rootkit libraries that actively hide processes
+  # Pattern: exported readdir hook + process filtering logic + backed-up original functions
+  # Complexity: for(+1) + all(+3) = 4 >= 4 ✓
+  - id: process-hiding-rootkit
+    desc: Process-hiding rootkit library
+    crit: hostile
+    conf: 0.95
+    mbc: "B0003"
+    attack: "T1014"
+    for: [elf]
+    all:
+      - id: hooked-library
+      - id: filter-process-name
+      - id: original-readdir-backup

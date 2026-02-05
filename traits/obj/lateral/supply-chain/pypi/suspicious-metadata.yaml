@@ -70,6 +70,42 @@ traits:
       type: string
       regex: "classifiers.{0,50}=.{0,50}\\[\\]"
 
+  # === Typosquatting Keywords ===
+  - id: typosquatting-keyword
+    desc: Keywords containing typosquatting
+    crit: suspicious
+    conf: 0.95
+    attack: "T1036.005"
+    mbc: "F0004"
+    if:
+      type: string
+      word: typosquatting
+
+  # === PKG-INFO Metadata Fields ===
+  - id: unknown-summary
+    desc: PKG-INFO has UNKNOWN summary
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      regex: "^Summary:\\s*UNKNOWN\\s*$"
+
+  - id: unknown-homepage
+    desc: PKG-INFO has UNKNOWN home page
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      regex: "^Home-page:\\s*UNKNOWN\\s*$"
+
+  - id: unknown-author
+    desc: PKG-INFO has UNKNOWN author
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      regex: "^Author:\\s*UNKNOWN\\s*$"
+
 composite_rules:
   # === Suspicious Metadata Profile ===
   - id: suspicious-setup-metadata
@@ -84,6 +120,7 @@ composite_rules:
       - id: placeholder-author
       - id: generic-email
       - id: suspicious-version-pattern
+      - id: typosquatting-keyword
 
   - id: malware-setup-profile
     desc: Malicious setup.py profile
@@ -98,3 +135,17 @@ composite_rules:
       - id: empty-keywords
       - id: empty-classifiers
       - id: single-word-description
+
+  # === PKG-INFO Metadata Anomalies ===
+  - id: pkg-info-unknown-fields
+    desc: PKG-INFO with UNKNOWN metadata fields
+    crit: suspicious
+    conf: 0.85
+    attack: "T1036.005"
+    mbc: "F0004"
+    platforms: [all]
+    needs: 3
+    any:
+      - id: unknown-summary
+      - id: unknown-homepage
+      - id: unknown-author

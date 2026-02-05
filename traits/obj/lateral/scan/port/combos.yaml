@@ -77,3 +77,18 @@ composite_rules:
     any:
       - id: sym-socket-connect
       - id: ip-format
+
+  # === RPC Service Enumeration ===
+  # RPC portmapper enumeration is a highly suspicious network reconnaissance activity
+  # Direct use of pmap_getmaps/pmap_getport indicates active service discovery
+
+  - id: rpc-service-enum
+    desc: RPC service enumeration scanner
+    crit: suspicious
+    conf: 0.9
+    attack: "T1046"
+    mbc: "E1046"
+    for: [all]
+    all:
+      - id: rpc-enum-pmap
+      - id: sym-hostname-resolve

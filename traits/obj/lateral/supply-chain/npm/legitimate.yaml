@@ -1825,6 +1825,34 @@ traits:
       type: string
       regex: "istanbul|nyc|c8|coverage|__coverage__|lcov"
 
+  # WPT (Web Platform Test) framework markers
+  - id: promise-test-call
+    desc: promise_test() WPT call
+    crit: inert
+    conf: 0.95
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "promise_test("
+
+  - id: async-test-call
+    desc: async_test() WPT call
+    crit: inert
+    conf: 0.95
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "async_test("
+
+  - id: test-function-wpt
+    desc: test() WPT function
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "\\btest\\s*\\(\\s*['\"`][^'\"]*WPT|\\btest\\s*\\(\\s*function\\(\\)"
+
 # === COMPOSITE RULES ===
 composite_rules:
   # Terser/UglifyJS minified output
@@ -2061,3 +2089,13 @@ composite_rules:
       - { id: mocharc-ref }
       - { id: karma-conf-ref }
       - { id: vitest-config-ref }
+
+  # WPT test file
+  - id: wpt-test-file
+    desc: Web Platform Test file markers
+    crit: inert
+    conf: 0.95
+    for: [javascript, typescript]
+    any:
+      - { id: promise-test-call }
+      - { id: async-test-call }

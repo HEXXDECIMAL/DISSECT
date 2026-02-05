@@ -1,0 +1,51 @@
+# Command Injection via Format Strings
+# Detects patterns where system() is called with dynamically constructed strings
+# containing unvalidated input (typically from snprintf/sprintf)
+# MBC: E1059 (Command and Scripting Interpreter)
+# ATT&CK: T1059
+
+traits:
+  - id: unsafe-string-format
+    desc: String formatting with format specifiers
+    crit: inert
+    conf: 0.75
+    platforms: [unix, linux, macos]
+    for: [elf, macho, so, dylib, c]
+    if:
+      type: string
+      regex: 'snprintf|sprintf'
+
+  - id: format-string-injection
+    desc: Format string with user input
+    crit: suspicious
+    conf: 0.80
+    mbc: "E1059"
+    attack: "T1059"
+    platforms: [unix, linux, macos]
+    for: [c]
+    if:
+      type: content
+      regex: 'snprintf.{0,100}%s'
+
+  - id: system-call-symbol
+    desc: system() function call
+    crit: notable
+    conf: 0.90
+    for: [c, elf, macho]
+    if:
+      type: symbol
+      regex: system
+
+composite_rules:
+  - id: command-injection-format-exec
+    desc: Format string executed via system()
+    crit: hostile
+    conf: 0.90
+    mbc: "E1059"
+    attack: "T1059"
+    for: [c, elf, macho]
+    all:
+      - id: format-string-injection
+      - id: system-call-symbol
+      - id: cap/comm/socket/create/create
+      - id: cap/comm/socket/connect/connect

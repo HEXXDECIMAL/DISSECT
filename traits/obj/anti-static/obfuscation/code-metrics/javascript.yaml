@@ -22,6 +22,7 @@ traits:
     desc: "High function density with one-liners"
     crit: suspicious
     conf: 0.85
+    size_min: 2048
     if:
       type: metrics
       field: functions.density_per_100_lines

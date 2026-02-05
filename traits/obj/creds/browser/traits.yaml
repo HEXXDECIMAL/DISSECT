@@ -463,6 +463,12 @@ composite_rules:
       - { id: multipart-form-data }
       - { id: post-method }
       - { id: ipinfo-io }
+    none:
+      - { id: obj/lateral/supply-chain/npm/wpt-test-file }
+      - { id: obj/lateral/supply-chain/npm/jest-test-file }
+      - { id: obj/lateral/supply-chain/npm/mocha-test-file }
+      - { id: obj/lateral/supply-chain/npm/test-filename-pattern }
+      - { id: obj/lateral/supply-chain/npm/test-fixtures }
 
   - id: python-imports
     desc: Python credential stealer imports

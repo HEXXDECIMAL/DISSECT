@@ -50,17 +50,6 @@ traits:
       type: content
       regex: 'Links\.GitHub"[^>]*Value\s*=\s*"https?://github\.com/?["'']'
 
-  # === Internal marker patterns ===
-  # The __ext_ prefix in Tags is used by some malicious extensions
-  # for internal tracking/categorization. Legitimate extensions don't need
-  # this pattern in their public marketplace tags.
-  - id: internal-ext-marker
-    desc: Internal __ext_ marker in tags
-    crit: suspicious
-    conf: 0.85
-    if:
-      type: content
-      regex: "<Tags>[^<]*__ext_"
 
 composite_rules:
   - id: identity

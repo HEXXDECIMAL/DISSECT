@@ -101,6 +101,12 @@ pub fn analyzer_for_file_type(
             chrome_manifest::ChromeManifestAnalyzer::new().with_capability_mapper(mapper_or_empty),
         )),
 
+        // Python package metadata - use generic analyzer for string/trait matching
+        FileType::PkgInfo => Some(Box::new(
+            generic::GenericAnalyzer::new(file_type.clone())
+                .with_capability_mapper(mapper_or_empty),
+        )),
+
         // Archive needs special handling (depth limits, nested analysis)
         FileType::Archive => None,
 
@@ -208,6 +214,9 @@ pub fn detect_file_type_from_path(file_path: &Path) -> FileType {
         let name = file_name.to_string_lossy().to_lowercase();
         if name == "package.json" {
             return FileType::PackageJson;
+        }
+        if name == "pkg-info" || name == "metadata" {
+            return FileType::PkgInfo;
         }
         // Note: manifest.json detection requires content inspection for Chrome manifests,
         // so we can't reliably detect ChromeManifest from path alone - it will be detected
@@ -710,6 +719,7 @@ pub enum FileType {
     PackageJson,    // npm package.json manifest
     VsixManifest,   // VSCode extension.vsixmanifest
     ChromeManifest, // Chrome extension manifest.json
+    PkgInfo,        // Python package metadata (PKG-INFO, METADATA)
     Archive,
     AppleScript,
     Rtf, // Rich Text Format documents
@@ -748,6 +758,7 @@ impl FileType {
             | FileType::Elixir
             | FileType::C
             | FileType::PackageJson
+            | FileType::PkgInfo
             | FileType::VsixManifest
             | FileType::ChromeManifest
             | FileType::AppleScript
@@ -809,6 +820,7 @@ impl FileType {
             FileType::Elixir => vec!["ex", "exs"],
             FileType::C => vec!["c", "h", "hh"],
             FileType::PackageJson => vec!["json", "package.json", "npm"],
+            FileType::PkgInfo => vec!["pkg-info", "metadata", "dist-info"],
             FileType::VsixManifest => vec!["xml", "vsix", "vscode"],
             FileType::ChromeManifest => vec!["json", "manifest.json", "chrome", "extension"],
             FileType::Archive => vec!["zip", "tar", "gz"],

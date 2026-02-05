@@ -116,6 +116,7 @@ traits:
         - '".sh"' # Shell script extension
         - '".c"' # C file extension
         - '".h"' # Header file extension
+        - "'.h'" # Header file extension (single quotes)
 
 composite_rules:
   # File write or makedirs composite
