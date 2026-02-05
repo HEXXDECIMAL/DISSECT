@@ -244,7 +244,7 @@ type archiveExtraction struct {
 }
 
 // extractArchive extracts an archive to a destination directory and returns member list.
-// Supports: .zip, .tar.gz, .tgz, .7z, .xz
+// Supports: .zip, .tar, .tar.gz, .tgz, .7z, .xz
 func extractArchive(ctx context.Context, archivePath, destDir string) (*archiveExtraction, error) {
 	ext := strings.ToLower(filepath.Ext(archivePath))
 
@@ -257,6 +257,8 @@ func extractArchive(ctx context.Context, archivePath, destDir string) (*archiveE
 	switch ext {
 	case ".zip":
 		return extractZip(archivePath, destDir)
+	case ".tar":
+		return extractTar(archivePath, destDir)
 	case ".tar.gz", ".tgz":
 		return extractTarGz(archivePath, destDir)
 	case ".7z":
@@ -311,6 +313,53 @@ func extractZip(archivePath, destDir string) (*archiveExtraction, error) {
 		dst.Close() //nolint:errcheck
 
 		members = append(members, f.Name)
+	}
+
+	return &archiveExtraction{path: destDir, members: members}, nil
+}
+
+// extractTar extracts a plain TAR archive.
+func extractTar(archivePath, destDir string) (*archiveExtraction, error) {
+	f, err := os.Open(archivePath)
+	if err != nil {
+		return nil, fmt.Errorf("open tar: %w", err)
+	}
+	defer f.Close()
+
+	tr := tar.NewReader(f)
+	var members []string
+
+	for {
+		header, err := tr.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, fmt.Errorf("read tar entry: %w", err)
+		}
+
+		path := filepath.Join(destDir, header.Name)
+
+		switch header.Typeflag {
+		case tar.TypeDir:
+			if err := os.MkdirAll(path, 0o755); err != nil {
+				return nil, fmt.Errorf("create directory: %w", err)
+			}
+		case tar.TypeReg:
+			if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+				return nil, fmt.Errorf("create directory: %w", err)
+			}
+			dst, err := os.Create(path)
+			if err != nil {
+				return nil, fmt.Errorf("create extracted file: %w", err)
+			}
+			if _, err := io.CopyN(dst, tr, header.Size); err != nil {
+				dst.Close() //nolint:errcheck
+				return nil, fmt.Errorf("extract file: %w", err)
+			}
+			dst.Close() //nolint:errcheck
+			members = append(members, header.Name)
+		}
 	}
 
 	return &archiveExtraction{path: destDir, members: members}, nil
