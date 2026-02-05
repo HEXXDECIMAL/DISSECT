@@ -780,24 +780,85 @@ impl ArchiveAnalyzer {
             let file = std::fs::File::open(&archive_path)?;
             let mut archive = zip::ZipArchive::new(file)?;
 
-            // Try to determine if encrypted
-            let password = if !archive.is_empty() {
-                let mut found_password: Option<&[u8]> = None;
-                for i in 0..archive.len().min(5) {
-                    if let Ok(entry) = archive.by_index(i) {
-                        if entry.encrypted() {
-                            // Use the first password if available
-                            if let Some(pw) = zip_passwords.first() {
-                                found_password = Some(pw.as_bytes());
+            // Check if the archive is encrypted by trying to read entries
+            // If we get "Password required" error, the archive is encrypted
+            tracing::info!("ZIP archive has {} entries", archive.len());
+            let is_encrypted = if !archive.is_empty() {
+                let mut found_encrypted = false;
+                for i in 0..archive.len().min(10) {
+                    match archive.by_index(i) {
+                        Ok(entry) => {
+                            // Successfully read entry without password means not encrypted (or dir)
+                            tracing::debug!("Entry {} read successfully without password", i);
+                        }
+                        Err(e) => {
+                            // Check if it's a password error
+                            let error_msg = e.to_string();
+                            if error_msg.contains("Password") {
+                                found_encrypted = true;
+                                tracing::info!("Archive appears encrypted (password required)");
+                                break;
+                            }
+                            // Other errors might be corruption or other issues
+                            tracing::debug!("Error reading entry {}: {}", i, e);
+                        }
+                    }
+                }
+                tracing::info!("ZIP archive is_encrypted: {}", found_encrypted);
+                found_encrypted
+            } else {
+                false
+            };
+
+            // If encrypted, try each password until one works
+            let password_to_use = if is_encrypted {
+                if zip_passwords.is_empty() {
+                    anyhow::bail!("Archive is encrypted but no passwords configured");
+                }
+
+                let mut working_password: Option<String> = None;
+                for password in zip_passwords.iter() {
+                    tracing::debug!("Trying password for ZIP archive");
+                    let file = std::fs::File::open(&archive_path)?;
+                    let mut test_archive = zip::ZipArchive::new(file)?;
+
+                    // Try to decrypt any file entry to test the password
+                    let mut password_works = false;
+                    for i in 0..test_archive.len() {
+                        // Check if it's a directory without holding a borrow
+                        let is_dir = test_archive.by_index(i).ok().map(|e| e.is_dir()).unwrap_or(false);
+                        if !is_dir {
+                            // Try to decrypt this file
+                            if test_archive.by_index_decrypt(i, password.as_bytes()).is_ok() {
+                                password_works = true;
                             }
                             break;
                         }
                     }
+
+                    if password_works {
+                        tracing::info!("✓ Decrypted with password: {}", password);
+                        eprintln!("  Decrypted with password: {}", password);
+                        working_password = Some(password.clone());
+                        break;
+                    }
                 }
-                found_password
+
+                if let Some(pw) = working_password {
+                    Some(pw)
+                } else {
+                    anyhow::bail!(
+                        "Password required to decrypt file (tried {} passwords)",
+                        zip_passwords.len()
+                    );
+                }
             } else {
                 None
             };
+
+            // Now re-open the archive for actual extraction with the password (if needed)
+            let file = std::fs::File::open(&archive_path)?;
+            archive = zip::ZipArchive::new(file)?;
 
             for i in 0..archive.len() {
                 // Check file count limit
@@ -805,8 +866,8 @@ impl ArchiveAnalyzer {
                     break;
                 }
 
-                let mut entry = match password {
-                    Some(pw) => match archive.by_index_decrypt(i, pw) {
+                let mut entry = match &password_to_use {
+                    Some(pw) => match archive.by_index_decrypt(i, pw.as_bytes()) {
                         Ok(e) => e,
                         Err(e) => {
                             tracing::debug!("Failed to decrypt ZIP entry {}: {}", i, e);

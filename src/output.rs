@@ -1037,7 +1037,7 @@ mod tests {
         assert_eq!(namespace_long_name("collect"), "COLLECTION");
         assert_eq!(namespace_long_name("impact"), "IMPACT");
         assert_eq!(namespace_long_name("meta"), "METADATA");
-        assert_eq!(namespace_long_name("unknown"), "Unknown");
+        assert_eq!(namespace_long_name("unknown"), "UNKNOWN");
     }
 
     #[test]

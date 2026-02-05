@@ -22,7 +22,6 @@ pub mod types;
 // Re-export public API
 pub use condition::Condition;
 pub use context::EvaluationContext;
-pub use evaluators::eval_trait;
 pub use traits::{CompositeTrait, DowngradeConditions, TraitDefinition};
 pub use types::{FileType, Platform};
 

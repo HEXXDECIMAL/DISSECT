@@ -10,7 +10,7 @@
 use crate::capabilities::validation::calculate_composite_precision;
 use crate::capabilities::CapabilityMapper;
 use crate::composite_rules::{
-    eval_trait, CompositeTrait, Condition, EvaluationContext, FileType as RuleFileType, Platform,
+    CompositeTrait, Condition, EvaluationContext, FileType as RuleFileType, Platform,
     TraitDefinition,
 };
 use crate::types::{AnalysisReport, Evidence};

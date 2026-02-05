@@ -812,13 +812,9 @@ fn scan_paths(
             reports.join(",\n")
         )),
         cli::OutputFormat::Jsonl => {
-            // JSONL already streamed files above, just emit summary line
-            let summary = serde_json::json!({
-                "type": "summary",
-                "files_analyzed": all_files.len() + archives_found.len(),
-                "reports": reports.len()
-            });
-            Ok(serde_json::to_string(&summary).unwrap_or_default())
+            // JSONL already streamed files above via analyze_archive_streaming_jsonl
+            // Don't emit a summary - the individual file lines were already printed
+            Ok(String::new())
         }
         cli::OutputFormat::Terminal => Ok(String::new()),
     }
