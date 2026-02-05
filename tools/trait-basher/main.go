@@ -33,36 +33,37 @@ import (
 	"runtime"
 	"strings"
 	"sync"
+	"text/template"
 	"time"
 
+	"github.com/creack/pty"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// Shared prompt building blocks (LLM-optimized)
+// promptData holds values for prompt templates.
+type promptData struct {
+	Path       string
+	DissectBin string
+	TraitsDir  string
+	TaskBlock  string
+	Count      int
+	IsArchive  bool
+}
 
-const keyConstraints = `## Key Constraints (Do Not Violate)
-- **Read documentation**: Check RULES.md and TAXONOMY.md to understand naming conventions and design principles
-- **YAML is valid**: DISSECT's strict parser already validated it. Only edit trait logic, not formatting.
-- **Preserve structure**: Keep indentation, spacing, and file organization identical.
-- **No new files**: Only modify existing traits/ YAML files.
-- **One fix per trait**: Don't over-engineer; each trait should do one thing well.`
+var goodPromptTmpl = template.Must(template.New("good").Parse(`{{if .IsArchive -}}
+# Fix False Positives in KNOWN-GOOD Archive
 
-const successCriteria = `## Success Criteria
-✓ All false positive findings are fixed (incorrect matches removed or constrained)
-✓ Remaining findings accurately describe what the program actually does
-✓ No new false positives introduced
-✓ Changes are minimal and focused (3-5 edits max)
-✓ Run dissect again - shows improvement`
+**Archive**: {{.Path}}
+**Problem**: {{.Count}} members flagged as suspicious/hostile
+**Task**: Remove false positive findings
+{{else -}}
+# Fix False Positives in KNOWN-GOOD File
 
-const debugCommands = `## Debug & Validate
-` + "```" + `
-%s %s --format jsonl                   # see current findings
-%s strings %s                            # reveal XOR/AES/base64 hidden data
-%s test-rules %s --rules "rule-id"     # debug single rule
-%s test-match %s --type string --pattern "X"  # test patterns
-` + "```" + ``
-
-const falsePositiveDefinition = `## What Is a False Positive?
+**File**: {{.Path}}
+**Problem**: Flagged as suspicious/hostile
+**Task**: Remove false positive findings
+{{end}}
+## What Is a False Positive?
 A **false positive** is a finding that DOES NOT match what the program actually does.
 - If the program DOES execute code → "exec" finding is CORRECT, not a false positive
 - If the program DOES read files → "file_read" finding is CORRECT, not a false positive
@@ -73,9 +74,78 @@ A finding is only a false positive if:
 - The pattern is too broad and matches unrelated benign code
 - The finding is in the wrong file or context
 
-**Expected**: Known-good software has findings! Notable and suspicious findings are normal if they accurately describe what the code does. The goal is ACCURATE findings, not zero findings.`
+**Expected**: Known-good software has findings! Notable and suspicious findings are normal if they accurately describe what the code does. The goal is ACCURATE findings, not zero findings.
 
-const goodPromptTask = `## Strategy: Fix False Positives
+## Key Constraints (Do Not Violate)
+- **Read documentation**: Check RULES.md and TAXONOMY.md to understand naming conventions and design principles
+- **YAML is valid**: DISSECT's strict parser already validated it. Only edit trait logic, not formatting.
+- **Preserve structure**: Keep indentation, spacing, and file organization identical.
+- **No new files**: Only modify existing traits/ YAML files.
+- **One fix per trait**: Don't over-engineer; each trait should do one thing well.
+
+{{.TaskBlock}}
+
+## Success Criteria
+✓ All false positive findings are fixed (incorrect matches removed or constrained)
+✓ Remaining findings accurately describe what the program actually does
+✓ No new false positives introduced
+✓ Changes are minimal and focused (3-5 edits max)
+✓ Run dissect again - shows improvement
+
+## Debug & Validate
+` + "```" + `
+{{.DissectBin}} {{.Path}} --format jsonl                   # see current findings
+{{.DissectBin}} strings {{.Path}}                          # reveal XOR/AES/base64 hidden data
+{{.DissectBin}} test-rules {{.Path}} --rules "rule-id"     # debug single rule
+{{.DissectBin}} test-match {{.Path}} --type string --pattern "X"  # test patterns
+` + "```" + `
+
+Traits: {{.TraitsDir}}`))
+
+var badPromptTmpl = template.Must(template.New("bad").Parse(`{{if .IsArchive -}}
+# Add Missing Detection for KNOWN-BAD Archive
+
+**Archive**: {{.Path}}
+**Problem**: {{.Count}} members not flagged as suspicious/hostile
+**Task**: Detect malicious behavior
+
+*Note: Skip genuinely benign files (README, docs, unmodified dependencies)*
+{{else -}}
+# Add Missing Detection for KNOWN-BAD File
+
+**File**: {{.Path}}
+**Problem**: Not flagged as suspicious/hostile
+**Task**: Detect malicious behavior
+
+*Note: Skip if genuinely benign (README, docs, unmodified dependency)*
+{{end}}
+## Key Constraints (Do Not Violate)
+- **Read documentation**: Check RULES.md and TAXONOMY.md to understand naming conventions and design principles
+- **YAML is valid**: DISSECT's strict parser already validated it. Only edit trait logic, not formatting.
+- **Preserve structure**: Keep indentation, spacing, and file organization identical.
+- **No new files**: Only modify existing traits/ YAML files.
+- **One fix per trait**: Don't over-engineer; each trait should do one thing well.
+
+{{.TaskBlock}}
+
+## Success Criteria
+✓ All false positive findings are fixed (incorrect matches removed or constrained)
+✓ Remaining findings accurately describe what the program actually does
+✓ No new false positives introduced
+✓ Changes are minimal and focused (3-5 edits max)
+✓ Run dissect again - shows improvement
+
+## Debug & Validate
+` + "```" + `
+{{.DissectBin}} {{.Path}} --format jsonl                   # see current findings
+{{.DissectBin}} strings {{.Path}}                          # reveal XOR/AES/base64 hidden data
+{{.DissectBin}} test-rules {{.Path}} --rules "rule-id"     # debug single rule
+{{.DissectBin}} test-match {{.Path}} --type string --pattern "X"  # test patterns
+` + "```" + `
+
+Traits: {{.TraitsDir}}`))
+
+const goodTaskFile = `## Strategy: Fix False Positives
 Review findings and identify which are actually false positives (incorrect matches).
 Keep findings that accurately describe the code's behavior, even if suspicious.
 
@@ -96,7 +166,7 @@ Keep findings that accurately describe the code's behavior, even if suspicious.
 
 **Do Not**: Change criticality levels arbitrarily, remove accurate findings, or break YAML structure.`
 
-const goodPromptArchiveTask = `## Strategy: Fix False Positives in Archive
+const goodTaskArchive = `## Strategy: Fix False Positives in Archive
 Review findings and identify which are actually false positives (incorrect matches).
 Keep findings that accurately describe the code's behavior, even if suspicious.
 
@@ -117,7 +187,7 @@ Keep findings that accurately describe the code's behavior, even if suspicious.
 
 **Do Not**: Change criticality levels arbitrarily, remove accurate findings, or break YAML structure.`
 
-const badPromptTask = `## Strategy: Add Missing Detection
+const badTaskFile = `## Strategy: Add Missing Detection
 **Approach**:
 1. Reverse engineer the file (strings, radare2, nm, objdump)
    - **Use ` + "`dissect strings`" + `** to automatically reveal hidden data: XOR/AES/base64 encoded payloads, command strings, and obfuscated content
@@ -135,7 +205,7 @@ const badPromptTask = `## Strategy: Add Missing Detection
 
 **Do Not**: Create file-specific rules, add unrelated traits, or ignore YAML structure.`
 
-const badPromptArchiveTask = `## Strategy: Add Missing Detection to Archive
+const badTaskArchive = `## Strategy: Add Missing Detection to Archive
 **Approach**:
 1. For each problematic member: reverse engineer (strings, radare2, nm, objdump)
    - **Use ` + "`dissect strings`" + ` on suspicious members** to reveal hidden data: XOR/AES/base64 encoded payloads, command strings, and obfuscated content
@@ -153,62 +223,55 @@ const badPromptArchiveTask = `## Strategy: Add Missing Detection to Archive
 
 **Do Not**: Create file-specific rules, add unrelated traits, or break YAML format.`
 
-// Helper function to build prompts from blocks
-func buildGoodPrompt(isArchive bool, path string, archiveCount int, repoRoot, dissectBin string) string {
-	var header string
-	var taskBlock string
-	var debugCmd string
-
+func buildGoodPrompt(isArchive bool, path string, count int, root, bin string) string {
+	task := goodTaskFile
 	if isArchive {
-		header = fmt.Sprintf("# Fix False Positives in KNOWN-GOOD Archive\n\n**Archive**: %s\n**Problem**: %d members flagged as suspicious/hostile\n**Task**: Remove false positive findings\n", path, archiveCount)
-		taskBlock = goodPromptArchiveTask
-		debugCmd = path
-	} else {
-		header = fmt.Sprintf("# Fix False Positives in KNOWN-GOOD File\n\n**File**: %s\n**Problem**: Flagged as suspicious/hostile\n**Task**: Remove false positive findings\n", path)
-		taskBlock = goodPromptTask
-		debugCmd = path
+		task = goodTaskArchive
 	}
-
-	debug := fmt.Sprintf(debugCommands, dissectBin, debugCmd, dissectBin, debugCmd, dissectBin, debugCmd)
-
-	return fmt.Sprintf("%s\n%s\n\n%s\n\n%s\n\n%s\n\n%s\n\nTraits: %s/traits/", header, falsePositiveDefinition, keyConstraints, taskBlock, successCriteria, debug, repoRoot)
+	var b bytes.Buffer
+	_ = goodPromptTmpl.Execute(&b, promptData{ //nolint:errcheck // template is validated at init
+		Path:       path,
+		Count:      count,
+		DissectBin: bin,
+		TraitsDir:  root + "/traits/",
+		IsArchive:  isArchive,
+		TaskBlock:  task,
+	})
+	return b.String()
 }
 
-func buildBadPrompt(isArchive bool, path string, archiveCount int, repoRoot, dissectBin string) string {
-	var header string
-	var taskBlock string
-	var debugCmd string
-
+func buildBadPrompt(isArchive bool, path string, count int, root, bin string) string {
+	task := badTaskFile
 	if isArchive {
-		header = fmt.Sprintf("# Add Missing Detection for KNOWN-BAD Archive\n\n**Archive**: %s\n**Problem**: %d members not flagged as suspicious/hostile\n**Task**: Detect malicious behavior\n\n*Note: Skip genuinely benign files (README, docs, unmodified dependencies)*\n", path, archiveCount)
-		taskBlock = badPromptArchiveTask
-		debugCmd = path
-	} else {
-		header = fmt.Sprintf("# Add Missing Detection for KNOWN-BAD File\n\n**File**: %s\n**Problem**: Not flagged as suspicious/hostile\n**Task**: Detect malicious behavior\n\n*Note: Skip if genuinely benign (README, docs, unmodified dependency)*\n", path)
-		taskBlock = badPromptTask
-		debugCmd = path
+		task = badTaskArchive
 	}
-
-	debug := fmt.Sprintf(debugCommands, dissectBin, debugCmd, dissectBin, debugCmd, dissectBin, debugCmd)
-
-	return fmt.Sprintf("%s\n%s\n\n%s\n\n%s\n\n%s\n\nTraits: %s/traits/", header, keyConstraints, taskBlock, successCriteria, debug, repoRoot)
+	var b bytes.Buffer
+	_ = badPromptTmpl.Execute(&b, promptData{ //nolint:errcheck // template is validated at init
+		Path:       path,
+		Count:      count,
+		DissectBin: bin,
+		TraitsDir:  root + "/traits/",
+		IsArchive:  isArchive,
+		TaskBlock:  task,
+	})
+	return b.String()
 }
 
 type config struct {
-	db           *sql.DB
-	dirs         []string
-	repoRoot     string
-	dissectBin   string // Path to dissect binary
-	provider     string
-	model        string
-	sampleDir    string
-	timeout      time.Duration
-	idleTimeout  time.Duration // Kill LLM if no output for this duration
-	knownGood    bool
-	knownBad     bool
-	useCargo     bool
-	flush        bool
-	rescanAfter  int // Number of files to review before restarting scan (0 = disabled)
+	db          *sql.DB
+	dirs        []string
+	repoRoot    string
+	dissectBin  string // Path to dissect binary
+	provider    string
+	model       string
+	sampleDir   string
+	timeout     time.Duration
+	idleTimeout time.Duration // Kill LLM if no output for this duration
+	rescanAfter int           // Number of files to review before restarting scan (0 = disabled)
+	knownGood   bool
+	knownBad    bool
+	useCargo    bool
+	flush       bool
 }
 
 // Finding represents a matched trait/capability.
@@ -250,7 +313,7 @@ type archiveExtraction struct {
 }
 
 // extractArchive extracts an archive to a destination directory and returns member list.
-// Supports: .zip, .tar, .tar.gz, .tgz, .7z, .xz
+// Supports: .zip, .tar, .tar.gz, .tgz, .7z, .xz.
 func extractArchive(ctx context.Context, archivePath, destDir string) (*archiveExtraction, error) {
 	fmt.Fprintf(os.Stderr, "  [debug] extractArchive: %s -> %s\n", archivePath, destDir)
 
@@ -272,7 +335,7 @@ func extractArchive(ctx context.Context, archivePath, destDir string) (*archiveE
 	case ".tar.gz", ".tgz":
 		return extractTarGz(archivePath, destDir)
 	case ".7z":
-		return extract7z(ctx, archivePath, destDir)
+		return extract7zWithPasswords(ctx, archivePath, destDir, []string{"infected", "infect3d"})
 	case ".xz":
 		return extractXz(ctx, archivePath, destDir)
 	default:
@@ -288,7 +351,7 @@ func isZipEncrypted(archivePath string) bool {
 		fmt.Fprintf(os.Stderr, "  [debug] Failed to open ZIP for encryption check: %v\n", err)
 		return true
 	}
-	defer reader.Close()
+	defer reader.Close() //nolint:errcheck // best-effort cleanup
 
 	// Check first file's encryption flag (bit 0 of Flags field)
 	if len(reader.File) > 0 {
@@ -300,193 +363,144 @@ func isZipEncrypted(archivePath string) bool {
 	return false
 }
 
-// extractZipWithPassword extracts an encrypted ZIP archive using the `7z` command-line tool.
-// Tries common malware archive passwords: "infected", "infect3d", "malware", "virus", "password"
-func extractZipWithPassword(ctx context.Context, archivePath, destDir string) (*archiveExtraction, error) {
-	passwords := []string{"infected", "infect3d", "malware", "virus", "password"}
+// Common malware archive passwords to try.
+var defaultPasswords = []string{"infected", "infect3d", "malware", "virus", "password"}
+
+// critRank maps criticality levels to numeric ranks for comparison.
+var critRank = map[string]int{"inert": 0, "notable": 1, "suspicious": 2, "hostile": 3}
+
+// extract7zWithPasswords extracts an archive using 7z with password attempts.
+func extract7zWithPasswords(ctx context.Context, src, dst string, passwords []string) (*archiveExtraction, error) {
 	var lastErr error
-
-	fmt.Fprintf(os.Stderr, "  [debug] Attempting to extract encrypted ZIP with 7z: %s\n", archivePath)
-	fmt.Fprintf(os.Stderr, "  [debug] Destination: %s\n", destDir)
-
 	for i, pwd := range passwords {
 		fmt.Fprintf(os.Stderr, "  [debug] Trying password %d/%d: %s\n", i+1, len(passwords), pwd)
 
-		args := []string{"x", "-o" + destDir, "-y", "-p" + pwd, archivePath}
+		tctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+		cmd := exec.CommandContext(tctx, "7z", "x", "-o"+dst, "-y", "-p"+pwd, src) //nolint:gosec // paths come from controlled archive extraction
+		cmd.Stdin = nil                                                            // Don't wait for user input
 
-		fmt.Fprintf(os.Stderr, "  [debug] Command: 7z %v\n", args)
-
-		// Create a context with timeout to prevent hanging on password prompt
-		timeoutCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
-		cmd := exec.CommandContext(timeoutCtx, "7z", args...)
-
-		// Close stdin so 7z doesn't wait for user input
-		cmd.Stdin = nil
-
-		var stdout, stderr bytes.Buffer
-		cmd.Stdout = &stdout
+		var stderr bytes.Buffer
 		cmd.Stderr = &stderr
 
 		if err := cmd.Run(); err == nil {
-			fmt.Fprintf(os.Stderr, "  [debug] 7z extraction succeeded with password: %s\n", pwd)
 			cancel()
-			// Success - list the extracted files
-			members, err := listDir(destDir)
+			members, err := listDir(dst)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "  [debug] Failed to list extracted files: %v\n", err)
 				return nil, err
 			}
-			fmt.Fprintf(os.Stderr, "  [debug] Extracted %d files: %v\n", len(members), members)
-			return &archiveExtraction{path: destDir, members: members}, nil
+			fmt.Fprintf(os.Stderr, "  [debug] 7z extraction succeeded with password: %s\n", pwd)
+			return &archiveExtraction{path: dst, members: members}, nil
 		}
 		cancel()
-
-		stderrMsg := stderr.String()
-		stdoutMsg := stdout.String()
-		fmt.Fprintf(os.Stderr, "  [debug] 7z failed - stdout: %s, stderr: %s\n", stdoutMsg, stderrMsg)
-		lastErr = fmt.Errorf("stdout: %s, stderr: %s", stdoutMsg, stderrMsg)
+		lastErr = errors.New(stderr.String())
+		fmt.Fprintf(os.Stderr, "  [debug] 7z password attempt failed: %s\n", stderr.String())
 	}
-
 	if lastErr != nil {
-		return nil, fmt.Errorf("extract encrypted zip (all passwords failed): %w", lastErr)
+		return nil, fmt.Errorf("7z extraction failed (tried %d passwords): %w", len(passwords), lastErr)
 	}
-	return nil, errors.New("extract encrypted zip failed")
+	return nil, errors.New("7z extraction failed")
 }
 
 // extractZip extracts a ZIP archive.
-func extractZip(ctx context.Context, archivePath, destDir string) (*archiveExtraction, error) {
-	fmt.Fprintf(os.Stderr, "  [debug] extractZip called for: %s\n", archivePath)
-	// Check if encrypted and delegate to password-based extractor
-	if isZipEncrypted(archivePath) {
-		fmt.Fprintf(os.Stderr, "  [debug] Archive appears to be encrypted, using password-based extraction\n")
-		return extractZipWithPassword(ctx, archivePath, destDir)
+func extractZip(ctx context.Context, src, dst string) (*archiveExtraction, error) {
+	fmt.Fprintf(os.Stderr, "  [debug] extractZip called for: %s\n", src)
+	if isZipEncrypted(src) {
+		fmt.Fprintf(os.Stderr, "  [debug] Archive appears encrypted, using password-based extraction\n")
+		return extract7zWithPasswords(ctx, src, dst, defaultPasswords)
 	}
 	fmt.Fprintf(os.Stderr, "  [debug] Archive appears unencrypted, using standard Go ZIP extraction\n")
 
-	reader, err := zip.OpenReader(archivePath)
+	r, err := zip.OpenReader(src)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "  [debug] Failed to open ZIP reader: %v\n", err)
 		fmt.Fprintf(os.Stderr, "  [debug] Falling back to 7z extraction for potentially corrupted ZIP\n")
-		// Fall back to 7z for corrupted ZIPs
-		return extract7zFallback(ctx, archivePath, destDir)
+		return extract7zWithPasswords(ctx, src, dst, defaultPasswords)
 	}
-	defer reader.Close()
+	defer r.Close() //nolint:errcheck // best-effort cleanup
 
-	fmt.Fprintf(os.Stderr, "  [debug] ZIP reader opened, processing %d files\n", len(reader.File))
+	fmt.Fprintf(os.Stderr, "  [debug] ZIP reader opened, processing %d files\n", len(r.File))
 
 	var members []string
-	for i, f := range reader.File {
-		path := filepath.Join(destDir, f.Name)
+	for i, zf := range r.File {
+		// Prevent zip slip: ensure extracted path stays within destination
+		p := filepath.Join(dst, zf.Name) //nolint:gosec // validated by HasPrefix check below
+		if !strings.HasPrefix(filepath.Clean(p), filepath.Clean(dst)+string(os.PathSeparator)) {
+			fmt.Fprintf(os.Stderr, "  [debug] Skipping unsafe path: %s\n", zf.Name)
+			continue
+		}
+		fmt.Fprintf(os.Stderr, "  [debug] Processing file %d/%d: %s (encrypted: %v)\n", i+1, len(r.File), zf.Name, zf.Flags&0x1 != 0)
 
-		fmt.Fprintf(os.Stderr, "  [debug] Processing file %d/%d: %s (encrypted: %v)\n", i+1, len(reader.File), f.Name, f.Flags&0x1 != 0)
-
-		if f.FileInfo().IsDir() {
-			if err := os.MkdirAll(path, 0o755); err != nil {
+		if zf.FileInfo().IsDir() {
+			if err := os.MkdirAll(p, 0o750); err != nil {
 				return nil, fmt.Errorf("create directory: %w", err)
 			}
 			continue
 		}
 
-		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		if err := os.MkdirAll(filepath.Dir(p), 0o750); err != nil {
 			return nil, fmt.Errorf("create directory: %w", err)
 		}
 
-		src, err := f.Open()
+		rc, err := zf.Open()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "  [debug] Failed to open file in ZIP: %v\n", err)
 			return nil, fmt.Errorf("open file in zip: %w", err)
 		}
 
-		dst, err := os.Create(path)
+		f, err := os.Create(p)
 		if err != nil {
-			src.Close() //nolint:errcheck
+			rc.Close() //nolint:errcheck,gosec // best-effort cleanup on error
 			return nil, fmt.Errorf("create extracted file: %w", err)
 		}
 
-		if _, err := io.Copy(dst, src); err != nil {
-			fmt.Fprintf(os.Stderr, "  [debug] Failed to copy file data for %s: %v\n", f.Name, err)
-			src.Close() //nolint:errcheck
-			dst.Close() //nolint:errcheck
-			// If a single file fails, fall back to 7z
+		if _, err := io.Copy(f, rc); err != nil { //nolint:gosec // decompression bomb acceptable for malware analysis
+			fmt.Fprintf(os.Stderr, "  [debug] Failed to copy file data for %s: %v\n", zf.Name, err)
+			rc.Close() //nolint:errcheck,gosec // best-effort cleanup on error
+			f.Close()  //nolint:errcheck,gosec // best-effort cleanup on error
 			fmt.Fprintf(os.Stderr, "  [debug] Falling back to 7z due to file extraction error\n")
-			return extract7zFallback(ctx, archivePath, destDir)
+			return extract7zWithPasswords(ctx, src, dst, defaultPasswords)
 		}
-		src.Close() //nolint:errcheck
-		dst.Close() //nolint:errcheck
+		rc.Close() //nolint:errcheck,gosec // best-effort cleanup
+		f.Close()  //nolint:errcheck,gosec // best-effort cleanup
 
-		members = append(members, f.Name)
+		members = append(members, zf.Name)
 	}
 
 	fmt.Fprintf(os.Stderr, "  [debug] Successfully extracted %d files with standard ZIP extraction\n", len(members))
-	return &archiveExtraction{path: destDir, members: members}, nil
+	return &archiveExtraction{path: dst, members: members}, nil
 }
 
 // extractTar extracts a plain TAR archive.
-func extractTar(archivePath, destDir string) (*archiveExtraction, error) {
-	f, err := os.Open(archivePath)
+func extractTar(src, dst string) (*archiveExtraction, error) {
+	f, err := os.Open(src)
 	if err != nil {
 		return nil, fmt.Errorf("open tar: %w", err)
 	}
-	defer f.Close()
-
-	tr := tar.NewReader(f)
-	var members []string
-
-	for {
-		header, err := tr.Next()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return nil, fmt.Errorf("read tar entry: %w", err)
-		}
-
-		path := filepath.Join(destDir, header.Name)
-
-		switch header.Typeflag {
-		case tar.TypeDir:
-			if err := os.MkdirAll(path, 0o755); err != nil {
-				return nil, fmt.Errorf("create directory: %w", err)
-			}
-		case tar.TypeReg:
-			if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
-				return nil, fmt.Errorf("create directory: %w", err)
-			}
-			dst, err := os.Create(path)
-			if err != nil {
-				return nil, fmt.Errorf("create extracted file: %w", err)
-			}
-			if _, err := io.CopyN(dst, tr, header.Size); err != nil {
-				dst.Close() //nolint:errcheck
-				return nil, fmt.Errorf("extract file: %w", err)
-			}
-			dst.Close() //nolint:errcheck
-			members = append(members, header.Name)
-		}
-	}
-
-	return &archiveExtraction{path: destDir, members: members}, nil
+	defer f.Close() //nolint:errcheck // best-effort cleanup
+	return extractTarReader(tar.NewReader(f), dst)
 }
 
 // extractTarGz extracts a tar.gz archive.
-func extractTarGz(archivePath, destDir string) (*archiveExtraction, error) {
-	f, err := os.Open(archivePath)
+func extractTarGz(src, dst string) (*archiveExtraction, error) {
+	f, err := os.Open(src)
 	if err != nil {
 		return nil, fmt.Errorf("open tar.gz: %w", err)
 	}
-	defer f.Close()
+	defer f.Close() //nolint:errcheck // best-effort cleanup
 
 	gr, err := gzip.NewReader(f)
 	if err != nil {
 		return nil, fmt.Errorf("create gzip reader: %w", err)
 	}
-	defer gr.Close()
+	defer gr.Close() //nolint:errcheck // best-effort cleanup
 
-	tr := tar.NewReader(gr)
+	return extractTarReader(tar.NewReader(gr), dst)
+}
+
+func extractTarReader(tr *tar.Reader, dst string) (*archiveExtraction, error) {
 	var members []string
-
 	for {
-		header, err := tr.Next()
+		hdr, err := tr.Next()
 		if err == io.EOF {
 			break
 		}
@@ -494,109 +508,35 @@ func extractTarGz(archivePath, destDir string) (*archiveExtraction, error) {
 			return nil, fmt.Errorf("read tar entry: %w", err)
 		}
 
-		path := filepath.Join(destDir, header.Name)
+		// Prevent path traversal: ensure extracted path stays within destination
+		p := filepath.Join(dst, hdr.Name) //nolint:gosec // validated by HasPrefix check below
+		if !strings.HasPrefix(filepath.Clean(p), filepath.Clean(dst)+string(os.PathSeparator)) {
+			fmt.Fprintf(os.Stderr, "  [debug] Skipping unsafe path: %s\n", hdr.Name)
+			continue
+		}
 
-		switch header.Typeflag {
+		switch hdr.Typeflag {
 		case tar.TypeDir:
-			if err := os.MkdirAll(path, 0o755); err != nil {
+			if err := os.MkdirAll(p, 0o750); err != nil {
 				return nil, fmt.Errorf("create directory: %w", err)
 			}
 		case tar.TypeReg:
-			if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			if err := os.MkdirAll(filepath.Dir(p), 0o750); err != nil {
 				return nil, fmt.Errorf("create directory: %w", err)
 			}
-			dst, err := os.Create(path)
+			f, err := os.Create(p)
 			if err != nil {
 				return nil, fmt.Errorf("create extracted file: %w", err)
 			}
-			if _, err := io.CopyN(dst, tr, header.Size); err != nil {
-				dst.Close() //nolint:errcheck
+			if _, err := io.CopyN(f, tr, hdr.Size); err != nil {
+				f.Close() //nolint:errcheck,gosec // best-effort cleanup on error
 				return nil, fmt.Errorf("extract file: %w", err)
 			}
-			dst.Close() //nolint:errcheck
-			members = append(members, header.Name)
+			f.Close() //nolint:errcheck,gosec // best-effort cleanup
+			members = append(members, hdr.Name)
 		}
 	}
-
-	return &archiveExtraction{path: destDir, members: members}, nil
-}
-
-// extract7zFallback attempts to extract any archive using 7z with passwords.
-// Used as a fallback when standard Go ZIP extraction fails (corruption or other issues).
-func extract7zFallback(ctx context.Context, archivePath, destDir string) (*archiveExtraction, error) {
-	passwords := []string{"infected", "infect3d", "malware", "virus", "password"}
-	fmt.Fprintf(os.Stderr, "  [debug] Attempting 7z fallback extraction with passwords\n")
-
-	for i, pwd := range passwords {
-		fmt.Fprintf(os.Stderr, "  [debug] Fallback trying password %d/%d: %s\n", i+1, len(passwords), pwd)
-
-		args := []string{"x", "-o" + destDir, "-y", "-p" + pwd, archivePath}
-
-		timeoutCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
-		cmd := exec.CommandContext(timeoutCtx, "7z", args...)
-		cmd.Stdin = nil
-
-		var stdout, stderr bytes.Buffer
-		cmd.Stdout = &stdout
-		cmd.Stderr = &stderr
-
-		if err := cmd.Run(); err == nil {
-			fmt.Fprintf(os.Stderr, "  [debug] 7z fallback extraction succeeded with password: %s\n", pwd)
-			cancel()
-			members, err := listDir(destDir)
-			if err != nil {
-				return nil, err
-			}
-			return &archiveExtraction{path: destDir, members: members}, nil
-		}
-		cancel()
-		fmt.Fprintf(os.Stderr, "  [debug] Fallback password attempt failed: %s\n", stderr.String())
-	}
-
-	return nil, fmt.Errorf("7z fallback extraction failed (tried %d passwords)", len(passwords))
-}
-
-// extract7z extracts a 7z archive using the `7z` command-line tool.
-// Tries common malware archive passwords: "infected", "infect3d"
-func extract7z(ctx context.Context, archivePath, destDir string) (*archiveExtraction, error) {
-	passwords := []string{"infected", "infect3d"}
-	var lastErr error
-
-	for i, pwd := range passwords {
-		fmt.Fprintf(os.Stderr, "  [debug] Trying 7z password %d/%d: %s\n", i+1, len(passwords), pwd)
-
-		args := []string{"x", "-o" + destDir, "-y", "-p" + pwd, archivePath}
-
-		// Create a context with timeout to prevent hanging on password prompt
-		timeoutCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
-		cmd := exec.CommandContext(timeoutCtx, "7z", args...)
-
-		// Close stdin so 7z doesn't wait for user input
-		cmd.Stdin = nil
-
-		var stdout, stderr bytes.Buffer
-		cmd.Stdout = &stdout
-		cmd.Stderr = &stderr
-
-		if err := cmd.Run(); err == nil {
-			fmt.Fprintf(os.Stderr, "  [debug] 7z extraction succeeded with password: %s\n", pwd)
-			cancel()
-			// Success - list the extracted files
-			members, err := listDir(destDir)
-			if err != nil {
-				return nil, err
-			}
-			return &archiveExtraction{path: destDir, members: members}, nil
-		}
-		cancel()
-		lastErr = errors.New(stderr.String())
-		fmt.Fprintf(os.Stderr, "  [debug] 7z password attempt failed: %v\n", lastErr)
-	}
-
-	if lastErr != nil {
-		return nil, fmt.Errorf("extract 7z (all passwords failed): %w", lastErr)
-	}
-	return nil, errors.New("extract 7z failed")
+	return &archiveExtraction{path: dst, members: members}, nil
 }
 
 // extractXz extracts an .xz file using the `xz` command-line tool.
@@ -611,7 +551,7 @@ func extractXz(ctx context.Context, archivePath, destDir string) (*archiveExtrac
 	if err != nil {
 		return nil, fmt.Errorf("create output file: %w", err)
 	}
-	defer out.Close()
+	defer out.Close() //nolint:errcheck // best-effort cleanup
 
 	cmd.Stdout = out
 	var stderr bytes.Buffer
@@ -648,13 +588,13 @@ func listDir(dir string) ([]string, error) {
 
 // archiveMemberStats finds the most notable file (with highest risk) and largest file.
 func archiveMemberStats(archive *ArchiveAnalysis) (mostNotable, largest *FileAnalysis) {
-	riskRank := map[string]int{"inert": 0, "notable": 1, "suspicious": 2, "hostile": 3}
 	maxRisk := -1
+	var largestSize int64
 
 	for i, m := range archive.Members {
 		// Find most notable
 		for _, f := range m.Findings {
-			rank := riskRank[strings.ToLower(f.Crit)]
+			rank := critRank[strings.ToLower(f.Crit)]
 			if rank > maxRisk {
 				maxRisk = rank
 				mostNotable = &archive.Members[i]
@@ -662,37 +602,17 @@ func archiveMemberStats(archive *ArchiveAnalysis) (mostNotable, largest *FileAna
 		}
 
 		// Find largest (by extracted path size if available)
-		if largest == nil {
-			largest = &archive.Members[i]
-		} else if m.ExtractedPath != "" && largest.ExtractedPath != "" {
-			sizeM, errM := fileSize(m.ExtractedPath)
-			sizeL, errL := fileSize(largest.ExtractedPath)
-			if errM == nil && errL == nil && sizeM > sizeL {
-				largest = &archive.Members[i]
+		if m.ExtractedPath != "" {
+			if info, err := os.Stat(m.ExtractedPath); err == nil {
+				if size := info.Size(); size > largestSize {
+					largestSize = size
+					largest = &archive.Members[i]
+				}
 			}
 		}
 	}
 
-	return
-}
-
-// fileSize returns the size of a file.
-func fileSize(path string) (int64, error) {
-	info, err := os.Stat(path)
-	if err != nil {
-		return 0, err
-	}
-	return info.Size(), nil
-}
-
-// rootArchive returns the root archive path from a path with archive delimiters.
-// e.g., "archive.zip!!inner/file.py" -> "archive.zip".
-// For non-archive paths, returns empty string.
-func rootArchive(path string) string {
-	if idx := strings.Index(path, "!!"); idx != -1 {
-		return path[:idx]
-	}
-	return ""
+	return mostNotable, largest
 }
 
 // memberPath returns the member path within an archive,
@@ -700,16 +620,6 @@ func rootArchive(path string) string {
 func memberPath(path string) string {
 	if idx := strings.Index(path, "!!"); idx != -1 {
 		return path[idx+2:]
-	}
-	return path
-}
-
-// realFilePath returns the real file path, stripping fragment delimiters.
-// e.g., "yarn_fragments.sh##base64@0" -> "yarn_fragments.sh".
-// For non-fragment paths, returns the original path.
-func realFilePath(path string) string {
-	if idx := strings.Index(path, "##"); idx != -1 {
-		return path[:idx]
 	}
 	return path
 }
@@ -951,13 +861,22 @@ type streamState struct {
 	currentArchivePath string
 	currentRealFile    *RealFileAnalysis
 	currentRealPath    string
-	filesReviewedCount int  // Count of files sent to LLM for review
-	stopProcessing     bool // Set to true when rescan limit reached
+	filesReviewedCount int // Count of files sent to LLM for review
 }
 
 // streamAnalyzeAndReview streams dissect output and reviews archives as they complete.
 func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*streamStats, error) {
-	cmd := buildDissectCommand(ctx, cfg)
+	// Build dissect command
+	maxRisk := "notable"
+	if cfg.knownGood {
+		maxRisk = "hostile"
+	}
+	args := []string{"--format", "jsonl", "--sample-dir", cfg.sampleDir, "--sample-max-risk", maxRisk}
+	args = append(args, cfg.dirs...)
+	cmd := exec.CommandContext(ctx, cfg.dissectBin, args...) //nolint:gosec // dissectBin is built from trusted cargo
+	if cfg.useCargo {
+		cmd.Dir = cfg.repoRoot
+	}
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -983,6 +902,15 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 	last := time.Now()
 
 	for scanner.Scan() {
+		// Check if we need to restart (hit review limit)
+		if state.stats.shouldRestart {
+			clearProgressLine()
+			fmt.Fprintf(os.Stderr, "⚡ Reviewed %d files - restarting scan to verify trait changes\n", state.cfg.rescanAfter)
+			cmd.Process.Kill() //nolint:errcheck,gosec // intentional kill on restart
+			cmd.Wait()         //nolint:errcheck,gosec // reap the process
+			return state.stats, nil
+		}
+
 		line := strings.TrimSpace(scanner.Text())
 		if line == "" {
 			continue
@@ -994,35 +922,6 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 		}
 
 		if entry.Type != "file" {
-			continue
-		}
-
-		// If we've hit the rescan limit, just consume remaining lines without processing
-		if state.stopProcessing {
-			n++
-			if time.Since(last) > 100*time.Millisecond {
-				// Calculate trait statistics
-				critCounts := make(map[string]int)
-				for _, finding := range entry.Findings {
-					critCounts[strings.ToLower(finding.Crit)]++
-				}
-
-				// Build stats string
-				var statsParts []string
-				for _, level := range []string{"hostile", "suspicious", "notable", "inert"} {
-					if count := critCounts[level]; count > 0 {
-						statsParts = append(statsParts, fmt.Sprintf("%s: %d", level, count))
-					}
-				}
-
-				filename := filepath.Base(entry.Path)
-				if len(statsParts) > 0 {
-					fmt.Fprintf(os.Stderr, "\r  Consuming remaining scan results... %d files (processing: %s [%s])", n, filename, strings.Join(statsParts, ", "))
-				} else {
-					fmt.Fprintf(os.Stderr, "\r  Consuming remaining scan results... %d files (processing: %s)", n, filename)
-				}
-				last = time.Now()
-			}
 			continue
 		}
 
@@ -1040,8 +939,12 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 			ExtractedPath: entry.ExtractedPath,
 		}
 
-		archivePath := rootArchive(f.Path)
-		processFileEntry(ctx, state, f, archivePath)
+		// Extract archive path from "archive.zip!!inner/file.py" format
+		ap := ""
+		if idx := strings.Index(f.Path, "!!"); idx != -1 {
+			ap = f.Path[:idx]
+		}
+		processFileEntry(ctx, state, f, ap)
 	}
 
 	if state.currentRealFile != nil {
@@ -1068,214 +971,182 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 	return state.stats, nil
 }
 
-func buildDissectCommand(ctx context.Context, cfg *config) *exec.Cmd {
-	sampleMaxRisk := "notable"
-	if cfg.knownGood {
-		sampleMaxRisk = "hostile"
-	}
-
-	args := []string{
-		"--format", "jsonl",
-		"--sample-dir", cfg.sampleDir,
-		"--sample-max-risk", sampleMaxRisk,
-	}
-	args = append(args, cfg.dirs...)
-
-	cmd := exec.CommandContext(ctx, cfg.dissectBin, args...)
-	if cfg.useCargo {
-		cmd.Dir = cfg.repoRoot // Run from repo root if using cargo
-	}
-	return cmd
-}
-
 func clearProgressLine() {
 	fmt.Fprint(os.Stderr, "\r                                        \r")
 }
 
-func processFileEntry(ctx context.Context, state *streamState, f FileAnalysis, archivePath string) {
+func processFileEntry(ctx context.Context, st *streamState, f FileAnalysis, ap string) {
 	switch {
-	case archivePath == "":
+	case ap == "":
 		// Standalone file (not in an archive)
-		if state.currentArchive != nil {
+		if st.currentArchive != nil {
 			clearProgressLine()
-			processCompletedArchive(ctx, state)
-			state.currentArchive = nil
-			state.currentArchivePath = ""
+			processCompletedArchive(ctx, st)
+			st.currentArchive = nil
+			st.currentArchivePath = ""
 		}
 
-		// Check if this is a fragment or root file
-		fPath := realFilePath(f.Path)
-		if fPath == state.currentRealPath && state.currentRealFile != nil {
+		// Strip fragment delimiter (e.g., "file.sh##base64@0" -> "file.sh")
+		rp := f.Path
+		if idx := strings.Index(f.Path, "##"); idx != -1 {
+			rp = f.Path[:idx]
+		}
+		if rp == st.currentRealPath && st.currentRealFile != nil {
 			// Same real file: add as fragment
-			state.currentRealFile.Fragments = append(state.currentRealFile.Fragments, f)
+			st.currentRealFile.Fragments = append(st.currentRealFile.Fragments, f)
 			return
 		}
 
 		// Different real file: process previous and start new
-		if state.currentRealFile != nil {
+		if st.currentRealFile != nil {
 			clearProgressLine()
-			processRealFile(ctx, state)
-			state.currentRealFile = nil
-			state.currentRealPath = ""
+			processRealFile(ctx, st)
+			st.currentRealFile = nil
+			st.currentRealPath = ""
 		}
 
 		// Start new real file
-		newReal := &RealFileAnalysis{
-			RealPath:  fPath,
+		rf := &RealFileAnalysis{
+			RealPath:  rp,
 			Fragments: []FileAnalysis{},
 		}
 		if strings.Contains(f.Path, "##") {
 			// This entry itself is a fragment; root file entry may come later
-			newReal.Fragments = []FileAnalysis{f}
+			rf.Fragments = []FileAnalysis{f}
 		} else {
 			// This is the root file entry
-			newReal.Root = f
+			rf.Root = f
 		}
-		state.currentRealFile = newReal
-		state.currentRealPath = fPath
+		st.currentRealFile = rf
+		st.currentRealPath = rp
 
-	case archivePath != state.currentArchivePath:
+	case ap != st.currentArchivePath:
 		// Different archive: process everything pending
-		if state.currentArchive != nil {
+		if st.currentArchive != nil {
 			clearProgressLine()
-			processCompletedArchive(ctx, state)
+			processCompletedArchive(ctx, st)
 		}
-		if state.currentRealFile != nil {
+		if st.currentRealFile != nil {
 			clearProgressLine()
-			processRealFile(ctx, state)
-			state.currentRealFile = nil
-			state.currentRealPath = ""
+			processRealFile(ctx, st)
+			st.currentRealFile = nil
+			st.currentRealPath = ""
 		}
-		state.currentArchive = &ArchiveAnalysis{
-			ArchivePath: archivePath,
+		st.currentArchive = &ArchiveAnalysis{
+			ArchivePath: ap,
 			Members:     []FileAnalysis{f},
 		}
-		state.currentArchivePath = archivePath
+		st.currentArchivePath = ap
 
 	default:
 		// Same archive: just add to current archive members
-		state.currentArchive.Members = append(state.currentArchive.Members, f)
+		st.currentArchive.Members = append(st.currentArchive.Members, f)
 	}
 }
 
-func processCompletedArchive(ctx context.Context, state *streamState) {
-	archive := state.currentArchive
-	if archive == nil || len(archive.Members) == 0 {
+func processCompletedArchive(ctx context.Context, st *streamState) {
+	a := st.currentArchive
+	if a == nil || len(a.Members) == 0 {
 		return
 	}
 
-	state.stats.totalFiles += len(archive.Members)
+	st.stats.totalFiles += len(a.Members)
 
-	if !archiveNeedsReview(archive, state.cfg.knownGood) {
-		// Log why archive was skipped
+	if !archiveNeedsReview(a, st.cfg.knownGood) {
 		mode := "bad"
-		if state.cfg.knownGood {
+		if st.cfg.knownGood {
 			mode = "good"
 		}
-		fmt.Fprintf(os.Stderr, "  [skip] Archive %s (--%-4s): no members need review\n", filepath.Base(archive.ArchivePath), mode)
-		state.stats.skippedNoReview++
+		fmt.Fprintf(os.Stderr, "  [skip] Archive %s (--%-4s): no members need review\n", filepath.Base(a.ArchivePath), mode)
+		st.stats.skippedNoReview++
 		return
 	}
 
-	h := hashString(archive.ArchivePath)
-	if wasAnalyzed(ctx, state.cfg.db, h, state.dbMode) {
-		fmt.Fprintf(os.Stderr, "  [skip] Archive %s: already analyzed (cache hit)\n", filepath.Base(archive.ArchivePath))
-		state.stats.skippedCached++
+	h := hashString(a.ArchivePath)
+	if wasAnalyzed(ctx, st.cfg.db, h, st.dbMode) {
+		fmt.Fprintf(os.Stderr, "  [skip] Archive %s: already analyzed (cache hit)\n", filepath.Base(a.ArchivePath))
+		st.stats.skippedCached++
 		return
 	}
 
-	problematic := archiveProblematicMembers(archive, state.cfg.knownGood)
-	skipped := len(archive.Members) - len(problematic)
-	fmt.Fprintf(os.Stderr, "\n📦 Archive complete: %s\n", archive.ArchivePath)
-	fmt.Fprintf(os.Stderr, "   Members: %d total, %d need review, %d filtered\n", len(archive.Members), len(problematic), skipped)
+	prob := archiveProblematicMembers(a, st.cfg.knownGood)
+	skip := len(a.Members) - len(prob)
+	fmt.Fprintf(os.Stderr, "\n📦 Archive complete: %s\n", a.ArchivePath)
+	fmt.Fprintf(os.Stderr, "   Members: %d total, %d need review, %d filtered\n", len(a.Members), len(prob), skip)
 
 	// Log which members were filtered out
-	if skipped > 0 && skipped <= 5 {
-		// Show filtered members in --good mode details
-		if state.cfg.knownGood {
-			for _, m := range archive.Members {
-				if !needsReview(m, state.cfg.knownGood) {
-					findings := ""
-					for _, f := range m.Findings {
-						findings += f.Crit + " "
-					}
-					if findings == "" {
-						findings = "none"
-					}
-					fmt.Fprintf(os.Stderr, "      - %s (%s): not critical enough\n", memberPath(m.Path), strings.TrimSpace(findings))
+	if skip > 0 && skip <= 5 && st.cfg.knownGood {
+		for _, m := range a.Members {
+			if !needsReview(m, st.cfg.knownGood) {
+				crits := ""
+				for _, f := range m.Findings {
+					crits += f.Crit + " "
 				}
+				if crits == "" {
+					crits = "none"
+				}
+				fmt.Fprintf(os.Stderr, "      - %s (%s): not critical enough\n", memberPath(m.Path), strings.TrimSpace(crits))
 			}
 		}
 	}
 
-	rank := map[string]int{"inert": 0, "notable": 1, "suspicious": 2, "hostile": 3}
 	fmt.Fprintf(os.Stderr, "   Members requiring review:\n")
-	for i, m := range problematic {
+	for i, m := range prob {
 		if i >= 3 {
-			fmt.Fprintf(os.Stderr, "   ... and %d more\n", len(problematic)-3)
+			fmt.Fprintf(os.Stderr, "   ... and %d more\n", len(prob)-3)
 			break
 		}
-		var maxCrit string
-		critCounts := make(map[string]int)
+		counts := make(map[string]int)
 		for _, f := range m.Findings {
-			critCounts[strings.ToLower(f.Crit)]++
-			if rank[strings.ToLower(f.Crit)] > rank[strings.ToLower(maxCrit)] {
-				maxCrit = f.Crit
-			}
+			counts[strings.ToLower(f.Crit)]++
 		}
-		// Build finding summary
-		var findingParts []string
+		var parts []string
 		for _, level := range []string{"hostile", "suspicious", "notable"} {
-			if count := critCounts[level]; count > 0 {
-				findingParts = append(findingParts, fmt.Sprintf("%d %s", count, level))
+			if n := counts[level]; n > 0 {
+				parts = append(parts, fmt.Sprintf("%d %s", n, level))
 			}
 		}
-		findingStr := strings.Join(findingParts, ", ")
-		fmt.Fprintf(os.Stderr, "   - %s (%s)\n", memberPath(m.Path), findingStr)
+		fmt.Fprintf(os.Stderr, "   - %s (%s)\n", memberPath(m.Path), strings.Join(parts, ", "))
 	}
 
-	// Log decision to review
 	reason := "has suspicious/hostile findings"
-	if state.cfg.knownBad {
+	if st.cfg.knownBad {
 		reason = "missing detections on known-bad sample"
 	}
-	fmt.Fprintf(os.Stderr, "   [review] Submitting to %s: %s\n", state.cfg.provider, reason)
+	fmt.Fprintf(os.Stderr, "   [review] Submitting to %s: %s\n", st.cfg.provider, reason)
 
 	sid := generateSessionID()
-	if err := invokeAIArchive(ctx, state.cfg, archive, sid); err != nil {
-		fmt.Fprintf(os.Stderr, "Warning: %s failed for %s: %v\n", state.cfg.provider, archive.ArchivePath, err)
+	if err := invokeAIArchive(ctx, st.cfg, a, sid); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: %s failed for %s: %v\n", st.cfg.provider, a.ArchivePath, err)
 	} else {
-		if err := markAnalyzed(ctx, state.cfg.db, h, state.dbMode); err != nil {
-			fmt.Fprintf(os.Stderr, "Warning: could not record analysis for %s: %v\n", archive.ArchivePath, err)
+		if err := markAnalyzed(ctx, st.cfg.db, h, st.dbMode); err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: could not record analysis for %s: %v\n", a.ArchivePath, err)
 		}
-		state.stats.archivesReviewed++
-		state.filesReviewedCount++
+		st.stats.archivesReviewed++
+		st.filesReviewedCount++
 
-		// After reviewing N files, restart the scan to pick up any fixes (if rescanAfter > 0)
-		if state.cfg.rescanAfter > 0 && state.filesReviewedCount >= state.cfg.rescanAfter {
-			fmt.Fprintf(os.Stderr, "\n⚡ Reviewed %d files - restarting scan to verify fixes\n\n", state.cfg.rescanAfter)
-			state.stopProcessing = true
-			state.stats.shouldRestart = true
+		// After reviewing N files, signal restart to pick up trait changes
+		if st.cfg.rescanAfter > 0 && st.filesReviewedCount >= st.cfg.rescanAfter {
+			st.stats.shouldRestart = true
 		}
 	}
 }
 
-func processRealFile(ctx context.Context, state *streamState) {
-	rf := state.currentRealFile
+func processRealFile(ctx context.Context, st *streamState) {
+	rf := st.currentRealFile
 	if rf == nil || rf.RealPath == "" {
 		return
 	}
 
-	state.stats.totalFiles++
+	st.stats.totalFiles++
 
-	if !realFileNeedsReview(rf, state.cfg.knownGood) {
-		// Log why file was skipped
+	if !realFileNeedsReview(rf, st.cfg.knownGood) {
 		mode := "bad"
-		if state.cfg.knownGood {
+		if st.cfg.knownGood {
 			mode = "good"
 		}
 		fmt.Fprintf(os.Stderr, "  [skip] File %s (--%-4s): no suspicious/hostile findings\n", filepath.Base(rf.RealPath), mode)
-		state.stats.skippedNoReview++
+		st.stats.skippedNoReview++
 		return
 	}
 
@@ -1283,20 +1154,19 @@ func processRealFile(ctx context.Context, state *streamState) {
 	if err != nil {
 		h = hashString(rf.RealPath)
 	}
-	if wasAnalyzed(ctx, state.cfg.db, h, state.dbMode) {
+	if wasAnalyzed(ctx, st.cfg.db, h, st.dbMode) {
 		fmt.Fprintf(os.Stderr, "  [skip] File %s: already analyzed (cache hit)\n", filepath.Base(rf.RealPath))
-		state.stats.skippedCached++
+		st.stats.skippedCached++
 		return
 	}
 
 	// Aggregate findings from root and all fragments
-	aggregated := rf.Root
-	if aggregated.Path == "" {
-		// No root file entry was seen, use the real path
-		aggregated.Path = rf.RealPath
+	agg := rf.Root
+	if agg.Path == "" {
+		agg.Path = rf.RealPath
 	}
 	for _, frag := range rf.Fragments {
-		aggregated.Findings = append(aggregated.Findings, frag.Findings...)
+		agg.Findings = append(agg.Findings, frag.Findings...)
 	}
 
 	fmt.Fprintf(os.Stderr, "\n📄 Standalone file: %s\n", rf.RealPath)
@@ -1304,39 +1174,35 @@ func processRealFile(ctx context.Context, state *streamState) {
 		fmt.Fprintf(os.Stderr, "   (with %d decoded fragment(s))\n", len(rf.Fragments))
 	}
 
-	rank := map[string]int{"inert": 0, "notable": 1, "suspicious": 2, "hostile": 3}
 	var maxCrit string
-	for _, f := range aggregated.Findings {
-		if rank[strings.ToLower(f.Crit)] > rank[strings.ToLower(maxCrit)] {
+	for _, f := range agg.Findings {
+		if critRank[strings.ToLower(f.Crit)] > critRank[strings.ToLower(maxCrit)] {
 			maxCrit = f.Crit
 		}
 	}
 	if maxCrit != "" {
-		fmt.Fprintf(os.Stderr, "   Risk: %s, Findings: %d\n", maxCrit, len(aggregated.Findings))
+		fmt.Fprintf(os.Stderr, "   Risk: %s, Findings: %d\n", maxCrit, len(agg.Findings))
 	}
 
-	// Log decision to review
 	reason := "has suspicious/hostile findings"
-	if state.cfg.knownBad {
+	if st.cfg.knownBad {
 		reason = "missing detections on known-bad sample"
 	}
-	fmt.Fprintf(os.Stderr, "   [review] Submitting to %s: %s\n", state.cfg.provider, reason)
+	fmt.Fprintf(os.Stderr, "   [review] Submitting to %s: %s\n", st.cfg.provider, reason)
 
 	sid := generateSessionID()
-	if err := invokeAI(ctx, state.cfg, aggregated, sid); err != nil {
-		fmt.Fprintf(os.Stderr, "Warning: %s failed for %s: %v\n", state.cfg.provider, rf.RealPath, err)
+	if err := invokeAI(ctx, st.cfg, agg, sid); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: %s failed for %s: %v\n", st.cfg.provider, rf.RealPath, err)
 	} else {
-		if err := markAnalyzed(ctx, state.cfg.db, h, state.dbMode); err != nil {
+		if err := markAnalyzed(ctx, st.cfg.db, h, st.dbMode); err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: could not record analysis for %s: %v\n", rf.RealPath, err)
 		}
-		state.stats.standaloneReviewed++
-		state.filesReviewedCount++
+		st.stats.standaloneReviewed++
+		st.filesReviewedCount++
 
-		// After reviewing N files, restart the scan to pick up any fixes (if rescanAfter > 0)
-		if state.cfg.rescanAfter > 0 && state.filesReviewedCount >= state.cfg.rescanAfter {
-			fmt.Fprintf(os.Stderr, "\n⚡ Reviewed %d files - restarting scan to verify fixes\n\n", state.cfg.rescanAfter)
-			state.stopProcessing = true
-			state.stats.shouldRestart = true
+		// After reviewing N files, signal restart to pick up trait changes
+		if st.cfg.rescanAfter > 0 && st.filesReviewedCount >= st.cfg.rescanAfter {
+			st.stats.shouldRestart = true
 		}
 	}
 }
@@ -1374,7 +1240,7 @@ func sanityCheck(ctx context.Context, cfg *config) error {
 	const testFile = "/bin/ls"
 	fmt.Fprintf(os.Stderr, "Sanity check: running dissect on %s...\n", testFile)
 
-	cmd := exec.CommandContext(ctx, cfg.dissectBin, "--format", "jsonl", testFile)
+	cmd := exec.CommandContext(ctx, cfg.dissectBin, "--format", "jsonl", testFile) //nolint:gosec // dissectBin is built from trusted cargo
 	if cfg.useCargo {
 		cmd.Dir = cfg.repoRoot // Run from repo root if using cargo
 	}
@@ -1410,27 +1276,27 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) erro
 
 	// Add suspicious/hostile findings for good files
 	if cfg.knownGood {
-		var suspicious, hostile []Finding
-		for _, finding := range f.Findings {
-			switch strings.ToLower(finding.Crit) {
+		var susp, host []Finding
+		for _, fd := range f.Findings {
+			switch strings.ToLower(fd.Crit) {
 			case "hostile":
-				hostile = append(hostile, finding)
+				host = append(host, fd)
 			case "suspicious":
-				suspicious = append(suspicious, finding)
+				susp = append(susp, fd)
 			}
 		}
-		if len(hostile) > 0 || len(suspicious) > 0 {
+		if len(host) > 0 || len(susp) > 0 {
 			prompt += "\n\n## Suspicious/Hostile Findings to Review\n"
-			if len(hostile) > 0 {
+			if len(host) > 0 {
 				prompt += "**Hostile:**\n"
-				for _, finding := range hostile {
-					prompt += fmt.Sprintf("- `%s`: %s\n", finding.ID, finding.Desc)
+				for _, fd := range host {
+					prompt += fmt.Sprintf("- `%s`: %s\n", fd.ID, fd.Desc)
 				}
 			}
-			if len(suspicious) > 0 {
+			if len(susp) > 0 {
 				prompt += "**Suspicious:**\n"
-				for _, finding := range suspicious {
-					prompt += fmt.Sprintf("- `%s`: %s\n", finding.ID, finding.Desc)
+				for _, fd := range susp {
+					prompt += fmt.Sprintf("- `%s`: %s\n", fd.ID, fd.Desc)
 				}
 			}
 		}
@@ -1443,20 +1309,20 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) erro
 
 	fmt.Fprintf(os.Stderr, ">>> Preparing to invoke %s (session: %s)\n", cfg.provider, sid)
 
-	critCounts := make(map[string]int)
-	for _, finding := range f.Findings {
-		critCounts[strings.ToLower(finding.Crit)]++
+	counts := make(map[string]int)
+	for _, fd := range f.Findings {
+		counts[strings.ToLower(fd.Crit)]++
 	}
-	var critSummary []string
+	var summary []string
 	for _, level := range []string{"hostile", "suspicious", "notable", "inert"} {
-		if n := critCounts[level]; n > 0 {
-			critSummary = append(critSummary, fmt.Sprintf("%d %s", n, level))
+		if n := counts[level]; n > 0 {
+			summary = append(summary, fmt.Sprintf("%d %s", n, level))
 		}
 	}
 
 	fmt.Fprintln(os.Stderr, "┌─────────────────────────────────────────────────────────────")
 	fmt.Fprintf(os.Stderr, "│ %s REVIEW: %s\n", strings.ToUpper(cfg.provider), f.Path)
-	fmt.Fprintf(os.Stderr, "│ Findings: %s\n", strings.Join(critSummary, ", "))
+	fmt.Fprintf(os.Stderr, "│ Findings: %s\n", strings.Join(summary, ", "))
 	if f.ExtractedPath != "" {
 		fmt.Fprintf(os.Stderr, "│ Sample: %s\n", f.ExtractedPath)
 	}
@@ -1479,11 +1345,11 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) erro
 	fmt.Fprintf(os.Stderr, ">>> %s working (timeout: %s)...\n", cfg.provider, cfg.timeout)
 	fmt.Fprintln(os.Stderr)
 
-	timedCtx, cancel := context.WithTimeout(ctx, cfg.timeout)
+	tctx, cancel := context.WithTimeout(ctx, cfg.timeout)
 	defer cancel()
 
 	fmt.Fprintf(os.Stderr, ">>> About to start AI process with timeout %s\n", cfg.timeout)
-	if err := runAIWithStreaming(timedCtx, cfg, prompt, sid); err != nil {
+	if err := runAIWithStreaming(tctx, cfg, prompt, sid); err != nil {
 		fmt.Fprintln(os.Stderr)
 		fmt.Fprintf(os.Stderr, "<<< %s failed: %v\n", cfg.provider, err)
 		return err
@@ -1494,162 +1360,159 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) erro
 }
 
 func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid string) error {
-	problematic := archiveProblematicMembers(a, cfg.knownGood)
+	prob := archiveProblematicMembers(a, cfg.knownGood)
 
 	fmt.Fprintf(os.Stderr, ">>> Preparing to invoke %s for archive (session: %s)\n", cfg.provider, sid)
-	fmt.Fprintf(os.Stderr, ">>> Archive: %s (%d members, %d problematic)\n", a.ArchivePath, len(a.Members), len(problematic))
+	fmt.Fprintf(os.Stderr, ">>> Archive: %s (%d members, %d problematic)\n", a.ArchivePath, len(a.Members), len(prob))
 
 	// Extract archive (full for --bad, problematic files only for --good)
-	extractDir, err := os.MkdirTemp("", "trait-basher-archive-*")
+	dir, err := os.MkdirTemp("", "trait-basher-archive-*")
 	if err != nil {
 		return fmt.Errorf("create extract directory: %w", err)
 	}
-	defer os.RemoveAll(extractDir) //nolint:errcheck,gosec
+	defer os.RemoveAll(dir) //nolint:errcheck,gosec // best-effort cleanup of temp directory
 
-	var extractedInfo string
+	var info string
 
 	if cfg.knownBad {
 		// --bad mode: extract full archive for comprehensive analysis
 		fmt.Fprintf(os.Stderr, "  [debug] Starting full archive extraction for --bad mode\n")
-		extraction, err := extractArchive(ctx, a.ArchivePath, extractDir)
+		ext, err := extractArchive(ctx, a.ArchivePath, dir)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "  [debug] Archive extraction failed: %v\n", err)
 			return fmt.Errorf("extract archive: %w", err)
 		}
-		fmt.Fprintf(os.Stderr, "  [debug] Archive extraction succeeded, %d members extracted\n", len(extraction.members))
+		fmt.Fprintf(os.Stderr, "  [debug] Archive extraction succeeded, %d members extracted\n", len(ext.members))
 
-		// Find stats for hints
-		mostNotable, largest := archiveMemberStats(a)
+		notable, largest := archiveMemberStats(a)
 		var hints []string
-		if mostNotable != nil {
-			hints = append(hints, fmt.Sprintf("Most notable findings in: %s", memberPath(mostNotable.Path)))
+		if notable != nil {
+			hints = append(hints, fmt.Sprintf("Most notable findings in: %s", memberPath(notable.Path)))
 		}
 		if largest != nil {
 			hints = append(hints, fmt.Sprintf("Largest file: %s", memberPath(largest.Path)))
 		}
 
-		extractedInfo = fmt.Sprintf("\n\n## Extracted Archive\nFull archive extracted to: %s\n"+
-			"You can now read the actual source code to understand the malicious behavior.\n",
-			extractDir)
+		info = fmt.Sprintf("\n\n## Extracted Archive\nFull archive extracted to: %s\n"+
+			"You can now read the actual source code to understand the malicious behavior.\n", dir)
 		if len(hints) > 0 {
-			extractedInfo += "Hints for investigation:\n"
+			info += "Hints for investigation:\n"
 			for _, h := range hints {
-				extractedInfo += fmt.Sprintf("- %s\n", h)
+				info += fmt.Sprintf("- %s\n", h)
 			}
 		}
-		extractedInfo += "After analyzing, update the rules in traits/ to detect the malicious behavior found."
+		info += "After analyzing, update the rules in traits/ to detect the malicious behavior found."
 	} else {
 		// --good mode: extract only problematic files
-		extractDir2, err := os.MkdirTemp("", "trait-basher-problematic-*")
+		dir2, err := os.MkdirTemp("", "trait-basher-problematic-*")
 		if err != nil {
 			return fmt.Errorf("create problematic extract directory: %w", err)
 		}
-		defer os.RemoveAll(extractDir2) //nolint:errcheck,gosec
+		defer os.RemoveAll(dir2) //nolint:errcheck,gosec // best-effort cleanup of temp directory
 
-		for _, m := range problematic {
-			if m.ExtractedPath != "" {
-				base := filepath.Base(m.Path)
-				dstPath := filepath.Join(extractDir2, base)
-				if err := os.MkdirAll(filepath.Dir(dstPath), 0o755); err != nil {
-					return fmt.Errorf("create directory: %w", err)
-				}
-				src, err := os.Open(m.ExtractedPath)
-				if err != nil {
-					return fmt.Errorf("open extracted file %s: %w", m.ExtractedPath, err)
-				}
-				dst, err := os.Create(dstPath)
-				if err != nil {
-					src.Close() //nolint:errcheck
-					return fmt.Errorf("create destination file: %w", err)
-				}
-				if _, err := io.Copy(dst, src); err != nil {
-					src.Close() //nolint:errcheck
-					dst.Close() //nolint:errcheck
-					return fmt.Errorf("copy extracted file: %w", err)
-				}
-				src.Close() //nolint:errcheck
-				dst.Close() //nolint:errcheck
+		for _, m := range prob {
+			if m.ExtractedPath == "" {
+				continue
 			}
+			dst := filepath.Join(dir2, filepath.Base(m.Path))
+			if err := os.MkdirAll(filepath.Dir(dst), 0o750); err != nil {
+				return fmt.Errorf("create directory: %w", err)
+			}
+			sf, err := os.Open(m.ExtractedPath)
+			if err != nil {
+				return fmt.Errorf("open extracted file %s: %w", m.ExtractedPath, err)
+			}
+			df, err := os.Create(dst)
+			if err != nil {
+				sf.Close() //nolint:errcheck,gosec // best-effort cleanup on error
+				return fmt.Errorf("create destination file: %w", err)
+			}
+			if _, err := io.Copy(df, sf); err != nil {
+				sf.Close() //nolint:errcheck,gosec // best-effort cleanup on error
+				df.Close() //nolint:errcheck,gosec // best-effort cleanup on error
+				return fmt.Errorf("copy extracted file: %w", err)
+			}
+			sf.Close() //nolint:errcheck,gosec // best-effort cleanup
+			df.Close() //nolint:errcheck,gosec // best-effort cleanup
 		}
 
-		extractedInfo = fmt.Sprintf("\n\n## Problematic Files\nFalse positive files extracted to: %s\n"+
+		info = fmt.Sprintf("\n\n## Problematic Files\nFalse positive files extracted to: %s\n"+
 			"Review these files to understand why they're being incorrectly flagged.\n"+
-			"Adjust the rules in traits/ to fix the false positives.",
-			extractDir2)
+			"Adjust the rules in traits/ to fix the false positives.", dir2)
 	}
 
 	var prompt, task string
 	if cfg.knownGood {
-		prompt = buildGoodPrompt(true, a.ArchivePath, len(problematic), cfg.repoRoot, cfg.dissectBin)
+		prompt = buildGoodPrompt(true, a.ArchivePath, len(prob), cfg.repoRoot, cfg.dissectBin)
 		task = "Review archive for false positives (known-good collection)"
 	} else {
-		prompt = buildBadPrompt(true, a.ArchivePath, len(problematic), cfg.repoRoot, cfg.dissectBin)
+		prompt = buildBadPrompt(true, a.ArchivePath, len(prob), cfg.repoRoot, cfg.dissectBin)
 		task = "Find missing detections in archive (known-bad collection)"
 	}
 
-	prompt += extractedInfo
+	prompt += info
 
 	// Add suspicious/hostile findings summary for good archives
 	if cfg.knownGood {
-		var suspicious, hostile []Finding
-		for _, m := range problematic {
-			for _, finding := range m.Findings {
-				switch strings.ToLower(finding.Crit) {
+		var susp, host []Finding
+		for _, m := range prob {
+			for _, fd := range m.Findings {
+				switch strings.ToLower(fd.Crit) {
 				case "hostile":
-					hostile = append(hostile, finding)
+					host = append(host, fd)
 				case "suspicious":
-					suspicious = append(suspicious, finding)
+					susp = append(susp, fd)
 				}
 			}
 		}
-		if len(hostile) > 0 || len(suspicious) > 0 {
+		if len(host) > 0 || len(susp) > 0 {
 			prompt += "\n\n## Suspicious/Hostile Findings to Review\n"
-			if len(hostile) > 0 {
+			if len(host) > 0 {
 				prompt += "**Hostile:**\n"
-				for _, finding := range hostile {
-					prompt += fmt.Sprintf("- `%s`: %s\n", finding.ID, finding.Desc)
+				for _, fd := range host {
+					prompt += fmt.Sprintf("- `%s`: %s\n", fd.ID, fd.Desc)
 				}
 			}
-			if len(suspicious) > 0 {
+			if len(susp) > 0 {
 				prompt += "**Suspicious:**\n"
-				for _, finding := range suspicious {
-					prompt += fmt.Sprintf("- `%s`: %s\n", finding.ID, finding.Desc)
+				for _, fd := range susp {
+					prompt += fmt.Sprintf("- `%s`: %s\n", fd.ID, fd.Desc)
 				}
 			}
 		}
 	}
 
 	// Still include extracted binary samples if available
-	if cfg.knownGood && len(problematic) > 0 {
-		var extractedPaths []string
-		for _, m := range problematic {
+	if cfg.knownGood && len(prob) > 0 {
+		var paths []string
+		for _, m := range prob {
 			if m.ExtractedPath != "" {
-				extractedPaths = append(extractedPaths, fmt.Sprintf("- %s", m.ExtractedPath))
+				paths = append(paths, fmt.Sprintf("- %s", m.ExtractedPath))
 			}
 		}
-		if len(extractedPaths) > 0 {
+		if len(paths) > 0 {
 			prompt += fmt.Sprintf("\nBinary analysis tools available at: %s\n%s",
-				cfg.sampleDir, strings.Join(extractedPaths, "\n"))
+				cfg.sampleDir, strings.Join(paths, "\n"))
 		}
 	}
 
-	critCounts := make(map[string]int)
+	counts := make(map[string]int)
 	for _, m := range a.Members {
-		for _, finding := range m.Findings {
-			critCounts[strings.ToLower(finding.Crit)]++
+		for _, fd := range m.Findings {
+			counts[strings.ToLower(fd.Crit)]++
 		}
 	}
-	var critSummary []string
+	var summary []string
 	for _, level := range []string{"hostile", "suspicious", "notable", "inert"} {
-		if n := critCounts[level]; n > 0 {
-			critSummary = append(critSummary, fmt.Sprintf("%d %s", n, level))
+		if n := counts[level]; n > 0 {
+			summary = append(summary, fmt.Sprintf("%d %s", n, level))
 		}
 	}
 
 	fmt.Fprintln(os.Stderr, "┌─────────────────────────────────────────────────────────────")
 	fmt.Fprintf(os.Stderr, "│ %s ARCHIVE REVIEW: %s\n", strings.ToUpper(cfg.provider), a.ArchivePath)
-	fmt.Fprintf(os.Stderr, "│ Members: %d total, %d problematic\n", len(a.Members), len(problematic))
-	fmt.Fprintf(os.Stderr, "│ Findings: %s\n", strings.Join(critSummary, ", "))
+	fmt.Fprintf(os.Stderr, "│ Members: %d total, %d problematic\n", len(a.Members), len(prob))
+	fmt.Fprintf(os.Stderr, "│ Findings: %s\n", strings.Join(summary, ", "))
 	fmt.Fprintf(os.Stderr, "│ Task: %s\n", task)
 	fmt.Fprintln(os.Stderr, "├─────────────────────────────────────────────────────────────")
 	fmt.Fprintln(os.Stderr, "│ Prompt (abbreviated):")
@@ -1669,11 +1532,11 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 	fmt.Fprintf(os.Stderr, ">>> %s working (timeout: %s)...\n", cfg.provider, cfg.timeout)
 	fmt.Fprintln(os.Stderr)
 
-	timedCtx, cancel := context.WithTimeout(ctx, cfg.timeout)
+	tctx, cancel := context.WithTimeout(ctx, cfg.timeout)
 	defer cancel()
 
 	fmt.Fprintf(os.Stderr, ">>> About to start AI process with timeout %s\n", cfg.timeout)
-	err = runAIWithStreaming(timedCtx, cfg, prompt, sid)
+	err = runAIWithStreaming(tctx, cfg, prompt, sid)
 	fmt.Fprintln(os.Stderr)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "<<< %s failed: %v\n", cfg.provider, err)
@@ -1735,103 +1598,77 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 	fmt.Fprintf(os.Stderr, ">>> Working directory: %s\n", cmd.Dir)
 	fmt.Fprintf(os.Stderr, ">>> Prompt size: %d bytes\n", len(prompt))
 
-	if devNull, err := os.Open(os.DevNull); err == nil {
-		cmd.Stdin = devNull
-		defer devNull.Close() //nolint:errcheck,gosec // best-effort cleanup
-	}
-
-	stdout, err := cmd.StdoutPipe()
+	// Use PTY to force line-buffered output from the child process.
+	// Many CLIs switch to block-buffered output when stdout is a pipe,
+	// causing output to appear hung. PTY makes the CLI think it's
+	// connected to a terminal, forcing immediate output.
+	fmt.Fprintf(os.Stderr, ">>> Starting process with PTY...\n")
+	ptmx, err := pty.Start(cmd)
 	if err != nil {
-		return fmt.Errorf("could not create stdout pipe: %w", err)
+		return fmt.Errorf("could not start %s with pty: %w", cfg.provider, err)
 	}
-
-	stderr, err := cmd.StderrPipe()
-	if err != nil {
-		return fmt.Errorf("could not create stderr pipe: %w", err)
-	}
-
-	fmt.Fprintf(os.Stderr, ">>> Starting process...\n")
-	if err := cmd.Start(); err != nil {
-		return fmt.Errorf("could not start %s: %w", cfg.provider, err)
-	}
+	defer ptmx.Close() //nolint:errcheck // best-effort cleanup
 	fmt.Fprintf(os.Stderr, ">>> Process started (PID: %d)\n", cmd.Process.Pid)
 
-	var stderrLines []string
-	var stderrMu sync.Mutex
-	var lastActivity time.Time = time.Now()
-	var activityMu sync.Mutex
+	var (
+		output     []string
+		outputMu   sync.Mutex
+		lastActive = time.Now()
+		activeMu   sync.Mutex
+	)
 	done := make(chan struct{})
+
+	// PTY combines stdout and stderr into a single stream
 	go func() {
-		scanner := bufio.NewScanner(stdout)
+		sc := bufio.NewScanner(ptmx)
 		n := 0
-		for scanner.Scan() {
+		for sc.Scan() {
+			ln := sc.Text()
 			n++
-			displayStreamEvent(scanner.Text())
-			activityMu.Lock()
-			lastActivity = time.Now()
-			activityMu.Unlock()
+			displayStreamEvent(ln)
+			outputMu.Lock()
+			output = append(output, ln)
+			outputMu.Unlock()
+			activeMu.Lock()
+			lastActive = time.Now()
+			activeMu.Unlock()
 		}
-		fmt.Fprintf(os.Stderr, ">>> stdout closed after %d lines\n", n)
+		fmt.Fprintf(os.Stderr, ">>> PTY closed after %d lines\n", n)
 		done <- struct{}{}
 	}()
 
-	go func() {
-		scanner := bufio.NewScanner(stderr)
-		n := 0
-		for scanner.Scan() {
-			line := scanner.Text()
-			n++
-			fmt.Fprintf(os.Stderr, "  [stderr] %s\n", line)
-			stderrMu.Lock()
-			stderrLines = append(stderrLines, line)
-			stderrMu.Unlock()
-			activityMu.Lock()
-			lastActivity = time.Now()
-			activityMu.Unlock()
-		}
-		if n > 0 {
-			fmt.Fprintf(os.Stderr, ">>> stderr closed after %d lines\n", n)
-		}
-		done <- struct{}{}
-	}()
-
-	finished := 0
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 
-	for finished < 2 {
+	for {
 		select {
 		case <-done:
-			finished++
-			fmt.Fprintf(os.Stderr, ">>> Stream %d/2 finished\n", finished)
+			fmt.Fprintf(os.Stderr, ">>> Stream finished\n")
+			goto waitForExit
 		case <-ticker.C:
 			if cmd.ProcessState == nil {
-				activityMu.Lock()
-				timeSinceLastActivity := time.Since(lastActivity)
-				activityMu.Unlock()
+				activeMu.Lock()
+				idle := time.Since(lastActive)
+				activeMu.Unlock()
 
-				// Check idle timeout
-				if timeSinceLastActivity > cfg.idleTimeout {
+				if idle > cfg.idleTimeout {
 					fmt.Fprintf(os.Stderr, "\n>>> [idle timeout] No output for %v, killing process...\n", cfg.idleTimeout)
-					io.Copy(io.Discard, stdout) //nolint:errcheck,gosec // drain pipes on timeout
-					io.Copy(io.Discard, stderr) //nolint:errcheck,gosec // drain pipes on timeout
-					cmd.Process.Kill()          //nolint:errcheck,gosec // best-effort kill on timeout
+					cmd.Process.Kill() //nolint:errcheck,gosec // best-effort kill on timeout
 					fmt.Fprintf(os.Stderr, ">>> Process killed (PID: %d)\n", cmd.Process.Pid)
 					return fmt.Errorf("idle timeout: no output for %v", cfg.idleTimeout)
 				}
 
 				fmt.Fprintf(os.Stderr, ">>> Still running (PID: %d, idle: %v, timeout remaining: %s)\n",
-					cmd.Process.Pid, timeSinceLastActivity.Round(time.Second), timeRemaining(ctx))
+					cmd.Process.Pid, idle.Round(time.Second), timeRemaining(ctx))
 			}
 		case <-ctx.Done():
 			fmt.Fprintln(os.Stderr, "\n>>> [timeout] timed out, killing process...")
-			io.Copy(io.Discard, stdout) //nolint:errcheck,gosec // drain pipes on timeout
-			io.Copy(io.Discard, stderr) //nolint:errcheck,gosec // drain pipes on timeout
-			cmd.Process.Kill()          //nolint:errcheck,gosec // best-effort kill on timeout
+			cmd.Process.Kill() //nolint:errcheck,gosec // best-effort kill on timeout
 			fmt.Fprintf(os.Stderr, ">>> Process killed (PID: %d)\n", cmd.Process.Pid)
 			return fmt.Errorf("timeout: %w", ctx.Err())
 		}
 	}
+waitForExit:
 
 	fmt.Fprintf(os.Stderr, ">>> Waiting for process to exit...\n")
 	err = cmd.Wait()
@@ -1842,23 +1679,21 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 		if ctx.Err() == context.DeadlineExceeded {
 			return errors.New("exceeded time limit")
 		}
-		stderrMu.Lock()
-		allStderr := strings.Join(stderrLines, "\n")
-		stderrMu.Unlock()
+		outputMu.Lock()
+		all := strings.Join(output, "\n")
+		outputMu.Unlock()
 
-		// Build comprehensive error message
-		errMsg := fmt.Sprintf("%s exited with code %d\n\n", cfg.provider, exitCode)
-		errMsg += fmt.Sprintf("Command: %s %s\n", cmd.Path, strings.Join(cmd.Args[1:], " "))
-		errMsg += fmt.Sprintf("Working directory: %s\n", cmd.Dir)
-
-		if allStderr != "" {
-			errMsg += fmt.Sprintf("\nFull stderr output:\n%s\n", allStderr)
+		var b strings.Builder
+		fmt.Fprintf(&b, "%s exited with code %d\n\n", cfg.provider, exitCode)
+		fmt.Fprintf(&b, "Command: %s %s\n", cmd.Path, strings.Join(cmd.Args[1:], " "))
+		fmt.Fprintf(&b, "Working directory: %s\n", cmd.Dir)
+		if all != "" {
+			fmt.Fprintf(&b, "\nFull output:\n%s\n", all)
 		} else {
-			errMsg += "\n(no stderr output)\n"
+			b.WriteString("\n(no output)\n")
 		}
-
-		fmt.Fprintf(os.Stderr, "\n>>> %s\n", errMsg)
-		return fmt.Errorf("%s", errMsg)
+		fmt.Fprintf(os.Stderr, "\n>>> %s\n", b.String())
+		return errors.New(b.String())
 	}
 	return nil
 }
@@ -1888,76 +1723,64 @@ func displayStreamEvent(line string) {
 	if json.Unmarshal([]byte(line), &ev) != nil {
 		return
 	}
+
 	switch ev["type"] {
 	case "assistant":
-		displayAssistantEvent(ev)
-	case "result":
-		displayResultEvent(ev)
-	default:
-	}
-}
-
-func displayAssistantEvent(ev map[string]any) {
-	msg, ok := ev["message"].(map[string]any)
-	if !ok {
-		return
-	}
-	content, ok := msg["content"].([]any)
-	if !ok {
-		return
-	}
-	for _, c := range content {
-		b, ok := c.(map[string]any)
+		msg, ok := ev["message"].(map[string]any)
 		if !ok {
-			continue
+			return
 		}
-		switch b["type"] {
-		case "tool_use":
-			displayToolUse(b)
-		case "text":
-			if t, ok := b["text"].(string); ok && t != "" {
-				fmt.Fprintf(os.Stderr, "  %s\n", t)
+		content, ok := msg["content"].([]any)
+		if !ok {
+			return
+		}
+		for _, c := range content {
+			b, ok := c.(map[string]any)
+			if !ok {
+				continue
 			}
-		default:
+			switch b["type"] {
+			case "tool_use":
+				name, _ := b["name"].(string) //nolint:errcheck // type assertion ok, defaults to empty
+				if name == "" {
+					name = "unknown"
+				}
+				input, ok := b["input"].(map[string]any)
+				if !ok {
+					fmt.Fprintf(os.Stderr, "  [tool] %s\n", name)
+					continue
+				}
+				var detail string
+				for _, k := range []string{"description", "command", "pattern", "file_path"} {
+					if v, ok := input[k].(string); ok {
+						detail = v
+						break
+					}
+				}
+				if len(detail) > 80 {
+					detail = detail[:80] + "..."
+				}
+				if detail != "" {
+					fmt.Fprintf(os.Stderr, "  [tool] %s: %s\n", name, detail)
+				} else {
+					fmt.Fprintf(os.Stderr, "  [tool] %s\n", name)
+				}
+			case "text":
+				if t, ok := b["text"].(string); ok && t != "" {
+					fmt.Fprintf(os.Stderr, "  %s\n", t)
+				}
+			}
 		}
-	}
-}
 
-func displayToolUse(b map[string]any) {
-	name, ok := b["name"].(string)
-	if !ok || name == "" {
-		name = "unknown"
-	}
-	input, ok := b["input"].(map[string]any)
-	if !ok {
-		fmt.Fprintf(os.Stderr, "  [tool] %s\n", name)
-		return
-	}
-	var detail string
-	for _, k := range []string{"description", "command", "pattern", "file_path"} {
-		if v, ok := input[k].(string); ok {
-			detail = v
-			break
+	case "result":
+		if r, ok := ev["result"].(string); ok && r != "" {
+			fmt.Fprintln(os.Stderr)
+			fmt.Fprintln(os.Stderr, "--- Result ---")
+			fmt.Fprintln(os.Stderr, r)
 		}
-	}
-	if len(detail) > 80 {
-		detail = detail[:80] + "..."
-	}
-	if detail != "" {
-		fmt.Fprintf(os.Stderr, "  [tool] %s: %s\n", name, detail)
-	} else {
-		fmt.Fprintf(os.Stderr, "  [tool] %s\n", name)
-	}
-}
-
-func displayResultEvent(ev map[string]any) {
-	if r, ok := ev["result"].(string); ok && r != "" {
-		fmt.Fprintln(os.Stderr)
-		fmt.Fprintln(os.Stderr, "--- Result ---")
-		fmt.Fprintln(os.Stderr, r)
-	}
-	if cost, ok := ev["total_cost_usd"].(float64); ok {
-		fmt.Fprintf(os.Stderr, "\n  Cost: $%.4f\n", cost)
+		if cost, ok := ev["total_cost_usd"].(float64); ok {
+			fmt.Fprintf(os.Stderr, "\n  Cost: $%.4f\n", cost)
+		}
 	}
 }
 
@@ -1976,13 +1799,14 @@ func generateSessionID() string {
 
 // Database functions for tracking analyzed files.
 
-func configDir() (string, error) {
+func openDB(ctx context.Context, flush bool) (*sql.DB, error) {
+	// Determine config directory (platform-specific)
 	var base string
 	switch runtime.GOOS {
 	case "darwin":
 		home, err := os.UserHomeDir()
 		if err != nil {
-			return "", err
+			return nil, fmt.Errorf("config directory: %w", err)
 		}
 		base = filepath.Join(home, "Library", "Application Support")
 	default:
@@ -1991,19 +1815,12 @@ func configDir() (string, error) {
 		} else {
 			home, err := os.UserHomeDir()
 			if err != nil {
-				return "", err
+				return nil, fmt.Errorf("config directory: %w", err)
 			}
 			base = filepath.Join(home, ".config")
 		}
 	}
-	return filepath.Join(base, "dissect"), nil
-}
-
-func openDB(ctx context.Context, flush bool) (*sql.DB, error) {
-	dir, err := configDir()
-	if err != nil {
-		return nil, fmt.Errorf("config directory: %w", err)
-	}
+	dir := filepath.Join(base, "dissect")
 
 	if err := os.MkdirAll(dir, 0o750); err != nil {
 		return nil, fmt.Errorf("create config directory: %w", err)
@@ -2044,7 +1861,7 @@ func hashFile(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer f.Close() //nolint:errcheck,gosec // best-effort cleanup
+	defer f.Close() //nolint:errcheck // best-effort cleanup
 
 	h := sha256.New()
 	if _, err := io.Copy(h, f); err != nil {
@@ -2065,7 +1882,11 @@ func wasAnalyzed(ctx context.Context, db *sql.DB, hash, mode string) bool {
 		"SELECT COUNT(*) FROM analyzed_files WHERE file_hash = ? AND mode = ?",
 		hash, mode,
 	).Scan(&n)
-	return err == nil && n > 0
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "  [warn] DB query failed: %v\n", err)
+		return false
+	}
+	return n > 0
 }
 
 func markAnalyzed(ctx context.Context, db *sql.DB, hash, mode string) error {
