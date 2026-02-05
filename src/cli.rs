@@ -178,9 +178,6 @@ impl Args {
     pub fn format(&self) -> OutputFormat {
         // --format takes precedence over --json
         if let Some(format) = self.format {
-            if matches!(format, OutputFormat::Json) {
-                eprintln!("⚠️  WARNING: --format json is deprecated and will be removed in v2.0. Use --format jsonl instead.");
-            }
             return format;
         }
         if self.json {
@@ -360,8 +357,6 @@ pub enum DetectFileType {
 
 #[derive(Debug, Clone, Copy, clap::ValueEnum, PartialEq)]
 pub enum OutputFormat {
-    /// JSON output for machine consumption
-    Json,
     /// JSONL output (newline-delimited JSON) for streaming
     Jsonl,
     /// Human-readable terminal output
@@ -587,9 +582,9 @@ mod tests {
 
     #[test]
     fn test_output_format_clone() {
-        let format = OutputFormat::Json;
+        let format = OutputFormat::Jsonl;
         let cloned = format.clone();
-        assert!(matches!(cloned, OutputFormat::Json));
+        assert!(matches!(cloned, OutputFormat::Jsonl));
     }
 
     #[test]

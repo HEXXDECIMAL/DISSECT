@@ -305,33 +305,6 @@ fn format_evidence(finding: &Finding) -> String {
     }
 }
 
-/// V2 JSON output structure - flat file-centric format
-#[derive(serde::Serialize, serde::Deserialize)]
-struct JsonOutputV2 {
-    schema_version: String,
-    analysis_timestamp: chrono::DateTime<chrono::Utc>,
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    scanned_path: Option<String>,
-    #[serde(default)]
-    files: Vec<crate::types::FileAnalysis>,
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    summary: Option<crate::types::ReportSummary>,
-    metadata: crate::types::AnalysisMetadata,
-}
-
-/// Format analysis report as JSON (v2 format)
-pub fn format_json(report: &AnalysisReport) -> Result<String> {
-    let output = JsonOutputV2 {
-        schema_version: report.schema_version.clone(),
-        analysis_timestamp: report.analysis_timestamp,
-        scanned_path: report.scanned_path.clone(),
-        files: report.files.clone(),
-        summary: report.summary.clone(),
-        metadata: report.metadata.clone(),
-    };
-    Ok(serde_json::to_string_pretty(&output)?)
-}
-
 // =============================================================================
 // JSONL (Newline-Delimited JSON) Output for Streaming
 // =============================================================================
@@ -399,12 +372,89 @@ pub fn format_jsonl(report: &AnalysisReport) -> Result<String> {
     Ok(lines.join("\n"))
 }
 
-/// Parse v2 JSON back to AnalysisReport
-pub fn parse_json_v2(json: &str) -> Result<AnalysisReport> {
-    let v2: JsonOutputV2 = serde_json::from_str(json)?;
+/// Parse JSONL (newline-delimited JSON) back to AnalysisReport
+pub fn parse_jsonl(jsonl: &str) -> Result<AnalysisReport> {
+    let mut files = Vec::new();
+    let mut summary = None;
+    let mut schema_version = "2.0".to_string();
+    let mut analysis_timestamp = chrono::Utc::now();
+    let mut scanned_path = None;
+    let mut metadata = crate::types::AnalysisMetadata::default();
 
-    // Create a minimal AnalysisReport with the v2 data
-    let target = if let Some(first_file) = v2.files.first() {
+    // Parse each line as a JSON entry
+    for line in jsonl.lines() {
+        let trimmed = line.trim();
+        if trimmed.is_empty() {
+            continue;
+        }
+
+        let value: serde_json::Value = serde_json::from_str(trimmed)?;
+        let entry_type = value.get("type").and_then(|v| v.as_str());
+
+        match entry_type {
+            Some("file") => {
+                // Parse as FileAnalysis
+                let file: crate::types::FileAnalysis = serde_json::from_value(value)?;
+                files.push(file);
+            }
+            Some("summary") => {
+                // Extract summary metadata
+                if let Some(sv) = value.get("schema_version").and_then(|v| v.as_str()) {
+                    schema_version = sv.to_string();
+                }
+                if let Some(ts) = value.get("analysis_timestamp") {
+                    if let Ok(timestamp) = serde_json::from_value::<chrono::DateTime<chrono::Utc>>(ts.clone()) {
+                        analysis_timestamp = timestamp;
+                    }
+                }
+                if let Some(sp) = value.get("scanned_path") {
+                    scanned_path = sp.as_str().map(|s| s.to_string());
+                }
+                if let Some(tools) = value.get("tools_used").and_then(|v| v.as_array()) {
+                    metadata.tools_used = tools
+                        .iter()
+                        .filter_map(|v| v.as_str().map(|s| s.to_string()))
+                        .collect();
+                }
+                if let Some(errors) = value.get("errors").and_then(|v| v.as_array()) {
+                    metadata.errors = errors
+                        .iter()
+                        .filter_map(|v| v.as_str().map(|s| s.to_string()))
+                        .collect();
+                }
+                if let Some(duration) = value.get("analysis_duration_ms").and_then(|v| v.as_u64()) {
+                    metadata.analysis_duration_ms = duration;
+                }
+                summary = Some(crate::types::ReportSummary {
+                    files_analyzed: value
+                        .get("files_analyzed")
+                        .and_then(|v| v.as_u64())
+                        .unwrap_or(files.len() as u64) as u32,
+                    max_depth: 0,
+                    counts: crate::types::FindingCounts {
+                        hostile: value
+                            .get("hostile")
+                            .and_then(|v| v.as_u64())
+                            .unwrap_or(0) as u32,
+                        suspicious: value
+                            .get("suspicious")
+                            .and_then(|v| v.as_u64())
+                            .unwrap_or(0) as u32,
+                        notable: value
+                            .get("notable")
+                            .and_then(|v| v.as_u64())
+                            .unwrap_or(0) as u32,
+                    },
+                });
+            }
+            _ => {
+                // Unknown entry type, skip
+            }
+        }
+    }
+
+    // Create a minimal AnalysisReport with the parsed data
+    let target = if let Some(first_file) = files.first() {
         crate::types::TargetInfo {
             path: first_file.path.clone(),
             file_type: first_file.file_type.clone(),
@@ -422,12 +472,12 @@ pub fn parse_json_v2(json: &str) -> Result<AnalysisReport> {
         }
     };
 
-    let mut report = AnalysisReport::new_with_timestamp(target, v2.analysis_timestamp);
-    report.schema_version = v2.schema_version;
-    report.scanned_path = v2.scanned_path;
-    report.files = v2.files;
-    report.summary = v2.summary;
-    report.metadata = v2.metadata;
+    let mut report = AnalysisReport::new_with_timestamp(target, analysis_timestamp);
+    report.schema_version = schema_version;
+    report.scanned_path = scanned_path;
+    report.files = files;
+    report.summary = summary;
+    report.metadata = metadata;
 
     Ok(report)
 }
@@ -1085,14 +1135,6 @@ mod tests {
         let formatted = format_evidence(&trait_item);
         assert!(formatted.contains("cmd.exe"));
         assert!(formatted.contains("powershell"));
-    }
-
-    #[test]
-    fn test_format_json() {
-        let report = create_test_report(vec![], vec![]);
-        let json = format_json(&report).unwrap();
-        assert!(json.contains("schema_version"));
-        assert!(json.contains("2.0"));
     }
 
     #[test]

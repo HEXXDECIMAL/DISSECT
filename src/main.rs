@@ -527,7 +527,6 @@ fn analyze_file(
     // Format output based on requested format
     let t4 = std::time::Instant::now();
     let result = match format {
-        cli::OutputFormat::Json => output::format_json(&report),
         cli::OutputFormat::Jsonl => output::format_jsonl(&report),
         cli::OutputFormat::Terminal => output::format_terminal(&report),
     };
@@ -612,9 +611,6 @@ fn scan_paths(
         }
     }
 
-    // Use Mutex to safely collect results from parallel threads
-    let all_reports = Arc::new(Mutex::new(Vec::new()));
-
     // Track --error-if failures to stop processing early
     let error_if_triggered = Arc::new(AtomicBool::new(false));
     let error_if_message: Arc<Mutex<Option<String>>> = Arc::new(Mutex::new(None));
@@ -640,7 +636,7 @@ fn scan_paths(
                 match format {
                     cli::OutputFormat::Terminal => {
                         // For terminal format, show immediate output above progress bar
-                        match output::parse_json_v2(&json) {
+                        match output::parse_jsonl(&json) {
                             Ok(report) => match output::format_terminal(&report) {
                                 Ok(formatted) => {
                                     print!("{}", formatted);
@@ -656,7 +652,7 @@ fn scan_paths(
                     }
                     cli::OutputFormat::Jsonl => {
                         // For JSONL, stream each file immediately
-                        match output::parse_json_v2(&json) {
+                        match output::parse_jsonl(&json) {
                             Ok(report) => {
                                 for file in &report.files {
                                     if let Ok(line) = output::format_jsonl_line(file) {
@@ -668,10 +664,6 @@ fn scan_paths(
                                 eprintln!("Error parsing JSON for {}: {}", path_str, e);
                             }
                         }
-                    }
-                    cli::OutputFormat::Json => {
-                        // For JSON format, collect for array output at end
-                        all_reports.lock().unwrap().push(json);
                     }
                 }
             }
@@ -736,7 +728,7 @@ fn scan_paths(
                     match format {
                         cli::OutputFormat::Terminal => {
                             // For terminal format, show immediate output above progress bar
-                            match output::parse_json_v2(&json) {
+                            match output::parse_jsonl(&json) {
                                 Ok(report) => match output::format_terminal(&report) {
                                     Ok(formatted) => {
                                         print!("{}", formatted);
@@ -761,10 +753,6 @@ fn scan_paths(
                         cli::OutputFormat::Jsonl => {
                             // Should not reach here - JSONL uses streaming path above
                             unreachable!("JSONL should use streaming path");
-                        }
-                        cli::OutputFormat::Json => {
-                            // For JSON format, collect for array output at end
-                            all_reports.lock().unwrap().push(json);
                         }
                     }
                 }
@@ -798,19 +786,8 @@ fn scan_paths(
         }
     }
 
-    // Extract results from Arc<Mutex<>>
-    let reports = Arc::try_unwrap(all_reports)
-        .map(|mutex| mutex.into_inner().unwrap())
-        .unwrap_or_else(|arc| arc.lock().unwrap().clone());
-
     // Format based on output type
     match format {
-        cli::OutputFormat::Json => Ok(format!(
-            "[
-{}
-]",
-            reports.join(",\n")
-        )),
         cli::OutputFormat::Jsonl => {
             // JSONL already streamed files above via analyze_archive_streaming_jsonl
             // Don't emit a summary - the individual file lines were already printed
@@ -985,8 +962,8 @@ fn analyze_file_with_shared_mapper(
     // Convert to v2 schema (flat files array) and filter based on verbosity
     report.convert_to_v2(verbose);
 
-    // Always output JSON for parallel scanning
-    output::format_json(&report)
+    // Output as JSONL format for parallel scanning
+    output::format_jsonl(&report)
 }
 
 /// Analyze an archive with streaming JSONL output.
@@ -1031,8 +1008,8 @@ fn diff_analysis(old: &str, new: &str, format: &cli::OutputFormat) -> Result<Str
     let diff_analyzer = diff::DiffAnalyzer::new(old, new);
 
     match format {
-        cli::OutputFormat::Json | cli::OutputFormat::Jsonl => {
-            // Use full diff for JSON/JSONL - comprehensive ML-ready output
+        cli::OutputFormat::Jsonl => {
+            // Use full diff for JSONL - comprehensive ML-ready output
             let report = diff_analyzer.analyze_full()?;
             Ok(serde_json::to_string_pretty(&report)?)
         }
@@ -1183,7 +1160,7 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
     let strings = extractor.extract_smart(&data);
 
     match format {
-        cli::OutputFormat::Json | cli::OutputFormat::Jsonl => {
+        cli::OutputFormat::Jsonl => {
             Ok(serde_json::to_string_pretty(&strings)?)
         }
         cli::OutputFormat::Terminal => {
@@ -1273,7 +1250,7 @@ fn extract_strings_from_ast(
         .collect();
 
     match format {
-        cli::OutputFormat::Json | cli::OutputFormat::Jsonl => {
+        cli::OutputFormat::Jsonl => {
             Ok(serde_json::to_string_pretty(&filtered_strings)?)
         }
         cli::OutputFormat::Terminal => {
@@ -1489,7 +1466,7 @@ fn extract_symbols(target: &str, format: &cli::OutputFormat) -> Result<String> {
 
     // Format output
     match format {
-        cli::OutputFormat::Json | cli::OutputFormat::Jsonl => {
+        cli::OutputFormat::Jsonl => {
             Ok(serde_json::to_string_pretty(&symbols)?)
         }
         cli::OutputFormat::Terminal => {
