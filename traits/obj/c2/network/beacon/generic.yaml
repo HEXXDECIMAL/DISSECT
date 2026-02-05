@@ -206,3 +206,27 @@ composite_rules:
       - id: baiduspider-ua
       - id: yandexbot-ua
       - id: duckduckbot-ua
+
+  - id: direct-http-c2
+    desc: Direct HTTP C2 infrastructure
+    crit: suspicious
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1071.001"
+    needs: 1
+    any:
+      - id: obj/c2/infrastructure/ip/http-raw-ip-url-content
+      - id: obj/c2/infrastructure/ip/http-raw-ip-url-string
+      - id: obj/c2/infrastructure/ip/hardcoded-ipv4
+
+  - id: active-c2-http-ip
+    desc: Active HTTP IP-based C2
+    crit: hostile
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1071.001"
+    for: [elf, macho, pe]
+    all:
+      - id: direct-http-c2
+      - id: cap/exec/command
+      - id: cap/comm/socket

@@ -1,0 +1,64 @@
+# System reboot/shutdown commands
+# Triggers system restart or shutdown, often used for cleanup or denial of service
+# ATT&CK: T1529 (System Shutdown/Reboot)
+# MBC: B0017 (Execute)
+
+traits:
+  - id: reboot-command
+    desc: reboot command (force system restart)
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0017"
+    attack: "T1529"
+    platforms: [unix, macos, linux]
+    if:
+      type: string
+      regex: 'reboot\s+(-l|-f)?'
+
+  - id: shutdown-command
+    desc: shutdown command (system shutdown)
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0017"
+    attack: "T1529"
+    platforms: [unix, macos, linux]
+    if:
+      type: string
+      regex: 'shutdown\s+(-h|-r|-k)?'
+      case_insensitive: true
+
+  - id: halt-command
+    desc: halt command (immediate shutdown)
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0017"
+    attack: "T1529"
+    platforms: [unix, macos, linux]
+    if:
+      type: string
+      word: "halt"
+
+  - id: poweroff-command
+    desc: poweroff command (power down system)
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0017"
+    attack: "T1529"
+    platforms: [unix, macos, linux]
+    if:
+      type: string
+      word: "poweroff"
+
+composite_rules:
+  - id: system-restart-trigger
+    desc: System restart/shutdown triggered
+    crit: suspicious
+    conf: 0.90
+    platforms: [unix, macos, linux]
+    for: [macho, shell, python, ruby, javascript, go, perl]
+    needs: 1
+    any:
+      - id: reboot-command
+      - id: shutdown-command
+      - id: halt-command
+      - id: poweroff-command

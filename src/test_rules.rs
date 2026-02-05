@@ -455,81 +455,74 @@ impl<'a> RuleDebugger<'a> {
     fn debug_trait_reference(&self, id: &str) -> ConditionDebugResult {
         let desc = format!("trait: {}", id);
 
-        // Use the same trait resolver as runtime evaluation
-        // This supports both exact matches and directory prefix matches
-        let ctx = EvaluationContext {
-            report: self.report,
-            binary_data: self.binary_data,
-            file_type: self.file_type,
-            platform: self.platform.clone(),
-            additional_findings: None,
-            cached_ast: None,
-            finding_id_index: None,
-        };
+        // First, try to get debug info by re-evaluating the trait
+        // This is more accurate than relying on the findings cache
+        if let Some(trait_debug_result) = self.debug_trait(id) {
+            let mut result = ConditionDebugResult::new(desc, trait_debug_result.matched);
 
-        let eval_result = eval_trait(id, &ctx);
-        let mut result = ConditionDebugResult::new(desc, eval_result.matched);
-
-        if eval_result.matched {
-            result.details.push(format!(
-                "Found in findings with {} evidence items",
-                eval_result.evidence.len()
-            ));
-            result.evidence = eval_result.evidence;
-        } else {
-            // Try to debug why the trait didn't match
-            // First check if it's an exact trait definition ID
-            if let Some(trait_result) = self.debug_trait(id) {
-                result.details.push(format!("Trait '{}' did not match", id));
-                if let Some(reason) = &trait_result.skipped_reason {
-                    result.details.push(format!("Reason: {}", reason));
-                }
-                result.sub_results = trait_result.condition_results;
-            } else if self.find_composite_rule(id).is_some() {
-                // It's a composite rule ID but didn't match - composite evaluation
-                // results are already in the findings, so this means conditions weren't met
+            if trait_debug_result.matched {
                 result.details.push(format!(
-                    "Composite rule '{}' did not match (required conditions not met)",
-                    id
+                    "✓ Re-evaluated trait matched with requirements: {}",
+                    trait_debug_result.requirements
                 ));
+            } else if let Some(reason) = &trait_debug_result.skipped_reason {
+                result.details.push(format!("Skipped: {}", reason));
             } else {
-                // Not an exact trait ID, check if it's a directory prefix reference
-                let slash_count = id.matches('/').count();
-                if slash_count > 0 {
-                    // Directory path reference - show what traits exist in that directory
-                    let matching_findings: Vec<_> = self
-                        .report
-                        .findings
-                        .iter()
-                        .filter(|f| f.id.starts_with(&format!("{}/", id)))
-                        .collect();
+                result.details.push("Trait did not match".to_string());
+            }
 
-                    if matching_findings.is_empty() {
-                        result
-                            .details
-                            .push(format!("No traits matched in directory '{}/'", id));
-                        // Show available trait prefixes for debugging
-                        let available_prefixes: std::collections::HashSet<_> = self
-                            .report
-                            .findings
-                            .iter()
-                            .filter_map(|f| f.id.rfind('/').map(|i| &f.id[..i]))
-                            .collect();
-                        if !available_prefixes.is_empty() {
-                            let mut prefixes: Vec<_> = available_prefixes.into_iter().collect();
-                            prefixes.sort();
-                            result.details.push(format!(
-                                "Available trait directories: {}",
-                                prefixes.join(", ")
-                            ));
-                        }
-                    }
-                } else {
-                    result
-                        .details
-                        .push(format!("Trait '{}' not found in definitions", id));
+            // Include the condition results from the trait evaluation
+            result.sub_results = trait_debug_result.condition_results;
+            return result;
+        }
+
+        // Check if it's a composite rule ID
+        if let Some(_composite) = self.find_composite_rule(id) {
+            let mut result = ConditionDebugResult::new(desc, false);
+            result.details.push(format!(
+                "Composite rule '{}' - see detailed evaluation above",
+                id
+            ));
+            return result;
+        }
+
+        // Directory prefix reference or not found
+        let mut result = ConditionDebugResult::new(desc, false);
+        let slash_count = id.matches('/').count();
+
+        if slash_count > 0 {
+            // Directory path reference - show what traits exist in that directory
+            let matching_findings: Vec<_> = self
+                .report
+                .findings
+                .iter()
+                .filter(|f| f.id.starts_with(&format!("{}/", id)))
+                .collect();
+
+            if matching_findings.is_empty() {
+                result
+                    .details
+                    .push(format!("No traits matched in directory '{}/'", id));
+                // Show available trait prefixes for debugging
+                let available_prefixes: std::collections::HashSet<_> = self
+                    .report
+                    .findings
+                    .iter()
+                    .filter_map(|f| f.id.rfind('/').map(|i| &f.id[..i]))
+                    .collect();
+                if !available_prefixes.is_empty() {
+                    let mut prefixes: Vec<_> = available_prefixes.into_iter().collect();
+                    prefixes.sort();
+                    result.details.push(format!(
+                        "Available trait directories: {}",
+                        prefixes.join(", ")
+                    ));
                 }
             }
+        } else {
+            result
+                .details
+                .push(format!("Trait '{}' not found in definitions or findings", id));
         }
 
         result
@@ -1492,6 +1485,23 @@ fn format_condition_result(output: &mut String, result: &ConditionDebugResult, i
 
     for detail in &result.details {
         output.push_str(&format!("{}  {}\n", indent_str, detail.dimmed()));
+    }
+
+    // Special case: if regex matched but condition shows not matched, explain possible causes
+    if result.matched && result.condition_desc.contains("regex") && !result.evidence.is_empty()
+        && result.details.iter().any(|d| d.contains("Matched:"))
+    {
+        // Check if there's a parent condition result that might have exclusion filters
+        if result.sub_results.is_empty() {
+            output.push_str(&format!(
+                "{}  💡 Regex matched string(s) above. If parent trait doesn't match,\n",
+                indent_str
+            ));
+            output.push_str(&format!(
+                "{}     check if 'not:' exclusion filters in the trait definition rejected them.\n",
+                indent_str
+            ));
+        }
     }
 
     for sub in &result.sub_results {

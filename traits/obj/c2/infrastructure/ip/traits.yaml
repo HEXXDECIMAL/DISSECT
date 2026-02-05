@@ -11,11 +11,13 @@ defaults:
 
 traits:
   - id: hardcoded-ipv4
-    desc: Hardcoded IPv4 address
+    desc: Hardcoded external IPv4 address
     crit: notable
-    conf: 0.8
+    conf: 0.85
+    mbc: "C0002"
+    attack: "T1071.001"
     if:
-      type: content
+      type: string
       regex: '\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b'
     not:
       # Exclude common non-C2 IPs
@@ -27,13 +29,31 @@ traits:
       - exact: "3.3.4.1"
       - exact: "4.1.1.1"
 
-  - id: http-raw-ip-url
-    desc: HTTP URL with raw IP
+  - id: http-raw-ip-url-content
+    desc: HTTP direct IP in binary content
     crit: suspicious
-    conf: 0.85
+    conf: 0.90
+    mbc: "B0030"
+    attack: "T1071.001"
     if:
       type: content
       regex: 'https?://[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+[/:]'
+    not:
+      # Exclude localhost and private ranges
+      - regex: 'https?://127\.'
+      - regex: 'https?://192\.168\.'
+      - regex: 'https?://10\.'
+      - regex: 'https?://172\.(1[6-9]|2[0-9]|3[01])\.'
+
+  - id: http-raw-ip-url-string
+    desc: HTTP direct IP in extracted strings
+    crit: suspicious
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1071.001"
+    if:
+      type: string
+      regex: 'https?://(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])'
     not:
       # Exclude localhost and private ranges
       - regex: 'https?://127\.'
