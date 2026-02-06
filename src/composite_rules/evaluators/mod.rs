@@ -22,6 +22,7 @@ use std::sync::OnceLock;
 // Re-export all evaluator modules
 mod ast;
 mod binary;
+mod kv;
 mod metrics;
 mod misc;
 mod symbol_string;
@@ -29,6 +30,7 @@ mod yara;
 
 pub use ast::*;
 pub use binary::*;
+pub use kv::*;
 pub use metrics::*;
 pub use misc::*;
 pub use symbol_string::*;

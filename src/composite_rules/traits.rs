@@ -530,6 +530,17 @@ impl TraitDefinition {
                 ctx,
             ),
             Condition::LayerPath { value } => eval_layer_path(value, ctx),
+            Condition::Kv { .. } => {
+                // Delegate to kv evaluator
+                let file_path = std::path::Path::new(&ctx.report.target.path);
+                if let Some(evidence) =
+                    super::evaluators::evaluate_kv(condition, ctx.binary_data, file_path)
+                {
+                    ConditionResult::matched_with(vec![evidence])
+                } else {
+                    ConditionResult::no_match()
+                }
+            }
         }
     }
 }
@@ -1299,6 +1310,17 @@ impl CompositeTrait {
                 ctx,
             ),
             Condition::LayerPath { value } => eval_layer_path(value, ctx),
+            Condition::Kv { .. } => {
+                // Delegate to kv evaluator
+                let file_path = std::path::Path::new(&ctx.report.target.path);
+                if let Some(evidence) =
+                    super::evaluators::evaluate_kv(condition, ctx.binary_data, file_path)
+                {
+                    ConditionResult::matched_with(vec![evidence])
+                } else {
+                    ConditionResult::no_match()
+                }
+            }
         }
     }
 

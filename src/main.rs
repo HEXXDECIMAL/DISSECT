@@ -371,6 +371,8 @@ fn analyze_file(
         );
     }
 
+    let timing = std::env::var("DISSECT_TIMING").is_ok();
+
     // Status messages go to stderr
     eprintln!("Analyzing: {}", target);
 
@@ -381,7 +383,9 @@ fn analyze_file(
     // Load capability mapper
     let t1 = std::time::Instant::now();
     let capability_mapper = crate::capabilities::CapabilityMapper::new().with_platforms(platforms.clone());
-    eprintln!("[TIMING] CapabilityMapper::new(): {:?}", t1.elapsed());
+    if timing {
+        eprintln!("[TIMING] CapabilityMapper::new(): {:?}", t1.elapsed());
+    }
 
     // Load YARA rules (unless YARA is disabled)
     let mut yara_engine = if disabled.yara {
@@ -392,7 +396,9 @@ fn analyze_file(
         let empty_mapper = crate::capabilities::CapabilityMapper::empty();
         let mut engine = YaraEngine::new_with_mapper(empty_mapper);
         let (builtin_count, third_party_count) = engine.load_all_rules(enable_third_party_yara)?;
-        eprintln!("[TIMING] YaraEngine load: {:?}", t_yara_start.elapsed());
+        if timing {
+            eprintln!("[TIMING] YaraEngine load: {:?}", t_yara_start.elapsed());
+        }
         engine.set_capability_mapper(capability_mapper.clone());
         if builtin_count + third_party_count > 0 {
             Some(engine)
@@ -524,7 +530,9 @@ fn analyze_file(
         }
     }
 
-    eprintln!("[TIMING] Analysis: {:?}", t3.elapsed());
+    if timing {
+        eprintln!("[TIMING] Analysis: {:?}", t3.elapsed());
+    }
 
     // Check if report's criticality matches --error-if criteria
     check_criticality_error(&report, error_if_levels)?;
@@ -538,7 +546,9 @@ fn analyze_file(
         cli::OutputFormat::Jsonl => output::format_jsonl(&report),
         cli::OutputFormat::Terminal => output::format_terminal(&report),
     };
-    eprintln!("[TIMING] Output format: {:?}", t4.elapsed());
+    if timing {
+        eprintln!("[TIMING] Output format: {:?}", t4.elapsed());
+    }
 
     result
 }

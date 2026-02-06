@@ -323,6 +323,28 @@ enum ConditionTagged {
     LayerPath {
         value: String,
     },
+
+    /// Query structured data in JSON, YAML, and TOML manifests using path expressions.
+    /// Supports dot notation for nested access and [*] for array iteration.
+    /// Example: { type: kv, path: "permissions", exact: "debugger" }
+    /// Example: { type: kv, path: "scripts.postinstall", substr: "curl" }
+    /// Example: { type: kv, path: "content_scripts[*].matches", exact: "<all_urls>" }
+    Kv {
+        /// Path to navigate using dot notation, [n] for indices, [*] for wildcards
+        path: String,
+        /// Value/element equals exactly
+        #[serde(skip_serializing_if = "Option::is_none")]
+        exact: Option<String>,
+        /// Value/element contains substring
+        #[serde(skip_serializing_if = "Option::is_none")]
+        substr: Option<String>,
+        /// Value/element matches regex pattern
+        #[serde(skip_serializing_if = "Option::is_none")]
+        regex: Option<String>,
+        /// Case insensitive matching (default: false)
+        #[serde(default)]
+        case_insensitive: bool,
+    },
 }
 
 fn default_match_mode() -> String {
@@ -547,6 +569,20 @@ impl From<ConditionDeser> for Condition {
                     case_insensitive,
                 },
                 ConditionTagged::LayerPath { value } => Condition::LayerPath { value },
+                ConditionTagged::Kv {
+                    path,
+                    exact,
+                    substr,
+                    regex,
+                    case_insensitive,
+                } => Condition::Kv {
+                    path,
+                    exact,
+                    substr,
+                    regex,
+                    case_insensitive,
+                    compiled_regex: None,
+                },
             },
         }
     }
@@ -964,6 +1000,31 @@ pub enum Condition {
     /// Match strings by their encoding layer path
     /// Layer paths are computed as: meta/layers/{section}/{encoding_chain_joined}
     LayerPath { value: String },
+
+    /// Query structured data in JSON, YAML, and TOML manifests using path expressions.
+    /// Supports dot notation for nested access and [*] for array iteration.
+    /// Example: { type: kv, path: "permissions", exact: "debugger" }
+    /// Example: { type: kv, path: "scripts.postinstall", substr: "curl" }
+    /// Example: { type: kv, path: "content_scripts[*].matches", exact: "<all_urls>" }
+    Kv {
+        /// Path to navigate using dot notation, [n] for indices, [*] for wildcards
+        path: String,
+        /// Value/element equals exactly
+        #[serde(skip_serializing_if = "Option::is_none")]
+        exact: Option<String>,
+        /// Value/element contains substring
+        #[serde(skip_serializing_if = "Option::is_none")]
+        substr: Option<String>,
+        /// Value/element matches regex pattern
+        #[serde(skip_serializing_if = "Option::is_none")]
+        regex: Option<String>,
+        /// Case insensitive matching (default: false)
+        #[serde(default)]
+        case_insensitive: bool,
+        /// Pre-compiled regex (populated after deserialization)
+        #[serde(skip)]
+        compiled_regex: Option<regex::Regex>,
+    },
 }
 
 fn default_compare_to() -> String {
@@ -1040,6 +1101,7 @@ impl Condition {
             Condition::Xor { .. } => "xor",
             Condition::Basename { .. } => "basename",
             Condition::LayerPath { .. } => "layer_path",
+            Condition::Kv { .. } => "kv",
         }
     }
 
@@ -1103,6 +1165,34 @@ impl Condition {
                 // Validate query if present
                 if let Some(q) = query {
                     validate_ast_query(q, language.as_deref())?;
+                }
+
+                Ok(())
+            }
+            Condition::Kv {
+                path,
+                exact,
+                substr,
+                regex,
+                ..
+            } => {
+                // Path must not be empty
+                if path.is_empty() {
+                    return Err(anyhow::anyhow!("kv condition requires non-empty path"));
+                }
+
+                // At most one matcher
+                let matchers = [exact.is_some(), substr.is_some(), regex.is_some()];
+                if matchers.iter().filter(|&&b| b).count() > 1 {
+                    return Err(anyhow::anyhow!(
+                        "kv condition can only have one of: exact, substr, regex"
+                    ));
+                }
+
+                // Validate regex compiles
+                if let Some(re) = regex {
+                    regex::Regex::new(re)
+                        .map_err(|e| anyhow::anyhow!("invalid regex in kv condition: {}", e))?;
                 }
 
                 Ok(())
@@ -1210,6 +1300,21 @@ impl Condition {
                         regex::Regex::new(&regex_pattern).ok()
                     };
                 } else if let Some(regex_pattern) = regex {
+                    *compiled_regex = if *case_insensitive {
+                        regex::Regex::new(&format!("(?i){}", regex_pattern)).ok()
+                    } else {
+                        regex::Regex::new(regex_pattern).ok()
+                    };
+                }
+            }
+            Condition::Kv {
+                regex,
+                case_insensitive,
+                compiled_regex,
+                ..
+            } => {
+                // Compile regex pattern for kv searches
+                if let Some(regex_pattern) = regex {
                     *compiled_regex = if *case_insensitive {
                         regex::Regex::new(&format!("(?i){}", regex_pattern)).ok()
                     } else {

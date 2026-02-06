@@ -736,75 +736,47 @@ impl<'a> RuleDebugger<'a> {
     fn debug_trait_reference(&self, id: &str) -> ConditionDebugResult {
         let desc = format!("trait: {}", id);
 
-        // First, try to get debug info by re-evaluating the trait
-        // This is more accurate than relying on the findings cache
-        if let Some(trait_debug_result) = self.debug_trait(id) {
-            let mut result = ConditionDebugResult::new(desc, trait_debug_result.matched);
+        // Mirror eval_trait() logic: check findings FIRST, then re-evaluate if needed
+        // This ensures debug output matches actual evaluation behavior
 
-            if trait_debug_result.matched {
-                result.details.push(format!(
-                    "✓ Re-evaluated trait matched with requirements: {}",
-                    trait_debug_result.requirements
-                ));
-            } else if let Some(reason) = &trait_debug_result.skipped_reason {
-                result.details.push(format!("Skipped: {}", reason));
-            } else {
-                result.details.push("Trait did not match".to_string());
-            }
+        // Step 1: Check exact match in findings (like eval_trait fast path)
+        let exact_match: Vec<_> = self
+            .report
+            .findings
+            .iter()
+            .filter(|f| f.id == id)
+            .collect();
 
-            // Include the condition results from the trait evaluation
-            result.sub_results = trait_debug_result.condition_results;
-            return result;
-        }
-
-        // Check if it's a composite rule ID
-        if let Some(_composite) = self.find_composite_rule(id) {
-            let mut result = ConditionDebugResult::new(desc, false);
+        if !exact_match.is_empty() {
+            let mut result = ConditionDebugResult::new(desc, true);
             result.details.push(format!(
-                "Composite rule '{}' - see detailed evaluation above",
-                id
+                "✓ Found exact match in findings: {}",
+                exact_match[0].id
             ));
+            result.evidence = exact_match
+                .iter()
+                .flat_map(|f| f.evidence.iter().cloned())
+                .collect();
             return result;
         }
 
-        // Directory prefix reference or not found
+        // Step 2: Check prefix/suffix matching (like eval_trait slow path)
         let slash_count = id.matches('/').count();
 
-        if slash_count > 0 {
-            // Directory path reference - check for findings with this prefix
+        if slash_count == 0 {
+            // Short name: suffix match (e.g., "terminate" matches "exec/process/terminate")
+            let suffix = format!("/{}", id);
             let matching_findings: Vec<_> = self
                 .report
                 .findings
                 .iter()
-                .filter(|f| f.id.starts_with(&format!("{}/", id)))
+                .filter(|f| f.id.ends_with(&suffix))
                 .collect();
 
-            if matching_findings.is_empty() {
-                let mut result = ConditionDebugResult::new(desc, false);
-                result
-                    .details
-                    .push(format!("No traits matched in directory '{}/'", id));
-                // Show available trait prefixes for debugging
-                let available_prefixes: std::collections::HashSet<_> = self
-                    .report
-                    .findings
-                    .iter()
-                    .filter_map(|f| f.id.rfind('/').map(|i| &f.id[..i]))
-                    .collect();
-                if !available_prefixes.is_empty() {
-                    let mut prefixes: Vec<_> = available_prefixes.into_iter().collect();
-                    prefixes.sort();
-                    result.details.push(format!(
-                        "Available trait directories: {}",
-                        prefixes.join(", ")
-                    ));
-                }
-                return result;
-            } else {
-                // Found matching findings - this is a match!
-                let mut result = ConditionDebugResult::new(desc.clone(), true);
+            if !matching_findings.is_empty() {
+                let mut result = ConditionDebugResult::new(desc, true);
                 result.details.push(format!(
-                    "✓ {} finding(s) matched prefix '{}':",
+                    "✓ {} finding(s) matched suffix '/{}' in findings:",
                     matching_findings.len(),
                     id
                 ));
@@ -817,7 +789,6 @@ impl<'a> RuleDebugger<'a> {
                         matching_findings.len() - 5
                     ));
                 }
-                // Collect evidence from matched findings
                 result.evidence = matching_findings
                     .iter()
                     .flat_map(|f| f.evidence.iter().cloned())
@@ -825,12 +796,101 @@ impl<'a> RuleDebugger<'a> {
                 return result;
             }
         } else {
+            // Directory path: prefix match (any trait within that directory)
+            let prefix = format!("{}/", id);
+            let matching_findings: Vec<_> = self
+                .report
+                .findings
+                .iter()
+                .filter(|f| f.id.starts_with(&prefix))
+                .collect();
+
+            if !matching_findings.is_empty() {
+                let mut result = ConditionDebugResult::new(desc.clone(), true);
+                result.details.push(format!(
+                    "✓ {} finding(s) matched prefix '{}/' in findings:",
+                    matching_findings.len(),
+                    id
+                ));
+                for finding in matching_findings.iter().take(5) {
+                    result.details.push(format!("  - {}", finding.id));
+                }
+                if matching_findings.len() > 5 {
+                    result.details.push(format!(
+                        "  ... and {} more",
+                        matching_findings.len() - 5
+                    ));
+                }
+                result.evidence = matching_findings
+                    .iter()
+                    .flat_map(|f| f.evidence.iter().cloned())
+                    .collect();
+                return result;
+            }
+        }
+
+        // Step 3: Not found in findings - check if it's a composite rule
+        if let Some(_composite) = self.find_composite_rule(id) {
             let mut result = ConditionDebugResult::new(desc, false);
-            result
-                .details
-                .push(format!("Trait '{}' not found in definitions or findings", id));
+            result.details.push(format!(
+                "✗ Composite rule '{}' not found in findings",
+                id
+            ));
+            result.details.push(
+                "  (Composites are evaluated separately from traits)".to_string(),
+            );
             return result;
         }
+
+        // Step 4: Try to re-evaluate the trait definition to explain WHY it didn't match
+        if let Some(trait_debug_result) = self.debug_trait(id) {
+            let mut result = ConditionDebugResult::new(desc, false);
+
+            if trait_debug_result.matched {
+                // Trait re-evaluates as matched but wasn't in findings - this is a bug!
+                result.details.push(format!(
+                    "⚠ Trait re-evaluates as matched but not in findings!"
+                ));
+                result.details.push(format!(
+                    "  This indicates a discrepancy in evaluation"
+                ));
+            } else if let Some(reason) = &trait_debug_result.skipped_reason {
+                result.details.push(format!("✗ Not in findings ({})", reason));
+            } else {
+                result.details.push("✗ Not in findings (trait condition not satisfied)".to_string());
+            }
+
+            // Include the condition results to show WHY it didn't match
+            result.sub_results = trait_debug_result.condition_results;
+            return result;
+        }
+
+        // Step 5: Trait definition not found at all
+        let mut result = ConditionDebugResult::new(desc, false);
+        result.details.push(format!(
+            "✗ Trait '{}' not found in findings or definitions",
+            id
+        ));
+
+        // Show available trait prefixes for debugging
+        if slash_count > 0 {
+            let available_prefixes: std::collections::HashSet<_> = self
+                .report
+                .findings
+                .iter()
+                .filter_map(|f| f.id.rfind('/').map(|i| &f.id[..i]))
+                .collect();
+            if !available_prefixes.is_empty() {
+                let mut prefixes: Vec<_> = available_prefixes.into_iter().collect();
+                prefixes.sort();
+                result.details.push(format!(
+                    "  Available trait directories in findings: {}",
+                    prefixes.join(", ")
+                ));
+            }
+        }
+
+        result
     }
 
     fn debug_string_condition(
@@ -1810,7 +1870,7 @@ fn format_condition_result(output: &mut String, result: &ConditionDebugResult, i
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::{AnalysisReport, Criticality, Finding, FindingKind, TargetInfo};
+    use crate::types::{AnalysisReport, Finding, FindingKind, TargetInfo};
 
     fn create_test_report_with_findings(findings: Vec<Finding>) -> AnalysisReport {
         let target = TargetInfo {
@@ -2081,5 +2141,231 @@ mod tests {
                 }
             }
         }
+    }
+
+    /// Test that exact trait ID match in findings is detected
+    #[test]
+    fn test_debug_trait_reference_exact_match_in_findings() {
+        let findings = vec![create_test_finding(
+            "cap/comm/socket/send/send",
+        )];
+        let report = create_test_report_with_findings(findings);
+        let binary_data = b"test";
+
+        let mapper = CapabilityMapper::new();
+        let composites = &mapper.composite_rules;
+        let traits = mapper.trait_definitions();
+
+        let debugger = RuleDebugger::new(
+            &mapper,
+            &report,
+            binary_data,
+            composites,
+            traits,
+            vec![Platform::All],
+        );
+
+        // Test exact match - should find the finding directly
+        let condition = Condition::Trait {
+            id: "cap/comm/socket/send/send".to_string(),
+        };
+        let result = debugger.debug_condition(&condition);
+
+        assert!(
+            result.matched,
+            "Exact trait ID match should be found in findings"
+        );
+        assert!(
+            result.details.iter().any(|d| d.contains("exact match")),
+            "Details should mention exact match, got: {:?}",
+            result.details
+        );
+    }
+
+    /// Test that suffix matching works for short trait names
+    #[test]
+    fn test_debug_trait_reference_suffix_match() {
+        let findings = vec![create_test_finding(
+            "cap/exec/process/terminate",
+        )];
+        let report = create_test_report_with_findings(findings);
+        let binary_data = b"test";
+
+        let mapper = CapabilityMapper::new();
+        let composites = &mapper.composite_rules;
+        let traits = mapper.trait_definitions();
+
+        let debugger = RuleDebugger::new(
+            &mapper,
+            &report,
+            binary_data,
+            composites,
+            traits,
+            vec![Platform::All],
+        );
+
+        // Test suffix match with short name
+        let condition = Condition::Trait {
+            id: "terminate".to_string(),
+        };
+        let result = debugger.debug_condition(&condition);
+
+        assert!(
+            result.matched,
+            "Short trait name 'terminate' should match via suffix '/terminate'"
+        );
+        assert!(
+            result.details.iter().any(|d| d.contains("suffix")),
+            "Details should mention suffix match, got: {:?}",
+            result.details
+        );
+    }
+
+    /// Test that condition match status is consistent with overall match status
+    /// This is the core test for the mismatch bug we fixed
+    #[test]
+    fn test_debug_composite_no_condition_overall_mismatch() {
+        // Create findings that should satisfy a composite's conditions
+        let findings = vec![
+            create_test_finding("cap/exec/dylib/load/objc-method-swizzle"),
+            create_test_finding("cap/exec/dylib/load/nsbundle"),
+            create_test_finding("cap/comm/socket/send/send"),
+        ];
+
+        // Create a MachO file type report
+        let target = TargetInfo {
+            path: "/test/app.macho".to_string(),
+            file_type: "macho".to_string(),
+            size_bytes: 50000,
+            sha256: "test".to_string(),
+            architectures: Some(vec!["arm64".to_string()]),
+        };
+        let mut report = AnalysisReport::new(target);
+        report.findings = findings;
+        let binary_data = b"\xCF\xFA\xED\xFE"; // MachO magic
+
+        let mapper = CapabilityMapper::new();
+        let composites = &mapper.composite_rules;
+        let traits = mapper.trait_definitions();
+
+        let debugger = RuleDebugger::new(
+            &mapper,
+            &report,
+            binary_data,
+            composites,
+            traits,
+            vec![Platform::MacOS],
+        );
+
+        // Test the objc-app-hook composite if it exists
+        if let Some(result) = debugger.debug_rule("obj/lateral/trojanize/app/objc-app-hook") {
+            // KEY INVARIANT: If all condition groups show matched, overall should be matched
+            // (unless there's a skip reason or other constraint that explains the difference)
+            let all_condition_groups_matched = result
+                .condition_results
+                .iter()
+                .filter(|c| c.condition_desc.starts_with("all:")
+                    || c.condition_desc.starts_with("any:")
+                    || c.condition_desc.starts_with("none:"))
+                .all(|c| c.matched);
+
+            if all_condition_groups_matched && result.skipped_reason.is_none() {
+                // If all groups match and no skip reason, overall should match
+                assert!(
+                    result.matched,
+                    "All condition groups show matched but overall is NOT MATCHED - this is the mismatch bug!\n\
+                     Condition results: {:?}",
+                    result.condition_results.iter()
+                        .map(|c| format!("{}: {}", c.condition_desc, c.matched))
+                        .collect::<Vec<_>>()
+                );
+            }
+
+            // Also verify: if overall matched, at least one condition group should match
+            if result.matched {
+                let has_matched_condition = result.condition_results.iter().any(|c| c.matched);
+                assert!(
+                    has_matched_condition,
+                    "Overall matched but no condition groups show matched"
+                );
+            }
+        }
+    }
+
+    /// Test that trait not in findings shows as not matched even if re-evaluation would succeed
+    #[test]
+    fn test_debug_trait_reference_not_in_findings() {
+        // Create an empty findings list
+        let report = create_test_report_with_findings(vec![]);
+        let binary_data = b"test data with some content";
+
+        let mapper = CapabilityMapper::new();
+        let composites = &mapper.composite_rules;
+        let traits = mapper.trait_definitions();
+
+        let debugger = RuleDebugger::new(
+            &mapper,
+            &report,
+            binary_data,
+            composites,
+            traits,
+            vec![Platform::All],
+        );
+
+        // Test a trait that exists in definitions but not in findings
+        let condition = Condition::Trait {
+            id: "cap/exec/process/terminate".to_string(),
+        };
+        let result = debugger.debug_condition(&condition);
+
+        // The trait is not in findings, so it should NOT match
+        // (regardless of whether re-evaluation would succeed)
+        assert!(
+            !result.matched,
+            "Trait not in findings should show as not matched"
+        );
+    }
+
+    /// Test that prefix directory matching mirrors eval_trait behavior
+    #[test]
+    fn test_debug_trait_reference_prefix_match_mirrors_eval() {
+        // Create findings with a specific path
+        let findings = vec![
+            create_test_finding("cap/comm/socket/send/unix"),
+            create_test_finding("cap/comm/socket/send/windows"),
+        ];
+        let report = create_test_report_with_findings(findings);
+        let binary_data = b"test";
+
+        let mapper = CapabilityMapper::new();
+        let composites = &mapper.composite_rules;
+        let traits = mapper.trait_definitions();
+
+        let debugger = RuleDebugger::new(
+            &mapper,
+            &report,
+            binary_data,
+            composites,
+            traits,
+            vec![Platform::All],
+        );
+
+        // Test prefix match - should find both findings
+        let condition = Condition::Trait {
+            id: "cap/comm/socket/send".to_string(),
+        };
+        let result = debugger.debug_condition(&condition);
+
+        assert!(
+            result.matched,
+            "Prefix 'cap/comm/socket/send' should match findings with that prefix"
+        );
+        // Should mention both matched findings
+        let detail_text = result.details.join(" ");
+        assert!(
+            detail_text.contains("2 finding"),
+            "Should mention 2 findings matched, got: {}",
+            detail_text
+        );
     }
 }
