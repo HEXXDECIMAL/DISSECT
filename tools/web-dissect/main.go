@@ -16,6 +16,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -491,14 +492,68 @@ func handleFile(w http.ResponseWriter, r *http.Request) {
 	reqLogger := logger.With("sha256", sha)
 	reqLogger.Debug("retrieving result from cache")
 
-	res, found, err := cache.Get(r.Context(), sha)
+	// Use Fetch to deduplicate concurrent loads and provide a potential fallback
+	res, err := cache.Fetch(r.Context(), sha, func(lctx context.Context) (storedResult, error) {
+		// Fallback: If not in cache, check GCS if configured
+		if gcsBucket == "" || gcsClient == nil {
+			return storedResult{}, errors.New("result not in cache and GCS not configured")
+		}
+
+		reqLogger.Info("cache miss, attempting fallback to GCS")
+
+		// Find the file in GCS. Since filename is part of path, we need to list or know it.
+		// For now, we'll try to find any file in the sha256 prefix.
+		it := gcsClient.Bucket(gcsBucket).Objects(lctx, &storage.Query{Prefix: sha + "/"})
+		attrs, err := it.Next()
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				return storedResult{}, errors.New("file not found in GCS")
+			}
+			return storedResult{}, fmt.Errorf("GCS list failed: %w", err)
+		}
+
+		filename := filepath.Base(attrs.Name)
+		reqLogger.Info("found file in GCS, re-analyzing", "filename", filename)
+
+		// Download from GCS to temp file
+		tempFile, err := os.CreateTemp("", "dissect-fallback-*")
+		if err != nil {
+			return storedResult{}, fmt.Errorf("failed to create temp file: %w", err)
+		}
+		defer os.Remove(tempFile.Name())
+		defer tempFile.Close()
+
+		rc, err := gcsClient.Bucket(gcsBucket).Object(attrs.Name).NewReader(lctx)
+		if err != nil {
+			return storedResult{}, fmt.Errorf("GCS reader failed: %w", err)
+		}
+		defer rc.Close()
+
+		if _, err := io.Copy(tempFile, rc); err != nil {
+			return storedResult{}, fmt.Errorf("failed to download from GCS: %w", err)
+		}
+		tempFile.Close()
+
+		// Run analysis
+		output, err := runDissect(lctx, tempFile.Name(), reqLogger)
+		if err != nil {
+			return storedResult{}, fmt.Errorf("dissect failed: %w", err)
+		}
+
+		htmlOutput := terminal.Render([]byte(output))
+		return storedResult{
+			Filename: filename,
+			Output:   string(htmlOutput),
+		}, nil
+	})
+
 	if err != nil {
-		reqLogger.Error("cache retrieval failed", "error", err)
-		http.Error(w, "Failed to retrieve result", http.StatusInternalServerError)
-		return
-	}
-	if !found {
-		http.Error(w, "Result not found", http.StatusNotFound)
+		reqLogger.Warn("failed to retrieve or regenerate result", "error", err)
+		if strings.Contains(err.Error(), "not found") {
+			http.Error(w, "Result not found", http.StatusNotFound)
+		} else {
+			http.Error(w, "Failed to retrieve result", http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -563,7 +618,17 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	tempPath := tempFile.Name()
-	defer os.Remove(tempPath)
+
+	// Use WaitGroup to coordinate cleanup across background tasks
+	var cleanupWg sync.WaitGroup
+	cleanupWg.Add(2) // GCS upload + Analysis task
+
+	go func() {
+		cleanupWg.Wait()
+		if err := os.Remove(tempPath); err != nil {
+			reqLogger.Debug("failed to remove temp file", "path", tempPath, "error", err)
+		}
+	}()
 
 	reqLogger.Debug("temp file created", "path", tempPath)
 
@@ -571,6 +636,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	written, err := io.Copy(io.MultiWriter(tempFile, hash), file)
 	if err != nil {
 		tempFile.Close()
+		os.Remove(tempPath)
 		reqLogger.Error("failed to write temp file", "error", err, "bytes_written", written)
 		http.Error(w, "Failed to write file", http.StatusInternalServerError)
 		return
@@ -583,24 +649,37 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 
 	// Upload to GCS if configured (background, simultaneous to analysis)
 	if gcsBucket != "" && gcsClient != nil {
-		data, err := os.ReadFile(tempPath)
-		if err != nil {
-			reqLogger.Error("failed to read temp file for GCS upload", "error", err)
-		} else {
-			go func() {
-				// Use a background context that isn't tied to the request lifecycle
-				// so the upload can continue after the redirect.
-				bgCtx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
-				defer cancel()
-				if err := uploadToGCS(bgCtx, gcsBucket, sha256Hex, filename, data, reqLogger); err != nil {
-					reqLogger.Error("background GCS upload failed", "error", err)
-				}
-			}()
-		}
+		go func() {
+			defer cleanupWg.Done()
+			// Use a background context that isn't tied to the request lifecycle
+			// so the upload can continue after the redirect.
+			bgCtx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+			defer cancel()
+
+			f, err := os.Open(tempPath)
+			if err != nil {
+				reqLogger.Error("failed to open temp file for background GCS upload", "error", err)
+				return
+			}
+			defer f.Close()
+
+			if err := uploadToGCS(bgCtx, gcsBucket, sha256Hex, filename, f, reqLogger); err != nil {
+				reqLogger.Error("background GCS upload failed", "error", err)
+			}
+		}()
+	} else {
+		cleanupWg.Done()
 	}
 
 	// Run dissect analysis via fido.Fetch to avoid thundering herd issues
-	res, err := cache.Fetch(ctx, sha256Hex, func(lctx context.Context) (storedResult, error) {
+	// We use a detached context for the loader so that if the original requester
+	// cancels, concurrent waiters still get the result and it still gets cached.
+	res, err := cache.Fetch(ctx, sha256Hex, func(_ context.Context) (storedResult, error) {
+		defer cleanupWg.Done()
+
+		lctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
+		defer cancel()
+
 		analysisStart := time.Now()
 		output, err := runDissect(lctx, tempPath, reqLogger)
 		analysisDuration := time.Since(analysisStart)
@@ -643,49 +722,15 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 func runDissect(ctx context.Context, filePath string, reqLogger *slog.Logger) (string, error) {
 	args := []string{"analyze", filePath}
 
-	// Log the file being analyzed
-	fileInfo, statErr := os.Stat(filePath)
-	if statErr != nil {
-		reqLogger.Error("cannot stat input file",
-			"file", filePath,
-			"error", statErr,
-		)
-	} else {
-		reqLogger.Debug("input file info",
-			"file", filePath,
-			"size", fileInfo.Size(),
-			"mode", fileInfo.Mode().String(),
-		)
-	}
-
 	// Resolve dissect path
 	resolvedDissectPath, lookupErr := exec.LookPath(dissectPath)
 	if lookupErr != nil {
 		reqLogger.Error("dissect binary not found",
 			"configured_path", dissectPath,
 			"error", lookupErr,
-			"PATH", os.Getenv("PATH"),
 		)
 		return "", fmt.Errorf("dissect binary not found: %w", lookupErr)
 	}
-
-	reqLogger.Debug("executing dissect",
-		"configured_path", dissectPath,
-		"resolved_path", resolvedDissectPath,
-		"args", args,
-		"file", filePath,
-		"traits_path", traitsPath,
-		"radare_backend", radareCmd,
-		"radare_path", radareCmdPath,
-	)
-
-	// Log full environment for debugging
-	reqLogger.Debug("dissect execution environment",
-		"PATH", os.Getenv("PATH"),
-		"HOME", os.Getenv("HOME"),
-		"TMPDIR", os.Getenv("TMPDIR"),
-		"working_dir", func() string { wd, _ := os.Getwd(); return wd }(),
-	)
 
 	cmd := exec.CommandContext(ctx, resolvedDissectPath, args...)
 
@@ -699,55 +744,13 @@ func runDissect(ctx context.Context, filePath string, reqLogger *slog.Logger) (s
 	duration := time.Since(startTime)
 
 	if err != nil {
-		// Copious error logging
 		reqLogger.Error("dissect execution failed",
 			"error", err,
 			"duration_ms", duration.Milliseconds(),
-			"configured_path", dissectPath,
-			"resolved_path", resolvedDissectPath,
-			"args", args,
-			"input_file", filePath,
-			"traits_path", traitsPath,
-			"radare_backend", radareCmd,
-			"radare_path", radareCmdPath,
 			"output_length", len(output),
-			"output_preview", truncateString(string(output), 2000),
 		)
-
-		var exitErr *exec.ExitError
-		if errors.As(err, &exitErr) {
-			reqLogger.Error("dissect exit details",
-				"exit_code", exitErr.ExitCode(),
-				"process_state", exitErr.ProcessState.String(),
-				"stderr_length", len(exitErr.Stderr),
-				"stderr", string(exitErr.Stderr),
-				"system_time_ms", exitErr.ProcessState.SystemTime().Milliseconds(),
-				"user_time_ms", exitErr.ProcessState.UserTime().Milliseconds(),
-			)
-		}
-
-		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-			reqLogger.Error("dissect timed out",
-				"timeout", "120s",
-				"duration_ms", duration.Milliseconds(),
-			)
-		} else if errors.Is(ctx.Err(), context.Canceled) {
-			reqLogger.Error("dissect was canceled",
-				"duration_ms", duration.Milliseconds(),
-			)
-		}
-
-		// Log PATH components for debugging
-		pathDirs := strings.Split(os.Getenv("PATH"), ":")
-		reqLogger.Debug("PATH directories", "dirs", pathDirs)
-
 		return string(output), err
 	}
-
-	reqLogger.Debug("dissect completed successfully",
-		"duration_ms", duration.Milliseconds(),
-		"output_length", len(output),
-	)
 
 	return string(output), nil
 }
@@ -761,7 +764,7 @@ func truncateString(s string, maxLen int) string {
 }
 
 // uploadToGCS uploads data to GCS with exponential backoff retry.
-func uploadToGCS(ctx context.Context, bucket, sha256Hex, filename string, data []byte, reqLogger *slog.Logger) error {
+func uploadToGCS(ctx context.Context, bucket, sha256Hex, filename string, r io.Reader, reqLogger *slog.Logger) error {
 	if gcsClient == nil {
 		return fmt.Errorf("GCS client not initialized")
 	}
@@ -775,15 +778,18 @@ func uploadToGCS(ctx context.Context, bucket, sha256Hex, filename string, data [
 			reqLogger.Debug("uploading to GCS",
 				"bucket", bucket,
 				"object", objectPath,
-				"size", len(data),
 				"attempt", attempt,
 			)
 
 			wc := gcsClient.Bucket(bucket).Object(objectPath).NewWriter(ctx)
 			wc.ContentType = "application/octet-stream"
 
-			if _, err := wc.Write(data); err != nil {
+			if _, err := io.Copy(wc, r); err != nil {
 				wc.Close()
+				// Seek back to start if it's a seeker for the next retry
+				if rs, ok := r.(io.Seeker); ok {
+					_, _ = rs.Seek(0, io.SeekStart)
+				}
 				return fmt.Errorf("write: %w", err)
 			}
 
