@@ -120,7 +120,7 @@ traits:
     desc: Image file with script trailer
     crit: suspicious
     conf: 0.85
-    for: [png, jpeg, gif]
+    for: [png, jpeg]
     if:
       type: content
       regex: "<script|<\\?php|#!/"
@@ -146,7 +146,7 @@ traits:
     desc: Data after JPEG end-of-image
     crit: notable
     conf: 0.75
-    for: [all]
+    for: [jpeg]
     if:
       type: hex
       pattern: "FF D9"  # JPEG EOI
@@ -157,7 +157,7 @@ traits:
     desc: Data after PNG end chunk
     crit: notable
     conf: 0.75
-    for: [all]
+    for: [png]
     if:
       type: hex
       pattern: "49 45 4E 44 AE 42 60 82"  # IEND + CRC

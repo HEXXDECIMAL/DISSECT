@@ -38,7 +38,7 @@ traits:
     for: [elf, shell]
     if:
       type: string
-      substr: "watchdog"
+      substr: "/dev/watchdog"
     attack: "T1547"
 
   - id: mirai-malware-competition

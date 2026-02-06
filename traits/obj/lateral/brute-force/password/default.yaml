@@ -3,28 +3,6 @@
 # ATT&CK: T1110.001 (Brute Force: Password Guessing)
 
 traits:
-  - id: admin-password
-    desc: "Default credential: admin variations"
-    crit: notable
-    conf: 0.6
-    attack: "T1110.001"
-    for: [elf]
-    if:
-      type: string
-      word: "admin"
-  - id: root-password
-    desc: "Default credential: root variations"
-    crit: notable
-    conf: 0.6
-    attack: "T1110.001"
-    for: [elf]
-    if:
-      type: string
-      word: "root"
-    not:
-      - "malloc"
-      - "free"
-      - "node"
   - id: numeric-123456
     desc: "Default credential: 123456"
     crit: suspicious
@@ -231,8 +209,8 @@ composite_rules:
     for: [elf]
     needs: 4
     any:
-      - id: admin-password
-      - id: root-password
+      - id: obj/creds/username/admin/detected
+      - id: obj/creds/username/root/detected
       - id: numeric-123456
       - id: literal-password
       - id: admin123

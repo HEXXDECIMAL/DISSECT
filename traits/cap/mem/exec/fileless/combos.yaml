@@ -28,15 +28,15 @@ traits:
         - type: string
           substr: "Valve Corp."
 
-  - id: execve-symbol
-    desc: Linux execve/fexecve symbol reference
+  - id: fexecve-symbol
+    desc: Linux fexecve symbol reference (fileless execution)
     crit: notable
-    conf: 0.8
+    conf: 0.9
     platforms: [linux]
     for: [elf]
     if:
       type: symbol
-      regex: "^_?(execve|fexecve)$"
+      regex: "^_?fexecve$"
 
   - id: python-encode-call
     desc: Python encode method call
@@ -72,7 +72,8 @@ composite_rules:
     all:
       - id: cap/mem/anonymous/create/memfd-create
     any:
-      - id: execve-symbol
+      - id: fexecve-symbol
+      - id: cap/exec/command/shell/c-execve
       - id: cap/mem/protect/modify/mprotect
 
   - id: python-shellcode

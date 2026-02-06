@@ -197,6 +197,8 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1003.008"
+    platforms: [macos]
+    for: [macho, applescript]
     needs: 1
     any:
       - id: dslocal-db

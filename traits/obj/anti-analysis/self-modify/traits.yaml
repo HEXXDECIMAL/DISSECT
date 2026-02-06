@@ -319,8 +319,6 @@ composite_rules:
       - id: setwindowshook
       - id: inline-hook-ref
       - id: detour-ref
-      - id: ld-preload
-      - id: dyld-insert
     downgrade:
       any:
         - id: meta/vendor/valve/valve-corp-binary
@@ -359,7 +357,9 @@ composite_rules:
     crit: notable
     conf: 0.9
     all:
-      - id: obj/anti-analysis/self-modify/mprotect
+      - id: mprotect
     any:
-      - id: obj/anti-analysis/self-modify/self-overwrite
-      - id: obj/anti-analysis/self-modify/hook-install
+      - id: self-overwrite
+      - id: self-modifying-ref
+      - id: codecave-ref
+      - id: xor-loop-pattern

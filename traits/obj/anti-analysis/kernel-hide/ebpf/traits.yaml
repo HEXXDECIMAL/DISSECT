@@ -197,37 +197,8 @@ traits:
       type: symbol
       regex: "bpf_probe_write_user"
 
-  # === Sensitive File References ===
-  - id: sudoers-ref
-    desc: Sudoers file reference
-    crit: notable
-    conf: 0.7
-    if:
-      type: string
-      regex: "(?i)sudoers"
-
-  - id: shadow-ref
-    desc: Shadow file reference
-    crit: notable
-    conf: 0.7
-    if:
-      type: string
-      # Match /etc/shadow path or shadow file context, not graphics shadow
-      regex: "/etc/shadow(?:\\b|$)|shadow[_-](?:file|passwd|db|hash)"
-    # Graphics/system libraries shouldn't be flagged for shadow file references
-    unless:
-      - id: meta/library/graphics-lib-marker
-      - id: cap/exec/load/system-lib-marker
-
-  - id: passwd-ref
-    desc: Passwd file reference
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      # Match passwd file paths only, not getpwnam/getpwuid (legitimate POSIX functions)
-      # These functions are used by nearly every program to look up user info
-      regex: "/etc/passwd(?:\\b|$)|passwd[_-](?:file|db|hash)"
+  # === Sensitive File References (helpers) ===
+  # Moved to obj/discovery/permissions and obj/discovery/network/discovery/config
 
   # === Directory Entry Hiding ===
   - id: getdents64-tracepoint
@@ -452,9 +423,9 @@ composite_rules:
     conf: 0.7
     needs: 1
     any:
-      - id: sudoers-ref
-      - id: shadow-ref
-      - id: passwd-ref
+      - id: obj/discovery/permissions/etc-sudoers
+      - id: obj/discovery/permissions/etc-shadow
+      - id: obj/discovery/permissions/etc-passwd
 
   # Sudoers manipulation (migrated from YARA)
   - id: sudoers-manipulation

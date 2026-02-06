@@ -337,17 +337,6 @@ traits:
       type: symbol
       regex: "^_?connect$"
 
-  # === Atomic: File Path References ===
-
-  - id: etc-hosts-ref
-    desc: Reference to /etc/hosts file
-    crit: notable
-    conf: 0.5
-    platforms: [all]
-    if:
-      type: string
-      substr: "/etc/hosts"
-
   # === Atomic: Probing/Scanning Keywords ===
 
   - id: probing-keyword

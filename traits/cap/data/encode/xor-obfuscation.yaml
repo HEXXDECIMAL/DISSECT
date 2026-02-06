@@ -60,6 +60,12 @@ traits:
         - "========"
         # ASCII symbol ranges
         - regex: "^!\"#\\$%&'\\(\\)\\*\\+$"
+        # ISO-8859-1 upper character range (often used in character sets/tables)
+        - regex: "^[\\xA0-\\xFF]{8,}$"
+        # Sequential byte patterns
+        - "0123456789"
+        - "abcdefghijklmnopqrstuvwxyz"
+        - "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     attack: "T1027"
     unless:
       - id: cap/exec/load/system-lib-marker
@@ -67,6 +73,8 @@ traits:
       - id: cap/data/encode/base64/alphabet-standard
       # Exclude curl/libcurl which has special chars in help text
       - id: cap/comm/download/curl/curl-easy-init
+      # Exclude character set definitions
+      - id: cap/data/text/encoding/iso-8859-1
     downgrade:
       any:
         # Binutils and other development tools often have lookup tables for symbols
@@ -102,6 +110,8 @@ traits:
           substr: "libpq"
         - type: string
           substr: "postgresql"
+        # Go binaries have large tables for Unicode support
+        - id: meta/lang/go
 
   # Dense unusual character patterns indicate active obfuscation rather than
   # occasional lookup tables. Benign binaries have <0.5 matches/KB; obfuscated
@@ -121,11 +131,13 @@ traits:
         - regex: "^[#;\"'*?\\[\\]&|<>(){}$`^~!+]+$"
         - regex: "^!+$"
         - regex: "^=+$"
+        - regex: "^[\\xA0-\\xFF]{8,}$"
     attack: "T1027"
     unless:
       - id: cap/exec/load/system-lib-marker
       - id: cap/data/compression/zstd
       - id: cap/data/compression/lzma
+      - id: meta/lang/go
 
   # === Known XOR Key Indicators ===
   - id: xor-key-null-pattern

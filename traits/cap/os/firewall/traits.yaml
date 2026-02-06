@@ -101,6 +101,17 @@ traits:
         - substr: "which firewall-cmd"
         - substr: "which ufw"
         - substr: "command -v ufw"
+        - substr: "which iptables"
+
+  - id: iptables-tool
+    desc: iptables firewall tool
+    crit: notable
+    conf: 0.75
+    for: [elf, shell]
+    if:
+      type: string
+      substr: "iptables"
+    attack: "T1562.004"
 
   - id: firewalld-service-control
     desc: firewalld service enable or restart

@@ -1,0 +1,19 @@
+# Network Configuration Discovery
+# ATT&CK: T1016 (System Network Configuration Discovery)
+
+traits:
+  - id: etc-hosts
+    desc: Reference to /etc/hosts file
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      substr: "/etc/hosts"
+
+  - id: etc-resolv
+    desc: Reference to /etc/resolv.conf file
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      substr: "/etc/resolv.conf"
