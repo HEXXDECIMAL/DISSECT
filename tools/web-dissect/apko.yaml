@@ -5,6 +5,7 @@ contents:
 
   packages:
     - ca-certificates
+    - ca-certificates-bundle
     - tzdata
     - radare2
 
@@ -25,3 +26,4 @@ entrypoint:
 environment:
   PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
   PORT: "8080"
+  SSL_CERT_FILE: /etc/ssl/cert.pem
