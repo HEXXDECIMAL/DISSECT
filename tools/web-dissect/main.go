@@ -581,6 +581,24 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	reqLogger = reqLogger.With("sha256", sha256Hex)
 	reqLogger.Info("file written to temp", "bytes", written)
 
+	// Upload to GCS if configured (background, simultaneous to analysis)
+	if gcsBucket != "" && gcsClient != nil {
+		data, err := os.ReadFile(tempPath)
+		if err != nil {
+			reqLogger.Error("failed to read temp file for GCS upload", "error", err)
+		} else {
+			go func() {
+				// Use a background context that isn't tied to the request lifecycle
+				// so the upload can continue after the redirect.
+				bgCtx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+				defer cancel()
+				if err := uploadToGCS(bgCtx, gcsBucket, sha256Hex, filename, data, reqLogger); err != nil {
+					reqLogger.Error("background GCS upload failed", "error", err)
+				}
+			}()
+		}
+	}
+
 	// Run dissect analysis via fido.Fetch to avoid thundering herd issues
 	res, err := cache.Fetch(ctx, sha256Hex, func(lctx context.Context) (storedResult, error) {
 		analysisStart := time.Now()
@@ -612,28 +630,6 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		reqLogger.Error("analysis fetch failed", "error", err)
 		http.Error(w, "Analysis failed", http.StatusInternalServerError)
 		return
-	}
-
-	// Upload to GCS if configured (non-blocking, best-effort with retries)
-	if gcsBucket != "" && gcsClient != nil {
-		gcsStart := time.Now()
-		data, err := os.ReadFile(tempPath)
-		if err != nil {
-			reqLogger.Error("failed to read temp file for GCS upload", "error", err)
-		} else {
-			if err := uploadToGCS(ctx, gcsBucket, sha256Hex, filename, data, reqLogger); err != nil {
-				reqLogger.Error("GCS upload failed after retries",
-					"error", err,
-					"duration_ms", time.Since(gcsStart).Milliseconds(),
-				)
-			} else {
-				reqLogger.Info("GCS upload completed",
-					"bucket", gcsBucket,
-					"object", fmt.Sprintf("%s/%s", sha256Hex, filename),
-					"duration_ms", time.Since(gcsStart).Milliseconds(),
-				)
-			}
-		}
 	}
 
 	reqLogger.Info("request completed, redirecting to result",
