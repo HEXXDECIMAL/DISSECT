@@ -66,43 +66,31 @@ traits:
       type: string
       substr: "WScript.ScriptFullName"
 
+composite_rules:
   - id: wscript-shell
-    desc: WScript.Shell object
+    desc: Reference to WScript.Shell (Windows Script Host)
     crit: notable
-    conf: 0.75
-    platforms: [windows]
-    for: [javascript]
-    if:
-      type: string
-      substr: "WScript.Shell"
+    conf: 0.8
     attack: "T1059.005"
-    mbc: "E1243"
+    any:
+      - id: cap/exec/activex/activex-wshell
 
   - id: activexobject-shell
-    desc: ActiveXObject Shell.Application
+    desc: Reference to Shell.Application (Windows Script Host)
     crit: notable
     conf: 0.8
-    platforms: [windows]
-    for: [javascript]
-    if:
-      type: string
-      substr: "Shell.Application"
     attack: "T1059.005"
-    mbc: "E1243"
+    any:
+      - id: cap/exec/activex/activex-shell-app
 
   - id: activexobject-filesystem
-    desc: ActiveXObject FileSystemObject
+    desc: Reference to FileSystemObject (Windows Script Host)
     crit: notable
     conf: 0.8
-    platforms: [windows]
-    for: [javascript]
-    if:
-      type: string
-      substr: "Scripting.FileSystemObject"
     attack: "T1566"
-    mbc: "E1082"
+    any:
+      - id: cap/exec/activex/activex-filesystem
 
-composite_rules:
   - id: wscript-execution
     desc: Windows Script Host execution
     crit: suspicious

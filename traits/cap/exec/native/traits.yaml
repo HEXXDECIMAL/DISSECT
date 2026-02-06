@@ -189,22 +189,6 @@ traits:
       exact: "FlsSetValue"
 
   # === Exception Handling ===
-  - id: unhandled-exception-filter
-    desc: Unhandled exception filter registration
-    crit: inert
-    conf: 0.85
-    if:
-      type: symbol
-      exact: "UnhandledExceptionFilter"
-
-  - id: set-unhandled-exception-filter
-    desc: Set unhandled exception filter
-    crit: inert
-    conf: 0.85
-    if:
-      type: symbol
-      exact: "SetUnhandledExceptionFilter"
-
   - id: raise-exception
     desc: Raise structured exception
     crit: inert
@@ -212,11 +196,3 @@ traits:
     if:
       type: symbol
       exact: "RaiseException"
-
-  - id: rtl-unwind
-    desc: Runtime library unwind
-    crit: inert
-    conf: 0.85
-    if:
-      type: symbol
-      exact: "RtlUnwind"

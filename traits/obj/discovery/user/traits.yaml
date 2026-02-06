@@ -63,8 +63,7 @@ traits:
       type: string
       substr: "USERPROFILE"
 
-  # === Username environment atomic indicators ===
-  - id: env-username
+  - id: username-var
     desc: USERNAME environment variable
     crit: notable
     conf: 0.5
@@ -72,7 +71,7 @@ traits:
       type: string
       word: "USERNAME"
 
-  - id: env-user
+  - id: user-var
     desc: USER environment variable
     crit: notable
     conf: 0.5

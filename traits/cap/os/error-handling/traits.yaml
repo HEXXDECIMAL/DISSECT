@@ -23,6 +23,14 @@ traits:
       type: symbol
       exact: "GetLastError"
 
+  - id: set-last-error
+    desc: Set last error code
+    crit: inert
+    conf: 0.90
+    if:
+      type: symbol
+      exact: "SetLastError"
+
   # === Process Error Handling ===
   - id: unhandled-exception-filter
     desc: Handle unhandled exceptions
@@ -39,3 +47,11 @@ traits:
     if:
       type: symbol
       exact: "SetUnhandledExceptionFilter"
+
+  - id: rtl-unwind
+    desc: Runtime library unwind operation
+    crit: inert
+    conf: 0.85
+    if:
+      type: symbol
+      exact: "RtlUnwind"

@@ -14,7 +14,7 @@ traits:
       regex: "socket|socketpair|socketcall"
 
   - id: socket-create
-    desc: Creates network socket
+    desc: Creates network socket (Linux)
     conf: 0.9
     crit: notable
     platforms: [linux]
@@ -22,6 +22,16 @@ traits:
     if:
       type: syscall
       name: ["socket", "socketpair", "socketcall"]
+
+  - id: socket-socket-macos
+    desc: macOS socket syscall
+    conf: 0.9
+    crit: notable
+    platforms: [macos]
+    for: [macho]
+    if:
+      type: syscall
+      name: ["socket"]
 
   - id: connect
     desc: Connect socket to remote host
@@ -32,7 +42,7 @@ traits:
       regex: connect
 
   - id: socket-connect
-    desc: Connects socket to remote host
+    desc: Connects socket to remote host (Linux)
     conf: 0.9
     crit: notable
     platforms: [linux]
@@ -41,12 +51,31 @@ traits:
       type: syscall
       name: ["connect"]
 
+  - id: socket-connect-macos
+    desc: macOS connect syscall
+    conf: 0.9
+    crit: notable
+    platforms: [macos]
+    for: [macho]
+    if:
+      type: syscall
+      name: ["connect"]
+
 composite_rules:
   - id: client
-    desc: Network client - connects to
+    desc: Network client - connects to remote host
     conf: 0.85
     crit: notable
     platforms: [linux]
     all:
       - id: socket-create
       - id: socket-connect
+
+  - id: client-macos
+    desc: macOS network client
+    conf: 0.85
+    crit: notable
+    platforms: [macos]
+    all:
+      - id: socket-socket-macos
+      - id: socket-connect-macos

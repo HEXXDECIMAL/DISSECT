@@ -155,7 +155,7 @@ traits:
       substr: "log.info"
 
   - id: log-info-title
-    desc: log.Info method (title case -
+    desc: log.Info method (title case)
     crit: inert
     conf: 0.5
     for: [go]
@@ -173,7 +173,7 @@ traits:
       substr: "log.debug"
 
   - id: log-debug-title
-    desc: log.Debug method (title case -
+    desc: log.Debug method (title case)
     crit: inert
     conf: 0.5
     for: [go]
@@ -191,7 +191,7 @@ traits:
       substr: "log.error"
 
   - id: log-error-title
-    desc: log.Error method (title case -
+    desc: log.Error method (title case)
     crit: inert
     conf: 0.5
     for: [go]
@@ -580,24 +580,6 @@ traits:
       type: string
       word: "pytest"
 
-  - id: rust-test-attribute
-    desc: Rust #[test] attribute
-    crit: inert
-    conf: 0.8
-    for: [rust]
-    if:
-      type: string
-      substr: "#[test]"
-
-  - id: go-testing-t
-    desc: Go testing.T type
-    crit: inert
-    conf: 0.7
-    for: [go]
-    if:
-      type: string
-      substr: "testing.T"
-
   # === Atomic: Metrics/Telemetry ===
 
   - id: prometheus-word
@@ -803,10 +785,8 @@ composite_rules:
       - { id: sphinx-returns }
 
   # Unit test presence (in production binary)
-  # NOTE: "test_" alone is too generic - Go runtime has internal test strings
-  # Require multiple test-related indicators
   - id: has-tests
-    desc: Binary includes test code (unusual
+    desc: Binary includes test code (unusual in production)
     crit: inert
     conf: 0.5
     needs: 2
@@ -816,8 +796,8 @@ composite_rules:
       - { id: python-test-file }
       - { id: unittest-module }
       - { id: pytest-module }
-      - { id: rust-test-attribute }
-      - { id: go-testing-t }
+      - { id: meta/dev/testing/rust-test-attr }
+      - { id: meta/dev/testing/go-testing-t }
 
   # Metrics/telemetry
   - id: has-metrics

@@ -16,31 +16,6 @@ traits:
       type: string
       substr: "ntdll"
 
-  - id: rtl-unwind
-    desc: Runtime library unwind operation
-    crit: inert
-    conf: 0.85
-    if:
-      type: symbol
-      exact: "RtlUnwind"
-
-  # === Windows Error Handling ===
-  - id: get-last-error
-    desc: Retrieve last error code
-    crit: inert
-    conf: 0.90
-    if:
-      type: symbol
-      exact: "GetLastError"
-
-  - id: set-last-error
-    desc: Set last error code
-    crit: inert
-    conf: 0.90
-    if:
-      type: symbol
-      exact: "SetLastError"
-
   # === Pointer Encoding ===
   - id: encode-pointer
     desc: Pointer value encoding

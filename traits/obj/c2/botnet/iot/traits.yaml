@@ -115,17 +115,6 @@ traits:
       type: string
       regex: "telnetadmin|:23[^0-9]"
 
-  # === Self-propagation micro-traits ===
-  - id: proc-self-exe
-    desc: "/proc/self/exe"
-    crit: notable
-    conf: 0.5
-    for: [elf]
-    platforms: [linux]
-    if:
-      type: string
-      substr: "/proc/self/exe"
-
   - id: send-func
     desc: "send function"
     crit: inert
@@ -194,7 +183,7 @@ composite_rules:
 
   # Helper: pipe to sh or bash
   - id: pipe-sh-or-bash
-    desc: "Pipe to shell (sh or"
+    desc: "Pipe to shell (sh or bash)"
     crit: notable
     conf: 0.6
     for: [elf]
@@ -257,11 +246,11 @@ composite_rules:
     for: [elf]
     platforms: [linux]
     all:
-      - id: proc-self-exe
+      - id: cap/os/proc/proc-self-exe
       - id: send-or-download
 
   - id: mirai-variant
-    desc: "Mirai-like IoT botnet (credential brute-force"
+    desc: "Mirai-like IoT botnet (credential brute-force targeting)"
     crit: suspicious
     conf: 0.95
     mbc: "B0030"
@@ -298,6 +287,6 @@ composite_rules:
     for: [elf]
     platforms: [linux]
     all:
-      - id: proc-self-exe
+      - id: cap/os/proc/proc-self-exe
       - id: cap/mem/protect/modify/rwx-prot-bytes
       - id: known/tools/offensive/stagers/x64-jmp-register

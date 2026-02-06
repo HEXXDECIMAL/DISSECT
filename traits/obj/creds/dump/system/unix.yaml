@@ -22,64 +22,9 @@ traits:
       type: symbol
       regex: "getspnam"
 
-  # === Atomic: Direct File Access ===
-
+composite_rules:
   # NOTE: For ELF binaries, shadow file access is common in system utilities
   # Real credential dumping detection requires additional context
-  # === shadow file atomic indicators ===
-  - id: etc-shadow
-    desc: /etc/shadow file
-    crit: inert
-    conf: 0.7
-    attack: "T1003.008"
-    if:
-      type: string
-      substr: "/etc/shadow"
-
-  - id: etc-gshadow
-    desc: /etc/gshadow file
-    crit: inert
-    conf: 0.7
-    attack: "T1003.008"
-    if:
-      type: string
-      substr: "/etc/gshadow"
-
-  - id: etc-master-passwd
-    desc: /etc/master.passwd file
-    crit: inert
-    conf: 0.7
-    attack: "T1003.008"
-    if:
-      type: string
-      substr: "/etc/master.passwd"
-
-  # NOTE: /etc/passwd is defined in discovery/user/traits.yaml as etc-passwd
-
-  # NOTE: System utilities like busybox legitimately access gshadow
-  - id: gshadow-file
-    desc: Group shadow file access (/etc/gshadow)
-    crit: notable
-    conf: 0.6
-    attack: "T1003.008"
-    platforms: [linux]
-    for: [elf, macho, shell, perl, python, ruby]
-    if:
-      type: string
-      substr: "/etc/gshadow"
-
-  - id: master-passwd
-    desc: BSD master.passwd file access
-    crit: notable
-    conf: 0.9
-    attack: "T1003.008"
-    platforms: [macos, unix]
-    for: [elf, macho, shell, perl, python, ruby]
-    if:
-      type: string
-      substr: "/etc/master.passwd"
-
-composite_rules:
   # shadow file composite
   - id: shadow-file
     desc: Access to system shadow password
@@ -88,8 +33,8 @@ composite_rules:
     attack: "T1003.008"
     needs: 1
     any:
-      - id: etc-shadow
-      - id: etc-gshadow
+      - id: obj/discovery/permissions/etc-shadow
+      - id: obj/discovery/permissions/etc-gshadow
       - id: etc-master-passwd
 
   - id: shadow-extraction

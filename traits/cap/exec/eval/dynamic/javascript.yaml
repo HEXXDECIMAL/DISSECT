@@ -4,6 +4,16 @@
 
 traits:
   # === Eval function reference atomic indicators ===
+  - id: eval-call
+    desc: eval() function call
+    crit: notable
+    conf: 0.7
+    attack: "T1059.007"
+    for: [javascript, typescript]
+    if:
+      type: symbol
+      exact: "eval"
+
   - id: eval-as-first-arg
     desc: eval as first argument (eval,
     crit: inert

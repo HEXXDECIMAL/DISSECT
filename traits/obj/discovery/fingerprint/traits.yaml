@@ -501,15 +501,6 @@ traits:
       type: string
       substr: "id -u"
 
-  - id: etc-passwd
-    desc: /etc/passwd path
-    crit: inert
-    conf: 0.5
-    attack: "T1033"
-    if:
-      type: string
-      substr: "/etc/passwd"
-
   # === Hardware UUID micro-traits ===
   - id: generate-hwid
     desc: GenerateHardwareId function
@@ -716,7 +707,7 @@ composite_rules:
       - id: getenv-home
       - id: whoami-cmd
       - id: id-u-cmd
-      - id: etc-passwd
+      - id: obj/discovery/user/etc-passwd
 
   # Hardware UUID composite (migrated from YARA)
   - id: hardware-uuid

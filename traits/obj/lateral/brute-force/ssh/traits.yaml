@@ -3,31 +3,6 @@
 # MBC: E1110 (Brute Force)
 
 traits:
-  # SSH protocol strings
-  - id: ssh-userauth
-    desc: SSH user authentication protocol
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      substr: "ssh-userauth"
-
-  - id: libssh
-    desc: libssh library
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      substr: "libssh"
-
-  - id: ssh-version
-    desc: SSH protocol version 2.0
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      substr: "SSH-2.0"
-
   # Authentication methods
   - id: password-auth
     desc: SSH password authentication
@@ -38,31 +13,7 @@ traits:
       # SSH authentication method context, not generic "password" word
       regex: "(?:ssh[_-]?)?password[_-]?(?:auth(?:entication)?|method)"
 
-  - id: keyboard-interactive
-    desc: SSH keyboard-interactive authentication
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      substr: "keyboard-interactive"
-
   # Authentication error strings
-  - id: auth-failed
-    desc: Authentication failed error message
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      substr: "Authentication failed"
-
-  - id: permission-denied
-    desc: Permission denied error message
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      substr: "Permission denied"
-
   - id: too-many-auth-failures
     desc: Too many authentication failures error
     crit: inert
@@ -237,6 +188,32 @@ traits:
       # Network scanner context, not generic "scanner" word
       regex: "(?i)(?:port[_-]?scanner|network[_-]?scanner|ssh[_-]?scanner|scanner[_-]?(?:thread|target|port))"
 
+  # === Authentication method atomic indicators ===
+  - id: keyboard-interactive
+    desc: SSH keyboard-interactive authentication
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      substr: "keyboard-interactive"
+
+  # === Authentication error atomic indicators ===
+  - id: auth-failed
+    desc: Authentication failed error message
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      substr: "Authentication failed"
+
+  - id: permission-denied
+    desc: Permission denied error message
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      substr: "Permission denied"
+
   - id: scanning-keyword
     desc: scanning keyword
     crit: inert
@@ -246,35 +223,28 @@ traits:
       # Network scanning context
       regex: "(?i)(?:port[_-]?scanning|network[_-]?scanning|scanning[_-]?(?:port|target|thread))"
 
-  # NOTE: connect() is a generic socket function defined in cap/comm/socket/connect/unix.yaml
-  # Don't duplicate it here - the SSH scanner composites reference the cap trait directly.
-
-  # NOTE: Removed standalone "timeout" trait - too generic, matches any library
-  # with timeout functionality. Timeout is only meaningful in SSH context when
-  # combined with SSH-specific indicators (handled in composites).
-
 composite_rules:
   # Helper: SSH protocol indicators
   - id: ssh-protocol
     desc: SSH protocol indicators
     any:
-      - id: ssh-userauth
-      - id: libssh
-      - id: ssh-version
+      - id: cap/comm/ssh/client/ssh-userauth
+      - id: cap/comm/ssh/client/libssh
+      - id: cap/comm/ssh/client/ssh-version
 
   # Helper: SSH authentication methods
   - id: ssh-auth-methods
     desc: SSH authentication methods
     any:
       - id: password-auth
-      - id: keyboard-interactive
+      - id: cap/comm/ssh/client/keyboard-interactive
 
   # Helper: SSH authentication errors
   - id: ssh-auth-errors
     desc: SSH authentication error messages
     any:
-      - id: auth-failed
-      - id: permission-denied
+      - id: cap/comm/ssh/client/auth-failed
+      - id: cap/comm/ssh/client/permission-denied
       - id: too-many-auth-failures
 
   # Helper: SSH port references
@@ -343,7 +313,7 @@ composite_rules:
 
   # Default IoT credential lists (requires 3 of 15)
   - id: iot-creds
-    desc: Default IoT device credentials for
+    desc: Default IoT device credentials for brute-force
     crit: suspicious
     conf: 0.9
     mbc: "E1110"
@@ -407,3 +377,11 @@ composite_rules:
       - id: scanner
       - id: iot-creds
       - id: auth-spray
+
+  # === Libssh atomic indicators ===
+  - id: libssh
+    desc: libssh library reference (Brute-Force)
+    crit: notable
+    conf: 0.8
+    any:
+      - id: cap/comm/ssh/client/libssh

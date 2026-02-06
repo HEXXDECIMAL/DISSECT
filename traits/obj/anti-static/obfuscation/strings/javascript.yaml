@@ -148,16 +148,7 @@ traits:
       regex: '.{0,50}\\.split'
 
   # Dynamic code execution patterns (atomic)
-  - id: js-eval-call
-    desc: eval() call
-    crit: inert
-    conf: 0.5
-    mbc: "B0032"
-    attack: "T1027"
-    for: [javascript, typescript]
-    if:
-      type: symbol
-      exact: "eval"
+  # Moved to cap/exec/eval/dynamic/eval-call
 
   - id: js-function-call
     desc: Function() constructor
@@ -283,7 +274,7 @@ composite_rules:
     for: [javascript, typescript]
     needs: 1
     any:
-      - id: js-eval-call
+      - id: cap/exec/eval/dynamic/eval-call
       - id: js-function-call
       - id: js-new-function
 

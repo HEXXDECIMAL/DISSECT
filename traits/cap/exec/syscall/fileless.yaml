@@ -9,24 +9,14 @@ traits:
       type: syscall
       name: ["memfd_create"]
 
-  - id: syscall-execve
-    desc: Calls execve or execveat syscall
-    crit: notable
-    conf: 0.8
-    platforms: [linux]
-    for: [elf]
-    if:
-      type: syscall
-      name: ["execve", "execveat"]
-
 composite_rules:
 
   - id: fileless
-    desc: Fileless execution - memfd_create +
+    desc: Fileless execution - memfd_create + execve
     conf: 0.95
     crit: suspicious
     platforms: [linux]
     for: [elf]
     all:
       - id: syscall-memfd-create
-      - id: syscall-execve
+      - id: cap/exec/syscall/shell-redirect/syscall-execve-linux

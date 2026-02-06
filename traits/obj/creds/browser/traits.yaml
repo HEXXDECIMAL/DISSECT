@@ -69,14 +69,6 @@ traits:
       substr: "HackBrowserData"
 
   # === Browser Path Patterns ===
-  - id: google-chrome-path
-    desc: Google/Chrome path component
-    crit: inert
-    conf: 0.6
-    for: [all]
-    if:
-      type: string
-      substr: "Google/Chrome"
 
   - id: chromium-string
     desc: Chromium browser name
@@ -189,14 +181,6 @@ traits:
       word: "Edge"
 
   # === Credential Data Files ===
-  - id: encrypted-key-field
-    desc: encrypted_key field in browser database
-    crit: inert
-    conf: 0.75
-    for: [all]
-    if:
-      type: string
-      substr: "encrypted_key"
 
   - id: logins-json-file
     desc: logins.json Firefox password file
@@ -273,24 +257,6 @@ traits:
       type: string
       regex: "discord(app)?\\.com/api/webhooks/"
 
-  - id: telegram-api
-    desc: Telegram API endpoint
-    crit: inert
-    conf: 0.8
-    for: [all]
-    if:
-      type: string
-      substr: "api.telegram.org"
-
-  - id: multipart-form-data
-    desc: multipart/form-data content type
-    crit: inert
-    conf: 0.6
-    for: [all]
-    if:
-      type: string
-      substr: "multipart/form-data"
-
   - id: post-method
     desc: .post( HTTP method call
     crit: inert
@@ -299,6 +265,7 @@ traits:
     if:
       type: symbol
       exact: "post"
+
 
   # === Python Imports ===
   - id: import-sqlite3
@@ -434,7 +401,7 @@ composite_rules:
     desc: Chromium-based browser names
     for: [all]
     any:
-      - { id: google-chrome-path }
+      - { id: cap/fs/path/application/chrome-directory }
       - { id: chromium-string }
       - { id: microsoft-edge-path }
       - { id: brave-software-path }
@@ -468,7 +435,7 @@ composite_rules:
       - { id: obj/creds/browser/safari/cookies-binarycookies }
       - { id: obj/creds/browser/safari/history-db }
       - { id: local-state-file }
-      - { id: encrypted-key-field }
+      - { id: obj/creds/browser/chromium/encrypted-key }
       - { id: logins-json-file }
       - { id: key4-db-file }
 
@@ -487,8 +454,8 @@ composite_rules:
     any:
       - { id: discord-webhook-pattern }
       - { id: discord-webhook-simple }
-      - { id: telegram-api }
-      - { id: multipart-form-data }
+      - { id: obj/creds/discord/token/telegram-exfil }
+      - { id: cap/comm/http/headers/multipart-form-data }
       - { id: post-method }
       - { id: ipinfo-io }
     none:

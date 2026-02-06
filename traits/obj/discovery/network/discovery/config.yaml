@@ -1,19 +1,21 @@
 # Network Configuration Discovery
 # ATT&CK: T1016 (System Network Configuration Discovery)
 
-traits:
+composite_rules:
   - id: etc-hosts
-    desc: Reference to /etc/hosts file
+    desc: Reference to /etc/hosts file (Network Discovery)
     crit: notable
-    conf: 0.5
-    if:
-      type: string
-      substr: "/etc/hosts"
+    conf: 0.8
+    attack: "T1016"
+    for: [elf, macho, shell, python, ruby, perl, go, rust]
+    any:
+      - id: cap/fs/path/config/config-hosts
 
   - id: etc-resolv
-    desc: Reference to /etc/resolv.conf file
+    desc: Reference to /etc/resolv.conf file (Network Discovery)
     crit: notable
-    conf: 0.5
-    if:
-      type: string
-      substr: "/etc/resolv.conf"
+    conf: 0.8
+    attack: "T1016"
+    for: [elf, macho, shell, python, ruby, perl, go, rust]
+    any:
+      - id: cap/fs/path/config/config-resolv

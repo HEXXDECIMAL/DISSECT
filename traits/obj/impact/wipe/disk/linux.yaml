@@ -46,30 +46,6 @@ traits:
       substr: "shred --force"
 
   # === Disk device atomic indicators ===
-  - id: dev-sda
-    desc: /dev/sda device access
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      substr: "/dev/sda"
-
-  - id: dev-hda
-    desc: /dev/hda device access
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      substr: "/dev/hda"
-
-  - id: dev-nvme
-    desc: /dev/nvme device access
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      regex: "/dev/nvme"
-
   - id: dev-vda
     desc: /dev/vda device access
     crit: inert
@@ -99,7 +75,7 @@ composite_rules:
     conf: 0.66
     needs: 1
     any:
-      - id: dev-sda
-      - id: dev-hda
-      - id: dev-nvme
+      - id: cap/fs/path/device/dev-sda
+      - id: cap/fs/path/device/dev-hda
+      - id: cap/fs/path/device/dev-nvme
       - id: dev-vda

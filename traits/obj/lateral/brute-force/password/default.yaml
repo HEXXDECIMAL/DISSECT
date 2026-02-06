@@ -211,6 +211,7 @@ composite_rules:
     any:
       - id: obj/creds/username/admin/detected
       - id: obj/creds/username/root/detected
+      - id: guest
       - id: numeric-123456
       - id: literal-password
       - id: admin123
