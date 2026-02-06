@@ -64,31 +64,43 @@
             font-size: 12px;
             color: #666;
         }
-        .legend span {
-            margin-right: 15px;
-        }
-    </style>
-</head>
-<body>
-    <div class="nav">
-        <a href="/">← Upload Another</a>
-    </div>
-
-    <div class="logo">
-        <a href="/"><img src="/static/logo-small.jpg" alt="DISSECT Logo"></a>
-    </div>
-
-    <h1>{{.Filename}}</h1>
-    <div class="meta">
-        <p><strong>SHA256:</strong> {{.SHA256}}</p>
-        <div class="legend">
-            <span>🔴 hostile</span>
-            <span>🟡 suspicious</span>
-            <span>🔵 notable</span>
-            <span>⚪ inert</span>
-        </div>
-    </div>
-
-    <div class="terminal">{{.Output}}</div>
-</body>
+                .legend span {
+                    margin-right: 15px;
+                }
+                footer {
+                    margin-top: 50px;
+                    padding-top: 20px;
+                    border-top: 1px solid #eee;
+                    font-size: 12px;
+                    color: #666;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="nav">
+                <a href="/">← Upload Another</a>
+            </div>
+        
+            <div class="logo">
+                <a href="/"><img src="/static/logo-small.jpg" alt="DISSECT Logo"></a>
+            </div>
+        
+            <h1>{{.Filename}}</h1>
+        
+            <div class="meta">
+                <p><strong>SHA256:</strong> {{.SHA256}}</p>
+                <div class="legend">
+                    <span>🔴 hostile</span>
+                    <span>🟡 suspicious</span>
+                    <span>🔵 notable</span>
+                    <span>⚪ inert</span>
+                </div>
+            </div>
+        
+            <div class="terminal">{{.Output}}</div>
+        
+            <footer>
+                <a href="https://github.com/HEXXDECIMAL/DISSECT">GitHub</a>
+            </footer>
+        </body>
 </html>
