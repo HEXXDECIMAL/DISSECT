@@ -63,6 +63,12 @@ traits:
     if:
       type: symbol
       exact: "SetThreadContext"
+    # API set forwarding stubs export these symbols as forwarders,
+    # not as actual injection implementations.
+    downgrade:
+      any:
+        - type: string
+          substr: "ApiSet Stub DLL"
 
   - id: get-thread-context
     desc: Read thread context/registers
@@ -72,6 +78,12 @@ traits:
     if:
       type: symbol
       exact: "GetThreadContext"
+    # API set forwarding stubs export these symbols as forwarders,
+    # not as actual injection implementations.
+    downgrade:
+      any:
+        - type: string
+          substr: "ApiSet Stub DLL"
 
   - id: suspend-thread
     desc: Suspend thread execution

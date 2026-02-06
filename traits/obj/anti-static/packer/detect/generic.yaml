@@ -80,3 +80,19 @@ composite_rules:
       - id: petite-marker
       - id: themida-marker
       - id: vmprotect-marker
+
+  # Packed binary that links a UI framework (e.g. WebKit) is suspicious:
+  # legitimate apps using WebKit are never UPX-packed. This pattern
+  # indicates a trojan displaying a decoy UI while hiding its payload.
+  # Complexity: all(+3) + for(+1) = 4 (SUSPICIOUS)
+  - id: packed-decoy-ui
+    desc: Packed binary with UI framework
+    crit: suspicious
+    conf: 0.90
+    mbc: "F0001"
+    attack: "T1204.001"
+    for: [macho]
+    all:
+      - id: upx-marker
+      - id: obj/anti-static/obfuscation/binary-metrics/few-sections
+      - id: cap/exec/dylib/load/webkit-framework

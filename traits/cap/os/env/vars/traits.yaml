@@ -52,6 +52,15 @@ traits:
       type: symbol
       regex: "environ"
 
+  - id: py-environ-enumerate
+    desc: Python environ enumeration
+    crit: suspicious
+    conf: 0.85
+    for: [python]
+    if:
+      type: content
+      regex: "environ\\.(items|values|keys)"
+
 composite_rules:
   - id: env-access
     desc: Environment variable access functions

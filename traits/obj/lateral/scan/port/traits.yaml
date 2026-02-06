@@ -395,6 +395,17 @@ traits:
       type: string
       regex: '\b443\b'
 
+  # === CIDR Network Range Scanning ===
+
+  - id: cidr-range
+    desc: CIDR network range notation
+    crit: inert
+    conf: 0.6
+    platforms: [all]
+    if:
+      type: string
+      regex: '\d+\.\d+\.\d+\.\d+/\d+'
+
   # === RPC Service Enumeration ===
 
   - id: rpc-enum-pmap

@@ -50,6 +50,14 @@ traits:
       type: string
       regex: "pip\\.main\\(\\[.{0,50}install"
 
+  # pip.main() call via content (catches obfuscated arguments)
+  - id: main-call-content
+    desc: "Direct pip.main() call in source"
+    conf: 0.85
+    if:
+      type: content
+      regex: "pip\\.main\\("
+
   # ensurepip module usage
   - id: ensurepip
     desc: "pip bootstrapping via ensurepip"

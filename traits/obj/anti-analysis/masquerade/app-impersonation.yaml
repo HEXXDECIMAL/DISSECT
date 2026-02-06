@@ -69,6 +69,16 @@ traits:
       type: string
       regex: "Helper\\.app|helper.{0,10}tool"
 
+  # === Apple Runtime Identity Impersonation ===
+  - id: apple-runtime-identifier
+    desc: Apple runtime bundle identifier claim
+    crit: notable
+    conf: 0.9
+    for: [macho, dylib]
+    if:
+      type: string
+      substr: "com.apple.dt.runtime"
+
   # === Obfuscated App Names ===
   - id: obfuscated-app-name
     desc: Obfuscated application name
@@ -112,6 +122,20 @@ composite_rules:
       - id: temp-user-path
       - id: system-service-name
       - id: helper-tool-name
+
+  # Apple runtime identity + non-Apple code signature = masquerading
+  # Complexity: all(2) + for(1) = 3 (suspicious, not hostile)
+  - id: apple-runtime-masquerade
+    desc: Non-Apple binary claims Apple runtime identity
+    crit: suspicious
+    conf: 0.95
+    attack: "T1036.005"
+    mbc: "F0004"
+    platforms: [macos]
+    for: [macho, dylib]
+    all:
+      - id: apple-runtime-identifier
+      - id: meta/sign/developer-id
 
   - id: fake-system-binary
     desc: Fake system binary

@@ -50,14 +50,23 @@ traits:
     if:
       type: filesize
       max: 100
-      min: 1
+
+  - id: small-no-imports
+    desc: Small Python file with no imports
+    crit: notable
+    conf: 0.75
+    if:
+      type: filesize
+      max: 500
+    unless:
+      - type: content
+        substr: "import "
 
   - id: empty-file
     desc: Empty file (0 bytes)
     crit: inert
     conf: 1.0
-    # Empty __init__.py files are completely normal in Python packages
-    # Only flag as suspicious if not an __init__.py file
+    for: [all]
     if:
       type: filesize
       max: 0
@@ -75,6 +84,7 @@ traits:
     desc: __init__.py file
     crit: inert
     conf: 1.0
+    for: [all]
     if:
       type: basename
       exact: "__init__.py"
@@ -83,6 +93,7 @@ traits:
     desc: setup.py file
     crit: inert
     conf: 1.0
+    for: [all]
     if:
       type: basename
       exact: "setup.py"
@@ -94,6 +105,18 @@ traits:
     if:
       type: symbol
       exact: "setup"
+
+  # === Probe/Test Print Patterns ===
+  # Malicious typosquat/dependency confusion packages often include
+  # print("test ...") at module level to confirm code execution on install.
+
+  - id: probe-print-test
+    desc: Probe print with test prefix string
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      regex: "^test\\s"
 
   # === Suspicious URL Patterns ===
   # Exfil endpoints commonly seen in supply-chain attacks
@@ -185,6 +208,20 @@ composite_rules:
       - id: empty-file
       - id: webhook-package-name
 
+  # === Empty __init__.py (shell package) ===
+  # Published PyPI packages with empty __init__.py provide no runtime
+  # functionality - exists solely as a vehicle for install-time attacks.
+  # Complexity: all(+2) + for(+1) = 3 (SUSPICIOUS)
+  - id: empty-init-py
+    desc: Empty __init__.py in published package
+    crit: suspicious
+    conf: 0.85
+    attack: "T1195.002"
+    for: [all]
+    all:
+      - id: init-py-file
+      - id: empty-file
+
   # === Decoy/Placeholder __init__.py ===
   # Malicious PyPI packages often have minimal __init__.py files that just
   # confirm installation. This is a supply-chain indicator.
@@ -213,6 +250,20 @@ composite_rules:
     all:
       - id: tiny-python-file
       - id: placeholder-ellipsis
+
+  # === Stub Module with No Imports ===
+  # Name-squatting/typosquat packages contain small Python modules with
+  # no imports - just trivial placeholder code. Real modules import things.
+  # Complexity: for(+1) + all(+2) + size_max(+1) = 4 (SUSPICIOUS)
+  - id: stub-squatter-module
+    desc: Stub Python module with no imports
+    crit: suspicious
+    conf: 0.85
+    attack: "T1195.002"
+    size_max: 500
+    all:
+      - id: small-no-imports
+      - id: cap/data/control-flow/for-loop
 
   # Base64 encoding composite
   - id: base64-encode
@@ -266,6 +317,21 @@ composite_rules:
       - id: base64-encode
       - id: cap/comm/http/request/python/request-python
 
+  # === HOSTILE: Python Environment Variable Exfiltration ===
+  # Pattern: enumerate environ + base64 encode + HTTP send
+  # Classic supply-chain attack: steal all env vars (AWS keys, tokens, secrets)
+  # Complexity: for(+1) + all(+3) = 4 (meets HOSTILE threshold)
+  - id: python-envvar-exfil
+    desc: Python environment variable exfiltration
+    crit: hostile
+    conf: 0.95
+    mbc: "E1041"
+    attack: "T1020"
+    all:
+      - id: cap/os/env/vars/py-environ-enumerate
+      - id: base64-encode
+      - id: cap/comm/http/request/request-python
+
   # Fingerprint with VID parameter (high confidence)
   # Complexity: for(+1) + all(+3) = 4 (meets SUSPICIOUS threshold; HOSTILE would need >=4)
   - id: pypi-vid-exfil
@@ -278,4 +344,19 @@ composite_rules:
       - id: vid-parameter
       - id: base64-encode
       - id: cap/comm/http/request/python/request-python
+
+  # === SUSPICIOUS: PyPI Probe Package ===
+  # Typosquat/dependency confusion probe: setup.py imports a network library
+  # (requests) and prints a test/probe message to confirm code execution.
+  # No real package functionality — just a phone-home probe.
+  # Complexity: for(+1) + all(+3) = 4 (SUSPICIOUS)
+  - id: pypi-probe-package
+    desc: PyPI typosquat probe package
+    crit: suspicious
+    conf: 0.90
+    attack: "T1195.002"
+    all:
+      - id: setup-py-file
+      - id: obj/creds/browser/import-requests
+      - id: probe-print-test
 

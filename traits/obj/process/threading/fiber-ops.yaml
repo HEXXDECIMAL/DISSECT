@@ -59,6 +59,9 @@ composite_rules:
       - id: fls-alloc-api
       - id: fls-getvalue-api
       - id: fls-setvalue-api
+    downgrade:
+      any:
+        - id: meta/quality/versioned
 
   - id: thread-pool-based-malware
     desc: Thread pool with fiber-based scheduling
@@ -70,6 +73,9 @@ composite_rules:
     all:
       - id: fiber-local-storage-ops
       - id: cap/process/thread/create
+    downgrade:
+      any:
+        - id: meta/quality/versioned
 
   - id: fiber-dispatch-framework
     desc: Fiber-based dispatch and scheduling framework
@@ -81,3 +87,6 @@ composite_rules:
     all:
       - id: thread-pool-based-malware
       - id: cap/exec/command
+    downgrade:
+      any:
+        - id: meta/quality/versioned

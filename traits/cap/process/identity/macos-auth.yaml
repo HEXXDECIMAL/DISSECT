@@ -19,6 +19,14 @@ traits:
       type: symbol
       exact: "AuthorizationExecuteWithPrivileges"
 
+  - id: auth-execute-with-privileges-string
+    desc: "AuthorizationExecuteWithPrivileges resolved via dlsym"
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: string
+      substr: "AuthorizationExecuteWithPrivileges"
+
   - id: auth-create
     desc: "AuthorizationCreate API for auth context"
     crit: suspicious

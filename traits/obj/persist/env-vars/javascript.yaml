@@ -85,6 +85,8 @@ traits:
     not:
       - "localhost"
       - "localization"
+      - "localize"
+      - "Localize"
 
   - id: suspicious-python-version
     desc: Non-standard Python version format

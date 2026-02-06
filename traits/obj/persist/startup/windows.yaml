@@ -291,6 +291,25 @@ traits:
       type: string
       substr: "ActiveScriptEventConsumer"
 
+  # === Windows shortcut manipulation ===
+  - id: create-shortcut
+    desc: COM CreateShortcut method call
+    crit: notable
+    conf: 0.75
+    platforms: [windows]
+    if:
+      type: content
+      substr: "CreateShortcut"
+
+  - id: shortcut-target-path
+    desc: Shortcut TargetPath property access
+    crit: notable
+    conf: 0.75
+    platforms: [windows]
+    if:
+      type: content
+      substr: ".TargetPath"
+
   # === Executable payload atomic indicators ===
   - id: exe-extension
     desc: .exe file extension
@@ -371,6 +390,9 @@ composite_rules:
       - id: hkcu-run
       - id: hklm-run
       - id: currentversion-run
+    downgrade:
+      any:
+        - id: meta/quality/versioned
 
   # RunOnce composite
   - id: windows-registry-runonce
@@ -515,6 +537,17 @@ composite_rules:
     all:
       - id: windows-python-winreg-import
       - id: windows-registry-run-access
+
+  # Shortcut hijacking composite
+  - id: windows-shortcut-hijack
+    desc: "Windows shortcut hijacking via COM"
+    crit: suspicious
+    conf: 0.90
+    attack: "T1547.009"
+    platforms: [windows]
+    all:
+      - id: create-shortcut
+      - id: shortcut-target-path
 
   # Scheduled task with suspicious payload
   - id: windows-schtasks-payload

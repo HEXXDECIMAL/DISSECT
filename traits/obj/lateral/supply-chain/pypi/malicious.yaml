@@ -129,6 +129,42 @@ traits:
             ($gzip_open and $json_loads and any of ($resources, $json_gz)) and any of ($b64decode, $exec, $eval)
         }
 
+  # Vendored popular library module - file identifies itself as belonging
+  # to a well-known Python package via module docstring identifier.
+  # Common in typosquatting packages that bundle copies of legitimate code.
+  - id: vendored-requests-module
+    desc: Vendored requests library module identifier
+    crit: suspicious
+    conf: 0.8
+    attack: "T1036.005"
+    if:
+      type: string
+      regex: "requests\\.(certs|adapters|auth|compat|cookies|exceptions|hooks|models|packages|sessions|status_codes|structures|utils|api)"
+
+  # Vendored Zope Acquisition module - references Acquisition.Implicit/Explicit
+  # and ImplicitAcquisitionWrapper, which are Zope-specific APIs.
+  # Found bundled in typosquat packages (e.g., "Acqusition" vs "Acquisition").
+  - id: vendored-zope-acquisition
+    desc: Vendored Zope Acquisition library module
+    crit: suspicious
+    conf: 0.8
+    attack: "T1036.005"
+    if:
+      type: string
+      regex: "(?:Implicit|Explicit)AcquisitionWrapper"
+
+  # === Telegram Bot Library Dependencies ===
+  # Malicious PyPI packages commonly include Telegram bot libraries
+  # (pyTelegramBotAPI, Pyrogram, python-telegram-bot) as dependencies
+  # to exfiltrate stolen data via Telegram bots.
+  - id: telegram-bot-dependency
+    desc: Telegram bot library in package dependencies
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      regex: "(?:pyTelegramBotAPI|Pyrogram|python-telegram-bot|aiogram|telethon)"
+
   # NOTE: YARA kept for dependency-injection - requires combining try/except ImportError
   # with pip install patterns in a specific structural way
   # Requires subprocess execution, not just sys.executable reference

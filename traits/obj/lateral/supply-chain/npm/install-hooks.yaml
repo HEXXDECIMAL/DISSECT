@@ -100,6 +100,16 @@ traits:
       path: "scripts"
       regex: "https?://"
 
+  - id: script-sysinfo-cmd
+    desc: Script runs system info command
+    crit: notable
+    conf: 0.8
+    attack: "T1082"
+    if:
+      type: kv
+      path: "scripts"
+      regex: "\\b(uname|whoami|hostname|ifconfig|ip\\s+addr)\\b"
+
 # === Composite Rules ===
 composite_rules:
   # Download tools

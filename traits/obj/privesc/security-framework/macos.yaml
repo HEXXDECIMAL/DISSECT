@@ -18,3 +18,21 @@ composite_rules:
       - id: cap/process/identity/auth-create
       - id: cap/process/identity/auth-copy-rights
       - id: cap/process/identity/auth-execute-with-privileges
+      - id: cap/process/identity/auth-execute-with-privileges-string
+
+  # Stealthy privileged script executor
+  # Mach-O app that hides from dock, escalates privileges, and executes processes
+  # Common pattern in Platypus-wrapped malware droppers
+  # Complexity: all(3) + for(1) = 4 (meets hostile threshold)
+  - id: stealth-privesc-executor
+    desc: "Stealthy privileged process executor"
+    crit: hostile
+    conf: 0.95
+    attack: "T1548.004"
+    mbc: "B0030"
+    for: [macho]
+    platforms: [macos]
+    all:
+      - id: obj/impact/ui/manipulation/dock-hide
+      - id: auth-privesc-api-combo
+      - id: obj/c2/network/beacon/nstask-launch

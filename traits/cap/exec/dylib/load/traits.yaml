@@ -122,12 +122,50 @@ traits:
     crit: suspicious
     conf: 0.85
     attack: "T1574.006"
-    platforms: [all]
     for: [macho]
     if:
       type: string
-      regex: "class_get(Instance|Class)Method"
-      min_count: 2
+      substr: "class_getInstanceMethod"
+
+  - id: objc-set-instance-var
+    desc: ObjC runtime instance variable manipulation
+    crit: notable
+    conf: 0.8
+    attack: "T1574.006"
+    for: [macho]
+    if:
+      type: string
+      substr: "object_setInstanceVariable"
+
+  - id: messaging-app-ichat
+    desc: Apple iChat bundle identifier
+    crit: notable
+    conf: 0.8
+    attack: "T1574.006"
+    for: [macho]
+    if:
+      type: string
+      substr: "com.apple.iChat"
+
+  - id: messaging-app-mail
+    desc: Apple Mail bundle identifier
+    crit: notable
+    conf: 0.8
+    attack: "T1574.006"
+    for: [macho]
+    if:
+      type: string
+      substr: "com.apple.mail"
+
+  - id: messaging-app-messages
+    desc: Apple Messages bundle identifier
+    crit: notable
+    conf: 0.8
+    attack: "T1574.006"
+    for: [macho]
+    if:
+      type: string
+      substr: "com.apple.Messages"
 
   - id: ctypes-windll
     desc: Python ctypes Windows DLL
@@ -226,7 +264,40 @@ traits:
       type: string
       substr: "loadReplacementClass"
 
+  - id: webkit-framework
+    desc: WebKit framework linked
+    crit: inert
+    conf: 0.9
+    for: [macho]
+    if:
+      type: string
+      substr: "WebKit"
+
 composite_rules:
+  # Apple messaging app bundle ID (any variant)
+  - id: messaging-app-bundle-id
+    desc: Apple messaging app bundle identifier
+    crit: notable
+    conf: 0.8
+    attack: "T1574.006"
+    for: [macho]
+    needs: 1
+    any:
+      - id: messaging-app-ichat
+      - id: messaging-app-mail
+      - id: messaging-app-messages
+
+  # ObjC method swizzle targeting messaging apps
+  - id: objc-messaging-hook
+    desc: ObjC method swizzle with messaging hook
+    crit: suspicious
+    conf: 0.9
+    attack: "T1574.006"
+    for: [macho]
+    all:
+      - id: objc-method-swizzle
+      - id: messaging-app-bundle-id
+
   # Helper composites
   - id: loadlibrary-variants
     desc: LoadLibrary function variants

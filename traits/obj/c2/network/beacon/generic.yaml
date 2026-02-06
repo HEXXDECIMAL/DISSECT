@@ -37,6 +37,21 @@ traits:
       # Match IP-like patterns; external_ip validates they're routable external addresses
       regex: '\b[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\b'
       external_ip: true
+    # Certificate DER-encoded data contains byte patterns that look like IPs.
+    # Signed system DLLs are not C2 beacons.
+    # Windows PE manifests indicate SDK-built binaries whose .text section
+    # machine code produces false IP matches from instruction byte patterns.
+    downgrade:
+      any:
+        - type: string
+          substr: "Certificate"
+        - type: string
+          substr: "schemas-microsoft-com:asm"
+    # API set forwarding stubs contain certificate DER data that matches
+    # as IPs but are definitively not C2 beacons.
+    unless:
+      - type: string
+        substr: "ApiSet Stub DLL"
 
   - id: user-agent-rotation
     desc: Multiple User-Agent strings (evasion technique)

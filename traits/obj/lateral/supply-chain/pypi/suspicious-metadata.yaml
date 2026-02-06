@@ -25,7 +25,7 @@ traits:
     conf: 0.60
     if:
       type: string
-      regex: "description.{0,50}=.{0,50}['\"][a-zA-Z]{1,10}['\"][,\n]"
+      regex: "description.{0,50}=.{0,50}['\"][a-zA-Z]{1,30}['\"][,\n]"
 
   # === Suspicious Author ===
   - id: placeholder-author
@@ -81,15 +81,16 @@ traits:
       type: string
       word: typosquatting
 
-  # === PKG-INFO Metadata Fields ===
+  # === PKG-INFO Metadata Fields (using kv condition for structured parsing) ===
   - id: unknown-summary
     desc: PKG-INFO has UNKNOWN summary
     crit: notable
     conf: 0.75
     for: [all]
     if:
-      type: content
-      substr: "Summary: UNKNOWN"
+      type: kv
+      path: summary
+      exact: "UNKNOWN"
 
   - id: unknown-homepage
     desc: PKG-INFO has UNKNOWN home page
@@ -97,8 +98,9 @@ traits:
     conf: 0.75
     for: [all]
     if:
-      type: content
-      substr: "Home-page: UNKNOWN"
+      type: kv
+      path: home-page
+      exact: "UNKNOWN"
 
   - id: unknown-author
     desc: PKG-INFO has UNKNOWN author
@@ -106,8 +108,296 @@ traits:
     conf: 0.75
     for: [all]
     if:
+      type: kv
+      path: author
+      exact: "UNKNOWN"
+
+  - id: unknown-license
+    desc: PKG-INFO has UNKNOWN license
+    crit: notable
+    conf: 0.75
+    for: [all]
+    if:
+      type: kv
+      path: license
+      exact: "UNKNOWN"
+
+  - id: unknown-platform
+    desc: PKG-INFO has UNKNOWN platform
+    crit: notable
+    conf: 0.70
+    for: [all]
+    if:
+      type: kv
+      path: platform
+      exact: "UNKNOWN"
+
+  # === Throwaway Package Indicators ===
+  - id: pkginfo-lowest-version
+    desc: PKG-INFO with lowest possible version
+    crit: notable
+    conf: 0.65
+    for: [all]
+    if:
+      type: kv
+      path: version
+      regex: "^0\\.0(?:\\.[0-9])?$"
+
+  - id: pkginfo-free-hosting-homepage
+    desc: PKG-INFO homepage on free hosting service
+    crit: notable
+    conf: 0.70
+    for: [all]
+    if:
+      type: kv
+      path: home-page
+      regex: "(?:yolasite|weebly|wixsite|000webhostapp|blogspot)\\.com"
+
+  - id: pkginfo-security-claim
+    desc: PKG-INFO summary claims security functionality
+    crit: inert
+    conf: 0.50
+    for: [all]
+    if:
+      type: kv
+      path: summary
+      regex: "(?:secur|protect|antivirus|anti-virus|malware.scanner)"
+      case_insensitive: true
+
+  # === Dependency Confusion Indicators ===
+  - id: depconf-high-version
+    desc: PKG-INFO version with abnormally high major number
+    crit: suspicious
+    conf: 0.85
+    attack: "T1195.002"
+    for: [all]
+    if:
+      type: kv
+      path: version
+      regex: "^[1-9][0-9]{2,}\\."
+
+  - id: summary-mentions-victim
+    desc: Package summary explicitly mentions victims
+    crit: suspicious
+    conf: 0.90
+    attack: "T1195.002"
+    for: [all]
+    if:
+      type: kv
+      path: summary
+      substr: victim
+      case_insensitive: true
+
+  - id: summary-poc-research
+    desc: Summary claims proof of concept or research
+    crit: suspicious
+    conf: 0.85
+    attack: "T1195.002"
+    for: [all]
+    if:
+      type: kv
+      path: summary
+      regex: "(?:proof.of.concept|\\bpoc\\b|security.research|bug.bounty|dependency.confusion)"
+      case_insensitive: true
+
+  - id: summary-confirms-install
+    desc: Summary mentions confirming package installation
+    crit: suspicious
+    conf: 0.90
+    attack: "T1195.002"
+    for: [all]
+    if:
+      type: kv
+      path: summary
+      regex: "confirm.{0,30}install"
+      case_insensitive: true
+
+  - id: summary-beacon
+    desc: Summary mentions beacon functionality
+    crit: suspicious
+    conf: 0.90
+    attack: "T1195.002"
+    for: [all]
+    if:
+      type: kv
+      path: summary
+      regex: "\\bbeacon\\b"
+      case_insensitive: true
+
+  - id: placeholder-author-pkginfo
+    desc: PKG-INFO has placeholder author name
+    crit: notable
+    conf: 0.80
+    for: [all]
+    if:
+      type: kv
+      path: author
+      regex: "^(?:Your Name|Test|Author|TODO|FIXME|Example|Change Me|haha|lol|none|asdf|abc)$"
+      case_insensitive: true
+
+  # === Suspicious Keywords in PKG-INFO ===
+  - id: malware-keyword-in-keywords
+    desc: Malware-related term in Keywords field
+    crit: suspicious
+    conf: 0.90
+    attack: "T1036.005"
+    for: [all]
+    if:
+      type: kv
+      path: keywords
+      regex: "(?:dll(?:tracer|inject|load|hijack)|keylog|rat\\b|trojan|backdoor|rootkit|exploit|payload|shellcode|reverse.?shell|stealer|infect|malware|c2\\b|beacon)"
+      case_insensitive: true
+
+  - id: is-pkginfo-file
+    desc: Python PKG-INFO metadata file
+    crit: inert
+    conf: 1.0
+    for: [all]
+    if:
+      type: kv
+      path: metadata-version
+
+  # === Placeholder Summary ===
+  - id: pkginfo-placeholder-summary
+    desc: PKG-INFO with placeholder summary text
+    crit: notable
+    conf: 0.80
+    for: [all]
+    if:
+      type: kv
+      path: summary
+      regex: "^\\s*(?:test(?:\\s+package)?|example(?:\\s+package)?|placeholder|my\\s+package|TODO|FIXME|description|nothing|empty|temp|dummy)\\s*$"
+      case_insensitive: true
+
+  # === Single-Word Summary ===
+  - id: pkginfo-single-word-summary
+    desc: PKG-INFO with single-word summary
+    crit: notable
+    conf: 0.75
+    for: [all]
+    if:
+      type: kv
+      path: summary
+      regex: "^\\S{1,30}$"
+
+  # === Empty Description Body ===
+  - id: pkginfo-no-description-body
+    desc: PKG-INFO with no description body
+    crit: notable
+    conf: 0.75
+    for: [all]
+    if:
+      type: kv
+      path: description
+      regex: "^\\s*$"
+
+  # === Tiny PKG-INFO ===
+  - id: pkginfo-tiny
+    desc: Extremely small PKG-INFO file
+    crit: notable
+    conf: 0.70
+    for: [all]
+    if:
+      type: filesize
+      max: 200
+
+  # === pyproject.toml Skeleton Indicators ===
+  - id: pyproject-is-pyproject
+    desc: pyproject.toml build configuration file
+    crit: inert
+    conf: 1.0
+    for: [all]
+    if:
       type: content
-      substr: "Author: UNKNOWN"
+      substr: "[build-system]"
+
+  - id: pyproject-placeholder-description
+    desc: pyproject.toml with placeholder description
+    crit: notable
+    conf: 0.80
+    for: [all]
+    if:
+      type: content
+      regex: "description\\s*=\\s*[\"'].{0,30}\\b(?:test(?:\\s+package)?|example(?:\\s+package)?|placeholder|my\\s+package|TODO|FIXME|nothing|empty|temp|dummy)\\b"
+      case_insensitive: true
+
+  - id: pyproject-empty-dependencies
+    desc: pyproject.toml with empty dependencies
+    crit: inert
+    conf: 0.70
+    for: [all]
+    if:
+      type: content
+      regex: "dependencies\\s*=\\s*\\[\\]"
+
+  - id: pyproject-has-script-entrypoint
+    desc: pyproject.toml with script entry point
+    crit: inert
+    conf: 0.80
+    for: [all]
+    if:
+      type: content
+      regex: "\\[project\\.scripts\\]"
+
+  # === Missing PKG-INFO Fields ===
+  - id: pkginfo-no-summary
+    desc: PKG-INFO missing Summary field
+    crit: notable
+    conf: 0.75
+    for: [all]
+    if:
+      type: kv
+      path: metadata-version
+    unless:
+      - type: kv
+        path: summary
+
+  - id: pkginfo-no-homepage
+    desc: PKG-INFO missing Home-page field
+    crit: notable
+    conf: 0.70
+    for: [all]
+    if:
+      type: kv
+      path: metadata-version
+    unless:
+      - type: kv
+        path: home-page
+
+  - id: pkginfo-short-author
+    desc: PKG-INFO with very short author name
+    crit: notable
+    conf: 0.75
+    for: [all]
+    if:
+      type: kv
+      path: author
+      regex: "^.{1,3}$"
+
+  - id: pkginfo-no-author-email
+    desc: PKG-INFO missing Author-email field
+    crit: notable
+    conf: 0.70
+    for: [all]
+    if:
+      type: kv
+      path: metadata-version
+    unless:
+      - type: kv
+        path: author-email
+
+  # === Social Engineering for Privileges ===
+  - id: summary-requests-admin
+    desc: Summary requests admin privileges for install
+    crit: suspicious
+    conf: 0.90
+    attack: "T1204.001"
+    for: [all]
+    if:
+      type: kv
+      path: summary
+      regex: "(?:admin|root|sudo|elevat).{0,40}(?:install|permiss)"
+      case_insensitive: true
 
 composite_rules:
   # === Suspicious Metadata Profile ===
@@ -148,8 +438,263 @@ composite_rules:
     mbc: "F0004"
     for: [all]
     platforms: [all]
-    needs: 3
+    needs: 2
     any:
       - id: unknown-summary
       - id: unknown-homepage
       - id: unknown-author
+      - id: unknown-license
+      - id: unknown-platform
+
+  # === Social Engineering Supply Chain Package ===
+  # PKG-INFO that requests elevated privileges combined with
+  # other metadata anomalies indicates a supply chain attack
+  # Complexity: all(+2) + for(+1) = 3 (SUSPICIOUS)
+  - id: pkg-info-privilege-social-engineering
+    desc: PKG-INFO requests elevated install privileges
+    crit: suspicious
+    conf: 0.92
+    attack: "T1204.001"
+    mbc: "F0004"
+    for: [all]
+    platforms: [all]
+    all:
+      - id: summary-requests-admin
+      - id: unknown-platform
+
+  # === PKG-INFO with Malware-Related Keywords ===
+  # PKG-INFO containing keywords related to DLL injection, keylogging,
+  # trojans, etc. indicates a supply-chain attack package.
+  # Complexity: all(+2) + for(+1) = 3 (SUSPICIOUS)
+  - id: pkg-info-malware-keywords
+    desc: PKG-INFO with malware-related keywords
+    crit: suspicious
+    conf: 0.92
+    attack: "T1036.005"
+    mbc: "F0004"
+    for: [all]
+    platforms: [all]
+    all:
+      - id: is-pkginfo-file
+      - id: malware-keyword-in-keywords
+
+  # === Dependency Confusion Indicators Helper ===
+  - id: depconf-victim-indicators
+    desc: Dependency confusion victim-targeting language
+    crit: suspicious
+    conf: 0.90
+    attack: "T1195.002"
+    for: [all]
+    platforms: [all]
+    needs: 1
+    any:
+      - id: summary-mentions-victim
+      - id: summary-poc-research
+      - id: summary-confirms-install
+      - id: summary-beacon
+
+  # === PoC/Beacon Package with Placeholder Metadata ===
+  # Summary mentions PoC/beacon + placeholder author indicates a
+  # supply-chain attack skeleton (dependency confusion or typosquat).
+  # Complexity: all(+2) + for(+1) = 3 (SUSPICIOUS)
+  - id: poc-beacon-placeholder-package
+    desc: PoC/beacon package with placeholder metadata
+    crit: suspicious
+    conf: 0.90
+    attack: "T1195.002"
+    mbc: "F0004"
+    for: [all]
+    platforms: [all]
+    all:
+      - id: depconf-victim-indicators
+      - id: placeholder-author-pkginfo
+
+  # === Throwaway Package Indicators ===
+  - id: pkginfo-low-effort-indicators
+    desc: PKG-INFO with low-effort package indicators
+    crit: notable
+    conf: 0.70
+    attack: "T1036.005"
+    for: [all]
+    platforms: [all]
+    needs: 1
+    any:
+      - id: pkginfo-free-hosting-homepage
+      - id: pkginfo-security-claim
+
+  # === Throwaway Package Profile ===
+  # PKG-INFO with multiple low-effort indicators: free hosting homepage,
+  # lowest version (0.0.x), and UNKNOWN platform suggest a disposable
+  # package created for supply-chain attacks.
+  # Complexity: all(+4) + for(+1) = 5 (SUSPICIOUS)
+  - id: pkginfo-throwaway-package
+    desc: PKG-INFO with throwaway package indicators
+    crit: suspicious
+    conf: 0.85
+    attack: "T1036.005"
+    mbc: "F0004"
+    for: [all]
+    platforms: [all]
+    all:
+      - id: is-pkginfo-file
+      - id: unknown-platform
+      - id: pkginfo-lowest-version
+      - id: pkginfo-low-effort-indicators
+
+  # === Dependency Confusion Package ===
+  # High version number combined with victim-targeting or PoC language
+  # and install confirmation indicates a dependency confusion attack.
+  # Complexity: all(+4) = 4 (HOSTILE)
+  - id: depconf-victim-package
+    desc: Dependency confusion package targeting victims
+    crit: hostile
+    conf: 0.92
+    attack: "T1195.002"
+    mbc: "F0004"
+    for: [all]
+    platforms: [all]
+    all:
+      - id: depconf-high-version
+      - id: summary-mentions-victim
+      - id: summary-poc-research
+      - id: summary-confirms-install
+
+  # === Minimal PKG-INFO Shell Package ===
+  # Tiny PKG-INFO with single-word summary indicates a minimal/shell package
+  # commonly used as typosquat or dependency confusion probe.
+  # Complexity: all(+3) + for(+1) = 4 (SUSPICIOUS)
+  - id: pkginfo-minimal-shell-package
+    desc: Minimal PKG-INFO shell package
+    crit: suspicious
+    conf: 0.85
+    attack: "T1195.002"
+    mbc: "F0004"
+    for: [all]
+    platforms: [all]
+    all:
+      - id: is-pkginfo-file
+      - id: pkginfo-single-word-summary
+      - id: pkginfo-tiny
+
+  # === Tiny PKG-INFO with Lowest Version ===
+  # Tiny PKG-INFO with version 0.0 or 0.0.x indicates a skeleton/throwaway
+  # package commonly used for typosquatting or dependency confusion.
+  # Complexity: all(+3) + for(+1) = 4 (SUSPICIOUS)
+  - id: pkginfo-skeleton-package
+    desc: Skeleton PKG-INFO with lowest version
+    crit: suspicious
+    conf: 0.85
+    attack: "T1195.002"
+    mbc: "F0004"
+    for: [all]
+    platforms: [all]
+    all:
+      - id: is-pkginfo-file
+      - id: pkginfo-lowest-version
+      - id: pkginfo-tiny
+
+  # === PKG-INFO with Low Version and Minimal Summary ===
+  # PKG-INFO with lowest version (0.0.x) and a single-word summary
+  # indicates a low-effort throwaway package. Common in supply-chain attacks.
+  # Complexity: all(+3) + for(+1) = 4 (SUSPICIOUS)
+  - id: pkginfo-low-version-minimal-summary
+    desc: PKG-INFO with low version and minimal summary
+    crit: suspicious
+    conf: 0.85
+    attack: "T1195.002"
+    mbc: "F0004"
+    for: [all]
+    platforms: [all]
+    all:
+      - id: is-pkginfo-file
+      - id: pkginfo-lowest-version
+      - id: pkginfo-single-word-summary
+
+  # === PKG-INFO with Low Version and Offensive Tool Description ===
+  # PKG-INFO with lowest version (0.0.x) and references to attack techniques
+  # (bruteforce, exploit, etc.) indicates a malicious/hacking-tool package.
+  # Complexity: all(+3) + for(+1) = 4 (SUSPICIOUS)
+  - id: pkginfo-low-version-offensive-description
+    desc: PKG-INFO with low version and offensive tool description
+    crit: suspicious
+    conf: 0.88
+    attack: "T1195.002"
+    mbc: "F0004"
+    for: [all]
+    platforms: [all]
+    all:
+      - id: is-pkginfo-file
+      - id: pkginfo-lowest-version
+      - id: obj/lateral/scan/port/brute-force-ref
+
+  # === PKG-INFO Placeholder Package ===
+  # PKG-INFO with placeholder summary (e.g. "test package") and no description
+  # body indicates a skeleton package used for supply-chain attacks.
+  # Complexity: all(+3) + for(+1) = 4 (SUSPICIOUS)
+  - id: pkginfo-placeholder-package
+    desc: PKG-INFO with placeholder summary and no body
+    crit: suspicious
+    conf: 0.88
+    attack: "T1195.002"
+    mbc: "F0004"
+    for: [all]
+    platforms: [all]
+    all:
+      - id: is-pkginfo-file
+      - id: pkginfo-placeholder-summary
+      - id: pkginfo-no-description-body
+
+  # === PKG-INFO with Stripped Metadata ===
+  # PKG-INFO missing essential fields (Summary, Home-page) with a very short
+  # author name indicates a throwaway supply-chain attack package.
+  # Complexity: all(+4) + for(+1) = 5 (SUSPICIOUS)
+  - id: pkginfo-stripped-metadata-package
+    desc: PKG-INFO with stripped metadata fields
+    crit: suspicious
+    conf: 0.88
+    attack: "T1195.002"
+    mbc: "F0004"
+    for: [all]
+    platforms: [all]
+    all:
+      - id: is-pkginfo-file
+      - id: pkginfo-no-summary
+      - id: pkginfo-no-homepage
+      - id: pkginfo-short-author
+
+  # === PKG-INFO Skeleton Supply-Chain Package ===
+  # PKG-INFO missing all contact/description fields with a short anonymous
+  # author name — a metadata-only skeleton package with no legitimate purpose.
+  # Complexity: all(+5) + for(+1) = 6 (HOSTILE)
+  - id: pkginfo-skeleton-supply-chain-package
+    desc: Skeleton PKG-INFO with no contact or description
+    crit: hostile
+    conf: 0.92
+    attack: "T1195.002"
+    mbc: "F0004"
+    for: [all]
+    platforms: [all]
+    all:
+      - id: is-pkginfo-file
+      - id: pkginfo-no-summary
+      - id: pkginfo-no-homepage
+      - id: pkginfo-short-author
+      - id: pkginfo-no-author-email
+
+  # === pyproject.toml Skeleton Package ===
+  # pyproject.toml with placeholder description, empty dependencies, and a
+  # script entry point indicates a skeleton supply-chain package.
+  # Complexity: all(+4) + for(+1) = 5 (SUSPICIOUS)
+  - id: pyproject-skeleton-with-entrypoint
+    desc: Skeleton pyproject.toml with script entry point
+    crit: suspicious
+    conf: 0.88
+    attack: "T1195.002"
+    mbc: "F0004"
+    for: [all]
+    platforms: [all]
+    all:
+      - id: pyproject-is-pyproject
+      - id: pyproject-placeholder-description
+      - id: pyproject-empty-dependencies
+      - id: pyproject-has-script-entrypoint

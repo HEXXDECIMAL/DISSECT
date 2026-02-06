@@ -188,3 +188,14 @@ traits:
     if:
       type: content
       regex: '\|\s*sudo\s+'
+
+  # macOS open command to launch applications
+  - id: open-a-app
+    desc: macOS open -a application launch
+    crit: notable
+    conf: 0.8
+    attack: "T1204.001"
+    platforms: [macos]
+    if:
+      type: string
+      regex: 'open -a \w+'

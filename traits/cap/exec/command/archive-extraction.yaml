@@ -125,3 +125,16 @@ composite_rules:
     all:
       - id: archive-extraction
       - id: extract-then-execute
+
+  - id: extract-and-chmod
+    desc: Extract archive and make executable
+    crit: suspicious
+    conf: 0.85
+    attack: "T1204"
+    mbc: "E1105"
+    for: [shell]
+    all:
+      - id: cap/exec/dropper/script/chmod-plus-x-cmd
+    any:
+      - id: unzip-command
+      - id: tar-extract

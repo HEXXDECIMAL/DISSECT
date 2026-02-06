@@ -109,3 +109,23 @@ composite_rules:
     all:
       - id: rw-encrypt-string
       - id: rw-decrypt-string
+
+  # Java obfuscated class loader dropper
+  # Detects custom ClassLoader that dynamically defines classes from
+  # bytecode arrays with reflective invocation and deobfuscation.
+  # Common in Java RATs (Adwind, jRAT, AlienSpy) that decrypt and
+  # load second-stage payloads at runtime.
+  # Complexity: all(3) + any(1) = 4 >= 4 ✓
+  - id: java-classloader-dropper
+    desc: Obfuscated Java class loader dropper
+    crit: hostile
+    mbc: "B0032"
+    attack: "T1140"
+    conf: 0.92
+    all:
+      - id: cap/exec/dynamic-load/java-defineclass
+      - id: cap/exec/dynamic-load/java-reflective-invoke
+      - id: cap/exec/dynamic-load/java-string-reversal
+    any:
+      - id: cap/exec/dynamic-load/java-reflection
+      - id: cap/exec/dynamic-load/java-defineclass

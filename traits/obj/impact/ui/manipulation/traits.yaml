@@ -164,3 +164,16 @@ composite_rules:
     downgrade:
       any:
         - id: meta/apple/system-component
+
+  # Forced browser opening adware: system() + open -a + chmod 777
+  # Complexity: all(3) + for(1) = 4 (meets hostile threshold)
+  - id: forced-browser-adware
+    desc: Daemon forces browser to open URLs
+    crit: hostile
+    conf: 0.9
+    attack: "T1204.001"
+    for: [macho, objectivec]
+    all:
+      - id: cap/exec/command/shell/open-a-app
+      - id: cap/exec/command/shell/shell-symbols
+      - id: cap/fs/permission/chmod/chmod-777-shell

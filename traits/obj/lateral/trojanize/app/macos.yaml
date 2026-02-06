@@ -128,17 +128,33 @@ traits:
       type: string
       regex: "rm.{0,50}\\.app.{0,30}&&.{0,30}cp"
 
-  # === Messaging app targeting ===
-  - id: messaging-app-bundle-id
-    desc: Apple messaging app bundle identifier
+  # === Programmatic app launch indicators ===
+  - id: nsworkspace-open-file
+    desc: NSWorkspace openFile programmatic launch
     crit: notable
     conf: 0.8
-    attack: "T1574.006"
-    platforms: [all]
     for: [macho]
     if:
-      type: content
-      regex: "com\\.apple\\.(iChat|mail|Messages)"
+      type: string
+      substr: "openFile:"
+
+  - id: nsworkspace-shared
+    desc: NSWorkspace sharedWorkspace singleton
+    crit: inert
+    conf: 0.7
+    for: [macho]
+    if:
+      type: string
+      substr: "sharedWorkspace"
+
+  - id: path-append-component
+    desc: Path construction via ObjC method
+    crit: inert
+    conf: 0.6
+    for: [macho]
+    if:
+      type: string
+      substr: "stringByAppendingPathComponent:"
 
   # === Native app infection indicators ===
   - id: infect-apps-symbol
@@ -213,7 +229,7 @@ composite_rules:
     for: [macho]
     all:
       - id: cap/exec/dylib/load/objc-method-swizzle
-      - id: messaging-app-bundle-id
+      - id: cap/exec/dylib/load/messaging-app-bundle-id
 
   - id: pkill-ledger
     desc: "Kill Ledger Live process"
@@ -303,6 +319,30 @@ composite_rules:
     all:
       - id: cfbundle-exe-key
       - id: app-contents-path
+
+  # Programmatic app launch: NSWorkspace openFile + path construction
+  - id: nsworkspace-app-launch
+    desc: Programmatic app launch via NSWorkspace
+    crit: notable
+    conf: 0.85
+    attack: "T1204.002"
+    for: [macho]
+    all:
+      - id: nsworkspace-open-file
+      - id: nsworkspace-shared
+
+  # Watchdog relaunch: monitors process by PID + relaunches app
+  # Complexity: all(3) + for(1) = 4 (meets hostile threshold)
+  - id: watchdog-relaunch
+    desc: Process watchdog with app relaunch
+    crit: hostile
+    conf: 0.9
+    attack: "T1547.001"
+    for: [macho]
+    all:
+      - id: cap/process/info/get-process-for-pid
+      - id: nsworkspace-app-launch
+      - id: cap/os/time/query/sleep
 
   # Generic app replacement
   - id: app-trojanize

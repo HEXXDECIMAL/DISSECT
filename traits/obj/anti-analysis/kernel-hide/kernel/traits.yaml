@@ -387,6 +387,112 @@ traits:
       type: string
       substr: "inode_operations"
 
+  # === macOS Kext Rootkit Indicators ===
+  - id: macos-sy-call-hook
+    desc: macOS syscall table sy_call assignment
+    crit: suspicious
+    conf: 0.9
+    mbc: "F0015"
+    attack: "T1014"
+    for: [c]
+    if:
+      type: content
+      substr: "sy_call"
+
+  - id: macos-kauth-cred-setuidgid
+    desc: macOS kernel credential manipulation
+    crit: suspicious
+    conf: 0.95
+    attack: "T1068"
+    for: [c]
+    if:
+      type: content
+      substr: "kauth_cred_setuidgid"
+
+  - id: macos-ipf-addv4
+    desc: macOS IPv4 filter registration
+    crit: notable
+    conf: 0.8
+    mbc: "F0015"
+    for: [c]
+    if:
+      type: content
+      substr: "ipf_addv4"
+
+  - id: macos-kunc-execute
+    desc: macOS KUNCExecute kernel command exec
+    crit: suspicious
+    conf: 0.95
+    attack: "T1059"
+    for: [c]
+    if:
+      type: content
+      substr: "KUNCExecute"
+
+  - id: macos-kext-getdirentries-hook
+    desc: macOS getdirentries hook function
+    crit: suspicious
+    conf: 0.9
+    mbc: "F0015"
+    attack: "T1014"
+    for: [c, macho]
+    if:
+      type: string
+      substr: "new_getdirentries"
+
+  - id: macos-kext-write-nocancel-hook
+    desc: macOS write_nocancel syscall hook
+    crit: suspicious
+    conf: 0.9
+    mbc: "F0015"
+    attack: "T1014"
+    for: [c, macho]
+    if:
+      type: string
+      substr: "new_write_nocancel"
+
+  - id: macos-kext-ipf-filter
+    desc: macOS IP filter hook function
+    crit: notable
+    conf: 0.8
+    mbc: "F0015"
+    for: [c, macho]
+    if:
+      type: string
+      substr: "ipf_input"
+
+  - id: rootkit-give-root
+    desc: Rootkit give root privilege function
+    crit: suspicious
+    conf: 0.9
+    attack: "T1068"
+    for: [c, macho]
+    if:
+      type: string
+      substr: "give root"
+
+  - id: rootkit-hide-process-string
+    desc: Rootkit hide process menu string
+    crit: suspicious
+    conf: 0.9
+    mbc: "B0003"
+    attack: "T1014"
+    for: [c, macho]
+    if:
+      type: string
+      substr: "hide a process"
+
+  - id: rootkit-hide-network-port
+    desc: Rootkit hide network port string
+    crit: suspicious
+    conf: 0.9
+    mbc: "B0003"
+    attack: "T1014"
+    for: [c, macho]
+    if:
+      type: string
+      substr: "hide a network port"
+
   # === Diamorphine Rootkit Indicators ===
   - id: diamorphine-name
     desc: Diamorphine rootkit name
@@ -818,6 +924,92 @@ composite_rules:
       - id: syslogk-behavior
       - id: syslogk-name
       - id: rekoobe-magic
+
+  # macOS kext rootkit source code
+  - id: macos-kext-rootkit-source
+    desc: macOS kext rootkit source code
+    crit: hostile
+    conf: 0.95
+    mbc: "F0015"
+    attack: "T1014"
+    for: [c]
+    all:
+      - id: macos-sy-call-hook
+      - id: macos-kext-rootkit-behavior
+      - id: macos-kext-rootkit-hiding
+
+  # macOS kext rootkit behavior helper
+  - id: macos-kext-rootkit-behavior
+    desc: macOS kext rootkit behavior markers
+    crit: suspicious
+    conf: 0.9
+    for: [c]
+    needs: 1
+    any:
+      - id: macos-kauth-cred-setuidgid
+      - id: macos-kunc-execute
+      - id: macos-ipf-addv4
+
+  # macOS kext rootkit hiding helper
+  - id: macos-kext-rootkit-hiding
+    desc: macOS kext rootkit hiding patterns
+    crit: suspicious
+    conf: 0.9
+    for: [c]
+    needs: 1
+    any:
+      - id: macos-kext-getdirentries-hook
+      - id: obj/anti-analysis/kernel-hide/ebpf/hide-string
+
+  # macOS kext rootkit binary
+  - id: macos-kext-rootkit-binary
+    desc: macOS kext rootkit binary
+    crit: hostile
+    conf: 0.95
+    mbc: "F0015"
+    attack: "T1014"
+    for: [macho]
+    all:
+      - id: macos-kext-getdirentries-hook
+      - id: macos-kext-write-nocancel-hook
+      - id: macos-kext-binary-indicators
+
+  # macOS kext rootkit binary behavior helper
+  - id: macos-kext-binary-indicators
+    desc: macOS kext rootkit behavior indicators
+    crit: suspicious
+    conf: 0.9
+    for: [macho]
+    needs: 1
+    any:
+      - id: macos-kext-ipf-filter
+      - id: rootkit-give-root
+      - id: rootkit-hide-process-string
+      - id: rootkit-hide-network-port
+
+  # macOS kext rootkit controller binary
+  - id: macos-rootkit-controller
+    desc: macOS rootkit controller utility
+    crit: hostile
+    conf: 0.95
+    mbc: "F0015"
+    attack: "T1014"
+    for: [macho, c]
+    all:
+      - id: rootkit-give-root
+      - id: rootkit-controller-hiding
+      - id: obj/c2/backdoor/backdoor-ref
+
+  # Rootkit controller hiding helper
+  - id: rootkit-controller-hiding
+    desc: Rootkit controller hiding functions
+    crit: suspicious
+    conf: 0.9
+    for: [macho, c]
+    needs: 1
+    any:
+      - id: rootkit-hide-process-string
+      - id: rootkit-hide-network-port
 
   # Full kernel rootkit detection
   - id: lkm-rootkit

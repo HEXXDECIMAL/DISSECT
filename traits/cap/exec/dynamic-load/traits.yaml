@@ -103,6 +103,57 @@ traits:
             2 of them
         }
 
+  # Java defineClass - loading bytecode dynamically
+  - id: java-defineclass
+    desc: Dynamic class definition from bytecode
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: yara
+      source: |
+        rule java_defineclass {
+          strings:
+            $dc = "defineClass" ascii
+            $lc = "loadClass" ascii
+            $fc = "findClass" ascii
+          condition:
+            $dc and ($lc or $fc)
+        }
+
+  # Java reflective method invocation in bytecode
+  - id: java-reflective-invoke
+    desc: Reflective method invocation in bytecode
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: yara
+      source: |
+        rule java_reflective_invoke {
+          strings:
+            $method = "java/lang/reflect/Method" ascii
+            $invoke = "invoke" ascii
+            $getmethod = "getMethod" ascii
+          condition:
+            $method and ($invoke or $getmethod)
+        }
+
+  # Java string deobfuscation via StringBuilder.reverse
+  - id: java-string-reversal
+    desc: String reversal deobfuscation technique
+    crit: notable
+    conf: 0.85
+    if:
+      type: yara
+      source: |
+        rule java_string_reversal {
+          strings:
+            $sb = "java/lang/StringBuilder" ascii
+            $rev = "reverse" ascii
+            $tostr = "toString" ascii
+          condition:
+            $sb and $rev and $tostr
+        }
+
   # .NET reflection loading
   - id: dotnet-reflection
     desc: .NET reflection assembly loading

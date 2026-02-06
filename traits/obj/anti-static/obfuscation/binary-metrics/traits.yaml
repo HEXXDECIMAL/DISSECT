@@ -74,6 +74,11 @@ traits:
       type: metrics
       field: binary.wx_sections
       min: 1
+    # API set forwarding stubs have W+X sections as part of their
+    # minimal layout, not for self-modifying code.
+    unless:
+      - type: string
+        substr: "ApiSet Stub DLL"
 
   - id: many-wx-sections
     desc: "Multiple W+X sections (packer pattern)"
@@ -447,11 +452,13 @@ composite_rules:
     conf: 0.9
     attack: "T1045"
     for: [elf, pe, macho]
+    # Packers operate on substantial binaries. Tiny stubs (<20KB) like
+    # API set forwarding DLLs naturally have few sections and W+X memory.
+    size_min: 20000
     needs: 2
     any:
       - id: obj/anti-static/obfuscation/binary-metrics/high-section-name-entropy
       - id: obj/anti-static/obfuscation/binary-metrics/few-sections
-      - id: obj/anti-static/obfuscation/binary-metrics/dominant-section
       - id: obj/anti-static/obfuscation/binary-metrics/wx-sections
 
   # === Control Flow Obfuscation Detection ===

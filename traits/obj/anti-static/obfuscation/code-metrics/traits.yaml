@@ -59,6 +59,7 @@ traits:
     # NOTE: Python has own threshold (35%) - single-letter vars are legitimate
     # NOTE: Rust intrinsic headers (avx2.rs, vpclmulqdq.rs, etc) have legitimate high-entropy from SIMD/crypto naming
     # NOTE: Database adapters and similar library code have legitimate high-entropy from domain-specific terminology
+    # NOTE: min_size 4096 avoids FP on small locale/i18n files where few camelCase identifiers skew the ratio
     for:
       [
         javascript,
@@ -77,7 +78,7 @@ traits:
       type: metrics
       field: identifiers.high_entropy_ratio
       min: 0.20
-      min_size: 2048
+      min_size: 4096
     unless:
       - type: basename
         regex: '^[a-z]+\d+\.rs$|^(avx|sse|neon|simd|intrinsic|vpclmul|pclmul|aes).*\.rs$|.*adapter\.(rb|py|php|js|ts)$'

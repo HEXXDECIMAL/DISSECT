@@ -243,6 +243,17 @@ traits:
       type: filesize
       max: 5120
 
+  # Skeleton package.json (under 2KB) - metadata-only, no source code
+  # Name squatters and impersonation packages often ship only package.json
+  - id: pkg-skeleton-small
+    desc: Tiny package.json (metadata only)
+    crit: inert
+    conf: 0.7
+    for: [packagejson]
+    if:
+      type: filesize
+      max: 2048
+
   # === OOB exfil domain micro-traits ===
   - id: oast-fun-domain
     desc: oast.fun exfil domain
@@ -297,6 +308,16 @@ traits:
     if:
       type: string
       substr: "discord.com/api/webhooks"
+
+  # Package claims to provide CLI binary
+  - id: pkg-claims-bin
+    desc: Package declares CLI binary
+    crit: inert
+    conf: 0.7
+    for: [packagejson]
+    if:
+      type: kv
+      path: "bin"
 
   # === Placeholder/Default Author Patterns ===
   # Malicious packages often use placeholder author values
@@ -411,7 +432,7 @@ traits:
   # This is a social engineering technique to appear benign
 
   - id: js-placeholder-announcement
-    desc: Code announces placeholder package status
+    desc: Code announces placeholder or fake package
     crit: suspicious
     conf: 0.85
     mbc: "B0024"
@@ -419,7 +440,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      regex: "(?:placeholder|reserved|do not use|prevent(?:s|ing)?\\s+(?:dependency\\s+)?confusion)"
+      regex: "(?:placeholder|reserved|do not use|\\bfake\\b|\\bdemo\\s+package\\b|prevent(?:s|ing)?\\s+(?:dependency\\s+)?confusion)"
       case_insensitive: true
 
   - id: pkg-version-100
@@ -569,6 +590,24 @@ composite_rules:
     none:
       - id: pkg-repository
 
+  # === Script Recon with Missing Metadata ===
+
+  # System recon command in npm scripts + missing metadata = suspicious package
+  # Typosquatting packages often run system discovery commands (uname, whoami)
+  # in scripts while having minimal/fake metadata
+  # Complexity: all(+4) = 4
+  - id: npm-script-recon-no-metadata
+    desc: System recon in scripts with missing metadata
+    crit: suspicious
+    conf: 0.85
+    attack: "T1195.002"
+    for: [packagejson]
+    all:
+      - id: obj/lateral/supply-chain/npm/script-sysinfo-cmd
+      - id: obj/lateral/supply-chain/npm/no-repository-field
+      - id: obj/lateral/supply-chain/npm/no-bugs-field
+      - id: pkg-no-description-short
+
   # === Data Exfiltration Patterns ===
 
   # System info exfiltration - small npm package collects system info and sends via HTTP POST
@@ -643,3 +682,39 @@ composite_rules:
       - id: dependency-confusion-claim
       - id: obj/lateral/supply-chain/npm/no-repository-field
       - id: obj/lateral/supply-chain/npm/no-bugs-field
+
+  # === Fake Placeholder Package Detection ===
+  # Tiny JS files that announce themselves as "fake" or "placeholder" packages
+  # while providing no module exports are clear typosquat/name-confusion attacks.
+  # No legitimate npm package would publish a stub that says it's fake.
+  # Complexity: for(+1) + size_max(+1) + all(+2) = 4
+  - id: fake-placeholder-noop
+    desc: Fake package stub with no module exports
+    crit: hostile
+    conf: 0.95
+    attack: "T1195.002"
+    mbc: "B0024"
+    for: [javascript]
+    size_max: 1024
+    all:
+      - id: js-placeholder-announcement
+      - id: small-file-5k
+    none:
+      - id: has-exports
+
+  # === Skeleton Package / Name Squatter Detection ===
+  # Skeleton packages ship only package.json with no actual source code.
+  # They claim to provide libraries/CLIs but contain no implementation.
+  # Common in typosquatting, name confusion, and dependency confusion attacks.
+  # Complexity: all(+4) = 4 (meets suspicious threshold)
+  - id: skeleton-squatter-package
+    desc: Skeleton package claims functionality but has no code
+    crit: suspicious
+    conf: 0.85
+    attack: "T1195.002"
+    for: [packagejson]
+    all:
+      - id: pkg-skeleton-small
+      - id: pkg-claims-bin
+      - id: obj/lateral/supply-chain/npm/no-bugs-field
+      - id: obj/lateral/supply-chain/npm/no-homepage-field
