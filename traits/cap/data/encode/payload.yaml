@@ -12,6 +12,14 @@ traits:
     if:
       type: string
       regex: "^[A-Za-z0-9+/]{200,}={0,2}$"
+    # Exclude CamelCase identifier strings (CLI options, enum variants, etc.)
+    # These are common in compiled binaries and not actual payloads
+    # Pattern: strings that are mostly CamelCase words without + or /
+    not:
+      # Pure CamelCase identifiers (no +/)
+      - regex: '^([A-Z][a-z0-9]*)+$'
+      # Strings starting with multiple CamelCase words (enum variants, struct names)
+      - regex: '^([A-Z][a-z]+){5,}'
     attack: "T1140"
     mbc: "C0043"
 

@@ -157,14 +157,16 @@ traits:
       regex: "sendfile\\("
 
   - id: tftp-string
-    desc: "tftp string"
+    desc: "tftp command invocation"
     crit: inert
     conf: 0.3
     for: [elf]
     platforms: [linux]
     if:
       type: string
-      exact: "tftp"
+      # Require tftp to look like a command invocation (space after, or path prefix)
+      # Exclude "tftp" appearing in lists of module/application names
+      regex: "(?:/usr)?(?:/s?bin/)?tftp\\s|\\btftp\\s+-"
 
   - id: curl-http-download
     desc: "Curl HTTP payload download"

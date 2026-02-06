@@ -22,6 +22,9 @@ traits:
     mbc: "B0017"
     attack: "T1529"
     platforms: [unix, macos, linux]
+    # Restrict to shell scripts where shutdown is used as a command
+    # Binary programs often have "shutdown" in error messages, callbacks, etc.
+    for: [shell, python, ruby, perl]
     if:
       type: string
       regex: 'shutdown\s+(-h|-r|-k)?'
@@ -34,6 +37,9 @@ traits:
     mbc: "B0017"
     attack: "T1529"
     platforms: [unix, macos, linux]
+    # Restrict to shell scripts and interpreted languages where halt is used as a command
+    # Binary programs often have "halt" as a function/opcode name (e.g., SQLite VM)
+    for: [shell, python, ruby, perl]
     if:
       type: string
       word: "halt"

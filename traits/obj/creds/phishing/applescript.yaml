@@ -59,6 +59,8 @@ traits:
     desc: "Prompts user to enter password"
     crit: suspicious
     conf: 0.85
+    # Only apply to script types - ELF/Macho binaries legitimately prompt for passwords
+    for: [applescript, shell, python, ruby, perl, javascript]
     if:
       type: string
       regex: "(?i)enter.{0,30}password"
@@ -89,6 +91,8 @@ composite_rules:
     desc: Password dialog prompt
     crit: suspicious
     conf: 0.8
+    # Only apply to script types - ELF/Macho binaries legitimately prompt for passwords
+    for: [applescript, shell, python, ruby, perl, javascript]
     needs: 1
     any:
       - id: display-dialog-password

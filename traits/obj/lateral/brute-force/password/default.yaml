@@ -165,9 +165,27 @@ traits:
     conf: 0.8
     attack: "T1110.001"
     for: [elf]
+    # Size constraint: Credential dictionaries are typically in small malware droppers
+    # Large legitimate binaries may have user:X patterns in help text, config, etc.
+    size_max: 100000
     if:
       type: string
-      regex: "\\b(root|admin|user|guest|support):(root|admin|[a-zA-Z0-9]{4,12})\\b"
+      # Match credential combos but exclude common programming patterns like
+      # user:group, user:groupFilter, root:path, etc.
+      regex: "\\b(root|admin|user|guest|support):(root|admin|1234|pass|default|qwerty|letmein|[a-zA-Z0-9]{4,8})\\b"
+    not:
+      - "user:group"
+      - "user:uid"
+      - "root:path"
+      - "root:/"
+      # Exclude help text patterns from CLI tools
+      - "<user:password>"
+      - "user:password>"
+      - "--user <"
+      - "-u, --user"
+    unless:
+      # Exclude curl/libcurl which has credential help text
+      - id: cap/comm/download/curl/curl-easy-init
 
 composite_rules:
   # IoT ZTE credential composite

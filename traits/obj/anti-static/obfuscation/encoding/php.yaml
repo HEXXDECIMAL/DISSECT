@@ -163,6 +163,29 @@ traits:
       kind: call
       exact: "strrev"
 
+  - id: strrev-chained
+    desc: Chained strrev calls (function name obfuscation)
+    crit: suspicious
+    conf: 0.9
+    mbc: "B0032"
+    attack: "T1027"
+    for: [php]
+    if:
+      type: content
+      regex: "strrev\\([^)]+\\)\\s*\\.\\s*strrev\\("
+
+  - id: base64-admin-role
+    desc: Base64 encoded administrator role
+    crit: suspicious
+    conf: 0.95
+    mbc: "B0032"
+    attack: "T1027"
+    for: [php]
+    if:
+      type: content
+      # YWRtaW5pc3RyYXRvcg== decodes to "administrator"
+      substr: "YWRtaW5pc3RyYXRvcg"
+
   - id: hex2bin
     desc: Hex to binary conversion (obfuscation)
     crit: notable

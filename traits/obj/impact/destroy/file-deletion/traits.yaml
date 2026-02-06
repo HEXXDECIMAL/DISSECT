@@ -14,7 +14,9 @@ traits:
     mbc: "C0047"
     if:
       type: string
-      regex: "(delete|destroy|wipe|erase|remove|eliminate).{0,50}(your |user |hard drive|files|data)"
+      # Focus on threats/warnings about user data destruction, not help text
+      # Require "your" or "user" to indicate targeting user files specifically
+      regex: "(delete|destroy|wipe|erase|eliminate).{0,50}(your |user ).{0,30}(files|data|documents)"
       case_insensitive: true
 
   - id: destructive-gameplay-warning

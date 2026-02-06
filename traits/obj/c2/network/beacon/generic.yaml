@@ -29,6 +29,10 @@ traits:
     crit: suspicious
     conf: 0.75
     mbc: "B0030"
+    # Size constraint: Large binaries (Rust/Go with regex, Unicode tables, SQLite) often have
+    # byte patterns that look like IPs but are actually lookup tables. C2 implants
+    # with hardcoded IPs are typically compact (<1.5MB) for stealth.
+    size_max: 1500000
     if:
       type: string
       # Match IP-like patterns; external_ip validates they're routable external addresses
@@ -205,6 +209,9 @@ composite_rules:
     conf: 0.95
     mbc: "B0030"
     attack: "T1071.001"
+    # Size constraint: Large binaries (Rust/Go with regex, Unicode tables, SQLite) often have
+    # byte patterns that look like IPs. C2 implants are typically compact (<1.5MB).
+    size_max: 1500000
     any:
       - id: obj/c2/infrastructure/ip/http-raw-ip-url-content
       - id: obj/c2/infrastructure/ip/http-raw-ip-url-string
@@ -217,6 +224,10 @@ composite_rules:
     mbc: "B0030"
     attack: "T1071.001"
     for: [elf, macho, pe]
+    # Size constraint: C2 implants are typically compact (<1.5MB) for stealth.
+    # Large binaries (Rust/Go with regex, Unicode tables, SQLite) often have byte patterns
+    # that look like IPs but are actually lookup tables or compressed data.
+    size_max: 1500000
     all:
       - id: direct-http-c2
       - id: cap/exec/command

@@ -16,6 +16,9 @@ traits:
     conf: 0.85
     mbc: "C0002"
     attack: "T1071.001"
+    # Size constraint: Large binaries (Rust/Go with regex, Unicode tables, SQLite) often have
+    # byte patterns that look like IPs. C2 implants are typically compact (<1.5MB).
+    size_max: 1500000
     # Exclude PE/bootloader files where string extraction is unreliable
     # (instruction bytes get parsed as IPs). More reliable in ELF/scripts/macho.
     for: [elf, macho, shell, python, ruby, javascript, php]

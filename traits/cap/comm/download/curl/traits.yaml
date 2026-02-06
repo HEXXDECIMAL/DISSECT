@@ -68,13 +68,31 @@ composite_rules:
       - id: curl-easy-init
       - id: curl-easy-perform
 
-  # libcurl with custom headers (often malicious)
+  # libcurl with custom headers
+  # Note: Custom headers are standard practice for HTTP clients (User-Agent, Accept, etc.)
+  # Downgraded to notable for general use; compact binaries still suspicious
   - id: libcurl-custom-headers
     desc: "libcurl with custom HTTP headers"
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1071.001"
     all:
       - id: curl-easy-init
       - id: curl-slist-append
       - id: curl-easy-perform
+
+  # libcurl with custom headers in compact binary (more suspicious)
+  - id: libcurl-custom-headers-compact
+    desc: "Compact binary using libcurl with custom headers"
+    crit: suspicious
+    conf: 0.9
+    attack: "T1071.001"
+    size_max: 500000
+    all:
+      - id: curl-easy-init
+      - id: curl-slist-append
+      - id: curl-easy-perform
+    unless:
+      # Exclude curl CLI tool itself which has help text
+      - type: string
+        substr: "curl --help"

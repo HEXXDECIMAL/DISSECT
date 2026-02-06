@@ -44,11 +44,27 @@ traits:
 
 composite_rules:
   # C++ with shell commands
+  # Note: This is common in build tools, compilers, and IDEs - downgraded from suspicious to notable
+  # Small binaries (<100KB) using this pattern are more suspicious (use cpp-with-system-compact)
   - id: cpp-with-system
     desc: "C++ program using system() for"
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1059.004"
+    all:
+      - id: cpp-stdlib
+    needs: 1
+    any:
+      - id: system-call
+      - id: popen-call
+
+  # C++ with shell commands in compact binary (more suspicious)
+  - id: cpp-with-system-compact
+    desc: "Compact C++ binary using system() for command execution"
+    crit: suspicious
+    conf: 0.9
+    attack: "T1059.004"
+    size_max: 100000
     all:
       - id: cpp-stdlib
     needs: 1

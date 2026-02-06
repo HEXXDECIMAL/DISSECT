@@ -46,27 +46,35 @@ traits:
       substr: "/etc/ld.so.preload"
 
   # === Directory listing hooking ===
-  - id: readdir-hook
-    desc: Exported readdir function (directory listing hook)
-    crit: suspicious
-    conf: 0.85
-    mbc: "F0015"
-    attack: "T1014"
+  # Note: Rootkit libraries EXPORT malicious readdir/getdents to intercept calls.
+  # Normal binaries only IMPORT these from libc. We detect this by requiring
+  # the binary has exports (most normal binaries like fd have 0 exports).
+  - id: readdir-symbol
+    desc: readdir function symbol
+    crit: inert
+    conf: 0.5
     for: [elf]
     if:
       type: symbol
       regex: "^readdir"
 
-  - id: getdents-hook
-    desc: Exported getdents function (directory listing hook)
-    crit: suspicious
-    conf: 0.85
-    mbc: "F0015"
-    attack: "T1014"
+  - id: getdents-symbol
+    desc: getdents function symbol
+    crit: inert
+    conf: 0.5
     for: [elf]
     if:
       type: symbol
       regex: "^getdents"
+
+  - id: has-exports
+    desc: Binary exports symbols
+    crit: inert
+    conf: 0.5
+    for: [elf]
+    if:
+      type: exports_count
+      min: 1
 
   # === Process Filtering Functions ===
   - id: filter-process-name
@@ -90,6 +98,30 @@ traits:
       regex: "^original_readdir"
 
 composite_rules:
+  # Composite for readdir hook detection - requires the binary to have exports
+  # (shared libraries export functions, normal executables typically don't)
+  - id: readdir-hook
+    desc: Exported readdir function (directory listing hook)
+    crit: suspicious
+    conf: 0.85
+    mbc: "F0015"
+    attack: "T1014"
+    for: [elf]
+    all:
+      - id: readdir-symbol
+      - id: has-exports
+
+  - id: getdents-hook
+    desc: Exported getdents function (directory listing hook)
+    crit: suspicious
+    conf: 0.85
+    mbc: "F0015"
+    attack: "T1014"
+    for: [elf]
+    all:
+      - id: getdents-symbol
+      - id: has-exports
+
   # Direct hooked library rootkit (exported function hooking)
   - id: hooked-library
     desc: Userspace rootkit library with hooked functions

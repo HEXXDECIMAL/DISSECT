@@ -27,6 +27,15 @@ traits:
       type: content
       regex: "from\\s+binascii\\s+import.{0,50}unhexlify"
 
+  - id: binascii-import
+    desc: binascii module import
+    crit: inert
+    conf: 0.9
+    for: [python]
+    if:
+      type: content
+      regex: "import\\s+binascii\\b"
+
   # === Content-based exec/eval detection ===
   # These use content: instead of string: to match function calls in source
   - id: exec-function-call
@@ -124,6 +133,7 @@ composite_rules:
       - id: binascii-unhexlify
     any:
       - id: unhexlify-import
+      - id: binascii-import
       - id: obj/anti-static/obfuscation/code-metrics/low-whitespace
 
   # Large encoded string composite (migrated from YARA)

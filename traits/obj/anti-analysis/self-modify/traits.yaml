@@ -279,14 +279,15 @@ composite_rules:
         - id: cap/exec/load/system-lib-marker
 
   # Self-overwriting code
+  # Note: Removed proc-self-maps since it's commonly used by legitimate software
+  # (Go/Rust runtimes, crash reporters, profilers). proc-self-mem is more specific
+  # to actual memory modification.
   - id: self-overwrite
     desc: Self-overwriting code patterns
     crit: suspicious
     conf: 0.8
     needs: 1
-  # Code cave injection
     any:
-      - id: proc-self-maps
       - id: proc-self-mem
       - id: writeprocessmemory
       - id: self-patch-ref

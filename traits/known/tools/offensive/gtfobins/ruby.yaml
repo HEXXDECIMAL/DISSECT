@@ -15,8 +15,28 @@ traits:
     crit: notable
     conf: 0.70
     if:
-      type: string
+      type: content
       regex: 'ruby -e|ruby -rsocket|ruby -ropen-uri|ruby -rfiddle'
+
+  # === GTFOBins Ruby shell spawning ===
+  - id: gtfobins-ruby-exec-shell
+    desc: GTFOBins Ruby shell spawning
+    crit: suspicious
+    conf: 0.90
+    attack: "T1059"
+    if:
+      type: content
+      regex: 'ruby -e.{0,30}exec.{0,30}bin/sh|ruby -e.{0,30}exec.{0,30}bin/bash|ruby -e.{0,30}system.{0,30}sh'
+
+  # === GTFOBins Ruby file write ===
+  - id: gtfobins-ruby-file-write
+    desc: GTFOBins Ruby file write technique
+    crit: suspicious
+    conf: 0.90
+    attack: "T1083"
+    if:
+      type: content
+      regex: 'ruby -e.{0,100}File\.(open|write).{0,50}w.{0,50}write'
 
 composite_rules:
   # === GTFOBins Library Load ===
@@ -46,13 +66,13 @@ composite_rules:
   # === GTFOBins File Operations ===
   - id: gtfobins-ruby-file-ops
     desc: GTFOBins file operations via Ruby
-    crit: notable
-    conf: 0.75
+    crit: suspicious
+    conf: 0.85
     attack: "T1083"
     needs: 2
     any:
       - id: gtfobins-ruby-marker
-      - id: cap/fs/file/read/ruby-file-read
+      - id: cap/fs/file/read/ruby-file-read-content
       - id: cap/fs/write/file/ruby-file-write-content
 
   # === GTFOBins Reverse Shell ===
@@ -71,8 +91,8 @@ composite_rules:
   # === GTFOBins Shell ===
   - id: gtfobins-ruby-shell
     desc: GTFOBins shell execution via Ruby
-    crit: notable
-    conf: 0.80
+    crit: suspicious
+    conf: 0.85
     attack: "T1059"
     needs: 2
     any:

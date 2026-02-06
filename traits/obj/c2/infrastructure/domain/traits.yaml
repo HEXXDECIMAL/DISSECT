@@ -130,6 +130,8 @@ traits:
         - "clang\\.llvm\\.org"
         - "releases\\.llvm\\.org"
         - "apt\\.llvm\\.org"
+        # Database libraries
+        - "sqlite\\.org"
         # Build/compiler tools
         - "cmake\\.org"
         - "gcc\\.gnu\\.org"

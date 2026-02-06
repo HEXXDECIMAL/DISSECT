@@ -12,7 +12,8 @@ traits:
     conf: 0.9
     if:
       type: symbol
-      regex: system
+      # Match only the actual system() function, not std::filesystem or other symbols
+      regex: "^system$"
     platforms: [unix, linux, macos]
     for: [pe, elf, macho, dll, so, dylib]
 
@@ -24,7 +25,8 @@ traits:
     conf: 0.9
     if:
       type: symbol
-      regex: popen
+      # Match only the actual popen() function
+      regex: "^popen$"
     platforms: [unix, linux, macos]
     for: [pe, elf, macho, dll, so, dylib]
 

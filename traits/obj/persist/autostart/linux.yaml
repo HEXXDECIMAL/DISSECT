@@ -182,12 +182,14 @@ composite_rules:
       - id: xdg-config-autostart
 
   # Desktop entry composite
+  # Note: Require stronger indicators than just ".desktop" string which appears
+  # in file finders, archive managers, and documentation. The desktop entry header
+  # or GNOME autostart directive is more specific.
   - id: linux-desktop-entry
     desc: "Desktop entry file creation (.desktop)"
     conf: 0.8
     needs: 1
     any:
-      - id: dot-desktop-ext
       - id: desktop-entry-header
       - id: x-gnome-autostart
 

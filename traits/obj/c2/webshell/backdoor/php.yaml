@@ -170,6 +170,44 @@ traits:
       type: content
       regex: "base64_decode\\s*\\([\"'][A-Za-z0-9+/=]{500,}"
 
+  # WordPress CMS backdoor patterns
+  - id: wp-user-creation
+    desc: WordPress user creation API
+    crit: notable
+    conf: 0.7
+    attack: "T1136.001"
+    if:
+      type: content
+      regex: "wp_create_user|WP_User|username_exists"
+
+  - id: wp-role-assignment
+    desc: WordPress role assignment
+    crit: notable
+    conf: 0.7
+    attack: "T1098"
+    if:
+      type: content
+      substr: "set_role"
+
+  - id: wp-plugin-path
+    desc: WordPress plugin directory reference
+    crit: inert
+    conf: 0.5
+    if:
+      type: content
+      substr: "wp-content/plugins"
+
+  - id: wp-plugin-path-encoded
+    desc: Base64 encoded WordPress plugin path
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0032"
+    attack: "T1027"
+    if:
+      type: content
+      # d3AtY29udGVudC9wbHVnaW5z decodes to "wp-content/plugins"
+      substr: "d3AtY29udGVudC9wbHVnaW5z"
+
 composite_rules:
   - id: proxy-port
     desc: High port number (proxy/backdoor indicator)

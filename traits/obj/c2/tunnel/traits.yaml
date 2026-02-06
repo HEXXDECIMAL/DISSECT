@@ -338,3 +338,5 @@ composite_rules:
       - id: socks-server-ref
     none:
       - id: meta/signed/type/platform
+      # Exclude curl/libcurl which uses SOCKS as a CLIENT, not server
+      - id: cap/comm/download/curl/curl-easy-init

@@ -58,10 +58,16 @@ traits:
         - regex: "\\(deleted\\)"
     attack: "T1070.003"
 
+  # Note: /proc/self/maps is commonly used by legitimate software:
+  # - Go/Rust runtimes for stack traces and panic handling
+  # - Memory allocators (jemalloc, tcmalloc) for debugging
+  # - Profiling tools (perf, valgrind)
+  # - Crash reporters and debuggers
+  # Only suspicious when combined with other anti-analysis or debugger detection.
   - id: proc-self-maps
     desc: /proc/self/maps inspection for anti-forensics
-    crit: suspicious
-    conf: 0.75
+    crit: notable
+    conf: 0.5
     for: [elf, shell]
     if:
       type: string

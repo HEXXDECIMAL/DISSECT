@@ -334,3 +334,19 @@ composite_rules:
       - id: obj/c2/webshell/wso-shell  # WSO family
       - id: obj/c2/webshell/backdoor/dynamic-user-input-call  # variable function backdoor
       - id: cap/exec/command/shell/backtick  # backtick RCE
+
+  # WordPress CMS backdoor - creates admin user with obfuscated code
+  - id: php-wordpress-backdoor
+    desc: "WordPress backdoor: admin user creation"
+    crit: hostile
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1505.003"
+    for: [php]
+    all:
+      - id: obj/c2/webshell/backdoor/wp-user-creation
+      - id: obj/c2/webshell/backdoor/wp-role-assignment
+    any:
+      - id: obj/anti-static/obfuscation/encoding/strrev-chained
+      - id: obj/anti-static/obfuscation/encoding/base64-admin-role
+      - id: obj/c2/webshell/backdoor/wp-plugin-path-encoded

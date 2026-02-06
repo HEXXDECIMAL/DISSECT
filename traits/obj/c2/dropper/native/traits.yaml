@@ -50,6 +50,10 @@ traits:
       - regex: ">$"
       # Exclude Apple OS constants (all uppercase)
       - regex: "^[A-Z][A-Z0-9_]+$"
+      # Exclude strings with common English words (help text, descriptions)
+      - regex: "(?i)(with|line|author|newline|text|format|string)"
+      # Exclude strings that are mostly hyphens (formatting separators)
+      - regex: "-{10,}"
 
 composite_rules:
   # libcurl network dropper: downloads content via libcurl, writes to disk, executes via shell
@@ -58,7 +62,8 @@ composite_rules:
   # - Writes to user home directory files for persistence
   # - Executes downloaded content via system()
   # - Reads /proc/self/exe for self-discovery
-  # Complexity: all(4) + for(1) = 5 >= 4 ✓ HOSTILE
+  # Malware droppers are typically small (<500KB) - legitimate tools are much larger
+  # Complexity: all(4) + for(1) + size_max(1) = 6 >= 4 ✓ HOSTILE
   - id: libcurl-network-dropper
     desc: libcurl dropper (downloads and executes payload)
     crit: hostile
@@ -66,6 +71,7 @@ composite_rules:
     mbc: "B0030"
     attack: "T1105"
     for: [elf]
+    size_max: 500000
     all:
       - id: cap/comm/download/curl/libcurl-http
       - id: cap/exec/command/shell/shell-execution

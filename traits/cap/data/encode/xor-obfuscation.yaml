@@ -36,18 +36,55 @@ traits:
       regex: "[a-zA-Z0-9]{4,}\\t$"
     attack: "T1027"
 
+  # Note: Large Rust/Go binaries with regex/Unicode support contain lookup tables
+  # that appear as unusual character sequences. Size constraint reduces FPs.
+  # Compression tools (zstd, lzma, xz, etc.) contain Huffman/FSE lookup tables
+  # that legitimately contain unusual character sequences.
+  # Build tools (make, cmake, etc.) contain shell metacharacter definitions.
   - id: unusual-character-combinations
     desc: "Unusual character combinations"
     crit: suspicious
     conf: 0.65
     for: [elf]
+    size_max: 2097152
     if:
       type: string
       regex: "[^a-zA-Z0-9\\s\\.,\\-_/\\\\:@]{8,}"
+      not:
+        # Shell metacharacter definitions used by build tools, shells, interpreters
+        - regex: "^[#;\"'*?\\[\\]&|<>(){}$`^~!]+$"
     attack: "T1027"
     unless:
       - id: cap/exec/load/system-lib-marker
       - id: cap/interface/usage/usage-help
+      # Exclude curl/libcurl which has special chars in help text
+      - id: cap/comm/download/curl/curl-easy-init
+    downgrade:
+      any:
+        # Compression libraries have Huffman/FSE lookup tables that trigger this
+        - type: string
+          substr: "ZSTD_CCtx"
+        - type: string
+          substr: "ZSTD_DCtx"
+        - type: string
+          substr: "libzstd"
+        - type: string
+          substr: "liblzma"
+        - type: string
+          substr: "LzmaEnc"
+        - type: string
+          substr: "LzmaDec"
+        - type: string
+          substr: "deflate"
+        - type: string
+          substr: "liblz4"
+        - type: string
+          substr: "LZ4_compress"
+        # Database clients have locale/collation tables that trigger this
+        - type: string
+          substr: "libpq"
+        - type: string
+          substr: "postgresql"
 
   # === Known XOR Key Indicators ===
   - id: xor-key-null-pattern
@@ -83,6 +120,16 @@ composite_rules:
       - id: xor-encoded-strings
       - id: unusual-character-combinations
       - id: xor-key-null-pattern
+    unless:
+      - id: cap/interface/usage/usage-help
+      - id: cap/data/database/libpq
+    downgrade:
+      any:
+        - id: cap/data/compression/zstd
+        - id: cap/data/compression/lzma
+        - id: cap/data/compression/zlib
+        - id: cap/data/compression/lz4
+        - id: cap/data/compression/bzip2
 
   - id: mirai-xor-obfuscation
     desc: "Mirai XOR obfuscation"
@@ -92,5 +139,7 @@ composite_rules:
     attack: "T1027"
     mbc: "B0041"
     all:
-      - id: known/malware/botnet/mirai
+      # Require actual Mirai detection (composite), not just any trait in the directory
+      # The /detected composite requires 6+ indicators plus size constraints
+      - id: known/malware/botnet/mirai/detected
       - id: xor-obfuscation-evidence

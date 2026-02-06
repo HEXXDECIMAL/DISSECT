@@ -144,7 +144,9 @@ traits:
     desc: osascript command (lowercase)
     crit: inert
     conf: 0.6
-    for: [all]
+    # Restrict to scripts/interpreted languages where osascript would be invoked
+    # Binary programs may contain "osascript" for syntax highlighting (shebang patterns)
+    for: [shell, python, ruby, perl, javascript, typescript]
     if:
       type: string
       word: "osascript"

@@ -34,7 +34,8 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: "(?i)VBOX"
+      # Use word boundary to avoid matching "gruvbox" color schemes
+      regex: "(?i)\\bvbox\\b"
 
   # === QEMU atomic indicators ===
   - id: qemu-upper

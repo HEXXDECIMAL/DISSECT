@@ -13,6 +13,15 @@ traits:
     if:
       type: string
       word: "telnet"
+    not:
+      # Exclude help text/protocol listings from multi-protocol clients
+      - "telnet-option"
+      - "--telnet"
+      - "TELNET proto"
+      - "telnet TELNET"
+    unless:
+      # Exclude curl/libcurl which supports telnet as a client protocol
+      - id: cap/comm/download/curl/curl-easy-init
     attack: "T1021.004"
 
   - id: telnetd-daemon

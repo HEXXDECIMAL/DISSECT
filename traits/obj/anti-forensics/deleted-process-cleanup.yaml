@@ -58,6 +58,8 @@ traits:
     attack: "T1070.004"
 
   # === Evidence Removal from Shell Configs ===
+  # These require sed -i context to avoid false positives on tools that
+  # legitimately reference shell config file names (like grep, ripgrep, etc.)
   - id: sed-bashrc-cleanup
     desc: sed removal from .bashrc files
     crit: suspicious
@@ -65,7 +67,7 @@ traits:
     for: [elf, shell]
     if:
       type: string
-      substr: ".bashrc"
+      regex: 'sed\s+-i.{0,50}\.bashrc'
     attack: "T1070.004"
 
   - id: sed-bash-profile-cleanup
@@ -75,7 +77,7 @@ traits:
     for: [elf, shell]
     if:
       type: string
-      substr: ".bash_profile"
+      regex: 'sed\s+-i.{0,50}\.bash_profile'
     attack: "T1070.004"
 
   - id: sed-profile-cleanup
@@ -85,7 +87,7 @@ traits:
     for: [elf, shell]
     if:
       type: string
-      substr: ".profile"
+      regex: 'sed\s+-i.{0,50}\.profile'
     attack: "T1070.004"
 
   - id: sed-zshrc-cleanup
@@ -95,7 +97,7 @@ traits:
     for: [elf, shell]
     if:
       type: string
-      substr: ".zshrc"
+      regex: 'sed\s+-i.{0,50}\.zshrc'
     attack: "T1070.004"
 
   # === Sed-based Pattern Removal ===

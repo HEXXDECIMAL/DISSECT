@@ -115,6 +115,34 @@ traits:
       type: string
       substr: "pcntl_fork"
 
+  # === Windows COM Shell Execution ===
+  - id: com-wscript-shell
+    desc: WScript.Shell via PHP COM object
+    crit: suspicious
+    conf: 0.9
+    attack: "T1059"
+    platforms: [windows]
+    if:
+      type: string
+      exact: "WScript.shell"
+
+  # === Hardcoded C2 Socket URI ===
+  - id: tcp-socket-uri
+    desc: TCP socket URI with port
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      regex: "tcp://[a-zA-Z0-9.-]+:\\d+"
+
+  - id: udp-socket-uri
+    desc: UDP socket URI with port
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      regex: "udp://[a-zA-Z0-9.-]+:\\d+"
+
 composite_rules:
   # PHP reverse shell via socket + shell execution + interactive shell
   - id: reverse-shell-socket
@@ -201,3 +229,28 @@ composite_rules:
       - id: function-exists-exec
       - id: socket-to-proc-descriptor
       - id: sh-interactive
+
+  # PHP RAT with Windows COM shell execution
+  - id: rat-com-shell
+    desc: PHP RAT with Windows COM shell
+    crit: hostile
+    conf: 0.95
+    attack: "T1059"
+    mbc: "B0022"
+    for: [php]
+    all:
+      - id: com-wscript-shell
+      - id: stream-socket-connect
+
+  # PHP RAT with hardcoded C2 socket URIs
+  - id: rat-socket-c2
+    desc: PHP RAT with hardcoded C2 endpoints
+    crit: suspicious
+    conf: 0.9
+    attack: "T1071"
+    for: [php]
+    all:
+      - id: stream-socket-connect
+    any:
+      - id: tcp-socket-uri
+      - id: udp-socket-uri

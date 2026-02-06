@@ -10,6 +10,9 @@ traits:
   - id: aws-config
     desc: AWS configuration directory
     conf: 0.75
+    # Restrict to scripts/interpreted languages where this path would be accessed programmatically
+    # Binary programs (like syntax highlighters) often contain these patterns for legitimate purposes
+    for: [shell, python, ruby, perl, javascript, typescript]
     if:
       type: string
       exact: ".aws"
@@ -17,6 +20,9 @@ traits:
   - id: aws-credentials-file
     desc: AWS credentials file path
     conf: 0.8
+    # Restrict to scripts/interpreted languages where this path would be accessed programmatically
+    # Binary programs (like syntax highlighters) often contain these patterns for legitimate purposes
+    for: [shell, python, ruby, perl, javascript, typescript]
     if:
       type: string
       regex: "\\.aws/credentials"

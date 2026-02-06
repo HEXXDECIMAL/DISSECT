@@ -554,7 +554,12 @@ traits:
     attack: "T1082"
     if:
       type: string
-      substr: "fingerprint"
+      # Require more specific fingerprint patterns, not just "fingerprint" alone
+      # Exclude ssh_fingerprint (legitimate), require context like "hardware", "device", "hwid"
+      regex: '(?i)(hardware|device|machine|system|host)[\s_-]?fingerprint|fingerprint[\s_-]?(id|gen|collect)'
+    not:
+      # Exclude SSH fingerprint which is legitimate
+      - regex: '(?i)ssh[\s_-]?fingerprint'
 
 composite_rules:
   # Machine ID composite (migrated from YARA)
@@ -728,10 +733,26 @@ composite_rules:
       - id: fingerprint-string
 
   # Full system fingerprinting
+  # Note: Legitimate build tools, system monitors, and installers commonly collect system info
+  # Downgraded to notable for large binaries; compact binaries get suspicious rating
   - id: full-system
-    desc: Comprehensive system fingerprinting (malware behavior)
-    crit: suspicious
+    desc: Comprehensive system fingerprinting
+    crit: notable
     conf: 0.85
+    needs: 3
+    any:
+      - id: machine-id
+      - id: cpu-info
+      - id: network-interfaces
+      - id: fp-disk-serial
+      - id: os-info
+
+  # Compact binary with full system fingerprinting (more suspicious)
+  - id: full-system-compact
+    desc: Compact binary with comprehensive system fingerprinting
+    crit: suspicious
+    conf: 0.9
+    size_max: 500000
     needs: 3
     any:
       - id: machine-id

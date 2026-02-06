@@ -5,12 +5,15 @@
 
 traits:
   # === Nested archive detection ===
+  # Note: Simple ".tgz" string is too broad - appears in help text, file listings,
+  # and documentation. Require actual tgz archive magic or path patterns.
   - id: nested-archive-tgz
     desc: Nested .tgz archive in package
     crit: suspicious
     conf: 0.85
-    for: ["*"]
+    # Only check in npm packages and archives where nested archives are suspicious
+    for: [tar, npm, javascript]
     if:
       type: string
-      substr: ".tgz"
-      min_count: 1
+      # Require a path-like pattern indicating an actual nested archive
+      regex: '(?:^|/)node_modules/[^/]+/[^/]+\.tgz$|package/[^/]+\.tgz'
