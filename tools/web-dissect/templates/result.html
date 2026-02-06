@@ -85,18 +85,16 @@
                 <a href="/"><img src="/static/logo-small.jpg" alt="DISSECT Logo"></a>
             </div>
         
-            <h1>{{.Filename}}</h1>
-        
-            <div class="meta">
-                <p><strong>SHA256:</strong> {{.SHA256}}</p>
-                <div class="legend">
-                    <span>🔴 hostile</span>
-                    <span>🟡 suspicious</span>
-                    <span>🔵 notable</span>
-                    <span>⚪ inert</span>
-                </div>
-            </div>
-        
+                <h1>{{.Filename}}</h1>
+            
+                <div class="meta">
+                    <div class="legend">
+                        <span>🔴 hostile</span>
+                        <span>🟡 suspicious</span>
+                        <span>🔵 notable</span>
+                        <span>⚪ inert</span>
+                    </div>
+                </div>        
             <div class="terminal">{{.Output}}</div>
         
             <footer>

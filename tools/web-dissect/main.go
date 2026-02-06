@@ -21,6 +21,8 @@ import (
 
 	"cloud.google.com/go/storage"
 	"github.com/buildkite/terminal-to-html"
+	"github.com/codeGROOVE-dev/fido"
+	"github.com/codeGROOVE-dev/fido/pkg/store/cloudrun"
 	"github.com/codeGROOVE-dev/retry"
 )
 
@@ -29,12 +31,13 @@ var (
 	resultTemplate *template.Template
 	gcsBucket      string
 	dissectPath    string
-	traitsPath      string
+	traitsPath     string
 	radare2Path    string
 	rizinPath      string
 	radareCmd      string         // resolved backend: "radare2" or "rizin"
 	radareCmdPath  string         // resolved full path to backend
 	gcsClient      *storage.Client // reusable GCS client
+	cache          *fido.TieredCache[string, storedResult]
 	logger         *slog.Logger
 )
 
@@ -42,6 +45,12 @@ type resultData struct {
 	Filename string
 	SHA256   string
 	Output   template.HTML
+}
+
+// storedResult is what we persist in fido/datastore
+type storedResult struct {
+	Filename string
+	Output   string // HTML string
 }
 
 // toolInfo holds information about an external tool.
@@ -67,6 +76,8 @@ func main() {
 		"pid", os.Getpid(),
 	)
 
+	ctx := context.Background()
+
 	// Load configuration from environment
 	if err := loadConfig(); err != nil {
 		logger.Error("configuration error", "error", err)
@@ -76,6 +87,18 @@ func main() {
 	// Validate required external tools
 	if err := validateTools(); err != nil {
 		logger.Error("tool validation failed", "error", err)
+		os.Exit(1)
+	}
+
+	// Initialize fido cache with Cloud Run auto-detection
+	store, err := cloudrun.New[string, storedResult](ctx, "divine")
+	if err != nil {
+		logger.Error("failed to initialize fido store", "error", err)
+		os.Exit(1)
+	}
+	cache, err = fido.NewTiered(store)
+	if err != nil {
+		logger.Error("failed to initialize fido tiered cache", "error", err)
 		os.Exit(1)
 	}
 
@@ -94,6 +117,7 @@ func main() {
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	mux.HandleFunc("/", handleIndex)
 	mux.HandleFunc("/upload", handleUpload)
+	mux.HandleFunc("/file/", handleFile)
 	mux.HandleFunc("/health", handleHealth)
 
 	server := &http.Server{
@@ -123,6 +147,12 @@ func main() {
 		if gcsClient != nil {
 			if err := gcsClient.Close(); err != nil {
 				logger.Error("failed to close GCS client", "error", err)
+			}
+		}
+
+		if cache != nil {
+			if err := cache.Close(); err != nil {
+				logger.Error("failed to close fido cache", "error", err)
 			}
 		}
 
@@ -451,6 +481,42 @@ func handleHealth(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func handleFile(w http.ResponseWriter, r *http.Request) {
+	sha := strings.TrimPrefix(r.URL.Path, "/file/")
+	if sha == "" {
+		http.Error(w, "Missing SHA256", http.StatusBadRequest)
+		return
+	}
+
+	reqLogger := logger.With("sha256", sha)
+	reqLogger.Debug("retrieving result from cache")
+
+	res, found, err := cache.Get(r.Context(), sha)
+	if err != nil {
+		reqLogger.Error("cache retrieval failed", "error", err)
+		http.Error(w, "Failed to retrieve result", http.StatusInternalServerError)
+		return
+	}
+	if !found {
+		http.Error(w, "Result not found", http.StatusNotFound)
+		return
+	}
+
+	data := resultData{
+		Filename: html.EscapeString(res.Filename),
+		SHA256:   sha,
+		Output:   template.HTML(res.Output),
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := resultTemplate.Execute(w, data); err != nil {
+		reqLogger.Error("template execution failed",
+			"template", "result",
+			"error", err,
+		)
+	}
+}
+
 func handleUpload(w http.ResponseWriter, r *http.Request) {
 	requestStart := time.Now()
 	requestID := fmt.Sprintf("%d", time.Now().UnixNano())
@@ -536,6 +602,16 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 
 	htmlOutput := terminal.Render([]byte(output))
 
+	// Store in fido cache
+	err = cache.Set(ctx, sha256Hex, storedResult{
+		Filename: filename,
+		Output:   string(htmlOutput),
+	})
+	if err != nil {
+		reqLogger.Error("failed to store result in cache", "error", err)
+		// Non-fatal, we'll still try GCS and redirecting
+	}
+
 	// Upload to GCS if configured (non-blocking, best-effort with retries)
 	if gcsBucket != "" && gcsClient != nil {
 		gcsStart := time.Now()
@@ -558,24 +634,11 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	data := resultData{
-		Filename: html.EscapeString(filename),
-		SHA256:   sha256Hex,
-		Output:   template.HTML(htmlOutput),
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := resultTemplate.Execute(w, data); err != nil {
-		reqLogger.Error("template execution failed",
-			"template", "result",
-			"error", err,
-		)
-		// Template already started writing, can't send proper error response
-	}
-
-	reqLogger.Info("request completed",
+	reqLogger.Info("request completed, redirecting to result",
 		"total_duration_ms", time.Since(requestStart).Milliseconds(),
 	)
+
+	http.Redirect(w, r, "/file/"+sha256Hex, http.StatusSeeOther)
 }
 
 func runDissect(ctx context.Context, filePath string, reqLogger *slog.Logger) (string, error) {
