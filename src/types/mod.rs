@@ -132,10 +132,20 @@ impl SampleExtractionConfig {
     /// "inner/lib/file.py" as relative_path.
     ///
     /// For standalone files, pass just the basename (e.g., "script.py").
+    ///
+    /// Skips writing if file already exists with correct size (optimization for
+    /// repeated scans with the same extract directory).
     pub fn extract(&self, sha256: &str, relative_path: &str, data: &[u8]) -> Option<PathBuf> {
         // Build path: <extract_dir>/<sha256>/<relative_path>
         let sha_dir = self.extract_dir.join(sha256);
         let full_path = sha_dir.join(relative_path);
+
+        // Skip if file already exists with correct size (same sha256 + size = same content)
+        if let Ok(metadata) = std::fs::metadata(&full_path) {
+            if metadata.len() == data.len() as u64 {
+                return Some(full_path);
+            }
+        }
 
         // Create parent directories if needed
         if let Some(parent) = full_path.parent() {
@@ -145,7 +155,6 @@ impl SampleExtractionConfig {
             }
         }
 
-        // Write file (overwrite if exists - same sha256 means same content)
         if let Err(e) = std::fs::write(&full_path, data) {
             tracing::warn!("Failed to extract {}: {}", full_path.display(), e);
             return None;

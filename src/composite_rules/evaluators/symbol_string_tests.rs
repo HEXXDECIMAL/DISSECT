@@ -332,6 +332,7 @@ fn test_eval_string_exact_match() {
         case_insensitive: false,
         exclude_patterns: None,
         min_count: 1,
+        external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[],
     };
@@ -365,6 +366,7 @@ fn test_eval_string_substr_match() {
         case_insensitive: false,
         exclude_patterns: None,
         min_count: 1,
+        external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[],
     };
@@ -399,6 +401,7 @@ fn test_eval_string_regex_match() {
         case_insensitive: false,
         exclude_patterns: None,
         min_count: 1,
+        external_ip: false,
         compiled_regex: Some(&re),
         compiled_excludes: &[],
     };
@@ -431,6 +434,7 @@ fn test_eval_string_case_insensitive() {
         case_insensitive: true,
         exclude_patterns: None,
         min_count: 1,
+        external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[],
     };
@@ -464,6 +468,7 @@ fn test_eval_string_exclude_patterns() {
         case_insensitive: false,
         exclude_patterns: None,
         min_count: 1,
+        external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[exclude_re],
     };
@@ -498,6 +503,7 @@ fn test_eval_string_min_count() {
         case_insensitive: false,
         exclude_patterns: None,
         min_count: 2,
+        external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[],
     };
@@ -532,6 +538,7 @@ fn test_eval_string_not_exception() {
         case_insensitive: false,
         exclude_patterns: None,
         min_count: 1,
+        external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[],
     };
@@ -561,6 +568,7 @@ fn test_eval_string_in_imports() {
         case_insensitive: false,
         exclude_patterns: None,
         min_count: 1,
+        external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[],
     };
@@ -587,6 +595,7 @@ fn test_eval_string_raw_content_fallback() {
         case_insensitive: false,
         exclude_patterns: None,
         min_count: 1,
+        external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[],
     };
@@ -614,6 +623,7 @@ fn test_eval_raw_exact_match() {
         None,
         false,
         1,
+        false,
         None,
         &ctx,
     );
@@ -634,6 +644,7 @@ fn test_eval_raw_substr_count() {
         None,
         false,
         3,
+        false,
         None,
         &ctx,
     );
@@ -655,6 +666,7 @@ fn test_eval_raw_substr_count_insufficient() {
         None,
         false,
         5, // Require 5 occurrences
+        false,
         None,
         &ctx,
     );
@@ -678,6 +690,7 @@ fn test_eval_raw_regex() {
         None,
         false,
         2, // Require 2 matches
+        false,
         Some(&re),
         &ctx,
     );
@@ -698,6 +711,7 @@ fn test_eval_raw_case_insensitive() {
         None,
         true,
         3,
+        false,
         None,
         &ctx,
     );
@@ -718,6 +732,7 @@ fn test_eval_raw_invalid_utf8() {
         None,
         false,
         1,
+        false,
         None,
         &ctx,
     );

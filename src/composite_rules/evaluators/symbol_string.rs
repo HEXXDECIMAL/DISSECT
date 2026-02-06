@@ -10,6 +10,7 @@ use super::symbol_matches;
 use crate::composite_rules::condition::NotException;
 use crate::composite_rules::context::{ConditionResult, EvaluationContext, StringParams};
 use crate::composite_rules::types::Platform;
+use crate::ip_validator::contains_external_ip;
 use crate::types::Evidence;
 
 /// Evaluate symbol condition - matches symbols in imports/exports.
@@ -197,8 +198,10 @@ pub fn eval_string(
             let excluded_by_not = trait_not
                 .map(|exceptions| exceptions.iter().any(|exc| exc.matches(&match_value)))
                 .unwrap_or(false);
+            // When external_ip is set, require match to contain a valid external IP
+            let excluded_by_ip = params.external_ip && !contains_external_ip(&match_value);
 
-            if !excluded_by_pattern && !excluded_by_not {
+            if !excluded_by_pattern && !excluded_by_not && !excluded_by_ip {
                 evidence.push(Evidence {
                     method: method.to_string(),
                     source: source.to_string(),
@@ -289,8 +292,9 @@ pub fn eval_string(
                 let excluded_by_not = trait_not
                     .map(|exceptions| exceptions.iter().any(|exc| exc.matches(&match_value)))
                     .unwrap_or(false);
+                let excluded_by_ip = params.external_ip && !contains_external_ip(&match_value);
 
-                if !excluded_by_pattern && !excluded_by_not {
+                if !excluded_by_pattern && !excluded_by_not && !excluded_by_ip {
                     evidence.push(Evidence {
                         method: "string".to_string(),
                         source: "raw_content".to_string(),
@@ -354,6 +358,7 @@ pub fn eval_raw(
     _word: Option<&String>,
     case_insensitive: bool,
     min_count: usize,
+    external_ip: bool,
     compiled_regex: Option<&regex::Regex>,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
@@ -385,9 +390,14 @@ pub fn eval_raw(
         let mut match_count = 0;
         let mut first_match = None;
         for mat in re.find_iter(content) {
+            let match_str = mat.as_str();
+            // Skip matches without external IP when external_ip is required
+            if external_ip && !contains_external_ip(match_str) {
+                continue;
+            }
             match_count += 1;
             if first_match.is_none() {
-                first_match = Some(mat.as_str().to_string());
+                first_match = Some(match_str.to_string());
             }
         }
         if match_count >= min_count {
@@ -405,7 +415,9 @@ pub fn eval_raw(
         } else {
             content == exact_str
         };
-        if matched {
+        // When external_ip is set, require the match to contain an external IP
+        let ip_ok = !external_ip || contains_external_ip(exact_str);
+        if matched && ip_ok {
             evidence.push(Evidence {
                 method: "raw".to_string(),
                 source: "raw_content".to_string(),
@@ -415,24 +427,60 @@ pub fn eval_raw(
         }
     } else if let Some(substr_str) = substr {
         // Substring match - count occurrences in raw content
-        let search_content = if case_insensitive {
-            content.to_lowercase()
+        // When external_ip is set, we need to find actual matches and check each
+        if external_ip {
+            // For external_ip validation, we need to find actual match positions
+            let search_content = if case_insensitive {
+                content.to_lowercase()
+            } else {
+                content.to_string()
+            };
+            let search_pattern = if case_insensitive {
+                substr_str.to_lowercase()
+            } else {
+                substr_str.clone()
+            };
+            let mut match_count = 0;
+            let mut start = 0;
+            while let Some(pos) = search_content[start..].find(&search_pattern) {
+                let abs_pos = start + pos;
+                // Get some context around the match to check for IP
+                let context_start = abs_pos.saturating_sub(50);
+                let context_end = (abs_pos + search_pattern.len() + 50).min(content.len());
+                let context = &content[context_start..context_end];
+                if contains_external_ip(context) {
+                    match_count += 1;
+                }
+                start = abs_pos + 1;
+            }
+            if match_count >= min_count {
+                evidence.push(Evidence {
+                    method: "raw".to_string(),
+                    source: "raw_content".to_string(),
+                    value: format!("Found {} occurrences of {} (with external IP)", match_count, substr_str),
+                    location: Some("file".to_string()),
+                });
+            }
         } else {
-            content.to_string()
-        };
-        let search_pattern = if case_insensitive {
-            substr_str.to_lowercase()
-        } else {
-            substr_str.clone()
-        };
-        let match_count = search_content.matches(&search_pattern).count();
-        if match_count >= min_count {
-            evidence.push(Evidence {
-                method: "raw".to_string(),
-                source: "raw_content".to_string(),
-                value: format!("Found {} occurrences of {}", match_count, substr_str),
-                location: Some("file".to_string()),
-            });
+            let search_content = if case_insensitive {
+                content.to_lowercase()
+            } else {
+                content.to_string()
+            };
+            let search_pattern = if case_insensitive {
+                substr_str.to_lowercase()
+            } else {
+                substr_str.clone()
+            };
+            let match_count = search_content.matches(&search_pattern).count();
+            if match_count >= min_count {
+                evidence.push(Evidence {
+                    method: "raw".to_string(),
+                    source: "raw_content".to_string(),
+                    value: format!("Found {} occurrences of {}", match_count, substr_str),
+                    location: Some("file".to_string()),
+                });
+            }
         }
     }
 
@@ -459,6 +507,10 @@ pub fn eval_raw(
 
     if min_count > 1 {
         precision += 0.5;
+    }
+
+    if external_ip {
+        precision += 0.5; // Higher precision when requiring external IP
     }
 
     ConditionResult {

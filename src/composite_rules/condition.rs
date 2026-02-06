@@ -99,6 +99,9 @@ enum ConditionTagged {
         exclude_patterns: Option<Vec<String>>,
         #[serde(default = "default_min_count")]
         min_count: usize,
+        /// Require match to contain a valid external IP address (not private/loopback/reserved)
+        #[serde(default)]
+        external_ip: bool,
     },
     YaraMatch {
         namespace: String,
@@ -235,6 +238,9 @@ enum ConditionTagged {
         case_insensitive: bool,
         #[serde(default = "default_min_count")]
         min_count: usize,
+        /// Require match to contain a valid external IP address (not private/loopback/reserved)
+        #[serde(default)]
+        external_ip: bool,
     },
 
     /// Match section names in binary files (PE, ELF, Mach-O)
@@ -348,6 +354,7 @@ impl From<ConditionDeser> for Condition {
                     case_insensitive,
                     exclude_patterns,
                     min_count,
+                    external_ip,
                 } => Condition::String {
                     exact,
                     substr,
@@ -356,6 +363,7 @@ impl From<ConditionDeser> for Condition {
                     case_insensitive,
                     exclude_patterns,
                     min_count,
+                    external_ip,
                     compiled_regex: None,
                     compiled_excludes: Vec::new(),
                 },
@@ -485,6 +493,7 @@ impl From<ConditionDeser> for Condition {
                     word,
                     case_insensitive,
                     min_count,
+                    external_ip,
                 } => Condition::Content {
                     exact,
                     substr,
@@ -492,6 +501,7 @@ impl From<ConditionDeser> for Condition {
                     word,
                     case_insensitive,
                     min_count,
+                    external_ip,
                     compiled_regex: None,
                 },
                 ConditionTagged::SectionName { pattern, regex } => {
@@ -588,6 +598,9 @@ pub enum Condition {
         exclude_patterns: Option<Vec<String>>,
         #[serde(default = "default_min_count")]
         min_count: usize,
+        /// Require match to contain a valid external IP address (not private/loopback/reserved)
+        #[serde(default)]
+        external_ip: bool,
         /// Pre-compiled regex (populated after deserialization, not serialized)
         #[serde(skip)]
         compiled_regex: Option<regex::Regex>,
@@ -866,6 +879,9 @@ pub enum Condition {
         /// Minimum number of matches required (default: 1)
         #[serde(default = "default_min_count")]
         min_count: usize,
+        /// Require match to contain a valid external IP address (not private/loopback/reserved)
+        #[serde(default)]
+        external_ip: bool,
         /// Pre-compiled regex (populated after deserialization, not serialized)
         #[serde(skip)]
         compiled_regex: Option<regex::Regex>,

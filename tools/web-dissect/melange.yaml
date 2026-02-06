@@ -1,0 +1,30 @@
+package:
+  name: dissect-tools
+  version: 0.0.1
+  epoch: 0
+  description: web-dissect and dissect binaries
+  copyright:
+    - license: MIT
+
+environment:
+  contents:
+    repositories:
+      - https://dl-cdn.alpinelinux.org/alpine/v3.19/main
+      - https://dl-cdn.alpinelinux.org/alpine/v3.19/community
+    packages:
+      - ca-certificates
+
+pipeline:
+  - runs: |
+      mkdir -p "${{targets.destdir}}/usr/local/bin" "${{targets.destdir}}/templates"
+
+      # Copy pre-built binaries from build context
+      cp /tmp/build/web-dissect "${{targets.destdir}}/usr/local/bin/web-dissect"
+      chmod +x "${{targets.destdir}}/usr/local/bin/web-dissect"
+
+      cp /tmp/build/dissect "${{targets.destdir}}/usr/local/bin/dissect"
+      chmod +x "${{targets.destdir}}/usr/local/bin/dissect"
+
+      if [ -d /tmp/build/templates ]; then
+        cp -r /tmp/build/templates/* "${{targets.destdir}}/templates/"
+      fi

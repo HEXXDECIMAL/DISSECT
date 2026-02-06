@@ -4,6 +4,7 @@
 
 #![allow(dead_code)]
 
+use crate::ip_validator::is_external_ip;
 use crate::types::DecodedValue;
 use std::net::Ipv4Addr;
 
@@ -68,7 +69,7 @@ impl ConstantDecoder {
             let ip = (value & 0xFFFFFFFF) as u32;
 
             let ipv4 = Ipv4Addr::from(ip.to_be_bytes());
-            if Self::is_interesting_ip(&ipv4) && port > 0 {
+            if is_external_ip(&ipv4) && port > 0 {
                 results.push(DecodedValue {
                     value_type: "ip_port".to_string(),
                     decoded_value: format!("{}:{}", ipv4, port),
@@ -86,7 +87,7 @@ impl ConstantDecoder {
 
         // Big endian
         let ipv4_be = Ipv4Addr::from(value.to_be_bytes());
-        if Self::is_interesting_ip(&ipv4_be) {
+        if is_external_ip(&ipv4_be) {
             results.push(DecodedValue {
                 value_type: "ip_address".to_string(),
                 decoded_value: ipv4_be.to_string(),
@@ -96,7 +97,7 @@ impl ConstantDecoder {
 
         // Little endian
         let ipv4_le = Ipv4Addr::from(value.to_le_bytes());
-        if Self::is_interesting_ip(&ipv4_le) && ipv4_le != ipv4_be {
+        if is_external_ip(&ipv4_le) && ipv4_le != ipv4_be {
             results.push(DecodedValue {
                 value_type: "ip_address".to_string(),
                 decoded_value: ipv4_le.to_string(),
@@ -105,24 +106,6 @@ impl ConstantDecoder {
         }
 
         results
-    }
-
-    /// Check if IP address is interesting (not obviously invalid)
-    fn is_interesting_ip(ip: &Ipv4Addr) -> bool {
-        let octets = ip.octets();
-
-        // Reject all zeros
-        if octets.iter().all(|&x| x == 0) {
-            return false;
-        }
-
-        // Reject all 0xFF
-        if octets.iter().all(|&x| x == 0xFF) {
-            return false;
-        }
-
-        // Accept if at least one octet is in typical range
-        true
     }
 
     /// Try to interpret as port number (qword)
@@ -197,11 +180,13 @@ impl ConstantDecoder {
             if let Ok(bytes) = hex::decode(s) {
                 if bytes.len() == 4 {
                     let ip = Ipv4Addr::new(bytes[0], bytes[1], bytes[2], bytes[3]);
-                    results.push(DecodedValue {
-                        value_type: "ip_address".to_string(),
-                        decoded_value: ip.to_string(),
-                        conf: 0.8,
-                    });
+                    if is_external_ip(&ip) {
+                        results.push(DecodedValue {
+                            value_type: "ip_address".to_string(),
+                            decoded_value: ip.to_string(),
+                            conf: 0.8,
+                        });
+                    }
                 }
             }
         }
@@ -269,11 +254,20 @@ mod tests {
 
     #[test]
     fn test_decode_dword_ip_address() {
-        // 192.168.1.1 in network byte order
-        let value = 0xC0A80101_u32;
+        // 45.33.32.156 in network byte order (external IP)
+        let value = 0x2D21209C_u32;
         let decoded = ConstantDecoder::decode_dword(value);
 
         assert!(decoded.iter().any(|d| d.value_type == "ip_address"));
+    }
+
+    #[test]
+    fn test_decode_dword_private_ip_rejected() {
+        // 192.168.1.1 in network byte order (private IP - should not decode)
+        let value = 0xC0A80101_u32;
+        let decoded = ConstantDecoder::decode_dword(value);
+
+        assert!(!decoded.iter().any(|d| d.value_type == "ip_address"));
     }
 
     #[test]
@@ -300,8 +294,8 @@ mod tests {
 
     #[test]
     fn test_decode_qword_ip_address() {
-        // IPv4 in lower 32 bits
-        let value = 0x00000000C0A80101_u64; // 192.168.1.1
+        // IPv4 in lower 32 bits - 45.33.32.156 (external IP)
+        let value = 0x000000002D21209C_u64;
         let decoded = ConstantDecoder::decode_qword(value);
 
         assert!(decoded.iter().any(|d| d.value_type == "ip_address"));
@@ -334,27 +328,6 @@ mod tests {
     }
 
     #[test]
-    fn test_is_interesting_ip_valid() {
-        let ip = Ipv4Addr::new(192, 168, 1, 1);
-        assert!(ConstantDecoder::is_interesting_ip(&ip));
-
-        let ip = Ipv4Addr::new(8, 8, 8, 8);
-        assert!(ConstantDecoder::is_interesting_ip(&ip));
-    }
-
-    #[test]
-    fn test_is_interesting_ip_invalid_all_zeros() {
-        let ip = Ipv4Addr::new(0, 0, 0, 0);
-        assert!(!ConstantDecoder::is_interesting_ip(&ip));
-    }
-
-    #[test]
-    fn test_is_interesting_ip_invalid_all_ff() {
-        let ip = Ipv4Addr::new(255, 255, 255, 255);
-        assert!(!ConstantDecoder::is_interesting_ip(&ip));
-    }
-
-    #[test]
     fn test_is_interesting_port_common_ports() {
         assert!(ConstantDecoder::is_interesting_port(22)); // SSH
         assert!(ConstantDecoder::is_interesting_port(80)); // HTTP
@@ -372,12 +345,20 @@ mod tests {
 
     #[test]
     fn test_decode_string_hex_ip() {
-        // "c0a80101" = 192.168.1.1 in hex
-        let result = ConstantDecoder::decode_string("c0a80101");
+        // "2D21209C" = 45.33.32.156 in hex (external IP)
+        let result = ConstantDecoder::decode_string("2d21209c");
 
         assert!(result
             .iter()
-            .any(|d| d.value_type == "ip_address" && d.decoded_value == "192.168.1.1"));
+            .any(|d| d.value_type == "ip_address" && d.decoded_value == "45.33.32.156"));
+    }
+
+    #[test]
+    fn test_decode_string_hex_private_ip_rejected() {
+        // "c0a80101" = 192.168.1.1 in hex (private IP - should not decode)
+        let result = ConstantDecoder::decode_string("c0a80101");
+
+        assert!(!result.iter().any(|d| d.value_type == "ip_address"));
     }
 
     #[test]
@@ -449,12 +430,23 @@ mod tests {
     fn test_decode_qword_ip_port_combo() {
         // Test IP:port encoding (port in upper word, IP in lower dword)
         // Format: 0x0000PPPP_IIII_IIII
-        // Port 443 (0x01BB) and IP 127.0.0.1 (0x7F000001)
-        let value = 0x000001BB7F000001_u64;
+        // Port 443 (0x01BB) and IP 45.33.32.156 (0x2D21209C) - an external IP
+        let value = 0x000001BB2D21209C_u64;
         let decoded = ConstantDecoder::decode_qword(value);
 
         // Should decode the IP:port combination
         assert!(decoded.iter().any(|d| d.value_type == "ip_port"));
+    }
+
+    #[test]
+    fn test_decode_qword_loopback_ip_port_rejected() {
+        // Test that loopback IP:port is rejected
+        // Port 443 (0x01BB) and IP 127.0.0.1 (0x7F000001) - loopback, should be ignored
+        let value = 0x000001BB7F000001_u64;
+        let decoded = ConstantDecoder::decode_qword(value);
+
+        // Should NOT decode loopback as ip_port
+        assert!(!decoded.iter().any(|d| d.value_type == "ip_port"));
     }
 
     #[test]

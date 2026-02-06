@@ -147,4 +147,6 @@ pub struct StringParams<'a> {
     pub min_count: usize,
     pub compiled_regex: Option<&'a regex::Regex>,
     pub compiled_excludes: &'a [regex::Regex],
+    /// When true, require matched string to contain a valid external IP address
+    pub external_ip: bool,
 }

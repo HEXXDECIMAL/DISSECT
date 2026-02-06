@@ -302,6 +302,7 @@ impl TraitDefinition {
                 case_insensitive,
                 exclude_patterns,
                 min_count,
+                external_ip,
                 compiled_regex,
                 compiled_excludes,
             } => {
@@ -313,6 +314,7 @@ impl TraitDefinition {
                     case_insensitive: *case_insensitive,
                     exclude_patterns: exclude_patterns.as_ref(),
                     min_count: *min_count,
+                    external_ip: *external_ip,
                     compiled_regex: compiled_regex.as_ref(),
                     compiled_excludes,
                 };
@@ -422,6 +424,7 @@ impl TraitDefinition {
                 word,
                 case_insensitive,
                 min_count,
+                external_ip,
                 compiled_regex,
             } => eval_raw(
                 exact.as_ref(),
@@ -430,6 +433,7 @@ impl TraitDefinition {
                 word.as_ref(),
                 *case_insensitive,
                 *min_count,
+                *external_ip,
                 compiled_regex.as_ref(),
                 ctx,
             ),
@@ -985,6 +989,7 @@ impl CompositeTrait {
                 case_insensitive,
                 exclude_patterns,
                 min_count,
+                external_ip,
                 compiled_regex,
                 compiled_excludes,
             } => {
@@ -996,6 +1001,7 @@ impl CompositeTrait {
                     case_insensitive: *case_insensitive,
                     exclude_patterns: exclude_patterns.as_ref(),
                     min_count: *min_count,
+                    external_ip: *external_ip,
                     compiled_regex: compiled_regex.as_ref(),
                     compiled_excludes,
                 };
@@ -1105,6 +1111,7 @@ impl CompositeTrait {
                 word,
                 case_insensitive,
                 min_count,
+                external_ip,
                 compiled_regex,
             } => eval_raw(
                 exact.as_ref(),
@@ -1113,6 +1120,7 @@ impl CompositeTrait {
                 word.as_ref(),
                 *case_insensitive,
                 *min_count,
+                *external_ip,
                 compiled_regex.as_ref(),
                 ctx,
             ),

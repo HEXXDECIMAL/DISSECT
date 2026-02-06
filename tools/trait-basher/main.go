@@ -11,11 +11,8 @@
 package main
 
 import (
-	"archive/tar"
-	"archive/zip"
 	"bufio"
 	"bytes"
-	"compress/gzip"
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
@@ -29,10 +26,14 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path/filepath"
 	"runtime"
+	"sort"
+	"strconv"
 	"strings"
 	"sync"
+	"syscall"
 	"text/template"
 	"time"
 
@@ -40,22 +41,36 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+// fileEntry holds a file path with its finding summary for display.
+type fileEntry struct {
+	Path     string // Extracted path
+	Summary  string // e.g., "4 hostile, 2 suspicious"
+	MaxCrit  int    // For sorting (3=hostile, 2=suspicious, 1=notable)
+	Total    int    // Total high-severity findings
+}
+
 // promptData holds values for prompt templates.
 type promptData struct {
-	Path       string
-	DissectBin string
-	TraitsDir  string
-	TaskBlock  string
-	Count      int
-	IsArchive  bool
+	Path        string      // Primary file path (extracted dir for archives, file path for standalone)
+	ArchiveName string      // Archive basename for context (empty for standalone)
+	Files       []fileEntry // Top files with findings (sorted by severity)
+	DissectBin  string
+	TraitsDir   string
+	TaskBlock   string
+	Count       int
+	IsArchive   bool
 }
 
 var goodPromptTmpl = template.Must(template.New("good").Parse(`{{if .IsArchive -}}
-# Fix False Positives in KNOWN-GOOD Archive
+# Fix False Positives in KNOWN-GOOD Files
 
-**Archive**: {{.Path}}
-**Problem**: {{.Count}} members flagged as suspicious/hostile
+**Source**: {{.ArchiveName}}
+**Files**: {{.Count}} flagged as suspicious/hostile
 **Task**: Remove false positive findings
+
+## Top Files to Review (by severity)
+{{range .Files}}- {{.Path}} ({{.Summary}})
+{{end}}
 {{else -}}
 # Fix False Positives in KNOWN-GOOD File
 
@@ -103,12 +118,15 @@ A finding is only a false positive if:
 Traits: {{.TraitsDir}}`))
 
 var badPromptTmpl = template.Must(template.New("bad").Parse(`{{if .IsArchive -}}
-# Add Missing Detection for KNOWN-BAD Archive
+# Add Missing Detection for KNOWN-BAD Files
 
-**Archive**: {{.Path}}
-**Problem**: {{.Count}} members not flagged as suspicious/hostile
+**Source**: {{.ArchiveName}}
+**Files**: {{.Count}} not flagged as suspicious/hostile
 **Task**: Detect malicious behavior
 
+## Top Files to Analyze (by size/complexity)
+{{range .Files}}- {{.Path}}{{if .Summary}} ({{.Summary}}){{end}}
+{{end}}
 *Note: Skip genuinely benign files (README, docs, unmodified dependencies)*
 {{else -}}
 # Add Missing Detection for KNOWN-BAD File
@@ -129,9 +147,8 @@ var badPromptTmpl = template.Must(template.New("bad").Parse(`{{if .IsArchive -}}
 {{.TaskBlock}}
 
 ## Success Criteria
-✓ All false positive findings are fixed (incorrect matches removed or constrained)
-✓ Remaining findings accurately describe what the program actually does
-✓ No new false positives introduced
+✓ Malicious behavior is detected with appropriate trait IDs
+✓ Detections use generic patterns (not file-specific signatures)
 ✓ Changes are minimal and focused (3-5 edits max)
 ✓ Run dissect again - shows improvement
 
@@ -150,16 +167,25 @@ Review findings and identify which are actually false positives (incorrect match
 Keep findings that accurately describe the code's behavior, even if suspicious.
 
 **Priority Order** (try in this order):
-1. **Taxonomy**: Trait in wrong directory? Move it (e.g., cap/ not obj/)
+1. **Taxonomy**: Trait ID doesn't match detected behavior? Fix it:
+   - obj/c2/ should only detect C2 (beacon, command channels, reverse shells)
+   - obj/exfil/ should only detect exfiltration (data collection + upload)
+   - Simple HTTP/socket → cap/comm/, not obj/c2/ or obj/exfil/
+   - Generic crypto → cap/crypto/, not obj/anti-static/
 2. **Patterns**: Too broad? Refine the pattern itself to be more accurate:
    - ` + "`near: 200`" + ` - require proximity to suspicious code
    - ` + "`size_min/max`" + ` - filter by file size (legitimate: large, malware: compact)
    - ` + "`for: [elf, macho, pe]`" + ` - restrict to binaries (skip scripts)
    - ` + "`all:`" + ` in composites - combine weak signals into strong one
-3. **Exclusions**: Too specific? Add ` + "`not:`" + ` filters to exclude known-good patterns
+3. **Exclusions**: Known-good strings? Add ` + "`not:`" + ` filters to exclude them
 4. **Reorganize**: Create new traits if it makes the logic clearer or more maintainable
-5. **Downgrade**: If detection is correct but criticality too high, use ` + "`downgrade:`" + ` to lower severity for specific cases
-6. **Unless** (last resort): Only use ` + "`unless:`" + ` to completely suppress findings if fixing the pattern is impractical
+5. **Downgrade**: Detection correct but criticality too high? Use ` + "`downgrade:`" + ` for specific cases
+6. **Unless** (last resort): Only use ` + "`unless:`" + ` if fixing the pattern is impractical
+
+**Taxonomy Verification**: Before modifying any trait, verify its ID accurately describes what it detects:
+- Read TAXONOMY.md for the complete tier structure
+- cap/ = observable capability (what code CAN do)
+- obj/ = attacker objective (WHY code does something, requires combining capabilities)
 
 **Prefer**: Fixing queries to be accurate over adding exceptions. If the detection IS correct but severity is wrong, use ` + "`downgrade:`" + ` instead of ` + "`unless:`" + `.
 
@@ -172,7 +198,11 @@ Review findings and identify which are actually false positives (incorrect match
 Keep findings that accurately describe the code's behavior, even if suspicious.
 
 **Priority Order** (try in this order):
-1. **Taxonomy**: Trait in wrong directory? Move it (e.g., cap/ not obj/)
+1. **Taxonomy**: Trait ID doesn't match detected behavior? Fix it:
+   - obj/c2/ should only detect C2 (beacon, command channels, reverse shells)
+   - obj/exfil/ should only detect exfiltration (data collection + upload)
+   - Simple HTTP/socket → cap/comm/, not obj/c2/ or obj/exfil/
+   - Generic crypto → cap/crypto/, not obj/anti-static/
 2. **Patterns**: Too broad? Refine the pattern itself to be more accurate:
    - ` + "`near: 200`" + ` - require proximity to suspicious code
    - ` + "`size_min/max`" + ` - legitimate installers are huge, malware is compact
@@ -180,8 +210,13 @@ Keep findings that accurately describe the code's behavior, even if suspicious.
    - ` + "`all:`" + ` in composites - combine weak signals, don't flag individually
 3. **Exclusions**: Known-good strings? Add ` + "`not:`" + ` filters to exclude them
 4. **Reorganize**: Create new traits if it makes the logic clearer or more maintainable
-5. **Downgrade**: If detection is correct but criticality too high, use ` + "`downgrade:`" + ` to lower severity for specific cases
-6. **Unless** (last resort): Only use ` + "`unless:`" + ` to completely suppress findings if fixing the pattern is impractical
+5. **Downgrade**: Detection correct but criticality too high? Use ` + "`downgrade:`" + ` for specific cases
+6. **Unless** (last resort): Only use ` + "`unless:`" + ` if fixing the pattern is impractical
+
+**Taxonomy Verification**: Before modifying any trait, verify its ID accurately describes what it detects:
+- Read TAXONOMY.md for the complete tier structure
+- cap/ = observable capability (what code CAN do)
+- obj/ = attacker objective (WHY code does something, requires combining capabilities)
 
 **Prefer**: Fixing queries to be accurate over adding exceptions. If the detection IS correct but severity is wrong, use ` + "`downgrade:`" + ` instead of ` + "`unless:`" + `.
 
@@ -196,16 +231,36 @@ const badTaskFile = `## Strategy: Add Missing Detection
    - This exposes both encoded and decoded content for better pattern matching
 2. Identify malicious capability (socket + exec = reverse-shell, etc.)
 3. Use GENERIC patterns, not file-specific signatures
-4. Trait namespaces:
-   - cap/X = neutral capability (socket, exec, file ops) - could be benign
-   - obj/X = attacker objective (combine multiple caps) - clearly malicious
-   - known/ = ONLY for named malware families (apt/cozy-bear, trojan/emotet)
-5. Cross-language when possible (base64+exec works in Python, JS, Shell)
-6. Create new traits if needed - they should be generic and reusable across samples
+4. Cross-language when possible (base64+exec works in Python, JS, Shell)
+5. Create new traits if needed - they should be generic and reusable across samples
+
+## Taxonomy Rules (MUST FOLLOW)
+**Read TAXONOMY.md first** - trait IDs must accurately describe what the pattern detects.
+
+- **cap/** = Observable capability (what code CAN do) - single pattern, value-neutral
+  - cap/comm/ = network communication (socket, http, dns)
+  - cap/exec/ = code execution (shell, eval)
+  - cap/crypto/ = cryptographic operations
+  - cap/fs/ = filesystem operations
+
+- **obj/** = Attacker objective (WHY code does something) - composites combining caps
+  - obj/c2/ = Command & control: beacon patterns, command channels, reverse shells
+  - obj/exfil/ = Data exfiltration: data collection + upload to attacker
+  - obj/persist/ = Persistence: startup entries, services, scheduled tasks
+  - obj/creds/ = Credential theft: browser passwords, system credentials
+  - obj/anti-static/ = Anti-analysis: obfuscation, packing, VM detection
+
+- **known/** = ONLY for specific malware families (apt/cozy-bear, trojan/emotet)
+
+**CRITICAL**: Verify the trait ID matches detected behavior:
+- Simple HTTP request → cap/comm/http/ (NOT obj/c2/ or obj/exfil/)
+- C2 requires: beacon intervals, command parsing, or bidirectional control channel
+- Exfil requires: data collection (files, creds, keys) + upload mechanism
+- Don't put generic network/crypto in obj/ - that's what cap/ is for
 
 **If deleting or renaming a trait**: Update all references to it (in composites, depends, etc.). Consider what the composite trait was trying to accomplish and fix the reference appropriately.
 
-**Do Not**: Create file-specific rules, add unrelated traits, or ignore YAML structure.`
+**Do Not**: Create file-specific rules, put capabilities in obj/, or ignore taxonomy structure.`
 
 const badTaskArchive = `## Strategy: Add Missing Detection to Archive
 **Approach**:
@@ -214,47 +269,71 @@ const badTaskArchive = `## Strategy: Add Missing Detection to Archive
    - This exposes both encoded and decoded content for better pattern matching
 2. Identify malicious capability (socket + exec = reverse-shell, etc.)
 3. Use GENERIC patterns, not file-specific signatures
-4. Trait namespaces:
-   - cap/X = neutral capability (socket, exec, file ops) - could be benign
-   - obj/X = attacker objective (combine multiple caps) - clearly malicious
-   - known/ = ONLY for named malware families (apt/cozy-bear, trojan/emotet)
-5. Cross-language patterns when possible (base64+exec in Python, JS, Shell)
-6. Create new traits if needed - they should be generic and reusable across samples
+4. Cross-language patterns when possible (base64+exec in Python, JS, Shell)
+5. Create new traits if needed - they should be generic and reusable across samples
+
+## Taxonomy Rules (MUST FOLLOW)
+**Read TAXONOMY.md first** - trait IDs must accurately describe what the pattern detects.
+
+- **cap/** = Observable capability (what code CAN do) - single pattern, value-neutral
+  - cap/comm/ = network communication (socket, http, dns)
+  - cap/exec/ = code execution (shell, eval)
+  - cap/crypto/ = cryptographic operations
+  - cap/fs/ = filesystem operations
+
+- **obj/** = Attacker objective (WHY code does something) - composites combining caps
+  - obj/c2/ = Command & control: beacon patterns, command channels, reverse shells
+  - obj/exfil/ = Data exfiltration: data collection + upload to attacker
+  - obj/persist/ = Persistence: startup entries, services, scheduled tasks
+  - obj/creds/ = Credential theft: browser passwords, system credentials
+  - obj/anti-static/ = Anti-analysis: obfuscation, packing, VM detection
+
+- **known/** = ONLY for specific malware families (apt/cozy-bear, trojan/emotet)
+
+**CRITICAL**: Verify the trait ID matches detected behavior:
+- Simple HTTP request → cap/comm/http/ (NOT obj/c2/ or obj/exfil/)
+- C2 requires: beacon intervals, command parsing, or bidirectional control channel
+- Exfil requires: data collection (files, creds, keys) + upload mechanism
+- Don't put generic network/crypto in obj/ - that's what cap/ is for
 
 **If deleting or renaming a trait**: Update all references to it (in composites, depends, etc.). Consider what the composite trait was trying to accomplish and fix the reference appropriately.
 
-**Do Not**: Create file-specific rules, add unrelated traits, or break YAML format.`
+**Do Not**: Create file-specific rules, put capabilities in obj/, or ignore taxonomy structure.`
 
-func buildGoodPrompt(isArchive bool, path string, count int, root, bin string) string {
+func buildGoodPrompt(isArchive bool, path, archiveName string, files []fileEntry, count int, root, bin string) string {
 	task := goodTaskFile
 	if isArchive {
 		task = goodTaskArchive
 	}
 	var b bytes.Buffer
 	_ = goodPromptTmpl.Execute(&b, promptData{ //nolint:errcheck // template is validated at init
-		Path:       path,
-		Count:      count,
-		DissectBin: bin,
-		TraitsDir:  root + "/traits/",
-		IsArchive:  isArchive,
-		TaskBlock:  task,
+		Path:        path,
+		ArchiveName: archiveName,
+		Files:       files,
+		Count:       count,
+		DissectBin:  bin,
+		TraitsDir:   root + "/traits/",
+		IsArchive:   isArchive,
+		TaskBlock:   task,
 	})
 	return b.String()
 }
 
-func buildBadPrompt(isArchive bool, path string, count int, root, bin string) string {
+func buildBadPrompt(isArchive bool, path, archiveName string, files []fileEntry, count int, root, bin string) string {
 	task := badTaskFile
 	if isArchive {
 		task = badTaskArchive
 	}
 	var b bytes.Buffer
 	_ = badPromptTmpl.Execute(&b, promptData{ //nolint:errcheck // template is validated at init
-		Path:       path,
-		Count:      count,
-		DissectBin: bin,
-		TraitsDir:  root + "/traits/",
-		IsArchive:  isArchive,
-		TaskBlock:  task,
+		Path:        path,
+		ArchiveName: archiveName,
+		Files:       files,
+		Count:       count,
+		DissectBin:  bin,
+		TraitsDir:   root + "/traits/",
+		IsArchive:   isArchive,
+		TaskBlock:   task,
 	})
 	return b.String()
 }
@@ -266,7 +345,7 @@ type config struct { //nolint:govet // field alignment optimized for readability
 	dissectBin  string // Path to dissect binary
 	provider    string
 	model       string
-	sampleDir   string
+	extractDir  string // Directory where DISSECT extracts files
 	timeout     time.Duration
 	idleTimeout time.Duration // Kill LLM if no output for this duration
 	rescanAfter int           // Number of files to review before restarting scan (0 = disabled)
@@ -308,285 +387,8 @@ type RealFileAnalysis struct {
 	Fragments []FileAnalysis // All decoded fragment entries (if any)
 }
 
-// archiveExtraction holds information about an extracted archive.
-type archiveExtraction struct {
-	path    string   // Path to extracted archive directory
-	members []string // List of member paths in the archive
-}
-
-// extractArchive extracts an archive to a destination directory and returns member list.
-// Supports: .zip, .tar, .tar.gz, .tgz, .7z, .xz.
-func extractArchive(ctx context.Context, archivePath, destDir string) (*archiveExtraction, error) {
-	fmt.Fprintf(os.Stderr, "  [debug] extractArchive: %s -> %s\n", archivePath, destDir)
-
-	ext := strings.ToLower(filepath.Ext(archivePath))
-
-	// Check for compound extensions
-	base := strings.ToLower(filepath.Base(archivePath))
-	if strings.HasSuffix(base, ".tar.gz") || strings.HasSuffix(base, ".tgz") {
-		ext = ".tar.gz"
-	}
-
-	fmt.Fprintf(os.Stderr, "  [debug] Detected archive format: %s\n", ext)
-
-	switch ext {
-	case ".zip":
-		return extractZip(ctx, archivePath, destDir)
-	case ".tar":
-		return extractTar(archivePath, destDir)
-	case ".tar.gz", ".tgz":
-		return extractTarGz(archivePath, destDir)
-	case ".7z":
-		return extract7zWithPasswords(ctx, archivePath, destDir, []string{"infected", "infect3d"})
-	case ".xz":
-		return extractXz(ctx, archivePath, destDir)
-	default:
-		return nil, fmt.Errorf("unsupported archive format: %s", ext)
-	}
-}
-
-// isZipEncrypted checks if a ZIP archive is encrypted by examining the file headers.
-func isZipEncrypted(archivePath string) bool {
-	reader, err := zip.OpenReader(archivePath)
-	if err != nil {
-		// If we can't open it, assume encrypted to trigger password attempts
-		fmt.Fprintf(os.Stderr, "  [debug] Failed to open ZIP for encryption check: %v\n", err)
-		return true
-	}
-	defer reader.Close() //nolint:errcheck // best-effort cleanup
-
-	// Check first file's encryption flag (bit 0 of Flags field)
-	if len(reader.File) > 0 {
-		encrypted := reader.File[0].Flags&0x1 != 0
-		fmt.Fprintf(os.Stderr, "  [debug] ZIP has %d files, first file encrypted flag: %v\n", len(reader.File), encrypted)
-		return encrypted
-	}
-	fmt.Fprintf(os.Stderr, "  [debug] ZIP is empty\n")
-	return false
-}
-
-// Common malware archive passwords to try.
-var defaultPasswords = []string{"infected", "infect3d", "malware", "virus", "password"}
-
 // critRank maps criticality levels to numeric ranks for comparison.
 var critRank = map[string]int{"inert": 0, "notable": 1, "suspicious": 2, "hostile": 3}
-
-// extract7zWithPasswords extracts an archive using 7z with password attempts.
-func extract7zWithPasswords(ctx context.Context, src, dst string, passwords []string) (*archiveExtraction, error) {
-	var lastErr error
-	for i, pwd := range passwords {
-		fmt.Fprintf(os.Stderr, "  [debug] Trying password %d/%d: %s\n", i+1, len(passwords), pwd)
-
-		tctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-		cmd := exec.CommandContext(tctx, "7z", "x", "-o"+dst, "-y", "-p"+pwd, src) //nolint:gosec // paths come from controlled archive extraction
-		cmd.Stdin = nil                                                            // Don't wait for user input
-
-		var stderr bytes.Buffer
-		cmd.Stderr = &stderr
-
-		if err := cmd.Run(); err == nil {
-			cancel()
-			members, err := listDir(dst)
-			if err != nil {
-				return nil, err
-			}
-			fmt.Fprintf(os.Stderr, "  [debug] 7z extraction succeeded with password: %s\n", pwd)
-			return &archiveExtraction{path: dst, members: members}, nil
-		}
-		cancel()
-		lastErr = errors.New(stderr.String())
-		fmt.Fprintf(os.Stderr, "  [debug] 7z password attempt failed: %s\n", stderr.String())
-	}
-	if lastErr != nil {
-		return nil, fmt.Errorf("7z extraction failed (tried %d passwords): %w", len(passwords), lastErr)
-	}
-	return nil, errors.New("7z extraction failed")
-}
-
-// extractZip extracts a ZIP archive.
-func extractZip(ctx context.Context, src, dst string) (*archiveExtraction, error) {
-	fmt.Fprintf(os.Stderr, "  [debug] extractZip called for: %s\n", src)
-	if isZipEncrypted(src) {
-		fmt.Fprintf(os.Stderr, "  [debug] Archive appears encrypted, using password-based extraction\n")
-		return extract7zWithPasswords(ctx, src, dst, defaultPasswords)
-	}
-	fmt.Fprintf(os.Stderr, "  [debug] Archive appears unencrypted, using standard Go ZIP extraction\n")
-
-	r, err := zip.OpenReader(src)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "  [debug] Failed to open ZIP reader: %v\n", err)
-		fmt.Fprintf(os.Stderr, "  [debug] Falling back to 7z extraction for potentially corrupted ZIP\n")
-		return extract7zWithPasswords(ctx, src, dst, defaultPasswords)
-	}
-	defer r.Close() //nolint:errcheck // best-effort cleanup
-
-	fmt.Fprintf(os.Stderr, "  [debug] ZIP reader opened, processing %d files\n", len(r.File))
-
-	var members []string
-	for i, zf := range r.File {
-		// Prevent zip slip: ensure extracted path stays within destination
-		p := filepath.Join(dst, zf.Name) //nolint:gosec // validated by HasPrefix check below
-		if !strings.HasPrefix(filepath.Clean(p), filepath.Clean(dst)+string(os.PathSeparator)) {
-			fmt.Fprintf(os.Stderr, "  [debug] Skipping unsafe path: %s\n", zf.Name)
-			continue
-		}
-		fmt.Fprintf(os.Stderr, "  [debug] Processing file %d/%d: %s (encrypted: %v)\n", i+1, len(r.File), zf.Name, zf.Flags&0x1 != 0)
-
-		if zf.FileInfo().IsDir() {
-			if err := os.MkdirAll(p, 0o750); err != nil {
-				return nil, fmt.Errorf("create directory: %w", err)
-			}
-			continue
-		}
-
-		if err := os.MkdirAll(filepath.Dir(p), 0o750); err != nil {
-			return nil, fmt.Errorf("create directory: %w", err)
-		}
-
-		rc, err := zf.Open()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "  [debug] Failed to open file in ZIP: %v\n", err)
-			return nil, fmt.Errorf("open file in zip: %w", err)
-		}
-
-		f, err := os.Create(p)
-		if err != nil {
-			rc.Close() //nolint:errcheck,gosec // best-effort cleanup on error
-			return nil, fmt.Errorf("create extracted file: %w", err)
-		}
-
-		if _, err := io.Copy(f, rc); err != nil { //nolint:gosec // decompression bomb acceptable for malware analysis
-			fmt.Fprintf(os.Stderr, "  [debug] Failed to copy file data for %s: %v\n", zf.Name, err)
-			rc.Close() //nolint:errcheck,gosec // best-effort cleanup on error
-			f.Close()  //nolint:errcheck,gosec // best-effort cleanup on error
-			fmt.Fprintf(os.Stderr, "  [debug] Falling back to 7z due to file extraction error\n")
-			return extract7zWithPasswords(ctx, src, dst, defaultPasswords)
-		}
-		rc.Close() //nolint:errcheck,gosec // best-effort cleanup
-		f.Close()  //nolint:errcheck,gosec // best-effort cleanup
-
-		members = append(members, zf.Name)
-	}
-
-	fmt.Fprintf(os.Stderr, "  [debug] Successfully extracted %d files with standard ZIP extraction\n", len(members))
-	return &archiveExtraction{path: dst, members: members}, nil
-}
-
-// extractTar extracts a plain TAR archive.
-func extractTar(src, dst string) (*archiveExtraction, error) {
-	f, err := os.Open(src)
-	if err != nil {
-		return nil, fmt.Errorf("open tar: %w", err)
-	}
-	defer f.Close() //nolint:errcheck // best-effort cleanup
-	return extractTarReader(tar.NewReader(f), dst)
-}
-
-// extractTarGz extracts a tar.gz archive.
-func extractTarGz(src, dst string) (*archiveExtraction, error) {
-	f, err := os.Open(src)
-	if err != nil {
-		return nil, fmt.Errorf("open tar.gz: %w", err)
-	}
-	defer f.Close() //nolint:errcheck // best-effort cleanup
-
-	gr, err := gzip.NewReader(f)
-	if err != nil {
-		return nil, fmt.Errorf("create gzip reader: %w", err)
-	}
-	defer gr.Close() //nolint:errcheck // best-effort cleanup
-
-	return extractTarReader(tar.NewReader(gr), dst)
-}
-
-func extractTarReader(tr *tar.Reader, dst string) (*archiveExtraction, error) {
-	var members []string
-	for {
-		hdr, err := tr.Next()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return nil, fmt.Errorf("read tar entry: %w", err)
-		}
-
-		// Prevent path traversal: ensure extracted path stays within destination
-		p := filepath.Join(dst, hdr.Name) //nolint:gosec // validated by HasPrefix check below
-		if !strings.HasPrefix(filepath.Clean(p), filepath.Clean(dst)+string(os.PathSeparator)) {
-			fmt.Fprintf(os.Stderr, "  [debug] Skipping unsafe path: %s\n", hdr.Name)
-			continue
-		}
-
-		switch hdr.Typeflag {
-		case tar.TypeDir:
-			if err := os.MkdirAll(p, 0o750); err != nil {
-				return nil, fmt.Errorf("create directory: %w", err)
-			}
-		case tar.TypeReg:
-			if err := os.MkdirAll(filepath.Dir(p), 0o750); err != nil {
-				return nil, fmt.Errorf("create directory: %w", err)
-			}
-			f, err := os.Create(p)
-			if err != nil {
-				return nil, fmt.Errorf("create extracted file: %w", err)
-			}
-			if _, err := io.CopyN(f, tr, hdr.Size); err != nil {
-				f.Close() //nolint:errcheck,gosec // best-effort cleanup on error
-				return nil, fmt.Errorf("extract file: %w", err)
-			}
-			f.Close() //nolint:errcheck,gosec // best-effort cleanup
-			members = append(members, hdr.Name)
-		}
-	}
-	return &archiveExtraction{path: dst, members: members}, nil
-}
-
-// extractXz extracts an .xz file using the `xz` command-line tool.
-func extractXz(ctx context.Context, archivePath, destDir string) (*archiveExtraction, error) {
-	// For .xz, decompress to a file
-	base := filepath.Base(archivePath)
-	outputPath := filepath.Join(destDir, strings.TrimSuffix(base, ".xz"))
-
-	cmd := exec.CommandContext(ctx, "xz", "-d", "-c", archivePath)
-
-	out, err := os.Create(outputPath)
-	if err != nil {
-		return nil, fmt.Errorf("create output file: %w", err)
-	}
-	defer out.Close() //nolint:errcheck // best-effort cleanup
-
-	cmd.Stdout = out
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
-
-	if err := cmd.Run(); err != nil {
-		return nil, fmt.Errorf("extract xz: %w (%s)", err, stderr.String())
-	}
-
-	members := []string{filepath.Base(outputPath)}
-	return &archiveExtraction{path: destDir, members: members}, nil
-}
-
-// listDir recursively lists all files in a directory.
-func listDir(dir string) ([]string, error) {
-	var files []string
-	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "  [debug] listDir walk error at %s: %v\n", path, err)
-			return err
-		}
-		if !info.IsDir() {
-			rel, err := filepath.Rel(dir, path)
-			if err != nil {
-				return err
-			}
-			files = append(files, rel)
-			fmt.Fprintf(os.Stderr, "  [debug] Found file: %s (size: %d bytes)\n", rel, info.Size())
-		}
-		return nil
-	})
-	return files, err
-}
 
 // archiveMemberStats finds the most notable file (with highest risk) and largest file.
 func archiveMemberStats(archive *ArchiveAnalysis) (mostNotable, largest *FileAnalysis) {
@@ -734,14 +536,31 @@ func main() {
 		log.Fatalf("Could not open database: %v", err)
 	}
 
-	// Create temp directory for extracted samples (for LLM to use radare2, etc.).
-	sampleDir, err := os.MkdirTemp("", "trait-basher-samples-*")
-	if err != nil {
+	// Clean up orphaned extract directories from crashed/killed previous runs.
+	cleanupOrphanedExtractDirs()
+
+	// Create temp directory for extracted samples with PID for easier debugging.
+	// DISSECT writes files to <extract-dir>/<sha256>/<relative-path>.
+	// Directory persists across rescans for cache reuse.
+	extractDir := filepath.Join(os.TempDir(), fmt.Sprintf("tbsh.%d", os.Getpid()))
+	if err := os.MkdirAll(extractDir, 0o750); err != nil {
 		db.Close() //nolint:errcheck,gosec // best-effort cleanup on fatal error
-		log.Fatalf("Could not create sample directory: %v", err)
+		log.Fatalf("Could not create extract directory: %v", err)
 	}
-	defer os.RemoveAll(sampleDir) //nolint:errcheck // best-effort cleanup
-	defer db.Close()              //nolint:errcheck // best-effort cleanup
+
+	// Set up signal handler for cleanup on interrupt/termination.
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		<-sigChan
+		fmt.Fprintf(os.Stderr, "\nInterrupted. Cleaning up %s...\n", extractDir)
+		os.RemoveAll(extractDir) //nolint:errcheck // best-effort cleanup on signal
+		db.Close()               //nolint:errcheck // best-effort cleanup on signal
+		os.Exit(1)
+	}()
+
+	defer os.RemoveAll(extractDir) //nolint:errcheck // best-effort cleanup
+	defer db.Close()               //nolint:errcheck // best-effort cleanup
 
 	cfg := &config{
 		dirs:        dirs,
@@ -755,7 +574,7 @@ func main() {
 		useCargo:    *useCargo,
 		flush:       *flush,
 		db:          db,
-		sampleDir:   sampleDir,
+		extractDir:  extractDir,
 		rescanAfter: *rescanAfter,
 	}
 
@@ -865,12 +684,9 @@ type streamState struct {
 
 // streamAnalyzeAndReview streams dissect output and reviews archives as they complete.
 func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*streamStats, error) {
-	// Build dissect command
-	maxRisk := "notable"
-	if cfg.knownGood {
-		maxRisk = "hostile"
-	}
-	args := []string{"--format", "jsonl", "--sample-dir", cfg.sampleDir, "--sample-max-risk", maxRisk}
+	// Build dissect command with --extract-dir for file extraction.
+	// DISSECT extracts all analyzed files to <extract-dir>/<sha256>/<relative-path>.
+	args := []string{"--format", "jsonl", "--extract-dir", cfg.extractDir}
 	args = append(args, cfg.dirs...)
 	cmd := exec.CommandContext(ctx, cfg.dissectBin, args...) //nolint:gosec // dissectBin is built from trusted cargo
 	if cfg.useCargo {
@@ -1051,29 +867,33 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 
 	st.stats.totalFiles += len(a.Members)
 
+	archiveName := filepath.Base(a.ArchivePath)
+
 	if !archiveNeedsReview(a, st.cfg.knownGood) {
 		mode := "bad"
+		reason := "at least one file already detected"
 		if st.cfg.knownGood {
 			mode = "good"
+			reason = "no files have suspicious/hostile findings"
 		}
-		fmt.Fprintf(os.Stderr, "  [skip] Archive %s (--%-4s): no members need review\n", filepath.Base(a.ArchivePath), mode)
+		fmt.Fprintf(os.Stderr, "  [skip] %s (--%-4s): %s\n", archiveName, mode, reason)
 		st.stats.skippedNoReview++
 		return
 	}
 
 	h := hashString(a.ArchivePath)
 	if wasAnalyzed(ctx, st.cfg.db, h, st.dbMode) {
-		fmt.Fprintf(os.Stderr, "  [skip] Archive %s: already analyzed (cache hit)\n", filepath.Base(a.ArchivePath))
+		fmt.Fprintf(os.Stderr, "  [skip] %s: already analyzed (cache hit)\n", archiveName)
 		st.stats.skippedCached++
 		return
 	}
 
 	prob := archiveProblematicMembers(a, st.cfg.knownGood)
 	skip := len(a.Members) - len(prob)
-	fmt.Fprintf(os.Stderr, "\n📦 Archive complete: %s\n", a.ArchivePath)
-	fmt.Fprintf(os.Stderr, "   Members: %d total, %d need review, %d filtered\n", len(a.Members), len(prob), skip)
+	fmt.Fprintf(os.Stderr, "\n📦 %s\n", archiveName)
+	fmt.Fprintf(os.Stderr, "   Files: %d total, %d need review, %d filtered\n", len(a.Members), len(prob), skip)
 
-	// Log which members were filtered out
+	// Log which files were filtered out
 	if skip > 0 && skip <= 5 && st.cfg.knownGood {
 		for _, m := range a.Members {
 			if !needsReview(m, st.cfg.knownGood) {
@@ -1084,12 +904,12 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 				if crits == "" {
 					crits = "none"
 				}
-				fmt.Fprintf(os.Stderr, "      - %s (%s): not critical enough\n", memberPath(m.Path), strings.TrimSpace(crits))
+				fmt.Fprintf(os.Stderr, "      - %s (%s): not critical enough\n", filepath.Base(m.Path), strings.TrimSpace(crits))
 			}
 		}
 	}
 
-	fmt.Fprintf(os.Stderr, "   Members requiring review:\n")
+	fmt.Fprintf(os.Stderr, "   Files requiring review:\n")
 	for i, m := range prob {
 		if i >= 3 {
 			fmt.Fprintf(os.Stderr, "   ... and %d more\n", len(prob)-3)
@@ -1105,7 +925,12 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 				parts = append(parts, fmt.Sprintf("%d %s", n, level))
 			}
 		}
-		fmt.Fprintf(os.Stderr, "   - %s (%s)\n", memberPath(m.Path), strings.Join(parts, ", "))
+		// Show extracted path if available, otherwise just filename
+		displayPath := filepath.Base(m.Path)
+		if m.ExtractedPath != "" {
+			displayPath = m.ExtractedPath
+		}
+		fmt.Fprintf(os.Stderr, "   - %s (%s)\n", displayPath, strings.Join(parts, ", "))
 	}
 
 	reason := "has suspicious/hostile findings"
@@ -1141,10 +966,12 @@ func processRealFile(ctx context.Context, st *streamState) {
 
 	if !realFileNeedsReview(rf, st.cfg.knownGood) {
 		mode := "bad"
+		reason := "already detected (has suspicious/hostile findings)"
 		if st.cfg.knownGood {
 			mode = "good"
+			reason = "no suspicious/hostile findings"
 		}
-		fmt.Fprintf(os.Stderr, "  [skip] File %s (--%-4s): no suspicious/hostile findings\n", filepath.Base(rf.RealPath), mode)
+		fmt.Fprintf(os.Stderr, "  [skip] File %s (--%-4s): %s\n", filepath.Base(rf.RealPath), mode, reason)
 		st.stats.skippedNoReview++
 		return
 	}
@@ -1266,10 +1093,10 @@ func sanityCheck(ctx context.Context, cfg *config) error {
 func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) error {
 	var prompt, task string
 	if cfg.knownGood {
-		prompt = buildGoodPrompt(false, f.Path, 0, cfg.repoRoot, cfg.dissectBin)
+		prompt = buildGoodPrompt(false, f.Path, "", nil, 0, cfg.repoRoot, cfg.dissectBin)
 		task = "Review for false positives (known-good collection)"
 	} else {
-		prompt = buildBadPrompt(false, f.Path, 0, cfg.repoRoot, cfg.dissectBin)
+		prompt = buildBadPrompt(false, f.Path, "", nil, 0, cfg.repoRoot, cfg.dissectBin)
 		task = "Find missing detections (known-bad collection)"
 	}
 
@@ -1360,96 +1187,101 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) erro
 
 func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid string) error {
 	prob := archiveProblematicMembers(a, cfg.knownGood)
+	archiveName := filepath.Base(a.ArchivePath)
 
-	fmt.Fprintf(os.Stderr, ">>> Preparing to invoke %s for archive (session: %s)\n", cfg.provider, sid)
-	fmt.Fprintf(os.Stderr, ">>> Archive: %s (%d members, %d problematic)\n", a.ArchivePath, len(a.Members), len(prob))
+	// Build file entries with finding summaries, sorted by severity.
+	// DISSECT extracts to <extract-dir>/<sha256>/<relative-path>.
+	var extractDir string
+	var fileEntries []fileEntry
 
-	// Extract archive (full for --bad, problematic files only for --good)
-	dir, err := os.MkdirTemp("", "trait-basher-archive-*")
-	if err != nil {
-		return fmt.Errorf("create extract directory: %w", err)
+	// Helper to build a fileEntry from a FileAnalysis
+	buildEntry := func(m FileAnalysis) fileEntry {
+		counts := make(map[string]int)
+		maxCrit := 0
+		for _, f := range m.Findings {
+			c := strings.ToLower(f.Crit)
+			counts[c]++
+			if r := critRank[c]; r > maxCrit {
+				maxCrit = r
+			}
+		}
+		var parts []string
+		total := 0
+		for _, level := range []string{"hostile", "suspicious", "notable"} {
+			if n := counts[level]; n > 0 {
+				parts = append(parts, fmt.Sprintf("%d %s", n, level))
+				total += n
+			}
+		}
+		path := m.ExtractedPath
+		if path == "" {
+			path = m.Path
+		}
+		return fileEntry{
+			Path:    path,
+			Summary: strings.Join(parts, ", "),
+			MaxCrit: maxCrit,
+			Total:   total,
+		}
 	}
-	defer os.RemoveAll(dir) //nolint:errcheck // best-effort cleanup of temp directory
 
-	var info string
-
-	if cfg.knownBad {
-		// --bad mode: extract full archive for comprehensive analysis
-		fmt.Fprintf(os.Stderr, "  [debug] Starting full archive extraction for --bad mode\n")
-		ext, err := extractArchive(ctx, a.ArchivePath, dir)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "  [debug] Archive extraction failed: %v\n", err)
-			return fmt.Errorf("extract archive: %w", err)
-		}
-		fmt.Fprintf(os.Stderr, "  [debug] Archive extraction succeeded, %d members extracted\n", len(ext.members))
-
-		notable, largest := archiveMemberStats(a)
-		var hints []string
-		if notable != nil {
-			hints = append(hints, fmt.Sprintf("Most notable findings in: %s", memberPath(notable.Path)))
-		}
-		if largest != nil {
-			hints = append(hints, fmt.Sprintf("Largest file: %s", memberPath(largest.Path)))
-		}
-
-		info = fmt.Sprintf("\n\n## Extracted Archive\nFull archive extracted to: %s\n"+
-			"You can now read the actual source code to understand the malicious behavior.\n", dir)
-		if len(hints) > 0 {
-			info += "Hints for investigation:\n"
-			for _, h := range hints {
-				info += fmt.Sprintf("- %s\n", h)
-			}
-		}
-		info += "After analyzing, update the rules in traits/ to detect the malicious behavior found."
+	// For --good mode: use problematic files
+	// For --bad mode: use all files (sorted by size as proxy for complexity)
+	var sourceFiles []FileAnalysis
+	if cfg.knownGood {
+		sourceFiles = prob
 	} else {
-		// --good mode: extract only problematic files
-		dir2, err := os.MkdirTemp("", "trait-basher-problematic-*")
-		if err != nil {
-			return fmt.Errorf("create problematic extract directory: %w", err)
-		}
-		defer os.RemoveAll(dir2) //nolint:errcheck // best-effort cleanup of temp directory
+		sourceFiles = a.Members
+	}
 
-		for _, m := range prob {
-			if m.ExtractedPath == "" {
-				continue
+	for _, m := range sourceFiles {
+		if m.ExtractedPath != "" {
+			// Extract the SHA256 directory from first file
+			if extractDir == "" {
+				rel := strings.TrimPrefix(m.ExtractedPath, cfg.extractDir+"/")
+				if idx := strings.Index(rel, "/"); idx > 0 {
+					extractDir = filepath.Join(cfg.extractDir, rel[:idx])
+				} else {
+					extractDir = m.ExtractedPath
+				}
 			}
-			dst := filepath.Join(dir2, filepath.Base(m.Path))
-			if err := os.MkdirAll(filepath.Dir(dst), 0o750); err != nil {
-				return fmt.Errorf("create directory: %w", err)
-			}
-			sf, err := os.Open(m.ExtractedPath)
-			if err != nil {
-				return fmt.Errorf("open extracted file %s: %w", m.ExtractedPath, err)
-			}
-			df, err := os.Create(dst)
-			if err != nil {
-				sf.Close() //nolint:errcheck,gosec // best-effort cleanup on error
-				return fmt.Errorf("create destination file: %w", err)
-			}
-			if _, err := io.Copy(df, sf); err != nil {
-				sf.Close() //nolint:errcheck,gosec // best-effort cleanup on error
-				df.Close() //nolint:errcheck,gosec // best-effort cleanup on error
-				return fmt.Errorf("copy extracted file: %w", err)
-			}
-			sf.Close() //nolint:errcheck,gosec // best-effort cleanup
-			df.Close() //nolint:errcheck,gosec // best-effort cleanup
 		}
+		fileEntries = append(fileEntries, buildEntry(m))
+	}
 
-		info = fmt.Sprintf("\n\n## Problematic Files\nFalse positive files extracted to: %s\n"+
-			"Review these files to understand why they're being incorrectly flagged.\n"+
-			"Adjust the rules in traits/ to fix the false positives.", dir2)
+	// Sort by severity (hostile > suspicious > notable), then by count
+	sort.Slice(fileEntries, func(i, j int) bool {
+		if fileEntries[i].MaxCrit != fileEntries[j].MaxCrit {
+			return fileEntries[i].MaxCrit > fileEntries[j].MaxCrit
+		}
+		return fileEntries[i].Total > fileEntries[j].Total
+	})
+
+	// Take top 10
+	if len(fileEntries) > 10 {
+		fileEntries = fileEntries[:10]
+	}
+
+	fmt.Fprintf(os.Stderr, ">>> Preparing to invoke %s (session: %s)\n", cfg.provider, sid)
+	fmt.Fprintf(os.Stderr, ">>> Source: %s (%d files, %d problematic)\n", archiveName, len(a.Members), len(prob))
+	if extractDir != "" {
+		fmt.Fprintf(os.Stderr, ">>> Extracted to: %s\n", extractDir)
+	}
+
+	// Use extracted directory as the path for dissect commands
+	dissectPath := extractDir
+	if dissectPath == "" {
+		dissectPath = a.ArchivePath // Fallback if no extraction
 	}
 
 	var prompt, task string
 	if cfg.knownGood {
-		prompt = buildGoodPrompt(true, a.ArchivePath, len(prob), cfg.repoRoot, cfg.dissectBin)
-		task = "Review archive for false positives (known-good collection)"
+		prompt = buildGoodPrompt(true, dissectPath, archiveName, fileEntries, len(prob), cfg.repoRoot, cfg.dissectBin)
+		task = "Review files for false positives (known-good collection)"
 	} else {
-		prompt = buildBadPrompt(true, a.ArchivePath, len(prob), cfg.repoRoot, cfg.dissectBin)
-		task = "Find missing detections in archive (known-bad collection)"
+		prompt = buildBadPrompt(true, dissectPath, archiveName, fileEntries, len(prob), cfg.repoRoot, cfg.dissectBin)
+		task = "Find missing detections (known-bad collection)"
 	}
-
-	prompt += info
 
 	// Add suspicious/hostile findings summary for good archives
 	if cfg.knownGood {
@@ -1481,20 +1313,6 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 		}
 	}
 
-	// Still include extracted binary samples if available
-	if cfg.knownGood && len(prob) > 0 {
-		var paths []string
-		for _, m := range prob {
-			if m.ExtractedPath != "" {
-				paths = append(paths, fmt.Sprintf("- %s", m.ExtractedPath))
-			}
-		}
-		if len(paths) > 0 {
-			prompt += fmt.Sprintf("\nBinary analysis tools available at: %s\n%s",
-				cfg.sampleDir, strings.Join(paths, "\n"))
-		}
-	}
-
 	counts := make(map[string]int)
 	for _, m := range a.Members {
 		for _, fd := range m.Findings {
@@ -1509,8 +1327,11 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 	}
 
 	fmt.Fprintln(os.Stderr, "┌─────────────────────────────────────────────────────────────")
-	fmt.Fprintf(os.Stderr, "│ %s ARCHIVE REVIEW: %s\n", strings.ToUpper(cfg.provider), a.ArchivePath)
-	fmt.Fprintf(os.Stderr, "│ Members: %d total, %d problematic\n", len(a.Members), len(prob))
+	fmt.Fprintf(os.Stderr, "│ %s REVIEW: %s\n", strings.ToUpper(cfg.provider), archiveName)
+	fmt.Fprintf(os.Stderr, "│ Files: %d total, %d problematic\n", len(a.Members), len(prob))
+	if extractDir != "" {
+		fmt.Fprintf(os.Stderr, "│ Extracted: %s\n", extractDir)
+	}
 	fmt.Fprintf(os.Stderr, "│ Findings: %s\n", strings.Join(summary, ", "))
 	fmt.Fprintf(os.Stderr, "│ Task: %s\n", task)
 	fmt.Fprintln(os.Stderr, "├─────────────────────────────────────────────────────────────")
@@ -1535,7 +1356,7 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 	defer cancel()
 
 	fmt.Fprintf(os.Stderr, ">>> About to start AI process with timeout %s\n", cfg.timeout)
-	err = runAIWithStreaming(tctx, cfg, prompt, sid)
+	err := runAIWithStreaming(tctx, cfg, prompt, sid)
 	fmt.Fprintln(os.Stderr)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "<<< %s failed: %v\n", cfg.provider, err)
@@ -1899,4 +1720,38 @@ func markAnalyzed(ctx context.Context, db *sql.DB, hash, mode string) error {
 		hash, mode, time.Now().Unix(),
 	)
 	return err
+}
+
+// cleanupOrphanedExtractDirs removes tbsh.<pid> directories where the
+// owning process no longer exists. This handles cleanup after crashes or kill -9.
+func cleanupOrphanedExtractDirs() {
+	tmpDir := os.TempDir()
+	entries, err := os.ReadDir(tmpDir)
+	if err != nil {
+		return
+	}
+
+	const prefix = "tbsh."
+	for _, entry := range entries {
+		if !entry.IsDir() || !strings.HasPrefix(entry.Name(), prefix) {
+			continue
+		}
+
+		// Extract PID from directory name
+		pidStr := strings.TrimPrefix(entry.Name(), prefix)
+		pid, err := strconv.Atoi(pidStr)
+		if err != nil {
+			continue // Not a valid PID format
+		}
+
+		// Check if process is still running (signal 0 = check existence)
+		if err := syscall.Kill(pid, 0); err == nil {
+			continue // Process still running, don't clean up
+		}
+
+		// Process is dead, clean up orphaned directory
+		orphanPath := filepath.Join(tmpDir, entry.Name())
+		fmt.Fprintf(os.Stderr, "Cleaning up orphaned extract directory: %s\n", orphanPath)
+		os.RemoveAll(orphanPath) //nolint:errcheck // best-effort cleanup
+	}
 }

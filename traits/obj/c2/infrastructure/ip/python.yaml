@@ -17,6 +17,7 @@ traits:
       type: string
       # Matches: var = "IP" or var = 'IP' with optional quotes
       regex: "\\w+\\s*=\\s*[\"'](?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])[\"']"
+      external_ip: true
 
   # Match IP in f-string URL construction: f"http://{host}" or f'http://{ip}:1234'
   - id: python-fstring-url
@@ -33,6 +34,7 @@ traits:
     if:
       type: string
       regex: "requests\\.(get|post)\\([^)]*https?://(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}"
+      external_ip: true
 
   # Match urllib with IP-based URL
   - id: python-urllib-ip-url
@@ -41,6 +43,7 @@ traits:
     if:
       type: string
       regex: "urlopen\\([^)]*https?://(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}"
+      external_ip: true
 
   # Match URL construction pattern: f-string with host and port
   - id: python-fstring-url-with-port

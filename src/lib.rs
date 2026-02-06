@@ -23,6 +23,7 @@ mod constant_decoder;
 pub mod decoders;
 mod entropy;
 pub mod extractors;
+pub mod ip_validator;
 mod radare2;
 mod strings;
 mod syscall_names;

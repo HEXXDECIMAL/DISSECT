@@ -1,0 +1,119 @@
+# WebSocket-based Request/Response Proxy Detection
+# Detects C2 proxies that relay requests through WebSocket connections
+# This pattern is used for protocol tunneling (e.g., Web3 request relays)
+# ATT&CK: T1572 (Protocol Tunneling), T1090 (Proxy)
+# MBC: B0030 (C2 Communication)
+
+defaults:
+  attack: "T1572"
+  mbc: "B0030"
+
+traits:
+  # === WebSocket connection indicators ===
+  - id: websocket-connection
+    desc: WebSocket connection reference
+    crit: inert
+    conf: 0.6
+    for: [macho, dylib]
+    if:
+      type: string
+      substr: "WebSocket"
+
+  # === Request/Response forwarding indicators ===
+  - id: web3-request-dto
+    desc: Web3 request DTO/message structure
+    crit: notable
+    conf: 0.85
+    for: [macho, dylib]
+    if:
+      type: string
+      regex: "Web3Request(DTO|Message|Object)?"
+
+  - id: web3-response-dto
+    desc: Web3 response DTO/message structure
+    crit: notable
+    conf: 0.85
+    for: [macho, dylib]
+    if:
+      type: string
+      regex: "Web3Response(DTO|Message|Object)?"
+
+  - id: request-forwarding
+    desc: Request forwarding or relay semantics
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: "(request|response).{0,30}(forward|relay|proxy|tunnel)"
+      case_insensitive: true
+
+  # === Session management indicators ===
+  - id: session-management
+    desc: Session/connection state management
+    crit: notable
+    conf: 0.75
+    for: [macho, dylib]
+    if:
+      type: string
+      regex: "(Session|Connection).{0,30}(ID|Key|Secret|Token)"
+
+  - id: host-request
+    desc: Host request handling (request forwarding)
+    crit: notable
+    conf: 0.8
+    for: [macho, dylib]
+    if:
+      type: string
+      substr: "HostRequest"
+
+  # === HTTP request forwarding indicators ===
+  - id: http-post-forward
+    desc: HTTP POST request forwarding
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      substr: "POST"
+
+  - id: http-response-handler
+    desc: HTTP response handling
+    crit: inert
+    conf: 0.6
+    for: [macho, dylib]
+    if:
+      type: symbol
+      regex: "dataTaskWithRequest|HTTPResponse"
+
+composite_rules:
+  # WebSocket-based protocol proxy (Web3 relay/tunnel)
+  # Complexity: all(4) + for(1) = 5 >= 4 HOSTILE
+  - id: websocket-protocol-proxy
+    desc: WebSocket-based protocol proxy/relay
+    crit: hostile
+    conf: 0.90
+    attack: "T1572"
+    mbc: "B0030"
+    for: [macho, dylib]
+    all:
+      - id: websocket-connection
+      - id: web3-request-dto
+      - id: web3-response-dto
+      - id: session-management
+
+  # Web3 request relay over WebSocket (C2 tunnel)
+  # Complexity: all(3) + any(1) + for(1) = 5 >= 4 HOSTILE
+  - id: web3-relay-tunnel
+    desc: Web3 request relay tunnel (C2 proxy)
+    crit: hostile
+    conf: 0.88
+    attack: "T1572"
+    mbc: "B0030"
+    for: [macho, dylib]
+    all:
+      - id: websocket-connection
+      - id: host-request
+      - id: http-response-handler
+    any:
+      - id: web3-request-dto
+      - id: web3-response-dto
+      - id: http-post-forward

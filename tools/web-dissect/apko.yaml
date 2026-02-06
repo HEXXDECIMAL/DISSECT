@@ -7,7 +7,6 @@ contents:
     - ca-certificates
     - tzdata
     - radare2
-    - dissect-tools
 
 accounts:
   groups:

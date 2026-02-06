@@ -41,6 +41,7 @@ mod diff;
 mod entropy;
 mod env_mapper;
 mod extractors;
+mod ip_validator;
 mod output;
 mod path_mapper;
 mod radare2;

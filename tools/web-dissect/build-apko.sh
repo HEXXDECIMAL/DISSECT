@@ -1,147 +1,151 @@
 #!/bin/bash
 set -exuo pipefail
 
-# Disable macOS resource fork files in tarballs
-export COPYFILE_DISABLE=1
+# Build script for web-dissect using apko + manual layer addition
+# 1. apko builds base image with Alpine packages (radare2, etc.)
+# 2. Manually add binaries layer to OCI layout
+# Builds for ARM64 (native on ARM Mac, fast builds)
 
-# Build script for web-dissect using apko + custom APK package
-# Simple approach: create APK manually (it's just a tar.gz), then apko includes it
-# Prerequisites: apko, go 1.24+, cargo/rust, dissect binary
+export COPYFILE_DISABLE=1
 
 REPO_ROOT=$(git rev-parse --show-toplevel)
 BUILD_DIR="${REPO_ROOT}/tools/web-dissect"
 OUTPUT_DIR="${BUILD_DIR}/dist"
 OCI_BUILD="${OUTPUT_DIR}/apko-build"
-APK_REPO="${BUILD_DIR}/apk-repo"
-APK_ARCH_REPO="${APK_REPO}/x86_64"
 
-mkdir -p "${OUTPUT_DIR}" "${APK_ARCH_REPO}"
+rm -rf "${OUTPUT_DIR}"
+mkdir -p "${OUTPUT_DIR}"
 
-echo "=== Building web-dissect Go binary (native) ==="
+echo "=== Building web-dissect Go binary (linux/arm64) ==="
 cd "${BUILD_DIR}"
-CGO_ENABLED=0 go build -o "${OUTPUT_DIR}/web-dissect" -ldflags="-s -w" .
-echo "✓ Go binary built: ${OUTPUT_DIR}/web-dissect"
+GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o "${OUTPUT_DIR}/web-dissect" -ldflags="-s -w" .
+echo "Built: ${OUTPUT_DIR}/web-dissect"
 
 echo ""
-echo "=== Locating dissect binary ==="
-DISSECT_BIN=""
-if command -v dissect >/dev/null 2>&1; then
-  DISSECT_BIN="$(command -v dissect)"
-  echo "✓ Found dissect in PATH: ${DISSECT_BIN}"
-elif [ -f "${REPO_ROOT}/target/release/dissect" ]; then
-  DISSECT_BIN="${REPO_ROOT}/target/release/dissect"
-  echo "✓ Found dissect build: ${DISSECT_BIN}"
-elif [ -f "${REPO_ROOT}/target/x86_64-unknown-linux-musl/release/dissect" ]; then
-  DISSECT_BIN="${REPO_ROOT}/target/x86_64-unknown-linux-musl/release/dissect"
-  echo "✓ Found dissect cross-build: ${DISSECT_BIN}"
-else
-  echo "❌ dissect binary not found"
-  echo "Please:"
-  echo "  1. Build: cd ${REPO_ROOT} && cargo build --release"
-  echo "  2. Or: cd ${REPO_ROOT} && cargo build --release --target x86_64-unknown-linux-musl"
-  echo "  3. Or add dissect to PATH"
-  exit 1
+echo "=== Locating dissect binary (Linux ARM64) ==="
+DISSECT_BIN="${REPO_ROOT}/target/aarch64-unknown-linux-musl/release/dissect"
+if [ ! -f "${DISSECT_BIN}" ]; then
+  echo "Linux dissect binary not found at: ${DISSECT_BIN}"
+  echo ""
+  echo "Building dissect for Linux ARM64 using Podman..."
+
+  if ! command -v podman >/dev/null 2>&1; then
+    echo "podman not found. Install with: brew install podman"
+    exit 1
+  fi
+
+  # Build with Podman using rust:alpine image (native ARM64)
+  podman run --rm --platform linux/arm64 \
+    -v "${REPO_ROOT}:/build:z" \
+    -w /build \
+    docker.io/library/rust:alpine \
+    sh -c "apk add --no-cache musl-dev g++ && rustup target add aarch64-unknown-linux-musl && cargo build --release --target aarch64-unknown-linux-musl"
+
+  if [ ! -f "${DISSECT_BIN}" ]; then
+    echo "Failed to build dissect for Linux"
+    exit 1
+  fi
 fi
+echo "Found dissect Linux binary: ${DISSECT_BIN}"
 
 echo ""
-echo "=== Creating APK package ==="
-
-# Create temporary directory for APK contents
-APK_TMP=$(mktemp -d)
-trap "rm -rf ${APK_TMP}" EXIT
-
-# Create .PKGINFO metadata file
-cat > "${APK_TMP}/.PKGINFO" <<'EOF'
-pkgname = dissect-tools
-pkgver = 0.0.1-r0
-pkgdesc = web-dissect and dissect binaries
-url = https://example.com
-builddate = 1
-packager = build <build@example.com>
-size = 0
-installed_size = 0
-origin = dissect-tools
-maintainer = build <build@example.com>
-arch = x86_64
-EOF
-
-# Create filesystem directories and copy binaries
-mkdir -p "${APK_TMP}/usr/local/bin" "${APK_TMP}/templates"
-cp "${OUTPUT_DIR}/web-dissect" "${APK_TMP}/usr/local/bin/web-dissect"
-chmod +x "${APK_TMP}/usr/local/bin/web-dissect"
-cp "${DISSECT_BIN}" "${APK_TMP}/usr/local/bin/dissect"
-chmod +x "${APK_TMP}/usr/local/bin/dissect"
-cp -r "${BUILD_DIR}/templates/"* "${APK_TMP}/templates/" 2>/dev/null || true
-
-# Create the APK file (tar.gz with .PKGINFO at root)
-cd "${APK_TMP}"
-tar --exclude='._*' -czf "${APK_ARCH_REPO}/dissect-tools-0.0.1-r0.apk" .
-echo "✓ APK created: dissect-tools-0.0.1-r0.apk"
-
-echo ""
-echo "=== Creating APKINDEX ==="
-
-# Create APKINDEX file
-APK_CHECKSUM=$(sha256sum "${APK_ARCH_REPO}/dissect-tools-0.0.1-r0.apk" | awk '{print $1}')
-APK_SIZE=$(stat -f%z "${APK_ARCH_REPO}/dissect-tools-0.0.1-r0.apk" 2>/dev/null || stat -c%s "${APK_ARCH_REPO}/dissect-tools-0.0.1-r0.apk")
-
-cat > "${APK_TMP}/APKINDEX" <<EOF
-C:Q1z3DKXJ0kKmlBsH6hVX9qbUo=
-P:dissect-tools
-V:0.0.1-r0
-A:x86_64
-M:Q1z3DKXJ0kKmlBsH6hVX9qbUo=
-D:
-o:dissect-tools
-m:build
-L:GPL
-t:1
-c:abc1234567890
-S:${APK_SIZE}
-I:${APK_SIZE}
-Z:${APK_CHECKSUM}
-EOF
-
-# Create APKINDEX.tar.gz
-cd "${APK_TMP}"
-tar --exclude='._*' -czf "${APK_ARCH_REPO}/APKINDEX.tar.gz" APKINDEX
-echo "✓ APKINDEX created"
-
-# List what we created
-echo ""
-echo "APK Repository contents:"
-ls -lh "${APK_ARCH_REPO}/"
-
-echo ""
-echo "=== Building OCI image with apko ==="
+echo "=== Building base image with apko ==="
 rm -rf "${OCI_BUILD}"
 mkdir -p "${OCI_BUILD}"
 
 apko build \
-  --arch amd64 \
-  --ignore-signatures \
-  --repository-append "${APK_REPO}" \
+  --arch arm64 \
   "${BUILD_DIR}/apko.yaml" \
-  "dissect-web:latest" \
+  "dissect-web:base" \
   "${OCI_BUILD}"
-echo "✓ OCI image built with dissect-tools package"
 
-# Verify OCI structure
-if [ ! -f "${OCI_BUILD}/index.json" ] || [ ! -d "${OCI_BUILD}/blobs" ]; then
-  echo "❌ OCI image structure not found at ${OCI_BUILD}"
-  ls -la "${OCI_BUILD}" || true
-  exit 1
+echo "Base image built"
+
+echo ""
+echo "=== Creating binaries layer ==="
+LAYER_DIR=$(mktemp -d)
+trap "rm -rf ${LAYER_DIR}" EXIT
+
+mkdir -p "${LAYER_DIR}/usr/local/bin"
+cp "${OUTPUT_DIR}/web-dissect" "${LAYER_DIR}/usr/local/bin/web-dissect"
+chmod +x "${LAYER_DIR}/usr/local/bin/web-dissect"
+cp "${DISSECT_BIN}" "${LAYER_DIR}/usr/local/bin/dissect"
+chmod +x "${LAYER_DIR}/usr/local/bin/dissect"
+
+# Copy templates if they exist
+if [ -d "${BUILD_DIR}/templates" ]; then
+  mkdir -p "${LAYER_DIR}/templates"
+  cp -r "${BUILD_DIR}/templates/"* "${LAYER_DIR}/templates/" 2>/dev/null || true
 fi
 
+# Create gzipped tarball for the layer
+cd "${LAYER_DIR}"
+tar -czf "${OUTPUT_DIR}/binaries.tar.gz" .
+
+# Calculate layer digest
+LAYER_DIGEST=$(sha256sum "${OUTPUT_DIR}/binaries.tar.gz" | awk '{print $1}')
+LAYER_SIZE=$(stat -f%z "${OUTPUT_DIR}/binaries.tar.gz" 2>/dev/null || stat -c%s "${OUTPUT_DIR}/binaries.tar.gz")
+
+# Calculate diffID (uncompressed digest)
+DIFF_ID=$(gzip -dc "${OUTPUT_DIR}/binaries.tar.gz" | sha256sum | awk '{print $1}')
+
+echo "Layer digest: sha256:${LAYER_DIGEST}"
+echo "Layer size: ${LAYER_SIZE}"
+echo "DiffID: sha256:${DIFF_ID}"
+
 echo ""
-echo "✓ Build complete!"
+echo "=== Adding layer to OCI image ==="
+
+# Copy layer blob
+cp "${OUTPUT_DIR}/binaries.tar.gz" "${OCI_BUILD}/blobs/sha256/${LAYER_DIGEST}"
+
+# Get current manifest digest from index
+MANIFEST_DIGEST=$(jq -r '.manifests[0].digest' "${OCI_BUILD}/index.json" | sed 's/sha256://')
+MANIFEST_FILE="${OCI_BUILD}/blobs/sha256/${MANIFEST_DIGEST}"
+
+# Get current config digest
+CONFIG_DIGEST=$(jq -r '.config.digest' "${MANIFEST_FILE}" | sed 's/sha256://')
+CONFIG_FILE="${OCI_BUILD}/blobs/sha256/${CONFIG_DIGEST}"
+
+# Update config to add new layer diffID
+jq --arg diffid "sha256:${DIFF_ID}" '.rootfs.diff_ids += [$diffid]' "${CONFIG_FILE}" > "${CONFIG_FILE}.new"
+mv "${CONFIG_FILE}.new" "${CONFIG_FILE}"
+
+# Recalculate config digest
+NEW_CONFIG_DIGEST=$(sha256sum "${CONFIG_FILE}" | awk '{print $1}')
+NEW_CONFIG_SIZE=$(stat -f%z "${CONFIG_FILE}" 2>/dev/null || stat -c%s "${CONFIG_FILE}")
+mv "${CONFIG_FILE}" "${OCI_BUILD}/blobs/sha256/${NEW_CONFIG_DIGEST}"
+
+# Update manifest to add new layer and update config reference
+jq --arg layer_digest "sha256:${LAYER_DIGEST}" \
+   --arg layer_size "${LAYER_SIZE}" \
+   --arg config_digest "sha256:${NEW_CONFIG_DIGEST}" \
+   --arg config_size "${NEW_CONFIG_SIZE}" \
+   '.layers += [{"mediaType": "application/vnd.oci.image.layer.v1.tar+gzip", "size": ($layer_size | tonumber), "digest": $layer_digest}] | .config.digest = $config_digest | .config.size = ($config_size | tonumber)' \
+   "${MANIFEST_FILE}" > "${MANIFEST_FILE}.new"
+mv "${MANIFEST_FILE}.new" "${MANIFEST_FILE}"
+
+# Recalculate manifest digest
+NEW_MANIFEST_DIGEST=$(sha256sum "${MANIFEST_FILE}" | awk '{print $1}')
+NEW_MANIFEST_SIZE=$(stat -f%z "${MANIFEST_FILE}" 2>/dev/null || stat -c%s "${MANIFEST_FILE}")
+mv "${MANIFEST_FILE}" "${OCI_BUILD}/blobs/sha256/${NEW_MANIFEST_DIGEST}"
+
+# Update index.json
+jq --arg manifest_digest "sha256:${NEW_MANIFEST_DIGEST}" \
+   --arg manifest_size "${NEW_MANIFEST_SIZE}" \
+   '.manifests[0].digest = $manifest_digest | .manifests[0].size = ($manifest_size | tonumber)' \
+   "${OCI_BUILD}/index.json" > "${OCI_BUILD}/index.json.new"
+mv "${OCI_BUILD}/index.json.new" "${OCI_BUILD}/index.json"
+
+echo "Layer added to OCI image"
+
 echo ""
-echo "OCI layout directory: ${OCI_BUILD}"
-echo "APK repository: ${APK_REPO}"
+echo "Build complete!"
 echo ""
-echo "Next steps:"
-echo "  1. Push to GCR with crane:"
-echo "     crane push ${OCI_BUILD} gcr.io/hexx-tools/dissect-web:latest"
+echo "OCI layout: ${OCI_BUILD}"
 echo ""
-echo "  2. Or deploy to Cloud Run:"
-echo "     GCP_PROJECT=hexx-tools GCS_BUCKET=hexx-divine make deploy"
+echo "To push to GCR:"
+echo "  crane push ${OCI_BUILD} gcr.io/PROJECT/dissect-web:latest"
+echo ""
+echo "Or run deploy:"
+echo "  GCP_PROJECT=hexx-tools GCS_BUCKET=hexx-divine make deploy"

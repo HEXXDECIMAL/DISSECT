@@ -29,10 +29,11 @@ run: build
 	PORT=8080 DISSECT_PATH=dissect ./web-dissect
 
 check-deploy-deps:
-	@command -v apko >/dev/null 2>&1 || { echo "❌ apko not found. Install with: go install github.com/chainguard-dev/apko/cmd/apko@latest"; exit 1; }
+	@command -v apko >/dev/null 2>&1 || { echo "❌ apko not found. Install with: go install chainguard.dev/apko@latest"; exit 1; }
 	@command -v crane >/dev/null 2>&1 || { echo "❌ crane not found. Install with: go install github.com/google/go-containerregistry/cmd/crane@latest"; exit 1; }
 	@command -v gcloud >/dev/null 2>&1 || { echo "❌ gcloud not found. Install from: https://cloud.google.com/sdk/docs/install"; exit 1; }
-	@echo "✓ All deploy dependencies found"
+	@command -v jq >/dev/null 2>&1 || { echo "❌ jq not found. Install with: brew install jq"; exit 1; }
+	@echo "✓ All deploy dependencies found (no Docker required)"
 
 deploy: check-deploy-deps
 	./hacks/deploy.sh "$(GCP_PROJECT)" "$(GCS_BUCKET)"
