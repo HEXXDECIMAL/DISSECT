@@ -135,6 +135,15 @@ traits:
     if:
       type: string
       regex: '\b[a-z][a-z0-9]{6,9}\.\(\*[A-Z][a-zA-Z0-9]{6,9}\)\.'
+    not:
+      - "strconv."
+      - "reflect."
+      - "strings."
+      - "godebug."
+      - "syscall."
+      - "runtime."
+      - "filepath."
+      - "internal/"
 
   # Go crypto/rsa EncryptOAEP - asymmetric encryption for ransomware
   - id: go-rsa-encrypt-oaep

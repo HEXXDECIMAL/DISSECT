@@ -49,6 +49,9 @@ composite_rules:
     all:
       - id: file-find-api
       - id: file-iterate-api
+    downgrade:
+      any:
+        - id: meta/quality/versioned
 
   - id: file-enumeration-with-access
     desc: File enumeration + access combination

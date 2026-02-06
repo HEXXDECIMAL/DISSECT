@@ -1,4 +1,4 @@
-# PHP Cryptographic Hash Traits
+# Cryptographic Hash Traits
 # MBC: C0029 (Cryptographic Hash)
 
 traits:
@@ -59,3 +59,24 @@ traits:
     if:
       type: string
       substr: password_verify
+
+  # === C source MD5 password hashing ===
+  - id: md5-openssl-include
+    desc: OpenSSL MD5 header include
+    crit: notable
+    conf: 0.8
+    mbc: "C0029"
+    for: [c]
+    if:
+      type: content
+      regex: "#include\\s*<openssl/md5"
+
+  - id: md5-password-hash-c
+    desc: MD5-based password hashing in C
+    crit: suspicious
+    conf: 0.85
+    mbc: "C0029"
+    for: [c]
+    if:
+      type: content
+      regex: "(?s)(password|passwd|crypt).{0,500}MD5_(Init|Update|Final)"

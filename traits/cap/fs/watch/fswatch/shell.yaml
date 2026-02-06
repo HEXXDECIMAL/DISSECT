@@ -10,3 +10,13 @@ traits:
     if:
       type: string
       regex: "fswatch(er)?"
+
+  - id: fseventstream
+    desc: macOS FSEventStream filesystem monitoring
+    crit: inert
+    conf: 0.7
+    platforms: [macos]
+    for: [macho, dylib]
+    if:
+      type: string
+      regex: "FSEventStream(Create|Start|Schedule)"

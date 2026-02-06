@@ -12,6 +12,9 @@ composite_rules:
     all:
       - id: cap/process/terminate/terminate-process
       - id: cap/exec/native/get-current-process
+    downgrade:
+      any:
+        - id: meta/quality/versioned
 
   - id: process-termination-chain
     desc: Debugger evasion with process termination
@@ -19,7 +22,11 @@ composite_rules:
     conf: 0.80
     attack: "T1562.001"
     for: ["pe", "dll"]
+    size_max: 200000
     all:
       - id: cap/exec/native/debugger-detect-api
       - id: cap/process/terminate/terminate-process
       - id: cap/exec/native/load-library-a
+    downgrade:
+      any:
+        - id: meta/quality/versioned

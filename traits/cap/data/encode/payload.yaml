@@ -20,6 +20,8 @@ traits:
       - regex: '^([A-Z][a-z0-9]*)+$'
       # Strings starting with multiple CamelCase words (enum variants, struct names)
       - regex: '^([A-Z][a-z]+){5,}'
+      # Pure alphabetic strings (font glyph tables, identifier data - not real base64)
+      - regex: '^[A-Za-z]+$'
     attack: "T1140"
     mbc: "C0043"
 

@@ -24,7 +24,11 @@ composite_rules:
     mbc: "B0030"
     platforms: [all]
     for: [pe, elf, macho, shell]
+    size_max: 200000
     needs: 2
     any:
       - id: obj/c2/infrastructure/ip
       - id: obj/c2/infrastructure/domain
+    downgrade:
+      any:
+        - id: meta/quality/versioned

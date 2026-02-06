@@ -12,6 +12,9 @@ composite_rules:
     any:
       - id: win-isdebuggerpresent
       - id: win-unhandledexception
+    downgrade:
+      any:
+        - id: meta/quality/versioned
 
   - id: win-comprehensive
     desc: Windows debugger/VM detection (multiple signals)
@@ -26,6 +29,9 @@ composite_rules:
       - id: win-isdebuggerpresent
       - id: win-unhandledexception
       - id: win-queryperformance
+    downgrade:
+      any:
+        - id: meta/quality/versioned
 
   - id: linux-comprehensive
     desc: Linux debugger detection across multiple

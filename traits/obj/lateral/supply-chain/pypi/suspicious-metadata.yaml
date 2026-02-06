@@ -86,25 +86,28 @@ traits:
     desc: PKG-INFO has UNKNOWN summary
     crit: notable
     conf: 0.75
+    for: [all]
     if:
-      type: string
-      regex: "^Summary:\\s*UNKNOWN\\s*$"
+      type: content
+      substr: "Summary: UNKNOWN"
 
   - id: unknown-homepage
     desc: PKG-INFO has UNKNOWN home page
     crit: notable
     conf: 0.75
+    for: [all]
     if:
-      type: string
-      regex: "^Home-page:\\s*UNKNOWN\\s*$"
+      type: content
+      substr: "Home-page: UNKNOWN"
 
   - id: unknown-author
     desc: PKG-INFO has UNKNOWN author
     crit: notable
     conf: 0.75
+    for: [all]
     if:
-      type: string
-      regex: "^Author:\\s*UNKNOWN\\s*$"
+      type: content
+      substr: "Author: UNKNOWN"
 
 composite_rules:
   # === Suspicious Metadata Profile ===
@@ -143,6 +146,7 @@ composite_rules:
     conf: 0.85
     attack: "T1036.005"
     mbc: "F0004"
+    for: [all]
     platforms: [all]
     needs: 3
     any:

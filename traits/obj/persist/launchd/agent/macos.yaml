@@ -52,6 +52,36 @@ traits:
       type: string
       substr: "RunAtLoad"
 
+  - id: sock-service-name
+    desc: SockServiceName key (launchd socket activation)
+    crit: notable
+    conf: 0.8
+    mbc: B0028
+    attack: T1543.004
+    if:
+      type: content
+      substr: "SockServiceName"
+
+  - id: inetd-compat
+    desc: inetdCompatibility key (socket handoff)
+    crit: notable
+    conf: 0.8
+    mbc: B0028
+    attack: T1543.004
+    if:
+      type: content
+      substr: "inetdCompatibility"
+
+  - id: shell-program
+    desc: Shell as launchd Program (/bin/sh)
+    crit: notable
+    conf: 0.7
+    attack: T1059.004
+    platforms: [macos]
+    if:
+      type: content
+      regex: '/bin/(sh|bash|zsh)'
+
 composite_rules:
   - id: launchd
     desc: macOS launchd persistence (2+ indicators)
@@ -66,3 +96,41 @@ composite_rules:
       - id: launchctl-command
       - id: plist-extension
       - id: run-at-load
+      - id: sock-service-name
+      - id: inetd-compat
+
+  - id: launchd-bind-shell
+    desc: Launchd socket-activated bind shell
+    crit: suspicious
+    conf: 0.9
+    mbc: B0028
+    attack: T1543.004
+    all:
+      - id: sock-service-name
+      - id: inetd-compat
+      - id: shell-program
+
+  - id: launchd-dropper
+    desc: Launchd persistence installer via system commands
+    crit: hostile
+    conf: 0.9
+    mbc: B0028
+    attack: T1543.004
+    for: [c, macho]
+    all:
+      - id: launch-agents
+      - id: launchctl-command
+      - id: cap/exec/command/shell/system-call-symbol
+      - id: cap/exec/fileless/exec-function
+
+  - id: launchd-app-trojan
+    desc: Launchd persistence with app bundle hijacking
+    crit: hostile
+    conf: 0.95
+    mbc: B0028
+    attack: T1543.004
+    for: [c, macho]
+    all:
+      - id: launchd
+      - id: obj/lateral/trojanize/app/app-bundle-hijack
+      - id: cap/exec/command/shell/system-call-symbol

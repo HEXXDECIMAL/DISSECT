@@ -198,6 +198,28 @@ traits:
       type: string
       substr: "/BrowserSupport/Extensions"
 
+  # === Browser preferences/config ===
+  - id: safari-plist
+    desc: Safari preferences plist file
+    crit: notable
+    conf: 0.7
+    attack: "T1217"
+    for: [all]
+    if:
+      type: string
+      substr: "com.apple.Safari.plist"
+
+  - id: search-engine-id
+    desc: Browser search engine identifier reference
+    crit: notable
+    conf: 0.7
+    attack: "T1217"
+    if:
+      type: string
+      regex: "SearchProvider|SearchEngine|DefaultSearch|searchProvider|searchEngine|defaultSearch"
+      not:
+        - "SearchProviderSearchGuide"
+
   # === Opera/Brave specific ===
   - id: opera-stable
     desc: Opera Stable
@@ -397,6 +419,28 @@ composite_rules:
       - id: opera-stable
 
   # Brave composite
+
+  # Browser settings hijack - modifies browser search/homepage settings
+  - id: browser-settings-hijack
+    desc: Browser search engine or homepage hijacking
+    crit: suspicious
+    conf: 0.85
+    attack: "T1217"
+    for: [all]
+    all:
+      - id: search-engine-id
+    any:
+      - id: safari-plist
+      - id: cap/fs/file/write/write
+      - id: cap/fs/watch/fswatch/fseventstream
+    downgrade:
+      any:
+        - type: basename
+          substr: "Safari"
+        - type: basename
+          substr: "chrome"
+        - type: basename
+          substr: "firefox"
 
   # Multi-browser enumeration
   - id: multi-browser-enum

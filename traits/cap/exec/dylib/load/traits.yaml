@@ -116,6 +116,19 @@ traits:
       type: string
       substr: "NSBundle"
 
+  # === ObjC Runtime Hooking ===
+  - id: objc-method-swizzle
+    desc: ObjC method swizzling via runtime
+    crit: suspicious
+    conf: 0.85
+    attack: "T1574.006"
+    platforms: [all]
+    for: [macho]
+    if:
+      type: string
+      regex: "class_get(Instance|Class)Method"
+      min_count: 2
+
   - id: ctypes-windll
     desc: Python ctypes Windows DLL
     crit: suspicious

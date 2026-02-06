@@ -37,12 +37,15 @@ composite_rules:
     mbc: "B0001"
     platforms: [all]
     for: [pe, elf, macho]
-    needs: 2
+    all:
+      - id: obj/anti-analysis/debugger/detect/win-comprehensive
     any:
       - id: timing-check-api
       - id: cpu-feature-check
-      - id: obj/anti-analysis/debugger/detect/win-comprehensive
       - id: obj/anti-analysis/emulator/detect/comprehensive
+    downgrade:
+      any:
+        - id: meta/quality/versioned
 
   - id: anti-forensics-defensive
     desc: Malware with both anti-analysis AND anti-forensics capabilities
@@ -55,6 +58,5 @@ composite_rules:
     all:
       - id: evasion-aware-malware
     any:
-      - id: cap/process/terminate
       - id: obj/anti-forensics/log-clear/clear-logs
       - id: obj/anti-forensics/self-delete/remove-self

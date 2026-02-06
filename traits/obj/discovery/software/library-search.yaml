@@ -143,7 +143,42 @@ traits:
       type: content
       regex: "(?i)\\blookup[_-]?path\\b"
 
+  # === macOS Spotlight Application Discovery ===
+  - id: spotlight-app-query
+    desc: Spotlight query for applications
+    crit: suspicious
+    conf: 0.9
+    attack: "T1518"
+    platforms: [all]
+    for: [macho]
+    if:
+      type: string
+      regex: "kMDItemKind\\s*==\\s*'Application'"
+
+  - id: mdquery-create
+    desc: MDQuery API usage
+    crit: notable
+    conf: 0.7
+    attack: "T1518"
+    platforms: [all]
+    for: [macho]
+    if:
+      type: string
+      substr: "MDQueryCreate"
+
 composite_rules:
+  # Spotlight application enumeration
+  - id: spotlight-app-enum
+    desc: Spotlight application enumeration
+    crit: suspicious
+    conf: 0.9
+    attack: "T1518"
+    platforms: [all]
+    for: [macho]
+    all:
+      - id: mdquery-create
+      - id: spotlight-app-query
+
   # Multiple library paths = systematic library enumeration
   - id: lib-path-enum
     desc: Library path enumeration

@@ -27,7 +27,7 @@ traits:
 
   - id: terminate-process
     desc: TerminateProcess API
-    crit: suspicious
+    crit: notable
     conf: 0.8
     attack: "T1489"
     for: [pe]

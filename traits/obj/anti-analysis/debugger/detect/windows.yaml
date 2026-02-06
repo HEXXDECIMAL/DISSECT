@@ -9,7 +9,7 @@ defaults:
 traits:
   - id: debugger-api
     desc: Debugger detection via Windows API
-    crit: suspicious
+    crit: notable
     conf: 0.66
     mbc: "B0001"
     attack: "T1622"

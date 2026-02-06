@@ -26,7 +26,7 @@ traits:
   # === Process Error Handling ===
   - id: unhandled-exception-filter
     desc: Handle unhandled exceptions
-    crit: suspicious
+    crit: notable
     conf: 0.80
     if:
       type: symbol
@@ -34,7 +34,7 @@ traits:
 
   - id: set-unhandled-exception-filter
     desc: Register exception handler
-    crit: suspicious
+    crit: notable
     conf: 0.85
     if:
       type: symbol

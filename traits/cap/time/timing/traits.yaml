@@ -34,7 +34,7 @@ traits:
 
   - id: query-performance-counter
     desc: Query high-resolution performance counter
-    crit: suspicious
+    crit: notable
     conf: 0.75
     if:
       type: symbol

@@ -49,10 +49,11 @@ traits:
       substr: "LD_DEBUG"
     platforms: [linux]
 
-  # Windows
+  # Windows - individual API presence is notable (standard MSVC CRT imports);
+  # combinations in composite rules elevate to suspicious
   - id: win-isdebuggerpresent
     desc: Windows IsDebuggerPresent API
-    crit: suspicious
+    crit: notable
     mbc: "B0001"
     attack: "T1622"
     conf: 0.9
@@ -86,7 +87,7 @@ traits:
 
   - id: win-unhandledexception
     desc: UnhandledExceptionFilter for anti-debugging
-    crit: suspicious
+    crit: notable
     mbc: "B0001"
     attack: "T1622"
     conf: 0.7
@@ -97,7 +98,7 @@ traits:
 
   - id: win-queryperformance
     desc: QueryPerformanceCounter timing check
-    crit: suspicious
+    crit: notable
     mbc: "B0001"
     attack: "T1622"
     conf: 0.6
@@ -160,6 +161,9 @@ composite_rules:
       - id: win-isdebuggerpresent
       - id: win-checkremotedebugger
       - id: win-ntqueryinfo
+    downgrade:
+      any:
+        - id: meta/quality/versioned
 
   # Full anti-debug composite
   - id: anti-debug-full

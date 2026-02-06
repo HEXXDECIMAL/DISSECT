@@ -9,7 +9,7 @@ traits:
   # === NTDLL Imports ===
   - id: ntdll-import
     desc: Direct NT API access
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1562"
     if:

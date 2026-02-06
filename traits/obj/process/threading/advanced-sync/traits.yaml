@@ -102,6 +102,9 @@ composite_rules:
       - id: srw-lock-acquire
       - id: srw-lock-release
       - id: srw-lock-shared
+    downgrade:
+      any:
+        - id: meta/quality/versioned
 
   - id: condition-variable-ops
     desc: Condition variable ops
@@ -121,7 +124,7 @@ composite_rules:
     platforms: [windows]
     for: [pe]
     attack: "T1129"
-    any:
+    all:
       - id: slist-initialize
       - id: slist-operations
 
