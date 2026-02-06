@@ -4,7 +4,7 @@ set -exuo pipefail
 # Build script for web-dissect using apko + manual layer addition
 # 1. apko builds base image with Alpine packages (radare2, etc.)
 # 2. Manually add binaries layer to OCI layout
-# Builds for ARM64 (native on ARM Mac, fast builds)
+# Builds for x86_64/amd64 (Cloud Run requires x86_64)
 
 export COPYFILE_DISABLE=1
 
@@ -16,30 +16,31 @@ OCI_BUILD="${OUTPUT_DIR}/apko-build"
 rm -rf "${OUTPUT_DIR}"
 mkdir -p "${OUTPUT_DIR}"
 
-echo "=== Building web-dissect Go binary (linux/arm64) ==="
+echo "=== Building web-dissect Go binary (linux/amd64) ==="
 cd "${BUILD_DIR}"
-GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o "${OUTPUT_DIR}/web-dissect" -ldflags="-s -w" .
+GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o "${OUTPUT_DIR}/web-dissect" -ldflags="-s -w" .
 echo "Built: ${OUTPUT_DIR}/web-dissect"
 
 echo ""
-echo "=== Locating dissect binary (Linux ARM64) ==="
-DISSECT_BIN="${REPO_ROOT}/target/aarch64-unknown-linux-musl/release/dissect"
+echo "=== Locating dissect binary (Linux x86_64) ==="
+DISSECT_BIN="${REPO_ROOT}/target/x86_64-unknown-linux-musl/release/dissect"
 if [ ! -f "${DISSECT_BIN}" ]; then
   echo "Linux dissect binary not found at: ${DISSECT_BIN}"
   echo ""
-  echo "Building dissect for Linux ARM64 using Podman..."
+  echo "Building dissect for Linux x86_64 using Podman..."
 
   if ! command -v podman >/dev/null 2>&1; then
     echo "podman not found. Install with: brew install podman"
     exit 1
   fi
 
-  # Build with Podman using rust:alpine image (native ARM64)
-  podman run --rm --platform linux/arm64 \
+  # Build with Podman using rust:alpine image (emulated x86_64)
+  # Note: This is slow on ARM Mac due to emulation
+  podman run --rm --platform linux/amd64 \
     -v "${REPO_ROOT}:/build:z" \
     -w /build \
     docker.io/library/rust:alpine \
-    sh -c "apk add --no-cache musl-dev g++ && rustup target add aarch64-unknown-linux-musl && cargo build --release --target aarch64-unknown-linux-musl"
+    sh -c "apk add --no-cache musl-dev g++ && cargo build --release --target x86_64-unknown-linux-musl"
 
   if [ ! -f "${DISSECT_BIN}" ]; then
     echo "Failed to build dissect for Linux"
@@ -54,7 +55,7 @@ rm -rf "${OCI_BUILD}"
 mkdir -p "${OCI_BUILD}"
 
 apko build \
-  --arch arm64 \
+  --arch amd64 \
   "${BUILD_DIR}/apko.yaml" \
   "dissect-web:base" \
   "${OCI_BUILD}"

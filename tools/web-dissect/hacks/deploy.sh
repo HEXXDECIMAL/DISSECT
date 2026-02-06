@@ -67,7 +67,8 @@ gcloud run deploy "${APP_NAME}" \
 	--allow-unauthenticated \
 	--set-env-vars "GCS_BUCKET=${GCS_BUCKET}" \
 	--memory 2Gi \
-	--timeout 120s
+	--timeout 120s \
+	--cpu-boost
 
 echo "✓ Deployed ${APP_NAME} to Cloud Run"
 
