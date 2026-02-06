@@ -80,6 +80,12 @@ if [ -d "${BUILD_DIR}/templates" ]; then
   cp -r "${BUILD_DIR}/templates/"* "${LAYER_DIR}/app/templates/" 2>/dev/null || true
 fi
 
+# Copy static assets if they exist
+if [ -d "${BUILD_DIR}/static" ]; then
+  mkdir -p "${LAYER_DIR}/app/static"
+  cp -r "${BUILD_DIR}/static/"* "${LAYER_DIR}/app/static/" 2>/dev/null || true
+fi
+
 # Copy traits directory (required for dissect rules)
 if [ -d "${REPO_ROOT}/traits" ]; then
   echo "Copying traits directory..."
