@@ -233,7 +233,11 @@ pub struct Import {
 
 impl Import {
     /// Create a new Import with normalized symbol name
-    pub fn new(symbol: impl Into<String>, library: Option<String>, source: impl Into<String>) -> Self {
+    pub fn new(
+        symbol: impl Into<String>,
+        library: Option<String>,
+        source: impl Into<String>,
+    ) -> Self {
         Self {
             symbol: normalize_symbol(&symbol.into()),
             library,
@@ -252,7 +256,11 @@ pub struct Export {
 
 impl Export {
     /// Create a new Export with normalized symbol name
-    pub fn new(symbol: impl Into<String>, offset: Option<String>, source: impl Into<String>) -> Self {
+    pub fn new(
+        symbol: impl Into<String>,
+        offset: Option<String>,
+        source: impl Into<String>,
+    ) -> Self {
         Self {
             symbol: normalize_symbol(&symbol.into()),
             offset,

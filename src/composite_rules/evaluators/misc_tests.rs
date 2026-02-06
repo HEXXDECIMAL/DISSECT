@@ -142,7 +142,14 @@ fn test_eval_trait_exact_match() {
         .findings
         .push(create_test_finding("exec/process/spawn"));
     let data = vec![];
-    let ctx = EvaluationContext::new(&report, &data, FileType::Elf, vec![Platform::Linux], None, None);
+    let ctx = EvaluationContext::new(
+        &report,
+        &data,
+        FileType::Elf,
+        vec![Platform::Linux],
+        None,
+        None,
+    );
 
     let result = eval_trait("exec/process/spawn", &ctx);
     assert!(result.matched);
@@ -156,7 +163,14 @@ fn test_eval_trait_suffix_match() {
         .findings
         .push(create_test_finding("exec/process/terminate"));
     let data = vec![];
-    let ctx = EvaluationContext::new(&report, &data, FileType::Elf, vec![Platform::Linux], None, None);
+    let ctx = EvaluationContext::new(
+        &report,
+        &data,
+        FileType::Elf,
+        vec![Platform::Linux],
+        None,
+        None,
+    );
 
     // Short name should match via suffix
     let result = eval_trait("terminate", &ctx);
@@ -173,7 +187,14 @@ fn test_eval_trait_prefix_match() {
         "anti-static/obfuscation/strings/base64",
     ));
     let data = vec![];
-    let ctx = EvaluationContext::new(&report, &data, FileType::Elf, vec![Platform::Linux], None, None);
+    let ctx = EvaluationContext::new(
+        &report,
+        &data,
+        FileType::Elf,
+        vec![Platform::Linux],
+        None,
+        None,
+    );
 
     // Directory path should match any trait within that directory
     let result = eval_trait("anti-static/obfuscation/strings", &ctx);
@@ -203,7 +224,14 @@ fn test_eval_trait_no_match() {
     let mut report = create_test_report("/test/binary");
     report.findings.push(create_test_finding("exec/shell/bash"));
     let data = vec![];
-    let ctx = EvaluationContext::new(&report, &data, FileType::Elf, vec![Platform::Linux], None, None);
+    let ctx = EvaluationContext::new(
+        &report,
+        &data,
+        FileType::Elf,
+        vec![Platform::Linux],
+        None,
+        None,
+    );
 
     let result = eval_trait("net/connect/tcp", &ctx);
     assert!(!result.matched);
@@ -229,7 +257,14 @@ fn test_eval_trait_evidence_propagation() {
     ];
     report.findings.push(finding);
     let data = vec![];
-    let ctx = EvaluationContext::new(&report, &data, FileType::Elf, vec![Platform::Linux], None, None);
+    let ctx = EvaluationContext::new(
+        &report,
+        &data,
+        FileType::Elf,
+        vec![Platform::Linux],
+        None,
+        None,
+    );
 
     let result = eval_trait("exec/process/spawn", &ctx);
     assert!(result.matched);

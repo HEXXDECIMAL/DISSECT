@@ -403,7 +403,9 @@ pub fn parse_jsonl(jsonl: &str) -> Result<AnalysisReport> {
                     schema_version = sv.to_string();
                 }
                 if let Some(ts) = value.get("analysis_timestamp") {
-                    if let Ok(timestamp) = serde_json::from_value::<chrono::DateTime<chrono::Utc>>(ts.clone()) {
+                    if let Ok(timestamp) =
+                        serde_json::from_value::<chrono::DateTime<chrono::Utc>>(ts.clone())
+                    {
                         analysis_timestamp = timestamp;
                     }
                 }
@@ -432,18 +434,12 @@ pub fn parse_jsonl(jsonl: &str) -> Result<AnalysisReport> {
                         .unwrap_or(files.len() as u64) as u32,
                     max_depth: 0,
                     counts: crate::types::FindingCounts {
-                        hostile: value
-                            .get("hostile")
-                            .and_then(|v| v.as_u64())
-                            .unwrap_or(0) as u32,
+                        hostile: value.get("hostile").and_then(|v| v.as_u64()).unwrap_or(0) as u32,
                         suspicious: value
                             .get("suspicious")
                             .and_then(|v| v.as_u64())
                             .unwrap_or(0) as u32,
-                        notable: value
-                            .get("notable")
-                            .and_then(|v| v.as_u64())
-                            .unwrap_or(0) as u32,
+                        notable: value.get("notable").and_then(|v| v.as_u64()).unwrap_or(0) as u32,
                     },
                 });
             }

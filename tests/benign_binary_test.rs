@@ -32,8 +32,8 @@ fn test_analyze_bin_ls_json_output() {
 
     // Parse as JSON Lines - each line is a separate JSON object
     // For single file analysis, we expect one object
-    let parsed: Value = serde_json::from_str(json_output.trim())
-        .expect("Output should be valid JSON");
+    let parsed: Value =
+        serde_json::from_str(json_output.trim()).expect("Output should be valid JSON");
 
     // The output is a single file object with type: "file"
     assert_eq!(

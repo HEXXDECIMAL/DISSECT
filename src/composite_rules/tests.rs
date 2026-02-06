@@ -144,12 +144,12 @@ fn test_all() {
                 per_kb_max: None,
                 external_ip: false,
                 section: None,
-            offset: None,
-            offset_range: None,
-            section_offset: None,
-            section_offset_range: None,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
             },
         ]),
         any: None,
@@ -1660,14 +1660,34 @@ fn test_base64_decoded_matching() {
 
     // exact: should match only "secret", not "secret password"
     let location = super::evaluators::ContentLocationParams::default();
-    let result =
-        super::evaluators::eval_base64(Some(&"secret".to_string()), None, None, false, 1, None, None, None, &location, &ctx);
+    let result = super::evaluators::eval_base64(
+        Some(&"secret".to_string()),
+        None,
+        None,
+        false,
+        1,
+        None,
+        None,
+        None,
+        &location,
+        &ctx,
+    );
     assert!(result.matched);
     assert_eq!(result.evidence.len(), 1);
 
     // substr: should match both
-    let result =
-        super::evaluators::eval_base64(None, Some(&"secret".to_string()), None, false, 1, None, None, None, &location, &ctx);
+    let result = super::evaluators::eval_base64(
+        None,
+        Some(&"secret".to_string()),
+        None,
+        false,
+        1,
+        None,
+        None,
+        None,
+        &location,
+        &ctx,
+    );
     assert!(result.matched);
     assert_eq!(result.evidence.len(), 2);
 }
@@ -2226,12 +2246,12 @@ fn test_composite_unless_multiple_conditions_any_matches() {
                 per_kb_max: None,
                 external_ip: false,
                 section: None,
-            offset: None,
-            offset_range: None,
-            section_offset: None,
-            section_offset_range: None,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
             },
         ]),
         not: None,

@@ -1,11 +1,10 @@
-use serde_json::{json, Value};
+use serde_json::Value;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use walkdir::WalkDir;
 
 #[derive(Debug)]
 struct FileStats {
-    path: String,
     findings_count: usize,
     highest_criticality: String,
 }
@@ -15,7 +14,12 @@ fn get_highest_criticality(file_result: &Value) -> String {
         if counts.get("hostile").and_then(|h| h.as_u64()).unwrap_or(0) > 0 {
             return "hostile".to_string();
         }
-        if counts.get("suspicious").and_then(|s| s.as_u64()).unwrap_or(0) > 0 {
+        if counts
+            .get("suspicious")
+            .and_then(|s| s.as_u64())
+            .unwrap_or(0)
+            > 0
+        {
             return "suspicious".to_string();
         }
         if counts.get("notable").and_then(|n| n.as_u64()).unwrap_or(0) > 0 {
@@ -137,15 +141,14 @@ fn normalize_file_result(v: &mut Value) {
 fn test_known_bad_integrity() {
     let verify_dir = Path::new("tests/verify");
     if !verify_dir.exists() {
-        eprintln!("Warning: tests/verify directory not found. Run 'make regenerate-testdata' first.");
+        eprintln!(
+            "Warning: tests/verify directory not found. Run 'make regenerate-testdata' first."
+        );
         return;
     }
 
     let mut test_files = Vec::new();
-    for entry in WalkDir::new(verify_dir)
-        .into_iter()
-        .filter_map(|e| e.ok())
-    {
+    for entry in WalkDir::new(verify_dir).into_iter().filter_map(|e| e.ok()) {
         if entry.path().extension().and_then(|s| s.to_str()) == Some("json") {
             test_files.push(entry.path().to_path_buf());
         }
@@ -165,8 +168,10 @@ fn test_known_bad_integrity() {
         let snapshot_content = fs::read_to_string(snapshot_path)
             .expect(&format!("Failed to read {}", snapshot_path.display()));
 
-        let mut expected_result: Value = serde_json::from_str(&snapshot_content)
-            .expect(&format!("Failed to parse JSON in {}", snapshot_path.display()));
+        let mut expected_result: Value = serde_json::from_str(&snapshot_content).expect(&format!(
+            "Failed to parse JSON in {}",
+            snapshot_path.display()
+        ));
 
         // Extract the original binary path from the snapshot
         let binary_path = expected_result
@@ -198,8 +203,8 @@ fn test_known_bad_integrity() {
         }
 
         let stdout = String::from_utf8_lossy(&output.stdout);
-        let mut actual_result =
-            extract_file_result(&stdout).expect(&format!("Failed to extract result from {}", binary_path));
+        let mut actual_result = extract_file_result(&stdout)
+            .expect(&format!("Failed to extract result from {}", binary_path));
 
         normalize_file_result(&mut expected_result);
         normalize_file_result(&mut actual_result);
@@ -216,7 +221,6 @@ fn test_known_bad_integrity() {
 
         let criticality = get_highest_criticality(&actual_result);
         stats.push(FileStats {
-            path: binary_path.to_string(),
             findings_count,
             highest_criticality: criticality,
         });
@@ -242,10 +246,7 @@ fn test_known_bad_integrity() {
         let total_findings: usize = stats.iter().map(|s| s.findings_count).sum();
         let avg_findings = total_findings as f64 / stats.len() as f64;
         println!("Files analyzed: {}", stats.len());
-        println!(
-            "Average traits per file: {:.2}",
-            avg_findings
-        );
+        println!("Average traits per file: {:.2}", avg_findings);
 
         let mut criticality_counts = std::collections::HashMap::new();
         for stat in &stats {

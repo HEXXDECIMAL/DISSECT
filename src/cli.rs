@@ -1013,7 +1013,8 @@ mod tests {
 
     #[test]
     fn test_platforms_cli_flag() {
-        let args = Args::try_parse_from(["dissect", "--platforms", "linux,macos", "file.bin"]).unwrap();
+        let args =
+            Args::try_parse_from(["dissect", "--platforms", "linux,macos", "file.bin"]).unwrap();
         assert_eq!(args.platforms, "linux,macos");
     }
 

@@ -237,7 +237,8 @@ pub fn detect_file_type_from_path(file_path: &Path) -> FileType {
 
     // Check for GitHub Actions workflow files
     let path_str_lower = file_path.to_string_lossy().to_lowercase();
-    if (path_str_lower.contains(".github/workflows/") || path_str_lower.contains(".github\\workflows\\"))
+    if (path_str_lower.contains(".github/workflows/")
+        || path_str_lower.contains(".github\\workflows\\"))
         && (path_str_lower.ends_with(".yml") || path_str_lower.ends_with(".yaml"))
     {
         return FileType::GithubActions;

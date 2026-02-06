@@ -15,7 +15,7 @@ use tempfile::TempDir;
 fn create_test_binary() -> Vec<u8> {
     let mut data = Vec::new();
     data.extend_from_slice(b"TESTFILEHEADER!"); // 0-14 (15 bytes)
-    data.push(b'!');                             // 15 (1 byte to make 16)
+    data.push(b'!'); // 15 (1 byte to make 16)
     data.extend_from_slice(b"AAAAAAAAAAAAAAAA"); // 16-31
     data.extend_from_slice(b"BBBBBBBBBBBBBBBB"); // 32-47
     data.extend_from_slice(b"CCCCCCCCCCCCCCCC"); // 48-63
@@ -34,8 +34,10 @@ fn test_hex_search_no_constraints() {
     let output = assert_cmd::cargo_bin_cmd!("dissect")
         .args([
             "test-match",
-            "--type", "hex",
-            "--pattern", "41414141", // "AAAA"
+            "--type",
+            "hex",
+            "--pattern",
+            "41414141", // "AAAA"
             bin_path.to_str().unwrap(),
         ])
         .assert()
@@ -60,9 +62,12 @@ fn test_hex_search_offset_range_includes() {
     let output = assert_cmd::cargo_bin_cmd!("dissect")
         .args([
             "test-match",
-            "--type", "hex",
-            "--pattern", "41414141",
-            "--offset-range", "16,48",
+            "--type",
+            "hex",
+            "--pattern",
+            "41414141",
+            "--offset-range",
+            "16,48",
             bin_path.to_str().unwrap(),
         ])
         .assert()
@@ -87,9 +92,12 @@ fn test_hex_search_offset_range_excludes() {
     let output = assert_cmd::cargo_bin_cmd!("dissect")
         .args([
             "test-match",
-            "--type", "hex",
-            "--pattern", "41414141",
-            "--offset-range", "48,80",
+            "--type",
+            "hex",
+            "--pattern",
+            "41414141",
+            "--offset-range",
+            "48,80",
             bin_path.to_str().unwrap(),
         ])
         .assert()
@@ -114,9 +122,12 @@ fn test_content_search_offset_range_includes() {
     let output = assert_cmd::cargo_bin_cmd!("dissect")
         .args([
             "test-match",
-            "--type", "content",
-            "--pattern", "BBBB",
-            "--offset-range", "32,64",
+            "--type",
+            "content",
+            "--pattern",
+            "BBBB",
+            "--offset-range",
+            "32,64",
             bin_path.to_str().unwrap(),
         ])
         .assert()
@@ -141,9 +152,12 @@ fn test_content_search_offset_range_excludes() {
     let output = assert_cmd::cargo_bin_cmd!("dissect")
         .args([
             "test-match",
-            "--type", "content",
-            "--pattern", "AAAA",
-            "--offset-range", "48,80",
+            "--type",
+            "content",
+            "--pattern",
+            "AAAA",
+            "--offset-range",
+            "48,80",
             bin_path.to_str().unwrap(),
         ])
         .assert()
@@ -179,9 +193,12 @@ fn test_string_search_offset_range_filters() {
     let output = assert_cmd::cargo_bin_cmd!("dissect")
         .args([
             "test-match",
-            "--type", "string",
-            "--pattern", "MATCH",
-            "--offset-range", "0,40",
+            "--type",
+            "string",
+            "--pattern",
+            "MATCH",
+            "--offset-range",
+            "0,40",
             bin_path.to_str().unwrap(),
         ])
         .assert()
@@ -208,7 +225,7 @@ fn test_density_uses_effective_range() {
 
     // Create a large file with pattern only in a small range
     let mut data = vec![0u8; 10240]; // 10KB file
-    // Put "DEADBEEF" pattern in first 100 bytes (hex: 44454144424545)
+                                     // Put "DEADBEEF" pattern in first 100 bytes (hex: 44454144424545)
     data[0..8].copy_from_slice(b"DEADBEEF");
     data[10..18].copy_from_slice(b"DEADBEEF");
     data[20..28].copy_from_slice(b"DEADBEEF");
@@ -219,9 +236,12 @@ fn test_density_uses_effective_range() {
     let output = assert_cmd::cargo_bin_cmd!("dissect")
         .args([
             "test-match",
-            "--type", "content",
-            "--pattern", "DEADBEEF",
-            "--offset-range", "0,100",
+            "--type",
+            "content",
+            "--pattern",
+            "DEADBEEF",
+            "--offset-range",
+            "0,100",
             bin_path.to_str().unwrap(),
         ])
         .assert()
@@ -249,8 +269,10 @@ fn test_hex_search_negative_offset_range() {
     let output = assert_cmd::cargo_bin_cmd!("dissect")
         .args([
             "test-match",
-            "--type", "content",
-            "--pattern", "END",
+            "--type",
+            "content",
+            "--pattern",
+            "END",
             "--offset-range=-20,",
             bin_path.to_str().unwrap(),
         ])
@@ -277,9 +299,12 @@ fn test_hex_search_exact_offset() {
     let output = assert_cmd::cargo_bin_cmd!("dissect")
         .args([
             "test-match",
-            "--type", "hex",
-            "--pattern", "42424242", // "BBBB"
-            "--offset", "32",
+            "--type",
+            "hex",
+            "--pattern",
+            "42424242", // "BBBB"
+            "--offset",
+            "32",
             bin_path.to_str().unwrap(),
         ])
         .assert()
@@ -314,9 +339,12 @@ fn test_external_ip_filters_private() {
     let output = assert_cmd::cargo_bin_cmd!("dissect")
         .args([
             "test-match",
-            "--type", "string",
-            "--pattern", "\\d+\\.\\d+\\.\\d+\\.\\d+",
-            "--method", "regex",
+            "--type",
+            "string",
+            "--pattern",
+            "\\d+\\.\\d+\\.\\d+\\.\\d+",
+            "--method",
+            "regex",
             bin_path.to_str().unwrap(),
         ])
         .assert()
@@ -330,9 +358,12 @@ fn test_external_ip_filters_private() {
     let output = assert_cmd::cargo_bin_cmd!("dissect")
         .args([
             "test-match",
-            "--type", "string",
-            "--pattern", "\\d+\\.\\d+\\.\\d+\\.\\d+",
-            "--method", "regex",
+            "--type",
+            "string",
+            "--pattern",
+            "\\d+\\.\\d+\\.\\d+\\.\\d+",
+            "--method",
+            "regex",
             "--external-ip",
             bin_path.to_str().unwrap(),
         ])
@@ -382,8 +413,10 @@ console.log(decoded);
     let output = assert_cmd::cargo_bin_cmd!("dissect")
         .args([
             "test-match",
-            "--type", "base64",
-            "--pattern", "Hello",
+            "--type",
+            "base64",
+            "--pattern",
+            "Hello",
             script_path.to_str().unwrap(),
         ])
         .assert()
@@ -413,8 +446,10 @@ fn test_xor_search_type() {
     let output = assert_cmd::cargo_bin_cmd!("dissect")
         .args([
             "test-match",
-            "--type", "xor",
-            "--pattern", "secret",
+            "--type",
+            "xor",
+            "--pattern",
+            "secret",
             bin_path.to_str().unwrap(),
         ])
         .assert()
@@ -451,9 +486,12 @@ def ANOTHER_FUNCTION():
     let output = assert_cmd::cargo_bin_cmd!("dissect")
         .args([
             "test-match",
-            "--type", "symbol",
-            "--pattern", "myfunction",
-            "--method", "exact",
+            "--type",
+            "symbol",
+            "--pattern",
+            "myfunction",
+            "--method",
+            "exact",
             script_path.to_str().unwrap(),
         ])
         .assert()
@@ -465,9 +503,12 @@ def ANOTHER_FUNCTION():
     let output = assert_cmd::cargo_bin_cmd!("dissect")
         .args([
             "test-match",
-            "--type", "symbol",
-            "--pattern", "myfunction",
-            "--method", "exact",
+            "--type",
+            "symbol",
+            "--pattern",
+            "myfunction",
+            "--method",
+            "exact",
             "--case-insensitive",
             script_path.to_str().unwrap(),
         ])
@@ -513,9 +554,12 @@ echo "Done"
     let output = assert_cmd::cargo_bin_cmd!("dissect")
         .args([
             "test-match",
-            "--type", "content",
-            "--pattern", r"\d+\.\d+\.\d+\.\d+",
-            "--method", "regex",
+            "--type",
+            "content",
+            "--pattern",
+            r"\d+\.\d+\.\d+\.\d+",
+            "--method",
+            "regex",
             "--external-ip",
             script_path.to_str().unwrap(),
         ])

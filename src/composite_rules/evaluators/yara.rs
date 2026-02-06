@@ -443,7 +443,8 @@ pub fn eval_hex(
 
             // Search for atom, then verify full pattern
             for atom_pos in finder.find_iter(&data[search_start..search_end]) {
-                let pattern_start = (search_start + atom_pos).saturating_sub(atom_offset_in_pattern);
+                let pattern_start =
+                    (search_start + atom_pos).saturating_sub(atom_offset_in_pattern);
 
                 // Ensure candidate position is within our search range
                 if pattern_start < search_start || pattern_start >= search_end {

@@ -34,12 +34,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     fs::create_dir_all(verify_dir)?;
 
     let mut written_count = 0;
-    let mut line_num = 0;
-
     // Parse JSONL output (one JSON object per line)
-    for line in reader.lines() {
+    for (line_num, line) in reader.lines().enumerate() {
         let line = line?;
-        line_num += 1;
+        let line_num = line_num + 1;
         let trimmed = line.trim();
 
         if trimmed.is_empty() || trimmed.starts_with("DISSECT") {
@@ -57,9 +55,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let file_path = file_result
             .get("path")
             .and_then(|p| p.as_str())
-            .ok_or_else(|| {
-                format!("Missing path in file object at line {}", line_num)
-            })?;
+            .ok_or_else(|| format!("Missing path in file object at line {}", line_num))?;
 
         // Create relative path structure in verify/ directory
         let rel_path = if let Ok(rel) = Path::new(file_path).strip_prefix(&data_dir) {
@@ -87,6 +83,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         eprintln!("Warning: dissect exited with non-zero status");
     }
 
-    println!("✓ Wrote {} snapshot files to {}", written_count, verify_dir.display());
+    println!(
+        "✓ Wrote {} snapshot files to {}",
+        written_count,
+        verify_dir.display()
+    );
     Ok(())
 }

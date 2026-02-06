@@ -9,8 +9,8 @@
   "risk": "hostile",
   "counts": {
     "hostile": 2,
-    "suspicious": 11,
-    "notable": 26
+    "suspicious": 10,
+    "notable": 27
   },
   "findings": [
     {
@@ -1306,7 +1306,7 @@
       "kind": "capability",
       "desc": "Silent curl with output",
       "conf": 0.75,
-      "crit": "suspicious",
+      "crit": "notable",
       "mbc": "E1105",
       "attack": "T1105",
       "evidence": [

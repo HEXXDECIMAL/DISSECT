@@ -303,8 +303,6 @@ impl TraitDefinition {
         }
     }
 
-
-
     /// Evaluate a single downgrade condition set
     fn eval_downgrade_conditions(
         &self,
@@ -990,10 +988,7 @@ impl CompositeTrait {
                 }
             }
 
-            let evidence = match proximity_result {
-                Some(ev) => ev,
-                None => return None,
-            };
+            let evidence = proximity_result?;
 
             // Boost precision if proximity constraints were applied
             let mut precision_boost = 0.0;

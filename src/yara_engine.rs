@@ -89,14 +89,22 @@ impl YaraEngine {
                 Ok(count) => {
                     builtin_count = count;
                     if count > 0 {
-                        eprintln!("✅ Loaded {} built-in YARA rules from {}", count, traits_dir.display());
+                        eprintln!(
+                            "✅ Loaded {} built-in YARA rules from {}",
+                            count,
+                            traits_dir.display()
+                        );
                     }
                 }
                 Err(e) => {
                     // Only warn if this is an actual error, not just "no rules found"
                     let err_str = e.to_string();
                     if !err_str.contains("No YARA rules found") {
-                        eprintln!("⚠️  Failed to load YARA rules from {}: {}", traits_dir.display(), e);
+                        eprintln!(
+                            "⚠️  Failed to load YARA rules from {}: {}",
+                            traits_dir.display(),
+                            e
+                        );
                     }
                 }
             }

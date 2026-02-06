@@ -344,7 +344,7 @@ fn extract_certificate_info(cms_data: &[u8]) -> (Option<String>, SignatureType, 
 
     // Extract all OU fields
     for i in 0..cms_data.len().saturating_sub(5) {
-        if &cms_data[i..i + 3] == &[0x55, 0x04, 0x0B] {
+        if cms_data[i..i + 3] == [0x55, 0x04, 0x0B] {
             if let Some(ou) = extract_der_string(&cms_data[i..], &[0x55, 0x04, 0x0B]) {
                 all_ous.push(ou);
             }
@@ -353,7 +353,7 @@ fn extract_certificate_info(cms_data: &[u8]) -> (Option<String>, SignatureType, 
 
     // Extract all CN fields
     for i in 0..cms_data.len().saturating_sub(5) {
-        if &cms_data[i..i + 3] == &[0x55, 0x04, 0x03] {
+        if cms_data[i..i + 3] == [0x55, 0x04, 0x03] {
             if let Some(cn) = extract_der_string(&cms_data[i..], &[0x55, 0x04, 0x03]) {
                 all_cns.push(cn);
             }

@@ -257,9 +257,7 @@ impl SectionMap {
 
         // Apply section-relative offset
         if let Some(sec_off) = section_offset {
-            if section.is_none() {
-                return None; // section_offset requires section
-            }
+            section?; // section_offset requires section
             let section_size = base_end - base_start;
             let abs_off = base_start + resolve_offset(sec_off, section_size);
             if abs_off < base_start || abs_off >= base_end {
@@ -270,16 +268,14 @@ impl SectionMap {
 
         // Apply section-relative offset range
         if let Some((start, end)) = section_offset_range {
-            if section.is_none() {
-                return None; // section_offset_range requires section
-            }
+            section?; // section_offset_range requires section
             let section_size = base_end - base_start;
             let rel_start = resolve_offset(start, section_size);
             let rel_end = end
                 .map(|e| resolve_offset(e, section_size))
                 .unwrap_or(section_size);
 
-            base_start = base_start + rel_start;
+            base_start += rel_start;
             base_end = base_start + rel_end.saturating_sub(rel_start);
         }
 
@@ -315,7 +311,9 @@ impl SectionMap {
 
     /// Get all sections as (name, start, end) tuples.
     pub fn sections(&self) -> impl Iterator<Item = (&str, u64, u64)> {
-        self.sections.iter().map(|s| (s.name.as_str(), s.start, s.end))
+        self.sections
+            .iter()
+            .map(|s| (s.name.as_str(), s.start, s.end))
     }
 }
 
@@ -498,9 +496,6 @@ mod tests {
     fn test_section_offset_without_section_fails() {
         let map = make_test_map();
         // section_offset without section should fail
-        assert_eq!(
-            map.resolve_range(None, None, None, Some(0x100), None),
-            None
-        );
+        assert_eq!(map.resolve_range(None, None, None, Some(0x100), None), None);
     }
 }

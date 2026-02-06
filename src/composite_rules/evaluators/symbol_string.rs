@@ -21,7 +21,7 @@ use crate::types::Evidence;
 #[inline]
 fn offset_in_range(offset: Option<u64>, range: Option<(u64, u64)>) -> bool {
     match (offset, range) {
-        (_, None) => true, // No range constraint - all offsets match
+        (_, None) => true,        // No range constraint - all offsets match
         (None, Some(_)) => false, // Range specified but string has no offset - skip
         (Some(off), Some((start, end))) => off >= start && off < end,
     }
@@ -447,9 +447,6 @@ pub fn eval_string(
     }
 }
 
-/// Parameters for location-constrained content evaluation.
-// MOVED TO mod.rs
-
 /// Evaluate content-based condition - searches directly in file bytes as text.
 ///
 /// Used by `type: content` conditions to search raw file content rather than extracted strings.
@@ -588,7 +585,10 @@ pub fn eval_raw(
                 evidence.push(Evidence {
                     method: "raw".to_string(),
                     source: "raw_content".to_string(),
-                    value: format!("Found {} occurrences of {} (with external IP)", match_count, substr_str),
+                    value: format!(
+                        "Found {} occurrences of {} (with external IP)",
+                        match_count, substr_str
+                    ),
                     location: Some("file".to_string()),
                 });
             }

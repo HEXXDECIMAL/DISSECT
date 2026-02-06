@@ -937,7 +937,18 @@ fn test_eval_base64_substr_match() {
     let ctx = create_test_context(&report, &data);
 
     let location = ContentLocationParams::default();
-    let result = eval_base64(None, Some(&"evil.com".to_string()), None, false, 1, None, None, None, &location, &ctx);
+    let result = eval_base64(
+        None,
+        Some(&"evil.com".to_string()),
+        None,
+        false,
+        1,
+        None,
+        None,
+        None,
+        &location,
+        &ctx,
+    );
 
     assert!(result.matched);
 }
@@ -972,7 +983,18 @@ fn test_eval_base64_no_match_wrong_method() {
     let ctx = create_test_context(&report, &data);
 
     let location = ContentLocationParams::default();
-    let result = eval_base64(Some(&"secret".to_string()), None, None, false, 1, None, None, None, &location, &ctx);
+    let result = eval_base64(
+        Some(&"secret".to_string()),
+        None,
+        None,
+        false,
+        1,
+        None,
+        None,
+        None,
+        &location,
+        &ctx,
+    );
 
     assert!(!result.matched);
 }

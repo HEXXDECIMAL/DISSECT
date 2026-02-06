@@ -14,11 +14,37 @@ fn analyze_file_for_traits(file_path: &str) -> serde_json::Value {
         .expect("Failed to run dissect");
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    serde_json::from_str(&stdout).unwrap_or_else(|e| {
-        eprintln!("Failed to parse JSON: {}", e);
-        eprintln!("stdout: {}", stdout);
-        serde_json::json!({})
-    })
+    if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
+        if json.get("files").and_then(|f| f.as_array()).is_some() {
+            return json;
+        }
+        if json.get("type").and_then(|t| t.as_str()) == Some("file") {
+            return serde_json::json!({ "files": [json] });
+        }
+    }
+
+    let mut files = Vec::new();
+    for line in stdout
+        .lines()
+        .map(str::trim)
+        .filter(|line| !line.is_empty())
+    {
+        if let Ok(json) = serde_json::from_str::<serde_json::Value>(line) {
+            if json.get("type").and_then(|t| t.as_str()) == Some("file") {
+                files.push(json);
+            }
+        }
+    }
+
+    if !files.is_empty() {
+        return serde_json::json!({ "files": files });
+    }
+
+    eprintln!(
+        "Failed to parse analyzer JSON output (status={}): {}",
+        output.status, stdout
+    );
+    serde_json::json!({})
 }
 
 /// Get the first file from the v2 files array
@@ -689,9 +715,8 @@ fn test_all_ast_languages_supported() {
 
         let json = analyze_file_for_traits(file_path.to_str().unwrap());
 
-        let actual_type = json
-            .get("target")
-            .and_then(|t| t.get("type"))
+        let actual_type = get_first_file(&json)
+            .and_then(|f| f.get("file_type"))
             .and_then(|v| v.as_str())
             .unwrap_or("unknown");
 
@@ -776,9 +801,8 @@ int main() {
 
     let json = analyze_file_for_traits(file_path.to_str().unwrap());
 
-    let actual_type = json
-        .get("target")
-        .and_then(|t| t.get("type"))
+    let actual_type = get_first_file(&json)
+        .and_then(|f| f.get("file_type"))
         .and_then(|v| v.as_str())
         .unwrap_or("unknown");
 

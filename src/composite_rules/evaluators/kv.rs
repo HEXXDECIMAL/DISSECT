@@ -197,9 +197,7 @@ pub fn detect_format(path: &Path, content: &[u8]) -> StructuredFormat {
             {
                 // Check if the bracket content looks like a TOML section name (no commas, quotes at start)
                 let section = &trimmed[1..bracket_end];
-                if !section.starts_with('"')
-                    && !section.starts_with('\'')
-                    && !section.contains(',')
+                if !section.starts_with('"') && !section.starts_with('\'') && !section.contains(',')
                 {
                     return StructuredFormat::Toml;
                 }
@@ -398,11 +396,7 @@ fn insert_pkginfo_value(map: &mut serde_json::Map<String, Value>, key: String, v
 /// Evaluate a kv condition against file content.
 ///
 /// Returns Some(Evidence) if the condition matches, None otherwise.
-pub fn evaluate_kv(
-    condition: &Condition,
-    content: &[u8],
-    file_path: &Path,
-) -> Option<Evidence> {
+pub fn evaluate_kv(condition: &Condition, content: &[u8], file_path: &Path) -> Option<Evidence> {
     let Condition::Kv {
         path,
         exact,

@@ -56,7 +56,7 @@ impl<'a> EvaluationContext<'a> {
             cached_ast,
             finding_id_index: Some(index),
             debug_collector: None,
-        section_map: None,
+            section_map: None,
         }
     }
 

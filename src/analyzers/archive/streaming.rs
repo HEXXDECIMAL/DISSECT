@@ -577,8 +577,8 @@ impl ArchiveAnalyzer {
 
         // Calculate archive SHA256 for extraction directory grouping
         // This ensures all files from the same archive end up in one directory
-        let archive_sha256 = calculate_file_sha256(archive_path)
-            .unwrap_or_else(|_| "unknown".to_string());
+        let archive_sha256 =
+            calculate_file_sha256(archive_path).unwrap_or_else(|_| "unknown".to_string());
 
         // Create analyzer with archive SHA256 set in extraction config
         let analyzer = self.with_extraction_archive_sha256(archive_sha256);
@@ -781,8 +781,8 @@ impl ArchiveAnalyzer {
 
         // Calculate archive SHA256 for extraction directory grouping
         // This ensures all files from the same archive end up in one directory
-        let archive_sha256 = calculate_file_sha256(archive_path)
-            .unwrap_or_else(|_| "unknown".to_string());
+        let archive_sha256 =
+            calculate_file_sha256(archive_path).unwrap_or_else(|_| "unknown".to_string());
 
         // Create analyzer with archive SHA256 set in extraction config
         let analyzer = self.with_extraction_archive_sha256(archive_sha256);
@@ -859,10 +859,17 @@ impl ArchiveAnalyzer {
                     let mut password_works = false;
                     for i in 0..test_archive.len() {
                         // Check if it's a directory without holding a borrow
-                        let is_dir = test_archive.by_index(i).ok().map(|e| e.is_dir()).unwrap_or(false);
+                        let is_dir = test_archive
+                            .by_index(i)
+                            .ok()
+                            .map(|e| e.is_dir())
+                            .unwrap_or(false);
                         if !is_dir {
                             // Try to decrypt this file
-                            if test_archive.by_index_decrypt(i, password.as_bytes()).is_ok() {
+                            if test_archive
+                                .by_index_decrypt(i, password.as_bytes())
+                                .is_ok()
+                            {
                                 password_works = true;
                             }
                             break;
@@ -1040,8 +1047,8 @@ impl ArchiveAnalyzer {
         let start = std::time::Instant::now();
 
         // Calculate archive SHA256 for extraction directory grouping
-        let archive_sha256 = calculate_file_sha256(archive_path)
-            .unwrap_or_else(|_| "unknown".to_string());
+        let archive_sha256 =
+            calculate_file_sha256(archive_path).unwrap_or_else(|_| "unknown".to_string());
         let analyzer = self.with_extraction_archive_sha256(archive_sha256);
 
         // Create temp dir for large files
@@ -1249,8 +1256,8 @@ impl ArchiveAnalyzer {
         let start = std::time::Instant::now();
 
         // Calculate archive SHA256 for extraction directory grouping
-        let archive_sha256 = calculate_file_sha256(archive_path)
-            .unwrap_or_else(|_| "unknown".to_string());
+        let archive_sha256 =
+            calculate_file_sha256(archive_path).unwrap_or_else(|_| "unknown".to_string());
         let analyzer = self.with_extraction_archive_sha256(archive_sha256);
 
         // Create temp dir for large files
@@ -1430,8 +1437,8 @@ impl ArchiveAnalyzer {
         let start = std::time::Instant::now();
 
         // Calculate archive SHA256 for extraction directory grouping
-        let archive_sha256 = calculate_file_sha256(archive_path)
-            .unwrap_or_else(|_| "unknown".to_string());
+        let archive_sha256 =
+            calculate_file_sha256(archive_path).unwrap_or_else(|_| "unknown".to_string());
         let analyzer = self.with_extraction_archive_sha256(archive_sha256);
 
         // Create temp dir for large files

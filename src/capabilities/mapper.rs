@@ -7,8 +7,8 @@
 //! - Provides platform and file type detection
 
 use crate::composite_rules::{
-    CompositeTrait, Condition, EvaluationContext, FileType as RuleFileType, Platform,
-    SectionMap, TraitDefinition,
+    CompositeTrait, Condition, EvaluationContext, FileType as RuleFileType, Platform, SectionMap,
+    TraitDefinition,
 };
 use crate::types::{AnalysisReport, Criticality, Evidence, Finding, FindingKind};
 use anyhow::{Context, Result};
@@ -90,7 +90,11 @@ impl CapabilityMapper {
                     std::process::exit(1);
                 }
                 // Always show non-parse errors
-                eprintln!("⚠️  Failed to load from {} directory: {:#}", traits_dir.display(), e);
+                eprintln!(
+                    "⚠️  Failed to load from {} directory: {:#}",
+                    traits_dir.display(),
+                    e
+                );
             }
         }
 
@@ -193,7 +197,7 @@ impl CapabilityMapper {
         let mut sorted_results: Vec<_> = results;
         sorted_results.sort_by_key(|r| match r {
             Ok((idx, _, _, _)) => *idx,
-            Err(_) => std::usize::MAX,
+            Err(_) => usize::MAX,
         });
 
         if timing {
@@ -399,7 +403,7 @@ impl CapabilityMapper {
                         "Rule ID '{}' defined as both trait and composite rule - composite will be used",
                         rule.id
                     ));
-                    warnings.push(format!("  Trait (will be replaced): (already loaded)"));
+                    warnings.push("  Trait (will be replaced): (already loaded)".to_string());
                     warnings.push(format!("  Composite: {}", path.display()));
                     // Remove the trait definition
                     trait_definitions.retain(|t| t.id != rule.id);
@@ -1060,8 +1064,7 @@ impl CapabilityMapper {
         let raw_regex_prefilter_enabled = self.raw_content_regex_index.has_patterns()
             && self
                 .raw_content_regex_index
-                .has_applicable_patterns(&applicable_indices)
-        ;
+                .has_applicable_patterns(&applicable_indices);
         let raw_regex_matched_traits = if raw_regex_prefilter_enabled {
             self.raw_content_regex_index
                 .find_matches(binary_data, &file_type)

@@ -113,7 +113,10 @@ impl ArchiveAnalyzer {
             capability_mapper: self.capability_mapper.clone(),
             yara_engine: self.yara_engine.clone(),
             zip_passwords: self.zip_passwords.clone(),
-            sample_extraction: self.sample_extraction.as_ref().map(|c| c.with_archive_sha256(archive_sha256.clone())),
+            sample_extraction: self
+                .sample_extraction
+                .as_ref()
+                .map(|c| c.with_archive_sha256(archive_sha256.clone())),
             archive_sha256: Some(archive_sha256),
         }
     }

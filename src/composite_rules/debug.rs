@@ -18,7 +18,10 @@ pub enum SkipReason {
         context: Vec<Platform>,
     },
     /// Rule requires different file type(s) than current context
-    FileTypeMismatch { rule: Vec<FileType>, context: FileType },
+    FileTypeMismatch {
+        rule: Vec<FileType>,
+        context: FileType,
+    },
     /// File is smaller than rule's minimum size
     SizeTooSmall { actual: usize, min: usize },
     /// File is larger than rule's maximum size

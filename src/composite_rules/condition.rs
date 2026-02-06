@@ -61,7 +61,7 @@ enum ConditionDeser {
     TraitShorthand { id: String },
 
     /// All other condition types require explicit `type` field
-    Tagged(ConditionTagged),
+    Tagged(Box<ConditionTagged>),
 }
 
 /// Internal tagged enum for deserializing conditions with explicit `type` field
@@ -475,7 +475,7 @@ impl From<ConditionDeser> for Condition {
     fn from(deser: ConditionDeser) -> Self {
         match deser {
             ConditionDeser::TraitShorthand { id } => Condition::Trait { id },
-            ConditionDeser::Tagged(tagged) => match tagged {
+            ConditionDeser::Tagged(tagged) => match *tagged {
                 ConditionTagged::Symbol {
                     exact,
                     substr,
@@ -1704,19 +1704,17 @@ impl Condition {
                 }
             }
             Condition::Kv {
-                regex,
+                regex: Some(regex_pattern),
                 case_insensitive,
                 compiled_regex,
                 ..
             } => {
                 // Compile regex pattern for kv searches
-                if let Some(regex_pattern) = regex {
-                    *compiled_regex = if *case_insensitive {
-                        regex::Regex::new(&format!("(?i){}", regex_pattern)).ok()
-                    } else {
-                        regex::Regex::new(regex_pattern).ok()
-                    };
-                }
+                *compiled_regex = if *case_insensitive {
+                    regex::Regex::new(&format!("(?i){}", regex_pattern)).ok()
+                } else {
+                    regex::Regex::new(regex_pattern).ok()
+                };
             }
             _ => {}
         }
@@ -1843,30 +1841,26 @@ fn validate_location_constraints(
     }
 
     // Validate offset_range format
-    if let Some((start, end)) = offset_range {
-        if let Some(e) = end {
-            if start >= 0 && e >= 0 && start > e {
-                return Err(anyhow::anyhow!(
-                    "{} condition 'offset_range' start ({}) must be <= end ({})",
-                    condition_type,
-                    start,
-                    e
-                ));
-            }
+    if let Some((start, Some(e))) = offset_range {
+        if start >= 0 && e >= 0 && start > e {
+            return Err(anyhow::anyhow!(
+                "{} condition 'offset_range' start ({}) must be <= end ({})",
+                condition_type,
+                start,
+                e
+            ));
         }
     }
 
     // Validate section_offset_range format
-    if let Some((start, end)) = section_offset_range {
-        if let Some(e) = end {
-            if start >= 0 && e >= 0 && start > e {
-                return Err(anyhow::anyhow!(
-                    "{} condition 'section_offset_range' start ({}) must be <= end ({})",
-                    condition_type,
-                    start,
-                    e
-                ));
-            }
+    if let Some((start, Some(e))) = section_offset_range {
+        if start >= 0 && e >= 0 && start > e {
+            return Err(anyhow::anyhow!(
+                "{} condition 'section_offset_range' start ({}) must be <= end ({})",
+                condition_type,
+                start,
+                e
+            ));
         }
     }
 
@@ -1904,8 +1898,14 @@ mod location_constraint_tests {
 
     #[test]
     fn test_validate_location_offset_range_only() {
-        let result =
-            validate_location_constraints(&None, None, Some((0, Some(0x1000))), None, None, "string");
+        let result = validate_location_constraints(
+            &None,
+            None,
+            Some((0, Some(0x1000))),
+            None,
+            None,
+            "string",
+        );
         assert!(result.is_ok());
     }
 
@@ -1925,8 +1925,7 @@ mod location_constraint_tests {
 
     #[test]
     fn test_validate_location_section_offset_without_section_fails() {
-        let result =
-            validate_location_constraints(&None, None, None, Some(0x100), None, "content");
+        let result = validate_location_constraints(&None, None, None, Some(0x100), None, "content");
         assert!(result.is_err());
         assert!(result
             .unwrap_err()
@@ -1971,10 +1970,7 @@ mod location_constraint_tests {
             "string",
         );
         assert!(result.is_err());
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("section_offset"));
+        assert!(result.unwrap_err().to_string().contains("section_offset"));
     }
 
     #[test]

@@ -181,12 +181,7 @@ pub(crate) fn validate_hostile_composite_precision(
     // First pass: calculate precision for HOSTILE/SUSPICIOUS rules (immutable borrow)
     let scored_rules: Vec<(String, Criticality, usize)> = composite_rules
         .iter()
-        .filter(|rule| {
-            matches!(
-                rule.crit,
-                Criticality::Hostile | Criticality::Suspicious
-            )
-        })
+        .filter(|rule| matches!(rule.crit, Criticality::Hostile | Criticality::Suspicious))
         .map(|rule| {
             let mut visiting = std::collections::HashSet::new();
             let precision = calculate_composite_precision(

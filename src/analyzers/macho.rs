@@ -518,7 +518,11 @@ impl MachOAnalyzer {
             if Radare2Analyzer::is_available() {
                 if let Ok(r2_imports) = self.radare2.extract_imports(file_path) {
                     for imp in r2_imports {
-                        report.imports.push(Import::new(&imp.name, imp.lib_name.clone(), "radare2"));
+                        report.imports.push(Import::new(
+                            &imp.name,
+                            imp.lib_name.clone(),
+                            "radare2",
+                        ));
                         let name = crate::types::binary::normalize_symbol(&imp.name);
 
                         // Map import to capability
@@ -539,14 +543,18 @@ impl MachOAnalyzer {
                         let clean_name = crate::types::binary::normalize_symbol(name);
                         // Only add if not already added by radare2
                         if !report.imports.iter().any(|i| i.symbol == clean_name) {
-                            report.imports.push(Import::new(name, None, "goblin_symtab"));
+                            report
+                                .imports
+                                .push(Import::new(name, None, "goblin_symtab"));
                         }
                     }
                 }
             }
         } else {
             for imp in &imports {
-                report.imports.push(Import::new(imp.name, Some(imp.dylib.to_string()), "goblin"));
+                report
+                    .imports
+                    .push(Import::new(imp.name, Some(imp.dylib.to_string()), "goblin"));
                 let name = crate::types::binary::normalize_symbol(imp.name);
 
                 // Map import to capability
@@ -995,10 +1003,9 @@ fn describe_entitlement(key: &str) -> String {
     // Fallback: clean up the key name for readability
     let short_name = key
         .split('.')
-        .last()
+        .next_back()
         .unwrap_or(key)
-        .replace('-', " ")
-        .replace('_', " ");
+        .replace(['-', '_'], " ");
 
     // Capitalize first letter
     let mut chars = short_name.chars();

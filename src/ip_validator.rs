@@ -374,6 +374,6 @@ mod tests {
 
         // Valid IPs (no leading zeros) should be accepted
         assert!(contains_external_ip("70.11.49.4")); // Valid external IP
-        assert!(contains_external_ip("25.1.31.1"));  // Valid external IP
+        assert!(contains_external_ip("25.1.31.1")); // Valid external IP
     }
 }

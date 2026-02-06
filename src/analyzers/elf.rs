@@ -334,7 +334,8 @@ impl ElfAnalyzer {
                     ));
 
                     // Also flag IFUNC in regular symbols
-                    if st_type == 10 && !report.findings.iter().any(|f| f.desc.contains(&clean_name))
+                    if st_type == 10
+                        && !report.findings.iter().any(|f| f.desc.contains(&clean_name))
                     {
                         report.findings.push(Finding {
                             kind: FindingKind::Capability,
