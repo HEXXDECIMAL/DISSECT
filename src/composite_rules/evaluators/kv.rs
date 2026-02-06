@@ -38,6 +38,8 @@ pub enum StructuredFormat {
     Json,
     Yaml,
     Toml,
+    /// Python PKG-INFO / METADATA (RFC 822 format)
+    PkgInfo,
     Unknown,
 }
 
@@ -163,11 +165,21 @@ pub fn detect_format(path: &Path, content: &[u8]) -> StructuredFormat {
         if name_lower.ends_with(".toml") || name_lower == "cargo.toml" {
             return StructuredFormat::Toml;
         }
+        // Python package metadata files (RFC 822 format)
+        if name_lower == "pkg-info" || name_lower == "metadata" {
+            return StructuredFormat::PkgInfo;
+        }
     }
 
     // Fall back to content sniffing
     let content_str = String::from_utf8_lossy(content);
     let trimmed = content_str.trim_start();
+
+    // Check for PKG-INFO/METADATA format (RFC 822 headers)
+    // These files start with "Metadata-Version:" header
+    if trimmed.starts_with("Metadata-Version:") {
+        return StructuredFormat::PkgInfo;
+    }
 
     // Check for TOML table headers like [package] (not followed by comma or colon)
     // TOML: [section]\nkey = value
@@ -310,6 +322,79 @@ pub fn navigate<'a>(value: &'a Value, segments: &[PathSegment]) -> Vec<&'a Value
     }
 }
 
+/// Parse PKG-INFO/METADATA format (RFC 822) into a JSON Value.
+///
+/// Format is simple key-value headers:
+/// ```text
+/// Metadata-Version: 2.1
+/// Name: my-package
+/// Version: 1.0.0
+/// Summary: A package description
+/// Author: Someone <someone@example.com>
+/// ```
+///
+/// Multi-line values use continuation lines (starting with whitespace).
+/// Multiple values for the same key become arrays.
+fn parse_pkginfo(content: &[u8]) -> Option<Value> {
+    let text = std::str::from_utf8(content).ok()?;
+    let mut map: serde_json::Map<String, Value> = serde_json::Map::new();
+    let mut current_key: Option<String> = None;
+    let mut current_value = String::new();
+
+    for line in text.lines() {
+        if line.starts_with(' ') || line.starts_with('\t') {
+            // Continuation line - append to current value
+            if current_key.is_some() {
+                current_value.push('\n');
+                current_value.push_str(line.trim());
+            }
+        } else if let Some(colon_pos) = line.find(':') {
+            // New header - save previous if any
+            if let Some(key) = current_key.take() {
+                insert_pkginfo_value(&mut map, key, current_value.trim().to_string());
+            }
+
+            let key = line[..colon_pos].trim().to_string();
+            let value = line[colon_pos + 1..].trim().to_string();
+            current_key = Some(key);
+            current_value = value;
+        }
+    }
+
+    // Don't forget the last header
+    if let Some(key) = current_key {
+        insert_pkginfo_value(&mut map, key, current_value.trim().to_string());
+    }
+
+    Some(Value::Object(map))
+}
+
+/// Insert a value into PKG-INFO map, handling multiple values for same key.
+fn insert_pkginfo_value(map: &mut serde_json::Map<String, Value>, key: String, value: String) {
+    if value.is_empty() {
+        return;
+    }
+
+    // Normalize key to lowercase with hyphens (like HTTP headers)
+    let normalized_key = key.to_lowercase();
+
+    if let Some(existing) = map.get_mut(&normalized_key) {
+        // Key already exists - convert to array or append
+        match existing {
+            Value::Array(arr) => {
+                arr.push(Value::String(value));
+            }
+            Value::String(s) => {
+                let old = s.clone();
+                *existing = Value::Array(vec![Value::String(old), Value::String(value)]);
+            }
+            _ => {}
+        }
+    } else {
+        map.insert(normalized_key, Value::String(value));
+    }
+}
+
 /// Evaluate a kv condition against file content.
 ///
 /// Returns Some(Evidence) if the condition matches, None otherwise.
@@ -339,6 +424,7 @@ pub fn evaluate_kv(
             let s = std::str::from_utf8(content).ok()?;
             toml::from_str(s).ok()?
         }
+        StructuredFormat::PkgInfo => parse_pkginfo(content)?,
         StructuredFormat::Unknown => {
             // Try JSON first, then YAML
             if let Ok(v) = serde_json::from_slice(content) {
@@ -1081,5 +1167,175 @@ openssl = "0.10"
         };
         // Should not panic, just return no match
         assert!(evaluate_kv(&cond, bad, path).is_none());
+    }
+
+    // ==========================================================================
+    // PKG-INFO Format Tests
+    // ==========================================================================
+
+    #[test]
+    fn test_detect_pkginfo_by_filename() {
+        assert_eq!(
+            detect_format(Path::new("PKG-INFO"), b""),
+            StructuredFormat::PkgInfo
+        );
+        assert_eq!(
+            detect_format(Path::new("METADATA"), b""),
+            StructuredFormat::PkgInfo
+        );
+    }
+
+    #[test]
+    fn test_detect_pkginfo_by_content() {
+        let content = b"Metadata-Version: 2.1\nName: my-package\n";
+        assert_eq!(
+            detect_format(Path::new("unknown"), content),
+            StructuredFormat::PkgInfo
+        );
+    }
+
+    #[test]
+    fn test_pkginfo_simple() {
+        let pkginfo = b"Metadata-Version: 2.1
+Name: malicious-package
+Version: 1.0.0
+Summary: A suspicious package
+Author: attacker@evil.com
+";
+
+        let path = Path::new("PKG-INFO");
+
+        // Test name match
+        let cond = Condition::Kv {
+            path: "name".to_string(),
+            exact: Some("malicious-package".to_string()),
+            substr: None,
+            regex: None,
+            case_insensitive: false,
+            compiled_regex: None,
+        };
+        assert!(evaluate_kv(&cond, pkginfo, path).is_some());
+
+        // Test version
+        let cond = Condition::Kv {
+            path: "version".to_string(),
+            exact: Some("1.0.0".to_string()),
+            substr: None,
+            regex: None,
+            case_insensitive: false,
+            compiled_regex: None,
+        };
+        assert!(evaluate_kv(&cond, pkginfo, path).is_some());
+
+        // Test author contains suspicious domain
+        let cond = Condition::Kv {
+            path: "author".to_string(),
+            exact: None,
+            substr: Some("evil.com".to_string()),
+            regex: None,
+            case_insensitive: false,
+            compiled_regex: None,
+        };
+        assert!(evaluate_kv(&cond, pkginfo, path).is_some());
+
+        // Test existence
+        let cond = Condition::Kv {
+            path: "summary".to_string(),
+            exact: None,
+            substr: None,
+            regex: None,
+            case_insensitive: false,
+            compiled_regex: None,
+        };
+        assert!(evaluate_kv(&cond, pkginfo, path).is_some());
+
+        // Test non-existent
+        let cond = Condition::Kv {
+            path: "license".to_string(),
+            exact: None,
+            substr: None,
+            regex: None,
+            case_insensitive: false,
+            compiled_regex: None,
+        };
+        assert!(evaluate_kv(&cond, pkginfo, path).is_none());
+    }
+
+    #[test]
+    fn test_pkginfo_multiple_classifiers() {
+        let pkginfo = b"Metadata-Version: 2.1
+Name: my-package
+Classifier: Development Status :: 3 - Alpha
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+";
+
+        let path = Path::new("PKG-INFO");
+
+        // Multiple Classifier values become an array
+        let cond = Condition::Kv {
+            path: "classifier".to_string(),
+            exact: None,
+            substr: Some("MIT License".to_string()),
+            regex: None,
+            case_insensitive: false,
+            compiled_regex: None,
+        };
+        assert!(evaluate_kv(&cond, pkginfo, path).is_some());
+
+        // Check Python classifier
+        let cond = Condition::Kv {
+            path: "classifier".to_string(),
+            exact: None,
+            substr: Some("Python".to_string()),
+            regex: None,
+            case_insensitive: false,
+            compiled_regex: None,
+        };
+        assert!(evaluate_kv(&cond, pkginfo, path).is_some());
+    }
+
+    #[test]
+    fn test_pkginfo_multiline_description() {
+        let pkginfo = b"Metadata-Version: 2.1
+Name: my-package
+Description: This is a package
+        with a multi-line
+        description.
+Version: 1.0.0
+";
+
+        let path = Path::new("PKG-INFO");
+
+        let cond = Condition::Kv {
+            path: "description".to_string(),
+            exact: None,
+            substr: Some("multi-line".to_string()),
+            regex: None,
+            case_insensitive: false,
+            compiled_regex: None,
+        };
+        assert!(evaluate_kv(&cond, pkginfo, path).is_some());
+    }
+
+    #[test]
+    fn test_pkginfo_case_insensitive_keys() {
+        let pkginfo = b"Metadata-Version: 2.1
+Name: my-package
+Author-Email: test@example.com
+";
+
+        let path = Path::new("PKG-INFO");
+
+        // Keys are normalized to lowercase
+        let cond = Condition::Kv {
+            path: "author-email".to_string(),
+            exact: None,
+            substr: Some("example.com".to_string()),
+            regex: None,
+            case_insensitive: false,
+            compiled_regex: None,
+        };
+        assert!(evaluate_kv(&cond, pkginfo, path).is_some());
     }
 }

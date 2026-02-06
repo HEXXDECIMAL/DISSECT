@@ -215,13 +215,14 @@ impl PEAnalyzer {
 
     fn analyze_imports(&self, pe: &PE, report: &mut AnalysisReport) -> Result<()> {
         for import in &pe.imports {
-            report.imports.push(Import {
-                symbol: import.name.to_string(),
-                library: Some(import.dll.to_string()),
-                source: "goblin".to_string(),
-            });
+            report.imports.push(Import::new(
+                import.name.as_ref(),
+                Some(import.dll.to_string()),
+                "goblin",
+            ));
 
-            if let Some(capability) = self.capability_mapper.lookup(&import.name, "goblin") {
+            let normalized = crate::types::binary::normalize_symbol(import.name.as_ref());
+            if let Some(capability) = self.capability_mapper.lookup(&normalized, "goblin") {
                 if !report.findings.iter().any(|c| c.id == capability.id) {
                     report.findings.push(capability);
                 }
@@ -234,11 +235,11 @@ impl PEAnalyzer {
     fn analyze_exports(&self, pe: &PE, report: &mut AnalysisReport) -> Result<()> {
         for export in &pe.exports {
             if let Some(name) = export.name {
-                report.exports.push(Export {
-                    symbol: name.to_string(),
-                    offset: Some(format!("{:#x}", export.rva)),
-                    source: "goblin".to_string(),
-                });
+                report.exports.push(Export::new(
+                    name,
+                    Some(format!("{:#x}", export.rva)),
+                    "goblin",
+                ));
             }
         }
 

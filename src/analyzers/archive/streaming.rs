@@ -25,7 +25,7 @@ use std::path::{Path, PathBuf};
 use super::guards::{
     sanitize_entry_path, ExtractionGuard, HostileArchiveReason, LimitedReader, MAX_FILE_SIZE,
 };
-use super::utils::calculate_sha256;
+use super::utils::{calculate_file_sha256, calculate_sha256};
 use super::ArchiveAnalyzer;
 
 /// Maximum file size to keep in memory (256 MB)
@@ -575,6 +575,14 @@ impl ArchiveAnalyzer {
 
         let start = std::time::Instant::now();
 
+        // Calculate archive SHA256 for extraction directory grouping
+        // This ensures all files from the same archive end up in one directory
+        let archive_sha256 = calculate_file_sha256(archive_path)
+            .unwrap_or_else(|_| "unknown".to_string());
+
+        // Create analyzer with archive SHA256 set in extraction config
+        let analyzer = self.with_extraction_archive_sha256(archive_sha256);
+
         // Detect compression type
         let compression = super::utils::detect_tar_compression(archive_path);
 
@@ -673,6 +681,7 @@ impl ArchiveAnalyzer {
         let suspicious_count_ref = &suspicious_count;
         let notable_count_ref = &notable_count;
         let total_bytes_ref = &total_bytes;
+        let analyzer_ref = &analyzer;
 
         rx.into_iter().par_bridge().for_each(|file| {
             // Skip unknown file types
@@ -688,7 +697,7 @@ impl ArchiveAnalyzer {
                     file_type,
                 } => {
                     total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
-                    self.analyze_in_memory(path, data, file_type)
+                    analyzer_ref.analyze_in_memory(path, data, file_type)
                 }
                 ExtractedFile::OnDisk {
                     path,
@@ -699,7 +708,7 @@ impl ArchiveAnalyzer {
                     match std::fs::read(temp_path) {
                         Ok(data) => {
                             total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
-                            self.analyze_in_memory(path, &data, file_type)
+                            analyzer_ref.analyze_in_memory(path, &data, file_type)
                         }
                         Err(e) => Err(anyhow::anyhow!("Failed to read temp file: {}", e)),
                     }
@@ -769,6 +778,14 @@ impl ArchiveAnalyzer {
         use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
 
         let start = std::time::Instant::now();
+
+        // Calculate archive SHA256 for extraction directory grouping
+        // This ensures all files from the same archive end up in one directory
+        let archive_sha256 = calculate_file_sha256(archive_path)
+            .unwrap_or_else(|_| "unknown".to_string());
+
+        // Create analyzer with archive SHA256 set in extraction config
+        let analyzer = self.with_extraction_archive_sha256(archive_sha256);
 
         // Create temp dir for large files
         let temp_dir = tempfile::tempdir()?;
@@ -928,6 +945,7 @@ impl ArchiveAnalyzer {
         let suspicious_count_ref = &suspicious_count;
         let notable_count_ref = &notable_count;
         let total_bytes_ref = &total_bytes;
+        let analyzer_ref = &analyzer;
 
         rx.into_iter().par_bridge().for_each(|file| {
             // Skip unknown file types
@@ -942,7 +960,7 @@ impl ArchiveAnalyzer {
                     file_type,
                 } => {
                     total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
-                    self.analyze_in_memory(path, data, file_type)
+                    analyzer_ref.analyze_in_memory(path, data, file_type)
                 }
                 ExtractedFile::OnDisk {
                     path,
@@ -951,7 +969,7 @@ impl ArchiveAnalyzer {
                 } => match std::fs::read(temp_path) {
                     Ok(data) => {
                         total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
-                        self.analyze_in_memory(path, &data, file_type)
+                        analyzer_ref.analyze_in_memory(path, &data, file_type)
                     }
                     Err(e) => Err(anyhow::anyhow!("Failed to read temp file: {}", e)),
                 },
@@ -1020,6 +1038,11 @@ impl ArchiveAnalyzer {
         use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
 
         let start = std::time::Instant::now();
+
+        // Calculate archive SHA256 for extraction directory grouping
+        let archive_sha256 = calculate_file_sha256(archive_path)
+            .unwrap_or_else(|_| "unknown".to_string());
+        let analyzer = self.with_extraction_archive_sha256(archive_sha256);
 
         // Create temp dir for large files
         let temp_dir = tempfile::tempdir()?;
@@ -1134,6 +1157,7 @@ impl ArchiveAnalyzer {
         let suspicious_count_ref = &suspicious_count;
         let notable_count_ref = &notable_count;
         let total_bytes_ref = &total_bytes;
+        let analyzer_ref = &analyzer;
 
         rx.into_iter().par_bridge().for_each(|file| {
             // Skip unknown file types
@@ -1148,7 +1172,7 @@ impl ArchiveAnalyzer {
                     file_type,
                 } => {
                     total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
-                    self.analyze_in_memory(path, data, file_type)
+                    analyzer_ref.analyze_in_memory(path, data, file_type)
                 }
                 ExtractedFile::OnDisk {
                     path,
@@ -1157,7 +1181,7 @@ impl ArchiveAnalyzer {
                 } => match std::fs::read(temp_path) {
                     Ok(data) => {
                         total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
-                        self.analyze_in_memory(path, &data, file_type)
+                        analyzer_ref.analyze_in_memory(path, &data, file_type)
                     }
                     Err(e) => Err(anyhow::anyhow!("Failed to read temp file: {}", e)),
                 },
@@ -1223,6 +1247,11 @@ impl ArchiveAnalyzer {
         use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
 
         let start = std::time::Instant::now();
+
+        // Calculate archive SHA256 for extraction directory grouping
+        let archive_sha256 = calculate_file_sha256(archive_path)
+            .unwrap_or_else(|_| "unknown".to_string());
+        let analyzer = self.with_extraction_archive_sha256(archive_sha256);
 
         // Create temp dir for large files
         let temp_dir = tempfile::tempdir()?;
@@ -1311,6 +1340,7 @@ impl ArchiveAnalyzer {
         let suspicious_count_ref = &suspicious_count;
         let notable_count_ref = &notable_count;
         let total_bytes_ref = &total_bytes;
+        let analyzer_ref = &analyzer;
 
         rx.into_iter().par_bridge().for_each(|file| {
             // Skip unknown file types
@@ -1325,7 +1355,7 @@ impl ArchiveAnalyzer {
                     file_type,
                 } => {
                     total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
-                    self.analyze_in_memory(path, data, file_type)
+                    analyzer_ref.analyze_in_memory(path, data, file_type)
                 }
                 ExtractedFile::OnDisk {
                     path,
@@ -1334,7 +1364,7 @@ impl ArchiveAnalyzer {
                 } => match std::fs::read(temp_path) {
                     Ok(data) => {
                         total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
-                        self.analyze_in_memory(path, &data, file_type)
+                        analyzer_ref.analyze_in_memory(path, &data, file_type)
                     }
                     Err(e) => Err(anyhow::anyhow!("Failed to read temp file: {}", e)),
                 },
@@ -1398,6 +1428,11 @@ impl ArchiveAnalyzer {
         use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
 
         let start = std::time::Instant::now();
+
+        // Calculate archive SHA256 for extraction directory grouping
+        let archive_sha256 = calculate_file_sha256(archive_path)
+            .unwrap_or_else(|_| "unknown".to_string());
+        let analyzer = self.with_extraction_archive_sha256(archive_sha256);
 
         // Create temp dir for large files
         let temp_dir = tempfile::tempdir()?;
@@ -1534,6 +1569,7 @@ impl ArchiveAnalyzer {
         let suspicious_count_ref = &suspicious_count;
         let notable_count_ref = &notable_count;
         let total_bytes_ref = &total_bytes;
+        let analyzer_ref = &analyzer;
 
         rx.into_iter().par_bridge().for_each(|file| {
             // Skip unknown file types
@@ -1548,7 +1584,7 @@ impl ArchiveAnalyzer {
                     file_type,
                 } => {
                     total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
-                    self.analyze_in_memory(path, data, file_type)
+                    analyzer_ref.analyze_in_memory(path, data, file_type)
                 }
                 ExtractedFile::OnDisk {
                     path,
@@ -1557,7 +1593,7 @@ impl ArchiveAnalyzer {
                 } => match std::fs::read(temp_path) {
                     Ok(data) => {
                         total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
-                        self.analyze_in_memory(path, &data, file_type)
+                        analyzer_ref.analyze_in_memory(path, &data, file_type)
                     }
                     Err(e) => Err(anyhow::anyhow!("Failed to read temp file: {}", e)),
                 },

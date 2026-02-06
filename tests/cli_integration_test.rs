@@ -52,7 +52,7 @@ fn test_analyze_shell_script() {
         .stdout(predicate::str::contains("test.sh"));
 }
 
-/// Test analyze command with JSON output
+/// Test analyze command with JSON output (JSON Lines format)
 #[test]
 
 fn test_analyze_json_output() {
@@ -61,14 +61,16 @@ fn test_analyze_json_output() {
 
     fs::write(&script_path, "#!/bin/bash\necho 'hello'\n").unwrap();
 
+    // JSON Lines format outputs: {"type":"file",...} followed by {"type":"summary",...}
     assert_cmd::cargo_bin_cmd!("dissect")
         .args(["--json", "analyze", script_path.to_str().unwrap()])
         .assert()
         .success()
-        .stdout(predicate::str::contains("schema_version"));
+        .stdout(predicate::str::contains(r#""type":"file""#))
+        .stdout(predicate::str::contains(r#""type":"summary""#));
 }
 
-/// Test analyze command with output to file
+/// Test analyze command with output to file (JSON Lines format)
 #[test]
 
 fn test_analyze_output_to_file() {
@@ -91,9 +93,10 @@ fn test_analyze_output_to_file() {
         .success()
         .stderr(predicate::str::contains("Results written to"));
 
-    // Verify output file was created and contains JSON
+    // Verify output file was created and contains JSON Lines format
     let content = fs::read_to_string(&output_path).unwrap();
-    assert!(content.contains("schema_version"));
+    assert!(content.contains(r#""type":"file""#));
+    assert!(content.contains(r#""type":"summary""#));
 }
 
 /// Test scan command with empty directory

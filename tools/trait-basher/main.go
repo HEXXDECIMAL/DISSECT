@@ -230,9 +230,15 @@ const badTaskFile = `## Strategy: Add Missing Detection
    - **Use ` + "`dissect strings`" + `** to automatically reveal hidden data: XOR/AES/base64 encoded payloads, command strings, and obfuscated content
    - This exposes both encoded and decoded content for better pattern matching
 2. Identify malicious capability (socket + exec = reverse-shell, etc.)
-3. Use GENERIC patterns, not file-specific signatures
-4. Cross-language when possible (base64+exec works in Python, JS, Shell)
-5. Create new traits if needed - they should be generic and reusable across samples
+3. Identify ALL unique and interesting features of this program:
+   - Unusual techniques or methods (e.g., process hollowing, DLL sideloading)
+   - Distinctive strings, constants, or magic values
+   - Uncommon library usage or API call patterns
+   - Novel obfuscation or evasion techniques
+   - Any behavior that distinguishes this from typical software
+4. Use GENERIC patterns, not file-specific signatures
+5. Cross-language when possible (base64+exec works in Python, JS, Shell)
+6. Create new traits if needed - they should be generic and reusable across samples
 
 ## Taxonomy Rules (MUST FOLLOW)
 **Read TAXONOMY.md first** - trait IDs must accurately describe what the pattern detects.
@@ -268,9 +274,15 @@ const badTaskArchive = `## Strategy: Add Missing Detection to Archive
    - **Use ` + "`dissect strings`" + ` on suspicious members** to reveal hidden data: XOR/AES/base64 encoded payloads, command strings, and obfuscated content
    - This exposes both encoded and decoded content for better pattern matching
 2. Identify malicious capability (socket + exec = reverse-shell, etc.)
-3. Use GENERIC patterns, not file-specific signatures
-4. Cross-language patterns when possible (base64+exec in Python, JS, Shell)
-5. Create new traits if needed - they should be generic and reusable across samples
+3. Identify ALL unique and interesting features of these programs:
+   - Unusual techniques or methods (e.g., process hollowing, DLL sideloading)
+   - Distinctive strings, constants, or magic values
+   - Uncommon library usage or API call patterns
+   - Novel obfuscation or evasion techniques
+   - Any behavior that distinguishes this from typical software
+4. Use GENERIC patterns, not file-specific signatures
+5. Cross-language patterns when possible (base64+exec in Python, JS, Shell)
+6. Create new traits if needed - they should be generic and reusable across samples
 
 ## Taxonomy Rules (MUST FOLLOW)
 **Read TAXONOMY.md first** - trait IDs must accurately describe what the pattern detects.

@@ -285,6 +285,7 @@ fn main() -> Result<()> {
             r#type,
             method,
             pattern,
+            kv_path,
             file_type,
             min_count,
             case_insensitive,
@@ -292,7 +293,8 @@ fn main() -> Result<()> {
             &target,
             r#type,
             method,
-            &pattern,
+            pattern.as_deref(),
+            kv_path.as_deref(),
             file_type,
             min_count,
             case_insensitive,
@@ -1630,13 +1632,24 @@ fn test_match_debug(
     target: &str,
     search_type: cli::SearchType,
     method: cli::MatchMethod,
-    pattern: &str,
+    pattern: Option<&str>,
+    kv_path: Option<&str>,
     file_type_override: Option<cli::DetectFileType>,
     min_count: usize,
     case_insensitive: bool,
     _disabled: &cli::DisabledComponents,
     platforms: Vec<composite_rules::Platform>,
 ) -> Result<String> {
+    // Validate arguments based on search type
+    if search_type == cli::SearchType::Kv {
+        if kv_path.is_none() {
+            anyhow::bail!("--kv-path is required for kv searches");
+        }
+    } else if pattern.is_none() {
+        anyhow::bail!("--pattern is required for {:?} searches", search_type);
+    }
+
+    let pattern = pattern.unwrap_or("");
     use crate::test_rules::{find_matching_strings, find_matching_symbols, RuleDebugger};
     use colored::Colorize;
 
@@ -1804,7 +1817,8 @@ fn test_match_debug(
             let content = String::from_utf8_lossy(&binary_data);
 
             let matched = match method {
-                cli::MatchMethod::Exact => content.contains(pattern),
+                // Exact: entire file content must equal the pattern (matches production eval_raw)
+                cli::MatchMethod::Exact => &*content == pattern,
                 cli::MatchMethod::Contains => content.contains(pattern),
                 cli::MatchMethod::Regex => {
                     regex::Regex::new(pattern).is_ok_and(|re| re.is_match(&content))
@@ -1833,6 +1847,82 @@ fn test_match_debug(
             }
 
             (matched, match_count, out)
+        }
+        cli::SearchType::Kv => {
+            let kv_path_str = kv_path.unwrap(); // Safe: validated above
+
+            // Build the kv condition
+            let exact = if method == cli::MatchMethod::Exact && !pattern.is_empty() {
+                Some(pattern.to_string())
+            } else {
+                None
+            };
+            let substr = if method == cli::MatchMethod::Contains && !pattern.is_empty() {
+                Some(pattern.to_string())
+            } else {
+                None
+            };
+            let regex_str = if method == cli::MatchMethod::Regex && !pattern.is_empty() {
+                Some(pattern.to_string())
+            } else {
+                None
+            };
+            let compiled_regex = regex_str.as_ref().and_then(|r| regex::Regex::new(r).ok());
+
+            let condition = composite_rules::Condition::Kv {
+                path: kv_path_str.to_string(),
+                exact: exact.clone(),
+                substr: substr.clone(),
+                regex: regex_str.clone(),
+                case_insensitive,
+                compiled_regex,
+            };
+
+            // Use the actual kv evaluator
+            let evidence = composite_rules::evaluators::evaluate_kv(&condition, &binary_data, path);
+            let _matched = evidence.is_some();
+
+            let mut out = String::new();
+            out.push_str("Search: kv (structured data)\n");
+            out.push_str(&format!("Path: {}\n", kv_path_str));
+            if !pattern.is_empty() {
+                out.push_str(&format!("Pattern: {} ({})\n", pattern, format!("{:?}", method).to_lowercase()));
+            } else {
+                out.push_str("Pattern: (existence check)\n");
+            }
+            out.push_str(&format!(
+                "Context: file_type={:?}, file_size={} bytes\n",
+                file_type,
+                binary_data.len()
+            ));
+
+            if let Some(ev) = evidence {
+                out.push_str(&format!("\n{}\n", "MATCHED".green().bold()));
+                out.push_str(&format!("  Value: {}\n", ev.value));
+                if let Some(loc) = &ev.location {
+                    out.push_str(&format!("  Location: {}\n", loc));
+                }
+                (true, 1, out)
+            } else {
+                out.push_str(&format!("\n{}\n", "NOT MATCHED".red().bold()));
+
+                // Try to parse and show available keys
+                if let Ok(content) = std::str::from_utf8(&binary_data) {
+                    if let Ok(json) = serde_json::from_str::<serde_json::Value>(content) {
+                        if let Some(obj) = json.as_object() {
+                            let keys: Vec<_> = obj.keys().take(15).collect();
+                            out.push_str(&format!("Available top-level keys: {:?}\n", keys));
+                        }
+                    } else if let Ok(yaml) = serde_yaml::from_str::<serde_json::Value>(content) {
+                        if let Some(obj) = yaml.as_object() {
+                            let keys: Vec<_> = obj.keys().take(15).collect();
+                            out.push_str(&format!("Available top-level keys: {:?}\n", keys));
+                        }
+                    }
+                }
+
+                (false, 0, out)
+            }
         }
     };
 
@@ -2011,6 +2101,11 @@ fn test_match_debug(
                     ));
                 }
             }
+            cli::SearchType::Kv => {
+                // No cross-search suggestions for kv - it's a different paradigm
+                output.push_str("  💡 Check that the path exists in the file structure\n");
+                output.push_str("  💡 Try without a pattern for existence check\n");
+            }
         }
 
         // Suggest alternative match methods
@@ -2137,6 +2232,10 @@ fn test_match_debug(
                                         .is_ok_and(|re| re.is_match(&content))
                                 }
                             }
+                        }
+                        cli::SearchType::Kv => {
+                            // kv searches don't benefit from file type changes
+                            false
                         }
                     };
 

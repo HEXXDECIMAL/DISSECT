@@ -23,49 +23,43 @@ fn test_analyze_bin_ls_json_output() {
         "dissect should successfully analyze /bin/ls"
     );
 
-    // Parse JSON output from stdout
+    // Parse JSON Lines output from stdout (one JSON object per line)
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Filter out any stderr content (warnings appear before JSON)
-    let json_start = stdout.find('[').expect("Should find JSON array start");
+    // Find the first JSON object (starts with '{')
+    let json_start = stdout.find('{').expect("Should find JSON object start");
     let json_output = &stdout[json_start..];
 
-    let parsed: Value = serde_json::from_str(json_output).expect("Output should be valid JSON");
+    // Parse as JSON Lines - each line is a separate JSON object
+    // For single file analysis, we expect one object
+    let parsed: Value = serde_json::from_str(json_output.trim())
+        .expect("Output should be valid JSON");
 
-    // Should be an array with at least one report
-    let reports = parsed.as_array().expect("Output should be JSON array");
-    assert!(
-        !reports.is_empty(),
-        "Should have at least one analysis report"
+    // The output is a single file object with type: "file"
+    assert_eq!(
+        parsed["type"].as_str(),
+        Some("file"),
+        "Expected file type object"
     );
 
-    let report = &reports[0];
-
-    // V2 format: findings are inside files array
-    let files = report["files"]
-        .as_array()
-        .expect("Report should have files array");
-
-    // Collect all findings from all files
+    // Collect findings from the file object
     let mut hostile_count = 0;
     let mut suspicious_count = 0;
     let mut notable_count = 0;
     let mut inert_count = 0;
 
-    for file in files {
-        if let Some(findings) = file["findings"].as_array() {
-            for finding in findings {
-                let crit = finding["crit"]
-                    .as_str()
-                    .expect("Finding should have criticality");
+    if let Some(findings) = parsed["findings"].as_array() {
+        for finding in findings {
+            let crit = finding["crit"]
+                .as_str()
+                .expect("Finding should have criticality");
 
-                match crit {
-                    "hostile" => hostile_count += 1,
-                    "suspicious" => suspicious_count += 1,
-                    "notable" => notable_count += 1,
-                    "inert" => inert_count += 1,
-                    _ => panic!("Unknown criticality: {}", crit),
-                }
+            match crit {
+                "hostile" => hostile_count += 1,
+                "suspicious" => suspicious_count += 1,
+                "notable" => notable_count += 1,
+                "inert" => inert_count += 1,
+                _ => panic!("Unknown criticality: {}", crit),
             }
         }
     }

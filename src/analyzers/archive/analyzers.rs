@@ -779,6 +779,7 @@ impl ArchiveAnalyzer {
                 yara_engine,
                 zip_passwords,
                 sample_extraction,
+                archive_sha256: None,
             };
 
             let result = analyzer.analyze_extracted_file(&file_path_clone);

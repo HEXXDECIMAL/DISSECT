@@ -518,15 +518,11 @@ impl MachOAnalyzer {
             if Radare2Analyzer::is_available() {
                 if let Ok(r2_imports) = self.radare2.extract_imports(file_path) {
                     for imp in r2_imports {
-                        let name = imp.name.trim_start_matches('_');
-                        report.imports.push(Import {
-                            symbol: name.to_string(),
-                            library: imp.lib_name.clone(),
-                            source: "radare2".to_string(),
-                        });
+                        report.imports.push(Import::new(&imp.name, imp.lib_name.clone(), "radare2"));
+                        let name = crate::types::binary::normalize_symbol(&imp.name);
 
                         // Map import to capability
-                        if let Some(cap) = self.capability_mapper.lookup(name, "radare2") {
+                        if let Some(cap) = self.capability_mapper.lookup(&name, "radare2") {
                             if !report.findings.iter().any(|c| c.id == cap.id) {
                                 report.findings.push(cap);
                             }
@@ -540,31 +536,21 @@ impl MachOAnalyzer {
                 for (name, sym) in syms.iter().flatten() {
                     // N_EXT (external) and N_UNDF (undefined) means it's an import
                     if (sym.n_type & 0x01 != 0) && (sym.n_type & 0x0e == 0) {
-                        // Strip leading underscore
-                        let clean_name = name.trim_start_matches('_');
+                        let clean_name = crate::types::binary::normalize_symbol(name);
                         // Only add if not already added by radare2
                         if !report.imports.iter().any(|i| i.symbol == clean_name) {
-                            report.imports.push(Import {
-                                symbol: clean_name.to_string(),
-                                library: None,
-                                source: "goblin_symtab".to_string(),
-                            });
+                            report.imports.push(Import::new(name, None, "goblin_symtab"));
                         }
                     }
                 }
             }
         } else {
             for imp in &imports {
-                // Strip leading underscore for consistency with source code analysis
-                let name = imp.name.trim_start_matches('_');
-                report.imports.push(Import {
-                    symbol: name.to_string(),
-                    library: Some(imp.dylib.to_string()),
-                    source: "goblin".to_string(),
-                });
+                report.imports.push(Import::new(imp.name, Some(imp.dylib.to_string()), "goblin"));
+                let name = crate::types::binary::normalize_symbol(imp.name);
 
                 // Map import to capability
-                if let Some(cap) = self.capability_mapper.lookup(name, "goblin") {
+                if let Some(cap) = self.capability_mapper.lookup(&name, "goblin") {
                     // Check if we already have this capability
                     if !report.findings.iter().any(|c| c.id == cap.id) {
                         report.findings.push(cap);
@@ -578,12 +564,11 @@ impl MachOAnalyzer {
 
     fn analyze_exports(&self, macho: &MachO, report: &mut AnalysisReport) -> Result<()> {
         for exp in &macho.exports()? {
-            let name = exp.name.trim_start_matches('_');
-            report.exports.push(Export {
-                symbol: name.to_string(),
-                offset: Some(format!("0x{:x}", exp.offset)),
-                source: "goblin".to_string(),
-            });
+            report.exports.push(Export::new(
+                &exp.name,
+                Some(format!("0x{:x}", exp.offset)),
+                "goblin",
+            ));
         }
 
         Ok(())

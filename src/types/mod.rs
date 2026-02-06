@@ -110,22 +110,40 @@ use std::path::PathBuf;
 /// When configured, all analyzed files are written to disk for external tools
 /// (radare2, objdump, trait-basher) to access. Files are organized as:
 /// `<extract_dir>/<sha256>/<relative_path>` preserving original structure.
+///
+/// For archives, the archive's SHA256 is used (via `archive_sha256`) so all
+/// files from the same archive are grouped together in one directory.
 #[derive(Debug, Clone)]
 pub struct SampleExtractionConfig {
     /// Base directory for extracted files
     pub extract_dir: PathBuf,
+    /// Optional archive SHA256 to use instead of individual file SHA256.
+    /// When set, all extracted files use this hash for the directory,
+    /// grouping archive members together.
+    pub archive_sha256: Option<String>,
 }
 
 impl SampleExtractionConfig {
     /// Create a new extraction config
     pub fn new(extract_dir: PathBuf) -> Self {
-        Self { extract_dir }
+        Self {
+            extract_dir,
+            archive_sha256: None,
+        }
+    }
+
+    /// Create a copy with the archive SHA256 set
+    pub fn with_archive_sha256(&self, sha256: String) -> Self {
+        Self {
+            extract_dir: self.extract_dir.clone(),
+            archive_sha256: Some(sha256),
+        }
     }
 
     /// Extract file data, returning the path if successful.
     ///
     /// Files are written to `<extract_dir>/<sha256>/<relative_path>` where:
-    /// - `sha256` is the hash of the file content (for deduplication)
+    /// - `sha256` is from `archive_sha256` if set, otherwise from the file content
     /// - `relative_path` preserves original structure (e.g., "inner/lib/file.py")
     ///
     /// For archive members like "archive.zip!!inner/lib/file.py", pass
@@ -135,7 +153,10 @@ impl SampleExtractionConfig {
     ///
     /// Skips writing if file already exists with correct size (optimization for
     /// repeated scans with the same extract directory).
-    pub fn extract(&self, sha256: &str, relative_path: &str, data: &[u8]) -> Option<PathBuf> {
+    pub fn extract(&self, file_sha256: &str, relative_path: &str, data: &[u8]) -> Option<PathBuf> {
+        // Use archive SHA256 if set, otherwise use the individual file's SHA256
+        let sha256 = self.archive_sha256.as_deref().unwrap_or(file_sha256);
+
         // Build path: <extract_dir>/<sha256>/<relative_path>
         let sha_dir = self.extract_dir.join(sha256);
         let full_path = sha_dir.join(relative_path);

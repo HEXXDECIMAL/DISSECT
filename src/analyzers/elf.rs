@@ -288,11 +288,7 @@ impl ElfAnalyzer {
         for dynsym in &elf.dynsyms {
             if let Some(name) = elf.dynstrtab.get_at(dynsym.st_name) {
                 // Add to imports
-                report.imports.push(Import {
-                    symbol: name.to_string(),
-                    library: None, // ELF doesn't always specify library directly
-                    source: "goblin".to_string(),
-                });
+                report.imports.push(Import::new(name, None, "goblin"));
 
                 // Check for IFUNC (LOOS type 10) - highly relevant for supply chain hijacks
                 if dynsym.st_type() == 10 {
@@ -330,15 +326,15 @@ impl ElfAnalyzer {
                 && (st_type == goblin::elf::sym::STT_FUNC || st_type == 10)
             {
                 if let Some(name) = elf.strtab.get_at(sym.st_name) {
-                    let clean_name = name.trim_start_matches('_');
-                    report.exports.push(Export {
-                        symbol: clean_name.to_string(),
-                        offset: Some(format!("{:#x}", sym.st_value)),
-                        source: "goblin".to_string(),
-                    });
+                    let clean_name = crate::types::binary::normalize_symbol(name);
+                    report.exports.push(Export::new(
+                        name,
+                        Some(format!("{:#x}", sym.st_value)),
+                        "goblin",
+                    ));
 
                     // Also flag IFUNC in regular symbols
-                    if st_type == 10 && !report.findings.iter().any(|f| f.desc.contains(clean_name))
+                    if st_type == 10 && !report.findings.iter().any(|f| f.desc.contains(&clean_name))
                     {
                         report.findings.push(Finding {
                             kind: FindingKind::Capability,

@@ -34,6 +34,9 @@ pub struct ArchiveAnalyzer {
     zip_passwords: Vec<String>,
     /// Optional sample extraction configuration
     sample_extraction: Option<SampleExtractionConfig>,
+    /// SHA256 of the archive being analyzed (used for extraction directory)
+    /// This groups all files from the same archive in one directory.
+    archive_sha256: Option<String>,
 }
 
 impl ArchiveAnalyzer {
@@ -46,6 +49,7 @@ impl ArchiveAnalyzer {
             yara_engine: None,
             zip_passwords: Vec::new(),
             sample_extraction: None,
+            archive_sha256: None,
         }
     }
 
@@ -86,6 +90,32 @@ impl ArchiveAnalyzer {
     pub fn with_sample_extraction(mut self, config: SampleExtractionConfig) -> Self {
         self.sample_extraction = Some(config);
         self
+    }
+
+    /// Set the archive SHA256 (used for extraction directory grouping)
+    pub fn with_archive_sha256(mut self, sha256: String) -> Self {
+        self.archive_sha256 = Some(sha256);
+        self
+    }
+
+    /// Get the archive SHA256 if set
+    pub fn archive_sha256(&self) -> Option<&str> {
+        self.archive_sha256.as_deref()
+    }
+
+    /// Create a copy of this analyzer with the sample_extraction config updated
+    /// to use the given archive SHA256 for extraction directory grouping.
+    pub fn with_extraction_archive_sha256(&self, archive_sha256: String) -> Self {
+        Self {
+            max_depth: self.max_depth,
+            current_depth: self.current_depth,
+            archive_path_prefix: self.archive_path_prefix.clone(),
+            capability_mapper: self.capability_mapper.clone(),
+            yara_engine: self.yara_engine.clone(),
+            zip_passwords: self.zip_passwords.clone(),
+            sample_extraction: self.sample_extraction.as_ref().map(|c| c.with_archive_sha256(archive_sha256.clone())),
+            archive_sha256: Some(archive_sha256),
+        }
     }
 
     /// Format a relative path with nesting prefix (for ArchiveEntry.path)

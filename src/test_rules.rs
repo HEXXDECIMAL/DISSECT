@@ -198,14 +198,30 @@ impl<'a> RuleDebugger<'a> {
         let eval_debug = debug.into_inner().unwrap();
 
         // Convert to RuleDebugResult
-        self.convert_eval_debug_to_result(
+        let mut result = self.convert_eval_debug_to_result(
             eval_debug,
             &trait_def.id,
             "trait",
             &trait_def.desc,
             finding.is_some(),
             &trait_def.r#if,
-        )
+        );
+
+        // Add warning about trait-level `not` exclusions
+        if let Some(not_exceptions) = &trait_def.not {
+            if !not_exceptions.is_empty() && !result.condition_results.is_empty() {
+                let not_warning = ConditionDebugResult::new(
+                    format!(
+                        "⚠️  {} trait-level not: exclusion(s) may filter matches in production",
+                        not_exceptions.len()
+                    ),
+                    true, // just informational
+                );
+                result.condition_results.push(not_warning);
+            }
+        }
+
+        result
     }
 
     /// Debug a composite by running real evaluation with debug collector
@@ -687,6 +703,7 @@ impl<'a> RuleDebugger<'a> {
                 word,
                 case_insensitive,
                 min_count,
+                exclude_patterns,
                 ..
             } => self.debug_string_condition(
                 exact,
@@ -695,6 +712,7 @@ impl<'a> RuleDebugger<'a> {
                 word,
                 *case_insensitive,
                 *min_count,
+                exclude_patterns.as_ref(),
             ),
             Condition::Symbol { exact, substr, regex, .. } => self.debug_symbol_condition(exact, substr, regex),
             Condition::Metrics {
@@ -909,6 +927,7 @@ impl<'a> RuleDebugger<'a> {
         word: &Option<String>,
         case_insensitive: bool,
         min_count: usize,
+        exclude_patterns: Option<&Vec<String>>,
     ) -> ConditionDebugResult {
         let pattern_desc = if let Some(e) = exact {
             format!("exact: \"{}\"", e)
@@ -977,6 +996,42 @@ impl<'a> RuleDebugger<'a> {
                     location: None,
                 })
                 .collect();
+
+            // Warn about exclude patterns that may filter matches in production
+            if let Some(excludes) = exclude_patterns {
+                if !excludes.is_empty() {
+                    result.details.push(format!(
+                        "⚠️  {} exclude pattern(s) may filter matches in production:",
+                        excludes.len()
+                    ));
+                    for pattern in excludes.iter().take(5) {
+                        result.details.push(format!("     exclude: /{}/", pattern));
+                    }
+                    if excludes.len() > 5 {
+                        result.details.push(format!("     ... and {} more", excludes.len() - 5));
+                    }
+                    // Check which matches would be excluded
+                    let compiled_excludes: Vec<_> = excludes
+                        .iter()
+                        .filter_map(|p| regex::Regex::new(p).ok())
+                        .collect();
+                    let excluded: Vec<_> = matched_strings
+                        .iter()
+                        .filter(|s| compiled_excludes.iter().any(|re| re.is_match(s)))
+                        .take(5)
+                        .collect();
+                    if !excluded.is_empty() {
+                        result.details.push(format!(
+                            "     Would exclude {} of {} matches:",
+                            excluded.len(),
+                            matched_strings.len()
+                        ));
+                        for s in &excluded {
+                            result.details.push(format!("       - \"{}\"", truncate_string(s, 60)));
+                        }
+                    }
+                }
+            }
 
             // Suggest better match types
             if let Some(s) = substr {
@@ -1779,22 +1834,20 @@ pub fn find_matching_symbols<'a>(
     substr: &Option<String>,
     regex: &Option<String>,
 ) -> Vec<&'a str> {
+    // Note: symbols are normalized (leading underscores stripped) at load time,
+    // so we don't need to strip them here during matching
     symbols
         .iter()
         .filter(|s| {
-            // For exact: production does NOT strip underscores (symbol == exact_val)
             if let Some(e) = exact {
                 return *s == e;
             }
-            // For substr: production does NOT strip underscores
             if let Some(c) = substr {
                 return s.contains(c.as_str());
             }
-            // For regex: production DOES strip underscores via symbol_matches()
             if let Some(r) = regex {
-                let clean = s.trim_start_matches('_').trim_start_matches("__");
                 if let Ok(re) = regex::Regex::new(r) {
-                    return re.is_match(s) || re.is_match(clean);
+                    return re.is_match(s);
                 }
             }
             false

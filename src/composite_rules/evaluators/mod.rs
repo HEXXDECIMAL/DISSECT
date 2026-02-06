@@ -102,19 +102,17 @@ pub(crate) fn get_or_create_scanner<'a>(rules: &'a yara_x::Rules) -> &'a mut yar
 
 /// Check if a symbol matches a pattern (supports exact match or regex).
 /// Uses cached regex compilation for patterns with metacharacters.
+/// Note: Symbols are normalized (leading underscores stripped) at load time.
 pub fn symbol_matches(symbol: &str, pattern: &str) -> bool {
-    // Clean symbol (remove leading underscores)
-    let clean = symbol.trim_start_matches('_').trim_start_matches("__");
-
     // Try exact match first
-    if clean == pattern || symbol == pattern {
+    if symbol == pattern {
         return true;
     }
 
     // Try as regex if pattern contains regex metacharacters
     if pattern.contains('|') || pattern.contains('*') || pattern.contains('[') {
         if let Ok(re) = build_regex(pattern, false) {
-            return re.is_match(clean) || re.is_match(symbol);
+            return re.is_match(symbol);
         }
     }
 

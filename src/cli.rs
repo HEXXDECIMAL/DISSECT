@@ -323,7 +323,7 @@ pub enum Command {
         #[arg(required = true)]
         target: String,
 
-        /// Type of search to perform (string, symbol, content)
+        /// Type of search to perform (string, symbol, content, kv)
         #[arg(short, long, value_enum, default_value = "string")]
         r#type: SearchType,
 
@@ -331,9 +331,13 @@ pub enum Command {
         #[arg(short, long, value_enum, default_value = "contains")]
         method: MatchMethod,
 
-        /// Pattern to search for
-        #[arg(short, long, required = true)]
-        pattern: String,
+        /// Pattern to search for (for kv: the value to match, or omit for existence check)
+        #[arg(short, long)]
+        pattern: Option<String>,
+
+        /// Path expression for kv searches (e.g., "scripts.postinstall", "permissions[*]")
+        #[arg(long)]
+        kv_path: Option<String>,
 
         /// File type to use for analysis (auto-detected if not specified)
         #[arg(short, long, value_enum)]
@@ -357,6 +361,8 @@ pub enum SearchType {
     Symbol,
     /// Search in raw file content
     Content,
+    /// Search in structured data (JSON/YAML/TOML manifests)
+    Kv,
 }
 
 #[derive(Debug, Clone, clap::ValueEnum, PartialEq)]
