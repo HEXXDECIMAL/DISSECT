@@ -91,6 +91,7 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
+	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	mux.HandleFunc("/", handleIndex)
 	mux.HandleFunc("/upload", handleUpload)
 	mux.HandleFunc("/health", handleHealth)

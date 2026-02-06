@@ -52,6 +52,13 @@
             padding-bottom: 20px;
             border-bottom: 1px solid black;
         }
+        .logo {
+            margin-bottom: 20px;
+        }
+        .logo img {
+            max-width: 150px;
+            height: auto;
+        }
         .legend {
             margin: 10px 0;
             font-size: 12px;
@@ -67,8 +74,11 @@
         <a href="/">← Upload Another</a>
     </div>
 
-    <h1>{{.Filename}}</h1>
+    <div class="logo">
+        <a href="/"><img src="/static/logo-small.jpg" alt="DISSECT Logo"></a>
+    </div>
 
+    <h1>{{.Filename}}</h1>
     <div class="meta">
         <p><strong>SHA256:</strong> {{.SHA256}}</p>
         <div class="legend">
