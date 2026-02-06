@@ -66,6 +66,8 @@ Descriptions: concrete, 4-6 words, describe the observation (not the judgment).
 
 **content** - Raw file bytes. Match with: `substr:`, `exact:`, `regex:`. (Less precise than string.)
 
+**kv** - Structured key-value data in JSON, YAML, and TOML manifests. Path syntax: `key`, `a.b.c` (nested), `[0]` (index), `[*]` (wildcard). Match with: `exact:`, `substr:`, `regex:`. Optional: `case_insensitive:`. Path-only = existence check. Useful for: `package.json` (npm), `manifest.json` (Chrome extensions), `Cargo.toml` (Rust), `pyproject.toml` (Python), GitHub Actions workflows, Docker Compose files.
+
 **yara** - Yara rules. Use sparingly; prefer traits + composites.
 
 **basename** - Filename match. Match with: `exact:`, `substr:`, `regex:`. Optional: `case_insensitive:`.
@@ -124,6 +126,66 @@ Composites can reference other composites. Circular dependencies are handled.
 
 - **ATT&CK**: `T1234` (technique) or `T1234.001` (sub-technique)
 - **MBC**: `B0001` (behavior), `C0015` (micro-behavior), `E1234` (ATT&CK+MBC)
+
+## KV Condition Examples (Manifest Analysis)
+
+The `kv` condition type queries structured data in package manifests. Format is auto-detected from file extension or content.
+
+**Supported formats:** JSON (`package.json`, `manifest.json`, `composer.json`), YAML (GitHub Actions, Docker Compose), TOML (`Cargo.toml`, `pyproject.toml`)
+
+```yaml
+# Chrome extension: dangerous permission
+- id: permission-debugger
+  for: [chrome-manifest]
+  if:
+    type: kv
+    path: "permissions"
+    exact: "debugger"
+
+# Chrome extension: content script targets all URLs
+- id: content-script-all-urls
+  for: [chrome-manifest]
+  if:
+    type: kv
+    path: "content_scripts[*].matches"    # [*] = any array element
+    exact: "<all_urls>"
+
+# npm: postinstall script with network access
+- id: postinstall-curl
+  for: [packagejson]
+  if:
+    type: kv
+    path: "scripts.postinstall"
+    regex: "curl|wget"
+
+# npm: has postinstall hook (existence check - no matcher)
+- id: has-postinstall
+  for: [packagejson]
+  if:
+    type: kv
+    path: "scripts.postinstall"
+
+# Cargo.toml: has openssl dependency
+- id: cargo-openssl
+  for: [cargo-toml]
+  if:
+    type: kv
+    path: "dependencies.openssl"
+
+# GitHub Actions: step runs curl
+- id: actions-curl
+  for: [github-actions]
+  if:
+    type: kv
+    path: "jobs.*.steps[*].run"           # Nested wildcards
+    substr: "curl"
+```
+
+**Path syntax:**
+- `key` - top-level key
+- `a.b.c` - nested access
+- `[0]` - array index
+- `[*]` - all array elements (matches if any element matches)
 
 ## Debugging Commands
 

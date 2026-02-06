@@ -12,13 +12,16 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path/filepath"
 	"runtime"
 	"strings"
+	"syscall"
 	"time"
 
 	"cloud.google.com/go/storage"
 	"github.com/buildkite/terminal-to-html"
+	"github.com/codeGROOVE-dev/retry"
 )
 
 var (
@@ -26,11 +29,12 @@ var (
 	resultTemplate *template.Template
 	gcsBucket      string
 	dissectPath    string
-	rulesPath      string
+	traitsPath      string
 	radare2Path    string
 	rizinPath      string
-	radareCmd      string // resolved backend: "radare2" or "rizin"
-	radareCmdPath  string // resolved full path to backend
+	radareCmd      string         // resolved backend: "radare2" or "rizin"
+	radareCmdPath  string         // resolved full path to backend
+	gcsClient      *storage.Client // reusable GCS client
 	logger         *slog.Logger
 )
 
@@ -86,30 +90,67 @@ func main() {
 		port = "8080"
 	}
 
-	http.HandleFunc("/", handleIndex)
-	http.HandleFunc("/upload", handleUpload)
-	http.HandleFunc("/health", handleHealth)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", handleIndex)
+	mux.HandleFunc("/upload", handleUpload)
+	mux.HandleFunc("/health", handleHealth)
+
+	server := &http.Server{
+		Addr:         ":" + port,
+		Handler:      mux,
+		ReadTimeout:  30 * time.Second,
+		WriteTimeout: 150 * time.Second, // 120s analysis + buffer
+		IdleTimeout:  60 * time.Second,
+	}
+
+	// Graceful shutdown
+	done := make(chan struct{})
+	go func() {
+		sigCh := make(chan os.Signal, 1)
+		signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
+		sig := <-sigCh
+		logger.Info("shutdown signal received", "signal", sig.String())
+
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+
+		if err := server.Shutdown(ctx); err != nil {
+			logger.Error("graceful shutdown failed", "error", err)
+		}
+
+		// Close GCS client if initialized
+		if gcsClient != nil {
+			if err := gcsClient.Close(); err != nil {
+				logger.Error("failed to close GCS client", "error", err)
+			}
+		}
+
+		close(done)
+	}()
 
 	logger.Info("server starting",
 		"port", port,
 		"dissect_path", dissectPath,
-		"rules_path", rulesPath,
+		"traits_path", traitsPath,
 		"radare_backend", radareCmd,
 		"radare_path", radareCmdPath,
 		"gcs_bucket", gcsBucket,
 	)
 
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
+	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		logger.Error("server error", "error", err)
 		os.Exit(1)
 	}
+
+	<-done
+	logger.Info("server stopped")
 }
 
 // loadConfig loads configuration from environment variables.
 func loadConfig() error {
 	gcsBucket = os.Getenv("GCS_BUCKET")
 	dissectPath = os.Getenv("DISSECT_PATH")
-	rulesPath = os.Getenv("DISSECT_RULES_PATH")
+	traitsPath = os.Getenv("DISSECT_TRAITS_PATH")
 	radare2Path = os.Getenv("RADARE2_PATH")
 	rizinPath = os.Getenv("RIZIN_PATH")
 
@@ -125,7 +166,7 @@ func loadConfig() error {
 
 	logger.Debug("configuration loaded",
 		"DISSECT_PATH", dissectPath,
-		"DISSECT_RULES_PATH", rulesPath,
+		"DISSECT_TRAITS_PATH", traitsPath,
 		"RADARE2_PATH", radare2Path,
 		"RIZIN_PATH", rizinPath,
 		"GCS_BUCKET", gcsBucket,
@@ -142,7 +183,7 @@ func validateTools() error {
 	// Validate dissect binary
 	dissectInfo, err := validateTool("dissect", dissectPath, "--version")
 	if err != nil {
-		errs = append(errs, fmt.Errorf("dissect: %w", err))
+		errs = append(errs, fmt.Errorf("dissect: %w (set DISSECT_PATH to specify location)", err))
 	} else {
 		logger.Info("dissect binary validated",
 			"path", dissectInfo.path,
@@ -153,7 +194,7 @@ func validateTools() error {
 	// Validate radare2 or rizin (dissect requires one of these)
 	radareInfo, err := validateRadare()
 	if err != nil {
-		errs = append(errs, fmt.Errorf("radare2/rizin: %w", err))
+		errs = append(errs, fmt.Errorf("radare2/rizin: %w (set RADARE2_PATH or RIZIN_PATH to specify location)", err))
 	} else {
 		radareCmd = radareInfo.name
 		radareCmdPath = radareInfo.path
@@ -164,33 +205,52 @@ func validateTools() error {
 		)
 	}
 
-	// Validate rules path if specified
-	if rulesPath != "" {
-		if info, err := os.Stat(rulesPath); err != nil {
-			errs = append(errs, fmt.Errorf("rules path %q: %w", rulesPath, err))
+	// Validate traits path if specified
+	if traitsPath != "" {
+		if info, err := os.Stat(traitsPath); err != nil {
+			errs = append(errs, fmt.Errorf("traits path %q: %w", traitsPath, err))
 		} else if !info.IsDir() {
-			errs = append(errs, fmt.Errorf("rules path %q is not a directory", rulesPath))
+			errs = append(errs, fmt.Errorf("traits path %q is not a directory", traitsPath))
 		} else {
-			// Count trait files
-			traitCount, traitErr := countTraitFiles(rulesPath)
+			traitCount, traitErr := countTraitFiles(traitsPath)
 			if traitErr != nil {
-				errs = append(errs, fmt.Errorf("rules path %q: failed to scan: %w", rulesPath, traitErr))
+				errs = append(errs, fmt.Errorf("traits path %q: failed to scan: %w", traitsPath, traitErr))
 			} else if traitCount == 0 {
-				errs = append(errs, fmt.Errorf("rules path %q contains no .yaml trait files", rulesPath))
+				errs = append(errs, fmt.Errorf("traits path %q contains no .yaml trait files", traitsPath))
 			} else {
-				logger.Info("rules path validated",
-					"path", rulesPath,
+				logger.Info("traits path validated",
+					"path", traitsPath,
 					"trait_files", traitCount,
 				)
 			}
 		}
 	} else {
-		logger.Debug("no custom rules path specified, using dissect defaults")
+		// Check default traits directory that dissect expects
+		defaultTraitsPath := "traits"
+		if info, err := os.Stat(defaultTraitsPath); err != nil {
+			errs = append(errs, fmt.Errorf("default traits directory %q not found (set DISSECT_TRAITS_PATH to specify location): %w", defaultTraitsPath, err))
+		} else if !info.IsDir() {
+			errs = append(errs, fmt.Errorf("default traits path %q is not a directory (set DISSECT_TRAITS_PATH to specify location)", defaultTraitsPath))
+		} else {
+			traitCount, traitErr := countTraitFiles(defaultTraitsPath)
+			if traitErr != nil {
+				errs = append(errs, fmt.Errorf("default traits directory %q: failed to scan (set DISSECT_TRAITS_PATH to specify location): %w", defaultTraitsPath, traitErr))
+			} else if traitCount == 0 {
+				errs = append(errs, fmt.Errorf("default traits directory %q contains no .yaml trait files (set DISSECT_TRAITS_PATH to specify location)", defaultTraitsPath))
+			} else {
+				logger.Info("default traits directory validated",
+					"path", defaultTraitsPath,
+					"trait_files", traitCount,
+				)
+			}
+		}
 	}
 
 	// Validate GCS bucket if configured
 	if gcsBucket != "" {
-		if err := validateGCSBucket(gcsBucket); err != nil {
+		if err := initGCSClient(); err != nil {
+			errs = append(errs, fmt.Errorf("GCS client: %w", err))
+		} else if err := validateGCSBucket(gcsBucket); err != nil {
 			errs = append(errs, fmt.Errorf("GCS bucket %q: %w", gcsBucket, err))
 		} else {
 			logger.Info("GCS bucket validated",
@@ -259,7 +319,7 @@ func validateTool(name, path, versionFlag string) (*toolInfo, error) {
 // countTraitFiles counts .yaml files recursively in a directory.
 func countTraitFiles(dir string) (int, error) {
 	count := 0
-	err := filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
+	err := filepath.WalkDir(dir, func(_ string, d os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -271,6 +331,22 @@ func countTraitFiles(dir string) (int, error) {
 	return count, err
 }
 
+// initGCSClient initializes the reusable GCS client.
+func initGCSClient() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	logger.Debug("initializing GCS client")
+
+	var err error
+	gcsClient, err = storage.NewClient(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to create storage client: %w", err)
+	}
+
+	return nil
+}
+
 // validateGCSBucket checks that the GCS bucket exists and is accessible.
 func validateGCSBucket(bucket string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -280,14 +356,12 @@ func validateGCSBucket(bucket string) error {
 		"bucket", bucket,
 	)
 
-	client, err := storage.NewClient(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to create storage client: %w", err)
+	if gcsClient == nil {
+		return fmt.Errorf("GCS client not initialized")
 	}
-	defer client.Close()
 
 	// Check bucket exists and we have access
-	_, err = client.Bucket(bucket).Attrs(ctx)
+	_, err := gcsClient.Bucket(bucket).Attrs(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to access bucket: %w", err)
 	}
@@ -321,7 +395,7 @@ func validateRadare() (*toolInfo, error) {
 		)
 	}
 
-	return nil, fmt.Errorf("neither radare2 nor rizin found (radare2: %v; rizin: %v)", radare2Err, rizinErr)
+	return nil, fmt.Errorf("neither radare2 nor rizin found (radare2: %v; rizin: %v); set RADARE2_PATH or RIZIN_PATH", radare2Err, rizinErr)
 }
 
 // loadTemplates parses the HTML templates.
@@ -371,7 +445,9 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 
 func handleHealth(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("OK\n"))
+	if _, err := w.Write([]byte("OK\n")); err != nil {
+		logger.Debug("health check write failed", "error", err)
+	}
 }
 
 func handleUpload(w http.ResponseWriter, r *http.Request) {
@@ -459,15 +535,15 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 
 	htmlOutput := terminal.Render([]byte(output))
 
-	// Upload to GCS if configured
-	if gcsBucket != "" {
+	// Upload to GCS if configured (non-blocking, best-effort with retries)
+	if gcsBucket != "" && gcsClient != nil {
 		gcsStart := time.Now()
 		data, err := os.ReadFile(tempPath)
 		if err != nil {
 			reqLogger.Error("failed to read temp file for GCS upload", "error", err)
 		} else {
 			if err := uploadToGCS(ctx, gcsBucket, sha256Hex, filename, data, reqLogger); err != nil {
-				reqLogger.Error("GCS upload failed",
+				reqLogger.Error("GCS upload failed after retries",
 					"error", err,
 					"duration_ms", time.Since(gcsStart).Milliseconds(),
 				)
@@ -493,6 +569,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 			"template", "result",
 			"error", err,
 		)
+		// Template already started writing, can't send proper error response
 	}
 
 	reqLogger.Info("request completed",
@@ -501,12 +578,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 }
 
 func runDissect(ctx context.Context, filePath string, reqLogger *slog.Logger) (string, error) {
-	args := []string{"analyze", filePath, "--format", "terminal"}
-
-	// Add rules path if configured
-	if rulesPath != "" {
-		args = append(args, "--rules", rulesPath)
-	}
+	args := []string{"analyze", filePath}
 
 	// Log the file being analyzed
 	fileInfo, statErr := os.Stat(filePath)
@@ -539,7 +611,7 @@ func runDissect(ctx context.Context, filePath string, reqLogger *slog.Logger) (s
 		"resolved_path", resolvedDissectPath,
 		"args", args,
 		"file", filePath,
-		"rules_path", rulesPath,
+		"traits_path", traitsPath,
 		"radare_backend", radareCmd,
 		"radare_path", radareCmdPath,
 	)
@@ -553,6 +625,12 @@ func runDissect(ctx context.Context, filePath string, reqLogger *slog.Logger) (s
 	)
 
 	cmd := exec.CommandContext(ctx, resolvedDissectPath, args...)
+
+	// Pass DISSECT_TRAITS_PATH to dissect if configured
+	if traitsPath != "" {
+		cmd.Env = append(os.Environ(), "DISSECT_TRAITS_PATH="+traitsPath)
+	}
+
 	startTime := time.Now()
 	output, err := cmd.CombinedOutput()
 	duration := time.Since(startTime)
@@ -566,7 +644,7 @@ func runDissect(ctx context.Context, filePath string, reqLogger *slog.Logger) (s
 			"resolved_path", resolvedDissectPath,
 			"args", args,
 			"input_file", filePath,
-			"rules_path", rulesPath,
+			"traits_path", traitsPath,
 			"radare_backend", radareCmd,
 			"radare_path", radareCmdPath,
 			"output_length", len(output),
@@ -619,29 +697,52 @@ func truncateString(s string, maxLen int) string {
 	return s[:maxLen] + "..."
 }
 
+// uploadToGCS uploads data to GCS with exponential backoff retry.
 func uploadToGCS(ctx context.Context, bucket, sha256Hex, filename string, data []byte, reqLogger *slog.Logger) error {
-	reqLogger.Debug("creating GCS client")
-
-	client, err := storage.NewClient(ctx)
-	if err != nil {
-		return fmt.Errorf("storage client: %w", err)
+	if gcsClient == nil {
+		return fmt.Errorf("GCS client not initialized")
 	}
-	defer client.Close()
 
 	objectPath := fmt.Sprintf("%s/%s", sha256Hex, filename)
-	reqLogger.Debug("uploading to GCS",
-		"bucket", bucket,
-		"object", objectPath,
-		"size", len(data),
+
+	var attempt int
+	err := retry.Do(
+		func() error {
+			attempt++
+			reqLogger.Debug("uploading to GCS",
+				"bucket", bucket,
+				"object", objectPath,
+				"size", len(data),
+				"attempt", attempt,
+			)
+
+			wc := gcsClient.Bucket(bucket).Object(objectPath).NewWriter(ctx)
+			wc.ContentType = "application/octet-stream"
+
+			if _, err := wc.Write(data); err != nil {
+				wc.Close()
+				return fmt.Errorf("write: %w", err)
+			}
+
+			if err := wc.Close(); err != nil {
+				return fmt.Errorf("close: %w", err)
+			}
+
+			return nil
+		},
+		retry.Context(ctx),
+		retry.Attempts(5),
+		retry.MaxDelay(2*time.Minute),
+		retry.DelayType(retry.CombineDelay(retry.BackOffDelay, retry.RandomDelay)),
+		retry.OnRetry(func(n uint, err error) {
+			reqLogger.Warn("GCS upload retry",
+				"attempt", n+1,
+				"error", err,
+				"bucket", bucket,
+				"object", objectPath,
+			)
+		}),
 	)
 
-	wc := client.Bucket(bucket).Object(objectPath).NewWriter(ctx)
-	wc.ContentType = "application/octet-stream"
-
-	if _, err := wc.Write(data); err != nil {
-		wc.Close()
-		return fmt.Errorf("write: %w", err)
-	}
-
-	return wc.Close()
+	return err
 }

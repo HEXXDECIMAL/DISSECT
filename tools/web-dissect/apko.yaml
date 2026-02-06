@@ -17,9 +17,12 @@ accounts:
       uid: 65532
       gid: 65532
 
+work-dir: /app
+
 entrypoint:
   command: /usr/local/bin/web-dissect
 
 environment:
   PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
   PORT: "8080"
+  SSL_CERT_FILE: /etc/ssl/certs/ca-certificates.crt

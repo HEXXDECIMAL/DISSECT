@@ -1,6 +1,6 @@
 {
   "SPDXID": "SPDXRef-DOCUMENT",
-  "name": "sbom-sha256:c91b254e316949f077f600dd19f891501e6aabd7893aa61021e27adaca9d702c",
+  "name": "sbom-sha256:36ffd1d24038bccbc64d5857adfae81742c3c48d46754a2869ade6a1e115207f",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
     "created": "2025-11-23T14:50:10Z",
@@ -13,13 +13,13 @@
   "dataLicense": "CC0-1.0",
   "documentNamespace": "https://spdx.org/spdxdocs/apko/",
   "documentDescribes": [
-    "SPDXRef-Package-sha256-5f7e874996af788ec0fd4143c13f90f0aaf2d6fbce019833f3b02821a269c0f7"
+    "SPDXRef-Package-sha256-71fed3b018a33c4b6280e5c9634068bc27c090a70e3dcd20d51baedcbdb2da0c"
   ],
   "packages": [
     {
-      "SPDXID": "SPDXRef-Package-sha256-5f7e874996af788ec0fd4143c13f90f0aaf2d6fbce019833f3b02821a269c0f7",
-      "name": "sha256:5f7e874996af788ec0fd4143c13f90f0aaf2d6fbce019833f3b02821a269c0f7",
-      "versionInfo": "sha256:5f7e874996af788ec0fd4143c13f90f0aaf2d6fbce019833f3b02821a269c0f7",
+      "SPDXID": "SPDXRef-Package-sha256-71fed3b018a33c4b6280e5c9634068bc27c090a70e3dcd20d51baedcbdb2da0c",
+      "name": "sha256:71fed3b018a33c4b6280e5c9634068bc27c090a70e3dcd20d51baedcbdb2da0c",
+      "versionInfo": "sha256:71fed3b018a33c4b6280e5c9634068bc27c090a70e3dcd20d51baedcbdb2da0c",
       "filesAnalyzed": false,
       "description": "apko container image",
       "downloadLocation": "NOASSERTION",
@@ -28,20 +28,20 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5f7e874996af788ec0fd4143c13f90f0aaf2d6fbce019833f3b02821a269c0f7"
+          "checksumValue": "71fed3b018a33c4b6280e5c9634068bc27c090a70e3dcd20d51baedcbdb2da0c"
         }
       ],
       "externalRefs": [
         {
           "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:oci/dissect-web@sha256%3A5f7e874996af788ec0fd4143c13f90f0aaf2d6fbce019833f3b02821a269c0f7?arch=amd64\u0026mediaType=application%2Fvnd.oci.image.manifest.v1%2Bjson\u0026os=linux",
+          "referenceLocator": "pkg:oci/dissect-web@sha256%3A71fed3b018a33c4b6280e5c9634068bc27c090a70e3dcd20d51baedcbdb2da0c?arch=amd64\u0026mediaType=application%2Fvnd.oci.image.manifest.v1%2Bjson\u0026os=linux",
           "referenceType": "purl"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-sha256-c91b254e316949f077f600dd19f891501e6aabd7893aa61021e27adaca9d702c",
-      "name": "sha256:c91b254e316949f077f600dd19f891501e6aabd7893aa61021e27adaca9d702c",
+      "SPDXID": "SPDXRef-Package-sha256-36ffd1d24038bccbc64d5857adfae81742c3c48d46754a2869ade6a1e115207f",
+      "name": "sha256:36ffd1d24038bccbc64d5857adfae81742c3c48d46754a2869ade6a1e115207f",
       "versionInfo": "unknown",
       "filesAnalyzed": false,
       "description": "apko operating system layer",
@@ -50,7 +50,7 @@
       "externalRefs": [
         {
           "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:oci/dissect-web@sha256%3Ac91b254e316949f077f600dd19f891501e6aabd7893aa61021e27adaca9d702c?arch=amd64\u0026mediaType=application%2Fvnd.oci.image.layer.v1.tar%2Bgzip\u0026os=linux",
+          "referenceLocator": "pkg:oci/dissect-web@sha256%3A36ffd1d24038bccbc64d5857adfae81742c3c48d46754a2869ade6a1e115207f?arch=amd64\u0026mediaType=application%2Fvnd.oci.image.layer.v1.tar%2Bgzip\u0026os=linux",
           "referenceType": "purl"
         }
       ]
@@ -68,9 +68,9 @@
   ],
   "relationships": [
     {
-      "spdxElementId": "SPDXRef-Package-sha256-5f7e874996af788ec0fd4143c13f90f0aaf2d6fbce019833f3b02821a269c0f7",
+      "spdxElementId": "SPDXRef-Package-sha256-71fed3b018a33c4b6280e5c9634068bc27c090a70e3dcd20d51baedcbdb2da0c",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-Package-sha256-c91b254e316949f077f600dd19f891501e6aabd7893aa61021e27adaca9d702c"
+      "relatedSpdxElement": "SPDXRef-Package-sha256-36ffd1d24038bccbc64d5857adfae81742c3c48d46754a2869ade6a1e115207f"
     }
   ]
 }

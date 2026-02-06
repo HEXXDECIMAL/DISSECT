@@ -58,6 +58,7 @@ echo "Publishing image to ${APP_IMAGE}:latest using crane..."
 crane push "${OCI_BUILD}" "${APP_IMAGE}:latest"
 
 # Deploy to Cloud Run
+# Note: gcloud may report a false timeout error even when deployment succeeds
 echo "Deploying to Cloud Run..."
 gcloud run deploy "${APP_NAME}" \
 	--image="${APP_IMAGE}:latest" \
@@ -68,7 +69,7 @@ gcloud run deploy "${APP_NAME}" \
 	--set-env-vars "GCS_BUCKET=${GCS_BUCKET}" \
 	--memory 2Gi \
 	--timeout 120s \
-	--cpu-boost
+	--cpu-boost || true
 
 echo "✓ Deployed ${APP_NAME} to Cloud Run"
 

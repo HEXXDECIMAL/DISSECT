@@ -4,7 +4,7 @@ set -exuo pipefail
 # Build script for web-dissect using apko + manual layer addition
 # 1. apko builds base image with Alpine packages (radare2, etc.)
 # 2. Manually add binaries layer to OCI layout
-# Builds for x86_64/amd64 (Cloud Run requires x86_64)
+# Builds for x86_64 (required for Cloud Run - ARM64 not supported)
 
 export COPYFILE_DISABLE=1
 
@@ -22,32 +22,27 @@ GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o "${OUTPUT_DIR}/web-dissect" -l
 echo "Built: ${OUTPUT_DIR}/web-dissect"
 
 echo ""
-echo "=== Locating dissect binary (Linux x86_64) ==="
+echo "=== Building dissect binary (Linux x86_64) ==="
 DISSECT_BIN="${REPO_ROOT}/target/x86_64-unknown-linux-musl/release/dissect"
-if [ ! -f "${DISSECT_BIN}" ]; then
-  echo "Linux dissect binary not found at: ${DISSECT_BIN}"
-  echo ""
-  echo "Building dissect for Linux x86_64 using Podman..."
 
-  if ! command -v podman >/dev/null 2>&1; then
-    echo "podman not found. Install with: brew install podman"
-    exit 1
-  fi
-
-  # Build with Podman using rust:alpine image (emulated x86_64)
-  # Note: This is slow on ARM Mac due to emulation
-  podman run --rm --platform linux/amd64 \
-    -v "${REPO_ROOT}:/build:z" \
-    -w /build \
-    docker.io/library/rust:alpine \
-    sh -c "apk add --no-cache musl-dev g++ && cargo build --release --target x86_64-unknown-linux-musl"
-
-  if [ ! -f "${DISSECT_BIN}" ]; then
-    echo "Failed to build dissect for Linux"
-    exit 1
-  fi
+if ! command -v podman >/dev/null 2>&1; then
+  echo "podman not found. Install with: brew install podman"
+  exit 1
 fi
-echo "Found dissect Linux binary: ${DISSECT_BIN}"
+
+# Always rebuild to ensure latest code is deployed
+# x86_64 build via emulation (slower but required for Cloud Run)
+podman run --rm --platform linux/amd64 \
+  -v "${REPO_ROOT}:/build:z" \
+  -w /build \
+  docker.io/library/rust:alpine \
+  sh -c "apk add --no-cache musl-dev g++ && cargo build --release --target x86_64-unknown-linux-musl"
+
+if [ ! -f "${DISSECT_BIN}" ]; then
+  echo "Failed to build dissect for Linux"
+  exit 1
+fi
+echo "Built dissect Linux binary: ${DISSECT_BIN}"
 
 echo ""
 echo "=== Building base image with apko ==="
@@ -75,8 +70,17 @@ chmod +x "${LAYER_DIR}/usr/local/bin/dissect"
 
 # Copy templates if they exist
 if [ -d "${BUILD_DIR}/templates" ]; then
-  mkdir -p "${LAYER_DIR}/templates"
-  cp -r "${BUILD_DIR}/templates/"* "${LAYER_DIR}/templates/" 2>/dev/null || true
+  mkdir -p "${LAYER_DIR}/app/templates"
+  cp -r "${BUILD_DIR}/templates/"* "${LAYER_DIR}/app/templates/" 2>/dev/null || true
+fi
+
+# Copy traits directory (required for dissect rules)
+if [ -d "${REPO_ROOT}/traits" ]; then
+  echo "Copying traits directory..."
+  mkdir -p "${LAYER_DIR}/app"
+  cp -r "${REPO_ROOT}/traits" "${LAYER_DIR}/app/traits"
+else
+  echo "WARNING: traits directory not found at ${REPO_ROOT}/traits"
 fi
 
 # Create gzipped tarball for the layer
