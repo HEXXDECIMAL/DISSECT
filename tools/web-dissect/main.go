@@ -581,35 +581,37 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	reqLogger = reqLogger.With("sha256", sha256Hex)
 	reqLogger.Info("file written to temp", "bytes", written)
 
-	// Run dissect analysis
-	analysisStart := time.Now()
-	output, err := runDissect(ctx, tempPath, reqLogger)
-	analysisDuration := time.Since(analysisStart)
+	// Run dissect analysis via fido.Fetch to avoid thundering herd issues
+	res, err := cache.Fetch(ctx, sha256Hex, func(lctx context.Context) (storedResult, error) {
+		analysisStart := time.Now()
+		output, err := runDissect(lctx, tempPath, reqLogger)
+		analysisDuration := time.Since(analysisStart)
 
-	if err != nil {
-		reqLogger.Error("dissect analysis failed",
-			"error", err,
-			"duration_ms", analysisDuration.Milliseconds(),
-			"output_length", len(output),
-		)
-		output = fmt.Sprintf("Analysis failed: %v\n", err)
-	} else {
-		reqLogger.Info("dissect analysis completed",
-			"duration_ms", analysisDuration.Milliseconds(),
-			"output_length", len(output),
-		)
-	}
+		if err != nil {
+			reqLogger.Error("dissect analysis failed",
+				"error", err,
+				"duration_ms", analysisDuration.Milliseconds(),
+				"output_length", len(output),
+			)
+			output = fmt.Sprintf("Analysis failed: %v\n", err)
+		} else {
+			reqLogger.Info("dissect analysis completed",
+				"duration_ms", analysisDuration.Milliseconds(),
+				"output_length", len(output),
+			)
+		}
 
-	htmlOutput := terminal.Render([]byte(output))
-
-	// Store in fido cache
-	err = cache.Set(ctx, sha256Hex, storedResult{
-		Filename: filename,
-		Output:   string(htmlOutput),
+		htmlOutput := terminal.Render([]byte(output))
+		return storedResult{
+			Filename: filename,
+			Output:   string(htmlOutput),
+		}, nil
 	})
+
 	if err != nil {
-		reqLogger.Error("failed to store result in cache", "error", err)
-		// Non-fatal, we'll still try GCS and redirecting
+		reqLogger.Error("analysis fetch failed", "error", err)
+		http.Error(w, "Analysis failed", http.StatusInternalServerError)
+		return
 	}
 
 	// Upload to GCS if configured (non-blocking, best-effort with retries)
@@ -636,6 +638,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 
 	reqLogger.Info("request completed, redirecting to result",
 		"total_duration_ms", time.Since(requestStart).Milliseconds(),
+		"cached_filename", res.Filename,
 	)
 
 	http.Redirect(w, r, "/file/"+sha256Hex, http.StatusSeeOther)
