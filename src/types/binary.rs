@@ -142,6 +142,17 @@ pub struct Section {
     pub permissions: Option<String>,
 }
 
+/// Normalize a symbol name by stripping leading underscores.
+/// This is done at load time for consistent matching.
+/// Examples: "_malloc" -> "malloc", "__libc_start_main" -> "libc_start_main"
+#[inline]
+pub fn normalize_symbol(symbol: &str) -> String {
+    symbol
+        .trim_start_matches('_')
+        .trim_start_matches('_')
+        .to_string()
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Import {
     pub symbol: String,
@@ -150,12 +161,34 @@ pub struct Import {
     pub source: String,
 }
 
+impl Import {
+    /// Create a new Import with normalized symbol name
+    pub fn new(symbol: impl Into<String>, library: Option<String>, source: impl Into<String>) -> Self {
+        Self {
+            symbol: normalize_symbol(&symbol.into()),
+            library,
+            source: source.into(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Export {
     pub symbol: String,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub offset: Option<String>,
     pub source: String,
+}
+
+impl Export {
+    /// Create a new Export with normalized symbol name
+    pub fn new(symbol: impl Into<String>, offset: Option<String>, source: impl Into<String>) -> Self {
+        Self {
+            symbol: normalize_symbol(&symbol.into()),
+            offset,
+            source: source.into(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

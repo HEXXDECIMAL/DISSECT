@@ -1761,7 +1761,7 @@ fn test_match_debug(
                 None
             };
 
-            let matched_symbols = find_matching_symbols(&symbols, &exact, &regex);
+            let matched_symbols = find_matching_symbols(&symbols, &exact, &None, &regex);
             let matched = !matched_symbols.is_empty();
 
             let mut out = String::new();
@@ -1861,7 +1861,7 @@ fn test_match_debug(
                 } else {
                     None
                 };
-                let symbol_matches = find_matching_symbols(&symbols, &exact, &regex);
+                let symbol_matches = find_matching_symbols(&symbols, &exact, &None, &regex);
                 if !symbol_matches.is_empty() {
                     output.push_str(&format!(
                         "  💡 Found in symbols ({} matches) - try `--type symbol`\n",
@@ -2003,7 +2003,7 @@ fn test_match_debug(
                     .chain(report.exports.iter().map(|e| e.symbol.as_str()))
                     .chain(report.functions.iter().map(|f| f.name.as_str()))
                     .collect();
-                let symbol_matches = find_matching_symbols(&symbols, &exact, &regex);
+                let symbol_matches = find_matching_symbols(&symbols, &exact, &None, &regex);
                 if !symbol_matches.is_empty() {
                     output.push_str(&format!(
                         "  💡 Found in symbols ({} matches) - try `--type symbol`\n",
@@ -2120,7 +2120,7 @@ fn test_match_debug(
                             } else {
                                 None
                             };
-                            let matches = find_matching_symbols(&symbols, &exact, &regex);
+                            let matches = find_matching_symbols(&symbols, &exact, &None, &regex);
                             !matches.is_empty()
                         }
                         cli::SearchType::Content => {

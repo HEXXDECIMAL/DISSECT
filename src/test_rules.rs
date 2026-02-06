@@ -696,7 +696,7 @@ impl<'a> RuleDebugger<'a> {
                 *case_insensitive,
                 *min_count,
             ),
-            Condition::Symbol { exact, regex, .. } => self.debug_symbol_condition(exact, regex),
+            Condition::Symbol { exact, substr, regex, .. } => self.debug_symbol_condition(exact, substr, regex),
             Condition::Metrics {
                 field, min, max, ..
             } => self.debug_metrics_condition(field, *min, *max),
@@ -1058,7 +1058,7 @@ impl<'a> RuleDebugger<'a> {
                     .chain(self.report.exports.iter().map(|e| e.symbol.as_str()))
                     .chain(self.report.functions.iter().map(|f| f.name.as_str()))
                     .collect();
-                let symbol_matches = find_matching_symbols(&symbols, exact, regex);
+                let symbol_matches = find_matching_symbols(&symbols, exact, &None, regex);
                 if !symbol_matches.is_empty() {
                     result.details.push(format!(
                         "💡 Found in symbols ({} matches) - try `symbol:` instead",
@@ -1103,10 +1103,13 @@ impl<'a> RuleDebugger<'a> {
     fn debug_symbol_condition(
         &self,
         exact: &Option<String>,
+        substr: &Option<String>,
         regex: &Option<String>,
     ) -> ConditionDebugResult {
         let pattern_desc = if let Some(e) = exact {
             format!("exact: \"{}\"", e)
+        } else if let Some(c) = substr {
+            format!("substr: \"{}\"", c)
         } else if let Some(r) = regex {
             format!("regex: /{}/", r)
         } else {
@@ -1124,7 +1127,7 @@ impl<'a> RuleDebugger<'a> {
             .chain(self.report.functions.iter().map(|f| f.name.as_str()))
             .collect();
 
-        let matched_symbols = find_matching_symbols(&symbols, exact, regex);
+        let matched_symbols = find_matching_symbols(&symbols, exact, substr, regex);
         let matched = !matched_symbols.is_empty();
 
         let mut result = ConditionDebugResult::new(desc, matched);
@@ -1403,7 +1406,7 @@ impl<'a> RuleDebugger<'a> {
                     .chain(self.report.exports.iter().map(|e| e.symbol.as_str()))
                     .chain(self.report.functions.iter().map(|f| f.name.as_str()))
                     .collect();
-                let symbol_matches = find_matching_symbols(&symbols, exact, regex);
+                let symbol_matches = find_matching_symbols(&symbols, exact, &None, regex);
                 if !symbol_matches.is_empty() {
                     result.details.push(format!(
                         "💡 Found in symbols ({} matches) - try `symbol:` instead",
@@ -1632,9 +1635,11 @@ fn describe_condition(condition: &Condition) -> String {
                 "string[?]".to_string()
             }
         }
-        Condition::Symbol { exact, regex, .. } => {
+        Condition::Symbol { exact, substr, regex, .. } => {
             if let Some(e) = exact {
                 format!("symbol[exact]: \"{}\"", e)
+            } else if let Some(c) = substr {
+                format!("symbol[substr]: \"{}\"", c)
             } else if let Some(r) = regex {
                 format!("symbol[regex]: /{}/", r)
             } else {
@@ -1771,23 +1776,28 @@ pub fn find_matching_strings<'a>(
 pub fn find_matching_symbols<'a>(
     symbols: &[&'a str],
     exact: &Option<String>,
+    substr: &Option<String>,
     regex: &Option<String>,
 ) -> Vec<&'a str> {
     symbols
         .iter()
         .filter(|s| {
-            let clean = s.trim_start_matches('_').trim_start_matches("__");
+            // For exact: production does NOT strip underscores (symbol == exact_val)
             if let Some(e) = exact {
-                *s == e || clean == e
-            } else if let Some(r) = regex {
-                if let Ok(re) = regex::Regex::new(r) {
-                    re.is_match(s) || re.is_match(clean)
-                } else {
-                    false
-                }
-            } else {
-                false
+                return *s == e;
             }
+            // For substr: production does NOT strip underscores
+            if let Some(c) = substr {
+                return s.contains(c.as_str());
+            }
+            // For regex: production DOES strip underscores via symbol_matches()
+            if let Some(r) = regex {
+                let clean = s.trim_start_matches('_').trim_start_matches("__");
+                if let Ok(re) = regex::Regex::new(r) {
+                    return re.is_match(s) || re.is_match(clean);
+                }
+            }
+            false
         })
         .copied()
         .collect()
