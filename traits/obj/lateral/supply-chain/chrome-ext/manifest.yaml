@@ -244,14 +244,22 @@ traits:
       type: kv
       path: "externally_connectable"
 
-  - id: update-url-external
-    desc: Non-Google update URL
-    crit: suspicious
+  - id: update-url-present
+    desc: Has update_url field
+    crit: inert
     conf: 0.9
     if:
       type: kv
       path: "update_url"
-      regex: "^https?://(?!clients2\\.google\\.com)"
+
+  - id: update-url-google
+    desc: Uses Google update URL
+    crit: inert
+    conf: 0.95
+    if:
+      type: kv
+      path: "update_url"
+      substr: "clients2.google.com"
 
   - id: web-accessible-resources
     desc: Exposes resources to web
@@ -338,3 +346,13 @@ composite_rules:
       - id: host-all-urls
       - id: permission-web-request
       - id: permission-debugger
+
+  # Non-Google update URL (suspicious self-hosted updates)
+  - id: update-url-external
+    desc: Non-Google update URL
+    crit: suspicious
+    conf: 0.9
+    all:
+      - id: update-url-present
+    none:
+      - id: update-url-google

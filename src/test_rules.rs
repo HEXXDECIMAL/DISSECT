@@ -724,6 +724,14 @@ impl<'a> RuleDebugger<'a> {
             } => {
                 self.debug_ast_condition(kind, node, exact, substr, regex, query, *case_insensitive)
             }
+            Condition::Kv {
+                path,
+                exact,
+                substr,
+                regex,
+                case_insensitive,
+                ..
+            } => self.debug_kv_condition(path, exact, substr, regex, *case_insensitive),
             _ => {
                 // Generic fallback for other condition types
                 let desc = describe_condition(condition);
@@ -1423,6 +1431,74 @@ impl<'a> RuleDebugger<'a> {
         result
     }
 
+    fn debug_kv_condition(
+        &self,
+        path: &str,
+        exact: &Option<String>,
+        substr: &Option<String>,
+        regex: &Option<String>,
+        case_insensitive: bool,
+    ) -> ConditionDebugResult {
+        let pattern_desc = if let Some(e) = exact {
+            format!("exact: \"{}\"", truncate_string(e, 40))
+        } else if let Some(c) = substr {
+            format!("substr: \"{}\"", truncate_string(c, 40))
+        } else if let Some(r) = regex {
+            format!("regex: /{}/", truncate_string(r, 40))
+        } else {
+            "exists".to_string()
+        };
+
+        let desc = format!("kv: path=\"{}\" {}", path, pattern_desc);
+
+        // Use the actual kv evaluator
+        let file_path = std::path::Path::new(&self.report.target.path);
+        let condition = Condition::Kv {
+            path: path.to_string(),
+            exact: exact.clone(),
+            substr: substr.clone(),
+            regex: regex.clone(),
+            case_insensitive,
+            compiled_regex: regex.as_ref().and_then(|r| regex::Regex::new(r).ok()),
+        };
+
+        if let Some(evidence) =
+            crate::composite_rules::evaluators::evaluate_kv(&condition, self.binary_data, file_path)
+        {
+            let mut result = ConditionDebugResult::new(desc, true);
+            result.details.push(format!("Matched: {}", evidence.value));
+            if let Some(loc) = &evidence.location {
+                result.details.push(format!("Location: {}", loc));
+            }
+            result.evidence = vec![evidence];
+            result
+        } else {
+            let mut result = ConditionDebugResult::new(desc, false);
+
+            // Try to parse the file and show what's available
+            if let Ok(content) = std::str::from_utf8(self.binary_data) {
+                // Try to detect format and show available paths
+                if let Ok(json) = serde_json::from_str::<serde_json::Value>(content) {
+                    if let Some(obj) = json.as_object() {
+                        let top_keys: Vec<_> = obj.keys().take(10).collect();
+                        result
+                            .details
+                            .push(format!("Available top-level keys: {:?}", top_keys));
+                    }
+                } else if let Ok(yaml) = serde_yaml::from_str::<serde_json::Value>(content) {
+                    if let Some(obj) = yaml.as_object() {
+                        let top_keys: Vec<_> = obj.keys().take(10).collect();
+                        result
+                            .details
+                            .push(format!("Available top-level keys: {:?}", top_keys));
+                    }
+                }
+            }
+
+            result
+        }
+    }
+
     #[allow(clippy::too_many_arguments)]
     fn debug_ast_condition(
         &self,
@@ -1598,6 +1674,24 @@ fn describe_condition(condition: &Condition) -> String {
                 "content[?]".to_string()
             }
         }
+        Condition::Kv {
+            path,
+            exact,
+            substr,
+            regex,
+            ..
+        } => {
+            let matcher = if exact.is_some() {
+                "exact"
+            } else if substr.is_some() {
+                "substr"
+            } else if regex.is_some() {
+                "regex"
+            } else {
+                "exists"
+            };
+            format!("kv[{}]: path=\"{}\"", matcher, truncate_string(path, 30))
+        }
         _ => format!("{:?}", condition).chars().take(50).collect(),
     }
 }
@@ -1753,6 +1847,13 @@ fn detect_file_type(file_type: &str) -> RuleFileType {
         "csharp" | "cs" => RuleFileType::CSharp,
         "powershell" | "ps1" => RuleFileType::PowerShell,
         "applescript" => RuleFileType::AppleScript,
+        // Manifest/config formats
+        "packagejson" | "package.json" => RuleFileType::PackageJson,
+        "chrome-manifest" | "chromemanifest" => RuleFileType::ChromeManifest,
+        "cargo-toml" | "cargotoml" | "cargo.toml" => RuleFileType::CargoToml,
+        "pyproject-toml" | "pyprojecttoml" | "pyproject.toml" => RuleFileType::PyProjectToml,
+        "github-actions" | "githubactions" => RuleFileType::GithubActions,
+        "composer-json" | "composerjson" | "composer.json" => RuleFileType::ComposerJson,
         _ => RuleFileType::All,
     }
 }

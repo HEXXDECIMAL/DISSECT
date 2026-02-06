@@ -52,7 +52,12 @@ pub enum FileType {
     Elixir,
     AppleScript,
     // Manifest/config formats
-    PackageJson,
+    PackageJson,     // npm package.json
+    ChromeManifest,  // Chrome extension manifest.json
+    CargoToml,       // Rust Cargo.toml
+    PyProjectToml,   // Python pyproject.toml
+    GithubActions,   // GitHub Actions workflow YAML
+    ComposerJson,    // PHP composer.json
 }
 
 impl FileType {

@@ -162,7 +162,17 @@ pub(crate) fn parse_file_types(types: &[String]) -> Vec<RuleFileType> {
                 "zig" => vec![RuleFileType::Zig],
                 "elixir" => vec![RuleFileType::Elixir],
                 "applescript" | "scpt" => vec![RuleFileType::AppleScript],
+                // Manifest/config formats
                 "packagejson" | "package.json" => vec![RuleFileType::PackageJson],
+                "chrome-manifest" | "chromemanifest" => vec![RuleFileType::ChromeManifest],
+                "cargo-toml" | "cargotoml" | "cargo.toml" => vec![RuleFileType::CargoToml],
+                "pyproject-toml" | "pyprojecttoml" | "pyproject.toml" => {
+                    vec![RuleFileType::PyProjectToml]
+                }
+                "github-actions" | "githubactions" => vec![RuleFileType::GithubActions],
+                "composer-json" | "composerjson" | "composer.json" => {
+                    vec![RuleFileType::ComposerJson]
+                }
                 _ => vec![],
             }
         })

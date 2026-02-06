@@ -42,7 +42,7 @@ traits:
     conf: 0.95                           # Confidence (0.0-1.0)
     mbc: "E1562"                         # Optional MBC code
     attack: "T1562"                      # Optional ATT&CK code
-    for: [csharp]                        # File types: elf, macho, pe, dll, so, dylib, shell, python, javascript, rust, java, class, ruby, c, go, csharp, php, all
+    for: [csharp]                        # File types: elf, macho, pe, dll, so, dylib, shell, python, javascript, rust, java, class, ruby, c, go, csharp, php, packagejson, chrome-manifest, cargo-toml, pyproject-toml, github-actions, composer-json, all
     platforms: [all]                     # linux, macos, windows, unix, all
     size_min: 1000                       # Minimum file size (bytes, optional)
     size_max: 10485760                   # Maximum file size (bytes, optional)

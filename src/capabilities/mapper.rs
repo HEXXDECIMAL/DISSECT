@@ -1442,8 +1442,14 @@ impl CapabilityMapper {
             "scala" | "sc" => RuleFileType::Scala,
             "zig" => RuleFileType::Zig,
             "elixir" | "ex" | "exs" => RuleFileType::Elixir,
-            "package.json" | "packagejson" => RuleFileType::PackageJson,
             "applescript" | "scpt" => RuleFileType::AppleScript,
+            // Manifest/config formats
+            "package.json" | "packagejson" => RuleFileType::PackageJson,
+            "chrome-manifest" | "chromemanifest" => RuleFileType::ChromeManifest,
+            "cargo-toml" | "cargotoml" | "cargo.toml" => RuleFileType::CargoToml,
+            "pyproject-toml" | "pyprojecttoml" | "pyproject.toml" => RuleFileType::PyProjectToml,
+            "github-actions" | "githubactions" => RuleFileType::GithubActions,
+            "composer-json" | "composerjson" | "composer.json" => RuleFileType::ComposerJson,
             _ => RuleFileType::All,
         }
     }

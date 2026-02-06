@@ -2,26 +2,148 @@
 # Detects suspicious metadata patterns in package.json
 # These patterns often indicate malicious or typosquatting packages
 
+defaults:
+  for: [packagejson]
+
 traits:
-  # VSCode extension detection
+  # === VSCode Extension Detection ===
   - id: vscode-extension
     desc: Package is a VSCode extension
     crit: inert
     conf: 0.95
-    for: [packagejson]
     if:
-      type: content
+      type: kv
+      path: "engines.vscode"
 
+  # === Install Hooks ===
+  - id: preinstall-hook-key
+    desc: Package has preinstall script
+    crit: notable
+    conf: 0.85
+    if:
+      type: kv
+      path: "scripts.preinstall"
+
+  - id: postinstall-hook-key
+    desc: Package has postinstall script
+    crit: notable
+    conf: 0.85
+    if:
+      type: kv
+      path: "scripts.postinstall"
+
+  - id: install-hook-key
+    desc: Package has install script
+    crit: notable
+    conf: 0.85
+    if:
+      type: kv
+      path: "scripts.install"
+
+  # === Version Patterns ===
+  - id: version-1.0.0
+    desc: Package version is 1.0.0
+    crit: inert
+    conf: 0.6
+    if:
+      type: kv
+      path: "version"
+      exact: "1.0.0"
+
+  # === Repository/Homepage Patterns ===
+  - id: npm-homepage-url
+    desc: Package homepage points to npm
+    crit: notable
+    conf: 0.75
+    if:
+      type: kv
+      path: "homepage"
+      substr: "npmjs.com"
+
+  - id: npm-repo-url
+    desc: Repository URL points to npm
+    crit: notable
+    conf: 0.75
+    if:
+      type: kv
+      path: "repository.url"
+      substr: "npmjs.com"
+
+  - id: repository-key
+    desc: Package has repository field
+    crit: inert
+    conf: 0.9
+    if:
+      type: kv
+      path: "repository"
+
+  - id: repo-url-git-host
+    desc: Repository on GitHub/GitLab/Bitbucket
+    crit: inert
+    conf: 0.9
+    if:
+      type: kv
+      path: "repository.url"
+      regex: "github\\.com|gitlab\\.com|bitbucket\\.org"
+
+  # === Description Patterns ===
+  - id: desc-lightweight
+    desc: Description mentions lightweight
+    crit: inert
+    conf: 0.5
+    if:
+      type: kv
+      path: "description"
+      substr: "lightweight"
+      case_insensitive: true
+
+  - id: desc-modern-web-apps
+    desc: Description mentions modern web apps
+    crit: inert
+    conf: 0.5
+    if:
+      type: kv
+      path: "description"
+      regex: "modern.*(web|app)"
+      case_insensitive: true
+
+  - id: desc-universal
+    desc: Description mentions universal
+    crit: inert
+    conf: 0.5
+    if:
+      type: kv
+      path: "description"
+      substr: "universal"
+      case_insensitive: true
+
+  - id: desc-powerful-library
+    desc: Description mentions powerful library
+    crit: inert
+    conf: 0.5
+    if:
+      type: kv
+      path: "description"
+      regex: "powerful.*(library|framework)"
+      case_insensitive: true
+
+  - id: desc-simple-easy
+    desc: Description mentions simple/easy
+    crit: inert
+    conf: 0.5
+    if:
+      type: kv
+      path: "description"
+      regex: "simple|easy"
       case_insensitive: true
 
 # === Composite Rules ===
 composite_rules:
   # Install hook group
   - id: install-hooks
-    desc: Package has install hook (preinstall,
+    desc: Package has install hook
     crit: inert
     conf: 0.6
-    for: [packagejson]
     any:
       - id: preinstall-hook-key
       - id: postinstall-hook-key
@@ -32,7 +154,6 @@ composite_rules:
     desc: Version 1.0.0 with install hooks
     crit: suspicious
     conf: 0.75
-    for: [packagejson]
     all:
       - id: version-1.0.0
       - id: install-hooks
@@ -42,7 +163,6 @@ composite_rules:
     desc: Package uses npmjs.com as homepage
     crit: notable
     conf: 0.8
-    for: [packagejson]
     any:
       - id: npm-homepage-url
       - id: npm-repo-url
@@ -52,17 +172,15 @@ composite_rules:
     desc: Package has repository URL
     crit: inert
     conf: 0.5
-    for: [packagejson]
     any:
       - id: repository-key
       - id: repo-url-git-host
 
   # Missing repository with install hooks
   - id: no-repo-with-hooks
-    desc: Package has install hooks but
+    desc: Package has install hooks but no repo
     crit: suspicious
     conf: 0.85
-    for: [packagejson]
     all:
       - id: install-hooks
     none:
@@ -70,10 +188,9 @@ composite_rules:
 
   # Generic descriptions group
   - id: generic-descriptions
-    desc: Package has generic marketing descriptions
+    desc: Package has generic marketing description
     crit: inert
     conf: 0.5
-    for: [packagejson]
     needs: 2
     any:
       - id: desc-lightweight
@@ -84,10 +201,9 @@ composite_rules:
 
   # Generic description with hooks
   - id: generic-desc-with-hooks
-    desc: Generic description combined with install
+    desc: Generic description with install hooks
     crit: suspicious
     conf: 0.8
-    for: [packagejson]
     all:
       - id: generic-descriptions
       - id: install-hooks

@@ -215,6 +215,15 @@ pub fn detect_file_type_from_path(file_path: &Path) -> FileType {
         if name == "package.json" {
             return FileType::PackageJson;
         }
+        if name == "composer.json" {
+            return FileType::ComposerJson;
+        }
+        if name == "cargo.toml" {
+            return FileType::CargoToml;
+        }
+        if name == "pyproject.toml" {
+            return FileType::PyProjectToml;
+        }
         if name == "pkg-info" || name == "metadata" {
             return FileType::PkgInfo;
         }
@@ -224,6 +233,14 @@ pub fn detect_file_type_from_path(file_path: &Path) -> FileType {
         if name == "extension.vsixmanifest" || name.ends_with(".vsixmanifest") {
             return FileType::VsixManifest;
         }
+    }
+
+    // Check for GitHub Actions workflow files
+    let path_str_lower = file_path.to_string_lossy().to_lowercase();
+    if (path_str_lower.contains(".github/workflows/") || path_str_lower.contains(".github\\workflows\\"))
+        && (path_str_lower.ends_with(".yml") || path_str_lower.ends_with(".yaml"))
+    {
+        return FileType::GithubActions;
     }
 
     // Check archives by path pattern
@@ -719,6 +736,10 @@ pub enum FileType {
     PackageJson,    // npm package.json manifest
     VsixManifest,   // VSCode extension.vsixmanifest
     ChromeManifest, // Chrome extension manifest.json
+    CargoToml,      // Rust Cargo.toml manifest
+    PyProjectToml,  // Python pyproject.toml manifest
+    ComposerJson,   // PHP composer.json manifest
+    GithubActions,  // GitHub Actions workflow YAML
     PkgInfo,        // Python package metadata (PKG-INFO, METADATA)
     Archive,
     AppleScript,
@@ -761,6 +782,10 @@ impl FileType {
             | FileType::PkgInfo
             | FileType::VsixManifest
             | FileType::ChromeManifest
+            | FileType::CargoToml
+            | FileType::PyProjectToml
+            | FileType::ComposerJson
+            | FileType::GithubActions
             | FileType::AppleScript
             | FileType::Rtf => true,
             FileType::Archive | FileType::Unknown => false, // Skip unknown files by default in dir scans
@@ -823,6 +848,10 @@ impl FileType {
             FileType::PkgInfo => vec!["pkg-info", "metadata", "dist-info"],
             FileType::VsixManifest => vec!["xml", "vsix", "vscode"],
             FileType::ChromeManifest => vec!["json", "manifest.json", "chrome", "extension"],
+            FileType::CargoToml => vec!["toml", "cargo.toml", "rust"],
+            FileType::PyProjectToml => vec!["toml", "pyproject.toml", "python"],
+            FileType::ComposerJson => vec!["json", "composer.json", "php"],
+            FileType::GithubActions => vec!["yaml", "yml", "github-actions"],
             FileType::Archive => vec!["zip", "tar", "gz"],
             FileType::AppleScript => vec!["scpt", "applescript"],
             FileType::Rtf => vec!["rtf", "doc"],

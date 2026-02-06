@@ -3,17 +3,102 @@
 # MBC: B0024 (Execution), C0002 (Download)
 # ATT&CK: T1059 (Command Interpreter), T1105 (Ingress Tool Transfer)
 
+defaults:
+  for: [packagejson]
+
 traits:
-  # Install Hooks
-  - id: preinstall-hook
-    desc: Package has 'preinstall' hook that
+  # === Script Content Patterns ===
+  # Detect dangerous commands in install scripts
+
+  - id: script-curl
+    desc: Script uses curl
+    crit: notable
+    conf: 0.8
+    if:
+      type: kv
+      path: "scripts"
+      substr: "curl"
+
+  - id: script-wget
+    desc: Script uses wget
+    crit: notable
+    conf: 0.8
+    if:
+      type: kv
+      path: "scripts"
+      substr: "wget"
+
+  - id: script-pipe-sh
+    desc: Script pipes to sh
     crit: suspicious
     conf: 0.85
-    mbc: "B0024"
-    attack: "T1059"
-    for: [packagejson]
     if:
-      type: content
+      type: kv
+      path: "scripts"
+      regex: "\\|\\s*sh"
+
+  - id: script-pipe-bash
+    desc: Script pipes to bash
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: kv
+      path: "scripts"
+      regex: "\\|\\s*bash"
+
+  - id: script-pipe-node
+    desc: Script pipes to node
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: kv
+      path: "scripts"
+      regex: "\\|\\s*node"
+
+  - id: script-eval
+    desc: Script uses eval
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: kv
+      path: "scripts"
+      regex: "\\beval\\b"
+
+  - id: script-base64
+    desc: Script uses base64
+    crit: notable
+    conf: 0.8
+    if:
+      type: kv
+      path: "scripts"
+      regex: "base64|atob|btoa"
+
+  - id: script-hidden-file
+    desc: Script references hidden file
+    crit: notable
+    conf: 0.75
+    if:
+      type: kv
+      path: "scripts"
+      regex: "/\\.[a-z]"
+
+  - id: script-tmp-dir
+    desc: Script uses /tmp directory
+    crit: notable
+    conf: 0.7
+    if:
+      type: kv
+      path: "scripts"
+      substr: "/tmp/"
+
+  - id: script-http-url
+    desc: Script contains HTTP URL
+    crit: notable
+    conf: 0.75
+    if:
+      type: kv
+      path: "scripts"
+      regex: "https?://"
 
 # === Composite Rules ===
 composite_rules:
@@ -22,23 +107,19 @@ composite_rules:
     desc: Script uses download tools
     crit: inert
     conf: 0.6
-    for: [packagejson]
     any:
-      - id: curl-keyword
-      - id: wget-keyword
+      - id: script-curl
+      - id: script-wget
 
   # Pipe to interpreter patterns
   - id: pipe-to-interpreters
-    desc: Script pipes to shell or
-    crit: inert
-    conf: 0.6
-    for: [packagejson]
+    desc: Script pipes to interpreter
+    crit: suspicious
+    conf: 0.85
     any:
-      - id: pipe-to-sh
-      - id: pipe-to-bash
-      - id: pipe-to-perl
-      - id: pipe-to-python
-      - id: pipe-to-node
+      - id: script-pipe-sh
+      - id: script-pipe-bash
+      - id: script-pipe-node
 
   # Download and execute composite
   - id: download-execute
@@ -47,9 +128,15 @@ composite_rules:
     conf: 0.95
     mbc: "B0024"
     attack: "T1105"
-    for: [packagejson]
     all:
       - id: download-tools
-    any:
-      - id: shell-chain
       - id: pipe-to-interpreters
+
+  # Obfuscated script
+  - id: obfuscated-script
+    desc: Script uses obfuscation techniques
+    crit: suspicious
+    conf: 0.85
+    any:
+      - id: script-eval
+      - id: script-base64

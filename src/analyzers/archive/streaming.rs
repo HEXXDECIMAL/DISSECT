@@ -316,6 +316,15 @@ impl ArchiveAnalyzer {
                 }
             }
 
+            // Other manifest files - use kv condition matching via trait evaluation
+            FileType::CargoToml
+            | FileType::PyProjectToml
+            | FileType::ComposerJson
+            | FileType::GithubActions => {
+                // These manifest types are handled via kv conditions in trait evaluation
+                // The file content is already extracted and will be processed by the trait matcher
+            }
+
             // Unknown files are skipped before reaching analyze_in_memory
             FileType::Unknown => unreachable!("Unknown files should be filtered before analysis"),
         }
