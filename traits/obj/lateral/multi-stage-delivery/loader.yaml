@@ -28,6 +28,10 @@ traits:
       min_suspicious: 1
     attack: "T1055"
     mbc: "C0041"
+    downgrade:
+      any:
+        - type: string
+          substr: "Valve Corp."
 
 composite_rules:
   - id: multi-stage-loader
@@ -42,6 +46,9 @@ composite_rules:
       - id: cap/data/encode/payload/embedded-obfuscated-payload
       - id: dynamic-library-loading
       - id: remote-code-injection
+    downgrade:
+      any:
+        - id: meta/vendor/valve/valve-corp-binary
 
   - id: flexible-execution-framework
     desc: Flexible malware execution with multiple deployment methods
@@ -57,3 +64,6 @@ composite_rules:
       - id: obj/process/injection/process-hollowing
       - id: obj/process/injection/apc-injection
       - id: cap/process/inject/atom-bombing/atom-bombing-capable
+    downgrade:
+      any:
+        - id: meta/vendor/valve/valve-corp-binary

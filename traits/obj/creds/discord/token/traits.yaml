@@ -317,6 +317,7 @@ composite_rules:
     attack: "T1555.003"
     mbc: "B0030"
     for: [javascript, typescript, python, elf, pe, macho]
+    needs: 2
     any:
       - id: leveldb-ref
       - id: discord-path

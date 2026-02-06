@@ -66,6 +66,7 @@ traits:
     crit: suspicious
     conf: 0.85
     for: [elf, pe]
+    size_max: 1000000
     if:
       type: hex
       pattern: "90 90 90 90 90 90 90 90"  # 8 NOPs

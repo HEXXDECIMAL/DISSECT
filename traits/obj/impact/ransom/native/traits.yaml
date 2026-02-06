@@ -183,6 +183,8 @@ traits:
       type: string
       # Pattern for ransomware-specific extensions like .nuctech-xxx, .locked-xxx
       regex: "\\.[a-zA-Z]+-[a-zA-Z0-9]{6,}"
+    not:
+      - regex: "(?i)\\.(github|google|microsoft|apple|mozilla|android|chrome|visualstudio)"
 
 composite_rules:
   # Ransom note message indicators

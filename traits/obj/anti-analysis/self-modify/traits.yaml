@@ -291,6 +291,10 @@ composite_rules:
       - id: proc-self-mem
       - id: writeprocessmemory
       - id: self-patch-ref
+    downgrade:
+      any:
+        - id: meta/vendor/valve/valve-corp-binary
+
   - id: code-cave
     desc: Code cave or slack space
     crit: suspicious
@@ -300,6 +304,9 @@ composite_rules:
       - id: codecave-ref
       - id: slack-space-ref
       - id: nop-sled
+    downgrade:
+      any:
+        - id: meta/vendor/valve/valve-corp-binary
 
   # Hook installation
   # NOTE: Removed trampoline-ref since Go runtime uses trampolines legitimately
@@ -314,6 +321,9 @@ composite_rules:
       - id: detour-ref
       - id: ld-preload
       - id: dyld-insert
+    downgrade:
+      any:
+        - id: meta/vendor/valve/valve-corp-binary
 
   # IAT/GOT hooking - require 2+ indicators to avoid false positives
   # from standard ELF sections like .got.plt

@@ -716,7 +716,7 @@ composite_rules:
   # Python exec composite
   - id: python-exec-call
     desc: Python execution via os.system, exec,
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1059"
     for: [python]

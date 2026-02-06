@@ -29,13 +29,17 @@ traits:
   - id: vbox-string
     desc: VBOX string detection
     crit: inert
-    mbc: "B0009"
+    mbc: "B0032"
     attack: "T1497.001"
     conf: 0.5
     if:
       type: string
       # Use word boundary to avoid matching "gruvbox" color schemes
       regex: "(?i)\\bvbox\\b"
+    not:
+      - "MathJax"
+      - "flexbox"
+      - "hbox"
 
   # === QEMU atomic indicators ===
   - id: qemu-upper
@@ -146,7 +150,6 @@ composite_rules:
     needs: 1
     any:
       - id: vmxh-string
-      - id: vbox-string
       - id: virtio-string
       - id: vmmouse-string
 

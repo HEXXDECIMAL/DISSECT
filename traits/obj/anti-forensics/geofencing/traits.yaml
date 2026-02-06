@@ -11,8 +11,9 @@ traits:
   # Russian language locale checks
   - id: ru-locale-check
     desc: Russian locale string check
-    crit: suspicious
+    crit: notable
     conf: 0.9
+    size_max: 500000
     if:
       type: string
       regex: "ru[_-]RU|ru[_-]ru"

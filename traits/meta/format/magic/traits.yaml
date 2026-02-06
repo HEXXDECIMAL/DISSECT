@@ -276,11 +276,21 @@ traits:
     desc: MZ/PE magic found past file header
     crit: suspicious
     conf: 0.85
-    for: [all]
+    for: [elf, macho, shell, python, javascript]  # Suspicious only for non-PE file types
     if:
       type: hex
       pattern: "4D 5A"
       offset_range: [1024, null]
+
+  - id: embedded-pe-in-pe
+    desc: Embedded PE resource in executable
+    crit: notable  # Common for PE files with resources
+    conf: 0.7
+    for: [pe, dll]
+    if:
+      type: hex
+      pattern: "4D 5A"
+      offset_range: [4096, null]  # Further in to avoid section tables
 
   - id: embedded-zip
     desc: ZIP magic found past file header

@@ -16,3 +16,9 @@ traits:
     if:
       type: symbol
       regex: CreateRemoteThread|WriteProcessMemory|VirtualAllocEx|NtWriteVirtualMemory
+    downgrade:
+      any:
+        - type: string
+          substr: "ApiSet Stub DLL"
+        - type: string
+          substr: "Valve Corp."

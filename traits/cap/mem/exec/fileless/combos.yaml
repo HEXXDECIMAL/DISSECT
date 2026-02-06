@@ -20,6 +20,10 @@ traits:
           condition:
             any of them
         }
+    downgrade:
+      any:
+        - type: string
+          substr: "Valve Corp."
 
   - id: execve-symbol
     desc: Linux execve/fexecve symbol reference

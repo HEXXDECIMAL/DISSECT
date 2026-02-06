@@ -16,6 +16,11 @@ traits:
     if:
       type: symbol
       exact: "WriteProcessMemory"
+    downgrade:
+      any:
+        - type: string
+          substr: "ApiSet Stub DLL"
+        - id: meta/vendor/valve/valve-corp-binary
 
   - id: read-process-memory
     desc: Read memory from target process
@@ -25,6 +30,11 @@ traits:
     if:
       type: symbol
       exact: "ReadProcessMemory"
+    downgrade:
+      any:
+        - type: string
+          substr: "ApiSet Stub DLL"
+        - id: meta/vendor/valve/valve-corp-binary
 
   - id: create-remote-thread
     desc: Create thread in target process
@@ -35,6 +45,11 @@ traits:
     if:
       type: symbol
       exact: "CreateRemoteThread"
+    downgrade:
+      any:
+        - type: string
+          substr: "ApiSet Stub DLL"
+        - id: meta/vendor/valve/valve-corp-binary
 
   - id: create-remote-thread-ex
     desc: Extended remote thread creation
@@ -44,6 +59,11 @@ traits:
     if:
       type: symbol
       exact: "CreateRemoteThreadEx"
+    downgrade:
+      any:
+        - type: string
+          substr: "ApiSet Stub DLL"
+        - id: meta/vendor/valve/valve-corp-binary
 
   - id: queue-user-apc
     desc: Queue APC to thread
@@ -54,6 +74,11 @@ traits:
     if:
       type: symbol
       exact: "QueueUserAPC"
+    downgrade:
+      any:
+        - type: string
+          substr: "ApiSet Stub DLL"
+        - id: meta/vendor/valve/valve-corp-binary
 
   - id: set-thread-context
     desc: Modify thread context/registers
@@ -69,6 +94,7 @@ traits:
       any:
         - type: string
           substr: "ApiSet Stub DLL"
+        - id: meta/vendor/valve/valve-corp-binary
 
   - id: get-thread-context
     desc: Read thread context/registers
@@ -84,6 +110,7 @@ traits:
       any:
         - type: string
           substr: "ApiSet Stub DLL"
+        - id: meta/vendor/valve/valve-corp-binary
 
   - id: suspend-thread
     desc: Suspend thread execution
@@ -93,6 +120,11 @@ traits:
     if:
       type: symbol
       exact: "SuspendThread"
+    downgrade:
+      any:
+        - type: string
+          substr: "ApiSet Stub DLL"
+        - id: meta/vendor/valve/valve-corp-binary
 
   - id: resume-thread
     desc: Resume thread execution
@@ -102,3 +134,8 @@ traits:
     if:
       type: symbol
       exact: "ResumeThread"
+    downgrade:
+      any:
+        - type: string
+          substr: "ApiSet Stub DLL"
+        - id: meta/vendor/valve/valve-corp-binary

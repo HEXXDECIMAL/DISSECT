@@ -9,7 +9,7 @@ traits:
   # === Context Capture ===
   - id: capture-context
     desc: Capture CPU context/registers
-    crit: suspicious
+    crit: notable
     conf: 0.90
     attack: "T1005"
     if:
@@ -19,7 +19,7 @@ traits:
   # === Function Entry Lookup ===
   - id: lookup-function-entry
     desc: Lookup function entry point
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1006"
     if:
@@ -29,7 +29,7 @@ traits:
   # === Stack Unwinding ===
   - id: virtual-unwind
     desc: Virtual unwind stack frame
-    crit: suspicious
+    crit: notable
     conf: 0.90
     attack: "T1006"
     if:
@@ -38,7 +38,7 @@ traits:
 
   - id: unwind-ex
     desc: Extended stack unwinding
-    crit: suspicious
+    crit: notable
     conf: 0.90
     attack: "T1006"
     if:
@@ -48,7 +48,7 @@ traits:
   # === File Header Lookup ===
   - id: pc-to-file-header
     desc: Get module from code address
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1005"
     if:

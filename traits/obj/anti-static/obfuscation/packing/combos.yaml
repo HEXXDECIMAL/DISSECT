@@ -25,3 +25,6 @@ composite_rules:
     all:
       - id: obj/anti-static/obfuscation/packing/embedded-compression
       - id: cap/exec/dynamic-load/dynamic-load-pattern
+    downgrade:
+      any:
+        - id: meta/vendor/valve/valve-corp-binary

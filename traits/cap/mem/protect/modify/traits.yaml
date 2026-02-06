@@ -25,6 +25,10 @@ traits:
     if:
       type: symbol
       exact: "VirtualProtectEx"
+    downgrade:
+      any:
+        - type: string
+          substr: "Valve Corp."
 
   - id: virtual-alloc
     desc: Allocate virtual memory

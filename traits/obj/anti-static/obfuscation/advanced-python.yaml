@@ -52,6 +52,9 @@ traits:
     if:
       type: content
       regex: "getattr\\(__builtins__|getattr\\(.{0,50}builtins"
+    unless:
+      - type: basename
+        regex: '(test_|_test\.|\.test\.|\.spec\.).*\.py$'
 
   - id: getattr-obfuscated-access
     desc: getattr obfuscated access

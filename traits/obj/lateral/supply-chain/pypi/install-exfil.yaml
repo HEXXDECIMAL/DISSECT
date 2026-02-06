@@ -45,11 +45,14 @@ traits:
 
   - id: tiny-python-file
     desc: Tiny Python file
-    crit: suspicious
+    crit: notable
     conf: 0.8
     if:
       type: filesize
       max: 100
+    unless:
+      - type: content
+        regex: "^(?:from\\s+\\S+\\s+import|import\\s+\\S+)"
 
   - id: small-no-imports
     desc: Small Python file with no imports

@@ -23,3 +23,7 @@ traits:
     if:
       type: symbol
       regex: "VirtualProtectEx"
+    downgrade:
+      any:
+        - type: string
+          substr: "Valve Corp."

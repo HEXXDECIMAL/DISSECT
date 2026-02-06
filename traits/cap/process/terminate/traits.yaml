@@ -16,6 +16,10 @@ traits:
     if:
       type: symbol
       exact: "TerminateProcess"
+    downgrade:
+      any:
+        - type: string
+          substr: "ApiSet Stub DLL"
 
   - id: exit-process
     desc: Exit current process

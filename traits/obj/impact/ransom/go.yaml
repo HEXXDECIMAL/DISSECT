@@ -144,6 +144,9 @@ traits:
       - "runtime."
       - "filepath."
       - "internal/"
+      - "windows."
+      - "context."
+      - "testing."
 
   # Go crypto/rsa EncryptOAEP - asymmetric encryption for ransomware
   - id: go-rsa-encrypt-oaep

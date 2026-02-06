@@ -448,8 +448,9 @@ composite_rules:
   - id: windows-schtasks
     desc: "Creates scheduled task for persistence"
     conf: 0.85
-    crit: suspicious
+    crit: notable
     attack: "T1053.005"
+    size_max: 500000
     platforms: [windows]
     needs: 1
     any:
@@ -464,6 +465,7 @@ composite_rules:
     conf: 0.8
     crit: notable
     attack: "T1053.005"
+    size_max: 500000
     platforms: [windows]
     needs: 1
     any:

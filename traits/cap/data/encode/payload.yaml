@@ -82,12 +82,14 @@ composite_rules:
     mbc: "C0043"
     platforms: [all]
     for: [pe, elf, macho]
+    size_max: 1000000
     any:
       - id: large-base64-payload
       - id: large-hex-payload
       - id: payload-blob-metrics
     none:
       - id: meta/signed/type/platform
+      - id: meta/lang/cpp
 
   - id: binary-to-c-array
     desc: Binary to C array converter

@@ -86,7 +86,8 @@ traits:
     conf: 0.80
     if:
       type: string
-      regex: "[a-z]{15,}\\.app|[A-Z]{15,}\\.app"
+      regex: "\\b[a-z]{15,}\\.app\\b|\\b[A-Z]{15,}\\.app\\b"
+      case_insensitive: true
 
   - id: random-app-name
     desc: Randomized application name
@@ -94,7 +95,8 @@ traits:
     conf: 0.75
     if:
       type: string
-      regex: "[a-z0-9]{10,20}\\.app"
+      regex: "\\b[a-z0-9]{10,20}\\.app\\b"
+      case_insensitive: true
 
 composite_rules:
   # === Impersonation Detection ===

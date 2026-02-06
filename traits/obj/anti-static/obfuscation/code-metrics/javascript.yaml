@@ -16,7 +16,11 @@ traits:
     if:
       type: metrics
       field: functions.anonymous
-      min: 20
+      min: 100
+      min_size: 2048
+    unless:
+      - type: string
+        regex: "MathJax"
 
   - id: js-iife-heavy
     desc: "High function density with one-liners"

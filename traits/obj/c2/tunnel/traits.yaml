@@ -330,6 +330,7 @@ composite_rules:
     desc: SOCKS proxy server implementation
     crit: suspicious
     conf: 0.8
+    size_max: 500000
     needs: 2
     any:
       - id: socks4-proto

@@ -24,6 +24,10 @@ composite_rules:
       - id: cap/exec/inject/suspend-thread
       - id: cap/exec/inject/get-thread-context
       - id: cap/exec/inject/set-thread-context
+    downgrade:
+      any:
+        - id: cap/exec/load/go-runtime/go-runtime-marker
+        - id: meta/vendor/valve/valve-corp-binary
 
   # === APC Queue Injection ===
   - id: apc-injection
@@ -35,6 +39,9 @@ composite_rules:
     all:
       - id: cap/exec/inject/queue-user-apc
       - id: cap/exec/inject/write-process-memory
+    downgrade:
+      any:
+        - id: meta/vendor/valve/valve-corp-binary
 
   # === Process Hollowing Pattern ===
   - id: process-hollowing
@@ -48,6 +55,9 @@ composite_rules:
       - id: cap/exec/inject/suspend-thread
       - id: cap/exec/inject/write-process-memory
       - id: cap/exec/inject/set-thread-context
+    downgrade:
+      any:
+        - id: meta/vendor/valve/valve-corp-binary
 
   # === Shared Library Injection ===
   - id: dll-injection
@@ -59,6 +69,9 @@ composite_rules:
     all:
       - id: cap/exec/inject/create-remote-thread
       - id: cap/exec/native/load-library-a
+    downgrade:
+      any:
+        - id: meta/vendor/valve/valve-corp-binary
 
   # === Complete Injection Framework ===
   - id: full-injection-capability
@@ -71,3 +84,7 @@ composite_rules:
       - id: remote-thread-pattern
       - id: suspended-process-inject
       - id: apc-injection
+    downgrade:
+      any:
+        - id: cap/exec/load/go-runtime/go-runtime-marker
+        - id: meta/vendor/valve/valve-corp-binary

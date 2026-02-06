@@ -225,6 +225,9 @@ traits:
       type: metrics
       field: functions.high_entropy_names
       min: 3
+    unless:
+      - type: basename
+        regex: "\\.pyi$"
 
   - id: single-char-function-names
     desc: "Functions with single-character names"
@@ -257,6 +260,9 @@ traits:
       field: functions.density_per_100_lines
       min: 20
       min_size: 1024
+    unless:
+      - type: basename
+        regex: "\\.pyi$"
 
   - id: many-one-liner-functions
     desc: "Many one-liner functions (minified code"
@@ -266,6 +272,9 @@ traits:
       type: metrics
       field: functions.one_liners
       min: 5
+    unless:
+      - type: basename
+        regex: "\\.pyi$"
 
   - id: deep-nesting
     desc: "Deeply nested functions (complexity indicator)"
@@ -294,8 +303,8 @@ traits:
     if:
       type: metrics
       field: strings.avg_entropy
-      min: 4.0
-      min_size: 2048
+      min: 4.5
+      min_size: 4096
 
   # NOTE: Small/simple programs legitimately have few strings.
   # Only meaningful combined with other obfuscation indicators.
@@ -338,8 +347,8 @@ traits:
         regex: '(test_|_test\.|\.test\.|\.spec\.).*\.(py|js|ts|go|php|rb|java)$'
 
   - id: very-long-lines
-    desc: "Very long lines (>500 chars"
-    crit: suspicious
+    desc: "Very long lines (>1000 chars)"
+    crit: notable
     conf: 0.85
     # Exclude Perl: POD documentation legitimately has long lines
     # Exclude Python bytecode: .pyc files are binary, long "lines" are serialization artifacts
@@ -361,7 +370,7 @@ traits:
     if:
       type: metrics
       field: text.max_line_length
-      min: 500
+      min: 1000
     unless:
       - type: basename
         regex: "\\.pyc$"

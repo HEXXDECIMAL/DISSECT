@@ -95,18 +95,18 @@ A finding is only a false positive if:
 - **Read documentation**: Check RULES.md and TAXONOMY.md to understand naming conventions and design principles
 - **YAML is valid**: DISSECT's strict parser already validated it. Only edit trait logic, not formatting.
 - **Preserve structure**: Keep indentation, spacing, and file organization identical.
-- **No new files**: Only modify existing traits/ YAML files.
-- **One fix per trait**: Don't over-engineer; each trait should do one thing well.
 - **ID**: The trait ID should match the query parameters.
 - **Confirm criticality**: Based on what the trait query, is the criticality appropriate or is it overblown?
+- **Assume good intent**: You will find traits that are defined incorrectly, you can usually gather from the trait ID what the feature (benign or malicious) were trying to find.
 
 {{.TaskBlock}}
 
 ## Success Criteria
-✓ The query is appropriately categorized, targetted, and the criticality level appropriate
-✓ Remaining findings accurately describe what the program actually does
-✓ No new false positives introduced
-✓ Changes are minimal and focused (3-5 edits max)
+✓ Malicious behavior is detected with appropriate trait IDs
+✓ Detections use generic patterns (not file-specific signatures)
+✓ Changes are minimal and focused
+✓ Traits are correctly named after what they detect
+✓ Traits have the correct criticality level for any kind of program that matches
 ✓ Run dissect again - shows improvement
 
 ## Debug & Validate
@@ -151,7 +151,9 @@ var badPromptTmpl = template.Must(template.New("bad").Parse(`{{if .IsArchive -}}
 ## Success Criteria
 ✓ Malicious behavior is detected with appropriate trait IDs
 ✓ Detections use generic patterns (not file-specific signatures)
-✓ Changes are minimal and focused (3-5 edits max)
+✓ Changes are minimal and focused
+✓ Traits are correctly named after what they detect
+✓ Traits have the correct criticality level for any kind of program that matches
 ✓ Run dissect again - shows improvement
 
 ## Debug & Validate

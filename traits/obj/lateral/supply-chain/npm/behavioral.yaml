@@ -38,12 +38,14 @@ traits:
             $export1 = "module.exports" ascii
             $export2 = "exports." ascii
             $export3 = /^export\s/ ascii
-            $http = "http" ascii
-            $fs = "writeFile" ascii
+            $http1 = /require\(['"]http['"]\)/ ascii
+            $http2 = /import.*from\s+['"]http['"]/ ascii
+            $fs1 = /require\(['"]fs['"]\)/ ascii
+            $fs2 = /import.*from\s+['"]fs['"]/ ascii
             $exec = "exec(" ascii
             $spawn = "spawn(" ascii
           condition:
-            (any of ($http, $fs, $exec, $spawn)) and not any of ($export*)
+            (any of ($http*, $fs*, $exec, $spawn)) and not any of ($export*)
         }
 
   # NOTE: YARA kept for network-on-load - requires combining IIFE pattern with network calls

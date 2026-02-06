@@ -14,6 +14,10 @@ traits:
     if:
       type: symbol
       exact: "OpenProcessToken"
+    downgrade:
+      any:
+        - type: string
+          substr: "ApiSet Stub DLL"
 
   # === Privilege Operations ===
   - id: lookup-privilege-value
@@ -23,6 +27,10 @@ traits:
     if:
       type: symbol
       exact: "LookupPrivilegeValueW"
+    downgrade:
+      any:
+        - type: string
+          substr: "ApiSet Stub DLL"
 
   - id: adjust-token-privileges
     desc: Enable/disable privileges in access token
@@ -31,6 +39,10 @@ traits:
     if:
       type: symbol
       exact: "AdjustTokenPrivileges"
+    downgrade:
+      any:
+        - type: string
+          substr: "ApiSet Stub DLL"
 
   # === Token Query ===
   - id: get-token-information

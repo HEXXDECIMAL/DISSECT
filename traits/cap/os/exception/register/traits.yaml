@@ -9,7 +9,7 @@ traits:
   # === Function Table Registration ===
   - id: rtl-add-function-table
     desc: Register exception handling function table
-    crit: suspicious
+    crit: notable
     conf: 0.95
     attack: "T1006"
     if:
@@ -18,7 +18,7 @@ traits:
 
   - id: rtl-delete-function-table
     desc: Unregister exception function table
-    crit: suspicious
+    crit: notable
     conf: 0.95
     if:
       type: symbol

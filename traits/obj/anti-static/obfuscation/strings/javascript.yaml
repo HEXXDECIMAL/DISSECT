@@ -18,7 +18,7 @@ traits:
   # Unicode escape sequences used to hide strings
   - id: js-unicode-escape
     desc: Unicode escape sequences in string
-    crit: suspicious
+    crit: notable
     conf: 0.85
     mbc: "B0032"
     attack: "T1027"
@@ -91,6 +91,7 @@ traits:
       - "Buffer"
       - "describe"  # Test frameworks
       - "__coverage__"  # Istanbul coverage
+      - "goog.global" # Closure library
 
   - id: js-require-alias
     desc: Require function aliasing
@@ -116,7 +117,7 @@ traits:
   # Custom string shuffling/decoding loop pattern
   - id: js-charat-loop
     desc: charAt in loop pattern
-    crit: notable
+    crit: inert
     conf: 0.7
     mbc: "B0032"
     attack: "T1027"
@@ -243,15 +244,24 @@ traits:
     for: [javascript, typescript]
     if:
       type: content
-      regex: '\\["[a-zA-Z_][a-zA-Z0-9_]*"\\]'
-      count_min: 8
-      per_kb_min: 1.5
+      regex: '\\[["''][a-zA-Z_][a-zA-Z0-9_]*["'']\\]'
+      count_min: 12
+      per_kb_min: 5.0
+    not:
+      - '["class"]'
+      - '["id"]'
+      - '["style"]'
+      - '["type"]'
+      - "['class']"
+      - "['id']"
+      - "['style']"
+      - "['type']"
 
 composite_rules:
   # String deobfuscation pattern (charAt/split + swap + join)
   - id: js-string-deobfuscation
     desc: String deobfuscation routine
-    crit: hostile
+    crit: suspicious
     conf: 0.9
     mbc: "B0032"
     attack: "T1027.002"
@@ -293,7 +303,7 @@ composite_rules:
   # Obfuscated dynamic execution
   - id: js-obfuscated-eval
     desc: Obfuscated dynamic code execution
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     attack: "T1027.002"
     mbc: "B0032"
@@ -307,6 +317,9 @@ composite_rules:
       - id: js-hex-escape
       - id: js-buffer-from-base64
       - id: js-buffer-from-hex
+    unless:
+      - type: string
+        regex: "MathJax"
 
   # Hex-encoded require obfuscation (npm supply chain malware pattern)
   # Complexity: file_types(+1) + all(+3) = 4 (meets HOSTILE threshold)

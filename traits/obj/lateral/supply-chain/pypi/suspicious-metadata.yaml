@@ -300,6 +300,9 @@ traits:
     if:
       type: filesize
       max: 200
+    unless:
+      - type: basename
+        regex: "\\.(py|sh|js|ts|c|cpp|h|hpp|md|txt|html|css|json|yml|yaml|pyi)$"
 
   # === pyproject.toml Skeleton Indicators ===
   - id: pyproject-is-pyproject

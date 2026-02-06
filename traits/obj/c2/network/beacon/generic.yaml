@@ -29,6 +29,7 @@ traits:
     crit: suspicious
     conf: 0.75
     mbc: "B0030"
+    for: [elf, macho, pe]
     # Size constraint: Compiled binaries have byte patterns that look like IPs.
     # C2 implants with hardcoded IPs are typically compact (<300KB) for stealth.
     size_max: 300000
@@ -46,7 +47,15 @@ traits:
         - type: string
           substr: "Certificate"
         - type: string
+          substr: "DigiCert"
+        - type: string
+          substr: "Python Software Foundation"
+        - type: string
           substr: "schemas-microsoft-com:asm"
+        - type: string
+          substr: "Microsoft Corporation"
+        - type: string
+          substr: "Microsoft® Windows® Operating System"
     # API set forwarding stubs contain certificate DER data that matches
     # as IPs but are definitively not C2 beacons.
     unless:
@@ -61,12 +70,27 @@ traits:
     conf: 0.90
     mbc: "B0030"
     attack: "T1071.001"
+    for: [elf, macho, pe]
     size_max: 500000
     if:
       type: string
       regex: '\b[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\b'
       external_ip: true
       count_min: 3
+    downgrade:
+      any:
+        - type: string
+          substr: "Certificate"
+        - type: string
+          substr: "DigiCert"
+        - type: string
+          substr: "Python Software Foundation"
+        - type: string
+          substr: "schemas-microsoft-com:asm"
+        - type: string
+          substr: "Microsoft Corporation"
+        - type: string
+          substr: "Microsoft® Windows® Operating System"
     unless:
       - type: string
         substr: "ApiSet Stub DLL"
@@ -81,6 +105,7 @@ traits:
     conf: 0.88
     mbc: "B0030"
     attack: "T1071.001"
+    for: [elf, macho, pe]
     size_max: 100000
     if:
       type: string

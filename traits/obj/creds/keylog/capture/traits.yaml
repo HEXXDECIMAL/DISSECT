@@ -23,6 +23,10 @@ traits:
     if:
       type: symbol
       regex: "SetWindowsHookEx"
+    downgrade:
+      any:
+        - type: string
+          substr: "Valve Corp."
 
   - id: windows-rawinput
     desc: Windows raw input API for
@@ -35,7 +39,9 @@ traits:
 
   - id: windows-asynckey
     desc: Windows GetAsyncKeyState for key polling
+    crit: notable
     conf: 0.65
+    size_max: 500000
     platforms: [windows]
     for: [pe, dll]
     if:

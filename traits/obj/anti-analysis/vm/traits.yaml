@@ -74,6 +74,10 @@ traits:
       type: string
       exact: VBOX
       case_insensitive: true
+    not:
+      - "MathJax"
+      - "flexbox"
+      - "hbox"
 
   # === Hyper-V hypervisor atomic indicators ===
   - id: vendor-hyperv-dash

@@ -252,7 +252,7 @@ traits:
     for: [javascript]
     if:
       type: content
-      regex: "['\"]tag['\"]"
+      regex: "['\"]tag['\"]\\s*[:=]"
 
   - id: ext-mutation-observer
     desc: MutationObserver DOM monitoring

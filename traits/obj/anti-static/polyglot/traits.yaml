@@ -100,7 +100,7 @@ traits:
     if:
       type: content
       substr: "%%EOF"
-      offset_range: [0, -1024]  # EOF marker should be near end
+      offset_range: [0, -1024]  # Finds %%EOF NOT in last 1KB (content appended after)
     unless:
       - id: pdf-trailer-eof-at-end
 
@@ -120,7 +120,7 @@ traits:
     desc: Image file with script trailer
     crit: suspicious
     conf: 0.85
-    for: [all]
+    for: [png, jpeg, gif]
     if:
       type: content
       regex: "<script|<\\?php|#!/"
@@ -150,7 +150,7 @@ traits:
     if:
       type: hex
       pattern: "FF D9"  # JPEG EOI
-      offset_range: [0, -1024]  # EOI should be very near end
+      offset_range: [0, -1024]  # Finds EOI NOT in last 1KB (trailing data exists)
 
   # PNG with trailing data after IEND chunk
   - id: png-trailing-data
@@ -161,7 +161,7 @@ traits:
     if:
       type: hex
       pattern: "49 45 4E 44 AE 42 60 82"  # IEND + CRC
-      offset_range: [0, -256]  # IEND should be at very end
+      offset_range: [0, -256]  # Finds IEND NOT in last 256 bytes (trailing data exists)
 
   # === Multi-format Executables ===
 
