@@ -103,14 +103,34 @@ impl TraitDefinition {
     pub fn evaluate(&self, ctx: &EvaluationContext) -> Option<Finding> {
         use super::debug::{ConditionDebug, DowngradeDebug, SkipReason};
 
-        // Check if this trait applies to the current platform/file type
-        if !self.matches_target(ctx) {
-            // Record skip reason if debug collector is present
+        // Check platform match
+        let platform_match = self.platforms.contains(&Platform::All)
+            || ctx.platforms.contains(&Platform::All)
+            || self.platforms.iter().any(|p| ctx.platforms.contains(p));
+
+        if !platform_match {
             if let Some(collector) = &ctx.debug_collector {
                 if let Ok(mut debug) = collector.write() {
                     debug.record_skip(SkipReason::PlatformMismatch {
                         rule: self.platforms.clone(),
                         context: ctx.platforms.clone(),
+                    });
+                }
+            }
+            return None;
+        }
+
+        // Check file type match
+        let file_type_match = self.r#for.contains(&FileType::All)
+            || ctx.file_type == FileType::All
+            || self.r#for.contains(&ctx.file_type);
+
+        if !file_type_match {
+            if let Some(collector) = &ctx.debug_collector {
+                if let Ok(mut debug) = collector.write() {
+                    debug.record_skip(SkipReason::FileTypeMismatch {
+                        rule: self.r#for.clone(),
+                        context: ctx.file_type,
                     });
                 }
             }
@@ -256,22 +276,6 @@ impl TraitDefinition {
         }
     }
 
-    /// Check if trait applies to current platform/file type
-    fn matches_target(&self, ctx: &EvaluationContext) -> bool {
-        // Platform matches if:
-        // - Rule allows all platforms, OR
-        // - Context includes all platforms (no filtering), OR
-        // - Rule's platforms intersect with context's platforms
-        let platform_match = self.platforms.contains(&Platform::All)
-            || ctx.platforms.contains(&Platform::All)
-            || self.platforms.iter().any(|p| ctx.platforms.contains(p));
-
-        let file_type_match = self.r#for.contains(&FileType::All)
-            || ctx.file_type == FileType::All
-            || self.r#for.contains(&ctx.file_type);
-
-        platform_match && file_type_match
-    }
 
 
     /// Evaluate a single downgrade condition set
@@ -630,13 +634,34 @@ impl CompositeTrait {
     pub fn evaluate(&self, ctx: &EvaluationContext) -> Option<Finding> {
         use super::debug::{DowngradeDebug, ProximityDebug, SkipReason};
 
-        // Check if this rule applies to the current platform/file type
-        if !self.matches_target(ctx) {
+        // Check platform match
+        let platform_match = self.platforms.contains(&Platform::All)
+            || ctx.platforms.contains(&Platform::All)
+            || self.platforms.iter().any(|p| ctx.platforms.contains(p));
+
+        if !platform_match {
             if let Some(collector) = &ctx.debug_collector {
                 if let Ok(mut debug) = collector.write() {
                     debug.record_skip(SkipReason::PlatformMismatch {
                         rule: self.platforms.clone(),
                         context: ctx.platforms.clone(),
+                    });
+                }
+            }
+            return None;
+        }
+
+        // Check file type match
+        let file_type_match = self.r#for.contains(&FileType::All)
+            || ctx.file_type == FileType::All
+            || self.r#for.contains(&ctx.file_type);
+
+        if !file_type_match {
+            if let Some(collector) = &ctx.debug_collector {
+                if let Ok(mut debug) = collector.write() {
+                    debug.record_skip(SkipReason::FileTypeMismatch {
+                        rule: self.r#for.clone(),
+                        context: ctx.file_type,
                     });
                 }
             }
@@ -935,23 +960,6 @@ impl CompositeTrait {
         }
 
         false
-    }
-
-    /// Check if rule applies to current platform/file type
-    fn matches_target(&self, ctx: &EvaluationContext) -> bool {
-        // Platform matches if:
-        // - Rule allows all platforms, OR
-        // - Context includes all platforms (no filtering), OR
-        // - Rule's platforms intersect with context's platforms
-        let platform_match = self.platforms.contains(&Platform::All)
-            || ctx.platforms.contains(&Platform::All)
-            || self.platforms.iter().any(|p| ctx.platforms.contains(p));
-
-        let file_type_match = self.r#for.contains(&FileType::All)
-            || ctx.file_type == FileType::All
-            || self.r#for.contains(&ctx.file_type);
-
-        platform_match && file_type_match
     }
 
     /// Evaluate ALL conditions must match (AND)

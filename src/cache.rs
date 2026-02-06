@@ -39,18 +39,26 @@ pub fn cache_dir() -> Result<PathBuf> {
     Ok(cache_path)
 }
 
-/// Check if we're running in developer mode (traits/ directory exists)
+/// Returns the traits directory path from DISSECT_TRAITS_PATH env var or "traits" default
+pub fn traits_path() -> PathBuf {
+    std::env::var("DISSECT_TRAITS_PATH")
+        .map(PathBuf::from)
+        .unwrap_or_else(|_| PathBuf::from("traits"))
+}
+
+/// Check if we're running in developer mode (traits directory exists)
 pub fn is_developer_mode() -> bool {
-    Path::new("traits").exists()
+    traits_path().exists()
 }
 
 /// Returns the most recent modification time of any YARA rule file
 pub fn most_recent_yara_mtime() -> Result<SystemTime> {
     let mut most_recent = SystemTime::UNIX_EPOCH;
 
-    // Check traits/ directory
-    if Path::new("traits").exists() {
-        for entry in WalkDir::new("traits")
+    // Check traits directory
+    let traits_dir = traits_path();
+    if traits_dir.exists() {
+        for entry in WalkDir::new(&traits_dir)
             .follow_links(false)
             .into_iter()
             .flatten()

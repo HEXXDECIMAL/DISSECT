@@ -78,21 +78,21 @@ impl YaraEngine {
         let mut builtin_count = 0;
         let mut third_party_count = 0;
 
-        // 1. Load built-in YARA rules from traits/ directory
-        let traits_dir = Path::new("traits");
+        // 1. Load built-in YARA rules from traits directory
+        let traits_dir = crate::cache::traits_path();
         if traits_dir.exists() {
-            match self.load_rules_into_compiler(&mut compiler, traits_dir, "traits") {
+            match self.load_rules_into_compiler(&mut compiler, &traits_dir, "traits") {
                 Ok(count) => {
                     builtin_count = count;
                     if count > 0 {
-                        eprintln!("✅ Loaded {} built-in YARA rules from traits/", count);
+                        eprintln!("✅ Loaded {} built-in YARA rules from {}", count, traits_dir.display());
                     }
                 }
                 Err(e) => {
                     // Only warn if this is an actual error, not just "no rules found"
                     let err_str = e.to_string();
                     if !err_str.contains("No YARA rules found") {
-                        eprintln!("⚠️  Failed to load YARA rules from traits/: {}", e);
+                        eprintln!("⚠️  Failed to load YARA rules from {}: {}", traits_dir.display(), e);
                     }
                 }
             }

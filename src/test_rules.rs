@@ -768,11 +768,10 @@ impl<'a> RuleDebugger<'a> {
         }
 
         // Directory prefix reference or not found
-        let mut result = ConditionDebugResult::new(desc, false);
         let slash_count = id.matches('/').count();
 
         if slash_count > 0 {
-            // Directory path reference - show what traits exist in that directory
+            // Directory path reference - check for findings with this prefix
             let matching_findings: Vec<_> = self
                 .report
                 .findings
@@ -781,6 +780,7 @@ impl<'a> RuleDebugger<'a> {
                 .collect();
 
             if matching_findings.is_empty() {
+                let mut result = ConditionDebugResult::new(desc, false);
                 result
                     .details
                     .push(format!("No traits matched in directory '{}/'", id));
@@ -799,14 +799,38 @@ impl<'a> RuleDebugger<'a> {
                         prefixes.join(", ")
                     ));
                 }
+                return result;
+            } else {
+                // Found matching findings - this is a match!
+                let mut result = ConditionDebugResult::new(desc.clone(), true);
+                result.details.push(format!(
+                    "✓ {} finding(s) matched prefix '{}':",
+                    matching_findings.len(),
+                    id
+                ));
+                for finding in matching_findings.iter().take(5) {
+                    result.details.push(format!("  - {}", finding.id));
+                }
+                if matching_findings.len() > 5 {
+                    result.details.push(format!(
+                        "  ... and {} more",
+                        matching_findings.len() - 5
+                    ));
+                }
+                // Collect evidence from matched findings
+                result.evidence = matching_findings
+                    .iter()
+                    .flat_map(|f| f.evidence.iter().cloned())
+                    .collect();
+                return result;
             }
         } else {
+            let mut result = ConditionDebugResult::new(desc, false);
             result
                 .details
                 .push(format!("Trait '{}' not found in definitions or findings", id));
+            return result;
         }
-
-        result
     }
 
     fn debug_string_condition(
@@ -1780,5 +1804,282 @@ fn format_condition_result(output: &mut String, result: &ConditionDebugResult, i
 
     for sub in &result.sub_results {
         format_condition_result(output, sub, indent + 1);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::types::{AnalysisReport, Criticality, Finding, FindingKind, TargetInfo};
+
+    fn create_test_report_with_findings(findings: Vec<Finding>) -> AnalysisReport {
+        let target = TargetInfo {
+            path: "/test/file.php".to_string(),
+            file_type: "php".to_string(),
+            size_bytes: 100,
+            sha256: "test".to_string(),
+            architectures: None,
+        };
+        let mut report = AnalysisReport::new(target);
+        report.findings = findings;
+        report
+    }
+
+    fn create_test_finding(id: &str) -> Finding {
+        Finding {
+            id: id.to_string(),
+            kind: FindingKind::Capability,
+            desc: format!("Test finding: {}", id),
+            conf: 0.9,
+            crit: crate::types::Criticality::Notable,
+            mbc: None,
+            attack: None,
+            trait_refs: vec![],
+            evidence: vec![],
+        }
+    }
+
+    /// Test that match status from real evaluation is consistent with debug output
+    #[test]
+    fn test_debug_rule_match_consistency_with_real_evaluation() {
+        // Create a report with findings that should match certain rules
+        let findings = vec![
+            create_test_finding("obj/anti-static/obfuscation/encoding/test"),
+            create_test_finding("cap/data/user-input/request/get"),
+        ];
+        let report = create_test_report_with_findings(findings);
+        let binary_data = b"<?php test ?>";
+
+        let mapper = CapabilityMapper::new();
+        let composites = &mapper.composite_rules;
+        let traits = mapper.trait_definitions();
+
+        let debugger = RuleDebugger::new(
+            &mapper,
+            &report,
+            binary_data,
+            composites,
+            traits,
+            vec![Platform::All],
+        );
+
+        // Test a composite rule that references traits by prefix
+        // The rule should match if the findings contain matching prefixes
+        if let Some(result) = debugger.debug_rule("obj/c2/webshell/backdoor/php-rce") {
+            // Verify consistency: if matched is true, at least one condition should show as matched
+            if result.matched {
+                let has_matched_condition = result.condition_results.iter().any(|c| c.matched);
+                assert!(
+                    has_matched_condition,
+                    "Rule marked as matched but no conditions show as matched"
+                );
+            }
+        }
+    }
+
+    /// Test that skip reasons are correctly captured
+    #[test]
+    fn test_debug_rule_skip_reason_file_type_mismatch() {
+        // Create a PHP report but test a rule that requires ELF
+        let report = create_test_report_with_findings(vec![]);
+        let binary_data = b"<?php test ?>";
+
+        let mapper = CapabilityMapper::new();
+        let composites = &mapper.composite_rules;
+        let traits = mapper.trait_definitions();
+
+        let debugger = RuleDebugger::new(
+            &mapper,
+            &report,
+            binary_data,
+            composites,
+            traits,
+            vec![Platform::All],
+        );
+
+        // Test a rule that requires ELF file type (zstd-magic is for binaries)
+        if let Some(result) = debugger.debug_rule("cap/data/embedded/zstd-magic") {
+            assert!(!result.matched, "Rule should not match for PHP file");
+            assert!(
+                result.skipped_reason.is_some(),
+                "Should have a skip reason for file type mismatch"
+            );
+            let reason = result.skipped_reason.as_ref().unwrap();
+            assert!(
+                reason.contains("File type mismatch"),
+                "Skip reason should mention file type mismatch, got: {}",
+                reason
+            );
+        }
+    }
+
+    /// Test that size constraints are reported as skip reasons
+    #[test]
+    fn test_debug_rule_skip_reason_size_constraint() {
+        // Create a tiny report (5 bytes)
+        let target = TargetInfo {
+            path: "/test/tiny.elf".to_string(),
+            file_type: "elf".to_string(),
+            size_bytes: 5, // Very small
+            sha256: "test".to_string(),
+            architectures: None,
+        };
+        let report = AnalysisReport::new(target);
+        let binary_data = b"\x7fELF\x00";
+
+        let mapper = CapabilityMapper::new();
+        let composites = &mapper.composite_rules;
+        let traits = mapper.trait_definitions();
+
+        let debugger = RuleDebugger::new(
+            &mapper,
+            &report,
+            binary_data,
+            composites,
+            traits,
+            vec![Platform::Linux],
+        );
+
+        // Test mirai detection which has size_min: 30000
+        if let Some(result) = debugger.debug_rule("known/malware/botnet/mirai/detected") {
+            assert!(!result.matched, "Rule should not match for tiny file");
+            assert!(
+                result.skipped_reason.is_some(),
+                "Should have a skip reason for size constraint"
+            );
+            let reason = result.skipped_reason.as_ref().unwrap();
+            assert!(
+                reason.contains("Size too small"),
+                "Skip reason should mention size constraint, got: {}",
+                reason
+            );
+        }
+    }
+
+    /// Test that prefix matching works correctly in condition debugging
+    #[test]
+    fn test_debug_condition_prefix_matching() {
+        // Create findings with specific prefixes
+        let findings = vec![
+            create_test_finding("obj/anti-static/obfuscation/encoding/test"),
+            create_test_finding("obj/anti-static/obfuscation/code-metrics/test2"),
+        ];
+        let report = create_test_report_with_findings(findings);
+        let binary_data = b"test";
+
+        let mapper = CapabilityMapper::new();
+        let composites = &mapper.composite_rules;
+        let traits = mapper.trait_definitions();
+
+        let debugger = RuleDebugger::new(
+            &mapper,
+            &report,
+            binary_data,
+            composites,
+            traits,
+            vec![Platform::All],
+        );
+
+        // Directly test the prefix matching in debug_condition
+        let condition = Condition::Trait {
+            id: "obj/anti-static/obfuscation".to_string(),
+        };
+        let result = debugger.debug_condition(&condition);
+
+        assert!(
+            result.matched,
+            "Prefix 'obj/anti-static/obfuscation' should match findings with that prefix"
+        );
+        assert!(
+            !result.details.is_empty(),
+            "Should have details about matched findings"
+        );
+    }
+
+    /// Test that non-matching prefix returns false
+    #[test]
+    fn test_debug_condition_prefix_no_match() {
+        let findings = vec![create_test_finding("cap/data/user-input/request/get")];
+        let report = create_test_report_with_findings(findings);
+        let binary_data = b"test";
+
+        let mapper = CapabilityMapper::new();
+        let composites = &mapper.composite_rules;
+        let traits = mapper.trait_definitions();
+
+        let debugger = RuleDebugger::new(
+            &mapper,
+            &report,
+            binary_data,
+            composites,
+            traits,
+            vec![Platform::All],
+        );
+
+        // Test a prefix that doesn't match any findings
+        let condition = Condition::Trait {
+            id: "obj/anti-static/obfuscation".to_string(),
+        };
+        let result = debugger.debug_condition(&condition);
+
+        assert!(
+            !result.matched,
+            "Prefix should not match when no findings have that prefix"
+        );
+    }
+
+    /// Test that the match count in condition group matches the actual matched conditions
+    #[test]
+    fn test_debug_composite_condition_count_consistency() {
+        let findings = vec![
+            create_test_finding("obj/anti-static/obfuscation/encoding/test"),
+            create_test_finding("cap/data/user-input/request/get"),
+        ];
+        let report = create_test_report_with_findings(findings);
+        let binary_data = b"<?php test ?>";
+
+        let mapper = CapabilityMapper::new();
+        let composites = &mapper.composite_rules;
+        let traits = mapper.trait_definitions();
+
+        let debugger = RuleDebugger::new(
+            &mapper,
+            &report,
+            binary_data,
+            composites,
+            traits,
+            vec![Platform::All],
+        );
+
+        // Find and debug a composite rule
+        if let Some(result) = debugger.debug_rule("obj/c2/webshell/backdoor/php-rce") {
+            // For each condition group (all/any/none), verify count matches
+            for cond_result in &result.condition_results {
+                // Parse the condition description to get claimed count
+                // e.g., "any: (4/5 needed: 1)"
+                if cond_result.condition_desc.contains("(") {
+                    let matched_in_sub = cond_result
+                        .sub_results
+                        .iter()
+                        .filter(|r| r.matched)
+                        .count();
+
+                    // The description should contain the correct count
+                    if let Some(start) = cond_result.condition_desc.find('(') {
+                        if let Some(slash) = cond_result.condition_desc.find('/') {
+                            let claimed_count: usize = cond_result.condition_desc
+                                [start + 1..slash]
+                                .parse()
+                                .unwrap_or(999);
+                            assert_eq!(
+                                claimed_count, matched_in_sub,
+                                "Claimed match count {} doesn't match actual {}",
+                                claimed_count, matched_in_sub
+                            );
+                        }
+                    }
+                }
+            }
+        }
     }
 }

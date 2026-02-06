@@ -72,7 +72,8 @@ impl CapabilityMapper {
     pub fn new() -> Self {
         // Try to load from capabilities directory, fall back to single file
         // YAML parse errors or invalid trait configurations are fatal
-        match Self::from_directory("traits") {
+        let traits_dir = crate::cache::traits_path();
+        match Self::from_directory(&traits_dir) {
             Ok(mapper) => {
                 return mapper;
             }
@@ -89,7 +90,7 @@ impl CapabilityMapper {
                     std::process::exit(1);
                 }
                 // Always show non-parse errors
-                eprintln!("⚠️  Failed to load from traits/ directory: {:#}", e);
+                eprintln!("⚠️  Failed to load from {} directory: {:#}", traits_dir.display(), e);
             }
         }
 
