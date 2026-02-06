@@ -72,7 +72,7 @@
 </head>
 <body>
     <h1>DISSECT</h1>
-    <p>Static analysis for binaries and source code</p>
+    <p>Deep static analysis for threat detection. AST-aware, not regex-blind.</p>
 
     <form method="POST" action="/upload" enctype="multipart/form-data">
         <input type="file" name="file" required accept="*/*">
@@ -82,20 +82,20 @@
     <div class="info">
         <h2>What is DISSECT?</h2>
         <ul>
-            <li>Binary analysis and trait detection</li>
-            <li>Automatic file format identification</li>
-            <li>Deep inspection of executables and archives</li>
-            <li>Security-focused static analysis</li>
+            <li><strong>AST-Aware</strong>: Understands code semantics across 20+ languages to detect intent, not just strings.</li>
+            <li><strong>Deep Binary Analysis</strong>: Leverages Radare2/Rizin and Goblin for deep inspection of Mach-O, ELF, and PE.</li>
+            <li><strong>Recursive Inspection</strong>: Automatically unpacks archives (ZIP, TAR, 7z, RAR) and inspects nested content.</li>
+            <li><strong>Supply Chain Defense</strong>: Built to identify hostile behaviors in packages, extensions, and source code.</li>
         </ul>
     </div>
 
     <div class="info">
         <h2>Supported Formats</h2>
         <ul>
-            <li>ELF, Mach-O, PE executables</li>
-            <li>Archives: tar, zip, 7z, rar, gzip</li>
-            <li>Containers: squashfs, ext4, iso</li>
-            <li>Source code and text files</li>
+            <li><strong>Binaries</strong>: ELF, Mach-O, PE executables and libraries</li>
+            <li><strong>Source</strong>: Go, Rust, Python, JS/TS, C/C++, Java, Ruby, PHP, and more</li>
+            <li><strong>Packages</strong>: npm, Chrome extensions, VSCode extensions</li>
+            <li><strong>Archives</strong>: ZIP, TAR, 7z, RAR, XAR, JAR</li>
         </ul>
     </div>
 </body>
