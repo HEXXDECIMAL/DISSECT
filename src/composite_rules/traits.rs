@@ -101,14 +101,49 @@ impl TraitDefinition {
 
     /// Evaluate this trait definition against the analysis context
     pub fn evaluate(&self, ctx: &EvaluationContext) -> Option<Finding> {
+        use super::debug::{ConditionDebug, DowngradeDebug, SkipReason};
+
         // Check if this trait applies to the current platform/file type
         if !self.matches_target(ctx) {
+            // Record skip reason if debug collector is present
+            if let Some(collector) = &ctx.debug_collector {
+                if let Ok(mut debug) = collector.write() {
+                    debug.record_skip(SkipReason::PlatformMismatch {
+                        rule: self.platforms.clone(),
+                        context: ctx.platforms.clone(),
+                    });
+                }
+            }
             return None;
         }
 
         // Check size constraints
-        if !self.matches_size(ctx) {
-            return None;
+        let file_size = ctx.report.target.size_bytes as usize;
+        if let Some(min) = self.size_min {
+            if file_size < min {
+                if let Some(collector) = &ctx.debug_collector {
+                    if let Ok(mut debug) = collector.write() {
+                        debug.record_skip(SkipReason::SizeTooSmall {
+                            actual: file_size,
+                            min,
+                        });
+                    }
+                }
+                return None;
+            }
+        }
+        if let Some(max) = self.size_max {
+            if file_size > max {
+                if let Some(collector) = &ctx.debug_collector {
+                    if let Ok(mut debug) = collector.write() {
+                        debug.record_skip(SkipReason::SizeTooLarge {
+                            actual: file_size,
+                            max,
+                        });
+                    }
+                }
+                return None;
+            }
         }
 
         // Check unless conditions (file-level skip)
@@ -117,7 +152,14 @@ impl TraitDefinition {
             for condition in unless_conds {
                 let result = self.eval_condition(condition, ctx);
                 if result.matched {
-                    // Skip this trait - condition matched
+                    // Record skip reason if debug collector is present
+                    if let Some(collector) = &ctx.debug_collector {
+                        if let Ok(mut debug) = collector.write() {
+                            debug.record_skip(SkipReason::UnlessConditionMatched {
+                                condition_desc: format!("{:?}", condition),
+                            });
+                        }
+                    }
                     return None;
                 }
             }
@@ -125,6 +167,17 @@ impl TraitDefinition {
 
         // Evaluate the condition (traits only have one atomic condition)
         let result = self.eval_condition(&self.r#if, ctx);
+
+        // Record condition result if debug collector is present
+        if let Some(collector) = &ctx.debug_collector {
+            if let Ok(mut debug) = collector.write() {
+                let cond_debug = ConditionDebug::new(format!("{:?}", self.r#if))
+                    .with_matched(result.matched)
+                    .with_evidence(result.evidence.clone())
+                    .with_precision(result.precision);
+                debug.add_condition(cond_debug);
+            }
+        }
 
         // Debug: trace evaluation result for eco/npm traits
         if self.id.contains("eco/npm/metadata/vscode") {
@@ -148,12 +201,42 @@ impl TraitDefinition {
                         self.id, self.crit
                     );
                 }
-                final_crit = self.evaluate_downgrade(downgrade_conds, &self.crit, ctx);
+                let triggered = self.eval_downgrade_conditions(downgrade_conds, ctx);
+                if triggered {
+                    final_crit = match self.crit {
+                        Criticality::Hostile => Criticality::Suspicious,
+                        Criticality::Suspicious => Criticality::Notable,
+                        Criticality::Notable | Criticality::Inert | Criticality::Filtered => {
+                            Criticality::Inert
+                        }
+                    };
+                }
+
+                // Record downgrade debug if collector is present
+                if let Some(collector) = &ctx.debug_collector {
+                    if let Ok(mut debug) = collector.write() {
+                        debug.set_downgrade(DowngradeDebug {
+                            original_crit: self.crit,
+                            final_crit,
+                            triggered,
+                            conditions: Vec::new(), // Could add condition details here
+                        });
+                    }
+                }
+
                 if debug_downgrade {
                     eprintln!(
                         "DEBUG: Final criticality for '{}': {:?}",
                         self.id, final_crit
                     );
+                }
+            }
+
+            // Record match in debug collector
+            if let Some(collector) = &ctx.debug_collector {
+                if let Ok(mut debug) = collector.write() {
+                    debug.matched = true;
+                    debug.precision = result.precision;
                 }
             }
 
@@ -190,44 +273,6 @@ impl TraitDefinition {
         platform_match && file_type_match
     }
 
-    /// Check if rule matches size constraints
-    fn matches_size(&self, ctx: &EvaluationContext) -> bool {
-        let file_size = ctx.report.target.size_bytes as usize;
-
-        if let Some(min) = self.size_min {
-            if file_size < min {
-                return false;
-            }
-        }
-
-        if let Some(max) = self.size_max {
-            if file_size > max {
-                return false;
-            }
-        }
-
-        true
-    }
-
-    /// Evaluate downgrade conditions and return final criticality.
-    /// When matched, drops one level: hostile→suspicious→notable→inert
-    fn evaluate_downgrade(
-        &self,
-        conditions: &DowngradeConditions,
-        base_crit: &Criticality,
-        ctx: &EvaluationContext,
-    ) -> Criticality {
-        if self.eval_downgrade_conditions(conditions, ctx) {
-            return match base_crit {
-                Criticality::Hostile => Criticality::Suspicious,
-                Criticality::Suspicious => Criticality::Notable,
-                Criticality::Notable | Criticality::Inert | Criticality::Filtered => {
-                    Criticality::Inert
-                }
-            };
-        }
-        *base_crit
-    }
 
     /// Evaluate a single downgrade condition set
     fn eval_downgrade_conditions(
@@ -583,14 +628,48 @@ impl CompositeTrait {
 
     /// Evaluate this rule against the analysis context
     pub fn evaluate(&self, ctx: &EvaluationContext) -> Option<Finding> {
+        use super::debug::{DowngradeDebug, ProximityDebug, SkipReason};
+
         // Check if this rule applies to the current platform/file type
         if !self.matches_target(ctx) {
+            if let Some(collector) = &ctx.debug_collector {
+                if let Ok(mut debug) = collector.write() {
+                    debug.record_skip(SkipReason::PlatformMismatch {
+                        rule: self.platforms.clone(),
+                        context: ctx.platforms.clone(),
+                    });
+                }
+            }
             return None;
         }
 
         // Check size constraints
-        if !self.matches_size(ctx) {
-            return None;
+        let file_size = ctx.report.target.size_bytes as usize;
+        if let Some(min) = self.size_min {
+            if file_size < min {
+                if let Some(collector) = &ctx.debug_collector {
+                    if let Ok(mut debug) = collector.write() {
+                        debug.record_skip(SkipReason::SizeTooSmall {
+                            actual: file_size,
+                            min,
+                        });
+                    }
+                }
+                return None;
+            }
+        }
+        if let Some(max) = self.size_max {
+            if file_size > max {
+                if let Some(collector) = &ctx.debug_collector {
+                    if let Ok(mut debug) = collector.write() {
+                        debug.record_skip(SkipReason::SizeTooLarge {
+                            actual: file_size,
+                            max,
+                        });
+                    }
+                }
+                return None;
+            }
         }
 
         // Check unless conditions (file-level skip)
@@ -599,6 +678,13 @@ impl CompositeTrait {
             for condition in unless_conds {
                 let result = self.eval_condition(condition, ctx);
                 if result.matched {
+                    if let Some(collector) = &ctx.debug_collector {
+                        if let Ok(mut debug) = collector.write() {
+                            debug.record_skip(SkipReason::UnlessConditionMatched {
+                                condition_desc: format!("{:?}", condition),
+                            });
+                        }
+                    }
                     return None;
                 }
             }
@@ -680,7 +766,33 @@ impl CompositeTrait {
 
         if result.matched {
             // Check proximity constraints (near_lines, near_bytes)
-            let evidence = self.check_proximity_constraints(result.evidence)?;
+            let proximity_result = self.check_proximity_constraints(result.evidence.clone());
+
+            // Record proximity debug if applicable
+            if self.near_lines.is_some() || self.near_bytes.is_some() {
+                if let Some(collector) = &ctx.debug_collector {
+                    if let Ok(mut debug) = collector.write() {
+                        let constraint_type = if self.near_lines.is_some() {
+                            "near_lines"
+                        } else {
+                            "near_bytes"
+                        };
+                        let max_span = self.near_lines.or(self.near_bytes).unwrap_or(0);
+                        debug.set_proximity(ProximityDebug {
+                            constraint_type: constraint_type.to_string(),
+                            max_span,
+                            min_required: self.needs.unwrap_or(1).max(1),
+                            satisfied: proximity_result.is_some(),
+                            positions: Vec::new(), // Could extract from evidence
+                        });
+                    }
+                }
+            }
+
+            let evidence = match proximity_result {
+                Some(ev) => ev,
+                None => return None,
+            };
 
             // Boost precision if proximity constraints were applied
             let mut precision_boost = 0.0;
@@ -699,12 +811,42 @@ impl CompositeTrait {
                         self.id, self.crit
                     );
                 }
-                final_crit = self.evaluate_downgrade(downgrade_conds, &self.crit, ctx);
+                let triggered = self.eval_downgrade_conditions(downgrade_conds, ctx);
+                if triggered {
+                    final_crit = match self.crit {
+                        Criticality::Hostile => Criticality::Suspicious,
+                        Criticality::Suspicious => Criticality::Notable,
+                        Criticality::Notable | Criticality::Inert | Criticality::Filtered => {
+                            Criticality::Inert
+                        }
+                    };
+                }
+
+                // Record downgrade debug
+                if let Some(collector) = &ctx.debug_collector {
+                    if let Ok(mut debug) = collector.write() {
+                        debug.set_downgrade(DowngradeDebug {
+                            original_crit: self.crit,
+                            final_crit,
+                            triggered,
+                            conditions: Vec::new(),
+                        });
+                    }
+                }
+
                 if debug_downgrade {
                     eprintln!(
                         "DEBUG: Final criticality for composite '{}': {:?}",
                         self.id, final_crit
                     );
+                }
+            }
+
+            // Record match in debug collector
+            if let Some(collector) = &ctx.debug_collector {
+                if let Ok(mut debug) = collector.write() {
+                    debug.matched = true;
+                    debug.precision = result.precision + precision_boost;
                 }
             }
 
@@ -810,25 +952,6 @@ impl CompositeTrait {
             || self.r#for.contains(&ctx.file_type);
 
         platform_match && file_type_match
-    }
-
-    /// Check if rule matches size constraints
-    fn matches_size(&self, ctx: &EvaluationContext) -> bool {
-        let file_size = ctx.report.target.size_bytes as usize;
-
-        if let Some(min) = self.size_min {
-            if file_size < min {
-                return false;
-            }
-        }
-
-        if let Some(max) = self.size_max {
-            if file_size > max {
-                return false;
-            }
-        }
-
-        true
     }
 
     /// Evaluate ALL conditions must match (AND)

@@ -1,5 +1,6 @@
 //! Evaluation context and result types for composite rules.
 
+use super::debug::DebugCollector;
 use super::types::{FileType, Platform};
 use crate::types::{AnalysisReport, Evidence, Finding};
 use rustc_hash::FxHashSet;
@@ -17,6 +18,9 @@ pub struct EvaluationContext<'a> {
     pub cached_ast: Option<&'a tree_sitter::Tree>,
     /// Cached index of finding IDs for fast O(1) trait lookups
     pub finding_id_index: Option<FxHashSet<String>>,
+    /// Optional debug collector - None for hot path, Some during test-rules
+    /// When present, evaluation records detailed debug info
+    pub debug_collector: Option<&'a DebugCollector>,
 }
 
 impl<'a> EvaluationContext<'a> {
@@ -48,7 +52,14 @@ impl<'a> EvaluationContext<'a> {
             additional_findings,
             cached_ast,
             finding_id_index: Some(index),
+            debug_collector: None,
         }
+    }
+
+    /// Create a new evaluation context with a debug collector
+    pub fn with_debug_collector(mut self, collector: &'a DebugCollector) -> Self {
+        self.debug_collector = Some(collector);
+        self
     }
 
     /// Check if a finding ID exists (exact match only, O(1))

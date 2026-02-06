@@ -15,6 +15,7 @@
 pub mod ast_kinds;
 pub mod condition;
 pub mod context;
+pub mod debug;
 pub mod evaluators;
 pub mod traits;
 pub mod types;
@@ -22,6 +23,7 @@ pub mod types;
 // Re-export public API
 pub use condition::Condition;
 pub use context::EvaluationContext;
+pub use debug::{DebugCollector, EvaluationDebug, RuleType};
 pub use traits::{CompositeTrait, DowngradeConditions, TraitDefinition};
 pub use types::{FileType, Platform};
 

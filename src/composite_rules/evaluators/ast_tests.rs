@@ -29,6 +29,7 @@ fn create_test_context<'a>(
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     }
 }
 

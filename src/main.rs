@@ -1536,7 +1536,8 @@ fn test_rules_debug(
     eprintln!("Detected file type: {:?}", file_type);
 
     // Load capability mapper
-    let capability_mapper = crate::capabilities::CapabilityMapper::new().with_platforms(platforms);
+    let capability_mapper =
+        crate::capabilities::CapabilityMapper::new().with_platforms(platforms.clone());
 
     // Read file data
     let binary_data = fs::read(path)?;
@@ -1548,12 +1549,14 @@ fn test_rules_debug(
     capability_mapper.evaluate_and_merge_findings(&mut report, &binary_data, None);
 
     // Create debugger and debug each rule
+    // Pass platforms from CLI for consistency with production evaluation
     let debugger = test_rules::RuleDebugger::new(
         &capability_mapper,
         &report,
         &binary_data,
         &capability_mapper.composite_rules,
         capability_mapper.trait_definitions(),
+        platforms,
     );
 
     let mut results = Vec::new();
@@ -1640,7 +1643,8 @@ fn test_match_debug(
     };
 
     // Load capability mapper
-    let capability_mapper = crate::capabilities::CapabilityMapper::new().with_platforms(platforms);
+    let capability_mapper =
+        crate::capabilities::CapabilityMapper::new().with_platforms(platforms.clone());
 
     // Read file data
     let binary_data = fs::read(path)?;
@@ -1655,6 +1659,7 @@ fn test_match_debug(
         &binary_data,
         &capability_mapper.composite_rules,
         capability_mapper.trait_definitions(),
+        platforms,
     );
     let context_info = debugger.context_info();
 
@@ -2045,6 +2050,7 @@ fn test_match_debug(
                         &binary_data,
                         &capability_mapper.composite_rules,
                         capability_mapper.trait_definitions(),
+                        vec![composite_rules::Platform::All], // Check all platforms for alt file types
                     );
                     let alt_context = alt_debugger.context_info();
 

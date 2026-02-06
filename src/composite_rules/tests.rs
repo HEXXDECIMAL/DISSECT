@@ -56,6 +56,7 @@ fn test_symbol_condition() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     let rule = CompositeTrait {
@@ -106,6 +107,7 @@ fn test_all() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     let rule = CompositeTrait {
@@ -166,6 +168,7 @@ fn test_count() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     let rule = CompositeTrait {
@@ -227,6 +230,7 @@ fn test_string_exact_condition() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     let rule = CompositeTrait {
@@ -278,6 +282,7 @@ fn test_any() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     let rule = CompositeTrait {
@@ -358,6 +363,7 @@ fn test_not_directive_shorthand() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     let trait_def = TraitDefinition {
@@ -428,6 +434,7 @@ fn test_not_directive_exact() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     let trait_def = TraitDefinition {
@@ -502,6 +509,7 @@ fn test_not_directive_regex() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     let trait_def = TraitDefinition {
@@ -570,6 +578,7 @@ fn test_unless_directive_skips_trait() {
         additional_findings: Some(&findings),
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     let trait_def = TraitDefinition {
@@ -614,6 +623,7 @@ fn test_unless_directive_allows_trait() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     let trait_def = TraitDefinition {
@@ -671,6 +681,7 @@ fn test_downgrade_to_notable() {
         additional_findings: Some(&findings),
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     let trait_def = TraitDefinition {
@@ -740,6 +751,7 @@ fn test_downgrade_one_level() {
         additional_findings: Some(&findings),
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     let trait_def = TraitDefinition {
@@ -792,6 +804,7 @@ fn test_downgrade_no_match_keeps_original() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     let trait_def = TraitDefinition {
@@ -857,6 +870,7 @@ fn test_downgrade_from_hostile() {
         additional_findings: Some(&findings),
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     let trait_def = TraitDefinition {
@@ -942,6 +956,7 @@ fn test_all_three_directives_combined() {
         additional_findings: Some(&findings),
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     let trait_def = TraitDefinition {
@@ -1024,6 +1039,7 @@ fn test_string_exact_match_requires_full_equality() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     // exact: "hello" should match only "hello", not "hello world"
@@ -1095,6 +1111,7 @@ fn test_string_substr_matches_substrings() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     // substr: "hello" should match both "hello" and "hello world"
@@ -1157,6 +1174,7 @@ fn test_symbol_exact_vs_substr() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     // exact: "read" should match only "read", not "readlink"
@@ -1241,6 +1259,7 @@ fn test_string_case_insensitive_exact() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     // Case-insensitive exact match
@@ -1307,6 +1326,7 @@ fn test_string_word_boundary_match() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     // word: "cat" should match "the cat sat" but not "category"
@@ -1386,6 +1406,7 @@ fn test_string_regex_match() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     // regex for IP addresses
@@ -1438,6 +1459,7 @@ fn test_content_exact_vs_substr() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     // exact: should match only if entire content equals the pattern (won't match)
@@ -1503,6 +1525,7 @@ fn test_base64_decoded_matching() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     // exact: should match only "secret", not "secret password"
@@ -1541,6 +1564,7 @@ fn test_xor_decoded_matching() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     // exact: should match full URL
@@ -1602,6 +1626,7 @@ fn test_basename_exact_match() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     // exact: "__init__.py" should match
@@ -1623,6 +1648,7 @@ fn test_basename_exact_no_match() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     // exact: "__init__.py" should not match "main.py"
@@ -1643,6 +1669,7 @@ fn test_basename_substr_match() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     // substr: "setup" should match "setup_tools.py"
@@ -1663,6 +1690,7 @@ fn test_basename_regex_match() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     // regex: "^test_" should match files starting with "test_"
@@ -1683,6 +1711,7 @@ fn test_basename_case_insensitive() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     // exact: "readme.md" should match "README.md" with case_insensitive
@@ -1708,6 +1737,7 @@ fn test_basename_in_trait_definition() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     let trait_def = TraitDefinition {
@@ -1750,6 +1780,7 @@ fn test_basename_in_composite_rule() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     let rule = CompositeTrait {
@@ -1812,6 +1843,7 @@ fn test_composite_unless_skips_rule() {
         additional_findings: Some(&findings),
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     // Composite rule with unless condition
@@ -1865,6 +1897,7 @@ fn test_composite_unless_allows_rule() {
         additional_findings: None, // No findings that would match unless
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     let rule = CompositeTrait {
@@ -1918,6 +1951,7 @@ fn test_composite_unless_with_basename() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     let rule = CompositeTrait {
@@ -1985,6 +2019,7 @@ fn test_composite_unless_multiple_conditions_any_matches() {
         additional_findings: None,
         cached_ast: None,
         finding_id_index: None,
+        debug_collector: None,
     };
 
     let rule = CompositeTrait {

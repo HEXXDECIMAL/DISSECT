@@ -1,21 +1,27 @@
 //! Debug/test rule evaluation module.
 //!
 //! This module provides detailed tracing of rule evaluation for debugging purposes.
+//! It uses the debug collector pattern to capture evaluation details from the real
+//! evaluation code path, ensuring consistency between test-rules and production.
+//!
 //! It shows exactly why rules match or fail, including:
 //! - For composites: which conditions matched and which didn't
 //! - What values were actually matched against
 //! - Regex patterns being used
 //! - Context about available data (strings, symbols, etc.)
+//! - Size constraints, downgrade evaluation, proximity constraints
 
 use crate::capabilities::validation::calculate_composite_precision;
 use crate::capabilities::CapabilityMapper;
 use crate::composite_rules::{
-    CompositeTrait, Condition, EvaluationContext, FileType as RuleFileType, Platform,
-    TraitDefinition,
+    CompositeTrait, Condition, DebugCollector, EvaluationContext, EvaluationDebug,
+    FileType as RuleFileType, Platform, RuleType, TraitDefinition,
 };
 use crate::types::{AnalysisReport, Evidence};
 use colored::Colorize;
+use rustc_hash::FxHashSet;
 use std::collections::{HashMap, HashSet};
+use std::sync::RwLock;
 
 /// Result of debugging a single condition
 #[derive(Debug)]
@@ -89,15 +95,23 @@ pub struct RuleDebugger<'a> {
 }
 
 impl<'a> RuleDebugger<'a> {
+    /// Create a new rule debugger.
+    ///
+    /// # Arguments
+    /// * `mapper` - The capability mapper with rule definitions
+    /// * `report` - The analysis report for the target file
+    /// * `binary_data` - Raw file contents
+    /// * `composites` - Composite rule definitions
+    /// * `traits` - Trait definitions
+    /// * `platforms` - Platform filter from CLI (use vec![Platform::All] to show all)
     pub fn new(
         mapper: &'a CapabilityMapper,
         report: &'a AnalysisReport,
         binary_data: &'a [u8],
         composites: &'a [CompositeTrait],
         traits: &'a [TraitDefinition],
+        platforms: Vec<Platform>,
     ) -> Self {
-        // Use Platform::All for debugging to show all potentially matching rules
-        let platforms = vec![Platform::All];
         let file_type = detect_file_type(&report.target.file_type);
 
         Self {
@@ -140,16 +154,283 @@ impl<'a> RuleDebugger<'a> {
         }
     }
 
+    /// Build a finding ID index for the context
+    fn build_finding_index(&self) -> FxHashSet<String> {
+        let mut index = FxHashSet::default();
+        for finding in &self.report.findings {
+            index.insert(finding.id.clone());
+        }
+        index
+    }
+
+    /// Create an evaluation context with an optional debug collector
+    fn create_eval_context<'b>(
+        &'b self,
+        debug_collector: Option<&'b DebugCollector>,
+    ) -> EvaluationContext<'b>
+    where
+        'a: 'b,
+    {
+        EvaluationContext {
+            report: self.report,
+            binary_data: self.binary_data,
+            file_type: self.file_type,
+            platforms: self.platforms.clone(),
+            additional_findings: None,
+            cached_ast: None,
+            finding_id_index: Some(self.build_finding_index()),
+            debug_collector,
+        }
+    }
+
+    /// Debug a trait by running real evaluation with debug collector
+    fn debug_trait_via_evaluation(&self, trait_def: &TraitDefinition) -> RuleDebugResult {
+        // Create debug collector
+        let debug = RwLock::new(EvaluationDebug::new(&trait_def.id, RuleType::Trait));
+
+        // Create context with debug collector
+        let ctx = self.create_eval_context(Some(&debug));
+
+        // Run real evaluation
+        let finding = trait_def.evaluate(&ctx);
+
+        // Extract debug info
+        let eval_debug = debug.into_inner().unwrap();
+
+        // Convert to RuleDebugResult
+        self.convert_eval_debug_to_result(
+            eval_debug,
+            &trait_def.id,
+            "trait",
+            &trait_def.desc,
+            finding.is_some(),
+            &trait_def.r#if,
+        )
+    }
+
+    /// Debug a composite by running real evaluation with debug collector
+    fn debug_composite_via_evaluation(&self, composite: &CompositeTrait) -> RuleDebugResult {
+        // Create debug collector
+        let debug = RwLock::new(EvaluationDebug::new(&composite.id, RuleType::Composite));
+
+        // Create context with debug collector
+        let ctx = self.create_eval_context(Some(&debug));
+
+        // Run real evaluation
+        let finding = composite.evaluate(&ctx);
+
+        // Extract debug info
+        let eval_debug = debug.into_inner().unwrap();
+
+        // Convert to RuleDebugResult, using composite requirements
+        let requirements = build_composite_requirements(composite);
+        self.convert_composite_debug_to_result(
+            eval_debug,
+            composite,
+            finding.is_some(),
+            &requirements,
+        )
+    }
+
+    /// Convert EvaluationDebug to RuleDebugResult for traits
+    fn convert_eval_debug_to_result(
+        &self,
+        eval_debug: EvaluationDebug,
+        rule_id: &str,
+        rule_type: &str,
+        desc: &str,
+        matched: bool,
+        condition: &Condition,
+    ) -> RuleDebugResult {
+        // Calculate precision
+        let mut cache = HashMap::new();
+        let mut visiting = HashSet::new();
+        let precision_value = calculate_composite_precision(
+            rule_id,
+            self.composites,
+            self.traits,
+            &mut cache,
+            &mut visiting,
+        );
+
+        let skipped_reason = eval_debug.skip_reason.map(|r| r.to_string());
+
+        // If skipped, return early with skip reason
+        if skipped_reason.is_some() {
+            return RuleDebugResult {
+                rule_id: rule_id.to_string(),
+                rule_type: rule_type.to_string(),
+                description: desc.to_string(),
+                matched: false,
+                skipped_reason,
+                requirements: format!("Condition: {:?}", describe_condition(condition)),
+                condition_results: Vec::new(),
+                context_info: self.context_info(),
+                precision: Some(precision_value as f32),
+            };
+        }
+
+        // For matched/unmatched, still use debug_condition for detailed condition info
+        let cond_result = self.debug_condition(condition);
+
+        RuleDebugResult {
+            rule_id: rule_id.to_string(),
+            rule_type: rule_type.to_string(),
+            description: desc.to_string(),
+            matched,
+            skipped_reason: None,
+            requirements: format!("Condition: {:?}", describe_condition(condition)),
+            condition_results: vec![cond_result],
+            context_info: self.context_info(),
+            precision: Some(precision_value as f32),
+        }
+    }
+
+    /// Convert EvaluationDebug to RuleDebugResult for composites
+    fn convert_composite_debug_to_result(
+        &self,
+        eval_debug: EvaluationDebug,
+        composite: &CompositeTrait,
+        matched: bool,
+        requirements: &str,
+    ) -> RuleDebugResult {
+        // Calculate precision
+        let mut cache = HashMap::new();
+        let mut visiting = HashSet::new();
+        let precision_value = calculate_composite_precision(
+            &composite.id,
+            self.composites,
+            self.traits,
+            &mut cache,
+            &mut visiting,
+        );
+
+        let skipped_reason = eval_debug.skip_reason.map(|r| r.to_string());
+
+        // If skipped, return early with skip reason
+        if skipped_reason.is_some() {
+            return RuleDebugResult {
+                rule_id: composite.id.clone(),
+                rule_type: "composite".to_string(),
+                description: composite.desc.clone(),
+                matched: false,
+                skipped_reason,
+                requirements: requirements.to_string(),
+                condition_results: Vec::new(),
+                context_info: self.context_info(),
+                precision: Some(precision_value as f32),
+            };
+        }
+
+        // Build detailed condition results using existing debug logic
+        let mut condition_results = Vec::new();
+
+        // Evaluate 'all' conditions
+        if let Some(all_conds) = &composite.all {
+            let mut all_results = Vec::new();
+            let mut all_matched_count = 0;
+            for cond in all_conds {
+                let cond_result = self.debug_condition(cond);
+                if cond_result.matched {
+                    all_matched_count += 1;
+                }
+                all_results.push(cond_result);
+            }
+            let all_matched = all_matched_count == all_conds.len();
+            let mut group = ConditionDebugResult::new(
+                format!("all: ({}/{})", all_matched_count, all_conds.len()),
+                all_matched,
+            );
+            group.sub_results = all_results;
+            condition_results.push(group);
+        }
+
+        // Evaluate 'any' conditions
+        if let Some(any_conds) = &composite.any {
+            let mut any_results = Vec::new();
+            let mut any_matched_count = 0;
+            for cond in any_conds {
+                let cond_result = self.debug_condition(cond);
+                if cond_result.matched {
+                    any_matched_count += 1;
+                }
+                any_results.push(cond_result);
+            }
+            let needs = composite.needs.unwrap_or(1);
+            let any_satisfied = any_matched_count >= needs;
+            let mut group = ConditionDebugResult::new(
+                format!("any: ({}/{} needed: {})", any_matched_count, any_conds.len(), needs),
+                any_satisfied,
+            );
+            group.sub_results = any_results;
+            condition_results.push(group);
+        }
+
+        // Evaluate 'none' conditions
+        if let Some(none_conds) = &composite.none {
+            let mut none_results = Vec::new();
+            let mut none_matched_count = 0;
+            for cond in none_conds {
+                let cond_result = self.debug_condition(cond);
+                if cond_result.matched {
+                    none_matched_count += 1;
+                }
+                none_results.push(cond_result);
+            }
+            let none_passed = none_matched_count == 0;
+            let mut group = ConditionDebugResult::new(
+                format!("none: ({} matched, need 0)", none_matched_count),
+                none_passed,
+            );
+            group.sub_results = none_results;
+            condition_results.push(group);
+        }
+
+        // Add downgrade info if present
+        if let Some(downgrade) = eval_debug.downgrade {
+            let downgrade_desc = if downgrade.triggered {
+                format!(
+                    "Downgrade: {:?} -> {:?} (triggered)",
+                    downgrade.original_crit, downgrade.final_crit
+                )
+            } else {
+                format!("Downgrade: not triggered (stays {:?})", downgrade.original_crit)
+            };
+            condition_results.push(ConditionDebugResult::new(downgrade_desc, downgrade.triggered));
+        }
+
+        // Add proximity info if present
+        if let Some(proximity) = eval_debug.proximity {
+            let proximity_desc = format!(
+                "Proximity ({}): max_span={}, satisfied={}",
+                proximity.constraint_type, proximity.max_span, proximity.satisfied
+            );
+            condition_results.push(ConditionDebugResult::new(proximity_desc, proximity.satisfied));
+        }
+
+        RuleDebugResult {
+            rule_id: composite.id.clone(),
+            rule_type: "composite".to_string(),
+            description: composite.desc.clone(),
+            matched,
+            skipped_reason: None,
+            requirements: requirements.to_string(),
+            condition_results,
+            context_info: self.context_info(),
+            precision: Some(precision_value as f32),
+        }
+    }
+
     /// Debug a specific rule by ID
     pub fn debug_rule(&self, rule_id: &str) -> Option<RuleDebugResult> {
         // First try to find as a trait definition
-        if let Some(result) = self.debug_trait(rule_id) {
-            return Some(result);
+        if let Some(trait_def) = self.find_trait_definition(rule_id) {
+            return Some(self.debug_trait_via_evaluation(trait_def));
         }
 
         // Then try as a composite rule
-        if let Some(result) = self.debug_composite(rule_id) {
-            return Some(result);
+        if let Some(composite) = self.find_composite_rule(rule_id) {
+            return Some(self.debug_composite_via_evaluation(composite));
         }
 
         None
@@ -394,6 +675,7 @@ impl<'a> RuleDebugger<'a> {
             additional_findings: None,
             cached_ast: None,
             finding_id_index: None,
+            debug_collector: None,
         };
 
         match condition {
@@ -929,6 +1211,7 @@ impl<'a> RuleDebugger<'a> {
             additional_findings: None,
             cached_ast: None,
             finding_id_index: None,
+            debug_collector: None,
         };
 
         // Actually evaluate the inline YARA rule
@@ -1114,6 +1397,7 @@ impl<'a> RuleDebugger<'a> {
             additional_findings: None,
             cached_ast: None,
             finding_id_index: None,
+            debug_collector: None,
         };
 
         let eval_result = crate::composite_rules::evaluators::eval_ast(

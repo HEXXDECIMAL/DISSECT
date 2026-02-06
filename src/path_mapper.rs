@@ -324,6 +324,8 @@ fn detect_anomalous_paths(paths: &[PathInfo]) -> Vec<Finding> {
     // Hidden files in system directories
     // Exclude paths with relative components (/../ or /./) as these are typically
     // DWARF debug paths from compilation, not actual hidden file references
+    // Also exclude Rust cargo registry paths (/usr/share/cargo/registry/) which
+    // are embedded debug info from compiled Rust binaries
     let anomalous_hidden: Vec<_> = paths
         .iter()
         .filter(|p| {
@@ -331,6 +333,8 @@ fn detect_anomalous_paths(paths: &[PathInfo]) -> Vec<Finding> {
                 && (p.path.starts_with("/var/") || p.path.starts_with("/usr/"))
                 && !p.path.contains("/../")
                 && !p.path.contains("/./")
+                && !p.path.contains("/cargo/registry/")
+                && !p.path.contains("/rustc-")
         })
         .collect();
 
