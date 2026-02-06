@@ -332,7 +332,10 @@ fn test_eval_string_exact_match() {
         word: None,
         case_insensitive: false,
         exclude_patterns: None,
-        min_count: 1,
+        count_min: 1,
+        count_max: None,
+        per_kb_min: None,
+        per_kb_max: None,
         external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[],
@@ -366,7 +369,10 @@ fn test_eval_string_substr_match() {
         word: None,
         case_insensitive: false,
         exclude_patterns: None,
-        min_count: 1,
+        count_min: 1,
+        count_max: None,
+        per_kb_min: None,
+        per_kb_max: None,
         external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[],
@@ -401,7 +407,10 @@ fn test_eval_string_regex_match() {
         word: None,
         case_insensitive: false,
         exclude_patterns: None,
-        min_count: 1,
+        count_min: 1,
+        count_max: None,
+        per_kb_min: None,
+        per_kb_max: None,
         external_ip: false,
         compiled_regex: Some(&re),
         compiled_excludes: &[],
@@ -434,7 +443,10 @@ fn test_eval_string_case_insensitive() {
         word: None,
         case_insensitive: true,
         exclude_patterns: None,
-        min_count: 1,
+        count_min: 1,
+        count_max: None,
+        per_kb_min: None,
+        per_kb_max: None,
         external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[],
@@ -468,7 +480,10 @@ fn test_eval_string_exclude_patterns() {
         word: None,
         case_insensitive: false,
         exclude_patterns: None,
-        min_count: 1,
+        count_min: 1,
+        count_max: None,
+        per_kb_min: None,
+        per_kb_max: None,
         external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[exclude_re],
@@ -503,7 +518,10 @@ fn test_eval_string_min_count() {
         word: None,
         case_insensitive: false,
         exclude_patterns: None,
-        min_count: 2,
+        count_min: 2,
+        count_max: None,
+        per_kb_min: None,
+        per_kb_max: None,
         external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[],
@@ -538,7 +556,10 @@ fn test_eval_string_not_exception() {
         word: None,
         case_insensitive: false,
         exclude_patterns: None,
-        min_count: 1,
+        count_min: 1,
+        count_max: None,
+        per_kb_min: None,
+        per_kb_max: None,
         external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[],
@@ -568,7 +589,10 @@ fn test_eval_string_in_imports() {
         word: None,
         case_insensitive: false,
         exclude_patterns: None,
-        min_count: 1,
+        count_min: 1,
+        count_max: None,
+        per_kb_min: None,
+        per_kb_max: None,
         external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[],
@@ -595,7 +619,10 @@ fn test_eval_string_raw_content_fallback() {
         word: None,
         case_insensitive: false,
         exclude_patterns: None,
-        min_count: 1,
+        count_min: 1,
+        count_max: None,
+        per_kb_min: None,
+        per_kb_max: None,
         external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[],
@@ -624,6 +651,9 @@ fn test_eval_raw_exact_match() {
         None,
         false,
         1,
+        None,
+        None,
+        None,
         false,
         None,
         &ctx,
@@ -645,6 +675,9 @@ fn test_eval_raw_substr_count() {
         None,
         false,
         3,
+        None,
+        None,
+        None,
         false,
         None,
         &ctx,
@@ -667,6 +700,9 @@ fn test_eval_raw_substr_count_insufficient() {
         None,
         false,
         5, // Require 5 occurrences
+        None,
+        None,
+        None,
         false,
         None,
         &ctx,
@@ -691,6 +727,9 @@ fn test_eval_raw_regex() {
         None,
         false,
         2, // Require 2 matches
+        None,
+        None,
+        None,
         false,
         Some(&re),
         &ctx,
@@ -712,6 +751,9 @@ fn test_eval_raw_case_insensitive() {
         None,
         true,
         3,
+        None,
+        None,
+        None,
         false,
         None,
         &ctx,
@@ -733,6 +775,9 @@ fn test_eval_raw_invalid_utf8() {
         None,
         false,
         1,
+        None,
+        None,
+        None,
         false,
         None,
         &ctx,
@@ -757,6 +802,9 @@ fn test_eval_base64_exact_match() {
         None,
         false,
         1,
+        None,
+        None,
+        None,
         &ctx,
     );
 
@@ -770,7 +818,7 @@ fn test_eval_base64_substr_match() {
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
-    let result = eval_base64(None, Some(&"evil.com".to_string()), None, false, 1, &ctx);
+    let result = eval_base64(None, Some(&"evil.com".to_string()), None, false, 1, None, None, None, &ctx);
 
     assert!(result.matched);
 }
@@ -787,6 +835,9 @@ fn test_eval_base64_regex_match() {
         Some(&r"\d+\.\d+\.\d+\.\d+".to_string()),
         false,
         1,
+        None,
+        None,
+        None,
         &ctx,
     );
 
@@ -799,7 +850,7 @@ fn test_eval_base64_no_match_wrong_method() {
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
-    let result = eval_base64(Some(&"secret".to_string()), None, None, false, 1, &ctx);
+    let result = eval_base64(Some(&"secret".to_string()), None, None, false, 1, None, None, None, &ctx);
 
     assert!(!result.matched);
 }
@@ -821,6 +872,9 @@ fn test_eval_xor_match() {
         None,
         false,
         1,
+        None,
+        None,
+        None,
         &ctx,
     );
 
@@ -841,6 +895,9 @@ fn test_eval_xor_with_key_filter() {
         None,
         false,
         1,
+        None,
+        None,
+        None,
         &ctx,
     );
 
@@ -862,6 +919,9 @@ fn test_eval_xor_case_insensitive() {
         None,
         true, // case insensitive
         1,
+        None,
+        None,
+        None,
         &ctx,
     );
 

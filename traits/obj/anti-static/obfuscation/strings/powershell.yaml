@@ -108,6 +108,66 @@ traits:
       type: string
       regex: "-[Ee]ncoded[Cc]ommand|-[Ee][Cc]\\s"
 
+  # === Density-Based Obfuscation Detection ===
+  # Legitimate PowerShell rarely uses many char casts.
+  # Obfuscated code builds strings via [char]65+[char]66...
+
+  - id: dense-char-casts
+    desc: Dense [char]N casts (string obfuscation)
+    crit: suspicious
+    conf: 0.92
+    mbc: "B0032"
+    attack: "T1027"
+    for: [powershell]
+    if:
+      type: string
+      regex: "\\[char\\]\\d{2,3}"
+      count_min: 8
+      per_kb_min: 2.0
+
+  # Backtick escaping is used to break up keywords
+  # e.g., `I`n`v`o`k`e`-`E`x`p`r`e`s`s`i`o`n
+  - id: dense-backtick-escapes
+    desc: Dense backtick escapes (keyword breaking)
+    crit: suspicious
+    conf: 0.88
+    mbc: "B0032"
+    attack: "T1027"
+    for: [powershell]
+    if:
+      type: content
+      regex: "`[a-zA-Z]"
+      count_min: 10
+      per_kb_min: 3.0
+
+  # Format string obfuscation: "{0}{1}" -f 'In','voke'
+  - id: dense-format-strings
+    desc: Dense format string obfuscation
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0032"
+    attack: "T1027"
+    for: [powershell]
+    if:
+      type: content
+      regex: '"\{\\d+\}"\\s*-f'
+      count_min: 4
+      per_kb_min: 1.0
+
+  # String concatenation used to hide commands
+  - id: dense-string-concat
+    desc: Dense string concatenation
+    crit: suspicious
+    conf: 0.82
+    mbc: "B0032"
+    attack: "T1027"
+    for: [powershell]
+    if:
+      type: content
+      regex: "'[^']{1,10}'\\s*\\+\\s*'[^']{1,10}'"
+      count_min: 6
+      per_kb_min: 1.5
+
 composite_rules:
   # Character array obfuscation pattern
   - id: ps-chararray-obfuscation

@@ -56,7 +56,7 @@ traits:
     if:
       type: base64
       regex: "^/[a-z]{2,}[a-z_/]*$"
-      min_count: 3
+      count_min: 3
     attack: "T1027.001"
 
   - id: base64-suspicious-encoding
@@ -69,6 +69,24 @@ traits:
       regex: "^[a-zA-Z0-9+/]{20,}={1,3}$"
     not:
       # Exclude standard base64 alphabet lookup table
+      - "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
+    attack: "T1027.001"
+
+  # Dense base64 strings indicate heavy encoding of payloads or configs.
+  # Legitimate binaries rarely have more than a few base64 strings; malware
+  # with encoded payloads or C2 configs often has 5+ dense base64 blobs.
+  - id: dense-base64-encoding
+    desc: "Dense base64-encoded content"
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    size_max: 200000
+    if:
+      type: string
+      regex: "^[a-zA-Z0-9+/]{40,}={0,2}$"
+      count_min: 5
+      per_kb_min: 0.3
+    not:
       - "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
     attack: "T1027.001"
 

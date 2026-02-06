@@ -52,6 +52,19 @@ traits:
       type: content
       regex: "_{10,50}="
 
+  # Dense underscore variables indicate heavy obfuscation.
+  # Legitimate Python might have 1-2 underscore names; obfuscated code
+  # has 10+ per KB where all variables are replaced with underscores.
+  - id: dense-underscore-obfuscation
+    desc: Dense underscore variable obfuscation
+    crit: suspicious
+    conf: 0.92
+    if:
+      type: content
+      regex: "_{3,}\\s*="
+      count_min: 10
+      per_kb_min: 2.0
+
   # === eval(compile()) Pattern ===
   - id: eval-compile-chain
     desc: eval compile execution chain

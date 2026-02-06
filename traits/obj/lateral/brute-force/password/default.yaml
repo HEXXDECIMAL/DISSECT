@@ -176,6 +176,7 @@ traits:
     not:
       - "user:group"
       - "user:uid"
+      - "user:request"
       - "root:path"
       - "root:/"
       # Exclude help text patterns from CLI tools
@@ -186,6 +187,25 @@ traits:
     unless:
       # Exclude curl/libcurl which has credential help text
       - id: cap/comm/download/curl/curl-easy-init
+
+  # Real brute-force dictionaries have many credential entries packed densely.
+  # A few scattered credential-like strings are common in help text; 10+ entries
+  # in a small file is a true embedded dictionary.
+  - id: credential-wordlist
+    desc: "Dense credential wordlist (brute-force dictionary)"
+    crit: suspicious
+    conf: 0.92
+    attack: "T1110.001"
+    for: [elf]
+    size_max: 200000
+    if:
+      type: string
+      # Match common credential patterns with delimiters
+      regex: "(?:[\\x00-\\x1f](?:admin|root|password|default|guest|user|1234|qwerty)[\\x00-\\x1f]?)"
+      count_min: 15
+      per_kb_min: 0.5
+    unless:
+      - id: cap/interface/usage/usage-help
 
 composite_rules:
   # IoT ZTE credential composite

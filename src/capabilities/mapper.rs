@@ -530,7 +530,7 @@ impl CapabilityMapper {
 
         // Pre-compile all regexes for performance
         for trait_def in &mut trait_definitions {
-            trait_def.r#if.precompile_regexes();
+            trait_def.precompile_regexes();
         }
 
         // Validate exact trait ID references
@@ -809,7 +809,7 @@ impl CapabilityMapper {
 
         // Pre-compile all regexes for performance
         for trait_def in &mut trait_definitions {
-            trait_def.r#if.precompile_regexes();
+            trait_def.precompile_regexes();
         }
 
         // Convert raw composite rules to final rules with defaults applied
@@ -818,6 +818,11 @@ impl CapabilityMapper {
             .into_iter()
             .map(|raw| apply_composite_defaults(raw, &mappings.defaults))
             .collect();
+
+        // Pre-compile all composite rule regexes
+        for rule in &mut composite_rules {
+            rule.precompile_regexes();
+        }
 
         // Validate HOSTILE composite precision
         validate_hostile_composite_precision(
@@ -1088,7 +1093,7 @@ impl CapabilityMapper {
             .filter_map(|&idx| {
                 let trait_def = &self.trait_definitions[idx];
 
-                // Check if this is an exact string trait (no excludes, min_count=1, no downgrade)
+                // Check if this is an exact string trait (no excludes, count_min=1, no downgrade)
                 // Works for both case-sensitive and case-insensitive
                 // NOTE: Cannot use fast path for traits with downgrade rules - they need full evaluation
                 let is_simple_exact_string = trait_def.downgrade.is_none()
@@ -1097,7 +1102,7 @@ impl CapabilityMapper {
                         Condition::String {
                             exact: Some(_),
                             exclude_patterns: None,
-                            min_count: 1,
+                            count_min: 1,
                             ..
                         }
                     );

@@ -120,6 +120,72 @@ traits:
       type: content
       regex: "(?:fromhex|b64decode|unhexlify)\\(.{0,50}\\[::-1\\]|\\[::-1\\].{0,50}(?:fromhex|b64decode|unhexlify)"
 
+  # === Density-Based Obfuscation Detection ===
+  # Legitimate code rarely has more than a few chr() calls.
+  # Obfuscated code builds entire strings character by character.
+
+  - id: dense-chr-calls
+    desc: Dense chr() calls (string building)
+    crit: suspicious
+    conf: 0.90
+    mbc: "B0032"
+    attack: "T1027"
+    if:
+      type: content
+      regex: "chr\\s*\\(\\s*\\d"
+      count_min: 8
+      per_kb_min: 2.0
+
+  - id: dense-hex-escapes
+    desc: Dense hex escape sequences
+    crit: suspicious
+    conf: 0.88
+    mbc: "B0032"
+    attack: "T1027"
+    if:
+      type: string
+      regex: '(\\x[0-9a-fA-F]{2}){4,}'
+      count_min: 5
+      per_kb_min: 1.0
+
+  - id: dense-octal-escapes
+    desc: Dense octal escape sequences
+    crit: suspicious
+    conf: 0.88
+    mbc: "B0032"
+    attack: "T1027"
+    if:
+      type: string
+      regex: '(\\[0-7]{3}){4,}'
+      count_min: 5
+      per_kb_min: 1.0
+
+  # Heavy use of ord() often accompanies XOR/cipher operations
+  - id: dense-ord-calls
+    desc: Dense ord() calls (cipher operations)
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0032"
+    attack: "T1027"
+    if:
+      type: content
+      regex: "ord\\s*\\("
+      count_min: 10
+      per_kb_min: 2.0
+
+  # Lambda chains are used for obfuscation in Python
+  - id: dense-lambda-chains
+    desc: Dense lambda expressions (obfuscation)
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0032"
+    attack: "T1027"
+    if:
+      type: content
+      regex: "lambda\\s+[a-zA-Z_]"
+      count_min: 6
+      per_kb_min: 1.5
+
 composite_rules:
   # Decode functions composite
   - id: python-decode-functions

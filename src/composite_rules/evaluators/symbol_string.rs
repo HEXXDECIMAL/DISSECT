@@ -6,7 +6,7 @@
 //! - Decoded string matching (Base64, XOR)
 //! - String count analysis
 
-use super::symbol_matches;
+use super::{check_count_constraints, symbol_matches, CountConstraints};
 use crate::composite_rules::condition::NotException;
 use crate::composite_rules::context::{ConditionResult, EvaluationContext, StringParams};
 use crate::composite_rules::types::Platform;
@@ -328,8 +328,11 @@ pub fn eval_string(
     if !params.exclude_patterns.unwrap_or(&Vec::new()).is_empty() {
         precision += 0.5; // Exclusion patterns add precision
     }
-    if params.min_count > 1 {
+    if params.count_min > 1 {
         precision += 0.5; // Count constraint adds precision
+    }
+    if params.count_max.is_some() || params.per_kb_min.is_some() || params.per_kb_max.is_some() {
+        precision += 0.5; // Density/max constraints add precision
     }
 
     // case_insensitive penalty (multiplicative)
@@ -337,8 +340,18 @@ pub fn eval_string(
         precision *= 0.5;
     }
 
+    // Check count and density constraints
+    let constraints = CountConstraints::new(
+        params.count_min,
+        params.count_max,
+        params.per_kb_min,
+        params.per_kb_max,
+    );
+    let file_size = ctx.binary_data.len();
+    let matched = check_count_constraints(evidence.len(), file_size, &constraints);
+
     ConditionResult {
-        matched: evidence.len() >= params.min_count,
+        matched,
         evidence,
         traits: Vec::new(),
         warnings: Vec::new(),
@@ -357,7 +370,10 @@ pub fn eval_raw(
     _regex: Option<&String>,
     _word: Option<&String>,
     case_insensitive: bool,
-    min_count: usize,
+    count_min: usize,
+    count_max: Option<usize>,
+    per_kb_min: Option<f64>,
+    per_kb_max: Option<f64>,
     external_ip: bool,
     compiled_regex: Option<&regex::Regex>,
     ctx: &EvaluationContext,
@@ -385,9 +401,11 @@ pub fn eval_raw(
         }
     };
 
+    // Track match count for constraint checking
+    let mut match_count = 0usize;
+
     // Use pre-compiled regex (handles both word and regex patterns)
     if let Some(re) = compiled_regex {
-        let mut match_count = 0;
         let mut first_match = None;
         for mat in re.find_iter(content) {
             let match_str = mat.as_str();
@@ -400,7 +418,7 @@ pub fn eval_raw(
                 first_match = Some(match_str.to_string());
             }
         }
-        if match_count >= min_count {
+        if match_count > 0 {
             evidence.push(Evidence {
                 method: "raw".to_string(),
                 source: "raw_content".to_string(),
@@ -418,6 +436,7 @@ pub fn eval_raw(
         // When external_ip is set, require the match to contain an external IP
         let ip_ok = !external_ip || contains_external_ip(exact_str);
         if matched && ip_ok {
+            match_count = 1;
             evidence.push(Evidence {
                 method: "raw".to_string(),
                 source: "raw_content".to_string(),
@@ -440,7 +459,6 @@ pub fn eval_raw(
             } else {
                 substr_str.clone()
             };
-            let mut match_count = 0;
             let mut start = 0;
             while let Some(pos) = search_content[start..].find(&search_pattern) {
                 let abs_pos = start + pos;
@@ -453,7 +471,7 @@ pub fn eval_raw(
                 }
                 start = abs_pos + 1;
             }
-            if match_count >= min_count {
+            if match_count > 0 {
                 evidence.push(Evidence {
                     method: "raw".to_string(),
                     source: "raw_content".to_string(),
@@ -472,8 +490,8 @@ pub fn eval_raw(
             } else {
                 substr_str.clone()
             };
-            let match_count = search_content.matches(&search_pattern).count();
-            if match_count >= min_count {
+            match_count = search_content.matches(&search_pattern).count();
+            if match_count > 0 {
                 evidence.push(Evidence {
                     method: "raw".to_string(),
                     source: "raw_content".to_string(),
@@ -505,16 +523,25 @@ pub fn eval_raw(
         precision *= 0.5;
     }
 
-    if min_count > 1 {
+    if count_min > 1 {
         precision += 0.5;
+    }
+
+    if count_max.is_some() || per_kb_min.is_some() || per_kb_max.is_some() {
+        precision += 0.5; // Density/max constraints add precision
     }
 
     if external_ip {
         precision += 0.5; // Higher precision when requiring external IP
     }
 
+    // Check count and density constraints
+    let constraints = CountConstraints::new(count_min, count_max, per_kb_min, per_kb_max);
+    let file_size = ctx.binary_data.len();
+    let matched = check_count_constraints(match_count, file_size, &constraints);
+
     ConditionResult {
-        matched: !evidence.is_empty(),
+        matched,
         evidence,
         traits: Vec::new(),
         warnings: Vec::new(),
@@ -524,12 +551,16 @@ pub fn eval_raw(
 
 /// Search base64-decoded strings for patterns.
 /// Decoded strings are extracted once during analysis and stored in the report.
+#[allow(clippy::too_many_arguments)]
 pub fn eval_base64(
     exact: Option<&String>,
     substr: Option<&String>,
     regex: Option<&String>,
     case_insensitive: bool,
-    min_count: usize,
+    count_min: usize,
+    count_max: Option<usize>,
+    per_kb_min: Option<f64>,
+    per_kb_max: Option<f64>,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
     eval_encoded_strings_helper(
@@ -538,20 +569,28 @@ pub fn eval_base64(
         substr,
         regex,
         case_insensitive,
-        min_count,
+        count_min,
+        count_max,
+        per_kb_min,
+        per_kb_max,
+        ctx.binary_data.len(),
         &ctx.report.strings,
     )
 }
 
 /// Search XOR-decoded strings for patterns.
 /// If key is specified, only searches that key. Otherwise searches all xor strings.
+#[allow(clippy::too_many_arguments)]
 pub fn eval_xor(
     _key: Option<&String>,
     exact: Option<&String>,
     substr: Option<&String>,
     regex: Option<&String>,
     case_insensitive: bool,
-    min_count: usize,
+    count_min: usize,
+    count_max: Option<usize>,
+    per_kb_min: Option<f64>,
+    per_kb_max: Option<f64>,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
     // Note: key parameter is deprecated - encoding_chain no longer carries key info
@@ -561,19 +600,28 @@ pub fn eval_xor(
         substr,
         regex,
         case_insensitive,
-        min_count,
+        count_min,
+        count_max,
+        per_kb_min,
+        per_kb_max,
+        ctx.binary_data.len(),
         &ctx.report.strings,
     )
 }
 
 /// Helper to search encoded strings (with given encoding in chain) for patterns.
+#[allow(clippy::too_many_arguments)]
 fn eval_encoded_strings_helper(
     encoding_type: &str,
     exact: Option<&String>,
     substr: Option<&String>,
     regex: Option<&String>,
     case_insensitive: bool,
-    min_count: usize,
+    count_min: usize,
+    count_max: Option<usize>,
+    per_kb_min: Option<f64>,
+    per_kb_max: Option<f64>,
+    file_size: usize,
     strings: &[crate::types::StringInfo],
 ) -> ConditionResult {
     let mut evidence = Vec::new();
@@ -666,12 +714,20 @@ fn eval_encoded_strings_helper(
         precision *= 0.5;
     }
 
-    if min_count > 1 {
+    if count_min > 1 {
         precision += 0.5;
     }
 
+    if count_max.is_some() || per_kb_min.is_some() || per_kb_max.is_some() {
+        precision += 0.5; // Density/max constraints add precision
+    }
+
+    // Check count and density constraints
+    let constraints = CountConstraints::new(count_min, count_max, per_kb_min, per_kb_max);
+    let matched = check_count_constraints(match_count, file_size, &constraints);
+
     ConditionResult {
-        matched: match_count >= min_count,
+        matched,
         evidence,
         traits: Vec::new(),
         warnings: Vec::new(),

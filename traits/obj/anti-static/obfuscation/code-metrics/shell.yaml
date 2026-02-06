@@ -81,6 +81,74 @@ traits:
       max: 0
       min_size: 2048
 
+  # === Density-Based String Obfuscation ===
+  # Shell scripts use various encoding tricks to hide payloads.
+
+  # $'\xNN' hex escapes - ANSI-C quoting for hiding strings
+  - id: sh-dense-hex-escapes
+    desc: Dense ANSI-C hex escapes
+    crit: suspicious
+    conf: 0.90
+    mbc: "B0032"
+    attack: "T1027"
+    if:
+      type: content
+      regex: "\\$'[^']*\\\\x[0-9a-fA-F]{2}"
+      count_min: 5
+      per_kb_min: 1.0
+
+  # $'\NNN' octal escapes
+  - id: sh-dense-octal-escapes
+    desc: Dense ANSI-C octal escapes
+    crit: suspicious
+    conf: 0.88
+    mbc: "B0032"
+    attack: "T1027"
+    if:
+      type: content
+      regex: "\\$'[^']*\\\\[0-7]{3}"
+      count_min: 5
+      per_kb_min: 1.0
+
+  # Nested command substitution used to hide commands
+  - id: sh-dense-command-subst
+    desc: Dense nested command substitution
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0032"
+    attack: "T1027"
+    if:
+      type: content
+      regex: "\\$\\([^)]*\\$\\("
+      count_min: 4
+      per_kb_min: 0.8
+
+  # eval chains: eval "$(eval "$(..."
+  - id: sh-dense-eval-chains
+    desc: Dense eval chains
+    crit: suspicious
+    conf: 0.92
+    mbc: "B0032"
+    attack: "T1027"
+    if:
+      type: content
+      regex: "eval\\s"
+      count_min: 3
+      per_kb_min: 0.5
+
+  # printf with hex/octal used to decode payloads
+  - id: sh-dense-printf-decode
+    desc: Dense printf decoding
+    crit: suspicious
+    conf: 0.88
+    mbc: "B0032"
+    attack: "T1027"
+    if:
+      type: content
+      regex: 'printf\s+["\x27]%s["\x27]|printf\s+["\x27]\\\\x'
+      count_min: 4
+      per_kb_min: 0.8
+
 composite_rules:
   - id: sh-encoded-dropper
     desc: "Shell script with encoded payload"

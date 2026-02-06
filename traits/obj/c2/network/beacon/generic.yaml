@@ -53,6 +53,41 @@ traits:
       - type: string
         substr: "ApiSet Stub DLL"
 
+  # Multiple hardcoded IPs in a small binary suggests C2 infrastructure
+  # with failover/redundancy - a common malware pattern
+  - id: multiple-hardcoded-ips
+    desc: Multiple hardcoded IP addresses (C2 redundancy)
+    crit: suspicious
+    conf: 0.90
+    mbc: "B0030"
+    attack: "T1071.001"
+    size_max: 500000
+    if:
+      type: string
+      regex: '\b[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\b'
+      external_ip: true
+      count_min: 3
+    unless:
+      - type: string
+        substr: "ApiSet Stub DLL"
+      - type: string
+        substr: "Certificate"
+
+  # Compact C2 implants have dense communication patterns - many indicators
+  # packed into a small binary. Legitimate tools spread these across larger code.
+  - id: compact-beacon
+    desc: Dense C2 patterns in compact binary
+    crit: suspicious
+    conf: 0.88
+    mbc: "B0030"
+    attack: "T1071.001"
+    size_max: 100000
+    if:
+      type: string
+      regex: "(User-Agent|POST\\s+|GET\\s+|HTTP/1\\.|Content-Type)"
+      count_min: 5
+      per_kb_min: 0.5
+
   - id: user-agent-rotation
     desc: Multiple User-Agent strings (evasion technique)
     crit: suspicious
@@ -62,7 +97,7 @@ traits:
     if:
       type: string
       regex: "User-Agent:"
-      needs: 3
+      count_min: 3
   # === Bot User-Agent atomic indicators ===
   - id: googlebot-ua
     desc: Googlebot User-Agent

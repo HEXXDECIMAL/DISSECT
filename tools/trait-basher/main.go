@@ -37,7 +37,6 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/creack/pty"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -88,6 +87,7 @@ A finding is only a false positive if:
 - The rule incorrectly matched something that doesn't indicate that behavior
 - The pattern is too broad and matches unrelated benign code
 - The finding is in the wrong file or context
+- The criticality is inappropriately high: "hostile" is a true and specific stop-everything-now concern, "suspicious" should genuinely be a concern, "notable" should accurately describe the defining characteristics of a program, "inert" should be uninteresting traits that many programs share. When in doubt, lower a traits criticality.
 
 **Expected**: Known-good software has findings! Notable and suspicious findings are normal if they accurately describe what the code does. The goal is ACCURATE findings, not zero findings.
 
@@ -97,11 +97,13 @@ A finding is only a false positive if:
 - **Preserve structure**: Keep indentation, spacing, and file organization identical.
 - **No new files**: Only modify existing traits/ YAML files.
 - **One fix per trait**: Don't over-engineer; each trait should do one thing well.
+- **ID**: The trait ID should match the query parameters.
+- **Confirm criticality**: Based on what the trait query, is the criticality appropriate or is it overblown?
 
 {{.TaskBlock}}
 
 ## Success Criteria
-✓ All false positive findings are fixed (incorrect matches removed or constrained)
+✓ The query is appropriately categorized, targetted, and the criticality level appropriate
 ✓ Remaining findings accurately describe what the program actually does
 ✓ No new false positives introduced
 ✓ Changes are minimal and focused (3-5 edits max)
@@ -203,22 +205,22 @@ Keep findings that accurately describe the code's behavior, even if suspicious.
    - obj/exfil/ should only detect exfiltration (data collection + upload)
    - Simple HTTP/socket → cap/comm/, not obj/c2/ or obj/exfil/
    - Generic crypto → cap/crypto/, not obj/anti-static/
-2. **Patterns**: Too broad? Refine the pattern itself to be more accurate:
+2. **Patterns**: Too broad? Refine the pattern to be more accurate:
    - ` + "`near: 200`" + ` - require proximity to suspicious code
    - ` + "`size_min/max`" + ` - legitimate installers are huge, malware is compact
    - ` + "`for: [elf, macho, pe]`" + ` - restrict to binaries only
    - ` + "`all:`" + ` in composites - combine weak signals, don't flag individually
 3. **Exclusions**: Known-good strings? Add ` + "`not:`" + ` filters to exclude them
 4. **Reorganize**: Create new traits if it makes the logic clearer or more maintainable
-5. **Downgrade**: Detection correct but criticality too high? Use ` + "`downgrade:`" + ` for specific cases
-6. **Unless** (last resort): Only use ` + "`unless:`" + ` if fixing the pattern is impractical
+5. **Adjust criticality**: Is the criticality generally incorrect for what the search term matches? Adjust it.
+5. **Downgrade**: Detection correct but criticality too high for this specific unusual case? Use ` + "`downgrade:`" + ` for specific cases
 
 **Taxonomy Verification**: Before modifying any trait, verify its ID accurately describes what it detects:
 - Read TAXONOMY.md for the complete tier structure
 - cap/ = observable capability (what code CAN do)
 - obj/ = attacker objective (WHY code does something, requires combining capabilities)
 
-**Prefer**: Fixing queries to be accurate over adding exceptions. If the detection IS correct but severity is wrong, use ` + "`downgrade:`" + ` instead of ` + "`unless:`" + `.
+**Prefer**: Fixing traits to be accurately defined over adding exceptions. If the detection IS generally correct but criticality is wrong for this specific unusual case, use the downgrade: stanza
 
 **If deleting or renaming a trait**: Update all references to it (in composites, depends, etc.). Consider what the composite trait was trying to accomplish and fix the reference appropriately.
 
@@ -1381,12 +1383,10 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) error {
 	var cmd *exec.Cmd
 
-	fmt.Fprintf(os.Stderr, ">>> Setting up %s command (%s provider)\n", cfg.provider, cfg.provider)
-
+	// Build command args (prompt sent via stdin)
 	switch cfg.provider {
 	case "claude":
 		args := []string{
-			"-p", prompt,
 			"--verbose",
 			"--output-format", "stream-json",
 			"--dangerously-skip-permissions",
@@ -1394,28 +1394,27 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 		}
 		if cfg.model != "" {
 			args = append(args, "--model", cfg.model)
-			fmt.Fprintf(os.Stderr, ">>> Using Claude model: %s\n", cfg.model)
 		}
 		cmd = exec.CommandContext(ctx, "claude", args...)
 	case "gemini":
 		args := []string{
-			"-p", prompt,
 			"--yolo",
 			"--output-format", "stream-json",
 			"--resume", "latest",
+			"--include-directories", cfg.repoRoot,
+			"--include-directories", cfg.extractDir,
+		}
+		if home, err := os.UserHomeDir(); err == nil {
+			args = append(args, "--include-directories", filepath.Join(home, "data"))
 		}
 		if cfg.model != "" {
 			args = append(args, "--model", cfg.model)
-			fmt.Fprintf(os.Stderr, ">>> Using Gemini model: %s\n", cfg.model)
-		} else {
-			fmt.Fprintf(os.Stderr, ">>> Using default Gemini model\n")
 		}
 		cmd = exec.CommandContext(ctx, "gemini", args...)
 	case "opencode":
-		args := []string{"-p", prompt}
+		var args []string
 		if cfg.model != "" {
 			args = append(args, "--model", cfg.model)
-			fmt.Fprintf(os.Stderr, ">>> Using OpenCode model: %s\n", cfg.model)
 		}
 		cmd = exec.CommandContext(ctx, "opencode", args...)
 	default:
@@ -1424,22 +1423,30 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 
 	cmd.Dir = cfg.repoRoot
 
-	// Print the exact command being executed
-	fmt.Fprintf(os.Stderr, ">>> Command: %s %s\n", cmd.Path, strings.Join(cmd.Args[1:], " "))
-	fmt.Fprintf(os.Stderr, ">>> Working directory: %s\n", cmd.Dir)
-	fmt.Fprintf(os.Stderr, ">>> Prompt size: %d bytes\n", len(prompt))
+	fmt.Fprintf(os.Stderr, ">>> %s %s\n", cmd.Path, strings.Join(cmd.Args[1:], " "))
+	fmt.Fprintf(os.Stderr, ">>> Prompt: %d bytes via stdin\n", len(prompt))
 
-	// Use PTY to force line-buffered output from the child process.
-	// Many CLIs switch to block-buffered output when stdout is a pipe,
-	// causing output to appear hung. PTY makes the CLI think it's
-	// connected to a terminal, forcing immediate output.
-	fmt.Fprint(os.Stderr, ">>> Starting process with PTY...\n")
-	ptmx, err := pty.StartWithSize(cmd, &pty.Winsize{Rows: 50, Cols: 200})
+	// Set up pipes
+	stdinPipe, err := cmd.StdinPipe()
 	if err != nil {
-		return fmt.Errorf("could not start %s with pty: %w", cfg.provider, err)
+		return fmt.Errorf("stdin pipe: %w", err)
 	}
-	defer ptmx.Close() //nolint:errcheck // best-effort cleanup
-	fmt.Fprintf(os.Stderr, ">>> Process started (PID: %d)\n", cmd.Process.Pid)
+	stdoutPipe, err := cmd.StdoutPipe()
+	if err != nil {
+		return fmt.Errorf("stdout pipe: %w", err)
+	}
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Start(); err != nil {
+		return fmt.Errorf("start %s: %w", cfg.provider, err)
+	}
+	fmt.Fprintf(os.Stderr, ">>> PID %d\n", cmd.Process.Pid)
+
+	// Write prompt to stdin, then close to signal EOF
+	go func() {
+		defer stdinPipe.Close() //nolint:errcheck
+		io.WriteString(stdinPipe, prompt) //nolint:errcheck
+	}()
 
 	var (
 		output     []string
@@ -1449,14 +1456,12 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 	)
 	done := make(chan struct{})
 
-	// PTY combines stdout and stderr into a single stream
+	// Read stdout
 	go func() {
-		sc := bufio.NewScanner(ptmx)
-		sc.Buffer(make([]byte, 1024*1024), 10*1024*1024) // 10MB max line size for large JSON
-		n := 0
+		sc := bufio.NewScanner(stdoutPipe)
+		sc.Buffer(make([]byte, 1024*1024), 10*1024*1024)
 		for sc.Scan() {
 			ln := sc.Text()
-			n++
 			displayStreamEvent(ln)
 			outputMu.Lock()
 			output = append(output, ln)
@@ -1464,11 +1469,6 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 			activeMu.Lock()
 			lastActive = time.Now()
 			activeMu.Unlock()
-		}
-		if err := sc.Err(); err != nil {
-			fmt.Fprintf(os.Stderr, ">>> PTY scanner error after %d lines: %v\n", n, err)
-		} else {
-			fmt.Fprintf(os.Stderr, ">>> PTY closed after %d lines (EOF)\n", n)
 		}
 		done <- struct{}{}
 	}()
@@ -1479,7 +1479,6 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 	for {
 		select {
 		case <-done:
-			fmt.Fprintf(os.Stderr, ">>> Stream finished\n")
 			goto waitForExit
 		case <-ticker.C:
 			if cmd.ProcessState == nil {
@@ -1488,29 +1487,20 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 				activeMu.Unlock()
 
 				if idle > cfg.idleTimeout {
-					fmt.Fprintf(os.Stderr, "\n>>> [idle timeout] No output for %v, killing process...\n", cfg.idleTimeout)
-					cmd.Process.Kill() //nolint:errcheck,gosec // best-effort kill on timeout
-					fmt.Fprintf(os.Stderr, ">>> Process killed (PID: %d)\n", cmd.Process.Pid)
+					fmt.Fprintf(os.Stderr, "\n>>> Idle timeout (%v), killing...\n", cfg.idleTimeout)
+					cmd.Process.Kill() //nolint:errcheck,gosec
 					return fmt.Errorf("idle timeout: no output for %v", cfg.idleTimeout)
 				}
-
-				fmt.Fprintf(os.Stderr, ">>> Still running (PID: %d, idle: %v, timeout remaining: %s)\n",
-					cmd.Process.Pid, idle.Round(time.Second), timeRemaining(ctx))
 			}
 		case <-ctx.Done():
-			fmt.Fprintln(os.Stderr, "\n>>> [timeout] timed out, killing process...")
-			cmd.Process.Kill() //nolint:errcheck,gosec // best-effort kill on timeout
-			fmt.Fprintf(os.Stderr, ">>> Process killed (PID: %d)\n", cmd.Process.Pid)
+			fmt.Fprintln(os.Stderr, "\n>>> Timeout, killing...")
+			cmd.Process.Kill() //nolint:errcheck,gosec
 			return fmt.Errorf("timeout: %w", ctx.Err())
 		}
 	}
 waitForExit:
 
-	fmt.Fprintf(os.Stderr, ">>> Waiting for process to exit...\n")
 	err = cmd.Wait()
-	exitCode := cmd.ProcessState.ExitCode()
-	fmt.Fprintf(os.Stderr, ">>> Process exited with code %d\n", exitCode)
-
 	if err != nil {
 		if ctx.Err() == context.DeadlineExceeded {
 			return errors.New("exceeded time limit")
@@ -1518,18 +1508,7 @@ waitForExit:
 		outputMu.Lock()
 		all := strings.Join(output, "\n")
 		outputMu.Unlock()
-
-		var b strings.Builder
-		fmt.Fprintf(&b, "%s exited with code %d\n\n", cfg.provider, exitCode)
-		fmt.Fprintf(&b, "Command: %s %s\n", cmd.Path, strings.Join(cmd.Args[1:], " "))
-		fmt.Fprintf(&b, "Working directory: %s\n", cmd.Dir)
-		if all != "" {
-			fmt.Fprintf(&b, "\nFull output:\n%s\n", all)
-		} else {
-			b.WriteString("\n(no output)\n")
-		}
-		fmt.Fprintf(os.Stderr, "\n>>> %s\n", b.String())
-		return errors.New(b.String())
+		return fmt.Errorf("%s failed (exit %d): %s", cfg.provider, cmd.ProcessState.ExitCode(), all)
 	}
 	return nil
 }
@@ -1554,6 +1533,7 @@ func timeRemaining(ctx context.Context) string {
 }
 
 // displayStreamEvent parses a stream-json line and displays relevant info.
+// Handles both Claude format (type: assistant/result) and Gemini format (type: message).
 func displayStreamEvent(line string) {
 	var ev map[string]any
 	if json.Unmarshal([]byte(line), &ev) != nil {
@@ -1562,6 +1542,7 @@ func displayStreamEvent(line string) {
 
 	switch ev["type"] {
 	case "assistant":
+		// Claude format: {"type":"assistant","message":{"content":[{"type":"text","text":"..."}]}}
 		msg, ok := ev["message"].(map[string]any)
 		if !ok {
 			return
@@ -1606,6 +1587,20 @@ func displayStreamEvent(line string) {
 					fmt.Fprintf(os.Stderr, "  %s\n", t)
 				}
 			}
+		}
+
+	case "message":
+		// Gemini format: {"type":"message","role":"assistant","content":"...","delta":true}
+		if ev["role"] == "assistant" {
+			if content, ok := ev["content"].(string); ok && content != "" {
+				fmt.Fprintln(os.Stderr, content)
+			}
+		}
+
+	case "tool_call":
+		// Gemini tool calls
+		if name, ok := ev["name"].(string); ok {
+			fmt.Fprintf(os.Stderr, "  [tool] %s\n", name)
 		}
 
 	case "result":

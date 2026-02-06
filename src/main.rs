@@ -1183,9 +1183,7 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
     let strings = extractor.extract_smart(&data);
 
     match format {
-        cli::OutputFormat::Jsonl => {
-            Ok(serde_json::to_string_pretty(&strings)?)
-        }
+        cli::OutputFormat::Jsonl => Ok(serde_json::to_string_pretty(&strings)?),
         cli::OutputFormat::Terminal => {
             let mut output = String::new();
             output.push_str(&format!(
@@ -1193,16 +1191,34 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
                 strings.len(),
                 target
             ));
-            output.push_str(&format!(
-                "{:<10} {:<14} {:<12} {}\n",
-                "OFFSET", "TYPE", "ENCODING", "VALUE"
-            ));
-            output.push_str(&format!(
-                "{:-<10} {:-<14} {:-<12} {:-<20}\n",
-                "", "", "", ""
-            ));
-            for s in strings {
-                let offset = s.offset.unwrap_or_else(|| "unknown".to_string());
+
+            // Sort strings by section, then by offset
+            let mut strings = strings;
+            strings.sort_by(|a, b| {
+                match (&a.section, &b.section) {
+                    (Some(sa), Some(sb)) => sa.cmp(sb).then_with(|| a.offset.cmp(&b.offset)),
+                    (Some(_), None) => std::cmp::Ordering::Less,
+                    (None, Some(_)) => std::cmp::Ordering::Greater,
+                    (None, None) => a.offset.cmp(&b.offset),
+                }
+            });
+
+            let mut current_section: Option<&str> = None;
+
+            for s in &strings {
+                let section = s.section.as_deref();
+
+                // Print section header when section changes
+                if section != current_section {
+                    if current_section.is_some() {
+                        output.push('\n');
+                    }
+                    let section_name = section.unwrap_or("(unknown)");
+                    output.push_str(&format!("── {} ──\n", section_name));
+                    current_section = section;
+                }
+
+                let offset = s.offset.as_deref().unwrap_or("unknown");
 
                 let stype_str = if s.string_type == crate::types::StringType::Import {
                     "@unknown".to_string()
@@ -1210,7 +1226,11 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
                     format!("{:?}", s.string_type)
                 };
 
-                let encoding_str = s.encoding_chain.join("+");
+                let encoding_str = if s.encoding_chain.is_empty() {
+                    String::new()
+                } else {
+                    format!(" [{}]", s.encoding_chain.join("+"))
+                };
 
                 // Escape control characters for display
                 let mut val_display = s
@@ -1225,7 +1245,10 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
                     if let Ok(decoded) = general_purpose::STANDARD.decode(s.value.trim()) {
                         if !decoded.is_empty()
                             && decoded.iter().all(|&b| {
-                                (0x20..=0x7e).contains(&b) || b == b'\n' || b == b'\r' || b == b'\t'
+                                (0x20..=0x7e).contains(&b)
+                                    || b == b'\n'
+                                    || b == b'\r'
+                                    || b == b'\t'
                             })
                         {
                             if let Ok(decoded_str) = String::from_utf8(decoded) {
@@ -1241,8 +1264,8 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
                 }
 
                 output.push_str(&format!(
-                    "{:<10} {:<14} {:<12} {}\n",
-                    offset, stype_str, encoding_str, val_display
+                    "  {:>8} {:<12} {}{}\n",
+                    offset, stype_str, val_display, encoding_str
                 ));
             }
             Ok(output)

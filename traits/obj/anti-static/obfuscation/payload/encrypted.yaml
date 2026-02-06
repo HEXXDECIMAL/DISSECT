@@ -246,3 +246,6 @@ composite_rules:
     any:
       - id: cap/exec/command/shell/shell-execution
       - id: cap/exec/command/shell/go-shell-execution
+    unless:
+      - type: string
+        substr: "findutils"

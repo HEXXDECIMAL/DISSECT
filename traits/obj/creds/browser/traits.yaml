@@ -412,6 +412,22 @@ traits:
       type: string
       substr: "ipinfo.io"
 
+  # === Multi-Browser Targeting Patterns ===
+  # Stealers target many browsers; legitimate tools typically reference 1-2.
+  # High count of distinct browser names in a small file = stealer behavior.
+  - id: browser-name-density
+    desc: "Dense browser name references (stealer pattern)"
+    crit: suspicious
+    conf: 0.88
+    attack: "T1555.003"
+    for: [python, javascript, elf, pe, macho]
+    size_max: 500000
+    if:
+      type: string
+      regex: "\\b(Chrome|Firefox|Edge|Brave|Opera|Vivaldi|Safari|Chromium|Thunderbird)\\b"
+      count_min: 6
+      per_kb_min: 0.2
+
 composite_rules:
   # === Helper composites ===
   - id: chromium-browsers

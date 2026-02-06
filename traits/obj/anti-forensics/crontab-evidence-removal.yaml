@@ -101,7 +101,7 @@ traits:
   # === File Test & Iteration ===
   - id: cron-file-test
     desc: Test for cron file existence
-    crit: suspicious
+    crit: inert
     conf: 0.8
     for: [elf, shell]
     if:

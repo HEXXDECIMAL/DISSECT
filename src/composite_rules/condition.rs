@@ -97,8 +97,18 @@ enum ConditionTagged {
         case_insensitive: bool,
         #[serde(default)]
         exclude_patterns: Option<Vec<String>>,
-        #[serde(default = "default_min_count")]
-        min_count: usize,
+        /// Minimum match count (preferred over deprecated min_count)
+        #[serde(default = "default_count_min", alias = "min_count")]
+        count_min: usize,
+        /// Maximum match count - matches fail if exceeded
+        #[serde(default)]
+        count_max: Option<usize>,
+        /// Minimum matches per kilobyte of file size (density threshold)
+        #[serde(default)]
+        per_kb_min: Option<f64>,
+        /// Maximum matches per kilobyte of file size (density ceiling)
+        #[serde(default)]
+        per_kb_max: Option<f64>,
         /// Require match to contain a valid external IP address (not private/loopback/reserved)
         #[serde(default)]
         external_ip: bool,
@@ -196,8 +206,18 @@ enum ConditionTagged {
         pattern: String,
         offset: Option<usize>,
         offset_range: Option<(usize, usize)>,
-        #[serde(default = "default_min_count")]
-        min_count: usize,
+        /// Minimum match count (preferred over deprecated min_count)
+        #[serde(default = "default_count_min", alias = "min_count")]
+        count_min: usize,
+        /// Maximum match count - matches fail if exceeded
+        #[serde(default)]
+        count_max: Option<usize>,
+        /// Minimum matches per kilobyte of file size (density threshold)
+        #[serde(default)]
+        per_kb_min: Option<f64>,
+        /// Maximum matches per kilobyte of file size (density ceiling)
+        #[serde(default)]
+        per_kb_max: Option<f64>,
         /// If true, extracts the bytes matching '??' wildcards and includes them in evidence value
         #[serde(default)]
         extract_wildcards: bool,
@@ -236,8 +256,18 @@ enum ConditionTagged {
         word: Option<String>,
         #[serde(default)]
         case_insensitive: bool,
-        #[serde(default = "default_min_count")]
-        min_count: usize,
+        /// Minimum match count (preferred over deprecated min_count)
+        #[serde(default = "default_count_min", alias = "min_count")]
+        count_min: usize,
+        /// Maximum match count - matches fail if exceeded
+        #[serde(default)]
+        count_max: Option<usize>,
+        /// Minimum matches per kilobyte of file size (density threshold)
+        #[serde(default)]
+        per_kb_min: Option<f64>,
+        /// Maximum matches per kilobyte of file size (density ceiling)
+        #[serde(default)]
+        per_kb_max: Option<f64>,
         /// Require match to contain a valid external IP address (not private/loopback/reserved)
         #[serde(default)]
         external_ip: bool,
@@ -270,9 +300,18 @@ enum ConditionTagged {
         /// Case insensitive matching
         #[serde(default)]
         case_insensitive: bool,
-        /// Minimum match count
-        #[serde(default = "default_min_count")]
-        min_count: usize,
+        /// Minimum match count (preferred over deprecated min_count)
+        #[serde(default = "default_count_min", alias = "min_count")]
+        count_min: usize,
+        /// Maximum match count - matches fail if exceeded
+        #[serde(default)]
+        count_max: Option<usize>,
+        /// Minimum matches per kilobyte of file size (density threshold)
+        #[serde(default)]
+        per_kb_min: Option<f64>,
+        /// Maximum matches per kilobyte of file size (density ceiling)
+        #[serde(default)]
+        per_kb_max: Option<f64>,
     },
 
     /// Match patterns in XOR-decoded strings
@@ -294,9 +333,18 @@ enum ConditionTagged {
         /// Case insensitive matching
         #[serde(default)]
         case_insensitive: bool,
-        /// Minimum match count
-        #[serde(default = "default_min_count")]
-        min_count: usize,
+        /// Minimum match count (preferred over deprecated min_count)
+        #[serde(default = "default_count_min", alias = "min_count")]
+        count_min: usize,
+        /// Maximum match count - matches fail if exceeded
+        #[serde(default)]
+        count_max: Option<usize>,
+        /// Minimum matches per kilobyte of file size (density threshold)
+        #[serde(default)]
+        per_kb_min: Option<f64>,
+        /// Maximum matches per kilobyte of file size (density ceiling)
+        #[serde(default)]
+        per_kb_max: Option<f64>,
     },
 
     /// Match the basename (final path component, not the full path)
@@ -375,7 +423,10 @@ impl From<ConditionDeser> for Condition {
                     word,
                     case_insensitive,
                     exclude_patterns,
-                    min_count,
+                    count_min,
+                    count_max,
+                    per_kb_min,
+                    per_kb_max,
                     external_ip,
                 } => Condition::String {
                     exact,
@@ -384,7 +435,10 @@ impl From<ConditionDeser> for Condition {
                     word,
                     case_insensitive,
                     exclude_patterns,
-                    min_count,
+                    count_min,
+                    count_max,
+                    per_kb_min,
+                    per_kb_max,
                     external_ip,
                     compiled_regex: None,
                     compiled_excludes: Vec::new(),
@@ -495,13 +549,19 @@ impl From<ConditionDeser> for Condition {
                     pattern,
                     offset,
                     offset_range,
-                    min_count,
+                    count_min,
+                    count_max,
+                    per_kb_min,
+                    per_kb_max,
                     extract_wildcards,
                 } => Condition::Hex {
                     pattern,
                     offset,
                     offset_range,
-                    min_count,
+                    count_min,
+                    count_max,
+                    per_kb_min,
+                    per_kb_max,
                     extract_wildcards,
                 },
                 ConditionTagged::Filesize { min, max } => Condition::Filesize { min, max },
@@ -514,7 +574,10 @@ impl From<ConditionDeser> for Condition {
                     regex,
                     word,
                     case_insensitive,
-                    min_count,
+                    count_min,
+                    count_max,
+                    per_kb_min,
+                    per_kb_max,
                     external_ip,
                 } => Condition::Content {
                     exact,
@@ -522,7 +585,10 @@ impl From<ConditionDeser> for Condition {
                     regex,
                     word,
                     case_insensitive,
-                    min_count,
+                    count_min,
+                    count_max,
+                    per_kb_min,
+                    per_kb_max,
                     external_ip,
                     compiled_regex: None,
                 },
@@ -534,13 +600,19 @@ impl From<ConditionDeser> for Condition {
                     substr,
                     regex,
                     case_insensitive,
-                    min_count,
+                    count_min,
+                    count_max,
+                    per_kb_min,
+                    per_kb_max,
                 } => Condition::Base64 {
                     exact,
                     substr,
                     regex,
                     case_insensitive,
-                    min_count,
+                    count_min,
+                    count_max,
+                    per_kb_min,
+                    per_kb_max,
                 },
                 ConditionTagged::Xor {
                     key,
@@ -548,14 +620,20 @@ impl From<ConditionDeser> for Condition {
                     substr,
                     regex,
                     case_insensitive,
-                    min_count,
+                    count_min,
+                    count_max,
+                    per_kb_min,
+                    per_kb_max,
                 } => Condition::Xor {
                     key,
                     exact,
                     substr,
                     regex,
                     case_insensitive,
-                    min_count,
+                    count_min,
+                    count_max,
+                    per_kb_min,
+                    per_kb_max,
                 },
                 ConditionTagged::Basename {
                     exact,
@@ -632,8 +710,18 @@ pub enum Condition {
         case_insensitive: bool,
         #[serde(skip_serializing_if = "Option::is_none")]
         exclude_patterns: Option<Vec<String>>,
-        #[serde(default = "default_min_count")]
-        min_count: usize,
+        /// Minimum match count (use count_min in YAML, min_count is deprecated alias)
+        #[serde(default = "default_count_min")]
+        count_min: usize,
+        /// Maximum match count - matches fail if exceeded
+        #[serde(skip_serializing_if = "Option::is_none")]
+        count_max: Option<usize>,
+        /// Minimum matches per kilobyte of file size (density threshold)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        per_kb_min: Option<f64>,
+        /// Maximum matches per kilobyte of file size (density ceiling)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        per_kb_max: Option<f64>,
         /// Require match to contain a valid external IP address (not private/loopback/reserved)
         #[serde(default)]
         external_ip: bool,
@@ -857,9 +945,18 @@ pub enum Condition {
         /// Only check within offset range [start, end)
         #[serde(skip_serializing_if = "Option::is_none")]
         offset_range: Option<(usize, usize)>,
-        /// Minimum number of matches required (default: 1)
-        #[serde(default = "default_min_count")]
-        min_count: usize,
+        /// Minimum match count (use count_min in YAML, min_count is deprecated alias)
+        #[serde(default = "default_count_min")]
+        count_min: usize,
+        /// Maximum match count - matches fail if exceeded
+        #[serde(skip_serializing_if = "Option::is_none")]
+        count_max: Option<usize>,
+        /// Minimum matches per kilobyte of file size (density threshold)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        per_kb_min: Option<f64>,
+        /// Maximum matches per kilobyte of file size (density ceiling)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        per_kb_max: Option<f64>,
         /// If true, extracts the bytes matching '??' wildcards and includes them in evidence value
         #[serde(default)]
         extract_wildcards: bool,
@@ -912,9 +1009,18 @@ pub enum Condition {
         /// Case insensitive matching (default: false)
         #[serde(default)]
         case_insensitive: bool,
-        /// Minimum number of matches required (default: 1)
-        #[serde(default = "default_min_count")]
-        min_count: usize,
+        /// Minimum match count (use count_min in YAML, min_count is deprecated alias)
+        #[serde(default = "default_count_min")]
+        count_min: usize,
+        /// Maximum match count - matches fail if exceeded
+        #[serde(skip_serializing_if = "Option::is_none")]
+        count_max: Option<usize>,
+        /// Minimum matches per kilobyte of file size (density threshold)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        per_kb_min: Option<f64>,
+        /// Maximum matches per kilobyte of file size (density ceiling)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        per_kb_max: Option<f64>,
         /// Require match to contain a valid external IP address (not private/loopback/reserved)
         #[serde(default)]
         external_ip: bool,
@@ -950,9 +1056,18 @@ pub enum Condition {
         /// Case insensitive matching
         #[serde(default)]
         case_insensitive: bool,
-        /// Minimum match count
-        #[serde(default = "default_min_count")]
-        min_count: usize,
+        /// Minimum match count (use count_min in YAML, min_count is deprecated alias)
+        #[serde(default = "default_count_min")]
+        count_min: usize,
+        /// Maximum match count - matches fail if exceeded
+        #[serde(skip_serializing_if = "Option::is_none")]
+        count_max: Option<usize>,
+        /// Minimum matches per kilobyte of file size (density threshold)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        per_kb_min: Option<f64>,
+        /// Maximum matches per kilobyte of file size (density ceiling)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        per_kb_max: Option<f64>,
     },
 
     /// Match patterns in XOR-decoded strings
@@ -973,9 +1088,18 @@ pub enum Condition {
         /// Case insensitive matching
         #[serde(default)]
         case_insensitive: bool,
-        /// Minimum match count
-        #[serde(default = "default_min_count")]
-        min_count: usize,
+        /// Minimum match count (use count_min in YAML, min_count is deprecated alias)
+        #[serde(default = "default_count_min")]
+        count_min: usize,
+        /// Maximum match count - matches fail if exceeded
+        #[serde(skip_serializing_if = "Option::is_none")]
+        count_max: Option<usize>,
+        /// Minimum matches per kilobyte of file size (density threshold)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        per_kb_min: Option<f64>,
+        /// Maximum matches per kilobyte of file size (density ceiling)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        per_kb_max: Option<f64>,
     },
 
     /// Match the basename (final path component, not the full path)
@@ -1031,6 +1155,12 @@ fn default_compare_to() -> String {
     "total".to_string()
 }
 
+/// Default for count_min - at least 1 match required
+pub fn default_count_min() -> usize {
+    1
+}
+
+/// Deprecated: use default_count_min instead
 pub fn default_min_count() -> usize {
     1
 }

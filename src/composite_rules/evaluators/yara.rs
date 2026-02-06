@@ -6,7 +6,7 @@
 //! - Hex pattern matching with wildcards and gaps
 //! - Atom extraction for efficient pattern searching
 
-use super::{get_or_create_scanner, truncate_evidence};
+use super::{check_count_constraints, get_or_create_scanner, truncate_evidence, CountConstraints};
 use crate::composite_rules::context::{ConditionResult, EvaluationContext};
 use crate::types::Evidence;
 use std::sync::Arc;
@@ -338,11 +338,15 @@ fn extract_wildcard_bytes(data: &[u8], pos: usize, segments: &[HexSegment]) -> O
 /// 1. Extract longest fixed byte sequence from pattern
 /// 2. Use fast memmem search to find atom candidates
 /// 3. Verify full pattern only at candidate positions
+#[allow(clippy::too_many_arguments)]
 pub fn eval_hex(
     pattern: &str,
     offset: Option<usize>,
     offset_range: Option<(usize, usize)>,
-    min_count: usize,
+    count_min: usize,
+    count_max: Option<usize>,
+    per_kb_min: Option<f64>,
+    per_kb_max: Option<f64>,
     extract_wildcards: bool,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
@@ -379,6 +383,20 @@ pub fn eval_hex(
 
     let mut matches: Vec<usize> = Vec::new();
 
+    // Determine if we can use early exit optimization.
+    // If count_max or density constraints are set, we may need to find more matches
+    // to properly evaluate the constraints.
+    let has_advanced_constraints =
+        count_max.is_some() || per_kb_min.is_some() || per_kb_max.is_some();
+    // For count_max, we need at least count_max + 1 matches to know if we exceed it.
+    // For density constraints, we need all matches to calculate accurate density.
+    // Use a practical limit to avoid scanning forever on pathological patterns.
+    let early_exit_threshold = if has_advanced_constraints {
+        count_max.map(|m| m + 1).unwrap_or(10000)
+    } else {
+        count_min
+    };
+
     // Handle offset constraint - only check at specific position
     if let Some(off) = offset {
         if match_pattern_at(data, off, &segments) {
@@ -391,7 +409,7 @@ pub fn eval_hex(
         for pos in start..end {
             if match_pattern_at(data, pos, &segments) {
                 matches.push(pos);
-                if matches.len() >= min_count {
+                if matches.len() >= early_exit_threshold {
                     break;
                 }
             }
@@ -404,7 +422,7 @@ pub fn eval_hex(
             let finder = memchr::memmem::Finder::new(bytes);
             for pos in finder.find_iter(data) {
                 matches.push(pos);
-                if matches.len() >= min_count {
+                if matches.len() >= early_exit_threshold {
                     break;
                 }
             }
@@ -433,7 +451,7 @@ pub fn eval_hex(
                     && !matches.contains(&pattern_start)
                 {
                     matches.push(pattern_start);
-                    if matches.len() >= min_count {
+                    if matches.len() >= early_exit_threshold {
                         break;
                     }
                 }
@@ -443,7 +461,7 @@ pub fn eval_hex(
             for pos in 0..data.len() {
                 if match_pattern_at(data, pos, &segments) {
                     matches.push(pos);
-                    if matches.len() >= min_count {
+                    if matches.len() >= early_exit_threshold {
                         break;
                     }
                 }
@@ -451,15 +469,21 @@ pub fn eval_hex(
         }
     }
 
-    let matched = matches.len() >= min_count;
+    // Check count and density constraints
+    let constraints = CountConstraints::new(count_min, count_max, per_kb_min, per_kb_max);
+    let file_size = data.len();
+    let matched = check_count_constraints(matches.len(), file_size, &constraints);
 
-    // Calculate precision: base 2.0 (hex patterns are specific) + 0.5 for offset/offset_range + 0.5 if min_count > 1
+    // Calculate precision: base 2.0 (hex patterns are specific) + modifiers
     let mut precision = 2.0f32;
     if offset.is_some() || offset_range.is_some() {
         precision += 0.5;
     }
-    if min_count > 1 {
+    if count_min > 1 {
         precision += 0.5;
+    }
+    if count_max.is_some() || per_kb_min.is_some() || per_kb_max.is_some() {
+        precision += 0.5; // Density/max constraints add precision
     }
 
     ConditionResult {

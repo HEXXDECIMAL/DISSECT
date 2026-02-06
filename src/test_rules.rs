@@ -702,7 +702,7 @@ impl<'a> RuleDebugger<'a> {
                 regex,
                 word,
                 case_insensitive,
-                min_count,
+                count_min,
                 exclude_patterns,
                 ..
             } => self.debug_string_condition(
@@ -711,7 +711,7 @@ impl<'a> RuleDebugger<'a> {
                 regex,
                 word,
                 *case_insensitive,
-                *min_count,
+                *count_min,
                 exclude_patterns.as_ref(),
             ),
             Condition::Symbol { exact, substr, regex, .. } => self.debug_symbol_condition(exact, substr, regex),
@@ -926,7 +926,7 @@ impl<'a> RuleDebugger<'a> {
         regex: &Option<String>,
         word: &Option<String>,
         case_insensitive: bool,
-        min_count: usize,
+        count_min: usize,
         exclude_patterns: Option<&Vec<String>>,
     ) -> ConditionDebugResult {
         let pattern_desc = if let Some(e) = exact {
@@ -942,9 +942,9 @@ impl<'a> RuleDebugger<'a> {
         };
 
         let desc = format!(
-            "string: {} (min_count: {}{})",
+            "string: {} (count_min: {}{})",
             pattern_desc,
-            min_count,
+            count_min,
             if case_insensitive {
                 ", case_insensitive"
             } else {
@@ -961,7 +961,7 @@ impl<'a> RuleDebugger<'a> {
         let matched_strings =
             find_matching_strings(&strings, exact, substr, regex, word, case_insensitive);
 
-        let matched = matched_strings.len() >= min_count;
+        let matched = matched_strings.len() >= count_min;
 
         let mut result = ConditionDebugResult::new(desc, matched);
 

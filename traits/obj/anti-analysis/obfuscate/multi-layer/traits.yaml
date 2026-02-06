@@ -52,9 +52,11 @@ traits:
     if:
       type: string
       regex: "[A-Za-z0-9+/]{40,}[=]{0,3}"
+      exclude_patterns:
+        - "^ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\\+/=?$"
+    # Keep not as fallback if needed in other contexts
     not:
-      # Exclude standard base64 alphabet lookup table
-      - "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
+      - "ABCDEF"
     attack: "T1027"
 
 composite_rules:

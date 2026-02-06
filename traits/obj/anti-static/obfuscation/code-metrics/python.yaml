@@ -56,6 +56,9 @@ composite_rules:
       - id: obj/anti-static/obfuscation/code-metrics/py-lambda-abuse
       - id: obj/anti-static/obfuscation/code-metrics/py-encoded-strings
       - id: obj/anti-static/obfuscation/code-metrics/no-comments
+    unless:
+      - type: content
+        substr: "pandas"
 
   - id: py-pypi-malware-pattern
     desc: "PyPI malware obfuscation pattern"

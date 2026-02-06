@@ -136,7 +136,10 @@ fn test_all() {
                 word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
-                min_count: 1,
+                count_min: 1,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
                 external_ip: false,
                 compiled_regex: None,
                 compiled_excludes: Vec::new(),
@@ -251,7 +254,10 @@ fn test_string_exact_condition() {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            min_count: 1,
+            count_min: 1,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
             external_ip: false,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
@@ -384,7 +390,10 @@ fn test_not_directive_shorthand() {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            min_count: 1,
+            count_min: 1,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
             external_ip: false,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
@@ -455,7 +464,10 @@ fn test_not_directive_exact() {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            min_count: 1,
+            count_min: 1,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
             external_ip: false,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
@@ -530,7 +542,10 @@ fn test_not_directive_regex() {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            min_count: 1,
+            count_min: 1,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
             external_ip: false,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
@@ -702,7 +717,10 @@ fn test_downgrade_to_notable() {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            min_count: 1,
+            count_min: 1,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
             external_ip: false,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
@@ -977,7 +995,10 @@ fn test_all_three_directives_combined() {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            min_count: 1,
+            count_min: 1,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
             external_ip: false,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
@@ -1061,7 +1082,10 @@ fn test_string_exact_match_requires_full_equality() {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            min_count: 1,
+            count_min: 1,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
             external_ip: false,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
@@ -1133,7 +1157,10 @@ fn test_string_substr_matches_substrings() {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            min_count: 1,
+            count_min: 1,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
             external_ip: false,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
@@ -1281,7 +1308,10 @@ fn test_string_case_insensitive_exact() {
             word: None,
             case_insensitive: true,
             exclude_patterns: None,
-            min_count: 1,
+            count_min: 1,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
             external_ip: false,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
@@ -1348,7 +1378,10 @@ fn test_string_word_boundary_match() {
             word: Some("cat".to_string()),
             case_insensitive: false,
             exclude_patterns: None,
-            min_count: 1,
+            count_min: 1,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
             external_ip: false,
             compiled_regex: Some(regex::Regex::new(r"\bcat\b").unwrap()),
             compiled_excludes: Vec::new(),
@@ -1428,7 +1461,10 @@ fn test_string_regex_match() {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            min_count: 1,
+            count_min: 1,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
             external_ip: false,
             compiled_regex: Some(regex::Regex::new(r"\d+\.\d+\.\d+\.\d+").unwrap()),
             compiled_excludes: Vec::new(),
@@ -1470,6 +1506,9 @@ fn test_content_exact_vs_substr() {
         None,
         false,
         1,
+        None,
+        None,
+        None,
         false,
         None,
         &ctx,
@@ -1485,6 +1524,9 @@ fn test_content_exact_vs_substr() {
         None,
         false,
         1,
+        None,
+        None,
+        None,
         false,
         None,
         &ctx,
@@ -1530,13 +1572,13 @@ fn test_base64_decoded_matching() {
 
     // exact: should match only "secret", not "secret password"
     let result =
-        super::evaluators::eval_base64(Some(&"secret".to_string()), None, None, false, 1, &ctx);
+        super::evaluators::eval_base64(Some(&"secret".to_string()), None, None, false, 1, None, None, None, &ctx);
     assert!(result.matched);
     assert_eq!(result.evidence.len(), 1);
 
     // substr: should match both
     let result =
-        super::evaluators::eval_base64(None, Some(&"secret".to_string()), None, false, 1, &ctx);
+        super::evaluators::eval_base64(None, Some(&"secret".to_string()), None, false, 1, None, None, None, &ctx);
     assert!(result.matched);
     assert_eq!(result.evidence.len(), 2);
 }
@@ -1575,13 +1617,26 @@ fn test_xor_decoded_matching() {
         None,
         false,
         1,
+        None,
+        None,
+        None,
         &ctx,
     );
     assert!(result.matched);
 
     // substr: should match partial
-    let result =
-        super::evaluators::eval_xor(None, None, Some(&"evil".to_string()), None, false, 1, &ctx);
+    let result = super::evaluators::eval_xor(
+        None,
+        None,
+        Some(&"evil".to_string()),
+        None,
+        false,
+        1,
+        None,
+        None,
+        None,
+        &ctx,
+    );
     assert!(result.matched);
 
     // regex: should match pattern
@@ -1592,6 +1647,9 @@ fn test_xor_decoded_matching() {
         Some(&r"https?://".to_string()),
         false,
         1,
+        None,
+        None,
+        None,
         &ctx,
     );
     assert!(result.matched);
@@ -2057,7 +2115,10 @@ fn test_composite_unless_multiple_conditions_any_matches() {
                 word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
-                min_count: 1,
+                count_min: 1,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
                 external_ip: false,
                 compiled_regex: None,
                 compiled_excludes: Vec::new(),

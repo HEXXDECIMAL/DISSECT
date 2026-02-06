@@ -117,6 +117,22 @@ traits:
       type: string
       regex: '\\.json\\b|"json"'
 
+  # === Dense Extension Targeting ===
+  # Stealers often have many file extension patterns in a small space.
+  # Legitimate file managers have extensions spread across large codebases.
+  - id: dense-extension-list
+    desc: "Dense file extension targeting (stealer pattern)"
+    crit: suspicious
+    conf: 0.90
+    attack: "T1005"
+    size_max: 200000
+    if:
+      type: string
+      # Match file extension patterns
+      regex: '\\.(ppk|pem|asc|rdp|ovpn|kdbx|wallet|key|sql|conf|json|dat|db|sqlite)\\b'
+      count_min: 8
+      per_kb_min: 0.3
+
 composite_rules:
   # Credential file targeting composite
   - id: credential-files

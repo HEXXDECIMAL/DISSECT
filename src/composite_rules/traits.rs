@@ -89,6 +89,33 @@ pub struct TraitDefinition {
 }
 
 impl TraitDefinition {
+    /// Pre-compile all regexes in this trait's conditions for performance
+    pub fn precompile_regexes(&mut self) {
+        self.r#if.precompile_regexes();
+        if let Some(ref mut conds) = self.unless {
+            for cond in conds.iter_mut() {
+                cond.precompile_regexes();
+            }
+        }
+        if let Some(ref mut downgrade) = self.downgrade {
+            if let Some(ref mut any) = downgrade.any {
+                for cond in any.iter_mut() {
+                    cond.precompile_regexes();
+                }
+            }
+            if let Some(ref mut all) = downgrade.all {
+                for cond in all.iter_mut() {
+                    cond.precompile_regexes();
+                }
+            }
+            if let Some(ref mut none) = downgrade.none {
+                for cond in none.iter_mut() {
+                    cond.precompile_regexes();
+                }
+            }
+        }
+    }
+
     /// Pre-compile YARA rules in this trait's condition
     pub fn compile_yara(&mut self) {
         self.r#if.compile_yara();
@@ -350,7 +377,10 @@ impl TraitDefinition {
                 word,
                 case_insensitive,
                 exclude_patterns,
-                min_count,
+                count_min,
+                count_max,
+                per_kb_min,
+                per_kb_max,
                 external_ip,
                 compiled_regex,
                 compiled_excludes,
@@ -362,7 +392,10 @@ impl TraitDefinition {
                     word: word.as_ref(),
                     case_insensitive: *case_insensitive,
                     exclude_patterns: exclude_patterns.as_ref(),
-                    min_count: *min_count,
+                    count_min: *count_min,
+                    count_max: *count_max,
+                    per_kb_min: *per_kb_min,
+                    per_kb_max: *per_kb_max,
                     external_ip: *external_ip,
                     compiled_regex: compiled_regex.as_ref(),
                     compiled_excludes,
@@ -454,13 +487,19 @@ impl TraitDefinition {
                 pattern,
                 offset,
                 offset_range,
-                min_count,
+                count_min,
+                count_max,
+                per_kb_min,
+                per_kb_max,
                 extract_wildcards,
             } => eval_hex(
                 pattern,
                 *offset,
                 *offset_range,
-                *min_count,
+                *count_min,
+                *count_max,
+                *per_kb_min,
+                *per_kb_max,
                 *extract_wildcards,
                 ctx,
             ),
@@ -472,7 +511,10 @@ impl TraitDefinition {
                 regex,
                 word,
                 case_insensitive,
-                min_count,
+                count_min,
+                count_max,
+                per_kb_min,
+                per_kb_max,
                 external_ip,
                 compiled_regex,
             } => eval_raw(
@@ -481,7 +523,10 @@ impl TraitDefinition {
                 regex.as_ref(),
                 word.as_ref(),
                 *case_insensitive,
-                *min_count,
+                *count_min,
+                *count_max,
+                *per_kb_min,
+                *per_kb_max,
                 *external_ip,
                 compiled_regex.as_ref(),
                 ctx,
@@ -492,13 +537,19 @@ impl TraitDefinition {
                 substr,
                 regex,
                 case_insensitive,
-                min_count,
+                count_min,
+                count_max,
+                per_kb_min,
+                per_kb_max,
             } => eval_base64(
                 exact.as_ref(),
                 substr.as_ref(),
                 regex.as_ref(),
                 *case_insensitive,
-                *min_count,
+                *count_min,
+                *count_max,
+                *per_kb_min,
+                *per_kb_max,
                 ctx,
             ),
             Condition::Xor {
@@ -507,14 +558,20 @@ impl TraitDefinition {
                 substr,
                 regex,
                 case_insensitive,
-                min_count,
+                count_min,
+                count_max,
+                per_kb_min,
+                per_kb_max,
             } => eval_xor(
                 key.as_ref(),
                 exact.as_ref(),
                 substr.as_ref(),
                 regex.as_ref(),
                 *case_insensitive,
-                *min_count,
+                *count_min,
+                *count_max,
+                *per_kb_min,
+                *per_kb_max,
                 ctx,
             ),
             Condition::Basename {
@@ -617,6 +674,47 @@ pub struct CompositeTrait {
 }
 
 impl CompositeTrait {
+    /// Pre-compile all regexes in this rule's conditions for performance
+    pub fn precompile_regexes(&mut self) {
+        if let Some(ref mut conds) = self.all {
+            for cond in conds.iter_mut() {
+                cond.precompile_regexes();
+            }
+        }
+        if let Some(ref mut conds) = self.any {
+            for cond in conds.iter_mut() {
+                cond.precompile_regexes();
+            }
+        }
+        if let Some(ref mut conds) = self.none {
+            for cond in conds.iter_mut() {
+                cond.precompile_regexes();
+            }
+        }
+        if let Some(ref mut conds) = self.unless {
+            for cond in conds.iter_mut() {
+                cond.precompile_regexes();
+            }
+        }
+        if let Some(ref mut downgrade) = self.downgrade {
+            if let Some(ref mut any) = downgrade.any {
+                for cond in any.iter_mut() {
+                    cond.precompile_regexes();
+                }
+            }
+            if let Some(ref mut all) = downgrade.all {
+                for cond in all.iter_mut() {
+                    cond.precompile_regexes();
+                }
+            }
+            if let Some(ref mut none) = downgrade.none {
+                for cond in none.iter_mut() {
+                    cond.precompile_regexes();
+                }
+            }
+        }
+    }
+
     /// Pre-compile YARA rules in all conditions
     pub fn compile_yara(&mut self) {
         if let Some(ref mut conds) = self.all {
@@ -1130,7 +1228,10 @@ impl CompositeTrait {
                 word,
                 case_insensitive,
                 exclude_patterns,
-                min_count,
+                count_min,
+                count_max,
+                per_kb_min,
+                per_kb_max,
                 external_ip,
                 compiled_regex,
                 compiled_excludes,
@@ -1142,7 +1243,10 @@ impl CompositeTrait {
                     word: word.as_ref(),
                     case_insensitive: *case_insensitive,
                     exclude_patterns: exclude_patterns.as_ref(),
-                    min_count: *min_count,
+                    count_min: *count_min,
+                    count_max: *count_max,
+                    per_kb_min: *per_kb_min,
+                    per_kb_max: *per_kb_max,
                     external_ip: *external_ip,
                     compiled_regex: compiled_regex.as_ref(),
                     compiled_excludes,
@@ -1234,13 +1338,19 @@ impl CompositeTrait {
                 pattern,
                 offset,
                 offset_range,
-                min_count,
+                count_min,
+                count_max,
+                per_kb_min,
+                per_kb_max,
                 extract_wildcards,
             } => eval_hex(
                 pattern,
                 *offset,
                 *offset_range,
-                *min_count,
+                *count_min,
+                *count_max,
+                *per_kb_min,
+                *per_kb_max,
                 *extract_wildcards,
                 ctx,
             ),
@@ -1252,7 +1362,10 @@ impl CompositeTrait {
                 regex,
                 word,
                 case_insensitive,
-                min_count,
+                count_min,
+                count_max,
+                per_kb_min,
+                per_kb_max,
                 external_ip,
                 compiled_regex,
             } => eval_raw(
@@ -1261,7 +1374,10 @@ impl CompositeTrait {
                 regex.as_ref(),
                 word.as_ref(),
                 *case_insensitive,
-                *min_count,
+                *count_min,
+                *count_max,
+                *per_kb_min,
+                *per_kb_max,
                 *external_ip,
                 compiled_regex.as_ref(),
                 ctx,
@@ -1272,13 +1388,19 @@ impl CompositeTrait {
                 substr,
                 regex,
                 case_insensitive,
-                min_count,
+                count_min,
+                count_max,
+                per_kb_min,
+                per_kb_max,
             } => eval_base64(
                 exact.as_ref(),
                 substr.as_ref(),
                 regex.as_ref(),
                 *case_insensitive,
-                *min_count,
+                *count_min,
+                *count_max,
+                *per_kb_min,
+                *per_kb_max,
                 ctx,
             ),
             Condition::Xor {
@@ -1287,14 +1409,20 @@ impl CompositeTrait {
                 substr,
                 regex,
                 case_insensitive,
-                min_count,
+                count_min,
+                count_max,
+                per_kb_min,
+                per_kb_max,
             } => eval_xor(
                 key.as_ref(),
                 exact.as_ref(),
                 substr.as_ref(),
                 regex.as_ref(),
                 *case_insensitive,
-                *min_count,
+                *count_min,
+                *count_max,
+                *per_kb_min,
+                *per_kb_max,
                 ctx,
             ),
             Condition::Basename {
