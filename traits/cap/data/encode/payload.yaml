@@ -17,15 +17,15 @@ traits:
     # Pattern: strings that are mostly CamelCase words without + or /
     not:
       # Pure CamelCase identifiers (no +/)
-      - regex: '^([A-Z][a-z0-9]*)+$'
+      - regex: "^([A-Z][a-z0-9]*)+$"
       # Strings starting with multiple CamelCase words (enum variants, struct names)
-      - regex: '^([A-Z][a-z]+){5,}'
+      - regex: "^([A-Z][a-z]+){5,}"
       # Pure alphabetic strings (font glyph tables, identifier data - not real base64)
-      - regex: '^[A-Za-z]+$'
+      - regex: "^[A-Za-z]+$"
       # Sequential digit pair table (00010203...9899) used for fast integer-to-string conversion
-      - regex: '^0001020304050607'
+      - regex: "^0001020304050607"
       # Pure lowercase hex strings (crypto keys, hashes) - handled by large-hex-payload
-      - regex: '^[0-9a-f]+$'
+      - regex: "^[0-9a-f]+$"
     attack: "T1140"
     mbc: "C0043"
 
@@ -40,7 +40,7 @@ traits:
       regex: "^[0-9A-Fa-f]{512,}$"
     not:
       # Sequential digit pair table (00010203...9899) used for fast integer-to-string conversion
-      - regex: '^0001020304050607'
+      - regex: "^0001020304050607"
     attack: "T1140"
     mbc: "C0043"
 
@@ -93,7 +93,7 @@ composite_rules:
 
   - id: binary-to-c-array
     desc: Binary to C array converter
-    crit: suspicious
+    crit: notable
     conf: 0.8
     attack: "T1027.009"
     platforms: [all]

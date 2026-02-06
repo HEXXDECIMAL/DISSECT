@@ -22,7 +22,7 @@ traits:
   # === Compiler Execution ===
   - id: gcc-compile-execute
     desc: gcc compile and execute
-    crit: suspicious
+    crit: notable
     conf: 0.85
     if:
       type: string

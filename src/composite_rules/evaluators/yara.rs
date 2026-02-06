@@ -341,26 +341,15 @@ fn extract_wildcard_bytes(data: &[u8], pos: usize, segments: &[HexSegment]) -> O
 #[allow(clippy::too_many_arguments)]
 pub fn eval_hex(
     pattern: &str,
-    offset: Option<i64>,
-    offset_range: Option<(i64, Option<i64>)>,
     count_min: usize,
     count_max: Option<usize>,
     per_kb_min: Option<f64>,
     per_kb_max: Option<f64>,
     extract_wildcards: bool,
+    location: &super::ContentLocationParams,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
     let data = ctx.binary_data;
-    let file_size = data.len();
-
-    // Helper to resolve offset (negative = from end)
-    let resolve_offset = |off: i64| -> usize {
-        if off >= 0 {
-            (off as usize).min(file_size)
-        } else {
-            file_size.saturating_sub((-off) as usize)
-        }
-    };
 
     // Parse the pattern
     let segments = match parse_hex_pattern(pattern) {
@@ -407,37 +396,30 @@ pub fn eval_hex(
         count_min
     };
 
-    // Handle offset constraint - only check at specific position
-    if let Some(off) = offset {
-        let resolved_off = resolve_offset(off);
-        if match_pattern_at(data, resolved_off, &segments) {
-            matches.push(resolved_off);
+    // Resolve effective range from location constraints
+    let (search_start, search_end) = super::resolve_effective_range(location, ctx);
+
+    // Ensure we don't exceed binary data bounds
+    let search_start = search_start.min(data.len());
+    let search_end = search_end.min(data.len());
+
+    if search_start >= search_end {
+        return ConditionResult::no_match();
+    }
+
+    // Handle single-byte offset constraint (optimization)
+    if location.offset.is_some() && location.offset_range.is_none() {
+        if match_pattern_at(data, search_start, &segments) {
+            matches.push(search_start);
         }
     }
-    // Handle offset range constraint
-    else if let Some((start, end_opt)) = offset_range {
-        let resolved_start = resolve_offset(start);
-        let resolved_end = match end_opt {
-            Some(end) => resolve_offset(end),
-            None => file_size, // null = open-ended (to end of file)
-        };
-        let end = resolved_end.min(file_size);
-        for pos in resolved_start..end {
-            if match_pattern_at(data, pos, &segments) {
-                matches.push(pos);
-                if matches.len() >= early_exit_threshold {
-                    break;
-                }
-            }
-        }
-    }
-    // No offset constraint - search entire file
+    // Handle search in range or entire file
     else if is_simple_pattern(&segments) {
         // Simple pattern: use fast memmem search
         if let HexSegment::Bytes(bytes) = &segments[0] {
             let finder = memchr::memmem::Finder::new(bytes);
-            for pos in finder.find_iter(data) {
-                matches.push(pos);
+            for pos in finder.find_iter(&data[search_start..search_end]) {
+                matches.push(search_start + pos);
                 if matches.len() >= early_exit_threshold {
                     break;
                 }
@@ -460,8 +442,13 @@ pub fn eval_hex(
                 .sum();
 
             // Search for atom, then verify full pattern
-            for atom_pos in finder.find_iter(data) {
-                let pattern_start = atom_pos.saturating_sub(atom_offset_in_pattern);
+            for atom_pos in finder.find_iter(&data[search_start..search_end]) {
+                let pattern_start = (search_start + atom_pos).saturating_sub(atom_offset_in_pattern);
+
+                // Ensure candidate position is within our search range
+                if pattern_start < search_start || pattern_start >= search_end {
+                    continue;
+                }
 
                 if match_pattern_at(data, pattern_start, &segments)
                     && !matches.contains(&pattern_start)
@@ -473,8 +460,8 @@ pub fn eval_hex(
                 }
             }
         } else {
-            // No good atom found - fall back to linear scan
-            for pos in 0..data.len() {
+            // No good atom found - fall back to linear scan in range
+            for pos in search_start..search_end {
                 if match_pattern_at(data, pos, &segments) {
                     matches.push(pos);
                     if matches.len() >= early_exit_threshold {
@@ -487,12 +474,12 @@ pub fn eval_hex(
 
     // Check count and density constraints
     let constraints = CountConstraints::new(count_min, count_max, per_kb_min, per_kb_max);
-    let file_size = data.len();
-    let matched = check_count_constraints(matches.len(), file_size, &constraints);
+    let effective_size = search_end - search_start;
+    let matched = check_count_constraints(matches.len(), effective_size, &constraints);
 
     // Calculate precision: base 2.0 (hex patterns are specific) + modifiers
     let mut precision = 2.0f32;
-    if offset.is_some() || offset_range.is_some() {
+    if location.offset.is_some() || location.offset_range.is_some() {
         precision += 0.5;
     }
     if count_min > 1 {
@@ -500,6 +487,9 @@ pub fn eval_hex(
     }
     if count_max.is_some() || per_kb_min.is_some() || per_kb_max.is_some() {
         precision += 0.5; // Density/max constraints add precision
+    }
+    if location.section.is_some() {
+        precision += 1.0;
     }
 
     ConditionResult {

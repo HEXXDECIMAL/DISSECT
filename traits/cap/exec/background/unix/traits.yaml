@@ -20,7 +20,7 @@ traits:
   # nohup with output redirection to /dev/null (hiding output)
   - id: nohup-hidden-output
     desc: nohup with hidden output
-    crit: suspicious
+    crit: notable
     conf: 0.85
     mbc: "F0005"
     if:

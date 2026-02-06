@@ -42,7 +42,7 @@ traits:
     conf: 0.95
     if:
       type: string
-      regex: '(HeartBeat|Heartbeat|SendHeart|setHeart|g_threadHeartBeat)\b'
+      regex: '(SendHeart|setHeart|g_threadHeartBeat|HeartBeat(Thread|Loop|Task)|heartbeat_(task|loop|thread))\b'
 
   # Thread procedure naming (common in C++ RATs)
   - id: heartbeat-thread

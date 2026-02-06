@@ -153,6 +153,25 @@ traits:
       substr: application/dns-json
 
 composite_rules:
+  - id: doh-endpoint
+    desc: Known DoH endpoint reference
+    crit: inert
+    conf: 0.7
+    needs: 1
+    any:
+      - id: doh-cloudflare
+      - id: doh-google
+      - id: doh-quad9
+
+  - id: doh-content
+    desc: DoH content-type indicator
+    crit: inert
+    conf: 0.6
+    needs: 1
+    any:
+      - id: doh-content-type
+      - id: doh-json-content
+
   # dnscat2 protocol
   - id: dnscat
     desc: dnscat2 DNS tunneling tool
@@ -192,12 +211,8 @@ composite_rules:
   # DNS over HTTPS for C2
   - id: doh-c2
     desc: DNS over HTTPS potential C2
-    crit: suspicious
+    crit: notable
     conf: 0.75
-    needs: 1
-    any:
-      - id: doh-cloudflare
-      - id: doh-google
-      - id: doh-quad9
-      - id: doh-content-type
-      - id: doh-json-content
+    all:
+      - id: doh-endpoint
+      - id: doh-content

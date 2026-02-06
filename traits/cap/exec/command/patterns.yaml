@@ -17,7 +17,7 @@ traits:
 
 composite_rules:
   - id: command-spreading
-    desc: "Command spreading (String construction +"
+    desc: "Command spreading (String construction +)"
     crit: suspicious
     conf: 0.85
     near_lines: 10

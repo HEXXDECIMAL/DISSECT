@@ -43,7 +43,7 @@ traits:
     size_min: 20000
     if:
       type: section_ratio
-      section: "\\.(data|rdata)"
+      section: "\\.data"
       compare_to: "total"
       min_ratio: 0.70
 

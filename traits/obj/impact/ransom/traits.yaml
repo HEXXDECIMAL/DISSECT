@@ -9,7 +9,8 @@ traits:
     conf: 0.95
     if:
       type: string
-      regex: '(your files.{0,30}(have been|were) encrypted|files (have been|were) encrypted|decrypt.{0,30}free|contact.{0,30}support|TOR Browser|\.onion/|irreversibly encrypted|files.{0,20}decrypted|decrypt your (data|files))'
+      regex: '(your files.{0,30}(have been|were).{0,20}encrypted|files (have been|were).{0,20}encrypted|decrypt.{0,20}(your|all your|the) files|pay.{0,30}(ransom|bitcoin)|ransom.{0,30}(note|payment)|tor browser|\.onion/|irreversibly encrypted)'
+      case_insensitive: true
 
   # Ransomware encryption complete message
   - id: encryption-complete-msg

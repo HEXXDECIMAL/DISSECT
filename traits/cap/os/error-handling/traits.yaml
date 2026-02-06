@@ -9,7 +9,7 @@ traits:
   # === Error Mode ===
   - id: set-error-mode
     desc: Suppress error dialogs
-    crit: suspicious
+    crit: inert
     conf: 0.80
     if:
       type: symbol

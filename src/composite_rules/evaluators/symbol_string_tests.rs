@@ -755,6 +755,7 @@ fn test_eval_raw_exact_match() {
         None,
         false,
         None,
+        None,
         &location,
         &ctx,
     );
@@ -780,6 +781,7 @@ fn test_eval_raw_substr_count() {
         None,
         None,
         false,
+        None,
         None,
         &location,
         &ctx,
@@ -807,6 +809,7 @@ fn test_eval_raw_substr_count_insufficient() {
         None,
         None,
         false,
+        None,
         None,
         &location,
         &ctx,
@@ -837,6 +840,7 @@ fn test_eval_raw_regex() {
         None,
         false,
         Some(&re),
+        None,
         &location,
         &ctx,
     );
@@ -863,6 +867,7 @@ fn test_eval_raw_case_insensitive() {
         None,
         false,
         None,
+        None,
         &location,
         &ctx,
     );
@@ -888,6 +893,7 @@ fn test_eval_raw_invalid_utf8() {
         None,
         None,
         false,
+        None,
         None,
         &location,
         &ctx,

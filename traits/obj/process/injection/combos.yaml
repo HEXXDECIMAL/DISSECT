@@ -16,7 +16,7 @@ composite_rules:
   # === Suspended Process Injection ===
   - id: suspended-process-inject
     desc: Suspend process and modify context
-    crit: hostile
+    crit: suspicious
     conf: 0.90
     attack: "T1055"
     for: ["pe", "dll"]
@@ -46,7 +46,7 @@ composite_rules:
   # === Process Hollowing Pattern ===
   - id: process-hollowing
     desc: Suspend + memory write + context modify
-    crit: hostile
+    crit: suspicious
     conf: 0.90
     attack: "T1055.012"
     for: ["pe", "dll"]

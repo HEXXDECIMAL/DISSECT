@@ -49,7 +49,7 @@ traits:
 composite_rules:
   - id: fiber-local-storage-ops
     desc: Fiber-based thread local storage
-    crit: suspicious
+    crit: notable
     conf: 0.75
     platforms: [windows]
     for: [pe]
@@ -65,7 +65,7 @@ composite_rules:
 
   - id: thread-pool-based-malware
     desc: Thread pool with fiber-based scheduling
-    crit: suspicious
+    crit: notable
     conf: 0.8
     platforms: [windows]
     for: [pe]
@@ -79,7 +79,7 @@ composite_rules:
 
   - id: fiber-dispatch-framework
     desc: Fiber-based dispatch and scheduling framework
-    crit: suspicious
+    crit: notable
     conf: 0.85
     platforms: [windows]
     for: [pe]

@@ -865,11 +865,17 @@ impl<'a> RuleDebugger<'a> {
                 count_max,
                 per_kb_min,
                 per_kb_max,
+                section,
+                section_offset,
+                section_offset_range,
                 ..
             } => self.debug_hex_condition(
                 pattern,
                 *offset,
                 offset_range.clone(),
+                section.clone(),
+                *section_offset,
+                section_offset_range.clone(),
                 *count_min,
                 *count_max,
                 *per_kb_min,
@@ -2086,14 +2092,20 @@ impl<'a> RuleDebugger<'a> {
         pattern: &str,
         offset: Option<i64>,
         offset_range: Option<(i64, Option<i64>)>,
+        section: Option<String>,
+        section_offset: Option<i64>,
+        section_offset_range: Option<(i64, Option<i64>)>,
         count_min: usize,
         count_max: Option<usize>,
         per_kb_min: Option<f64>,
         per_kb_max: Option<f64>,
     ) -> ConditionDebugResult {
-        use crate::composite_rules::evaluators::eval_hex;
+        use crate::composite_rules::evaluators::{eval_hex, ContentLocationParams};
 
         let mut desc = format!("hex: \"{}\"", truncate_string(pattern, 40));
+        if let Some(sec) = &section {
+            desc.push_str(&format!(" in section: {}", sec));
+        }
         if let Some(off) = offset {
             desc.push_str(&format!(" @{:#x}", off));
         }
@@ -2118,13 +2130,18 @@ impl<'a> RuleDebugger<'a> {
 
         let eval_result = eval_hex(
             pattern,
-            offset,
-            offset_range,
             count_min,
             count_max,
             per_kb_min,
             per_kb_max,
             false, // extract_wildcards
+            &ContentLocationParams {
+                section: section.clone(),
+                offset,
+                offset_range,
+                section_offset,
+                section_offset_range,
+            },
             &ctx,
         );
 

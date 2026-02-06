@@ -18,7 +18,7 @@ traits:
   # === File Time Manipulation ===
   - id: set-file-time
     desc: Modify file creation/access/write times
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1070.006"
     if:

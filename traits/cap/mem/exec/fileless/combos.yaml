@@ -15,10 +15,13 @@ traits:
       source: |
         rule remote_injection {
           strings:
-            $vpe = "VirtualProtectEx" ascii wide
-            $vqe = "VirtualQueryEx" ascii wide
+            $op = /OpenProcess|NtOpenProcess/ ascii wide
+            $alloc = /VirtualAllocEx|NtAllocateVirtualMemory/ ascii wide
+            $write = /WriteProcessMemory|NtWriteVirtualMemory/ ascii wide
+            $protect = /VirtualProtectEx|NtProtectVirtualMemory/ ascii wide
+            $thread = /CreateRemoteThread(Ex)?|NtCreateThreadEx|RtlCreateUserThread|QueueUserAPC/ ascii wide
           condition:
-            any of them
+            $op and $write and ($alloc or $protect) and $thread
         }
     downgrade:
       any:

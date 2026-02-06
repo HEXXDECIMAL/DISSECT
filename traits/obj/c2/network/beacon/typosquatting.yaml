@@ -50,7 +50,7 @@ traits:
     conf: 0.80
     if:
       type: string
-      regex: "(githu[bk]\\.|gi[th]hub\\.|githyb\\.)[a-z]{2,}"
+      regex: "(githuk\\.|gihhub\\.|gituhb\\.|githbu\\.|githyb\\.)[a-z]{2,}"
     not:
       - "github.com"
       - "github.io"

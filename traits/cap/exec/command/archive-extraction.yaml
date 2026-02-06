@@ -80,7 +80,7 @@ traits:
 
   - id: extract-to-temp
     desc: Extract payload to temp
-    crit: suspicious
+    crit: notable
     conf: 0.80
     if:
       type: string

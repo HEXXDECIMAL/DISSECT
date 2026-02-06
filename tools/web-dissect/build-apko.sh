@@ -23,7 +23,10 @@ echo "Built: ${OUTPUT_DIR}/web-dissect"
 
 echo ""
 echo "=== Building dissect binary (Linux x86_64) ==="
-DISSECT_BIN="${REPO_ROOT}/target/x86_64-unknown-linux-musl/release/dissect"
+# Use a local cache directory to store build state for incremental compilation
+CACHE_DIR="${BUILD_DIR}/.build-cache"
+mkdir -p "${CACHE_DIR}/cargo/registry" "${CACHE_DIR}/cargo/git" "${CACHE_DIR}/target"
+DISSECT_BIN="${CACHE_DIR}/target/x86_64-unknown-linux-musl/release/dissect"
 
 if ! command -v podman >/dev/null 2>&1; then
   echo "podman not found. Install with: brew install podman"
@@ -34,6 +37,9 @@ fi
 # x86_64 build via emulation (slower but required for Cloud Run)
 podman run --rm --platform linux/amd64 \
   -v "${REPO_ROOT}:/build:z" \
+  -v "${CACHE_DIR}/cargo/registry:/usr/local/cargo/registry:z" \
+  -v "${CACHE_DIR}/cargo/git:/usr/local/cargo/git:z" \
+  -v "${CACHE_DIR}/target:/build/target:z" \
   -w /build \
   docker.io/library/rust:alpine \
   sh -c "apk add --no-cache musl-dev g++ && cargo build --release --target x86_64-unknown-linux-musl"

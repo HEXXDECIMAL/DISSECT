@@ -58,7 +58,7 @@ traits:
     for: [all]
     if:
       type: content
-      substr: "credentials:"
+      regex: "credentials:\\s*[\\s\\S]{0,500}(username|password|custom):\\s*[\\s\\S]{0,200}(key|search|type):"
 
   - id: phishlet-sub-filters
     desc: Phishlet sub_filters section

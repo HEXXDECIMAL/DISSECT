@@ -42,7 +42,7 @@ traits:
 composite_rules:
   - id: message-queue-threading
     desc: Message queue-based thread communication
-    crit: suspicious
+    crit: notable
     conf: 0.8
     platforms: [windows]
     for: [pe]
@@ -58,7 +58,7 @@ composite_rules:
 
   - id: message-based-command-server
     desc: Message queue command server pattern
-    crit: suspicious
+    crit: notable
     conf: 0.85
     platforms: [windows]
     for: [pe]

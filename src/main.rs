@@ -2396,13 +2396,18 @@ fn test_match_debug(
             // Evaluate hex pattern with resolved location constraints
             let result = eval_hex(
                 pattern,
-                resolved_offset,
-                resolved_offset_range,
                 count_min,
                 count_max,
                 per_kb_min,
                 per_kb_max,
                 false, // extract_wildcards
+                &composite_rules::evaluators::ContentLocationParams {
+                    section: section.map(|s| s.to_string()),
+                    offset,
+                    offset_range,
+                    section_offset,
+                    section_offset_range,
+                },
                 &ctx,
             );
 

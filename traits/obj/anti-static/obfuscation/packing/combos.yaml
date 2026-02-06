@@ -17,7 +17,7 @@ composite_rules:
 
   - id: payload-unpacking
     desc: Embedded payload with unpacking capability
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1140"
     mbc: "C0032"

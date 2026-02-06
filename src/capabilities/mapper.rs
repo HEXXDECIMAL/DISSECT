@@ -1057,11 +1057,12 @@ impl CapabilityMapper {
         // Pre-filter using batched regex matching for Content conditions
         // Only run if any applicable traits have content regex patterns
         let t_raw_regex = std::time::Instant::now();
-        let raw_regex_matched_traits = if self.raw_content_regex_index.has_patterns()
+        let raw_regex_prefilter_enabled = self.raw_content_regex_index.has_patterns()
             && self
                 .raw_content_regex_index
                 .has_applicable_patterns(&applicable_indices)
-        {
+        ;
+        let raw_regex_matched_traits = if raw_regex_prefilter_enabled {
             self.raw_content_regex_index
                 .find_matches(binary_data, &file_type)
         } else {
@@ -1165,8 +1166,13 @@ impl CapabilityMapper {
                         | Condition::Content { word: Some(_), .. }
                 );
 
-                // If trait has a raw content pattern and it wasn't matched, skip it
-                if has_content_regex && !raw_regex_matched_traits.contains(&idx) {
+                // Skip only when pre-filtering is enabled and this trait is indexed there.
+                // Unindexed traits must still be evaluated normally.
+                if has_content_regex
+                    && raw_regex_prefilter_enabled
+                    && self.raw_content_regex_index.is_indexed_trait(idx)
+                    && !raw_regex_matched_traits.contains(&idx)
+                {
                     skip_count.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
                     return None;
                 }

@@ -27,7 +27,7 @@ traits:
 
   - id: binary-formatter
     desc: Binary serialization (security risk)
-    crit: suspicious
+    crit: notable
     conf: 0.90
     mbc: "C0026"
     if:

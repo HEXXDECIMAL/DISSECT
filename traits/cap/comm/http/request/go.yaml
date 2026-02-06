@@ -30,13 +30,13 @@ traits:
 
   - id: go-http-header-auth
     desc: Sets Authorization header in Go
-    crit: suspicious
+    crit: notable
     conf: 0.95
     for: [go]
     if:
       type: ast
       kind: call
-      exact: "Header.Set(\"Authorization\""
+      exact: 'Header.Set("Authorization"'
 
   # String-based detection (compiled binaries)
   - id: go-http-newrequest-string
@@ -65,4 +65,3 @@ traits:
     if:
       type: string
       substr: "Header.Set"
-

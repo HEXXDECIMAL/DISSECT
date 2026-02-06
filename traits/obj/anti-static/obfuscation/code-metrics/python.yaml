@@ -50,12 +50,14 @@ composite_rules:
     desc: "Python obfuscator tool output"
     crit: suspicious
     conf: 0.85
-    needs: 2
+    needs: 3
     any:
-      - id: obj/anti-static/obfuscation/code-metrics/high-entropy-identifiers
+      - id: obj/anti-static/obfuscation/code-metrics/no-comments
       - id: obj/anti-static/obfuscation/code-metrics/py-lambda-abuse
       - id: obj/anti-static/obfuscation/code-metrics/py-encoded-strings
-      - id: obj/anti-static/obfuscation/code-metrics/no-comments
+      - id: obj/anti-static/obfuscation/code-metrics/single-char-function-names
+      - id: obj/anti-static/obfuscation/code-metrics/py-many-high-entropy-identifiers
+      - id: obj/anti-static/obfuscation/code-metrics/high-entropy-identifiers
     unless:
       - type: content
         substr: "pandas"

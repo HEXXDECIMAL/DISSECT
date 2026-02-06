@@ -6,7 +6,10 @@
 //! - Decoded string matching (Base64, XOR)
 //! - String count analysis
 
-use super::{check_count_constraints, symbol_matches, CountConstraints};
+use super::{
+    check_count_constraints, resolve_effective_range, resolve_effective_range_opt, symbol_matches,
+    ContentLocationParams, CountConstraints,
+};
 use crate::composite_rules::condition::NotException;
 use crate::composite_rules::context::{ConditionResult, EvaluationContext, StringParams};
 use crate::composite_rules::types::Platform;
@@ -24,79 +27,7 @@ fn offset_in_range(offset: Option<u64>, range: Option<(u64, u64)>) -> bool {
     }
 }
 
-/// Resolve the effective byte range for content search based on location constraints.
-/// Returns (start, end) as absolute offsets into binary data.
-fn resolve_effective_range(location: &ContentLocationParams, ctx: &EvaluationContext) -> (usize, usize) {
-    let file_size = ctx.binary_data.len();
-
-    // If no location constraints, return full file range
-    if location.section.is_none()
-        && location.offset.is_none()
-        && location.offset_range.is_none()
-        && location.section_offset.is_none()
-        && location.section_offset_range.is_none()
-    {
-        return (0, file_size);
-    }
-
-    // Use SectionMap to resolve the range if available
-    if let Some(ref section_map) = ctx.section_map {
-        if let Some((start, end)) = section_map.resolve_range(
-            location.section.as_deref(),
-            location.offset,
-            location.offset_range,
-            location.section_offset,
-            location.section_offset_range,
-        ) {
-            return (start as usize, end as usize);
-        }
-    }
-
-    // Fallback: resolve absolute offset constraints without SectionMap
-    match (location.offset, &location.offset_range) {
-        (Some(off), None) => {
-            // Single offset - search starts at that position
-            let resolved = if off < 0 {
-                (file_size as i64 + off).max(0) as usize
-            } else {
-                off as usize
-            };
-            (resolved, file_size)
-        }
-        (None, Some((start, end_opt))) => {
-            let file_size_i64 = file_size as i64;
-            let resolved_start = if *start < 0 {
-                (file_size_i64 + *start).max(0) as usize
-            } else {
-                *start as usize
-            };
-            let resolved_end = match end_opt {
-                Some(end) if *end < 0 => (file_size_i64 + *end).max(0) as usize,
-                Some(end) => *end as usize,
-                None => file_size,
-            };
-            (resolved_start, resolved_end)
-        }
-        _ => (0, file_size), // Section constraints without SectionMap - no filtering
-    }
-}
-
-/// Resolve effective range as Option for string offset filtering.
-/// Returns None if no location constraints (no filtering needed).
-fn resolve_effective_range_opt(location: &ContentLocationParams, ctx: &EvaluationContext) -> Option<(u64, u64)> {
-    // If no location constraints, return None (no filtering)
-    if location.section.is_none()
-        && location.offset.is_none()
-        && location.offset_range.is_none()
-        && location.section_offset.is_none()
-        && location.section_offset_range.is_none()
-    {
-        return None;
-    }
-
-    let (start, end) = resolve_effective_range(location, ctx);
-    Some((start as u64, end as u64))
-}
+// Helper functions moved to mod.rs
 
 /// Evaluate symbol condition - matches symbols in imports/exports.
 pub fn eval_symbol(
@@ -517,14 +448,7 @@ pub fn eval_string(
 }
 
 /// Parameters for location-constrained content evaluation.
-#[derive(Default)]
-pub struct ContentLocationParams {
-    pub section: Option<String>,
-    pub offset: Option<i64>,
-    pub offset_range: Option<(i64, Option<i64>)>,
-    pub section_offset: Option<i64>,
-    pub section_offset_range: Option<(i64, Option<i64>)>,
-}
+// MOVED TO mod.rs
 
 /// Evaluate content-based condition - searches directly in file bytes as text.
 ///
@@ -543,6 +467,7 @@ pub fn eval_raw(
     per_kb_max: Option<f64>,
     external_ip: bool,
     compiled_regex: Option<&regex::Regex>,
+    not: Option<&Vec<NotException>>,
     location: &ContentLocationParams,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
@@ -556,7 +481,7 @@ pub fn eval_raw(
     let mut evidence = Vec::new();
 
     // Resolve effective range from location constraints
-    let (search_start, search_end) = resolve_effective_range(location, ctx);
+    let (search_start, search_end): (usize, usize) = resolve_effective_range(location, ctx);
 
     // Ensure we don't exceed binary data bounds
     let search_start = search_start.min(ctx.binary_data.len());
@@ -569,19 +494,8 @@ pub fn eval_raw(
     // Get the slice of binary data to search
     let search_data = &ctx.binary_data[search_start..search_end];
 
-    // Convert binary data to string
-    let content = match std::str::from_utf8(search_data) {
-        Ok(s) => s,
-        Err(_) => {
-            return ConditionResult {
-                matched: false,
-                evidence: Vec::new(),
-                traits: Vec::new(),
-                warnings: Vec::new(),
-                precision: 0.0,
-            };
-        }
-    };
+    // Convert binary data to string (use lossy conversion for binary files)
+    let content = String::from_utf8_lossy(search_data);
 
     // Track match count for constraint checking
     let mut match_count = 0usize;
@@ -589,11 +503,17 @@ pub fn eval_raw(
     // Use pre-compiled regex (handles both word and regex patterns)
     if let Some(re) = compiled_regex {
         let mut first_match = None;
-        for mat in re.find_iter(content) {
+        for mat in re.find_iter(&content) {
             let match_str = mat.as_str();
             // Skip matches without external IP when external_ip is required
             if external_ip && !contains_external_ip(match_str) {
                 continue;
+            }
+            // Skip matches that trigger 'not' filters
+            if let Some(not_filters) = not {
+                if not_filters.iter().any(|filter| filter.matches(match_str)) {
+                    continue;
+                }
             }
             match_count += 1;
             if first_match.is_none() {
@@ -613,11 +533,16 @@ pub fn eval_raw(
         let matched = if case_insensitive {
             content.eq_ignore_ascii_case(exact_str)
         } else {
-            content == exact_str
+            content == *exact_str
         };
         // When external_ip is set, require the match to contain an external IP
         let ip_ok = !external_ip || contains_external_ip(exact_str);
-        if matched && ip_ok {
+        // Skip matches that trigger 'not' filters
+        let excluded_by_not = not
+            .map(|exceptions| exceptions.iter().any(|exc| exc.matches(exact_str)))
+            .unwrap_or(false);
+
+        if matched && ip_ok && !excluded_by_not {
             match_count = 1;
             evidence.push(Evidence {
                 method: "raw".to_string(),
@@ -649,7 +574,13 @@ pub fn eval_raw(
                 let context_end = (abs_pos + search_pattern.len() + 50).min(content.len());
                 let context = &content[context_start..context_end];
                 if contains_external_ip(context) {
-                    match_count += 1;
+                    // Also check 'not' filters for this match
+                    let excluded_by_not = not
+                        .map(|exceptions| exceptions.iter().any(|exc| exc.matches(substr_str)))
+                        .unwrap_or(false);
+                    if !excluded_by_not {
+                        match_count += 1;
+                    }
                 }
                 start = abs_pos + 1;
             }
@@ -662,24 +593,31 @@ pub fn eval_raw(
                 });
             }
         } else {
-            let search_content = if case_insensitive {
-                content.to_lowercase()
-            } else {
-                content.to_string()
-            };
-            let search_pattern = if case_insensitive {
-                substr_str.to_lowercase()
-            } else {
-                substr_str.clone()
-            };
-            match_count = search_content.matches(&search_pattern).count();
-            if match_count > 0 {
-                evidence.push(Evidence {
-                    method: "raw".to_string(),
-                    source: "raw_content".to_string(),
-                    value: format!("Found {} occurrences of {}", match_count, substr_str),
-                    location: Some("file".to_string()),
-                });
+            // Skip matches that trigger 'not' filters
+            let excluded_by_not = not
+                .map(|exceptions| exceptions.iter().any(|exc| exc.matches(substr_str)))
+                .unwrap_or(false);
+
+            if !excluded_by_not {
+                let search_content = if case_insensitive {
+                    content.to_lowercase()
+                } else {
+                    content.to_string()
+                };
+                let search_pattern = if case_insensitive {
+                    substr_str.to_lowercase()
+                } else {
+                    substr_str.clone()
+                };
+                match_count = search_content.matches(&search_pattern).count();
+                if match_count > 0 {
+                    evidence.push(Evidence {
+                        method: "raw".to_string(),
+                        source: "raw_content".to_string(),
+                        value: format!("Found {} occurrences of {}", match_count, substr_str),
+                        location: Some("file".to_string()),
+                    });
+                }
             }
         }
     }

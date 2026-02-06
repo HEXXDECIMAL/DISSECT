@@ -27,7 +27,7 @@ traits:
 
   - id: request
     desc: HTTP REQUEST parameter access ($_REQUEST)
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1059"
     for: [php]
@@ -58,7 +58,7 @@ traits:
 
   - id: files
     desc: File upload access ($_FILES)
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1105"
     for: [php]
@@ -79,7 +79,7 @@ traits:
 
   - id: script-filename
     desc: Access to script filename (self-reference)
-    crit: suspicious
+    crit: notable
     conf: 0.85
     for: [php]
     if:
@@ -199,7 +199,7 @@ traits:
 composite_rules:
   - id: extract-input
     desc: Extracts variables from user input
-    crit: suspicious
+    crit: notable
     conf: 0.9
     for: [php]
     needs: 1
@@ -212,7 +212,7 @@ composite_rules:
 
   - id: parse-str-input
     desc: Parses user input into variables
-    crit: suspicious
+    crit: notable
     conf: 0.9
     for: [php]
     needs: 1

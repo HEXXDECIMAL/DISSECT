@@ -116,7 +116,7 @@ traits:
 composite_rules:
   - id: activex-network-access
     desc: ActiveX network capability
-    crit: suspicious
+    crit: notable
     conf: 0.8
     platforms: [windows]
     for: [javascript]
@@ -140,7 +140,7 @@ composite_rules:
 
   - id: activex-shell-execution
     desc: Shell command execution
-    crit: suspicious
+    crit: notable
     conf: 0.85
     platforms: [windows]
     for: [javascript]
@@ -167,4 +167,3 @@ composite_rules:
       - id: activex-xmlhttp
       - id: activex-winhttp
       - id: activex-wmi
-

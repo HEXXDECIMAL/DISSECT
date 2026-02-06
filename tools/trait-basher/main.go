@@ -1,13 +1,14 @@
 // trait-basher orchestrates AI to tune DISSECT trait definitions.
 //
 // It scans a directory with dissect and invokes an AI assistant (Claude, Gemini,
-// or Opencode) to analyze findings and modify/create traits as needed.
+// Codex, or Opencode) to analyze findings and modify/create traits as needed.
 //
 // Usage:
 //
 //	trait-basher --dir /path/to/good-samples --good
 //	trait-basher --dir /path/to/malware-samples --bad
 //	trait-basher --dir /path/to/samples --bad --provider gemini
+//	trait-basher --dir /path/to/samples --bad --provider codex
 package main
 
 import (
@@ -42,10 +43,10 @@ import (
 
 // fileEntry holds a file path with its finding summary for display.
 type fileEntry struct {
-	Path     string // Extracted path
-	Summary  string // e.g., "4 hostile, 2 suspicious"
-	MaxCrit  int    // For sorting (3=hostile, 2=suspicious, 1=notable)
-	Total    int    // Total high-severity findings
+	Path    string // Extracted path
+	Summary string // e.g., "4 hostile, 2 suspicious"
+	MaxCrit int    // For sorting (3=hostile, 2=suspicious, 1=notable)
+	Total   int    // Total high-severity findings
 }
 
 // promptData holds values for prompt templates.
@@ -87,7 +88,7 @@ A finding is only a false positive if:
 - The rule incorrectly matched something that doesn't indicate that behavior
 - The pattern is too broad and matches unrelated benign code
 - The finding is in the wrong file or context
-- The criticality is inappropriately high: "hostile" is a true and specific stop-everything-now concern, "suspicious" should genuinely be a concern, "notable" should accurately describe the defining characteristics of a program, "inert" should be uninteresting traits that many programs share. When in doubt, lower a traits criticality.
+- The criticality is inappropriately high: "hostile" is a true and specific stop-everything-now concern, "suspicious" should genuinely be a concern, "notable" should accurately describe the defining characteristics of a program, "inert" should be uninteresting traits that many programs share.
 
 **Expected**: Known-good software has findings! Notable and suspicious findings are normal if they accurately describe what the code does. The goal is ACCURATE findings, not zero findings.
 
@@ -98,6 +99,7 @@ A finding is only a false positive if:
 - **ID**: The trait ID should match the query parameters.
 - **Confirm criticality**: Based on what the trait query, is the criticality appropriate or is it overblown?
 - **Assume good intent**: You will find traits that are defined incorrectly, you can usually gather from the trait ID what the feature (benign or malicious) were trying to find.
+- **Avoid unless/downgrade**: Only use these stanzas when it's not possible to improve the query to be more accurate or specific
 
 {{.TaskBlock}}
 
@@ -107,6 +109,8 @@ A finding is only a false positive if:
 ✓ Changes are minimal and focused
 ✓ Traits are correctly named after what they detect
 ✓ Traits have the correct criticality level for any kind of program that matches
+✓ If a suspicious trait isn't genuinely suspicious, lower the criticality to notable.
+✓ Improved thresholds - make traits as focused and specific as possible to meet their description
 ✓ Run dissect again - shows improvement
 
 ## Debug & Validate
@@ -371,6 +375,8 @@ type config struct { //nolint:govet // field alignment optimized for readability
 	flush       bool
 }
 
+const maxYAMLAutoFixAttempts = 3
+
 // Finding represents a matched trait/capability.
 type Finding struct {
 	ID   string `json:"id"`
@@ -494,11 +500,12 @@ func main() {
 
 	knownGood := flag.Bool("good", false, "Review known-good files for false positives (suspicious/hostile findings)")
 	knownBad := flag.Bool("bad", false, "Review known-bad files for false negatives (missing detections)")
-	provider := flag.String("provider", "claude", "AI provider: claude, gemini, or opencode")
+	provider := flag.String("provider", "claude", "AI provider: claude, gemini, codex, or opencode")
 	model := flag.String("model", "", `Model to use (provider-specific). Popular choices:
   claude:   sonnet, opus, haiku
   gemini:   gemini-3-pro-preview, gemini-3-flash-preview,
             gemini-2.5-pro, gemini-2.5-flash, gemini-2.5-flash-lite
+  codex:    gpt-5-codex, gpt-5-codex-mini, gpt-5
   opencode: gpt-4.1, gpt-4.1-mini, o4-mini, o3, moonshotai/kimi-k2.5`)
 	repoRoot := flag.String("repo-root", "", "Path to DISSECT repo root (auto-detected if not specified)")
 	useCargo := flag.Bool("cargo", true, "Use 'cargo run --release' instead of dissect binary")
@@ -531,8 +538,8 @@ func main() {
 	}
 
 	*provider = strings.ToLower(*provider)
-	if *provider != "claude" && *provider != "gemini" && *provider != "opencode" {
-		log.Fatalf("Unknown provider %q: must be claude, gemini, or opencode", *provider)
+	if *provider != "claude" && *provider != "gemini" && *provider != "codex" && *provider != "opencode" {
+		log.Fatalf("Unknown provider %q: must be claude, gemini, codex, or opencode", *provider)
 	}
 
 	// Find repo root (for running dissect via cargo).
@@ -628,8 +635,19 @@ func main() {
 	}
 
 	// Sanity check: run dissect on /bin/ls to catch code errors early.
-	if err := sanityCheck(ctx, cfg); err != nil {
-		log.Fatalf("Sanity check failed: %v", err)
+	for attempt := 1; ; attempt++ {
+		if err := sanityCheck(ctx, cfg); err != nil {
+			if !isYAMLTraitIssue(err.Error()) || attempt > maxYAMLAutoFixAttempts {
+				log.Fatalf("Sanity check failed: %v", err)
+			}
+			if fixErr := invokeYAMLTraitFixer(ctx, cfg, "initial sanity check", err.Error(), attempt, maxYAMLAutoFixAttempts); fixErr != nil {
+				log.Fatalf("Sanity check failed: %v (YAML trait auto-fix failed: %v)", err, fixErr)
+			}
+			fmt.Fprintf(os.Stderr, "Waiting 1 second before re-running sanity check...\n")
+			time.Sleep(1 * time.Second)
+			continue
+		}
+		break
 	}
 
 	mode := "known-bad"
@@ -655,11 +673,22 @@ func main() {
 
 	// Use streaming analysis - process each archive as it completes.
 	// Loop and restart after reviewing N files to catch fixed files.
+	yamlFixAttempts := 0
 	for {
 		stats, err := streamAnalyzeAndReview(ctx, cfg, dbMode)
 		if err != nil {
+			if isYAMLTraitIssue(err.Error()) && yamlFixAttempts < maxYAMLAutoFixAttempts {
+				yamlFixAttempts++
+				if fixErr := invokeYAMLTraitFixer(ctx, cfg, "scan/restart loop", err.Error(), yamlFixAttempts, maxYAMLAutoFixAttempts); fixErr != nil {
+					log.Fatalf("Analysis failed: %v (YAML trait auto-fix failed: %v)", err, fixErr)
+				}
+				fmt.Fprintf(os.Stderr, "Waiting 1 second before restarting scan...\n")
+				time.Sleep(1 * time.Second)
+				continue
+			}
 			log.Fatalf("Analysis failed: %v", err)
 		}
+		yamlFixAttempts = 0
 
 		if !stats.shouldRestart {
 			// No more files to review
@@ -1093,16 +1122,79 @@ func sanityCheck(ctx context.Context, cfg *config) error {
 
 	if err := cmd.Run(); err != nil {
 		fmt.Fprint(os.Stderr, "\n=== SANITY CHECK FAILED ===\n")
+		errText := strings.TrimSpace(stderr.String())
 		if stderr.Len() > 0 {
 			fmt.Fprintf(os.Stderr, "stderr:\n%s\n", stderr.String())
 		}
 		if stdout.Len() > 0 {
 			fmt.Fprintf(os.Stderr, "stdout:\n%s\n", stdout.String())
 		}
+		if errText == "" {
+			errText = strings.TrimSpace(stdout.String())
+		}
+		if errText != "" {
+			return fmt.Errorf("dissect failed on %s: %w: %s", testFile, err, errText)
+		}
 		return fmt.Errorf("dissect failed on %s: %w", testFile, err)
 	}
 
 	fmt.Fprint(os.Stderr, "Sanity check passed.\n\n")
+	return nil
+}
+
+func isYAMLTraitIssue(msg string) bool {
+	s := strings.ToLower(msg)
+	if strings.Contains(s, "trait configuration warning") {
+		return true
+	}
+	if strings.Contains(s, "fix these issues in the yaml files") {
+		return true
+	}
+	hasYAML := strings.Contains(s, ".yaml") || strings.Contains(s, ".yml") || strings.Contains(s, "yaml")
+	hasTraitContext := strings.Contains(s, "trait") || strings.Contains(s, "traits/")
+	return hasYAML && hasTraitContext
+}
+
+func buildYAMLTraitFixPrompt(cfg *config, phase, failureOutput string) string {
+	return fmt.Sprintf(`Fix DISSECT trait YAML issues only.
+
+Failure phase: %s
+
+Error output:
+%s
+
+Hard requirements:
+- Only edit existing YAML trait files under %s/traits/ (*.yaml or *.yml).
+- Do NOT edit any Rust code, Go code, scripts, docs, tests, or non-YAML files.
+- Focus only on YAML trait parser/configuration issues from the error output.
+- Keep trait IDs, taxonomy, and intent intact unless needed to fix the YAML issue.
+- Make minimal edits.
+
+After editing, validate with:
+%s --format jsonl /bin/ls
+
+If validation still fails with YAML trait issues, continue fixing YAML until it passes.
+When done, stop.`,
+		phase,
+		failureOutput,
+		cfg.repoRoot,
+		cfg.dissectBin,
+	)
+}
+
+func invokeYAMLTraitFixer(ctx context.Context, cfg *config, phase, failureOutput string, attempt, maxAttempts int) error {
+	fmt.Fprintf(os.Stderr, "⚠️  YAML trait issue detected during %s (attempt %d/%d)\n", phase, attempt, maxAttempts)
+	fmt.Fprintf(os.Stderr, "   [repair] Submitting YAML-only fix task to %s\n", cfg.provider)
+
+	prompt := buildYAMLTraitFixPrompt(cfg, phase, failureOutput)
+	sid := generateSessionID()
+
+	tctx, cancel := context.WithTimeout(ctx, cfg.timeout)
+	defer cancel()
+
+	if err := runAIWithStreaming(tctx, cfg, prompt, sid); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -1413,6 +1505,13 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 			args = append(args, "--model", cfg.model)
 		}
 		cmd = exec.CommandContext(ctx, "gemini", args...)
+	case "codex":
+		args := []string{"exec", "--json", "--full-auto", "--sandbox", "danger-full-access"}
+		if cfg.model != "" {
+			args = append(args, "--model", cfg.model)
+		}
+		args = append(args, "-")
+		cmd = exec.CommandContext(ctx, "codex", args...)
 	case "opencode":
 		var args []string
 		if cfg.model != "" {
@@ -1446,7 +1545,7 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 
 	// Write prompt to stdin, then close to signal EOF
 	go func() {
-		defer stdinPipe.Close() //nolint:errcheck
+		defer stdinPipe.Close()           //nolint:errcheck
 		io.WriteString(stdinPipe, prompt) //nolint:errcheck
 	}()
 
@@ -1543,6 +1642,81 @@ func displayStreamEvent(line string) {
 	}
 
 	switch ev["type"] {
+	case "thread.started":
+		if id, ok := ev["thread_id"].(string); ok && id != "" {
+			fmt.Fprintf(os.Stderr, "  [codex] thread %s\n", id)
+		}
+	case "turn.started":
+		fmt.Fprintln(os.Stderr, "  [codex] turn started")
+	case "turn.completed":
+		if usage, ok := ev["usage"].(map[string]any); ok {
+			in, _ := usage["input_tokens"].(float64)   //nolint:errcheck // type assertion ok
+			out, _ := usage["output_tokens"].(float64) //nolint:errcheck // type assertion ok
+			if in > 0 || out > 0 {
+				fmt.Fprintf(os.Stderr, "  [codex] tokens: in=%.0f out=%.0f\n", in, out)
+			}
+		}
+	case "turn.failed":
+		fmt.Fprintln(os.Stderr, "  [codex] turn failed")
+	case "item/agentMessage/delta":
+		if delta, ok := ev["delta"].(string); ok && delta != "" {
+			fmt.Fprint(os.Stderr, delta)
+			codexDeltaOpen = true
+		} else if text, ok := ev["text"].(string); ok && text != "" {
+			fmt.Fprint(os.Stderr, text)
+			codexDeltaOpen = true
+		}
+	case "item/commandExecution/outputDelta":
+		if delta, ok := ev["delta"].(string); ok && delta != "" {
+			fmt.Fprint(os.Stderr, delta)
+		} else if out, ok := ev["output"].(string); ok && out != "" {
+			fmt.Fprint(os.Stderr, out)
+		}
+	case "item/fileChange/outputDelta":
+		if delta, ok := ev["delta"].(string); ok && delta != "" {
+			fmt.Fprint(os.Stderr, delta)
+		} else if out, ok := ev["output"].(string); ok && out != "" {
+			fmt.Fprint(os.Stderr, out)
+		}
+	case "item/plan/delta":
+		if delta, ok := ev["delta"].(string); ok && delta != "" {
+			fmt.Fprint(os.Stderr, delta)
+		} else if text, ok := ev["text"].(string); ok && text != "" {
+			fmt.Fprint(os.Stderr, text)
+		}
+	case "item.started", "item.completed":
+		item, ok := ev["item"].(map[string]any)
+		if !ok {
+			return
+		}
+		itemType, _ := item["type"].(string) //nolint:errcheck // type assertion ok
+		switch itemType {
+		case "agent_message":
+			if text, ok := item["text"].(string); ok && text != "" {
+				fmt.Fprintln(os.Stderr, text)
+			} else if codexDeltaOpen {
+				fmt.Fprintln(os.Stderr)
+			}
+			codexDeltaOpen = false
+		case "command_execution":
+			if cmd, ok := item["command"].(string); ok && cmd != "" {
+				fmt.Fprintf(os.Stderr, "  [tool] command: %s\n", cmd)
+			}
+		case "file_change":
+			if path, ok := item["path"].(string); ok && path != "" {
+				fmt.Fprintf(os.Stderr, "  [tool] file change: %s\n", path)
+			}
+		case "web_search":
+			if q, ok := item["query"].(string); ok && q != "" {
+				fmt.Fprintf(os.Stderr, "  [tool] web search: %s\n", q)
+			}
+		case "plan_update":
+			fmt.Fprintln(os.Stderr, "  [tool] plan update")
+		}
+	case "error":
+		if msg, ok := ev["message"].(string); ok && msg != "" {
+			fmt.Fprintf(os.Stderr, "  [codex] error: %s\n", msg)
+		}
 	case "assistant":
 		// Claude format: {"type":"assistant","message":{"content":[{"type":"text","text":"..."}]}}
 		msg, ok := ev["message"].(map[string]any)
@@ -1616,6 +1790,9 @@ func displayStreamEvent(line string) {
 		}
 	}
 }
+
+// codexDeltaOpen tracks whether we've printed streaming agent deltas and need a newline.
+var codexDeltaOpen bool
 
 func generateSessionID() string {
 	b := make([]byte, 16)

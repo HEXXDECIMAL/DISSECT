@@ -565,10 +565,10 @@ composite_rules:
   # Machine ID composite (migrated from YARA)
   - id: machine-id
     desc: Machine ID collection for victim
-    crit: suspicious
+    crit: notable
     conf: 0.8
     attack: "T1082"
-    needs: 1
+    needs: 2
     any:
       - id: fp-dbus-machine-id
       - id: fp-etc-machine-id

@@ -9,6 +9,14 @@ defaults:
   attack: "T1195.002"
 
 traits:
+  - id: setup-py-basename
+    desc: "File is setup.py"
+    crit: inert
+    conf: 1.0
+    if:
+      type: basename
+      exact: "setup.py"
+
   # os.system call at module level (outside functions)
   - id: module-level-system
     desc: "os.system at module level (install-time"
@@ -40,11 +48,10 @@ traits:
   # NOTE: YARA kept for setup-py-exec - requires NOT conditions to exclude legitimate
   # patterns (setup.py sdist, bdist_wheel, twine, pytest, etc.). DISSECT doesn't support
   # NOT conditions in composite rules yet.
-  - id: setup-py-exec-yara
-    desc: "setup.py with suspicious code execution"
-    crit: suspicious
+  - id: setup-py-exec-yara-core
+    desc: "setup.py exec/network markers (YARA)"
+    crit: inert
     conf: 0.95
-    mbc: "B0030"
     if:
       type: yara
       source: |
@@ -156,3 +163,12 @@ traits:
         }
 
 composite_rules:
+  - id: setup-py-exec-yara
+    desc: "setup.py with suspicious code execution"
+    crit: suspicious
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1195.002"
+    all:
+      - id: setup-py-basename
+      - id: setup-py-exec-yara-core

@@ -12,8 +12,8 @@ traits:
     attack: "T1529"
     platforms: [unix, macos, linux]
     if:
-      type: string
-      regex: 'reboot\s+(-l|-f)?'
+      type: content
+      regex: '(?i)(^|[\s"''])(?:sudo\s+)?(?:/sbin/|/usr/sbin/)?reboot(?:\s+-(?:f|n|w|p|i|d|l)\b(?:\s+\S+)*)?(?:\s*(?:;|&&|\|\||["'']\s*[),]|$))'
 
   - id: shutdown-command
     desc: shutdown command (system shutdown)
@@ -26,9 +26,8 @@ traits:
     # Binary programs often have "shutdown" in error messages, callbacks, etc.
     for: [shell, python, ruby, perl]
     if:
-      type: string
-      regex: 'shutdown\s+(-h|-r|-k)?'
-      case_insensitive: true
+      type: content
+      regex: '(?i)(^|[\s"''])(?:sudo\s+)?(?:/sbin/|/usr/sbin/)?shutdown(?:\s+-(?:h|r|k|H|P|c|f|F|n)\b(?:\s+\S+)*)?(?:\s+now\b)?(?:\s*(?:;|&&|\|\||["'']\s*[),]|$))'
 
   - id: halt-command
     desc: halt command (immediate shutdown)
@@ -41,8 +40,8 @@ traits:
     # Binary programs often have "halt" as a function/opcode name (e.g., SQLite VM)
     for: [shell, python, ruby, perl]
     if:
-      type: string
-      word: "halt"
+      type: content
+      regex: '(?i)(^|[\s"''])(?:sudo\s+)?(?:/sbin/|/usr/sbin/)?halt(?:\s|;|&&|\|\||$)'
 
   - id: poweroff-command
     desc: poweroff command (power down system)
@@ -52,8 +51,8 @@ traits:
     attack: "T1529"
     platforms: [unix, macos, linux]
     if:
-      type: string
-      word: "poweroff"
+      type: content
+      regex: '(?i)(^|[\s"''])(?:sudo\s+)?(?:/sbin/|/usr/sbin/)?poweroff(?:\s+\S+)*?(?:\s*(?:;|&&|\|\||["'']\s*[),]|$))'
 
 composite_rules:
   - id: system-restart-trigger

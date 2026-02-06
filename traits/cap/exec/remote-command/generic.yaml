@@ -6,4 +6,4 @@ traits:
     conf: 0.8
     if:
       type: string
-      substr: "executeCommand"
+      regex: "(?i)\\bexecuteCommand\\b"

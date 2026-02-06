@@ -72,7 +72,7 @@ traits:
 
   - id: file-upload
     desc: cURL file upload capability (CURLFile)
-    crit: suspicious
+    crit: notable
     conf: 0.85
     mbc: "B0030"
     attack: "T1041"

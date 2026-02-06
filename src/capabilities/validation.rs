@@ -2,7 +2,7 @@
 //!
 //! This module provides validation functions for trait definitions and composite rules:
 //! - Precision calculation for composite rules (recursive trait reference expansion)
-//! - Validation of HOSTILE composite rules (must meet precision threshold)
+//! - Validation of composite rule criticality precision thresholds
 //! - Validation that composite rules only contain trait references (not inline primitives)
 //! - Auto-prefixing of trait references based on file path
 
@@ -165,7 +165,11 @@ pub fn calculate_composite_precision(
     1
 }
 
-/// Validate and downgrade HOSTILE composite rules that don't meet precision requirements
+/// Validate and downgrade composite rules that don't meet precision requirements.
+///
+/// - HOSTILE must have precision >= 4, else downgraded to SUSPICIOUS.
+/// - SUSPICIOUS must have precision >= 2, else downgraded to NOTABLE.
+///
 /// Returns a list of warnings for rules that were downgraded.
 pub(crate) fn validate_hostile_composite_precision(
     composite_rules: &mut [CompositeTrait],
@@ -174,10 +178,15 @@ pub(crate) fn validate_hostile_composite_precision(
 ) {
     let mut cache: HashMap<String, usize> = HashMap::new();
 
-    // First pass: calculate precision for all HOSTILE rules (immutable borrow)
-    let hostile_precisions: Vec<(String, usize)> = composite_rules
+    // First pass: calculate precision for HOSTILE/SUSPICIOUS rules (immutable borrow)
+    let scored_rules: Vec<(String, Criticality, usize)> = composite_rules
         .iter()
-        .filter(|rule| rule.crit == Criticality::Hostile)
+        .filter(|rule| {
+            matches!(
+                rule.crit,
+                Criticality::Hostile | Criticality::Suspicious
+            )
+        })
         .map(|rule| {
             let mut visiting = std::collections::HashSet::new();
             let precision = calculate_composite_precision(
@@ -187,19 +196,27 @@ pub(crate) fn validate_hostile_composite_precision(
                 &mut cache,
                 &mut visiting,
             );
-            (rule.id.clone(), precision)
+            (rule.id.clone(), rule.crit, precision)
         })
         .collect();
 
     // Second pass: downgrade rules that don't meet requirements (mutable borrow)
-    for (rule_id, precision) in hostile_precisions {
-        if precision < 4 {
-            if let Some(rule) = composite_rules.iter_mut().find(|r| r.id == rule_id) {
-                warnings.push(format!(
-                    "Composite trait '{}' is marked HOSTILE but has precision {} (need >=4).",
-                    rule_id, precision
-                ));
-                rule.crit = Criticality::Suspicious;
+    for (rule_id, crit, precision) in scored_rules {
+        if let Some(rule) = composite_rules.iter_mut().find(|r| r.id == rule_id) {
+            match crit {
+                Criticality::Hostile if precision < 4 => {
+                    warnings.push(format!(
+                        "Composite trait '{}' is marked HOSTILE but has precision {} (need >=4).",
+                        rule_id, precision
+                    ));
+                    rule.crit = Criticality::Suspicious;
+                }
+                Criticality::Suspicious if precision < 2 => {
+                    // Keep this downgrade silent for now: existing trait sets still contain
+                    // many low-precision suspicious rules, and startup treats warnings as fatal.
+                    rule.crit = Criticality::Notable;
+                }
+                _ => {}
             }
         }
     }

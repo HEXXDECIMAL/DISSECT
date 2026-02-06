@@ -929,8 +929,8 @@ traits:
     for: [c]
     if:
       type: ast
-      kind: identifier
-      regex: "^current$"
+      kind: attribute
+      regex: "^current->(pid|tgid|comm|flags|f_flags|files|cred|real_cred|mm|fs|nsproxy|signal)$"
 
   # ============================================================
   # CREDENTIAL MANIPULATION

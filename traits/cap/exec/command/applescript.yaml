@@ -68,7 +68,7 @@ traits:
 
   - id: ref-terminal
     desc: "References Terminal"
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1059.004"
     if:
@@ -81,7 +81,7 @@ composite_rules:
   # ============================================
   - id: osascript-shell
     desc: "osascript invoking shell command"
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1059.004"
     for: [shell, python, ruby, perl]

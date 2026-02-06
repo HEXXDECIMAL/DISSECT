@@ -28,7 +28,7 @@ traits:
   # === Obfuscation Patterns ===
   - id: tab-terminated-strings
     desc: "Tab-terminated strings"
-    crit: suspicious
+    crit: notable
     conf: 0.7
     for: [elf, shell]
     if:
@@ -43,7 +43,7 @@ traits:
   # Build tools (make, cmake, etc.) contain shell metacharacter definitions.
   - id: unusual-character-combinations
     desc: "Unusual character combinations"
-    crit: suspicious
+    crit: notable
     conf: 0.65
     for: [elf]
     size_max: 2097152
@@ -130,7 +130,7 @@ traits:
   # === Known XOR Key Indicators ===
   - id: xor-key-null-pattern
     desc: "Null XOR key pattern"
-    crit: suspicious
+    crit: notable
     conf: 0.7
     for: [elf, shell]
     if:

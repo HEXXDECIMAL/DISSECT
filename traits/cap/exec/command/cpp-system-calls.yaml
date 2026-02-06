@@ -75,7 +75,7 @@ composite_rules:
   # C++ with popen (command output capture)
   - id: cpp-command-capture
     desc: "C++ program capturing command output"
-    crit: suspicious
+    crit: notable
     conf: 0.9
     attack: "T1059.004"
     all:

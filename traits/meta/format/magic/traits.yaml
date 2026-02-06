@@ -264,7 +264,7 @@ traits:
   # These complement cap/data/embedded but use the new offset constraint syntax
   - id: embedded-elf
     desc: ELF magic found past file header
-    crit: suspicious
+    crit: inert
     conf: 0.85
     for: [all]
     if:

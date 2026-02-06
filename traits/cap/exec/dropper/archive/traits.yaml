@@ -149,7 +149,7 @@ traits:
   # === Download zip file composite pattern ===
   - id: download-zip
     desc: Downloads zip archive from remote
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1105"
     for: [javascript, typescript]

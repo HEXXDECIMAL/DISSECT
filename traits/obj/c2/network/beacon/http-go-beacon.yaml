@@ -85,7 +85,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      regex: "=!c2|c2\\s*=|c2Handler|c2Server"
+      regex: "(?i)\\b(c2Handler|c2Server|c2Beacon|c2Url|c2Host)\\b|\\bc2\\s*=\\s*(https?://|[a-z0-9.-]{3,})"
 
   # === Callback/Beacon Patterns ===
   - id: callback-pattern

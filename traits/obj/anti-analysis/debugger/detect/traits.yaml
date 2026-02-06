@@ -76,7 +76,7 @@ traits:
 
   - id: win-ntqueryinfo
     desc: NtQueryInformationProcess for debugger detection
-    crit: suspicious
+    crit: notable
     mbc: "B0001"
     attack: "T1622"
     conf: 0.85

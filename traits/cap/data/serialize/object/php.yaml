@@ -79,7 +79,7 @@ traits:
 
 composite_rules:
   - id: unserialize-user-input
-    desc: Deserialization of user input (RCE
+    desc: Deserialization of user input
     crit: suspicious
     conf: 0.95
     mbc: "E1059"

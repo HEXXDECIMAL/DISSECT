@@ -36,7 +36,7 @@ traits:
     conf: 0.85
     if:
       type: content
-      regex: "sdist.{0,20}in.{0,5}argv|name.{0,5}==.{0,5}nt"
+      regex: "['\\\"]sdist['\\\"].{0,20}in.{0,5}(sys\\.)?argv|os\\.name\\s*==\\s*['\\\"]nt['\\\"]|name\\s*==\\s*['\\\"]nt['\\\"]"
 
   # === Base64 Payload Execution ===
 

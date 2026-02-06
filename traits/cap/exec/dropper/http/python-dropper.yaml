@@ -81,6 +81,7 @@ traits:
       type: string
       # Match http://IP:PORT patterns
       regex: "http://[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+:[0-9]+"
+      external_ip: true
 
   # === Binary download path patterns ===
   - id: bin-endpoint-path

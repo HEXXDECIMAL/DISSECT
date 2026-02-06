@@ -121,7 +121,7 @@ traits:
 
   - id: pe-magic-embedded
     desc: Embedded PE/MZ binary
-    crit: suspicious
+    crit: notable
     conf: 0.8
     mbc: "F0001.006"
     attack: "T1027.009"

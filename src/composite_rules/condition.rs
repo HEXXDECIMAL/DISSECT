@@ -239,6 +239,15 @@ enum ConditionTagged {
         /// If true, extracts the bytes matching '??' wildcards and includes them in evidence value
         #[serde(default)]
         extract_wildcards: bool,
+        /// Section constraint: only match in this section (supports fuzzy names like "text")
+        #[serde(default)]
+        section: Option<String>,
+        /// Section-relative offset: only match at this offset within the section
+        #[serde(default)]
+        section_offset: Option<i64>,
+        /// Section-relative offset range: [start, end) within section bounds
+        #[serde(default)]
+        section_offset_range: Option<(i64, Option<i64>)>,
     },
 
     /// Check file size constraints
@@ -627,6 +636,9 @@ impl From<ConditionDeser> for Condition {
                     per_kb_min,
                     per_kb_max,
                     extract_wildcards,
+                    section,
+                    section_offset,
+                    section_offset_range,
                 } => Condition::Hex {
                     pattern,
                     offset,
@@ -636,6 +648,9 @@ impl From<ConditionDeser> for Condition {
                     per_kb_min,
                     per_kb_max,
                     extract_wildcards,
+                    section,
+                    section_offset,
+                    section_offset_range,
                 },
                 ConditionTagged::Filesize { min, max } => Condition::Filesize { min, max },
                 ConditionTagged::TraitGlob { pattern, r#match } => {
@@ -1078,6 +1093,15 @@ pub enum Condition {
         /// If true, extracts the bytes matching '??' wildcards and includes them in evidence value
         #[serde(default)]
         extract_wildcards: bool,
+        /// Section constraint: only match in this section (supports fuzzy names like "text")
+        #[serde(skip_serializing_if = "Option::is_none")]
+        section: Option<String>,
+        /// Section-relative offset: only match at this offset within the section
+        #[serde(skip_serializing_if = "Option::is_none")]
+        section_offset: Option<i64>,
+        /// Section-relative offset range: [start, end) within section bounds
+        #[serde(skip_serializing_if = "Option::is_none")]
+        section_offset_range: Option<(i64, Option<i64>)>,
     },
 
     /// Check file size constraints
@@ -1552,30 +1576,22 @@ impl Condition {
                 "xor",
             ),
             Condition::Hex {
+                section,
                 offset,
                 offset_range,
+                section_offset,
+                section_offset_range,
                 ..
             } => {
-                // Hex has offset constraints but no section constraints
-                // Validate that offset and offset_range are mutually exclusive
-                if offset.is_some() && offset_range.is_some() {
-                    return Err(anyhow::anyhow!(
-                        "hex condition cannot have both 'offset' and 'offset_range'"
-                    ));
-                }
-                // Validate offset_range format
-                if let Some((start, end)) = offset_range {
-                    if let Some(e) = end {
-                        if *start >= 0 && *e >= 0 && *start > *e {
-                            return Err(anyhow::anyhow!(
-                                "hex condition 'offset_range' start ({}) must be <= end ({})",
-                                start,
-                                e
-                            ));
-                        }
-                    }
-                }
-                Ok(())
+                // Validate location constraints
+                validate_location_constraints(
+                    section,
+                    *offset,
+                    *offset_range,
+                    *section_offset,
+                    *section_offset_range,
+                    "hex",
+                )
             }
             // Other conditions don't need compilation validation
             _ => Ok(()),

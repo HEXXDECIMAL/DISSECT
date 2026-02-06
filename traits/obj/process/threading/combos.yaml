@@ -6,7 +6,7 @@ composite_rules:
   # === Thread Message Queue ===
   - id: thread-message-sync
     desc: Thread synchronization via message queue
-    crit: suspicious
+    crit: notable
     conf: 0.80
     for: ["pe", "dll"]
     all:
@@ -27,7 +27,7 @@ composite_rules:
   # === Background Executor ===
   - id: background-execution
     desc: Background thread with exception handling
-    crit: suspicious
+    crit: notable
     conf: 0.80
     for: ["pe", "dll"]
     all:

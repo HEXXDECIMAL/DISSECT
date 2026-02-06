@@ -21,7 +21,7 @@ traits:
 
   - id: curl-silent-output
     desc: Silent curl with output
-    crit: suspicious
+    crit: notable
     conf: 0.75
     if:
       type: content

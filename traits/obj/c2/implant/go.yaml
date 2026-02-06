@@ -19,7 +19,7 @@ traits:
     conf: 0.95
     if:
       type: string
-      regex: '(SendHeart|setHeart|Heartbeat|HeartBeat)\b'
+      regex: '(SendHeart|setHeart|heartbeat(Task|Loop|Worker)|HeartBeat(Task|Loop|Worker))\b'
 
   # Go C2 command execution patterns
   - id: go-cmd-exec-module

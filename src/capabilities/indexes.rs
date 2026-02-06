@@ -275,18 +275,21 @@ impl StringMatchIndex {
         if let Some(ref ac) = self.automaton {
             for string_info in strings {
                 for mat in ac.find_iter(&string_info.value) {
-                    let pattern_idx = mat.pattern().as_usize();
-                    if let Some(trait_indices) = self.pattern_to_traits.get(pattern_idx) {
-                        let pattern = &self.patterns[pattern_idx];
-                        for &trait_idx in trait_indices {
-                            matching_traits.insert(trait_idx);
-                            // Cache evidence for this trait
-                            trait_evidence.entry(trait_idx).or_default().push(Evidence {
-                                method: "string".to_string(),
-                                source: "string_extractor".to_string(),
-                                value: pattern.clone(),
-                                location: string_info.offset.map(|o| format!("{:#x}", o)),
-                            });
+                    // For exact matching, the match must cover the entire string
+                    if mat.start() == 0 && mat.end() == string_info.value.len() {
+                        let pattern_idx = mat.pattern().as_usize();
+                        if let Some(trait_indices) = self.pattern_to_traits.get(pattern_idx) {
+                            let pattern = &self.patterns[pattern_idx];
+                            for &trait_idx in trait_indices {
+                                matching_traits.insert(trait_idx);
+                                // Cache evidence for this trait
+                                trait_evidence.entry(trait_idx).or_default().push(Evidence {
+                                    method: "string".to_string(),
+                                    source: "string_extractor".to_string(),
+                                    value: pattern.clone(),
+                                    location: string_info.offset.map(|o| format!("{:#x}", o)),
+                                });
+                            }
                         }
                     }
                 }
@@ -297,17 +300,20 @@ impl StringMatchIndex {
         if let Some(ref ac) = self.ci_automaton {
             for string_info in strings {
                 for mat in ac.find_iter(&string_info.value) {
-                    let pattern_idx = mat.pattern().as_usize();
-                    if let Some(trait_indices) = self.ci_pattern_to_traits.get(pattern_idx) {
-                        let pattern = &self.ci_patterns[pattern_idx];
-                        for &trait_idx in trait_indices {
-                            matching_traits.insert(trait_idx);
-                            trait_evidence.entry(trait_idx).or_default().push(Evidence {
-                                method: "string".to_string(),
-                                source: "string_extractor".to_string(),
-                                value: pattern.clone(),
-                                location: string_info.offset.map(|o| format!("{:#x}", o)),
-                            });
+                    // For exact matching, the match must cover the entire string
+                    if mat.start() == 0 && mat.end() == string_info.value.len() {
+                        let pattern_idx = mat.pattern().as_usize();
+                        if let Some(trait_indices) = self.ci_pattern_to_traits.get(pattern_idx) {
+                            let pattern = &self.ci_patterns[pattern_idx];
+                            for &trait_idx in trait_indices {
+                                matching_traits.insert(trait_idx);
+                                trait_evidence.entry(trait_idx).or_default().push(Evidence {
+                                    method: "string".to_string(),
+                                    source: "string_extractor".to_string(),
+                                    value: pattern.clone(),
+                                    location: string_info.offset.map(|o| format!("{:#x}", o)),
+                                });
+                            }
                         }
                     }
                 }
@@ -383,8 +389,6 @@ impl RawContentRegexIndex {
         // Group patterns by file type
         let mut by_file_type: FxHashMap<RuleFileType, Vec<(String, usize)>> = FxHashMap::default();
         let mut universal_patterns: Vec<(String, usize)> = Vec::new();
-        let mut indexed_traits = FxHashSet::default();
-        let mut total_patterns = 0;
 
         for (trait_idx, trait_def) in traits.iter().enumerate() {
             // Extract regex patterns from Content traits
@@ -411,9 +415,6 @@ impl RawContentRegexIndex {
             };
 
             if let Some(pattern) = pattern_opt {
-                indexed_traits.insert(trait_idx);
-                total_patterns += 1;
-
                 // Check if trait applies to all file types
                 if trait_def.r#for.contains(&RuleFileType::All) {
                     universal_patterns.push((pattern, trait_idx));
@@ -436,6 +437,27 @@ impl RawContentRegexIndex {
             .collect();
 
         let universal = Self::build_regex_set(universal_patterns);
+
+        // Track only traits/patterns that were successfully indexed for pre-filtering.
+        let mut indexed_traits = FxHashSet::default();
+        let mut total_patterns = 0usize;
+
+        for ft_set in by_file_type.values() {
+            total_patterns += ft_set.pattern_to_traits.len();
+            for trait_indices in &ft_set.pattern_to_traits {
+                for &trait_idx in trait_indices {
+                    indexed_traits.insert(trait_idx);
+                }
+            }
+        }
+        if let Some(ref universal_set) = universal {
+            total_patterns += universal_set.pattern_to_traits.len();
+            for trait_indices in &universal_set.pattern_to_traits {
+                for &trait_idx in trait_indices {
+                    indexed_traits.insert(trait_idx);
+                }
+            }
+        }
 
         Self {
             by_file_type,
@@ -488,15 +510,46 @@ impl RawContentRegexIndex {
                     }
                 }
 
-                // If we still can't build the regex set, this is a fatal error
-                eprintln!(
-                    "\n❌ FATAL: Failed to compile regex set ({} patterns):\n   {}\n",
-                    pattern_strs.len(),
-                    e
-                );
-                eprintln!("   This usually means the combined regex patterns are too complex.");
-                eprintln!("   Consider splitting patterns into smaller trait definitions.\n");
-                std::process::exit(1);
+                // Non-size errors can come from unsupported regex features (e.g. look-around).
+                // Keep startup non-fatal by indexing only regexes that compile.
+                let mut supported_patterns = Vec::new();
+                let mut supported_traits = Vec::new();
+                for (pattern, trait_indices) in pattern_strs.iter().zip(pattern_to_traits.iter()) {
+                    if RegexSet::new([pattern]).is_ok() {
+                        supported_patterns.push(pattern.clone());
+                        supported_traits.push(trait_indices.clone());
+                    }
+                }
+
+                if supported_patterns.is_empty() {
+                    eprintln!(
+                        "⚠️  Skipping raw content regex set: 0/{} patterns compilable ({})",
+                        pattern_strs.len(),
+                        e
+                    );
+                    return None;
+                }
+
+                match RegexSet::new(&supported_patterns) {
+                    Ok(regex_set) => {
+                        eprintln!(
+                            "⚠️  Built partial raw content regex set: {}/{} patterns compiled",
+                            supported_patterns.len(),
+                            pattern_strs.len()
+                        );
+                        Some(FileTypeRegexSet {
+                            regex_set,
+                            pattern_to_traits: supported_traits,
+                        })
+                    }
+                    Err(err) => {
+                        eprintln!(
+                            "⚠️  Skipping raw content regex set after fallback compile failure: {}",
+                            err
+                        );
+                        None
+                    }
+                }
             }
         }
     }
@@ -510,6 +563,11 @@ impl RawContentRegexIndex {
         applicable
             .iter()
             .any(|idx| self.indexed_traits.contains(idx))
+    }
+
+    /// Check whether a trait is indexed in a compiled regex set.
+    pub(crate) fn is_indexed_trait(&self, trait_idx: usize) -> bool {
+        self.indexed_traits.contains(&trait_idx)
     }
 
     /// Find matches using only patterns applicable to the given file type

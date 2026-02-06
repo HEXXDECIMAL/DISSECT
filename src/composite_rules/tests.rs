@@ -1594,6 +1594,7 @@ fn test_content_exact_vs_substr() {
         None,
         false,
         None,
+        None,
         &location,
         &ctx,
     );
@@ -1612,6 +1613,7 @@ fn test_content_exact_vs_substr() {
         None,
         None,
         false,
+        None,
         None,
         &location,
         &ctx,

@@ -157,13 +157,11 @@ traits:
       source: |
         rule esxi_datastore {
           strings:
-            $ds1 = "datastore" ascii nocase
             $ds2 = "/vmfs/volumes" ascii
             $ds3 = "storage filesystem list" ascii
             $ds4 = "esxcli storage" ascii
-            $ds5 = "vsan" ascii nocase
           condition:
-            2 of them
+            $ds2 and any of ($ds3, $ds4)
         }
 
 composite_rules:

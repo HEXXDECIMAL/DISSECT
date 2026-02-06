@@ -68,4 +68,6 @@ tools/web-dissect/dist/
 **/dist/
 **/blob/
 tools/web-dissect/melange-work/
+tools/trait-basher/.gocache/
+tools/web-dissect/.build-cache/
 

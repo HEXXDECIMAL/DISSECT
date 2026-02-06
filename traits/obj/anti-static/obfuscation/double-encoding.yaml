@@ -81,10 +81,11 @@ traits:
   - id: split-join-obfuscation
     desc: Split/join string obfuscation
     crit: suspicious
-    conf: 0.75
+    conf: 0.80
+    for: [javascript]
     if:
-      type: string
-      regex: "\\.split\\('"
+      type: content
+      regex: "\\.split\\(\\s*['\"]\\s*['\"]\\s*\\).{0,120}\\.join\\(\\s*['\"]\\s*['\"]\\s*\\)"
 
 composite_rules:
   # === Double Encoding Detection ===

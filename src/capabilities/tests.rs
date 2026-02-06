@@ -1777,6 +1777,113 @@ fn test_precision_threshold_validation() {
     assert_eq!(high_rule.crit, Criticality::Hostile);
 }
 
+#[test]
+fn test_suspicious_precision_threshold_validation() {
+    // Rule with precision 1 (below suspicious threshold of 2)
+    let rule_low = CompositeTrait {
+        id: "test/suspicious-low-precision".to_string(),
+        desc: "Low precision suspicious rule".to_string(),
+        conf: 0.8,
+        crit: Criticality::Suspicious, // Will be downgraded
+        mbc: None,
+        attack: None,
+        platforms: vec![Platform::All],
+        r#for: vec![RuleFileType::All],
+        all: Some(vec![Condition::String {
+            external_ip: false,
+            exact: Some("string1".to_string()),
+            regex: None,
+            word: None,
+            case_insensitive: false,
+            exclude_patterns: None,
+            count_min: 1,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
+            substr: None,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
+        }]),
+        any: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
+        none: None,
+        unless: None,
+        not: None,
+        downgrade: None,
+        size_min: None,
+        size_max: None,
+    };
+
+    // Rule with precision 2 (meets suspicious threshold)
+    let rule_ok = CompositeTrait {
+        id: "test/suspicious-good-precision".to_string(),
+        desc: "Good precision suspicious rule".to_string(),
+        conf: 0.8,
+        crit: Criticality::Suspicious, // Will NOT be downgraded
+        mbc: None,
+        attack: None,
+        platforms: vec![Platform::All],
+        r#for: vec![RuleFileType::Elf], // File type filter = +1
+        all: Some(vec![Condition::String {
+            external_ip: false,
+            exact: Some("string1".to_string()),
+            regex: None,
+            word: None,
+            case_insensitive: false,
+            exclude_patterns: None,
+            count_min: 1,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
+            substr: None,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
+        }]),
+        any: None,
+        needs: None,
+        near_lines: None,
+        near_bytes: None,
+        none: None,
+        unless: None,
+        not: None,
+        downgrade: None,
+        size_min: None,
+        size_max: None,
+    };
+
+    let mut composites = vec![rule_low, rule_ok];
+    let traits = vec![];
+
+    // Run validation
+    validation::validate_hostile_composite_precision(&mut composites, &traits, &mut Vec::new());
+
+    // Check that low precision suspicious rule was downgraded
+    let low_rule = composites
+        .iter()
+        .find(|r| r.id == "test/suspicious-low-precision")
+        .unwrap();
+    assert_eq!(low_rule.crit, Criticality::Notable);
+
+    // Check that sufficient precision suspicious rule was NOT downgraded
+    let ok_rule = composites
+        .iter()
+        .find(|r| r.id == "test/suspicious-good-precision")
+        .unwrap();
+    assert_eq!(ok_rule.crit, Criticality::Suspicious);
+}
+
 /// Test precision with mixed condition types (all, any, none)
 #[test]
 fn test_precision_mixed_conditions() {

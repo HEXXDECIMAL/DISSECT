@@ -5,6 +5,8 @@
 defaults:
   attack: "T1547.001"
   crit: suspicious
+  for: [pe, py, rb, npm, js, ts]
+  platforms: [windows]
 
 traits:
   # === Startup folder atomic indicators ===

@@ -149,6 +149,96 @@ pub fn truncate_evidence(s: &str, max_len: usize) -> String {
     }
 }
 
+/// Parameters for location-constrained content evaluation.
+#[derive(Debug, Clone, Default)]
+pub struct ContentLocationParams {
+    pub section: Option<String>,
+    pub offset: Option<i64>,
+    pub offset_range: Option<(i64, Option<i64>)>,
+    pub section_offset: Option<i64>,
+    pub section_offset_range: Option<(i64, Option<i64>)>,
+}
+
+/// Resolve the effective byte range for content search based on location constraints.
+/// Returns (start, end) as absolute offsets into binary data.
+pub fn resolve_effective_range(
+    location: &ContentLocationParams,
+    ctx: &crate::composite_rules::context::EvaluationContext,
+) -> (usize, usize) {
+    let file_size = ctx.binary_data.len();
+
+    // If no location constraints, return full file range
+    if location.section.is_none()
+        && location.offset.is_none()
+        && location.offset_range.is_none()
+        && location.section_offset.is_none()
+        && location.section_offset_range.is_none()
+    {
+        return (0, file_size);
+    }
+
+    // Use SectionMap to resolve the range if available
+    if let Some(ref section_map) = ctx.section_map {
+        if let Some((start, end)) = section_map.resolve_range(
+            location.section.as_deref(),
+            location.offset,
+            location.offset_range,
+            location.section_offset,
+            location.section_offset_range,
+        ) {
+            return (start as usize, end as usize);
+        }
+    }
+
+    // Fallback: resolve absolute offset constraints without SectionMap
+    match (location.offset, &location.offset_range) {
+        (Some(off), None) => {
+            // Single offset - search starts at that position
+            let resolved = if off < 0 {
+                (file_size as i64 + off).max(0) as usize
+            } else {
+                off as usize
+            };
+            (resolved, file_size)
+        }
+        (None, Some((start, end_opt))) => {
+            let file_size_i64 = file_size as i64;
+            let resolved_start = if *start < 0 {
+                (file_size_i64 + *start).max(0) as usize
+            } else {
+                *start as usize
+            };
+            let resolved_end = match end_opt {
+                Some(end) if *end < 0 => (file_size_i64 + *end).max(0) as usize,
+                Some(end) => *end as usize,
+                None => file_size,
+            };
+            (resolved_start, resolved_end)
+        }
+        _ => (0, file_size), // Section constraints without SectionMap - no filtering
+    }
+}
+
+/// Resolve effective range as Option for string offset filtering.
+/// Returns None if no location constraints (no filtering needed).
+pub fn resolve_effective_range_opt(
+    location: &ContentLocationParams,
+    ctx: &crate::composite_rules::context::EvaluationContext,
+) -> Option<(u64, u64)> {
+    // If no location constraints, return None (no filtering)
+    if location.section.is_none()
+        && location.offset.is_none()
+        && location.offset_range.is_none()
+        && location.section_offset.is_none()
+        && location.section_offset_range.is_none()
+    {
+        return None;
+    }
+
+    let (start, end) = resolve_effective_range(location, ctx);
+    Some((start as u64, end as u64))
+}
+
 /// Parameters for count constraint checking.
 #[derive(Debug, Clone, Default)]
 pub struct CountConstraints {

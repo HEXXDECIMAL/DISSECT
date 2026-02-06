@@ -85,24 +85,29 @@ traits:
 
   - id: py-many-high-entropy-identifiers
     desc: "Many high-entropy identifiers (>35% have"
-    crit: suspicious
+    crit: notable
     conf: 0.9
     for: [python]
     if:
       type: metrics
       field: identifiers.high_entropy_ratio
       min: 0.35
+      min_size: 4096
+    unless:
+      - type: basename
+        regex: "\\.pyi$"
 
   - id: excessive-single-char-vars
     desc: "Excessive single-character variable names (>30%)"
     crit: suspicious
     conf: 0.8
+    # Python has its own stricter threshold (45%) below; 30% is too noisy for
+    # common loop/counter/style patterns in legitimate Python code.
     # Exclude Rust (single-letter vars are standard in mathematical/algorithm code)
     # Exclude small files (tiny scopes where single-letter vars are expected)
     # Perl modules often have minimal boilerplate, so require larger files for this detection
     for:
       [
-        python,
         javascript,
         typescript,
         shell,
@@ -120,7 +125,21 @@ traits:
       min_size: 1024
     unless:
       - type: basename
-        regex: "\\.d\\.ts$"
+        regex: "\\.d\\.ts$|\\.pxd$|\\.pyi$"
+
+  - id: py-excessive-single-char-vars
+    desc: "Excessive single-character variable names (>45%)"
+    crit: suspicious
+    conf: 0.8
+    for: [python]
+    if:
+      type: metrics
+      field: identifiers.single_char_ratio
+      min: 0.45
+      min_size: 2048
+    unless:
+      - type: basename
+        regex: "\\.pxd$|\\.pyi$"
 
   - id: perl-excessive-single-char-vars
     desc: "Excessive single-character variables (Perl)"
@@ -236,7 +255,7 @@ traits:
     if:
       type: metrics
       field: functions.single_char_names
-      min: 3
+      min: 8
 
   - id: many-anonymous-functions
     desc: "Many anonymous functions"
@@ -253,7 +272,7 @@ traits:
 
   - id: high-function-density
     desc: "High function density (>20 functions"
-    crit: suspicious
+    crit: notable
     conf: 0.85
     if:
       type: metrics
@@ -485,6 +504,7 @@ composite_rules:
       - id: obj/anti-static/obfuscation/code-metrics/numeric-suffix-identifiers
       - id: obj/anti-static/obfuscation/code-metrics/single-char-function-names
       - id: obj/anti-static/obfuscation/code-metrics/excessive-single-char-vars
+      - id: obj/anti-static/obfuscation/code-metrics/py-excessive-single-char-vars
       - id: obj/anti-static/obfuscation/code-metrics/perl-excessive-single-char-vars
       - id: obj/anti-static/obfuscation/code-metrics/single-char-params
 
