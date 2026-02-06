@@ -199,6 +199,10 @@ pub struct Args {
     /// When set, disables in-memory extraction (all files written to disk).
     #[arg(long, value_name = "DIR")]
     pub extract_dir: Option<String>,
+
+    /// Custom traits directory (overrides DISSECT_TRAITS_PATH env var and default "traits")
+    #[arg(long, value_name = "DIR")]
+    pub traits_dir: Option<String>,
 }
 
 impl Args {
@@ -374,6 +378,18 @@ pub enum Command {
         /// Search within byte range [start,end) - use "start," for open-ended (e.g., "0,4096" or "-1024,")
         #[arg(long, value_parser = parse_offset_range)]
         offset_range: Option<(i64, Option<i64>)>,
+
+        /// Section-relative offset (requires --section)
+        #[arg(long)]
+        section_offset: Option<i64>,
+
+        /// Section-relative byte range [start,end) (requires --section)
+        #[arg(long, value_parser = parse_offset_range)]
+        section_offset_range: Option<(i64, Option<i64>)>,
+
+        /// Require matches to contain a valid external IP (not private/loopback/reserved)
+        #[arg(long)]
+        external_ip: bool,
     },
 }
 
@@ -410,6 +426,12 @@ pub enum SearchType {
     Content,
     /// Search in structured data (JSON/YAML/TOML manifests)
     Kv,
+    /// Search for hex byte patterns
+    Hex,
+    /// Search in base64-decoded strings
+    Base64,
+    /// Search in XOR-decoded strings (brute-force all single-byte keys)
+    Xor,
 }
 
 #[derive(Debug, Clone, clap::ValueEnum, PartialEq)]

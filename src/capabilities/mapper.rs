@@ -179,17 +179,20 @@ impl CapabilityMapper {
                 let bytes = fs::read(path).with_context(|| format!("Failed to read {:?}", path))?;
                 let content = String::from_utf8_lossy(&bytes);
 
+                // Check for meaningless YAML patterns before parsing
+                let yaml_warnings = check_yaml_patterns(&content, path);
+
                 let mappings: TraitMappings = serde_yaml::from_str(&content)
                     .with_context(|| format!("Failed to parse YAML in {:?}", path))?;
 
-                Ok::<_, anyhow::Error>((idx, path.clone(), mappings))
+                Ok::<_, anyhow::Error>((idx, path.clone(), mappings, yaml_warnings))
             })
             .collect();
 
         // Sort results back to original order since par_iter doesn't preserve order
         let mut sorted_results: Vec<_> = results;
         sorted_results.sort_by_key(|r| match r {
-            Ok((idx, _, _)) => *idx,
+            Ok((idx, _, _, _)) => *idx,
             Err(_) => std::usize::MAX,
         });
 
@@ -208,8 +211,8 @@ impl CapabilityMapper {
         let mut parse_errors: Vec<String> = Vec::new();
 
         for result in sorted_results {
-            let (path, mappings) = match result {
-                Ok((_idx, p, m)) => (p, m),
+            let (path, mappings, yaml_warnings) = match result {
+                Ok((_idx, p, m, w)) => (p, m, w),
                 Err(e) => {
                     // Format error with full chain (includes filename from context)
                     parse_errors.push(format!("{:#}", e));
@@ -217,6 +220,9 @@ impl CapabilityMapper {
                 }
             };
             files_processed += 1;
+
+            // Collect YAML pattern warnings
+            warnings.extend(yaml_warnings);
 
             // Calculate the prefix from the directory path relative to traits/
             // e.g., traits/credential/java/traits.yaml -> credential/java
@@ -1514,6 +1520,39 @@ fn validate_conditions(
             }
         }
     }
+}
+
+/// Check raw YAML content for meaningless patterns before parsing.
+/// Returns a list of warnings for patterns that are valid YAML but semantically meaningless.
+fn check_yaml_patterns(content: &str, path: &Path) -> Vec<String> {
+    let mut warnings = Vec::new();
+
+    // Check for explicit 'offset: null' which is meaningless (same as not specifying)
+    // Use regex to match the pattern with proper YAML indentation context
+    let offset_null_re = regex::Regex::new(r"^\s+offset:\s*null\s*$").unwrap();
+    for (line_num, line) in content.lines().enumerate() {
+        if offset_null_re.is_match(line) {
+            warnings.push(format!(
+                "{} line {}: 'offset: null' is meaningless (same as not specifying offset) - remove this line",
+                path.display(),
+                line_num + 1
+            ));
+        }
+    }
+
+    // Check for explicit 'section: null' which is also meaningless
+    let section_null_re = regex::Regex::new(r"^\s+section:\s*null\s*$").unwrap();
+    for (line_num, line) in content.lines().enumerate() {
+        if section_null_re.is_match(line) {
+            warnings.push(format!(
+                "{} line {}: 'section: null' is meaningless (same as not specifying section) - remove this line",
+                path.display(),
+                line_num + 1
+            ));
+        }
+    }
+
+    warnings
 }
 
 /// Check a single condition for problematic patterns

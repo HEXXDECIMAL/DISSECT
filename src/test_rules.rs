@@ -169,6 +169,80 @@ impl<'a> RuleDebugger<'a> {
         index
     }
 
+    /// Resolve location constraints to an effective byte range for searching.
+    /// Returns (start, end) where the search should occur.
+    fn resolve_search_range(
+        &self,
+        section: Option<&String>,
+        offset: Option<i64>,
+        offset_range: Option<&(i64, Option<i64>)>,
+        section_offset: Option<i64>,
+        section_offset_range: Option<&(i64, Option<i64>)>,
+        file_size: usize,
+    ) -> (usize, usize) {
+        let file_size_i64 = file_size as i64;
+
+        // First, try using SectionMap if we have section constraints
+        if let Some(sec_name) = section {
+            if let Some((sec_start, sec_end)) = self.section_map.bounds(sec_name) {
+                let sec_start = sec_start as usize;
+                let sec_end = sec_end as usize;
+                let sec_len = sec_end - sec_start;
+                // Apply section-relative constraints
+                if let Some(sec_off) = section_offset {
+                    let resolved = if sec_off < 0 {
+                        (sec_len as i64 + sec_off).max(0) as usize
+                    } else {
+                        (sec_off as usize).min(sec_len)
+                    };
+                    return (sec_start + resolved, sec_end);
+                }
+                if let Some((start, end_opt)) = section_offset_range {
+                    let start_resolved = if *start < 0 {
+                        (sec_len as i64 + *start).max(0) as usize
+                    } else {
+                        (*start as usize).min(sec_len)
+                    };
+                    let end_resolved = match end_opt {
+                        None => sec_len,
+                        Some(e) if *e < 0 => (sec_len as i64 + *e).max(0) as usize,
+                        Some(e) => (*e as usize).min(sec_len),
+                    };
+                    return (sec_start + start_resolved, sec_start + end_resolved);
+                }
+                // Just section constraint, no offset within it
+                return (sec_start, sec_end);
+            }
+        }
+
+        // Handle absolute offset constraints
+        if let Some(off) = offset {
+            let resolved = if off < 0 {
+                (file_size_i64 + off).max(0) as usize
+            } else {
+                (off as usize).min(file_size)
+            };
+            return (resolved, file_size);
+        }
+
+        if let Some((start, end_opt)) = offset_range {
+            let start_resolved = if *start < 0 {
+                (file_size_i64 + *start).max(0) as usize
+            } else {
+                (*start as usize).min(file_size)
+            };
+            let end_resolved = match end_opt {
+                None => file_size,
+                Some(e) if *e < 0 => (file_size_i64 + *e).max(0) as usize,
+                Some(e) => (*e as usize).min(file_size),
+            };
+            return (start_resolved, end_resolved);
+        }
+
+        // No constraints - search entire file
+        (0, file_size)
+    }
+
     /// Create an evaluation context with an optional debug collector
     fn create_eval_context<'b>(
         &'b self,
@@ -713,6 +787,10 @@ impl<'a> RuleDebugger<'a> {
                 count_min,
                 exclude_patterns,
                 section,
+                offset,
+                offset_range,
+                section_offset,
+                section_offset_range,
                 ..
             } => self.debug_string_condition(
                 exact,
@@ -723,6 +801,10 @@ impl<'a> RuleDebugger<'a> {
                 *count_min,
                 exclude_patterns.as_ref(),
                 section.as_ref(),
+                *offset,
+                offset_range.clone(),
+                *section_offset,
+                section_offset_range.clone(),
             ),
             Condition::Symbol { exact, substr, regex, .. } => self.debug_symbol_condition(exact, substr, regex),
             Condition::Metrics {
@@ -739,8 +821,22 @@ impl<'a> RuleDebugger<'a> {
                 exact,
                 word,
                 section,
+                offset,
+                offset_range,
+                section_offset,
+                section_offset_range,
                 ..
-            } => self.debug_content_condition(exact, substr, regex, word, section.as_ref()),
+            } => self.debug_content_condition(
+                exact,
+                substr,
+                regex,
+                word,
+                section.as_ref(),
+                *offset,
+                offset_range.clone(),
+                *section_offset,
+                section_offset_range.clone(),
+            ),
             Condition::Ast {
                 kind,
                 node,
@@ -761,6 +857,46 @@ impl<'a> RuleDebugger<'a> {
                 case_insensitive,
                 ..
             } => self.debug_kv_condition(path, exact, substr, regex, *case_insensitive),
+            Condition::Hex {
+                pattern,
+                offset,
+                offset_range,
+                count_min,
+                count_max,
+                per_kb_min,
+                per_kb_max,
+                ..
+            } => self.debug_hex_condition(
+                pattern,
+                *offset,
+                offset_range.clone(),
+                *count_min,
+                *count_max,
+                *per_kb_min,
+                *per_kb_max,
+            ),
+            Condition::SectionRatio {
+                section,
+                compare_to,
+                min_ratio,
+                max_ratio,
+            } => self.debug_section_ratio_condition(section, compare_to, *min_ratio, *max_ratio),
+            Condition::SectionEntropy {
+                section,
+                min_entropy,
+                max_entropy,
+            } => self.debug_section_entropy_condition(section, *min_entropy, *max_entropy),
+            Condition::ImportCombination {
+                required,
+                suspicious,
+                min_suspicious,
+                max_total,
+            } => self.debug_import_combination_condition(
+                required.as_ref(),
+                suspicious.as_ref(),
+                *min_suspicious,
+                *max_total,
+            ),
             _ => {
                 // Generic fallback for other condition types
                 let desc = describe_condition(condition);
@@ -940,6 +1076,10 @@ impl<'a> RuleDebugger<'a> {
         count_min: usize,
         exclude_patterns: Option<&Vec<String>>,
         section_constraint: Option<&String>,
+        offset: Option<i64>,
+        offset_range: Option<(i64, Option<i64>)>,
+        section_offset: Option<i64>,
+        section_offset_range: Option<(i64, Option<i64>)>,
     ) -> ConditionDebugResult {
         let pattern_desc = if let Some(e) = exact {
             format!("exact: \"{}\"", e)
@@ -953,10 +1093,30 @@ impl<'a> RuleDebugger<'a> {
             "unknown".to_string()
         };
 
-        let section_desc = if let Some(sec) = section_constraint {
-            format!(" @section={}", sec)
-        } else {
+        // Build location constraint description
+        let mut location_parts = Vec::new();
+        if let Some(sec) = section_constraint {
+            location_parts.push(format!("section={}", sec));
+        }
+        if let Some(off) = offset {
+            location_parts.push(format!("offset={}", off));
+        }
+        if let Some((start, end)) = &offset_range {
+            let end_str = end.map_or("EOF".to_string(), |e| e.to_string());
+            location_parts.push(format!("range=[{},{})", start, end_str));
+        }
+        if let Some(off) = section_offset {
+            location_parts.push(format!("section_offset={}", off));
+        }
+        if let Some((start, end)) = &section_offset_range {
+            let end_str = end.map_or("end".to_string(), |e| e.to_string());
+            location_parts.push(format!("section_range=[{},{})", start, end_str));
+        }
+
+        let location_desc = if location_parts.is_empty() {
             String::new()
+        } else {
+            format!(" @{{{}}}", location_parts.join(", "))
         };
 
         let desc = format!(
@@ -968,25 +1128,68 @@ impl<'a> RuleDebugger<'a> {
             } else {
                 ""
             },
-            section_desc
+            location_desc
         );
 
-        let strings: Vec<&str> = self
-            .report
-            .strings
-            .iter()
-            .map(|s| s.value.as_str())
-            .collect();
+        // Resolve effective search range for location filtering
+        let file_size = self.binary_data.len();
+        let (search_start, search_end) = self.resolve_search_range(
+            section_constraint,
+            offset,
+            offset_range.as_ref(),
+            section_offset,
+            section_offset_range.as_ref(),
+            file_size,
+        );
+        let has_location_constraints = search_start != 0 || search_end != file_size;
+
+        // Filter strings by location if constraints are specified
+        let strings_in_range: Vec<&str> = if has_location_constraints {
+            self.report
+                .strings
+                .iter()
+                .filter(|s| {
+                    if let Some(off) = s.offset {
+                        let off_usize = off as usize;
+                        off_usize >= search_start && off_usize < search_end
+                    } else {
+                        // If string has no offset info, include it (conservative)
+                        true
+                    }
+                })
+                .map(|s| s.value.as_str())
+                .collect()
+        } else {
+            self.report
+                .strings
+                .iter()
+                .map(|s| s.value.as_str())
+                .collect()
+        };
+
         let matched_strings =
-            find_matching_strings(&strings, exact, substr, regex, word, case_insensitive);
+            find_matching_strings(&strings_in_range, exact, substr, regex, word, case_insensitive);
 
         let matched = matched_strings.len() >= count_min;
 
         let mut result = ConditionDebugResult::new(desc, matched);
 
-        result
-            .details
-            .push(format!("Total strings in file: {}", strings.len()));
+        // Show search range details if location constraints are active
+        if has_location_constraints {
+            result.details.push(format!(
+                "Search range: [{}, {}) of {} bytes",
+                search_start, search_end, file_size
+            ));
+            result.details.push(format!(
+                "Strings in range: {} of {} total",
+                strings_in_range.len(),
+                self.report.strings.len()
+            ));
+        } else {
+            result
+                .details
+                .push(format!("Total strings in file: {}", strings_in_range.len()));
+        }
         result
             .details
             .push(format!("Matching strings: {}", matched_strings.len()));
@@ -1111,9 +1314,9 @@ impl<'a> RuleDebugger<'a> {
                     }
                 }
             }
-        } else if strings.len() <= 20 {
-            result.details.push("All strings in file:".to_string());
-            for s in &strings {
+        } else if strings_in_range.len() <= 20 {
+            result.details.push("All strings in range:".to_string());
+            for s in &strings_in_range {
                 result
                     .details
                     .push(format!("  \"{}\"", truncate_string(s, 60)));
@@ -1122,6 +1325,24 @@ impl<'a> RuleDebugger<'a> {
 
         // Check alternatives if string condition didn't match
         if !matched {
+            // If location constraints are active, check if pattern exists outside the range
+            if has_location_constraints {
+                let all_strings: Vec<&str> = self
+                    .report
+                    .strings
+                    .iter()
+                    .map(|s| s.value.as_str())
+                    .collect();
+                let all_matched =
+                    find_matching_strings(&all_strings, exact, substr, regex, word, case_insensitive);
+                if all_matched.len() > matched_strings.len() {
+                    result.details.push(format!(
+                        "💡 {} match(es) exist outside the specified range",
+                        all_matched.len() - matched_strings.len()
+                    ));
+                }
+            }
+
             // Check symbols (only for exact or regex patterns)
             if exact.is_some() || regex.is_some() {
                 let symbols: Vec<&str> = self
@@ -1132,7 +1353,7 @@ impl<'a> RuleDebugger<'a> {
                     .chain(self.report.exports.iter().map(|e| e.symbol.as_str()))
                     .chain(self.report.functions.iter().map(|f| f.name.as_str()))
                     .collect();
-                let symbol_matches = find_matching_symbols(&symbols, exact, &None, regex);
+                let symbol_matches = find_matching_symbols(&symbols, exact, &None, regex, false);
                 if !symbol_matches.is_empty() {
                     result.details.push(format!(
                         "💡 Found in symbols ({} matches) - try `symbol:` instead",
@@ -1293,7 +1514,7 @@ impl<'a> RuleDebugger<'a> {
             .chain(self.report.functions.iter().map(|f| f.name.as_str()))
             .collect();
 
-        let matched_symbols = find_matching_symbols(&symbols, exact, substr, regex);
+        let matched_symbols = find_matching_symbols(&symbols, exact, substr, regex, false);
         let matched = !matched_symbols.is_empty();
 
         let mut result = ConditionDebugResult::new(desc, matched);
@@ -1527,6 +1748,10 @@ impl<'a> RuleDebugger<'a> {
         regex: &Option<String>,
         word: &Option<String>,
         section_constraint: Option<&String>,
+        offset: Option<i64>,
+        offset_range: Option<(i64, Option<i64>)>,
+        section_offset: Option<i64>,
+        section_offset_range: Option<(i64, Option<i64>)>,
     ) -> ConditionDebugResult {
         let pattern_desc = if let Some(e) = exact {
             format!("exact: \"{}\"", truncate_string(e, 40))
@@ -1540,16 +1765,54 @@ impl<'a> RuleDebugger<'a> {
             "unknown".to_string()
         };
 
-        let section_desc = if let Some(sec) = section_constraint {
-            format!(" @section={}", sec)
-        } else {
+        // Build location constraint description
+        let mut location_parts = Vec::new();
+        if let Some(sec) = section_constraint {
+            location_parts.push(format!("section={}", sec));
+        }
+        if let Some(off) = offset {
+            location_parts.push(format!("offset={}", off));
+        }
+        if let Some((start, end)) = &offset_range {
+            let end_str = end.map_or("EOF".to_string(), |e| e.to_string());
+            location_parts.push(format!("range=[{},{})", start, end_str));
+        }
+        if let Some(off) = section_offset {
+            location_parts.push(format!("section_offset={}", off));
+        }
+        if let Some((start, end)) = &section_offset_range {
+            let end_str = end.map_or("end".to_string(), |e| e.to_string());
+            location_parts.push(format!("section_range=[{},{})", start, end_str));
+        }
+
+        let location_desc = if location_parts.is_empty() {
             String::new()
+        } else {
+            format!(" @{{{}}}", location_parts.join(", "))
         };
 
-        let desc = format!("content: {}{}", pattern_desc, section_desc);
+        let desc = format!("content: {}{}", pattern_desc, location_desc);
 
-        // Search in raw binary data
-        let content = String::from_utf8_lossy(self.binary_data);
+        // Resolve the effective search range
+        let file_size = self.binary_data.len();
+        let (search_start, search_end) = self.resolve_search_range(
+            section_constraint,
+            offset,
+            offset_range.as_ref(),
+            section_offset,
+            section_offset_range.as_ref(),
+            file_size,
+        );
+
+        // Search only within the resolved range
+        let search_data = if search_start < search_end && search_end <= file_size {
+            &self.binary_data[search_start..search_end]
+        } else {
+            // Invalid range - no data to search
+            &self.binary_data[0..0]
+        };
+        let content = String::from_utf8_lossy(search_data);
+
         let matched = if let Some(e) = exact {
             &content == e
         } else if let Some(c) = substr {
@@ -1564,12 +1827,39 @@ impl<'a> RuleDebugger<'a> {
         };
 
         let mut result = ConditionDebugResult::new(desc, matched);
-        result
-            .details
-            .push(format!("File size: {} bytes", self.binary_data.len()));
+
+        // Show search range details
+        if search_start != 0 || search_end != file_size {
+            result.details.push(format!(
+                "Search range: [{}, {}) of {} bytes ({} bytes searched)",
+                search_start, search_end, file_size, search_end.saturating_sub(search_start)
+            ));
+        } else {
+            result.details.push(format!("File size: {} bytes", file_size));
+        }
 
         // Check alternatives if content didn't match
         if !matched {
+            // Check if pattern exists outside the constrained range
+            if search_start != 0 || search_end != file_size {
+                let full_content = String::from_utf8_lossy(self.binary_data);
+                let found_outside = if let Some(c) = substr {
+                    full_content.contains(c)
+                } else if let Some(r) = regex {
+                    regex::Regex::new(r).is_ok_and(|re| re.is_match(&full_content))
+                } else if let Some(w) = word {
+                    let pattern = format!(r"\b{}\b", regex::escape(w));
+                    regex::Regex::new(&pattern).is_ok_and(|re| re.is_match(&full_content))
+                } else {
+                    false
+                };
+                if found_outside {
+                    result.details.push(
+                        "💡 Pattern exists in file but outside the specified range".to_string()
+                    );
+                }
+            }
+
             // Check symbols (only for exact or regex patterns)
             if exact.is_some() || regex.is_some() {
                 let symbols: Vec<&str> = self
@@ -1580,7 +1870,7 @@ impl<'a> RuleDebugger<'a> {
                     .chain(self.report.exports.iter().map(|e| e.symbol.as_str()))
                     .chain(self.report.functions.iter().map(|f| f.name.as_str()))
                     .collect();
-                let symbol_matches = find_matching_symbols(&symbols, exact, &None, regex);
+                let symbol_matches = find_matching_symbols(&symbols, exact, &None, regex, false);
                 if !symbol_matches.is_empty() {
                     result.details.push(format!(
                         "💡 Found in symbols ({} matches) - try `symbol:` instead",
@@ -1791,6 +2081,271 @@ impl<'a> RuleDebugger<'a> {
         result
     }
 
+    fn debug_hex_condition(
+        &self,
+        pattern: &str,
+        offset: Option<i64>,
+        offset_range: Option<(i64, Option<i64>)>,
+        count_min: usize,
+        count_max: Option<usize>,
+        per_kb_min: Option<f64>,
+        per_kb_max: Option<f64>,
+    ) -> ConditionDebugResult {
+        use crate::composite_rules::evaluators::eval_hex;
+
+        let mut desc = format!("hex: \"{}\"", truncate_string(pattern, 40));
+        if let Some(off) = offset {
+            desc.push_str(&format!(" @{:#x}", off));
+        }
+        if let Some((start, end)) = offset_range {
+            match end {
+                Some(e) => desc.push_str(&format!(" @[{:#x},{:#x})", start, e)),
+                None => desc.push_str(&format!(" @[{:#x},)", start)),
+            }
+        }
+
+        let ctx = EvaluationContext {
+            report: self.report,
+            binary_data: self.binary_data,
+            file_type: self.file_type,
+            platforms: self.platforms.clone(),
+            additional_findings: None,
+            cached_ast: None,
+            finding_id_index: None,
+            debug_collector: None,
+            section_map: Some(self.section_map.clone()),
+        };
+
+        let eval_result = eval_hex(
+            pattern,
+            offset,
+            offset_range,
+            count_min,
+            count_max,
+            per_kb_min,
+            per_kb_max,
+            false, // extract_wildcards
+            &ctx,
+        );
+
+        let mut result = ConditionDebugResult::new(desc, eval_result.matched);
+
+        result.details.push(format!(
+            "File size: {} bytes",
+            self.binary_data.len()
+        ));
+        result.details.push(format!(
+            "Constraints: count_min={}, count_max={:?}, per_kb_min={:?}, per_kb_max={:?}",
+            count_min, count_max, per_kb_min, per_kb_max
+        ));
+        result.details.push(format!(
+            "Found {} matches",
+            eval_result.evidence.len()
+        ));
+
+        for ev in eval_result.evidence.iter().take(5) {
+            if let Some(loc) = &ev.location {
+                result.details.push(format!("  {} @ {}", ev.value, loc));
+            } else {
+                result.details.push(format!("  {}", ev.value));
+            }
+        }
+        if eval_result.evidence.len() > 5 {
+            result.details.push(format!(
+                "  ... and {} more",
+                eval_result.evidence.len() - 5
+            ));
+        }
+
+        result.evidence = eval_result.evidence;
+        result
+    }
+
+    fn debug_section_ratio_condition(
+        &self,
+        section: &str,
+        compare_to: &str,
+        min_ratio: Option<f64>,
+        max_ratio: Option<f64>,
+    ) -> ConditionDebugResult {
+        let desc = format!(
+            "section_ratio: {} vs {} [{:?}, {:?}]",
+            section, compare_to, min_ratio, max_ratio
+        );
+
+        // Get section bounds
+        let section_size = if let Some(bounds) = self.section_map.bounds(section) {
+            Some(bounds.1 - bounds.0)
+        } else {
+            None
+        };
+
+        let total_size = self.binary_data.len() as u64;
+
+        let (ratio, matched) = if let Some(sec_size) = section_size {
+            let compare_size = if compare_to == "total" {
+                total_size
+            } else if let Some(bounds) = self.section_map.bounds(compare_to) {
+                bounds.1 - bounds.0
+            } else {
+                total_size
+            };
+
+            let r = if compare_size > 0 {
+                sec_size as f64 / compare_size as f64
+            } else {
+                0.0
+            };
+
+            let min_ok = min_ratio.is_none_or(|min| r >= min);
+            let max_ok = max_ratio.is_none_or(|max| r <= max);
+            (Some(r), min_ok && max_ok)
+        } else {
+            (None, false)
+        };
+
+        let mut result = ConditionDebugResult::new(desc, matched);
+
+        if self.section_map.has_sections() {
+            result.details.push(format!(
+                "Available sections: {}",
+                self.section_map.section_names().join(", ")
+            ));
+        } else {
+            result.details.push("No sections found in binary".to_string());
+        }
+
+        if let Some(r) = ratio {
+            result.details.push(format!(
+                "Ratio: {:.4} ({} / {})",
+                r,
+                section_size.unwrap_or(0),
+                if compare_to == "total" { total_size } else { self.section_map.bounds(compare_to).map(|b| b.1 - b.0).unwrap_or(0) }
+            ));
+        } else {
+            result.details.push(format!("Section '{}' not found", section));
+        }
+
+        result
+    }
+
+    fn debug_section_entropy_condition(
+        &self,
+        section: &str,
+        min_entropy: Option<f64>,
+        max_entropy: Option<f64>,
+    ) -> ConditionDebugResult {
+        let desc = format!(
+            "section_entropy: {} [{:?}, {:?}]",
+            section, min_entropy, max_entropy
+        );
+
+        // Get section data and calculate entropy
+        let (entropy, matched) = if let Some(bounds) = self.section_map.bounds(section) {
+            let start = bounds.0 as usize;
+            let end = (bounds.1 as usize).min(self.binary_data.len());
+            let section_data = &self.binary_data[start..end];
+
+            let e = crate::entropy::calculate_entropy(section_data);
+            let min_ok = min_entropy.is_none_or(|min| e >= min);
+            let max_ok = max_entropy.is_none_or(|max| e <= max);
+            (Some(e), min_ok && max_ok)
+        } else {
+            (None, false)
+        };
+
+        let mut result = ConditionDebugResult::new(desc, matched);
+
+        if self.section_map.has_sections() {
+            result.details.push(format!(
+                "Available sections: {}",
+                self.section_map.section_names().join(", ")
+            ));
+        } else {
+            result.details.push("No sections found in binary".to_string());
+        }
+
+        if let Some(e) = entropy {
+            result.details.push(format!("Entropy: {:.4} bits/byte", e));
+            if e > 7.0 {
+                result.details.push("  (High entropy - likely encrypted/compressed)".to_string());
+            } else if e < 4.0 {
+                result.details.push("  (Low entropy - likely plain data)".to_string());
+            }
+        } else {
+            result.details.push(format!("Section '{}' not found", section));
+        }
+
+        result
+    }
+
+    fn debug_import_combination_condition(
+        &self,
+        required: Option<&Vec<String>>,
+        suspicious: Option<&Vec<String>>,
+        min_suspicious: Option<usize>,
+        max_total: Option<usize>,
+    ) -> ConditionDebugResult {
+        let desc = format!(
+            "import_combination: required={}, suspicious={}, min_suspicious={:?}, max_total={:?}",
+            required.map(|r| r.len()).unwrap_or(0),
+            suspicious.map(|s| s.len()).unwrap_or(0),
+            min_suspicious,
+            max_total
+        );
+
+        let imports: Vec<&str> = self.report.imports.iter().map(|i| i.symbol.as_str()).collect();
+        let total_imports = imports.len();
+
+        // Check required imports
+        let required_ok = required.map(|req| {
+            req.iter().all(|r| imports.iter().any(|i| i.contains(r)))
+        }).unwrap_or(true);
+
+        // Count suspicious imports
+        let suspicious_count = suspicious.map(|susp| {
+            susp.iter().filter(|s| imports.iter().any(|i| i.contains(*s))).count()
+        }).unwrap_or(0);
+
+        let suspicious_ok = min_suspicious.is_none_or(|min| suspicious_count >= min);
+        let total_ok = max_total.is_none_or(|max| total_imports <= max);
+
+        let matched = required_ok && suspicious_ok && total_ok;
+
+        let mut result = ConditionDebugResult::new(desc, matched);
+
+        result.details.push(format!("Total imports: {}", total_imports));
+
+        if let Some(req) = required {
+            let found: Vec<&String> = req.iter().filter(|r| imports.iter().any(|i| i.contains(*r))).collect();
+            result.details.push(format!(
+                "Required imports found: {}/{}",
+                found.len(),
+                req.len()
+            ));
+            if found.len() < req.len() {
+                let missing: Vec<&String> = req.iter().filter(|r| !imports.iter().any(|i| i.contains(*r))).collect();
+                for m in missing.iter().take(5) {
+                    result.details.push(format!("  Missing: {}", m));
+                }
+            }
+        }
+
+        if let Some(susp) = suspicious {
+            let found: Vec<&String> = susp.iter().filter(|s| imports.iter().any(|i| i.contains(*s))).collect();
+            result.details.push(format!(
+                "Suspicious imports found: {}/{}",
+                found.len(),
+                susp.len()
+            ));
+            for f in found.iter().take(5) {
+                result.details.push(format!("  Found: {}", f));
+            }
+        }
+
+        result
+    }
+
     // Helper to find trait definition by ID
     fn find_trait_definition(&self, id: &str) -> Option<&crate::composite_rules::TraitDefinition> {
         self.mapper.find_trait(id)
@@ -1983,6 +2538,62 @@ fn describe_condition(condition: &Condition) -> String {
             };
             format!("kv[{}]: path=\"{}\"", matcher, truncate_string(path, 30))
         }
+        Condition::Hex {
+            pattern,
+            offset,
+            offset_range,
+            count_min,
+            ..
+        } => {
+            let mut desc = format!("hex: \"{}\"", truncate_string(pattern, 30));
+            if *count_min > 1 {
+                desc.push_str(&format!(" (min={})", count_min));
+            }
+            if let Some(off) = offset {
+                desc.push_str(&format!(" @{:#x}", off));
+            } else if let Some((start, _)) = offset_range {
+                desc.push_str(&format!(" @{:#x}+", start));
+            }
+            desc
+        }
+        Condition::SectionRatio {
+            section,
+            compare_to,
+            min_ratio,
+            max_ratio,
+        } => {
+            format!(
+                "section_ratio: {} vs {} [{:?}-{:?}]",
+                section, compare_to,
+                min_ratio.unwrap_or(0.0),
+                max_ratio.unwrap_or(1.0)
+            )
+        }
+        Condition::SectionEntropy {
+            section,
+            min_entropy,
+            max_entropy,
+        } => {
+            format!(
+                "section_entropy: {} [{:?}-{:?}]",
+                section,
+                min_entropy.unwrap_or(0.0),
+                max_entropy.unwrap_or(8.0)
+            )
+        }
+        Condition::ImportCombination {
+            required,
+            suspicious,
+            min_suspicious,
+            ..
+        } => {
+            format!(
+                "import_combination: req={}, susp={}, min={}",
+                required.as_ref().map(|r| r.len()).unwrap_or(0),
+                suspicious.as_ref().map(|s| s.len()).unwrap_or(0),
+                min_suspicious.unwrap_or(0)
+            )
+        }
         _ => format!("{:?}", condition).chars().take(50).collect(),
     }
 }
@@ -2064,6 +2675,7 @@ pub fn find_matching_symbols<'a>(
     exact: &Option<String>,
     substr: &Option<String>,
     regex: &Option<String>,
+    case_insensitive: bool,
 ) -> Vec<&'a str> {
     // Note: symbols are normalized (leading underscores stripped) at load time,
     // so we don't need to strip them here during matching
@@ -2071,13 +2683,26 @@ pub fn find_matching_symbols<'a>(
         .iter()
         .filter(|s| {
             if let Some(e) = exact {
-                return *s == e;
+                return if case_insensitive {
+                    s.eq_ignore_ascii_case(e)
+                } else {
+                    *s == e
+                };
             }
             if let Some(c) = substr {
-                return s.contains(c.as_str());
+                return if case_insensitive {
+                    s.to_lowercase().contains(&c.to_lowercase())
+                } else {
+                    s.contains(c.as_str())
+                };
             }
             if let Some(r) = regex {
-                if let Ok(re) = regex::Regex::new(r) {
+                let pattern = if case_insensitive {
+                    format!("(?i){}", r)
+                } else {
+                    r.clone()
+                };
+                if let Ok(re) = regex::Regex::new(&pattern) {
                     return re.is_match(s);
                 }
             }

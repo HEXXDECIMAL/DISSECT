@@ -94,6 +94,22 @@ pub fn is_external_ip(ip: &Ipv4Addr) -> bool {
         return false;
     }
 
+    // Reject IPs ending in .1.1 - these are almost always version numbers
+    // (e.g., "7.18.1.1" looks like version 7.18.1.1, not a real C2 server)
+    if octets[2] == 1 && octets[3] == 1 {
+        return false;
+    }
+
+    // Reject IPs ending in .0.0 - often padding/garbage
+    if octets[2] == 0 && octets[3] == 0 {
+        return false;
+    }
+
+    // Reject IPs ending in .0.1 - often version strings or test data
+    if octets[2] == 0 && octets[3] == 1 {
+        return false;
+    }
+
     true
 }
 

@@ -164,6 +164,11 @@ fn main() -> Result<()> {
     // Get disabled components
     let disabled = args.disabled_components();
 
+    // Apply custom traits directory if specified (must be before any trait loading)
+    if let Some(ref traits_dir) = args.traits_dir {
+        std::env::set_var("DISSECT_TRAITS_PATH", traits_dir);
+    }
+
     // Apply global disables for radare2 and upx
     if disabled.radare2 {
         radare2::disable_radare2();
@@ -295,6 +300,9 @@ fn main() -> Result<()> {
             section,
             offset,
             offset_range,
+            section_offset,
+            section_offset_range,
+            external_ip,
         }) => test_match_debug(
             &target,
             r#type,
@@ -310,6 +318,9 @@ fn main() -> Result<()> {
             section.as_deref(),
             offset,
             offset_range,
+            section_offset,
+            section_offset_range,
+            external_ip,
             &disabled,
             platforms.clone(),
         )?,
@@ -1198,22 +1209,10 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
         cli::OutputFormat::Jsonl => Ok(serde_json::to_string_pretty(&strings)?),
         cli::OutputFormat::Terminal => {
             let mut output = String::new();
-            output.push_str(&format!(
-                "Extracted {} strings from {}\n\n",
-                strings.len(),
-                target
-            ));
 
-            // Sort strings by section, then by offset
+            // Sort strings by offset to show them in file order
             let mut strings = strings;
-            strings.sort_by(|a, b| {
-                match (&a.section, &b.section) {
-                    (Some(sa), Some(sb)) => sa.cmp(sb).then_with(|| a.offset.cmp(&b.offset)),
-                    (Some(_), None) => std::cmp::Ordering::Less,
-                    (None, Some(_)) => std::cmp::Ordering::Greater,
-                    (None, None) => a.offset.cmp(&b.offset),
-                }
-            });
+            strings.sort_by_key(|s| s.offset);
 
             let mut current_section: Option<&str> = None;
 
@@ -1232,13 +1231,21 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
 
                 let offset = s
                     .offset
-                    .map(|o| format!("{:#x}", o))
-                    .unwrap_or_else(|| "unknown".to_string());
+                    .map(|o| format!("{}", o))
+                    .unwrap_or_else(|| "-".to_string());
 
-                let stype_str = if s.string_type == crate::types::StringType::Import {
-                    "@unknown".to_string()
-                } else {
-                    format!("{:?}", s.string_type)
+                // Use stng-style type labels
+                let stype_str = match s.string_type {
+                    crate::types::StringType::Import => "import",
+                    crate::types::StringType::Export => "export",
+                    crate::types::StringType::Function => "func",
+                    crate::types::StringType::StackString => "stack",
+                    crate::types::StringType::Url => "url",
+                    crate::types::StringType::Ip => "ip",
+                    crate::types::StringType::Email => "email",
+                    crate::types::StringType::Path => "path",
+                    crate::types::StringType::Base64 => "base64",
+                    _ => "-",
                 };
 
                 let encoding_str = if s.encoding_chain.is_empty() {
@@ -1279,7 +1286,7 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
                 }
 
                 output.push_str(&format!(
-                    "  {:>8} {:<12} {}{}\n",
+                    "{:>10} {:<12} {}{}\n",
                     offset, stype_str, val_display, encoding_str
                 ));
             }
@@ -1681,9 +1688,12 @@ fn test_match_debug(
     per_kb_min: Option<f64>,
     per_kb_max: Option<f64>,
     case_insensitive: bool,
-    _section: Option<&str>,
-    _offset: Option<i64>,
-    _offset_range: Option<(i64, Option<i64>)>,
+    section: Option<&str>,
+    offset: Option<i64>,
+    offset_range: Option<(i64, Option<i64>)>,
+    section_offset: Option<i64>,
+    section_offset_range: Option<(i64, Option<i64>)>,
+    external_ip: bool,
     _disabled: &cli::DisabledComponents,
     platforms: Vec<composite_rules::Platform>,
 ) -> Result<String> {
@@ -1694,6 +1704,17 @@ fn test_match_debug(
         }
     } else if pattern.is_none() {
         anyhow::bail!("--pattern is required for {:?} searches", search_type);
+    }
+
+    // Validate location constraints
+    if offset.is_some() && offset_range.is_some() {
+        anyhow::bail!("--offset and --offset-range are mutually exclusive");
+    }
+    if section_offset.is_some() && section_offset_range.is_some() {
+        anyhow::bail!("--section-offset and --section-offset-range are mutually exclusive");
+    }
+    if (section_offset.is_some() || section_offset_range.is_some()) && section.is_none() {
+        anyhow::bail!("--section-offset and --section-offset-range require --section");
     }
 
     let pattern = pattern.unwrap_or("");
@@ -1729,14 +1750,143 @@ fn test_match_debug(
         &binary_data,
         &capability_mapper.composite_rules,
         capability_mapper.trait_definitions(),
-        platforms,
+        platforms.clone(),
     );
     let context_info = debugger.context_info();
+
+    // Create section map for location constraint resolution
+    let section_map = composite_rules::SectionMap::from_binary(&binary_data);
+
+    // Resolve effective byte range from location constraints
+    // Returns (start, end, effective_size) where effective_size is used for density calculations
+    let resolve_effective_range = |section: Option<&str>,
+                                   offset: Option<i64>,
+                                   offset_range: Option<(i64, Option<i64>)>,
+                                   section_offset: Option<i64>,
+                                   section_offset_range: Option<(i64, Option<i64>)>|
+     -> Result<(usize, usize), String> {
+        let file_size = binary_data.len();
+
+        if let Some(sec) = section {
+            if let Some(bounds) = section_map.bounds(sec) {
+                let sec_start = bounds.0 as usize;
+                let sec_end = bounds.1 as usize;
+                let sec_size = sec_end - sec_start;
+
+                if let Some(sec_off) = section_offset {
+                    let abs_off = if sec_off >= 0 {
+                        sec_start + sec_off as usize
+                    } else {
+                        sec_end.saturating_sub((-sec_off) as usize)
+                    };
+                    Ok((abs_off, abs_off.saturating_add(1).min(sec_end)))
+                } else if let Some((start, end_opt)) = section_offset_range {
+                    let rel_start = if start >= 0 {
+                        start as usize
+                    } else {
+                        sec_size.saturating_sub((-start) as usize)
+                    };
+                    let rel_end = end_opt
+                        .map(|e| {
+                            if e >= 0 {
+                                e as usize
+                            } else {
+                                sec_size.saturating_sub((-e) as usize)
+                            }
+                        })
+                        .unwrap_or(sec_size);
+                    Ok((
+                        (sec_start + rel_start).min(sec_end),
+                        (sec_start + rel_end).min(sec_end),
+                    ))
+                } else {
+                    Ok((sec_start, sec_end))
+                }
+            } else {
+                Err(format!("Section '{}' not found", sec))
+            }
+        } else if let Some(off) = offset {
+            let abs_off = if off >= 0 {
+                off as usize
+            } else {
+                file_size.saturating_sub((-off) as usize)
+            };
+            Ok((abs_off, abs_off.saturating_add(1).min(file_size)))
+        } else if let Some((start, end_opt)) = offset_range {
+            let abs_start = if start >= 0 {
+                start as usize
+            } else {
+                file_size.saturating_sub((-start) as usize)
+            };
+            let abs_end = end_opt
+                .map(|e| {
+                    if e >= 0 {
+                        e as usize
+                    } else {
+                        file_size.saturating_sub((-e) as usize)
+                    }
+                })
+                .unwrap_or(file_size);
+            Ok((abs_start.min(file_size), abs_end.min(file_size)))
+        } else {
+            Ok((0, file_size))
+        }
+    };
+
+    // Check if any location constraints are specified
+    let has_location_constraints =
+        section.is_some() || offset.is_some() || offset_range.is_some()
+        || section_offset.is_some() || section_offset_range.is_some();
 
     // Perform the requested search
     let (matched, _match_count, mut output): (bool, usize, String) = match search_type {
         cli::SearchType::String => {
-            let strings: Vec<&str> = report.strings.iter().map(|s| s.value.as_str()).collect();
+            // Resolve effective range for filtering strings by offset
+            let effective_range = resolve_effective_range(
+                section,
+                offset,
+                offset_range,
+                section_offset,
+                section_offset_range,
+            );
+
+            let (range_start, range_end) = match effective_range {
+                Ok((s, e)) => (s, e),
+                Err(msg) => {
+                    let mut out = String::new();
+                    out.push_str("Search: strings\n");
+                    out.push_str(&format!("Pattern: {}\n", pattern));
+                    out.push_str(&format!("\n{}\n", "NOT MATCHED".red().bold()));
+                    out.push_str(&format!("{}\n", msg));
+                    if section_map.has_sections() {
+                        out.push_str(&format!(
+                            "Available sections: {}\n",
+                            section_map.section_names().join(", ")
+                        ));
+                    }
+                    return Ok(out);
+                }
+            };
+
+            // Filter strings by offset range if location constraints are specified
+            let filtered_strings: Vec<&types::StringInfo> = if has_location_constraints {
+                report
+                    .strings
+                    .iter()
+                    .filter(|s| {
+                        if let Some(off) = s.offset {
+                            let off = off as usize;
+                            off >= range_start && off < range_end
+                        } else {
+                            false // Skip strings without offset info
+                        }
+                    })
+                    .collect()
+            } else {
+                report.strings.iter().collect()
+            };
+
+            let strings: Vec<&str> = filtered_strings.iter().map(|s| s.value.as_str()).collect();
 
             let exact = if method == cli::MatchMethod::Exact {
                 Some(pattern.to_string())
@@ -1761,10 +1911,27 @@ fn test_match_debug(
 
             let matched_strings =
                 find_matching_strings(&strings, &exact, &contains, &regex, &word, case_insensitive);
+
+            // Filter by external IP if required
+            let matched_strings: Vec<&str> = if external_ip {
+                matched_strings
+                    .into_iter()
+                    .filter(|s| ip_validator::contains_external_ip(s))
+                    .collect()
+            } else {
+                matched_strings
+            };
             let match_count = matched_strings.len();
-            let file_size_kb = binary_data.len() as f64 / 1024.0;
-            let density = if file_size_kb > 0.0 {
-                match_count as f64 / file_size_kb
+
+            // Use effective range size for density calculations when location constraints apply
+            let effective_size = if has_location_constraints {
+                range_end.saturating_sub(range_start)
+            } else {
+                binary_data.len()
+            };
+            let effective_size_kb = effective_size as f64 / 1024.0;
+            let density = if effective_size_kb > 0.0 {
+                match_count as f64 / effective_size_kb
             } else {
                 0.0
             };
@@ -1788,16 +1955,30 @@ fn test_match_debug(
             if let Some(max) = per_kb_max {
                 out.push_str(&format!(", per_kb_max: {:.2}", max));
             }
+            if external_ip {
+                out.push_str(", external_ip: true");
+            }
             out.push('\n');
             out.push_str(&format!("Pattern: {}\n", pattern));
+
+            // Show location constraints if specified
+            if has_location_constraints {
+                out.push_str(&format!(
+                    "Search range: [{:#x}, {:#x}) of {} bytes\n",
+                    range_start, range_end, binary_data.len()
+                ));
+            }
+
             out.push_str(&format!(
-                "Context: file_type={:?}, strings={}, symbols={}\n",
-                file_type, context_info.string_count, context_info.symbol_count
+                "Context: file_type={:?}, strings={} (filtered from {})\n",
+                file_type,
+                filtered_strings.len(),
+                report.strings.len()
             ));
 
             if matched {
                 out.push_str(&format!(
-                    "\n{} ({} matches, {:.3}/KB)\n",
+                    "\n{} ({} matches, {:.3}/KB in search range)\n",
                     "MATCHED".green().bold(),
                     match_count,
                     density
@@ -1815,7 +1996,7 @@ fn test_match_debug(
             } else {
                 out.push_str(&format!("\n{}\n", "NOT MATCHED".red().bold()));
                 out.push_str(&format!(
-                    "Found {} matches ({:.3}/KB)\n",
+                    "Found {} matches ({:.3}/KB in search range)\n",
                     match_count,
                     density
                 ));
@@ -1856,11 +2037,14 @@ fn test_match_debug(
                 None
             };
 
-            let matched_symbols = find_matching_symbols(&symbols, &exact, &None, &regex);
+            let matched_symbols = find_matching_symbols(&symbols, &exact, &None, &regex, case_insensitive);
             let matched = !matched_symbols.is_empty();
 
             let mut out = String::new();
             out.push_str("Search: symbols\n");
+            if case_insensitive {
+                out.push_str("  case_insensitive: true\n");
+            }
             out.push_str(&format!("Pattern: {}\n", pattern));
             out.push_str(&format!(
                 "Context: file_type={:?}, strings={}, symbols={}\n",
@@ -1896,33 +2080,106 @@ fn test_match_debug(
             (matched, matched_symbols.len(), out)
         }
         cli::SearchType::Content => {
-            let content = String::from_utf8_lossy(&binary_data);
+            // Resolve effective range for content search
+            let effective_range = resolve_effective_range(
+                section,
+                offset,
+                offset_range,
+                section_offset,
+                section_offset_range,
+            );
+
+            let (range_start, range_end) = match effective_range {
+                Ok((s, e)) => (s, e),
+                Err(msg) => {
+                    let mut out = String::new();
+                    out.push_str("Search: content\n");
+                    out.push_str(&format!("Pattern: {}\n", pattern));
+                    out.push_str(&format!("\n{}\n", "NOT MATCHED".red().bold()));
+                    out.push_str(&format!("{}\n", msg));
+                    if section_map.has_sections() {
+                        out.push_str(&format!(
+                            "Available sections: {}\n",
+                            section_map.section_names().join(", ")
+                        ));
+                    }
+                    return Ok(out);
+                }
+            };
+
+            // Slice binary data to effective range
+            let search_data = &binary_data[range_start..range_end];
+            let content = String::from_utf8_lossy(search_data);
 
             // Count all matches for density calculation
+            // When external_ip is set, only count matches that contain external IPs
             let match_count = match method {
-                // Exact: entire file content must equal the pattern
+                // Exact: entire content slice must equal the pattern
                 cli::MatchMethod::Exact => {
-                    if &*content == pattern { 1 } else { 0 }
+                    let matched = &*content == pattern;
+                    if matched && external_ip {
+                        if ip_validator::contains_external_ip(pattern) { 1 } else { 0 }
+                    } else if matched {
+                        1
+                    } else {
+                        0
+                    }
                 }
                 cli::MatchMethod::Contains => {
-                    content.matches(pattern).count()
+                    if external_ip {
+                        // For external_ip, we need to check context around each match
+                        let mut count = 0;
+                        let mut start = 0;
+                        while let Some(pos) = content[start..].find(pattern) {
+                            let abs_pos = start + pos;
+                            // Get context around match to check for IP
+                            let context_start = abs_pos.saturating_sub(50);
+                            let context_end = (abs_pos + pattern.len() + 50).min(content.len());
+                            let context = &content[context_start..context_end];
+                            if ip_validator::contains_external_ip(context) {
+                                count += 1;
+                            }
+                            start = abs_pos + 1;
+                        }
+                        count
+                    } else {
+                        content.matches(pattern).count()
+                    }
                 }
                 cli::MatchMethod::Regex => {
                     regex::Regex::new(pattern)
-                        .map(|re| re.find_iter(&content).count())
+                        .map(|re| {
+                            if external_ip {
+                                re.find_iter(&content)
+                                    .filter(|m| ip_validator::contains_external_ip(m.as_str()))
+                                    .count()
+                            } else {
+                                re.find_iter(&content).count()
+                            }
+                        })
                         .unwrap_or(0)
                 }
                 cli::MatchMethod::Word => {
                     let word_pattern = format!(r"\b{}\b", regex::escape(pattern));
                     regex::Regex::new(&word_pattern)
-                        .map(|re| re.find_iter(&content).count())
+                        .map(|re| {
+                            if external_ip {
+                                re.find_iter(&content)
+                                    .filter(|m| ip_validator::contains_external_ip(m.as_str()))
+                                    .count()
+                            } else {
+                                re.find_iter(&content).count()
+                            }
+                        })
                         .unwrap_or(0)
                 }
             };
 
-            let file_size_kb = binary_data.len() as f64 / 1024.0;
-            let density = if file_size_kb > 0.0 {
-                match_count as f64 / file_size_kb
+            // Use effective range size for density calculations
+            let effective_size = range_end.saturating_sub(range_start);
+            let effective_size_kb = effective_size as f64 / 1024.0;
+            let density = if effective_size_kb > 0.0 {
+                match_count as f64 / effective_size_kb
             } else {
                 0.0
             };
@@ -1946,17 +2203,29 @@ fn test_match_debug(
             if let Some(max) = per_kb_max {
                 out.push_str(&format!(", per_kb_max: {:.2}", max));
             }
+            if external_ip {
+                out.push_str(", external_ip: true");
+            }
             out.push('\n');
             out.push_str(&format!("Pattern: {}\n", pattern));
+
+            // Show location constraints if specified
+            if has_location_constraints {
+                out.push_str(&format!(
+                    "Search range: [{:#x}, {:#x}) of {} bytes\n",
+                    range_start, range_end, binary_data.len()
+                ));
+            }
+
             out.push_str(&format!(
-                "Context: file_type={:?}, file_size={} bytes\n",
+                "Context: file_type={:?}, search_size={} bytes\n",
                 file_type,
-                binary_data.len()
+                effective_size
             ));
 
             if matched {
                 out.push_str(&format!(
-                    "\n{} ({} matches, {:.3}/KB)\n",
+                    "\n{} ({} matches, {:.3}/KB in search range)\n",
                     "MATCHED".green().bold(),
                     match_count,
                     density
@@ -1964,7 +2233,7 @@ fn test_match_debug(
             } else {
                 out.push_str(&format!("\n{}\n", "NOT MATCHED".red().bold()));
                 out.push_str(&format!(
-                    "Found {} matches ({:.3}/KB)\n",
+                    "Found {} matches ({:.3}/KB in search range)\n",
                     match_count,
                     density
                 ));
@@ -2061,6 +2330,375 @@ fn test_match_debug(
                 (false, 0, out)
             }
         }
+        cli::SearchType::Hex => {
+            use composite_rules::evaluators::eval_hex;
+            use composite_rules::SectionMap;
+
+            // Create section map for location constraints
+            let section_map = SectionMap::from_binary(&binary_data);
+
+            // Resolve effective search range and convert to offset/offset_range for eval_hex
+            let (effective_start, effective_end, resolved_offset, resolved_offset_range) = if let Some(sec) = section {
+                if let Some(bounds) = section_map.bounds(sec) {
+                    // Apply section-relative offsets if specified
+                    if let Some(sec_off) = section_offset {
+                        let abs_off = if sec_off >= 0 {
+                            bounds.0 + sec_off as u64
+                        } else {
+                            bounds.1.saturating_sub((-sec_off) as u64)
+                        };
+                        (abs_off as usize, (abs_off + 1) as usize, Some(abs_off as i64), None)
+                    } else if let Some((start, end_opt)) = section_offset_range {
+                        let section_size = bounds.1 - bounds.0;
+                        let rel_start = if start >= 0 { start as u64 } else { section_size.saturating_sub((-start) as u64) };
+                        let rel_end = end_opt.map(|e| if e >= 0 { e as u64 } else { section_size.saturating_sub((-e) as u64) }).unwrap_or(section_size);
+                        let abs_start = (bounds.0 + rel_start) as usize;
+                        let abs_end = (bounds.0 + rel_end).min(bounds.1) as usize;
+                        (abs_start, abs_end, None, Some((abs_start as i64, Some(abs_end as i64))))
+                    } else {
+                        // Entire section
+                        (bounds.0 as usize, bounds.1 as usize, None, Some((bounds.0 as i64, Some(bounds.1 as i64))))
+                    }
+                } else {
+                    let mut out = String::new();
+                    out.push_str("Search: hex\n");
+                    out.push_str(&format!("Pattern: {}\n", pattern));
+                    out.push_str(&format!("\n{}\n", "NOT MATCHED".red().bold()));
+                    out.push_str(&format!("Section '{}' not found in binary\n", sec));
+                    if section_map.has_sections() {
+                        out.push_str(&format!("Available sections: {}\n", section_map.section_names().join(", ")));
+                    }
+                    return Ok(out);
+                }
+            } else if let Some(off) = offset {
+                let file_size = binary_data.len();
+                let abs_off = if off >= 0 { off as usize } else { file_size.saturating_sub((-off) as usize) };
+                (abs_off, abs_off + 1, offset, None)
+            } else if let Some((start, end_opt)) = offset_range {
+                let file_size = binary_data.len();
+                let abs_start = if start >= 0 { start as usize } else { file_size.saturating_sub((-start) as usize) };
+                let abs_end = end_opt.map(|e| if e >= 0 { e as usize } else { file_size.saturating_sub((-e) as usize) }).unwrap_or(file_size);
+                (abs_start, abs_end.min(file_size), None, offset_range)
+            } else {
+                (0, binary_data.len(), None, None)
+            };
+
+            // Create evaluation context
+            let ctx = composite_rules::EvaluationContext::new(
+                &report,
+                &binary_data,
+                composite_rules::FileType::All,
+                platforms.clone(),
+                None,
+                None,
+            );
+
+            // Evaluate hex pattern with resolved location constraints
+            let result = eval_hex(
+                pattern,
+                resolved_offset,
+                resolved_offset_range,
+                count_min,
+                count_max,
+                per_kb_min,
+                per_kb_max,
+                false, // extract_wildcards
+                &ctx,
+            );
+
+            let match_count = result.evidence.len();
+            let effective_size = effective_end.saturating_sub(effective_start);
+            let effective_size_kb = effective_size as f64 / 1024.0;
+            let density = if effective_size_kb > 0.0 { match_count as f64 / effective_size_kb } else { 0.0 };
+
+            let mut out = String::new();
+            out.push_str("Search: hex\n");
+            out.push_str(&format!("  count_min: {}", count_min));
+            if let Some(max) = count_max {
+                out.push_str(&format!(", count_max: {}", max));
+            }
+            if let Some(min) = per_kb_min {
+                out.push_str(&format!(", per_kb_min: {:.2}", min));
+            }
+            if let Some(max) = per_kb_max {
+                out.push_str(&format!(", per_kb_max: {:.2}", max));
+            }
+            out.push('\n');
+            out.push_str(&format!("Pattern: {}\n", pattern));
+
+            // Show location constraints
+            if let Some(sec) = section {
+                out.push_str(&format!("Section: {}\n", sec));
+            }
+            if let Some(off) = offset {
+                out.push_str(&format!("Offset: {:#x}\n", off));
+            }
+            if let Some((start, end_opt)) = offset_range {
+                if let Some(end) = end_opt {
+                    out.push_str(&format!("Offset range: [{:#x}, {:#x})\n", start, end));
+                } else {
+                    out.push_str(&format!("Offset range: [{:#x}, end)\n", start));
+                }
+            }
+
+            out.push_str(&format!(
+                "Context: file_type={:?}, file_size={} bytes",
+                file_type,
+                binary_data.len()
+            ));
+            if effective_size != binary_data.len() {
+                out.push_str(&format!(", search_range=[{:#x},{:#x}) ({} bytes)", effective_start, effective_end, effective_size));
+            }
+            if section_map.has_sections() {
+                out.push_str(&format!(", sections={}", section_map.section_names().len()));
+            }
+            out.push('\n');
+
+            if result.matched {
+                out.push_str(&format!(
+                    "\n{} ({} matches, {:.3}/KB)\n",
+                    "MATCHED".green().bold(),
+                    match_count,
+                    density
+                ));
+                let display_count = match_count.min(10);
+                for ev in result.evidence.iter().take(display_count) {
+                    out.push_str(&format!("  {} @ {}\n", ev.value, ev.location.as_deref().unwrap_or("?")));
+                }
+                if match_count > display_count {
+                    out.push_str(&format!("  ... and {} more\n", match_count - display_count));
+                }
+            } else {
+                out.push_str(&format!("\n{}\n", "NOT MATCHED".red().bold()));
+                out.push_str(&format!(
+                    "Found {} matches ({:.3}/KB)\n",
+                    match_count,
+                    density
+                ));
+
+                // Show available sections as suggestion
+                if section_map.has_sections() && section.is_none() {
+                    out.push_str(&format!(
+                        "\nBinary has sections: {} - try --section for targeted search\n",
+                        section_map.section_names().join(", ")
+                    ));
+                }
+            }
+
+            (result.matched, match_count, out)
+        }
+        cli::SearchType::Base64 => {
+            // Search in base64-decoded strings from the analysis report
+            let base64_strings: Vec<&str> = report
+                .strings
+                .iter()
+                .filter(|s| s.encoding_chain.iter().any(|enc| enc.contains("base64")))
+                .map(|s| s.value.as_str())
+                .collect();
+
+            let exact = if method == cli::MatchMethod::Exact {
+                Some(pattern.to_string())
+            } else {
+                None
+            };
+            let contains = if method == cli::MatchMethod::Contains {
+                Some(pattern.to_string())
+            } else {
+                None
+            };
+            let regex = if method == cli::MatchMethod::Regex {
+                Some(pattern.to_string())
+            } else {
+                None
+            };
+            let word = if method == cli::MatchMethod::Word {
+                Some(pattern.to_string())
+            } else {
+                None
+            };
+
+            let matched_strings =
+                find_matching_strings(&base64_strings, &exact, &contains, &regex, &word, case_insensitive);
+
+            // Filter by external IP if required
+            let matched_strings: Vec<&str> = if external_ip {
+                matched_strings
+                    .into_iter()
+                    .filter(|s| ip_validator::contains_external_ip(s))
+                    .collect()
+            } else {
+                matched_strings
+            };
+            let match_count = matched_strings.len();
+
+            let file_size_kb = binary_data.len() as f64 / 1024.0;
+            let density = if file_size_kb > 0.0 { match_count as f64 / file_size_kb } else { 0.0 };
+
+            let count_min_ok = match_count >= count_min;
+            let count_max_ok = count_max.is_none_or(|max| match_count <= max);
+            let per_kb_min_ok = per_kb_min.is_none_or(|min| density >= min);
+            let per_kb_max_ok = per_kb_max.is_none_or(|max| density <= max);
+            let matched = count_min_ok && count_max_ok && per_kb_min_ok && per_kb_max_ok;
+
+            let mut out = String::new();
+            out.push_str("Search: base64 (decoded strings)\n");
+            out.push_str(&format!("  count_min: {}", count_min));
+            if let Some(max) = count_max {
+                out.push_str(&format!(", count_max: {}", max));
+            }
+            if let Some(min) = per_kb_min {
+                out.push_str(&format!(", per_kb_min: {:.2}", min));
+            }
+            if let Some(max) = per_kb_max {
+                out.push_str(&format!(", per_kb_max: {:.2}", max));
+            }
+            if external_ip {
+                out.push_str(", external_ip: true");
+            }
+            out.push('\n');
+            out.push_str(&format!("Pattern: {}\n", pattern));
+            out.push_str(&format!(
+                "Context: file_type={:?}, base64_strings={} (from {} total strings)\n",
+                file_type,
+                base64_strings.len(),
+                report.strings.len()
+            ));
+
+            if matched {
+                out.push_str(&format!(
+                    "\n{} ({} matches, {:.3}/KB)\n",
+                    "MATCHED".green().bold(),
+                    match_count,
+                    density
+                ));
+                let display_count = match_count.min(10);
+                for s in matched_strings.iter().take(display_count) {
+                    out.push_str(&format!("  \"{}\"\n", s));
+                }
+                if match_count > display_count {
+                    out.push_str(&format!("  ... and {} more\n", match_count - display_count));
+                }
+            } else {
+                out.push_str(&format!("\n{}\n", "NOT MATCHED".red().bold()));
+                out.push_str(&format!(
+                    "Found {} matches ({:.3}/KB)\n",
+                    match_count,
+                    density
+                ));
+                if base64_strings.is_empty() {
+                    out.push_str("  No base64-decoded strings found in this file\n");
+                    out.push_str("  💡 Try `--type string` or `--type content` instead\n");
+                }
+            }
+
+            (matched, match_count, out)
+        }
+        cli::SearchType::Xor => {
+            // Search in XOR-decoded strings from the analysis report
+            let xor_strings: Vec<&str> = report
+                .strings
+                .iter()
+                .filter(|s| s.encoding_chain.iter().any(|enc| enc.contains("xor")))
+                .map(|s| s.value.as_str())
+                .collect();
+
+            let exact = if method == cli::MatchMethod::Exact {
+                Some(pattern.to_string())
+            } else {
+                None
+            };
+            let contains = if method == cli::MatchMethod::Contains {
+                Some(pattern.to_string())
+            } else {
+                None
+            };
+            let regex = if method == cli::MatchMethod::Regex {
+                Some(pattern.to_string())
+            } else {
+                None
+            };
+            let word = if method == cli::MatchMethod::Word {
+                Some(pattern.to_string())
+            } else {
+                None
+            };
+
+            let matched_strings =
+                find_matching_strings(&xor_strings, &exact, &contains, &regex, &word, case_insensitive);
+
+            // Filter by external IP if required
+            let matched_strings: Vec<&str> = if external_ip {
+                matched_strings
+                    .into_iter()
+                    .filter(|s| ip_validator::contains_external_ip(s))
+                    .collect()
+            } else {
+                matched_strings
+            };
+            let match_count = matched_strings.len();
+
+            let file_size_kb = binary_data.len() as f64 / 1024.0;
+            let density = if file_size_kb > 0.0 { match_count as f64 / file_size_kb } else { 0.0 };
+
+            let count_min_ok = match_count >= count_min;
+            let count_max_ok = count_max.is_none_or(|max| match_count <= max);
+            let per_kb_min_ok = per_kb_min.is_none_or(|min| density >= min);
+            let per_kb_max_ok = per_kb_max.is_none_or(|max| density <= max);
+            let matched = count_min_ok && count_max_ok && per_kb_min_ok && per_kb_max_ok;
+
+            let mut out = String::new();
+            out.push_str("Search: xor (decoded strings)\n");
+            out.push_str(&format!("  count_min: {}", count_min));
+            if let Some(max) = count_max {
+                out.push_str(&format!(", count_max: {}", max));
+            }
+            if let Some(min) = per_kb_min {
+                out.push_str(&format!(", per_kb_min: {:.2}", min));
+            }
+            if let Some(max) = per_kb_max {
+                out.push_str(&format!(", per_kb_max: {:.2}", max));
+            }
+            if external_ip {
+                out.push_str(", external_ip: true");
+            }
+            out.push('\n');
+            out.push_str(&format!("Pattern: {}\n", pattern));
+            out.push_str(&format!(
+                "Context: file_type={:?}, xor_strings={} (from {} total strings)\n",
+                file_type,
+                xor_strings.len(),
+                report.strings.len()
+            ));
+
+            if matched {
+                out.push_str(&format!(
+                    "\n{} ({} matches, {:.3}/KB)\n",
+                    "MATCHED".green().bold(),
+                    match_count,
+                    density
+                ));
+                let display_count = match_count.min(10);
+                for s in matched_strings.iter().take(display_count) {
+                    out.push_str(&format!("  \"{}\"\n", s));
+                }
+                if match_count > display_count {
+                    out.push_str(&format!("  ... and {} more\n", match_count - display_count));
+                }
+            } else {
+                out.push_str(&format!("\n{}\n", "NOT MATCHED".red().bold()));
+                out.push_str(&format!(
+                    "Found {} matches ({:.3}/KB)\n",
+                    match_count,
+                    density
+                ));
+                if xor_strings.is_empty() {
+                    out.push_str("  No XOR-decoded strings found in this file\n");
+                    out.push_str("  💡 Try `--type string` or `--type content` instead\n");
+                }
+            }
+
+            (matched, match_count, out)
+        }
     };
 
     // If not matched, provide suggestions
@@ -2088,7 +2726,7 @@ fn test_match_debug(
                 } else {
                     None
                 };
-                let symbol_matches = find_matching_symbols(&symbols, &exact, &None, &regex);
+                let symbol_matches = find_matching_symbols(&symbols, &exact, &None, &regex, false);
                 if !symbol_matches.is_empty() {
                     output.push_str(&format!(
                         "  💡 Found in symbols ({} matches) - try `--type symbol`\n",
@@ -2230,7 +2868,7 @@ fn test_match_debug(
                     .chain(report.exports.iter().map(|e| e.symbol.as_str()))
                     .chain(report.functions.iter().map(|f| f.name.as_str()))
                     .collect();
-                let symbol_matches = find_matching_symbols(&symbols, &exact, &None, &regex);
+                let symbol_matches = find_matching_symbols(&symbols, &exact, &None, &regex, false);
                 if !symbol_matches.is_empty() {
                     output.push_str(&format!(
                         "  💡 Found in symbols ({} matches) - try `--type symbol`\n",
@@ -2242,6 +2880,22 @@ fn test_match_debug(
                 // No cross-search suggestions for kv - it's a different paradigm
                 output.push_str("  💡 Check that the path exists in the file structure\n");
                 output.push_str("  💡 Try without a pattern for existence check\n");
+            }
+            cli::SearchType::Hex => {
+                // Suggest content search as alternative
+                output.push_str("  💡 Try --type content for string-based search\n");
+                output.push_str("  💡 Ensure hex pattern has correct format: \"7F 45 4C 46\"\n");
+                output.push_str("  💡 Try --offset or --offset-range to target specific locations\n");
+            }
+            cli::SearchType::Base64 => {
+                output.push_str("  💡 Base64 search requires base64-decoded strings in analysis\n");
+                output.push_str("  💡 Try `--type string` for regular strings\n");
+                output.push_str("  💡 Try `--type content` for raw content search\n");
+            }
+            cli::SearchType::Xor => {
+                output.push_str("  💡 XOR search requires XOR-decoded strings in analysis\n");
+                output.push_str("  💡 Try `--type string` for regular strings\n");
+                output.push_str("  💡 Try `--type content` for raw content search\n");
             }
         }
 
@@ -2352,7 +3006,7 @@ fn test_match_debug(
                             } else {
                                 None
                             };
-                            let matches = find_matching_symbols(&symbols, &exact, &None, &regex);
+                            let matches = find_matching_symbols(&symbols, &exact, &None, &regex, false);
                             !matches.is_empty()
                         }
                         cli::SearchType::Content => {
@@ -2372,6 +3026,14 @@ fn test_match_debug(
                         }
                         cli::SearchType::Kv => {
                             // kv searches don't benefit from file type changes
+                            false
+                        }
+                        cli::SearchType::Hex => {
+                            // hex searches don't benefit from file type changes
+                            false
+                        }
+                        cli::SearchType::Base64 | cli::SearchType::Xor => {
+                            // encoded string searches depend on string extraction
                             false
                         }
                     };

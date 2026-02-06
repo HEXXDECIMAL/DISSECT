@@ -384,8 +384,10 @@ pub fn eval_string(
         );
     }
 
-    // For source files or when no strings were extracted, fall back to raw content search.
-    if evidence.is_empty() && (ctx.report.strings.is_empty() || ctx.file_type.is_source_code()) {
+    // Fall back to raw content search ONLY for binaries when no strings were extracted.
+    // Source code files should NOT fall back to raw content - that bypasses AST extraction
+    // which intentionally excludes comments. Use `type: content` for raw content search.
+    if evidence.is_empty() && ctx.report.strings.is_empty() && !ctx.file_type.is_source_code() {
         if let Ok(content) = std::str::from_utf8(ctx.binary_data) {
             let mut matched = false;
             let mut match_value = String::new();

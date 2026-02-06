@@ -645,13 +645,27 @@ fn test_eval_string_in_imports() {
     assert_eq!(result.evidence[0].method, "import_symbol");
 }
 
+/// Helper to create an empty report (no strings extracted)
+fn create_empty_report() -> AnalysisReport {
+    let target = TargetInfo {
+        path: "/test/binary".to_string(),
+        file_type: "elf".to_string(),
+        size_bytes: 1024,
+        sha256: "abc123".to_string(),
+        architectures: Some(vec!["x86_64".to_string()]),
+    };
+    AnalysisReport::new(target)
+}
+
+/// Test that raw content fallback works for binaries with no extracted strings
 #[test]
-fn test_eval_string_raw_content_fallback() {
-    let report = create_test_report();
+fn test_eval_string_raw_content_fallback_binary() {
+    // Use empty report - no strings extracted
+    let report = create_empty_report();
     let data = b"This is some raw content with a password = secret123";
 
     let mut ctx = create_test_context(&report, data);
-    ctx.file_type = FileType::Python; // Source code - will try raw content
+    ctx.file_type = FileType::Elf; // Binary - will try raw content if no strings
 
     let params = StringParams {
         exact: None,
@@ -678,6 +692,44 @@ fn test_eval_string_raw_content_fallback() {
 
     assert!(result.matched);
     assert_eq!(result.evidence[0].source, "raw_content");
+}
+
+/// Test that source code files do NOT fall back to raw content
+/// (use type: content if you want raw content search for source files)
+#[test]
+fn test_eval_string_no_raw_content_fallback_for_source() {
+    // Use empty report - no strings extracted
+    let report = create_empty_report();
+    let data = b"This is some raw content with a password = secret123";
+
+    let mut ctx = create_test_context(&report, data);
+    ctx.file_type = FileType::Python; // Source code - should NOT fall back to raw content
+
+    let params = StringParams {
+        exact: None,
+        substr: Some(&"password".to_string()),
+        regex: None,
+        word: None,
+        case_insensitive: false,
+        exclude_patterns: None,
+        count_min: 1,
+        count_max: None,
+        per_kb_min: None,
+        per_kb_max: None,
+        external_ip: false,
+        compiled_regex: None,
+        compiled_excludes: &[],
+        section: None,
+        offset: None,
+        offset_range: None,
+        section_offset: None,
+        section_offset_range: None,
+    };
+
+    let result = eval_string(&params, None, &ctx);
+
+    // Source code should NOT fall back to raw content - use type: content for that
+    assert!(!result.matched);
 }
 
 // =============================================================================
