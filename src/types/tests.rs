@@ -296,7 +296,7 @@ fn test_function_creation() {
 fn test_string_info_creation() {
     let string = StringInfo {
         value: "http://example.com".to_string(),
-        offset: Some("0x2000".to_string()),
+        offset: Some(0x2000),
         encoding: "utf8".to_string(),
         string_type: StringType::Url,
         section: Some(".rodata".to_string()),

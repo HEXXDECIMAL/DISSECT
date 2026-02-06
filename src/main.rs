@@ -287,8 +287,14 @@ fn main() -> Result<()> {
             pattern,
             kv_path,
             file_type,
-            min_count,
+            count_min,
+            count_max,
+            per_kb_min,
+            per_kb_max,
             case_insensitive,
+            section,
+            offset,
+            offset_range,
         }) => test_match_debug(
             &target,
             r#type,
@@ -296,8 +302,14 @@ fn main() -> Result<()> {
             pattern.as_deref(),
             kv_path.as_deref(),
             file_type,
-            min_count,
+            count_min,
+            count_max,
+            per_kb_min,
+            per_kb_max,
             case_insensitive,
+            section.as_deref(),
+            offset,
+            offset_range,
             &disabled,
             platforms.clone(),
         )?,
@@ -1218,7 +1230,10 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
                     current_section = section;
                 }
 
-                let offset = s.offset.as_deref().unwrap_or("unknown");
+                let offset = s
+                    .offset
+                    .map(|o| format!("{:#x}", o))
+                    .unwrap_or_else(|| "unknown".to_string());
 
                 let stype_str = if s.string_type == crate::types::StringType::Import {
                     "@unknown".to_string()
@@ -1309,7 +1324,10 @@ fn extract_strings_from_ast(
             output.push_str(&format!("{:<10} {:<14} {}\n", "OFFSET", "TYPE", "VALUE"));
             output.push_str(&format!("{:-<10} {:-<14} {:-<20}\n", "", "", ""));
             for s in filtered_strings {
-                let offset = s.offset.unwrap_or_else(|| "unknown".to_string());
+                let offset = s
+                    .offset
+                    .map(|o| format!("{:#x}", o))
+                    .unwrap_or_else(|| "unknown".to_string());
                 let stype_str = format!("{:?}", s.string_type);
                 output.push_str(&format!("{:<10} {:<14} {}\n", offset, stype_str, s.value));
             }
@@ -1658,8 +1676,14 @@ fn test_match_debug(
     pattern: Option<&str>,
     kv_path: Option<&str>,
     file_type_override: Option<cli::DetectFileType>,
-    min_count: usize,
+    count_min: usize,
+    count_max: Option<usize>,
+    per_kb_min: Option<f64>,
+    per_kb_max: Option<f64>,
     case_insensitive: bool,
+    _section: Option<&str>,
+    _offset: Option<i64>,
+    _offset_range: Option<(i64, Option<i64>)>,
     _disabled: &cli::DisabledComponents,
     platforms: Vec<composite_rules::Platform>,
 ) -> Result<String> {
@@ -1737,13 +1761,34 @@ fn test_match_debug(
 
             let matched_strings =
                 find_matching_strings(&strings, &exact, &contains, &regex, &word, case_insensitive);
-            let matched = matched_strings.len() >= min_count;
+            let match_count = matched_strings.len();
+            let file_size_kb = binary_data.len() as f64 / 1024.0;
+            let density = if file_size_kb > 0.0 {
+                match_count as f64 / file_size_kb
+            } else {
+                0.0
+            };
+
+            // Check all constraints
+            let count_min_ok = match_count >= count_min;
+            let count_max_ok = count_max.is_none_or(|max| match_count <= max);
+            let per_kb_min_ok = per_kb_min.is_none_or(|min| density >= min);
+            let per_kb_max_ok = per_kb_max.is_none_or(|max| density <= max);
+            let matched = count_min_ok && count_max_ok && per_kb_min_ok && per_kb_max_ok;
 
             let mut out = String::new();
-            out.push_str(&format!(
-                "Search: strings ({} matches required)\n",
-                min_count
-            ));
+            out.push_str("Search: strings\n");
+            out.push_str(&format!("  count_min: {}", count_min));
+            if let Some(max) = count_max {
+                out.push_str(&format!(", count_max: {}", max));
+            }
+            if let Some(min) = per_kb_min {
+                out.push_str(&format!(", per_kb_min: {:.2}", min));
+            }
+            if let Some(max) = per_kb_max {
+                out.push_str(&format!(", per_kb_max: {:.2}", max));
+            }
+            out.push('\n');
             out.push_str(&format!("Pattern: {}\n", pattern));
             out.push_str(&format!(
                 "Context: file_type={:?}, strings={}, symbols={}\n",
@@ -1752,30 +1797,44 @@ fn test_match_debug(
 
             if matched {
                 out.push_str(&format!(
-                    "\n{} ({} matches)\n",
+                    "\n{} ({} matches, {:.3}/KB)\n",
                     "MATCHED".green().bold(),
-                    matched_strings.len()
+                    match_count,
+                    density
                 ));
-                let display_count = matched_strings.len().min(10);
+                let display_count = match_count.min(10);
                 for s in matched_strings.iter().take(display_count) {
                     out.push_str(&format!("  \"{}\"\n", s));
                 }
-                if matched_strings.len() > display_count {
+                if match_count > display_count {
                     out.push_str(&format!(
                         "  ... and {} more\n",
-                        matched_strings.len() - display_count
+                        match_count - display_count
                     ));
                 }
             } else {
                 out.push_str(&format!("\n{}\n", "NOT MATCHED".red().bold()));
                 out.push_str(&format!(
-                    "Found {} matches (need {}), ",
-                    matched_strings.len(),
-                    min_count
+                    "Found {} matches ({:.3}/KB)\n",
+                    match_count,
+                    density
                 ));
+                // Show which constraints failed
+                if !count_min_ok {
+                    out.push_str(&format!("  count_min: {} < {} (FAILED)\n", match_count, count_min));
+                }
+                if !count_max_ok {
+                    out.push_str(&format!("  count_max: {} > {} (FAILED)\n", match_count, count_max.unwrap()));
+                }
+                if !per_kb_min_ok {
+                    out.push_str(&format!("  per_kb_min: {:.3} < {:.3} (FAILED)\n", density, per_kb_min.unwrap()));
+                }
+                if !per_kb_max_ok {
+                    out.push_str(&format!("  per_kb_max: {:.3} > {:.3} (FAILED)\n", density, per_kb_max.unwrap()));
+                }
             }
 
-            (matched, matched_strings.len(), out)
+            (matched, match_count, out)
         }
         cli::SearchType::Symbol => {
             let symbols: Vec<&str> = report
@@ -1839,23 +1898,55 @@ fn test_match_debug(
         cli::SearchType::Content => {
             let content = String::from_utf8_lossy(&binary_data);
 
-            let matched = match method {
-                // Exact: entire file content must equal the pattern (matches production eval_raw)
-                cli::MatchMethod::Exact => &*content == pattern,
-                cli::MatchMethod::Contains => content.contains(pattern),
+            // Count all matches for density calculation
+            let match_count = match method {
+                // Exact: entire file content must equal the pattern
+                cli::MatchMethod::Exact => {
+                    if &*content == pattern { 1 } else { 0 }
+                }
+                cli::MatchMethod::Contains => {
+                    content.matches(pattern).count()
+                }
                 cli::MatchMethod::Regex => {
-                    regex::Regex::new(pattern).is_ok_and(|re| re.is_match(&content))
+                    regex::Regex::new(pattern)
+                        .map(|re| re.find_iter(&content).count())
+                        .unwrap_or(0)
                 }
                 cli::MatchMethod::Word => {
                     let word_pattern = format!(r"\b{}\b", regex::escape(pattern));
-                    regex::Regex::new(&word_pattern).is_ok_and(|re| re.is_match(&content))
+                    regex::Regex::new(&word_pattern)
+                        .map(|re| re.find_iter(&content).count())
+                        .unwrap_or(0)
                 }
             };
 
-            let match_count = if matched { 1 } else { 0 };
+            let file_size_kb = binary_data.len() as f64 / 1024.0;
+            let density = if file_size_kb > 0.0 {
+                match_count as f64 / file_size_kb
+            } else {
+                0.0
+            };
+
+            // Check all constraints
+            let count_min_ok = match_count >= count_min;
+            let count_max_ok = count_max.is_none_or(|max| match_count <= max);
+            let per_kb_min_ok = per_kb_min.is_none_or(|min| density >= min);
+            let per_kb_max_ok = per_kb_max.is_none_or(|max| density <= max);
+            let matched = count_min_ok && count_max_ok && per_kb_min_ok && per_kb_max_ok;
 
             let mut out = String::new();
             out.push_str("Search: content\n");
+            out.push_str(&format!("  count_min: {}", count_min));
+            if let Some(max) = count_max {
+                out.push_str(&format!(", count_max: {}", max));
+            }
+            if let Some(min) = per_kb_min {
+                out.push_str(&format!(", per_kb_min: {:.2}", min));
+            }
+            if let Some(max) = per_kb_max {
+                out.push_str(&format!(", per_kb_max: {:.2}", max));
+            }
+            out.push('\n');
             out.push_str(&format!("Pattern: {}\n", pattern));
             out.push_str(&format!(
                 "Context: file_type={:?}, file_size={} bytes\n",
@@ -1864,9 +1955,32 @@ fn test_match_debug(
             ));
 
             if matched {
-                out.push_str(&format!("\n{}\n", "MATCHED".green().bold()));
+                out.push_str(&format!(
+                    "\n{} ({} matches, {:.3}/KB)\n",
+                    "MATCHED".green().bold(),
+                    match_count,
+                    density
+                ));
             } else {
                 out.push_str(&format!("\n{}\n", "NOT MATCHED".red().bold()));
+                out.push_str(&format!(
+                    "Found {} matches ({:.3}/KB)\n",
+                    match_count,
+                    density
+                ));
+                // Show which constraints failed
+                if !count_min_ok {
+                    out.push_str(&format!("  count_min: {} < {} (FAILED)\n", match_count, count_min));
+                }
+                if !count_max_ok {
+                    out.push_str(&format!("  count_max: {} > {} (FAILED)\n", match_count, count_max.unwrap()));
+                }
+                if !per_kb_min_ok {
+                    out.push_str(&format!("  per_kb_min: {:.3} < {:.3} (FAILED)\n", density, per_kb_min.unwrap()));
+                }
+                if !per_kb_max_ok {
+                    out.push_str(&format!("  per_kb_max: {:.3} > {:.3} (FAILED)\n", density, per_kb_max.unwrap()));
+                }
             }
 
             (matched, match_count, out)

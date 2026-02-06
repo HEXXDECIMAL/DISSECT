@@ -328,7 +328,7 @@ impl MachOAnalyzer {
                         method: "string".to_string(),
                         source: "strings".to_string(),
                         value: s.value.chars().take(50).collect::<String>() + "...",
-                        location: s.offset.clone(),
+                        location: s.offset.map(|o| format!("{:#x}", o)),
                     }],
                 });
                 break;
@@ -892,8 +892,8 @@ impl MachOAnalyzer {
 
                     for mut string_info in decrypted_strings {
                         // Mark strings as from decrypted content
-                        string_info.offset =
-                            Some(format!("decrypted:0x{:x}", payload.source_offset));
+                        string_info.offset = Some(payload.source_offset as u64);
+                        string_info.section = Some("AMOS_decrypted".to_string());
                         if !report.strings.iter().any(|s| s.value == string_info.value) {
                             report.strings.push(string_info);
                         }

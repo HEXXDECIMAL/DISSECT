@@ -285,7 +285,7 @@ impl StringMatchIndex {
                                 method: "string".to_string(),
                                 source: "string_extractor".to_string(),
                                 value: pattern.clone(),
-                                location: string_info.offset.clone(),
+                                location: string_info.offset.map(|o| format!("{:#x}", o)),
                             });
                         }
                     }
@@ -306,7 +306,7 @@ impl StringMatchIndex {
                                 method: "string".to_string(),
                                 source: "string_extractor".to_string(),
                                 value: pattern.clone(),
-                                location: string_info.offset.clone(),
+                                location: string_info.offset.map(|o| format!("{:#x}", o)),
                             });
                         }
                     }

@@ -104,7 +104,7 @@ fn test_layer_path_computation() {
     // Case 1: Stack string in .text section
     let stack_text = StringInfo {
         value: "kworker".to_string(),
-        offset: Some("0x1000".to_string()),
+        offset: Some(0x1000),
         encoding: "utf8".to_string(),
         string_type: StringType::Plain,
         section: Some(".text".to_string()),
@@ -132,7 +132,7 @@ fn test_layer_path_computation() {
     // Case 2: Base64+zlib in .rodata
     let encoded_rodata = StringInfo {
         value: "YWJj".to_string(),
-        offset: Some("0x2000".to_string()),
+        offset: Some(0x2000),
         encoding: "utf8".to_string(),
         string_type: StringType::Base64,
         section: Some(".rodata".to_string()),
@@ -148,7 +148,7 @@ fn test_layer_path_computation() {
     // Case 3: No encoding chain (plain string)
     let plain_string = StringInfo {
         value: "hello".to_string(),
-        offset: Some("0x3000".to_string()),
+        offset: Some(0x3000),
         encoding: "utf8".to_string(),
         string_type: StringType::Plain,
         section: Some(".text".to_string()),

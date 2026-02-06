@@ -382,6 +382,11 @@ impl TraitDefinition {
                 per_kb_min,
                 per_kb_max,
                 external_ip,
+                section,
+                offset,
+                offset_range,
+                section_offset,
+                section_offset_range,
                 compiled_regex,
                 compiled_excludes,
             } => {
@@ -399,6 +404,11 @@ impl TraitDefinition {
                     external_ip: *external_ip,
                     compiled_regex: compiled_regex.as_ref(),
                     compiled_excludes,
+                    section: section.as_ref(),
+                    offset: *offset,
+                    offset_range: *offset_range,
+                    section_offset: *section_offset,
+                    section_offset_range: *section_offset_range,
                 };
                 eval_string(&params, self.not.as_ref(), ctx)
             }
@@ -516,21 +526,37 @@ impl TraitDefinition {
                 per_kb_min,
                 per_kb_max,
                 external_ip,
+                section,
+                offset,
+                offset_range,
+                section_offset,
+                section_offset_range,
                 compiled_regex,
-            } => eval_raw(
-                exact.as_ref(),
-                substr.as_ref(),
-                regex.as_ref(),
-                word.as_ref(),
-                *case_insensitive,
-                *count_min,
-                *count_max,
-                *per_kb_min,
-                *per_kb_max,
-                *external_ip,
-                compiled_regex.as_ref(),
-                ctx,
-            ),
+            } => {
+                use super::evaluators::ContentLocationParams;
+                let location = ContentLocationParams {
+                    section: section.clone(),
+                    offset: *offset,
+                    offset_range: *offset_range,
+                    section_offset: *section_offset,
+                    section_offset_range: *section_offset_range,
+                };
+                eval_raw(
+                    exact.as_ref(),
+                    substr.as_ref(),
+                    regex.as_ref(),
+                    word.as_ref(),
+                    *case_insensitive,
+                    *count_min,
+                    *count_max,
+                    *per_kb_min,
+                    *per_kb_max,
+                    *external_ip,
+                    compiled_regex.as_ref(),
+                    &location,
+                    ctx,
+                )
+            }
             Condition::SectionName { pattern, regex } => eval_section_name(pattern, *regex, ctx),
             Condition::Base64 {
                 exact,
@@ -541,17 +567,33 @@ impl TraitDefinition {
                 count_max,
                 per_kb_min,
                 per_kb_max,
-            } => eval_base64(
-                exact.as_ref(),
-                substr.as_ref(),
-                regex.as_ref(),
-                *case_insensitive,
-                *count_min,
-                *count_max,
-                *per_kb_min,
-                *per_kb_max,
-                ctx,
-            ),
+                section,
+                offset,
+                offset_range,
+                section_offset,
+                section_offset_range,
+            } => {
+                use super::evaluators::ContentLocationParams;
+                let location = ContentLocationParams {
+                    section: section.clone(),
+                    offset: *offset,
+                    offset_range: *offset_range,
+                    section_offset: *section_offset,
+                    section_offset_range: *section_offset_range,
+                };
+                eval_base64(
+                    exact.as_ref(),
+                    substr.as_ref(),
+                    regex.as_ref(),
+                    *case_insensitive,
+                    *count_min,
+                    *count_max,
+                    *per_kb_min,
+                    *per_kb_max,
+                    &location,
+                    ctx,
+                )
+            }
             Condition::Xor {
                 key,
                 exact,
@@ -562,18 +604,34 @@ impl TraitDefinition {
                 count_max,
                 per_kb_min,
                 per_kb_max,
-            } => eval_xor(
-                key.as_ref(),
-                exact.as_ref(),
-                substr.as_ref(),
-                regex.as_ref(),
-                *case_insensitive,
-                *count_min,
-                *count_max,
-                *per_kb_min,
-                *per_kb_max,
-                ctx,
-            ),
+                section,
+                offset,
+                offset_range,
+                section_offset,
+                section_offset_range,
+            } => {
+                use super::evaluators::ContentLocationParams;
+                let location = ContentLocationParams {
+                    section: section.clone(),
+                    offset: *offset,
+                    offset_range: *offset_range,
+                    section_offset: *section_offset,
+                    section_offset_range: *section_offset_range,
+                };
+                eval_xor(
+                    key.as_ref(),
+                    exact.as_ref(),
+                    substr.as_ref(),
+                    regex.as_ref(),
+                    *case_insensitive,
+                    *count_min,
+                    *count_max,
+                    *per_kb_min,
+                    *per_kb_max,
+                    &location,
+                    ctx,
+                )
+            }
             Condition::Basename {
                 exact,
                 substr,
@@ -1233,6 +1291,11 @@ impl CompositeTrait {
                 per_kb_min,
                 per_kb_max,
                 external_ip,
+                section,
+                offset,
+                offset_range,
+                section_offset,
+                section_offset_range,
                 compiled_regex,
                 compiled_excludes,
             } => {
@@ -1250,6 +1313,11 @@ impl CompositeTrait {
                     external_ip: *external_ip,
                     compiled_regex: compiled_regex.as_ref(),
                     compiled_excludes,
+                    section: section.as_ref(),
+                    offset: *offset,
+                    offset_range: *offset_range,
+                    section_offset: *section_offset,
+                    section_offset_range: *section_offset_range,
                 };
                 eval_string(&params, self.not.as_ref(), ctx)
             }
@@ -1367,21 +1435,37 @@ impl CompositeTrait {
                 per_kb_min,
                 per_kb_max,
                 external_ip,
+                section,
+                offset,
+                offset_range,
+                section_offset,
+                section_offset_range,
                 compiled_regex,
-            } => eval_raw(
-                exact.as_ref(),
-                substr.as_ref(),
-                regex.as_ref(),
-                word.as_ref(),
-                *case_insensitive,
-                *count_min,
-                *count_max,
-                *per_kb_min,
-                *per_kb_max,
-                *external_ip,
-                compiled_regex.as_ref(),
-                ctx,
-            ),
+            } => {
+                use super::evaluators::ContentLocationParams;
+                let location = ContentLocationParams {
+                    section: section.clone(),
+                    offset: *offset,
+                    offset_range: *offset_range,
+                    section_offset: *section_offset,
+                    section_offset_range: *section_offset_range,
+                };
+                eval_raw(
+                    exact.as_ref(),
+                    substr.as_ref(),
+                    regex.as_ref(),
+                    word.as_ref(),
+                    *case_insensitive,
+                    *count_min,
+                    *count_max,
+                    *per_kb_min,
+                    *per_kb_max,
+                    *external_ip,
+                    compiled_regex.as_ref(),
+                    &location,
+                    ctx,
+                )
+            }
             Condition::SectionName { pattern, regex } => eval_section_name(pattern, *regex, ctx),
             Condition::Base64 {
                 exact,
@@ -1392,17 +1476,33 @@ impl CompositeTrait {
                 count_max,
                 per_kb_min,
                 per_kb_max,
-            } => eval_base64(
-                exact.as_ref(),
-                substr.as_ref(),
-                regex.as_ref(),
-                *case_insensitive,
-                *count_min,
-                *count_max,
-                *per_kb_min,
-                *per_kb_max,
-                ctx,
-            ),
+                section,
+                offset,
+                offset_range,
+                section_offset,
+                section_offset_range,
+            } => {
+                use super::evaluators::ContentLocationParams;
+                let location = ContentLocationParams {
+                    section: section.clone(),
+                    offset: *offset,
+                    offset_range: *offset_range,
+                    section_offset: *section_offset,
+                    section_offset_range: *section_offset_range,
+                };
+                eval_base64(
+                    exact.as_ref(),
+                    substr.as_ref(),
+                    regex.as_ref(),
+                    *case_insensitive,
+                    *count_min,
+                    *count_max,
+                    *per_kb_min,
+                    *per_kb_max,
+                    &location,
+                    ctx,
+                )
+            }
             Condition::Xor {
                 key,
                 exact,
@@ -1413,18 +1513,34 @@ impl CompositeTrait {
                 count_max,
                 per_kb_min,
                 per_kb_max,
-            } => eval_xor(
-                key.as_ref(),
-                exact.as_ref(),
-                substr.as_ref(),
-                regex.as_ref(),
-                *case_insensitive,
-                *count_min,
-                *count_max,
-                *per_kb_min,
-                *per_kb_max,
-                ctx,
-            ),
+                section,
+                offset,
+                offset_range,
+                section_offset,
+                section_offset_range,
+            } => {
+                use super::evaluators::ContentLocationParams;
+                let location = ContentLocationParams {
+                    section: section.clone(),
+                    offset: *offset,
+                    offset_range: *offset_range,
+                    section_offset: *section_offset,
+                    section_offset_range: *section_offset_range,
+                };
+                eval_xor(
+                    key.as_ref(),
+                    exact.as_ref(),
+                    substr.as_ref(),
+                    regex.as_ref(),
+                    *case_insensitive,
+                    *count_min,
+                    *count_max,
+                    *per_kb_min,
+                    *per_kb_max,
+                    &location,
+                    ctx,
+                )
+            }
             Condition::Basename {
                 exact,
                 substr,

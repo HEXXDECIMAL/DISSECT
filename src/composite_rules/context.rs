@@ -1,6 +1,7 @@
 //! Evaluation context and result types for composite rules.
 
 use super::debug::DebugCollector;
+use super::section_map::SectionMap;
 use super::types::{FileType, Platform};
 use crate::types::{AnalysisReport, Evidence, Finding};
 use rustc_hash::FxHashSet;
@@ -21,6 +22,8 @@ pub struct EvaluationContext<'a> {
     /// Optional debug collector - None for hot path, Some during test-rules
     /// When present, evaluation records detailed debug info
     pub debug_collector: Option<&'a DebugCollector>,
+    /// Section map for location-constrained matching (lazy-initialized)
+    pub section_map: Option<SectionMap>,
 }
 
 impl<'a> EvaluationContext<'a> {
@@ -53,12 +56,19 @@ impl<'a> EvaluationContext<'a> {
             cached_ast,
             finding_id_index: Some(index),
             debug_collector: None,
+        section_map: None,
         }
     }
 
     /// Create a new evaluation context with a debug collector
     pub fn with_debug_collector(mut self, collector: &'a DebugCollector) -> Self {
         self.debug_collector = Some(collector);
+        self
+    }
+
+    /// Set section map for location-constrained matching
+    pub fn with_section_map(mut self, section_map: SectionMap) -> Self {
+        self.section_map = Some(section_map);
         self
     }
 
@@ -167,4 +177,14 @@ pub struct StringParams<'a> {
     pub compiled_excludes: &'a [regex::Regex],
     /// When true, require matched string to contain a valid external IP address
     pub external_ip: bool,
+    /// Section constraint: only match strings in this section (supports fuzzy names)
+    pub section: Option<&'a String>,
+    /// Absolute file offset: only match at this exact byte position (negative = from end)
+    pub offset: Option<i64>,
+    /// Absolute offset range: [start, end) (negative values resolved from file end)
+    pub offset_range: Option<(i64, Option<i64>)>,
+    /// Section-relative offset: only match at this offset within the section
+    pub section_offset: Option<i64>,
+    /// Section-relative offset range: [start, end) within section bounds
+    pub section_offset_range: Option<(i64, Option<i64>)>,
 }

@@ -34,7 +34,7 @@ fn create_test_context() -> (AnalysisReport, Vec<u8>) {
     // Add some test strings
     report.strings.push(StringInfo {
         value: "/bin/sh".to_string(),
-        offset: Some("0x1000".to_string()),
+        offset: Some(0x1000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Path,
         section: None,
@@ -57,6 +57,7 @@ fn test_symbol_condition() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     let rule = CompositeTrait {
@@ -108,6 +109,7 @@ fn test_all() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     let rule = CompositeTrait {
@@ -141,8 +143,13 @@ fn test_all() {
                 per_kb_min: None,
                 per_kb_max: None,
                 external_ip: false,
-                compiled_regex: None,
-                compiled_excludes: Vec::new(),
+                section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
             },
         ]),
         any: None,
@@ -172,6 +179,7 @@ fn test_count() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     let rule = CompositeTrait {
@@ -234,6 +242,7 @@ fn test_string_exact_condition() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     let rule = CompositeTrait {
@@ -259,6 +268,11 @@ fn test_string_exact_condition() {
             per_kb_min: None,
             per_kb_max: None,
             external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
         }]),
@@ -289,6 +303,7 @@ fn test_any() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     let rule = CompositeTrait {
@@ -344,7 +359,7 @@ fn test_not_directive_shorthand() {
     // Add multiple domain strings
     report.strings.push(StringInfo {
         value: "apple.com".to_string(),
-        offset: Some("0x2000".to_string()),
+        offset: Some(0x2000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Url,
         section: None,
@@ -353,7 +368,7 @@ fn test_not_directive_shorthand() {
     });
     report.strings.push(StringInfo {
         value: "evil.com".to_string(),
-        offset: Some("0x3000".to_string()),
+        offset: Some(0x3000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Url,
         section: None,
@@ -370,6 +385,7 @@ fn test_not_directive_shorthand() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     let trait_def = TraitDefinition {
@@ -395,6 +411,11 @@ fn test_not_directive_shorthand() {
             per_kb_min: None,
             per_kb_max: None,
             external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
         },
@@ -418,7 +439,7 @@ fn test_not_directive_exact() {
 
     report.strings.push(StringInfo {
         value: "github.com".to_string(),
-        offset: Some("0x2000".to_string()),
+        offset: Some(0x2000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Url,
         section: None,
@@ -427,7 +448,7 @@ fn test_not_directive_exact() {
     });
     report.strings.push(StringInfo {
         value: "bad.com".to_string(),
-        offset: Some("0x3000".to_string()),
+        offset: Some(0x3000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Url,
         section: None,
@@ -444,6 +465,7 @@ fn test_not_directive_exact() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     let trait_def = TraitDefinition {
@@ -469,6 +491,11 @@ fn test_not_directive_exact() {
             per_kb_min: None,
             per_kb_max: None,
             external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
         },
@@ -496,7 +523,7 @@ fn test_not_directive_regex() {
     // Add IP addresses
     report.strings.push(StringInfo {
         value: "192.168.1.1".to_string(),
-        offset: Some("0x2000".to_string()),
+        offset: Some(0x2000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Ip,
         section: None,
@@ -505,7 +532,7 @@ fn test_not_directive_regex() {
     });
     report.strings.push(StringInfo {
         value: "8.8.8.8".to_string(),
-        offset: Some("0x3000".to_string()),
+        offset: Some(0x3000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Ip,
         section: None,
@@ -522,6 +549,7 @@ fn test_not_directive_regex() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     let trait_def = TraitDefinition {
@@ -547,6 +575,11 @@ fn test_not_directive_regex() {
             per_kb_min: None,
             per_kb_max: None,
             external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
         },
@@ -594,6 +627,7 @@ fn test_unless_directive_skips_trait() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     let trait_def = TraitDefinition {
@@ -639,6 +673,7 @@ fn test_unless_directive_allows_trait() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     let trait_def = TraitDefinition {
@@ -697,6 +732,7 @@ fn test_downgrade_to_notable() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     let trait_def = TraitDefinition {
@@ -722,6 +758,11 @@ fn test_downgrade_to_notable() {
             per_kb_min: None,
             per_kb_max: None,
             external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
         },
@@ -770,6 +811,7 @@ fn test_downgrade_one_level() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     let trait_def = TraitDefinition {
@@ -823,6 +865,7 @@ fn test_downgrade_no_match_keeps_original() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     let trait_def = TraitDefinition {
@@ -889,6 +932,7 @@ fn test_downgrade_from_hostile() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     let trait_def = TraitDefinition {
@@ -936,7 +980,7 @@ fn test_all_three_directives_combined() {
     // Add strings
     report.strings.push(StringInfo {
         value: "apple.com".to_string(),
-        offset: Some("0x2000".to_string()),
+        offset: Some(0x2000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Url,
         section: None,
@@ -945,7 +989,7 @@ fn test_all_three_directives_combined() {
     });
     report.strings.push(StringInfo {
         value: "evil.com".to_string(),
-        offset: Some("0x3000".to_string()),
+        offset: Some(0x3000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Url,
         section: None,
@@ -975,6 +1019,7 @@ fn test_all_three_directives_combined() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     let trait_def = TraitDefinition {
@@ -1000,6 +1045,11 @@ fn test_all_three_directives_combined() {
             per_kb_min: None,
             per_kb_max: None,
             external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
         },
@@ -1035,7 +1085,7 @@ fn test_string_exact_match_requires_full_equality() {
     // Add test strings
     report.strings.push(StringInfo {
         value: "hello".to_string(),
-        offset: Some("0x1000".to_string()),
+        offset: Some(0x1000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Plain,
         section: None,
@@ -1044,7 +1094,7 @@ fn test_string_exact_match_requires_full_equality() {
     });
     report.strings.push(StringInfo {
         value: "hello world".to_string(),
-        offset: Some("0x2000".to_string()),
+        offset: Some(0x2000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Plain,
         section: None,
@@ -1061,6 +1111,7 @@ fn test_string_exact_match_requires_full_equality() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     // exact: "hello" should match only "hello", not "hello world"
@@ -1087,6 +1138,11 @@ fn test_string_exact_match_requires_full_equality() {
             per_kb_min: None,
             per_kb_max: None,
             external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
         },
@@ -1110,7 +1166,7 @@ fn test_string_substr_matches_substrings() {
     // Add test strings
     report.strings.push(StringInfo {
         value: "hello".to_string(),
-        offset: Some("0x1000".to_string()),
+        offset: Some(0x1000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Plain,
         section: None,
@@ -1119,7 +1175,7 @@ fn test_string_substr_matches_substrings() {
     });
     report.strings.push(StringInfo {
         value: "hello world".to_string(),
-        offset: Some("0x2000".to_string()),
+        offset: Some(0x2000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Plain,
         section: None,
@@ -1136,6 +1192,7 @@ fn test_string_substr_matches_substrings() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     // substr: "hello" should match both "hello" and "hello world"
@@ -1162,6 +1219,11 @@ fn test_string_substr_matches_substrings() {
             per_kb_min: None,
             per_kb_max: None,
             external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
         },
@@ -1202,6 +1264,7 @@ fn test_symbol_exact_vs_substr() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     // exact: "read" should match only "read", not "readlink"
@@ -1270,7 +1333,7 @@ fn test_string_case_insensitive_exact() {
 
     report.strings.push(StringInfo {
         value: "HELLO".to_string(),
-        offset: Some("0x1000".to_string()),
+        offset: Some(0x1000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Plain,
         section: None,
@@ -1287,6 +1350,7 @@ fn test_string_case_insensitive_exact() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     // Case-insensitive exact match
@@ -1313,6 +1377,11 @@ fn test_string_case_insensitive_exact() {
             per_kb_min: None,
             per_kb_max: None,
             external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
         },
@@ -1331,7 +1400,7 @@ fn test_string_word_boundary_match() {
 
     report.strings.push(StringInfo {
         value: "the cat sat".to_string(),
-        offset: Some("0x1000".to_string()),
+        offset: Some(0x1000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Plain,
         section: None,
@@ -1340,7 +1409,7 @@ fn test_string_word_boundary_match() {
     });
     report.strings.push(StringInfo {
         value: "category".to_string(),
-        offset: Some("0x2000".to_string()),
+        offset: Some(0x2000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Plain,
         section: None,
@@ -1357,6 +1426,7 @@ fn test_string_word_boundary_match() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     // word: "cat" should match "the cat sat" but not "category"
@@ -1383,6 +1453,11 @@ fn test_string_word_boundary_match() {
             per_kb_min: None,
             per_kb_max: None,
             external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
             compiled_regex: Some(regex::Regex::new(r"\bcat\b").unwrap()),
             compiled_excludes: Vec::new(),
         },
@@ -1405,7 +1480,7 @@ fn test_string_regex_match() {
 
     report.strings.push(StringInfo {
         value: "192.168.1.1".to_string(),
-        offset: Some("0x1000".to_string()),
+        offset: Some(0x1000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Ip,
         section: None,
@@ -1414,7 +1489,7 @@ fn test_string_regex_match() {
     });
     report.strings.push(StringInfo {
         value: "10.0.0.1".to_string(),
-        offset: Some("0x2000".to_string()),
+        offset: Some(0x2000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Ip,
         section: None,
@@ -1423,7 +1498,7 @@ fn test_string_regex_match() {
     });
     report.strings.push(StringInfo {
         value: "not an ip".to_string(),
-        offset: Some("0x3000".to_string()),
+        offset: Some(0x3000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Plain,
         section: None,
@@ -1440,6 +1515,7 @@ fn test_string_regex_match() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     // regex for IP addresses
@@ -1466,6 +1542,11 @@ fn test_string_regex_match() {
             per_kb_min: None,
             per_kb_max: None,
             external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
             compiled_regex: Some(regex::Regex::new(r"\d+\.\d+\.\d+\.\d+").unwrap()),
             compiled_excludes: Vec::new(),
         },
@@ -1496,9 +1577,11 @@ fn test_content_exact_vs_substr() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     // exact: should match only if entire content equals the pattern (won't match)
+    let location = super::evaluators::ContentLocationParams::default();
     let result = super::evaluators::eval_raw(
         Some(&"hello".to_string()),
         None,
@@ -1511,6 +1594,7 @@ fn test_content_exact_vs_substr() {
         None,
         false,
         None,
+        &location,
         &ctx,
     );
     // Exact match against whole content should fail (content is "hello world..." not "hello")
@@ -1529,6 +1613,7 @@ fn test_content_exact_vs_substr() {
         None,
         false,
         None,
+        &location,
         &ctx,
     );
     assert!(result.matched);
@@ -1541,7 +1626,7 @@ fn test_base64_decoded_matching() {
     // Add decoded base64 strings
     report.strings.push(StringInfo {
         value: "secret".to_string(),
-        offset: Some("0x2000".to_string()),
+        offset: Some(0x2000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Plain,
         section: None,
@@ -1551,7 +1636,7 @@ fn test_base64_decoded_matching() {
 
     report.strings.push(StringInfo {
         value: "secret password".to_string(),
-        offset: Some("0x3000".to_string()),
+        offset: Some(0x3000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Plain,
         section: None,
@@ -1568,17 +1653,19 @@ fn test_base64_decoded_matching() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     // exact: should match only "secret", not "secret password"
+    let location = super::evaluators::ContentLocationParams::default();
     let result =
-        super::evaluators::eval_base64(Some(&"secret".to_string()), None, None, false, 1, None, None, None, &ctx);
+        super::evaluators::eval_base64(Some(&"secret".to_string()), None, None, false, 1, None, None, None, &location, &ctx);
     assert!(result.matched);
     assert_eq!(result.evidence.len(), 1);
 
     // substr: should match both
     let result =
-        super::evaluators::eval_base64(None, Some(&"secret".to_string()), None, false, 1, None, None, None, &ctx);
+        super::evaluators::eval_base64(None, Some(&"secret".to_string()), None, false, 1, None, None, None, &location, &ctx);
     assert!(result.matched);
     assert_eq!(result.evidence.len(), 2);
 }
@@ -1590,7 +1677,7 @@ fn test_xor_decoded_matching() {
     // Add decoded XOR strings
     report.strings.push(StringInfo {
         value: "http://evil.com".to_string(),
-        offset: Some("0x4000".to_string()),
+        offset: Some(0x4000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Url,
         section: None,
@@ -1607,9 +1694,11 @@ fn test_xor_decoded_matching() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     // exact: should match full URL
+    let location = super::evaluators::ContentLocationParams::default();
     let result = super::evaluators::eval_xor(
         None,
         Some(&"http://evil.com".to_string()),
@@ -1620,6 +1709,7 @@ fn test_xor_decoded_matching() {
         None,
         None,
         None,
+        &location,
         &ctx,
     );
     assert!(result.matched);
@@ -1635,6 +1725,7 @@ fn test_xor_decoded_matching() {
         None,
         None,
         None,
+        &location,
         &ctx,
     );
     assert!(result.matched);
@@ -1650,6 +1741,7 @@ fn test_xor_decoded_matching() {
         None,
         None,
         None,
+        &location,
         &ctx,
     );
     assert!(result.matched);
@@ -1685,6 +1777,7 @@ fn test_basename_exact_match() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     // exact: "__init__.py" should match
@@ -1707,6 +1800,7 @@ fn test_basename_exact_no_match() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     // exact: "__init__.py" should not match "main.py"
@@ -1728,6 +1822,7 @@ fn test_basename_substr_match() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     // substr: "setup" should match "setup_tools.py"
@@ -1749,6 +1844,7 @@ fn test_basename_regex_match() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     // regex: "^test_" should match files starting with "test_"
@@ -1770,6 +1866,7 @@ fn test_basename_case_insensitive() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     // exact: "readme.md" should match "README.md" with case_insensitive
@@ -1796,6 +1893,7 @@ fn test_basename_in_trait_definition() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     let trait_def = TraitDefinition {
@@ -1839,6 +1937,7 @@ fn test_basename_in_composite_rule() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     let rule = CompositeTrait {
@@ -1902,6 +2001,7 @@ fn test_composite_unless_skips_rule() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     // Composite rule with unless condition
@@ -1956,6 +2056,7 @@ fn test_composite_unless_allows_rule() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     let rule = CompositeTrait {
@@ -2010,6 +2111,7 @@ fn test_composite_unless_with_basename() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     let rule = CompositeTrait {
@@ -2061,7 +2163,7 @@ fn test_composite_unless_multiple_conditions_any_matches() {
     // Add a string that will match one of the unless conditions
     report.strings.push(StringInfo {
         value: "X.Org Foundation".to_string(),
-        offset: Some("0x4000".to_string()),
+        offset: Some(0x4000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Plain,
         section: None,
@@ -2078,6 +2180,7 @@ fn test_composite_unless_multiple_conditions_any_matches() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     let rule = CompositeTrait {
@@ -2120,8 +2223,13 @@ fn test_composite_unless_multiple_conditions_any_matches() {
                 per_kb_min: None,
                 per_kb_max: None,
                 external_ip: false,
-                compiled_regex: None,
-                compiled_excludes: Vec::new(),
+                section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
             },
         ]),
         not: None,

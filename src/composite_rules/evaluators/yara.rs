@@ -341,8 +341,8 @@ fn extract_wildcard_bytes(data: &[u8], pos: usize, segments: &[HexSegment]) -> O
 #[allow(clippy::too_many_arguments)]
 pub fn eval_hex(
     pattern: &str,
-    offset: Option<usize>,
-    offset_range: Option<(usize, usize)>,
+    offset: Option<i64>,
+    offset_range: Option<(i64, Option<i64>)>,
     count_min: usize,
     count_max: Option<usize>,
     per_kb_min: Option<f64>,
@@ -351,6 +351,16 @@ pub fn eval_hex(
     ctx: &EvaluationContext,
 ) -> ConditionResult {
     let data = ctx.binary_data;
+    let file_size = data.len();
+
+    // Helper to resolve offset (negative = from end)
+    let resolve_offset = |off: i64| -> usize {
+        if off >= 0 {
+            (off as usize).min(file_size)
+        } else {
+            file_size.saturating_sub((-off) as usize)
+        }
+    };
 
     // Parse the pattern
     let segments = match parse_hex_pattern(pattern) {
@@ -399,14 +409,20 @@ pub fn eval_hex(
 
     // Handle offset constraint - only check at specific position
     if let Some(off) = offset {
-        if match_pattern_at(data, off, &segments) {
-            matches.push(off);
+        let resolved_off = resolve_offset(off);
+        if match_pattern_at(data, resolved_off, &segments) {
+            matches.push(resolved_off);
         }
     }
     // Handle offset range constraint
-    else if let Some((start, end)) = offset_range {
-        let end = end.min(data.len());
-        for pos in start..end {
+    else if let Some((start, end_opt)) = offset_range {
+        let resolved_start = resolve_offset(start);
+        let resolved_end = match end_opt {
+            Some(end) => resolve_offset(end),
+            None => file_size, // null = open-ended (to end of file)
+        };
+        let end = resolved_end.min(file_size);
+        for pos in resolved_start..end {
             if match_pattern_at(data, pos, &segments) {
                 matches.push(pos);
                 if matches.len() >= early_exit_threshold {

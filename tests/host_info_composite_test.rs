@@ -18,7 +18,7 @@ fn test_host_info_composite_fires_with_4_atomics() {
     report.strings = vec![
         dissect::types::StringInfo {
             value: "LanIP: 192.168.1.1".to_string(),
-            offset: Some("0x100".to_string()),
+            offset: Some(0x100),
             encoding: "ascii".to_string(),
             string_type: dissect::types::StringType::Plain,
             section: None,
@@ -27,7 +27,7 @@ fn test_host_info_composite_fires_with_4_atomics() {
         },
         dissect::types::StringInfo {
             value: "GateWay: 192.168.1.254".to_string(),
-            offset: Some("0x200".to_string()),
+            offset: Some(0x200),
             encoding: "ascii".to_string(),
             string_type: dissect::types::StringType::Plain,
             section: None,
@@ -36,7 +36,7 @@ fn test_host_info_composite_fires_with_4_atomics() {
         },
         dissect::types::StringInfo {
             value: "OSInfo: Linux".to_string(),
-            offset: Some("0x300".to_string()),
+            offset: Some(0x300),
             encoding: "ascii".to_string(),
             string_type: dissect::types::StringType::Plain,
             section: None,
@@ -45,7 +45,7 @@ fn test_host_info_composite_fires_with_4_atomics() {
         },
         dissect::types::StringInfo {
             value: "Userame: root".to_string(),
-            offset: Some("0x400".to_string()),
+            offset: Some(0x400),
             encoding: "ascii".to_string(),
             string_type: dissect::types::StringType::Plain,
             section: None,

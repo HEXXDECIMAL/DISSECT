@@ -189,7 +189,7 @@ impl GenericAnalyzer {
                     if !s.is_empty() && s.len() < 10000 {
                         report.strings.push(StringInfo {
                             value: s.to_string(),
-                            offset: Some(format!("0x{:x}", node.start_byte())),
+                            offset: Some(node.start_byte() as u64),
                             string_type: StringType::Literal,
                             encoding: "utf-8".to_string(),
                             section: Some("ast".to_string()),
@@ -224,7 +224,7 @@ impl GenericAnalyzer {
             if !s.is_empty() {
                 report.strings.push(StringInfo {
                     value: s.to_string(),
-                    offset: Some(format!("0x{:x}", cap.start())),
+                    offset: Some(cap.start() as u64),
                     string_type: StringType::Literal,
                     encoding: "utf-8".to_string(),
                     section: Some("regex".to_string()),
@@ -239,7 +239,7 @@ impl GenericAnalyzer {
             if !s.is_empty() {
                 report.strings.push(StringInfo {
                     value: s.to_string(),
-                    offset: Some(format!("0x{:x}", cap.start())),
+                    offset: Some(cap.start() as u64),
                     string_type: StringType::Literal,
                     encoding: "utf-8".to_string(),
                     section: Some("regex".to_string()),

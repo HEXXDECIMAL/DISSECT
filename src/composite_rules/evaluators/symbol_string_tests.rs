@@ -23,7 +23,7 @@ fn create_test_report_with_encoded_strings() -> AnalysisReport {
     // Add test strings with encoding chains for testing eval_base64 and eval_xor
     report.strings.push(StringInfo {
         value: "secret_password".to_string(),
-        offset: Some("0x1000".to_string()),
+        offset: Some(0x1000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Plain,
         section: Some(".data".to_string()),
@@ -33,7 +33,7 @@ fn create_test_report_with_encoded_strings() -> AnalysisReport {
 
     report.strings.push(StringInfo {
         value: "https://evil.com/payload".to_string(),
-        offset: Some("0x2000".to_string()),
+        offset: Some(0x2000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Url,
         section: Some(".data".to_string()),
@@ -43,7 +43,7 @@ fn create_test_report_with_encoded_strings() -> AnalysisReport {
 
     report.strings.push(StringInfo {
         value: "192.168.1.1".to_string(),
-        offset: Some("0x3000".to_string()),
+        offset: Some(0x3000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Ip,
         section: Some(".data".to_string()),
@@ -53,7 +53,7 @@ fn create_test_report_with_encoded_strings() -> AnalysisReport {
 
     report.strings.push(StringInfo {
         value: "malware".to_string(),
-        offset: Some("0x4000".to_string()),
+        offset: Some(0x4000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Plain,
         section: Some(".data".to_string()),
@@ -63,7 +63,7 @@ fn create_test_report_with_encoded_strings() -> AnalysisReport {
 
     report.strings.push(StringInfo {
         value: "secret1".to_string(),
-        offset: Some("0x5000".to_string()),
+        offset: Some(0x5000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Plain,
         section: Some(".data".to_string()),
@@ -73,7 +73,7 @@ fn create_test_report_with_encoded_strings() -> AnalysisReport {
 
     report.strings.push(StringInfo {
         value: "MALWARE_UPPERCASE".to_string(),
-        offset: Some("0x6000".to_string()),
+        offset: Some(0x6000),
         encoding: "utf8".to_string(),
         string_type: crate::types::StringType::Plain,
         section: Some(".data".to_string()),
@@ -94,6 +94,7 @@ fn create_test_context<'a>(report: &'a AnalysisReport, data: &'a [u8]) -> Evalua
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     }
 }
 
@@ -315,7 +316,7 @@ fn test_eval_string_exact_match() {
     let mut report = create_test_report();
     report.strings.push(StringInfo {
         value: "/bin/sh".to_string(),
-        offset: Some("0x1000".to_string()),
+        offset: Some(0x1000),
         encoding: "utf8".to_string(),
         string_type: StringType::Path,
         section: None,
@@ -339,6 +340,11 @@ fn test_eval_string_exact_match() {
         external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[],
+        section: None,
+        offset: None,
+        offset_range: None,
+        section_offset: None,
+        section_offset_range: None,
     };
 
     let result = eval_string(&params, None, &ctx);
@@ -352,7 +358,7 @@ fn test_eval_string_substr_match() {
     let mut report = create_test_report();
     report.strings.push(StringInfo {
         value: "http://evil.com/malware".to_string(),
-        offset: Some("0x1000".to_string()),
+        offset: Some(0x1000),
         encoding: "utf8".to_string(),
         string_type: StringType::Url,
         section: None,
@@ -376,6 +382,11 @@ fn test_eval_string_substr_match() {
         external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[],
+        section: None,
+        offset: None,
+        offset_range: None,
+        section_offset: None,
+        section_offset_range: None,
     };
 
     let result = eval_string(&params, None, &ctx);
@@ -388,7 +399,7 @@ fn test_eval_string_regex_match() {
     let mut report = create_test_report();
     report.strings.push(StringInfo {
         value: "192.168.1.100".to_string(),
-        offset: Some("0x1000".to_string()),
+        offset: Some(0x1000),
         encoding: "utf8".to_string(),
         string_type: StringType::Ip,
         section: None,
@@ -414,6 +425,11 @@ fn test_eval_string_regex_match() {
         external_ip: false,
         compiled_regex: Some(&re),
         compiled_excludes: &[],
+        section: None,
+        offset: None,
+        offset_range: None,
+        section_offset: None,
+        section_offset_range: None,
     };
 
     let result = eval_string(&params, None, &ctx);
@@ -426,7 +442,7 @@ fn test_eval_string_case_insensitive() {
     let mut report = create_test_report();
     report.strings.push(StringInfo {
         value: "CreateRemoteThread".to_string(),
-        offset: Some("0x1000".to_string()),
+        offset: Some(0x1000),
         encoding: "utf8".to_string(),
         string_type: StringType::Plain,
         section: None,
@@ -450,6 +466,11 @@ fn test_eval_string_case_insensitive() {
         external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[],
+        section: None,
+        offset: None,
+        offset_range: None,
+        section_offset: None,
+        section_offset_range: None,
     };
 
     let result = eval_string(&params, None, &ctx);
@@ -462,7 +483,7 @@ fn test_eval_string_exclude_patterns() {
     let mut report = create_test_report();
     report.strings.push(StringInfo {
         value: "test_function".to_string(),
-        offset: Some("0x1000".to_string()),
+        offset: Some(0x1000),
         encoding: "utf8".to_string(),
         string_type: StringType::Plain,
         section: None,
@@ -487,6 +508,11 @@ fn test_eval_string_exclude_patterns() {
         external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[exclude_re],
+        section: None,
+        offset: None,
+        offset_range: None,
+        section_offset: None,
+        section_offset_range: None,
     };
 
     let result = eval_string(&params, None, &ctx);
@@ -500,7 +526,7 @@ fn test_eval_string_min_count() {
     let mut report = create_test_report();
     report.strings.push(StringInfo {
         value: "suspicious".to_string(),
-        offset: Some("0x1000".to_string()),
+        offset: Some(0x1000),
         encoding: "utf8".to_string(),
         string_type: StringType::Plain,
         section: None,
@@ -525,6 +551,11 @@ fn test_eval_string_min_count() {
         external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[],
+        section: None,
+        offset: None,
+        offset_range: None,
+        section_offset: None,
+        section_offset_range: None,
     };
 
     let result = eval_string(&params, None, &ctx);
@@ -538,7 +569,7 @@ fn test_eval_string_not_exception() {
     let mut report = create_test_report();
     report.strings.push(StringInfo {
         value: "/bin/sh".to_string(),
-        offset: Some("0x1000".to_string()),
+        offset: Some(0x1000),
         encoding: "utf8".to_string(),
         string_type: StringType::Path,
         section: None,
@@ -563,6 +594,11 @@ fn test_eval_string_not_exception() {
         external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[],
+        section: None,
+        offset: None,
+        offset_range: None,
+        section_offset: None,
+        section_offset_range: None,
     };
 
     let result = eval_string(&params, Some(&not_exceptions), &ctx);
@@ -596,6 +632,11 @@ fn test_eval_string_in_imports() {
         external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[],
+        section: None,
+        offset: None,
+        offset_range: None,
+        section_offset: None,
+        section_offset_range: None,
     };
 
     let result = eval_string(&params, None, &ctx);
@@ -626,6 +667,11 @@ fn test_eval_string_raw_content_fallback() {
         external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[],
+        section: None,
+        offset: None,
+        offset_range: None,
+        section_offset: None,
+        section_offset_range: None,
     };
 
     let result = eval_string(&params, None, &ctx);
@@ -644,6 +690,7 @@ fn test_eval_raw_exact_match() {
     let content = "EXACT_CONTENT";
     let ctx = create_test_context(&report, content.as_bytes());
 
+    let location = ContentLocationParams::default();
     let result = eval_raw(
         Some(&"EXACT_CONTENT".to_string()),
         None,
@@ -656,6 +703,7 @@ fn test_eval_raw_exact_match() {
         None,
         false,
         None,
+        &location,
         &ctx,
     );
 
@@ -668,6 +716,7 @@ fn test_eval_raw_substr_count() {
     let content = "token token token more content token";
     let ctx = create_test_context(&report, content.as_bytes());
 
+    let location = ContentLocationParams::default();
     let result = eval_raw(
         None,
         Some(&"token".to_string()),
@@ -680,6 +729,7 @@ fn test_eval_raw_substr_count() {
         None,
         false,
         None,
+        &location,
         &ctx,
     );
 
@@ -693,6 +743,7 @@ fn test_eval_raw_substr_count_insufficient() {
     let content = "token token";
     let ctx = create_test_context(&report, content.as_bytes());
 
+    let location = ContentLocationParams::default();
     let result = eval_raw(
         None,
         Some(&"token".to_string()),
@@ -705,6 +756,7 @@ fn test_eval_raw_substr_count_insufficient() {
         None,
         false,
         None,
+        &location,
         &ctx,
     );
 
@@ -720,6 +772,7 @@ fn test_eval_raw_regex() {
     let pattern = r"[a-z]+@[a-z]+\.[a-z]+".to_string();
     let re = regex::Regex::new(&pattern).unwrap();
 
+    let location = ContentLocationParams::default();
     let result = eval_raw(
         None,
         None,
@@ -732,6 +785,7 @@ fn test_eval_raw_regex() {
         None,
         false,
         Some(&re),
+        &location,
         &ctx,
     );
 
@@ -744,6 +798,7 @@ fn test_eval_raw_case_insensitive() {
     let content = "PASSWORD password PaSsWoRd";
     let ctx = create_test_context(&report, content.as_bytes());
 
+    let location = ContentLocationParams::default();
     let result = eval_raw(
         None,
         Some(&"password".to_string()),
@@ -756,6 +811,7 @@ fn test_eval_raw_case_insensitive() {
         None,
         false,
         None,
+        &location,
         &ctx,
     );
 
@@ -768,6 +824,7 @@ fn test_eval_raw_invalid_utf8() {
     let data = vec![0xff, 0xfe, 0x00, 0x01]; // Invalid UTF-8
     let ctx = create_test_context(&report, &data);
 
+    let location = ContentLocationParams::default();
     let result = eval_raw(
         None,
         Some(&"test".to_string()),
@@ -780,6 +837,7 @@ fn test_eval_raw_invalid_utf8() {
         None,
         false,
         None,
+        &location,
         &ctx,
     );
 
@@ -796,6 +854,7 @@ fn test_eval_base64_exact_match() {
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
+    let location = ContentLocationParams::default();
     let result = eval_base64(
         Some(&"secret_password".to_string()),
         None,
@@ -805,6 +864,7 @@ fn test_eval_base64_exact_match() {
         None,
         None,
         None,
+        &location,
         &ctx,
     );
 
@@ -818,7 +878,8 @@ fn test_eval_base64_substr_match() {
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
-    let result = eval_base64(None, Some(&"evil.com".to_string()), None, false, 1, None, None, None, &ctx);
+    let location = ContentLocationParams::default();
+    let result = eval_base64(None, Some(&"evil.com".to_string()), None, false, 1, None, None, None, &location, &ctx);
 
     assert!(result.matched);
 }
@@ -829,6 +890,7 @@ fn test_eval_base64_regex_match() {
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
+    let location = ContentLocationParams::default();
     let result = eval_base64(
         None,
         None,
@@ -838,6 +900,7 @@ fn test_eval_base64_regex_match() {
         None,
         None,
         None,
+        &location,
         &ctx,
     );
 
@@ -850,7 +913,8 @@ fn test_eval_base64_no_match_wrong_method() {
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
-    let result = eval_base64(Some(&"secret".to_string()), None, None, false, 1, None, None, None, &ctx);
+    let location = ContentLocationParams::default();
+    let result = eval_base64(Some(&"secret".to_string()), None, None, false, 1, None, None, None, &location, &ctx);
 
     assert!(!result.matched);
 }
@@ -865,6 +929,7 @@ fn test_eval_xor_match() {
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
+    let location = ContentLocationParams::default();
     let result = eval_xor(
         None,
         None,
@@ -875,6 +940,7 @@ fn test_eval_xor_match() {
         None,
         None,
         None,
+        &location,
         &ctx,
     );
 
@@ -887,6 +953,7 @@ fn test_eval_xor_with_key_filter() {
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
+    let location = ContentLocationParams::default();
     // Only match key 0x42
     let result = eval_xor(
         Some(&"0x42".to_string()),
@@ -898,6 +965,7 @@ fn test_eval_xor_with_key_filter() {
         None,
         None,
         None,
+        &location,
         &ctx,
     );
 
@@ -912,6 +980,7 @@ fn test_eval_xor_case_insensitive() {
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
+    let location = ContentLocationParams::default();
     let result = eval_xor(
         None,
         None,
@@ -922,6 +991,7 @@ fn test_eval_xor_case_insensitive() {
         None,
         None,
         None,
+        &location,
         &ctx,
     );
 
@@ -938,7 +1008,7 @@ fn test_eval_string_count_min() {
     for i in 0..5 {
         report.strings.push(StringInfo {
             value: format!("string_{}", i),
-            offset: Some(format!("0x{:x}", i * 0x100)),
+            offset: Some((i * 0x100) as u64),
             encoding: "utf8".to_string(),
             string_type: StringType::Plain,
             section: None,
@@ -962,7 +1032,7 @@ fn test_eval_string_count_max() {
     for i in 0..5 {
         report.strings.push(StringInfo {
             value: format!("string_{}", i),
-            offset: Some(format!("0x{:x}", i * 0x100)),
+            offset: Some((i * 0x100) as u64),
             encoding: "utf8".to_string(),
             string_type: StringType::Plain,
             section: None,

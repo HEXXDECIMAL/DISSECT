@@ -15,7 +15,7 @@ use crate::capabilities::validation::calculate_composite_precision;
 use crate::capabilities::CapabilityMapper;
 use crate::composite_rules::{
     CompositeTrait, Condition, DebugCollector, EvaluationContext, EvaluationDebug,
-    FileType as RuleFileType, Platform, RuleType, TraitDefinition,
+    FileType as RuleFileType, Platform, RuleType, SectionMap, TraitDefinition,
 };
 use crate::types::{AnalysisReport, Evidence};
 use colored::Colorize;
@@ -81,6 +81,8 @@ pub struct ContextInfo {
     pub finding_count: usize,
     pub sample_strings: Vec<String>,
     pub sample_symbols: Vec<String>,
+    /// Section names in binary (empty for non-binary files)
+    pub sections: Vec<String>,
 }
 
 /// Debug evaluator that traces through rule matching
@@ -92,6 +94,7 @@ pub struct RuleDebugger<'a> {
     platforms: Vec<Platform>,
     composites: &'a [CompositeTrait],
     traits: &'a [TraitDefinition],
+    section_map: SectionMap,
 }
 
 impl<'a> RuleDebugger<'a> {
@@ -113,6 +116,7 @@ impl<'a> RuleDebugger<'a> {
         platforms: Vec<Platform>,
     ) -> Self {
         let file_type = detect_file_type(&report.target.file_type);
+        let section_map = SectionMap::from_binary(binary_data);
 
         Self {
             mapper,
@@ -122,6 +126,7 @@ impl<'a> RuleDebugger<'a> {
             platforms,
             composites,
             traits,
+            section_map,
         }
     }
 
@@ -151,6 +156,7 @@ impl<'a> RuleDebugger<'a> {
             finding_count: self.report.findings.len(),
             sample_strings: strings.into_iter().take(20).collect(),
             sample_symbols: symbols.into_iter().take(20).collect(),
+            sections: self.section_map.section_names().iter().map(|s| s.to_string()).collect(),
         }
     }
 
@@ -180,6 +186,7 @@ impl<'a> RuleDebugger<'a> {
             cached_ast: None,
             finding_id_index: Some(self.build_finding_index()),
             debug_collector,
+            section_map: Some(self.section_map.clone()),
         }
     }
 
@@ -692,6 +699,7 @@ impl<'a> RuleDebugger<'a> {
             cached_ast: None,
             finding_id_index: None,
             debug_collector: None,
+            section_map: Some(self.section_map.clone()),
         };
 
         match condition {
@@ -704,6 +712,7 @@ impl<'a> RuleDebugger<'a> {
                 case_insensitive,
                 count_min,
                 exclude_patterns,
+                section,
                 ..
             } => self.debug_string_condition(
                 exact,
@@ -713,6 +722,7 @@ impl<'a> RuleDebugger<'a> {
                 *case_insensitive,
                 *count_min,
                 exclude_patterns.as_ref(),
+                section.as_ref(),
             ),
             Condition::Symbol { exact, substr, regex, .. } => self.debug_symbol_condition(exact, substr, regex),
             Condition::Metrics {
@@ -728,8 +738,9 @@ impl<'a> RuleDebugger<'a> {
                 substr,
                 exact,
                 word,
+                section,
                 ..
-            } => self.debug_content_condition(exact, substr, regex, word),
+            } => self.debug_content_condition(exact, substr, regex, word, section.as_ref()),
             Condition::Ast {
                 kind,
                 node,
@@ -928,6 +939,7 @@ impl<'a> RuleDebugger<'a> {
         case_insensitive: bool,
         count_min: usize,
         exclude_patterns: Option<&Vec<String>>,
+        section_constraint: Option<&String>,
     ) -> ConditionDebugResult {
         let pattern_desc = if let Some(e) = exact {
             format!("exact: \"{}\"", e)
@@ -941,15 +953,22 @@ impl<'a> RuleDebugger<'a> {
             "unknown".to_string()
         };
 
+        let section_desc = if let Some(sec) = section_constraint {
+            format!(" @section={}", sec)
+        } else {
+            String::new()
+        };
+
         let desc = format!(
-            "string: {} (count_min: {}{})",
+            "string: {} (count_min: {}{}{})",
             pattern_desc,
             count_min,
             if case_insensitive {
                 ", case_insensitive"
             } else {
                 ""
-            }
+            },
+            section_desc
         );
 
         let strings: Vec<&str> = self
@@ -1150,6 +1169,98 @@ impl<'a> RuleDebugger<'a> {
                     .details
                     .push("💡 Found in content - try `content:` instead".to_string());
             }
+        }
+
+        // Section-related suggestions
+        if self.section_map.has_sections() {
+            // Track which sections contain matched strings
+            let mut sections_with_matches: HashMap<String, usize> = HashMap::new();
+            for string_info in &self.report.strings {
+                // Check if this string matches our pattern
+                let s = &string_info.value;
+                let string_matched = if let Some(e) = exact {
+                    if case_insensitive {
+                        s.eq_ignore_ascii_case(e)
+                    } else {
+                        s == e
+                    }
+                } else if let Some(c) = substr {
+                    if case_insensitive {
+                        s.to_lowercase().contains(&c.to_lowercase())
+                    } else {
+                        s.contains(c.as_str())
+                    }
+                } else if let Some(r) = regex {
+                    let pattern = if case_insensitive {
+                        format!("(?i){}", r)
+                    } else {
+                        r.clone()
+                    };
+                    regex::Regex::new(&pattern).is_ok_and(|re| re.is_match(s))
+                } else if let Some(w) = word {
+                    let pattern = if case_insensitive {
+                        format!(r"(?i)\b{}\b", regex::escape(w))
+                    } else {
+                        format!(r"\b{}\b", regex::escape(w))
+                    };
+                    regex::Regex::new(&pattern).is_ok_and(|re| re.is_match(s))
+                } else {
+                    false
+                };
+
+                if string_matched {
+                    // Get section for this string's offset
+                    if let Some(offset) = string_info.offset {
+                        if let Some(section) = self.section_map.section_for_offset(offset) {
+                            *sections_with_matches.entry(section.to_string()).or_insert(0) += 1;
+                        }
+                    }
+                }
+            }
+
+            if !sections_with_matches.is_empty() {
+                // If section constraint was specified but didn't match, suggest alternatives
+                if let Some(req_section) = section_constraint {
+                    // Check if the required section has matches
+                    let has_match_in_required = sections_with_matches.keys().any(|sec| {
+                        SectionMap::section_matches(sec, req_section)
+                    });
+
+                    if !has_match_in_required && !sections_with_matches.is_empty() {
+                        let alt_sections: Vec<_> = sections_with_matches
+                            .iter()
+                            .map(|(s, c)| format!("{} ({} matches)", s, c))
+                            .collect();
+                        result.details.push(format!(
+                            "💡 Pattern not found in section '{}', but found in: {}",
+                            req_section,
+                            alt_sections.join(", ")
+                        ));
+                    }
+                } else if matched {
+                    // No section constraint, but matches found - suggest using section filter
+                    let section_summary: Vec<_> = sections_with_matches
+                        .iter()
+                        .map(|(s, c)| format!("{}: {}", s, c))
+                        .collect();
+                    result.details.push(format!(
+                        "📍 Matches by section: {}",
+                        section_summary.join(", ")
+                    ));
+                    if sections_with_matches.len() == 1 {
+                        let section = sections_with_matches.keys().next().unwrap();
+                        result.details.push(format!(
+                            "💡 All matches in '{}' - consider `section: \"{}\"` for precision",
+                            section, section
+                        ));
+                    }
+                }
+            }
+        } else if section_constraint.is_some() {
+            // Section constraint specified but file has no sections
+            result.details.push(
+                "⚠️  Section constraint specified but file has no binary sections".to_string()
+            );
         }
 
         result
@@ -1362,6 +1473,7 @@ impl<'a> RuleDebugger<'a> {
             cached_ast: None,
             finding_id_index: None,
             debug_collector: None,
+        section_map: None,
         };
 
         // Actually evaluate the inline YARA rule
@@ -1414,6 +1526,7 @@ impl<'a> RuleDebugger<'a> {
         substr: &Option<String>,
         regex: &Option<String>,
         word: &Option<String>,
+        section_constraint: Option<&String>,
     ) -> ConditionDebugResult {
         let pattern_desc = if let Some(e) = exact {
             format!("exact: \"{}\"", truncate_string(e, 40))
@@ -1427,7 +1540,13 @@ impl<'a> RuleDebugger<'a> {
             "unknown".to_string()
         };
 
-        let desc = format!("content: {}", pattern_desc);
+        let section_desc = if let Some(sec) = section_constraint {
+            format!(" @section={}", sec)
+        } else {
+            String::new()
+        };
+
+        let desc = format!("content: {}{}", pattern_desc, section_desc);
 
         // Search in raw binary data
         let content = String::from_utf8_lossy(self.binary_data);
@@ -1484,6 +1603,22 @@ impl<'a> RuleDebugger<'a> {
                     string_matches.len()
                 ));
             }
+        }
+
+        // Section suggestions for binaries
+        if self.section_map.has_sections() && matched {
+            // List available sections
+            let sections = self.section_map.section_names();
+            if !sections.is_empty() && section_constraint.is_none() {
+                result.details.push(format!(
+                    "📍 Binary has sections: {} - consider section filtering for precision",
+                    sections.join(", ")
+                ));
+            }
+        } else if section_constraint.is_some() && !self.section_map.has_sections() {
+            result.details.push(
+                "⚠️  Section constraint specified but file has no binary sections".to_string()
+            );
         }
 
         result
@@ -1616,6 +1751,7 @@ impl<'a> RuleDebugger<'a> {
             cached_ast: None,
             finding_id_index: None,
             debug_collector: None,
+        section_map: None,
         };
 
         let eval_result = crate::composite_rules::evaluators::eval_ast(
@@ -1668,6 +1804,45 @@ impl<'a> RuleDebugger<'a> {
 
 // Helper functions
 
+/// Format location constraints for display
+fn format_location_suffix(
+    section: &Option<String>,
+    offset: Option<i64>,
+    offset_range: Option<(i64, Option<i64>)>,
+    section_offset: Option<i64>,
+    section_offset_range: Option<(i64, Option<i64>)>,
+) -> String {
+    let mut parts = Vec::new();
+
+    if let Some(sec) = section {
+        parts.push(format!("section={}", sec));
+    }
+    if let Some(off) = offset {
+        parts.push(format!("offset={:#x}", off));
+    }
+    if let Some((start, end)) = offset_range {
+        match end {
+            Some(e) => parts.push(format!("offset_range=[{:#x},{:#x}]", start, e)),
+            None => parts.push(format!("offset_range=[{:#x},]", start)),
+        }
+    }
+    if let Some(off) = section_offset {
+        parts.push(format!("section_offset={:#x}", off));
+    }
+    if let Some((start, end)) = section_offset_range {
+        match end {
+            Some(e) => parts.push(format!("section_offset_range=[{:#x},{:#x}]", start, e)),
+            None => parts.push(format!("section_offset_range=[{:#x},]", start)),
+        }
+    }
+
+    if parts.is_empty() {
+        String::new()
+    } else {
+        format!(" @{{{}}}", parts.join(","))
+    }
+}
+
 fn describe_condition(condition: &Condition) -> String {
     match condition {
         Condition::Trait { id } => format!("trait: {}", id),
@@ -1676,18 +1851,24 @@ fn describe_condition(condition: &Condition) -> String {
             substr,
             regex,
             word,
+            section,
+            offset,
+            offset_range,
+            section_offset,
+            section_offset_range,
             ..
         } => {
+            let loc = format_location_suffix(section, *offset, *offset_range, *section_offset, *section_offset_range);
             if let Some(e) = exact {
-                format!("string[exact]: \"{}\"", truncate_string(e, 30))
+                format!("string[exact]: \"{}\"{}", truncate_string(e, 30), loc)
             } else if let Some(c) = substr {
-                format!("string[substr]: \"{}\"", truncate_string(c, 30))
+                format!("string[substr]: \"{}\"{}", truncate_string(c, 30), loc)
             } else if let Some(r) = regex {
-                format!("string[regex]: /{}/", truncate_string(r, 30))
+                format!("string[regex]: /{}/{}", truncate_string(r, 30), loc)
             } else if let Some(w) = word {
-                format!("string[word]: \"{}\"", w)
+                format!("string[word]: \"{}\"{}", w, loc)
             } else {
-                "string[?]".to_string()
+                format!("string[?]{}", loc)
             }
         }
         Condition::Symbol { exact, substr, regex, .. } => {
@@ -1720,18 +1901,68 @@ fn describe_condition(condition: &Condition) -> String {
             substr,
             regex,
             word,
+            section,
+            offset,
+            offset_range,
+            section_offset,
+            section_offset_range,
             ..
         } => {
+            let loc = format_location_suffix(section, *offset, *offset_range, *section_offset, *section_offset_range);
             if exact.is_some() {
-                "content[exact]".to_string()
+                format!("content[exact]{}", loc)
             } else if substr.is_some() {
-                "content[substr]".to_string()
+                format!("content[substr]{}", loc)
             } else if regex.is_some() {
-                "content[regex]".to_string()
+                format!("content[regex]{}", loc)
             } else if word.is_some() {
-                "content[word]".to_string()
+                format!("content[word]{}", loc)
             } else {
-                "content[?]".to_string()
+                format!("content[?]{}", loc)
+            }
+        }
+        Condition::Base64 {
+            exact,
+            substr,
+            regex,
+            section,
+            offset,
+            offset_range,
+            section_offset,
+            section_offset_range,
+            ..
+        } => {
+            let loc = format_location_suffix(section, *offset, *offset_range, *section_offset, *section_offset_range);
+            if exact.is_some() {
+                format!("base64[exact]{}", loc)
+            } else if substr.is_some() {
+                format!("base64[substr]{}", loc)
+            } else if regex.is_some() {
+                format!("base64[regex]{}", loc)
+            } else {
+                format!("base64[?]{}", loc)
+            }
+        }
+        Condition::Xor {
+            exact,
+            substr,
+            regex,
+            section,
+            offset,
+            offset_range,
+            section_offset,
+            section_offset_range,
+            ..
+        } => {
+            let loc = format_location_suffix(section, *offset, *offset_range, *section_offset, *section_offset_range);
+            if exact.is_some() {
+                format!("xor[exact]{}", loc)
+            } else if substr.is_some() {
+                format!("xor[substr]{}", loc)
+            } else if regex.is_some() {
+                format!("xor[regex]{}", loc)
+            } else {
+                format!("xor[?]{}", loc)
             }
         }
         Condition::Kv {

@@ -464,7 +464,7 @@ impl StringExtractor {
 
         let mut info = StringInfo {
             value: es.value,
-            offset: Some(format!("{:#x}", es.data_offset)),
+            offset: Some(es.data_offset),
             encoding: "utf8".to_string(),
             string_type: final_string_type,
             section: es.section,
@@ -511,7 +511,7 @@ impl StringExtractor {
 
         let mut info = StringInfo {
             value,
-            offset: Some(format!("{:#x}", offset)),
+            offset: Some(offset as u64),
             encoding: "utf8".to_string(),
             string_type: stype,
             section,

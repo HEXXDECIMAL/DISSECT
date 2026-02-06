@@ -71,6 +71,70 @@ fn truncate_str_at_boundary(s: &str, max_bytes: usize) -> &str {
     &s[..end]
 }
 
+/// Serialize offset as hex string for JSON output (e.g., "0x1234")
+fn serialize_hex_offset<S>(offset: &Option<u64>, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    match offset {
+        Some(o) => serializer.serialize_str(&format!("{:#x}", o)),
+        None => serializer.serialize_none(),
+    }
+}
+
+/// Deserialize offset from either hex string or integer
+fn deserialize_hex_offset<'de, D>(deserializer: D) -> Result<Option<u64>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    use serde::de::{self, Visitor};
+
+    struct HexOrIntVisitor;
+
+    impl<'de> Visitor<'de> for HexOrIntVisitor {
+        type Value = Option<u64>;
+
+        fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+            formatter.write_str("a hex string like '0x1234' or an integer")
+        }
+
+        fn visit_none<E>(self) -> Result<Self::Value, E> {
+            Ok(None)
+        }
+
+        fn visit_unit<E>(self) -> Result<Self::Value, E> {
+            Ok(None)
+        }
+
+        fn visit_u64<E>(self, v: u64) -> Result<Self::Value, E> {
+            Ok(Some(v))
+        }
+
+        fn visit_i64<E>(self, v: i64) -> Result<Self::Value, E>
+        where
+            E: de::Error,
+        {
+            if v >= 0 {
+                Ok(Some(v as u64))
+            } else {
+                Err(de::Error::custom("offset cannot be negative"))
+            }
+        }
+
+        fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+        where
+            E: de::Error,
+        {
+            let s = v.trim().trim_start_matches("0x").trim_start_matches("0X");
+            u64::from_str_radix(s, 16)
+                .map(Some)
+                .map_err(|_| de::Error::custom(format!("invalid hex offset: {}", v)))
+        }
+    }
+
+    deserializer.deserialize_any(HexOrIntVisitor)
+}
+
 /// Decoded string (base64, xor-decoded, etc.)
 /// Deprecated: Use StringInfo with encoding_chain instead.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -96,8 +160,14 @@ pub struct DecodedString {
 pub struct StringInfo {
     #[serde(serialize_with = "serialize_truncated_string")]
     pub value: String,
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub offset: Option<String>,
+    /// File offset where string was found (serialized as hex, e.g., "0x1234")
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        default,
+        serialize_with = "serialize_hex_offset",
+        deserialize_with = "deserialize_hex_offset"
+    )]
+    pub offset: Option<u64>,
     pub encoding: String,
     #[serde(rename = "type")]
     pub string_type: StringType,

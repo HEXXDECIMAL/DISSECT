@@ -8,7 +8,7 @@
 
 use crate::composite_rules::{
     CompositeTrait, Condition, EvaluationContext, FileType as RuleFileType, Platform,
-    TraitDefinition,
+    SectionMap, TraitDefinition,
 };
 use crate::types::{AnalysisReport, Criticality, Evidence, Finding, FindingKind};
 use anyhow::{Context, Result};
@@ -974,6 +974,9 @@ impl CapabilityMapper {
         // Determine file type from report (platform comes from self.platform)
         let file_type = self.detect_file_type(&report.target.file_type);
 
+        // Build section map for location-constrained matching
+        let section_map = SectionMap::from_binary(binary_data);
+
         let ctx = EvaluationContext::new(
             report,
             binary_data,
@@ -981,7 +984,8 @@ impl CapabilityMapper {
             self.platforms.clone(),
             None,
             cached_ast,
-        );
+        )
+        .with_section_map(section_map);
 
         // Use trait index to only evaluate applicable traits
         // This dramatically reduces work for specific file types
@@ -1009,9 +1013,14 @@ impl CapabilityMapper {
 
         // Add exports as strings
         for exp in &report.exports {
+            // Parse export offset from hex string to u64
+            let offset = exp.offset.as_ref().and_then(|s| {
+                let s = s.trim().trim_start_matches("0x").trim_start_matches("0X");
+                u64::from_str_radix(s, 16).ok()
+            });
             all_strings.push(crate::types::StringInfo {
                 value: exp.symbol.clone(),
-                offset: exp.offset.clone(),
+                offset,
                 encoding: "symbol".to_string(),
                 string_type: crate::types::StringType::Export,
                 section: None,
@@ -1218,6 +1227,9 @@ impl CapabilityMapper {
             .iter()
             .partition(|r| r.has_negative_conditions());
 
+        // Build section map once for location-constrained matching
+        let section_map = SectionMap::from_binary(binary_data);
+
         // Pass 1: Iterative evaluation of positive rules to reach a stable fixed-point
         const MAX_ITERATIONS: usize = 10;
         for _ in 0..MAX_ITERATIONS {
@@ -1232,7 +1244,8 @@ impl CapabilityMapper {
                     Some(&all_findings)
                 },
                 cached_ast,
-            );
+            )
+            .with_section_map(section_map.clone());
 
             // Evaluate positive rules (parallel for large sets, sequential for small)
             let new_findings: Vec<Finding> = if positive_rules.len() > 50 {
@@ -1273,7 +1286,8 @@ impl CapabilityMapper {
                 Some(&all_findings)
             },
             cached_ast,
-        );
+        )
+        .with_section_map(section_map.clone());
 
         let negative_findings: Vec<Finding> = if negative_rules.len() > 50 {
             negative_rules
@@ -1328,6 +1342,9 @@ impl CapabilityMapper {
 
         // First pass: collect new criticalities (can't mutate while borrowing for context)
         let updates: Vec<(usize, Criticality)> = {
+            // Build section map for location-constrained matching
+            let section_map = SectionMap::from_binary(binary_data);
+
             // Create final context with all findings (immutable borrow)
             let ctx = EvaluationContext::new(
                 report,
@@ -1336,7 +1353,8 @@ impl CapabilityMapper {
                 self.platforms.clone(),
                 Some(findings),
                 cached_ast,
-            );
+            )
+            .with_section_map(section_map);
 
             findings
                 .iter()

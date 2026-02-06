@@ -19,7 +19,7 @@ traits:
   # === Density-Based Obfuscation Detection ===
   # PHP webshells and malware pack many obfuscation calls per KB.
 
-  - id: dense-chr-calls
+  - id: php-dense-chr-calls
     desc: Dense chr() calls (string building)
     crit: suspicious
     conf: 0.90
@@ -98,7 +98,7 @@ traits:
   # preg_replace with /e modifier (deprecated but still seen in webshells)
   - id: preg-replace-eval
     desc: preg_replace with /e modifier (code execution)
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     if:
       type: content
@@ -108,7 +108,7 @@ composite_rules:
   # Multi-layer PHP obfuscation
   - id: php-multi-layer-obfuscation
     desc: Multi-layer PHP obfuscation
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     needs: 2
     any:

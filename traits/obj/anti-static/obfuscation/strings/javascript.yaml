@@ -219,7 +219,7 @@ traits:
       count_min: 4
       per_kb_min: 0.8
 
-  - id: dense-hex-escapes
+  - id: js-dense-hex-escapes
     desc: Dense hex escape sequences
     crit: suspicious
     conf: 0.88

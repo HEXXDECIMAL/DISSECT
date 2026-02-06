@@ -112,6 +112,21 @@ enum ConditionTagged {
         /// Require match to contain a valid external IP address (not private/loopback/reserved)
         #[serde(default)]
         external_ip: bool,
+        /// Section constraint: only match strings in this section (supports fuzzy names like "text")
+        #[serde(default)]
+        section: Option<String>,
+        /// Absolute file offset: only match at this exact byte position (negative = from end)
+        #[serde(default)]
+        offset: Option<i64>,
+        /// Absolute offset range: [start, end) (negative values resolved from file end)
+        #[serde(default)]
+        offset_range: Option<(i64, Option<i64>)>,
+        /// Section-relative offset: only match at this offset within the section
+        #[serde(default)]
+        section_offset: Option<i64>,
+        /// Section-relative offset range: [start, end) within section bounds
+        #[serde(default)]
+        section_offset_range: Option<(i64, Option<i64>)>,
     },
     YaraMatch {
         namespace: String,
@@ -204,8 +219,11 @@ enum ConditionTagged {
     },
     Hex {
         pattern: String,
-        offset: Option<usize>,
-        offset_range: Option<(usize, usize)>,
+        /// Absolute file offset (negative = from end of file)
+        offset: Option<i64>,
+        /// Absolute offset range: [start, end) (negative values resolved from file end, null = open-ended)
+        #[serde(default)]
+        offset_range: Option<(i64, Option<i64>)>,
         /// Minimum match count (preferred over deprecated min_count)
         #[serde(default = "default_count_min", alias = "min_count")]
         count_min: usize,
@@ -271,6 +289,21 @@ enum ConditionTagged {
         /// Require match to contain a valid external IP address (not private/loopback/reserved)
         #[serde(default)]
         external_ip: bool,
+        /// Section constraint: only match in this section (supports fuzzy names like "text")
+        #[serde(default)]
+        section: Option<String>,
+        /// Absolute file offset: only match at this exact byte position (negative = from end)
+        #[serde(default)]
+        offset: Option<i64>,
+        /// Absolute offset range: [start, end) (negative values resolved from file end)
+        #[serde(default)]
+        offset_range: Option<(i64, Option<i64>)>,
+        /// Section-relative offset: only match at this offset within the section
+        #[serde(default)]
+        section_offset: Option<i64>,
+        /// Section-relative offset range: [start, end) within section bounds
+        #[serde(default)]
+        section_offset_range: Option<(i64, Option<i64>)>,
     },
 
     /// Match section names in binary files (PE, ELF, Mach-O)
@@ -312,6 +345,21 @@ enum ConditionTagged {
         /// Maximum matches per kilobyte of file size (density ceiling)
         #[serde(default)]
         per_kb_max: Option<f64>,
+        /// Section constraint: only match in this section (supports fuzzy names like "text")
+        #[serde(default)]
+        section: Option<String>,
+        /// Absolute file offset: only match at this exact byte position (negative = from end)
+        #[serde(default)]
+        offset: Option<i64>,
+        /// Absolute offset range: [start, end) (negative values resolved from file end)
+        #[serde(default)]
+        offset_range: Option<(i64, Option<i64>)>,
+        /// Section-relative offset: only match at this offset within the section
+        #[serde(default)]
+        section_offset: Option<i64>,
+        /// Section-relative offset range: [start, end) within section bounds
+        #[serde(default)]
+        section_offset_range: Option<(i64, Option<i64>)>,
     },
 
     /// Match patterns in XOR-decoded strings
@@ -345,6 +393,21 @@ enum ConditionTagged {
         /// Maximum matches per kilobyte of file size (density ceiling)
         #[serde(default)]
         per_kb_max: Option<f64>,
+        /// Section constraint: only match in this section (supports fuzzy names like "text")
+        #[serde(default)]
+        section: Option<String>,
+        /// Absolute file offset: only match at this exact byte position (negative = from end)
+        #[serde(default)]
+        offset: Option<i64>,
+        /// Absolute offset range: [start, end) (negative values resolved from file end)
+        #[serde(default)]
+        offset_range: Option<(i64, Option<i64>)>,
+        /// Section-relative offset: only match at this offset within the section
+        #[serde(default)]
+        section_offset: Option<i64>,
+        /// Section-relative offset range: [start, end) within section bounds
+        #[serde(default)]
+        section_offset_range: Option<(i64, Option<i64>)>,
     },
 
     /// Match the basename (final path component, not the full path)
@@ -428,6 +491,11 @@ impl From<ConditionDeser> for Condition {
                     per_kb_min,
                     per_kb_max,
                     external_ip,
+                    section,
+                    offset,
+                    offset_range,
+                    section_offset,
+                    section_offset_range,
                 } => Condition::String {
                     exact,
                     substr,
@@ -440,6 +508,11 @@ impl From<ConditionDeser> for Condition {
                     per_kb_min,
                     per_kb_max,
                     external_ip,
+                    section,
+                    offset,
+                    offset_range,
+                    section_offset,
+                    section_offset_range,
                     compiled_regex: None,
                     compiled_excludes: Vec::new(),
                 },
@@ -579,6 +652,11 @@ impl From<ConditionDeser> for Condition {
                     per_kb_min,
                     per_kb_max,
                     external_ip,
+                    section,
+                    offset,
+                    offset_range,
+                    section_offset,
+                    section_offset_range,
                 } => Condition::Content {
                     exact,
                     substr,
@@ -590,6 +668,11 @@ impl From<ConditionDeser> for Condition {
                     per_kb_min,
                     per_kb_max,
                     external_ip,
+                    section,
+                    offset,
+                    offset_range,
+                    section_offset,
+                    section_offset_range,
                     compiled_regex: None,
                 },
                 ConditionTagged::SectionName { pattern, regex } => {
@@ -604,6 +687,11 @@ impl From<ConditionDeser> for Condition {
                     count_max,
                     per_kb_min,
                     per_kb_max,
+                    section,
+                    offset,
+                    offset_range,
+                    section_offset,
+                    section_offset_range,
                 } => Condition::Base64 {
                     exact,
                     substr,
@@ -613,6 +701,11 @@ impl From<ConditionDeser> for Condition {
                     count_max,
                     per_kb_min,
                     per_kb_max,
+                    section,
+                    offset,
+                    offset_range,
+                    section_offset,
+                    section_offset_range,
                 },
                 ConditionTagged::Xor {
                     key,
@@ -624,6 +717,11 @@ impl From<ConditionDeser> for Condition {
                     count_max,
                     per_kb_min,
                     per_kb_max,
+                    section,
+                    offset,
+                    offset_range,
+                    section_offset,
+                    section_offset_range,
                 } => Condition::Xor {
                     key,
                     exact,
@@ -634,6 +732,11 @@ impl From<ConditionDeser> for Condition {
                     count_max,
                     per_kb_min,
                     per_kb_max,
+                    section,
+                    offset,
+                    offset_range,
+                    section_offset,
+                    section_offset_range,
                 },
                 ConditionTagged::Basename {
                     exact,
@@ -725,6 +828,21 @@ pub enum Condition {
         /// Require match to contain a valid external IP address (not private/loopback/reserved)
         #[serde(default)]
         external_ip: bool,
+        /// Section constraint: only match strings in this section (supports fuzzy names like "text")
+        #[serde(skip_serializing_if = "Option::is_none")]
+        section: Option<String>,
+        /// Absolute file offset: only match at this exact byte position (negative = from end)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        offset: Option<i64>,
+        /// Absolute offset range: [start, end) (negative values resolved from file end)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        offset_range: Option<(i64, Option<i64>)>,
+        /// Section-relative offset: only match at this offset within the section
+        #[serde(skip_serializing_if = "Option::is_none")]
+        section_offset: Option<i64>,
+        /// Section-relative offset range: [start, end) within section bounds
+        #[serde(skip_serializing_if = "Option::is_none")]
+        section_offset_range: Option<(i64, Option<i64>)>,
         /// Pre-compiled regex (populated after deserialization, not serialized)
         #[serde(skip)]
         compiled_regex: Option<regex::Regex>,
@@ -939,12 +1057,12 @@ pub enum Condition {
         /// Hex pattern with optional wildcards (??) and gaps ([N] or [N-M])
         /// Format: space-separated hex bytes, ?? for any byte, [N] for N-byte gap
         pattern: String,
-        /// Only check at specific offset (e.g., 0 for file header)
+        /// Absolute file offset (negative = from end of file)
         #[serde(skip_serializing_if = "Option::is_none")]
-        offset: Option<usize>,
-        /// Only check within offset range [start, end)
+        offset: Option<i64>,
+        /// Absolute offset range: [start, end) (negative values resolved from file end, null = open-ended)
         #[serde(skip_serializing_if = "Option::is_none")]
-        offset_range: Option<(usize, usize)>,
+        offset_range: Option<(i64, Option<i64>)>,
         /// Minimum match count (use count_min in YAML, min_count is deprecated alias)
         #[serde(default = "default_count_min")]
         count_min: usize,
@@ -1024,6 +1142,21 @@ pub enum Condition {
         /// Require match to contain a valid external IP address (not private/loopback/reserved)
         #[serde(default)]
         external_ip: bool,
+        /// Section constraint: only match in this section (supports fuzzy names like "text")
+        #[serde(skip_serializing_if = "Option::is_none")]
+        section: Option<String>,
+        /// Absolute file offset: only match at this exact byte position (negative = from end)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        offset: Option<i64>,
+        /// Absolute offset range: [start, end) (negative values resolved from file end)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        offset_range: Option<(i64, Option<i64>)>,
+        /// Section-relative offset: only match at this offset within the section
+        #[serde(skip_serializing_if = "Option::is_none")]
+        section_offset: Option<i64>,
+        /// Section-relative offset range: [start, end) within section bounds
+        #[serde(skip_serializing_if = "Option::is_none")]
+        section_offset_range: Option<(i64, Option<i64>)>,
         /// Pre-compiled regex (populated after deserialization, not serialized)
         #[serde(skip)]
         compiled_regex: Option<regex::Regex>,
@@ -1068,6 +1201,21 @@ pub enum Condition {
         /// Maximum matches per kilobyte of file size (density ceiling)
         #[serde(skip_serializing_if = "Option::is_none")]
         per_kb_max: Option<f64>,
+        /// Section constraint: only match in this section (supports fuzzy names like "text")
+        #[serde(skip_serializing_if = "Option::is_none")]
+        section: Option<String>,
+        /// Absolute file offset: only match at this exact byte position (negative = from end)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        offset: Option<i64>,
+        /// Absolute offset range: [start, end) (negative values resolved from file end)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        offset_range: Option<(i64, Option<i64>)>,
+        /// Section-relative offset: only match at this offset within the section
+        #[serde(skip_serializing_if = "Option::is_none")]
+        section_offset: Option<i64>,
+        /// Section-relative offset range: [start, end) within section bounds
+        #[serde(skip_serializing_if = "Option::is_none")]
+        section_offset_range: Option<(i64, Option<i64>)>,
     },
 
     /// Match patterns in XOR-decoded strings
@@ -1100,6 +1248,21 @@ pub enum Condition {
         /// Maximum matches per kilobyte of file size (density ceiling)
         #[serde(skip_serializing_if = "Option::is_none")]
         per_kb_max: Option<f64>,
+        /// Section constraint: only match in this section (supports fuzzy names like "text")
+        #[serde(skip_serializing_if = "Option::is_none")]
+        section: Option<String>,
+        /// Absolute file offset: only match at this exact byte position (negative = from end)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        offset: Option<i64>,
+        /// Absolute offset range: [start, end) (negative values resolved from file end)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        offset_range: Option<(i64, Option<i64>)>,
+        /// Section-relative offset: only match at this offset within the section
+        #[serde(skip_serializing_if = "Option::is_none")]
+        section_offset: Option<i64>,
+        /// Section-relative offset range: [start, end) within section bounds
+        #[serde(skip_serializing_if = "Option::is_none")]
+        section_offset_range: Option<(i64, Option<i64>)>,
     },
 
     /// Match the basename (final path component, not the full path)
@@ -1327,6 +1490,93 @@ impl Condition {
 
                 Ok(())
             }
+            // Validate location constraints for string/content conditions
+            Condition::String {
+                section,
+                offset,
+                offset_range,
+                section_offset,
+                section_offset_range,
+                ..
+            } => validate_location_constraints(
+                section,
+                *offset,
+                *offset_range,
+                *section_offset,
+                *section_offset_range,
+                "string",
+            ),
+            Condition::Content {
+                section,
+                offset,
+                offset_range,
+                section_offset,
+                section_offset_range,
+                ..
+            } => validate_location_constraints(
+                section,
+                *offset,
+                *offset_range,
+                *section_offset,
+                *section_offset_range,
+                "content",
+            ),
+            Condition::Base64 {
+                section,
+                offset,
+                offset_range,
+                section_offset,
+                section_offset_range,
+                ..
+            } => validate_location_constraints(
+                section,
+                *offset,
+                *offset_range,
+                *section_offset,
+                *section_offset_range,
+                "base64",
+            ),
+            Condition::Xor {
+                section,
+                offset,
+                offset_range,
+                section_offset,
+                section_offset_range,
+                ..
+            } => validate_location_constraints(
+                section,
+                *offset,
+                *offset_range,
+                *section_offset,
+                *section_offset_range,
+                "xor",
+            ),
+            Condition::Hex {
+                offset,
+                offset_range,
+                ..
+            } => {
+                // Hex has offset constraints but no section constraints
+                // Validate that offset and offset_range are mutually exclusive
+                if offset.is_some() && offset_range.is_some() {
+                    return Err(anyhow::anyhow!(
+                        "hex condition cannot have both 'offset' and 'offset_range'"
+                    ));
+                }
+                // Validate offset_range format
+                if let Some((start, end)) = offset_range {
+                    if let Some(e) = end {
+                        if *start >= 0 && *e >= 0 && *start > *e {
+                            return Err(anyhow::anyhow!(
+                                "hex condition 'offset_range' start ({}) must be <= end ({})",
+                                start,
+                                e
+                            ));
+                        }
+                    }
+                }
+                Ok(())
+            }
             // Other conditions don't need compilation validation
             _ => Ok(()),
         }
@@ -1540,4 +1790,255 @@ fn has_unbounded_greedy(regex: &str) -> bool {
         i += 1;
     }
     false
+}
+
+/// Validate location constraint parameters for consistency.
+/// Returns an error if mutually exclusive constraints are specified.
+fn validate_location_constraints(
+    section: &Option<String>,
+    offset: Option<i64>,
+    offset_range: Option<(i64, Option<i64>)>,
+    section_offset: Option<i64>,
+    section_offset_range: Option<(i64, Option<i64>)>,
+    condition_type: &str,
+) -> Result<()> {
+    // offset and offset_range are mutually exclusive
+    if offset.is_some() && offset_range.is_some() {
+        return Err(anyhow::anyhow!(
+            "{} condition cannot have both 'offset' and 'offset_range'",
+            condition_type
+        ));
+    }
+
+    // section_offset and section_offset_range are mutually exclusive
+    if section_offset.is_some() && section_offset_range.is_some() {
+        return Err(anyhow::anyhow!(
+            "{} condition cannot have both 'section_offset' and 'section_offset_range'",
+            condition_type
+        ));
+    }
+
+    // section_offset/section_offset_range require section
+    if section.is_none() && (section_offset.is_some() || section_offset_range.is_some()) {
+        return Err(anyhow::anyhow!(
+            "{} condition with 'section_offset' or 'section_offset_range' requires 'section'",
+            condition_type
+        ));
+    }
+
+    // Validate offset_range format
+    if let Some((start, end)) = offset_range {
+        if let Some(e) = end {
+            if start >= 0 && e >= 0 && start > e {
+                return Err(anyhow::anyhow!(
+                    "{} condition 'offset_range' start ({}) must be <= end ({})",
+                    condition_type,
+                    start,
+                    e
+                ));
+            }
+        }
+    }
+
+    // Validate section_offset_range format
+    if let Some((start, end)) = section_offset_range {
+        if let Some(e) = end {
+            if start >= 0 && e >= 0 && start > e {
+                return Err(anyhow::anyhow!(
+                    "{} condition 'section_offset_range' start ({}) must be <= end ({})",
+                    condition_type,
+                    start,
+                    e
+                ));
+            }
+        }
+    }
+
+    Ok(())
+}
+
+#[cfg(test)]
+mod location_constraint_tests {
+    use super::*;
+
+    #[test]
+    fn test_validate_location_no_constraints() {
+        let result = validate_location_constraints(&None, None, None, None, None, "string");
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_validate_location_section_only() {
+        let result = validate_location_constraints(
+            &Some(".text".to_string()),
+            None,
+            None,
+            None,
+            None,
+            "string",
+        );
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_validate_location_offset_only() {
+        let result = validate_location_constraints(&None, Some(0x1000), None, None, None, "string");
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_validate_location_offset_range_only() {
+        let result =
+            validate_location_constraints(&None, None, Some((0, Some(0x1000))), None, None, "string");
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_validate_location_offset_and_offset_range_fails() {
+        let result = validate_location_constraints(
+            &None,
+            Some(0x100),
+            Some((0, Some(0x1000))),
+            None,
+            None,
+            "string",
+        );
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("offset"));
+    }
+
+    #[test]
+    fn test_validate_location_section_offset_without_section_fails() {
+        let result =
+            validate_location_constraints(&None, None, None, Some(0x100), None, "content");
+        assert!(result.is_err());
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("requires 'section'"));
+    }
+
+    #[test]
+    fn test_validate_location_section_offset_range_without_section_fails() {
+        let result = validate_location_constraints(
+            &None,
+            None,
+            None,
+            None,
+            Some((0, Some(0x100))),
+            "base64",
+        );
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_validate_location_section_with_section_offset() {
+        let result = validate_location_constraints(
+            &Some(".data".to_string()),
+            None,
+            None,
+            Some(0x100),
+            None,
+            "xor",
+        );
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_validate_location_section_offset_and_range_fails() {
+        let result = validate_location_constraints(
+            &Some(".text".to_string()),
+            None,
+            None,
+            Some(0x100),
+            Some((0, Some(0x200))),
+            "string",
+        );
+        assert!(result.is_err());
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("section_offset"));
+    }
+
+    #[test]
+    fn test_validate_location_invalid_offset_range() {
+        // start > end should fail
+        let result = validate_location_constraints(
+            &None,
+            None,
+            Some((0x1000, Some(0x100))), // 0x1000 > 0x100
+            None,
+            None,
+            "string",
+        );
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("start"));
+    }
+
+    #[test]
+    fn test_validate_location_negative_offsets_allowed() {
+        // Negative offsets are allowed (means from end)
+        let result =
+            validate_location_constraints(&None, None, Some((-1024, None)), None, None, "content");
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_validate_location_open_ended_range() {
+        // Open-ended range (start, None) is allowed
+        let result =
+            validate_location_constraints(&None, None, Some((0x1000, None)), None, None, "string");
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_condition_validate_string_location() {
+        // Test that Condition::String validates location constraints
+        let condition = Condition::String {
+            exact: Some("test".to_string()),
+            substr: None,
+            regex: None,
+            word: None,
+            case_insensitive: false,
+            exclude_patterns: None,
+            count_min: 1,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
+            external_ip: false,
+            section: None,
+            offset: Some(0x100),
+            offset_range: Some((0, Some(0x1000))), // Mutually exclusive with offset
+            section_offset: None,
+            section_offset_range: None,
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
+        };
+        assert!(condition.validate().is_err());
+    }
+
+    #[test]
+    fn test_condition_validate_content_location() {
+        // Valid content condition with section constraint
+        let condition = Condition::Content {
+            exact: Some("test".to_string()),
+            substr: None,
+            regex: None,
+            word: None,
+            case_insensitive: false,
+            count_min: 1,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
+            external_ip: false,
+            section: Some(".text".to_string()),
+            offset: None,
+            offset_range: Some((0, Some(0x1000))),
+            section_offset: None,
+            section_offset_range: None,
+            compiled_regex: None,
+        };
+        assert!(condition.validate().is_ok());
+    }
 }

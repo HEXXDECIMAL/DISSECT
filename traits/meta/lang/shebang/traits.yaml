@@ -1,0 +1,182 @@
+# Shebang line detection - always at file offset 0
+#
+# These traits detect interpreter directives at the start of script files.
+# Using offset_range: [0, 256] ensures we only match actual shebangs,
+# not embedded strings or comments mentioning interpreter paths.
+
+traits:
+  # Shell interpreters
+  - id: sh
+    desc: POSIX shell shebang line
+    crit: inert
+    conf: 1.0
+    for: [shell, all]
+    if:
+      type: content
+      regex: "^#!\\s*/bin/sh"
+      offset_range: [0, 64]
+
+  - id: bash
+    desc: Bash shell shebang line
+    crit: inert
+    conf: 1.0
+    for: [shell, all]
+    if:
+      type: content
+      regex: "^#!\\s*(/usr)?/bin/bash"
+      offset_range: [0, 64]
+
+  - id: zsh
+    desc: Zsh shell shebang line
+    crit: inert
+    conf: 1.0
+    for: [shell, all]
+    if:
+      type: content
+      regex: "^#!\\s*(/usr)?/bin/zsh"
+      offset_range: [0, 64]
+
+  - id: dash
+    desc: Dash shell shebang line
+    crit: inert
+    conf: 1.0
+    for: [shell, all]
+    if:
+      type: content
+      regex: "^#!\\s*/bin/dash"
+      offset_range: [0, 64]
+
+  # Python interpreters
+  - id: python
+    desc: Python shebang line (unversioned)
+    crit: inert
+    conf: 1.0
+    for: [python, all]
+    if:
+      type: content
+      regex: "^#!\\s*(/usr)?/bin/(env\\s+)?python\\s*$"
+      offset_range: [0, 64]
+
+  - id: python2
+    desc: Python 2 shebang line
+    crit: inert
+    conf: 1.0
+    for: [python, all]
+    if:
+      type: content
+      regex: "^#!\\s*(/usr)?/bin/(env\\s+)?python2"
+      offset_range: [0, 64]
+
+  - id: python3
+    desc: Python 3 shebang line
+    crit: inert
+    conf: 1.0
+    for: [python, all]
+    if:
+      type: content
+      regex: "^#!\\s*(/usr)?/bin/(env\\s+)?python3"
+      offset_range: [0, 64]
+
+  # Other scripting languages
+  - id: perl
+    desc: Perl shebang line
+    crit: inert
+    conf: 1.0
+    for: [perl, all]
+    if:
+      type: content
+      regex: "^#!\\s*(/usr)?/bin/(env\\s+)?perl"
+      offset_range: [0, 64]
+
+  - id: ruby
+    desc: Ruby shebang line
+    crit: inert
+    conf: 1.0
+    for: [ruby, all]
+    if:
+      type: content
+      regex: "^#!\\s*(/usr)?/bin/(env\\s+)?ruby"
+      offset_range: [0, 64]
+
+  - id: php
+    desc: PHP shebang line
+    crit: inert
+    conf: 1.0
+    for: [php, all]
+    if:
+      type: content
+      regex: "^#!\\s*(/usr)?/bin/(env\\s+)?php"
+      offset_range: [0, 64]
+
+  - id: node
+    desc: Node.js shebang line
+    crit: inert
+    conf: 1.0
+    for: [javascript, all]
+    if:
+      type: content
+      regex: "^#!\\s*(/usr)?/bin/(env\\s+)?node"
+      offset_range: [0, 64]
+
+  - id: lua
+    desc: Lua shebang line
+    crit: inert
+    conf: 1.0
+    for: [all]
+    if:
+      type: content
+      regex: "^#!\\s*(/usr)?/bin/(env\\s+)?lua"
+      offset_range: [0, 64]
+
+  - id: awk
+    desc: AWK shebang line
+    crit: inert
+    conf: 1.0
+    for: [shell, all]
+    if:
+      type: content
+      regex: "^#!\\s*(/usr)?/bin/(env\\s+)?(g|m|n)?awk"
+      offset_range: [0, 64]
+
+  - id: osascript
+    desc: AppleScript/JXA shebang line
+    crit: inert
+    conf: 1.0
+    platforms: [macos]
+    for: [all]
+    if:
+      type: content
+      regex: "^#!\\s*(/usr)?/bin/(env\\s+)?osascript"
+      offset_range: [0, 64]
+
+  # Generic env-based shebang
+  - id: env-interpreter
+    desc: Generic env-based shebang line
+    crit: inert
+    conf: 0.9
+    for: [all]
+    if:
+      type: content
+      regex: "^#!\\s*/usr/bin/env\\s+\\w+"
+      offset_range: [0, 64]
+
+  # Suspicious shebangs
+  - id: hidden-interpreter
+    desc: Shebang with path traversal or unusual location
+    crit: suspicious
+    conf: 0.85
+    for: [all]
+    if:
+      type: content
+      regex: "^#!\\s*(/tmp|/var/tmp|/dev/shm|\\.\\./)"
+      offset_range: [0, 128]
+
+  - id: base64-encoded-shebang
+    desc: Base64-encoded script with shebang after decode
+    crit: suspicious
+    conf: 0.8
+    for: [all]
+    if:
+      type: base64
+      regex: "^#!\\s*/[a-z]"
+      offset_range: [0, 512]

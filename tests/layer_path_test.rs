@@ -6,7 +6,7 @@ fn test_layer_path_condition_basic() {
     // Create a string with stack encoding layer
     let strings = vec![StringInfo {
         value: "kworker".to_string(),
-        offset: Some("0x1000".to_string()),
+        offset: Some(0x1000),
         encoding: "utf8".to_string(),
         string_type: StringType::Plain,
         section: Some(".text".to_string()),
@@ -38,7 +38,7 @@ fn test_layer_path_no_encoding_chain() {
     // String without encoding chain should not match
     let strings = vec![StringInfo {
         value: "hello".to_string(),
-        offset: Some("0x2000".to_string()),
+        offset: Some(0x2000),
         encoding: "utf8".to_string(),
         string_type: StringType::Plain,
         section: Some(".text".to_string()),
@@ -55,7 +55,7 @@ fn test_layer_path_multiple_encoding_layers() {
     // String with multiple encoding layers
     let strings = vec![StringInfo {
         value: "YWJj".to_string(), // abc in base64
-        offset: Some("0x3000".to_string()),
+        offset: Some(0x3000),
         encoding: "utf8".to_string(),
         string_type: StringType::Base64,
         section: Some(".rodata".to_string()),

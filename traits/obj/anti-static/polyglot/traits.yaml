@@ -1,0 +1,212 @@
+# Polyglot and Appended Payload Detection
+#
+# These traits detect files with suspicious content appended to the end,
+# or files that masquerade as one format while containing another.
+# Using negative offsets (from file end) allows detection of trailers.
+
+defaults:
+  crit: suspicious
+  attack: "T1027.009"  # Embedded Payloads
+  for: [all]
+
+traits:
+  # === Appended Data Detection (using negative offsets) ===
+
+  # ZIP archive appended to end of another file (polyglot)
+  - id: appended-zip-trailer
+    desc: ZIP central directory at file end
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: hex
+      pattern: "50 4B 05 06"  # ZIP End of Central Directory
+      offset_range: [-1024, null]  # Last 1KB
+
+  # Script appended to binary (common malware technique)
+  - id: appended-shell-script
+    desc: Shell shebang near file end
+    crit: suspicious
+    conf: 0.8
+    for: [elf, macho, pe]
+    if:
+      type: content
+      regex: "#!/(bin/|usr/bin/)(sh|bash|zsh)"
+      offset_range: [-4096, null]  # Last 4KB
+
+  - id: appended-python-script
+    desc: Python shebang near file end
+    crit: suspicious
+    conf: 0.8
+    for: [elf, macho, pe]
+    if:
+      type: content
+      regex: "#!/(usr/bin/|bin/)(python|python3)"
+      offset_range: [-4096, null]
+
+  # Base64 blob at end of file (encoded payload)
+  - id: appended-base64-blob
+    desc: Large base64 string at file end
+    crit: suspicious
+    conf: 0.75
+    for: [elf, macho, pe, shell, python]
+    if:
+      type: string
+      regex: "^[A-Za-z0-9+/]{200,}={0,2}$"
+      offset_range: [-8192, null]  # Last 8KB
+
+  # Hex-encoded payload at end
+  - id: appended-hex-blob
+    desc: Hex-encoded data at file end
+    crit: notable
+    conf: 0.7
+    for: [shell, python, javascript]
+    if:
+      type: string
+      regex: "^[0-9A-Fa-f]{100,}$"
+      offset_range: [-4096, null]
+
+  # ELF magic at end of file (appended binary)
+  - id: appended-elf-binary
+    desc: ELF binary appended to file
+    crit: suspicious
+    conf: 0.9
+    for: [all]
+    if:
+      type: hex
+      pattern: "7F 45 4C 46"
+      offset_range: [-65536, null]  # Last 64KB
+    unless:
+      - id: meta/format/magic/elf-header  # Not if it's just an ELF file
+
+  # PE/MZ appended to non-PE file
+  - id: appended-pe-binary
+    desc: PE binary appended to file
+    crit: suspicious
+    conf: 0.9
+    for: [elf, macho, shell, python, javascript]
+    if:
+      type: hex
+      pattern: "4D 5A"  # MZ
+      offset_range: [-65536, null]
+
+  # === Polyglot Patterns ===
+
+  # PDF with embedded content after %%EOF
+  - id: pdf-polyglot
+    desc: Content after PDF end marker
+    crit: suspicious
+    conf: 0.85
+    for: [all]
+    if:
+      type: content
+      substr: "%%EOF"
+      offset_range: [0, -1024]  # EOF marker should be near end
+    unless:
+      - id: pdf-trailer-eof-at-end
+
+  # PDF trailer at actual end (benign)
+  - id: pdf-trailer-eof-at-end
+    desc: PDF EOF marker at file end
+    crit: inert
+    conf: 0.95
+    for: [all]
+    if:
+      type: content
+      regex: "%%EOF\\s*$"
+      offset_range: [-64, null]
+
+  # Image with trailing executable (GIFAR, etc)
+  - id: image-with-trailer-script
+    desc: Image file with script trailer
+    crit: suspicious
+    conf: 0.85
+    for: [all]
+    if:
+      type: content
+      regex: "<script|<\\?php|#!/"
+      offset_range: [-8192, null]
+
+  # JAR/ZIP polyglot (Java archives are ZIP files)
+  - id: jar-polyglot-prefix
+    desc: Data before JAR/ZIP header
+    crit: notable
+    conf: 0.8
+    for: [all]
+    if:
+      type: hex
+      pattern: "50 4B 03 04"
+      offset_range: [64, null]  # ZIP header not at start
+    unless:
+      - id: meta/format/magic/zip-archive
+
+  # === Steganographic Indicators ===
+
+  # JPEG with unusual trailing data (after EOI marker)
+  - id: jpeg-trailing-data
+    desc: Data after JPEG end-of-image
+    crit: notable
+    conf: 0.75
+    for: [all]
+    if:
+      type: hex
+      pattern: "FF D9"  # JPEG EOI
+      offset_range: [0, -1024]  # EOI should be very near end
+
+  # PNG with trailing data after IEND chunk
+  - id: png-trailing-data
+    desc: Data after PNG end chunk
+    crit: notable
+    conf: 0.75
+    for: [all]
+    if:
+      type: hex
+      pattern: "49 45 4E 44 AE 42 60 82"  # IEND + CRC
+      offset_range: [0, -256]  # IEND should be at very end
+
+  # === Multi-format Executables ===
+
+  # FAT binary pretending to be Java class
+  - id: fat-binary-java-collision
+    desc: Mach-O fat magic same as Java class
+    crit: notable
+    conf: 0.7
+    for: [all]
+    if:
+      type: hex
+      pattern: "CA FE BA BE"
+      offset: 0
+
+  # Script with binary blob separator
+  - id: script-binary-delimiter
+    desc: Binary delimiter in script file
+    crit: suspicious
+    conf: 0.8
+    for: [shell, python, perl]
+    if:
+      type: content
+      regex: "^__DATA__|^__END__|#.{0,50}PAYLOAD.{0,50}BELOW"
+
+composite_rules:
+  # File with both header and trailer indicators
+  - id: polyglot-double-format
+    desc: File with multiple format signatures
+    crit: suspicious
+    conf: 0.9
+    any:
+      - id: appended-zip-trailer
+      - id: appended-elf-binary
+      - id: appended-pe-binary
+    none:
+      - id: meta/format/magic/zip-archive  # Exclude if primary format is ZIP
+
+  # Binary with appended script (common dropper technique)
+  # Note: The binary format check is implicit via file type filtering
+  - id: binary-script-polyglot
+    desc: Binary executable with appended script
+    crit: suspicious
+    conf: 0.9
+    attack: "T1027.009"
+    for: [elf, macho, pe]  # Only applies to executables
+    any:
+      - id: appended-shell-script
+      - id: appended-python-script

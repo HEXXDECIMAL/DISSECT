@@ -343,14 +343,61 @@ pub enum Command {
         #[arg(short, long, value_enum)]
         file_type: Option<DetectFileType>,
 
-        /// Minimum number of matches required (for string searches)
-        #[arg(short = 'n', long, default_value = "1")]
-        min_count: usize,
+        /// Minimum number of matches required (for string/content searches)
+        #[arg(long, default_value = "1")]
+        count_min: usize,
+
+        /// Maximum number of matches allowed (for string/content searches)
+        #[arg(long)]
+        count_max: Option<usize>,
+
+        /// Minimum matches per kilobyte (density floor)
+        #[arg(long)]
+        per_kb_min: Option<f64>,
+
+        /// Maximum matches per kilobyte (density ceiling)
+        #[arg(long)]
+        per_kb_max: Option<f64>,
 
         /// Case-insensitive matching
         #[arg(short, long)]
         case_insensitive: bool,
+
+        /// Restrict search to named section (e.g., "text", ".data", "__TEXT,__text")
+        #[arg(long)]
+        section: Option<String>,
+
+        /// Search only at exact file offset (hex or decimal, negative = from end)
+        #[arg(long)]
+        offset: Option<i64>,
+
+        /// Search within byte range [start,end) - use "start," for open-ended (e.g., "0,4096" or "-1024,")
+        #[arg(long, value_parser = parse_offset_range)]
+        offset_range: Option<(i64, Option<i64>)>,
     },
+}
+
+/// Parse an offset range like "0,4096" or "-1024," into (start, Option<end>)
+fn parse_offset_range(s: &str) -> Result<(i64, Option<i64>), String> {
+    let parts: Vec<&str> = s.split(',').collect();
+    if parts.len() != 2 {
+        return Err("offset_range must be 'start,end' or 'start,' for open-ended".to_string());
+    }
+    let start: i64 = parts[0]
+        .trim()
+        .parse()
+        .map_err(|_| format!("invalid start offset: {}", parts[0]))?;
+    let end = if parts[1].trim().is_empty() {
+        None
+    } else {
+        Some(
+            parts[1]
+                .trim()
+                .parse()
+                .map_err(|_| format!("invalid end offset: {}", parts[1]))?,
+        )
+    };
+    Ok((start, end))
 }
 
 #[derive(Debug, Clone, clap::ValueEnum, PartialEq)]

@@ -838,7 +838,7 @@ mod tests {
 
         packed.strings.push(StringInfo {
             value: "hello".to_string(),
-            offset: Some("0x100".to_string()),
+            offset: Some(0x100),
             encoding: "utf8".to_string(),
             string_type: StringType::Plain,
             section: None,
@@ -849,7 +849,7 @@ mod tests {
         // Same string value - should be deduped
         unpacked.strings.push(StringInfo {
             value: "hello".to_string(),
-            offset: Some("0x200".to_string()),
+            offset: Some(0x200),
             encoding: "utf8".to_string(),
             string_type: StringType::Plain,
             section: None,
@@ -860,7 +860,7 @@ mod tests {
         // Different string - should be added
         unpacked.strings.push(StringInfo {
             value: "world".to_string(),
-            offset: Some("0x300".to_string()),
+            offset: Some(0x300),
             encoding: "utf8".to_string(),
             string_type: StringType::Plain,
             section: None,

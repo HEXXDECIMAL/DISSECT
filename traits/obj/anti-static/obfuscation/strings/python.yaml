@@ -124,7 +124,7 @@ traits:
   # Legitimate code rarely has more than a few chr() calls.
   # Obfuscated code builds entire strings character by character.
 
-  - id: dense-chr-calls
+  - id: python-dense-chr-calls
     desc: Dense chr() calls (string building)
     crit: suspicious
     conf: 0.90
@@ -136,7 +136,7 @@ traits:
       count_min: 8
       per_kb_min: 2.0
 
-  - id: dense-hex-escapes
+  - id: python-dense-hex-escapes
     desc: Dense hex escape sequences
     crit: suspicious
     conf: 0.88

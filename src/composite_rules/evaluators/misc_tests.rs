@@ -32,6 +32,7 @@ fn create_test_context<'a>(
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     }
 }
 
@@ -478,6 +479,7 @@ fn test_eval_trait_glob_additional_findings() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     let result = eval_trait_glob("anti-static/obfuscation/*", "any", &ctx);
@@ -501,6 +503,7 @@ fn test_eval_trait_glob_deduplication() {
         cached_ast: None,
         finding_id_index: None,
         debug_collector: None,
+        section_map: None,
     };
 
     let result = eval_trait_glob("exec/shell/*", "any", &ctx);

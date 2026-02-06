@@ -17,6 +17,7 @@ pub mod condition;
 pub mod context;
 pub mod debug;
 pub mod evaluators;
+pub mod section_map;
 pub mod traits;
 pub mod types;
 
@@ -24,6 +25,7 @@ pub mod types;
 pub use condition::Condition;
 pub use context::EvaluationContext;
 pub use debug::{DebugCollector, EvaluationDebug, RuleType};
+pub use section_map::SectionMap;
 pub use traits::{CompositeTrait, DowngradeConditions, TraitDefinition};
 pub use types::{FileType, Platform};
 

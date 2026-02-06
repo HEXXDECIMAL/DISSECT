@@ -13,6 +13,91 @@ use crate::composite_rules::types::Platform;
 use crate::ip_validator::contains_external_ip;
 use crate::types::Evidence;
 
+/// Check if an offset falls within an effective range.
+/// Returns true if no range is specified (no constraint) or if offset is within range.
+#[inline]
+fn offset_in_range(offset: Option<u64>, range: Option<(u64, u64)>) -> bool {
+    match (offset, range) {
+        (_, None) => true, // No range constraint - all offsets match
+        (None, Some(_)) => false, // Range specified but string has no offset - skip
+        (Some(off), Some((start, end))) => off >= start && off < end,
+    }
+}
+
+/// Resolve the effective byte range for content search based on location constraints.
+/// Returns (start, end) as absolute offsets into binary data.
+fn resolve_effective_range(location: &ContentLocationParams, ctx: &EvaluationContext) -> (usize, usize) {
+    let file_size = ctx.binary_data.len();
+
+    // If no location constraints, return full file range
+    if location.section.is_none()
+        && location.offset.is_none()
+        && location.offset_range.is_none()
+        && location.section_offset.is_none()
+        && location.section_offset_range.is_none()
+    {
+        return (0, file_size);
+    }
+
+    // Use SectionMap to resolve the range if available
+    if let Some(ref section_map) = ctx.section_map {
+        if let Some((start, end)) = section_map.resolve_range(
+            location.section.as_deref(),
+            location.offset,
+            location.offset_range,
+            location.section_offset,
+            location.section_offset_range,
+        ) {
+            return (start as usize, end as usize);
+        }
+    }
+
+    // Fallback: resolve absolute offset constraints without SectionMap
+    match (location.offset, &location.offset_range) {
+        (Some(off), None) => {
+            // Single offset - search starts at that position
+            let resolved = if off < 0 {
+                (file_size as i64 + off).max(0) as usize
+            } else {
+                off as usize
+            };
+            (resolved, file_size)
+        }
+        (None, Some((start, end_opt))) => {
+            let file_size_i64 = file_size as i64;
+            let resolved_start = if *start < 0 {
+                (file_size_i64 + *start).max(0) as usize
+            } else {
+                *start as usize
+            };
+            let resolved_end = match end_opt {
+                Some(end) if *end < 0 => (file_size_i64 + *end).max(0) as usize,
+                Some(end) => *end as usize,
+                None => file_size,
+            };
+            (resolved_start, resolved_end)
+        }
+        _ => (0, file_size), // Section constraints without SectionMap - no filtering
+    }
+}
+
+/// Resolve effective range as Option for string offset filtering.
+/// Returns None if no location constraints (no filtering needed).
+fn resolve_effective_range_opt(location: &ContentLocationParams, ctx: &EvaluationContext) -> Option<(u64, u64)> {
+    // If no location constraints, return None (no filtering)
+    if location.section.is_none()
+        && location.offset.is_none()
+        && location.offset_range.is_none()
+        && location.section_offset.is_none()
+        && location.section_offset_range.is_none()
+    {
+        return None;
+    }
+
+    let (start, end) = resolve_effective_range(location, ctx);
+    Some((start as u64, end as u64))
+}
+
 /// Evaluate symbol condition - matches symbols in imports/exports.
 pub fn eval_symbol(
     exact: Option<&String>,
@@ -148,6 +233,56 @@ pub fn eval_string(
 
     let mut evidence = Vec::new();
 
+    // Resolve effective range from location constraints
+    let effective_range: Option<(u64, u64)> = if params.section.is_some()
+        || params.offset.is_some()
+        || params.offset_range.is_some()
+        || params.section_offset.is_some()
+        || params.section_offset_range.is_some()
+    {
+        // Use SectionMap to resolve the range if available
+        if let Some(ref section_map) = ctx.section_map {
+            section_map.resolve_range(
+                params.section.map(|s| s.as_str()),
+                params.offset,
+                params.offset_range,
+                params.section_offset,
+                params.section_offset_range,
+            )
+        } else {
+            // No SectionMap available - use absolute offset constraints only
+            match (params.offset, params.offset_range) {
+                (Some(off), None) => {
+                    // Single offset - resolve to single byte range
+                    let file_size = ctx.binary_data.len() as i64;
+                    let resolved = if off < 0 {
+                        (file_size + off).max(0) as u64
+                    } else {
+                        off as u64
+                    };
+                    Some((resolved, resolved + 1))
+                }
+                (None, Some((start, end_opt))) => {
+                    let file_size = ctx.binary_data.len() as i64;
+                    let resolved_start = if start < 0 {
+                        (file_size + start).max(0) as u64
+                    } else {
+                        start as u64
+                    };
+                    let resolved_end = match end_opt {
+                        Some(end) if end < 0 => (file_size + end).max(0) as u64,
+                        Some(end) => end as u64,
+                        None => file_size as u64,
+                    };
+                    Some((resolved_start, resolved_end))
+                }
+                _ => None, // Section constraints without SectionMap - no filtering
+            }
+        }
+    } else {
+        None // No location constraints
+    };
+
     // Use pre-compiled regex from trait definition (compiled at startup)
     let compiled_regex = params.compiled_regex;
     let compiled_excludes = params.compiled_excludes;
@@ -214,11 +349,15 @@ pub fn eval_string(
 
     // 1. Check in extracted strings from report (for binaries)
     for string_info in &ctx.report.strings {
+        // Skip strings outside the effective range (if location constraints are specified)
+        if !offset_in_range(string_info.offset, effective_range) {
+            continue;
+        }
         check_and_add_evidence(
             &string_info.value,
             "string_extractor",
             "string",
-            string_info.offset.clone(),
+            string_info.offset.map(|o| format!("{:#x}", o)),
             &mut evidence,
         );
     }
@@ -334,6 +473,18 @@ pub fn eval_string(
     if params.count_max.is_some() || params.per_kb_min.is_some() || params.per_kb_max.is_some() {
         precision += 0.5; // Density/max constraints add precision
     }
+    // Location constraints add precision (section/offset filtering is very specific)
+    if params.section.is_some() {
+        precision += 1.0; // Section constraint
+    }
+    if params.offset.is_some() {
+        precision += 1.5; // Exact offset is very specific
+    } else if params.offset_range.is_some()
+        || params.section_offset.is_some()
+        || params.section_offset_range.is_some()
+    {
+        precision += 1.0; // Range constraints
+    }
 
     // case_insensitive penalty (multiplicative)
     if params.case_insensitive {
@@ -341,14 +492,18 @@ pub fn eval_string(
     }
 
     // Check count and density constraints
+    // Use effective range size for density calculations when location constraints are specified
     let constraints = CountConstraints::new(
         params.count_min,
         params.count_max,
         params.per_kb_min,
         params.per_kb_max,
     );
-    let file_size = ctx.binary_data.len();
-    let matched = check_count_constraints(evidence.len(), file_size, &constraints);
+    let effective_size = match effective_range {
+        Some((start, end)) => (end - start) as usize,
+        None => ctx.binary_data.len(),
+    };
+    let matched = check_count_constraints(evidence.len(), effective_size, &constraints);
 
     ConditionResult {
         matched,
@@ -357,6 +512,16 @@ pub fn eval_string(
         warnings: Vec::new(),
         precision,
     }
+}
+
+/// Parameters for location-constrained content evaluation.
+#[derive(Default)]
+pub struct ContentLocationParams {
+    pub section: Option<String>,
+    pub offset: Option<i64>,
+    pub offset_range: Option<(i64, Option<i64>)>,
+    pub section_offset: Option<i64>,
+    pub section_offset_range: Option<(i64, Option<i64>)>,
 }
 
 /// Evaluate content-based condition - searches directly in file bytes as text.
@@ -376,6 +541,7 @@ pub fn eval_raw(
     per_kb_max: Option<f64>,
     external_ip: bool,
     compiled_regex: Option<&regex::Regex>,
+    location: &ContentLocationParams,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
     let profile = std::env::var("DISSECT_PROFILE").is_ok();
@@ -387,8 +553,22 @@ pub fn eval_raw(
 
     let mut evidence = Vec::new();
 
+    // Resolve effective range from location constraints
+    let (search_start, search_end) = resolve_effective_range(location, ctx);
+
+    // Ensure we don't exceed binary data bounds
+    let search_start = search_start.min(ctx.binary_data.len());
+    let search_end = search_end.min(ctx.binary_data.len());
+
+    if search_start >= search_end {
+        return ConditionResult::no_match();
+    }
+
+    // Get the slice of binary data to search
+    let search_data = &ctx.binary_data[search_start..search_end];
+
     // Convert binary data to string
-    let content = match std::str::from_utf8(ctx.binary_data) {
+    let content = match std::str::from_utf8(search_data) {
         Ok(s) => s,
         Err(_) => {
             return ConditionResult {
@@ -535,10 +715,24 @@ pub fn eval_raw(
         precision += 0.5; // Higher precision when requiring external IP
     }
 
+    // Location constraints add precision
+    if location.section.is_some() {
+        precision += 1.0;
+    }
+    if location.offset.is_some() {
+        precision += 1.5;
+    } else if location.offset_range.is_some()
+        || location.section_offset.is_some()
+        || location.section_offset_range.is_some()
+    {
+        precision += 1.0;
+    }
+
     // Check count and density constraints
+    // Use effective range size for density calculations
     let constraints = CountConstraints::new(count_min, count_max, per_kb_min, per_kb_max);
-    let file_size = ctx.binary_data.len();
-    let matched = check_count_constraints(match_count, file_size, &constraints);
+    let effective_size = search_end - search_start;
+    let matched = check_count_constraints(match_count, effective_size, &constraints);
 
     ConditionResult {
         matched,
@@ -561,8 +755,12 @@ pub fn eval_base64(
     count_max: Option<usize>,
     per_kb_min: Option<f64>,
     per_kb_max: Option<f64>,
+    location: &ContentLocationParams,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
+    // Resolve effective range for offset filtering
+    let effective_range = resolve_effective_range_opt(location, ctx);
+
     eval_encoded_strings_helper(
         "base64",
         exact,
@@ -573,8 +771,9 @@ pub fn eval_base64(
         count_max,
         per_kb_min,
         per_kb_max,
-        ctx.binary_data.len(),
-        &ctx.report.strings,
+        effective_range,
+        location,
+        ctx,
     )
 }
 
@@ -591,8 +790,12 @@ pub fn eval_xor(
     count_max: Option<usize>,
     per_kb_min: Option<f64>,
     per_kb_max: Option<f64>,
+    location: &ContentLocationParams,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
+    // Resolve effective range for offset filtering
+    let effective_range = resolve_effective_range_opt(location, ctx);
+
     // Note: key parameter is deprecated - encoding_chain no longer carries key info
     eval_encoded_strings_helper(
         "xor",
@@ -604,8 +807,9 @@ pub fn eval_xor(
         count_max,
         per_kb_min,
         per_kb_max,
-        ctx.binary_data.len(),
-        &ctx.report.strings,
+        effective_range,
+        location,
+        ctx,
     )
 }
 
@@ -621,8 +825,9 @@ fn eval_encoded_strings_helper(
     count_max: Option<usize>,
     per_kb_min: Option<f64>,
     per_kb_max: Option<f64>,
-    file_size: usize,
-    strings: &[crate::types::StringInfo],
+    effective_range: Option<(u64, u64)>,
+    location: &ContentLocationParams,
+    ctx: &EvaluationContext,
 ) -> ConditionResult {
     let mut evidence = Vec::new();
     let mut match_count = 0;
@@ -643,11 +848,16 @@ fn eval_encoded_strings_helper(
     };
 
     // Filter strings that have this encoding in their chain
-    for string_info in strings {
+    for string_info in &ctx.report.strings {
         if !string_info
             .encoding_chain
             .contains(&encoding_type.to_string())
         {
+            continue;
+        }
+
+        // Skip strings outside the effective range (if location constraints specified)
+        if !offset_in_range(string_info.offset, effective_range) {
             continue;
         }
 
@@ -694,7 +904,7 @@ fn eval_encoded_strings_helper(
                 method: format!("encoded_{}", encoding_type),
                 source: "string".to_string(),
                 value: value_preview,
-                location: string_info.offset.clone(),
+                location: string_info.offset.map(|o| format!("{:#x}", o)),
             });
         }
     }
@@ -714,6 +924,19 @@ fn eval_encoded_strings_helper(
         precision *= 0.5;
     }
 
+    // Location constraints add precision
+    if location.section.is_some() {
+        precision += 1.0;
+    }
+    if location.offset.is_some() {
+        precision += 1.5;
+    } else if location.offset_range.is_some()
+        || location.section_offset.is_some()
+        || location.section_offset_range.is_some()
+    {
+        precision += 1.0;
+    }
+
     if count_min > 1 {
         precision += 0.5;
     }
@@ -723,8 +946,13 @@ fn eval_encoded_strings_helper(
     }
 
     // Check count and density constraints
+    // Use effective range size for density calculations when location constraints specified
     let constraints = CountConstraints::new(count_min, count_max, per_kb_min, per_kb_max);
-    let matched = check_count_constraints(match_count, file_size, &constraints);
+    let effective_size = match effective_range {
+        Some((start, end)) => (end - start) as usize,
+        None => ctx.binary_data.len(),
+    };
+    let matched = check_count_constraints(match_count, effective_size, &constraints);
 
     ConditionResult {
         matched,
@@ -805,7 +1033,7 @@ pub fn eval_layer_path(value: &str, ctx: &EvaluationContext) -> ConditionResult 
                 method: "layer_path".to_string(),
                 source: "string_extractor".to_string(),
                 value: string_info.value.clone(),
-                location: string_info.offset.clone(),
+                location: string_info.offset.map(|o| format!("{:#x}", o)),
             });
         }
     }
