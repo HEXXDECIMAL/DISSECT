@@ -192,8 +192,10 @@ For production GCS integration:
    ```bash
    gcloud projects add-iam-policy-binding PROJECT_ID \
      --member serviceAccount:dissect-web@PROJECT_ID.iam.gserviceaccount.com \
-     --role roles/storage.objectCreator
+     --role roles/storage.objectViewer
    ```
+
+   *Note: `roles/storage.objectViewer` is required to allow the app to verify the bucket's existence (`storage.buckets.get`).*
 
 3. Deploy with bucket name:
    ```bash

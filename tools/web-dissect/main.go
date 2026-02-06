@@ -250,9 +250,14 @@ func validateTools() error {
 	// Validate GCS bucket if configured
 	if gcsBucket != "" {
 		if err := initGCSClient(); err != nil {
-			errs = append(errs, fmt.Errorf("GCS client: %w", err))
+			logger.Error("GCS client initialization failed", "error", err)
+			// Non-fatal, but GCS will be disabled
+			gcsBucket = ""
 		} else if err := validateGCSBucket(gcsBucket); err != nil {
-			errs = append(errs, fmt.Errorf("GCS bucket %q: %w", gcsBucket, err))
+			logger.Error("GCS bucket validation failed", "bucket", gcsBucket, "error", err)
+			logger.Warn("GCS archiving will be disabled due to validation failure")
+			// Non-fatal, but GCS will be disabled
+			gcsBucket = ""
 		} else {
 			logger.Info("GCS bucket validated",
 				"bucket", gcsBucket,
