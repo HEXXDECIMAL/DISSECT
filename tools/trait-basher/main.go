@@ -1400,7 +1400,6 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 	case "gemini":
 		args := []string{
 			"-p", prompt,
-			"--verbose",
 			"--yolo",
 			"--output-format", "stream-json",
 			"--resume", "latest",
