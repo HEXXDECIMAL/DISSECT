@@ -110,9 +110,9 @@ Traits: {{.TraitsDir}}`))
 var badPromptTmpl = template.Must(template.New("bad").Parse(`{{if .IsArchive -}}
 # Known-Bad Tuning (Missing Detection)
 **Source**: {{.ArchiveName}}
-**Scope**: {{.Count}} unflagged files
+**Scope**: {{.Count}} files to review
 ## Priority Files
-{{range .Files}}- {{.Path}}{{if .Summary}} ({{.Summary}}){{end}}
+{{range .Files}}- {{.Path}}{{if .Summary}} (current: {{.Summary}}){{end}}
 {{end}}
 {{else -}}
 # Known-Bad Tuning (Missing Detection)
