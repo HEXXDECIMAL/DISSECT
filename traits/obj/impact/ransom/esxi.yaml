@@ -1,135 +1,5 @@
-# ESXi ransomware traits
-# Detects ransomware targeting VMware ESXi virtualization
-
-traits:
-  # ESXi VM process killing
-  - id: esxcli-vm-kill
-    desc: ESXi VM process kill commands
-    crit: suspicious
-    conf: 0.95
-    if:
-      type: string
-      regex: 'esxcli\s+vm\s+process\s+kill'
-
-  - id: esxcli-vm-list
-    desc: ESXi VM process list command
-    crit: notable
-    conf: 0.85
-    if:
-      type: string
-      substr: "esxcli vm process list"
-
-  # VMware file targeting
-  - id: vmware-extensions
-    desc: VMware virtual machine file extensions
-    crit: notable
-    conf: 0.9
-    if:
-      type: string
-      regex: '\.(vmdk|vmx|vmsd|vmsn|vswp|vmem|nvram|vmxf)($|\b)'
-
-  # ESXi-specific paths
-  - id: esxi-paths
-    desc: ESXi system paths exclusion
-    crit: notable
-    conf: 0.8
-    if:
-      type: string
-      regex: '/usr/lib(32|64|exec)?|/usr/s?bin|/boot|/proc|/dev|/sys'
-
-  # VM World ID references
-  - id: vm-world-id
-    desc: ESXi VM World ID reference
-    crit: suspicious
-    conf: 0.9
-    if:
-      type: string
-      regex: 'World ID:|VM:.{0,20}ID:|Running VM:'
-
-  # VMware volumes path
-  - id: vmfs-volumes
-    desc: VMware VMFS volumes path
-    crit: suspicious
-    conf: 0.9
-    if:
-      type: string
-      substr: "/vmfs/volumes"
-
-  # vim-cmd snapshot removal
-  - id: vimcmd-snapshot-remove
-    desc: VMware snapshot removal command
-    crit: suspicious
-    conf: 0.95
-    if:
-      type: string
-      regex: 'vim-cmd.{0,30}snapshot\.remove'
-
-  # Killing VMs message
-  - id: killing-vms-msg
-    desc: VM killing operation message
-    crit: suspicious
-    conf: 0.9
-    if:
-      type: string
-      regex: 'Killing VM[Ss]?:|Removing Snapshots'
-
-  # ESXi preparation waiting
-  - id: esxi-preparation
-    desc: ESXi preparation message
-    crit: suspicious
-    conf: 0.9
-    if:
-      type: string
-      substr: "Waiting for ESXi Preparation"
-
-  # ESXi CLI tool reference (used with --world-id for VM killing)
-  - id: esxcli-tool
-    desc: ESXi CLI tool reference
-    crit: notable
-    conf: 0.9
-    for: [elf]
-    if:
-      type: string
-      substr: "esxcli"
-
-  # ESXi world-id parameter (used to target specific VMs)
-  - id: esxi-world-id-param
-    desc: ESXi VM world-id parameter
-    crit: suspicious
-    conf: 0.95
-    for: [elf]
-    if:
-      type: string
-      regex: '--world-id[=:]?'
-
-  # C++ VM killer function symbols (mangled)
-  - id: cpp-vm-killer-symbols
-    desc: C++ VM killer function symbols
-    crit: suspicious
-    conf: 0.95
-    for: [elf]
-    if:
-      type: string
-      regex: '_Z\d+(Kill(Virtual)?Machines?|KillVm|KillProcess)'
-
-  # VM killer CLI flags
-  - id: vm-killer-flags
-    desc: VM killer command-line flags
-    crit: suspicious
-    conf: 0.9
-    for: [elf]
-    if:
-      type: string
-      regex: '--(vmkill(er)?|prockill(er)?|vmlist)'
-
-  # Killing VM message (simpler pattern)
-  - id: killing-vm-simple
-    desc: VM killing message
-    crit: suspicious
-    conf: 0.9
-    if:
-      type: string
-      regex: 'Killing VM |Skipping VM '
+# ESXi Ransomware Objectives
+# Composite rules for detecting ransomware targeting VMware ESXi
 
 composite_rules:
   # ESXi ransomware pattern - complexity 4 (all:3 + any:1)
@@ -139,8 +9,8 @@ composite_rules:
     conf: 0.98
     for: [elf]
     all:
-      - id: esxcli-vm-kill
-      - id: vmware-extensions
+      - id: cap/vm/vmware/esxcli-vm-kill
+      - id: cap/vm/vmware/vmware-extensions
       - id: obj/impact/ransom/ransom-note-text
     any:
       - id: obj/impact/ransom/ransom-extension
@@ -153,8 +23,8 @@ composite_rules:
     conf: 0.9
     for: [elf]
     all:
-      - id: esxcli-vm-kill
-      - id: vmware-extensions
+      - id: cap/vm/vmware/esxcli-vm-kill
+      - id: cap/vm/vmware/vmware-extensions
 
   # ESXi ransomware with locker patterns - complexity 5 (all:3 + any:2)
   - id: esxi-ransomware-locker
@@ -163,14 +33,14 @@ composite_rules:
     conf: 0.97
     for: [elf]
     all:
-      - id: esxcli-vm-kill
-      - id: vmware-extensions
-      - id: vmfs-volumes
+      - id: cap/vm/vmware/esxcli-vm-kill
+      - id: cap/vm/vmware/vmware-extensions
+      - id: cap/vm/vmware/vmfs-volumes
     any:
       - id: obj/impact/ransom/locker-namespace
       - id: obj/impact/ransom/config-note-fields
-      - id: vimcmd-snapshot-remove
-      - id: killing-vms-msg
+      - id: cap/vm/vmware/vimcmd-snapshot-remove
+      - id: cap/vm/vmware/killing-vms-msg
 
   # ESXi ransomware with VM operations - complexity 5 (all:4 + any:1)
   - id: esxi-vm-ransomware
@@ -179,13 +49,13 @@ composite_rules:
     conf: 0.96
     for: [elf]
     all:
-      - id: esxcli-vm-kill
-      - id: vmware-extensions
-      - id: killing-vms-msg
-      - id: vmfs-volumes
+      - id: cap/vm/vmware/esxcli-vm-kill
+      - id: cap/vm/vmware/vmware-extensions
+      - id: cap/vm/vmware/killing-vms-msg
+      - id: cap/vm/vmware/vmfs-volumes
     any:
-      - id: vimcmd-snapshot-remove
-      - id: esxi-preparation
+      - id: cap/vm/vmware/vimcmd-snapshot-remove
+      - id: cap/vm/vmware/esxi-preparation
       - id: obj/impact/ransom/config-cipher-fields
 
   # ESXi ransomware shell launcher script - complexity 5 (for:1 + all:4)
@@ -196,9 +66,9 @@ composite_rules:
     conf: 0.98
     for: [shell]
     all:
-      - id: esxcli-vm-kill
-      - id: vmware-extensions
-      - id: vmfs-volumes
+      - id: cap/vm/vmware/esxcli-vm-kill
+      - id: cap/vm/vmware/vmware-extensions
+      - id: cap/vm/vmware/vmfs-volumes
       - id: obj/anti-forensics/log-clear/find-exec-rm-log
 
   # ESXi ransomware shell with anti-forensics - complexity 6 (for:1 + all:5)
@@ -208,9 +78,9 @@ composite_rules:
     conf: 0.99
     for: [shell]
     all:
-      - id: esxcli-vm-kill
-      - id: vmware-extensions
-      - id: vmfs-volumes
+      - id: cap/vm/vmware/esxcli-vm-kill
+      - id: cap/vm/vmware/vmware-extensions
+      - id: cap/vm/vmware/vmfs-volumes
       - id: obj/anti-forensics/self-delete/rm-self-dollar-zero
       - id: obj/anti-forensics/timestomp/touch-reference-multiple
 
@@ -222,9 +92,9 @@ composite_rules:
     conf: 0.98
     for: [elf]
     all:
-      - id: esxcli-tool
-      - id: esxi-world-id-param
-      - id: cpp-vm-killer-symbols
+      - id: cap/vm/vmware/esxcli-tool
+      - id: cap/vm/vmware/esxi-world-id-param
+      - id: cap/vm/vmware/cpp-vm-killer-symbols
       - id: obj/impact/ransom/ransom-note-text
 
   # ESXi ransomware via CLI flags - complexity 5 (for:1 + all:4)
@@ -235,7 +105,7 @@ composite_rules:
     conf: 0.97
     for: [elf]
     all:
-      - id: esxcli-tool
-      - id: vm-killer-flags
-      - id: killing-vm-simple
+      - id: cap/vm/vmware/esxcli-tool
+      - id: cap/vm/vmware/vm-killer-flags
+      - id: cap/vm/vmware/killing-vm-simple
       - id: obj/impact/ransom/ransom-note-text

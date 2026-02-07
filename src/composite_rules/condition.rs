@@ -50,7 +50,12 @@ fn normalize_any_matchers(
     word: Option<String>,
     any: Option<Vec<AnyMatcher>>,
     allow_word: bool,
-) -> (Option<String>, Option<String>, Option<String>, Option<String>) {
+) -> (
+    Option<String>,
+    Option<String>,
+    Option<String>,
+    Option<String>,
+) {
     let mut fragments = matcher_to_regex_fragment(exact, substr, regex, word);
 
     if let Some(items) = any {

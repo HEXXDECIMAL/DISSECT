@@ -319,7 +319,7 @@ composite_rules:
   # Bookmarks composite
   - id: bookmarks
     desc: Browser bookmarks access
-    crit: suspicious
+    crit: notable
     conf: 0.8
     attack: "T1217"
     for: [all]

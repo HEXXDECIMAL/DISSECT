@@ -279,5 +279,5 @@ composite_rules:
 
   - id: telnet-attack
     desc: "IoT telnet attack patterns"
-    crit: suspicious
+    crit: notable
     conf: 0.95

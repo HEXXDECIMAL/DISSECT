@@ -14,44 +14,465 @@ use std::collections::{BTreeSet, HashMap, HashSet};
 
 use super::parsing::parse_file_types;
 
-/// Calculate the precision of a trait definition
-/// Counts all filters/conditions that make the trait more precise
-fn calculate_trait_precision(trait_def: &TraitDefinition) -> usize {
-    let mut precision = 0;
+const BASE_TRAIT_PRECISION: f32 = 1.0;
+const PARAM_UNIT: f32 = 0.3;
+const CASE_INSENSITIVE_MULTIPLIER: f32 = 0.25;
 
-    // Base condition (pattern match, string search, etc.)
-    precision += 1;
-
-    // Size restrictions add precision
-    if trait_def.size_min.is_some() {
-        precision += 1;
+fn score_string_value(value: &str) -> f32 {
+    let len = value.chars().count();
+    if len == 0 {
+        return 0.0;
     }
-    if trait_def.size_max.is_some() {
-        precision += 1;
+    let buckets = len.div_ceil(5) as f32;
+    buckets * PARAM_UNIT
+}
+
+fn score_word_value(value: &str) -> f32 {
+    // Word matching implies delimiter boundaries around the token.
+    let len = value.chars().count() + 2;
+    let buckets = len.div_ceil(5) as f32;
+    buckets * PARAM_UNIT
+}
+
+fn score_regex_value(value: &str) -> f32 {
+    let normalized_len = value.chars().filter(|c| *c != '\\').count();
+    if normalized_len == 0 {
+        return 0.0;
+    }
+    let buckets = normalized_len.div_ceil(5) as f32;
+    buckets * PARAM_UNIT
+}
+
+fn score_presence<T>(value: Option<&T>) -> f32 {
+    if value.is_some() {
+        PARAM_UNIT
+    } else {
+        0.0
+    }
+}
+
+fn score_condition(condition: &Condition) -> f32 {
+    let mut score = 0.0f32;
+
+    match condition {
+        Condition::Symbol {
+            exact,
+            substr,
+            regex,
+            platforms,
+            ..
+        } => {
+            score += exact.as_deref().map(score_string_value).unwrap_or(0.0);
+            score += substr.as_deref().map(score_string_value).unwrap_or(0.0);
+            score += regex.as_deref().map(score_regex_value).unwrap_or(0.0);
+            if let Some(p) = platforms {
+                for platform in p.iter().filter(|p| **p != Platform::All) {
+                    score += score_string_value(&format!("{:?}", platform).to_lowercase());
+                }
+            }
+        }
+        Condition::String {
+            exact,
+            substr,
+            regex,
+            word,
+            case_insensitive,
+            exclude_patterns,
+            count_min,
+            count_max,
+            per_kb_min,
+            per_kb_max,
+            external_ip,
+            section,
+            offset,
+            offset_range,
+            section_offset,
+            section_offset_range,
+            ..
+        } => {
+            score += exact.as_deref().map(score_string_value).unwrap_or(0.0);
+            score += substr.as_deref().map(score_string_value).unwrap_or(0.0);
+            score += regex.as_deref().map(score_regex_value).unwrap_or(0.0);
+            score += word.as_deref().map(score_word_value).unwrap_or(0.0);
+            if let Some(exclusions) = exclude_patterns {
+                for exclusion in exclusions {
+                    score += score_regex_value(exclusion);
+                }
+            }
+            if *count_min > 1 {
+                score += PARAM_UNIT;
+            }
+            score += score_presence(count_max.as_ref());
+            score += score_presence(per_kb_min.as_ref());
+            score += score_presence(per_kb_max.as_ref());
+            if *external_ip {
+                score += PARAM_UNIT;
+            }
+            score += section.as_deref().map(score_string_value).unwrap_or(0.0);
+            score += score_presence(offset.as_ref());
+            score += score_presence(offset_range.as_ref());
+            score += score_presence(section_offset.as_ref());
+            score += score_presence(section_offset_range.as_ref());
+            if *case_insensitive {
+                score *= CASE_INSENSITIVE_MULTIPLIER;
+            }
+        }
+        Condition::Content {
+            exact,
+            substr,
+            regex,
+            word,
+            case_insensitive,
+            count_min,
+            count_max,
+            per_kb_min,
+            per_kb_max,
+            external_ip,
+            section,
+            offset,
+            offset_range,
+            section_offset,
+            section_offset_range,
+            ..
+        } => {
+            score += exact.as_deref().map(score_string_value).unwrap_or(0.0);
+            score += substr.as_deref().map(score_string_value).unwrap_or(0.0);
+            score += regex.as_deref().map(score_regex_value).unwrap_or(0.0);
+            score += word.as_deref().map(score_word_value).unwrap_or(0.0);
+            if *count_min > 1 {
+                score += PARAM_UNIT;
+            }
+            score += score_presence(count_max.as_ref());
+            score += score_presence(per_kb_min.as_ref());
+            score += score_presence(per_kb_max.as_ref());
+            if *external_ip {
+                score += PARAM_UNIT;
+            }
+            score += section.as_deref().map(score_string_value).unwrap_or(0.0);
+            score += score_presence(offset.as_ref());
+            score += score_presence(offset_range.as_ref());
+            score += score_presence(section_offset.as_ref());
+            score += score_presence(section_offset_range.as_ref());
+            if *case_insensitive {
+                score *= CASE_INSENSITIVE_MULTIPLIER;
+            }
+        }
+        Condition::YaraMatch { namespace, rule } => {
+            score += score_string_value(namespace);
+            score += rule.as_deref().map(score_string_value).unwrap_or(0.0);
+        }
+        Condition::Structure {
+            feature,
+            min_sections,
+        } => {
+            score += score_string_value(feature);
+            score += score_presence(min_sections.as_ref());
+        }
+        Condition::ImportsCount { min, max, filter } => {
+            score += score_presence(min.as_ref());
+            score += score_presence(max.as_ref());
+            score += filter.as_deref().map(score_string_value).unwrap_or(0.0);
+        }
+        Condition::ExportsCount { min, max } => {
+            score += score_presence(min.as_ref());
+            score += score_presence(max.as_ref());
+        }
+        Condition::Trait { id } => {
+            score += score_string_value(id);
+        }
+        Condition::Ast {
+            kind,
+            node,
+            exact,
+            substr,
+            regex,
+            query,
+            language,
+            case_insensitive,
+        } => {
+            score += kind.as_deref().map(score_string_value).unwrap_or(0.0);
+            score += node.as_deref().map(score_string_value).unwrap_or(0.0);
+            score += exact.as_deref().map(score_string_value).unwrap_or(0.0);
+            score += substr.as_deref().map(score_string_value).unwrap_or(0.0);
+            score += regex.as_deref().map(score_regex_value).unwrap_or(0.0);
+            score += query.as_deref().map(score_regex_value).unwrap_or(0.0);
+            score += language.as_deref().map(score_string_value).unwrap_or(0.0);
+            if *case_insensitive {
+                score *= CASE_INSENSITIVE_MULTIPLIER;
+            }
+        }
+        Condition::Yara { source, .. } => {
+            score += score_regex_value(source);
+        }
+        Condition::Syscall {
+            name,
+            number,
+            arch,
+            min_count,
+        } => {
+            if let Some(names) = name {
+                for value in names {
+                    score += score_string_value(value);
+                }
+            }
+            if let Some(values) = number {
+                score += PARAM_UNIT * (values.len() as f32);
+            }
+            if let Some(values) = arch {
+                for value in values {
+                    score += score_string_value(value);
+                }
+            }
+            score += score_presence(min_count.as_ref());
+        }
+        Condition::SectionRatio {
+            section,
+            compare_to,
+            min_ratio,
+            max_ratio,
+        } => {
+            score += score_regex_value(section);
+            score += score_regex_value(compare_to);
+            score += score_presence(min_ratio.as_ref());
+            score += score_presence(max_ratio.as_ref());
+        }
+        Condition::SectionEntropy {
+            section,
+            min_entropy,
+            max_entropy,
+        } => {
+            score += score_regex_value(section);
+            score += score_presence(min_entropy.as_ref());
+            score += score_presence(max_entropy.as_ref());
+        }
+        Condition::ImportCombination {
+            required,
+            suspicious,
+            min_suspicious,
+            max_total,
+        } => {
+            if let Some(values) = required {
+                for value in values {
+                    score += score_string_value(value);
+                }
+            }
+            if let Some(values) = suspicious {
+                for value in values {
+                    score += score_string_value(value);
+                }
+            }
+            score += score_presence(min_suspicious.as_ref());
+            score += score_presence(max_total.as_ref());
+        }
+        Condition::StringCount {
+            min,
+            max,
+            min_length,
+        } => {
+            score += score_presence(min.as_ref());
+            score += score_presence(max.as_ref());
+            score += score_presence(min_length.as_ref());
+        }
+        Condition::Metrics {
+            field,
+            min,
+            max,
+            min_size,
+            max_size,
+        } => {
+            score += score_string_value(field);
+            score += score_presence(min.as_ref());
+            score += score_presence(max.as_ref());
+            score += score_presence(min_size.as_ref());
+            score += score_presence(max_size.as_ref());
+        }
+        Condition::Hex {
+            pattern,
+            offset,
+            offset_range,
+            count_min,
+            count_max,
+            per_kb_min,
+            per_kb_max,
+            extract_wildcards,
+            section,
+            section_offset,
+            section_offset_range,
+        } => {
+            score += score_string_value(pattern);
+            score += score_presence(offset.as_ref());
+            score += score_presence(offset_range.as_ref());
+            if *count_min > 1 {
+                score += PARAM_UNIT;
+            }
+            score += score_presence(count_max.as_ref());
+            score += score_presence(per_kb_min.as_ref());
+            score += score_presence(per_kb_max.as_ref());
+            if *extract_wildcards {
+                score += PARAM_UNIT;
+            }
+            score += section.as_deref().map(score_string_value).unwrap_or(0.0);
+            score += score_presence(section_offset.as_ref());
+            score += score_presence(section_offset_range.as_ref());
+        }
+        Condition::Filesize { min, max } => {
+            score += score_presence(min.as_ref());
+            score += score_presence(max.as_ref());
+        }
+        Condition::TraitGlob { pattern, r#match } => {
+            score += score_string_value(pattern);
+            score += score_string_value(r#match);
+        }
+        Condition::SectionName { pattern, regex } => {
+            score += score_regex_value(pattern);
+            if *regex {
+                score += PARAM_UNIT;
+            }
+        }
+        Condition::Base64 {
+            exact,
+            substr,
+            regex,
+            case_insensitive,
+            count_min,
+            count_max,
+            per_kb_min,
+            per_kb_max,
+            section,
+            offset,
+            offset_range,
+            section_offset,
+            section_offset_range,
+        }
+        | Condition::Xor {
+            exact,
+            substr,
+            regex,
+            case_insensitive,
+            count_min,
+            count_max,
+            per_kb_min,
+            per_kb_max,
+            section,
+            offset,
+            offset_range,
+            section_offset,
+            section_offset_range,
+            ..
+        } => {
+            score += exact.as_deref().map(score_string_value).unwrap_or(0.0);
+            score += substr.as_deref().map(score_string_value).unwrap_or(0.0);
+            score += regex.as_deref().map(score_regex_value).unwrap_or(0.0);
+            if *count_min > 1 {
+                score += PARAM_UNIT;
+            }
+            score += score_presence(count_max.as_ref());
+            score += score_presence(per_kb_min.as_ref());
+            score += score_presence(per_kb_max.as_ref());
+            score += section.as_deref().map(score_string_value).unwrap_or(0.0);
+            score += score_presence(offset.as_ref());
+            score += score_presence(offset_range.as_ref());
+            score += score_presence(section_offset.as_ref());
+            score += score_presence(section_offset_range.as_ref());
+            if *case_insensitive {
+                score *= CASE_INSENSITIVE_MULTIPLIER;
+            }
+        }
+        Condition::Basename {
+            exact,
+            substr,
+            regex,
+            case_insensitive,
+        }
+        | Condition::Kv {
+            exact,
+            substr,
+            regex,
+            case_insensitive,
+            ..
+        } => {
+            score += exact.as_deref().map(score_string_value).unwrap_or(0.0);
+            score += substr.as_deref().map(score_string_value).unwrap_or(0.0);
+            score += regex.as_deref().map(score_regex_value).unwrap_or(0.0);
+            if *case_insensitive {
+                score *= CASE_INSENSITIVE_MULTIPLIER;
+            }
+        }
+        Condition::LayerPath { value } => {
+            score += score_string_value(value);
+        }
     }
 
-    // Platform filter (if not All)
-    if !trait_def.platforms.contains(&Platform::All) {
-        precision += 1;
+    score
+}
+
+fn score_not_exceptions(exceptions: &[crate::composite_rules::condition::NotException]) -> f32 {
+    let mut score = 0.0f32;
+    for exception in exceptions {
+        match exception {
+            crate::composite_rules::condition::NotException::Shorthand(value) => {
+                score += score_string_value(value);
+            }
+            crate::composite_rules::condition::NotException::Structured {
+                exact,
+                substr,
+                regex,
+            } => {
+                score += exact.as_deref().map(score_string_value).unwrap_or(0.0);
+                score += substr.as_deref().map(score_string_value).unwrap_or(0.0);
+                score += regex.as_deref().map(score_regex_value).unwrap_or(0.0);
+            }
+        }
+    }
+    score
+}
+
+fn sum_weakest(mut values: Vec<f32>, count: usize) -> f32 {
+    if values.is_empty() || count == 0 {
+        return 0.0;
+    }
+    values.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+    let len = values.len();
+    values.into_iter().take(count.min(len)).sum()
+}
+
+/// Calculate trait-level precision (static rule precision).
+///
+/// This is rule-definition precision, not runtime match precision.
+/// It counts structural constraints that make a trait more specific.
+pub fn calculate_trait_precision(trait_def: &TraitDefinition) -> f32 {
+    let mut precision = BASE_TRAIT_PRECISION;
+
+    precision += score_presence(trait_def.size_min.as_ref());
+    precision += score_presence(trait_def.size_max.as_ref());
+
+    for platform in trait_def.platforms.iter().filter(|p| **p != Platform::All) {
+        precision += score_string_value(&format!("{:?}", platform).to_lowercase());
     }
 
-    // File type filter (if not All)
-    if !trait_def
+    for file_type in trait_def
         .r#for
         .iter()
-        .any(|ft| matches!(ft, RuleFileType::All))
+        .filter(|f| !matches!(f, RuleFileType::All))
     {
-        precision += 1;
+        precision += score_string_value(&format!("{:?}", file_type).to_lowercase());
     }
 
-    // Exception filters (not clause)
-    if trait_def.not.is_some() {
-        precision += 1;
+    precision += score_condition(&trait_def.r#if);
+
+    if let Some(exceptions) = trait_def.not.as_ref() {
+        precision += PARAM_UNIT;
+        precision += score_not_exceptions(exceptions);
     }
 
-    // Conditional skip (unless clause)
-    if trait_def.unless.is_some() {
-        precision += 1;
+    if let Some(unless_conds) = trait_def.unless.as_ref() {
+        precision += PARAM_UNIT;
+        let unless_scores: Vec<f32> = unless_conds.iter().map(score_condition).collect();
+        precision += sum_weakest(unless_scores, 1);
+    }
+
+    if trait_def.downgrade.is_some() {
+        precision += PARAM_UNIT;
     }
 
     precision
@@ -70,25 +491,28 @@ pub fn calculate_composite_precision(
     rule_id: &str,
     all_composites: &[CompositeTrait],
     all_traits: &[TraitDefinition],
-    cache: &mut HashMap<String, usize>,
+    cache: &mut HashMap<String, f32>,
     visiting: &mut HashSet<String>,
-) -> usize {
+) -> f32 {
     if let Some(&precision) = cache.get(rule_id) {
         return precision;
     }
 
     // Detect cycles
     if !visiting.insert(rule_id.to_string()) {
-        return 1;
+        return BASE_TRAIT_PRECISION;
     }
 
     // Try to find as composite rule first
     if let Some(rule) = all_composites.iter().find(|r| r.id == rule_id) {
-        let mut precision = 0;
+        let mut precision = 0.0f32;
 
-        // File type filter counts as 1 if it's specific
-        if !rule.r#for.contains(&RuleFileType::All) {
-            precision += 1;
+        for file_type in rule
+            .r#for
+            .iter()
+            .filter(|f| !matches!(f, RuleFileType::All))
+        {
+            precision += score_string_value(&format!("{:?}", file_type).to_lowercase());
         }
 
         // `all` clause: recursively sum all elements
@@ -106,44 +530,67 @@ pub fn calculate_composite_precision(
                         );
                     }
                     _ => {
-                        // Direct condition (string, symbol, etc.)
-                        precision += 1;
+                        precision += score_condition(cond);
                     }
                 }
             }
         }
 
-        // `any` clause: use needs requirement, recursively expand for single trait
+        // `any` clause: sum the N weakest required branches
         if let Some(ref conditions) = rule.any {
-            let count = rule.needs.unwrap_or(1);
-
-            // If it's a single trait reference, expand it and multiply by count
-            if conditions.len() == 1 {
-                if let Condition::Trait { id } = &conditions[0] {
-                    let trait_precision = calculate_composite_precision(
+            let branch_scores: Vec<f32> = conditions
+                .iter()
+                .map(|cond| match cond {
+                    Condition::Trait { id } => calculate_composite_precision(
                         id,
                         all_composites,
                         all_traits,
                         cache,
                         visiting,
-                    );
-                    precision += trait_precision * count;
-                } else {
-                    // Single direct condition
-                    precision += count;
-                }
-            } else {
-                // Multiple conditions in any - add the count requirement
-                precision += count;
+                    ),
+                    _ => score_condition(cond),
+                })
+                .collect();
+
+            if !branch_scores.is_empty() {
+                let required = rule.needs.unwrap_or(1).max(1);
+                precision += sum_weakest(branch_scores, required);
             }
         }
 
-        // `none` or `unless` clauses count as 1 for precision
-        if rule.none.is_some() {
-            precision += 1;
+        if let Some(ref none_conds) = rule.none {
+            precision += PARAM_UNIT;
+            let scores: Vec<f32> = none_conds
+                .iter()
+                .map(|cond| match cond {
+                    Condition::Trait { id } => calculate_composite_precision(
+                        id,
+                        all_composites,
+                        all_traits,
+                        cache,
+                        visiting,
+                    ),
+                    _ => score_condition(cond),
+                })
+                .collect();
+            precision += scores.into_iter().sum::<f32>();
         }
-        if rule.unless.is_some() {
-            precision += 1;
+        if let Some(ref unless_conds) = rule.unless {
+            precision += PARAM_UNIT;
+            let scores: Vec<f32> = unless_conds
+                .iter()
+                .map(|cond| match cond {
+                    Condition::Trait { id } => calculate_composite_precision(
+                        id,
+                        all_composites,
+                        all_traits,
+                        cache,
+                        visiting,
+                    ),
+                    _ => score_condition(cond),
+                })
+                .collect();
+            precision += sum_weakest(scores, 1);
         }
 
         visiting.remove(rule_id);
@@ -159,10 +606,10 @@ pub fn calculate_composite_precision(
         return precision;
     }
 
-    // Not found - treat as external/unknown trait (count as 1)
+    // Not found - treat as external/unknown trait
     visiting.remove(rule_id);
-    cache.insert(rule_id.to_string(), 1);
-    1
+    cache.insert(rule_id.to_string(), BASE_TRAIT_PRECISION);
+    BASE_TRAIT_PRECISION
 }
 
 /// Validate and downgrade composite rules that don't meet precision requirements.
@@ -175,11 +622,13 @@ pub(crate) fn validate_hostile_composite_precision(
     composite_rules: &mut [CompositeTrait],
     trait_definitions: &[TraitDefinition],
     warnings: &mut Vec<String>,
+    min_hostile_precision: f32,
+    min_suspicious_precision: f32,
 ) {
-    let mut cache: HashMap<String, usize> = HashMap::new();
+    let mut cache: HashMap<String, f32> = HashMap::new();
 
     // First pass: calculate precision for HOSTILE/SUSPICIOUS rules (immutable borrow)
-    let scored_rules: Vec<(String, Criticality, usize)> = composite_rules
+    let scored_rules: Vec<(String, Criticality, f32)> = composite_rules
         .iter()
         .filter(|rule| matches!(rule.crit, Criticality::Hostile | Criticality::Suspicious))
         .map(|rule| {
@@ -199,16 +648,18 @@ pub(crate) fn validate_hostile_composite_precision(
     for (rule_id, crit, precision) in scored_rules {
         if let Some(rule) = composite_rules.iter_mut().find(|r| r.id == rule_id) {
             match crit {
-                Criticality::Hostile if precision < 4 => {
+                Criticality::Hostile if precision < min_hostile_precision => {
                     warnings.push(format!(
-                        "Composite trait '{}' is marked HOSTILE but has precision {} (need >=4).",
-                        rule_id, precision
+                        "Composite trait '{}' is marked HOSTILE but has precision {:.1} (need >={:.1}).",
+                        rule_id, precision, min_hostile_precision
                     ));
                     rule.crit = Criticality::Suspicious;
                 }
-                Criticality::Suspicious if precision < 2 => {
-                    // Keep this downgrade silent for now: existing trait sets still contain
-                    // many low-precision suspicious rules, and startup treats warnings as fatal.
+                Criticality::Suspicious if precision < min_suspicious_precision => {
+                    warnings.push(format!(
+                        "Composite trait '{}' is marked SUSPICIOUS but has precision {:.1} (need >={:.1}).",
+                        rule_id, precision, min_suspicious_precision
+                    ));
                     rule.crit = Criticality::Notable;
                 }
                 _ => {}
@@ -224,7 +675,10 @@ pub(crate) fn validate_hostile_composite_precision(
             "{:?}:{:?}:{:?}:{:?}:{:?}:{:?}:{:?}",
             t.r#if, t.platforms, t.r#for, t.size_min, t.size_max, t.not, t.unless
         );
-        trait_params.entry(signature).or_default().push(t.id.clone());
+        trait_params
+            .entry(signature)
+            .or_default()
+            .push(t.id.clone());
     }
 
     for (_sig, ids) in trait_params {

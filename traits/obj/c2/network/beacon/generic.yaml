@@ -308,7 +308,7 @@ composite_rules:
 
   - id: direct-http-c2
     desc: Direct HTTP C2 infrastructure
-    crit: suspicious
+    crit: notable
     conf: 0.95
     mbc: "B0030"
     attack: "T1071.001"
@@ -322,7 +322,7 @@ composite_rules:
 
   - id: c2-http-ip-binary
     desc: HTTP IP-based C2 in binary
-    crit: hostile
+    crit: notable
     conf: 0.95
     mbc: "B0030"
     attack: "T1071.001"

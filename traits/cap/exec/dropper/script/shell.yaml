@@ -178,7 +178,7 @@ composite_rules:
   # Tmp staging composite
   - id: tmp-staging
     desc: "/tmp staging directory usage"
-    crit: suspicious
+    crit: notable
     conf: 0.8
     mbc: "C0047"
     attack: "T1074.001"
@@ -242,7 +242,7 @@ composite_rules:
   # MIPS architecture composite
   - id: iot-arch-mips
     desc: "MIPS architecture binary (IoT target)"
-    crit: suspicious
+    crit: notable
     conf: 0.85
     needs: 1
     any:
@@ -252,7 +252,7 @@ composite_rules:
   # MIPSEL architecture composite
   - id: iot-arch-mpsl
     desc: "MIPSEL architecture binary (IoT target)"
-    crit: suspicious
+    crit: notable
     conf: 0.85
     needs: 1
     any:

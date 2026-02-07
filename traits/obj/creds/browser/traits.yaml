@@ -1,7 +1,7 @@
 composite_rules:
   - id: hackbrowserdata
     desc: HackBrowserData tool reference
-    crit: suspicious
+    crit: notable
     conf: 0.95
     attack: "T1555.003"
     mbc: "B0028"

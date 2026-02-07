@@ -313,7 +313,8 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
     }
 
     // Check for JPEG magic bytes (FF D8 FF)
-    if file_data.len() >= 3 && file_data[0] == 0xFF && file_data[1] == 0xD8 && file_data[2] == 0xFF {
+    if file_data.len() >= 3 && file_data[0] == 0xFF && file_data[1] == 0xD8 && file_data[2] == 0xFF
+    {
         return Ok(FileType::Jpeg);
     }
 

@@ -1,15 +1,13 @@
 # System Information
 # Commands and paths for retrieving hardware/system information
 
-defaults:
-  for: [python, shell]
-
 traits:
   # === DMI/SMBIOS ===
   - id: dmidecode
     desc: dmidecode command for hardware info
     crit: inert
     conf: 0.5
+    for: [python, shell]
     if:
       type: string
       substr: dmidecode
@@ -18,6 +16,7 @@ traits:
     desc: DMI sysfs path access
     crit: inert
     conf: 0.6
+    for: [python, shell]
     if:
       type: string
       substr: /sys/class/dmi
@@ -26,6 +25,7 @@ traits:
     desc: DMI product_name field
     crit: inert
     conf: 0.5
+    for: [python, shell]
     if:
       type: string
       substr: product_name
@@ -34,6 +34,7 @@ traits:
     desc: DMI sys_vendor field
     crit: inert
     conf: 0.5
+    for: [python, shell]
     if:
       type: string
       substr: sys_vendor
@@ -42,6 +43,32 @@ traits:
     desc: DMI bios_vendor field
     crit: inert
     conf: 0.5
+    for: [python, shell]
     if:
       type: string
       substr: bios_vendor
+
+  # === sysctl ===
+  - id: sysctl
+    desc: Query or modify kernel state via sysctl
+    crit: notable
+    mbc: "E1082"
+    attack: "T1082"
+    conf: 0.6
+    for: [elf, macho, so, dylib, c]
+    if:
+      type: symbol
+      regex: sysctl
+    platforms: [unix, linux, macos]
+
+  - id: sysctlbyname
+    desc: Read or modify kernel state by name
+    crit: notable
+    mbc: "E1082"
+    attack: "T1082"
+    conf: 0.6
+    for: [elf, macho, so, dylib, c]
+    if:
+      type: symbol
+      regex: sysctlbyname
+    platforms: [macos]

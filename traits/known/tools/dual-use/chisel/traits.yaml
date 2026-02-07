@@ -52,7 +52,7 @@ composite_rules:
 
   - id: tools/tunnel/chisel/detected
     desc: "Chisel tunneling tool detected"
-    crit: suspicious
+    crit: notable
     conf: 0.95
     attack: "T1090"
     any:

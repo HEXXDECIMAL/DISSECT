@@ -9,7 +9,7 @@ traits:
 composite_rules:
   - id: ios-cydia-substrate-trojan
     desc: Cydia Substrate trojan
-    crit: hostile
+    crit: notable
     conf: 0.95
     attack: "T1546"
     mbc: "C0041"
@@ -21,7 +21,7 @@ composite_rules:
 
   - id: ios-reverse-engineering-instrumented
     desc: Reverse engineering tool
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1564"
     for: [ipa]
@@ -32,7 +32,7 @@ composite_rules:
 
   - id: ios-obfuscated-trojan
     desc: Obfuscated injection
-    crit: hostile
+    crit: notable
     conf: 0.9
     attack: "T1546"
     mbc: "C0041"

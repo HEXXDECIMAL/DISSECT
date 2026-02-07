@@ -203,6 +203,16 @@ pub struct Args {
     /// Custom traits directory (overrides DISSECT_TRAITS_PATH env var and default "traits")
     #[arg(long, value_name = "DIR")]
     pub traits_dir: Option<String>,
+
+    /// Minimum recursive precision required for HOSTILE composite traits.
+    /// Rules below this threshold are downgraded to SUSPICIOUS.
+    #[arg(long, default_value_t = 4.0)]
+    pub min_hostile_precision: f32,
+
+    /// Minimum recursive precision required for SUSPICIOUS composite traits.
+    /// Rules below this threshold are downgraded to NOTABLE.
+    #[arg(long, default_value_t = 1.5)]
+    pub min_suspicious_precision: f32,
 }
 
 impl Args {
@@ -676,6 +686,28 @@ mod tests {
         let result = Args::try_parse_from(["dissect"]);
         assert!(result.is_ok());
         assert!(result.unwrap().paths.is_empty());
+    }
+
+    #[test]
+    fn test_precision_threshold_defaults() {
+        let args = Args::try_parse_from(["dissect", "file.bin"]).unwrap();
+        assert_eq!(args.min_hostile_precision, 4.0);
+        assert_eq!(args.min_suspicious_precision, 1.5);
+    }
+
+    #[test]
+    fn test_precision_threshold_flags() {
+        let args = Args::try_parse_from([
+            "dissect",
+            "--min-hostile-precision",
+            "5.5",
+            "--min-suspicious-precision",
+            "2.7",
+            "file.bin",
+        ])
+        .unwrap();
+        assert_eq!(args.min_hostile_precision, 5.5);
+        assert_eq!(args.min_suspicious_precision, 2.7);
     }
 
     #[test]

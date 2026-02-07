@@ -146,20 +146,32 @@ pub(crate) fn parse_file_types(types: &[String]) -> Vec<RuleFileType> {
             let variants = match name.to_lowercase().as_str() {
                 "all" | "*" => {
                     if is_exclusion {
-                        vec![] 
-                    } else { 
-                        vec![RuleFileType::All] 
+                        vec![]
+                    } else {
+                        vec![RuleFileType::All]
                     }
-                },
+                }
                 "binaries" | "binary" => vec![
-                    RuleFileType::Elf, RuleFileType::Macho, RuleFileType::Pe, 
-                    RuleFileType::Dylib, RuleFileType::So, RuleFileType::Dll, RuleFileType::Class
+                    RuleFileType::Elf,
+                    RuleFileType::Macho,
+                    RuleFileType::Pe,
+                    RuleFileType::Dylib,
+                    RuleFileType::So,
+                    RuleFileType::Dll,
+                    RuleFileType::Class,
                 ],
                 "scripts" | "scripting" | "script" => vec![
-                    RuleFileType::Shell, RuleFileType::Batch, RuleFileType::Python, 
-                    RuleFileType::JavaScript, RuleFileType::TypeScript, RuleFileType::Ruby, 
-                    RuleFileType::Php, RuleFileType::Perl, RuleFileType::Lua, 
-                    RuleFileType::PowerShell, RuleFileType::AppleScript
+                    RuleFileType::Shell,
+                    RuleFileType::Batch,
+                    RuleFileType::Python,
+                    RuleFileType::JavaScript,
+                    RuleFileType::TypeScript,
+                    RuleFileType::Ruby,
+                    RuleFileType::Php,
+                    RuleFileType::Perl,
+                    RuleFileType::Lua,
+                    RuleFileType::PowerShell,
+                    RuleFileType::AppleScript,
                 ],
                 "elf" => vec![RuleFileType::Elf],
                 "macho" => vec![RuleFileType::Macho],
@@ -193,24 +205,28 @@ pub(crate) fn parse_file_types(types: &[String]) -> Vec<RuleFileType> {
                 "packagejson" | "package.json" => vec![RuleFileType::PackageJson],
                 "chrome-manifest" | "chromemanifest" => vec![RuleFileType::ChromeManifest],
                 "cargo-toml" | "cargotoml" | "cargo.toml" => vec![RuleFileType::CargoToml],
-                "pyproject-toml" | "pyprojecttoml" | "pyproject.toml" => vec![RuleFileType::PyProjectToml],
+                "pyproject-toml" | "pyprojecttoml" | "pyproject.toml" => {
+                    vec![RuleFileType::PyProjectToml]
+                }
                 "github-actions" | "githubactions" => vec![RuleFileType::GithubActions],
-                "composer-json" | "composerjson" | "composer.json" => vec![RuleFileType::ComposerJson],
+                "composer-json" | "composerjson" | "composer.json" => {
+                    vec![RuleFileType::ComposerJson]
+                }
                 "jpeg" | "jpg" => vec![RuleFileType::Jpeg],
                 "png" => vec![RuleFileType::Png],
                 _ => vec![],
             };
 
             if name == "*" || name.eq_ignore_ascii_case("all") {
-                 if !is_exclusion {
-                     has_explicit_inclusion = true;
-                     inclusions.insert(RuleFileType::All);
-                 } else {
-                     for v in RuleFileType::all_concrete_variants() {
-                         exclusions.insert(v);
-                     }
-                 }
-                 continue;
+                if !is_exclusion {
+                    has_explicit_inclusion = true;
+                    inclusions.insert(RuleFileType::All);
+                } else {
+                    for v in RuleFileType::all_concrete_variants() {
+                        exclusions.insert(v);
+                    }
+                }
+                continue;
             }
 
             for v in variants {
@@ -226,7 +242,9 @@ pub(crate) fn parse_file_types(types: &[String]) -> Vec<RuleFileType> {
 
     let mut final_set: HashSet<RuleFileType>;
 
-    if inclusions.contains(&RuleFileType::All) || (!has_explicit_inclusion && !exclusions.is_empty()) {
+    if inclusions.contains(&RuleFileType::All)
+        || (!has_explicit_inclusion && !exclusions.is_empty())
+    {
         final_set = RuleFileType::all_concrete_variants().into_iter().collect();
     } else {
         final_set = inclusions.clone();
@@ -235,7 +253,7 @@ pub(crate) fn parse_file_types(types: &[String]) -> Vec<RuleFileType> {
     for exc in &exclusions {
         final_set.remove(exc);
     }
-    
+
     if !exclusions.is_empty() {
         let mut v: Vec<_> = final_set.into_iter().collect();
         v.sort();

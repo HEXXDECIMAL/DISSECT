@@ -508,7 +508,7 @@ composite_rules:
 
   - id: vm-based-obfuscation
     desc: "VM-based obfuscation detected"
-    crit: suspicious
+    crit: notable
     conf: 0.9
 
   # NOTE: Go/Rust runtimes have complex functions and large stack frames legitimately

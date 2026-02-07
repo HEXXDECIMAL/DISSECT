@@ -788,7 +788,7 @@ composite_rules:
   # ActiveXObject in modern JavaScript context (obsolete tech in modern code)
   - id: activex-modern-context
     desc: "ActiveXObject in modern JavaScript (obsolete"
-    crit: hostile
+    crit: notable
     conf: 0.95
     attack: "T1059"
     mbc: "B0024"

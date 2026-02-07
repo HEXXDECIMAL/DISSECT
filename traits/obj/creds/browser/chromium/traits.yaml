@@ -283,7 +283,7 @@ composite_rules:
 
   - id: password-theft
     desc: "Chromium password theft detected"
-    crit: suspicious
+    crit: notable
     conf: 0.95
 
   - id: credit-card-theft

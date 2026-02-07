@@ -154,7 +154,7 @@ composite_rules:
   # Combined anti-forensics helper
   - id: history-clearing
     desc: Shell history clearing techniques
-    crit: suspicious
+    crit: notable
     conf: 0.9
     needs: 1
     any:

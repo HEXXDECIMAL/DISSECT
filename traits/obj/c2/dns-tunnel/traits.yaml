@@ -167,7 +167,7 @@ composite_rules:
   # dnscat2 protocol
   - id: dnscat
     desc: dnscat2 DNS tunneling tool
-    crit: suspicious
+    crit: notable
     conf: 0.95
     needs: 1
     any:
@@ -190,7 +190,7 @@ composite_rules:
   # Generic DNS tunnel patterns
   - id: generic
     desc: Generic DNS tunneling patterns
-    crit: suspicious
+    crit: notable
     conf: 0.8
     needs: 1
     any:

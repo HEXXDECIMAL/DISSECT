@@ -47,7 +47,7 @@ traits:
 composite_rules:
   - id: ps1-reconstruction-loader
     desc: "PowerShell Payload Reconstruction Loader"
-    crit: hostile
+    crit: notable
     conf: 0.95
     file_types: [powershell]
     all:

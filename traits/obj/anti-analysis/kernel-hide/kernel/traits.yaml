@@ -953,7 +953,7 @@ composite_rules:
   # macOS kext rootkit hiding helper
   - id: macos-kext-rootkit-hiding
     desc: macOS kext rootkit hiding patterns
-    crit: suspicious
+    crit: notable
     conf: 0.9
     for: [c]
     needs: 1

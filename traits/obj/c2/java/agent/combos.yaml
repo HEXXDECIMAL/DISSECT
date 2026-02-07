@@ -59,7 +59,7 @@ composite_rules:
   # Java keylogger
   - id: java-keylogger
     desc: Java keylogging capability
-    crit: suspicious
+    crit: notable
     mbc: "T1056.001"
     attack: "T1056.001"
     conf: 0.95

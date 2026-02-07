@@ -1551,7 +1551,7 @@ composite_rules:
   # Advanced LKM Rootkit Flow
   - id: advanced-lkm-rootkit
     desc: "Advanced LKM rootkit detected"
-    crit: suspicious
+    crit: notable
     conf: 0.95
 
   # ============================================================

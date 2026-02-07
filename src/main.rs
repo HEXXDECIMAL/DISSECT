@@ -245,6 +245,8 @@ fn main() -> Result<()> {
                     args.all_files,
                     sample_extraction.as_ref(),
                     platforms.clone(),
+                    args.min_hostile_precision,
+                    args.min_suspicious_precision,
                 )?
             } else {
                 // Multiple targets or directory - use scan
@@ -259,6 +261,8 @@ fn main() -> Result<()> {
                     args.all_files,
                     sample_extraction.as_ref(),
                     platforms.clone(),
+                    args.min_hostile_precision,
+                    args.min_suspicious_precision,
                 )?
             }
         }
@@ -276,6 +280,8 @@ fn main() -> Result<()> {
             args.all_files,
             sample_extraction.as_ref(),
             platforms.clone(),
+            args.min_hostile_precision,
+            args.min_suspicious_precision,
         )?,
         Some(cli::Command::Diff { old, new }) => diff_analysis(&old, &new, &format)?,
         Some(cli::Command::Strings { target, min_length }) => {
@@ -283,7 +289,14 @@ fn main() -> Result<()> {
         }
         Some(cli::Command::Symbols { target }) => extract_symbols(&target, &format)?,
         Some(cli::Command::TestRules { target, rules }) => {
-            test_rules_debug(&target, &rules, &disabled, platforms.clone())?
+            test_rules_debug(
+                &target,
+                &rules,
+                &disabled,
+                platforms.clone(),
+                args.min_hostile_precision,
+                args.min_suspicious_precision,
+            )?
         }
         Some(cli::Command::TestMatch {
             target,
@@ -323,6 +336,8 @@ fn main() -> Result<()> {
             external_ip,
             &disabled,
             platforms.clone(),
+            args.min_hostile_precision,
+            args.min_suspicious_precision,
         )?,
         None => {
             // No subcommand - use paths from top-level args
@@ -344,6 +359,8 @@ fn main() -> Result<()> {
                 args.all_files,
                 sample_extraction.as_ref(),
                 platforms.clone(),
+                args.min_hostile_precision,
+                args.min_suspicious_precision,
             )?
         }
     };
@@ -372,6 +389,8 @@ fn analyze_file(
     all_files: bool,
     sample_extraction: Option<&types::SampleExtractionConfig>,
     platforms: Vec<composite_rules::Platform>,
+    min_hostile_precision: f32,
+    min_suspicious_precision: f32,
 ) -> Result<String> {
     let _start = std::time::Instant::now();
     let path = Path::new(target);
@@ -393,6 +412,8 @@ fn analyze_file(
             all_files,
             sample_extraction,
             platforms,
+            min_hostile_precision,
+            min_suspicious_precision,
         );
     }
 
@@ -407,8 +428,11 @@ fn analyze_file(
 
     // Load capability mapper
     let t1 = std::time::Instant::now();
-    let capability_mapper =
-        crate::capabilities::CapabilityMapper::new().with_platforms(platforms.clone());
+    let capability_mapper = crate::capabilities::CapabilityMapper::new_with_precision_thresholds(
+        min_hostile_precision,
+        min_suspicious_precision,
+    )
+    .with_platforms(platforms.clone());
     if timing {
         eprintln!("[TIMING] CapabilityMapper::new(): {:?}", t1.elapsed());
     }
@@ -591,12 +615,19 @@ fn scan_paths(
     include_all_files: bool,
     sample_extraction: Option<&types::SampleExtractionConfig>,
     platforms: Vec<composite_rules::Platform>,
+    min_hostile_precision: f32,
+    min_suspicious_precision: f32,
 ) -> Result<String> {
     use walkdir::WalkDir;
 
     // Load capability mapper once and share across all threads
-    let capability_mapper =
-        Arc::new(crate::capabilities::CapabilityMapper::new().with_platforms(platforms.clone()));
+    let capability_mapper = Arc::new(
+        crate::capabilities::CapabilityMapper::new_with_precision_thresholds(
+            min_hostile_precision,
+            min_suspicious_precision,
+        )
+        .with_platforms(platforms.clone()),
+    );
 
     // Pre-load YARA engine once and share across all threads
     let shared_yara_engine: Option<Arc<YaraEngine>> = if disabled.yara {
@@ -1569,6 +1600,8 @@ fn test_rules_debug(
     rules: &str,
     _disabled: &cli::DisabledComponents,
     platforms: Vec<composite_rules::Platform>,
+    min_hostile_precision: f32,
+    min_suspicious_precision: f32,
 ) -> Result<String> {
     let path = Path::new(target);
     if !path.exists() {
@@ -1589,8 +1622,11 @@ fn test_rules_debug(
     eprintln!("Detected file type: {:?}", file_type);
 
     // Load capability mapper
-    let capability_mapper =
-        crate::capabilities::CapabilityMapper::new().with_platforms(platforms.clone());
+    let capability_mapper = crate::capabilities::CapabilityMapper::new_with_precision_thresholds(
+        min_hostile_precision,
+        min_suspicious_precision,
+    )
+    .with_platforms(platforms.clone());
 
     // Read file data
     let binary_data = fs::read(path)?;
@@ -1689,6 +1725,8 @@ fn test_match_debug(
     external_ip: bool,
     _disabled: &cli::DisabledComponents,
     platforms: Vec<composite_rules::Platform>,
+    min_hostile_precision: f32,
+    min_suspicious_precision: f32,
 ) -> Result<String> {
     // Validate arguments based on search type
     if search_type == cli::SearchType::Kv {
@@ -1727,8 +1765,11 @@ fn test_match_debug(
     };
 
     // Load capability mapper
-    let capability_mapper =
-        crate::capabilities::CapabilityMapper::new().with_platforms(platforms.clone());
+    let capability_mapper = crate::capabilities::CapabilityMapper::new_with_precision_thresholds(
+        min_hostile_precision,
+        min_suspicious_precision,
+    )
+    .with_platforms(platforms.clone());
 
     // Read file data
     let binary_data = fs::read(path)?;

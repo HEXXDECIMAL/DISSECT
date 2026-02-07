@@ -181,7 +181,7 @@ composite_rules:
 
   - id: backdoor-hidden
     desc: Suspicious backdoor reference
-    crit: suspicious
+    crit: notable
     conf: 0.66
     needs: 1
     any:

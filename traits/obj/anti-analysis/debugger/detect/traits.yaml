@@ -117,6 +117,8 @@ traits:
       type: symbol
       exact: sysctlbyname
     platforms: [macos]
+    unless:
+      - id: meta/signed/type/platform
 
 composite_rules:
   # Process inspection composite (migrated from YARA)

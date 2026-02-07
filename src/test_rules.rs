@@ -368,7 +368,7 @@ impl<'a> RuleDebugger<'a> {
                 requirements: format!("Condition: {:?}", describe_condition(condition)),
                 condition_results: Vec::new(),
                 context_info: self.context_info(),
-                precision: Some(precision_value as f32),
+                precision: Some(precision_value),
             };
         }
 
@@ -384,7 +384,7 @@ impl<'a> RuleDebugger<'a> {
             requirements: format!("Condition: {:?}", describe_condition(condition)),
             condition_results: vec![cond_result],
             context_info: self.context_info(),
-            precision: Some(precision_value as f32),
+            precision: Some(precision_value),
         }
     }
 
@@ -420,7 +420,7 @@ impl<'a> RuleDebugger<'a> {
                 requirements: requirements.to_string(),
                 condition_results: Vec::new(),
                 context_info: self.context_info(),
-                precision: Some(precision_value as f32),
+                precision: Some(precision_value),
             };
         }
 
@@ -533,7 +533,7 @@ impl<'a> RuleDebugger<'a> {
             requirements: requirements.to_string(),
             condition_results,
             context_info: self.context_info(),
-            precision: Some(precision_value as f32),
+            precision: Some(precision_value),
         }
     }
 
@@ -578,7 +578,7 @@ impl<'a> RuleDebugger<'a> {
             requirements: format!("Condition: {:?}", describe_condition(&trait_def.r#if)),
             condition_results: Vec::new(),
             context_info: self.context_info(),
-            precision: Some(precision_value as f32),
+            precision: Some(precision_value),
         };
 
         // Check platform/file type constraints
@@ -656,7 +656,7 @@ impl<'a> RuleDebugger<'a> {
             requirements: build_composite_requirements(composite),
             condition_results: Vec::new(),
             context_info: self.context_info(),
-            precision: Some(precision_value as f32),
+            precision: Some(precision_value),
         };
 
         // Check platform/file type constraints

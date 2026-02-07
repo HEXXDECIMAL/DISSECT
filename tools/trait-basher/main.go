@@ -134,8 +134,10 @@ Add high-signal detections for behaviors this sample family exhibits and current
 
 ## Done When
 - Missing capabilities/objectives are detected with correct taxonomy.
-- Traits remain generic and reusable.
+- Traits remain accurate, well-described, generic and reusable.
 - Criticality is appropriate.
+- There are no duplicate traits shown in --format=jsonl mode
+- There are no false positives or poorly described traits
 - Re-run confirms improved coverage.
 
 ## Debug Loop
@@ -190,6 +192,7 @@ const badTaskFile = `## Workflow
 - C2 needs command/control semantics (beaconing, tasking, bidirectional control).
 - Exfil needs data access + outbound transfer semantics.
 - Keep generic crypto/network primitives out of objective traits unless composition justifies it.
+- Consolidate multiple traits that demonstrate the same behavior when possible
 
 ## Avoid
 - File-specific signatures as primary detection logic.

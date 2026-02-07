@@ -277,7 +277,7 @@ composite_rules:
   # reGeorg/Tunna web tunnel
   - id: regeorg
     desc: reGeorg/Tunna web tunneling
-    crit: suspicious
+    crit: notable
     conf: 0.9
     needs: 1
     any:
@@ -300,7 +300,7 @@ composite_rules:
   # Ngrok tunneling
   - id: ngrok
     desc: Ngrok tunneling service
-    crit: suspicious
+    crit: notable
     conf: 0.85
     needs: 1
     any:

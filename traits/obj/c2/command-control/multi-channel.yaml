@@ -5,7 +5,7 @@
 composite_rules:
   - id: redundant-c2-infrastructure
     desc: Multiple C2 communication channels (failover/redundancy)
-    crit: hostile
+    crit: notable
     conf: 0.9
     attack: "T1071"
     mbc: "B0030"

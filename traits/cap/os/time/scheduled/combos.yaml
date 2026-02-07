@@ -17,7 +17,7 @@ composite_rules:
   # Probabilistic execution: Random number decides whether to execute
   - id: probabilistic-execution
     desc: "Probabilistic execution: uses randomness to"
-    crit: suspicious
+    crit: notable
     mbc: "B0009"
     attack: "T1497"
     conf: 0.9

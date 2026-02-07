@@ -3,55 +3,6 @@
 # ATT&CK: T1083 (File and Directory Discovery), T1005 (Data from Local System)
 
 traits:
-  # Symbolic link operations
-  - id: readlink
-    desc: Read symbolic link target path
-    crit: notable
-    mbc: "E1083"
-    attack: "T1083"
-    conf: 0.8
-    for: [elf, macho, so, dylib, c]
-    if:
-      type: symbol
-      regex: readlink
-    platforms: [unix, linux, macos]
-
-  - id: realpath
-    desc: Resolve absolute pathname (follows symlinks)
-    crit: inert
-    mbc: "E1083"
-    attack: "T1083"
-    conf: 0.5
-    for: [elf, macho, so, dylib, c]
-    if:
-      type: symbol
-      regex: realpath
-    platforms: [unix, linux, macos]
-
-  - id: symlink
-    desc: Create symbolic link
-    crit: notable
-    mbc: "E1222"
-    attack: "T1222"
-    conf: 0.6
-    for: [elf, macho, so, dylib, c]
-    if:
-      type: symbol
-      regex: symlink
-    platforms: [unix, linux, macos]
-
-  - id: link
-    desc: Create hard link to file
-    crit: notable
-    mbc: "E1222"
-    attack: "T1222"
-    conf: 0.6
-    for: [elf, macho, so, dylib, c]
-    if:
-      type: symbol
-      exact: link
-    platforms: [unix, linux, macos]
-
   # File metadata operations
   - id: stat
     desc: Read file status and metadata
@@ -76,55 +27,6 @@ traits:
       type: symbol
       regex: access
     platforms: [unix, linux, macos]
-
-  # Extended attributes (macOS/Linux)
-  - id: getxattr
-    desc: Read extended file attribute value
-    crit: notable
-    mbc: "E1083"
-    attack: "T1083"
-    conf: 0.75
-    for: [elf, macho, so, dylib, c]
-    if:
-      type: symbol
-      regex: getxattr
-    platforms: [macos, linux]
-
-  - id: listxattr
-    desc: Enumerate extended file attributes
-    crit: notable
-    mbc: "E1083"
-    attack: "T1083"
-    conf: 0.75
-    for: [elf, macho, so, dylib, c]
-    if:
-      type: symbol
-      regex: listxattr
-    platforms: [macos, linux]
-
-  - id: setxattr
-    desc: Set extended file attributes
-    crit: notable
-    mbc: "E1222"
-    attack: "T1222"
-    conf: 0.6
-    for: [elf, macho, so, dylib, c]
-    if:
-      type: symbol
-      regex: setxattr
-    platforms: [macos, linux]
-
-  - id: removexattr
-    desc: Remove extended file attributes
-    crit: notable
-    mbc: "E1222"
-    attack: "T1222"
-    conf: 0.6
-    for: [elf, macho, so, dylib, c]
-    if:
-      type: symbol
-      regex: removexattr
-    platforms: [macos, linux]
 
   # File locking
   - id: flock

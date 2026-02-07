@@ -484,7 +484,7 @@ composite_rules:
   # === Dependency Confusion Indicators Helper ===
   - id: depconf-victim-indicators
     desc: Dependency confusion victim-targeting language
-    crit: suspicious
+    crit: notable
     conf: 0.90
     attack: "T1195.002"
     for: [all]

@@ -43,6 +43,17 @@ traits:
     if:
       type: base64
       regex: "https?://[a-zA-Z0-9.-]+\\.[a-z]{2,}"
+      not:
+        - substr: "apple.com"
+        - substr: "digicert.com"
+        - substr: "entrust.net"
+        - substr: "globalsign.com"
+        - substr: "sectigo.com"
+        - substr: "pki.goog"
+        - substr: "microsoft.com"
+        - regex: "crl\\.|ocsp\\."
+    unless:
+      - id: meta/signed/type/platform
 
   - id: decoded-curl-wget
     desc: Download command in decoded payload

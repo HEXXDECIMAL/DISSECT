@@ -129,7 +129,10 @@ impl MachOAnalyzer {
                     metrics.binary = Some(binary_metrics);
 
                     if let Some(ref mut macho_metrics) = metrics.macho {
-                        macho_metrics.has_entitlements = !codesig_data.as_ref().map(|c| c.entitlements.is_empty()).unwrap_or(true);
+                        macho_metrics.has_entitlements = !codesig_data
+                            .as_ref()
+                            .map(|c| c.entitlements.is_empty())
+                            .unwrap_or(true);
                         if let Some(ref codesig) = codesig_data {
                             macho_metrics.signature_type =
                                 Some(codesig.signature_type.as_str().to_string());

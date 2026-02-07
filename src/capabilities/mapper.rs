@@ -45,6 +45,9 @@ pub struct CapabilityMapper {
 }
 
 impl CapabilityMapper {
+    const DEFAULT_MIN_HOSTILE_PRECISION: f32 = 4.0;
+    const DEFAULT_MIN_SUSPICIOUS_PRECISION: f32 = 2.0;
+
     /// Create an empty capability mapper for testing
     pub fn empty() -> Self {
         Self {
@@ -70,10 +73,24 @@ impl CapabilityMapper {
     }
 
     pub fn new() -> Self {
+        Self::new_with_precision_thresholds(
+            Self::DEFAULT_MIN_HOSTILE_PRECISION,
+            Self::DEFAULT_MIN_SUSPICIOUS_PRECISION,
+        )
+    }
+
+    pub fn new_with_precision_thresholds(
+        min_hostile_precision: f32,
+        min_suspicious_precision: f32,
+    ) -> Self {
         // Try to load from capabilities directory, fall back to single file
         // YAML parse errors or invalid trait configurations are fatal
         let traits_dir = crate::cache::traits_path();
-        match Self::from_directory(&traits_dir) {
+        match Self::from_directory_with_precision_thresholds(
+            &traits_dir,
+            min_hostile_precision,
+            min_suspicious_precision,
+        ) {
             Ok(mapper) => {
                 return mapper;
             }
@@ -98,7 +115,11 @@ impl CapabilityMapper {
             }
         }
 
-        match Self::from_yaml("capabilities.yaml") {
+        match Self::from_yaml_with_precision_thresholds(
+            "capabilities.yaml",
+            min_hostile_precision,
+            min_suspicious_precision,
+        ) {
             Ok(mapper) => {
                 return mapper;
             }
@@ -129,6 +150,18 @@ impl CapabilityMapper {
 
     /// Load capability mappings from directory of YAML files (recursively)
     pub fn from_directory<P: AsRef<Path>>(dir_path: P) -> Result<Self> {
+        Self::from_directory_with_precision_thresholds(
+            dir_path,
+            Self::DEFAULT_MIN_HOSTILE_PRECISION,
+            Self::DEFAULT_MIN_SUSPICIOUS_PRECISION,
+        )
+    }
+
+    pub fn from_directory_with_precision_thresholds<P: AsRef<Path>>(
+        dir_path: P,
+        min_hostile_precision: f32,
+        min_suspicious_precision: f32,
+    ) -> Result<Self> {
         let debug = std::env::var("DISSECT_DEBUG").is_ok();
         let timing = std::env::var("DISSECT_TIMING").is_ok();
         let dir_path = dir_path.as_ref();
@@ -469,6 +502,8 @@ impl CapabilityMapper {
             &mut composite_rules,
             &trait_definitions,
             &mut warnings,
+            min_hostile_precision,
+            min_suspicious_precision,
         );
 
         // Validate trait references in composite rules
@@ -782,6 +817,18 @@ impl CapabilityMapper {
 
     /// Load capability mappings from YAML file
     pub fn from_yaml<P: AsRef<Path>>(path: P) -> Result<Self> {
+        Self::from_yaml_with_precision_thresholds(
+            path,
+            Self::DEFAULT_MIN_HOSTILE_PRECISION,
+            Self::DEFAULT_MIN_SUSPICIOUS_PRECISION,
+        )
+    }
+
+    pub fn from_yaml_with_precision_thresholds<P: AsRef<Path>>(
+        path: P,
+        min_hostile_precision: f32,
+        min_suspicious_precision: f32,
+    ) -> Result<Self> {
         let bytes = fs::read(path.as_ref()).context("Failed to read capabilities YAML file")?;
         let content = String::from_utf8_lossy(&bytes);
 
@@ -844,6 +891,8 @@ impl CapabilityMapper {
             &mut composite_rules,
             &trait_definitions,
             &mut warnings,
+            min_hostile_precision,
+            min_suspicious_precision,
         );
 
         // Validate trait and composite conditions and warn about problematic patterns

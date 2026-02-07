@@ -41,7 +41,7 @@ composite_rules:
 
   - id: botnet-commander-pattern
     desc: Botnet commander with hardcoded infrastructure
-    crit: hostile
+    crit: notable
     conf: 0.9
     platforms: [all]
     for: [pe, elf, macho]

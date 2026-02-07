@@ -27,5 +27,5 @@ composite_rules:
   # NX disabled + command execution = shellcode injection risk
   - id: nx-disabled-with-exec
     desc: "NX disabled with exec capability"
-    crit: suspicious
+    crit: notable
     conf: 0.85

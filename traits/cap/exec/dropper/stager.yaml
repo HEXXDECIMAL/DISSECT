@@ -12,7 +12,7 @@ composite_rules:
   # Helper: Network syscalls
   - id: arm-network-syscalls
     desc: ARM direct network syscalls
-    crit: suspicious
+    crit: notable
     any:
       - id: cap/comm/syscall/arm/svc-socket
       - id: cap/comm/syscall/arm/svc-connect

@@ -42,3 +42,12 @@ traits:
     if:
       type: string
       regex: "/var/(lib/)?(docker|containers)/[\\w\\.\\-/]+"
+
+  # === Generic Unix/Linux system paths ===
+  - id: unix-system-paths
+    desc: Common system path reference
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: '/usr/lib(32|64|exec)?|/usr/s?bin|/boot|/proc|/dev|/sys'
