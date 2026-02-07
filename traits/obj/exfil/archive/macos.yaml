@@ -9,14 +9,6 @@ defaults:
 
 traits:
   # === ditto compress atomic indicators ===
-  - id: ditto-ck-flags
-    desc: ditto -c -k compression flags
-    crit: notable
-    conf: 0.75
-    if:
-      type: string
-      regex: "ditto\\s+-c\\s+-k"
-
   - id: ditto-keepparent
     desc: ditto --keepParent compression
     crit: notable
@@ -26,14 +18,6 @@ traits:
       regex: "ditto.{0,30}--keepParent.{0,30}-c"
 
   # === ditto sequester atomic indicators ===
-  - id: ditto-sequesterrsrc
-    desc: ditto --sequesterRsrc flag
-    crit: notable
-    conf: 0.8
-    if:
-      type: string
-      substr: "--sequesterRsrc"
-
   - id: ditto-rsrc-flag
     desc: ditto -rsrc flag
     crit: notable
@@ -92,7 +76,7 @@ composite_rules:
     conf: 0.85
     needs: 1
     any:
-      - id: ditto-ck-flags
+      - id: obj/collect/archive/macos/ditto-ck-flags
       - id: ditto-keepparent
 
   # ditto sequester composite
@@ -102,7 +86,7 @@ composite_rules:
     conf: 0.9
     needs: 1
     any:
-      - id: ditto-sequesterrsrc
+      - id: obj/collect/archive/macos/ditto-sequester
       - id: ditto-rsrc-flag
 
   # zip create composite

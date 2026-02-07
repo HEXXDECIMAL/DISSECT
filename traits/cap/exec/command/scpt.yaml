@@ -18,7 +18,7 @@ traits:
     attack: "T1059.004"
     if:
       type: string
-      pattern: "^syso\\.exec$"
+      regex: "^syso\\.exec$"
 
   - id: shell-cmd
     desc: "do shell script (command)"
@@ -38,7 +38,7 @@ traits:
     conf: 0.95
     if:
       type: string
-      pattern: "^syso\\.dela$"
+      regex: "^syso\\.dela$"
 
   # ============================================
   # External Script Loading (syso.load)
@@ -49,7 +49,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      pattern: "^syso\\.load$"
+      regex: "^syso\\.load$"
 
   - id: load-script-cmd
     desc: "load script (command)"
@@ -69,7 +69,7 @@ traits:
     attack: "T1204.001"
     if:
       type: string
-      pattern: "^syso\\.open$"
+      regex: "^syso\\.open$"
 
   - id: open-url
     desc: "open URL (Apple Event)"
@@ -78,7 +78,7 @@ traits:
     attack: "T1204.001"
     if:
       type: string
-      pattern: "^syso\\.surl$"
+      regex: "^syso\\.surl$"
 
   - id: get-url
     desc: "get URL (Apple Event)"
@@ -86,7 +86,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      pattern: "^syso\\.GUrl$"
+      regex: "^syso\\.GUrl$"
 
   - id: open-location-cmd
     desc: "open location (command)"
@@ -113,7 +113,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      pattern: "^aevt\\.oapp$"
+      regex: "^aevt\\.oapp$"
 
   - id: quit-app
     desc: "quit application (Apple Event)"
@@ -121,7 +121,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      pattern: "^aevt\\.quit$"
+      regex: "^aevt\\.quit$"
 
   - id: reopen-app
     desc: "reopen application (Apple Event)"
@@ -129,7 +129,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      pattern: "^aevt\\.rapp$"
+      regex: "^aevt\\.rapp$"
 
   # ============================================
   # UI Automation
@@ -140,7 +140,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      pattern: "^misc\\.actv$"
+      regex: "^misc\\.actv$"
 
   - id: do-script
     desc: "do script in application"
@@ -148,7 +148,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      pattern: "^misc\\.dosc$"
+      regex: "^misc\\.dosc$"
 
   - id: select
     desc: "select UI element"
@@ -156,7 +156,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      pattern: "^misc\\.slct$"
+      regex: "^misc\\.slct$"
 
   # ============================================
   # File Operations
@@ -167,7 +167,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      pattern: "^ears\\.ffdr$"
+      regex: "^ears\\.ffdr$"
 
   - id: count
     desc: "count items"
@@ -175,7 +175,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      pattern: "^core\\.cnte$"
+      regex: "^core\\.cnte$"
 
   - id: delete
     desc: "delete items"
@@ -184,7 +184,7 @@ traits:
     attack: "T1070.004"
     if:
       type: string
-      pattern: "^core\\.dele$"
+      regex: "^core\\.dele$"
 
   - id: move
     desc: "move items"
@@ -192,7 +192,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      pattern: "^core\\.move$"
+      regex: "^core\\.move$"
 
   - id: duplicate
     desc: "duplicate items"
@@ -200,7 +200,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      pattern: "^core\\.clon$"
+      regex: "^core\\.clon$"
 
 composite_rules:
   # ============================================

@@ -118,7 +118,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      contains: "DateTimeFormat().resolvedOptions().timeZone"
+      substr: "DateTimeFormat().resolvedOptions().timeZone"
 
   - id: js-gettimezoneoffset
     desc: getTimezoneOffset() call
@@ -127,7 +127,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      contains: "getTimezoneOffset()"
+      substr: "getTimezoneOffset()"
 
   # === Locale environment variable access (scripting) ===
   - id: env-lang-check

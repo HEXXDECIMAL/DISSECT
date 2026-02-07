@@ -5,7 +5,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      exact: "POST"
+      word: "POST"
 
   - id: post-ast
     desc: HTTP POST AST calls

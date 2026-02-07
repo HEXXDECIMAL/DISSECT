@@ -16,14 +16,6 @@ traits:
       exact: "GetStartupInfoW"
 
   # === Module Information ===
-  - id: get-module-filename
-    desc: Get module file path
-    crit: inert
-    conf: 0.90
-    if:
-      type: symbol
-      exact: "GetModuleFileNameW"
-
   - id: get-module-filename-ex
     desc: Get module filename for process
     crit: inert

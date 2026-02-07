@@ -3,14 +3,6 @@
 
 traits:
   # === Temp directory atomic indicators ===
-  - id: tmp-ref
-    desc: "Reference to tmp path"
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      exact: "tmp"
-
   - id: tempfile-ref
     desc: "Reference to tempfile module"
     crit: inert
@@ -37,7 +29,7 @@ composite_rules:
     conf: 0.4
     needs: 1
     any:
-      - id: tmp-ref
+      - id: cap/data/text/generic/tmp
       - id: tempfile-ref
       - id: environ-tmp
 

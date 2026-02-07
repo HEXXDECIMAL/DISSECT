@@ -45,3 +45,4 @@ traits:
     if:
       type: content
       regex: 'touch\s+-r\s+[^\s]+'
+      count_min: 2

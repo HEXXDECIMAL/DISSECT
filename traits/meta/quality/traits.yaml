@@ -578,7 +578,7 @@ traits:
     for: [python]
     if:
       type: string
-      word: "pytest"
+      regex: "import\\s+pytest|from\\s+pytest\\s+import"
 
   # === Atomic: Metrics/Telemetry ===
 

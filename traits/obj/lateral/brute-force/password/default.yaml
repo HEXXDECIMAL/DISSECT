@@ -66,27 +66,7 @@ traits:
       # Match guest in credential context (user:pass combo or with control chars)
       regex: "(?:[\\x00-\\x1f]guest[\\x00-\\x1f]?|\\bguest:)"
 
-  - id: iot-vizxv
-    desc: "Default IoT credential: vizxv (Dahua)"
-    crit: suspicious
-    conf: 0.95
-    attack: "T1110.001"
-    for: [elf]
-    if:
-      type: string
-      substr: "vizxv"
-
   # === IoT ZTE credential atomic indicators ===
-  - id: iot-zte521
-    desc: "Default IoT credential: Zte521"
-    crit: suspicious
-    conf: 0.9
-    attack: "T1110.001"
-    for: [elf]
-    if:
-      type: string
-      substr: "Zte521"
-
   - id: iot-pte521
     desc: "Default IoT credential: Pte521"
     crit: suspicious
@@ -116,26 +96,6 @@ traits:
     if:
       type: string
       substr: "Zxic521"
-
-  - id: iot-oelinux
-    desc: "Default IoT credential: oelinux123"
-    crit: suspicious
-    conf: 0.95
-    attack: "T1110.001"
-    for: [elf]
-    if:
-      type: string
-      substr: "oelinux123"
-
-  - id: iot-xc35
-    desc: "Default IoT credential: xc3511 (Hikvision)"
-    crit: suspicious
-    conf: 0.95
-    attack: "T1110.001"
-    for: [elf]
-    if:
-      type: string
-      substr: "xc3511"
 
   - id: telnet-combo
     desc: "Telnet username:password combo format"
@@ -195,7 +155,7 @@ composite_rules:
     for: [elf]
     needs: 1
     any:
-      - id: iot-zte521
+      - id: obj/lateral/brute-force/iot-creds/router-cred-zte
       - id: iot-pte521
       - id: iot-pon521
       - id: iot-zxic521

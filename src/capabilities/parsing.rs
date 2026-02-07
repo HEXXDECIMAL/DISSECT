@@ -173,6 +173,8 @@ pub(crate) fn parse_file_types(types: &[String]) -> Vec<RuleFileType> {
                 "composer-json" | "composerjson" | "composer.json" => {
                     vec![RuleFileType::ComposerJson]
                 }
+                "jpeg" | "jpg" => vec![RuleFileType::Jpeg],
+                "png" => vec![RuleFileType::Png],
                 _ => vec![],
             }
         })

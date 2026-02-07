@@ -15,14 +15,6 @@ traits:
       type: string
       regex: "curl\\s"
 
-  - id: libcurl-ref
-    desc: libcurl library
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      substr: "libcurl"
-
   - id: curlopt-ref
     desc: CURLOPT constant
     crit: inert
@@ -76,7 +68,7 @@ composite_rules:
     needs: 1
     any:
       - id: curl-cmd
-      - id: libcurl-ref
+      - id: cap/exec/load/libcurl-ref
       - id: curlopt-ref
 
   - id: wget

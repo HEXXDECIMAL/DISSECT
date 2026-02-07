@@ -152,25 +152,7 @@ traits:
       type: string
       substr: "axios.post"
 
-  - id: fetch-call
-    desc: fetch() call
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "fetch("
-
   # === HTTP library atomic indicators ===
-  - id: axios-import
-    desc: axios library usage
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "axios"
-
 composite_rules:
   # Helper composites
   - id: post-method-variants
@@ -203,7 +185,7 @@ composite_rules:
       - id: axios-post-call
       - id: node-https-request
       - id: node-http-request
-      - id: fetch-call
+      - id: cap/comm/http/request/fetch-string
 
   # HTTP libraries composite
   - id: node-http-libs
@@ -213,10 +195,10 @@ composite_rules:
     for: [javascript, typescript]
     needs: 1
     any:
-      - id: axios-import
+      - id: cap/comm/http/request/axios
       - id: node-https-request
       - id: node-http-request
-      - id: fetch-call
+      - id: cap/comm/http/request/fetch-string
 
   # Collect and exfil pattern
   - id: node-collect-exfil

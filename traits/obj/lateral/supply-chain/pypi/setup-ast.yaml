@@ -35,16 +35,6 @@ traits:
       type: content
       exact: "pre_install()"
 
-  # === AST Pattern: run method with exec ===
-  - id: ast-run-with-exec
-    desc: Install run with execution
-    crit: suspicious
-    conf: 0.90
-    if:
-      type: ast
-      kind: function
-      exact: "def run\\(self\\):"
-
   # === AST Pattern: subprocess in setup ===
   - id: ast-subprocess-in-setup
     desc: Subprocess call in setup

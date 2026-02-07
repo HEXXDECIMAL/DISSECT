@@ -51,16 +51,6 @@ traits:
       kind: call
       exact: "startfile\\("
 
-  # === AST Pattern: Import inside method ===
-  - id: ast-import-in-run-method
-    desc: Import inside run method
-    crit: suspicious
-    conf: 0.80
-    if:
-      type: ast
-      kind: function
-      exact: "def run\\(self\\):"
-
   # === AST Pattern: Method with multiple calls ===
   - id: ast-method-with-clone-and-startfile
     desc: Method with clone and startfile
@@ -115,4 +105,4 @@ composite_rules:
     all:
       - id: ast-staged-payload-delivery
       - id: ast-method-with-clone-and-startfile
-      - id: ast-import-in-run-method
+      - id: obj/lateral/supply-chain/pypi/ast-install-method-override

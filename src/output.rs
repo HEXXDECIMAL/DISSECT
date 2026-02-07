@@ -299,7 +299,11 @@ fn format_evidence(finding: &Finding) -> String {
 
     // Truncate if too long for display
     if joined.len() > EVIDENCE_MAX_WIDTH {
-        format!("{}...", &joined[..EVIDENCE_MAX_WIDTH - 3])
+        let mut end = EVIDENCE_MAX_WIDTH - 3;
+        while !joined.is_char_boundary(end) && end > 0 {
+            end -= 1;
+        }
+        format!("{}...", &joined[..end])
     } else {
         joined
     }

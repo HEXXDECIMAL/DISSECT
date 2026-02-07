@@ -188,32 +188,6 @@ traits:
       # Network scanner context, not generic "scanner" word
       regex: "(?i)(?:port[_-]?scanner|network[_-]?scanner|ssh[_-]?scanner|scanner[_-]?(?:thread|target|port))"
 
-  # === Authentication method atomic indicators ===
-  - id: keyboard-interactive
-    desc: SSH keyboard-interactive authentication
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      substr: "keyboard-interactive"
-
-  # === Authentication error atomic indicators ===
-  - id: auth-failed
-    desc: Authentication failed error message
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      substr: "Authentication failed"
-
-  - id: permission-denied
-    desc: Permission denied error message
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      substr: "Permission denied"
-
   - id: scanning-keyword
     desc: scanning keyword
     crit: inert
@@ -263,13 +237,6 @@ composite_rules:
       - id: scanner-keyword
       - id: scanning-keyword
       - id: cap/comm/socket/connect/connect
-
-  # Helper: Threading indicators (references cap/process/threading traits)
-  - id: threading
-    desc: Threading/concurrency indicators
-    any:
-      - id: cap/process/threading/pthread
-      - id: cap/process/threading/goroutine
 
   # Helper: Default IoT credentials (all 15)
   - id: default-creds
@@ -350,7 +317,7 @@ composite_rules:
     desc: SSH port with threading
     all:
       - id: ssh-port-refs
-      - id: threading
+      - id: cap/process/threading/concurrent
       - id: cap/comm/socket/connect/connect
 
   # SSH scanner patterns
@@ -377,11 +344,3 @@ composite_rules:
       - id: scanner
       - id: iot-creds
       - id: auth-spray
-
-  # === Libssh atomic indicators ===
-  - id: libssh
-    desc: libssh library reference (Brute-Force)
-    crit: notable
-    conf: 0.8
-    any:
-      - id: cap/comm/ssh/client/libssh

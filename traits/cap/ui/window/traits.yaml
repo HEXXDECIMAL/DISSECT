@@ -178,13 +178,6 @@ traits:
       type: symbol
       exact: "SendMessageTimeoutW"
 
-  - id: peek-message
-    desc: Peek at message queue
-    crit: inert
-    conf: 0.70
-    if:
-      type: symbol
-      exact: "PeekMessageW"
 
   - id: dispatch-message
     desc: Dispatch window message
@@ -270,14 +263,6 @@ traits:
       exact: "CharPrevW"
 
   # === Message Box ===
-  - id: message-box-indirect
-    desc: Custom message box
-    crit: inert
-    conf: 0.70
-    if:
-      type: symbol
-      exact: "MessageBoxIndirectW"
-
   - id: exit-windows-ex
     desc: Shutdown/restart system
     crit: suspicious

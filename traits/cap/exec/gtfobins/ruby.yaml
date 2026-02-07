@@ -9,26 +9,6 @@ defaults:
   platforms: [all]
 
 traits:
-  # === Fiddle Library Loading ===
-  - id: fiddle-dlopen
-    desc: Fiddle dynamic library loading
-    crit: suspicious
-    conf: 0.85
-    attack: "T1059"
-    if:
-      type: string
-      regex: 'require.{0,50}fiddle|Fiddle\.dlopen|dlopen.{0,50}lib'
-
-  # === Shared Library Execution ===
-  - id: shared-lib-exec
-    desc: Shared library execution via Ruby
-    crit: notable
-    conf: 0.90
-    attack: "T1059"
-    if:
-      type: string
-      regex: '\.so.{0,50}ruby|fiddle.{0,50}\.so|lib\.so'
-
   # === Setuid Privilege Escalation ===
   - id: setuid-privesc
     desc: Setuid privilege escalation
@@ -97,8 +77,8 @@ composite_rules:
     attack: "T1059"
     needs: 2
     any:
-      - id: fiddle-dlopen
-      - id: shared-lib-exec
+      - id: cap/exec/dylib/fiddle-dlopen
+      - id: cap/exec/dylib/shared-lib-exec
 
   # === GTFOBins Privilege Escalation ===
   - id: gtfobins-privesc

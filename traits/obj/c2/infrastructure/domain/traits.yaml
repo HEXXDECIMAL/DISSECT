@@ -594,15 +594,6 @@ traits:
       type: string
       regex: 'chisel\s+server'
 
-  - id: chisel-github
-    desc: Chisel GitHub repo reference
-    crit: inert
-    conf: 0.7
-    attack: "T1572"
-    if:
-      type: string
-      substr: "jpillora/chisel"
-
 composite_rules:
   - id: c2-domain
     desc: "Likely C2 domain (suspicious TLD"
@@ -709,4 +700,4 @@ composite_rules:
     any:
       - id: chisel-client
       - id: chisel-server
-      - id: chisel-github
+      - id: known/tools/offensive/chisel-ref

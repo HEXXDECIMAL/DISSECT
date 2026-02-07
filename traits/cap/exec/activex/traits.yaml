@@ -2,112 +2,57 @@
 # Detects Windows COM object creation for various malware purposes
 # Generic indicator for VBScript/JScript malware
 
+defaults:
+  crit: notable
+  conf: 0.8
+  platforms: [windows]
+  for: [javascript]
+  attack: "T1059.005"
+  mbc: "E1243"
+
 traits:
   - id: activex-filesystem
     desc: FileSystemObject COM
-    crit: notable
-    conf: 0.8
-    platforms: [windows]
-    for: [javascript]
     if:
       type: string
       substr: "Scripting.FileSystemObject"
-    attack: "T1566"
-    mbc: "E1082"
 
   - id: activex-wshell
     desc: WScript.Shell COM
-    crit: notable
-    conf: 0.85
-    platforms: [windows]
-    for: [javascript]
     if:
       type: string
       substr: "WScript.Shell"
-    attack: "T1059.005"
-    mbc: "E1243"
 
   - id: activex-shell-app
     desc: Shell.Application COM
-    crit: notable
-    conf: 0.85
-    platforms: [windows]
-    for: [javascript]
     if:
       type: string
       substr: "Shell.Application"
-    attack: "T1059.005"
-    mbc: "E1243"
 
   - id: activex-xmlhttp
-    desc: MSXML2.XMLHTTP COM
-    crit: notable
-    conf: 0.8
-    platforms: [windows]
-    for: [javascript]
+    desc: MSXML2.XMLHTTP or MSXML.XMLHTTP COM
     if:
       type: string
       any:
         - substr: "MSXML2.XMLHTTP"
         - substr: "MSXML.XMLHTTP"
-    attack: "T1071"
-    mbc: "C0005"
 
   - id: activex-winhttp
     desc: WinHTTP request object
-    crit: notable
-    conf: 0.8
-    platforms: [windows]
-    for: [javascript]
     if:
       type: string
       substr: "WinHTTP.WinHTTPRequest"
-    attack: "T1071"
-    mbc: "C0005"
-
-  - id: activex-scripting
-    desc: Scripting COM object
-    crit: notable
-    conf: 0.7
-    platforms: [windows]
-    for: [javascript]
-    if:
-      type: string
-      any:
-        - substr: "Scripting.Dictionary"
-        - substr: "Scripting.FileSystemObject"
 
   - id: activex-wmi
     desc: WbemScripting.SWbemLocator
-    crit: notable
-    conf: 0.8
-    platforms: [windows]
-    for: [javascript]
     if:
       type: string
       substr: "WbemScripting.SWbemLocator"
     attack: "T1047"
     mbc: "E1043"
 
-  - id: activex-adodb
-    desc: ADODB.Stream COM
-    crit: notable
-    conf: 0.75
-    platforms: [windows]
-    for: [javascript]
-    if:
-      type: string
-      any:
-        - substr: "ADODB.Stream"
-        - substr: "ADODB.Recordset"
-    attack: "T1566"
-
   - id: activex-object-create
     desc: new ActiveXObject pattern
-    crit: notable
-    conf: 0.7
-    platforms: [windows]
-    for: [javascript]
     if:
       type: string
       substr: "new ActiveXObject("
@@ -116,12 +61,10 @@ traits:
 composite_rules:
   - id: activex-network-access
     desc: ActiveX network capability
-    crit: notable
     conf: 0.8
-    platforms: [windows]
-    for: [javascript]
     attack: "T1071"
     mbc: "C0005"
+    needs: 1
     any:
       - id: activex-xmlhttp
       - id: activex-winhttp
@@ -130,22 +73,15 @@ composite_rules:
     desc: File + network operations
     crit: suspicious
     conf: 0.85
-    platforms: [windows]
-    for: [javascript]
     attack: "T1071"
-    mbc: "C0005"
     all:
       - id: activex-filesystem
       - id: activex-network-access
 
   - id: activex-shell-execution
-    desc: Shell command execution
+    desc: Shell command execution via COM
     crit: notable
     conf: 0.85
-    platforms: [windows]
-    for: [javascript]
-    attack: "T1059.005"
-    mbc: "E1243"
     any:
       - id: activex-wshell
       - id: activex-shell-app
@@ -155,10 +91,6 @@ composite_rules:
     desc: COM malware toolkit
     crit: hostile
     conf: 0.9
-    platforms: [windows]
-    for: [javascript]
-    attack: "T1202"
-    mbc: "E1243"
     needs: 3
     any:
       - id: activex-filesystem

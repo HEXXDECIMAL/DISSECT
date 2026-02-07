@@ -6,13 +6,13 @@ defaults:
 
 traits:
   # Crontab commands
-  - id: crontab-l
+  - id: crontab-list-flag
     desc: crontab -l list command
     crit: inert
     conf: 0.6
     if:
       type: string
-      word: "crontab"
+      regex: "\\bcrontab\\s+-l\\b"
 
   - id: pipe-crontab
     desc: Pipe to crontab stdin
@@ -45,7 +45,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     all:
-      - id: crontab-l
+      - id: crontab-list-flag
       - id: echo-command
       - id: pipe-crontab
 
@@ -55,6 +55,6 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     all:
-      - id: crontab-l
+      - id: crontab-list-flag
       - id: grep-v
       - id: pipe-crontab

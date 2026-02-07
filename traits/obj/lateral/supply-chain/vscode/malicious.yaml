@@ -33,15 +33,6 @@ traits:
       type: string
       substr: "activate"
 
-  - id: globalState-word
-    desc: globalState keyword
-    crit: inert
-    conf: 0.7
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "globalState"
-
   - id: postInstall-word
     desc: postInstall keyword
     crit: inert
@@ -88,15 +79,6 @@ traits:
       type: string
       substr: ".npmrc"
 
-  - id: env-file
-    desc: .env file reference
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: ".env"
-
   - id: readFile-pattern
     desc: readFile function pattern
     crit: inert
@@ -105,15 +87,6 @@ traits:
     if:
       type: string
       regex: "read(File|FileSync)"
-
-  - id: post-method
-    desc: POST HTTP method
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "POST"
 
   # VSCode namespace usage pattern
   - id: vscode-namespace
@@ -148,13 +121,13 @@ traits:
 composite_rules:
   # State helpers
   - id: state-markers
-    desc: State management markers (globalState or
+    desc: State management markers (globalState or postInstall)
     crit: notable
     conf: 0.75
     for: [javascript, typescript]
     needs: 1
     any:
-      - id: globalState-word
+      - id: obj/lateral/supply-chain/vscode/api/globalState
       - id: postInstall-word
 
   # Credential paths
@@ -168,7 +141,7 @@ composite_rules:
       - id: ssh-dir
       - id: aws-dir
       - id: npmrc-file
-      - id: env-file
+      - id: obj/creds/environment/secret-access/dotenv-file
 
   # Send methods
   - id: send-methods
@@ -178,9 +151,9 @@ composite_rules:
     for: [javascript, typescript]
     needs: 1
     any:
-      - id: post-method
-      - id: fetch-call
-      - id: axios-lib
+      - id: cap/comm/http/post-method
+      - id: cap/comm/http/request/javascript/fetch-call
+      - id: cap/comm/http/request/javascript/axios-lib
 
   # Post-Install Code Execution
   - id: post-install-exec
@@ -217,7 +190,7 @@ composite_rules:
     attack: "T1027"
     for: [javascript, typescript]
     all:
-      - id: js-decrypt-eval
+      - id: known/malware/dropper/javascript/dropper/js-decrypt-eval
       - id: api-usage
       - id: vscode-namespace
 

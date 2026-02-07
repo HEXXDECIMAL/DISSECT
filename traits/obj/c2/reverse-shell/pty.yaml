@@ -4,26 +4,6 @@
 
 traits:
   # === Python PTY micro-traits ===
-  - id: pty-spawn
-    desc: pty.spawn function call
-    crit: suspicious
-    conf: 0.85
-    attack: "T1059.006"
-    for: [python]
-    if:
-      type: string
-      substr: "pty.spawn"
-
-  - id: import-pty
-    desc: import pty statement
-    crit: notable
-    conf: 0.7
-    attack: "T1059.006"
-    for: [python]
-    if:
-      type: string
-      substr: "import pty"
-
   - id: python-socket
     desc: socket module reference
     crit: inert
@@ -51,15 +31,6 @@ traits:
     if:
       type: string
       substr: ".connect("
-
-  - id: subprocess-ref
-    desc: subprocess module reference
-    crit: notable
-    conf: 0.5
-    for: [python]
-    if:
-      type: string
-      substr: "subprocess"
 
   - id: py-stdin-pipe
     desc: stdin= pipe argument (Python)
@@ -126,7 +97,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      substr: "net.Socket"
+      substr: "new net.Socket"
 
   - id: socket-connect-node
     desc: socket.connect call
@@ -316,8 +287,8 @@ composite_rules:
     for: [python]
     needs: 1
     any:
-      - id: pty-spawn
-      - id: import-pty
+      - id: cap/exec/tty/pty/pty-spawn
+      - id: cap/exec/tty/pty/import-pty
 
   # Shell path composite
   - id: py-shell-path
@@ -364,7 +335,7 @@ composite_rules:
     all:
       - id: socket-socket
       - id: socket-connect
-      - id: subprocess-ref
+      - id: cap/exec/fileless/subprocess-mod
       - id: python-pipe
 
   # Node.js PTY composite

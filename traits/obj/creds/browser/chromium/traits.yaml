@@ -176,7 +176,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      substr: "Login Data"
+      regex: "(?i)\\blogins\\b"
 
   # === SQL Queries (high confidence) ===
 

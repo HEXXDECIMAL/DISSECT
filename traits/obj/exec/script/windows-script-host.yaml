@@ -3,27 +3,7 @@
 # Generic indicator for script-based malware
 
 traits:
-  - id: wscript-sleep
-    desc: WScript.Sleep timing
-    crit: inert
-    conf: 0.5
-    platforms: [windows]
-    for: [javascript]
-    if:
-      type: string
-      substr: "WScript.Sleep"
-    attack: "T1060"
-
-  - id: wscript-echo
-    desc: WScript.Echo output
-    crit: inert
-    conf: 0.5
-    platforms: [windows]
-    for: [javascript]
-    if:
-      type: string
-      substr: "WScript.Echo"
-
+  # === Script Host Object References ===
   - id: wscript-createobject
     desc: WScript.CreateObject
     crit: notable
@@ -66,31 +46,18 @@ traits:
       type: string
       substr: "WScript.ScriptFullName"
 
+  - id: wscript-sleep
+    desc: WScript.Sleep timing
+    crit: inert
+    conf: 0.5
+    platforms: [windows]
+    for: [javascript]
+    if:
+      type: string
+      substr: "WScript.Sleep"
+    attack: "T1060"
+
 composite_rules:
-  - id: wscript-shell
-    desc: Reference to WScript.Shell (Windows Script Host)
-    crit: notable
-    conf: 0.8
-    attack: "T1059.005"
-    any:
-      - id: cap/exec/activex/activex-wshell
-
-  - id: activexobject-shell
-    desc: Reference to Shell.Application (Windows Script Host)
-    crit: notable
-    conf: 0.8
-    attack: "T1059.005"
-    any:
-      - id: cap/exec/activex/activex-shell-app
-
-  - id: activexobject-filesystem
-    desc: Reference to FileSystemObject (Windows Script Host)
-    crit: notable
-    conf: 0.8
-    attack: "T1566"
-    any:
-      - id: cap/exec/activex/activex-filesystem
-
   - id: wscript-execution
     desc: Windows Script Host execution
     crit: suspicious
@@ -102,10 +69,10 @@ composite_rules:
     any:
       - id: wscript-createobject
       - id: wscript-getobject
-      - id: wscript-shell
+      - id: cap/exec/activex/activex-wshell
       - id: wscript-sleep
-      - id: activexobject-shell
-      - id: activexobject-filesystem
+      - id: cap/exec/activex/activex-shell-app
+      - id: cap/exec/activex/activex-filesystem
 
   - id: wscript-com-objects
     desc: WScript COM object usage
@@ -116,9 +83,9 @@ composite_rules:
     attack: "T1202"
     mbc: "E1243"
     any:
-      - id: wscript-shell
-      - id: activexobject-shell
-      - id: activexobject-filesystem
+      - id: cap/exec/activex/activex-wshell
+      - id: cap/exec/activex/activex-shell-app
+      - id: cap/exec/activex/activex-filesystem
 
   - id: wscript-process-execution
     desc: WScript process execution
@@ -142,8 +109,8 @@ composite_rules:
     mbc: "E1243"
     needs: 3
     any:
-      - id: wscript-shell
-      - id: activexobject-shell
-      - id: activexobject-filesystem
+      - id: cap/exec/activex/activex-wshell
+      - id: cap/exec/activex/activex-shell-app
+      - id: cap/exec/activex/activex-filesystem
       - id: wscript-createobject
       - id: wscript-sleep

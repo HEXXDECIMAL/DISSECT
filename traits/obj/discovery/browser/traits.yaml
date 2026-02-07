@@ -104,16 +104,6 @@ traits:
       type: string
       substr: "places.sqlite"
 
-  - id: logins-json
-    desc: Firefox logins.json
-    crit: inert
-    conf: 0.7
-    attack: "T1217"
-    for: [all]
-    if:
-      type: string
-      substr: "logins.json"
-
   # === Bookmarks ===
   - id: bookmarks-word
     desc: bookmarks keyword
@@ -137,26 +127,6 @@ traits:
       substr: "Bookmarks.plist"
 
   # === Local storage ===
-  - id: local-storage-dir
-    desc: Local Storage directory
-    crit: inert
-    conf: 0.5
-    attack: "T1217"
-    for: [all]
-    if:
-      type: string
-      substr: "Local Storage"
-
-  - id: leveldb-storage
-    desc: leveldb storage
-    crit: inert
-    conf: 0.5
-    attack: "T1217"
-    for: [all]
-    if:
-      type: string
-      substr: "leveldb"
-
   # === Extensions ===
   - id: chrome-extension-url
     desc: chrome-extension:// URL
@@ -304,7 +274,7 @@ composite_rules:
     any:
       - id: places-sqlite
       - id: obj/creds/browser/firefox/cookies-sqlite
-      - id: logins-json
+      - id: obj/creds/browser/firefox/logins-json
     downgrade:
       any:
         - type: basename
@@ -379,8 +349,8 @@ composite_rules:
     for: [all]
     needs: 1
     any:
-      - id: local-storage-dir
-      - id: leveldb-storage
+      - id: obj/creds/discord/token/local-storage-ref
+      - id: obj/creds/discord/token/leveldb-ref
 
   # Extensions composite
   - id: extensions

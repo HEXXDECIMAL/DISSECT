@@ -38,14 +38,6 @@ traits:
       type: string
       word: "while"
 
-  - id: os-walk
-    desc: os.walk iteration
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      substr: "os.walk"
-
   - id: glob-pattern
     desc: glob module pattern
     crit: inert
@@ -65,5 +57,5 @@ composite_rules:
       - id: for-loop-content
       - id: for-loop-symbol
       - id: while-loop
-      - id: os-walk
+      - id: cap/fs/directory/traverse/traverse-walk
       - id: glob-pattern

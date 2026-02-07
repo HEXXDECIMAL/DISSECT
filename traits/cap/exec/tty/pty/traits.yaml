@@ -308,7 +308,7 @@ composite_rules:
     platforms: [macos, linux, unix]
     all:
       - id: cap/comm/socket/create/create
-      - id: cap/comm/socket/create/connect
+      - id: cap/comm/socket/connect/connect
       - id: cap/process/fork/fork
     needs: 1
     any:

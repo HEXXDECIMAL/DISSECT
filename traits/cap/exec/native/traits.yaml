@@ -64,14 +64,6 @@ traits:
       regex: "GetModuleHandle"
 
   # === Process Information Gathering ===
-  - id: get-process-id
-    desc: Current process ID retrieval
-    crit: inert
-    conf: 0.90
-    if:
-      type: symbol
-      exact: "GetCurrentProcessId"
-
   - id: get-thread-id
     desc: Current thread ID retrieval
     crit: inert
@@ -79,14 +71,6 @@ traits:
     if:
       type: symbol
       exact: "GetCurrentThreadId"
-
-  - id: get-current-process
-    desc: Get current process handle
-    crit: inert
-    conf: 0.90
-    if:
-      type: symbol
-      exact: "GetCurrentProcess"
 
   # === System Time Access ===
   - id: system-time-filetime
@@ -96,14 +80,6 @@ traits:
     if:
       type: symbol
       exact: "GetSystemTimeAsFileTime"
-
-  - id: query-performance
-    desc: High-resolution performance counter
-    crit: inert
-    conf: 0.90
-    if:
-      type: symbol
-      exact: "QueryPerformanceCounter"
 
   # === Memory Operations ===
   - id: heap-alloc

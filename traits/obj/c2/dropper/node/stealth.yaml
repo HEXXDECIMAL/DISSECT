@@ -135,6 +135,6 @@ composite_rules:
     mbc: "B0024"
     for: [javascript]
     all:
-      - id: obj/lateral/supply-chain/npm/child-process-import
+      - id: cap/exec/javascript/eval/child-process-require
       - id: stealth-spawn
       - id: obj/lateral/supply-chain/npm/side-effect-only

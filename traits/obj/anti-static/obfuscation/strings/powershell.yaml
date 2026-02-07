@@ -53,18 +53,6 @@ traits:
       type: string
       regex: "\\.ToCharArray\\(\\)\\s*\\|\\s*%\\s*\\{"
 
-  # iex or Invoke-Expression
-  - id: ps-iex
-    desc: Invoke-Expression (iex) call
-    crit: notable
-    conf: 0.75
-    for: [powershell, batch, shell]
-    attack: "T1059.001"
-    if:
-      type: string
-      regex: "\\biex\\b|Invoke-Expression"
-      case_insensitive: true
-
   # Execution policy bypass
   - id: ps-ep-bypass
     desc: Execution policy bypass
@@ -189,7 +177,7 @@ composite_rules:
     attack: "T1027"
     for: [powershell, batch, shell]
     all:
-      - id: ps-iex
+      - id: cap/exec/eval/invoke/iex
     any:
       - id: ps-chararray
       - id: ps-join-char

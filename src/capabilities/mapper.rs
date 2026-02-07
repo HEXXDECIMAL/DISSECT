@@ -1488,6 +1488,8 @@ impl CapabilityMapper {
             "pyproject-toml" | "pyprojecttoml" | "pyproject.toml" => RuleFileType::PyProjectToml,
             "github-actions" | "githubactions" => RuleFileType::GithubActions,
             "composer-json" | "composerjson" | "composer.json" => RuleFileType::ComposerJson,
+            "jpeg" | "jpg" => RuleFileType::Jpeg,
+            "png" => RuleFileType::Png,
             _ => RuleFileType::All,
         }
     }

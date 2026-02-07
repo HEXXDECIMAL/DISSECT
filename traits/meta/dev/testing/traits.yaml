@@ -528,7 +528,7 @@ traits:
     for: [go]
     if:
       type: string
-      substr: "testing.B"
+      substr: "func Benchmark"
 
   - id: criterion-bench
     desc: Criterion benchmark library

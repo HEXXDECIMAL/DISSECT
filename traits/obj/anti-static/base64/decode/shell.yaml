@@ -15,4 +15,4 @@ traits:
     attack: "T1140"
     if:
       type: string
-      substr: "base64 -d"
+      regex: "\\bbase64\\s+-d\\b"

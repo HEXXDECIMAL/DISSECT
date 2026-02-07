@@ -24,16 +24,6 @@ traits:
       type: string
       substr: "export HISTFILE="
 
-  - id: unset-histfile
-    desc: unset HISTFILE command
-    crit: suspicious
-    conf: 0.9
-    mbc: "F0005"
-    attack: "T1070.003"
-    if:
-      type: string
-      substr: "unset HISTFILE"
-
   - id: histsize-zero
     desc: HISTSIZE=0 disables history
     crit: suspicious
@@ -121,7 +111,7 @@ composite_rules:
     any:
       - id: histfile-devnull
       - id: export-histfile
-      - id: unset-histfile
+      - id: obj/anti-forensics/log-clear/system/unset-histfile
       - id: histsize-zero
       - id: histfilesize-zero
 

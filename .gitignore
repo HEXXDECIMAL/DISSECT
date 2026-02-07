@@ -70,4 +70,5 @@ tools/web-dissect/dist/
 tools/web-dissect/melange-work/
 tools/trait-basher/.gocache/
 tools/web-dissect/.build-cache/
-
+tools/web-dissect/web-dissect
+tools/web-dissect/dist/web-dissect

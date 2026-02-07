@@ -15,6 +15,7 @@ traits:
     attack: "T1564.001"
     if:
       type: content
+      regex: "curl\\s+-o\\s+\\.[^\\s/]+"
 
 
 composite_rules:

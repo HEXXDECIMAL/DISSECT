@@ -150,15 +150,6 @@ traits:
       substr: "dmidecode"
 
   # === CPU info micro-traits ===
-  - id: fp-proc-cpuinfo
-    desc: /proc/cpuinfo path
-    crit: inert
-    conf: 0.4
-    attack: "T1082"
-    if:
-      type: string
-      substr: "/proc/cpuinfo"
-
   - id: cpu-model-name
     desc: model name CPU field
     crit: inert
@@ -244,24 +235,6 @@ traits:
     if:
       type: string
       substr: "SIOCGIFHWADDR"
-
-  - id: ip-link-cmd
-    desc: ip link command
-    crit: inert
-    conf: 0.5
-    attack: "T1082"
-    if:
-      type: string
-      substr: "ip link"
-
-  - id: ifconfig-cmd
-    desc: ifconfig command
-    crit: inert
-    conf: 0.5
-    attack: "T1082"
-    if:
-      type: string
-      substr: "ifconfig"
 
   # === Disk serial micro-traits ===
   - id: sys-block
@@ -627,7 +600,7 @@ composite_rules:
     conf: 0.4
     attack: "T1082"
     all:
-      - id: fp-proc-cpuinfo
+      - id: cap/fs/proc/system/system-cpuinfo
       - id: cpu-fields
 
   # Network interface composite (migrated from YARA)
@@ -643,8 +616,8 @@ composite_rules:
       - id: ether-prefix
       - id: getifaddrs-func
       - id: siocgifhwaddr
-      - id: ip-link-cmd
-      - id: ifconfig-cmd
+      - id: cap/comm/diagnostic/ip-link
+      - id: cap/comm/diagnostic/ifconfig
 
   # Disk serial composite (migrated from YARA)
   - id: fp-disk-serial

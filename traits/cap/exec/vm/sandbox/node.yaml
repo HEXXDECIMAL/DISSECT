@@ -135,7 +135,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      substr: "atob("
+      regex: "\\batob\\s*\\("
 
   - id: buffer-from-call
     desc: Buffer.from conversion

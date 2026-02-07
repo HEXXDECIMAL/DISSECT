@@ -136,14 +136,6 @@ traits:
       type: string
       substr: dns.quad9.net/dns-query
 
-  - id: doh-content-type
-    desc: DoH content type header
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      substr: application/dns-message
-
   - id: doh-json-content
     desc: DoH JSON content type
     crit: inert
@@ -169,7 +161,7 @@ composite_rules:
     conf: 0.6
     needs: 1
     any:
-      - id: doh-content-type
+      - id: cap/comm/dns/doh/doh-content-type
       - id: doh-json-content
 
   # dnscat2 protocol

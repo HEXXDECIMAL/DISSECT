@@ -6,24 +6,6 @@ defaults:
   for: [perl]
 
 traits:
-  # === Perl socket micro-trait ===
-  - id: perl-socket
-    desc: Perl socket() function
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      substr: "socket("
-
-  # === Perl open micro-trait ===
-  - id: perl-open
-    desc: Perl open() function
-    crit: inert
-    conf: 0.4
-    if:
-      type: string
-      substr: "open("
-
   # === Perl redirect micro-trait ===
   - id: perl-redir
     desc: Perl file descriptor redirect
@@ -42,7 +24,7 @@ composite_rules:
     mbc: "B0033"
     attack: "T1059"
     all:
-      - id: perl-socket
-      - id: perl-open
+      - id: cap/comm/socket/socket-call
+      - id: cap/comm/socket/open-call
       - id: perl-redir
       - id: cap/exec/command/shell/interactive/sh-interactive

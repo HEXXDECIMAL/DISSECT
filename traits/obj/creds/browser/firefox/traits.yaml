@@ -96,7 +96,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      substr: "key4.db"
+      regex: "(?i)(Firefox|Waterfox|Pale Moon).{0,80}key4\\.db"
 
   - id: cert9-db
     desc: Firefox cert9.db certificate store

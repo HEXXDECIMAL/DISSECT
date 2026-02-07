@@ -103,30 +103,6 @@ traits:
       type: kv
       path: "dependencies"
 
-  - id: pkg-preinstall-hook
-    desc: Package has preinstall hook
-    crit: notable
-    conf: 0.85
-    if:
-      type: kv
-      path: "scripts.preinstall"
-
-  - id: pkg-postinstall-hook
-    desc: Package has postinstall hook
-    crit: notable
-    conf: 0.85
-    if:
-      type: kv
-      path: "scripts.postinstall"
-
-  - id: pkg-install-hook
-    desc: Package has install hook
-    crit: notable
-    conf: 0.85
-    if:
-      type: kv
-      path: "scripts.install"
-
   - id: pkg-version-001
     desc: Package version 0.0.1 (brand new)
     crit: inert
@@ -135,14 +111,6 @@ traits:
       type: kv
       path: "version"
       exact: "0.0.1"
-
-  - id: pkg-repository
-    desc: Package has repository field
-    crit: inert
-    conf: 0.9
-    if:
-      type: kv
-      path: "repository"
 
   # Package writes to node_modules (persistence)
   - id: node-modules-write
@@ -443,16 +411,6 @@ traits:
       regex: "(?:placeholder|reserved|do not use|\\bfake\\b|\\bdemo\\s+package\\b|prevent(?:s|ing)?\\s+(?:dependency\\s+)?confusion)"
       case_insensitive: true
 
-  - id: pkg-version-100
-    desc: Package version 1.0.0 (initial release)
-    crit: inert
-    conf: 0.5
-    for: [packagejson]
-    if:
-      type: kv
-      path: "version"
-      exact: "1.0.0"
-
 composite_rules:
   # Has exports composite
   - id: has-exports
@@ -496,9 +454,9 @@ composite_rules:
     conf: 0.85
     needs: 1
     any:
-      - id: pkg-preinstall-hook
-      - id: pkg-postinstall-hook
-      - id: pkg-install-hook
+      - id: obj/lateral/supply-chain/npm/preinstall-hook-key
+      - id: obj/lateral/supply-chain/npm/postinstall-hook-key
+      - id: obj/lateral/supply-chain/npm/install-hook-key
 
   # No deps with hooks - migrated from YARA
   - id: no-deps-with-hooks
@@ -517,9 +475,9 @@ composite_rules:
     conf: 0.85
     needs: 2
     any:
-      - id: pkg-preinstall-hook
-      - id: pkg-postinstall-hook
-      - id: pkg-install-hook
+      - id: obj/lateral/supply-chain/npm/preinstall-hook-key
+      - id: obj/lateral/supply-chain/npm/postinstall-hook-key
+      - id: obj/lateral/supply-chain/npm/install-hook-key
 
   # New version with hooks - migrated from YARA
   - id: new-version-hooks
@@ -538,7 +496,7 @@ composite_rules:
     all:
       - id: npm-suspicious-install-hooks
     none:
-      - id: pkg-repository
+      - id: obj/lateral/supply-chain/npm/repository-key
 
   # Child unref composite
   - id: child-unref
@@ -588,7 +546,7 @@ composite_rules:
     all:
       - id: placeholder-author-your-name
     none:
-      - id: pkg-repository
+      - id: obj/lateral/supply-chain/npm/repository-key
 
   # === Script Recon with Missing Metadata ===
 

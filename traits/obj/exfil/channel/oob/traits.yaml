@@ -227,16 +227,6 @@ traits:
       type: string
       regex: "\\s{2,8}\"preinstall\":\\s*\""
 
-  # === Crypto library import (for exfil detection) ===
-  - id: require-crypto-import
-    desc: require('crypto') import statement
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "require\\(['\"]crypto['\"]\\)"
-
 composite_rules:
   # Helper composite for all OOB domain patterns
   - id: oob-domains
@@ -289,7 +279,7 @@ composite_rules:
     mbc: "B0030"
     for: [javascript]
     all:
-      - { id: require-crypto-import }
+      - { id: cap/crypto/symmetric/aes/crypto-require-call }
       - { id: oob-domains }
 
   - id: multiple-encoded-indicators

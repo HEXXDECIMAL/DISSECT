@@ -45,15 +45,6 @@ traits:
       type: string
       substr: "/t"
 
-  # Go os/exec call for system commands
-  - id: exec-os-command
-    desc: Execute OS command via Go
-    crit: notable
-    conf: 0.85
-    if:
-      type: symbol
-      exact: "exec.Command"
-
 composite_rules:
   # Shutdown with force and restart
   - id: shutdown-force-restart-pattern

@@ -79,16 +79,6 @@ traits:
       type: string
       regex: "os\\.system\\("
 
-  - id: py-exec-call
-    desc: exec() call
-    crit: inert
-    conf: 0.6
-    attack: "T1059"
-    for: [python]
-    if:
-      type: string
-      regex: "exec\\("
-
   - id: py-subprocess
     desc: subprocess module
     crit: inert
@@ -354,34 +344,6 @@ traits:
       type: string
       regex: "password:\\s*['\"][^'\"]+['\"]"
 
-  # === Spawn/exec atomic indicators ===
-  - id: supply-chain-spawn-call
-    desc: spawn() call (supply-chain)
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "spawn\\("
-
-  - id: exec-call-js
-    desc: exec() call
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "exec\\("
-
-  - id: execfile-call
-    desc: execFile() call
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "execFile\\("
-
   # === WScript/XMLHTTP atomic indicators ===
   - id: wscript-shell
     desc: WScript.Shell object
@@ -592,48 +554,6 @@ traits:
         }
 
 composite_rules:
-  # Extract method composite
-  - id: extract-method
-    desc: Archive extraction method
-    crit: notable
-    conf: 0.7
-    for: [javascript, typescript]
-    needs: 1
-    any:
-      - id: dropper/archive
-
-  # Password parameter composite
-  - id: password-param
-    desc: Password parameter
-    crit: notable
-    conf: 0.7
-    for: [javascript, typescript]
-    needs: 1
-    any:
-      - id: dropper/archive
-
-  # Password-protected archive extraction
-  - id: password-extract
-    desc: Extracts password-protected archive
-    crit: suspicious
-    conf: 0.9
-    attack: "T1140"
-    for: [javascript, typescript]
-    all:
-      - id: extract-method
-      - id: password-param
-
-  # 7-zip usage composite
-  - id: 7zip-usage
-    desc: Uses 7-zip for archive operations
-    crit: notable
-    conf: 0.8
-    attack: "T1140"
-    for: [javascript, typescript]
-    needs: 1
-    any:
-      - id: dropper/archive
-
   # Temp directory composite
   - id: temp-dir-ref
     desc: Temporary directory reference
@@ -698,20 +618,9 @@ composite_rules:
     attack: "T1105"
     for: [javascript, typescript]
     all:
-      - id: extract-method
+      - id: archive-ext
       - id: spawn-exec
       - id: exe-ref
-
-  # Executable search composite
-  - id: exe-search
-    desc: Searches for executable files after
-    crit: suspicious
-    conf: 0.9
-    attack: "T1105"
-    for: [javascript, typescript]
-    needs: 1
-    any:
-      - id: dropper/executable
 
   # Python exec composite
   - id: python-exec-call
@@ -723,20 +632,8 @@ composite_rules:
     needs: 1
     any:
       - id: py-os-system
-      - id: py-exec-call
+      - id: cap/exec/eval/invoke/exec-call-python
       - id: py-subprocess
-
-  # Spawn/exec composite
-  - id: spawn-exec-call
-    desc: Spawn or exec function call
-    crit: notable
-    conf: 0.7
-    for: [javascript, typescript]
-    needs: 1
-    any:
-      - id: supply-chain-spawn-call
-      - id: exec-call-js
-      - id: execfile-call
 
   # WScript/XMLHTTP composite
   - id: wscript-xmlhttp
@@ -792,7 +689,7 @@ composite_rules:
     for: [javascript, typescript]
     all:
       - id: dropper/archive/download-zip
-      - id: exe-search
+      - id: exe-ref
       - id: extract-execute
 
   # Complete dropper lifecycle (Fetch + Write + Execute)
@@ -860,7 +757,7 @@ composite_rules:
     all:
       - id: dropper/node/download-file
       - id: dropper/node/archive-extract
-      - id: spawn-exec-call
+      - id: spawn-exec
 
   # Download and detached execute
   - id: download-detached-exec

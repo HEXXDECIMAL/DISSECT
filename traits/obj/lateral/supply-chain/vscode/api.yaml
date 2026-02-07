@@ -123,16 +123,6 @@ traits:
       type: string
       substr: "vscode.extensions"
 
-  # === process.env atomic indicator ===
-  - id: process-env
-    desc: process.env reference
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "process.env"
-
   - id: clipboard-write
     desc: VSCode clipboard write access
     crit: notable
@@ -202,7 +192,7 @@ composite_rules:
     for: [javascript, typescript]
     all:
       - id: vscode-context
-      - id: process-env
+      - id: obj/discovery/fingerprint/system/process-env-access
 
   # Telemetry/Exfiltration Patterns
   # IMPORTANT: Requires VSCode markers to avoid FPs on regular npm packages

@@ -294,4 +294,4 @@ traits:
     if:
       type: ast
       kind: call
-      regex: "\\$_(GET|POST|REQUEST|COOKIE|SERVER)"
+      regex: "\\$_(GET|POST|REQUEST|COOKIE|SERVER)\\s*\\[[^\\]]+\\]\\s*\\("

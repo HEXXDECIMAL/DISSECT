@@ -111,15 +111,6 @@ traits:
       regex: "unzip\\s+-o"
 
   # === /tmp staging atomic indicators ===
-  - id: tmp-zip-file
-    desc: .zip file in /tmp
-    crit: inert
-    conf: 0.6
-    attack: "T1074.001"
-    if:
-      type: string
-      regex: "/tmp/.{0,50}\\.zip"
-
   - id: tmp-tar-file
     desc: .tar file in /tmp
     crit: inert
@@ -221,7 +212,7 @@ composite_rules:
     attack: "T1074.001"
     needs: 1
     any:
-      - id: tmp-zip-file
+      - id: tmp-zip-staging
       - id: tmp-tar-file
       - id: tmp-gz-file
       - id: tmp-dmg-file

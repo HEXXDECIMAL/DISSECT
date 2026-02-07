@@ -10,7 +10,7 @@ use crate::composite_rules::{
     CompositeTrait, Condition, FileType as RuleFileType, Platform, TraitDefinition,
 };
 use crate::types::Criticality;
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeSet, HashMap, HashSet};
 
 use super::parsing::parse_file_types;
 
@@ -213,6 +213,92 @@ pub(crate) fn validate_hostile_composite_precision(
                 }
                 _ => {}
             }
+        }
+    }
+
+    // Pass 3: Detect duplicate atomic traits (same effective search parameters)
+    let mut trait_params: HashMap<String, Vec<String>> = HashMap::new();
+    for t in trait_definitions {
+        // Include all matching controls that affect detection behavior.
+        let signature = format!(
+            "{:?}:{:?}:{:?}:{:?}:{:?}:{:?}:{:?}",
+            t.r#if, t.platforms, t.r#for, t.size_min, t.size_max, t.not, t.unless
+        );
+        trait_params.entry(signature).or_default().push(t.id.clone());
+    }
+
+    for (_sig, ids) in trait_params {
+        if ids.len() > 1 {
+            warnings.push(format!(
+                "Duplicate atomic traits detected (same search parameters): {}",
+                ids.join(", ")
+            ));
+        }
+    }
+
+    // Pass 4: Detect duplicate composite rules (same effective condition sets)
+    let mut composite_sigs: HashMap<String, Vec<String>> = HashMap::new();
+    for r in composite_rules {
+        // Sort IDs within all/any to make signatures deterministic regardless of order
+        let mut all_ids = BTreeSet::new();
+        if let Some(ref all) = r.all {
+            for cond in all {
+                if let Condition::Trait { id } = cond {
+                    all_ids.insert(id.clone());
+                }
+            }
+        }
+
+        let mut any_ids = BTreeSet::new();
+        if let Some(ref any) = r.any {
+            for cond in any {
+                if let Condition::Trait { id } = cond {
+                    any_ids.insert(id.clone());
+                }
+            }
+        }
+
+        let mut none_ids = BTreeSet::new();
+        if let Some(ref none) = r.none {
+            for cond in none {
+                if let Condition::Trait { id } = cond {
+                    none_ids.insert(id.clone());
+                }
+            }
+        }
+
+        let mut unless_ids = BTreeSet::new();
+        if let Some(ref unless) = r.unless {
+            for cond in unless {
+                if let Condition::Trait { id } = cond {
+                    unless_ids.insert(id.clone());
+                }
+            }
+        }
+
+        // Only check signatures for rules that reference other traits (the common case for duplicates)
+        if !all_ids.is_empty()
+            || !any_ids.is_empty()
+            || !none_ids.is_empty()
+            || !unless_ids.is_empty()
+        {
+            let signature = format!(
+                "all:{:?}|any:{:?}|none:{:?}|unless:{:?}|needs:{:?}|for:{:?}|platforms:{:?}|size_min:{:?}|size_max:{:?}",
+                all_ids, any_ids, none_ids, unless_ids, r.needs, r.r#for, r.platforms, r.size_min, r.size_max
+            );
+            composite_sigs
+                .entry(signature)
+                .or_default()
+                .push(r.id.clone());
+        }
+    }
+
+    for (_sig, ids) in composite_sigs {
+        if ids.len() > 1 {
+            warnings.push(format!(
+                "Duplicate composite rules detected (same conditions): {}",
+                ids.join(", ")
+            ));
         }
     }
 }

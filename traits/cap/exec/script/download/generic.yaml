@@ -12,6 +12,7 @@ traits:
     for: [all]
     if:
       type: content
+      regex: "perl\\s+.{1,120}\\.(pl|pm)|perl\\s+-e\\s+"
 
 composite_rules:
   # Shell execute composite

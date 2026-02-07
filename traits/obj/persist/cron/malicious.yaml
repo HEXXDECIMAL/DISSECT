@@ -22,14 +22,6 @@ traits:
       type: string
       substr: "/etc/crontab"
 
-  - id: var-spool-cron
-    desc: /var/spool/cron directory
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      substr: "/var/spool/cron"
-
   - id: crontab-dash
     desc: crontab command with dash
     crit: inert
@@ -114,14 +106,6 @@ traits:
       type: string
       substr: "crontab"
 
-  - id: etc-cron
-    desc: /etc/cron path prefix
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      substr: "/etc/cron"
-
 composite_rules:
   # Helper: Cron paths
   - id: cron-paths
@@ -129,7 +113,7 @@ composite_rules:
     any:
       - id: etc-cron-d
       - id: etc-crontab
-      - id: var-spool-cron
+      - id: obj/persist/cron/job/var-spool-cron-path
       - id: crontab-dash
 
   # Helper: Download commands
@@ -175,7 +159,7 @@ composite_rules:
     desc: Cron-related keywords
     any:
       - id: crontab-keyword
-      - id: etc-cron
+      - id: obj/persist/cron/job/etc-cron-path
 
   # Helper: Cron with download and execute
   - id: cron-download-execute

@@ -8,7 +8,7 @@ composite_rules:
     attack: "T1567.001"
     conf: 0.95
     all:
-      - id: telegram-api
+      - id: obj/creds/discord/token/telegram-exfil
       - id: telegram-send
 
   - id: discord

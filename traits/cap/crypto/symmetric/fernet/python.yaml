@@ -100,7 +100,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      word: "except"
+      regex: "except\\s+(ImportError|InvalidToken|Exception)"
 
   - id: importerror-keyword
     desc: ImportError exception

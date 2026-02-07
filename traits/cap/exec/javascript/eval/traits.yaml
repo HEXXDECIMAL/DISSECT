@@ -37,7 +37,7 @@ traits:
     if:
       type: ast
       kind: call
-      exact: "spawn"
+      exact: "child_process.spawn"
 
   - id: child-process-execSync
     desc: Node.js synchronous exec
@@ -49,7 +49,7 @@ traits:
     if:
       type: ast
       kind: call
-      exact: "execSync"
+      exact: "child_process.execSync"
 
   - id: child-process-require
     desc: Node.js child_process module import

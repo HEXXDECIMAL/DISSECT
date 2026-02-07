@@ -37,15 +37,6 @@ traits:
       type: string
       substr: "paramiko"
 
-  - id: libssh
-    desc: libssh library
-    crit: notable
-    conf: 0.75
-    attack: "T1021.004"
-    if:
-      type: string
-      substr: "libssh"
-
   - id: openssh
     desc: OpenSSH string
     crit: inert
@@ -74,6 +65,6 @@ composite_rules:
     any:
       - id: ssh-string
       - id: paramiko
-      - id: libssh
+      - id: cap/comm/ssh/client/libssh
       - id: openssh
       - id: ssh-client

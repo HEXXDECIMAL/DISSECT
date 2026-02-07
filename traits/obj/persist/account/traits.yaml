@@ -70,7 +70,7 @@ traits:
       any:
         - substr: "usermod -aG wheel"
         - substr: "usermod -G wheel"
-        - regex: "usermod\\s+.*wheel"
+        - regex: "usermod\\s+.{0,80}wheel"
     attack: "T1548.004"
 
   - id: usermod-sudo
@@ -83,7 +83,7 @@ traits:
       any:
         - substr: "usermod -aG sudo"
         - substr: "usermod -G sudo"
-        - regex: "usermod\\s+.*sudo"
+        - regex: "usermod\\s+.{0,80}sudo"
     attack: "T1548.004"
 
   - id: chpasswd-command
@@ -190,4 +190,3 @@ composite_rules:
     all:
       - id: account-creation
       - id: privilege-escalation-setup
-

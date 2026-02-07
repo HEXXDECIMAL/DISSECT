@@ -78,7 +78,7 @@ traits:
       any:
         - substr: "nc -zv"
         - substr: "nc -z"
-        - regex: "nc\\s+.*-z"
+        - regex: "nc\\s+.{0,80}-z"
     attack: "T1046"
 
   - id: nmap-scanning
@@ -92,7 +92,7 @@ traits:
         - substr: "nmap -p"
         - substr: "nmap -sS"
         - substr: "nmap -sT"
-        - regex: "nmap\\s+.*-[psST]"
+        - regex: "nmap\\s+.{0,80}-[psST]"
     attack: "T1046"
 
   - id: bash-port-scanner
@@ -116,7 +116,7 @@ traits:
       any:
         - substr: "-p 22"
         - substr: ":22"
-        - regex: "nc.*22|nmap.*22"
+        - regex: "nc.{0,80}22|nmap.{0,80}22"
     attack: "T1046"
 
   - id: ssh-key-reuse
@@ -129,7 +129,7 @@ traits:
       any:
         - substr: "ssh -i"
         - substr: "-i /root/.ssh"
-        - regex: "ssh\\s+.*-i\\s+"
+        - regex: "ssh\\s+.{0,120}-i\\s+"
     attack: "T1021.004"
 
 composite_rules:

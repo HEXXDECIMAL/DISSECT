@@ -111,7 +111,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      substr: "revshell"
+      regex: "(?:trigger|activate|backdoor|payload)[_\\-\\s]*revshell|revshell[_\\-\\s]*(?:trigger|activate)"
 
   - id: revshell-keyword-upper
     desc: REVSHELL keyword (uppercase)

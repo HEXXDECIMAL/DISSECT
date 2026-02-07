@@ -214,23 +214,6 @@ traits:
       type: string
       substr: ngrok.com
 
-  # === SOCKS proxy atomic indicators ===
-  - id: socks4-proto
-    desc: SOCKS4 protocol reference
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      substr: SOCKS4
-
-  - id: socks5-proto
-    desc: SOCKS5 protocol reference
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      substr: SOCKS5
-
   - id: socks-default-port
     desc: SOCKS default port 1080
     crit: inert
@@ -333,8 +316,8 @@ composite_rules:
     size_max: 500000
     needs: 2
     any:
-      - id: socks4-proto
-      - id: socks5-proto
+      - id: cap/comm/proxy/socks/socks4-proto
+      - id: cap/comm/proxy/socks/socks5-proto
       - id: socks-default-port
       - id: socks-server-ref
     none:

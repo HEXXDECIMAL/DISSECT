@@ -58,6 +58,9 @@ pub enum FileType {
     PyProjectToml,  // Python pyproject.toml
     GithubActions,  // GitHub Actions workflow YAML
     ComposerJson,   // PHP composer.json
+    // Image formats
+    Jpeg,
+    Png,
 }
 
 impl FileType {

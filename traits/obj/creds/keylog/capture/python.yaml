@@ -196,31 +196,6 @@ traits:
       type: string
       substr: "on_release"
 
-  # === Network exfil atomic indicators ===
-  - id: requests-post
-    desc: requests.post call
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      substr: "requests.post"
-
-  - id: requests-get
-    desc: requests.get call
-    crit: inert
-    conf: 0.4
-    if:
-      type: string
-      substr: "requests.get"
-
-  - id: urllib-module
-    desc: urllib module
-    crit: inert
-    conf: 0.4
-    if:
-      type: string
-      substr: "urllib"
-
   - id: socket-call
     desc: socket. call
     crit: inert
@@ -324,9 +299,9 @@ composite_rules:
     conf: 0.7
     needs: 1
     any:
-      - id: requests-post
-      - id: requests-get
-      - id: urllib-module
+      - id: cap/comm/http/request/py-requests-post
+      - id: cap/comm/http/request/py-requests-get
+      - id: cap/comm/http/request/urllib
       - id: socket-call
 
   # Key event handlers composite

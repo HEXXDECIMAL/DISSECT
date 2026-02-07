@@ -8,7 +8,7 @@ traits:
     for: [go]
     if:
       type: string
-      pattern: 'base64\..{0,50}Encoding\.DecodeString'
+      regex: 'base64\..{0,50}Encoding\.DecodeString'
 
   - id: hex
     desc: "Decodes hexadecimal strings"
@@ -28,7 +28,7 @@ traits:
     for: [go]
     if:
       type: string
-      pattern: '(gzip|zlib)\.NewReader'
+      regex: '(gzip|zlib)\.NewReader'
 
   - id: reflection
     desc: "Reflection/dynamic invocation"
@@ -37,7 +37,7 @@ traits:
     for: [go]
     if:
       type: string
-      pattern: 'reflect\.(ValueOf|Call)'
+      regex: 'reflect\.(ValueOf|Call)'
 
   - id: environment-check
     desc: "Runtime environment checks"
@@ -47,7 +47,7 @@ traits:
     for: [go]
     if:
       type: string
-      pattern: 'runtime\.(GOMAXPROCS|NumGoroutine)'
+      regex: 'runtime\.(GOMAXPROCS|NumGoroutine)'
 
   - id: anti-debug
     desc: "Ptrace (debugger detection)"

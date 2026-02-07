@@ -325,6 +325,9 @@ impl ArchiveAnalyzer {
                 // The file content is already extracted and will be processed by the trait matcher
             }
 
+            // Image formats - currently no specific deep analysis beyond YARA/traits
+            FileType::Jpeg | FileType::Png => {}
+
             // Unknown files are skipped before reaching analyze_in_memory
             FileType::Unknown => unreachable!("Unknown files should be filtered before analysis"),
         }

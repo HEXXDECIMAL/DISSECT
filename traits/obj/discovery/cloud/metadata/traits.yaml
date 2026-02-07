@@ -125,34 +125,6 @@ traits:
       type: string
       substr: "/metadata/identity/oauth2/token"
 
-  # HTTP Request Primitives
-  - id: http-get-method
-    desc: HTTP GET method keyword
-    crit: notable
-    conf: 0.3
-    for: [all]
-    if:
-      type: string
-      fullword: "GET"
-
-  - id: curl-command
-    desc: curl command line tool
-    crit: notable
-    conf: 0.3
-    for: [all]
-    if:
-      type: string
-      fullword: "curl"
-
-  - id: wget-command
-    desc: wget command line tool
-    crit: notable
-    conf: 0.3
-    for: [all]
-    if:
-      type: string
-      fullword: "wget"
-
   - id: python-requests-get
     desc: Python requests.get method
     crit: notable

@@ -63,15 +63,6 @@ traits:
       type: string
       regex: 'os\.release\(\)'
 
-  - id: node-tmpdir
-    desc: Collects temp directory path
-    crit: inert
-    conf: 0.85
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: 'os\.tmpdir\(\)'
-
   - id: node-cwd
     desc: Collects current working directory
     crit: notable

@@ -312,6 +312,16 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
         return Ok(FileType::Rtf);
     }
 
+    // Check for JPEG magic bytes (FF D8 FF)
+    if file_data.len() >= 3 && file_data[0] == 0xFF && file_data[1] == 0xD8 && file_data[2] == 0xFF {
+        return Ok(FileType::Jpeg);
+    }
+
+    // Check for PNG magic bytes (89 50 4E 47 0D 0A 1A 0A)
+    if file_data.starts_with(b"\x89PNG\r\n\x1a\n") {
+        return Ok(FileType::Png);
+    }
+
     // Check for Java class files BEFORE Mach-O (both use 0xCAFEBABE)
     if is_java_class(&file_data) {
         return Ok(FileType::JavaClass);
@@ -745,6 +755,8 @@ pub enum FileType {
     Archive,
     AppleScript,
     Rtf, // Rich Text Format documents
+    Jpeg,
+    Png,
     Unknown,
 }
 
@@ -789,7 +801,7 @@ impl FileType {
             | FileType::GithubActions
             | FileType::AppleScript
             | FileType::Rtf => true,
-            FileType::Archive | FileType::Unknown => false, // Skip unknown files by default in dir scans
+            FileType::Archive | FileType::Unknown | FileType::Jpeg | FileType::Png => false, // Skip images and unknown files by default in dir scans
         }
     }
 
@@ -856,6 +868,8 @@ impl FileType {
             FileType::Archive => vec!["zip", "tar", "gz"],
             FileType::AppleScript => vec!["scpt", "applescript"],
             FileType::Rtf => vec!["rtf", "doc"],
+            FileType::Jpeg => vec!["jpeg", "jpg"],
+            FileType::Png => vec!["png"],
             FileType::Unknown => vec![], // No filtering for unknown types
         }
     }

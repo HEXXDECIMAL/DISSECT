@@ -215,7 +215,7 @@ traits:
     conf: 0.6
     if:
       type: content
-      regex: '"name":\s*"[^"]+"'
+      regex: '(?is)^(?:(?!\"repository\"\\s*:).)*\"name\"\\s*:\\s*\"[^\"]+\"'
     unless:
       - id: obj/lateral/supply-chain/npm/has-repository
 
@@ -225,7 +225,7 @@ traits:
     conf: 0.5
     if:
       type: content
-      regex: '"name":\s*"[^"]+"'
+      regex: '(?is)^(?:(?!\"bugs\"\\s*:).)*\"name\"\\s*:\\s*\"[^\"]+\"'
     unless:
       - id: obj/lateral/supply-chain/npm/has-bugs-url
 
@@ -235,7 +235,7 @@ traits:
     conf: 0.5
     if:
       type: content
-      regex: '"name":\s*"[^"]+"'
+      regex: '(?is)^(?:(?!\"homepage\"\\s*:).)*\"name\"\\s*:\\s*\"[^\"]+\"'
     unless:
       - id: obj/lateral/supply-chain/npm/has-homepage
 

@@ -92,8 +92,8 @@ traits:
     if:
       type: string
       any:
-        - regex: "which\\s+(apt-get|yum|dnf).*&&"
-        - regex: "if.*which\\s+(apt-get|yum|dnf)"
+        - regex: "which\\s+(apt-get|yum|dnf).{0,120}&&"
+        - regex: "if.{0,120}which\\s+(apt-get|yum|dnf)"
 
 composite_rules:
   - id: package-manager-abuse

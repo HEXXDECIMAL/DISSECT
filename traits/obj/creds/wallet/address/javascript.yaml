@@ -95,7 +95,7 @@ traits:
     crit: suspicious
     if:
       type: string
-      regex: "0x\\[a-fA-F0-9\\]\\{40\\}"
+      regex: "0x\\[a-fA-F0-9\\]"
 
   # Bitcoin Legacy address regex for composite (shorter pattern)
   - id: bitcoin-legacy-regex-short

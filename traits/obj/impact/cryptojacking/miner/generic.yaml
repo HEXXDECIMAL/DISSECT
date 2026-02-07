@@ -90,7 +90,7 @@ traits:
     conf: 0.55
     if:
       type: string
-      substr: "xmrig"
+      word: "xmrig"
 
   - id: xmrig-pascal
     desc: XMRig (PascalCase)

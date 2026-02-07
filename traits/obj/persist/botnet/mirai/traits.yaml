@@ -63,8 +63,8 @@ traits:
       type: string
       any:
         - regex: "systemctl\\s+enable"
-        - regex: "chkconfig\\s+.*on"
-        - regex: "update-rc\\.d\\s+.*enable"
+        - regex: "chkconfig\\s+.{0,80}on"
+        - regex: "update-rc\\.d\\s+.{0,80}enable"
     attack: "T1547"
 
 composite_rules:

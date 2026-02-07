@@ -16,14 +16,6 @@ traits:
       type: string
       exact: "pm2"
 
-  - id: spawn-call
-    desc: spawn() function call
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      substr: "spawn("
-
   - id: detached-option
     desc: Detached process option
     crit: inert
@@ -76,5 +68,5 @@ composite_rules:
     conf: 0.9
     all:
       - id: pm2-keyword
-      - id: spawn-call
+      - id: cap/exec/javascript/eval/spawn-call
       - id: detached-option

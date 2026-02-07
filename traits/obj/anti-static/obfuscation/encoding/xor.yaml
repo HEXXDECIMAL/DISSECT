@@ -57,6 +57,7 @@ traits:
     for: [elf]
     if:
       type: content
+      regex: "0x37"
 
   # === Table-based decode atomic indicators ===
   - id: decode-table-symbol

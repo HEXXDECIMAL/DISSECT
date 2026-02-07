@@ -8,7 +8,7 @@ traits:
     for: [go]
     if:
       type: string
-      pattern: 'syscall\.Set(u|g)id'
+      regex: 'syscall\.Set(u|g)id'
 
   - id: symlink
     desc: "Create symbolic links"
@@ -28,7 +28,7 @@ traits:
     for: [go]
     if:
       type: string
-      pattern: '(os\.FindProcess|syscall\.Kill)'
+      regex: '(os\.FindProcess|syscall\.Kill)'
 
   - id: lifecycle
     desc: "Set finalizer hooks"

@@ -97,7 +97,7 @@ traits:
       any:
         - substr: "-exec rm"
         - substr: "-delete"
-        - regex: "find\\s+.*-exec\\s+rm"
+        - regex: "find\\s+.{0,120}-exec\\s+rm"
     attack: "T1070.003"
 
   - id: cron-removal
@@ -111,7 +111,7 @@ traits:
         - substr: "rm -f /etc/cron"
         - substr: "crontab -r"
         - substr: "rm -f /var/spool/cron"
-        - regex: "rm.*cron"
+        - regex: "rm.{0,80}cron"
     attack: "T1070.003"
 
   - id: systemd-cleanup
@@ -213,4 +213,3 @@ composite_rules:
       - id: process-cleanup
       - id: persistence-cleanup
       - id: log-cleanup
-

@@ -170,7 +170,7 @@ traits:
     for: [python]
     if:
       type: string
-      substr: "requests.get"
+      regex: "requests\\.get\\s*\\("
 
   - id: urllib-mod
     desc: urllib module
@@ -179,7 +179,7 @@ traits:
     for: [python]
     if:
       type: string
-      substr: "urllib"
+      regex: "\\burllib\\.(request|parse|error)\\b|\\burllib2\\b"
 
   - id: http-client
     desc: http.client module

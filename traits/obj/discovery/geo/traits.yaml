@@ -23,15 +23,6 @@ traits:
       type: string
       substr: "db-ip.com/v2"
 
-  - id: ipinfo-io
-    desc: ipinfo.io geolocation API
-    crit: inert
-    conf: 0.7
-    attack: "T1016"
-    if:
-      type: string
-      substr: "ipinfo.io"
-
   - id: ipapi-api
     desc: ip-api.com geolocation API
     crit: suspicious
@@ -49,15 +40,6 @@ traits:
     if:
       type: string
       substr: "api.ipify.org"
-
-  - id: ipify-org
-    desc: ipify.org domain
-    crit: inert
-    conf: 0.6
-    attack: "T1016"
-    if:
-      type: string
-      substr: "ipify.org"
 
   - id: ipgeolocation-api
     desc: ipgeolocation.io API
@@ -212,7 +194,7 @@ composite_rules:
     needs: 1
     any:
       - id: api-ipify
-      - id: ipify-org
+      - id: obj/discovery/network/discovery/ipify
 
   # MaxMind API composite
   - id: maxmind-api
@@ -269,7 +251,7 @@ composite_rules:
     needs: 1
     any:
       - id: db-ip-api
-      - id: ipinfo-io
+      - id: obj/discovery/network/discovery/ipinfo
       - id: ipapi-api
       - id: ipgeolocation-api
       - id: freegeoip-api

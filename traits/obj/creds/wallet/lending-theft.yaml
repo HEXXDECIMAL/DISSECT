@@ -38,7 +38,7 @@ traits:
     conf: 0.95
     if:
       type: base64
-      word: "aave"
+      substr: "aave"
       case_insensitive: true
 
   - id: compound-protocol-targeting
@@ -47,7 +47,7 @@ traits:
     conf: 0.95
     if:
       type: base64
-      word: "compound"
+      substr: "compound"
       case_insensitive: true
 
   - id: dydx-protocol-targeting
@@ -56,7 +56,7 @@ traits:
     conf: 0.95
     if:
       type: base64
-      word: "dydx"
+      substr: "dydx"
       case_insensitive: true
 
   # === Transaction Hijacking Detection ===

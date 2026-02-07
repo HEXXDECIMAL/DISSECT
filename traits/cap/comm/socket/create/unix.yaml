@@ -33,14 +33,6 @@ traits:
       type: syscall
       name: ["socket"]
 
-  - id: connect
-    desc: Connect socket to remote host
-    crit: notable
-    conf: 0.85
-    if:
-      type: symbol
-      regex: connect
-
   - id: socket-connect
     desc: Connects socket to remote host (Linux)
     conf: 0.9

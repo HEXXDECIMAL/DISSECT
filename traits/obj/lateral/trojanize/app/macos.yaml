@@ -219,18 +219,6 @@ composite_rules:
       - id: obj/discovery/software/spotlight-app-enum
       - id: cap/exec/command/shell/shell-symbols
 
-  # macOS ObjC method swizzle hooking via NSBundle
-  - id: objc-swizzle-hook
-    desc: ObjC method swizzle with messaging hook
-    crit: suspicious
-    conf: 0.9
-    attack: "T1574.006"
-    platforms: [all]
-    for: [macho]
-    all:
-      - id: cap/exec/dylib/load/objc-method-swizzle
-      - id: cap/exec/dylib/load/messaging-app-bundle-id
-
   - id: pkill-ledger
     desc: "Kill Ledger Live process"
     conf: 0.9

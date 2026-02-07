@@ -58,11 +58,7 @@ traits:
     for: [elf, shell]
     if:
       type: string
-      all:
-        - substr: "sed -i"
-        - any:
-            - substr: "/var/spool/cron"
-            - substr: "/etc/crontab"
+      regex: "sed\\s+-i.{0,120}(/var/spool/cron|/etc/crontab)"
     attack: "T1070.004"
 
   - id: sed-deleted-pattern-cron
@@ -72,11 +68,7 @@ traits:
     for: [elf, shell]
     if:
       type: string
-      all:
-        - substr: "sed -i"
-        - any:
-            - substr: "/var/spool/cron"
-            - substr: "/etc/cron"
+      regex: "sed\\s+-i.{0,120}(/var/spool/cron|/etc/cron)"
     attack: "T1070.004"
 
   - id: rm-cron-files

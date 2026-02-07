@@ -13,4 +13,4 @@ traits:
     for: [all]
     if:
       type: content
-
+      substr: "bit.ly/"

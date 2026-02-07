@@ -162,15 +162,6 @@ traits:
       type: string
       substr: "X-HWID"
 
-  # === Multipart form data ===
-  - id: multipart-form-data
-    desc: multipart/form-data content type
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      substr: "multipart/form-data"
-
   - id: boundary-param
     desc: boundary= parameter
     crit: inert
@@ -243,7 +234,7 @@ composite_rules:
     conf: 0.6
     needs: 1
     any:
-      - id: multipart-form-data
+      - id: cap/comm/http/post/multipart-form
       - id: boundary-param
       - id: content-disposition-filename
       - id: form-data-header

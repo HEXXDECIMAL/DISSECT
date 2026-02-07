@@ -7,7 +7,7 @@ traits:
     for: [go]
     if:
       type: string
-      pattern: '(docker|containerd)'
+      regex: '(docker|containerd)'
 
   - id: kubernetes
     desc: "Kubernetes API access"
@@ -16,4 +16,4 @@ traits:
     for: [go]
     if:
       type: string
-      pattern: '(kubernetes|k8s\.io)'
+      regex: '(kubernetes|k8s\.io)'
