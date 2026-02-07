@@ -17,14 +17,36 @@ traits:
       type: basename
       exact: "setup.py"
 
+  - id: init-py-basename
+    desc: "File is __init__.py"
+    crit: inert
+    conf: 1.0
+    if:
+      type: basename
+      exact: "__init__.py"
+
   # os.system call at module level (outside functions)
   - id: module-level-system
     desc: "os.system at module level (install-time"
     crit: suspicious
     conf: 0.85
     if:
-      type: string
-      regex: "^os\\.system\\s*\\("
+      type: ast
+      query: |
+        ((module
+          (expression_statement
+            (call
+              function: (attribute
+                object: (identifier) @mod
+                attribute: (identifier) @meth))))
+         (#eq? @mod "os")
+         (#eq? @meth "system"))
+    downgrade:
+      none:
+        - type: basename
+          exact: "setup.py"
+        - type: basename
+          exact: "__init__.py"
 
   # Import-triggered execution
   - id: import-trigger
@@ -74,8 +96,6 @@ traits:
             $httpx = "httpx" ascii
             $socket = "socket." ascii
             $webhook = "webhook" ascii nocase
-            // Custom install commands
-            $cmdclass = "cmdclass" ascii
             // Legitimate publishing/build patterns (excludes)
             $legit_sdist = "setup.py sdist" ascii nocase
             $legit_bdist = "bdist_wheel" ascii nocase
@@ -85,20 +105,25 @@ traits:
             // Reading version file with exec is common
             $legit_version_exec = "exec(f.read()" ascii
             $legit_version_exec2 = "exec(open(" ascii
+            $legit_literal_eval = "ast.literal_eval" ascii
             // Testing commands
             $legit_develop = "setup.py develop" ascii nocase
+            // Scientific / complex build patterns
+            $legit_numpy = "numpy.distutils" ascii
+            $legit_config = "Configuration(" ascii
+            $legit_sys_exec = "sys.executable" ascii
           condition:
             ($setup or $setuptools or $distutils) and
-            ($os_system or $subprocess or $exec or $eval or $pip or $requests or $urllib or $aiohttp or $httpx or $socket or $webhook or $cmdclass) and
+            ($os_system or $subprocess or $exec or $eval or $pip or $requests or $urllib or $aiohttp or $httpx or $socket or $webhook) and
             // Exclude if any legitimate publishing/build patterns found
             not any of ($legit*)
         }
 
   # NOTE: YARA kept for init-py-exec - requires NOT conditions to exclude legitimate
   # patterns (pypi.org, readthedocs, github.com, setup tools, etc.)
-  - id: init-py-exec-yara
-    desc: "__init__.py with immediate code execution"
-    crit: suspicious
+  - id: init-py-exec-yara-core
+    desc: "__init__.py with immediate code execution (YARA core)"
+    crit: inert
     conf: 0.9
     mbc: "B0030"
     if:
@@ -172,3 +197,16 @@ composite_rules:
     all:
       - id: setup-py-basename
       - id: setup-py-exec-yara-core
+    unless:
+      - type: content
+        regex: "scipy|numpy|docutils"
+
+  - id: init-py-exec-yara
+    desc: "__init__.py with immediate code execution"
+    crit: suspicious
+    conf: 0.9
+    mbc: "B0030"
+    attack: "T1195.002"
+    all:
+      - id: init-py-basename
+      - id: init-py-exec-yara-core

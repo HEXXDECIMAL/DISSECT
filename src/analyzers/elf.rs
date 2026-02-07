@@ -7,6 +7,7 @@ use crate::capabilities::CapabilityMapper;
 use crate::entropy::{calculate_entropy, EntropyLevel};
 use crate::radare2::Radare2Analyzer;
 use crate::strings::StringExtractor;
+use crate::types::binary_metrics::ElfMetrics;
 use crate::types::*;
 use crate::yara_engine::YaraEngine;
 use anyhow::{Context, Result};
@@ -79,9 +80,11 @@ impl ElfAnalyzer {
         let mut tools_used = vec![];
 
         // Attempt to parse with goblin
+        let mut elf_type = 0u32;
         match Elf::parse(data) {
             Ok(elf) => {
                 tools_used.push("goblin".to_string());
+                elf_type = elf.header.e_type as u32;
 
                 // Update architecture now that we have parsed the header
                 report.target.architectures = Some(vec![self.arch_name(&elf)]);
@@ -124,8 +127,11 @@ impl ElfAnalyzer {
             if let Ok(batched) = self.radare2.extract_batched(file_path) {
                 // Compute metrics from batched data
                 let binary_metrics = self.radare2.compute_metrics_from_batched(&batched);
+                let mut elf_metrics = ElfMetrics::default();
+                elf_metrics.e_type = elf_type;
                 report.metrics = Some(Metrics {
                     binary: Some(binary_metrics),
+                    elf: Some(elf_metrics),
                     ..Default::default()
                 });
 

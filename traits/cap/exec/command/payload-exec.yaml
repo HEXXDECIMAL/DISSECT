@@ -60,11 +60,11 @@ traits:
     conf: 0.70
     if:
       type: string
-      regex: "open.{0,10}-a.{0,10}\\.app|open.{0,10}\\.app"
+      regex: "\\bopen\\s+-a\\s+[^\\n]{1,120}\\.app\\b|\\['open'\\s*,\\s*['\\\"][^'\\\"\\n]{1,120}\\.app['\\\"]"
 
   - id: open-command-execution
     desc: open command execution
-    crit: suspicious
+    crit: notable
     conf: 0.75
     if:
       type: string
@@ -133,7 +133,7 @@ composite_rules:
 
   - id: macos-app-execution
     desc: macOS application execution
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1106"
     platforms: [macos]

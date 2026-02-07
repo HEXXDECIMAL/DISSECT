@@ -216,6 +216,12 @@ pub fn eval_metrics(
         "binary.overlay_ratio" => metrics.binary.as_ref().map(|b| b.overlay_ratio as f64),
         "binary.overlay_entropy" => metrics.binary.as_ref().map(|b| b.overlay_entropy as f64),
 
+        // Mach-O specific
+        "macho.file_type" => metrics.macho.as_ref().map(|m| m.file_type as f64),
+
+        // ELF specific
+        "elf.e_type" => metrics.elf.as_ref().map(|e| e.e_type as f64),
+
         // Complexity metrics
         "binary.avg_complexity" => metrics.binary.as_ref().map(|b| b.avg_complexity as f64),
         "binary.max_complexity" => metrics.binary.as_ref().map(|b| b.max_complexity as f64),

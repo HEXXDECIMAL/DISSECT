@@ -18,7 +18,7 @@ traits:
     if:
       type: string
       # Match: print("...installed..."), output("...installed"), or return with installed as confirmation
-      regex: "(?:print|send|http|request|post)\\s*\\([^)]{0,100}\\binstalled\\b"
+      regex: "(?:print|send|http|request|post)\\s*\\([^)]{0,50}\\binstalled\\b"
       case_insensitive: true
     not:
       # Legitimate contexts where "installed" is expected
@@ -130,7 +130,8 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: "https?://[^/]+/[^'\"\\s]*\\.php"
+      # Require exfil/C2-like parameter names; generic php docs links are common in benign code
+      regex: "https?://[^/]+/[^'\"\\s]*\\.php\\?[^'\"\\s]*(?:^|[?&])(?:vid|id|uid|token|key|data|payload|info|host|user|pass|cmd|exec|shell|upload|post|send|collect|exfil)="
 
   - id: version-check-url
     desc: Suspicious version check URL
@@ -163,8 +164,10 @@ traits:
 
   - id: triple-hash-delimiter
     desc: Triple hash data delimiter
-    crit: suspicious
+    crit: notable
     conf: 0.85
+    # Small files using this as a delimiter are more suspicious
+    size_max: 5000
     if:
       type: string
       exact: "###"
@@ -362,4 +365,3 @@ composite_rules:
       - id: setup-py-file
       - id: obj/creds/browser/import-requests
       - id: probe-print-test
-

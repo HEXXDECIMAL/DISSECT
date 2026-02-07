@@ -36,7 +36,7 @@ traits:
     attack: "T1083"
     if:
       type: content
-      regex: 'ruby -e.{0,100}File\.(open|write).{0,50}w.{0,50}write'
+      regex: 'ruby -e.{0,50}File\.(open|write).{0,50}w.{0,50}write'
 
 composite_rules:
   # === GTFOBins Library Load ===

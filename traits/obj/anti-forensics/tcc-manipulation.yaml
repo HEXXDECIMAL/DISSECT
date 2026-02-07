@@ -35,7 +35,7 @@ traits:
     platforms: [macos]
     if:
       type: string
-      regex: 'tccutil\s+reset|rm\s+.{0,100}tcc\.db'
+      regex: 'tccutil\s+reset|rm\s+.{0,50}tcc\.db'
       case_insensitive: true
 
 composite_rules:

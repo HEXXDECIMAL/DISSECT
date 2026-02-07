@@ -76,9 +76,19 @@ traits:
       min: 1
     # API set forwarding stubs have W+X sections as part of their
     # minimal layout, not for self-modifying code.
+    # Also exclude relocatable object files (MH_OBJECT=1, ET_REL=1) as they
+    # often have RWX sections before final linking (e.g. Go race detector).
     unless:
       - type: string
         substr: "ApiSet Stub DLL"
+      - type: metrics
+        field: macho.file_type
+        min: 1
+        max: 1
+      - type: metrics
+        field: elf.e_type
+        min: 1
+        max: 1
 
   - id: many-wx-sections
     desc: "Multiple W+X sections (packer pattern)"
@@ -90,16 +100,25 @@ traits:
       type: metrics
       field: binary.wx_sections
       min: 2
+    unless:
+      - type: metrics
+        field: macho.file_type
+        min: 1
+        max: 1
+      - type: metrics
+        field: elf.e_type
+        min: 1
+        max: 1
 
   - id: high-section-name-entropy
     desc: "High entropy section names (packer"
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1045"
     if:
       type: metrics
       field: binary.section_name_entropy
-      min: 4.8
+      min: 5.4
 
   - id: few-sections
     desc: "Very few sections (merged/stripped)"

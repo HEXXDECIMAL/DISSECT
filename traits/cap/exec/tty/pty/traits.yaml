@@ -130,7 +130,7 @@ traits:
 
   - id: vhangup
     desc: Virtual terminal hangup
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1059"
     for: [elf]

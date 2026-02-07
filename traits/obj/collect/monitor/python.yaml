@@ -94,8 +94,8 @@ composite_rules:
 
   # Screen capture composite
   - id: screen-capture
-    desc: Captures screen display (potential spyware)
-    crit: suspicious
+    desc: Captures screen display
+    crit: notable
     conf: 0.9
     mbc: "B0002"
     attack: "T1113"

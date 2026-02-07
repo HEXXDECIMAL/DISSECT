@@ -38,7 +38,7 @@ traits:
   # === Network in Decoded Payload ===
   - id: decoded-http-url
     desc: HTTP URL in decoded payload
-    crit: suspicious
+    crit: notable
     conf: 0.90
     if:
       type: base64
@@ -90,7 +90,7 @@ composite_rules:
     attack: "T1071"
     mbc: "B0030"
     platforms: [all]
-    needs: 1
+    needs: 2
     any:
       - id: decoded-http-url
       - id: decoded-curl-wget

@@ -53,7 +53,7 @@ traits:
     desc: readdir function symbol
     crit: inert
     conf: 0.5
-    for: [elf]
+    for: [so]
     if:
       type: symbol
       regex: "^readdir"
@@ -62,7 +62,7 @@ traits:
     desc: getdents function symbol
     crit: inert
     conf: 0.5
-    for: [elf]
+    for: [so]
     if:
       type: symbol
       regex: "^getdents"
@@ -71,7 +71,7 @@ traits:
     desc: Binary exports symbols
     crit: inert
     conf: 0.5
-    for: [elf]
+    for: [so]
     if:
       type: exports_count
       min: 1
@@ -106,7 +106,7 @@ composite_rules:
     conf: 0.85
     mbc: "F0015"
     attack: "T1014"
-    for: [elf]
+    for: [so]
     all:
       - id: readdir-symbol
       - id: has-exports
@@ -117,7 +117,7 @@ composite_rules:
     conf: 0.85
     mbc: "F0015"
     attack: "T1014"
-    for: [elf]
+    for: [so]
     all:
       - id: getdents-symbol
       - id: has-exports
@@ -129,7 +129,7 @@ composite_rules:
     conf: 0.9
     mbc: "F0015"
     attack: "T1014"
-    for: [elf]
+    for: [so]
     all:
       - id: cap/exec/dylib/load/dlsym
     any:
@@ -162,7 +162,7 @@ composite_rules:
     conf: 0.95
     mbc: "B0003"
     attack: "T1014"
-    for: [elf]
+    for: [so]
     all:
       - id: hooked-library
       - id: filter-process-name

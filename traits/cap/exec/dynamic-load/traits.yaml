@@ -76,9 +76,11 @@ traits:
   # Python zipimporter load_module - executes code from ZIP
   - id: python-zipimporter-load
     desc: Loads module from ZIP archive
-    crit: suspicious
+    crit: notable
     conf: 0.95
     for: [python]
+    # Small files with zipimporter logic are more suspicious
+    size_max: 1000000
     if:
       type: symbol
       regex: "\\.load_module"

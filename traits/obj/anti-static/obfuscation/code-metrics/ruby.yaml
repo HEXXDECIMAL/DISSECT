@@ -9,7 +9,7 @@ defaults:
 traits:
   - id: ruby-many-high-entropy-identifiers
     desc: "Many high-entropy identifiers in Ruby"
-    crit: suspicious
+    crit: notable
     conf: 0.9
     # Ruby framework code (Rails DSLs, adapters, schema helpers) often uses
     # long domain-specific identifiers that inflate entropy ratios.

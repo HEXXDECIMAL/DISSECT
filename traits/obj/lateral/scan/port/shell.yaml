@@ -60,12 +60,17 @@ traits:
 
   - id: dotfiles-in-script
     desc: References hidden scripts
-    crit: suspicious
+    crit: notable
     conf: 0.85
+    # Small binaries/scripts with hidden paths are more suspicious
+    size_max: 5000
     if:
       type: content
       # Calling /.SCRIPT or ./.SCRIPT (covert execution)
       regex: "\\./\\.\\w+|/\\.\\w+\\s"
+    unless:
+      - type: content
+        regex: "library|compiler|builtins"
 
 composite_rules:
   # xargs-based loop with dotfiles: characteristic of statdx-scan style

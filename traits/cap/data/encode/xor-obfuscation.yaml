@@ -169,6 +169,7 @@ composite_rules:
     for: [elf, shell]
     attack: "T1027"
     mbc: "B0041"
+    needs: 2
     any:
       - id: xor-encoded-strings
       - id: unusual-character-combinations

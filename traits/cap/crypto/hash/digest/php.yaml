@@ -79,4 +79,4 @@ traits:
     for: [c]
     if:
       type: content
-      regex: "(?s)(password|passwd|crypt).{0,500}MD5_(Init|Update|Final)"
+      regex: "(?s)(password|passwd|crypt).{0,50}MD5_(Init|Update|Final)"

@@ -19,7 +19,7 @@ traits:
     conf: 0.95
     if:
       type: string
-      regex: '(Encryption|Encrypting).{0,20}complete'
+      regex: "(Encryption|Encrypting).{0,20}complete"
       case_insensitive: true
 
   # Encrypt file/directory function symbols
@@ -30,7 +30,7 @@ traits:
     for: [elf, pe, macho]
     if:
       type: symbol
-      regex: '^encrypt_(file|directory|folder|data|content)s?$'
+      regex: "^encrypt_(file|directory|folder|data|content)s?$"
 
   # Ransomware source file indicator
   - id: ransomware-source-path
@@ -49,7 +49,7 @@ traits:
     conf: 0.95
     if:
       type: string
-      regex: 'locker::(core|lib|app)::'
+      regex: "locker::(core|lib|app)::"
 
   # Encrypt library path references
   - id: encrypt-lib-path
@@ -58,7 +58,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: 'library/(encrypt-lib|locker)/src/'
+      regex: "library/(encrypt-lib|locker)/src/"
 
   # Ransomware config field patterns - note handling
   - id: config-note-fields
@@ -67,16 +67,17 @@ traits:
     conf: 0.95
     if:
       type: string
-      regex: 'note_file_name|note_full_text|note_short_text'
+      regex: "note_file_name|note_full_text|note_short_text"
 
   # Ransomware encryption config fields
+  # Note: public_key removed - too generic, used by OpenSSL, Node.js, etc.
   - id: config-cipher-fields
     desc: Ransomware cipher config fields
-    crit: suspicious
+    crit: notable
     conf: 0.9
     if:
       type: string
-      regex: 'default_file_cipher|default_file_mode|public_key'
+      regex: "default_file_cipher|default_file_mode"
 
   # Template placeholders for ransomware
   - id: template-placeholders
@@ -94,7 +95,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: '(File already has encrypted extension|Starting File Processing Pipeline|Files processed.{0,50}Files scanned)'
+      regex: "(File already has encrypted extension|Starting File Processing Pipeline|Files processed.{0,50}Files scanned)"
 
   # VM kill configuration
   - id: vm-kill-config
@@ -103,7 +104,7 @@ traits:
     conf: 0.95
     if:
       type: string
-      regex: 'enable_esxi_vm_kill|enable_esxi_vm_snapshot_kill|esxi_vm_kill_exclude'
+      regex: "enable_esxi_vm_kill|enable_esxi_vm_snapshot_kill|esxi_vm_kill_exclude"
 
   # Kill services/processes config for pre-encryption
   - id: kill-services-config
@@ -112,7 +113,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: 'kill_services|kill_processes'
+      regex: "kill_services|kill_processes"
     not:
       - "botkill"
 
@@ -127,7 +128,7 @@ traits:
 
   - id: ransom-extension
     desc: Ransomware file extension markers
-    crit: suspicious
+    crit: notable
     conf: 0.85
     if:
       type: string
@@ -136,6 +137,9 @@ traits:
     not:
       - "exithook.locked"
       - regex: '^[a-z_][a-z0-9_]*\.(crypt|encrypted|locked|enc|crypted|cry)$'
+    unless:
+      - type: content
+        regex: "matplotlib|tex"
 
   # Cryptographic symbols for ransomware
   - id: crypto-openssl-encrypt
@@ -144,7 +148,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: 'EVP_(Encrypt|Cipher)Init_ex|AES_set_encrypt_key|AES_cbc_encrypt'
+      regex: "EVP_(Encrypt|Cipher)Init_ex|AES_set_encrypt_key|AES_cbc_encrypt"
 
   - id: crypto-openssl-asymmetric
     desc: OpenSSL asymmetric key operations
@@ -152,7 +156,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: 'ECDH_compute_key|EC_KEY_generate_key|RSA_public_encrypt'
+      regex: "ECDH_compute_key|EC_KEY_generate_key|RSA_public_encrypt"
 
   # File locking indicators
   - id: file-locked-message
@@ -161,7 +165,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: 'File Locked|locked.{0,20}PID|error.{0,20}encrypt.{0,20}rename'
+      regex: "File Locked|locked.{0,20}PID|error.{0,20}encrypt.{0,20}rename"
 
   # Total encrypted count
   - id: crypted-counter
@@ -170,7 +174,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: 'Total (Crypted|Encrypted)|Crypted:.{0,20}Error:|Files Encrypted:'
+      regex: "Total (Crypted|Encrypted)|Crypted:.{0,20}Error:|Files Encrypted:"
 
   # Payment status check functions (ransomware C2 pattern)
   - id: payment-status-check
@@ -180,7 +184,7 @@ traits:
     for: [elf, pe, macho]
     if:
       type: string
-      regex: '(getHasPayed|checkPayment|isPaid|payment.{0,20}status|verify.{0,20}payment)'
+      regex: "(getHasPayed|checkPayment|isPaid|payment.{0,20}status|verify.{0,20}payment)"
       case_insensitive: true
 
   # Data loss threat message
@@ -190,7 +194,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: '(data (will be|is) lost|lost forever|cannot.{0,20}recover|unrecoverable.{0,30}(pay|ransom|decrypt|restore))'
+      regex: "(data (will be|is) lost|lost forever|cannot.{0,20}recover|unrecoverable.{0,30}(pay|ransom|decrypt|restore))"
       case_insensitive: true
 
   # Desktop ransom note pattern

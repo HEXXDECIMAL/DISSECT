@@ -25,7 +25,7 @@ traits:
     for: [c]
     if:
       type: content
-      regex: '(?:snprintf|sprintf)[\s\S]{0,240}%s[\s\S]{0,240}(?:system\s*\(|popen\s*\(|execl\s*\(|execv\s*\(|/bin/sh|sh\s+-c|cmd\.exe)'
+      regex: '(?:snprintf|sprintf)[\s\S]{0,50}%s[\s\S]{0,50}(?:system\s*\(|popen\s*\(|execl\s*\(|execv\s*\(|/bin/sh|sh\s+-c|cmd\.exe)'
 
   - id: system-call-symbol
     desc: system() function call

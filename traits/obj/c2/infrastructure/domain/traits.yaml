@@ -61,13 +61,16 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: string
-      # Require domain-like terminators so code member chains like self.spines.top do not match.
+      type: content
+      # Require URL/network endpoint context to avoid matching benign dotted config keys like "figure.subplot.top".
       # Removed: .date (matches Go time.Time.date), .pro (too common)
       # Added: .pe (Peru - commonly abused for short URLs), .su (Soviet Union - malware favorite)
-      regex: "\\b[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\\.(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|download|racing|win|party|review|accountant|science|trade|webcam|bid|loan|pe|su|icu|buzz)(?:$|[/:?#'\"\\s,;\\)])|https?://(?:[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\\.)+(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|work|stream|download|racing|pe|su|icu|buzz)(?:$|[/:?#'\"\\s,;\\)])"
+      regex: "['\\\"](?:https?://(?:[a-zA-Z0-9-]{1,63}\\.)+(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|work|stream|download|racing|win|party|review|accountant|science|trade|webcam|bid|loan|pe|su|icu|buzz)(?::\\d{1,5})?(?:[/?#][^'\\\"\\s]*)?|(?:[a-zA-Z0-9-]{1,63}\\.)+(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|work|stream|download|racing|win|party|review|accountant|science|trade|webcam|bid|loan|pe|su|icu|buzz)(?::\\d{1,5}|/[A-Za-z0-9._~!$&'()*+,;=:@%/-]+|\\?[^'\\\"\\s]+))['\\\"]"
     not:
       - regex: "^[A-Za-z_$][A-Za-z0-9_$]*\\.style\\.(top|left|right|bottom|width|height)$"
+    unless:
+      - type: content
+        regex: "sina\\.com\\.cn|163\\.com|126\\.com|sohu\\.com|qq\\.com|yahoo\\.com\\.cn|mysite"
 
   - id: short-domain-url-pattern
     desc: "Very short domain in URL"
@@ -91,6 +94,8 @@ traits:
     crit: suspicious
     conf: 0.7
     for: [binaries]
+    # Small binaries with hardcoded domains are more suspicious
+    size_max: 1000000
     if:
       type: string
       regex: "(?:https?|wss?)://[a-zA-Z0-9][-a-zA-Z0-9]*\\.[a-zA-Z]{2,6}(?:[/?#]|$|:)"
@@ -104,9 +109,15 @@ traits:
         - "mdn\\.io"
         - "developer\\.mozilla\\.org"
         - "docs\\.github\\.com"
+        - "docs\\.rs"
+        - "docs\\.python\\.org"
         - "nodejs\\.org"
         - "npmjs\\.com"
         - "npmjs\\.org"
+        - "pypi\\.org"
+        - "python\\.org"
+        - "rust-lang\\.org"
+        - "crates\\.io"
         # CI/CD services
         - "travis-ci\\.org"
         - "travis-ci\\.com"
@@ -128,6 +139,8 @@ traits:
         - "microsoft\\.com"
         - "amazon\\.com"
         - "aws\\.amazon\\.com"
+        - "google\\.com"
+        - "sourceforge\\.net"
         # LLVM/compiler projects
         - "llvm\\.org"
         - "clang\\.llvm\\.org"
@@ -406,6 +419,13 @@ traits:
     if:
       type: string
       regex: 'https?://[a-zA-Z0-9][-a-zA-Z0-9.]+(?::[0-9]+)?/[^?#\s]*\.php(?:[?#]|$)'
+      exclude_patterns:
+        - "(?i)sourceforge\\.net"
+        - "(?i)vim\\.org"
+        - "(?i)docs\\."
+        - "(?i)pypi\\.org"
+        - "(?i)npmjs\\.com"
+        - "(?i)github\\.com"
     not:
       - "doku.php"
       - "index.php"
@@ -690,6 +710,8 @@ composite_rules:
     desc: "Likely C2 domain (suspicious TLD"
     crit: notable
     conf: 0.85
+    # REAL C2 implants are typically small (<5KB scripts)
+    size_max: 5000
     needs: 1
     any:
       - id: hardcoded-domain-suspicious-pattern

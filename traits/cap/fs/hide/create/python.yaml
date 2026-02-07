@@ -12,20 +12,26 @@ traits:
   # Hidden directory in path join: os.path.join(..., ".hidden")
   - id: python-join-hidden
     desc: "Hidden directory construction via os.path.join"
+    crit: notable
     conf: 0.9
     if:
       type: string
       # Matches: os.path.join(..., ".xyz") or join(foo, ".bar")
       regex: "os\\.path\\.join\\([^)]*[,]\\s*[\"']\\.[a-zA-Z][a-zA-Z0-9_-]*[\"']"
+      not:
+        - regex: "[\"']\\.(tox|cache|git|venv|env|pytest_cache|mypy_cache|build|dist)[\"']"
 
   # Pathlib hidden directory: Path(...) / ".hidden"
   - id: python-pathlib-hidden
     desc: "Hidden directory construction via pathlib"
+    crit: notable
     conf: 0.9
     if:
       type: string
       # Matches: Path(...) / ".xyz" or path / ".bar"
       regex: "/\\s*[\"']\\.[a-zA-Z][a-zA-Z0-9_-]*[\"']"
+      not:
+        - regex: "[\"']\\.(tox|cache|git|venv|env|pytest_cache|mypy_cache|build|dist)[\"']"
 
   # String literal hidden path: "/.hidden" or "~/.config"
   - id: python-string-hidden-path
@@ -40,18 +46,25 @@ traits:
   # makedirs with hidden directory
   - id: python-makedirs-hidden
     desc: "Create hidden directory (os.makedirs)"
+    crit: notable
     conf: 0.9
     if:
       type: string
       regex: "os\\.makedirs\\([^)]*\\.[a-zA-Z][a-zA-Z0-9_-]*"
+      not:
+        - regex: "[\"']\\.(tox|cache|git|venv|env|pytest_cache|mypy_cache|build|dist)[\"']"
 
   # mkdir with hidden directory (pathlib)
   - id: python-mkdir-hidden
     desc: "Create hidden directory (pathlib mkdir)"
+    crit: notable
     conf: 0.9
     if:
-      type: string
-      regex: "\\.mkdir\\([^)]*\\)"
+      type: content
+      regex: "\\.mkdir\\(\\s*[\"'](?:\\.[a-zA-Z][a-zA-Z0-9_-]*|[^\"']*[\\\\/]\\.[a-zA-Z][a-zA-Z0-9_-]*)[\"']"
+    unless:
+      - type: string
+        regex: "\\.(tox|cache|git|venv|env|pytest_cache|mypy_cache|build|dist)"
 
   # Home directory expansion: expanduser or Path.home
   - id: python-home-expansion
@@ -94,6 +107,7 @@ traits:
   # Only match in contexts suggesting directory creation, not file extensions
   - id: python-cryptic-hidden
     desc: "Cryptic hidden directory name (likely"
+    crit: suspicious
     conf: 0.85
     if:
       type: string
@@ -119,7 +133,7 @@ composite_rules:
   - id: python-home-hidden-staging
     desc: "Malware staging in hidden home"
     conf: 0.95
-    crit: suspicious
+    crit: hostile
     all:
       - id: python-home-expansion
       - id: python-hidden-join-pattern

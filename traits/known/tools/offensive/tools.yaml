@@ -96,8 +96,8 @@ traits:
     platforms: [all]
     if:
       type: content
-      # Matches nmap -D for decoy scanning
-      regex: "(?:nmap|scan).{0,50}-D\\s+[0-9]|arguments.{0,20}-D\\s+[0-9]|'-D\\s+[0-9]"
+      # Require an actual nmap invocation with -D decoy args (avoids matching unrelated '-D 96' style flags).
+      regex: "\\bnmap(?:\\.exe)?\\b[^\\n\\r]{0,120}\\s-D\\s*(?:ME|RND(?::\\d+)?|[0-9]{1,3}(?:\\.[0-9]{1,3}){3}|[0-9,]+)"
 
   - id: masscan-ref
     desc: Masscan port scanner reference

@@ -8,8 +8,8 @@
   "size": 32814,
   "risk": "suspicious",
   "counts": {
-    "suspicious": 5,
-    "notable": 30
+    "suspicious": 2,
+    "notable": 31
   },
   "findings": [
     {
@@ -542,7 +542,7 @@
         {
           "method": "import_symbol",
           "source": "ast",
-          "value": "/usr/bin/uname"
+          "value": "/usr/bin/sudo"
         },
         {
           "method": "import_symbol",
@@ -552,12 +552,12 @@
         {
           "method": "import_symbol",
           "source": "ast",
-          "value": "/usr/bin/sudo"
+          "value": "/usr/bin/xcrun"
         },
         {
           "method": "import_symbol",
           "source": "ast",
-          "value": "/usr/bin/xcrun"
+          "value": "/usr/bin/uname"
         }
       ]
     },
@@ -1049,6 +1049,21 @@
           "source": "string_extractor",
           "value": ">/dev/null",
           "location": "0x2cc4"
+        }
+      ]
+    },
+    {
+      "id": "known/malware/rat/cobalt-strike/system-binary-exclusion",
+      "kind": "capability",
+      "desc": "Exclude Node.js and standard system binaries",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 24 usr/bin",
+          "location": "file"
         }
       ]
     },
@@ -2406,69 +2421,6 @@
       ]
     },
     {
-      "id": "cap/os/package-manager/multi-distro-detection",
-      "kind": "capability",
-      "desc": "Checks for multiple package managers",
-      "conf": 0.8,
-      "crit": "suspicious",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "apt-get",
-          "location": "0x7d1d"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "apt-get",
-          "location": "0x7d48"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "apt-get",
-          "location": "0x7d49"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "dnf",
-          "location": "0x7d80"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "dnf",
-          "location": "0x7da7"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "dnf",
-          "location": "0x7da8"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "yum",
-          "location": "0x7de3"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "yum",
-          "location": "0x7e0a"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "yum",
-          "location": "0x7e0b"
-        }
-      ]
-    },
-    {
       "id": "cap/os/package-manager/apt-get-install",
       "kind": "capability",
       "desc": "apt-get package installation command",
@@ -2535,8 +2487,8 @@
       "id": "known/malware/miner/kinsing-enhanced/shell-rc-persistence",
       "kind": "capability",
       "desc": "Shell rc file persistence",
-      "conf": 0.8,
-      "crit": "suspicious",
+      "conf": 0.6,
+      "crit": "notable",
       "attack": "T1547.013",
       "evidence": [
         {
@@ -3159,23 +3111,6 @@
           "method": "raw",
           "source": "raw_content",
           "value": "Found 1 while read",
-          "location": "file"
-        }
-      ]
-    },
-    {
-      "id": "obj/lateral/scan/port/dotfiles-in-script",
-      "kind": "capability",
-      "desc": "References hidden scripts",
-      "conf": 0.85,
-      "crit": "suspicious",
-      "mbc": "E1046",
-      "attack": "T1046",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 3 /.linuxbrew ",
           "location": "file"
         }
       ]

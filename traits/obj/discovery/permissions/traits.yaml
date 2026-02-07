@@ -57,9 +57,9 @@ traits:
       type: symbol
       exact: "geteuid"
 
-  - id: etc-group
-    desc: Group file access
-    crit: suspicious
+  - id: etc-group-core
+    desc: Group file access string
+    crit: inert
     conf: 0.8
     attack: "T1069"
     for: [all]
@@ -67,9 +67,9 @@ traits:
       type: string
       substr: "/etc/group"
 
-  - id: etc-sudoers
-    desc: Sudoers file access
-    crit: suspicious
+  - id: etc-sudoers-core
+    desc: Sudoers file access string
+    crit: inert
     conf: 0.85
     attack: "T1069"
     for: [all]
@@ -77,9 +77,9 @@ traits:
       type: string
       substr: "/etc/sudoers"
 
-  - id: etc-shadow
-    desc: Shadow file access
-    crit: suspicious
+  - id: etc-shadow-core
+    desc: Shadow file access string
+    crit: inert
     conf: 0.85
     attack: "T1003.008"
     for: [all]
@@ -87,9 +87,9 @@ traits:
       type: string
       substr: "/etc/shadow"
 
-  - id: etc-gshadow
-    desc: Group shadow file access
-    crit: suspicious
+  - id: etc-gshadow-core
+    desc: Group shadow file access string
+    crit: inert
     conf: 0.85
     attack: "T1003.008"
     for: [all]
@@ -196,6 +196,45 @@ composite_rules:
     any:
       - id: linux-caps-via-capsh
       - id: linux-caps-via-api
+
+  - id: etc-group
+    desc: Group file access
+    crit: suspicious
+    conf: 0.8
+    attack: "T1069"
+    all:
+      - id: etc-group-core
+      - id: cap/fs/path/config/config-etc
+    unless:
+      - type: basename
+        exact: "lookup.go"
+
+  - id: etc-sudoers
+    desc: Sudoers file access
+    crit: suspicious
+    conf: 0.85
+    attack: "T1069"
+    all:
+      - id: etc-sudoers-core
+      - id: cap/fs/path/config/config-etc
+
+  - id: etc-shadow
+    desc: Shadow file access
+    crit: suspicious
+    conf: 0.85
+    attack: "T1003.008"
+    all:
+      - id: etc-shadow-core
+      - id: cap/fs/path/config/config-etc
+
+  - id: etc-gshadow
+    desc: Group shadow file access
+    crit: suspicious
+    conf: 0.85
+    attack: "T1003.008"
+    all:
+      - id: etc-gshadow-core
+      - id: cap/fs/path/config/config-etc
 
   # User/group ID gathering - only notable when combined with multiple checks
   - id: uid-gid-gathering

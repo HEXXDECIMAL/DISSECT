@@ -69,12 +69,18 @@ traits:
     crit: suspicious
     conf: 0.8
     for: [elf, shell]
+    # Sophisticated malware implants are typically small
+    size_max: 1000000
     if:
       type: string
       any:
         - substr: "apt-get"
         - substr: "yum"
         - substr: "dnf"
+      count_min: 2
+    unless:
+      - type: content
+        regex: "postgresql|libc|libgcc|libstdc\\+\\+"
 
   - id: conditional-install
     desc: Conditional installation based on availability
@@ -84,9 +90,9 @@ traits:
     if:
       type: string
       any:
-        - regex: "which\\s+(apt-get|yum|dnf)\\s+.{0,120}>/dev/null.{0,80}&&\\s*(apt-get|yum|dnf)"
-        - regex: "command\\s+-v\\s+(apt-get|yum|dnf)\\s+.{0,120}>/dev/null.{0,80}&&\\s*(apt-get|yum|dnf)"
-        - regex: "type\\s+(apt-get|yum|dnf)\\s+.{0,120}>/dev/null.{0,80}&&\\s*(apt-get|yum|dnf)"
+        - regex: "which\\s+(apt-get|yum|dnf)\\s+.{0,50}>/dev/null.{0,80}&&\\s*(apt-get|yum|dnf)"
+        - regex: "command\\s+-v\\s+(apt-get|yum|dnf)\\s+.{0,50}>/dev/null.{0,80}&&\\s*(apt-get|yum|dnf)"
+        - regex: "type\\s+(apt-get|yum|dnf)\\s+.{0,50}>/dev/null.{0,80}&&\\s*(apt-get|yum|dnf)"
 
 composite_rules:
   - id: apt-distro-targeting

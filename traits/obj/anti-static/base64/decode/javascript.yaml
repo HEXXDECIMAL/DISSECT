@@ -40,7 +40,7 @@ traits:
     conf: 0.90
     if:
       type: content
-      regex: "Buffer\\.from\\(Buffer\\.from\\(.{0,100}base64"
+      regex: "Buffer\\.from\\(Buffer\\.from\\(.{0,50}base64"
 
 composite_rules:
   # Any nested decoding pattern

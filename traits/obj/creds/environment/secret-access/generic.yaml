@@ -42,7 +42,7 @@ traits:
 
   - id: api-key-generic
     desc: Generic API_KEY environment variable access
-    crit: suspicious
+    crit: notable
     conf: 0.8
     attack: "T1552.001"
     if:
@@ -51,7 +51,7 @@ traits:
 
   - id: secret-key-generic
     desc: Generic SECRET_KEY environment variable access
-    crit: suspicious
+    crit: notable
     conf: 0.8
     attack: "T1552.001"
     if:

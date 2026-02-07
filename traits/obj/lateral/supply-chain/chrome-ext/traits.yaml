@@ -197,7 +197,7 @@ traits:
     for: [javascript]
     if:
       type: content
-      regex: "onInstalled[\\s\\S]{0,200}(https?://[^\"'\\s]+)"
+      regex: "onInstalled[\\s\\S]{0,50}(https?://[^\"'\\s]+)"
 
   # === Affiliate Link Hijacking Patterns ===
   - id: amazon-product-url-pattern

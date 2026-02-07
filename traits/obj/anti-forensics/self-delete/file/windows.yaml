@@ -24,7 +24,7 @@ traits:
     for: [all]
     if:
       type: string
-      regex: "del\\s.{0,100}\\.vbs|Remove-Item.{0,100}\\.vbs|DeleteFile.{0,100}\\.vbs"
+      regex: "del\\s.{0,50}\\.vbs|Remove-Item.{0,50}\\.vbs|DeleteFile.{0,50}\\.vbs"
       case_insensitive: true
 
   # Script file deletion (generic)
@@ -35,7 +35,7 @@ traits:
     for: [all]
     if:
       type: string
-      regex: "del\\s.{0,100}\\.(ps1|bat|cmd|vbs)|Remove-Item.{0,100}\\.(ps1|bat|cmd|vbs)"
+      regex: "del\\s.{0,50}\\.(ps1|bat|cmd|vbs)|Remove-Item.{0,50}\\.(ps1|bat|cmd|vbs)"
       case_insensitive: true
 
   # Multiple VBS deletions (dropper cleanup pattern)
@@ -46,5 +46,5 @@ traits:
     for: [all]
     if:
       type: string
-      regex: "del.{0,100}\\.vbs|Remove-Item.{0,100}\\.vbs"
+      regex: "del.{0,50}\\.vbs|Remove-Item.{0,50}\\.vbs"
       case_insensitive: true

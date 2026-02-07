@@ -8,7 +8,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: 'curl.{0,100}\.zip'
+      regex: 'curl.{0,50}\.zip'
 
   - id: post-zip
     desc: POST with .zip
@@ -16,7 +16,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: 'POST.{0,100}\.zip'
+      regex: 'POST.{0,50}\.zip'
 
   - id: upload-zip
     desc: upload .zip

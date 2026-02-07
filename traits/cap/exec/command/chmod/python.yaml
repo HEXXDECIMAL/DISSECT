@@ -15,11 +15,11 @@ traits:
 
   - id: executable
     desc: "Sets executable permissions via chmod"
-    crit: suspicious
+    crit: notable
     conf: 0.9
     mbc: "C0047"
     attack: "T1222.002"
     for: [python]
     if:
       type: raw
-      regex: "0o7[0-7][0-7]"
+      regex: "os\\.chmod\\([^\\n]{0,120}0o7[0-7][0-7]"

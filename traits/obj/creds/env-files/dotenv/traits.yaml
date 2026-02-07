@@ -37,9 +37,11 @@ traits:
       regex: "for.{0,50}os\\.environ\\.items\\(\\)|os\\.environ\\.items\\(\\)"
 
   - id: environ-dict-access
-    desc: Environment variables as dict
-    crit: suspicious
+    desc: Environment variables as dict/string
+    crit: notable
     conf: 0.75
+    # Small binaries with environment dumps are more suspicious
+    size_max: 50000
     if:
       type: content
       regex: "dict\\(os\\.environ\\)|str\\(os\\.environ\\)"

@@ -70,7 +70,7 @@ traits:
     if:
       type: content
       # Match scripts that reference multiple temp/persist directories
-      regex: "/tmp.{0,100}/var/tmp|/var/tmp.{0,100}/dev/shm|/tmp.{0,100}/dev/shm"
+      regex: "/tmp.{0,50}/var/tmp|/var/tmp.{0,50}/dev/shm|/tmp.{0,50}/dev/shm"
 
   # === HTTP URL with IP and port pattern ===
   - id: http-ip-port-url

@@ -103,6 +103,14 @@ impl MachOAnalyzer {
         // Analyze sections and entropy
         self.analyze_sections(&macho, data, &mut report)?;
 
+        // Initialize metrics with Mach-O header info
+        let mut macho_metrics = MachoMetrics::default();
+        macho_metrics.file_type = macho.header.filetype;
+        report.metrics = Some(Metrics {
+            macho: Some(macho_metrics),
+            ..Default::default()
+        });
+
         // AMOS cipher detection and decryption
         self.analyze_amos_cipher(data, &mut report, &mut tools_used);
 
@@ -116,33 +124,32 @@ impl MachOAnalyzer {
                 // Compute metrics from batched data
                 let binary_metrics = self.radare2.compute_metrics_from_batched(&batched);
 
-                // Create Mach-O specific metrics from parsed code signature
-                let mut macho_metrics = MachoMetrics::default();
-                if let Some(ref codesig) = codesig_data {
-                    macho_metrics.has_entitlements = !codesig.entitlements.is_empty();
-                    macho_metrics.signature_type =
-                        Some(codesig.signature_type.as_str().to_string());
-                    macho_metrics.team_identifier = codesig.team_id.clone();
+                // Update metrics with radare2 data
+                if let Some(ref mut metrics) = report.metrics {
+                    metrics.binary = Some(binary_metrics);
 
-                    // Count dangerous entitlements
-                    let mut dangerous_count = 0u32;
-                    for (ent_key, _) in &codesig.entitlements {
-                        if ent_key.contains("disable-library-validation")
-                            || ent_key.contains("allow-jit")
-                            || ent_key.contains("unsigned-executable-memory")
-                            || ent_key.contains("debugger")
-                        {
-                            dangerous_count += 1;
+                    if let Some(ref mut macho_metrics) = metrics.macho {
+                        macho_metrics.has_entitlements = !codesig_data.as_ref().map(|c| c.entitlements.is_empty()).unwrap_or(true);
+                        if let Some(ref codesig) = codesig_data {
+                            macho_metrics.signature_type =
+                                Some(codesig.signature_type.as_str().to_string());
+                            macho_metrics.team_identifier = codesig.team_id.clone();
+
+                            // Count dangerous entitlements
+                            let mut dangerous_count = 0u32;
+                            for (ent_key, _) in &codesig.entitlements {
+                                if ent_key.contains("disable-library-validation")
+                                    || ent_key.contains("allow-jit")
+                                    || ent_key.contains("unsigned-executable-memory")
+                                    || ent_key.contains("debugger")
+                                {
+                                    dangerous_count += 1;
+                                }
+                            }
+                            macho_metrics.dangerous_entitlements = dangerous_count;
                         }
                     }
-                    macho_metrics.dangerous_entitlements = dangerous_count;
                 }
-
-                report.metrics = Some(Metrics {
-                    binary: Some(binary_metrics),
-                    macho: Some(macho_metrics),
-                    ..Default::default()
-                });
 
                 // Convert R2Functions to Functions for the report
                 report.functions = batched.functions.into_iter().map(Function::from).collect();

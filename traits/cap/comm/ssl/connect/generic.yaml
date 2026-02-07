@@ -18,30 +18,37 @@ traits:
     desc: InsecureSkipVerify (Go)
     crit: suspicious
     conf: 0.8
+    for: [go]
     if:
       type: string
       substr: "InsecureSkipVerify"
 
   - id: cert-none
-    desc: CERT_NONE (Python)
-    crit: suspicious
-    conf: 0.8
+    desc: cert_reqs set to CERT_NONE (Python)
+    crit: notable
+    conf: 0.75
+    for: [python]
     if:
-      type: string
-      substr: "CERT_NONE"
+      type: content
+      regex: "\\bcert_reqs\\s*=\\s*(?:ssl\\.)?CERT_NONE\\b"
 
   - id: verify-mode-none
     desc: verify_mode = ssl.CERT_NONE (Python)
-    crit: suspicious
+    crit: notable
     conf: 0.85
+    for: [python]
     if:
-      type: string
-      substr: "verify_mode = ssl.CERT_NONE"
+      type: content
+      regex: "\\bverify_mode\\s*=\\s*(?:ssl\\.)?CERT_NONE\\b"
+    unless:
+      - type: string
+        regex: "urllib3|requests|botocore"
 
   - id: reject-unauthorized-false
     desc: rejectUnauthorized false (Node.js)
-    crit: suspicious
+    crit: notable
     conf: 0.8
+    for: [javascript, typescript]
     if:
       type: string
       substr: "rejectUnauthorized: false"
@@ -52,9 +59,10 @@ composite_rules:
     desc: Skip SSL certificate verification
     crit: suspicious
     conf: 0.66
+    # Small binaries/scripts skipping verification are more suspicious
+    size_max: 10000
     needs: 1
     any:
       - id: insecure-skip-verify
-      - id: cert-none
       - id: verify-mode-none
       - id: reject-unauthorized-false

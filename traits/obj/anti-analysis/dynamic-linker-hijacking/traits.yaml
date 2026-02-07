@@ -60,16 +60,16 @@ traits:
     attack: "T1547.015"
 
   - id: dlopen-dlsym-pattern
-    desc: dlopen/dlsym dynamic library loading
+    desc: dlopen+dlsym dynamic loading pair
     crit: notable
     conf: 0.7
     for: [elf, shell]
     if:
       type: string
-      any:
+      all:
         - substr: "dlopen"
         - substr: "dlsym"
-    attack: "T1555"
+    attack: "T1574.006"
 
   - id: libc-preload
     desc: Preload libc library
@@ -90,15 +90,18 @@ traits:
       substr: "GLIBC_TUNABLES"
     attack: "T1547.015"
 
+  # Note: dlsym is legitimate for dynamic loading (Node.js native addons, plugins)
+  # Only suspicious when combined with RTLD_NEXT or LD_PRELOAD context
   - id: function-interception
-    desc: Function interception via dlsym
-    crit: suspicious
-    conf: 0.85
+    desc: Function interception markers
+    crit: notable
+    conf: 0.6
     for: [elf, shell]
     if:
       type: string
       any:
-        - substr: "dlsym"
+        - substr: "dlsym(RTLD_NEXT"
+        - substr: "__libc_dlsym"
         - substr: "__libc_dlopen_mode"
     attack: "T1547.015"
 

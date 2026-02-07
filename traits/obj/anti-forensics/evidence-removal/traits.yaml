@@ -95,9 +95,11 @@ traits:
     if:
       type: string
       any:
-        - substr: "-exec rm"
-        - substr: "-delete"
-        - regex: "find\\s+.{0,120}-exec\\s+rm"
+        - regex: "(?:^|\\s)find\\s+.{0,50}-exec\\s+rm"
+        - regex: "(?:^|\\s)find\\s+.{0,50}-delete\\b"
+    unless:
+      - type: content
+        regex: "gcc|gcov"
     attack: "T1070.003"
 
   - id: cron-removal

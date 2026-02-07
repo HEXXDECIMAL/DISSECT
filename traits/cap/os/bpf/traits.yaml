@@ -962,8 +962,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     for: [c, elf]
-    needs: 1
-    any:
+    all:
       - id: ssl-ctx-map
       - id: ssl-ctx-ref
 

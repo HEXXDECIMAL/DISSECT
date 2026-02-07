@@ -107,7 +107,7 @@ traits:
     for: [powershell]
     if:
       type: content
-      regex: "\\[Ref\\]\\.Assembly\\.GetType.{0,100}amsi"
+      regex: "\\[Ref\\]\\.Assembly\\.GetType.{0,50}amsi"
       case_insensitive: true
 
   # === UAC Bypass via Start-Process ===
@@ -118,7 +118,7 @@ traits:
     for: [shell, batch, powershell]
     if:
       type: content
-      regex: "Start-Process\\s+.{0,100}-Verb\\s+RunAs"
+      regex: "Start-Process\\s+.{0,50}-Verb\\s+RunAs"
       case_insensitive: true
 
   # === Malwarebytes Service Stop ===
@@ -129,7 +129,7 @@ traits:
     for: [shell, batch, powershell]
     if:
       type: content
-      regex: "malwarebytes.{0,100}--stopservice|--stopservice.{0,100}malwarebytes"
+      regex: "malwarebytes.{0,50}--stopservice|--stopservice.{0,50}malwarebytes"
       case_insensitive: true
 
   - id: malwarebytes-assistant

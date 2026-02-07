@@ -35,7 +35,7 @@ composite_rules:
   - id: python
     desc: "Process execution with output hiding"
     conf: 0.92
-    crit: suspicious
+    crit: notable
     mbc: "F0003"
     attack: "T1036"
     for: [python]

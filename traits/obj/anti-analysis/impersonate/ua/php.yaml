@@ -35,7 +35,7 @@ traits:
     for: [php]
     if:
       type: string
-      regex: "Mozilla/5\\.0.{0,100}Mozilla/5\\.0.{0,100}Mozilla/5\\.0"
+      regex: "Mozilla/5\\.0.{0,50}Mozilla/5\\.0.{0,50}Mozilla/5\\.0"
 
   # === array-rand UA atomic indicators ===
   - id: array-rand-mozilla

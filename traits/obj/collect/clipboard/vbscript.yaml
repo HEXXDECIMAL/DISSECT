@@ -4,7 +4,7 @@
 # ATT&CK: T1115 (Clipboard Data), T1649 (Steal Crypto Wallet)
 
 defaults:
-  for: [all]
+  for: [scripts]
   platforms: [windows]
 
 traits:
@@ -21,12 +21,17 @@ traits:
   # === Clipboard Monitoring Loop ===
   - id: vbs-clipboard-loop
     desc: Continuous clipboard monitoring
-    crit: suspicious
+    crit: notable
     conf: 0.90
     attack: "T1115"
+    # Compact malware scripts are small
+    size_max: 5000
     if:
       type: string
-      regex: "Do.{0,50}Loop|While.{0,30}True.{0,30}Clipboard|Clipboard.{0,30}sleep"
+      regex: "\\bDo\\b.{0,50}\\bLoop\\b|\\bWhile\\b.{0,30}\\bTrue\\b.{0,30}Clipboard|Clipboard.{0,30}sleep"
+    unless:
+      - type: content
+        regex: "nodejs|usr/bin"
 
   # === Bitcoin Address Pattern ===
   - id: bitcoin-address
@@ -76,7 +81,7 @@ traits:
     attack: "T1649"
     if:
       type: string
-      regex: 'echo.{0,30}clip|\\.run.{0,30}clip|replace.{0,30}address'
+      regex: 'echo.{0,30}clip|\\.run.{0,30}clip|(?i)\\bReplace\\b.{0,30}address'
 
   # === HTMLFile Object ===
   - id: htmlfile-object

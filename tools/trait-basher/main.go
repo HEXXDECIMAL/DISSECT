@@ -62,263 +62,141 @@ type promptData struct {
 }
 
 var goodPromptTmpl = template.Must(template.New("good").Parse(`{{if .IsArchive -}}
-# Fix False Positives in KNOWN-GOOD Files
-
+# Known-Good Tuning (False Positive Reduction)
 **Source**: {{.ArchiveName}}
-**Files**: {{.Count}} flagged as suspicious/hostile
-**Task**: Remove false positive findings
-
-## Top Files to Review (by severity)
+**Scope**: {{.Count}} flagged files
+## Priority Files
 {{range .Files}}- {{.Path}} ({{.Summary}})
 {{end}}
 {{else -}}
-# Fix False Positives in KNOWN-GOOD File
-
+# Known-Good Tuning (False Positive Reduction)
 **File**: {{.Path}}
-**Problem**: Flagged as suspicious/hostile
-**Task**: Remove false positive findings
 {{end}}
-## What Is a False Positive?
-A **false positive** is a finding that DOES NOT match what the program actually does.
-- If the program DOES execute code → "exec" finding is CORRECT, not a false positive
-- If the program DOES read files → "file_read" finding is CORRECT, not a false positive
-- If the program DOES open sockets → "socket" finding is CORRECT, not a false positive
+## Objective
+Keep accurate behavior detections; revise only incorrect matches.
 
-A finding is only a false positive if:
-- The rule incorrectly matched something that doesn't indicate that behavior
-- The pattern is too broad and matches unrelated benign code
-- The finding is in the wrong file or context
-- The criticality is inappropriately high: "hostile" is a true and specific stop-everything-now concern, "suspicious" should genuinely be a concern, "notable" should accurately describe the defining characteristics of a program, "inert" should be uninteresting traits that many programs share.
+## False Positive Test
+A finding is false positive only when the matched pattern does not represent actual behavior, context, or intent.
+If behavior is real but severity is wrong, fix criticality; do not delete detection.
 
-**Expected**: Known-good software has findings! Notable and suspicious findings are normal if they accurately describe what the code does. The goal is ACCURATE findings, not zero findings.
-
-## Key Constraints (Do Not Violate)
-- **Read documentation**: Check RULES.md and TAXONOMY.md to understand naming conventions and design principles
-- **YAML is valid**: DISSECT's strict parser already validated it. Only edit trait logic, not formatting.
-- **Preserve structure**: Keep indentation, spacing, and file organization identical.
-- **ID**: The trait ID should match the query parameters.
-- **Confirm criticality**: Based on what the trait query, is the criticality appropriate or is it overblown?
-- **Assume good intent**: You will find traits that are defined incorrectly, you can usually gather from the trait ID what the feature (benign or malicious) were trying to find.
-- **Avoid unless/downgrade**: Only use these stanzas when it's not possible to improve the query to be more accurate or specific
+## Hard Constraints
+- Read ` + "`RULES.md`" + ` and ` + "`TAXONOMY.md`" + ` before edits.
+- Edit logic only; preserve YAML formatting and file structure.
+- Trait IDs must match what the query truly detects.
+- For source code, prefer AST/semantic signals over raw-string coincidences.
+- Keep trait placement taxonomy-accurate (` + "`cap/*`" + ` atomic capability, ` + "`obj/*`" + ` composed objective, ` + "`known/*`" + ` family/tool-specific).
+- Prefer precise queries over ` + "`unless:`" + `/` + "`downgrade:`" + `; use those only as last resort.
+- Keep changes minimal, generic, and maintainable.
 
 {{.TaskBlock}}
 
-## Success Criteria
-✓ Malicious behavior is detected with appropriate trait IDs
-✓ Detections use generic patterns (not file-specific signatures)
-✓ Changes are minimal and focused
-✓ Traits are correctly named after what they detect
-✓ Traits have the correct criticality level for any kind of program that matches
-✓ If a suspicious trait isn't genuinely suspicious, lower the criticality to notable.
-✓ Improved thresholds - make traits as focused and specific as possible to meet their description
-✓ Run dissect again - shows improvement
+## Done When
+- True behavior coverage is preserved.
+- False positives are reduced.
+- Criticality is appropriate (` + "`hostile`" + `, ` + "`suspicious`" + `, ` + "`notable`" + `, ` + "`inert`" + `).
+- Re-run confirms improvement.
 
-## Debug & Validate
+## Debug Loop
 ` + "```" + `
-{{.DissectBin}} {{.Path}} --format jsonl                   # see current findings
-{{.DissectBin}} strings {{.Path}}                          # reveal XOR/AES/base64 hidden data
-{{.DissectBin}} test-rules {{.Path}} --rules "rule-id"     # debug single rule
-{{.DissectBin}} test-match {{.Path}} --type string --pattern "X"  # test patterns
+{{.DissectBin}} {{.Path}} --format jsonl
+{{.DissectBin}} strings {{.Path}}
+{{.DissectBin}} test-rules {{.Path}} --rules "rule-id"
+{{.DissectBin}} test-match {{.Path}} --type string --pattern "X"
 ` + "```" + `
 
 Traits: {{.TraitsDir}}`))
 
 var badPromptTmpl = template.Must(template.New("bad").Parse(`{{if .IsArchive -}}
-# Add Missing Detection for KNOWN-BAD Files
-
+# Known-Bad Tuning (Missing Detection)
 **Source**: {{.ArchiveName}}
-**Files**: {{.Count}} not flagged as suspicious/hostile
-**Task**: Detect malicious behavior
-
-## Top Files to Analyze (by size/complexity)
+**Scope**: {{.Count}} unflagged files
+## Priority Files
 {{range .Files}}- {{.Path}}{{if .Summary}} ({{.Summary}}){{end}}
 {{end}}
-*Note: Skip genuinely benign files (README, docs, unmodified dependencies)*
 {{else -}}
-# Add Missing Detection for KNOWN-BAD File
-
+# Known-Bad Tuning (Missing Detection)
 **File**: {{.Path}}
-**Problem**: Not flagged as suspicious/hostile
-**Task**: Detect malicious behavior
-
-*Note: Skip if genuinely benign (README, docs, unmodified dependency)*
 {{end}}
-## Key Constraints (Do Not Violate)
-- **Read documentation**: Check RULES.md and TAXONOMY.md to understand naming conventions and design principles
-- **YAML is valid**: DISSECT's strict parser already validated it. Only edit trait logic, not formatting.
-- **Preserve structure**: Keep indentation, spacing, and file organization identical.
-- **No new files**: Only modify existing traits/ YAML files.
-- **One fix per trait**: Don't over-engineer; each trait should do one thing well.
+Skip genuinely benign content (README/docs/unmodified dependencies).
+
+## Objective
+Add high-signal detections for behaviors this sample family exhibits and current traits miss.
+
+## Hard Constraints
+- Read ` + "`RULES.md`" + ` and ` + "`TAXONOMY.md`" + ` before edits.
+- Edit logic only; preserve YAML formatting and file structure.
+- Use reusable behavioral patterns, not sample-specific fingerprints.
+- Keep trait IDs, location, and criticality semantically correct.
+- For source code, prefer AST/semantic signals over raw-string coincidences.
+- Minimize future false positives at ecosystem scale.
 
 {{.TaskBlock}}
 
-## Success Criteria
-✓ Malicious behavior is detected with appropriate trait IDs
-✓ Detections use generic patterns (not file-specific signatures)
-✓ Changes are minimal and focused
-✓ Traits are correctly named after what they detect
-✓ Traits have the correct criticality level for any kind of program that matches
-✓ Run dissect again - shows improvement
+## Done When
+- Missing capabilities/objectives are detected with correct taxonomy.
+- Traits remain generic and reusable.
+- Criticality is appropriate.
+- Re-run confirms improved coverage.
 
-## Debug & Validate
+## Debug Loop
 ` + "```" + `
-{{.DissectBin}} {{.Path}} --format jsonl                   # see current findings
-{{.DissectBin}} strings {{.Path}}                          # reveal XOR/AES/base64 hidden data
-{{.DissectBin}} test-rules {{.Path}} --rules "rule-id"     # debug single rule
-{{.DissectBin}} test-match {{.Path}} --type string --pattern "X"  # test patterns
+{{.DissectBin}} {{.Path}} --format jsonl
+{{.DissectBin}} strings {{.Path}}
+{{.DissectBin}} test-rules {{.Path}} --rules "rule-id"
+{{.DissectBin}} test-match {{.Path}} --type string --pattern "X"
 ` + "```" + `
 
 Traits: {{.TraitsDir}}`))
 
-const goodTaskFile = `## Strategy: Fix False Positives
-Review findings and identify which are actually false positives (incorrect matches).
-Keep findings that accurately describe the code's behavior, even if suspicious.
+const goodTaskFile = `## Workflow
+1. Validate taxonomy mapping first (` + "`cap/`" + ` = capability, ` + "`obj/`" + ` = objective).
+2. Tighten matching logic before adding exclusions:
+   - add context (` + "`near:`" + ` / ` + "`all:`" + `)
+   - restrict target type (` + "`for:`" + `)
+   - bound broad rules (` + "`size_min/max`" + `)
+3. Add ` + "`not:`" + ` filters only for proven benign collisions.
+4. If behavior is correct but criticality is high, downgrade the criticality. Use ` + "`downgrade:`" + ` sparingly.
+5. Use ` + "`unless:`" + ` only when precise query refinement is impractical.
+6. If traits are renamed/removed, update all references (` + "`depends`" + `, composites, etc.).
 
-**Priority Order** (try in this order):
-1. **Taxonomy**: Trait ID doesn't match detected behavior? Fix it:
-   - obj/c2/ should only detect C2 (beacon, command channels, reverse shells)
-   - obj/exfil/ should only detect exfiltration (data collection + upload)
-   - Simple HTTP/socket → cap/comm/, not obj/c2/ or obj/exfil/
-   - Generic crypto → cap/crypto/, not obj/anti-static/
-2. **Patterns**: Too broad? Refine the pattern itself to be more accurate:
-   - ` + "`near: 200`" + ` - require proximity to suspicious code
-   - ` + "`size_min/max`" + ` - filter by file size (legitimate: large, malware: compact)
-   - ` + "`for: [elf, macho, pe]`" + ` - restrict to binaries (skip scripts)
-   - ` + "`all:`" + ` in composites - combine weak signals into strong one
-3. **Exclusions**: Known-good strings? Add ` + "`not:`" + ` filters to exclude them
-4. **Reorganize**: Create new traits if it makes the logic clearer or more maintainable
-5. **Downgrade**: Detection correct but criticality too high? Use ` + "`downgrade:`" + ` for specific cases
-6. **Unless** (last resort): Only use ` + "`unless:`" + ` if fixing the pattern is impractical
+## Taxonomy Guardrails
+- ` + "`obj/c2/`" + ` requires control-channel behavior, not generic networking.
+- ` + "`obj/exfil/`" + ` requires collection + transfer semantics.
+- Generic HTTP/socket/crypto usually belongs under ` + "`cap/`" + `.
 
-**Taxonomy Verification**: Before modifying any trait, verify its ID accurately describes what it detects:
-- Read TAXONOMY.md for the complete tier structure
-- cap/ = observable capability (what code CAN do)
-- obj/ = attacker objective (WHY code does something, requires combining capabilities)
+## Avoid
+- Removing accurate behavior findings. Revise them instead.
+`
 
-**Prefer**: Fixing queries to be accurate over adding exceptions. If the detection IS correct but severity is wrong, use ` + "`downgrade:`" + ` instead of ` + "`unless:`" + `.
+const goodTaskArchive = goodTaskFile
 
-**If deleting or renaming a trait**: Update all references to it (in composites, depends, etc.). Consider what the composite trait was trying to accomplish and fix the reference appropriately.
+const badTaskFile = `## Workflow
+1. Reverse engineer with emphasis on high-signal artifacts (` + "`strings`" + `, control flow, imports/APIs, constants).
+   - For binaries (archive member or standalone file), use ` + "`dissect strings`" + ` first to surface decoded/obfuscated content.
+   - Use binary tooling when needed (` + "`radare2`" + `, ` + "`objdump`" + `, ` + "`nm`" + `) to confirm behavior before writing traits.
+2. Enumerate behaviors that make the sample operationally distinct.
+3. Map behavior to taxonomy:
+   - ` + "`cap/`" + ` for atomic capabilities
+   - ` + "`obj/`" + ` for composed attacker goals
+   - ` + "`known/`" + ` only for well-supported malware-family identity
+4. Build/repair capability traits first, then compose objective traits from those capabilities.
+5. For ` + "`obj/*`" + ` with ` + "`crit: hostile`" + `, ensure composite complexity is >= 4 (per RULES).
+6. Author generic reusable traits; avoid sample-only literals unless broadly durable.
+7. Prefer multi-signal logic (` + "`all:`" + `, proximity, structural anchors) to suppress false positives.
+8. If traits are renamed/removed, update all references (` + "`depends`" + `, composites, etc.).
 
-**Do Not**: Change criticality levels arbitrarily, remove accurate findings, or break YAML structure.`
+## Taxonomy Guardrails
+- HTTP/socket alone: ` + "`cap/comm/`" + `, not ` + "`obj/c2/`" + `.
+- C2 needs command/control semantics (beaconing, tasking, bidirectional control).
+- Exfil needs data access + outbound transfer semantics.
+- Keep generic crypto/network primitives out of objective traits unless composition justifies it.
 
-const goodTaskArchive = `## Strategy: Fix False Positives in Archive
-Review findings and identify which are actually false positives (incorrect matches).
-Keep findings that accurately describe the code's behavior, even if suspicious.
+## Avoid
+- File-specific signatures as primary detection logic.
+- Misplacing capabilities under ` + "`obj/`" + `.
+- Overly broad rules that will not scale across large benign corpora.`
 
-**Priority Order** (try in this order):
-1. **Taxonomy**: Trait ID doesn't match detected behavior? Fix it:
-   - obj/c2/ should only detect C2 (beacon, command channels, reverse shells)
-   - obj/exfil/ should only detect exfiltration (data collection + upload)
-   - Simple HTTP/socket → cap/comm/, not obj/c2/ or obj/exfil/
-   - Generic crypto → cap/crypto/, not obj/anti-static/
-2. **Patterns**: Too broad? Refine the pattern to be more accurate:
-   - ` + "`near: 200`" + ` - require proximity to suspicious code
-   - ` + "`size_min/max`" + ` - legitimate installers are huge, malware is compact
-   - ` + "`for: [elf, macho, pe]`" + ` - restrict to binaries only
-   - ` + "`all:`" + ` in composites - combine weak signals, don't flag individually
-3. **Exclusions**: Known-good strings? Add ` + "`not:`" + ` filters to exclude them
-4. **Reorganize**: Create new traits if it makes the logic clearer or more maintainable
-5. **Adjust criticality**: Is the criticality generally incorrect for what the search term matches? Adjust it.
-5. **Downgrade**: Detection correct but criticality too high for this specific unusual case? Use ` + "`downgrade:`" + ` for specific cases
-
-**Taxonomy Verification**: Before modifying any trait, verify its ID accurately describes what it detects:
-- Read TAXONOMY.md for the complete tier structure
-- cap/ = observable capability (what code CAN do)
-- obj/ = attacker objective (WHY code does something, requires combining capabilities)
-
-**Prefer**: Fixing traits to be accurately defined over adding exceptions. If the detection IS generally correct but criticality is wrong for this specific unusual case, use the downgrade: stanza
-
-**If deleting or renaming a trait**: Update all references to it (in composites, depends, etc.). Consider what the composite trait was trying to accomplish and fix the reference appropriately.
-
-**Do Not**: Change criticality levels arbitrarily, remove accurate findings, or break YAML structure.`
-
-const badTaskFile = `## Strategy: Add Missing Detection
-**Approach**:
-1. Reverse engineer the file (strings, radare2, nm, objdump)
-   - **Use ` + "`dissect strings`" + `** to automatically reveal hidden data: XOR/AES/base64 encoded payloads, command strings, and obfuscated content
-   - This exposes both encoded and decoded content for better pattern matching
-2. Identify malicious capability (socket + exec = reverse-shell, etc.)
-3. Identify ALL unique and interesting features of this program:
-   - Unusual techniques or methods (e.g., process hollowing, DLL sideloading)
-   - Distinctive strings, constants, or magic values
-   - Uncommon library usage or API call patterns
-   - Novel obfuscation or evasion techniques
-   - Any behavior that distinguishes this from typical software
-4. Use GENERIC patterns, not file-specific signatures
-5. Cross-language when possible (base64+exec works in Python, JS, Shell)
-6. Create new traits if needed - they should be generic and reusable across samples
-
-## Taxonomy Rules (MUST FOLLOW)
-**Read TAXONOMY.md first** - trait IDs must accurately describe what the pattern detects.
-
-- **cap/** = Observable capability (what code CAN do) - single pattern, value-neutral
-  - cap/comm/ = network communication (socket, http, dns)
-  - cap/exec/ = code execution (shell, eval)
-  - cap/crypto/ = cryptographic operations
-  - cap/fs/ = filesystem operations
-
-- **obj/** = Attacker objective (WHY code does something) - composites combining caps
-  - obj/c2/ = Command & control: beacon patterns, command channels, reverse shells
-  - obj/exfil/ = Data exfiltration: data collection + upload to attacker
-  - obj/persist/ = Persistence: startup entries, services, scheduled tasks
-  - obj/creds/ = Credential theft: browser passwords, system credentials
-  - obj/anti-static/ = Anti-analysis: obfuscation, packing, VM detection
-
-- **known/** = ONLY for specific malware families (apt/cozy-bear, trojan/emotet)
-
-**CRITICAL**: Verify the trait ID matches detected behavior:
-- Simple HTTP request → cap/comm/http/ (NOT obj/c2/ or obj/exfil/)
-- C2 requires: beacon intervals, command parsing, or bidirectional control channel
-- Exfil requires: data collection (files, creds, keys) + upload mechanism
-- Don't put generic network/crypto in obj/ - that's what cap/ is for
-
-**If deleting or renaming a trait**: Update all references to it (in composites, depends, etc.). Consider what the composite trait was trying to accomplish and fix the reference appropriately.
-
-**Do Not**: Create file-specific rules, put capabilities in obj/, or ignore taxonomy structure.`
-
-const badTaskArchive = `## Strategy: Add Missing Detection to Archive
-**Approach**:
-1. For each problematic member: reverse engineer (strings, radare2, nm, objdump)
-   - **Use ` + "`dissect strings`" + ` on suspicious members** to reveal hidden data: XOR/AES/base64 encoded payloads, command strings, and obfuscated content
-   - This exposes both encoded and decoded content for better pattern matching
-2. Identify malicious capability (socket + exec = reverse-shell, etc.)
-3. Identify ALL unique and interesting features of these programs:
-   - Unusual techniques or methods (e.g., process hollowing, DLL sideloading)
-   - Distinctive strings, constants, or magic values
-   - Uncommon library usage or API call patterns
-   - Novel obfuscation or evasion techniques
-   - Any behavior that distinguishes this from typical software
-4. Use GENERIC patterns, not file-specific signatures
-5. Cross-language patterns when possible (base64+exec in Python, JS, Shell)
-6. Create new traits if needed - they should be generic and reusable across samples
-
-## Taxonomy Rules (MUST FOLLOW)
-**Read TAXONOMY.md first** - trait IDs must accurately describe what the pattern detects.
-
-- **cap/** = Observable capability (what code CAN do) - single pattern, value-neutral
-  - cap/comm/ = network communication (socket, http, dns)
-  - cap/exec/ = code execution (shell, eval)
-  - cap/crypto/ = cryptographic operations
-  - cap/fs/ = filesystem operations
-
-- **obj/** = Attacker objective (WHY code does something) - composites combining caps
-  - obj/c2/ = Command & control: beacon patterns, command channels, reverse shells
-  - obj/exfil/ = Data exfiltration: data collection + upload to attacker
-  - obj/persist/ = Persistence: startup entries, services, scheduled tasks
-  - obj/creds/ = Credential theft: browser passwords, system credentials
-  - obj/anti-static/ = Anti-analysis: obfuscation, packing, VM detection
-
-- **known/** = ONLY for specific malware families (apt/cozy-bear, trojan/emotet)
-
-**CRITICAL**: Verify the trait ID matches detected behavior:
-- Simple HTTP request → cap/comm/http/ (NOT obj/c2/ or obj/exfil/)
-- C2 requires: beacon intervals, command parsing, or bidirectional control channel
-- Exfil requires: data collection (files, creds, keys) + upload mechanism
-- Don't put generic network/crypto in obj/ - that's what cap/ is for
-
-**If deleting or renaming a trait**: Update all references to it (in composites, depends, etc.). Consider what the composite trait was trying to accomplish and fix the reference appropriately.
-
-**Do Not**: Create file-specific rules, put capabilities in obj/, or ignore taxonomy structure.`
+const badTaskArchive = badTaskFile
 
 func buildGoodPrompt(isArchive bool, path, archiveName string, files []fileEntry, count int, root, bin string) string {
 	task := goodTaskFile

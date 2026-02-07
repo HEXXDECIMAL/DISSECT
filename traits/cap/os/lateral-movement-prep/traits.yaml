@@ -106,6 +106,8 @@ traits:
     attack: "T1046"
 
   # === SSH Scanning ===
+  # Note: Removed :22 (too generic, matches any port 22 reference)
+  # Kept patterns that specifically indicate SSH port scanning
   - id: ssh-port-check
     desc: SSH port availability check
     crit: suspicious
@@ -115,8 +117,10 @@ traits:
       type: string
       any:
         - substr: "-p 22"
-        - substr: ":22"
-        - regex: "nc.{0,80}22|nmap.{0,80}22"
+        - substr: "nc -z"
+        - substr: "nmap -p"
+        - substr: "nmap -sS"
+        - substr: "nmap -sT"
     attack: "T1046"
 
   - id: ssh-key-reuse
@@ -129,7 +133,7 @@ traits:
       any:
         - substr: "ssh -i"
         - substr: "-i /root/.ssh"
-        - regex: "ssh\\s+.{0,120}-i\\s+"
+        - regex: "ssh\\s+.{0,50}-i\\s+"
     attack: "T1021.004"
 
 composite_rules:

@@ -28,19 +28,26 @@ traits:
   # === Encoding Stack Markers ===
   - id: mixed-encoding-indicators
     desc: "Mixed encoding indicators"
-    crit: suspicious
+    crit: notable
     conf: 0.75
     for: [elf, shell]
+    # Small binaries with mixed encoding are more suspicious
+    size_max: 500000
     if:
       type: string
       regex: "[A-Za-z0-9+\/=]*[<>{][A-Za-z0-9+\/=<>]{16,}"
+    unless:
+      - type: string
+        substr: "binascii"
+      - type: content
+        regex: "postgresql|libgcc|libc"
     attack: "T1027"
 
   # === Encoding Sophistication Pattern ===
   # Note: Large binaries (Rust, Golang) contain Unicode/locale tables matching this pattern
   - id: encryption-sophistication-marker
     desc: "Encryption sophistication"
-    crit: suspicious
+    crit: notable
     conf: 0.8
     for: [elf]
     size_max: 500000  # Compact malware; exclude large binaries with lookup tables
@@ -52,6 +59,9 @@ traits:
     # Keep not as fallback if needed in other contexts
     not:
       - "ABCDEF"
+    unless:
+      - type: content
+        regex: "postgresql|libgcc|libc"
     attack: "T1027"
 
 composite_rules:
@@ -68,7 +78,7 @@ composite_rules:
 
   - id: multi-codec-obfuscation
     desc: "Multi-codec obfuscation"
-    crit: suspicious
+    crit: notable
     conf: 0.85
     for: [elf, shell]
     attack: "T1027"

@@ -134,7 +134,8 @@ traits:
     for: [python, shell]
     if:
       type: string
-      regex: '/proc/cpuinfo.{0,50}hypervisor|cpuid|hypervisor\s*flag'
+      regex: '/proc/cpuinfo.{0,80}hypervisor|cpuid.{0,80}(hypervisor|vmware|virtualbox|kvm|xen|qemu|microsoft hv)|hypervisor.{0,80}cpuid|hypervisor\s*flag'
+      case_insensitive: true
 
   # === VM-specific files (atomic) ===
   - id: file-vbox-guest

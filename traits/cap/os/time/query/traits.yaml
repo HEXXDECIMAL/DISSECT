@@ -80,7 +80,7 @@ traits:
   # Time manipulation (suspicious for timestomping)
   - id: settimeofday
     desc: Set system time (requires privileges)
-    crit: suspicious
+    crit: notable
     mbc: "F0005"
     attack: "T1070.006"
     conf: 0.9
@@ -91,7 +91,7 @@ traits:
 
   - id: clock_settime
     desc: Set time for specified clock
-    crit: suspicious
+    crit: notable
     mbc: "F0005"
     attack: "T1070.006"
     conf: 0.9

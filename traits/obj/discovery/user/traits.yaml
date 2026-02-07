@@ -265,9 +265,14 @@ composite_rules:
     attack: "T1033"
     mbc: "B0046"
     for: [shell, elf, macho, pe, python]
+    # Compact discovery tools are typically small
+    size_max: 5000
     all:
       - id: active-enum-cmds
     any:
       - id: passive-user-lookup
       - id: username-env
       - id: home-env
+    unless:
+      - type: content
+        regex: "requests|test"

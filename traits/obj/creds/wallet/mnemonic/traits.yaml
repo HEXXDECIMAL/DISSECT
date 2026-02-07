@@ -48,11 +48,13 @@ traits:
     desc: "Wallet private key extraction"
     conf: 0.85
     crit: suspicious
+    # Wallet stealers are typically small; avoid large crypto libraries
+    size_max: 1000000
     if:
       type: string
       # Require wallet/crypto context, not just "private_key" which is used by SSH/TLS
       # Use {0,50} to limit gap between keywords, avoiding matches across concatenated strings
-      regex: "(wallet|eth|btc|crypto|metamask|phantom).{0,50}private_?key|export.{0,30}(wallet|crypto|eth|btc).{0,30}key"
+      regex: "\\b(wallet|eth|btc|crypto|metamask|phantom)\\b.{0,50}\\bprivate_?key\\b|\\bexport\\b.{0,30}\\b(wallet|crypto|eth|btc)\\b.{0,30}\\bkey\\b"
 
   # Bitcoin WIF private key format detection
   - id: bitcoin-wif

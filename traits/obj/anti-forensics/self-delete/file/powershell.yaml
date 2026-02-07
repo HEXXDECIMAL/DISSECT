@@ -25,7 +25,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      regex: "Remove-Item.{0,100}\\.ps1"
+      regex: "Remove-Item.{0,50}\\.ps1"
       case_insensitive: true
 
   # Remove-Item with -Force

@@ -36,7 +36,7 @@ traits:
     conf: 0.85
     if:
       type: content
-      regex: "(?:['\\\"]sdist['\\\"].{0,40}in.{0,10}(sys\\.)?argv|(?:sys\\.)?argv.{0,40}['\\\"]sdist['\\\"]|os\\.name\\s*==\\s*['\\\"]nt['\\\"]|name\\s*==\\s*['\\\"]nt['\\\"]).{0,220}(?:exec\\s*\\(|eval\\s*\\(|compile\\s*\\(|__import__\\s*\\(|os\\.system\\s*\\(|subprocess\\.(?:Popen|call|run|check_output)\\s*\\()"
+      regex: "(?:['\\\"]sdist['\\\"].{0,40}in.{0,10}(sys\\.)?argv|(?:sys\\.)?argv.{0,40}['\\\"]sdist['\\\"]|os\\.name\\s*==\\s*['\\\"]nt['\\\"]|name\\s*==\\s*['\\\"]nt['\\\"]).{0,50}(?:exec\\s*\\(|eval\\s*\\(|compile\\s*\\(|__import__\\s*\\(|os\\.system\\s*\\(|subprocess\\.(?:Popen|call|run|check_output)\\s*\\()"
 
   # === Base64 Payload Execution ===
 
@@ -62,7 +62,7 @@ traits:
     conf: 0.85
     if:
       type: content
-      regex: "t\\.gettempdir|tempfile\\.(NamedTemporaryFile|mkstemp).{0,100}open.{0,50}write.{0,50}exec|open\\s*\\(.{0,20}w.{0,20}\\).{0,50}write.{0,50}path.{0,20}exe"
+      regex: "t\\.gettempdir|tempfile\\.(NamedTemporaryFile|mkstemp).{0,50}open.{0,50}write.{0,50}exec|open\\s*\\(.{0,20}w.{0,20}\\).{0,50}write.{0,50}path.{0,20}exe"
 
   # === Post-Setup Execution Pattern ===
 
@@ -72,7 +72,7 @@ traits:
     conf: 0.80
     if:
       type: content
-      regex: "\\)\\s*#.{0,50}setup.{0,50}\\nfrom\\s+(os|sys|base64)\\s+import|\\)\\s*\\n(from|import)\\s+(os|sys|base64)"
+      regex: "setup\\s*\\([^\\)]*\\)\\s*(?:#.{0,80})?\\s*\\n.{0,250}(?:from|import)\\s+(?:os|sys|base64|subprocess).{0,250}(?:exec\\s*\\(|eval\\s*\\(|compile\\s*\\(|__import__\\s*\\(|os\\.system\\s*\\(|subprocess\\.(?:Popen|call|run|check_output)\\s*\\()"
 
   # === Comment Obfuscation ===
 

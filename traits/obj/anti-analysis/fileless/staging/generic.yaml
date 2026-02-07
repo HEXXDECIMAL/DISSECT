@@ -6,12 +6,13 @@
 traits:
   - id: dev-shm
     desc: "/dev/shm staging (fileless execution)"
-    crit: suspicious
+    crit: notable
     conf: 0.85
     mbc: "F0012"
     attack: "T1055"
     for: [elf]
     platforms: [linux]
+    size_max: 2097152
     if:
       type: string
       substr: "/dev/shm/"

@@ -97,12 +97,19 @@ composite_rules:
   # Multipart upload (references comm/http/headers/)
   # Excludes test contexts (WPT, Jest, Mocha, etc.) where multipart uploads are legitimate
   - id: multipart-upload
-    desc: Multipart form data upload
+    desc: Multipart upload with stealer context
     crit: suspicious
     conf: 0.75
     for: [shell, python, javascript]
-    any:
+    all:
       - id: cap/comm/http/headers/multipart-upload
+    needs: 1
+    any:
+      - id: gate-url
+      - id: bot-headers
+      - id: cap/comm/http/client/curl-form-upload
+      - id: cap/comm/http/client/curl-data-binary
+      - id: cap/comm/http/client/curl-at-tmp
     none:
       - id: obj/lateral/supply-chain/npm/wpt-test-file
       - id: obj/lateral/supply-chain/npm/jest-test-file

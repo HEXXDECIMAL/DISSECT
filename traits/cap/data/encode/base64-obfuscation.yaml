@@ -59,10 +59,12 @@ traits:
       count_min: 3
     attack: "T1027.001"
 
+  # Note: Base64-like strings are common in legitimate binaries (certificates, keys)
+  # This pattern alone is not suspicious - requires context or high density
   - id: base64-suspicious-encoding
     desc: "Suspicious base64 patterns"
-    crit: suspicious
-    conf: 0.75
+    crit: notable
+    conf: 0.5
     for: [elf]
     if:
       type: string

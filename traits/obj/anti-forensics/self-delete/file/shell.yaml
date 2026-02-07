@@ -10,9 +10,14 @@ traits:
     conf: 0.8
     mbc: "F0007"
     attack: "T1070.004"
+    # Compact malware scripts are small
+    size_max: 5000
     if:
       type: string
-      substr: "rm $0"
+      regex: "(?:^|\\s|;)rm\\s+\\$0\\b"
+    unless:
+      - type: content
+        regex: "docutils|math2html"
 
   - id: rm-dollar-zero-quoted
     desc: 'rm "$0" self-deletion (quoted)'
@@ -20,9 +25,14 @@ traits:
     conf: 0.8
     mbc: "F0007"
     attack: "T1070.004"
+    # Compact malware scripts are small
+    size_max: 5000
     if:
       type: string
-      substr: 'rm "$0"'
+      regex: "(?:^|\\s|;)rm\\s+\"\\$0\"\\b"
+    unless:
+      - type: content
+        regex: "docutils|math2html"
 
   - id: shred-dollar-zero
     desc: shred $0 self-deletion

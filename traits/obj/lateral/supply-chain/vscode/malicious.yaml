@@ -18,8 +18,8 @@ traits:
             $require = /require\(['"]vscode['"]\)/ ascii
             $import = /from\s+['"]vscode['"]/ ascii
             $namespace = "vscode." ascii
-            $activate = "activate" ascii fullword
           condition:
+            // activate is too common to be a standalone extension marker
             any of them
         }
 

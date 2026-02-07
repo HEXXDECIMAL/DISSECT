@@ -155,7 +155,7 @@ traits:
     attack: "T1074.001"
     if:
       type: string
-      regex: "/tmp/.{0,50}\\.zip"
+      regex: "/tmp/[^\\s]{1,50}\\.zip"
 
 composite_rules:
   # hdiutil create composite

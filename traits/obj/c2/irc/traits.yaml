@@ -12,7 +12,10 @@ traits:
     conf: 0.5
     if:
       type: string
-      substr: PRIVMSG
+      exact: "PRIVMSG "
+    unless:
+      - type: content
+        regex: "ftplib|urllib"
 
   - id: irc-nick
     desc: IRC NICK command
@@ -21,6 +24,9 @@ traits:
     if:
       type: string
       exact: "NICK "
+    unless:
+      - type: content
+        regex: "ftplib|urllib"
 
   - id: irc-user
     desc: IRC USER command
@@ -29,6 +35,9 @@ traits:
     if:
       type: string
       exact: "USER "
+    unless:
+      - type: content
+        regex: "ftplib|urllib"
 
   # === Bot command indicators ===
   - id: cmd-login
@@ -37,7 +46,10 @@ traits:
     conf: 0.6
     if:
       type: string
-      substr: ".login"
+      regex: "\\.login\\b"
+    unless:
+      - type: content
+        regex: "ftplib|urllib"
 
   - id: cmd-udp
     desc: Bot UDP attack command

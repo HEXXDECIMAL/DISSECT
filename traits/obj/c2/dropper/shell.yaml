@@ -19,7 +19,7 @@ traits:
     if:
       type: content
       # curl/wget piped to sh/bash
-      regex: "(?:curl|wget)\\s+[^|]{0,100}\\|\\s*(?:sh|bash)"
+      regex: "(?:curl|wget)\\s+[^|]{0,50}\\|\\s*(?:sh|bash)"
 
   - id: download-execute-quiet
     desc: Silent download and execute
@@ -29,7 +29,7 @@ traits:
     if:
       type: content
       # curl -s or wget -q piped to shell
-      regex: "(?:curl\\s+-[so]|wget\\s+-[qO])\\s+[^|]{0,100}\\|\\s*(?:sh|bash)"
+      regex: "(?:curl\\s+-[so]|wget\\s+-[qO])\\s+[^|]{0,50}\\|\\s*(?:sh|bash)"
 
   - id: download-save-execute
     desc: Downloads, saves, and executes

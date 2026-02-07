@@ -8,12 +8,14 @@ defaults:
   attack: "T1195.002"
 
 traits:
-  # NOTE: YARA kept for setup-abuse - requires combining setup.py context with
-  # malicious operations (subprocess + urllib download patterns)
+  # NOTE: YARA kept for setup-abuse - requires setup.py context plus
+  # malicious execution/download/payload-decode combinations
   - id: setup-abuse
     desc: Malicious setup.py execution
     crit: suspicious
     conf: 0.85
+    # Limit size to exclude large legitimate libraries
+    size_max: 50000
     if:
       type: yara
       source: |
@@ -21,17 +23,34 @@ traits:
           strings:
             // setup.py context
             $setup1 = "setup(" ascii
-            $setup2 = "setuptools" ascii
-            $setup3 = "distutils" ascii
-            // Malicious operations
-            $imp1 = "subprocess" ascii
-            $imp2 = "os.system" ascii
-            $imp3 = "urllib" ascii
-            // Download and execute
-            $dl1 = "urlopen" ascii
-            $dl2 = "urlretrieve" ascii
+            // Command execution primitives commonly abused in setup.py trojans
+            $cmd1 = "os.system(" ascii
+            $cmd2 = "subprocess.Popen(" ascii
+            $cmd3 = "subprocess.run(" ascii
+            $cmd4 = "subprocess.check_output(" ascii
+            $cmd5 = "shell=True" ascii
+            // Dynamic execution patterns
+            $exec1 = "exec(" ascii
+            $exec2 = "eval(" ascii
+            $exec3 = "__import__(" ascii
+            // Network/download activity
+            $dl1 = "urlopen(" ascii
+            $dl2 = "urlretrieve(" ascii
+            $dl3 = "requests.get(" ascii
+            $dl4 = "requests.post(" ascii
+            // Encoded/compressed payload handling
+            $payload1 = "b64decode(" ascii
+            $payload2 = "base64.b64decode(" ascii
+            $payload3 = "zlib.decompress(" ascii
+            $payload4 = "gzip.decompress(" ascii
           condition:
-            (any of ($setup*) and any of ($imp*) and any of ($dl*))
+            // Require explicit setup() call to avoid false positives in libraries
+            // that only mention setuptools/distutils in comments or for version checks
+            $setup1 and (
+              (any of ($cmd*) and any of ($dl*)) or
+              (any of ($exec*) and any of ($payload*)) or
+              (2 of ($cmd*, $exec*) and any of ($payload*, $dl*))
+            )
         }
 
   # NOTE: YARA kept for typosquat-exec - requires count-based logic (2 of suspicious
@@ -67,12 +86,13 @@ traits:
             (any of ($pkg*) and 2 of ($sus*) and any of ($ctx*))
         }
 
-  # NOTE: YARA kept for install-network - requires combining module-level markers
-  # with network activity and exec patterns
-  - id: install-network
-    desc: Network activity triggered by package
-    crit: suspicious
+  # === Internal Indicators (Inert) ===
+  - id: install-network-core
+    desc: Network activity triggered by package (YARA core)
+    crit: inert
     conf: 0.85
+    # Limit size to exclude large legitimate libraries
+    size_max: 40000
     if:
       type: yara
       source: |
@@ -94,8 +114,7 @@ traits:
             ($init or $version) and any of ($net*) and any of ($exec*)
         }
 
-  # NOTE: YARA kept for author-impersonation - requires combining author metadata
-  # with code execution patterns
+  # Author impersonation pattern with code execution patterns
   - id: author-impersonation
     desc: Impersonates package author with malicious
     crit: suspicious
@@ -148,6 +167,9 @@ traits:
     if:
       type: string
       regex: "requests\\.packages(?:\\.|\\b)"
+    unless:
+      - type: content
+        regex: "look the other way"
 
   # Vendored Zope Acquisition module - references Acquisition.Implicit/Explicit
   # and ImplicitAcquisitionWrapper, which are Zope-specific APIs.
@@ -186,15 +208,27 @@ traits:
       source: |
         rule runtime_dependency_injection {
           strings:
-            $try = "try:" ascii
-            $except = /except\s*(ImportError)?:/
-            $import = /import\s+\w+/ ascii
-            $pip_install = "pip install" ascii nocase
-            $subprocess = "subprocess" ascii
+            $except_import = /except\s+ImportError\s*:/
+            $subprocess_pip = /subprocess\.(?:call|run|check_call|check_output|Popen)\s*\([^)\n]*(?:['"]pip['"][^)\n]*['"]install['"]|['"][^'"]*pip\s+install[^'"]*['"])/
+            $subprocess_m_pip = /subprocess\.(?:call|run|check_call|check_output|Popen)\s*\([^)\n]*['"]-m['"][^)\n]*['"]pip['"][^)\n]*['"]install['"]/
             // Legitimate test code markers
             $pytest = "pytest" ascii
             $test = "def test_" ascii
           condition:
-            $try and $except and $import and $pip_install and $subprocess and
+            $except_import and any of ($subprocess_pip, $subprocess_m_pip) and
             not any of ($pytest, $test)
         }
+
+composite_rules:
+  # Network activity during install (suspicious)
+  - id: install-network
+    desc: Network activity triggered by package during installation
+    crit: suspicious
+    conf: 0.9
+    attack: "T1195.002"
+    all:
+      - id: install-network-core
+      - id: obj/lateral/supply-chain/pypi/install-exfil/setup-py-file
+    unless:
+      - type: basename
+        exact: "six.py"

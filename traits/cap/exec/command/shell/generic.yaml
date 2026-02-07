@@ -178,7 +178,7 @@ traits:
     for: [shell]
     if:
       type: content
-      regex: 'curl.{0,100}\|.{0,50}(sudo\s+)?(python|bash|sh|node|php)'
+      regex: 'curl.{0,50}\|.{0,50}(sudo\s+)?(python|bash|sh|node|php)'
 
   - id: sudo-piped-exec
     desc: Piped execution with sudo

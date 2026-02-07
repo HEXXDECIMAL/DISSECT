@@ -924,7 +924,7 @@ traits:
     for: [packagejson]
     if:
       type: string
-      regex: 'travis-ci\\.org|circleci\\.com|github\\.com/.{0,100}actions|codecov\\.io|coveralls\\.io'
+      regex: 'travis-ci\\.org|circleci\\.com|github\\.com/.{0,50}actions|codecov\\.io|coveralls\\.io'
 
   # Has conventional versioning
   - id: conventional-version
@@ -1211,7 +1211,7 @@ traits:
       substr: '"funding":'
 
   # Has bugs/issues URL
-  - id: has-bugs-url
+  - id: has-bugs-url-field
     desc: Package has bugs/issues URL
     crit: inert
     conf: 0.8
@@ -1221,7 +1221,7 @@ traits:
       regex: '"bugs":\\s*\\{|"bugs":\\s*"http'
 
   # Has homepage
-  - id: has-homepage
+  - id: has-homepage-field
     desc: Package has homepage URL
     crit: inert
     conf: 0.8

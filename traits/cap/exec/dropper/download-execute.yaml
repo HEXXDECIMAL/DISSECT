@@ -13,11 +13,21 @@ traits:
   # === Download to Home Directory ===
   - id: download-to-home
     desc: Download to home directory
-    crit: suspicious
+    crit: notable
     conf: 0.85
+    # Small files downloading to home are more suspicious
+    size_max: 5000
     if:
       type: content
       regex: "(curl|wget).{0,50}(HOME|~/|\\$HOME)"
+      exclude_patterns:
+        - "(?i)netbsd\\.org"
+        - "(?i)freebsd\\.org"
+        - "(?i)openbsd\\.org"
+        - "(?i)dragonflybsd\\.org"
+        - "(?i)kernel\\.org"
+        - "(?i)github\\.com"
+        - "(?i)google\\.com"
 
   - id: curl-silent-output
     desc: Silent curl with output
@@ -43,7 +53,7 @@ traits:
     conf: 0.95
     if:
       type: content
-      regex: "(curl|wget).{0,200}chmod.{0,50}\\+x.{0,100}os\\.system"
+      regex: "(curl|wget).{0,50}chmod.{0,50}\\+x.{0,50}os\\.system"
 
   - id: write-binary-execute
     desc: Write binary and execute
@@ -51,7 +61,7 @@ traits:
     conf: 0.90
     if:
       type: content
-      regex: "write\\(fileData\\).{0,100}system.{0,50}&|write\\(.{0,50}\\).{0,100}chmod.{0,50}\\+x"
+      regex: "write\\(fileData\\).{0,50}system.{0,50}&|write\\(.{0,50}\\).{0,50}chmod.{0,50}\\+x"
 
   # === Background Execution ===
   - id: background-execution-devnull
@@ -66,8 +76,10 @@ traits:
   # === URL-based Decode ===
   - id: urlsafe-b64decode
     desc: URL-safe base64 decode
-    crit: suspicious
+    crit: notable
     conf: 0.75
+    # Small binaries using URL-safe decoding are more suspicious
+    size_max: 5000
     if:
       type: content
       regex: "urlsafe_b64decode"

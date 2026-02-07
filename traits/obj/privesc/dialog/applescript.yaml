@@ -37,7 +37,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: "do shell script.{0,100}sudo"
+      regex: "do shell script.{0,50}sudo"
 
   - id: run-as-root
     desc: "Attempts to run as root"

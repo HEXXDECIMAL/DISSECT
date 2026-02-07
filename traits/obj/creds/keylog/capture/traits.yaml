@@ -397,7 +397,6 @@ composite_rules:
       - { id: keystroke-keyword }
       - { id: key-code-phrase }
       - { id: key-down-phrase }
-      - { id: system-events-phrase }
 
   - id: jxa-keystroke-keywords
     desc: JXA keystroke keywords
@@ -453,6 +452,7 @@ composite_rules:
     for: [all]
     all:
       - { id: osascript-keyword }
+      - { id: system-events-phrase }
       - { id: applescript-keywords }
 
   - id: jxa-keystroke

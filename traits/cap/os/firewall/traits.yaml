@@ -23,7 +23,7 @@ traits:
       any:
         - substr: "--add-port"
         - substr: "--add-service=ssh"
-        - regex: "firewall-cmd\\s+.{0,120}--add-port"
+        - regex: "firewall-cmd\\s+.{0,50}--add-port"
     attack: "T1562.004"
 
   - id: firewall-cmd-permanent
@@ -36,7 +36,7 @@ traits:
       any:
         - substr: "--permanent --add-port=22"
         - substr: "--permanent --add-service=ssh"
-        - regex: "--permanent.{0,120}--add-(port|service)"
+        - regex: "--permanent.{0,50}--add-(port|service)"
     attack: "T1562.004"
 
   - id: firewall-cmd-reload

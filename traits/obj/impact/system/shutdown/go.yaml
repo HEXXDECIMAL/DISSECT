@@ -25,7 +25,7 @@ traits:
     conf: 0.95
     if:
       type: content
-      regex: '(?is)shutdown(?:\.exe)?.{0,256}/r\b'
+      regex: '(?is)shutdown(?:\.exe)?.{0,50}/r\b'
 
   # Shutdown flags: /f (force)
   - id: shutdown-force-flag
@@ -34,7 +34,7 @@ traits:
     conf: 0.9
     if:
       type: content
-      regex: '(?is)shutdown(?:\.exe)?.{0,256}/f\b'
+      regex: '(?is)shutdown(?:\.exe)?.{0,50}/f\b'
 
   # Shutdown timeout flag: /t 0 (no delay)
   - id: shutdown-no-delay
@@ -43,7 +43,7 @@ traits:
     conf: 0.85
     if:
       type: content
-      regex: '(?is)shutdown(?:\.exe)?.{0,256}/t\b.{0,64}(?:\b0\b|"0")'
+      regex: '(?is)shutdown(?:\.exe)?.{0,50}/t\b.{0,64}(?:\b0\b|"0")'
 
 composite_rules:
   # Shutdown with force and restart

@@ -36,7 +36,7 @@ traits:
     conf: 0.75
     if:
       type: content
-      regex: "platform\\.system.{0,100}platform\\.machine|platform\\.machine.{0,100}platform\\.system"
+      regex: "platform\\.system.{0,50}platform\\.machine|platform\\.machine.{0,50}platform\\.system"
 
   # OS string checks
   - id: linux-string-check
@@ -79,7 +79,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: "(safe_)?download\\(.{0,200}delete\\s*=\\s*True"
+      regex: "(safe_)?download\\(.{0,50}delete\\s*=\\s*True"
 
   # Download and run function call pattern
   - id: safe-run-call
@@ -116,7 +116,7 @@ traits:
     conf: 0.85
     if:
       type: content
-      regex: "platform\\.system.{0,500}os\\.system|os\\.system.{0,500}platform\\.system"
+      regex: "platform\\.system.{0,50}os\\.system|os\\.system.{0,50}platform\\.system"
 
   # Inline shell download+execute pattern: wget ... && tar ... && ./
   - id: inline-wget-exec

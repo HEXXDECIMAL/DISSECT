@@ -209,36 +209,6 @@ traits:
 
   # === Minimal metadata indicators ===
 
-  - id: no-repository-field
-    desc: Package missing repository field
-    crit: inert
-    conf: 0.6
-    if:
-      type: content
-      regex: '(?is)^(?:(?!\"repository\"\\s*:).)*\"name\"\\s*:\\s*\"[^\"]+\"'
-    unless:
-      - id: obj/lateral/supply-chain/npm/has-repository
-
-  - id: no-bugs-field
-    desc: Package missing bugs URL field
-    crit: inert
-    conf: 0.5
-    if:
-      type: content
-      regex: '(?is)^(?:(?!\"bugs\"\\s*:).)*\"name\"\\s*:\\s*\"[^\"]+\"'
-    unless:
-      - id: obj/lateral/supply-chain/npm/has-bugs-url
-
-  - id: no-homepage-field
-    desc: Package missing homepage field
-    crit: inert
-    conf: 0.5
-    if:
-      type: content
-      regex: '(?is)^(?:(?!\"homepage\"\\s*:).)*\"name\"\\s*:\\s*\"[^\"]+\"'
-    unless:
-      - id: obj/lateral/supply-chain/npm/has-homepage
-
   # === Keyword-based detection ===
 
   - id: keyword-dump
@@ -369,7 +339,25 @@ composite_rules:
     all:
       - id: name-has-theft-keyword
     none:
-      - id: obj/lateral/supply-chain/npm/has-repository
+      - id: obj/lateral/supply-chain/npm/metadata/npm-has-repository
+
+  - id: theft-name-no-bugs
+    desc: Theft keyword in name without bugs URL
+    crit: suspicious
+    conf: 0.85
+    all:
+      - id: name-has-theft-keyword
+    none:
+      - id: obj/lateral/supply-chain/npm/metadata/has-bugs-url
+
+  - id: theft-name-no-homepage
+    desc: Theft keyword in name without homepage
+    crit: suspicious
+    conf: 0.85
+    all:
+      - id: name-has-theft-keyword
+    none:
+      - id: obj/lateral/supply-chain/npm/metadata/has-homepage
 
   # === Credential stealer package name pattern (SUSPICIOUS) ===
   # Complexity: 3 (all) = 3 -> suspicious (needs 4 for hostile)
@@ -383,4 +371,4 @@ composite_rules:
       - id: name-theft-target-combo
       - id: keyword-target-patterns
     none:
-      - id: obj/lateral/supply-chain/npm/has-repository
+      - id: obj/lateral/supply-chain/npm/metadata/npm-has-repository

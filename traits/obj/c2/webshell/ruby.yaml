@@ -50,7 +50,7 @@ traits:
     conf: 0.85
     if:
       type: content
-      regex: "Faraday\\.(get|post).{0,100}ENV\\["
+      regex: "Faraday\\.(get|post).{0,50}ENV\\["
 
 composite_rules:
   # === Ruby Cookie-based Webshell ===

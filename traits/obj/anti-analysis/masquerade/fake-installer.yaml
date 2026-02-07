@@ -40,7 +40,7 @@ traits:
     attack: "T1056.002"
     if:
       type: content
-      regex: "dscl . authonly.{0,100}while"
+      regex: "dscl . authonly.{0,50}while"
 
   - id: sudo-refresh-stdin
     desc: "Refreshes sudo via stdin"

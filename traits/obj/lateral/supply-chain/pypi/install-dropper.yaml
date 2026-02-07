@@ -47,7 +47,7 @@ traits:
 
   - id: exe-file-extension
     desc: .exe file extension reference
-    crit: suspicious
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -96,7 +96,7 @@ traits:
     if:
       type: string
       # Domains pretending to be official Python downloads
-      regex: "https?://[a-z0-9-]*python[a-z0-9-]*\\.[a-z]+/[^\\s]{0,100}\\.(exe|scr|msi|bat|cmd|ps1)"
+      regex: "https?://[a-z0-9-]*python[a-z0-9-]*\\.[a-z]+/[^\\s]{0,50}\\.(exe|scr|msi|bat|cmd|ps1)"
     not:
       - regex: "^https?://(www\\.)?python\\.org/"
 
@@ -106,7 +106,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: "https?://[^\\s]+\\.(exe|scr|msi|bat|cmd|ps1|dll)"
+      regex: "https?://[^\\s'\"]+\\.(exe|scr|msi|bat|cmd|ps1|dll)(?:[?#][^\\s'\"]*)?$"
 
   # === Install Hook Pattern ===
   # setup.py install command override (post-install execution)
@@ -169,6 +169,10 @@ composite_rules:
     all:
       - id: binary-file-write
       - id: exe-file-extension
+    any:
+      - id: python-command-exec
+      - id: cap/comm/http/request/request-python
+    needs: 1
 
   # === HOSTILE: PyPI Install-Time Dropper ===
   # Classic dropper: download exe + write to disk + execute

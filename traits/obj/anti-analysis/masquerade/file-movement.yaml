@@ -51,7 +51,7 @@ traits:
     for: [python]
     if:
       type: string
-      regex: "(grabber|logger|stealer|bot).{0,50}(test|tmp|temp|boot|lmao)|^[a-z]{10,20}\\.(exe|dll)$"
+      regex: "\\b(grabber|logger|stealer|bot)\\b.{0,50}\\b(test|tmp|temp|boot|lmao)\\b|^[a-z]{10,20}\\.(exe|dll)$"
 
   # === Path Manipulation ===
   - id: appdata-path-manipulation

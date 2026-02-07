@@ -55,6 +55,14 @@ traits:
       type: string
       substr: "wallet.dat"
 
+  # === Internal Indicators (Inert) ===
+  - id: cookiejar-exclusion
+    desc: Exclude standard cookiejar implementation
+    crit: inert
+    if:
+      type: content
+      regex: "cookiejar"
+
 composite_rules:
   # Helper: Any sensitive file path
   - id: sensitive-paths
@@ -68,9 +76,13 @@ composite_rules:
 
   - id: sensitive-path
     desc: Accesses sensitive browser or wallet
-    crit: suspicious
+    crit: notable
     conf: 0.95
     for: [python]
+    # Stealth stealers are typically small
+    size_max: 5000
     all:
       - id: generic
       - id: sensitive-paths
+    none:
+      - id: cookiejar-exclusion

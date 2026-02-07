@@ -13,14 +13,19 @@ traits:
   # === Default Router/Gateway Credentials ===
   - id: router-default-admin
     desc: Default router admin credentials
-    crit: suspicious
+    crit: notable
     conf: 0.85
+    # Small binaries with hardcoded default creds are more suspicious
+    size_max: 10000
     if:
       type: string
       # Common router admin passwords - remove "password" as it's too common as a keyword/option name
       regex: "^(admin123|admin1234|root123|1234567890|123456)$"
     not:
       - id: meta/signed/type/platform
+    unless:
+      - type: content
+        regex: "pandas|pytest|def test_"
 
   - id: iot-vendor-creds
     desc: IoT vendor default credentials

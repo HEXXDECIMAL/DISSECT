@@ -56,6 +56,7 @@ pub(crate) fn apply_trait_defaults(
     raw: RawTraitDefinition,
     defaults: &TraitDefaults,
     warnings: &mut Vec<String>,
+    path: &std::path::Path,
 ) -> TraitDefinition {
     // Parse file_types: use trait-specific if present (unless "none"), else defaults, else [All]
     let file_types = apply_vec_default(raw.file_types, &defaults.r#for)
@@ -119,6 +120,7 @@ pub(crate) fn apply_trait_defaults(
         not: raw.not,
         unless: raw.unless,
         downgrade: raw.downgrade,
+        defined_in: path.to_path_buf(),
     }
 }
 

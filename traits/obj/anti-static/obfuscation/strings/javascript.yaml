@@ -47,7 +47,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: content
-      regex: 'Buffer.from\(.{0,100}["\'']base64["\'']\)'
+      regex: 'Buffer.from\(.{0,50}["\'']base64["\'']\)'
 
   - id: js-buffer-from-hex
     desc: Buffer.from hex
@@ -56,7 +56,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: content
-      regex: 'Buffer.from\(.{0,100}["\'']hex["\'']\)'
+      regex: 'Buffer.from\(.{0,50}["\'']hex["\'']\)'
 
   # Hex-encoded require statement - obfuscated module import
   # Pattern: require(Buffer.from("6f73", "hex").toString()) = require("os")
@@ -72,7 +72,7 @@ traits:
       type: content
       regex: 'require\s*\(\s*Buffer\.from\s*\(\s*["\x27][0-9a-fA-F]+["\x27]\s*,\s*["\x27]hex["\x27]\s*\)\.toString\s*\(\s*\)'
 
-  # Global object manipulation patterns (symbol-based, more reliable)
+  # Global object manipulation via assignment to high-risk decode/exec APIs
   - id: js-global-property-write
     desc: Global object property assignment
     crit: suspicious
@@ -81,17 +81,8 @@ traits:
     mbc: "B0032"
     for: [javascript]
     if:
-      type: symbol
-      regex: "(globalThis|window|self)\\..{1,50}"
-    not:
-      - "__dirname"
-      - "__filename"
-      - "process"
-      - "console"
-      - "Buffer"
-      - "describe"  # Test frameworks
-      - "__coverage__"  # Istanbul coverage
-      - "goog.global" # Closure library
+      type: content
+      regex: '(globalThis|window|self)\s*(?:\.\s*[A-Za-z_$][\w$]*|\[\s*["''][^"'']+["'']\s*\])\s*=\s*(?:eval|Function|atob|btoa|unescape|decodeURIComponent|String\.fromCharCode)'
 
   - id: js-require-alias
     desc: Require function aliasing
@@ -135,7 +126,7 @@ traits:
     for: [javascript]
     if:
       type: content
-      regex: '\b([A-Za-z_$][\w$]*)\s*\[\s*[^\]]+\s*\]\s*=\s*\1\s*\[\s*[^\]]+\s*\]\s*;'
+      regex: '\b(?:var|let|const)\s+\w+\s*=\s*\w+\s*\[[^\]]+\]\s*;\s*\w+\s*\[[^\]]+\]\s*=\s*\w+\s*\[[^\]]+\]\s*;\s*\w+\s*\[[^\]]+\]\s*=\s*\w+'
 
   # String split to array
   - id: js-string-split
@@ -296,11 +287,13 @@ composite_rules:
   # Obfuscated dynamic execution
   - id: js-obfuscated-eval
     desc: Obfuscated dynamic code execution
-    crit: suspicious
+    crit: notable
     conf: 0.95
     attack: "T1027.002"
     mbc: "B0032"
     for: [javascript]
+    # Small snippets with eval + encoding are more suspicious
+    size_max: 5000
     all:
       - id: js-dynamic-exec
     any:
@@ -312,7 +305,7 @@ composite_rules:
       - id: js-buffer-from-hex
     unless:
       - type: string
-        regex: "MathJax"
+        regex: "MathJax|jquery|jquery-ui"
 
   # Hex-encoded require obfuscation (npm supply chain malware pattern)
   # Complexity: file_types(+1) + all(+3) = 4 (meets HOSTILE threshold)

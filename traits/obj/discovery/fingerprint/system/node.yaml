@@ -222,6 +222,15 @@ traits:
       type: string
       substr: "process.env"
 
+  - id: process-env-serialization
+    desc: process.env serialization call
+    crit: inert
+    conf: 0.75
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "(Object\\.(keys|entries)\\s*\\(\\s*process\\.env\\s*\\)|JSON\\.stringify\\s*\\(\\s*process\\.env\\s*\\))"
+
   # === Process list atomic indicators ===
   - id: tasklist-cmd
     desc: Windows tasklist command
@@ -371,7 +380,7 @@ composite_rules:
     for: [javascript, typescript]
     all:
       - { id: process-env-access }
-      - { id: object-serialization }
+      - { id: process-env-serialization }
 
   # Process list composite
   - id: process-list

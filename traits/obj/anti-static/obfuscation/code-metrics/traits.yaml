@@ -53,7 +53,7 @@ traits:
 
   - id: many-high-entropy-identifiers
     desc: "Many high-entropy identifiers (>20% have"
-    crit: suspicious
+    crit: notable
     conf: 0.9
     # NOTE: Shell has its own threshold (40%) in code-metrics/shell.yaml
     # NOTE: Python has own threshold (35%) - single-letter vars are legitimate
@@ -61,7 +61,7 @@ traits:
     # NOTE: Rust has its own threshold (35%) in code-metrics/rust.yaml
     # NOTE: Rust intrinsic headers (avx2.rs, vpclmulqdq.rs, etc) have legitimate high-entropy from SIMD/crypto naming
     # NOTE: Database adapters and similar library code have legitimate high-entropy from domain-specific terminology
-    # NOTE: min_size 4096 avoids FP on small locale/i18n files where few camelCase identifiers skew the ratio
+    # NOTE: min_size 10240 avoids FP on small locale/i18n files and standard project libraries where few camelCase identifiers skew the ratio
     for:
       [
         javascript,
@@ -77,10 +77,12 @@ traits:
       type: metrics
       field: identifiers.high_entropy_ratio
       min: 0.20
-      min_size: 4096
+      min_size: 10240
     unless:
       - type: basename
         regex: '^[a-z]+\d+\.rs$|^(avx|sse|neon|simd|intrinsic|vpclmul|pclmul|aes).*\.rs$|.*adapter\.(rb|py|php|js|ts)$'
+      - type: string
+        regex: "trix|actiontext"
 
   - id: py-many-high-entropy-identifiers
     desc: "Many high-entropy identifiers (>35% have"
@@ -98,7 +100,7 @@ traits:
 
   - id: excessive-single-char-vars
     desc: "Excessive single-character variable names (>30%)"
-    crit: suspicious
+    crit: notable
     conf: 0.8
     # Python has its own stricter threshold (45%) below; 30% is too noisy for
     # common loop/counter/style patterns in legitimate Python code.
@@ -249,15 +251,34 @@ traits:
 
   - id: single-char-function-names
     desc: "Functions with single-character names"
-    crit: suspicious
+    crit: notable
     conf: 0.8
+    for:
+      [
+        python,
+        javascript,
+        typescript,
+        php,
+        perl,
+        go,
+        rust,
+        java,
+        lua,
+        csharp,
+        powershell,
+      ]
+    # Small binaries with many single-char function names are more suspicious
+    size_max: 100000
     if:
       type: metrics
       field: functions.single_char_names
       min: 8
+      min_size: 12288
     unless:
       - type: basename
-        regex: "^test.*\\.(js|ts|py|rb|php|go|rs|java|cs|ps1|sh)$|.*\\.(test|spec)\\.(js|ts|py|rb|php|go|rs|java|cs|ps1|sh)$|.*_test\\.(go|py|rb|php|rs|java|cs|sh)$|^tests?\\.(rs|py|js|ts|go|java|cs|php|rb|sh)$"
+        regex: "^test.*\\.(js|ts|py|rb|php|go|rs|java|cs|ps1|sh)$|.*\\.(test|spec)\\.(js|ts|py|rb|php|go|rs|java|cs|ps1|sh)$|.*_test\\.(go|py|rb|php|rs|java|cs|sh)$|^tests?\\.(rs|py|js|ts|go|java|cs|php|rb|sh)$|ast\\.js$"
+      - type: string
+        regex: "MathJax|wgxpath"
 
   - id: many-anonymous-functions
     desc: "Many anonymous functions"
@@ -319,13 +340,36 @@ traits:
 
   - id: high-entropy-strings
     desc: "High entropy strings (encoded/encrypted data)"
-    crit: suspicious
+    crit: notable
     conf: 0.8
+    # Small binaries with high entropy strings are more suspicious
+    size_max: 50000
+    # NOTE: Exclude Go for this generic metric. Go source often embeds large
+    # third-party payloads in raw strings, and current extraction can produce
+    # inflated entropy with too few literals for reliable intent inference.
+    for:
+      [
+        python,
+        javascript,
+        typescript,
+        shell,
+        php,
+        ruby,
+        perl,
+        rust,
+        java,
+        lua,
+        csharp,
+        powershell,
+      ]
     if:
       type: metrics
       field: strings.avg_entropy
       min: 4.5
       min_size: 4096
+    unless:
+      - type: content
+        substr: "scipy"
 
   # NOTE: Small/simple programs legitimately have few strings.
   # Only meaningful combined with other obfuscation indicators.
@@ -473,7 +517,7 @@ composite_rules:
 
   - id: minified-code
     desc: "Minified/compressed code (multiple indicators)"
-    crit: suspicious
+    crit: notable
     conf: 0.9
     attack: "T1027"
     all:
@@ -521,7 +565,7 @@ composite_rules:
 
   - id: string-hiding
     desc: "String concealment/encoding"
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1027"
     all:
@@ -529,3 +573,6 @@ composite_rules:
     any:
       - id: obj/anti-static/obfuscation/code-metrics/few-strings
       - id: obj/anti-static/obfuscation/code-metrics/high-text-entropy
+    unless:
+      - type: content
+        regex: "weave|swig"

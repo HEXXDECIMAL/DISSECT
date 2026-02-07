@@ -82,7 +82,7 @@ traits:
     if:
       type: ast
       kind: call
-      regex: "IO.copy_stream|copy_stream.{0,50}sock"
+      regex: "copy_stream\\s*\\([^\\)]{0,200}\\b(sock|socket|tcpsocket)\\b"
 
   - id: open3-popen
     desc: Open3 popen call

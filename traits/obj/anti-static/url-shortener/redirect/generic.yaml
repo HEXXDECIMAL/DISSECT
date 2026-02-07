@@ -5,8 +5,8 @@
 
 traits:
   - id: url-shortener-bitly
-    desc: URL shortened via bit.ly (hides
-    crit: suspicious
+    desc: URL shortened via bit.ly redirect
+    crit: notable
     conf: 0.9
     mbc: "C0036"
     attack: "T1027"

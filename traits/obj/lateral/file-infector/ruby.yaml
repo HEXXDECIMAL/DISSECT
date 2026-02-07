@@ -63,7 +63,7 @@ traits:
     attack: "T1027"
     if:
       type: content
-      regex: 'File\.rename.{0,100}\.rb|\.rb.{0,100}File\.rename'
+      regex: 'File\.rename.{0,50}\.rb|\.rb.{0,50}File\.rename'
 
   # === Self-Replication ===
   - id: self-file-reference
@@ -82,7 +82,7 @@ traits:
     attack: "T1059"
     if:
       type: content
-      regex: 'File\.open.{0,100}malware|File\.read.{0,100}malware|file_malware\.read'
+      regex: 'File\.open.{0,50}malware|File\.read.{0,50}malware|file_malware\.read'
 
   - id: write-to-other-files
     desc: Writing content to other files
@@ -110,7 +110,7 @@ traits:
     attack: "T1070"
     if:
       type: content
-      regex: 'rescue\s*\n\s*next|begin\s*\n.{0,200}File.{0,200}rescue'
+      regex: 'rescue\s*\n\s*next|begin\s*\n.{0,50}File.{0,50}rescue'
 
 composite_rules:
   # === File Enumerator ===

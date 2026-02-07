@@ -9,7 +9,7 @@ defaults:
 traits:
   # exec() with .get().text - fetches URL and executes response body
   # Pattern: exec(requests.get(...).text) or exec(x.get(...).text)
-  # Uses .{0,200} to allow nested parens inside .get()
+  # Uses bounded gaps to allow nested parens inside .get()
   - id: exec-get-text
     desc: exec() on HTTP response .text
     crit: suspicious
@@ -18,7 +18,7 @@ traits:
     mbc: "E1059"
     if:
       type: content
-      regex: "exec\\s*\\(.{0,200}\\.get\\s*\\(.{0,200}\\)\\.text\\s*\\)"
+      regex: "exec\\s*\\(.{0,50}\\.get\\s*\\(.{0,50}\\)\\.text\\s*\\)"
 
   # exec() with .get().content - binary response
   - id: exec-get-content
@@ -29,7 +29,7 @@ traits:
     mbc: "E1059"
     if:
       type: content
-      regex: "exec\\s*\\(.{0,200}\\.get\\s*\\(.{0,200}\\)\\.content\\s*\\)"
+      regex: "exec\\s*\\(.{0,50}\\.get\\s*\\(.{0,50}\\)\\.content\\s*\\)"
 
   # eval() with .get().text
   - id: eval-get-text
@@ -40,7 +40,7 @@ traits:
     mbc: "E1059"
     if:
       type: content
-      regex: "eval\\s*\\(.{0,200}\\.get\\s*\\(.{0,200}\\)\\.text\\s*\\)"
+      regex: "eval\\s*\\(.{0,50}\\.get\\s*\\(.{0,50}\\)\\.text\\s*\\)"
 
   # exec() with urlopen().read()
   - id: exec-urlopen-read
@@ -51,7 +51,7 @@ traits:
     mbc: "E1059"
     if:
       type: content
-      regex: "exec\\s*\\(.{0,200}urlopen\\s*\\(.{0,200}\\)\\.read\\s*\\(\\s*\\)"
+      regex: "exec\\s*\\(.{0,50}urlopen\\s*\\(.{0,50}\\)\\.read\\s*\\(\\s*\\)"
 
   # Numeric array with chr() - URL obfuscation pattern
   # Pattern: [123, 456, ...] with chr() conversion
@@ -63,7 +63,7 @@ traits:
     attack: "T1027"
     if:
       type: content
-      regex: "\\[\\s*\\d{2,4}\\s*,\\s*\\d{2,4}\\s*,\\s*\\d{2,4}[^\\]]{0,500}\\][^c]{0,100}chr\\s*\\("
+      regex: "\\[\\s*\\d{2,4}\\s*,\\s*\\d{2,4}\\s*,\\s*\\d{2,4}[^\\]]{0,50}\\][^c]{0,50}chr\\s*\\("
 
   # join(chr(x) for x in ...) - common deobfuscation pattern
   - id: join-chr-comprehension

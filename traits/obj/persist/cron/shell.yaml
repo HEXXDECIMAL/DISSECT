@@ -18,7 +18,7 @@ traits:
     if:
       type: content
       # Matches: crontab -l ... | crontab - or echo "..." | crontab -
-      regex: "crontab\\s+-l[^|]{0,50}\\|\\s*crontab\\s*-|echo[^|]{0,100}\\|\\s*crontab\\s*-"
+      regex: "crontab\\s+-l[^|]{0,50}\\|\\s*crontab\\s*-|echo[^|]{0,50}\\|\\s*crontab\\s*-"
 
   - id: crontab-with-curl-wget
     desc: Crontab with download and execute

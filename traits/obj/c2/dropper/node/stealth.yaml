@@ -80,7 +80,7 @@ traits:
     conf: 0.7
     if:
       type: content
-      regex: "__dirname.{0,100}\\.(js|mjs|cjs)['\"]"
+      regex: "__dirname.{0,50}\\.(js|mjs|cjs)['\"]"
 
 composite_rules:
   # === Helper composites ===

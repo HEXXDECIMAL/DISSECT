@@ -343,7 +343,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: 'JSON\.stringify\(process\.env'
+      regex: 'JSON\.stringify\(\s*process\.env\s*\)'
 
   - id: object-keys-env
     desc: Object.keys(process.env)
@@ -485,7 +485,7 @@ composite_rules:
   # Env dump composite
   - id: node-env-dump
     desc: Accesses entire process.env object
-    crit: suspicious
+    crit: notable
     conf: 0.85
     needs: 1
     any:

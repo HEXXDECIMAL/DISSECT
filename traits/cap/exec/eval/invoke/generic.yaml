@@ -63,7 +63,7 @@ traits:
 composite_rules:
   - id: shell-eval
     desc: Dynamic code evaluation
-    crit: suspicious
+    crit: notable
     conf: 0.66
     mbc: "E1059"
     attack: "T1059"

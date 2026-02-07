@@ -51,7 +51,7 @@ traits:
     conf: 0.90
     if:
       type: content
-      regex: "getattr\\(__builtins__|getattr\\(.{0,50}builtins"
+      regex: "getattr\\((?:__builtins__|.{0,30}builtins)\\s*,\\s*(?:[A-Za-z_][A-Za-z0-9_]{0,40}|[\"'][^\"'\\n]{1,20}[\"']\\s*\\+\\s*[\"'][^\"'\\n]{1,20}[\"']|chr\\(|bytes\\(|base64\\.|decode\\()"
     unless:
       - type: basename
         regex: '(test_|_test\.|\.test\.|\.spec\.).*\.py$'
@@ -71,7 +71,7 @@ traits:
     conf: 0.80
     if:
       type: content
-      regex: "while.{0,30}:[^}]{0,100}if.{0,30}==.{0,30}[0-9]{5,}"
+      regex: "while.{0,30}:[^}]{0,50}if.{0,30}==.{0,30}[0-9]{5,}"
 
   - id: obfuscated-state-variable
     desc: Obfuscated state variable
@@ -88,7 +88,7 @@ traits:
     conf: 0.85
     if:
       type: content
-      regex: "Dispatch\\(|win32com|pythoncom"
+      regex: "\\bDispatch\\(|\\bwin32com\\b|\\bpythoncom\\b"
 
   - id: ctypes-windll-usage
     desc: ctypes windll usage

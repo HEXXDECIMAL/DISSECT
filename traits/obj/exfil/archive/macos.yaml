@@ -41,7 +41,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "\\bzip\\s+.{0,100}\\.zip"
+      regex: "\\bzip\\s+.{0,50}\\.zip"
 
   # === tmp archive atomic indicators ===
   - id: tmp-zip-path
@@ -50,7 +50,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "/tmp/.{0,100}\\.zip"
+      regex: "/tmp/.{0,50}\\.zip"
 
   - id: tmp-out-zip
     desc: /tmp/out.zip file
@@ -66,7 +66,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "/var/tmp/.{0,100}\\.zip"
+      regex: "/var/tmp/.{0,50}\\.zip"
 
 composite_rules:
   # ditto compress composite

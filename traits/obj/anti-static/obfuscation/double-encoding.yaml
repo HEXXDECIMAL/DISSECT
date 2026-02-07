@@ -13,8 +13,10 @@ traits:
   # === ROT13 Patterns ===
   - id: rot13-decode
     desc: ROT13 string obfuscation
-    crit: suspicious
+    crit: notable
     conf: 0.85
+    # Malware typically keeps obfuscation logic compact
+    size_max: 10000
     if:
       type: string
       substr: "rot13"
@@ -23,6 +25,7 @@ traits:
     desc: codecs ROT13 decoding
     crit: suspicious
     conf: 0.85
+    size_max: 10000
     if:
       type: string
       regex: "codecs\\.decode.{0,20}rot13|rot13.{0,20}codecs"
@@ -31,6 +34,7 @@ traits:
     desc: ROT13 encoded string literal
     crit: suspicious
     conf: 0.80
+    size_max: 10000
     if:
       type: string
       regex: "codecs\\.decode\\('[^']{10,}'"
@@ -40,14 +44,17 @@ traits:
     desc: Base64 then decode
     crit: suspicious
     conf: 0.80
+    for: [python]
+    size_max: 15000
     if:
-      type: string
-      regex: "b64decode.{0,20}decode|decode.{0,20}b64decode"
+      type: content
+      regex: "b64decode[\\s\\S]{0,80}\\.decode\\s*\\(\\s*\\)"
 
   - id: base64-with-codecs
     desc: Base64 with codecs
     crit: suspicious
     conf: 0.85
+    size_max: 15000
     if:
       type: string
       regex: "b64decode.{0,20}codecs|codecs.{0,20}b64decode"
@@ -57,13 +64,14 @@ traits:
     desc: Nested encoding call
     crit: suspicious
     conf: 0.85
+    size_max: 15000
     if:
       type: string
       regex: "decode\\(.{0,30}decode\\(|encode\\(.{0,30}encode\\("
 
   - id: multi-layer-string
     desc: Multi-layer string processing
-    crit: suspicious
+    crit: notable
     conf: 0.80
     if:
       type: string
@@ -74,6 +82,7 @@ traits:
     desc: Encoded path assembly
     crit: suspicious
     conf: 0.85
+    size_max: 10000
     if:
       type: string
       regex: "codecs\\.encode\\('/|decode\\('/"
@@ -83,9 +92,10 @@ traits:
     crit: suspicious
     conf: 0.80
     for: [javascript]
+    size_max: 10000
     if:
       type: content
-      regex: "\\.split\\(\\s*['\"]['\"]\\s*\\).{0,120}\\.join\\(\\s*['\"]['\"]\\s*\\)"
+      regex: "\\.split\\(\\s*['\"]['\"]\\s*\\).{0,50}\\.join\\(\\s*['\"]['\"]\\s*\\)"
 
 composite_rules:
   # === Double Encoding Detection ===
@@ -115,7 +125,7 @@ composite_rules:
 
   - id: double-obfuscation
     desc: Double encoding obfuscation
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     attack: "T1027"
     mbc: "E1014"

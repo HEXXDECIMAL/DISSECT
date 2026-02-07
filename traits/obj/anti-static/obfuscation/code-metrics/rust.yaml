@@ -9,8 +9,10 @@ defaults:
 traits:
   - id: rust-many-high-entropy-identifiers
     desc: "Many high-entropy identifiers in Rust"
-    crit: suspicious
+    crit: notable
     conf: 0.9
+    # Small binaries with high entropy identifiers are more suspicious
+    size_max: 500000
     if:
       type: metrics
       field: identifiers.high_entropy_ratio
@@ -18,7 +20,15 @@ traits:
       min_size: 4096
     unless:
       - type: basename
-        regex: '^[a-z]+\d+\.rs$|^(avx|sse|neon|simd|intrinsic|vpclmul|pclmul|aes).*\.rs$|.*adapter\.rs$'
+        regex: '^[a-z]+\d+\.rs$|^(avx|sse|neon|simd|intrinsic|vpclmul|pclmul|aes|vaes).*\.rs$|.*adapter\.rs$'
+      # SIMD intrinsic headers often contain architectural feature names that trigger high entropy
+      - type: content
+        substr: "relaxed_simd"
+      # Rust benchmark files often contain many repetitive benchmark-oriented
+      # identifiers (bench_*, iterator combinator chains) without obfuscation intent.
+      - type: content
+        regex: '(?m)^\s*#\[bench\]'
+        count_min: 6
       # Runtime CPU feature detection tests include many short architecture
       # feature identifiers (e.g., avx512*, sve2-*) that inflate entropy.
       - type: content

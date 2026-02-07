@@ -408,7 +408,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      regex: "(?:placeholder|reserved|do not use|\\bfake\\b|\\bdemo\\s+package\\b|prevent(?:s|ing)?\\s+(?:dependency\\s+)?confusion)"
+      regex: "(?:\\b(?:placeholder|fake|demo|reserved)\\b.{0,40}\\b(?:package|module|library|dependency|npm)\\b|\\b(?:package|module|library|dependency|npm)\\b.{0,40}\\b(?:placeholder|fake|demo|reserved)\\b|\\bdo\\s+not\\s+use\\b.{0,40}\\b(?:package|module|library|dependency|npm)\\b|\\bprevent(?:s|ing)?\\s+(?:dependency\\s+)?confusion\\b)"
       case_insensitive: true
 
 composite_rules:

@@ -27,9 +27,10 @@ traits:
     desc: "Binary has very few readable"
     crit: suspicious
     conf: 0.85
+    size_min: 8192
     if:
       type: string_count
-      max: 50
+      max: 20
       min_length: 4
     unless:
       - id: meta/format/tiny-elf

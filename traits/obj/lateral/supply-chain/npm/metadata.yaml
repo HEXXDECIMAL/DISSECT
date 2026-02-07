@@ -77,6 +77,22 @@ traits:
       type: kv
       path: "repository"
 
+  - id: has-bugs-url
+    desc: Package has bugs URL
+    crit: inert
+    conf: 0.5
+    if:
+      type: kv
+      path: "bugs.url"
+
+  - id: has-homepage
+    desc: Package has homepage URL
+    crit: inert
+    conf: 0.5
+    if:
+      type: kv
+      path: "homepage"
+
   - id: repo-url-git-host
     desc: Repository on GitHub/GitLab/Bitbucket
     crit: inert

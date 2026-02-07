@@ -80,20 +80,22 @@ traits:
     conf: 0.95
     if:
       type: content
-      regex: "eval\\(compile\\(.{0,100}eval\\(compile"
+      regex: "eval\\(compile\\(.{0,50}eval\\(compile"
 
   # === Extreme Line Length ===
   - id: extreme-line-length
-    desc: Extreme line length obfuscation
-    crit: suspicious
+    desc: Extreme line length (data table or obfuscation)
+    crit: notable
     conf: 0.85
     if:
       type: metrics
       field: "text.max_line_length"
-      min: 10000
+      min: 500000
     unless:
       - type: basename
         regex: "\\.html?$"
+      - type: string
+        regex: "Jinja2"
 
   # === Import Obfuscation ===
   - id: obfuscated-import-pattern

@@ -27,7 +27,7 @@ traits:
     for: [shell, python, ruby, perl]
     if:
       type: content
-      regex: '(?i)(^|[\s"''])(?:sudo\s+)?(?:/sbin/|/usr/sbin/)?shutdown(?:\s+-(?:h|r|k|H|P|c|f|F|n)\b(?:\s+\S+)*)?(?:\s+now\b)?(?:\s*(?:;|&&|\|\||["'']\s*[),]|$))'
+      regex: '(?i)(^|[\s"''])(?:sudo\s+)?(?:/sbin/|/usr/sbin/)?shutdown(?:(?:\s+-(?:h|r|k|H|P|c|f|F|n)\b(?:\s+\S+)*)|(?:\s+now\b))(?:\s*(?:;|&&|\|\||["'']\s*[),]|$))'
 
   - id: halt-command
     desc: halt command (immediate shutdown)
@@ -41,7 +41,7 @@ traits:
     for: [shell, python, ruby, perl]
     if:
       type: content
-      regex: '(?i)(^|[\s"''])(?:sudo\s+)?(?:/sbin/|/usr/sbin/)?halt(?:\s|;|&&|\|\||$)'
+      regex: '(?im)(^|[;|&]\s*|[(,]\s*|["'']\s*)(?:sudo\s+)?(?:/sbin/|/usr/sbin/)?halt(?:\s+-(?:f|n|p|i|d|w)\b(?:\s+\S+)*)?(?:\s+now\b)?(?:\s*(?:;|&&|\|\||[)"'',]|$))'
 
   - id: poweroff-command
     desc: poweroff command (power down system)

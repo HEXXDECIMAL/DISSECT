@@ -38,12 +38,18 @@ traits:
 
   - id: py-encoded-strings
     desc: "High string entropy (base64/hex encoded"
-    crit: suspicious
+    crit: notable
     conf: 0.85
+    # Small files with high entropy strings are more suspicious
+    size_max: 50000
     if:
       type: metrics
       field: strings.avg_entropy
       min: 4.5
+      min_size: 4096
+    unless:
+      - type: content
+        substr: "weave"
 
 composite_rules:
   - id: py-pyobfuscate-pattern

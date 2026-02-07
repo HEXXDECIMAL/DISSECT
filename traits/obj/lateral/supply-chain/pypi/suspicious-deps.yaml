@@ -42,7 +42,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: "'dhooks'|\"dhooks\"|install_requires.{0,100}dhooks"
+      regex: "'dhooks'|\"dhooks\"|install_requires.{0,50}dhooks"
 
   - id: dependency-mss
     desc: mss screenshot capture library
@@ -50,7 +50,7 @@ traits:
     conf: 0.70
     if:
       type: string
-      regex: "'mss'|\"mss\"|install_requires.{0,100}mss"
+      regex: "'mss'|\"mss\"|install_requires.{0,50}mss"
 
   - id: dependency-requests-sockets
     desc: requests and sockets combo

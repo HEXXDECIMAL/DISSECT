@@ -424,6 +424,9 @@ composite_rules:
   - id: windows-python-winreg
     desc: "Accesses Windows registry via Python"
     conf: 0.8
+    crit: notable
+    # Stealth binaries are typically small
+    size_max: 5000
     platforms: [windows]
     for: [python]
     needs: 1
@@ -434,6 +437,9 @@ composite_rules:
       - id: openkey-hkey
       - id: setvalueex
       - id: createkey
+    unless:
+      - type: basename
+        exact: "six.py"
 
   # Registry Run access composite
   - id: windows-registry-run-access

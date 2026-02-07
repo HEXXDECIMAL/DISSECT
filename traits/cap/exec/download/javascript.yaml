@@ -11,7 +11,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      regex: 'curl.{0,100}\|.{0,20}bash'
+      regex: 'curl.{0,50}\|.{0,20}bash'
 
   - id: curl-pipe-sh-js
     desc: curl piped to sh
@@ -21,7 +21,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      regex: 'curl.{0,100}\|.{0,20}sh'
+      regex: 'curl.{0,50}\|.{0,20}sh'
 
   - id: curl-pipe-zsh-js
     desc: curl piped to zsh
@@ -31,7 +31,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      regex: 'curl.{0,100}\|.{0,20}zsh'
+      regex: 'curl.{0,50}\|.{0,20}zsh'
 
   # === PowerShell installer atomic indicators ===
   - id: powershell-irm-iex

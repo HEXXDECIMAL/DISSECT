@@ -40,26 +40,41 @@ traits:
     desc: HTTP POST with JSON
     crit: suspicious
     conf: 0.80
+    # Small scripts using POST with JSON are more suspicious
+    size_max: 5000
     if:
       type: string
       regex: "post.{0,50}json|json.{0,50}post"
+    unless:
+      - type: content
+        regex: "requests|test"
 
   # === Data Exfiltration Pattern ===
   - id: json-data-post
     desc: JSON data POST exfiltration
     crit: suspicious
     conf: 0.85
+    # Small scripts using data exfiltration patterns are more suspicious
+    size_max: 5000
     if:
       type: string
       regex: "requests\\.post.{0,50}data.{0,50}json|post.{0,50}data=.{0,50}b64"
+    unless:
+      - type: content
+        regex: "requests|test"
 
   - id: base64-json-payload
     desc: Base64 in JSON payload
     crit: suspicious
     conf: 0.85
+    # Small scripts with base64 in JSON are more suspicious
+    size_max: 5000
     if:
       type: string
       regex: "json.{0,50}b64encode|b64encode.{0,50}data"
+    unless:
+      - type: content
+        regex: "requests|test"
 
   # === C2 Response Handling ===
   - id: json-response-parse
@@ -98,6 +113,8 @@ composite_rules:
     attack: "T1041"
     mbc: "B0030"
     for: [python, javascript]
+    # Real C2 exfiltration scripts are typically small
+    size_max: 5000
     needs: 3
     any:
       - id: json-data-post
@@ -105,6 +122,9 @@ composite_rules:
       - id: http-post-json
     all:
       - id: json-content-type
+    unless:
+      - type: content
+        regex: "requests|test"
 
   - id: json-c2-protocol
     desc: JSON C2 communication protocol

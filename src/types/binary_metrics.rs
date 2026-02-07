@@ -165,6 +165,9 @@ pub struct BinaryMetrics {
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct ElfMetrics {
     // === Header ===
+    /// ELF file type (header.e_type)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub e_type: u32,
     /// Entry point not in .text
     #[serde(default, skip_serializing_if = "is_false")]
     pub entry_not_in_text: bool,
@@ -325,6 +328,9 @@ pub struct PeMetrics {
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct MachoMetrics {
     // === Structure ===
+    /// Mach-O file type (header.filetype)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub file_type: u32,
     /// Universal (fat) binary
     #[serde(default, skip_serializing_if = "is_false")]
     pub is_universal: bool,

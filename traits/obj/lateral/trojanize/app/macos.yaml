@@ -93,7 +93,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: "curl.{0,100}\\.app\\.zip"
+      regex: "curl.{0,50}\\.app\\.zip"
 
   - id: curl-app-archive
     desc: curl app.zip download
@@ -101,7 +101,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: "curl.{0,100}app\\.zip"
+      regex: "curl.{0,50}app\\.zip"
 
   - id: wget-app-zip
     desc: wget .app.zip download
@@ -109,7 +109,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: "wget.{0,100}\\.app\\.zip"
+      regex: "wget.{0,50}\\.app\\.zip"
 
   # === App replacement atomic indicators ===
   - id: rm-app-unzip

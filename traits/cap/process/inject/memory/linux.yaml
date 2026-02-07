@@ -31,10 +31,11 @@ traits:
   # === Process VM operations ===
   - id: process-vm-writev
     desc: process_vm_writev for memory injection
-    crit: suspicious
+    crit: notable
     conf: 0.85
     mbc: "B0033"
     attack: "T1055"
+    size_max: 2097152
     if:
       type: symbol
       regex: "process_vm_writev"
@@ -43,7 +44,7 @@ composite_rules:
   # Process injection via ptrace (migrated from YARA)
   - id: process-inject-ptrace
     desc: Process injection via ptrace
-    crit: suspicious
+    crit: notable
     conf: 0.66
     mbc: "B0033"
     attack: "T1055"

@@ -30,6 +30,7 @@ traits:
   - id: detached-process
     desc: "Detached process creation (DETACHED_PROCESS)"
     conf: 0.85
+    crit: notable
     if:
       type: string
       regex: "DETACHED_PROCESS"
@@ -76,6 +77,7 @@ composite_rules:
   - id: hidden-window-flag
     desc: "Hidden or detached process window"
     conf: 0.85
+    crit: notable
     needs: 1
     any:
       - id: create-no-window
@@ -89,4 +91,3 @@ composite_rules:
     all:
       - id: subprocess-call
       - id: hidden-window-flag
-

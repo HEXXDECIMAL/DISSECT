@@ -14,7 +14,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      regex: "(rmdir|del|remove|shutil\\.rmtree|os\\.remove).{0,100}[Ss]ystem32|[Ss]ystem32.{0,100}(rmdir|del|remove)"
+      regex: "(rmdir|del|remove|shutil\\.rmtree|os\\.remove).{0,50}[Ss]ystem32|[Ss]ystem32.{0,50}(rmdir|del|remove)"
 
   # Windows directory recursive deletion
   - id: windows-recursive-delete
@@ -111,7 +111,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      substr: "Windows"
+      regex: "[A-Za-z]:\\\\\\\\Windows(?:\\\\\\\\System32)?|\\\\\\\\Windows\\\\\\\\System32|/Windows/System32"
 
   - id: system32-ref
     desc: System32 directory reference

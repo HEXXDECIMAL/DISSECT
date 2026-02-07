@@ -51,13 +51,23 @@ traits:
 
   - id: curl-silent-stdout
     desc: "Silent curl output to stdout"
-    crit: suspicious
+    crit: notable
     conf: 0.9
     mbc: "C0002"
     attack: "T1105"
+    # Small scripts using silent curl to stdout are more suspicious
+    size_max: 5000
     if:
       type: content
       regex: 'curl\s+[^|&\n]*-s[^|&\n]*(https?://|ftp://)|curl\s+[^|&\n]*--silent[^|&\n]*(https?://|ftp://)'
+      exclude_patterns:
+        - "(?i)netbsd\\.org"
+        - "(?i)freebsd\\.org"
+        - "(?i)openbsd\\.org"
+        - "(?i)dragonflybsd\\.org"
+        - "(?i)kernel\\.org"
+        - "(?i)github\\.com"
+        - "(?i)google\\.com"
 
   - id: curl-download
     desc: "Download via curl"

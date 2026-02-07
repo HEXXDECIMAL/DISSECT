@@ -58,16 +58,6 @@ traits:
       type: string
       regex: "__cfduid|cookie.{0,50}scan|scan.{0,50}cookie"
 
-  # === URL-Safe Base64 Decode ===
-  - id: urlsafe-base64-decode
-    desc: URL-safe Base64 decode
-    crit: suspicious
-    conf: 0.85
-    attack: "T1027"
-    if:
-      type: symbol
-      regex: "urlsafe_decode64"
-
   # === Exception Swallowing ===
   - id: rescue-exception-nil
     desc: Exception swallowing
@@ -89,7 +79,7 @@ composite_rules:
     any:
       - id: rack-sendfile-hook
       - id: http-cookie-access
-      - id: urlsafe-base64-decode
+      - id: cap/data/encode/base64/base64-urlsafe-decode
       - id: cap/exec/eval/ruby-eval
       - id: alias-method-call
 
@@ -103,5 +93,5 @@ composite_rules:
     any:
       - id: http-cookie-access
       - id: cookie-pattern-extract
-      - id: urlsafe-base64-decode
+      - id: cap/data/encode/base64/base64-urlsafe-decode
       - id: cap/exec/eval/ruby-eval

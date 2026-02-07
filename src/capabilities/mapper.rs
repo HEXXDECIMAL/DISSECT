@@ -277,7 +277,7 @@ impl CapabilityMapper {
             for raw_trait in mappings.traits {
                 // Convert raw trait to final trait, applying file-level defaults
                 let mut trait_def =
-                    apply_trait_defaults(raw_trait, &mappings.defaults, &mut warnings);
+                    apply_trait_defaults(raw_trait, &mappings.defaults, &mut warnings, &path);
 
                 // Auto-prefix trait ID if it doesn't already have the path prefix
                 if let Some(ref prefix) = trait_prefix {
@@ -729,7 +729,12 @@ impl CapabilityMapper {
 
         // Build raw content regex index for batched regex matching
         let t_raw_regex_index = std::time::Instant::now();
-        let raw_content_regex_index = RawContentRegexIndex::build(&trait_definitions);
+        let raw_content_regex_index = match RawContentRegexIndex::build(&trait_definitions) {
+            Ok(index) => index,
+            Err(errors) => {
+                return Err(anyhow::anyhow!(errors.join("\n")));
+            }
+        };
         if timing {
             eprintln!(
                 "[TIMING] Built raw content regex index ({} patterns): {:?}",
@@ -814,7 +819,7 @@ impl CapabilityMapper {
         let mut trait_definitions: Vec<TraitDefinition> = mappings
             .traits
             .into_iter()
-            .map(|raw| apply_trait_defaults(raw, &mappings.defaults, &mut warnings))
+            .map(|raw| apply_trait_defaults(raw, &mappings.defaults, &mut warnings, path.as_ref()))
             .collect();
 
         // Pre-compile all regexes for performance
@@ -864,7 +869,12 @@ impl CapabilityMapper {
         let string_match_index = StringMatchIndex::build(&trait_definitions);
 
         // Build raw content regex index for batched regex matching
-        let raw_content_regex_index = RawContentRegexIndex::build(&trait_definitions);
+        let raw_content_regex_index = match RawContentRegexIndex::build(&trait_definitions) {
+            Ok(index) => index,
+            Err(errors) => {
+                return Err(anyhow::anyhow!(errors.join("\n")));
+            }
+        };
 
         Ok(Self {
             symbol_map,

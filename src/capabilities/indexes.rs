@@ -385,10 +385,12 @@ struct FileTypeRegexSet {
 }
 
 impl RawContentRegexIndex {
-    pub(crate) fn build(traits: &[TraitDefinition]) -> Self {
+    pub(crate) fn build(traits: &[TraitDefinition]) -> Result<Self, Vec<String>> {
         // Group patterns by file type
-        let mut by_file_type: FxHashMap<RuleFileType, Vec<(String, usize)>> = FxHashMap::default();
+        let mut by_file_type_patterns: FxHashMap<RuleFileType, Vec<(String, usize)>> =
+            FxHashMap::default();
         let mut universal_patterns: Vec<(String, usize)> = Vec::new();
+        let mut errors = Vec::new();
 
         for (trait_idx, trait_def) in traits.iter().enumerate() {
             // Extract regex patterns from Content traits
@@ -415,13 +417,11 @@ impl RawContentRegexIndex {
             };
 
             if let Some(pattern) = pattern_opt {
-                // Check if trait applies to all file types
                 if trait_def.r#for.contains(&RuleFileType::All) {
                     universal_patterns.push((pattern, trait_idx));
                 } else {
-                    // Add to each specific file type
                     for ft in &trait_def.r#for {
-                        by_file_type
+                        by_file_type_patterns
                             .entry(*ft)
                             .or_default()
                             .push((pattern.clone(), trait_idx));
@@ -430,13 +430,29 @@ impl RawContentRegexIndex {
             }
         }
 
-        // Build regex sets for each file type
-        let by_file_type: FxHashMap<RuleFileType, FileTypeRegexSet> = by_file_type
-            .into_iter()
-            .filter_map(|(ft, patterns)| Self::build_regex_set(patterns).map(|rs| (ft, rs)))
-            .collect();
+        // Build regex sets for each file type, collecting errors
+        let mut by_file_type = FxHashMap::default();
+        for (ft, patterns) in by_file_type_patterns {
+            match Self::build_regex_set(patterns, traits) {
+                Ok(Some(set)) => {
+                    by_file_type.insert(ft, set);
+                }
+                Ok(None) => {}
+                Err(mut e) => errors.append(&mut e),
+            }
+        }
 
-        let universal = Self::build_regex_set(universal_patterns);
+        let universal = match Self::build_regex_set(universal_patterns, traits) {
+            Ok(set) => set,
+            Err(mut e) => {
+                errors.append(&mut e);
+                None
+            }
+        };
+
+        if !errors.is_empty() {
+            return Err(errors);
+        }
 
         // Track only traits/patterns that were successfully indexed for pre-filtering.
         let mut indexed_traits = FxHashSet::default();
@@ -459,97 +475,64 @@ impl RawContentRegexIndex {
             }
         }
 
-        Self {
+        Ok(Self {
             by_file_type,
             universal,
             indexed_traits,
             total_patterns,
-        }
+        })
     }
 
-    fn build_regex_set(patterns: Vec<(String, usize)>) -> Option<FileTypeRegexSet> {
+    fn build_regex_set(
+        patterns: Vec<(String, usize)>,
+        traits: &[TraitDefinition],
+    ) -> Result<Option<FileTypeRegexSet>, Vec<String>> {
         if patterns.is_empty() {
-            return None;
+            return Ok(None);
         }
 
-        let (pattern_strs, trait_indices): (Vec<_>, Vec<_>) = patterns.into_iter().unzip();
+        // Group traits by unique pattern to avoid redundancy
+        let mut pattern_map: FxHashMap<String, Vec<usize>> = FxHashMap::default();
+        for (pattern, trait_idx) in patterns {
+            pattern_map.entry(pattern).or_default().push(trait_idx);
+        }
 
-        // Build pattern_to_traits mapping
-        let pattern_to_traits: Vec<Vec<usize>> =
-            trait_indices.into_iter().map(|idx| vec![idx]).collect();
+        let pattern_strs: Vec<String> = pattern_map.keys().cloned().collect();
+        let pattern_to_traits: Vec<Vec<usize>> = pattern_strs
+            .iter()
+            .map(|p| pattern_map.get(p).unwrap().clone())
+            .collect();
 
-        // Try to build the regex set. If it fails due to size limits, split into smaller chunks
+        // Try to build the regex set.
         match RegexSet::new(&pattern_strs) {
-            Ok(regex_set) => Some(FileTypeRegexSet {
+            Ok(regex_set) => Ok(Some(FileTypeRegexSet {
                 regex_set,
                 pattern_to_traits,
-            }),
+            })),
             Err(e) => {
-                // If regex set is too large, split it into smaller chunks and retry
-                let error_str = e.to_string();
-                if error_str.contains("exceeds size limit") && pattern_strs.len() > 20 {
-                    // Split into roughly half-sized chunks and try again
-                    let mid = pattern_strs.len() / 2;
-                    let (patterns1, patterns2) = pattern_strs.split_at(mid);
-                    let (indices1, indices2) = pattern_to_traits.split_at(mid);
-
-                    // Try first half
-                    if let Ok(regex_set) = RegexSet::new(patterns1) {
-                        return Some(FileTypeRegexSet {
-                            regex_set,
-                            pattern_to_traits: indices1.to_vec(),
-                        });
-                    }
-
-                    // Try second half as fallback
-                    if let Ok(regex_set) = RegexSet::new(patterns2) {
-                        return Some(FileTypeRegexSet {
-                            regex_set,
-                            pattern_to_traits: indices2.to_vec(),
-                        });
+                // RegexSet creation failed. Find invalid patterns and report them as errors.
+                let mut errors = Vec::new();
+                for (i, pattern) in pattern_strs.iter().enumerate() {
+                    if let Err(re_err) = regex::Regex::new(pattern) {
+                        for trait_idx in &pattern_to_traits[i] {
+                            let trait_def = &traits[*trait_idx];
+                            errors.push(format!(
+                                "trait '{}' in \"{}\": invalid regex pattern: '{}' ({})",
+                                trait_def.id,
+                                trait_def.defined_in.display(),
+                                pattern,
+                                re_err
+                            ));
+                        }
                     }
                 }
 
-                // Non-size errors can come from unsupported regex features (e.g. look-around).
-                // Keep startup non-fatal by indexing only regexes that compile.
-                let mut supported_patterns = Vec::new();
-                let mut supported_traits = Vec::new();
-                for (pattern, trait_indices) in pattern_strs.iter().zip(pattern_to_traits.iter()) {
-                    if RegexSet::new([pattern]).is_ok() {
-                        supported_patterns.push(pattern.clone());
-                        supported_traits.push(trait_indices.clone());
-                    }
+                if errors.is_empty() {
+                    // This can happen if the set is too large but individual regexes are valid.
+                    errors.push(format!("Failed to compile regex set: {}", e));
                 }
 
-                if supported_patterns.is_empty() {
-                    eprintln!(
-                        "⚠️  Skipping raw content regex set: 0/{} patterns compilable ({})",
-                        pattern_strs.len(),
-                        e
-                    );
-                    return None;
-                }
-
-                match RegexSet::new(&supported_patterns) {
-                    Ok(regex_set) => {
-                        eprintln!(
-                            "⚠️  Built partial raw content regex set: {}/{} patterns compiled",
-                            supported_patterns.len(),
-                            pattern_strs.len()
-                        );
-                        Some(FileTypeRegexSet {
-                            regex_set,
-                            pattern_to_traits: supported_traits,
-                        })
-                    }
-                    Err(err) => {
-                        eprintln!(
-                            "⚠️  Skipping raw content regex set after fallback compile failure: {}",
-                            err
-                        );
-                        None
-                    }
-                }
+                Err(errors)
             }
         }
     }

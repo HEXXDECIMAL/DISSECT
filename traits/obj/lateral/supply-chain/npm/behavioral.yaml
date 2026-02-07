@@ -44,8 +44,9 @@ traits:
             $fs2 = /import.*from\s+['"]fs['"]/ ascii
             $exec = "exec(" ascii
             $spawn = "spawn(" ascii
+            $cp = "child_process" ascii
           condition:
-            (any of ($http*, $fs*, $exec, $spawn)) and not any of ($export*)
+            (any of ($http*, $fs*) or (any of ($exec, $spawn) and $cp)) and not any of ($export*)
         }
 
   # NOTE: YARA kept for network-on-load - requires combining IIFE pattern with network calls
@@ -99,9 +100,13 @@ traits:
             $exec = "exec(" ascii
             $spawn = "spawn(" ascii
             $fork = "fork(" ascii
+            $cp = "child_process" ascii
           condition:
-            $iife and any of ($exec, $spawn, $fork)
+            $iife and any of ($exec, $spawn, $fork) and $cp
         }
+    unless:
+      - type: string
+        regex: "MathJax|wgxpath"
 
   # === STRUCTURAL INDICATORS ===
 
@@ -298,7 +303,7 @@ traits:
     if:
       type: content
       # Pattern matches: req.headers.something.replace(/regex/, ...) or JSON.stringify(req.headers).replace(...)
-      regex: "(?:req\\.headers|headers).{0,100}\\.replace\\s*\\(\\s*/[^/]+/"
+      regex: "(?:req\\.headers|headers).{0,50}\\.replace\\s*\\(\\s*/[^/]+/"
 
   - id: hex-require-bracket-method
     desc: Hex-escaped bracket method access

@@ -169,7 +169,7 @@ traits:
 
   - id: ctypes-windll
     desc: Python ctypes Windows DLL
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1574.002"
     for: [python]
@@ -248,7 +248,7 @@ traits:
 
   - id: ruby-dlopen
     desc: Ruby FFI dlopen
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1574.006"
     for: [ruby]
@@ -416,7 +416,7 @@ composite_rules:
   # ctypes CDLL composite
   - id: ctypes-cdll
     desc: Python ctypes CDLL loading
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1574"
     for: [python]

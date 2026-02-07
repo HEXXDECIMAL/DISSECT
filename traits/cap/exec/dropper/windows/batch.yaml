@@ -247,14 +247,19 @@ traits:
 
   - id: go-ldflags-strip
     desc: Go strip flag in ldflags
-    crit: suspicious
+    crit: notable
     conf: 0.85
     mbc: "B0032"
     attack: "T1027"
     for: [shell, batch]
+    # Stealth binaries are typically small
+    size_max: 5000
     if:
       type: string
-      regex: "-s\\s+-w|\\s-s\\s+|\\s-s\\b"
+      regex: "ldflags.{0,50}(-s\\s+-w|\\s-s\\s+|\\s-s\\b)"
+    unless:
+      - type: content
+        substr: "mkall"
 
   - id: go-ldflags-hide-gui
     desc: Go hide GUI window flag

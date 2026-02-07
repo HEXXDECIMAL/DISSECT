@@ -24,7 +24,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: 'npm\s+.{0,100}--prefix'
+      regex: 'npm\s+.{0,50}--prefix'
 
   - id: windows-hide-option
     desc: windowsHide option for stealth

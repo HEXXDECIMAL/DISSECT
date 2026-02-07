@@ -86,6 +86,8 @@ pub struct TraitDefinition {
     /// Only levels LOWER than base `crit` are allowed (validated at load time)
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub downgrade: Option<DowngradeConditions>,
+    #[serde(skip)]
+    pub defined_in: std::path::PathBuf,
 }
 
 impl TraitDefinition {

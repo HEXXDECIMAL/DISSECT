@@ -71,10 +71,12 @@ traits:
     crit: suspicious
     conf: 0.9
     for: [all]
+    # Small binaries with appended ELFs are more suspicious
+    size_max: 1000000
     if:
       type: hex
       pattern: "7F 45 4C 46"
-      offset_range: [-65536, null]  # Last 64KB
+      offset_range: [1, null]  # Exclude primary ELF header at byte 0
     unless:
       - id: meta/format/magic/elf-header  # Not if it's just an ELF file
 
@@ -103,6 +105,8 @@ traits:
       offset_range: [0, -1024]  # Finds %%EOF NOT in last 1KB (content appended after)
     unless:
       - id: pdf-trailer-eof-at-end
+      - type: content
+        regex: "matplotlib|ttconv"
 
   # PDF trailer at actual end (benign)
   - id: pdf-trailer-eof-at-end
@@ -181,6 +185,7 @@ composite_rules:
     desc: File with multiple format signatures
     crit: suspicious
     conf: 0.9
+    needs: 2
     any:
       - id: appended-zip-trailer
       - id: appended-elf-binary
@@ -199,4 +204,3 @@ composite_rules:
     any:
       - id: appended-shell-script
       - id: appended-python-script
-

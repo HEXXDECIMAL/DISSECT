@@ -72,7 +72,7 @@ traits:
     if:
       type: ast
       node: shell_command_expression
-      regex: ".{0,500}"
+      regex: ".{1,120}"
 
   - id: exec-user-input
     desc: Command execution with user input

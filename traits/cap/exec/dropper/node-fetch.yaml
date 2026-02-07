@@ -24,7 +24,7 @@ traits:
     conf: 0.7
     if:
       type: content
-      regex: "fetch\\(.{0,100}\\.then\\(.{0,50}\\.json\\("
+      regex: "fetch\\(.{0,50}\\.then\\(.{0,50}\\.json\\("
 
   # === File write patterns ===
   - id: writeFileSync-call
