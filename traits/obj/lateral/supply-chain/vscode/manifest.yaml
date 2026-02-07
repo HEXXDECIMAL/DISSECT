@@ -19,6 +19,7 @@ traits:
     desc: Stub GitHub link
     crit: suspicious
     conf: 0.9
+    for: [vsixmanifest]
     if:
       type: content
       # Matches github.com/ or github.com" without a real path (in XML attribute context)
@@ -29,6 +30,7 @@ traits:
     desc: Multiple stub links
     crit: suspicious
     conf: 0.95
+    for: [vsixmanifest]
     if:
       type: content
       regex: 'github\.com/?["'']'
@@ -39,6 +41,7 @@ traits:
     desc: Stub source link
     crit: suspicious
     conf: 0.85
+    for: [vsixmanifest]
     if:
       type: content
       regex: 'Links\.Source"[^>]*Value\s*=\s*"https?://github\.com/?["'']'
@@ -47,6 +50,7 @@ traits:
     desc: Stub GitHub property
     crit: suspicious
     conf: 0.85
+    for: [vsixmanifest]
     if:
       type: content
       regex: 'Links\.GitHub"[^>]*Value\s*=\s*"https?://github\.com/?["'']'
@@ -82,6 +86,7 @@ composite_rules:
     conf: 0.95
     attack: "T1036.005"
     mbc: "B0033"
+    for: [vsixmanifest]
     needs: 1
     any:
       - id: stub-github-link

@@ -135,6 +135,7 @@ traits:
       regex: '[a-zA-Z0-9_]{2,}\.(crypt|encrypted|locked|enc|crypted|cry)$'
     not:
       - "exithook.locked"
+      - regex: '^[a-z_][a-z0-9_]*\.(crypt|encrypted|locked|enc|crypted|cry)$'
 
   # Cryptographic symbols for ransomware
   - id: crypto-openssl-encrypt

@@ -31,14 +31,6 @@ traits:
       type: string
       substr: "exec.(*Cmd).Run"
 
-  - id: exec-command-symbol
-    desc: exec.Command symbol import
-    crit: notable
-    conf: 0.7
-    if:
-      type: symbol
-      exact: "exec.Command"
-
   # === Go pipe micro-traits ===
   - id: stdin-pipe
     desc: StdinPipe reference
@@ -127,7 +119,7 @@ composite_rules:
       - id: os-exec-command
       - id: exec-cmd-start
       - id: exec-cmd-run
-      - id: exec-command-symbol
+      - id: cap/exec/command/exec-command
 
   # Go pipe composite
   - id: go-pipe

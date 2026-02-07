@@ -57,6 +57,8 @@ traits:
     conf: 0.9
     # NOTE: Shell has its own threshold (40%) in code-metrics/shell.yaml
     # NOTE: Python has own threshold (35%) - single-letter vars are legitimate
+    # NOTE: Go has its own threshold (40%) in code-metrics/go.yaml
+    # NOTE: Rust has its own threshold (35%) in code-metrics/rust.yaml
     # NOTE: Rust intrinsic headers (avx2.rs, vpclmulqdq.rs, etc) have legitimate high-entropy from SIMD/crypto naming
     # NOTE: Database adapters and similar library code have legitimate high-entropy from domain-specific terminology
     # NOTE: min_size 4096 avoids FP on small locale/i18n files where few camelCase identifiers skew the ratio
@@ -65,10 +67,7 @@ traits:
         javascript,
         typescript,
         php,
-        ruby,
         perl,
-        go,
-        rust,
         java,
         lua,
         csharp,
@@ -121,7 +120,7 @@ traits:
     if:
       type: metrics
       field: identifiers.single_char_ratio
-      min: 0.30
+      min: 0.31
       min_size: 1024
     unless:
       - type: basename
@@ -256,6 +255,9 @@ traits:
       type: metrics
       field: functions.single_char_names
       min: 8
+    unless:
+      - type: basename
+        regex: "^test.*\\.(js|ts|py|rb|php|go|rs|java|cs|ps1|sh)$|.*\\.(test|spec)\\.(js|ts|py|rb|php|go|rs|java|cs|ps1|sh)$|.*_test\\.(go|py|rb|php|rs|java|cs|sh)$|^tests?\\.(rs|py|js|ts|go|java|cs|php|rb|sh)$"
 
   - id: many-anonymous-functions
     desc: "Many anonymous functions"
@@ -396,7 +398,7 @@ traits:
 
   - id: high-text-entropy
     desc: "High overall text entropy (encoded"
-    crit: suspicious
+    crit: notable
     conf: 0.8
     # Exclude Perl: legitimate code generators (e.g., cryptographic lookup tables)
     # have naturally high entropy from hex data and special characters
@@ -420,6 +422,9 @@ traits:
       type: metrics
       field: text.char_entropy
       min: 5.5
+    unless:
+      - type: basename
+        regex: "\\.(s|S|asm)$"
 
   - id: low-whitespace
     desc: "Very low whitespace ratio (minified/compressed)"
@@ -471,15 +476,18 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     attack: "T1027"
-    needs: 3
+    all:
+      - id: obj/anti-static/obfuscation/code-metrics/low-whitespace
+    needs: 1
     any:
       - id: obj/anti-static/obfuscation/code-metrics/high-function-density
       - id: obj/anti-static/obfuscation/code-metrics/many-one-liner-functions
-      - id: obj/anti-static/obfuscation/code-metrics/very-long-lines
-      - id: obj/anti-static/obfuscation/code-metrics/low-whitespace
       - id: obj/anti-static/obfuscation/code-metrics/no-comments
       - id: obj/anti-static/obfuscation/code-metrics/sequential-identifiers
       - id: obj/anti-static/obfuscation/code-metrics/py-sequential-identifiers
+    unless:
+      - type: basename
+        regex: "\\.html?$"
 
   - id: identifier-obfuscation
     desc: "Identifier obfuscation (random/encoded names)"
@@ -490,7 +498,10 @@ composite_rules:
     any:
       - id: obj/anti-static/obfuscation/code-metrics/high-entropy-identifiers
       - id: obj/anti-static/obfuscation/code-metrics/many-high-entropy-identifiers
+      - id: obj/anti-static/obfuscation/code-metrics/ruby-many-high-entropy-identifiers
+      - id: obj/anti-static/obfuscation/code-metrics/go-many-high-entropy-identifiers
       - id: obj/anti-static/obfuscation/code-metrics/py-many-high-entropy-identifiers
+      - id: obj/anti-static/obfuscation/code-metrics/rust-many-high-entropy-identifiers
       - id: obj/anti-static/obfuscation/code-metrics/high-entropy-function-names
       - id: obj/anti-static/obfuscation/code-metrics/low-identifier-reuse
 

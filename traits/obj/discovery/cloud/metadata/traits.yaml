@@ -56,7 +56,7 @@ traits:
   # GCP Metadata
   - id: gcp-metadata-flavor
     desc: GCP metadata flavor header
-    crit: suspicious
+    crit: notable
     conf: 0.9
     attack: "T1552.005"
     for: [all]
@@ -86,7 +86,7 @@ traits:
 
   - id: gcp-service-accounts-path
     desc: GCP service accounts metadata path
-    crit: suspicious
+    crit: notable
     conf: 0.9
     attack: "T1552.005"
     for: [all]

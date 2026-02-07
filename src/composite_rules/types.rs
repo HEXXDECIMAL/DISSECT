@@ -16,7 +16,7 @@ pub enum Platform {
 }
 
 /// File type specifier for rule targeting
-#[derive(Debug, Clone, Copy, Deserialize, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[serde(rename_all = "lowercase")]
 pub enum FileType {
     All,
@@ -91,6 +91,53 @@ impl FileType {
                 | FileType::Elixir
                 | FileType::AppleScript
         )
+    }
+
+    /// Returns a list of all concrete file types (excluding All)
+    pub fn all_concrete_variants() -> Vec<FileType> {
+        vec![
+            // Binary formats
+            FileType::Elf,
+            FileType::Macho,
+            FileType::Pe,
+            FileType::Dylib,
+            FileType::So,
+            FileType::Dll,
+            FileType::Class,
+            // Source code formats
+            FileType::Shell,
+            FileType::Batch,
+            FileType::Python,
+            FileType::JavaScript,
+            FileType::TypeScript,
+            FileType::Rust,
+            FileType::Java,
+            FileType::Ruby,
+            FileType::C,
+            FileType::Go,
+            FileType::Php,
+            FileType::CSharp,
+            FileType::Lua,
+            FileType::Perl,
+            FileType::PowerShell,
+            FileType::Swift,
+            FileType::ObjectiveC,
+            FileType::Groovy,
+            FileType::Scala,
+            FileType::Zig,
+            FileType::Elixir,
+            FileType::AppleScript,
+            // Manifest/config formats
+            FileType::PackageJson,
+            FileType::ChromeManifest,
+            FileType::CargoToml,
+            FileType::PyProjectToml,
+            FileType::GithubActions,
+            FileType::ComposerJson,
+            // Image formats
+            FileType::Jpeg,
+            FileType::Png,
+        ]
     }
 }
 

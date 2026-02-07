@@ -133,7 +133,7 @@ traits:
     for: [all]
     if:
       type: content
-      substr: "lures:"
+      regex: "\\blures\\s*:"
 
   - id: config-phishlet-ref
     desc: Evilginx phishlet reference

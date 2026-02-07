@@ -140,7 +140,7 @@ composite_rules:
   # Multiple system information collection
   - id: python-sysinfo-multi
     desc: Collects multiple system information items
-    crit: suspicious
+    crit: notable
     conf: 0.9
     needs: 2
     any:
@@ -153,7 +153,7 @@ composite_rules:
   # Composite: Intensive system enumeration (Alias-resistant)
   - id: python-enumeration
     desc: Performs intensive system enumeration (multiple
-    crit: suspicious
+    crit: notable
     conf: 0.95
     near_lines: 80
     needs: 3

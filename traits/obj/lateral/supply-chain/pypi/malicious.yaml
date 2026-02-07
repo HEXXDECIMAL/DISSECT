@@ -45,18 +45,26 @@ traits:
       source: |
         rule pypi_typosquat_exec {
           strings:
-            // Common targets
-            $pkg1 = "requests" ascii
-            $pkg2 = "urllib3" ascii
-            $pkg3 = "colorama" ascii
-            $pkg4 = "numpy" ascii
+            // Common typosquatted package name variants
+            $pkg1 = "reqeusts" ascii nocase
+            $pkg2 = "reuqests" ascii nocase
+            $pkg3 = "urlib3" ascii nocase
+            $pkg4 = "ulrib3" ascii nocase
+            $pkg5 = "colroama" ascii nocase
+            $pkg6 = "colormaa" ascii nocase
+            $pkg7 = "numpi" ascii nocase
+            $pkg8 = "numppy" ascii nocase
             // With suspicious behavior
             $sus1 = "subprocess" ascii
             $sus2 = "os.system" ascii
             $sus3 = "exec(" ascii
             $sus4 = "eval(" ascii
+            // In packaging/install context
+            $ctx1 = "setup(" ascii
+            $ctx2 = "install_requires" ascii
+            $ctx3 = "name=" ascii
           condition:
-            (any of ($pkg*) and 2 of ($sus*))
+            (any of ($pkg*) and 2 of ($sus*) and any of ($ctx*))
         }
 
   # NOTE: YARA kept for install-network - requires combining module-level markers
@@ -139,7 +147,7 @@ traits:
     attack: "T1036.005"
     if:
       type: string
-      regex: "requests\\.(certs|adapters|auth|compat|cookies|exceptions|hooks|models|packages|sessions|status_codes|structures|utils|api)"
+      regex: "requests\\.packages(?:\\.|\\b)"
 
   # Vendored Zope Acquisition module - references Acquisition.Implicit/Explicit
   # and ImplicitAcquisitionWrapper, which are Zope-specific APIs.

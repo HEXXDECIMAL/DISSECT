@@ -3,7 +3,7 @@
 composite_rules:
   - id: combo-reverse-shell
     desc: Classic reverse shell pattern (socket
-    crit: suspicious
+    crit: hostile
     mbc: "B0030.002"
     attack: "T1059"
     conf: 0.95
@@ -23,7 +23,7 @@ composite_rules:
 
   - id: bind-shell
     desc: Bind shell pattern (socket +
-    crit: suspicious
+    crit: hostile
     mbc: "B0030.003"
     attack: "T1059"
     conf: 0.95
@@ -44,7 +44,7 @@ composite_rules:
 
   - id: python-reverse-shell
     desc: "Python reverse shell detected (socket"
-    crit: suspicious
+    crit: hostile
     mbc: "B0022"
     attack: "T1059"
     conf: 0.98

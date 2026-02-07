@@ -185,8 +185,8 @@ traits:
     conf: 0.85
     if:
       type: content
-      # Both Python 2 and 3 patterns
-      regex: "urlopen\\s*\\([^)]*,\\s*(?:data=)?['\"]?\\w+"
+      # Require explicit data keyword to avoid matching timeout-only calls
+      regex: "urlopen\\s*\\([^)]*\\bdata\\s*="
 
   - id: vid-parameter
     desc: vid= POST parameter

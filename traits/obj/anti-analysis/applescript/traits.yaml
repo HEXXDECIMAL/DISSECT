@@ -70,15 +70,6 @@ traits:
       type: string
       regex: "default answer.{0,30}password"
 
-  - id: with-hidden-answer
-    desc: with hidden answer directive
-    crit: inert
-    conf: 0.7
-    attack: "T1056.002"
-    if:
-      type: string
-      substr: "with hidden answer"
-
   # === Fake system dialog atomic indicators ===
   - id: icon-caution-button
     desc: icon caution with button
@@ -126,34 +117,6 @@ traits:
       type: string
       regex: "with administrator privileges|administrator privileges"
 
-  # === Keystroke logging atomic indicators ===
-  - id: keystroke-cmd
-    desc: keystroke command
-    crit: inert
-    conf: 0.6
-    attack: "T1056.001"
-    if:
-      type: string
-      substr: "keystroke"
-
-  - id: key-code-cmd
-    desc: key code command
-    crit: inert
-    conf: 0.6
-    attack: "T1056.001"
-    if:
-      type: string
-      substr: "key code"
-
-  - id: system-events-key
-    desc: System Events key manipulation
-    crit: inert
-    conf: 0.7
-    attack: "T1056.001"
-    if:
-      type: string
-      regex: "tell application.{0,30}System Events.{0,30}key"
-
   # tell application pattern (AppleScript automation)
   - id: tell-application
     desc: "AppleScript tell application block"
@@ -162,16 +125,6 @@ traits:
     if:
       type: string
       regex: "tell application|osascript"
-
-  # Hidden answer input (password masking)
-  - id: hidden-answer
-    desc: "AppleScript hidden input field"
-    crit: suspicious
-    conf: 0.85
-    attack: "T1056.002"
-    if:
-      type: string
-      regex: "default answer|with hidden answer"
 
 composite_rules:
   # Password dialog composite
@@ -200,18 +153,6 @@ composite_rules:
       - id: icon-note-button
       - id: dialog-enter-password
 
-  # Keystroke logging composite
-  - id: keystroke-logging
-    desc: "AppleScript keystroke monitoring"
-    crit: suspicious
-    conf: 0.9
-    attack: "T1056.001"
-    needs: 1
-    any:
-      - id: keystroke-cmd
-      - id: key-code-cmd
-      - id: system-events-key
-
   # Password phishing pattern
   - id: password-phishing
     desc: "AppleScript password phishing attack"
@@ -223,7 +164,6 @@ composite_rules:
       - id: tell-application
       - id: password-dialog
     any:
-      - id: hidden-answer
       - id: fake-system-dialog
 
   # Stealthy AppleScript execution

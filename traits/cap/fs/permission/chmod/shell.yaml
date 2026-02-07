@@ -25,7 +25,7 @@ traits:
 
   - id: chmod-777-shell
     desc: chmod 777 command (world-writable+executable)
-    crit: notable
+    crit: suspicious
     conf: 0.7
     mbc: E1222
     attack: T1222
@@ -35,7 +35,7 @@ traits:
 
   - id: chmod-777-ruby
     desc: chmod(0777) Ruby-style call
-    crit: notable
+    crit: suspicious
     conf: 0.7
     mbc: E1222
     attack: T1222
@@ -45,13 +45,24 @@ traits:
 
   - id: chmod-777-python
     desc: chmod(...777) Python-style call
-    crit: notable
+    crit: suspicious
     conf: 0.7
     mbc: E1222
     attack: T1222
     if:
       type: string
       regex: 'chmod\([\w, ]{1,16}777\)'
+
+  - id: chmod-plus-x-non-shell
+    desc: chmod +x command (suspicious in non-shell)
+    crit: suspicious
+    conf: 0.8
+    mbc: E1222
+    attack: T1222
+    for: [python, javascript, ruby, go, rust, c, cpp, pe, elf, macho]
+    if:
+      type: string
+      regex: 'chmod\s+(\-[a-zA-Z]+\s+)*\+x'
 
   - id: chmod-1777-sticky
     desc: chmod 1777 (sticky bit, legitimate

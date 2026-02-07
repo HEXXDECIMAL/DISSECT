@@ -3,7 +3,7 @@
 # Can be legitimate (JIT, hot-patching) or malicious (polymorphic malware)
 
 defaults:
-  for: [pe, elf, macho, dll, so, dylib]
+  for: [binaries]
 
 traits:
   # === Memory protection (atomic) ===

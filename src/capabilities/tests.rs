@@ -190,13 +190,17 @@ fn test_apply_vec_default_unset_with_none_keyword() {
 }
 
 #[test]
-fn test_parse_file_types_compiled_alias() {
-    let types = vec!["compiled".to_string()];
+fn test_parse_file_types_binary_alias() {
+    let types = vec!["binaries".to_string()];
     let result = parsing::parse_file_types(&types);
-    assert_eq!(result.len(), 3);
+    assert_eq!(result.len(), 7);
     assert!(result.contains(&RuleFileType::Elf));
     assert!(result.contains(&RuleFileType::Macho));
     assert!(result.contains(&RuleFileType::Pe));
+    assert!(result.contains(&RuleFileType::Dylib));
+    assert!(result.contains(&RuleFileType::So));
+    assert!(result.contains(&RuleFileType::Dll));
+    assert!(result.contains(&RuleFileType::Class));
 }
 
 #[test]
@@ -2457,4 +2461,53 @@ traits:
         "Error should include line/column info: {}",
         error_msg
     );
+}
+
+#[test]
+fn test_parse_file_types_groups_and_exclusions() {
+    // Test groups
+    let binaries = parsing::parse_file_types(&vec!["binaries".to_string()]);
+    assert_eq!(binaries.len(), 7);
+    assert!(binaries.contains(&RuleFileType::Elf));
+    assert!(!binaries.contains(&RuleFileType::Python));
+
+    let scripts = parsing::parse_file_types(&vec!["scripts".to_string()]);
+    assert_eq!(scripts.len(), 11);
+    assert!(scripts.contains(&RuleFileType::Python));
+    assert!(scripts.contains(&RuleFileType::Shell));
+    assert!(!scripts.contains(&RuleFileType::Elf));
+
+    // Test alias "all"
+    let all = parsing::parse_file_types(&vec!["all".to_string()]);
+    assert_eq!(all, vec![RuleFileType::All]);
+
+    // Test exclusions
+    // !php means All - Php.
+    let not_php = parsing::parse_file_types(&vec!["!php".to_string()]);
+    assert!(!not_php.contains(&RuleFileType::Php));
+    assert!(not_php.contains(&RuleFileType::Python));
+    assert!(not_php.contains(&RuleFileType::Elf));
+    assert!(!not_php.contains(&RuleFileType::All)); // Should be expanded
+
+    // Test group + exclusion: scripts,!php
+    let scripts_no_php = parsing::parse_file_types(&vec!["scripts".to_string(), "!php".to_string()]);
+    assert!(scripts_no_php.contains(&RuleFileType::Python));
+    assert!(scripts_no_php.contains(&RuleFileType::Shell));
+    assert!(!scripts_no_php.contains(&RuleFileType::Php));
+    assert!(!scripts_no_php.contains(&RuleFileType::Elf));
+
+    // Test single string comma separation
+    let comma_sep = parsing::parse_file_types(&vec!["scripts,!php".to_string()]);
+    assert!(comma_sep.contains(&RuleFileType::Python));
+    assert!(!comma_sep.contains(&RuleFileType::Php));
+
+    // Test '!binaries' exclusion
+    let not_binaries = parsing::parse_file_types(&vec!["!binaries".to_string()]);
+    assert!(!not_binaries.contains(&RuleFileType::Elf));
+    assert!(not_binaries.contains(&RuleFileType::Python));
+
+    // Test '!scripts' exclusion
+    let not_scripts = parsing::parse_file_types(&vec!["!scripts".to_string()]);
+    assert!(!not_scripts.contains(&RuleFileType::Python));
+    assert!(not_scripts.contains(&RuleFileType::Elf));
 }

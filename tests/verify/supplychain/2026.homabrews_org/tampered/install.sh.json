@@ -9,8 +9,8 @@
   "risk": "hostile",
   "counts": {
     "hostile": 2,
-    "suspicious": 10,
-    "notable": 27
+    "suspicious": 13,
+    "notable": 34
   },
   "findings": [
     {
@@ -75,7 +75,7 @@
         {
           "method": "string",
           "source": "string_extractor",
-          "value": "password",
+          "value": "Password",
           "location": "0x48d"
         },
         {
@@ -348,6 +348,290 @@
       ]
     },
     {
+      "id": "cap/fs/path/binary/binary-usr-bin",
+      "kind": "capability",
+      "desc": "Reference to /usr/bin binaries",
+      "conf": 0.66,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/uname",
+          "location": "0x10fc"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/stat",
+          "location": "0x12b8"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/stat",
+          "location": "0x12b9"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/chgrp",
+          "location": "0x130c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/chgrp",
+          "location": "0x130d"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/touch",
+          "location": "0x1337"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/touch",
+          "location": "0x1338"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/install",
+          "location": "0x1354"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/install",
+          "location": "0x1355"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/stat",
+          "location": "0x1492"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/stat",
+          "location": "0x1493"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/install",
+          "location": "0x152b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/install",
+          "location": "0x152c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/sudo",
+          "location": "0x1c9d"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/sudo",
+          "location": "0x1c9e"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/sudo",
+          "location": "0x1cdb"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/sudo",
+          "location": "0x1cdc"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/sudo",
+          "location": "0x21d8"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/sudo",
+          "location": "0x21d9"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/sudo",
+          "location": "0x2201"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/sudo",
+          "location": "0x2202"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/git",
+          "location": "0x2849"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/git",
+          "location": "0x284a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/git",
+          "location": "0x2891"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/git",
+          "location": "0x2892"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/sudo",
+          "location": "0x35c8"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/sw_vers",
+          "location": "0x3d71"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/sw_vers",
+          "location": "0x3d80"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/xcode-select",
+          "location": "0x5d31"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/xcode-select",
+          "location": "0x5d32"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/xcode-select",
+          "location": "0x5e8a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/xcode-select",
+          "location": "0x5e8b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/xcode-select",
+          "location": "0x5f00"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/xcode-select",
+          "location": "0x5f01"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin/xcrun",
+          "location": "0x5f7d"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "/usr/bin/uname"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "/usr/bin/sw_vers"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "/usr/bin/sudo"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "/usr/bin/xcrun"
+        }
+      ]
+    },
+    {
+      "id": "cap/fs/path/binary/binary-usr-sbin",
+      "kind": "capability",
+      "desc": "Reference to /usr/sbin binaries",
+      "conf": 0.66,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/sbin/chown",
+          "location": "0x12f0"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/sbin/chown",
+          "location": "0x12f1"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/sbin/softwareupdate",
+          "location": "0x5b49"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/sbin/softwareupdate",
+          "location": "0x5b4a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/sbin/softwareupdate",
+          "location": "0x5cf1"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/sbin/softwareupdate",
+          "location": "0x5cf2"
+        }
+      ]
+    },
+    {
       "id": "cap/fs/path/config/config-etc",
       "kind": "capability",
       "desc": "Reference to /etc configuration files",
@@ -550,6 +834,27 @@
       ]
     },
     {
+      "id": "cap/fs/path/user/config-dir-ref",
+      "kind": "capability",
+      "desc": "Reference to .config directory",
+      "conf": 0.6,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": ".config/fish/config",
+          "location": "0x78b3"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": ".config/fish/config",
+          "location": "0x78bb"
+        }
+      ]
+    },
+    {
       "id": "cap/fs/path/user/cache-dir-ref",
       "kind": "capability",
       "desc": "Reference to .cache directory",
@@ -567,6 +872,87 @@
           "source": "string_extractor",
           "value": ".cache/Homebrew",
           "location": "0x1470"
+        }
+      ]
+    },
+    {
+      "id": "cap/fs/path/user/user-home-library",
+      "kind": "capability",
+      "desc": "Reference to ~/Library (macOS)",
+      "conf": 0.66,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Library/Caches/Homebrew",
+          "location": "0x1286"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Library/Caches/Homebrew",
+          "location": "0x128e"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Library/Developer/CommandLineTools/usr/bin/git",
+          "location": "0x2849"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Library/Developer/CommandLineTools/usr/bin/git",
+          "location": "0x284a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Library/Developer/CommandLineTools/usr/bin/git",
+          "location": "0x2891"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Library/Developer/CommandLineTools/usr/bin/git",
+          "location": "0x2892"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Library/Taps/homebrew/homebrew-core",
+          "location": "0x39cb"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Library/Taps/homebrew/homebrew-core",
+          "location": "0x39e2"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Library/Developer/CommandLineTools",
+          "location": "0x5d54"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Library/Developer/CommandLineTools",
+          "location": "0x5d55"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Library/Developer/CommandLineTools",
+          "location": "0x5f23"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Library/Developer/CommandLineTools",
+          "location": "0x5f24"
         }
       ]
     },
@@ -959,6 +1345,64 @@
       ]
     },
     {
+      "id": "obj/creds/username/admin/detected",
+      "kind": "capability",
+      "desc": "admin keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "mbc": "B0028",
+      "attack": "T1110.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "admin",
+          "location": "0x1326"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "admin",
+          "location": "0x1327"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Admin",
+          "location": "0x1eb1"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Admin",
+          "location": "0x1ee2"
+        }
+      ]
+    },
+    {
+      "id": "obj/creds/username/root/detected",
+      "kind": "capability",
+      "desc": "root keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "mbc": "B0028",
+      "attack": "T1110.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "root",
+          "location": "0x136d"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "root",
+          "location": "0x136e"
+        }
+      ]
+    },
+    {
       "id": "obj/discovery/fingerprint/id-u-cmd",
       "kind": "capability",
       "desc": "id -u command",
@@ -999,6 +1443,299 @@
           "source": "string_extractor",
           "value": "$HOME",
           "location": "0x6db6"
+        }
+      ]
+    },
+    {
+      "id": "obj/impact/ransom/esxi-paths",
+      "kind": "capability",
+      "desc": "ESXi system paths exclusion",
+      "conf": 0.8,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/dev",
+          "location": "0x687"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x10fc"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x12b8"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x12b9"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/sbin",
+          "location": "0x12f0"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/sbin",
+          "location": "0x12f1"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x130c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x130d"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x1337"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x1338"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x1354"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x1355"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x1492"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x1493"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x152b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x152c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x1c9d"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x1c9e"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x1cdb"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x1cdc"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x21d8"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x21d9"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x2201"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x2202"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x2849"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x284a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x2891"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x2892"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/dev",
+          "location": "0x2d92"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/dev",
+          "location": "0x2ec0"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x35c8"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x3d71"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x3d80"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/sbin",
+          "location": "0x5b49"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/sbin",
+          "location": "0x5b4a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/sbin",
+          "location": "0x5cf1"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/sbin",
+          "location": "0x5cf2"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x5d31"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x5d32"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x5e8a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x5e8b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x5f00"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x5f01"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/usr/bin",
+          "location": "0x5f7d"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "/usr/bin"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "/usr/bin"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "/usr/bin"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "/usr/bin"
         }
       ]
     },
@@ -1825,6 +2562,91 @@
       ]
     },
     {
+      "id": "cap/os/package-manager/multi-distro-detection",
+      "kind": "capability",
+      "desc": "Checks for multiple package managers",
+      "conf": 0.8,
+      "crit": "suspicious",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "apt-get",
+          "location": "0x7de4"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "apt-get",
+          "location": "0x7e0f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "apt-get",
+          "location": "0x7e10"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "dnf",
+          "location": "0x7e47"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "dnf",
+          "location": "0x7e6e"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "dnf",
+          "location": "0x7e6f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "yum",
+          "location": "0x7eaa"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "yum",
+          "location": "0x7ed1"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "yum",
+          "location": "0x7ed2"
+        }
+      ]
+    },
+    {
+      "id": "cap/os/package-manager/apt-get-install",
+      "kind": "capability",
+      "desc": "apt-get package installation command",
+      "conf": 0.75,
+      "crit": "notable",
+      "attack": "T1190",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "apt-get install",
+          "location": "0x7e0f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "apt-get install",
+          "location": "0x7e10"
+        }
+      ]
+    },
+    {
       "id": "cap/process/exit/exit-call",
       "kind": "capability",
       "desc": "Generic exit call",
@@ -1832,9 +2654,88 @@
       "crit": "inert",
       "evidence": [
         {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "exit"
+        }
+      ]
+    },
+    {
+      "id": "known/malware/miner/kinsing-enhanced/backdoor-user-creation",
+      "kind": "capability",
+      "desc": "Backdoor user account creation",
+      "conf": 0.85,
+      "crit": "suspicious",
+      "attack": "T1136.001",
+      "evidence": [
+        {
           "method": "string",
           "source": "string_extractor",
-          "value": "exit"
+          "value": "/bin/bash",
+          "location": "0x5c64"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "/bin/bash",
+          "location": "0x5c6d"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "/bin/bash"
+        }
+      ]
+    },
+    {
+      "id": "known/malware/miner/kinsing-enhanced/shell-rc-persistence",
+      "kind": "capability",
+      "desc": "Shell rc file persistence",
+      "conf": 0.8,
+      "crit": "suspicious",
+      "attack": "T1547.013",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": ".bashrc",
+          "location": "0x778a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": ".bashrc",
+          "location": "0x7792"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": ".zshrc",
+          "location": "0x782c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": ".zshrc",
+          "location": "0x7842"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": ".profile",
+          "location": "0x78f3"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": ".profile",
+          "location": "0x78fb"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": ".profile",
+          "location": "0x7903"
         }
       ]
     },
@@ -2110,7 +3011,7 @@
         {
           "method": "raw",
           "source": "raw_content",
-          "value": "Found 1 occurrences of sudo -v -S",
+          "value": "Found 1 sudo -v -S",
           "location": "file"
         }
       ]
@@ -2127,6 +3028,29 @@
           "source": "raw_content",
           "value": "Found 1 echo -n $password | base64",
           "location": "file"
+        }
+      ]
+    },
+    {
+      "id": "obj/anti-forensics/self-delete/file/remove-item",
+      "kind": "capability",
+      "desc": "Remove-Item cmdlet",
+      "conf": 0.6,
+      "crit": "notable",
+      "mbc": "F0007",
+      "attack": "T1070.004",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "rm",
+          "location": "0x5d8e"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "rm",
+          "location": "0x5d8f"
         }
       ]
     },
@@ -2160,6 +3084,47 @@
           "source": "raw_content",
           "value": "Found 1 if ! command -v curl",
           "location": "file"
+        }
+      ]
+    },
+    {
+      "id": "obj/c2/infrastructure/domain/http-url-script",
+      "kind": "capability",
+      "desc": "Network URL with domain name (script)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://docs.brew.sh/",
+          "location": "0x339d"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://docs.brew.sh/",
+          "location": "0x3800"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://docs.brew.sh/",
+          "location": "0x612f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://docs.brew.sh/",
+          "location": "0x638f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://docs.brew.sh/",
+          "location": "0x7469"
         }
       ]
     },
@@ -2272,7 +3237,7 @@
       ]
     },
     {
-      "id": "obj/discovery/user/env-user",
+      "id": "obj/discovery/user/user-var",
       "kind": "capability",
       "desc": "USER environment variable",
       "conf": 0.5,
@@ -2358,6 +3323,51 @@
           "source": "ast",
           "value": "grep",
           "location": "import"
+        }
+      ]
+    },
+    {
+      "id": "obj/lateral/competing-malware-elimination/update-process-targeting",
+      "kind": "capability",
+      "desc": "Fake update process targeting",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "update",
+          "location": "0x5b49"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "update",
+          "location": "0x5b4a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "update",
+          "location": "0x5cf1"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "update",
+          "location": "0x5cf2"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "update",
+          "location": "0x71ca"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "update",
+          "location": "0x71cb"
         }
       ]
     },
@@ -2738,6 +3748,18 @@
       "conf": 0.66,
       "crit": "inert",
       "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": ".config/fish/config",
+          "location": "0x78b3"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": ".config/fish/config",
+          "location": "0x78bb"
+        },
         {
           "method": "string",
           "source": "string_extractor",
@@ -3269,7 +4291,7 @@
         {
           "method": "raw",
           "source": "raw_content",
-          "value": "Found 1 occurrences of sudo -v -S",
+          "value": "Found 1 sudo -v -S",
           "location": "file"
         },
         {
@@ -3293,6 +4315,82 @@
           "source": "string_extractor",
           "value": "$HOME",
           "location": "0x6db6"
+        }
+      ]
+    },
+    {
+      "id": "obj/discovery/user/username-env",
+      "kind": "capability",
+      "desc": "USERNAME environment variable",
+      "conf": 0.75,
+      "crit": "notable",
+      "attack": "T1033",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "USER",
+          "location": "0x4ca"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "USER",
+          "location": "0xf0f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "USER",
+          "location": "0x1544"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "USER",
+          "location": "0x1eb1"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "USER",
+          "location": "0x2aab"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "USER",
+          "location": "0x2ab5"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "USER",
+          "location": "0x4c09"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "USER",
+          "location": "0x5479"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "USER",
+          "location": "0x5652"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "USER",
+          "location": "0x572b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "USER",
+          "location": "0x58d9"
         }
       ]
     },
@@ -3647,7 +4745,7 @@
         {
           "method": "raw",
           "source": "raw_content",
-          "value": "Found 1 occurrences of sudo -v -S",
+          "value": "Found 1 sudo -v -S",
           "location": "file"
         },
         {

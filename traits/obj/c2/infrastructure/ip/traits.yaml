@@ -13,14 +13,14 @@ traits:
   # For binaries: use extracted strings which are more reliable
   - id: hardcoded-ipv4-binary
     desc: Hardcoded external IPv4 address
-    crit: notable
+    crit: suspicious
     conf: 0.85
     mbc: "C0002"
     attack: "T1071.001"
     # Size constraint: Large binaries (Rust/Go with regex, Unicode tables, SQLite) often have
     # byte patterns that look like IPs. C2 implants are typically compact (<1.5MB).
     size_max: 1500000
-    for: [elf, macho]
+    for: [elf, macho, pe]
     if:
       type: string
       # Match IP-like patterns; external_ip validates they're routable external addresses
@@ -30,11 +30,11 @@ traits:
   # For scripts: use extracted strings to skip comments and non-code content
   - id: hardcoded-ipv4-script
     desc: Hardcoded external IPv4 address
-    crit: notable
+    crit: suspicious
     conf: 0.80
     mbc: "C0002"
     attack: "T1071.001"
-    for: [shell, python, ruby, javascript, php, perl]
+    for: [scripts]
     if:
       type: string
       # Using string type means we search extracted strings, not raw content
@@ -42,24 +42,26 @@ traits:
       regex: '\b[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\b'
       external_ip: true
 
-  - id: http-raw-ip-url-content
-    desc: HTTP direct IP in binary content
-    crit: suspicious
-    conf: 0.90
-    mbc: "B0030"
-    attack: "T1071.001"
-    if:
-      type: content
-      # Match HTTP URLs with IP addresses; external_ip validates they're routable
-      regex: 'https?://[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}[/:]'
-      external_ip: true
-
-  - id: http-raw-ip-url-string
-    desc: HTTP direct IP in extracted strings
+  - id: http-raw-ip-url-binary
+    desc: HTTP direct IP in extracted strings (binary)
     crit: suspicious
     conf: 0.95
     mbc: "B0030"
     attack: "T1071.001"
+    for: [elf, macho, pe]
+    if:
+      type: string
+      # Match HTTP URLs with IP addresses; external_ip validates they're routable
+      regex: 'https?://[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'
+      external_ip: true
+
+  - id: http-raw-ip-url-script
+    desc: HTTP direct IP in extracted strings (script)
+    crit: suspicious
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1071.001"
+    for: [scripts]
     if:
       type: string
       # Match HTTP URLs with IP addresses; external_ip validates they're routable

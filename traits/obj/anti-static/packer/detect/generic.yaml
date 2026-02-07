@@ -49,7 +49,7 @@ traits:
     crit: suspicious
     conf: 0.95
     mbc: "F0001.008"
-    for: [pe, elf, macho]
+    for: [binaries]
     if:
       type: section_name
       pattern: "^(UPX\\d*|\\.UPX\\d*)$"
@@ -60,7 +60,7 @@ traits:
     crit: suspicious
     conf: 0.95
     mbc: "F0001"
-    for: [pe, elf, macho]
+    for: [binaries]
     if:
       type: section_name
       pattern: "^\\.vmp[0-9]+$"

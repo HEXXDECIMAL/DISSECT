@@ -28,14 +28,6 @@ traits:
       type: string
       regex: "(?i)default answer.{0,30}password"
 
-  - id: hidden-answer
-    desc: "Hidden answer input (password masking)"
-    crit: suspicious
-    conf: 0.85
-    if:
-      type: string
-      substr: "with hidden answer"
-
   # ============================================
   # Fake System Dialog
   # ============================================
@@ -106,7 +98,7 @@ composite_rules:
     conf: 0.7
     needs: 1
     any:
-      - id: hidden-answer
+      - id: obj/anti-analysis/applescript/with-hidden-answer
       - id: icon-caution
       - id: icon-stop
 

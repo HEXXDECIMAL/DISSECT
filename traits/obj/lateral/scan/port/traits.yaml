@@ -353,7 +353,7 @@ traits:
     crit: inert
     conf: 0.6
     platforms: [all]
-    for: [shell, python, javascript, php, ruby, perl]
+    for: [scripts]
     if:
       type: string
       regex: '\b21\b'
@@ -363,7 +363,7 @@ traits:
     crit: inert
     conf: 0.6
     platforms: [all]
-    for: [shell, python, javascript, php, ruby, perl]
+    for: [scripts]
     if:
       type: string
       regex: '\b22\b'
@@ -373,7 +373,7 @@ traits:
     crit: inert
     conf: 0.6
     platforms: [all]
-    for: [shell, python, javascript, php, ruby, perl]
+    for: [scripts]
     if:
       type: string
       regex: '\b80\b'
@@ -383,7 +383,7 @@ traits:
     crit: inert
     conf: 0.6
     platforms: [all]
-    for: [shell, python, javascript, php, ruby, perl]
+    for: [scripts]
     if:
       type: string
       regex: '\b443\b'

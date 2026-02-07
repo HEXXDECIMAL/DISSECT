@@ -15,7 +15,7 @@ traits:
       # Match only the actual system() function, not std::filesystem or other symbols
       regex: "^system$"
     platforms: [unix, linux, macos]
-    for: [pe, elf, macho, dll, so, dylib]
+    for: [binaries]
 
   - id: c-popen
     desc: Executes command and captures output
@@ -28,7 +28,7 @@ traits:
       # Match only the actual popen() function
       regex: "^popen$"
     platforms: [unix, linux, macos]
-    for: [pe, elf, macho, dll, so, dylib]
+    for: [binaries]
 
   - id: c-execve
     desc: Executes program directly via C
@@ -40,7 +40,7 @@ traits:
       type: symbol
       regex: execve
     platforms: [unix, linux, macos]
-    for: [pe, elf, macho, dll, so, dylib]
+    for: [binaries]
 
   # Windows
   - id: win-createprocess
@@ -135,7 +135,7 @@ traits:
       type: string
       substr: "/bin/sh"
     platforms: [unix, linux, macos]
-    for: [pe, elf, macho, dll, so, dylib]
+    for: [binaries]
 
   - id: bin-bash
     desc: References /bin/bash (Bash shell)
@@ -147,7 +147,7 @@ traits:
       type: string
       substr: "/bin/bash"
     platforms: [unix, linux, macos]
-    for: [pe, elf, macho, dll, so, dylib]
+    for: [binaries]
 
   - id: cmd-exe
     desc: References cmd.exe (Windows Command Prompt)

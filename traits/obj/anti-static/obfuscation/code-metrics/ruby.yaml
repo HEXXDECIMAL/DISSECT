@@ -1,0 +1,21 @@
+# Ruby-Specific Metrics-Based Obfuscation Detection
+# Detects obfuscation patterns in Ruby source via metrics analysis
+
+defaults:
+  for: [ruby]
+  attack: "T1027"
+  mbc: "B0032"
+
+traits:
+  - id: ruby-many-high-entropy-identifiers
+    desc: "Many high-entropy identifiers in Ruby"
+    crit: suspicious
+    conf: 0.9
+    # Ruby framework code (Rails DSLs, adapters, schema helpers) often uses
+    # long domain-specific identifiers that inflate entropy ratios.
+    # Use a stricter threshold than the generic 20% baseline.
+    if:
+      type: metrics
+      field: identifiers.high_entropy_ratio
+      min: 0.40
+      min_size: 4096

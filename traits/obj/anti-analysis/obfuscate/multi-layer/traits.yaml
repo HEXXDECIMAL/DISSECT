@@ -33,12 +33,7 @@ traits:
     for: [elf, shell]
     if:
       type: string
-      any:
-        - substr: "=" # Base64 padding
-        - substr: "<" # XOR artifacts
-        - substr: ">" # XOR artifacts
-        - substr: "{" # XOR artifacts
-        - substr: "}" # XOR artifacts
+      regex: "[A-Za-z0-9+\/=]*[<>{][A-Za-z0-9+\/=<>]{16,}"
     attack: "T1027"
 
   # === Encoding Sophistication Pattern ===

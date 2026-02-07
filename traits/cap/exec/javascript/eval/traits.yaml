@@ -147,7 +147,7 @@ traits:
 
   - id: silent-true
     desc: Silent execution flag (hides output)
-    crit: suspicious
+    crit: notable
     conf: 0.85
     mbc: "F0005"
     for: [javascript]
@@ -157,7 +157,7 @@ traits:
 
   - id: ignoreReturnCode
     desc: Ignore return code (hides errors)
-    crit: suspicious
+    crit: notable
     conf: 0.8
     mbc: "F0005"
     for: [javascript]
@@ -200,7 +200,7 @@ traits:
   # Temp file operations
   - id: tmp-write
     desc: Write to /tmp directory
-    crit: suspicious
+    crit: notable
     conf: 0.85
     mbc: "C0016"
     attack: "T1074.001"
@@ -269,7 +269,7 @@ traits:
   # Detached child process (background execution)
   - id: detached-spawn
     desc: Detached child process (background execution)
-    crit: suspicious
+    crit: notable
     conf: 0.85
     mbc: "F0011"
     attack: "T1059"
@@ -337,7 +337,7 @@ traits:
   # === Dynamic method invocation atomic indicators ===
   - id: prototype-bracket-apply
     desc: Prototype bracket access with apply invocation
-    crit: suspicious
+    crit: notable
     conf: 0.9
     mbc: "B0024"
     attack: "T1059.007"

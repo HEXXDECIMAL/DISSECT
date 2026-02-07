@@ -165,7 +165,7 @@ composite_rules:
   # GCP metadata access
   - id: gcp-metadata-access
     desc: GCP metadata service access (credential
-    crit: suspicious
+    crit: notable
     conf: 0.95
     attack: "T1552.005"
     for: [javascript, typescript, python, shell]

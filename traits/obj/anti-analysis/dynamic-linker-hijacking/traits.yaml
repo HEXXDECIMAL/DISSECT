@@ -78,9 +78,7 @@ traits:
     for: [elf, shell]
     if:
       type: string
-      any:
-        - substr: "libc.so"
-        - substr: "libc-"
+      regex: "(?:LD_PRELOAD\\s*=\\s*[^\\s]*libc(?:\\.so|-)|ld\\.so\\.preload[^\\n]{0,80}libc(?:\\.so|-))"
 
   - id: glibc-tunables
     desc: GLIBC_TUNABLES environment variable
@@ -141,4 +139,3 @@ composite_rules:
       - id: dlfcn-hook-symbol
       - id: ld-environment-hijacking
       - id: dynamic-function-interception
-

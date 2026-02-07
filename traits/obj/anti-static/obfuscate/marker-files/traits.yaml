@@ -51,7 +51,7 @@ traits:
     conf: 0.80
     if:
       type: string
-      regex: "python-ran|script-ran|installed|executed"
+      regex: "(?:python|script)-ran|(?:^|[/._-])(?:marker|flag|stamp|tracker|execution)[._-]?(?:installed|executed|ran|done)(?:$|[/._-])|(?:^|[/._-])(?:installed|executed|ran|done)(?:[._-](?:marker|flag|stamp|tracker))(?:$|[/._-])|(?:^|[/._-])\\.(?:ran|done|installed)(?:$|[/._-])"
 
 composite_rules:
   # === Marker File Detection ===

@@ -150,7 +150,7 @@ composite_rules:
   # mkfifo + netcat reverse shell (all of them + small file)
   - id: reverse-shell-mkfifo
     desc: Reverse shell using mkfifo and
-    crit: suspicious
+    crit: hostile
     conf: 0.95
     for: [shell, packagejson]
     all:
@@ -173,7 +173,7 @@ composite_rules:
   # Bash /dev/tcp HTTP client (dropper technique)
   - id: bash-dev-tcp-http
     desc: Bash /dev/tcp HTTP client
-    crit: suspicious
+    crit: hostile
     conf: 0.95
     for: [shell]
     all:

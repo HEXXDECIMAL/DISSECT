@@ -15,7 +15,7 @@ traits:
 
   - id: executable
     desc: "Sets executable permissions via chmod"
-    crit: notable
+    crit: suspicious
     conf: 0.9
     mbc: "C0047"
     attack: "T1222.002"

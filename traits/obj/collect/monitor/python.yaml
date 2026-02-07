@@ -54,7 +54,7 @@ traits:
     for: [python]
     if:
       type: string
-      regex: 'ImageGrab\.grab|from.{0,50}PIL.{0,50}import.{0,50}ImageGrab'
+      regex: 'ImageGrab\.grab'
 
   - id: pyautogui-screenshot
     desc: pyautogui screenshot capture
@@ -102,6 +102,6 @@ composite_rules:
     for: [python]
     needs: 1
     any:
-      - id: cap/hw/display/mss-import
+      - id: cap/hw/display/mss-screenshot
       - id: pil-imagegrab
       - id: pyautogui-screenshot

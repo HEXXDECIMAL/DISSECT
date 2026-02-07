@@ -4,7 +4,7 @@
 traits:
   - id: python
     desc: "Detaches process via os.setsid"
-    crit: suspicious
+    crit: notable
     conf: 0.9
     mbc: "F0003"
     attack: "T1036"
@@ -15,7 +15,7 @@ traits:
 
   - id: preexec-fn
     desc: "Manipulates process via subprocess preexec_fn"
-    crit: suspicious
+    crit: notable
     conf: 0.85
     mbc: "F0003"
     for: [python]

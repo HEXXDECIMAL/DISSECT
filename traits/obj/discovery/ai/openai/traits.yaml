@@ -4,7 +4,7 @@ traits:
     desc: Azure.AI.OpenAI library reference
     crit: inert
     conf: 0.7
-    for: [pe, elf, macho, python, javascript]
+    for: [binaries, python, javascript]
     if:
       type: string
       substr: "Azure.AI.OpenAI"
@@ -13,7 +13,7 @@ traits:
     desc: OpenAI reference
     crit: inert
     conf: 0.6
-    for: [pe, elf, macho, python, javascript]
+    for: [binaries, python, javascript]
     if:
       type: string
       substr: "OpenAI"
@@ -24,7 +24,7 @@ composite_rules:
     desc: Integration with OpenAI/Azure AI libraries
     crit: notable
     conf: 0.8
-    for: [pe, elf, macho, python, javascript]
+    for: [binaries, python, javascript]
     needs: 1
     any:
       - id: azure-ai-openai

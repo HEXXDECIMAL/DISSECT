@@ -36,14 +36,16 @@ traits:
       pattern: "CF FA ED FE"  # feedfacf (little-endian)
       offset: 0
 
-  - id: macho-fat
-    desc: Mach-O fat/universal binary magic
+  # NOTE: CAFEBABE is used for both Mach-O fat binaries and Java class files.
+  # This ambiguity is handled by file type detection; this trait just notes the magic.
+  - id: cafebabe-magic
+    desc: "CAFEBABE magic (Mach-O fat binary or"
     crit: inert
     conf: 1.0
-    for: [macho, all]
+    for: [macho, class, all]
     if:
       type: hex
-      pattern: "CA FE BA BE"  # cafebabe
+      pattern: "CA FE BA BE"
       offset: 0
 
   - id: pe-dos-stub
@@ -188,16 +190,6 @@ traits:
       exact: "SQLite format 3\x00"
       offset: 0
 
-  - id: java-class
-    desc: Java class file magic
-    crit: inert
-    conf: 1.0
-    for: [class, all]
-    if:
-      type: hex
-      pattern: "CA FE BA BE"
-      offset: 0
-
   # Image formats (useful for polyglot detection)
   - id: png
     desc: PNG image magic
@@ -279,7 +271,7 @@ traits:
     for: [elf, macho, shell, python, javascript]  # Suspicious only for non-PE file types
     if:
       type: hex
-      pattern: "4D 5A"
+      pattern: "4D 5A [2-4096] 50 45 00 00"
       offset_range: [1024, null]
 
   - id: embedded-pe-in-pe

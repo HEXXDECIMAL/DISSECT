@@ -149,7 +149,7 @@ traits:
 
   - id: whoami
     desc: Current user lookup
-    crit: suspicious
+    crit: notable
     conf: 0.75
     attack: "T1033"
     # Exclude JS - syntax highlighters have shell keywords
@@ -160,7 +160,7 @@ traits:
 
   - id: etc-passwd
     desc: Password file access
-    crit: suspicious
+    crit: notable
     conf: 0.8
     attack: "T1087.001"
     for: [all]

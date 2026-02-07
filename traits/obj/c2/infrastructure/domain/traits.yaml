@@ -58,14 +58,16 @@ traits:
 
   - id: hardcoded-domain-suspicious-pattern
     desc: "Hardcoded suspicious TLD domain pattern"
-    crit: notable
+    crit: suspicious
     conf: 0.85
     if:
       type: string
-      # Require subdomain or URL context to avoid matching programming patterns like time.Time.date
+      # Require domain-like terminators so code member chains like self.spines.top do not match.
       # Removed: .date (matches Go time.Time.date), .pro (too common)
       # Added: .pe (Peru - commonly abused for short URLs), .su (Soviet Union - malware favorite)
-      regex: "\\b[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\\.(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|download|racing|win|party|review|accountant|science|trade|webcam|bid|loan|pe|su|icu|buzz)\\b|https?://[a-zA-Z0-9][-a-zA-Z0-9]*\\.(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|work|stream|download|racing|pe|su|icu|buzz)"
+      regex: "\\b[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\\.(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|download|racing|win|party|review|accountant|science|trade|webcam|bid|loan|pe|su|icu|buzz)(?:$|[/:?#'\"\\s,;\\)])|https?://(?:[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\\.)+(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|work|stream|download|racing|pe|su|icu|buzz)(?:$|[/:?#'\"\\s,;\\)])"
+    not:
+      - regex: "^[A-Za-z_$][A-Za-z0-9_$]*\\.style\\.(top|left|right|bottom|width|height)$"
 
   - id: short-domain-url-pattern
     desc: "Very short domain in URL"
@@ -78,19 +80,80 @@ traits:
 
   - id: dynamic-dns-domain-pattern
     desc: "Dynamic DNS domain pattern"
-    crit: notable
+    crit: suspicious
     conf: 0.9
     if:
       type: string
       regex: "\\b[a-zA-Z0-9][-a-zA-Z0-9]*\\.(duckdns|no-ip|dynu|freedns|afraid|hopto|zapto|sytes|ddns|servebeer|servehttp|serveftp|servegame|servequake|redirectme|bounceme|myftp|myvnc)\\.[a-z]{2,6}\\b"
 
-  - id: http-url-with-domain-pattern
-    desc: "Network URL with domain name"
-    crit: notable
+  - id: http-url-binary
+    desc: "Network URL with domain name (binary)"
+    crit: suspicious
     conf: 0.7
+    for: [binaries]
     if:
       type: string
-      regex: "(?:https?|wss?)://[a-zA-Z0-9][-a-zA-Z0-9]*\\.[a-zA-Z]{2,6}(?:/|$|:)"
+      regex: "(?:https?|wss?)://[a-zA-Z0-9][-a-zA-Z0-9]*\\.[a-zA-Z]{2,6}(?:[/?#]|$|:)"
+      exclude_patterns:
+        # Documentation/standards
+        - "ezgif\\.com"
+        - "w3\\.org"
+        - "schemas\\.microsoft\\.com"
+        - "www\\.google\\.com"
+        - "googleapis\\.com"
+        - "mdn\\.io"
+        - "developer\\.mozilla\\.org"
+        - "docs\\.github\\.com"
+        - "nodejs\\.org"
+        - "npmjs\\.com"
+        - "npmjs\\.org"
+        # CI/CD services
+        - "travis-ci\\.org"
+        - "travis-ci\\.com"
+        - "circleci\\.com"
+        - "github\\.com"
+        - "gitlab\\.com"
+        - "bitbucket\\.org"
+        - "codecov\\.io"
+        - "coveralls\\.io"
+        - "snyk\\.io"
+        # Package registries
+        - "registry\\.npmjs\\.org"
+        - "yarnpkg\\.com"
+        - "unpkg\\.com"
+        - "jsdelivr\\.net"
+        - "cdnjs\\.cloudflare\\.com"
+        # Major vendors
+        - "apple\\.com"
+        - "microsoft\\.com"
+        - "amazon\\.com"
+        - "aws\\.amazon\\.com"
+        # LLVM/compiler projects
+        - "llvm\\.org"
+        - "clang\\.llvm\\.org"
+        - "releases\\.llvm\\.org"
+        - "apt\\.llvm\\.org"
+        # Database libraries
+        - "sqlite\\.org"
+        # Build/compiler tools
+        - "cmake\\.org"
+        - "gcc\\.gnu\\.org"
+        - "sourceware\\.org"
+        - "savannah\\.gnu\\.org"
+        # Linux/system tools
+        - "kernel\\.org"
+        - "freedesktop\\.org"
+        - "mesa3d\\.org"
+        - "x\\.org"
+
+  - id: http-url-script
+    desc: "Network URL with domain name (script)"
+    crit: notable
+    conf: 0.7
+    for: [scripts]
+    if:
+      type: string
+      regex: "(?:https?|wss?)://(?:[a-zA-Z0-9][-a-zA-Z0-9]*\\.)+[a-zA-Z]{2,6}(?:/|$|:)"
       exclude_patterns:
         # Documentation/standards
         - "ezgif\\.com"
@@ -283,7 +346,7 @@ traits:
   # === PHP collector scripts (atomic) ===
   - id: php-collect
     desc: PHP collect endpoint
-    crit: inert
+    crit: suspicious
     conf: 0.6
     attack: "T1041"
     if:
@@ -292,7 +355,7 @@ traits:
 
   - id: php-log
     desc: PHP log endpoint
-    crit: inert
+    crit: suspicious
     conf: 0.6
     attack: "T1041"
     if:
@@ -301,7 +364,7 @@ traits:
 
   - id: php-report
     desc: PHP report endpoint
-    crit: inert
+    crit: suspicious
     conf: 0.6
     attack: "T1041"
     if:
@@ -310,7 +373,7 @@ traits:
 
   - id: php-beacon
     desc: PHP beacon endpoint
-    crit: inert
+    crit: suspicious
     conf: 0.6
     attack: "T1041"
     if:
@@ -319,13 +382,41 @@ traits:
 
   - id: php-gate
     desc: PHP gate endpoint
-    crit: inert
+    crit: suspicious
     conf: 0.6
     attack: "T1041"
     if:
       type: string
       substr: "/gate.php"
 
+  - id: suspicious-php-filename
+    desc: Suspicious PHP endpoint URL (gate/upload/etc)
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      regex: "https?://[^/]+/[^'\"\\s]*(?:gate|upload|post|send|cmd|shell|webhook|collect|exfil|steal|payload|drop|loader|backdoor)[^'\"\\s]*\\.php(?:\\?[^'\"\\s]*)?"
+
+  - id: php-url
+    desc: PHP URL endpoint (often used for C2)
+    crit: suspicious
+    conf: 0.75
+    attack: "T1071"
+    for: [shell, python, ruby, javascript, perl, go, rust, c, cpp, java, csharp, elf, macho, pe, typescript]
+    if:
+      type: string
+      regex: 'https?://[a-zA-Z0-9][-a-zA-Z0-9.]+(?::[0-9]+)?/[^?#\s]*\.php(?:[?#]|$)'
+    not:
+      - "doku.php"
+      - "index.php"
+      - "install\\.php"
+      - "update\\.php"
+      - "upgrade\\.php"
+      - "xmlrpc\\.php"
+      - "wp-cron\\.php"
+      - "admin-ajax\\.php"
+      - "config\\.php"
+      - "settings\\.php"
   # Internal API probing
   - id: internal-api-probe
     desc: Probes internal network API endpoints

@@ -156,21 +156,8 @@ traits:
     attack: "T1485"
     for: [javascript, typescript, python, shell]
     if:
-      type: yara
-      source: |
-        rule mass_file_deletion {
-          strings:
-            $walk1 = "fs.readdirSync" ascii
-            $walk2 = "os.walk" ascii
-            $walk4 = "find ." ascii
-            $delete1 = "unlinkSync" ascii
-            $delete2 = "os.remove" ascii
-            $delete3 = "os.unlink" ascii
-            $delete4 = "-delete" ascii
-            $delete5 = "rm -rf" ascii
-          condition:
-            any of ($walk*) and any of ($delete*)
-        }
+      type: content
+      regex: "(fs\\.readdirSync|os\\.walk|find\\s+\\.)[\\s\\S]{0,300}(unlinkSync|os\\.remove|os\\.unlink|-delete|rm\\s+-rf)"
 
 composite_rules:
   # Target IDE config composite

@@ -54,7 +54,7 @@ traits:
 
   - id: py-environ-enumerate
     desc: Python environ enumeration
-    crit: suspicious
+    crit: notable
     conf: 0.85
     for: [python]
     if:

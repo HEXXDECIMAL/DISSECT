@@ -7,6 +7,7 @@
 
 use crate::composite_rules::{CompositeTrait, FileType as RuleFileType, Platform, TraitDefinition};
 use crate::types::Criticality;
+use std::collections::HashSet;
 
 use super::models::{RawCompositeRule, RawTraitDefinition, TraitDefaults};
 
@@ -123,16 +124,41 @@ pub(crate) fn apply_trait_defaults(
 
 /// Parse file type strings into FileType enum
 pub(crate) fn parse_file_types(types: &[String]) -> Vec<RuleFileType> {
-    types
-        .iter()
-        .flat_map(|ft| {
-            // Handle "*" separately (exact match), then lowercase for the rest
-            if ft == "*" {
-                return vec![RuleFileType::All];
+    let mut inclusions = HashSet::new();
+    let mut exclusions = HashSet::new();
+    let mut has_explicit_inclusion = false;
+
+    for type_str in types {
+        for part in type_str.split(',') {
+            let part = part.trim();
+            if part.is_empty() {
+                continue;
             }
-            match ft.to_lowercase().as_str() {
-                "all" => vec![RuleFileType::All],
-                "compiled" => vec![RuleFileType::Elf, RuleFileType::Macho, RuleFileType::Pe],
+
+            let (is_exclusion, name) = if let Some(stripped) = part.strip_prefix('!') {
+                (true, stripped)
+            } else {
+                (false, part)
+            };
+
+            let variants = match name.to_lowercase().as_str() {
+                "all" | "*" => {
+                    if is_exclusion {
+                        vec![] 
+                    } else { 
+                        vec![RuleFileType::All] 
+                    }
+                },
+                "binaries" | "binary" => vec![
+                    RuleFileType::Elf, RuleFileType::Macho, RuleFileType::Pe, 
+                    RuleFileType::Dylib, RuleFileType::So, RuleFileType::Dll, RuleFileType::Class
+                ],
+                "scripts" | "scripting" | "script" => vec![
+                    RuleFileType::Shell, RuleFileType::Batch, RuleFileType::Python, 
+                    RuleFileType::JavaScript, RuleFileType::TypeScript, RuleFileType::Ruby, 
+                    RuleFileType::Php, RuleFileType::Perl, RuleFileType::Lua, 
+                    RuleFileType::PowerShell, RuleFileType::AppleScript
+                ],
                 "elf" => vec![RuleFileType::Elf],
                 "macho" => vec![RuleFileType::Macho],
                 "pe" => vec![RuleFileType::Pe],
@@ -141,7 +167,7 @@ pub(crate) fn parse_file_types(types: &[String]) -> Vec<RuleFileType> {
                 "dll" => vec![RuleFileType::Dll],
                 "shell" | "shellscript" => vec![RuleFileType::Shell],
                 "batch" | "bat" | "cmd" => vec![RuleFileType::Batch],
-                "python" => vec![RuleFileType::Python],
+                "python" | "py" => vec![RuleFileType::Python],
                 "javascript" | "js" => vec![RuleFileType::JavaScript],
                 "typescript" | "ts" => vec![RuleFileType::TypeScript],
                 "java" => vec![RuleFileType::Java],
@@ -149,11 +175,11 @@ pub(crate) fn parse_file_types(types: &[String]) -> Vec<RuleFileType> {
                 "c" => vec![RuleFileType::C],
                 "rust" => vec![RuleFileType::Rust],
                 "go" => vec![RuleFileType::Go],
-                "ruby" => vec![RuleFileType::Ruby],
+                "ruby" | "rb" => vec![RuleFileType::Ruby],
                 "php" => vec![RuleFileType::Php],
                 "csharp" | "cs" => vec![RuleFileType::CSharp],
                 "lua" => vec![RuleFileType::Lua],
-                "perl" => vec![RuleFileType::Perl],
+                "perl" | "pl" => vec![RuleFileType::Perl],
                 "powershell" | "ps1" => vec![RuleFileType::PowerShell],
                 "swift" => vec![RuleFileType::Swift],
                 "objectivec" | "objc" => vec![RuleFileType::ObjectiveC],
@@ -162,23 +188,63 @@ pub(crate) fn parse_file_types(types: &[String]) -> Vec<RuleFileType> {
                 "zig" => vec![RuleFileType::Zig],
                 "elixir" => vec![RuleFileType::Elixir],
                 "applescript" | "scpt" => vec![RuleFileType::AppleScript],
-                // Manifest/config formats
                 "packagejson" | "package.json" => vec![RuleFileType::PackageJson],
                 "chrome-manifest" | "chromemanifest" => vec![RuleFileType::ChromeManifest],
                 "cargo-toml" | "cargotoml" | "cargo.toml" => vec![RuleFileType::CargoToml],
-                "pyproject-toml" | "pyprojecttoml" | "pyproject.toml" => {
-                    vec![RuleFileType::PyProjectToml]
-                }
+                "pyproject-toml" | "pyprojecttoml" | "pyproject.toml" => vec![RuleFileType::PyProjectToml],
                 "github-actions" | "githubactions" => vec![RuleFileType::GithubActions],
-                "composer-json" | "composerjson" | "composer.json" => {
-                    vec![RuleFileType::ComposerJson]
-                }
+                "composer-json" | "composerjson" | "composer.json" => vec![RuleFileType::ComposerJson],
                 "jpeg" | "jpg" => vec![RuleFileType::Jpeg],
                 "png" => vec![RuleFileType::Png],
                 _ => vec![],
+            };
+
+            if name == "*" || name.eq_ignore_ascii_case("all") {
+                 if !is_exclusion {
+                     has_explicit_inclusion = true;
+                     inclusions.insert(RuleFileType::All);
+                 } else {
+                     for v in RuleFileType::all_concrete_variants() {
+                         exclusions.insert(v);
+                     }
+                 }
+                 continue;
             }
-        })
-        .collect()
+
+            for v in variants {
+                if is_exclusion {
+                    exclusions.insert(v);
+                } else {
+                    has_explicit_inclusion = true;
+                    inclusions.insert(v);
+                }
+            }
+        }
+    }
+
+    let mut final_set: HashSet<RuleFileType>;
+
+    if inclusions.contains(&RuleFileType::All) || (!has_explicit_inclusion && !exclusions.is_empty()) {
+        final_set = RuleFileType::all_concrete_variants().into_iter().collect();
+    } else {
+        final_set = inclusions.clone();
+    }
+
+    for exc in &exclusions {
+        final_set.remove(exc);
+    }
+    
+    if !exclusions.is_empty() {
+        let mut v: Vec<_> = final_set.into_iter().collect();
+        v.sort();
+        v
+    } else if inclusions.contains(&RuleFileType::All) {
+        vec![RuleFileType::All]
+    } else {
+        let mut v: Vec<_> = final_set.into_iter().collect();
+        v.sort();
+        v
+    }
 }
 
 /// Parse platform strings into Platform enum

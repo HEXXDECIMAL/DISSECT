@@ -91,6 +91,9 @@ traits:
       type: metrics
       field: "text.max_line_length"
       min: 10000
+    unless:
+      - type: basename
+        regex: "\\.html?$"
 
   # === Import Obfuscation ===
   - id: obfuscated-import-pattern

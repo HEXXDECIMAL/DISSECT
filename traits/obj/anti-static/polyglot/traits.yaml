@@ -86,7 +86,7 @@ traits:
     for: [elf, macho, shell, python, javascript]
     if:
       type: hex
-      pattern: "4D 5A"  # MZ
+      pattern: "4D 5A [2-4096] 50 45 00 00"  # MZ + PE signature
       offset_range: [-65536, null]
 
   # === Polyglot Patterns ===
@@ -165,17 +165,6 @@ traits:
 
   # === Multi-format Executables ===
 
-  # FAT binary pretending to be Java class
-  - id: fat-binary-java-collision
-    desc: Mach-O fat magic same as Java class
-    crit: notable
-    conf: 0.7
-    for: [all]
-    if:
-      type: hex
-      pattern: "CA FE BA BE"
-      offset: 0
-
   # Script with binary blob separator
   - id: script-binary-delimiter
     desc: Binary delimiter in script file
@@ -210,3 +199,4 @@ composite_rules:
     any:
       - id: appended-shell-script
       - id: appended-python-script
+

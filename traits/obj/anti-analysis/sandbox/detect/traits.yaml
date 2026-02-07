@@ -6,7 +6,7 @@ traits:
   # === Sandbox hostname atomic indicators ===
   - id: hostname-19olltd
     desc: DESKTOP-19OLLTD sandbox hostname
-    crit: notable
+    crit: suspicious
     mbc: "B0007"
     attack: "T1497.001"
     conf: 0.7
@@ -16,7 +16,7 @@ traits:
 
   - id: hostname-b0t93d6
     desc: DESKTOP-B0T93D6 sandbox hostname
-    crit: notable
+    crit: suspicious
     mbc: "B0007"
     attack: "T1497.001"
     conf: 0.7
@@ -26,7 +26,7 @@ traits:
 
   - id: hostname-vrsqlag
     desc: DESKTOP-VRSQLAG sandbox hostname
-    crit: notable
+    crit: suspicious
     mbc: "B0007"
     attack: "T1497.001"
     conf: 0.7
@@ -36,7 +36,7 @@ traits:
 
   - id: hostname-john-pc
     desc: JOHN-PC sandbox hostname
-    crit: notable
+    crit: suspicious
     mbc: "B0007"
     attack: "T1497.001"
     conf: 0.7
@@ -46,7 +46,7 @@ traits:
 
   - id: hostname-julia-pc
     desc: JULIA-PC sandbox hostname
-    crit: notable
+    crit: suspicious
     mbc: "B0007"
     attack: "T1497.001"
     conf: 0.7
@@ -56,7 +56,7 @@ traits:
 
   - id: hostname-lisa-pc
     desc: LISA-PC sandbox hostname
-    crit: notable
+    crit: suspicious
     mbc: "B0007"
     attack: "T1497.001"
     conf: 0.7
@@ -66,7 +66,7 @@ traits:
 
   - id: username-sandbox
     desc: Common sandbox usernames
-    crit: notable
+    crit: suspicious
     mbc: "B0007"
     attack: "T1497.001"
     conf: 0.8
@@ -92,7 +92,7 @@ traits:
   # === Sandbox artifact file path atomic indicators ===
   - id: path-c-analysis
     desc: C:\analysis sandbox path
-    crit: notable
+    crit: suspicious
     mbc: "B0007"
     attack: "T1497.001"
     conf: 0.6
@@ -102,7 +102,7 @@ traits:
 
   - id: path-c-sandbox
     desc: C:\sandbox sandbox path
-    crit: notable
+    crit: suspicious
     mbc: "B0007"
     attack: "T1497.001"
     conf: 0.6
@@ -112,7 +112,7 @@ traits:
 
   - id: path-tmp-analysis
     desc: /tmp/analysis sandbox path
-    crit: notable
+    crit: suspicious
     mbc: "B0007"
     attack: "T1497.001"
     conf: 0.6

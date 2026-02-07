@@ -85,7 +85,7 @@ traits:
     for: [javascript]
     if:
       type: content
-      regex: "\\.split\\(\\s*['\"]\\s*['\"]\\s*\\).{0,120}\\.join\\(\\s*['\"]\\s*['\"]\\s*\\)"
+      regex: "\\.split\\(\\s*['\"]['\"]\\s*\\).{0,120}\\.join\\(\\s*['\"]['\"]\\s*\\)"
 
 composite_rules:
   # === Double Encoding Detection ===

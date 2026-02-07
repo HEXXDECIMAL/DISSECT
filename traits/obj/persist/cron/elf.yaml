@@ -19,7 +19,7 @@ traits:
     conf: 0.95
     if:
       type: string
-      regex: 'crontab\\s*-[lr]|\\|\\s*crontab\\s*-$'
+      regex: '(?:\\bcrontab\\s*-[lr]\\b|[|]\\s*crontab\\s*-$)'
 
   # Crontab format string with scheduling
   - id: crontab-schedule-format

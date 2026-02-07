@@ -9,7 +9,7 @@ traits:
   # === Xen hypervisor atomic indicators ===
   - id: vendor-xen-upper
     desc: XEN hypervisor (uppercase)
-    crit: notable
+    crit: suspicious
     conf: 0.6
     for: [javascript, typescript, python, shell]
     if:
@@ -18,7 +18,7 @@ traits:
 
   - id: vendor-xen-title
     desc: Xen hypervisor (titlecase)
-    crit: notable
+    crit: suspicious
     conf: 0.6
     for: [javascript, typescript, python, shell]
     if:
@@ -28,7 +28,7 @@ traits:
   # === KVM hypervisor atomic indicators ===
   - id: vendor-kvm-upper
     desc: KVM hypervisor (uppercase)
-    crit: notable
+    crit: suspicious
     conf: 0.6
     for: [javascript, typescript, python, shell]
     if:
@@ -37,7 +37,7 @@ traits:
 
   - id: vendor-kvm-repeat
     desc: KVMKVMKVM hypervisor signature
-    crit: notable
+    crit: suspicious
     conf: 0.7
     for: [javascript, typescript, python, shell]
     if:
@@ -46,7 +46,7 @@ traits:
 
   - id: vendor-vmware
     desc: VMware hypervisor vendor string
-    crit: notable
+    crit: suspicious
     conf: 0.7
     for: [javascript, typescript, python, shell]
     if:
@@ -57,7 +57,7 @@ traits:
   # === VirtualBox hypervisor atomic indicators ===
   - id: vendor-virtualbox
     desc: VirtualBox hypervisor vendor string
-    crit: notable
+    crit: suspicious
     conf: 0.6
     for: [javascript, typescript, python, shell]
     if:
@@ -73,7 +73,6 @@ traits:
     if:
       type: string
       exact: VBOX
-      case_insensitive: true
     not:
       - "MathJax"
       - "flexbox"
@@ -82,7 +81,7 @@ traits:
   # === Hyper-V hypervisor atomic indicators ===
   - id: vendor-hyperv-dash
     desc: Hyper-V hypervisor vendor string
-    crit: notable
+    crit: suspicious
     conf: 0.6
     for: [javascript, typescript, python, shell]
     if:
@@ -92,7 +91,7 @@ traits:
 
   - id: vendor-microsoft-hv
     desc: Microsoft Hv hypervisor string
-    crit: notable
+    crit: suspicious
     conf: 0.6
     for: [javascript, typescript, python, shell]
     if:
@@ -102,7 +101,7 @@ traits:
 
   - id: vendor-qemu
     desc: QEMU hypervisor vendor string
-    crit: notable
+    crit: suspicious
     conf: 0.7
     for: [javascript, typescript, python, shell]
     if:
@@ -111,7 +110,7 @@ traits:
 
   - id: vendor-parallels
     desc: Parallels hypervisor vendor string
-    crit: notable
+    crit: suspicious
     conf: 0.7
     for: [javascript, typescript, python, shell]
     if:
@@ -120,7 +119,7 @@ traits:
 
   - id: vendor-bhyve
     desc: bhyve hypervisor vendor string
-    crit: notable
+    crit: suspicious
     conf: 0.7
     for: [javascript, typescript, python, shell]
     if:
@@ -140,7 +139,7 @@ traits:
   # === VM-specific files (atomic) ===
   - id: file-vbox-guest
     desc: VirtualBox guest additions file
-    crit: notable
+    crit: suspicious
     conf: 0.8
     for: [python, shell, javascript]
     if:
@@ -149,7 +148,7 @@ traits:
 
   - id: file-vbox-mouse
     desc: VirtualBox mouse driver file
-    crit: notable
+    crit: suspicious
     conf: 0.8
     for: [python, shell, javascript]
     if:
@@ -158,7 +157,7 @@ traits:
 
   - id: file-vbox-sf
     desc: VirtualBox shared folders file
-    crit: notable
+    crit: suspicious
     conf: 0.8
     for: [python, shell, javascript]
     if:
@@ -167,7 +166,7 @@ traits:
 
   - id: file-vmware-tools
     desc: VMware tools binary
-    crit: notable
+    crit: suspicious
     conf: 0.8
     for: [python, shell, javascript]
     if:
@@ -176,7 +175,7 @@ traits:
 
   - id: file-vmtoolsd
     desc: VMware tools daemon
-    crit: notable
+    crit: suspicious
     conf: 0.8
     for: [python, shell, javascript]
     if:
@@ -185,7 +184,7 @@ traits:
 
   - id: file-vmhgfs
     desc: VMware host-guest filesystem
-    crit: notable
+    crit: suspicious
     conf: 0.8
     for: [python, shell, javascript]
     if:
@@ -194,7 +193,7 @@ traits:
 
   - id: file-qemu-ga
     desc: QEMU guest agent
-    crit: notable
+    crit: suspicious
     conf: 0.8
     for: [python, shell, javascript]
     if:
@@ -203,7 +202,7 @@ traits:
 
   - id: file-dev-vda
     desc: QEMU/KVM virtio disk device
-    crit: notable
+    crit: suspicious
     conf: 0.7
     for: [python, shell, javascript]
     if:
@@ -213,7 +212,7 @@ traits:
   # === VM MAC address prefixes (atomic) ===
   - id: mac-vmware-1
     desc: VMware MAC prefix 00:0c:29
-    crit: notable
+    crit: suspicious
     conf: 0.8
     for: [javascript, typescript, python, shell]
     if:
@@ -223,7 +222,7 @@ traits:
 
   - id: mac-vmware-2
     desc: VMware MAC prefix 00:50:56
-    crit: notable
+    crit: suspicious
     conf: 0.8
     for: [javascript, typescript, python, shell]
     if:
@@ -233,7 +232,7 @@ traits:
 
   - id: mac-vmware-3
     desc: VMware MAC prefix 00:05:69
-    crit: notable
+    crit: suspicious
     conf: 0.8
     for: [javascript, typescript, python, shell]
     if:
@@ -243,7 +242,7 @@ traits:
 
   - id: mac-vbox
     desc: VirtualBox MAC prefix 08:00:27
-    crit: notable
+    crit: suspicious
     conf: 0.8
     for: [javascript, typescript, python, shell]
     if:
@@ -253,7 +252,7 @@ traits:
 
   - id: mac-xen
     desc: Xen MAC prefix 00:16:3e
-    crit: notable
+    crit: suspicious
     conf: 0.8
     for: [javascript, typescript, python, shell]
     if:
@@ -263,7 +262,7 @@ traits:
 
   - id: mac-hyperv
     desc: Hyper-V MAC prefix 00:15:5d
-    crit: notable
+    crit: suspicious
     conf: 0.8
     for: [javascript, typescript, python, shell]
     if:
@@ -273,7 +272,7 @@ traits:
 
   - id: mac-parallels
     desc: Parallels MAC prefix 00:1c:42
-    crit: notable
+    crit: suspicious
     conf: 0.8
     for: [javascript, typescript, python, shell]
     if:
@@ -283,7 +282,7 @@ traits:
 
   - id: mac-qemu
     desc: QEMU/KVM MAC prefix 52:54:00
-    crit: notable
+    crit: suspicious
     conf: 0.8
     for: [javascript, typescript, python, shell]
     if:
@@ -304,7 +303,7 @@ traits:
   # === Cloud provider metadata check ===
   - id: cloud-metadata
     desc: Cloud provider metadata access (VM
-    crit: notable
+    crit: suspicious
     conf: 0.7
     for: [javascript, typescript, python, shell]
     if:

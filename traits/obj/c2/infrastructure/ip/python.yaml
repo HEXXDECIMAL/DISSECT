@@ -25,7 +25,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: "f[\"']https?://\\{\\w+\\}"
+      regex: "f[\"']https?://\\{(?:ip|ipv4|ip_addr|ipaddress|server_ip|c2_ip|host_ip)\\}"
 
   # Match requests.get/post with IP-based URL
   - id: python-requests-ip-url

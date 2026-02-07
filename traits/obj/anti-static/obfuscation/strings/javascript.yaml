@@ -82,7 +82,7 @@ traits:
     for: [javascript]
     if:
       type: symbol
-      regex: "global\\..{1,50}"
+      regex: "(globalThis|window|self)\\..{1,50}"
     not:
       - "__dirname"
       - "__filename"
@@ -135,17 +135,17 @@ traits:
     for: [javascript]
     if:
       type: content
-      regex: '\w+\s*\[\s*\w+\s*\]\s*=\s*\w+\s*\[\s*\w+\s*\]'
+      regex: '\b([A-Za-z_$][\w$]*)\s*\[\s*[^\]]+\s*\]\s*=\s*\1\s*\[\s*[^\]]+\s*\]\s*;'
 
   # String split to array
   - id: js-string-split
-    desc: String split to character array
+    desc: Split to empty-delimiter char array
     crit: inert
     conf: 0.6
     for: [javascript]
     if:
-      type: symbol
-      regex: '.{0,50}\\.split'
+      type: content
+      regex: '\.split\(\s*["'']\s*["'']\s*\)'
 
   # Dynamic code execution patterns (atomic)
   # Moved to cap/exec/eval/dynamic/eval-call
@@ -173,13 +173,13 @@ traits:
       substr: "new Function"
 
   - id: js-array-join-symbol
-    desc: Array join operation
+    desc: Join using empty string delimiter
     crit: inert
     conf: 0.5
     for: [javascript]
     if:
-      type: symbol
-      regex: '.{0,50}\.join'
+      type: content
+      regex: '\.join\(\s*["'']\s*["'']\s*\)'
 
   # === Density-Based Obfuscation Detection ===
   # Legitimate code rarely has more than a few escape sequences.
@@ -235,9 +235,8 @@ traits:
     for: [javascript, typescript]
     if:
       type: content
-      regex: '\\[["''][a-zA-Z_][a-zA-Z0-9_]*["'']\\]'
-      count_min: 12
-      per_kb_min: 5.0
+      regex: "\\[(\"|')(eval|Function|constructor|fromCharCode|charCodeAt|atob|btoa|decodeURIComponent|unescape|setTimeout|setInterval)(\"|')\\]"
+      count_min: 1
     not:
       - '["class"]'
       - '["id"]'
@@ -259,10 +258,13 @@ composite_rules:
     for: [javascript]
     all:
       - id: js-array-join-symbol
+      - id: js-string-split
       - id: js-array-swap
     any:
       - id: js-charat-loop
-      - id: js-string-split
+      - id: dense-fromcharcode
+      - id: dense-unicode-escapes
+      - id: js-dense-hex-escapes
 
   # Dynamic exec composite (eval-equivalent patterns)
   - id: js-dynamic-exec

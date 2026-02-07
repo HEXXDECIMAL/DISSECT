@@ -57,16 +57,24 @@ traits:
     crit: suspicious
     conf: 0.95
     attack: "T1027"
-    for: [all]
+    for: [binaries]
     if:
       type: yara
       source: |
         rule infected_xor {
           strings:
-            $infected_x = "infected" xor(1-255)
-            $INFECTED_x = "INFECTED" xor(1-255)
+            $infected_x = "infected" xor(1-255) fullword
+            $INFECTED_x = "INFECTED" xor(1-255) fullword
+            $virus_x = "virus" xor(1-255) fullword
+            $trojan_x = "trojan" xor(1-255) fullword
+            $worm_x = "worm" xor(1-255) fullword
+            $malware_x = "malware" xor(1-255) fullword
+            $win_error = "ERROR_VIRUS_INFECTED"
           condition:
-            filesize < 5MB and any of them
+            filesize < 5MB and
+            any of ($infected_x, $INFECTED_x) and
+            any of ($virus_x, $trojan_x, $worm_x, $malware_x) and
+            not $win_error
         }
 
 composite_rules:

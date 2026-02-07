@@ -7,7 +7,7 @@ traits:
   # === ptrace constant atomic indicators ===
   - id: ptrace-traceme
     desc: PTRACE_TRACEME constant
-    crit: notable
+    crit: suspicious
     mbc: "B0001.m01"
     attack: "T1622"
     conf: 0.7
@@ -18,7 +18,7 @@ traits:
 
   - id: pt-deny-attach
     desc: PT_DENY_ATTACH constant
-    crit: notable
+    crit: suspicious
     mbc: "B0001.m01"
     attack: "T1622"
     conf: 0.7
@@ -30,7 +30,7 @@ traits:
   # === Process inspection micro-traits ===
   - id: tracerpid-string
     desc: TracerPid string (debugger detection)
-    crit: notable
+    crit: suspicious
     conf: 0.7
     attack: "T1622"
     if:
