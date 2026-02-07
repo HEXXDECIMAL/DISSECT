@@ -80,7 +80,7 @@ A finding is false positive only when the matched pattern does not represent act
 If behavior is real but severity is wrong, fix criticality; do not delete detection.
 
 ## Hard Constraints
-- Read ` + "`RULES.md`" + ` and ` + "`TAXONOMY.md`" + ` before edits.
+- Read ` + "`RULES.md`" + `, ` + "`TAXONOMY.md`" + `, and ` + "`PRECISION.md`" + ` before edits.
 - Edit logic only; preserve YAML formatting and file structure.
 - Trait IDs must match what the query truly detects.
 - For source code, prefer AST/semantic signals over raw-string coincidences.
@@ -123,7 +123,7 @@ Skip genuinely benign content (README/docs/unmodified dependencies).
 Add high-signal detections for behaviors this sample family exhibits and current traits miss.
 
 ## Hard Constraints
-- Read ` + "`RULES.md`" + ` and ` + "`TAXONOMY.md`" + ` before edits.
+- Read ` + "`RULES.md`" + `, ` + "`TAXONOMY.md`" + `, and ` + "`PRECISION.md`" + ` before edits.
 - Edit logic only; preserve YAML formatting and file structure.
 - Use reusable behavioral patterns, not sample-specific fingerprints.
 - Keep trait IDs, location, and criticality semantically correct.
@@ -153,7 +153,7 @@ Traits: {{.TraitsDir}}`))
 
 const goodTaskFile = `## Workflow
 1. Validate taxonomy mapping first (` + "`cap/`" + ` = capability, ` + "`obj/`" + ` = objective).
-2. Tighten matching logic before adding exclusions:
+2. Tighten matching logic before adding exclusions. Consult ` + "`PRECISION.md`" + ` for how to boost rule specificity:
    - add context (` + "`near:`" + ` / ` + "`all:`" + `)
    - restrict target type (` + "`for:`" + `)
    - bound broad rules (` + "`size_min/max`" + `)
@@ -183,7 +183,7 @@ const badTaskFile = `## Workflow
    - ` + "`obj/`" + ` for composed attacker goals
    - ` + "`known/`" + ` only for well-supported malware-family identity
 4. Build/repair capability traits first, then compose objective traits from those capabilities.
-5. For ` + "`obj/*`" + ` with ` + "`crit: hostile`" + `, ensure composite complexity is >= 4 (per RULES).
+5. For ` + "`obj/*`" + ` with ` + "`crit: hostile`" + `, ensure composite complexity is >= 4. Consult ` + "`PRECISION.md`" + ` for the exact calculation algorithm.
 6. Author generic reusable traits; avoid sample-only literals unless broadly durable.
 7. Prefer multi-signal logic (` + "`all:`" + `, proximity, structural anchors) to suppress false positives.
 8. If traits are renamed/removed, update all references (` + "`depends`" + `, composites, etc.).

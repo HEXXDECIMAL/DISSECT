@@ -30,7 +30,7 @@ See [TAXONOMY.md](./TAXONOMY.md) for complete tier structure.
 | `suspicious` | Hides intent/crosses boundaries (VM detection, obfuscation) |
 | `hostile` | Attack patterns, no legitimate use (reverse shell, ransomware) |
 
-**HOSTILE composites require complexity ≥ 4**, else downgraded. Complexity: `any:` (+1), `all:` (+N), filters (+1 each).
+**HOSTILE composites require precision ≥ 4.0**, else downgraded. See [PRECISION.md](./PRECISION.md) for the calculation algorithm and authoring guidelines.
 
 ## Trait Definition
 
