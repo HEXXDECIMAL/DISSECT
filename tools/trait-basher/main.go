@@ -2,12 +2,13 @@
 //
 // It scans a directory with dissect and invokes an AI assistant (Claude, Gemini,
 // Codex, or Opencode) to analyze findings and modify/create traits as needed.
+// Providers are tried in order; if one fails (e.g., quota exceeded), the next is tried.
 //
 // Usage:
 //
 //	trait-basher --dir /path/to/good-samples --good
 //	trait-basher --dir /path/to/malware-samples --bad
-//	trait-basher --dir /path/to/samples --bad --provider gemini
+//	trait-basher --dir /path/to/samples --bad --provider gemini,claude
 //	trait-basher --dir /path/to/samples --bad --provider codex
 package main
 
@@ -244,8 +245,9 @@ type config struct { //nolint:govet // field alignment optimized for readability
 	db          *sql.DB
 	dirs        []string
 	repoRoot    string
-	dissectBin  string // Path to dissect binary
-	provider    string
+	dissectBin  string   // Path to dissect binary
+	providers   []string // Ordered list of providers to try (fallback on failure)
+	provider    string   // Current active provider (set during invocation)
 	model       string
 	extractDir  string // Directory where DISSECT extracts files
 	timeout     time.Duration
@@ -382,7 +384,7 @@ func main() {
 
 	knownGood := flag.Bool("good", false, "Review known-good files for false positives (suspicious/hostile findings)")
 	knownBad := flag.Bool("bad", false, "Review known-bad files for false negatives (missing detections)")
-	provider := flag.String("provider", "claude", "AI provider: claude, gemini, codex, or opencode")
+	provider := flag.String("provider", "gemini,codex,claude,opencode", "AI providers (comma-separated, tries in order on failure)")
 	model := flag.String("model", "", `Model to use (provider-specific). Popular choices:
   claude:   sonnet, opus, haiku
   gemini:   gemini-3-pro-preview, gemini-3-flash-preview,
@@ -419,9 +421,20 @@ func main() {
 		log.Fatal("Cannot specify both --good and --bad")
 	}
 
-	*provider = strings.ToLower(*provider)
-	if *provider != "claude" && *provider != "gemini" && *provider != "codex" && *provider != "opencode" {
-		log.Fatalf("Unknown provider %q: must be claude, gemini, codex, or opencode", *provider)
+	// Parse and validate provider list
+	var providers []string
+	for p := range strings.SplitSeq(*provider, ",") {
+		p = strings.TrimSpace(strings.ToLower(p))
+		if p == "" {
+			continue
+		}
+		if p != "claude" && p != "gemini" && p != "codex" && p != "opencode" {
+			log.Fatalf("Unknown provider %q: must be claude, gemini, codex, or opencode", p)
+		}
+		providers = append(providers, p)
+	}
+	if len(providers) == 0 {
+		log.Fatal("At least one provider must be specified")
 	}
 
 	// Find repo root (for running dissect via cargo).
@@ -470,7 +483,8 @@ func main() {
 	cfg := &config{
 		dirs:        dirs,
 		repoRoot:    resolvedRoot,
-		provider:    *provider,
+		providers:   providers,
+		provider:    providers[0], // Current active provider
 		model:       *model,
 		timeout:     *timeout,
 		idleTimeout: *idleTimeout,
@@ -538,9 +552,9 @@ func main() {
 	}
 
 	if cfg.model != "" {
-		fmt.Fprintf(os.Stderr, "Provider: %s (model: %s)\n", cfg.provider, cfg.model)
+		fmt.Fprintf(os.Stderr, "Providers: %s (model: %s)\n", strings.Join(cfg.providers, " → "), cfg.model)
 	} else {
-		fmt.Fprintf(os.Stderr, "Provider: %s\n", cfg.provider)
+		fmt.Fprintf(os.Stderr, "Providers: %s\n", strings.Join(cfg.providers, " → "))
 	}
 	fmt.Fprintf(os.Stderr, "Mode: %s\n", mode)
 	fmt.Fprintf(os.Stderr, "Repo root: %s\n", cfg.repoRoot)
@@ -557,6 +571,9 @@ func main() {
 	// Loop and restart after reviewing N files to catch fixed files.
 	yamlFixAttempts := 0
 	for {
+		// Reset to first provider on each scan iteration so all providers get re-evaluated
+		cfg.provider = cfg.providers[0]
+
 		stats, err := streamAnalyzeAndReview(ctx, cfg, dbMode)
 		if err != nil {
 			if isYAMLTraitIssue(err.Error()) && yamlFixAttempts < maxYAMLAutoFixAttempts {
@@ -1066,18 +1083,37 @@ When done, stop.`,
 
 func invokeYAMLTraitFixer(ctx context.Context, cfg *config, phase, failureOutput string, attempt, maxAttempts int) error {
 	fmt.Fprintf(os.Stderr, "⚠️  YAML trait issue detected during %s (attempt %d/%d)\n", phase, attempt, maxAttempts)
-	fmt.Fprintf(os.Stderr, "   [repair] Submitting YAML-only fix task to %s\n", cfg.provider)
+	fmt.Fprintf(os.Stderr, "   [repair] Submitting YAML-only fix task to %s\n", strings.Join(cfg.providers, " → "))
 
 	prompt := buildYAMLTraitFixPrompt(cfg, phase, failureOutput)
 	sid := generateSessionID()
 
-	tctx, cancel := context.WithTimeout(ctx, cfg.timeout)
-	defer cancel()
+	// Try each provider in order until one succeeds
+	var lastErr error
+	for i, p := range cfg.providers {
+		cfg.provider = p
+		if i > 0 {
+			fmt.Fprintf(os.Stderr, ">>> Trying next provider: %s\n", p)
+		}
 
-	if err := runAIWithStreaming(tctx, cfg, prompt, sid); err != nil {
-		return err
+		tctx, cancel := context.WithTimeout(ctx, cfg.timeout)
+		err := runAIWithStreaming(tctx, cfg, prompt, sid)
+		cancel()
+
+		if err == nil {
+			return nil
+		}
+
+		lastErr = err
+		fmt.Fprintf(os.Stderr, "<<< %s failed: %v\n", p, err)
+
+		// Check if context was cancelled (user interrupt)
+		if ctx.Err() != nil {
+			return fmt.Errorf("interrupted: %w", ctx.Err())
+		}
 	}
-	return nil
+
+	return fmt.Errorf("all providers failed, last error: %w", lastErr)
 }
 
 func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) error {
@@ -1158,21 +1194,38 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) erro
 	}
 	fmt.Fprintln(os.Stderr, "└─────────────────────────────────────────────────────────────")
 	fmt.Fprintln(os.Stderr)
-	fmt.Fprintf(os.Stderr, ">>> %s working (timeout: %s)...\n", cfg.provider, cfg.timeout)
-	fmt.Fprintln(os.Stderr)
 
-	tctx, cancel := context.WithTimeout(ctx, cfg.timeout)
-	defer cancel()
-
-	fmt.Fprintf(os.Stderr, ">>> About to start AI process with timeout %s\n", cfg.timeout)
-	if err := runAIWithStreaming(tctx, cfg, prompt, sid); err != nil {
+	// Try each provider in order until one succeeds
+	var lastErr error
+	for i, p := range cfg.providers {
+		cfg.provider = p
+		if i > 0 {
+			fmt.Fprintf(os.Stderr, ">>> Trying next provider: %s\n", p)
+		}
+		fmt.Fprintf(os.Stderr, ">>> %s working (timeout: %s)...\n", p, cfg.timeout)
 		fmt.Fprintln(os.Stderr)
-		fmt.Fprintf(os.Stderr, "<<< %s failed: %v\n", cfg.provider, err)
-		return err
+
+		tctx, cancel := context.WithTimeout(ctx, cfg.timeout)
+		err := runAIWithStreaming(tctx, cfg, prompt, sid)
+		cancel()
+
+		if err == nil {
+			fmt.Fprintln(os.Stderr)
+			fmt.Fprintf(os.Stderr, "<<< %s finished successfully\n", p)
+			return nil
+		}
+
+		lastErr = err
+		fmt.Fprintln(os.Stderr)
+		fmt.Fprintf(os.Stderr, "<<< %s failed: %v\n", p, err)
+
+		// Check if context was cancelled (user interrupt)
+		if ctx.Err() != nil {
+			return fmt.Errorf("interrupted: %w", ctx.Err())
+		}
 	}
-	fmt.Fprintln(os.Stderr)
-	fmt.Fprintf(os.Stderr, "<<< %s finished successfully\n", cfg.provider)
-	return nil
+
+	return fmt.Errorf("all providers failed, last error: %w", lastErr)
 }
 
 func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid string) error {
@@ -1339,21 +1392,38 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 	}
 	fmt.Fprintln(os.Stderr, "└─────────────────────────────────────────────────────────────")
 	fmt.Fprintln(os.Stderr)
-	fmt.Fprintf(os.Stderr, ">>> %s working (timeout: %s)...\n", cfg.provider, cfg.timeout)
-	fmt.Fprintln(os.Stderr)
 
-	tctx, cancel := context.WithTimeout(ctx, cfg.timeout)
-	defer cancel()
+	// Try each provider in order until one succeeds
+	var lastErr error
+	for i, p := range cfg.providers {
+		cfg.provider = p
+		if i > 0 {
+			fmt.Fprintf(os.Stderr, ">>> Trying next provider: %s\n", p)
+		}
+		fmt.Fprintf(os.Stderr, ">>> %s working (timeout: %s)...\n", p, cfg.timeout)
+		fmt.Fprintln(os.Stderr)
 
-	fmt.Fprintf(os.Stderr, ">>> About to start AI process with timeout %s\n", cfg.timeout)
-	err := runAIWithStreaming(tctx, cfg, prompt, sid)
-	fmt.Fprintln(os.Stderr)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "<<< %s failed: %v\n", cfg.provider, err)
-		return err
+		tctx, cancel := context.WithTimeout(ctx, cfg.timeout)
+		err := runAIWithStreaming(tctx, cfg, prompt, sid)
+		cancel()
+
+		if err == nil {
+			fmt.Fprintln(os.Stderr)
+			fmt.Fprintf(os.Stderr, "<<< %s finished successfully\n", p)
+			return nil
+		}
+
+		lastErr = err
+		fmt.Fprintln(os.Stderr)
+		fmt.Fprintf(os.Stderr, "<<< %s failed: %v\n", p, err)
+
+		// Check if context was cancelled (user interrupt)
+		if ctx.Err() != nil {
+			return fmt.Errorf("interrupted: %w", ctx.Err())
+		}
 	}
-	fmt.Fprintf(os.Stderr, "<<< %s finished successfully\n", cfg.provider)
-	return nil
+
+	return fmt.Errorf("all providers failed, last error: %w", lastErr)
 }
 
 func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) error {
