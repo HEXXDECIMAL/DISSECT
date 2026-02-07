@@ -21,6 +21,7 @@ use anyhow::{Context, Result};
 use std::cell::RefCell;
 use std::fs;
 use std::path::Path;
+use std::sync::Arc;
 use tree_sitter::{Language, Parser};
 
 /// Configuration for a language analyzer.
@@ -302,7 +303,7 @@ pub fn config_for_file_type(file_type: &crate::analyzers::FileType) -> Option<La
 pub struct UnifiedSourceAnalyzer {
     config: LanguageConfig,
     parser: RefCell<Parser>,
-    capability_mapper: CapabilityMapper,
+    capability_mapper: Arc<CapabilityMapper>,
 }
 
 impl UnifiedSourceAnalyzer {
@@ -316,7 +317,7 @@ impl UnifiedSourceAnalyzer {
         Self {
             config,
             parser: RefCell::new(parser),
-            capability_mapper: CapabilityMapper::empty(),
+            capability_mapper: Arc::new(CapabilityMapper::empty()),
         }
     }
 
@@ -325,7 +326,14 @@ impl UnifiedSourceAnalyzer {
         config_for_file_type(file_type).map(Self::new)
     }
 
+    /// Create analyzer with pre-existing capability mapper (wraps in Arc)
     pub fn with_capability_mapper(mut self, capability_mapper: CapabilityMapper) -> Self {
+        self.capability_mapper = Arc::new(capability_mapper);
+        self
+    }
+
+    /// Create analyzer with shared capability mapper (avoids cloning)
+    pub fn with_capability_mapper_arc(mut self, capability_mapper: Arc<CapabilityMapper>) -> Self {
         self.capability_mapper = capability_mapper;
         self
     }
@@ -397,7 +405,7 @@ impl UnifiedSourceAnalyzer {
                     if let Some(analyzer) = UnifiedSourceAnalyzer::for_file_type(&FileType::Python)
                     {
                         analyzer
-                            .with_capability_mapper(self.capability_mapper.clone())
+                            .with_capability_mapper_arc(self.capability_mapper.clone())
                             .analyze_source(
                                 Path::new(&virtual_path),
                                 &String::from_utf8_lossy(&payload_content),
@@ -410,7 +418,7 @@ impl UnifiedSourceAnalyzer {
                 FileType::Shell => {
                     if let Some(analyzer) = UnifiedSourceAnalyzer::for_file_type(&FileType::Shell) {
                         analyzer
-                            .with_capability_mapper(self.capability_mapper.clone())
+                            .with_capability_mapper_arc(self.capability_mapper.clone())
                             .analyze_source(
                                 Path::new(&virtual_path),
                                 &String::from_utf8_lossy(&payload_content),
@@ -487,7 +495,7 @@ impl UnifiedSourceAnalyzer {
                             UnifiedSourceAnalyzer::for_file_type(&payload.detected_type)
                         {
                             analyzer
-                                .with_capability_mapper(self.capability_mapper.clone())
+                                .with_capability_mapper_arc(self.capability_mapper.clone())
                                 .analyze_source(
                                     Path::new(&virtual_path),
                                     &String::from_utf8_lossy(&payload_content),
@@ -502,7 +510,7 @@ impl UnifiedSourceAnalyzer {
                             UnifiedSourceAnalyzer::for_file_type(&FileType::Python)
                         {
                             analyzer
-                                .with_capability_mapper(self.capability_mapper.clone())
+                                .with_capability_mapper_arc(self.capability_mapper.clone())
                                 .analyze_source(
                                     Path::new(&virtual_path),
                                     &String::from_utf8_lossy(&payload_content),
@@ -517,7 +525,7 @@ impl UnifiedSourceAnalyzer {
                             UnifiedSourceAnalyzer::for_file_type(&FileType::Shell)
                         {
                             analyzer
-                                .with_capability_mapper(self.capability_mapper.clone())
+                                .with_capability_mapper_arc(self.capability_mapper.clone())
                                 .analyze_source(
                                     Path::new(&virtual_path),
                                     &String::from_utf8_lossy(&payload_content),

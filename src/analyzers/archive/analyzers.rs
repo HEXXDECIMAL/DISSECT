@@ -876,13 +876,13 @@ impl ArchiveAnalyzer {
 
             // Propagate configuration
             if let Some(ref mapper) = self.capability_mapper {
-                nested = nested.with_capability_mapper(mapper.clone());
+                nested = nested.with_capability_mapper_arc(mapper.clone());
             }
             if let Some(ref engine) = self.yara_engine {
                 nested = nested.with_yara_arc(engine.clone());
             }
             if !self.zip_passwords.is_empty() {
-                nested = nested.with_zip_passwords(self.zip_passwords.clone());
+                nested = nested.with_zip_passwords_arc(self.zip_passwords.clone());
             }
 
             return nested.analyze(file_path);
@@ -890,7 +890,7 @@ impl ArchiveAnalyzer {
 
         // Use the centralized factory for all other file types
         if let Some(analyzer) =
-            crate::analyzers::analyzer_for_file_type(&file_type, self.capability_mapper.clone())
+            crate::analyzers::analyzer_for_file_type_arc(&file_type, self.capability_mapper.clone())
         {
             analyzer.analyze(file_path)
         } else {

@@ -109,7 +109,7 @@ use std::path::PathBuf;
 ///
 /// When configured, all analyzed files are written to disk for external tools
 /// (radare2, objdump, trait-basher) to access. Files are organized as:
-/// `<extract_dir>/<sha256>/<relative_path>` preserving original structure.
+/// `<extract_dir>/<sha256[0:6]>/<relative_path>` preserving original structure.
 ///
 /// For archives, the archive's SHA256 is used (via `archive_sha256`) so all
 /// files from the same archive are grouped together in one directory.
@@ -142,8 +142,8 @@ impl SampleExtractionConfig {
 
     /// Extract file data, returning the path if successful.
     ///
-    /// Files are written to `<extract_dir>/<sha256>/<relative_path>` where:
-    /// - `sha256` is from `archive_sha256` if set, otherwise from the file content
+    /// Files are written to `<extract_dir>/<sha256[0:6]>/<relative_path>` where:
+    /// - `sha256[0:6]` is first 6 chars of `archive_sha256` if set, otherwise from the file content
     /// - `relative_path` preserves original structure (e.g., "inner/lib/file.py")
     ///
     /// For archive members like "archive.zip!!inner/lib/file.py", pass
@@ -157,8 +157,10 @@ impl SampleExtractionConfig {
         // Use archive SHA256 if set, otherwise use the individual file's SHA256
         let sha256 = self.archive_sha256.as_deref().unwrap_or(file_sha256);
 
-        // Build path: <extract_dir>/<sha256>/<relative_path>
-        let sha_dir = self.extract_dir.join(sha256);
+        // Build path: <extract_dir>/<short_sha>/<relative_path>
+        // Use first 6 chars of SHA256 to keep paths shorter while avoiding collisions
+        let short_sha = if sha256.len() >= 6 { &sha256[..6] } else { sha256 };
+        let sha_dir = self.extract_dir.join(short_sha);
         let full_path = sha_dir.join(relative_path);
 
         // Skip if file already exists with correct size (same sha256 + size = same content)

@@ -8,20 +8,28 @@ use crate::types::*;
 use anyhow::{Context, Result};
 use std::fs;
 use std::path::Path;
+use std::sync::Arc;
 
 /// VSCode extension.vsixmanifest analyzer
 pub struct VsixManifestAnalyzer {
-    capability_mapper: CapabilityMapper,
+    capability_mapper: Arc<CapabilityMapper>,
 }
 
 impl VsixManifestAnalyzer {
     pub fn new() -> Self {
         Self {
-            capability_mapper: CapabilityMapper::empty(),
+            capability_mapper: Arc::new(CapabilityMapper::empty()),
         }
     }
 
+    /// Create analyzer with pre-existing capability mapper (wraps in Arc)
     pub fn with_capability_mapper(mut self, mapper: CapabilityMapper) -> Self {
+        self.capability_mapper = Arc::new(mapper);
+        self
+    }
+
+    /// Create analyzer with shared capability mapper (avoids cloning)
+    pub fn with_capability_mapper_arc(mut self, mapper: Arc<CapabilityMapper>) -> Self {
         self.capability_mapper = mapper;
         self
     }

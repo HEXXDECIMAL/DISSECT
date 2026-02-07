@@ -28,10 +28,10 @@ pub struct ArchiveAnalyzer {
     current_depth: usize,
     /// Path prefix for nested archives (e.g., "inner.tar.gz" becomes "outer.zip!inner.tar.gz")
     archive_path_prefix: Option<String>,
-    capability_mapper: Option<CapabilityMapper>,
+    capability_mapper: Option<Arc<CapabilityMapper>>,
     yara_engine: Option<Arc<YaraEngine>>,
     /// Passwords to try for encrypted zip files
-    zip_passwords: Vec<String>,
+    zip_passwords: Arc<[String]>,
     /// Optional sample extraction configuration
     sample_extraction: Option<SampleExtractionConfig>,
     /// SHA256 of the archive being analyzed (used for extraction directory)
@@ -47,7 +47,7 @@ impl ArchiveAnalyzer {
             archive_path_prefix: None,
             capability_mapper: None,
             yara_engine: None,
-            zip_passwords: Vec::new(),
+            zip_passwords: Arc::from([]),
             sample_extraction: None,
             archive_sha256: None,
         }
@@ -64,7 +64,14 @@ impl ArchiveAnalyzer {
         self
     }
 
+    /// Create analyzer with pre-existing capability mapper (wraps in Arc)
     pub fn with_capability_mapper(mut self, mapper: CapabilityMapper) -> Self {
+        self.capability_mapper = Some(Arc::new(mapper));
+        self
+    }
+
+    /// Create analyzer with shared capability mapper (avoids cloning)
+    pub fn with_capability_mapper_arc(mut self, mapper: Arc<CapabilityMapper>) -> Self {
         self.capability_mapper = Some(mapper);
         self
     }
@@ -82,6 +89,12 @@ impl ArchiveAnalyzer {
 
     /// Set passwords to try for encrypted zip files
     pub fn with_zip_passwords(mut self, passwords: Vec<String>) -> Self {
+        self.zip_passwords = Arc::from(passwords);
+        self
+    }
+
+    /// Set passwords from an existing Arc (for nested analyzers)
+    pub fn with_zip_passwords_arc(mut self, passwords: Arc<[String]>) -> Self {
         self.zip_passwords = passwords;
         self
     }
@@ -1062,7 +1075,7 @@ mod tests {
     fn test_with_zip_passwords() {
         let passwords = vec!["pass1".to_string(), "pass2".to_string()];
         let analyzer = ArchiveAnalyzer::new().with_zip_passwords(passwords.clone());
-        assert_eq!(analyzer.zip_passwords, passwords);
+        assert_eq!(&*analyzer.zip_passwords, passwords.as_slice());
     }
 
     #[test]

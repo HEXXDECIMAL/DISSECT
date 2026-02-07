@@ -458,7 +458,7 @@ func main() {
 	cleanupOrphanedExtractDirs()
 
 	// Create temp directory for extracted samples with PID for easier debugging.
-	// DISSECT writes files to <extract-dir>/<sha256>/<relative-path>.
+	// DISSECT writes files to <extract-dir>/<sha256[0:6]>/<relative-path>.
 	// Directory persists across rescans for cache reuse.
 	extractDir := filepath.Join(os.TempDir(), fmt.Sprintf("tbsh.%d", os.Getpid()))
 	if err := os.MkdirAll(extractDir, 0o750); err != nil {
@@ -1446,7 +1446,6 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 		args := []string{
 			"--yolo",
 			"--output-format", "stream-json",
-			"--resume", "latest",
 			"--include-directories", cfg.repoRoot,
 			"--include-directories", cfg.extractDir,
 		}

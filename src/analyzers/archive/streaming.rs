@@ -164,7 +164,7 @@ impl ArchiveAnalyzer {
                     std::fs::write(temp.path(), data)?;
 
                     if let Some(analyzer) =
-                        crate::analyzers::analyzer_for_file_type(file_type, Some(mapper.clone()))
+                        crate::analyzers::analyzer_for_file_type_arc(file_type, Some(mapper.clone()))
                     {
                         if let Ok(report) = analyzer.analyze(temp.path()) {
                             // Extract findings and other info from report
@@ -185,7 +185,7 @@ impl ArchiveAnalyzer {
                     std::fs::write(temp.path(), data)?;
 
                     if let Some(analyzer) =
-                        crate::analyzers::analyzer_for_file_type(file_type, Some(mapper.clone()))
+                        crate::analyzers::analyzer_for_file_type_arc(file_type, Some(mapper.clone()))
                     {
                         if let Ok(report) = analyzer.analyze(temp.path()) {
                             file_analysis.findings = report.findings;
@@ -207,7 +207,7 @@ impl ArchiveAnalyzer {
                     std::fs::write(temp.path(), data)?;
 
                     let analyzer = crate::analyzers::java_class::JavaClassAnalyzer::new()
-                        .with_capability_mapper(mapper.clone());
+                        .with_capability_mapper_arc(mapper.clone());
                     if let Ok(report) = analyzer.analyze(temp.path()) {
                         file_analysis.findings = report.findings;
                         file_analysis.strings = report.strings;
@@ -234,14 +234,14 @@ impl ArchiveAnalyzer {
                         .with_archive_prefix(nested_prefix);
 
                     if let Some(ref mapper) = self.capability_mapper {
-                        nested_analyzer = nested_analyzer.with_capability_mapper(mapper.clone());
+                        nested_analyzer = nested_analyzer.with_capability_mapper_arc(mapper.clone());
                     }
                     if let Some(ref engine) = self.yara_engine {
                         nested_analyzer = nested_analyzer.with_yara_arc(engine.clone());
                     }
                     if !self.zip_passwords.is_empty() {
                         nested_analyzer =
-                            nested_analyzer.with_zip_passwords(self.zip_passwords.clone());
+                            nested_analyzer.with_zip_passwords_arc(self.zip_passwords.clone());
                     }
                     if let Some(ref config) = self.sample_extraction {
                         nested_analyzer = nested_analyzer.with_sample_extraction(config.clone());
@@ -266,7 +266,7 @@ impl ArchiveAnalyzer {
                     std::fs::write(temp.path(), data)?;
 
                     let analyzer = crate::analyzers::package_json::PackageJsonAnalyzer::new()
-                        .with_capability_mapper(mapper.clone());
+                        .with_capability_mapper_arc(mapper.clone());
                     if let Ok(report) = analyzer.analyze(temp.path()) {
                         file_analysis.findings = report.findings;
                     }
@@ -279,7 +279,7 @@ impl ArchiveAnalyzer {
                     std::fs::write(temp.path(), data)?;
 
                     let analyzer = crate::analyzers::vsix_manifest::VsixManifestAnalyzer::new()
-                        .with_capability_mapper(mapper.clone());
+                        .with_capability_mapper_arc(mapper.clone());
                     if let Ok(report) = analyzer.analyze(temp.path()) {
                         file_analysis.findings = report.findings;
                     }
@@ -292,7 +292,7 @@ impl ArchiveAnalyzer {
                     std::fs::write(temp.path(), data)?;
 
                     let analyzer = crate::analyzers::chrome_manifest::ChromeManifestAnalyzer::new()
-                        .with_capability_mapper(mapper.clone());
+                        .with_capability_mapper_arc(mapper.clone());
                     if let Ok(report) = analyzer.analyze(temp.path()) {
                         file_analysis.findings = report.findings;
                     }
@@ -306,7 +306,7 @@ impl ArchiveAnalyzer {
                     std::fs::write(temp.path(), data)?;
 
                     if let Some(analyzer) =
-                        crate::analyzers::analyzer_for_file_type(file_type, Some(mapper.clone()))
+                        crate::analyzers::analyzer_for_file_type_arc(file_type, Some(mapper.clone()))
                     {
                         if let Ok(report) = analyzer.analyze(temp.path()) {
                             file_analysis.findings = report.findings;

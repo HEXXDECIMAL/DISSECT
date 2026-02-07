@@ -18,7 +18,7 @@ use std::sync::Arc;
 
 /// Analyzer for Linux ELF binaries (executables, shared objects, kernel modules)
 pub struct ElfAnalyzer {
-    capability_mapper: CapabilityMapper,
+    capability_mapper: Arc<CapabilityMapper>,
     radare2: Radare2Analyzer,
     string_extractor: StringExtractor,
     yara_engine: Option<Arc<YaraEngine>>,
@@ -28,7 +28,7 @@ impl ElfAnalyzer {
     /// Creates a new ELF analyzer with default configuration
     pub fn new() -> Self {
         Self {
-            capability_mapper: CapabilityMapper::empty(),
+            capability_mapper: Arc::new(CapabilityMapper::empty()),
             radare2: Radare2Analyzer::new(),
             string_extractor: StringExtractor::new(),
             yara_engine: None,
@@ -47,8 +47,14 @@ impl ElfAnalyzer {
         self
     }
 
-    /// Create analyzer with pre-existing capability mapper (avoids duplicate loading)
+    /// Create analyzer with pre-existing capability mapper (wraps in Arc)
     pub fn with_capability_mapper(mut self, capability_mapper: CapabilityMapper) -> Self {
+        self.capability_mapper = Arc::new(capability_mapper);
+        self
+    }
+
+    /// Create analyzer with shared capability mapper (avoids cloning)
+    pub fn with_capability_mapper_arc(mut self, capability_mapper: Arc<CapabilityMapper>) -> Self {
         self.capability_mapper = capability_mapper;
         self
     }

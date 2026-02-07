@@ -4,7 +4,16 @@ use super::debug::DebugCollector;
 use super::section_map::SectionMap;
 use super::types::{FileType, Platform};
 use crate::types::{AnalysisReport, Evidence, Finding};
-use rustc_hash::FxHashSet;
+use rustc_hash::{FxHashSet, FxHasher};
+use std::hash::{Hash, Hasher};
+
+/// Compute a fast hash of a string for deduplication.
+#[inline]
+fn hash_str(s: &str) -> u64 {
+    let mut hasher = FxHasher::default();
+    s.hash(&mut hasher);
+    hasher.finish()
+}
 
 /// Context for evaluating composite rules
 pub struct EvaluationContext<'a> {
@@ -17,8 +26,9 @@ pub struct EvaluationContext<'a> {
     pub additional_findings: Option<&'a [Finding]>,
     /// Cached parsed AST (to avoid re-parsing for each ast_pattern trait)
     pub cached_ast: Option<&'a tree_sitter::Tree>,
-    /// Cached index of finding IDs for fast O(1) trait lookups
-    pub finding_id_index: Option<FxHashSet<String>>,
+    /// Cached index of finding ID hashes for fast O(1) trait lookups.
+    /// Stores u64 hashes instead of String to avoid cloning finding IDs.
+    pub finding_id_index: Option<FxHashSet<u64>>,
     /// Optional debug collector - None for hot path, Some during test-rules
     /// When present, evaluation records detailed debug info
     pub debug_collector: Option<&'a DebugCollector>,
@@ -36,14 +46,15 @@ impl<'a> EvaluationContext<'a> {
         additional_findings: Option<&'a [Finding]>,
         cached_ast: Option<&'a tree_sitter::Tree>,
     ) -> Self {
-        // Build finding ID index for fast O(1) trait lookups
+        // Build finding ID hash index for fast O(1) trait lookups.
+        // We store hashes instead of cloning the full ID strings.
         let mut index = FxHashSet::default();
         for finding in &report.findings {
-            index.insert(finding.id.clone());
+            index.insert(hash_str(&finding.id));
         }
         if let Some(additional) = additional_findings {
             for finding in additional {
-                index.insert(finding.id.clone());
+                index.insert(hash_str(&finding.id));
             }
         }
 
@@ -75,7 +86,7 @@ impl<'a> EvaluationContext<'a> {
     /// Check if a finding ID exists (exact match only, O(1))
     pub fn has_finding_exact(&self, id: &str) -> bool {
         if let Some(ref index) = self.finding_id_index {
-            index.contains(id)
+            index.contains(&hash_str(id))
         } else {
             // Fallback to linear search if index not built
             self.report.findings.iter().any(|f| f.id == id)

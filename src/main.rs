@@ -908,7 +908,7 @@ fn analyze_file_with_shared_mapper(
     let mut report = match file_type {
         FileType::MachO => {
             let mut analyzer =
-                MachOAnalyzer::new().with_capability_mapper((**capability_mapper).clone());
+                MachOAnalyzer::new().with_capability_mapper_arc(capability_mapper.clone());
             if let Some(engine) = shared_yara_engine {
                 analyzer = analyzer.with_yara_arc(engine.clone());
             }
@@ -916,7 +916,7 @@ fn analyze_file_with_shared_mapper(
         }
         FileType::Elf => {
             let mut analyzer =
-                ElfAnalyzer::new().with_capability_mapper((**capability_mapper).clone());
+                ElfAnalyzer::new().with_capability_mapper_arc(capability_mapper.clone());
             if let Some(engine) = shared_yara_engine {
                 analyzer = analyzer.with_yara_arc(engine.clone());
             }
@@ -924,7 +924,7 @@ fn analyze_file_with_shared_mapper(
         }
         FileType::Pe => {
             let mut analyzer =
-                PEAnalyzer::new().with_capability_mapper((**capability_mapper).clone());
+                PEAnalyzer::new().with_capability_mapper_arc(capability_mapper.clone());
             if let Some(engine) = shared_yara_engine {
                 analyzer = analyzer.with_yara_arc(engine.clone());
             }
@@ -932,13 +932,13 @@ fn analyze_file_with_shared_mapper(
         }
         FileType::JavaClass => {
             let analyzer = analyzers::java_class::JavaClassAnalyzer::new()
-                .with_capability_mapper((**capability_mapper).clone());
+                .with_capability_mapper_arc(capability_mapper.clone());
             analyzer.analyze(path)?
         }
         FileType::Jar => {
             // JAR files are analyzed like archives but with Java-specific handling
             let mut analyzer = ArchiveAnalyzer::new()
-                .with_capability_mapper((**capability_mapper).clone())
+                .with_capability_mapper_arc(capability_mapper.clone())
                 .with_zip_passwords(zip_passwords.to_vec());
             if let Some(engine) = shared_yara_engine {
                 analyzer = analyzer.with_yara_arc(engine.clone());
@@ -950,22 +950,22 @@ fn analyze_file_with_shared_mapper(
         }
         FileType::PackageJson => {
             let analyzer = analyzers::package_json::PackageJsonAnalyzer::new()
-                .with_capability_mapper((**capability_mapper).clone());
+                .with_capability_mapper_arc(capability_mapper.clone());
             analyzer.analyze(path)?
         }
         FileType::VsixManifest => {
             let analyzer = analyzers::vsix_manifest::VsixManifestAnalyzer::new()
-                .with_capability_mapper((**capability_mapper).clone());
+                .with_capability_mapper_arc(capability_mapper.clone());
             analyzer.analyze(path)?
         }
         FileType::AppleScript => {
             let analyzer = analyzers::applescript::AppleScriptAnalyzer::new()
-                .with_capability_mapper((**capability_mapper).clone());
+                .with_capability_mapper_arc(capability_mapper.clone());
             analyzer.analyze(path)?
         }
         FileType::Archive => {
             let mut analyzer = ArchiveAnalyzer::new()
-                .with_capability_mapper((**capability_mapper).clone())
+                .with_capability_mapper_arc(capability_mapper.clone())
                 .with_zip_passwords(zip_passwords.to_vec());
             if let Some(engine) = shared_yara_engine {
                 analyzer = analyzer.with_yara_arc(engine.clone());
@@ -978,7 +978,7 @@ fn analyze_file_with_shared_mapper(
         // All source code languages use the unified analyzer (or generic fallback)
         _ => {
             if let Some(analyzer) =
-                analyzers::analyzer_for_file_type(&file_type, Some((**capability_mapper).clone()))
+                analyzers::analyzer_for_file_type_arc(&file_type, Some(capability_mapper.clone()))
             {
                 analyzer.analyze(path)?
             } else {
@@ -1058,7 +1058,7 @@ fn analyze_archive_streaming_jsonl(
     let archive_path = target.to_string();
 
     let mut analyzer = ArchiveAnalyzer::new()
-        .with_capability_mapper((**capability_mapper).clone())
+        .with_capability_mapper_arc(capability_mapper.clone())
         .with_zip_passwords(zip_passwords.to_vec());
 
     if let Some(engine) = shared_yara_engine {

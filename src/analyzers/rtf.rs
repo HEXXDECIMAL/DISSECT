@@ -11,24 +11,32 @@ use crate::types::{AnalysisReport, TargetInfo};
 use anyhow::Result;
 use sha2::{Digest, Sha256};
 use std::path::Path;
+use std::sync::Arc;
 
 use crate::rtf::RtfParser;
 
 /// RTF document analyzer
 pub struct RtfAnalyzer {
-    capability_mapper: CapabilityMapper,
+    capability_mapper: Arc<CapabilityMapper>,
     rtf_parser: RtfParser,
 }
 
 impl RtfAnalyzer {
     pub fn new() -> Self {
         Self {
-            capability_mapper: CapabilityMapper::empty(),
+            capability_mapper: Arc::new(CapabilityMapper::empty()),
             rtf_parser: RtfParser::new(),
         }
     }
 
+    /// Create analyzer with pre-existing capability mapper (wraps in Arc)
     pub fn with_capability_mapper(mut self, mapper: CapabilityMapper) -> Self {
+        self.capability_mapper = Arc::new(mapper);
+        self
+    }
+
+    /// Create analyzer with shared capability mapper (avoids cloning)
+    pub fn with_capability_mapper_arc(mut self, mapper: Arc<CapabilityMapper>) -> Self {
         self.capability_mapper = mapper;
         self
     }

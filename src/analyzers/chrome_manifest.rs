@@ -14,10 +14,11 @@ use serde::Deserialize;
 use std::collections::HashSet;
 use std::fs;
 use std::path::Path;
+use std::sync::Arc;
 
 /// Chrome extension manifest.json analyzer
 pub struct ChromeManifestAnalyzer {
-    capability_mapper: CapabilityMapper,
+    capability_mapper: Arc<CapabilityMapper>,
 }
 
 /// Chrome extension manifest structure
@@ -77,11 +78,18 @@ enum PermissionRisk {
 impl ChromeManifestAnalyzer {
     pub fn new() -> Self {
         Self {
-            capability_mapper: CapabilityMapper::empty(),
+            capability_mapper: Arc::new(CapabilityMapper::empty()),
         }
     }
 
+    /// Create analyzer with pre-existing capability mapper (wraps in Arc)
     pub fn with_capability_mapper(mut self, mapper: CapabilityMapper) -> Self {
+        self.capability_mapper = Arc::new(mapper);
+        self
+    }
+
+    /// Create analyzer with shared capability mapper (avoids cloning)
+    pub fn with_capability_mapper_arc(mut self, mapper: Arc<CapabilityMapper>) -> Self {
         self.capability_mapper = mapper;
         self
     }

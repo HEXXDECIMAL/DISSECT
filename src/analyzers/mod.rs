@@ -46,6 +46,7 @@ use crate::capabilities::CapabilityMapper;
 use crate::types::{AnalysisReport, Criticality, Evidence, Finding, FindingKind, TargetInfo};
 use anyhow::Result;
 use std::path::Path;
+use std::sync::Arc;
 
 /// Create an analyzer for the given file type.
 ///
@@ -119,6 +120,78 @@ pub fn analyzer_for_file_type(
                 Some(Box::new(
                     generic::GenericAnalyzer::new(file_type.clone())
                         .with_capability_mapper(mapper_or_empty),
+                ))
+            }
+        }
+    }
+}
+
+/// Create an analyzer for the given file type with a shared capability mapper.
+///
+/// Same as `analyzer_for_file_type` but accepts an Arc to avoid cloning.
+pub fn analyzer_for_file_type_arc(
+    file_type: &FileType,
+    mapper: Option<Arc<CapabilityMapper>>,
+) -> Option<Box<dyn Analyzer>> {
+    let mapper_or_empty = mapper.unwrap_or_else(|| Arc::new(CapabilityMapper::empty()));
+
+    match file_type {
+        // Binary formats - need dedicated analyzers
+        FileType::MachO => Some(Box::new(
+            macho::MachOAnalyzer::new().with_capability_mapper_arc(mapper_or_empty),
+        )),
+        FileType::Elf => Some(Box::new(
+            elf::ElfAnalyzer::new().with_capability_mapper_arc(mapper_or_empty),
+        )),
+        FileType::Pe => Some(Box::new(
+            pe::PEAnalyzer::new().with_capability_mapper_arc(mapper_or_empty),
+        )),
+
+        // Java bytecode - not source code
+        FileType::JavaClass | FileType::Jar => Some(Box::new(
+            java_class::JavaClassAnalyzer::new().with_capability_mapper_arc(mapper_or_empty),
+        )),
+
+        // Compiled AppleScript - binary format
+        FileType::AppleScript => Some(Box::new(
+            applescript::AppleScriptAnalyzer::new().with_capability_mapper_arc(mapper_or_empty),
+        )),
+
+        // RTF documents - parse for embedded OLE objects
+        FileType::Rtf => Some(Box::new(
+            rtf::RtfAnalyzer::new().with_capability_mapper_arc(mapper_or_empty),
+        )),
+
+        // Package manifests - structured data parsers
+        FileType::VsixManifest => Some(Box::new(
+            vsix_manifest::VsixManifestAnalyzer::new().with_capability_mapper_arc(mapper_or_empty),
+        )),
+        FileType::PackageJson => Some(Box::new(
+            package_json::PackageJsonAnalyzer::new().with_capability_mapper_arc(mapper_or_empty),
+        )),
+        FileType::ChromeManifest => Some(Box::new(
+            chrome_manifest::ChromeManifestAnalyzer::new()
+                .with_capability_mapper_arc(mapper_or_empty),
+        )),
+
+        // Python package metadata - use generic analyzer for string/trait matching
+        FileType::PkgInfo | FileType::Plist => Some(Box::new(
+            generic::GenericAnalyzer::new(file_type.clone())
+                .with_capability_mapper_arc(mapper_or_empty),
+        )),
+
+        // Archive needs special handling (depth limits, nested analysis)
+        FileType::Archive => None,
+
+        // All source code languages - use unified analyzer
+        _ => {
+            if let Some(analyzer) = unified::UnifiedSourceAnalyzer::for_file_type(file_type) {
+                Some(Box::new(analyzer.with_capability_mapper_arc(mapper_or_empty)))
+            } else {
+                // Fallback to generic for types without tree-sitter (Batch, Unknown)
+                Some(Box::new(
+                    generic::GenericAnalyzer::new(file_type.clone())
+                        .with_capability_mapper_arc(mapper_or_empty),
                 ))
             }
         }

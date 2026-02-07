@@ -5,6 +5,7 @@ use crate::capabilities::CapabilityMapper;
 use crate::types::*;
 use anyhow::Result;
 use std::path::Path;
+use std::sync::Arc;
 
 mod capabilities;
 mod helpers;
@@ -12,17 +13,24 @@ mod parsing;
 mod tests;
 
 pub struct JavaClassAnalyzer {
-    capability_mapper: CapabilityMapper,
+    capability_mapper: Arc<CapabilityMapper>,
 }
 
 impl JavaClassAnalyzer {
     pub fn new() -> Self {
         Self {
-            capability_mapper: CapabilityMapper::empty(),
+            capability_mapper: Arc::new(CapabilityMapper::empty()),
         }
     }
 
+    /// Create analyzer with pre-existing capability mapper (wraps in Arc)
     pub fn with_capability_mapper(mut self, capability_mapper: CapabilityMapper) -> Self {
+        self.capability_mapper = Arc::new(capability_mapper);
+        self
+    }
+
+    /// Create analyzer with shared capability mapper (avoids cloning)
+    pub fn with_capability_mapper_arc(mut self, capability_mapper: Arc<CapabilityMapper>) -> Self {
         self.capability_mapper = capability_mapper;
         self
     }

@@ -19,9 +19,18 @@ use crate::composite_rules::{
 };
 use crate::types::{AnalysisReport, Evidence};
 use colored::Colorize;
-use rustc_hash::FxHashSet;
+use rustc_hash::{FxHashSet, FxHasher};
 use std::collections::{HashMap, HashSet};
+use std::hash::{Hash, Hasher};
 use std::sync::RwLock;
+
+/// Compute a fast hash of a string for deduplication.
+#[inline]
+fn hash_str(s: &str) -> u64 {
+    let mut hasher = FxHasher::default();
+    s.hash(&mut hasher);
+    hasher.finish()
+}
 
 /// Result of debugging a single condition
 #[derive(Debug)]
@@ -166,10 +175,10 @@ impl<'a> RuleDebugger<'a> {
     }
 
     /// Build a finding ID index for the context
-    fn build_finding_index(&self) -> FxHashSet<String> {
+    fn build_finding_index(&self) -> FxHashSet<u64> {
         let mut index = FxHashSet::default();
         for finding in &self.report.findings {
-            index.insert(finding.id.clone());
+            index.insert(hash_str(&finding.id));
         }
         index
     }

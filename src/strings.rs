@@ -11,9 +11,19 @@ use goblin::elf::Elf;
 use goblin::mach::MachO;
 use goblin::pe::PE;
 use regex::Regex;
-use rustc_hash::FxHashSet;
+use rustc_hash::{FxHashSet, FxHasher};
 use std::collections::{HashMap, HashSet};
+use std::hash::{Hash, Hasher};
 use stng::{ExtractOptions, ExtractedString, StringKind, StringMethod};
+
+/// Compute a fast hash of a string for deduplication.
+/// Uses FxHasher which is ~10x faster than SipHash for short strings.
+#[inline]
+fn hash_str(s: &str) -> u64 {
+    let mut hasher = FxHasher::default();
+    s.hash(&mut hasher);
+    hasher.finish()
+}
 
 /// Detect encoding layers in a string and populate layer metadata
 fn detect_layers(mut info: StringInfo) -> StringInfo {
@@ -247,21 +257,22 @@ impl StringExtractor {
 
         // Pre-size based on expected string count (roughly 1 string per 20 bytes)
         let estimated_count = data.len() / 20;
-        // Use FxHashSet for faster hashing (non-cryptographic, ~10x faster than SipHash)
-        let mut seen: FxHashSet<String> =
+        // Use hash-based deduplication to avoid cloning strings into the seen set.
+        // Store only the u64 hash, not the full string - saves memory and avoids double-clone.
+        let mut seen: FxHashSet<u64> =
             FxHashSet::with_capacity_and_hasher(estimated_count, Default::default());
         let mut strings = Vec::with_capacity(estimated_count);
 
         for es in lang_strings {
-            if !seen.contains(&es.value) {
-                seen.insert(es.value.clone());
+            let hash = hash_str(&es.value);
+            if seen.insert(hash) {
                 strings.push(self.convert_extracted_string(es));
             }
         }
 
         for s in basic_strings {
-            if !seen.contains(&s.value) {
-                seen.insert(s.value.clone());
+            let hash = hash_str(&s.value);
+            if seen.insert(hash) {
                 strings.push(s);
             }
         }
@@ -301,20 +312,21 @@ impl StringExtractor {
 
         // Pre-size based on expected string count
         let estimated_count = data.len() / 20;
-        let mut seen: FxHashSet<String> =
+        // Use hash-based deduplication to avoid cloning strings into the seen set.
+        let mut seen: FxHashSet<u64> =
             FxHashSet::with_capacity_and_hasher(estimated_count, Default::default());
         let mut strings = Vec::with_capacity(estimated_count);
 
         for es in lang_strings {
-            if !seen.contains(&es.value) {
-                seen.insert(es.value.clone());
+            let hash = hash_str(&es.value);
+            if seen.insert(hash) {
                 strings.push(self.convert_extracted_string(es));
             }
         }
 
         for s in basic_strings {
-            if !seen.contains(&s.value) {
-                seen.insert(s.value.clone());
+            let hash = hash_str(&s.value);
+            if seen.insert(hash) {
                 strings.push(s);
             }
         }
@@ -424,20 +436,21 @@ impl StringExtractor {
         data_len: usize,
     ) -> Vec<StringInfo> {
         let estimated_count = data_len / 20;
-        let mut seen: FxHashSet<String> =
+        // Use hash-based deduplication to avoid cloning strings into the seen set.
+        let mut seen: FxHashSet<u64> =
             FxHashSet::with_capacity_and_hasher(estimated_count, Default::default());
         let mut strings = Vec::with_capacity(estimated_count);
 
         for es in lang_strings {
-            if !seen.contains(&es.value) {
-                seen.insert(es.value.clone());
+            let hash = hash_str(&es.value);
+            if seen.insert(hash) {
                 strings.push(self.convert_extracted_string(es));
             }
         }
 
         for s in basic_strings {
-            if !seen.contains(&s.value) {
-                seen.insert(s.value.clone());
+            let hash = hash_str(&s.value);
+            if seen.insert(hash) {
                 strings.push(s);
             }
         }
