@@ -38,6 +38,8 @@ pub enum StructuredFormat {
     Json,
     Yaml,
     Toml,
+    /// Apple Property List (XML or Binary)
+    Plist,
     /// Python PKG-INFO / METADATA (RFC 822 format)
     PkgInfo,
     Unknown,
@@ -149,6 +151,7 @@ pub fn detect_format(path: &Path, content: &[u8]) -> StructuredFormat {
             "json" => return StructuredFormat::Json,
             "yaml" | "yml" => return StructuredFormat::Yaml,
             "toml" => return StructuredFormat::Toml,
+            "plist" => return StructuredFormat::Plist,
             _ => {}
         }
     }
@@ -179,6 +182,19 @@ pub fn detect_format(path: &Path, content: &[u8]) -> StructuredFormat {
     // These files start with "Metadata-Version:" header
     if trimmed.starts_with("Metadata-Version:") {
         return StructuredFormat::PkgInfo;
+    }
+
+    // Check for Binary Plist
+    if content.starts_with(b"bplist") {
+        return StructuredFormat::Plist;
+    }
+
+    // Check for XML Plist
+    if trimmed.starts_with("<?xml") && (trimmed.contains("<plist") || trimmed.contains("<!DOCTYPE plist")) {
+        return StructuredFormat::Plist;
+    }
+    if trimmed.starts_with("<plist") {
+        return StructuredFormat::Plist;
     }
 
     // Check for TOML table headers like [package] (not followed by comma or colon)
@@ -417,6 +433,9 @@ pub fn evaluate_kv(condition: &Condition, content: &[u8], file_path: &Path) -> O
         StructuredFormat::Toml => {
             let s = std::str::from_utf8(content).ok()?;
             toml::from_str(s).ok()?
+        }
+        StructuredFormat::Plist => {
+            plist::from_bytes(content).ok()?
         }
         StructuredFormat::PkgInfo => parse_pkginfo(content)?,
         StructuredFormat::Unknown => {
@@ -1331,5 +1350,127 @@ Author-Email: test@example.com
             compiled_regex: None,
         };
         assert!(evaluate_kv(&cond, pkginfo, path).is_some());
+    }
+
+    // ==========================================================================
+    // Plist Format Tests
+    // ==========================================================================
+
+    #[test]
+    fn test_detect_plist_by_extension() {
+        assert_eq!(
+            detect_format(Path::new("Info.plist"), b""),
+            StructuredFormat::Plist
+        );
+    }
+
+    #[test]
+    fn test_detect_xml_plist_by_content() {
+        let content = b"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n<key>Label</key>\n<string>test</string>\n</dict>\n</plist>";
+        assert_eq!(
+            detect_format(Path::new("unknown"), content),
+            StructuredFormat::Plist
+        );
+    }
+
+    #[test]
+    fn test_detect_binary_plist_by_content() {
+        let content = b"bplist00\xd1\x01\x02STest\x08\x0b\x10\x00\x00\x00\x00\x00\x00\x01\x01\x00\x00\x00\x00\x00\x00\x00\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x15";
+        assert_eq!(
+            detect_format(Path::new("unknown"), content),
+            StructuredFormat::Plist
+        );
+    }
+
+    #[test]
+    fn test_xml_plist_evaluation() {
+        let plist = b"<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<plist version=\"1.0\">
+<dict>
+    <key>CFBundleIdentifier</key>
+    <string>com.example.app</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>10.15</string>
+    <key>Permissions</key>
+    <array>
+        <string>camera</string>
+        <string>microphone</string>
+    </array>
+</dict>
+</plist>";
+
+        let path = Path::new("Info.plist");
+
+        // Test exact match
+        let cond = Condition::Kv {
+            path: "CFBundleIdentifier".to_string(),
+            exact: Some("com.example.app".to_string()),
+            substr: None,
+            regex: None,
+            case_insensitive: false,
+            compiled_regex: None,
+        };
+        assert!(evaluate_kv(&cond, plist, path).is_some());
+
+        // Test match in array
+        let cond = Condition::Kv {
+            path: "Permissions".to_string(),
+            exact: Some("camera".to_string()),
+            substr: None,
+            regex: None,
+            case_insensitive: false,
+            compiled_regex: None,
+        };
+        assert!(evaluate_kv(&cond, plist, path).is_some());
+
+        // Test non-matching
+        let cond = Condition::Kv {
+            path: "CFBundleIdentifier".to_string(),
+            exact: Some("com.other.app".to_string()),
+            substr: None,
+            regex: None,
+            case_insensitive: false,
+            compiled_regex: None,
+        };
+        assert!(evaluate_kv(&cond, plist, path).is_none());
+    }
+
+    #[test]
+    fn test_plist_masquerading_detection() {
+        let plist = b"<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<plist version=\"1.0\">
+<dict>
+    <key>Label</key>
+    <string>com.apple.systemupdate</string>
+    <key>Program</key>
+    <string>/tmp/.hidden_updater</string>
+    <key>RunAtLoad</key>
+    <true/>
+</dict>
+</plist>";
+
+        let path = Path::new("com.apple.systemupdate.plist");
+
+        // Test Label starts with com.apple.
+        let cond_label = Condition::Kv {
+            path: "Label".to_string(),
+            exact: None,
+            substr: None,
+            regex: Some(r"^com\.apple\.".to_string()),
+            case_insensitive: false,
+            compiled_regex: Some(Regex::new(r"^com\.apple\.").unwrap()),
+        };
+        assert!(evaluate_kv(&cond_label, plist, path).is_some());
+
+        // Test Program is in /tmp/
+        let cond_program = Condition::Kv {
+            path: "Program".to_string(),
+            exact: None,
+            substr: None,
+            regex: Some(r"^/tmp/".to_string()),
+            case_insensitive: false,
+            compiled_regex: Some(Regex::new(r"^/tmp/").unwrap()),
+        };
+        assert!(evaluate_kv(&cond_program, plist, path).is_some());
     }
 }

@@ -422,6 +422,7 @@ fn test_not_directive_shorthand() {
         not: Some(vec![NotException::Shorthand("apple.com".to_string())]),
         unless: None,
         downgrade: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
     };
 
     let result = trait_def.evaluate(&ctx);
@@ -506,6 +507,7 @@ fn test_not_directive_exact() {
         }]),
         unless: None,
         downgrade: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
     };
 
     let result = trait_def.evaluate(&ctx);
@@ -590,6 +592,7 @@ fn test_not_directive_regex() {
         }]),
         unless: None,
         downgrade: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
     };
 
     let result = trait_def.evaluate(&ctx);
@@ -653,6 +656,7 @@ fn test_unless_directive_skips_trait() {
             id: "file/signed/apple".to_string(),
         }]),
         downgrade: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
     };
 
     // Should return None because unless condition matches
@@ -699,6 +703,7 @@ fn test_unless_directive_allows_trait() {
             id: "file/signed/apple".to_string(),
         }]),
         downgrade: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
     };
 
     // Should return Some because unless condition doesn't match
@@ -776,6 +781,7 @@ fn test_downgrade_to_notable() {
             none: None,
             needs: None,
         }),
+        defined_in: std::path::PathBuf::from("test.yaml"),
     };
 
     let result = trait_def.evaluate(&ctx);
@@ -842,6 +848,7 @@ fn test_downgrade_one_level() {
             none: None,
             needs: None,
         }),
+        defined_in: std::path::PathBuf::from("test.yaml"),
     };
 
     let result = trait_def.evaluate(&ctx);
@@ -896,6 +903,7 @@ fn test_downgrade_no_match_keeps_original() {
             none: None,
             needs: None,
         }),
+        defined_in: std::path::PathBuf::from("test.yaml"),
     };
 
     let result = trait_def.evaluate(&ctx);
@@ -963,6 +971,7 @@ fn test_downgrade_from_hostile() {
             none: None,
             needs: None,
         }),
+        defined_in: std::path::PathBuf::from("test.yaml"),
     };
 
     let result = trait_def.evaluate(&ctx);
@@ -1063,6 +1072,7 @@ fn test_all_three_directives_combined() {
             none: None,
             needs: None,
         }),
+        defined_in: std::path::PathBuf::from("test.yaml"),
     };
 
     let result = trait_def.evaluate(&ctx);
@@ -1149,6 +1159,7 @@ fn test_string_exact_match_requires_full_equality() {
         not: None,
         unless: None,
         downgrade: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
     };
 
     let result = trait_def.evaluate(&ctx);
@@ -1230,6 +1241,7 @@ fn test_string_substr_matches_substrings() {
         not: None,
         unless: None,
         downgrade: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
     };
 
     let result = trait_def.evaluate(&ctx);
@@ -1289,6 +1301,7 @@ fn test_symbol_exact_vs_substr() {
         not: None,
         unless: None,
         downgrade: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
     };
 
     let result = trait_exact.evaluate(&ctx);
@@ -1319,6 +1332,7 @@ fn test_symbol_exact_vs_substr() {
         not: None,
         unless: None,
         downgrade: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
     };
 
     let result = trait_substr.evaluate(&ctx);
@@ -1388,6 +1402,7 @@ fn test_string_case_insensitive_exact() {
         not: None,
         unless: None,
         downgrade: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
     };
 
     let result = trait_def.evaluate(&ctx);
@@ -1464,6 +1479,7 @@ fn test_string_word_boundary_match() {
         not: None,
         unless: None,
         downgrade: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
     };
 
     let result = trait_def.evaluate(&ctx);
@@ -1553,6 +1569,7 @@ fn test_string_regex_match() {
         not: None,
         unless: None,
         downgrade: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
     };
 
     let result = trait_def.evaluate(&ctx);
@@ -1938,6 +1955,7 @@ fn test_basename_in_trait_definition() {
         not: None,
         unless: None,
         downgrade: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
     };
 
     let result = trait_def.evaluate(&ctx);

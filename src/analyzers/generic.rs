@@ -71,6 +71,7 @@ impl GenericAnalyzer {
             FileType::Elixir => "elixir",
             FileType::Batch => "batch",
             FileType::PkgInfo => "pkg-info",
+            FileType::Plist => "plist",
             _ => "unknown",
         }
     }

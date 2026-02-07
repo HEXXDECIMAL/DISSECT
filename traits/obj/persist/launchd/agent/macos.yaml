@@ -43,14 +43,156 @@ traits:
       substr: ".plist"
 
   - id: run-at-load
-    desc: RunAtLoad key (start service at
+    desc: RunAtLoad key (start service at load)
     crit: notable
     conf: 0.8
     mbc: B0028
     attack: T1543.004
     if:
-      type: string
-      substr: "RunAtLoad"
+      type: kv
+      path: "RunAtLoad"
+
+  - id: keep-alive
+    desc: KeepAlive key (ensure service is always running)
+    crit: notable
+    conf: 0.8
+    mbc: B0028
+    attack: T1543.004
+    if:
+      type: kv
+      path: "KeepAlive"
+
+  - id: throttle-interval
+    desc: ThrottleInterval key (min time between spawns)
+    crit: notable
+    conf: 0.5
+    if:
+      type: kv
+      path: "ThrottleInterval"
+
+  - id: start-interval
+    desc: StartInterval key (scheduled execution)
+    crit: notable
+    conf: 0.8
+    mbc: B0028
+    attack: T1053.003
+    if:
+      type: kv
+      path: "StartInterval"
+
+  - id: start-calendar-interval
+    desc: StartCalendarInterval key (scheduled execution)
+    crit: notable
+    conf: 0.8
+    mbc: B0028
+    attack: T1053.003
+    if:
+      type: kv
+      path: "StartCalendarInterval"
+
+  - id: stdout-path
+    desc: StandardOutPath key (log redirection)
+    crit: inert
+    conf: 0.8
+    if:
+      type: kv
+      path: "StandardOutPath"
+
+  - id: stderr-path
+    desc: StandardErrorPath key (log redirection)
+    crit: inert
+    conf: 0.8
+    if:
+      type: kv
+      path: "StandardErrorPath"
+
+  - id: env-vars
+    desc: EnvironmentVariables key
+    crit: inert
+    conf: 0.8
+    if:
+      type: kv
+      path: "EnvironmentVariables"
+
+  - id: mach-services
+    desc: MachServices key (XPC service registration)
+    crit: inert
+    conf: 0.8
+    if:
+      type: kv
+      path: "MachServices"
+
+  - id: sockets
+    desc: Sockets key (network socket activation)
+    crit: notable
+    conf: 0.8
+    if:
+      type: kv
+      path: "Sockets"
+
+  - id: service-ipc
+    desc: ServiceIPC key
+    crit: inert
+    conf: 0.8
+    if:
+      type: kv
+      path: "ServiceIPC"
+
+  - id: process-type
+    desc: ProcessType key (Background, App, etc.)
+    crit: inert
+    conf: 0.8
+    if:
+      type: kv
+      path: "ProcessType"
+
+  - id: associated-bundles
+    desc: AssociatedBundleIdentifiers key
+    crit: inert
+    conf: 0.8
+    if:
+      type: kv
+      path: "AssociatedBundleIdentifiers"
+
+  - id: working-directory
+    desc: WorkingDirectory key
+    crit: inert
+    conf: 0.8
+    if:
+      type: kv
+      path: "WorkingDirectory"
+
+  - id: launch-events
+    desc: LaunchEvents key (event-based activation)
+    crit: inert
+    conf: 0.8
+    if:
+      type: kv
+      path: "LaunchEvents"
+
+  - id: spawn-type
+    desc: POSIXSpawnType key
+    crit: inert
+    conf: 0.8
+    if:
+      type: kv
+      path: "POSIXSpawnType"
+
+  - id: soft-resource-limits
+    desc: SoftResourceLimits key
+    crit: inert
+    conf: 0.8
+    if:
+      type: kv
+      path: "SoftResourceLimits"
+
+  - id: hard-resource-limits
+    desc: HardResourceLimits key
+    crit: inert
+    conf: 0.8
+    if:
+      type: kv
+      path: "HardResourceLimits"
 
   - id: sock-service-name
     desc: SockServiceName key (launchd socket activation)
@@ -82,6 +224,147 @@ traits:
       type: content
       regex: '/bin/(sh|bash|zsh)'
 
+  # Masquerading Traits
+  - id: label-apple
+    desc: Launchd Label starting with com.apple
+    crit: inert
+    conf: 0.9
+    for: [plist]
+    if:
+      type: kv
+      path: "Label"
+      regex: "^com\\.apple\\."
+
+  - id: label-zoom
+    desc: Launchd Label starting with com.zoom
+    crit: inert
+    conf: 0.9
+    for: [plist]
+    if:
+      type: kv
+      path: "Label"
+      regex: "^com\\.zoom\\."
+
+  - id: label-google
+    desc: Launchd Label starting with com.google
+    crit: inert
+    conf: 0.9
+    for: [plist]
+    if:
+      type: kv
+      path: "Label"
+      regex: "^com\\.google\\."
+
+  - id: label-microsoft
+    desc: Launchd Label starting with com.microsoft
+    crit: inert
+    conf: 0.9
+    for: [plist]
+    if:
+      type: kv
+      path: "Label"
+      regex: "^com\\.microsoft\\."
+
+  - id: label-adobe
+    desc: Launchd Label starting with com.adobe
+    crit: inert
+    conf: 0.9
+    for: [plist]
+    if:
+      type: kv
+      path: "Label"
+      regex: "^com\\.adobe\\."
+
+  - id: label-oracle
+    desc: Launchd Label starting with com.oracle
+    crit: inert
+    conf: 0.9
+    for: [plist]
+    if:
+      type: kv
+      path: "Label"
+      regex: "^com\\.oracle\\."
+
+  - id: stdout-tmp
+    desc: StandardOutPath in /tmp/
+    crit: suspicious
+    conf: 0.8
+    for: [plist]
+    if:
+      type: kv
+      path: "StandardOutPath"
+      regex: "^/(tmp|var/tmp|private/tmp)/"
+
+  - id: stderr-tmp
+    desc: StandardErrorPath in /tmp/
+    crit: suspicious
+    conf: 0.8
+    for: [plist]
+    if:
+      type: kv
+      path: "StandardErrorPath"
+      regex: "^/(tmp|var/tmp|private/tmp)/"
+
+  - id: program-tmp
+    desc: Program in /tmp/
+    crit: suspicious
+    conf: 0.8
+    for: [plist]
+    if:
+      type: kv
+      path: "Program"
+      regex: "^/(tmp|var/tmp|private/tmp)/"
+
+  - id: args-tmp
+    desc: ProgramArguments[0] in /tmp/
+    crit: suspicious
+    conf: 0.8
+    for: [plist]
+    if:
+      type: kv
+      path: "ProgramArguments[0]"
+      regex: "^/(tmp|var/tmp|private/tmp)/"
+
+  - id: program-shared
+    desc: Program in /Users/Shared/
+    crit: suspicious
+    conf: 0.7
+    for: [plist]
+    if:
+      type: kv
+      path: "Program"
+      regex: "^/Users/Shared/"
+
+  - id: args-shared
+    desc: ProgramArguments[0] in /Users/Shared/
+    crit: suspicious
+    conf: 0.7
+    for: [plist]
+    if:
+      type: kv
+      path: "ProgramArguments[0]"
+      regex: "^/Users/Shared/"
+
+  - id: program-hidden
+    desc: Hidden Program executable
+    crit: suspicious
+    conf: 0.7
+    for: [plist]
+    if:
+      type: kv
+      path: "Program"
+      regex: "/\\.[^/]+$"
+
+  - id: args-hidden
+    desc: Hidden ProgramArguments[0] executable
+    crit: suspicious
+    conf: 0.7
+    for: [plist]
+    if:
+      type: kv
+      path: "ProgramArguments[0]"
+      regex: "/\\.[^/]+$"
+
 composite_rules:
   - id: launchd
     desc: macOS launchd persistence (2+ indicators)
@@ -96,6 +379,22 @@ composite_rules:
       - id: launchctl-command
       - id: plist-extension
       - id: run-at-load
+      - id: keep-alive
+      - id: start-interval
+      - id: start-calendar-interval
+      - id: stdout-path
+      - id: stderr-path
+      - id: env-vars
+      - id: mach-services
+      - id: sockets
+      - id: service-ipc
+      - id: process-type
+      - id: associated-bundles
+      - id: working-directory
+      - id: launch-events
+      - id: spawn-type
+      - id: soft-resource-limits
+      - id: hard-resource-limits
       - id: sock-service-name
       - id: inetd-compat
 
@@ -134,3 +433,110 @@ composite_rules:
       - id: launchd
       - id: obj/lateral/trojanize/app/app-bundle-hijack
       - id: cap/exec/command/shell/system-call-symbol
+
+  # Masquerading Composites
+  - id: output-suspicious-location
+    desc: Launchd StandardOutPath/StandardErrorPath in unusual location
+    crit: suspicious
+    conf: 0.8
+    any:
+      - id: stdout-tmp
+      - id: stderr-tmp
+
+  - id: program-unusual-location
+    desc: Launchd Program/ProgramArguments in unusual location
+    crit: suspicious
+    conf: 0.7
+    any:
+      - id: program-tmp
+      - id: args-tmp
+      - id: program-shared
+      - id: args-shared
+      - id: program-hidden
+      - id: args-hidden
+
+  - id: launchd-masquerading-apple
+    desc: Apple-labeled Launchd item launching from unusual location
+    crit: hostile
+    conf: 0.9
+    all:
+      - id: label-apple
+      - id: program-unusual-location
+    unless:
+      # Exclude legitimate Apple paths
+      - type: kv
+        path: "Program"
+        regex: "^(/System/Library/|/usr/libexec/|/usr/bin/|/System/Applications/|/Library/Internet Plug-Ins/)"
+      - type: kv
+        path: "ProgramArguments[0]"
+        regex: "^(/System/Library/|/usr/libexec/|/usr/bin/|/System/Applications/|/Library/Internet Plug-Ins/)"
+
+  - id: launchd-masquerading-zoom
+    desc: Zoom-labeled Launchd item launching from unusual location
+    crit: hostile
+    conf: 0.9
+    all:
+      - id: label-zoom
+      - id: program-unusual-location
+    unless:
+      # Exclude legitimate Zoom path
+      - type: kv
+        path: "Program"
+        regex: "^/Applications/zoom\\.us\\.app/"
+      - type: kv
+        path: "ProgramArguments[0]"
+        regex: "^/Applications/zoom\\.us\\.app/"
+
+  - id: launchd-masquerading-google
+    desc: Google-labeled Launchd item launching from unusual location
+    crit: hostile
+    conf: 0.9
+    all:
+      - id: label-google
+      - id: program-unusual-location
+    unless:
+      # Exclude legitimate Google path
+      - type: kv
+        path: "Program"
+        regex: "^(/Library/Google/|/Applications/Google)"
+      - type: kv
+        path: "ProgramArguments[0]"
+        regex: "^(/Library/Google/|/Applications/Google)"
+
+  - id: launchd-masquerading-microsoft
+    desc: Microsoft-labeled Launchd item launching from unusual location
+    crit: hostile
+    conf: 0.9
+    all:
+      - id: label-microsoft
+      - id: program-unusual-location
+    unless:
+      - type: kv
+        path: "Program"
+        regex: "^(/Library/Application Support/Microsoft/|/Applications/Microsoft)"
+      - type: kv
+        path: "ProgramArguments[0]"
+        regex: "^(/Library/Application Support/Microsoft/|/Applications/Microsoft)"
+
+  - id: launchd-masquerading-oracle
+    desc: Oracle-labeled Launchd item launching from unusual location
+    crit: hostile
+    conf: 0.9
+    all:
+      - id: label-oracle
+      - id: program-unusual-location
+    unless:
+      - type: kv
+        path: "Program"
+        regex: "^/Library/Internet Plug-Ins/JavaAppletPlugin\\.plugin/"
+      - type: kv
+        path: "ProgramArguments[0]"
+        regex: "^/Library/Internet Plug-Ins/JavaAppletPlugin\\.plugin/"
+
+  - id: launchd-persistent-unusual
+    desc: Persistent Launchd item (KeepAlive) launching from unusual location
+    crit: suspicious
+    conf: 0.8
+    all:
+      - id: keep-alive
+      - id: program-unusual-location

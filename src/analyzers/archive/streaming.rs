@@ -300,7 +300,7 @@ impl ArchiveAnalyzer {
             }
 
             // Python package metadata - use generic analyzer
-            FileType::PkgInfo => {
+            FileType::PkgInfo | FileType::Plist => {
                 if let Some(mapper) = &self.capability_mapper {
                     let temp = tempfile::NamedTempFile::new()?;
                     std::fs::write(temp.path(), data)?;

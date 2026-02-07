@@ -58,6 +58,9 @@ pub enum FileType {
     PyProjectToml,  // Python pyproject.toml
     GithubActions,  // GitHub Actions workflow YAML
     ComposerJson,   // PHP composer.json
+    PkgInfo,        // Python package metadata
+    Plist,          // Apple Property List
+    Rtf,            // Rich Text Format
     // Image formats
     Jpeg,
     Png,
@@ -134,6 +137,9 @@ impl FileType {
             FileType::PyProjectToml,
             FileType::GithubActions,
             FileType::ComposerJson,
+            FileType::PkgInfo,
+            FileType::Plist,
+            FileType::Rtf,
             // Image formats
             FileType::Jpeg,
             FileType::Png,

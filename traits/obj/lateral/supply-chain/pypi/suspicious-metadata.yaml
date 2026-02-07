@@ -296,7 +296,7 @@ traits:
     desc: Extremely small PKG-INFO file
     crit: notable
     conf: 0.70
-    for: [all]
+    for: [pkginfo]
     if:
       type: filesize
       max: 200

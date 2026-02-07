@@ -7,6 +7,7 @@
 //! - Complexity calculation tests
 
 use super::*;
+use std::path::Path;
 use crate::composite_rules::{
     CompositeTrait, Condition, FileType as RuleFileType, Platform, TraitDefinition,
 };
@@ -250,7 +251,7 @@ fn test_apply_trait_defaults_applies_all_defaults() {
         },
     };
 
-    let result = parsing::apply_trait_defaults(raw, &defaults, &mut Vec::new());
+    let result = parsing::apply_trait_defaults(raw, &defaults, &mut Vec::new(), Path::new("test.yaml"));
 
     assert_eq!(result.conf, 0.85);
     assert_eq!(result.crit, Criticality::Suspicious);
@@ -307,7 +308,7 @@ fn test_apply_trait_defaults_trait_overrides_defaults() {
         },
     };
 
-    let result = parsing::apply_trait_defaults(raw, &defaults, &mut Vec::new());
+    let result = parsing::apply_trait_defaults(raw, &defaults, &mut Vec::new(), Path::new("test.yaml"));
 
     assert_eq!(result.conf, 0.99);
     // Atomic traits cannot be HOSTILE, so they get downgraded to SUSPICIOUS
@@ -365,7 +366,7 @@ fn test_apply_trait_defaults_unset_mbc_with_none() {
         },
     };
 
-    let result = parsing::apply_trait_defaults(raw, &defaults, &mut Vec::new());
+    let result = parsing::apply_trait_defaults(raw, &defaults, &mut Vec::new(), Path::new("test.yaml"));
 
     assert_eq!(result.mbc, None); // Unset despite default
     assert_eq!(result.attack, Some("T1059".to_string())); // Default applied
@@ -418,7 +419,7 @@ fn test_apply_trait_defaults_unset_attack_with_none() {
         },
     };
 
-    let result = parsing::apply_trait_defaults(raw, &defaults, &mut Vec::new());
+    let result = parsing::apply_trait_defaults(raw, &defaults, &mut Vec::new(), Path::new("test.yaml"));
 
     assert_eq!(result.mbc, Some("B0001".to_string())); // Default applied
     assert_eq!(result.attack, None); // Unset despite default
@@ -471,7 +472,7 @@ fn test_apply_trait_defaults_unset_file_types_with_none() {
         },
     };
 
-    let result = parsing::apply_trait_defaults(raw, &defaults, &mut Vec::new());
+    let result = parsing::apply_trait_defaults(raw, &defaults, &mut Vec::new(), Path::new("test.yaml"));
 
     // When unset, file_types defaults to [All]
     assert_eq!(result.r#for, vec![RuleFileType::All]);
@@ -649,6 +650,7 @@ traits:
         mappings.traits.into_iter().next().unwrap(),
         &mappings.defaults,
         &mut Vec::new(),
+        Path::new("test.yaml"),
     );
     assert_eq!(t1.mbc, Some("B0001".to_string()));
     assert_eq!(t1.attack, Some("T1059".to_string()));
@@ -1295,6 +1297,7 @@ fn test_precision_recursive_expansion() {
         not: None,
         unless: None,
         downgrade: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
     };
 
     // Composite A: has 2 direct conditions (precision 2)
@@ -2328,6 +2331,7 @@ fn test_precision_traits_with_size_restrictions() {
         not: None,
         unless: None,
         downgrade: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
     };
 
     // Trait 2: string pattern + size restriction
@@ -2365,6 +2369,7 @@ fn test_precision_traits_with_size_restrictions() {
         unless: None,
         not: None,
         downgrade: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
     };
 
     // Composite rule referencing both traits
