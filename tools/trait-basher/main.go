@@ -138,7 +138,7 @@ Add high-signal detections for behaviors this sample family exhibits and current
 - Criticality is appropriate.
 - There are no duplicate traits shown in --format=jsonl mode
 - There are no false positives or poorly described traits
-- All unique or surprising aspects of this sample have a trait to feed into our ML analysis
+- All unique or surprising traits have rules to feed into our ML analysis to find similar samples
 - Re-run confirms improved coverage.
 
 ## Debug Loop
