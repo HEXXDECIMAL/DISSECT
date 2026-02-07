@@ -2869,12 +2869,124 @@ fn get_metric_value(report: &AnalysisReport, field: &str) -> Option<f64> {
 }
 
 fn evaluate_condition_simple(
-    _condition: &Condition,
-    _ctx: &EvaluationContext,
+    condition: &Condition,
+    ctx: &EvaluationContext,
 ) -> crate::composite_rules::context::ConditionResult {
-    // Simple evaluation - just check if it matches
-    // Full implementation would use the evaluators module
-    crate::composite_rules::context::ConditionResult::no_match()
+    use crate::composite_rules::evaluators::{
+        eval_base64, eval_basename, eval_exports_count, eval_filesize, eval_imports_count,
+        eval_section_name, eval_string_count, eval_syscall, eval_trait_glob, eval_xor,
+        ContentLocationParams,
+    };
+
+    // Evaluate conditions that fall through to the _ => case in debug_condition
+    match condition {
+        Condition::Filesize { min, max } => eval_filesize(*min, *max, ctx),
+        Condition::TraitGlob { pattern, r#match } => eval_trait_glob(pattern, r#match, ctx),
+        Condition::Base64 {
+            exact,
+            substr,
+            regex,
+            case_insensitive,
+            count_min,
+            count_max,
+            per_kb_min,
+            per_kb_max,
+            section,
+            offset,
+            offset_range,
+            section_offset,
+            section_offset_range,
+            ..
+        } => {
+            let location = ContentLocationParams {
+                section: section.clone(),
+                offset: *offset,
+                offset_range: *offset_range,
+                section_offset: *section_offset,
+                section_offset_range: *section_offset_range,
+            };
+            eval_base64(
+                exact.as_ref(),
+                substr.as_ref(),
+                regex.as_ref(),
+                *case_insensitive,
+                *count_min,
+                *count_max,
+                *per_kb_min,
+                *per_kb_max,
+                &location,
+                ctx,
+            )
+        }
+        Condition::Xor {
+            exact,
+            substr,
+            regex,
+            case_insensitive,
+            key,
+            count_min,
+            count_max,
+            per_kb_min,
+            per_kb_max,
+            section,
+            offset,
+            offset_range,
+            section_offset,
+            section_offset_range,
+            ..
+        } => {
+            let location = ContentLocationParams {
+                section: section.clone(),
+                offset: *offset,
+                offset_range: *offset_range,
+                section_offset: *section_offset,
+                section_offset_range: *section_offset_range,
+            };
+            eval_xor(
+                key.as_ref(),
+                exact.as_ref(),
+                substr.as_ref(),
+                regex.as_ref(),
+                *case_insensitive,
+                *count_min,
+                *count_max,
+                *per_kb_min,
+                *per_kb_max,
+                &location,
+                ctx,
+            )
+        }
+        Condition::SectionName { pattern, regex } => eval_section_name(pattern, *regex, ctx),
+        Condition::Syscall {
+            name,
+            number,
+            arch,
+            min_count,
+        } => eval_syscall(name.as_ref(), number.as_ref(), arch.as_ref(), *min_count, ctx),
+        Condition::ImportsCount { min, max, filter } => {
+            eval_imports_count(*min, *max, filter.as_ref(), ctx)
+        }
+        Condition::ExportsCount { min, max } => eval_exports_count(*min, *max, ctx),
+        Condition::StringCount {
+            min,
+            max,
+            min_length,
+        } => eval_string_count(*min, *max, *min_length, ctx),
+        Condition::Basename {
+            exact,
+            substr,
+            regex,
+            case_insensitive,
+            ..
+        } => eval_basename(
+            exact.as_ref(),
+            substr.as_ref(),
+            regex.as_ref(),
+            *case_insensitive,
+            ctx,
+        ),
+        _ => crate::composite_rules::context::ConditionResult::no_match(),
+    }
 }
 
 fn detect_file_type(file_type: &str) -> RuleFileType {

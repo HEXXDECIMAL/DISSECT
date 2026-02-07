@@ -300,7 +300,8 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
     let file_data = std::fs::read(file_path)?;
 
     if file_data.len() < 4 {
-        return Ok(FileType::Unknown);
+        // Fall back to extension-based detection for tiny/empty files
+        return Ok(detect_file_type_from_path(file_path));
     }
 
     // Check for compiled AppleScript magic bytes "Fasd"
