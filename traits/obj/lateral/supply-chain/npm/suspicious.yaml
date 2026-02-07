@@ -509,6 +509,19 @@ composite_rules:
       - id: child-dot-unref
       - id: spawn-unref
 
+  # Fork loader script (generic supply chain loader)
+  - id: suspicious-fork-loader
+    desc: Small file forking a script (loader pattern)
+    crit: suspicious
+    conf: 0.85
+    attack: "T1195.002"
+    mbc: "B0024"
+    for: [javascript]
+    all:
+      - id: fork-call
+      - id: require-child-process
+      - id: small-file-5k
+
   # Stdio ignore composite
   - id: stdio-ignore
     desc: Silent process execution (stdio ignored)

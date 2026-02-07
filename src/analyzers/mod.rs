@@ -429,6 +429,9 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
         if name == "extension.vsixmanifest" || name.ends_with(".vsixmanifest") {
             return Ok(FileType::VsixManifest);
         }
+        if name == "pkg-info" || name == "metadata" {
+            return Ok(FileType::PkgInfo);
+        }
         // Debian/Ubuntu package maintainer scripts (often lack shebang)
         // But only if they don't have a recognized source code extension
         let name = file_name.to_string_lossy().to_lowercase();

@@ -70,6 +70,7 @@ impl GenericAnalyzer {
             FileType::Zig => "zig",
             FileType::Elixir => "elixir",
             FileType::Batch => "batch",
+            FileType::PkgInfo => "pkg-info",
             _ => "unknown",
         }
     }
