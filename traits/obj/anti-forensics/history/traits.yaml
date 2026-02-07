@@ -103,7 +103,7 @@ composite_rules:
   # Bash history file clearing (migrated from YARA)
   - id: histfile-null
     desc: Redirects shell history to /dev/null
-    crit: suspicious
+    crit: notable
     conf: 0.9
     mbc: "F0005"
     attack: "T1070.003"

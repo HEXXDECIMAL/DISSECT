@@ -84,9 +84,9 @@ composite_rules:
 
   # Combined timestamp manipulation (multiple techniques)
   - id: timestamp-manipulation
-    desc: File timestamp manipulation detected (multiple
-    crit: suspicious
-    conf: 0.85
+    desc: Timestamp manipulation
+    crit: notable
+    conf: 0.6
     any:
       - id: timestomp-touch-specific
       - id: dd-timestamp-modify

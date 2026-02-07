@@ -172,6 +172,24 @@ traits:
       type: string
       substr: "https.get"
 
+  - id: node-https-get-dynamic
+    desc: Node.js https.get dynamic call
+    crit: inert
+    conf: 0.75
+    for: [javascript, typescript]
+    if:
+      type: content
+      regex: '["'']https["'']\)\s*\.get'
+
+  - id: node-http-get-dynamic
+    desc: Node.js http.get dynamic call
+    crit: inert
+    conf: 0.75
+    for: [javascript, typescript]
+    if:
+      type: content
+      regex: '["'']http["'']\)\s*\.get'
+
   # === Browser/Universal APIs ===
   - id: js-fetch-call
     desc: fetch() API call (JavaScript)
@@ -290,6 +308,8 @@ composite_rules:
       - { id: https-request }
       - { id: http-get }
       - { id: https-get }
+      - { id: node-http-get-dynamic }
+      - { id: node-https-get-dynamic }
 
   - id: http-client-usage
     desc: HTTP client library usage

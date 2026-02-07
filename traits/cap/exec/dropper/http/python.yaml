@@ -138,11 +138,9 @@ composite_rules:
 
   # C2 endpoint path composite
   - id: python-endpoint-path
-    desc: Suspicious C2 endpoint paths
-    crit: suspicious
-    conf: 0.85
-    attack: "T1105"
-    needs: 1
+    desc: "Python HTTP endpoint path"
+    crit: notable
+    conf: 0.65
     any:
       - id: path-payload
       - id: path-stage

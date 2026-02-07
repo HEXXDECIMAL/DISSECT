@@ -102,7 +102,7 @@ composite_rules:
 
   - id: syncookie
     desc: SYN cookie manipulation
-    crit: suspicious
+    crit: notable
     conf: 0.66
     needs: 1
     any:

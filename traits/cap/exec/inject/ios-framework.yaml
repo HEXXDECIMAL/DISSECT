@@ -85,11 +85,9 @@ composite_rules:
       - id: cycript-dylib
 
   - id: runtime-code-injection
-    desc: Runtime code injection
-    crit: suspicious
-    conf: 0.9
-    attack: "T1546"
-    for: [ipa]
+    desc: "iOS runtime code injection"
+    crit: notable
+    conf: 0.7
     any:
       - id: cydia-substrate-detected
       - id: reveal-server-framework

@@ -57,7 +57,7 @@ composite_rules:
   # System masquerade composite
   - id: system-masquerade
     desc: "Masquerades as system process"
-    crit: suspicious
+    crit: notable
     conf: 0.8
     needs: 1
     any:

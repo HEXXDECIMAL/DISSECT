@@ -159,12 +159,9 @@ composite_rules:
 
   # Log clearing (migrated from YARA)
   - id: log-clear
-    desc: Clear system logs or history
-    crit: suspicious
-    conf: 0.8
-    mbc: "F0005"
-    attack: "T1070.001"
-    needs: 1
+    desc: System log clearing
+    crit: notable
+    conf: 0.65
     any:
       - id: redirect-var-log
       - id: echo-redirect-var-log

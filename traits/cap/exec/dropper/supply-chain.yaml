@@ -661,23 +661,19 @@ composite_rules:
 
   # MSXml2 Base64 composite
   - id: msxml-base64
-    desc: MSXml2 Base64 decoding
-    crit: suspicious
-    conf: 0.85
-    needs: 1
+    desc: "MSXML Base64 usage"
+    crit: notable
+    conf: 0.7
     any:
       - id: msxml2-base64
       - id: bin-base64
 
   # Appdata drop composite
   - id: appdata-drop
-    desc: Payload drop to %appdata%
-    crit: suspicious
-    conf: 0.85
-    needs: 1
+    desc: "Drop executable to AppData"
+    crit: notable
+    conf: 0.7
     any:
-      - id: appdata-single
-      - id: appdata-double
 
   # Full dropper chain: download -> extract -> execute
   - id: full-chain

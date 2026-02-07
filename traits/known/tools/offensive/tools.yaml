@@ -288,28 +288,17 @@ traits:
 composite_rules:
   # Venom RAT composite
   - id: venom-ref
-    desc: Venom multi-hop proxy/RAT reference
-    crit: suspicious
-    conf: 0.95
-    attack: "T1090"
-    platforms: [all]
-    needs: 1
+    desc: "Venom shellcode generator reference"
+    crit: notable
+    conf: 0.7
     any:
-      - id: venom-dliv3
-      - id: venom-agent-path
-      - id: venom-agent-name
 
   # SMBExec composite
   - id: smbexec
-    desc: SMBExec remote command execution
-    crit: suspicious
-    conf: 0.9
-    attack: "T1021.002"
-    platforms: [all]
-    needs: 1
+    desc: "SMBExec tool usage"
+    crit: notable
+    conf: 0.7
     any:
-      - id: smbexec-ntlm
-      - id: smbexec-hashpass
 
   # Execution capability group
   - id: exec-capability

@@ -797,16 +797,10 @@ composite_rules:
 
   # Magic/knock patterns helper
   - id: magic-knock-patterns
-    desc: Magic packet or port knock
-    crit: suspicious
-    conf: 0.75
-    needs: 1
+    desc: "Magic packet/knock sequences in BPF"
+    crit: notable
+    conf: 0.7
     any:
-      - id: magic-packet
-      - id: trigger-packet
-      - id: knock-string
-      - id: port-knock
-      - id: sequence-string
 
   # BPF backdoor (migrated from YARA)
   - id: backdoor

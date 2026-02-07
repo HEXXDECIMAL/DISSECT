@@ -640,9 +640,9 @@ traits:
 
 composite_rules:
   # Kallsyms lookup (migrated from YARA)
-  - id: kallsyms-lookup
+  - id: kallsyms-lookup-method
     desc: Accesses /proc/kallsyms for kernel symbol
-    crit: suspicious
+    crit: notable
     conf: 0.85
     mbc: "F0015"
     attack: "T1014"
@@ -1022,7 +1022,7 @@ composite_rules:
     all:
       - id: module-markers
       - id: lkm-rootkit-behavior
-      - id: kallsyms-lookup
+      - id: kallsyms-lookup-method
 
   # LKM rootkit behavior helper
   - id: lkm-rootkit-behavior

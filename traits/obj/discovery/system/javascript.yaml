@@ -60,6 +60,24 @@ traits:
       type: symbol
       exact: "os.type"
 
+  - id: os-cpus-call
+    desc: os.cpus() call
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: symbol
+      exact: "os.cpus"
+
+  - id: os-totalmem-call
+    desc: os.totalmem() call
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: symbol
+      exact: "os.totalmem"
+
   - id: os-networkinterfaces-call
     desc: os.networkInterfaces() call
     crit: notable
@@ -195,6 +213,10 @@ composite_rules:
       - { id: os-userinfo-call }
       - { id: os-homedir-call }
       - { id: os-networkinterfaces-call }
+      - { id: os-platform-call }
+      - { id: os-arch-call }
+      - { id: os-cpus-call }
+      - { id: os-totalmem-call }
       - { id: process-cwd-call }
       - { id: process-env-access }
 
@@ -216,9 +238,9 @@ composite_rules:
     attack: "T1020"
     for: [javascript]
     all:
-      - id: js-profiling
-      - id: cap/comm/http/request/js-axios-post
-      - id: cap/fs/file/read
+      - id: js-sysinfo-multi
+      - id: cap/comm/http/post/post
+      - id: cap/data/encoding/json
 
   # === Process-based fingerprinting (content-based detection) ===
   # Catches fingerprinting via process.* properties in object literals

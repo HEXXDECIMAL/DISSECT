@@ -90,14 +90,10 @@ traits:
 
 composite_rules:
   - id: chmod-world-write
-    desc: Makes file world-writable (chmod 666,
-    crit: suspicious
-    conf: 0.66
-    mbc: E1222
-    attack: T1222
+    desc: "chmod world writable"
+    crit: notable
+    conf: 0.65
     any:
-      - id: chmod-666-shell
-      - id: chmod-666-ruby
 
   - id: chmod-777-patterns
     desc: chmod 777 pattern (any variant)

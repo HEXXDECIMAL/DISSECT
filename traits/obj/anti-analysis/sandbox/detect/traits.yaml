@@ -123,12 +123,9 @@ traits:
 composite_rules:
   # Sandbox hostname composite
   - id: hostname-sandbox
-    desc: Common sandbox hostnames
-    crit: suspicious
-    mbc: "B0007"
-    attack: "T1497.001"
-    conf: 0.8
-    needs: 1
+    desc: Sandbox hostname check
+    crit: notable
+    conf: 0.65
     any:
       - id: hostname-19olltd
       - id: hostname-b0t93d6
@@ -139,12 +136,9 @@ composite_rules:
 
   # Sandbox file path composite
   - id: file-check-sandbox
-    desc: Sandbox artifact file checks
-    crit: suspicious
-    mbc: "B0007"
-    attack: "T1497.001"
-    conf: 0.7
-    needs: 1
+    desc: Sandbox file artifacts check
+    crit: notable
+    conf: 0.65
     any:
       - id: path-c-analysis
       - id: path-c-sandbox
