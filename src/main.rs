@@ -1088,13 +1088,85 @@ fn analyze_archive_streaming_jsonl(
 
     // Use streaming analysis - each file is emitted as a JSONL line via the callback
     // Prefix the archive path to each file's path so consumers can group by archive
-    let _report = analyzer.analyze_streaming(path, |file_analysis| {
+    let report = analyzer.analyze_streaming(path, |file_analysis| {
         let mut fa = file_analysis.clone();
         fa.path = types::file_analysis::encode_archive_path(&archive_path, &fa.path);
         if let Ok(line) = output::format_jsonl_line(&fa) {
             println!("{}", line);
         }
     })?;
+
+    // After all member files are emitted, emit an archive-level entry
+    // This signals archive completion and provides aggregate risk for consumers
+    // Format: same as file entries but path has no "!!" (no parent)
+    let mut max_risk = types::Criticality::Inert;
+    let mut counts = types::FindingCounts::default();
+
+    // Aggregate risk and counts from all member files
+    for file in &report.files {
+        if let Some(risk) = &file.risk {
+            if *risk > max_risk {
+                max_risk = *risk;
+            }
+        }
+        if let Some(file_counts) = &file.counts {
+            counts.hostile += file_counts.hostile;
+            counts.suspicious += file_counts.suspicious;
+            counts.notable += file_counts.notable;
+        }
+    }
+
+    // Include archive-level findings (zip-bomb, path traversal, etc.)
+    for finding in &report.findings {
+        if finding.crit > max_risk {
+            max_risk = finding.crit;
+        }
+        match finding.crit {
+            types::Criticality::Hostile => counts.hostile += 1,
+            types::Criticality::Suspicious => counts.suspicious += 1,
+            types::Criticality::Notable => counts.notable += 1,
+            _ => {}
+        }
+    }
+
+    // Create archive-level FileAnalysis entry
+    let archive_entry = types::FileAnalysis {
+        id: 0,
+        path: archive_path,
+        parent_id: None, // No parent - this IS the archive
+        depth: 0,
+        file_type: report.target.file_type,
+        sha256: report.target.sha256,
+        size: report.target.size_bytes,
+        risk: if max_risk > types::Criticality::Inert {
+            Some(max_risk)
+        } else {
+            None
+        },
+        counts: Some(counts),
+        encoding: None,
+        findings: report.findings,
+        traits: Vec::new(),
+        structure: report.structure,
+        functions: Vec::new(),
+        strings: Vec::new(),
+        sections: Vec::new(),
+        imports: Vec::new(),
+        exports: Vec::new(),
+        yara_matches: Vec::new(),
+        syscalls: Vec::new(),
+        binary_properties: None,
+        source_code_metrics: None,
+        metrics: None,
+        paths: Vec::new(),
+        directories: Vec::new(),
+        env_vars: Vec::new(),
+        extracted_path: None,
+    };
+
+    if let Ok(line) = output::format_jsonl_line(&archive_entry) {
+        println!("{}", line);
+    }
 
     Ok(())
 }

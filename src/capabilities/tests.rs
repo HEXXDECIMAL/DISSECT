@@ -1680,7 +1680,9 @@ fn test_precision_threshold_validation() {
         size_max: None,
     };
 
-    // Rule with precision 4 (meets threshold)
+    // Rule with precision >= 4.0 (meets threshold)
+    // With the new granular scoring: 25-char strings = 5 buckets * 0.3 = 1.5 each
+    // 3 strings = 4.5 precision, which meets the 4.0 threshold
     let rule_high = CompositeTrait {
         id: "test/high-precision".to_string(),
         desc: "High precision".to_string(),
@@ -1689,11 +1691,11 @@ fn test_precision_threshold_validation() {
         mbc: None,
         attack: None,
         platforms: vec![Platform::All],
-        r#for: vec![RuleFileType::Elf], // File type filter = +1
+        r#for: vec![RuleFileType::All],
         all: Some(vec![
             Condition::String {
                 external_ip: false,
-                exact: Some("string1".to_string()),
+                exact: Some("this_is_a_very_long_string_pattern_one".to_string()), // 38 chars = 8 buckets * 0.3 = 2.4
                 regex: None,
                 word: None,
                 case_insensitive: false,
@@ -1713,27 +1715,7 @@ fn test_precision_threshold_validation() {
             },
             Condition::String {
                 external_ip: false,
-                exact: Some("string2".to_string()),
-                regex: None,
-                word: None,
-                case_insensitive: false,
-                exclude_patterns: None,
-                count_min: 1,
-                count_max: None,
-                per_kb_min: None,
-                per_kb_max: None,
-                substr: None,
-                section: None,
-                offset: None,
-                offset_range: None,
-                section_offset: None,
-                section_offset_range: None,
-                compiled_regex: None,
-                compiled_excludes: Vec::new(),
-            },
-            Condition::String {
-                external_ip: false,
-                exact: Some("string3".to_string()),
+                exact: Some("this_is_another_very_long_string_pattern".to_string()), // 40 chars = 8 buckets * 0.3 = 2.4
                 regex: None,
                 word: None,
                 case_insensitive: false,
@@ -1836,7 +1818,9 @@ fn test_suspicious_precision_threshold_validation() {
         size_max: None,
     };
 
-    // Rule with precision 2 (meets suspicious threshold)
+    // Rule with precision >= 2.0 (meets suspicious threshold)
+    // With granular scoring: 25-char string = 5 buckets * 0.3 = 1.5
+    // Two 25-char strings = 3.0, which meets the 2.0 threshold
     let rule_ok = CompositeTrait {
         id: "test/suspicious-good-precision".to_string(),
         desc: "Good precision suspicious rule".to_string(),
@@ -1845,27 +1829,49 @@ fn test_suspicious_precision_threshold_validation() {
         mbc: None,
         attack: None,
         platforms: vec![Platform::All],
-        r#for: vec![RuleFileType::Elf], // File type filter = +1
-        all: Some(vec![Condition::String {
-            external_ip: false,
-            exact: Some("string1".to_string()),
-            regex: None,
-            word: None,
-            case_insensitive: false,
-            exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
-            substr: None,
-            section: None,
-            offset: None,
-            offset_range: None,
-            section_offset: None,
-            section_offset_range: None,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
-        }]),
+        r#for: vec![RuleFileType::All],
+        all: Some(vec![
+            Condition::String {
+                external_ip: false,
+                exact: Some("this_is_a_long_string_pattern".to_string()), // 29 chars = 6 buckets * 0.3 = 1.8
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                exclude_patterns: None,
+                count_min: 1,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+                substr: None,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
+            },
+            Condition::String {
+                external_ip: false,
+                exact: Some("another_long_string_pattern".to_string()), // 27 chars = 6 buckets * 0.3 = 1.8
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                exclude_patterns: None,
+                count_min: 1,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+                substr: None,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
+            },
+        ]),
         any: None,
         needs: None,
         near_lines: None,
@@ -2529,26 +2535,28 @@ fn test_parse_file_types_groups_and_exclusions() {
 #[test]
 fn test_normalize_import_name_basic() {
     assert_eq!(CapabilityMapper::normalize_import_name("socket"), "socket");
+    // Dots are converted to slashes for trait path consistency
     assert_eq!(
         CapabilityMapper::normalize_import_name("os.system"),
-        "os.system"
+        "os/system"
     );
+    // Slashes are preserved as path separators (like dots)
     assert_eq!(
         CapabilityMapper::normalize_import_name("net/http"),
-        "net-http"
+        "net/http"
     );
 }
 
 #[test]
 fn test_normalize_import_name_special_chars() {
-    // Should replace special chars with hyphens
+    // @ is stripped (leading special char), / is preserved as path separator
     assert_eq!(
         CapabilityMapper::normalize_import_name("@babel/core"),
-        "babel-core"
+        "babel/core"
     );
     assert_eq!(
         CapabilityMapper::normalize_import_name("lodash/fp"),
-        "lodash-fp"
+        "lodash/fp"
     );
 }
 
@@ -2562,15 +2570,16 @@ fn test_normalize_import_name_uppercase() {
 }
 
 #[test]
-fn test_normalize_import_name_collapse_hyphens() {
-    // Should collapse multiple hyphens
+fn test_normalize_import_name_collapse_separators() {
+    // Should collapse multiple slashes
     assert_eq!(
         CapabilityMapper::normalize_import_name("foo//bar"),
-        "foo-bar"
+        "foo/bar"
     );
+    // @ becomes hyphen, but / stays as path separator
     assert_eq!(
         CapabilityMapper::normalize_import_name("@scope/pkg"),
-        "scope-pkg"
+        "scope/pkg"
     );
 }
 
@@ -2658,12 +2667,12 @@ fn test_generate_import_findings_basic() {
     report.imports.push(Import {
         symbol: "socket".to_string(),
         library: None,
-        source: "ast".to_string(),
+        source: "import".to_string(), // Use "import" for actual module imports
     });
     report.imports.push(Import {
         symbol: "os.system".to_string(),
         library: None,
-        source: "ast".to_string(),
+        source: "import".to_string(), // Use "import" for actual module imports
     });
 
     CapabilityMapper::generate_import_findings(&mut report);
@@ -2674,7 +2683,7 @@ fn test_generate_import_findings_basic() {
     // Check IDs
     let ids: Vec<&str> = report.findings.iter().map(|f| f.id.as_str()).collect();
     assert!(ids.contains(&"meta/import/python/socket"));
-    assert!(ids.contains(&"meta/import/python/os.system"));
+    assert!(ids.contains(&"meta/import/python/os/system"));
 
     // Check finding properties
     let socket_finding = report
@@ -2707,10 +2716,26 @@ fn test_generate_import_findings_with_library() {
 
     CapabilityMapper::generate_import_findings(&mut report);
 
-    assert_eq!(report.findings.len(), 1);
-    let finding = &report.findings[0];
-    assert_eq!(finding.id, "meta/import/elf/printf");
-    assert_eq!(finding.desc, "imports printf from libc.so.6");
+    // For binaries we generate:
+    // - meta/internal/imported/{symbol} for symbols (ML only, not for composite traits)
+    // - meta/dylib/{library} for linked libraries (for composite trait matching)
+    assert_eq!(report.findings.len(), 2);
+
+    // Check symbol-level finding (in meta/internal/imported/)
+    let symbol_finding = report
+        .findings
+        .iter()
+        .find(|f| f.id == "meta/internal/imported/printf")
+        .expect("should have symbol-level finding in meta/internal/imported/");
+    assert_eq!(symbol_finding.desc, "imports printf");
+
+    // Check library-level finding (in meta/dylib/)
+    let dylib_finding = report
+        .findings
+        .iter()
+        .find(|f| f.id == "meta/dylib/libc/so/6")
+        .expect("should have dylib finding");
+    assert!(dylib_finding.desc.contains("links libc.so.6"));
 }
 
 #[test]
@@ -2729,18 +2754,77 @@ fn test_generate_import_findings_dedup() {
     report.imports.push(Import {
         symbol: "socket".to_string(),
         library: None,
-        source: "ast".to_string(),
+        source: "import".to_string(), // Use "import" for actual module imports
     });
     report.imports.push(Import {
         symbol: "socket".to_string(),
         library: None,
-        source: "ast".to_string(),
+        source: "import".to_string(), // Use "import" for actual module imports
     });
 
     CapabilityMapper::generate_import_findings(&mut report);
 
     // Should only have 1 finding (deduped)
     assert_eq!(report.findings.len(), 1);
+}
+
+#[test]
+fn test_generate_import_findings_script_function_calls() {
+    // Test that function calls in scripts go to meta/internal/imported/
+    // while actual imports go to meta/import/{lang}/{module}
+    use crate::types::Import;
+
+    let mut report = AnalysisReport::new(TargetInfo {
+        path: "/test/script.rb".to_string(),
+        file_type: "ruby".to_string(),
+        size_bytes: 1000,
+        sha256: "abc123".to_string(),
+        architectures: None,
+    });
+
+    // Actual import (require statement)
+    report.imports.push(Import {
+        symbol: "net/http".to_string(),
+        library: None,
+        source: "import".to_string(),
+    });
+
+    // Function call (method invocation)
+    report.imports.push(Import {
+        symbol: "system".to_string(),
+        library: None,
+        source: "ast".to_string(),
+    });
+
+    // Another function call
+    report.imports.push(Import {
+        symbol: "open".to_string(),
+        library: None,
+        source: "ast".to_string(),
+    });
+
+    CapabilityMapper::generate_import_findings(&mut report);
+
+    // Should have 3 findings: 1 import + 2 function calls
+    assert_eq!(report.findings.len(), 3);
+
+    let ids: Vec<&str> = report.findings.iter().map(|f| f.id.as_str()).collect();
+
+    // Actual import goes to meta/import/
+    assert!(
+        ids.contains(&"meta/import/ruby/net/http"),
+        "Should have meta/import/ for actual imports"
+    );
+
+    // Function calls go to meta/internal/imported/
+    assert!(
+        ids.contains(&"meta/internal/imported/system"),
+        "Should have meta/internal/imported/ for function calls"
+    );
+    assert!(
+        ids.contains(&"meta/internal/imported/open"),
+        "Should have meta/internal/imported/ for function calls"
+    );
 }
 
 #[test]
@@ -2825,7 +2909,7 @@ fn test_generate_import_findings_preserves_existing() {
     report.imports.push(Import {
         symbol: "socket".to_string(),
         library: None,
-        source: "ast".to_string(),
+        source: "import".to_string(), // Use "import" for actual module imports
     });
 
     CapabilityMapper::generate_import_findings(&mut report);
@@ -2867,7 +2951,7 @@ fn test_generate_import_findings_skips_existing_import_finding() {
     report.imports.push(Import {
         symbol: "socket".to_string(),
         library: None,
-        source: "ast".to_string(),
+        source: "import".to_string(), // Use "import" for actual module imports
     });
 
     CapabilityMapper::generate_import_findings(&mut report);
@@ -2896,29 +2980,154 @@ fn test_generate_import_findings_evidence_structure() {
 
     CapabilityMapper::generate_import_findings(&mut report);
 
-    let finding = &report.findings[0];
-    assert_eq!(finding.evidence.len(), 1);
+    // For binaries we generate:
+    // - meta/internal/imported/{symbol} for symbols (ML only)
+    // - meta/dylib/{library} for linked libraries
+    assert_eq!(report.findings.len(), 2);
 
-    let evidence = &finding.evidence[0];
-    assert_eq!(evidence.method, "import");
+    // Check symbol-level finding evidence (in meta/internal/imported/)
+    let symbol_finding = report
+        .findings
+        .iter()
+        .find(|f| f.id == "meta/internal/imported/nslog")
+        .expect("should have symbol-level finding in meta/internal/imported/");
+    assert_eq!(symbol_finding.evidence.len(), 1);
+    let evidence = &symbol_finding.evidence[0];
+    assert_eq!(evidence.method, "symbol");
     assert_eq!(evidence.source, "goblin");
     assert_eq!(evidence.value, "NSLog");
     assert_eq!(evidence.location, Some("Foundation".to_string()));
+
+    // Check library-level finding evidence (in meta/dylib/)
+    let dylib_finding = report
+        .findings
+        .iter()
+        .find(|f| f.id == "meta/dylib/foundation")
+        .expect("should have dylib finding");
+    assert_eq!(dylib_finding.evidence.len(), 1);
+    let dylib_evidence = &dylib_finding.evidence[0];
+    assert_eq!(dylib_evidence.method, "library");
 }
 
 #[test]
-fn test_normalize_import_name_preserves_dots_and_underscores() {
-    // Dots and underscores should be preserved
+fn test_normalize_import_name_converts_dots_to_slashes() {
+    // Dots are converted to slashes for trait path consistency
     assert_eq!(
         CapabilityMapper::normalize_import_name("os.path.join"),
-        "os.path.join"
+        "os/path/join"
     );
+    // Underscores are preserved
     assert_eq!(
         CapabilityMapper::normalize_import_name("__init__"),
         "__init__"
     );
     assert_eq!(
         CapabilityMapper::normalize_import_name("my_module.my_func"),
-        "my_module.my_func"
+        "my_module/my_func"
     );
+}
+
+// ==================== Composite Rule Validation Tests ====================
+
+#[test]
+fn test_collect_trait_refs_finds_internal_paths() {
+    // Test that collect_trait_refs_from_rule correctly identifies meta/internal/ references
+    // These references are forbidden in composite rules (for ML use only)
+
+    let composite = CompositeTrait {
+        id: "test/bad-composite".to_string(),
+        desc: "Composite that incorrectly references internal path".to_string(),
+        conf: 0.9,
+        crit: Criticality::Suspicious,
+        mbc: None,
+        attack: None,
+        platforms: vec![Platform::All],
+        r#for: vec![RuleFileType::All],
+        all: Some(vec![
+            Condition::Trait {
+                id: "meta/internal/imported/printf".to_string(), // Forbidden!
+            },
+            Condition::Trait {
+                id: "meta/import/python/socket".to_string(), // OK
+            },
+        ]),
+        any: Some(vec![Condition::Trait {
+            id: "meta/internal/imported/malloc".to_string(), // Forbidden!
+        }]),
+        needs: None,
+        none: Some(vec![Condition::Trait {
+            id: "meta/dylib/libc".to_string(), // OK
+        }]),
+        near_lines: None,
+        near_bytes: None,
+        unless: None,
+        not: None,
+        downgrade: None,
+        size_min: None,
+        size_max: None,
+    };
+
+    let refs = validation::collect_trait_refs_from_rule(&composite);
+
+    // Should find all 4 trait references
+    assert_eq!(refs.len(), 4);
+
+    // Count how many are internal paths
+    let internal_refs: Vec<_> = refs
+        .iter()
+        .filter(|(ref_id, _)| ref_id.starts_with("meta/internal/"))
+        .collect();
+    assert_eq!(internal_refs.len(), 2, "Should find 2 internal path references");
+
+    // Verify specific internal paths found
+    let internal_ids: Vec<&str> = internal_refs.iter().map(|(id, _)| id.as_str()).collect();
+    assert!(internal_ids.contains(&"meta/internal/imported/printf"));
+    assert!(internal_ids.contains(&"meta/internal/imported/malloc"));
+}
+
+#[test]
+fn test_meta_internal_paths_forbidden_in_composite_rules() {
+    // Verify that a composite rule referencing meta/internal/ would be caught
+    // This documents the validation behavior: internal paths are for ML only
+
+    let composite = CompositeTrait {
+        id: "test/references-internal".to_string(),
+        desc: "Should not reference internal paths".to_string(),
+        conf: 0.9,
+        crit: Criticality::Suspicious,
+        mbc: None,
+        attack: None,
+        platforms: vec![Platform::All],
+        r#for: vec![RuleFileType::All],
+        all: Some(vec![Condition::Trait {
+            id: "meta/internal/imported/evil_func".to_string(),
+        }]),
+        any: None,
+        needs: None,
+        none: None,
+        near_lines: None,
+        near_bytes: None,
+        unless: None,
+        not: None,
+        downgrade: None,
+        size_min: None,
+        size_max: None,
+    };
+
+    let refs = validation::collect_trait_refs_from_rule(&composite);
+
+    // The validation logic in CapabilityMapper::load_with_path checks for meta/internal/ refs
+    // and adds them to a fatal error list. Here we verify the detection works.
+    let has_internal_ref = refs
+        .iter()
+        .any(|(ref_id, _)| ref_id.starts_with("meta/internal/"));
+    assert!(
+        has_internal_ref,
+        "Should detect meta/internal/ reference in composite rule"
+    );
+
+    // Document the allowed vs forbidden patterns:
+    // - meta/import/{lang}/{module} : OK (dynamically generated, allowed in composites)
+    // - meta/dylib/{library}        : OK (dynamically generated, allowed in composites)
+    // - meta/internal/{anything}    : FORBIDDEN (ML-only, not for composite rules)
 }

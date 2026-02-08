@@ -3,9 +3,203 @@
 //! Extracts function calls and references from source files using AST analysis.
 //! Populates the imports list so symbol-based rules can match.
 
+use crate::analyzers::FileType;
 use crate::types::{AnalysisReport, Import};
 
+/// Extract actual module imports from source code (e.g., require in Ruby, import in Python)
+/// This is separate from function call extraction for capability matching.
+pub fn extract_imports(
+    source: &str,
+    file_type: &FileType,
+    report: &mut AnalysisReport,
+) {
+    let (lang, import_fn): (tree_sitter::Language, fn(&tree_sitter::Node, &[u8]) -> Option<String>) = match file_type {
+        FileType::Ruby => (tree_sitter_ruby::LANGUAGE.into(), extract_ruby_import),
+        FileType::Python => (tree_sitter_python::LANGUAGE.into(), extract_python_import),
+        FileType::JavaScript | FileType::TypeScript => {
+            let lang = if matches!(file_type, FileType::TypeScript) {
+                tree_sitter_typescript::LANGUAGE_TYPESCRIPT.into()
+            } else {
+                tree_sitter_javascript::LANGUAGE.into()
+            };
+            (lang, extract_js_import)
+        }
+        FileType::Lua => (tree_sitter_lua::LANGUAGE.into(), extract_lua_import),
+        FileType::Go => (tree_sitter_go::LANGUAGE.into(), extract_go_import),
+        FileType::Perl => (tree_sitter_perl::LANGUAGE.into(), extract_perl_import),
+        _ => return, // Other languages don't have import extraction yet
+    };
+
+    let mut parser = tree_sitter::Parser::new();
+    if parser.set_language(&lang).is_err() {
+        return;
+    }
+
+    let tree = match parser.parse(source, None) {
+        Some(t) => t,
+        None => return,
+    };
+
+    let mut imports = std::collections::HashSet::new();
+    let mut cursor = tree.walk();
+    walk_for_imports(&mut cursor, source.as_bytes(), import_fn, &mut imports);
+
+    for module in imports {
+        if module.len() >= 2 {
+            report.imports.push(Import {
+                symbol: module,
+                library: None,
+                source: "import".to_string(), // Distinguish from function calls ("ast")
+            });
+        }
+    }
+}
+
+/// Walk AST to find import statements
+fn walk_for_imports(
+    cursor: &mut tree_sitter::TreeCursor,
+    source: &[u8],
+    import_fn: fn(&tree_sitter::Node, &[u8]) -> Option<String>,
+    imports: &mut std::collections::HashSet<String>,
+) {
+    loop {
+        let node = cursor.node();
+        if let Some(module) = import_fn(&node, source) {
+            imports.insert(module);
+        }
+
+        if cursor.goto_first_child() {
+            continue;
+        }
+        if cursor.goto_next_sibling() {
+            continue;
+        }
+        loop {
+            if !cursor.goto_parent() {
+                return;
+            }
+            if cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+}
+
+/// Extract Ruby require/require_relative statements
+fn extract_ruby_import(node: &tree_sitter::Node, source: &[u8]) -> Option<String> {
+    // Ruby require is: call with method name "require" or "require_relative"
+    if node.kind() != "call" && node.kind() != "method_call" {
+        return None;
+    }
+
+    // Get the method name
+    let method_node = node.child_by_field_name("method")?;
+    let method_name = method_node.utf8_text(source).ok()?;
+
+    if method_name != "require" && method_name != "require_relative" {
+        return None;
+    }
+
+    // Get the argument (the module name)
+    let args = node.child_by_field_name("arguments")?;
+    // First child of arguments is the string
+    let arg = args.child(0)?;
+    extract_string_content(&arg, source)
+}
+
+/// Extract Python import statements
+fn extract_python_import(node: &tree_sitter::Node, source: &[u8]) -> Option<String> {
+    match node.kind() {
+        "import_statement" => {
+            // import foo.bar -> extract "foo.bar"
+            let name_node = node.child_by_field_name("name")?;
+            name_node.utf8_text(source).ok().map(|s| s.to_string())
+        }
+        "import_from_statement" => {
+            // from foo.bar import baz -> extract "foo.bar"
+            let module_node = node.child_by_field_name("module_name")?;
+            module_node.utf8_text(source).ok().map(|s| s.to_string())
+        }
+        _ => None,
+    }
+}
+
+/// Extract JavaScript/TypeScript import statements
+fn extract_js_import(node: &tree_sitter::Node, source: &[u8]) -> Option<String> {
+    if node.kind() != "import_statement" && node.kind() != "import_declaration" {
+        return None;
+    }
+    // Find the source/string child
+    for i in 0..node.child_count() {
+        if let Some(child) = node.child(i as u32) {
+            if let Some(content) = extract_string_content(&child, source) {
+                return Some(content);
+            }
+        }
+    }
+    None
+}
+
+/// Extract Lua require statements
+fn extract_lua_import(node: &tree_sitter::Node, source: &[u8]) -> Option<String> {
+    if node.kind() != "function_call" {
+        return None;
+    }
+    // Check if it's a require call
+    let func = node.child_by_field_name("name")?;
+    let func_name = func.utf8_text(source).ok()?;
+    if func_name != "require" {
+        return None;
+    }
+    let args = node.child_by_field_name("arguments")?;
+    let arg = args.child(0)?;
+    extract_string_content(&arg, source)
+}
+
+/// Extract Go import declarations
+fn extract_go_import(node: &tree_sitter::Node, source: &[u8]) -> Option<String> {
+    if node.kind() != "import_spec" {
+        return None;
+    }
+    let path = node.child_by_field_name("path")?;
+    extract_string_content(&path, source)
+}
+
+/// Extract Perl use/require statements
+fn extract_perl_import(node: &tree_sitter::Node, source: &[u8]) -> Option<String> {
+    if node.kind() != "use_statement" && node.kind() != "require_statement" {
+        return None;
+    }
+    // Find the module name
+    for i in 0..node.child_count() {
+        if let Some(child) = node.child(i as u32) {
+            if child.kind() == "package_name" || child.kind() == "bareword" {
+                return child.utf8_text(source).ok().map(|s| s.to_string());
+            }
+        }
+    }
+    None
+}
+
+/// Extract string content from a string literal node
+fn extract_string_content(node: &tree_sitter::Node, source: &[u8]) -> Option<String> {
+    let text = node.utf8_text(source).ok()?;
+    // Strip quotes if present
+    let trimmed = text
+        .trim_start_matches('"')
+        .trim_start_matches('\'')
+        .trim_end_matches('"')
+        .trim_end_matches('\'');
+    if trimmed.is_empty() {
+        None
+    } else {
+        Some(trimmed.to_string())
+    }
+}
+
 /// Extract function calls from source code and add to report.imports
+/// NOTE: This is primarily for capability matching, not module imports.
+/// Use extract_imports() for actual module imports like require/import.
 pub fn extract_symbols(
     source: &str,
     lang: tree_sitter::Language,
@@ -242,5 +436,118 @@ pub fn get_language_config(
         FileType::Zig => Some((tree_sitter_zig::LANGUAGE.into(), vec!["call_expression"])),
         FileType::Elixir => Some((tree_sitter_elixir::LANGUAGE.into(), vec!["call"])),
         _ => None,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::analyzers::FileType;
+    use crate::types::{AnalysisReport, TargetInfo};
+
+    #[test]
+    fn test_ruby_extract_imports_only_require() {
+        // Ruby code with require statements AND method calls
+        let code = r#"
+require 'net/http'
+require 'uri'
+require 'base64'
+require 'resolv'
+
+class Foo
+  def self.run()
+    system('/bin/sh')
+    File.open('/tmp/x', 'wb+') do |f|
+      f.write("hello")
+      f.chmod(0777)
+    end
+  end
+end
+Foo.run()
+"#;
+
+        let mut report = AnalysisReport::new(TargetInfo {
+            path: "/test/file.rb".to_string(),
+            file_type: "ruby".to_string(),
+            size_bytes: code.len() as u64,
+            sha256: "test".to_string(),
+            architectures: None,
+        });
+
+        // Extract imports (should only get require statements)
+        extract_imports(code, &FileType::Ruby, &mut report);
+
+        // Should have exactly 4 imports (the require statements)
+        let import_symbols: Vec<&str> = report.imports.iter().map(|i| i.symbol.as_str()).collect();
+        assert_eq!(import_symbols.len(), 4, "Expected 4 imports, got: {:?}", import_symbols);
+
+        // Check the specific imports
+        assert!(import_symbols.contains(&"net/http"), "Missing net/http import");
+        assert!(import_symbols.contains(&"uri"), "Missing uri import");
+        assert!(import_symbols.contains(&"base64"), "Missing base64 import");
+        assert!(import_symbols.contains(&"resolv"), "Missing resolv import");
+
+        // Method calls like system, open, write, chmod should NOT be in imports
+        assert!(!import_symbols.contains(&"system"), "system should not be an import");
+        assert!(!import_symbols.contains(&"open"), "open should not be an import");
+        assert!(!import_symbols.contains(&"write"), "write should not be an import");
+        assert!(!import_symbols.contains(&"chmod"), "chmod should not be an import");
+        assert!(!import_symbols.contains(&"run"), "run should not be an import");
+    }
+
+    #[test]
+    fn test_python_extract_imports() {
+        let code = r#"
+import socket
+import os
+from urllib import request
+"#;
+
+        let mut report = AnalysisReport::new(TargetInfo {
+            path: "/test/file.py".to_string(),
+            file_type: "python".to_string(),
+            size_bytes: code.len() as u64,
+            sha256: "test".to_string(),
+            architectures: None,
+        });
+
+        extract_imports(code, &FileType::Python, &mut report);
+
+        let import_symbols: Vec<&str> = report.imports.iter().map(|i| i.symbol.as_str()).collect();
+        assert!(import_symbols.contains(&"socket"), "Missing socket import");
+        assert!(import_symbols.contains(&"os"), "Missing os import");
+        assert!(import_symbols.contains(&"urllib"), "Missing urllib import");
+    }
+
+    #[test]
+    fn test_go_extract_imports() {
+        let code = r#"
+package main
+
+import (
+    "net"
+    "os/exec"
+    "fmt"
+)
+
+func main() {
+    fmt.Println("hello")
+}
+"#;
+
+        let mut report = AnalysisReport::new(TargetInfo {
+            path: "/test/file.go".to_string(),
+            file_type: "go".to_string(),
+            size_bytes: code.len() as u64,
+            sha256: "test".to_string(),
+            architectures: None,
+        });
+
+        extract_imports(code, &FileType::Go, &mut report);
+
+        let import_symbols: Vec<&str> = report.imports.iter().map(|i| i.symbol.as_str()).collect();
+        assert!(import_symbols.contains(&"net"), "Missing net import");
+        assert!(import_symbols.contains(&"os/exec"), "Missing os/exec import");
+        assert!(import_symbols.contains(&"fmt"), "Missing fmt import");
     }
 }

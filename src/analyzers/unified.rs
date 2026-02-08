@@ -302,13 +302,14 @@ pub fn config_for_file_type(file_type: &crate::analyzers::FileType) -> Option<La
 /// Works with any tree-sitter supported language through configuration.
 pub struct UnifiedSourceAnalyzer {
     config: LanguageConfig,
+    file_type: crate::analyzers::FileType,
     parser: RefCell<Parser>,
     capability_mapper: Arc<CapabilityMapper>,
 }
 
 impl UnifiedSourceAnalyzer {
     /// Create a new analyzer for the given language configuration.
-    pub fn new(config: LanguageConfig) -> Self {
+    pub fn new(config: LanguageConfig, file_type: crate::analyzers::FileType) -> Self {
         let mut parser = Parser::new();
         parser
             .set_language(&config.language)
@@ -316,6 +317,7 @@ impl UnifiedSourceAnalyzer {
 
         Self {
             config,
+            file_type,
             parser: RefCell::new(parser),
             capability_mapper: Arc::new(CapabilityMapper::empty()),
         }
@@ -323,7 +325,7 @@ impl UnifiedSourceAnalyzer {
 
     /// Create an analyzer for the given file type.
     pub fn for_file_type(file_type: &crate::analyzers::FileType) -> Option<Self> {
-        config_for_file_type(file_type).map(Self::new)
+        config_for_file_type(file_type).map(|config| Self::new(config, file_type.clone()))
     }
 
     /// Create analyzer with pre-existing capability mapper (wraps in Arc)
@@ -569,13 +571,16 @@ impl UnifiedSourceAnalyzer {
             }
         }
 
-        // Extract symbols for rule matching
+        // Extract function calls for capability matching (type: symbol conditions)
         symbol_extraction::extract_symbols(
             content,
             self.config.language.clone(),
             self.config.call_node_types,
             &mut report,
         );
+
+        // Also extract actual module imports (require/import statements) for meta/import/ findings
+        symbol_extraction::extract_imports(content, &self.file_type, &mut report);
 
         // Analyze paths and environment variables
         crate::path_mapper::analyze_and_link_paths(&mut report);

@@ -530,6 +530,12 @@ impl CapabilityMapper {
             for (ref_id, rule_id) in trait_refs {
                 // Only validate cross-directory references (those with slashes)
                 if ref_id.contains('/') {
+                    // Skip validation for meta/import/ and meta/dylib/ references - these are
+                    // dynamically generated at runtime from discovered imports
+                    if ref_id.starts_with("meta/import/") || ref_id.starts_with("meta/dylib/") {
+                        continue;
+                    }
+
                     // Check if this matches any known prefix
                     let matches_prefix = known_prefixes
                         .iter()
@@ -586,6 +592,49 @@ impl CapabilityMapper {
             valid_trait_ids.insert(rule.id.clone());
         }
 
+        // Validate that composite rules don't reference meta/internal/ paths
+        // Internal paths are for ML usage only and must not be used in composite rules
+        let mut internal_refs = Vec::new();
+        for rule in &composite_rules {
+            let trait_refs = collect_trait_refs_from_rule(rule);
+            for (ref_id, rule_id) in trait_refs {
+                if ref_id.starts_with("meta/internal/") {
+                    let source_file = rule_source_files
+                        .get(&rule_id)
+                        .map(|s| s.as_str())
+                        .unwrap_or("unknown");
+                    internal_refs.push((rule_id.clone(), ref_id, source_file.to_string()));
+                }
+            }
+        }
+
+        if !internal_refs.is_empty() {
+            eprintln!(
+                "\n❌ FATAL: {} composite rules reference internal paths",
+                internal_refs.len()
+            );
+            eprintln!("   Internal paths (meta/internal/) are for ML usage only and cannot be used in composite rules:\n");
+            for (rule_id, ref_id, source_file) in &internal_refs {
+                let line_hint = find_line_number(source_file, &ref_id);
+                if let Some(line) = line_hint {
+                    eprintln!(
+                        "   {}:{}: Rule '{}' references internal path: '{}'",
+                        source_file, line, rule_id, ref_id
+                    );
+                } else {
+                    eprintln!(
+                        "   {}: Rule '{}' references internal path: '{}'",
+                        source_file, rule_id, ref_id
+                    );
+                }
+            }
+            eprintln!("\n   Use meta/import/ or meta/dylib/ for import-based detection instead.");
+            warnings.push(format!(
+                "{} composite rules reference internal paths (meta/internal/)",
+                internal_refs.len()
+            ));
+        }
+
         let mut broken_refs = Vec::new();
         for rule in &composite_rules {
             let trait_refs = collect_trait_refs_from_rule(rule);
@@ -594,8 +643,15 @@ impl CapabilityMapper {
                 // e.g., "discovery/system" matches any trait in that directory
                 let is_directory_ref = known_prefixes.contains(&ref_id);
 
+                // Skip validation for meta/import/, meta/dylib/, and meta/internal/ references
+                // - meta/import/ and meta/dylib/ are dynamically generated at runtime
+                // - meta/internal/ is validated separately (forbidden in composite rules)
+                let is_dynamic_or_internal = ref_id.starts_with("meta/import/")
+                    || ref_id.starts_with("meta/dylib/")
+                    || ref_id.starts_with("meta/internal/");
+
                 // Check if the exact trait ID exists (unless it's an intentional directory ref)
-                if !is_directory_ref && !valid_trait_ids.contains(&ref_id) {
+                if !is_directory_ref && !is_dynamic_or_internal && !valid_trait_ids.contains(&ref_id) {
                     // Also check if it's a partial match to a known prefix (could be typo)
                     let matches_any_prefix = known_prefixes
                         .iter()
@@ -1524,53 +1580,172 @@ impl CapabilityMapper {
             report.findings.iter().map(|f| f.id.clone()).collect();
 
         let file_type = report.target.file_type.to_lowercase();
+        let ecosystem = Self::detect_import_ecosystem(&file_type, "");
+        let is_binary = matches!(ecosystem, "elf" | "macho" | "pe");
 
-        // Collect new findings, deduplicating as we go
         let mut new_findings: Vec<Finding> = Vec::new();
 
-        for import in &report.imports {
-            let ecosystem = Self::detect_import_ecosystem(&file_type, &import.source);
-            let normalized = Self::normalize_import_name(&import.symbol);
+        if is_binary {
+            // For binaries: generate library-level and symbol-level findings
+            // Library: meta/dylib/{library} - linked libraries (for composite trait matching)
+            // Symbol: meta/internal/imported/{symbol} - imported symbols (for ML only, not composite traits)
 
-            if normalized.is_empty() {
-                continue;
-            }
+            // Group symbols by library for dylib findings
+            let mut libs_with_symbols: std::collections::HashMap<String, Vec<String>> =
+                std::collections::HashMap::new();
 
-            let id = format!("meta/import/{}/{}", ecosystem, normalized);
-
-            // Skip if already seen (either from existing findings or earlier in this batch)
-            if seen_ids.contains(&id) {
-                continue;
-            }
-            seen_ids.insert(id.clone());
-
-            // Build description - include library if available
-            let desc = match &import.library {
-                Some(lib) if !lib.is_empty() => {
-                    format!("imports {} from {}", import.symbol, lib)
+            for import in &report.imports {
+                if let Some(lib) = &import.library {
+                    if !lib.is_empty() {
+                        libs_with_symbols
+                            .entry(lib.clone())
+                            .or_default()
+                            .push(import.symbol.clone());
+                    }
                 }
-                _ => format!("imports {}", import.symbol),
-            };
 
-            new_findings.push(Finding {
-                id,
-                kind: FindingKind::Structural,
-                desc,
-                conf: 0.95,
-                crit: Criticality::Inert,
-                mbc: None,
-                attack: None,
-                trait_refs: Vec::new(),
-                evidence: vec![Evidence {
-                    method: "import".to_string(),
-                    source: import.source.clone(),
-                    value: import.symbol.clone(),
-                    location: import.library.clone(),
-                }],
-            });
+                // Generate symbol-level finding for ML (not for composite trait matching)
+                let normalized_symbol = Self::normalize_import_name(&import.symbol);
+                if !normalized_symbol.is_empty() {
+                    let symbol_id = format!("meta/internal/imported/{}", normalized_symbol);
+                    if !seen_ids.contains(&symbol_id) {
+                        seen_ids.insert(symbol_id.clone());
+                        new_findings.push(Finding {
+                            id: symbol_id,
+                            kind: FindingKind::Structural,
+                            desc: format!("imports {}", import.symbol),
+                            conf: 0.95,
+                            crit: Criticality::Inert,
+                            mbc: None,
+                            attack: None,
+                            trait_refs: Vec::new(),
+                            evidence: vec![Evidence {
+                                method: "symbol".to_string(),
+                                source: "goblin".to_string(),
+                                value: import.symbol.clone(),
+                                location: import.library.clone(),
+                            }],
+                        });
+                    }
+                }
+            }
+
+            // Generate a finding for each library
+            for (library, symbols) in libs_with_symbols {
+                let normalized_lib = Self::normalize_import_name(&library);
+                if normalized_lib.is_empty() {
+                    continue;
+                }
+
+                // No format prefix - we don't encode file types in trait IDs
+                let id = format!("meta/dylib/{}", normalized_lib);
+
+                if seen_ids.contains(&id) {
+                    continue;
+                }
+                seen_ids.insert(id.clone());
+
+                // Limit symbols in description to first 5
+                let symbol_preview: Vec<_> = symbols.iter().take(5).cloned().collect();
+                let desc = if symbols.len() > 5 {
+                    format!(
+                        "links {} ({}, ... +{} more)",
+                        library,
+                        symbol_preview.join(", "),
+                        symbols.len() - 5
+                    )
+                } else {
+                    format!("links {} ({})", library, symbol_preview.join(", "))
+                };
+
+                new_findings.push(Finding {
+                    id,
+                    kind: FindingKind::Structural,
+                    desc,
+                    conf: 0.95,
+                    crit: Criticality::Inert,
+                    mbc: None,
+                    attack: None,
+                    trait_refs: Vec::new(),
+                    evidence: vec![Evidence {
+                        method: "library".to_string(),
+                        source: "goblin".to_string(),
+                        value: library,
+                        location: Some(format!("{} symbols", symbols.len())),
+                    }],
+                });
+            }
+        } else {
+            // For scripts: generate two types of findings:
+            // 1. meta/import/{lang}/{module} for actual imports (usable in composite traits)
+            // 2. meta/internal/imported/{symbol} for function calls (ML only, not for composites)
+            for import in &report.imports {
+                let normalized = Self::normalize_import_name(&import.symbol);
+                if normalized.is_empty() {
+                    continue;
+                }
+
+                if import.source == "ast" {
+                    // Function calls go to meta/internal/imported/ for ML usage only
+                    let symbol_id = format!("meta/internal/imported/{}", normalized);
+                    if !seen_ids.contains(&symbol_id) {
+                        seen_ids.insert(symbol_id.clone());
+                        new_findings.push(Finding {
+                            id: symbol_id,
+                            kind: FindingKind::Structural,
+                            desc: format!("calls {}", import.symbol),
+                            conf: 0.95,
+                            crit: Criticality::Inert,
+                            mbc: None,
+                            attack: None,
+                            trait_refs: Vec::new(),
+                            evidence: vec![Evidence {
+                                method: "symbol".to_string(),
+                                source: "ast".to_string(),
+                                value: import.symbol.clone(),
+                                location: None,
+                            }],
+                        });
+                    }
+                } else {
+                    // Actual imports go to meta/import/{lang}/{module} for composite traits
+                    let source_ecosystem =
+                        Self::detect_import_ecosystem(&file_type, &import.source);
+
+                    let id = format!("meta/import/{}/{}", source_ecosystem, normalized);
+
+                    if seen_ids.contains(&id) {
+                        continue;
+                    }
+                    seen_ids.insert(id.clone());
+
+                    let desc = match &import.library {
+                        Some(lib) if !lib.is_empty() => {
+                            format!("imports {} from {}", import.symbol, lib)
+                        }
+                        _ => format!("imports {}", import.symbol),
+                    };
+
+                    new_findings.push(Finding {
+                        id,
+                        kind: FindingKind::Structural,
+                        desc,
+                        conf: 0.95,
+                        crit: Criticality::Inert,
+                        mbc: None,
+                        attack: None,
+                        trait_refs: Vec::new(),
+                        evidence: vec![Evidence {
+                            method: "import".to_string(),
+                            source: import.source.clone(),
+                            value: import.symbol.clone(),
+                            location: import.library.clone(),
+                        }],
+                    });
+                }
+            }
         }
 
-        // Extend findings with new import findings
         report.findings.extend(new_findings);
     }
 
@@ -1625,39 +1800,42 @@ impl CapabilityMapper {
     /// Normalize an import name for use in a finding ID.
     ///
     /// - Converts to lowercase
-    /// - Replaces invalid characters with hyphens
-    /// - Removes leading/trailing hyphens
-    /// - Collapses multiple hyphens
+    /// - Converts dots and slashes to path separators (/)
+    /// - Replaces other special characters with hyphens
+    /// - Removes leading/trailing separators
+    /// - Collapses multiple separators
     pub(crate) fn normalize_import_name(name: &str) -> String {
-        let normalized: String = name
-            .to_lowercase()
-            .chars()
-            .map(|c| {
-                if c.is_ascii_alphanumeric() || c == '.' || c == '_' || c == '-' {
-                    c
-                } else {
-                    '-'
-                }
-            })
-            .collect();
+        // Convert dots and slashes to path separators for consistent hierarchical naming:
+        // - Python: os.path.join -> os/path/join
+        // - Ruby: net/http -> net/http
+        // Replace other special chars with hyphens, collapse consecutive separators
+        let mut result = String::with_capacity(name.len());
+        let mut prev_sep = true; // Skip leading separators
 
-        // Collapse multiple hyphens and trim
-        let mut result = String::with_capacity(normalized.len());
-        let mut prev_hyphen = true; // Start true to skip leading hyphens
-        for c in normalized.chars() {
-            if c == '-' {
-                if !prev_hyphen {
+        for c in name.to_lowercase().chars() {
+            match c {
+                c if c.is_ascii_alphanumeric() || c == '_' => {
                     result.push(c);
-                    prev_hyphen = true;
+                    prev_sep = false;
                 }
-            } else {
-                result.push(c);
-                prev_hyphen = false;
+                '.' | '/' => {
+                    // Both dots and slashes become path separators
+                    if !prev_sep {
+                        result.push('/');
+                        prev_sep = true;
+                    }
+                }
+                _ => {
+                    if !prev_sep {
+                        result.push('-');
+                        prev_sep = true;
+                    }
+                }
             }
         }
 
-        // Remove trailing hyphen
-        if result.ends_with('-') {
+        // Trim trailing separator
+        if result.ends_with('/') || result.ends_with('-') {
             result.pop();
         }
 

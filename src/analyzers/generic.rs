@@ -118,9 +118,12 @@ impl GenericAnalyzer {
                 &description,
             ));
 
-        // Try tree-sitter symbol extraction if available
+        // Try tree-sitter extraction if available
         let tree = if let Some((language, node_types)) = self.treesitter_config() {
+            // Extract function calls for capability matching (type: symbol conditions)
             symbol_extraction::extract_symbols(content, language.clone(), node_types, &mut report);
+            // Also extract actual module imports for meta/import/ findings
+            symbol_extraction::extract_imports(content, &self.file_type, &mut report);
 
             // Also parse for string extraction
             let mut parser = tree_sitter::Parser::new();
