@@ -766,6 +766,7 @@ impl ArchiveAnalyzer {
         let current_depth = self.current_depth;
         let max_depth = self.max_depth;
         let archive_path_prefix = self.archive_path_prefix.clone();
+        let max_memory_file_size = self.max_memory_file_size;
 
         let (tx, rx) = mpsc::channel();
 
@@ -780,6 +781,7 @@ impl ArchiveAnalyzer {
                 zip_passwords,
                 sample_extraction,
                 archive_sha256: None,
+                max_memory_file_size,
             };
 
             let result = analyzer.analyze_extracted_file(&file_path_clone);

@@ -1506,6 +1506,162 @@ impl CapabilityMapper {
                 report.findings.push(finding);
             }
         }
+
+        // Step 5: Generate synthetic meta/import findings from discovered imports
+        Self::generate_import_findings(report);
+    }
+
+    /// Generate meta/import/ findings from discovered imports.
+    ///
+    /// Creates inert structural findings for each import, allowing composite rules
+    /// to reference imports as traits. For example:
+    /// - `meta/import/python/socket` for Python's socket module
+    /// - `meta/import/npm/axios` for npm's axios package
+    /// - `meta/import/elf/libcrypto.so` for ELF shared library imports
+    pub(crate) fn generate_import_findings(report: &mut AnalysisReport) {
+        // Collect existing finding IDs to avoid duplicates
+        let mut seen_ids: FxHashSet<String> =
+            report.findings.iter().map(|f| f.id.clone()).collect();
+
+        let file_type = report.target.file_type.to_lowercase();
+
+        // Collect new findings, deduplicating as we go
+        let mut new_findings: Vec<Finding> = Vec::new();
+
+        for import in &report.imports {
+            let ecosystem = Self::detect_import_ecosystem(&file_type, &import.source);
+            let normalized = Self::normalize_import_name(&import.symbol);
+
+            if normalized.is_empty() {
+                continue;
+            }
+
+            let id = format!("meta/import/{}/{}", ecosystem, normalized);
+
+            // Skip if already seen (either from existing findings or earlier in this batch)
+            if seen_ids.contains(&id) {
+                continue;
+            }
+            seen_ids.insert(id.clone());
+
+            // Build description - include library if available
+            let desc = match &import.library {
+                Some(lib) if !lib.is_empty() => {
+                    format!("imports {} from {}", import.symbol, lib)
+                }
+                _ => format!("imports {}", import.symbol),
+            };
+
+            new_findings.push(Finding {
+                id,
+                kind: FindingKind::Structural,
+                desc,
+                conf: 0.95,
+                crit: Criticality::Inert,
+                mbc: None,
+                attack: None,
+                trait_refs: Vec::new(),
+                evidence: vec![Evidence {
+                    method: "import".to_string(),
+                    source: import.source.clone(),
+                    value: import.symbol.clone(),
+                    location: import.library.clone(),
+                }],
+            });
+        }
+
+        // Extend findings with new import findings
+        report.findings.extend(new_findings);
+    }
+
+    /// Detect the ecosystem for an import based on file type and source.
+    pub(crate) fn detect_import_ecosystem(file_type: &str, source: &str) -> &'static str {
+        // First check source for explicit ecosystem markers
+        match source {
+            "npm" | "package.json" => return "npm",
+            "pip" | "pypi" | "requirements.txt" => return "pypi",
+            "gem" | "rubygems" | "gemfile" => return "rubygems",
+            "cargo" | "crates.io" => return "cargo",
+            "go" | "go.mod" => return "gomod",
+            "maven" | "gradle" | "pom.xml" => return "maven",
+            "composer" => return "composer",
+            _ => {}
+        }
+
+        // For binary formats, use the binary type as ecosystem
+        match file_type {
+            "elf" | "so" => return "elf",
+            "macho" | "dylib" => return "macho",
+            "pe" | "exe" | "dll" => return "pe",
+            _ => {}
+        }
+
+        // For source code, detect language from file type
+        match file_type {
+            "python" | "python_script" => "python",
+            "javascript" | "js" | "typescript" | "ts" => "npm",
+            "ruby" | "rb" => "ruby",
+            "java" | "class" => "java",
+            "go" => "go",
+            "rust" | "rs" => "rust",
+            "c" | "cpp" | "h" | "hpp" => "c",
+            "php" => "php",
+            "perl" | "pl" => "perl",
+            "lua" => "lua",
+            "shell" | "shellscript" | "shell_script" | "bash" | "sh" => "shell",
+            "powershell" | "ps1" => "powershell",
+            "swift" => "swift",
+            "objectivec" | "objc" | "m" => "objc",
+            "csharp" | "cs" => "dotnet",
+            "scala" | "sc" => "scala",
+            "groovy" | "gradle" => "groovy",
+            "elixir" | "ex" | "exs" => "elixir",
+            "zig" => "zig",
+            "applescript" | "scpt" => "applescript",
+            _ => "unknown",
+        }
+    }
+
+    /// Normalize an import name for use in a finding ID.
+    ///
+    /// - Converts to lowercase
+    /// - Replaces invalid characters with hyphens
+    /// - Removes leading/trailing hyphens
+    /// - Collapses multiple hyphens
+    pub(crate) fn normalize_import_name(name: &str) -> String {
+        let normalized: String = name
+            .to_lowercase()
+            .chars()
+            .map(|c| {
+                if c.is_ascii_alphanumeric() || c == '.' || c == '_' || c == '-' {
+                    c
+                } else {
+                    '-'
+                }
+            })
+            .collect();
+
+        // Collapse multiple hyphens and trim
+        let mut result = String::with_capacity(normalized.len());
+        let mut prev_hyphen = true; // Start true to skip leading hyphens
+        for c in normalized.chars() {
+            if c == '-' {
+                if !prev_hyphen {
+                    result.push(c);
+                    prev_hyphen = true;
+                }
+            } else {
+                result.push(c);
+                prev_hyphen = false;
+            }
+        }
+
+        // Remove trailing hyphen
+        if result.ends_with('-') {
+            result.pop();
+        }
+
+        result
     }
 
     /// Detect file type from file type string

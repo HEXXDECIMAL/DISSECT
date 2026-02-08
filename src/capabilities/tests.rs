@@ -2518,3 +2518,407 @@ fn test_parse_file_types_groups_and_exclusions() {
     assert!(!not_scripts.contains(&RuleFileType::Python));
     assert!(not_scripts.contains(&RuleFileType::Elf));
 }
+
+// ==================== Import Finding Generation Tests ====================
+
+#[test]
+fn test_normalize_import_name_basic() {
+    assert_eq!(
+        CapabilityMapper::normalize_import_name("socket"),
+        "socket"
+    );
+    assert_eq!(
+        CapabilityMapper::normalize_import_name("os.system"),
+        "os.system"
+    );
+    assert_eq!(
+        CapabilityMapper::normalize_import_name("net/http"),
+        "net-http"
+    );
+}
+
+#[test]
+fn test_normalize_import_name_special_chars() {
+    // Should replace special chars with hyphens
+    assert_eq!(
+        CapabilityMapper::normalize_import_name("@babel/core"),
+        "babel-core"
+    );
+    assert_eq!(
+        CapabilityMapper::normalize_import_name("lodash/fp"),
+        "lodash-fp"
+    );
+}
+
+#[test]
+fn test_normalize_import_name_uppercase() {
+    // Should lowercase
+    assert_eq!(
+        CapabilityMapper::normalize_import_name("CreateRemoteThread"),
+        "createremotethread"
+    );
+}
+
+#[test]
+fn test_normalize_import_name_collapse_hyphens() {
+    // Should collapse multiple hyphens
+    assert_eq!(
+        CapabilityMapper::normalize_import_name("foo//bar"),
+        "foo-bar"
+    );
+    assert_eq!(
+        CapabilityMapper::normalize_import_name("@scope/pkg"),
+        "scope-pkg"
+    );
+}
+
+#[test]
+fn test_normalize_import_name_trim_hyphens() {
+    // Should trim leading/trailing hyphens
+    assert_eq!(
+        CapabilityMapper::normalize_import_name("/foo/"),
+        "foo"
+    );
+    assert_eq!(
+        CapabilityMapper::normalize_import_name("@pkg"),
+        "pkg"
+    );
+}
+
+#[test]
+fn test_detect_import_ecosystem_binary_types() {
+    assert_eq!(
+        CapabilityMapper::detect_import_ecosystem("elf", "goblin"),
+        "elf"
+    );
+    assert_eq!(
+        CapabilityMapper::detect_import_ecosystem("macho", "goblin"),
+        "macho"
+    );
+    assert_eq!(
+        CapabilityMapper::detect_import_ecosystem("pe", "goblin"),
+        "pe"
+    );
+    assert_eq!(
+        CapabilityMapper::detect_import_ecosystem("dylib", "goblin"),
+        "macho"
+    );
+    assert_eq!(
+        CapabilityMapper::detect_import_ecosystem("so", "goblin"),
+        "elf"
+    );
+}
+
+#[test]
+fn test_detect_import_ecosystem_source_types() {
+    assert_eq!(
+        CapabilityMapper::detect_import_ecosystem("python", "ast"),
+        "python"
+    );
+    assert_eq!(
+        CapabilityMapper::detect_import_ecosystem("javascript", "ast"),
+        "npm"
+    );
+    assert_eq!(
+        CapabilityMapper::detect_import_ecosystem("ruby", "ast"),
+        "ruby"
+    );
+    assert_eq!(
+        CapabilityMapper::detect_import_ecosystem("java", "ast"),
+        "java"
+    );
+    assert_eq!(
+        CapabilityMapper::detect_import_ecosystem("go", "ast"),
+        "go"
+    );
+}
+
+#[test]
+fn test_detect_import_ecosystem_explicit_source() {
+    // Explicit source markers should take precedence
+    assert_eq!(
+        CapabilityMapper::detect_import_ecosystem("unknown", "npm"),
+        "npm"
+    );
+    assert_eq!(
+        CapabilityMapper::detect_import_ecosystem("unknown", "package.json"),
+        "npm"
+    );
+    assert_eq!(
+        CapabilityMapper::detect_import_ecosystem("unknown", "cargo"),
+        "cargo"
+    );
+}
+
+#[test]
+fn test_generate_import_findings_basic() {
+    use crate::types::Import;
+
+    let mut report = AnalysisReport::new(TargetInfo {
+        path: "/test/script.py".to_string(),
+        file_type: "python".to_string(),
+        size_bytes: 1000,
+        sha256: "abc123".to_string(),
+        architectures: None,
+    });
+
+    report.imports.push(Import {
+        symbol: "socket".to_string(),
+        library: None,
+        source: "ast".to_string(),
+    });
+    report.imports.push(Import {
+        symbol: "os.system".to_string(),
+        library: None,
+        source: "ast".to_string(),
+    });
+
+    CapabilityMapper::generate_import_findings(&mut report);
+
+    // Should have 2 findings
+    assert_eq!(report.findings.len(), 2);
+
+    // Check IDs
+    let ids: Vec<&str> = report.findings.iter().map(|f| f.id.as_str()).collect();
+    assert!(ids.contains(&"meta/import/python/socket"));
+    assert!(ids.contains(&"meta/import/python/os.system"));
+
+    // Check finding properties
+    let socket_finding = report.findings.iter().find(|f| f.id == "meta/import/python/socket").unwrap();
+    assert_eq!(socket_finding.crit, Criticality::Inert);
+    assert_eq!(socket_finding.kind, FindingKind::Structural);
+    assert!((socket_finding.conf - 0.95).abs() < 0.01);
+}
+
+#[test]
+fn test_generate_import_findings_with_library() {
+    use crate::types::Import;
+
+    let mut report = AnalysisReport::new(TargetInfo {
+        path: "/test/binary".to_string(),
+        file_type: "elf".to_string(),
+        size_bytes: 1000,
+        sha256: "abc123".to_string(),
+        architectures: None,
+    });
+
+    report.imports.push(Import {
+        symbol: "printf".to_string(),
+        library: Some("libc.so.6".to_string()),
+        source: "goblin".to_string(),
+    });
+
+    CapabilityMapper::generate_import_findings(&mut report);
+
+    assert_eq!(report.findings.len(), 1);
+    let finding = &report.findings[0];
+    assert_eq!(finding.id, "meta/import/elf/printf");
+    assert_eq!(finding.desc, "imports printf from libc.so.6");
+}
+
+#[test]
+fn test_generate_import_findings_dedup() {
+    use crate::types::Import;
+
+    let mut report = AnalysisReport::new(TargetInfo {
+        path: "/test/script.py".to_string(),
+        file_type: "python".to_string(),
+        size_bytes: 1000,
+        sha256: "abc123".to_string(),
+        architectures: None,
+    });
+
+    // Add same import twice
+    report.imports.push(Import {
+        symbol: "socket".to_string(),
+        library: None,
+        source: "ast".to_string(),
+    });
+    report.imports.push(Import {
+        symbol: "socket".to_string(),
+        library: None,
+        source: "ast".to_string(),
+    });
+
+    CapabilityMapper::generate_import_findings(&mut report);
+
+    // Should only have 1 finding (deduped)
+    assert_eq!(report.findings.len(), 1);
+}
+
+#[test]
+fn test_generate_import_findings_npm_package() {
+    use crate::types::Import;
+
+    let mut report = AnalysisReport::new(TargetInfo {
+        path: "/test/package.json".to_string(),
+        file_type: "package.json".to_string(),
+        size_bytes: 1000,
+        sha256: "abc123".to_string(),
+        architectures: None,
+    });
+
+    report.imports.push(Import {
+        symbol: "axios".to_string(),
+        library: Some("^1.6.0".to_string()),
+        source: "npm".to_string(),
+    });
+
+    CapabilityMapper::generate_import_findings(&mut report);
+
+    assert_eq!(report.findings.len(), 1);
+    assert_eq!(report.findings[0].id, "meta/import/npm/axios");
+}
+
+#[test]
+fn test_generate_import_findings_empty_symbol_skipped() {
+    use crate::types::Import;
+
+    let mut report = AnalysisReport::new(TargetInfo {
+        path: "/test/script.py".to_string(),
+        file_type: "python".to_string(),
+        size_bytes: 1000,
+        sha256: "abc123".to_string(),
+        architectures: None,
+    });
+
+    // Empty symbol should be skipped
+    report.imports.push(Import {
+        symbol: "".to_string(),
+        library: None,
+        source: "ast".to_string(),
+    });
+    // Symbol that normalizes to empty should also be skipped
+    report.imports.push(Import {
+        symbol: "@@".to_string(),
+        library: None,
+        source: "ast".to_string(),
+    });
+
+    CapabilityMapper::generate_import_findings(&mut report);
+
+    assert_eq!(report.findings.len(), 0);
+}
+
+#[test]
+fn test_generate_import_findings_preserves_existing() {
+    use crate::types::Import;
+
+    let mut report = AnalysisReport::new(TargetInfo {
+        path: "/test/script.py".to_string(),
+        file_type: "python".to_string(),
+        size_bytes: 1000,
+        sha256: "abc123".to_string(),
+        architectures: None,
+    });
+
+    // Add a pre-existing finding
+    report.findings.push(Finding {
+        id: "cap/exec/shell".to_string(),
+        kind: FindingKind::Capability,
+        desc: "shell execution".to_string(),
+        conf: 0.9,
+        crit: Criticality::Notable,
+        mbc: None,
+        attack: None,
+        trait_refs: vec![],
+        evidence: vec![],
+    });
+
+    report.imports.push(Import {
+        symbol: "socket".to_string(),
+        library: None,
+        source: "ast".to_string(),
+    });
+
+    CapabilityMapper::generate_import_findings(&mut report);
+
+    // Should have 2 findings: original + new import
+    assert_eq!(report.findings.len(), 2);
+    assert!(report.findings.iter().any(|f| f.id == "cap/exec/shell"));
+    assert!(report.findings.iter().any(|f| f.id == "meta/import/python/socket"));
+}
+
+#[test]
+fn test_generate_import_findings_skips_existing_import_finding() {
+    use crate::types::Import;
+
+    let mut report = AnalysisReport::new(TargetInfo {
+        path: "/test/script.py".to_string(),
+        file_type: "python".to_string(),
+        size_bytes: 1000,
+        sha256: "abc123".to_string(),
+        architectures: None,
+    });
+
+    // Pre-existing import finding (shouldn't be duplicated)
+    report.findings.push(Finding {
+        id: "meta/import/python/socket".to_string(),
+        kind: FindingKind::Structural,
+        desc: "imports socket".to_string(),
+        conf: 0.95,
+        crit: Criticality::Inert,
+        mbc: None,
+        attack: None,
+        trait_refs: vec![],
+        evidence: vec![],
+    });
+
+    report.imports.push(Import {
+        symbol: "socket".to_string(),
+        library: None,
+        source: "ast".to_string(),
+    });
+
+    CapabilityMapper::generate_import_findings(&mut report);
+
+    // Should still have just 1 finding (no duplicate)
+    assert_eq!(report.findings.len(), 1);
+}
+
+#[test]
+fn test_generate_import_findings_evidence_structure() {
+    use crate::types::Import;
+
+    let mut report = AnalysisReport::new(TargetInfo {
+        path: "/test/binary".to_string(),
+        file_type: "macho".to_string(),
+        size_bytes: 1000,
+        sha256: "abc123".to_string(),
+        architectures: None,
+    });
+
+    report.imports.push(Import {
+        symbol: "NSLog".to_string(),
+        library: Some("Foundation".to_string()),
+        source: "goblin".to_string(),
+    });
+
+    CapabilityMapper::generate_import_findings(&mut report);
+
+    let finding = &report.findings[0];
+    assert_eq!(finding.evidence.len(), 1);
+
+    let evidence = &finding.evidence[0];
+    assert_eq!(evidence.method, "import");
+    assert_eq!(evidence.source, "goblin");
+    assert_eq!(evidence.value, "NSLog");
+    assert_eq!(evidence.location, Some("Foundation".to_string()));
+}
+
+#[test]
+fn test_normalize_import_name_preserves_dots_and_underscores() {
+    // Dots and underscores should be preserved
+    assert_eq!(
+        CapabilityMapper::normalize_import_name("os.path.join"),
+        "os.path.join"
+    );
+    assert_eq!(
+        CapabilityMapper::normalize_import_name("__init__"),
+        "__init__"
+    );
+    assert_eq!(
+        CapabilityMapper::normalize_import_name("my_module.my_func"),
+        "my_module.my_func"
+    );
+}

@@ -105,6 +105,8 @@ If behavior is real but severity is wrong, fix criticality; do not delete detect
 {{.DissectBin}} test-match {{.Path}} --type string --pattern "X"
 ` + "```" + `
 
+--format=jsonl is critical for reviewing all traits (even inert), both for accuracy, and knowing what hidden traits you can form intelligent composites with.
+
 Traits: {{.TraitsDir}}`))
 
 var badPromptTmpl = template.Must(template.New("bad").Parse(`{{if .IsArchive -}}
@@ -149,6 +151,8 @@ Add high-signal detections for behaviors this sample family exhibits and current
 {{.DissectBin}} test-rules {{.Path}} --rules "rule-id"
 {{.DissectBin}} test-match {{.Path}} --type string --pattern "X"
 ` + "```" + `
+
+--format=jsonl is critical for reviewing all traits (even inert), both for accuracy, and knowing what hidden traits you can form intelligent composites with.
 
 Traits: {{.TraitsDir}}`))
 

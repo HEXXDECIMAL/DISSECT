@@ -217,6 +217,9 @@ fn main() -> Result<()> {
     // Parse platforms once before match (avoids borrow issues in match arms)
     let platforms = args.platforms();
 
+    // Convert max_file_mem from MB to bytes
+    let max_memory_file_size = args.max_file_mem * 1024 * 1024;
+
     let result = match args.command {
         Some(cli::Command::Analyze {
             targets,
@@ -247,6 +250,7 @@ fn main() -> Result<()> {
                     platforms.clone(),
                     args.min_hostile_precision,
                     args.min_suspicious_precision,
+                    max_memory_file_size,
                 )?
             } else {
                 // Multiple targets or directory - use scan
@@ -263,6 +267,7 @@ fn main() -> Result<()> {
                     platforms.clone(),
                     args.min_hostile_precision,
                     args.min_suspicious_precision,
+                    max_memory_file_size,
                 )?
             }
         }
@@ -282,6 +287,7 @@ fn main() -> Result<()> {
             platforms.clone(),
             args.min_hostile_precision,
             args.min_suspicious_precision,
+            max_memory_file_size,
         )?,
         Some(cli::Command::Diff { old, new }) => diff_analysis(&old, &new, &format)?,
         Some(cli::Command::Strings { target, min_length }) => {
@@ -361,6 +367,7 @@ fn main() -> Result<()> {
                 platforms.clone(),
                 args.min_hostile_precision,
                 args.min_suspicious_precision,
+                max_memory_file_size,
             )?
         }
     };
@@ -391,6 +398,7 @@ fn analyze_file(
     platforms: Vec<composite_rules::Platform>,
     min_hostile_precision: f32,
     min_suspicious_precision: f32,
+    max_memory_file_size: u64,
 ) -> Result<String> {
     let _start = std::time::Instant::now();
     let path = Path::new(target);
@@ -414,6 +422,7 @@ fn analyze_file(
             platforms,
             min_hostile_precision,
             min_suspicious_precision,
+            max_memory_file_size,
         );
     }
 
@@ -493,7 +502,8 @@ fn analyze_file(
             // JAR files are analyzed like archives but with Java-specific handling
             let mut analyzer = ArchiveAnalyzer::new()
                 .with_capability_mapper(capability_mapper.clone())
-                .with_zip_passwords(zip_passwords.to_vec());
+                .with_zip_passwords(zip_passwords.to_vec())
+                .with_max_memory_file_size(max_memory_file_size);
             if let Some(engine) = yara_engine.take() {
                 analyzer = analyzer.with_yara(engine);
             }
@@ -515,7 +525,8 @@ fn analyze_file(
         FileType::Archive => {
             let mut analyzer = ArchiveAnalyzer::new()
                 .with_capability_mapper(capability_mapper.clone())
-                .with_zip_passwords(zip_passwords.to_vec());
+                .with_zip_passwords(zip_passwords.to_vec())
+                .with_max_memory_file_size(max_memory_file_size);
             if let Some(engine) = yara_engine.take() {
                 analyzer = analyzer.with_yara(engine);
             }
@@ -617,6 +628,7 @@ fn scan_paths(
     platforms: Vec<composite_rules::Platform>,
     min_hostile_precision: f32,
     min_suspicious_precision: f32,
+    max_memory_file_size: u64,
 ) -> Result<String> {
     use walkdir::WalkDir;
 
@@ -708,6 +720,7 @@ fn scan_paths(
             error_if_levels,
             verbose,
             sample_extraction,
+            max_memory_file_size,
         ) {
             Ok(json) => {
                 match format {
@@ -780,6 +793,7 @@ fn scan_paths(
                     shared_yara_engine.as_ref(),
                     zip_passwords,
                     sample_extraction,
+                    max_memory_file_size,
                 ) {
                     Ok(()) => {
                         // Files were already streamed via callback
@@ -800,6 +814,7 @@ fn scan_paths(
                 error_if_levels,
                 verbose,
                 sample_extraction,
+                max_memory_file_size,
             ) {
                 Ok(json) => {
                     match format {
@@ -884,6 +899,7 @@ fn analyze_file_with_shared_mapper(
     error_if_levels: Option<&[types::Criticality]>,
     verbose: bool,
     sample_extraction: Option<&types::SampleExtractionConfig>,
+    max_memory_file_size: u64,
 ) -> Result<String> {
     let timing = std::env::var("DISSECT_TIMING").is_ok();
     let t_start = std::time::Instant::now();
@@ -939,7 +955,8 @@ fn analyze_file_with_shared_mapper(
             // JAR files are analyzed like archives but with Java-specific handling
             let mut analyzer = ArchiveAnalyzer::new()
                 .with_capability_mapper_arc(capability_mapper.clone())
-                .with_zip_passwords(zip_passwords.to_vec());
+                .with_zip_passwords(zip_passwords.to_vec())
+                .with_max_memory_file_size(max_memory_file_size);
             if let Some(engine) = shared_yara_engine {
                 analyzer = analyzer.with_yara_arc(engine.clone());
             }
@@ -966,7 +983,8 @@ fn analyze_file_with_shared_mapper(
         FileType::Archive => {
             let mut analyzer = ArchiveAnalyzer::new()
                 .with_capability_mapper_arc(capability_mapper.clone())
-                .with_zip_passwords(zip_passwords.to_vec());
+                .with_zip_passwords(zip_passwords.to_vec())
+                .with_max_memory_file_size(max_memory_file_size);
             if let Some(engine) = shared_yara_engine {
                 analyzer = analyzer.with_yara_arc(engine.clone());
             }
@@ -1053,13 +1071,15 @@ fn analyze_archive_streaming_jsonl(
     shared_yara_engine: Option<&Arc<YaraEngine>>,
     zip_passwords: &[String],
     sample_extraction: Option<&types::SampleExtractionConfig>,
+    max_memory_file_size: u64,
 ) -> Result<()> {
     let path = Path::new(target);
     let archive_path = target.to_string();
 
     let mut analyzer = ArchiveAnalyzer::new()
         .with_capability_mapper_arc(capability_mapper.clone())
-        .with_zip_passwords(zip_passwords.to_vec());
+        .with_zip_passwords(zip_passwords.to_vec())
+        .with_max_memory_file_size(max_memory_file_size);
 
     if let Some(engine) = shared_yara_engine {
         analyzer = analyzer.with_yara_arc(engine.clone());

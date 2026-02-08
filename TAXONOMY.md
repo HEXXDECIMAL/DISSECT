@@ -229,11 +229,24 @@ meta/
 ├── format/             # File format (elf, pe, macho, script)
 ├── lang/               # Language/compiler detection
 ├── library/            # Library/framework detection (vue, jquery, react)
+├── import/             # Dependencies/imports used by the file (auto-generated)
+│   ├── python/         # Python imports (socket, requests, os.system)
+│   ├── npm/            # NPM packages (axios, lodash)
+│   ├── ruby/           # Ruby gems (net/http, rest-client)
+│   ├── java/           # Java imports (java.net.Socket)
+│   ├── go/             # Go imports
+│   ├── rust/           # Rust crate imports
+│   ├── c/              # C library imports
+│   ├── macho/          # Mach-O dylib imports (libSystem.B.dylib)
+│   ├── elf/            # ELF shared object imports (libcrypto.so)
+│   └── pe/             # PE DLL imports (kernel32.dll)
 ├── arch/               # Architecture (x86, x64, arm, arm64)
 ├── sign/               # Code signing status
 ├── quality/            # Code quality (logging, error handling, docs, tests)
 └── hardening/          # Security hardening (sandbox, seccomp, pledge)
 ```
+
+**Note:** `meta/import/` traits are auto-generated from discovered imports - no YAML definition needed. They enable composite rules to reference specific dependencies.
 
 **Note:** `meta/hardening/` traits can be used in `downgrade:` rules to reduce criticality for security-conscious code.
 

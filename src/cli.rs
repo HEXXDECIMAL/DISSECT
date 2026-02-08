@@ -213,6 +213,11 @@ pub struct Args {
     /// Rules below this threshold are downgraded to NOTABLE.
     #[arg(long, default_value_t = 1.5)]
     pub min_suspicious_precision: f32,
+
+    /// Maximum file size (in MB) to keep in memory during archive analysis.
+    /// Files larger than this are written to temp files. Default: 100 MB.
+    #[arg(long, value_name = "MB", default_value_t = 100)]
+    pub max_file_mem: u64,
 }
 
 impl Args {

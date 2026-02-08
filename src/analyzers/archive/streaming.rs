@@ -28,8 +28,8 @@ use super::guards::{
 use super::utils::{calculate_file_sha256, calculate_sha256};
 use super::ArchiveAnalyzer;
 
-/// Maximum file size to keep in memory (256 MB)
-pub const MAX_MEMORY_FILE_SIZE: u64 = 256 * 1024 * 1024;
+// Re-export the default from mod.rs for backwards compatibility
+pub use super::DEFAULT_MAX_MEMORY_FILE_SIZE as MAX_MEMORY_FILE_SIZE;
 
 /// Extracted file ready for analysis
 #[derive(Debug)]
@@ -360,13 +360,14 @@ impl ArchiveAnalyzer {
 
     /// Extract a TAR entry to memory, returning an ExtractedFile.
     ///
-    /// If the entry is larger than MAX_MEMORY_FILE_SIZE or is a nested archive,
+    /// If the entry is larger than `max_memory_file_size` or is a nested archive,
     /// it will be written to a temp file instead.
     pub(crate) fn extract_tar_entry_to_memory<R: Read>(
         entry: &mut tar::Entry<R>,
         entry_name: &str,
         temp_dir: &Path,
         guard: &ExtractionGuard,
+        max_memory_file_size: u64,
     ) -> Result<Option<ExtractedFile>> {
         let size = entry.header().size()?;
 
@@ -398,7 +399,7 @@ impl ArchiveAnalyzer {
 
         // Decide: in-memory or on-disk?
         let use_disk =
-            size > MAX_MEMORY_FILE_SIZE || matches!(file_type, FileType::Archive | FileType::Jar);
+            size > max_memory_file_size || matches!(file_type, FileType::Archive | FileType::Jar);
 
         if use_disk {
             // Extract to temp file
@@ -454,10 +455,14 @@ impl ArchiveAnalyzer {
     }
 
     /// Extract a ZIP entry to memory, returning an ExtractedFile.
+    ///
+    /// If the entry is larger than `max_memory_file_size` or is a nested archive,
+    /// it will be written to a temp file instead.
     pub(crate) fn extract_zip_entry_to_memory(
         entry: &mut zip::read::ZipFile<'_>,
         temp_dir: &Path,
         guard: &ExtractionGuard,
+        max_memory_file_size: u64,
     ) -> Result<Option<ExtractedFile>> {
         let entry_name = entry.name().to_string();
         let size = entry.size();
@@ -496,7 +501,7 @@ impl ArchiveAnalyzer {
 
         // Decide: in-memory or on-disk?
         let use_disk =
-            size > MAX_MEMORY_FILE_SIZE || matches!(file_type, FileType::Archive | FileType::Jar);
+            size > max_memory_file_size || matches!(file_type, FileType::Archive | FileType::Jar);
 
         if use_disk {
             // Extract to temp file
@@ -608,6 +613,7 @@ impl ArchiveAnalyzer {
         // Clone self for the producer thread
         let archive_path = archive_path.to_path_buf();
         let temp_dir_path = temp_dir.path().to_path_buf();
+        let max_memory_file_size = analyzer.max_memory_file_size();
 
         // Spawn extractor thread
         let extractor_handle = std::thread::spawn(move || -> Result<Vec<HostileArchiveReason>> {
@@ -654,6 +660,7 @@ impl ArchiveAnalyzer {
                     &entry_name,
                     &temp_dir_path,
                     &guard,
+                    max_memory_file_size,
                 ) {
                     Ok(Some(extracted)) => {
                         // Send to analysis pool - if channel is full, this blocks (backpressure)
@@ -810,6 +817,7 @@ impl ArchiveAnalyzer {
         let archive_path = archive_path.to_path_buf();
         let temp_dir_path = temp_dir.path().to_path_buf();
         let zip_passwords = self.zip_passwords.clone();
+        let max_memory_file_size = analyzer.max_memory_file_size();
 
         // Spawn extractor thread
         let extractor_handle = std::thread::spawn(move || -> Result<Vec<HostileArchiveReason>> {
@@ -931,6 +939,7 @@ impl ArchiveAnalyzer {
                     &mut entry,
                     &temp_dir_path,
                     &guard,
+                    max_memory_file_size,
                 ) {
                     Ok(Some(extracted)) => {
                         if tx.send(extracted).is_err() {
@@ -1072,6 +1081,7 @@ impl ArchiveAnalyzer {
 
         let archive_path = archive_path.to_path_buf();
         let temp_dir_path = temp_dir.path().to_path_buf();
+        let max_memory_file_size = analyzer.max_memory_file_size();
 
         // Spawn extractor thread
         let extractor_handle = std::thread::spawn(move || -> Result<Vec<HostileArchiveReason>> {
@@ -1141,6 +1151,7 @@ impl ArchiveAnalyzer {
                             &entry_name,
                             &temp_dir_path,
                             &guard,
+                            max_memory_file_size,
                         ) {
                             Ok(Some(extracted)) => {
                                 if tx.send(extracted).is_err() {

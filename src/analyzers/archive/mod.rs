@@ -23,6 +23,9 @@ use std::sync::Arc;
 use guards::{ExtractionGuard, MAX_FILE_COUNT, MAX_FILE_SIZE, MAX_TOTAL_SIZE};
 use utils::{calculate_sha256, detect_archive_type};
 
+/// Default maximum file size to keep in memory (100 MB)
+pub const DEFAULT_MAX_MEMORY_FILE_SIZE: u64 = 100 * 1024 * 1024;
+
 pub struct ArchiveAnalyzer {
     max_depth: usize,
     current_depth: usize,
@@ -37,6 +40,9 @@ pub struct ArchiveAnalyzer {
     /// SHA256 of the archive being analyzed (used for extraction directory)
     /// This groups all files from the same archive in one directory.
     archive_sha256: Option<String>,
+    /// Maximum file size to keep in memory during extraction.
+    /// Files larger than this are written to temp files.
+    max_memory_file_size: u64,
 }
 
 impl ArchiveAnalyzer {
@@ -50,7 +56,20 @@ impl ArchiveAnalyzer {
             zip_passwords: Arc::from([]),
             sample_extraction: None,
             archive_sha256: None,
+            max_memory_file_size: DEFAULT_MAX_MEMORY_FILE_SIZE,
         }
+    }
+
+    /// Set the maximum file size to keep in memory during extraction.
+    /// Files larger than this are written to temp files.
+    pub fn with_max_memory_file_size(mut self, size_bytes: u64) -> Self {
+        self.max_memory_file_size = size_bytes;
+        self
+    }
+
+    /// Get the maximum memory file size setting.
+    pub fn max_memory_file_size(&self) -> u64 {
+        self.max_memory_file_size
     }
 
     pub fn with_depth(mut self, depth: usize) -> Self {
@@ -131,6 +150,7 @@ impl ArchiveAnalyzer {
                 .as_ref()
                 .map(|c| c.with_archive_sha256(archive_sha256.clone())),
             archive_sha256: Some(archive_sha256),
+            max_memory_file_size: self.max_memory_file_size,
         }
     }
 
