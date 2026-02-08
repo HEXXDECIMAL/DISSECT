@@ -265,6 +265,15 @@ type config struct { //nolint:govet // field alignment optimized for readability
 
 const maxYAMLAutoFixAttempts = 3
 
+// geminiDefaultModels is the ordered list of Gemini models to try when no model is specified.
+// Falls back through these when quota is exhausted or errors occur.
+var geminiDefaultModels = []string{
+	"gemini-3-pro-preview",
+	"gemini-3-flash-preview",
+	"gemini-2.5-pro",
+	"gemini-2.5-flash",
+}
+
 // Finding represents a matched trait/capability.
 type Finding struct {
 	ID   string `json:"id"`
@@ -284,8 +293,10 @@ type FileAnalysis struct {
 // Archives are the unit of resolution - a bad tar.gz with 100 good files and
 // 1 bad file should be reviewed as a single archive.
 type ArchiveAnalysis struct {
-	ArchivePath string
-	Members     []FileAnalysis
+	ArchivePath     string
+	Members         []FileAnalysis
+	SummaryRisk     string    // Aggregated risk from archive summary entry
+	SummaryFindings []Finding // Archive-level findings (zip-bomb, etc.)
 }
 
 // RealFileAnalysis groups a real file with all its encoded/decoded fragments.
@@ -338,10 +349,24 @@ func memberPath(path string) string {
 	return path
 }
 
-// archiveNeedsReview returns true if any member of the archive needs review.
-// For known-good archives: review if ANY member is flagged (to reduce false positives).
-// For known-bad archives: review if NO members are detected yet (once 1 member is detected, archive is done).
+// archiveNeedsReview returns true if the archive needs review.
+// Uses the archive summary risk when available (from DISSECT's aggregated output).
+// For known-good archives: review if flagged (to reduce false positives).
+// For known-bad archives: review if NOT flagged (missing detections).
 func archiveNeedsReview(a *ArchiveAnalysis, knownGood bool) bool {
+	// Use summary risk if available (preferred - avoids race conditions from parallel streaming)
+	if a.SummaryRisk != "" {
+		r := strings.ToLower(a.SummaryRisk)
+		hasDetection := r == "suspicious" || r == "hostile"
+		if knownGood {
+			// Known-good: review if HAS detections (to reduce false positives)
+			return hasDetection
+		}
+		// Known-bad: review only if NO detections (to add missing ones)
+		return !hasDetection
+	}
+
+	// Fallback to member-based logic (legacy behavior, shouldn't happen with new DISSECT)
 	if knownGood {
 		// Known-good: review if ANY member has findings
 		for _, m := range a.Members {
@@ -351,14 +376,12 @@ func archiveNeedsReview(a *ArchiveAnalysis, knownGood bool) bool {
 		}
 		return false
 	}
-	// Known-bad: review only if ALL members are undetected (archive is done once any member detected)
+	// Known-bad: review only if ALL members are undetected
 	for _, m := range a.Members {
 		if !needsReview(m, knownGood) {
-			// Found a member with findings - archive is already flagged, skip it
 			return false
 		}
 	}
-	// All members are undetected - archive needs review
 	return true
 }
 
@@ -389,7 +412,9 @@ func main() {
 	knownGood := flag.Bool("good", false, "Review known-good files for false positives (suspicious/hostile findings)")
 	knownBad := flag.Bool("bad", false, "Review known-bad files for false negatives (missing detections)")
 	provider := flag.String("provider", "gemini,codex,claude,opencode", "AI providers (comma-separated, tries in order on failure)")
-	model := flag.String("model", "", `Model to use (provider-specific). Popular choices:
+	model := flag.String("model", "", `Model to use (provider-specific). If not set, gemini
+auto-tries models in order: gemini-3-pro-preview, gemini-3-flash-preview,
+gemini-2.5-pro, gemini-2.5-flash. Popular choices:
   claude:   sonnet, opus, haiku
   gemini:   gemini-3-pro-preview, gemini-3-flash-preview,
             gemini-2.5-pro, gemini-2.5-flash, gemini-2.5-flash-lite
@@ -432,13 +457,35 @@ func main() {
 		if p == "" {
 			continue
 		}
-		if p != "claude" && p != "gemini" && p != "codex" && p != "opencode" {
-			log.Fatalf("Unknown provider %q: must be claude, gemini, codex, or opencode", p)
+		// Allow provider:model syntax (e.g., gemini:gemini-2.5-pro)
+		base := p
+		if idx := strings.Index(p, ":"); idx != -1 {
+			base = p[:idx]
+		}
+		if base != "claude" && base != "gemini" && base != "codex" && base != "opencode" {
+			log.Fatalf("Unknown provider %q: must be claude, gemini, codex, or opencode", base)
 		}
 		providers = append(providers, p)
 	}
 	if len(providers) == 0 {
 		log.Fatal("At least one provider must be specified")
+	}
+
+	// Expand bare "gemini" into model-specific entries for automatic fallback
+	// Only expand if no explicit --model is set
+	if *model == "" {
+		var expanded []string
+		for _, p := range providers {
+			if p == "gemini" {
+				// Expand to try each default model in order
+				for _, m := range geminiDefaultModels {
+					expanded = append(expanded, "gemini:"+m)
+				}
+			} else {
+				expanded = append(expanded, p)
+			}
+		}
+		providers = expanded
 	}
 
 	// Find repo root (for running dissect via cargo).
@@ -555,10 +602,12 @@ func main() {
 		mode = "known-good"
 	}
 
+	// Display providers in a readable format (collapse gemini:model entries)
+	displayProviders := formatProvidersForDisplay(cfg.providers)
 	if cfg.model != "" {
-		fmt.Fprintf(os.Stderr, "Providers: %s (model: %s)\n", strings.Join(cfg.providers, " → "), cfg.model)
+		fmt.Fprintf(os.Stderr, "Providers: %s (model: %s)\n", displayProviders, cfg.model)
 	} else {
-		fmt.Fprintf(os.Stderr, "Providers: %s\n", strings.Join(cfg.providers, " → "))
+		fmt.Fprintf(os.Stderr, "Providers: %s\n", displayProviders)
 	}
 	fmt.Fprintf(os.Stderr, "Mode: %s\n", mode)
 	fmt.Fprintf(os.Stderr, "Repo root: %s\n", cfg.repoRoot)
@@ -740,6 +789,24 @@ func clearProgressLine() {
 
 func processFileEntry(ctx context.Context, st *streamState, f FileAnalysis, ap string) {
 	switch {
+	case ap == "" && st.currentArchivePath != "" && f.Path == st.currentArchivePath:
+		// Archive summary entry - DISSECT now emits this after all member files
+		// It contains aggregated risk/findings from all members, so we use it directly
+		// instead of computing from members (which may have arrived out of order)
+		if st.currentArchive != nil {
+			// Update the archive with the summary's aggregated risk
+			st.currentArchive.SummaryRisk = f.Risk
+			st.currentArchive.SummaryFindings = f.Findings
+			clearProgressLine()
+			processCompletedArchive(ctx, st)
+			st.currentArchive = nil
+			st.currentArchivePath = ""
+		} else {
+			// This shouldn't happen - summary without members indicates a bug
+			log.Printf("[warn] received archive summary for %q but no members were accumulated", f.Path)
+		}
+		return
+
 	case ap == "":
 		// Standalone file (not in an archive)
 		if st.currentArchive != nil {
@@ -1433,8 +1500,16 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) error {
 	var cmd *exec.Cmd
 
+	// Handle provider:model syntax (e.g., "gemini:gemini-2.5-pro")
+	provider := cfg.provider
+	modelOverride := ""
+	if idx := strings.Index(provider, ":"); idx != -1 {
+		modelOverride = provider[idx+1:]
+		provider = provider[:idx]
+	}
+
 	// Build command args (prompt sent via stdin)
-	switch cfg.provider {
+	switch provider {
 	case "claude":
 		args := []string{
 			"--verbose",
@@ -1456,7 +1531,10 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 		if home, err := os.UserHomeDir(); err == nil {
 			args = append(args, "--include-directories", filepath.Join(home, "data"))
 		}
-		if cfg.model != "" {
+		// Use model from provider:model syntax, or explicit --model flag
+		if modelOverride != "" {
+			args = append(args, "--model", modelOverride)
+		} else if cfg.model != "" {
 			args = append(args, "--model", cfg.model)
 		}
 		cmd = exec.CommandContext(ctx, "gemini", args...)
@@ -1748,6 +1826,41 @@ func displayStreamEvent(line string) {
 
 // codexDeltaOpen tracks whether we've printed streaming agent deltas and need a newline.
 var codexDeltaOpen bool
+
+// formatProvidersForDisplay collapses gemini:model entries into a single "gemini (4 models)"
+// for cleaner display while showing the full fallback chain.
+func formatProvidersForDisplay(providers []string) string {
+	var result []string
+	geminiCount := 0
+
+	for _, p := range providers {
+		if strings.HasPrefix(p, "gemini:") {
+			geminiCount++
+		} else if p == "gemini" {
+			result = append(result, "gemini")
+		} else {
+			// Flush any accumulated gemini models before adding next provider
+			if geminiCount > 0 {
+				if geminiCount == 1 {
+					result = append(result, "gemini")
+				} else {
+					result = append(result, fmt.Sprintf("gemini (%d models)", geminiCount))
+				}
+				geminiCount = 0
+			}
+			result = append(result, p)
+		}
+	}
+	// Flush remaining gemini models
+	if geminiCount > 0 {
+		if geminiCount == 1 {
+			result = append(result, "gemini")
+		} else {
+			result = append(result, fmt.Sprintf("gemini (%d models)", geminiCount))
+		}
+	}
+	return strings.Join(result, " → ")
+}
 
 func generateSessionID() string {
 	b := make([]byte, 16)

@@ -98,3 +98,51 @@ func TestProcessExistsCheck(t *testing.T) {
 		t.Error("Non-existent process check should have failed")
 	}
 }
+
+func TestFormatProvidersForDisplay(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    []string
+		expected string
+	}{
+		{
+			name:     "single provider",
+			input:    []string{"claude"},
+			expected: "claude",
+		},
+		{
+			name:     "multiple simple providers",
+			input:    []string{"gemini", "claude", "codex"},
+			expected: "gemini → claude → codex",
+		},
+		{
+			name:     "expanded gemini models",
+			input:    []string{"gemini:gemini-3-pro-preview", "gemini:gemini-3-flash-preview", "gemini:gemini-2.5-pro", "gemini:gemini-2.5-flash"},
+			expected: "gemini (4 models)",
+		},
+		{
+			name:     "expanded gemini with fallback providers",
+			input:    []string{"gemini:gemini-3-pro-preview", "gemini:gemini-3-flash-preview", "codex", "claude"},
+			expected: "gemini (2 models) → codex → claude",
+		},
+		{
+			name:     "single gemini model",
+			input:    []string{"gemini:gemini-3-pro-preview"},
+			expected: "gemini",
+		},
+		{
+			name:     "mixed with plain gemini",
+			input:    []string{"claude", "gemini", "codex"},
+			expected: "claude → gemini → codex",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			result := formatProvidersForDisplay(tc.input)
+			if result != tc.expected {
+				t.Errorf("formatProvidersForDisplay(%v) = %q, want %q", tc.input, result, tc.expected)
+			}
+		})
+	}
+}
