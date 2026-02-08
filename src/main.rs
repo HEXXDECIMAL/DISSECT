@@ -294,16 +294,14 @@ fn main() -> Result<()> {
             extract_strings(&target, min_length, &format)?
         }
         Some(cli::Command::Symbols { target }) => extract_symbols(&target, &format)?,
-        Some(cli::Command::TestRules { target, rules }) => {
-            test_rules_debug(
-                &target,
-                &rules,
-                &disabled,
-                platforms.clone(),
-                args.min_hostile_precision,
-                args.min_suspicious_precision,
-            )?
-        }
+        Some(cli::Command::TestRules { target, rules }) => test_rules_debug(
+            &target,
+            &rules,
+            &disabled,
+            platforms.clone(),
+            args.min_hostile_precision,
+            args.min_suspicious_precision,
+        )?,
         Some(cli::Command::TestMatch {
             target,
             r#type,

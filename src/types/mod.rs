@@ -159,7 +159,11 @@ impl SampleExtractionConfig {
 
         // Build path: <extract_dir>/<short_sha>/<relative_path>
         // Use first 6 chars of SHA256 to keep paths shorter while avoiding collisions
-        let short_sha = if sha256.len() >= 6 { &sha256[..6] } else { sha256 };
+        let short_sha = if sha256.len() >= 6 {
+            &sha256[..6]
+        } else {
+            sha256
+        };
         let sha_dir = self.extract_dir.join(short_sha);
         let full_path = sha_dir.join(relative_path);
 

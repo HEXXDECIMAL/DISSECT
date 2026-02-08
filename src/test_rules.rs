@@ -2971,7 +2971,13 @@ fn evaluate_condition_simple(
             number,
             arch,
             min_count,
-        } => eval_syscall(name.as_ref(), number.as_ref(), arch.as_ref(), *min_count, ctx),
+        } => eval_syscall(
+            name.as_ref(),
+            number.as_ref(),
+            arch.as_ref(),
+            *min_count,
+            ctx,
+        ),
         Condition::ImportsCount { min, max, filter } => {
             eval_imports_count(*min, *max, filter.as_ref(), ctx)
         }

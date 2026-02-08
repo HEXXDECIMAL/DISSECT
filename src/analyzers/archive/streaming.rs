@@ -29,7 +29,7 @@ use super::utils::{calculate_file_sha256, calculate_sha256};
 use super::ArchiveAnalyzer;
 
 // Re-export the default from mod.rs for backwards compatibility
-pub use super::DEFAULT_MAX_MEMORY_FILE_SIZE as MAX_MEMORY_FILE_SIZE;
+// MAX_MEMORY_FILE_SIZE was removed in favor of configurable max_memory_file_size parameter
 
 /// Extracted file ready for analysis
 #[derive(Debug)]
@@ -163,9 +163,10 @@ impl ArchiveAnalyzer {
                     let temp = tempfile::NamedTempFile::new()?;
                     std::fs::write(temp.path(), data)?;
 
-                    if let Some(analyzer) =
-                        crate::analyzers::analyzer_for_file_type_arc(file_type, Some(mapper.clone()))
-                    {
+                    if let Some(analyzer) = crate::analyzers::analyzer_for_file_type_arc(
+                        file_type,
+                        Some(mapper.clone()),
+                    ) {
                         if let Ok(report) = analyzer.analyze(temp.path()) {
                             // Extract findings and other info from report
                             file_analysis.findings = report.findings;
@@ -184,9 +185,10 @@ impl ArchiveAnalyzer {
                     let temp = tempfile::NamedTempFile::new()?;
                     std::fs::write(temp.path(), data)?;
 
-                    if let Some(analyzer) =
-                        crate::analyzers::analyzer_for_file_type_arc(file_type, Some(mapper.clone()))
-                    {
+                    if let Some(analyzer) = crate::analyzers::analyzer_for_file_type_arc(
+                        file_type,
+                        Some(mapper.clone()),
+                    ) {
                         if let Ok(report) = analyzer.analyze(temp.path()) {
                             file_analysis.findings = report.findings;
                             file_analysis.strings = report.strings;
@@ -234,7 +236,8 @@ impl ArchiveAnalyzer {
                         .with_archive_prefix(nested_prefix);
 
                     if let Some(ref mapper) = self.capability_mapper {
-                        nested_analyzer = nested_analyzer.with_capability_mapper_arc(mapper.clone());
+                        nested_analyzer =
+                            nested_analyzer.with_capability_mapper_arc(mapper.clone());
                     }
                     if let Some(ref engine) = self.yara_engine {
                         nested_analyzer = nested_analyzer.with_yara_arc(engine.clone());
@@ -305,9 +308,10 @@ impl ArchiveAnalyzer {
                     let temp = tempfile::NamedTempFile::new()?;
                     std::fs::write(temp.path(), data)?;
 
-                    if let Some(analyzer) =
-                        crate::analyzers::analyzer_for_file_type_arc(file_type, Some(mapper.clone()))
-                    {
+                    if let Some(analyzer) = crate::analyzers::analyzer_for_file_type_arc(
+                        file_type,
+                        Some(mapper.clone()),
+                    ) {
                         if let Ok(report) = analyzer.analyze(temp.path()) {
                             file_analysis.findings = report.findings;
                             file_analysis.strings = report.strings;
@@ -1292,6 +1296,7 @@ impl ArchiveAnalyzer {
 
         let archive_path = archive_path.to_path_buf();
         let temp_dir_path = temp_dir.path().to_path_buf();
+        let max_memory_file_size = analyzer.max_memory_file_size();
 
         // Spawn extractor thread
         let extractor_handle = std::thread::spawn(move || -> Result<Vec<HostileArchiveReason>> {
@@ -1348,7 +1353,13 @@ impl ArchiveAnalyzer {
             };
 
             // Process CPIO entries
-            extract_cpio_streaming(cpio_reader, &temp_dir_path, &guard, &tx)?;
+            extract_cpio_streaming(
+                cpio_reader,
+                &temp_dir_path,
+                &guard,
+                &tx,
+                max_memory_file_size,
+            )?;
 
             drop(tx);
             Ok(guard.take_reasons())
@@ -1473,6 +1484,7 @@ impl ArchiveAnalyzer {
 
         let archive_path = archive_path.to_path_buf();
         let temp_dir_path = temp_dir.path().to_path_buf();
+        let max_memory_file_size = analyzer.max_memory_file_size();
 
         // Spawn extractor thread (must be sequential due to solid compression)
         let extractor_handle = std::thread::spawn(move || -> Result<Vec<HostileArchiveReason>> {
@@ -1512,7 +1524,7 @@ impl ArchiveAnalyzer {
                 let file_type = detect_file_type_from_path(path);
 
                 // Read to memory or disk
-                let use_disk = file_size > MAX_MEMORY_FILE_SIZE
+                let use_disk = file_size > max_memory_file_size
                     || matches!(file_type, FileType::Archive | FileType::Jar);
 
                 if use_disk {
@@ -1701,6 +1713,7 @@ fn extract_cpio_streaming<R: Read>(
     temp_dir: &Path,
     guard: &ExtractionGuard,
     tx: &crossbeam_channel::Sender<ExtractedFile>,
+    max_memory_file_size: u64,
 ) -> Result<()> {
     loop {
         if !guard.check_file_count() {
@@ -1777,7 +1790,7 @@ fn extract_cpio_streaming<R: Read>(
         let file_type = detect_file_type_from_path(path);
 
         // Decide: in-memory or on-disk?
-        let use_disk = file_size > MAX_MEMORY_FILE_SIZE
+        let use_disk = file_size > max_memory_file_size
             || matches!(file_type, FileType::Archive | FileType::Jar);
 
         if use_disk {

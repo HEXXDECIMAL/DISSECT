@@ -190,7 +190,9 @@ pub fn detect_format(path: &Path, content: &[u8]) -> StructuredFormat {
     }
 
     // Check for XML Plist
-    if trimmed.starts_with("<?xml") && (trimmed.contains("<plist") || trimmed.contains("<!DOCTYPE plist")) {
+    if trimmed.starts_with("<?xml")
+        && (trimmed.contains("<plist") || trimmed.contains("<!DOCTYPE plist"))
+    {
         return StructuredFormat::Plist;
     }
     if trimmed.starts_with("<plist") {
@@ -434,9 +436,7 @@ pub fn evaluate_kv(condition: &Condition, content: &[u8], file_path: &Path) -> O
             let s = std::str::from_utf8(content).ok()?;
             toml::from_str(s).ok()?
         }
-        StructuredFormat::Plist => {
-            plist::from_bytes(content).ok()?
-        }
+        StructuredFormat::Plist => plist::from_bytes(content).ok()?,
         StructuredFormat::PkgInfo => parse_pkginfo(content)?,
         StructuredFormat::Unknown => {
             // Try JSON first, then YAML

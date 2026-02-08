@@ -7,12 +7,12 @@
 //! - Complexity calculation tests
 
 use super::*;
-use std::path::Path;
 use crate::composite_rules::{
     CompositeTrait, Condition, FileType as RuleFileType, Platform, TraitDefinition,
 };
 use crate::types::{AnalysisReport, Criticality, Finding, FindingKind, TargetInfo};
 use anyhow::Result;
+use std::path::Path;
 
 #[test]
 fn test_empty_mapper() {
@@ -251,7 +251,8 @@ fn test_apply_trait_defaults_applies_all_defaults() {
         },
     };
 
-    let result = parsing::apply_trait_defaults(raw, &defaults, &mut Vec::new(), Path::new("test.yaml"));
+    let result =
+        parsing::apply_trait_defaults(raw, &defaults, &mut Vec::new(), Path::new("test.yaml"));
 
     assert_eq!(result.conf, 0.85);
     assert_eq!(result.crit, Criticality::Suspicious);
@@ -308,7 +309,8 @@ fn test_apply_trait_defaults_trait_overrides_defaults() {
         },
     };
 
-    let result = parsing::apply_trait_defaults(raw, &defaults, &mut Vec::new(), Path::new("test.yaml"));
+    let result =
+        parsing::apply_trait_defaults(raw, &defaults, &mut Vec::new(), Path::new("test.yaml"));
 
     assert_eq!(result.conf, 0.99);
     // Atomic traits cannot be HOSTILE, so they get downgraded to SUSPICIOUS
@@ -366,7 +368,8 @@ fn test_apply_trait_defaults_unset_mbc_with_none() {
         },
     };
 
-    let result = parsing::apply_trait_defaults(raw, &defaults, &mut Vec::new(), Path::new("test.yaml"));
+    let result =
+        parsing::apply_trait_defaults(raw, &defaults, &mut Vec::new(), Path::new("test.yaml"));
 
     assert_eq!(result.mbc, None); // Unset despite default
     assert_eq!(result.attack, Some("T1059".to_string())); // Default applied
@@ -419,7 +422,8 @@ fn test_apply_trait_defaults_unset_attack_with_none() {
         },
     };
 
-    let result = parsing::apply_trait_defaults(raw, &defaults, &mut Vec::new(), Path::new("test.yaml"));
+    let result =
+        parsing::apply_trait_defaults(raw, &defaults, &mut Vec::new(), Path::new("test.yaml"));
 
     assert_eq!(result.mbc, Some("B0001".to_string())); // Default applied
     assert_eq!(result.attack, None); // Unset despite default
@@ -472,7 +476,8 @@ fn test_apply_trait_defaults_unset_file_types_with_none() {
         },
     };
 
-    let result = parsing::apply_trait_defaults(raw, &defaults, &mut Vec::new(), Path::new("test.yaml"));
+    let result =
+        parsing::apply_trait_defaults(raw, &defaults, &mut Vec::new(), Path::new("test.yaml"));
 
     // When unset, file_types defaults to [All]
     assert_eq!(result.r#for, vec![RuleFileType::All]);
@@ -2523,10 +2528,7 @@ fn test_parse_file_types_groups_and_exclusions() {
 
 #[test]
 fn test_normalize_import_name_basic() {
-    assert_eq!(
-        CapabilityMapper::normalize_import_name("socket"),
-        "socket"
-    );
+    assert_eq!(CapabilityMapper::normalize_import_name("socket"), "socket");
     assert_eq!(
         CapabilityMapper::normalize_import_name("os.system"),
         "os.system"
@@ -2575,14 +2577,8 @@ fn test_normalize_import_name_collapse_hyphens() {
 #[test]
 fn test_normalize_import_name_trim_hyphens() {
     // Should trim leading/trailing hyphens
-    assert_eq!(
-        CapabilityMapper::normalize_import_name("/foo/"),
-        "foo"
-    );
-    assert_eq!(
-        CapabilityMapper::normalize_import_name("@pkg"),
-        "pkg"
-    );
+    assert_eq!(CapabilityMapper::normalize_import_name("/foo/"), "foo");
+    assert_eq!(CapabilityMapper::normalize_import_name("@pkg"), "pkg");
 }
 
 #[test]
@@ -2627,10 +2623,7 @@ fn test_detect_import_ecosystem_source_types() {
         CapabilityMapper::detect_import_ecosystem("java", "ast"),
         "java"
     );
-    assert_eq!(
-        CapabilityMapper::detect_import_ecosystem("go", "ast"),
-        "go"
-    );
+    assert_eq!(CapabilityMapper::detect_import_ecosystem("go", "ast"), "go");
 }
 
 #[test]
@@ -2684,7 +2677,11 @@ fn test_generate_import_findings_basic() {
     assert!(ids.contains(&"meta/import/python/os.system"));
 
     // Check finding properties
-    let socket_finding = report.findings.iter().find(|f| f.id == "meta/import/python/socket").unwrap();
+    let socket_finding = report
+        .findings
+        .iter()
+        .find(|f| f.id == "meta/import/python/socket")
+        .unwrap();
     assert_eq!(socket_finding.crit, Criticality::Inert);
     assert_eq!(socket_finding.kind, FindingKind::Structural);
     assert!((socket_finding.conf - 0.95).abs() < 0.01);
@@ -2836,7 +2833,10 @@ fn test_generate_import_findings_preserves_existing() {
     // Should have 2 findings: original + new import
     assert_eq!(report.findings.len(), 2);
     assert!(report.findings.iter().any(|f| f.id == "cap/exec/shell"));
-    assert!(report.findings.iter().any(|f| f.id == "meta/import/python/socket"));
+    assert!(report
+        .findings
+        .iter()
+        .any(|f| f.id == "meta/import/python/socket"));
 }
 
 #[test]

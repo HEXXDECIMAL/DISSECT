@@ -186,7 +186,9 @@ pub fn analyzer_for_file_type_arc(
         // All source code languages - use unified analyzer
         _ => {
             if let Some(analyzer) = unified::UnifiedSourceAnalyzer::for_file_type(file_type) {
-                Some(Box::new(analyzer.with_capability_mapper_arc(mapper_or_empty)))
+                Some(Box::new(
+                    analyzer.with_capability_mapper_arc(mapper_or_empty),
+                ))
             } else {
                 // Fallback to generic for types without tree-sitter (Batch, Unknown)
                 Some(Box::new(
@@ -434,7 +436,9 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
 
     // Check for XML Plist
     let content_start = String::from_utf8_lossy(&file_data[..file_data.len().min(100)]);
-    if (content_start.contains("<?xml") && content_start.contains("<plist")) || content_start.contains("<plist") {
+    if (content_start.contains("<?xml") && content_start.contains("<plist"))
+        || content_start.contains("<plist")
+    {
         return Ok(FileType::Plist);
     }
 
