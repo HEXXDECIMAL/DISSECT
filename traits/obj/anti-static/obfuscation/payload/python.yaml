@@ -117,6 +117,86 @@ traits:
       type: string
       regex: "compile\\s*\\([^)]+,\\s*['\"][^'\"]+['\"]\\s*,\\s*['\"]exec['\"]\\s*\\)"
 
+  # === Compiled Python bytecode (.pyc) disguised as .py ===
+  # Python bytecode magic number in a .py file indicates the file was
+  # compiled and renamed to evade source-level analysis.
+  # CB0D = Python 3.13, A70D = 3.12, 610D = 3.11, 420D = 3.10
+  # The 0D0A trailer and co_code marker (E3) confirm valid bytecode.
+  - id: pyc-magic-in-py
+    desc: Python bytecode magic in .py file
+    crit: suspicious
+    conf: 0.95
+    mbc: "B0032"
+    attack: "T1036.008"
+    for: [python]
+    if:
+      type: yara
+      source: |
+        rule pyc_magic_in_py {
+          strings:
+            $pyc = { ( CB | A7 | 61 | 42 | 6F | 55 ) 0D 0D 0A }
+          condition:
+            $pyc
+        }
+
+  # unhexlify name in bytecode (without binascii. prefix)
+  # Compiled bytecode stores function names as separate identifiers
+  - id: unhexlify-in-bytecode
+    desc: unhexlify reference in bytecode
+    crit: notable
+    conf: 0.75
+    mbc: "B0032"
+    attack: "T1140"
+    for: [python]
+    if:
+      type: content
+      substr: "unhexlify"
+
+  # Bytecode containing both exec and eval names alongside __import__
+  # Strong indicator of multi-stage payload decoding
+  - id: bytecode-exec-eval-import
+    desc: Bytecode with exec eval and __import__
+    crit: suspicious
+    conf: 0.85
+    mbc: "E1059"
+    attack: "T1059"
+    for: [python]
+    if:
+      type: yara
+      source: |
+        rule bytecode_exec_eval_import {
+          strings:
+            $exec = "exec" ascii
+            $eval = "eval" ascii
+            $import = "__import__" ascii
+            $unhex = "unhexlify" ascii
+          condition:
+            $exec and $eval and $import and $unhex
+        }
+
+  # Self-reading bytecode: __file__ + open + read in content
+  # Bytecode that reads its own file to extract embedded payload
+  - id: bytecode-self-reader
+    desc: Bytecode reads own file for payload
+    crit: suspicious
+    conf: 0.90
+    mbc: "B0032"
+    attack: "T1027"
+    for: [python]
+    if:
+      type: yara
+      source: |
+        rule bytecode_self_reader {
+          strings:
+            $file = "__file__" ascii
+            $open = "open" ascii
+            $read = "read" ascii
+            $exec = "exec" ascii
+            $join = "''.join" ascii
+          condition:
+            $file and $open and $read and ($exec or $join)
+        }
+
 composite_rules:
   # === Hex decode execution patterns ===
   # exec(binascii.unhexlify(...)) - classic malware obfuscation
@@ -162,3 +242,21 @@ composite_rules:
       - id: exec-decode-pattern
       - id: eval-decode-pattern
       - id: compile-exec-pattern
+
+  # Compiled bytecode with payload execution pipeline
+  # Self-reading + exec/eval/import + unhexlify + obfuscation indicators
+  # Precision: for(+0.3) + all(+2) + any(+1) + any(+1) = 4.3
+  - id: bytecode-payload-execution
+    desc: Compiled bytecode payload execution pipeline
+    crit: hostile
+    conf: 0.95
+    mbc: "B0032"
+    attack: "T1027"
+    for: [python]
+    all:
+      - id: bytecode-exec-eval-import
+      - id: bytecode-self-reader
+    any:
+      - id: unhexlify-in-bytecode
+      - id: obj/anti-static/obfuscation/code-metrics/minified-code
+      - id: obj/anti-static/obfuscation/known-obfuscator-detected

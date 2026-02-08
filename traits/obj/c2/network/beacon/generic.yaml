@@ -139,7 +139,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      regex: "(user.?agent.{0,20}(rotate|rotation|random|rand|cycle|switch|pool|list)|random\\.choice\\(|Math\\.random\\(|shuffle\\(|rand\\()"
+      regex: "(user.?agent.{0,20}(rotate|rotation|random|rand|cycle|switch|pool|list)|random\\.choice\\(.{0,40}[Uu]ser.?[Aa]gent|Math\\.random\\(.{0,40}[Uu]ser.?[Aa]gent|shuffle\\(.{0,40}[Uu]ser.?[Aa]gent)"
       case_insensitive: true
   # === Bot User-Agent atomic indicators ===
   - id: googlebot-ua
@@ -283,7 +283,7 @@ composite_rules:
 
   - id: bot-user-agent
     desc: Search engine bot User-Agent (DDoS/evasion)
-    crit: suspicious
+    crit: notable
     conf: 0.85
     mbc: "B0030"
     attack: "T1071.001"

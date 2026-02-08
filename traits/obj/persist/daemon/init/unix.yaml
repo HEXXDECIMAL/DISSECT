@@ -257,6 +257,19 @@ composite_rules:
       - id: daemon-fork
       - id: daemon-setsid
 
+  # Fork + system() + randomized timing = persistent daemon with randomized execution
+  # Complexity: all(3) + for(1) = 4 (meets hostile threshold)
+  - id: fork-random-exec-daemon
+    desc: Forked daemon with randomized command execution
+    crit: suspicious
+    conf: 0.85
+    attack: "T1543"
+    for: [elf, macho, c, objectivec]
+    all:
+      - id: cap/process/fork/fork
+      - id: cap/exec/command/shell/sleep-format-exec
+      - id: cap/os/random/seeded-random
+
   # macOS double-fork daemon pattern
   # This is the classic fork() -> setsid() -> fork() -> umask() -> chdir() pattern
   - id: macos-double-fork-daemon

@@ -324,3 +324,5 @@ composite_rules:
       - id: meta/signed/type/platform
       # Exclude curl/libcurl which uses SOCKS as a CLIENT, not server
       - id: cap/comm/download/curl/curl-easy-init
+      # Exclude HTTP client libraries (urllib, requests, etc.) that support SOCKS proxying
+      - id: cap/comm/http/request/http-client

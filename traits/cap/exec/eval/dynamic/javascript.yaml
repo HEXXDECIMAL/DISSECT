@@ -77,6 +77,18 @@ traits:
       type: content
       regex: "\\[\\s*[\"']constructor[\"']\\s*\\]"
 
+  # Function name derived from typeof() (e.g., "function" -> "Function")
+  - id: function-constructor-from-typeof
+    desc: Function constructor derived from typeof
+    crit: suspicious
+    conf: 0.85
+    attack: "T1059.007"
+    mbc: "B0032"
+    for: [javascript]
+    if:
+      type: content
+      regex: "\\(\\s*typeof[^\\)]{0,80}\\)\\s*\\)\\s*\\.charAt\\(0\\)\\.toUpperCase\\(\\)\\s*\\+\\s*\\(\\s*typeof[^\\)]{0,80}\\)\\s*\\)\\s*\\.slice\\(1\\)"
+
   # Bracket notation function call (variable as function)
   - id: bracket-function-access
     desc: Function access via bracket notation
@@ -171,6 +183,7 @@ composite_rules:
       - id: new-function-constructor
       - id: function-constructor-call
       - id: constructor-property-access
+      - id: function-constructor-from-typeof
 
   # Function constructor accessed via obfuscation
   - id: obfuscated-function-constructor

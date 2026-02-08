@@ -209,6 +209,7 @@ traits:
     conf: 0.85
     attack: "T1110"
     platforms: [all]
+    for: [scripts]
     if:
       type: string
       regex: "[Bb]rute[_\\-\\s]?[Ff]orce"
@@ -414,7 +415,7 @@ composite_rules:
   # Target IP reference
   - id: target-ip-ref
     desc: References target IP concept
-    crit: suspicious
+    crit: notable
     conf: 0.75
     platforms: [all]
     needs: 1
@@ -426,7 +427,7 @@ composite_rules:
   # Random target generation
   - id: random-target
     desc: Random target/IP generation
-    crit: suspicious
+    crit: notable
     conf: 0.8
     platforms: [all]
     needs: 1
@@ -478,7 +479,7 @@ composite_rules:
   # Weak password admin123
   - id: weak-pass-admin123
     desc: Weak password admin123
-    crit: suspicious
+    crit: notable
     conf: 0.7
     attack: "T1110.001"
     platforms: [all]
@@ -490,7 +491,7 @@ composite_rules:
   # Weak password qwerty variants
   - id: weak-pass-qwerty-variants
     desc: Weak password qwerty variants
-    crit: suspicious
+    crit: notable
     conf: 0.7
     attack: "T1110.001"
     platforms: [all]
@@ -507,7 +508,7 @@ composite_rules:
   # Root exploitation terminology
   - id: root-exploit-ref
     desc: Root exploitation terminology (leetspeak/hacker slang)
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1068"
     platforms: [all]

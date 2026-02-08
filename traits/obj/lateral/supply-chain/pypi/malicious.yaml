@@ -33,11 +33,16 @@ traits:
             $exec1 = "exec(" ascii
             $exec2 = "eval(" ascii
             $exec3 = "__import__(" ascii
-            // Network/download activity
+            // Network/download activity (Python-native)
             $dl1 = "urlopen(" ascii
             $dl2 = "urlretrieve(" ascii
             $dl3 = "requests.get(" ascii
             $dl4 = "requests.post(" ascii
+            // Network/download via cross-language invocation (PowerShell/shell in strings)
+            $dl5 = "Invoke-WebRequest" ascii nocase
+            $dl6 = "DownloadFile" ascii
+            $dl7 = "DownloadString" ascii
+            $dl8 = "Start-BitsTransfer" ascii nocase
             // Encoded/compressed payload handling
             $payload1 = "b64decode(" ascii
             $payload2 = "base64.b64decode(" ascii
@@ -169,7 +174,97 @@ traits:
       regex: "requests\\.packages(?:\\.|\\b)"
     unless:
       - type: content
-        regex: "look the other way"
+        substr: "from .packages.urllib3"
+      - type: content
+        substr: "'requests.packages'"
+      - type: content
+        substr: "from .compat import chardet"
+
+  # Vendored requests version metadata file - contains __title__ = "requests"
+  # which identifies the file as belonging to the requests library.
+  # Typosquatting packages bundle copies of popular libraries including
+  # their __version__.py to appear legitimate.
+  - id: vendored-requests-version
+    desc: Vendored requests library version metadata
+    crit: notable
+    conf: 0.85
+    attack: "T1036.005"
+    size_max: 2000
+    if:
+      type: content
+      regex: '__title__\s*=\s*["\x27]requests["\x27]'
+
+  # Vendored requests library full identity metadata - contains both
+  # __title__ = "requests" and __author__ = "Kenneth Reitz".
+  # When a small file claims full authorship identity of the requests library,
+  # it's a stronger supply-chain impersonation signal than just __title__ alone.
+  # Common in typosquatting packages that bundle vendored requests metadata.
+  - id: vendored-requests-author-identity
+    desc: Vendored requests author identity metadata
+    crit: notable
+    conf: 0.9
+    attack: "T1036.005"
+    size_max: 2000
+    if:
+      type: yara
+      source: |
+        rule vendored_requests_author_identity {
+          strings:
+            $title = /__title__\s*=\s*["']requests["']/ ascii
+            $author = /__author__\s*=\s*["']Kenneth Reitz["']/ ascii
+          condition:
+            $title and $author
+        }
+
+  # Vendored requests library __init__.py docstring - the file contains the
+  # distinctive "Requests HTTP Library" docstring header combined with the
+  # Kenneth Reitz copyright. This identifies a vendored copy of the requests
+  # library's __init__.py, commonly found in typosquatting packages that
+  # bundle legitimate library code to appear genuine on PyPI.
+  - id: vendored-requests-init-docstring
+    desc: Vendored requests library __init__.py docstring
+    crit: notable
+    conf: 0.85
+    attack: "T1036.005"
+    if:
+      type: yara
+      source: |
+        rule vendored_requests_init_docstring {
+          strings:
+            $docstring = "Requests HTTP Library" ascii
+            $copyright = "Kenneth Reitz" ascii
+            $import_api = "from .api import" ascii
+          condition:
+            $docstring and $copyright and $import_api
+        }
+
+  # Vendored requests __init__.py with dense relative imports — the file
+  # imports from many submodules (api, models, sessions, exceptions, etc.)
+  # that typically don't exist in the typosquatting package, making the
+  # module non-functional on import. This is a hallmark of supply-chain
+  # packages whose real payload runs during install, not import.
+  # Excludes the real requests library by checking for check_compatibility,
+  # a function present in the genuine library but absent in typosquats.
+  - id: vendored-requests-init-broken
+    desc: Vendored requests init with broken imports
+    crit: notable
+    conf: 0.85
+    attack: "T1036.005"
+    if:
+      type: yara
+      source: |
+        rule vendored_requests_init_broken {
+          strings:
+            $docstring = "Requests HTTP Library" ascii
+            $imp1 = "from .api import" ascii
+            $imp2 = "from .models import" ascii
+            $imp3 = "from .sessions import" ascii
+            $imp4 = "from .exceptions import" ascii
+            $imp5 = "from .status_codes import" ascii
+            $real_lib = "check_compatibility" ascii
+          condition:
+            $docstring and 4 of ($imp*) and not $real_lib
+        }
 
   # Vendored Zope Acquisition module - references Acquisition.Implicit/Explicit
   # and ImplicitAcquisitionWrapper, which are Zope-specific APIs.

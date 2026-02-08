@@ -73,7 +73,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      substr: ".shell"
+      regex: "\\.shell\\b"
 
   # === Tsunami/Kaiten identifiers ===
   - id: tsunami-name

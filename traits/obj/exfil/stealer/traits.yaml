@@ -79,7 +79,7 @@ composite_rules:
   # Bot identification headers (references comm/http/headers/)
   - id: bot-headers
     desc: Bot identification HTTP headers
-    crit: suspicious
+    crit: notable
     conf: 0.9
     for: [shell]
     any:

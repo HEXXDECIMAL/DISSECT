@@ -58,7 +58,7 @@ traits:
   # === Exfiltration endpoint pattern ===
   - id: http-post-endpoint
     desc: HTTP POST method handler
-    crit: notable
+    crit: inert
     conf: 0.8
     for: [python]
     if:

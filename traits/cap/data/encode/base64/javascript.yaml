@@ -1,0 +1,44 @@
+traits:
+  - id: cap/data/encode/base64/javascript/tostring
+    desc: Base64 encoding via toString
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: ast
+      language: javascript
+      query: |
+        (call_expression
+          function: (member_expression
+            property: (property_identifier) @tostr
+          )
+          arguments: (arguments
+            (string) @enc
+          )
+          (#eq? @tostr "toString")
+          (#match? @enc "base64")
+        )
+
+  - id: cap/data/encode/base64/javascript/buffer-from
+    desc: Base64 decoding/usage via Buffer.from
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: ast
+      language: javascript
+      query: |
+        (call_expression
+          function: (member_expression
+            object: (identifier) @buf
+            property: (property_identifier) @from
+          )
+          arguments: (arguments
+            (_)
+            (string) @enc
+          )
+          (#eq? @buf "Buffer")
+          (#eq? @from "from")
+          (#match? @enc "base64")
+        )
+

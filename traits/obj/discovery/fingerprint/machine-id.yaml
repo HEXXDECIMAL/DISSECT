@@ -457,3 +457,6 @@ composite_rules:
     all:
       - { id: unique-id-keywords }
       - { id: network-exfil-patterns }
+    downgrade:
+      any:
+        - id: meta/library/jquery/library

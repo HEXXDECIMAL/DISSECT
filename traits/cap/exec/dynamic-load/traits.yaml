@@ -122,6 +122,27 @@ traits:
             $dc and ($lc or $fc)
         }
 
+  # Java resource-backed class loader (loads bytecode from embedded resource)
+  - id: java-resource-classloader
+    desc: Defines class from resource stream
+    crit: suspicious
+    conf: 0.92
+    for: [class]
+    if:
+      type: yara
+      source: |
+        rule java_resource_classloader {
+          strings:
+            $res = "getResourceAsStream" ascii
+            $dc = "defineClass" ascii
+            $lc = "loadClass" ascii
+            $fc = "findClass" ascii
+            $pd = "ProtectionDomain" ascii
+            $gpd = "getProtectionDomain" ascii
+          condition:
+            $res and $dc and ($lc or $fc) and ($pd or $gpd)
+        }
+
   # Java reflective method invocation in bytecode
   - id: java-reflective-invoke
     desc: Reflective method invocation in bytecode

@@ -53,9 +53,10 @@ traits:
   - id: azure-config
     desc: Azure CLI configuration directory
     conf: 0.75
+    for: [shell, python, ruby, perl, javascript, typescript]
     if:
       type: string
-      substr: ".azure"
+      substr: "/.azure"
 
   # === Atomic: Environment Files ===
   - id: dotenv-request

@@ -352,6 +352,7 @@ composite_rules:
   # === Helper composites (case variants) ===
   - id: osascript-keyword
     desc: osascript keyword (case variants)
+    crit: notable
     for: [all]
     any:
       - { id: osascript-lower }
@@ -360,6 +361,7 @@ composite_rules:
 
   - id: keystroke-keyword
     desc: keystroke keyword (case variants)
+    crit: notable
     for: [all]
     any:
       - { id: keystroke-lower }
@@ -368,6 +370,7 @@ composite_rules:
 
   - id: key-code-phrase
     desc: key code phrase (case variants)
+    crit: notable
     for: [all]
     any:
       - { id: key-code-lower }
@@ -376,6 +379,7 @@ composite_rules:
 
   - id: key-down-phrase
     desc: key down phrase (case variants)
+    crit: notable
     for: [all]
     any:
       - { id: key-down-lower }
@@ -392,6 +396,7 @@ composite_rules:
 
   - id: applescript-keywords
     desc: AppleScript keystroke keywords
+    crit: notable
     for: [all]
     any:
       - { id: keystroke-keyword }

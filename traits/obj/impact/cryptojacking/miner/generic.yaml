@@ -130,7 +130,7 @@ composite_rules:
   # XMRig composite
   - id: miner-xmrig
     desc: XMRig cryptocurrency miner reference
-    crit: suspicious
+    crit: notable
     conf: 0.66
     needs: 1
     any:

@@ -61,7 +61,7 @@ traits:
     conf: 0.85
     if:
       type: content
-      regex: "install_requires\\s*=\\s*\\w+\\.read\\(|install_requires\\s*=\\s*requires\\b|install_requires\\s*=\\s*read_requirements"
+      regex: "install_requires\\s*=\\s*\\w+\\.read\\(|install_requires\\s*=\\s*read_requirements"
 
 composite_rules:
   # === SUSPICIOUS: Affiliate Spam Package ===

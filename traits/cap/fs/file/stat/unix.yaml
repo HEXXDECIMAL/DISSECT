@@ -12,7 +12,7 @@ traits:
     conf: 0.8
     if:
       type: symbol
-      regex: stat|lstat|fstat|fstatat|stat64|lstat64|fstat64
+      regex: "^_?(stat|lstat|fstat|fstatat|stat64|lstat64|fstat64)$"
 
   - id: stat-exists
     desc: Check if file exists
@@ -20,4 +20,4 @@ traits:
     conf: 0.66
     if:
       type: symbol
-      regex: access|faccessat
+      regex: "^_?(access|faccessat)$"

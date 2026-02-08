@@ -78,6 +78,9 @@ composite_rules:
     any:
       - id: pyperclip-paste
       - id: clipboard-get
+    downgrade:
+      any:
+        - id: meta/quality/versioned
 
   # Keyboard logger composite
   - id: keyboard-logger

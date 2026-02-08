@@ -16,23 +16,19 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: string
-      # Match: print("...installed..."), output("...installed"), or return with installed as confirmation
-      regex: "(?:print|send|http|request|post)\\s*\\([^)]{0,50}\\binstalled\\b"
-      case_insensitive: true
-    not:
-      # Legitimate contexts where "installed" is expected
-      - regex: "not\\s+installed"
-      - regex: "is\\s+installed"
-      - regex: "must be installed"
-      - regex: "already\\s+installed"
-      - regex: "packages? installed"
-      - regex: "successfully\\s+installed"
-      - regex: "pip\\s+install"
-      # Common legitimate patterns
-      - regex: "ImportError.*installed"
-      - regex: "devtools"
-      - regex: "sqlalchemy"
+      type: content
+      # Match: print("installed"), print('installed') - exact confirmation output
+      # Uses content type because AST string extraction only yields the literal,
+      # not the surrounding print() call that makes it suspicious
+      regex: "\\bprint\\s*\\(\\s*[\"'][^\"']{0,50}\\binstalled\\b[^\"']{0,20}[\"']\\s*\\)"
+    unless:
+      # Legitimate contexts: error messages about missing packages
+      - type: content
+        substr: "not installed"
+      - type: content
+        substr: "is installed"
+      - type: content
+        substr: "pip install"
 
   - id: placeholder-ellipsis
     desc: Placeholder ellipsis string
@@ -64,6 +60,15 @@ traits:
     unless:
       - type: content
         substr: "import "
+
+  - id: py-basename
+    desc: Python file extension
+    crit: inert
+    conf: 1.0
+    for: [all]
+    if:
+      type: basename
+      regex: "\\.py$"
 
   - id: empty-file
     desc: Empty file (0 bytes)
@@ -125,13 +130,18 @@ traits:
   # Exfil endpoints commonly seen in supply-chain attacks
 
   - id: suspicious-php-endpoint
-    desc: PHP endpoint URL
+    desc: PHP endpoint URL with beacon parameters
     crit: suspicious
     conf: 0.85
     if:
       type: string
-      # Require exfil/C2-like parameter names; generic php docs links are common in benign code
-      regex: "https?://[^/]+/[^'\"\\s]*\\.php\\?[^'\"\\s]*(?:^|[?&])(?:vid|id|uid|token|key|data|payload|info|host|user|pass|cmd|exec|shell|upload|post|send|collect|exfil)="
+      # Require exfil/C2/beacon-like parameter names after .php?
+      # (?:[^'"\s]*&)? handles first param (directly after ?) or subsequent params (after &)
+      regex: "https?://[^/]+/[^'\"\\s]*\\.php\\?(?:[^'\"\\s]*&)?(?:vid|id|uid|token|key|data|payload|info|host|user|pass|cmd|exec|shell|upload|post|send|collect|exfil|live|status|msg|resp|callback|ping|report|log|event|action)="
+    unless:
+      # DokuWiki uses doku.php?id=<pagename> as standard URL format
+      - type: content
+        substr: "doku.php"
 
   - id: version-check-url
     desc: Suspicious version check URL
@@ -141,6 +151,19 @@ traits:
       type: string
       # Pattern: Version.php, version.php, check.php etc
       regex: "https?://[^/]+/[Vv]ersion\\.php|https?://[^/]+/[Cc]heck\\.php"
+
+  # === Deferred Execution via atexit ===
+  # atexit.register() schedules a callback to run after install completes.
+  # Supply-chain packages use this to defer malicious execution past the
+  # install command's lifetime, evading install-time sandboxes.
+  - id: atexit-register-callback
+    desc: atexit.register deferred execution callback
+    crit: inert
+    conf: 0.85
+    size_max: 10000
+    if:
+      type: content
+      regex: "atexit\\.register\\s*\\("
 
   # === Base64 Encoding for Exfil ===
   - id: base64-encode-call
@@ -214,13 +237,45 @@ composite_rules:
       - id: empty-file
       - id: webhook-package-name
 
+  # === Tiny .py file (type-agnostic) ===
+  # Same as tiny-python-file but matches by .py basename instead of file type,
+  # so it works even when a 0-byte .py file is typed as "unknown".
+  # Complexity: for(+1) + all(+2) = 3 (NOTABLE)
+  - id: tiny-py-by-name
+    desc: Tiny .py file (by extension)
+    crit: notable
+    conf: 0.8
+    for: [all]
+    attack: "T1195.002"
+    all:
+      - id: py-basename
+      - id: empty-file
+
+  # === Empty __init__.py stub module ===
+  # An __init__.py that provides no module functionality (empty file).
+  # In supply-chain attacks, __init__.py exists only to make a valid package
+  # while all malicious logic runs in setup.py at install time.
+  # Complexity: for(+1) + all(+3) = 4 (NOTABLE)
+  - id: init-py-no-code
+    desc: Empty __init__.py stub module
+    crit: notable
+    conf: 0.8
+    for: [all]
+    attack: "T1195.002"
+    all:
+      - id: init-py-file
+      - id: py-basename
+      - id: empty-file
+
   # === Empty __init__.py (shell package) ===
   # Published PyPI packages with empty __init__.py provide no runtime
-  # functionality - exists solely as a vehicle for install-time attacks.
-  # Complexity: all(+2) + for(+1) = 3 (SUSPICIOUS)
+  # functionality - but this is also the standard way to declare a Python
+  # package, so alone it is only notable. Other composites (decoy-init-py,
+  # empty-init-webhook-package) escalate when combined with real indicators.
+  # Complexity: all(+2) + for(+1) = 3 (NOTABLE)
   - id: empty-init-py
     desc: Empty __init__.py in published package
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1195.002"
     for: [all]
@@ -308,7 +363,24 @@ composite_rules:
       - id: setup-py-file
       - id: obj/discovery/system/python-sysinfo-multi
       - id: base64-encode
-      - id: cap/comm/http/request/python/request-python
+      - id: cap/comm/http/request/request-python
+
+  # === HOSTILE: PyPI Install-Time Atexit Exfiltration ===
+  # setup.py registers atexit callback that collects system info and
+  # base64-encodes it for HTTP exfiltration. Deferred execution evades
+  # install-time sandboxes.
+  # Complexity: for(+1) + all(+4) = 5 (meets HOSTILE threshold)
+  - id: pypi-atexit-exfil
+    desc: PyPI atexit deferred system exfiltration
+    crit: hostile
+    conf: 0.95
+    mbc: "E1041"
+    attack: "T1020"
+    all:
+      - id: setup-py-file
+      - id: atexit-register-callback
+      - id: base64-encode
+      - id: cap/comm/http/request/request-python
 
   # Lighter variant without setup.py check
   # Complexity: for(+1) + all(+3) = 4 (meets HOSTILE threshold)
@@ -321,7 +393,7 @@ composite_rules:
     all:
       - id: obj/discovery/system/python-sysinfo-multi
       - id: base64-encode
-      - id: cap/comm/http/request/python/request-python
+      - id: cap/comm/http/request/request-python
 
   # === HOSTILE: Python Environment Variable Exfiltration ===
   # Pattern: enumerate environ + base64 encode + HTTP send
@@ -349,7 +421,39 @@ composite_rules:
     all:
       - id: vid-parameter
       - id: base64-encode
-      - id: cap/comm/http/request/python/request-python
+      - id: cap/comm/http/request/request-python
+
+  # === HOSTILE: PyPI OOB Callback with User Info ===
+  # Supply-chain package that POSTs user information to an OOB testing domain
+  # (interactsh, oastify, oast.fun, etc). Classic dependency confusion callback.
+  # Precision: for(+0.3) + all(+3 traits, each with their own precision) >= 4 (HOSTILE)
+  - id: pypi-oob-user-exfil
+    desc: PyPI OOB callback exfiltrating user info
+    crit: hostile
+    conf: 0.95
+    mbc: "E1041"
+    attack: "T1195.002"
+    all:
+      - id: obj/exfil/channel/oob/oob-domains
+      - id: cap/comm/http/request/post
+      - id: obj/discovery/user/username-env
+
+  # === HOSTILE: PyPI Install-Time Beacon ===
+  # setup.py sends system identifier (COMPUTERNAME, hostname) to a PHP endpoint
+  # via HTTP GET with query parameters. Simpler exfil pattern than the base64
+  # variants — just concatenates sysinfo into the URL.
+  # Complexity: for(+1) + all(+4) = 5 (meets HOSTILE threshold)
+  - id: pypi-install-beacon
+    desc: PyPI install-time system beacon
+    crit: hostile
+    conf: 0.95
+    mbc: "E1041"
+    attack: "T1020"
+    all:
+      - id: setup-py-file
+      - id: suspicious-php-endpoint
+      - id: cap/comm/http/request/request-python
+      - id: obj/lateral/supply-chain/pypi/windows-computername-env
 
   # === SUSPICIOUS: PyPI Probe Package ===
   # Typosquat/dependency confusion probe: setup.py imports a network library

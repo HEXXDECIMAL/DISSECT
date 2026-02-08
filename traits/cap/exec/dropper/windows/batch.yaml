@@ -13,7 +13,7 @@ traits:
     attack: "T1074.001"
     for: [shell, batch]
     if:
-      type: string
+      type: content
       regex: "%TEMP%|%TMP%|\\\\Temp\\\\"
 
   - id: powershell-download
@@ -24,8 +24,8 @@ traits:
     attack: "T1059.001"
     for: [shell, batch]
     if:
-      type: string
-      regex: "powershell.{0,50}DownloadFile|Invoke-WebRequest|iwr\\s|wget\\s"
+      type: content
+      regex: "(?i)powershell.{0,100}(?:DownloadFile|Invoke-WebRequest|iwr\\s|wget\\s)"
 
   - id: certutil-download
     desc: Certutil download abuse (LOLBin technique)
@@ -35,7 +35,7 @@ traits:
     attack: "T1105"
     for: [shell, batch]
     if:
-      type: string
+      type: content
       regex: "certutil\\s+.{0,50}-urlcache.{0,30}-split.{0,30}-f"
 
   - id: bitsadmin-download
@@ -46,7 +46,7 @@ traits:
     attack: "T1105"
     for: [shell, batch]
     if:
-      type: string
+      type: content
       regex: "bitsadmin\\s+.{0,50}\\/transfer"
 
   # Execution Patterns
@@ -58,7 +58,7 @@ traits:
     attack: "T1564"
     for: [shell, batch]
     if:
-      type: string
+      type: content
       regex: "start\\s+[\"']?[\"']?\\s*/[Bb]"
 
   - id: temp-var
@@ -67,7 +67,7 @@ traits:
     conf: 0.5
     for: [shell, batch]
     if:
-      type: string
+      type: content
       regex: "(?i)%TEMP%|%TMP%"
 
   - id: exe-extension
@@ -76,7 +76,7 @@ traits:
     conf: 0.5
     for: [shell, batch]
     if:
-      type: string
+      type: content
       regex: "(?i)\\.exe"
 
   - id: start-cmd
@@ -85,7 +85,7 @@ traits:
     conf: 0.5
     for: [shell, batch]
     if:
-      type: string
+      type: content
       regex: "(?i)\\bstart\\b"
 
   - id: run-from-temp
@@ -96,7 +96,7 @@ traits:
     attack: "T1059.003"
     for: [shell, batch]
     if:
-      type: string
+      type: content
       regex: "(?i)start[^\\n]*(%TEMP%|%TMP%)[^\\n]*\\.exe"
 
   # Persistence/Markers
@@ -106,7 +106,7 @@ traits:
     conf: 0.75
     for: [shell, batch]
     if:
-      type: string
+      type: content
       regex: "if exist.{0,30}\\.done|echo\\.>.{0,30}\\.done|\\.installed|\\.complete"
 
   # Evasion
@@ -116,8 +116,8 @@ traits:
     conf: 0.6
     for: [shell, batch]
     if:
-      type: string
-      regex: "@echo\\s+off"
+      type: content
+      regex: "(?i)@echo\\s+off"
 
   - id: redirect-null
     desc: Redirect output to null (hide
@@ -126,8 +126,8 @@ traits:
     mbc: "F0005"
     for: [shell, batch]
     if:
-      type: string
-      regex: ">nul|2>nul|>NUL|2>&1"
+      type: content
+      regex: "(?i)>nul|2>nul"
 
   - id: delayed-expansion
     desc: Delayed expansion enabled (advanced scripting)
@@ -135,7 +135,7 @@ traits:
     conf: 0.5
     for: [shell, batch]
     if:
-      type: string
+      type: content
       substr: "EnableDelayedExpansion"
 
   - id: curl-cmd
@@ -144,7 +144,7 @@ traits:
     conf: 0.5
     for: [shell, batch]
     if:
-      type: string
+      type: content
       regex: "(?i)\\bcurl\\b"
 
   - id: wget-cmd
@@ -153,7 +153,7 @@ traits:
     conf: 0.5
     for: [shell, batch]
     if:
-      type: string
+      type: content
       regex: "(?i)\\bwget\\b"
 
   - id: download-file-ps
@@ -162,7 +162,7 @@ traits:
     conf: 0.5
     for: [shell, batch]
     if:
-      type: string
+      type: content
       regex: "(?i)DownloadFile"
 
   - id: certutil-cmd
@@ -171,7 +171,7 @@ traits:
     conf: 0.5
     for: [shell, batch]
     if:
-      type: string
+      type: content
       regex: "(?i)\\bcertutil\\b"
 
   - id: bitsadmin-cmd
@@ -180,7 +180,7 @@ traits:
     conf: 0.5
     for: [shell, batch]
     if:
-      type: string
+      type: content
       regex: "(?i)\\bbitsadmin\\b"
 
   - id: output-flag
@@ -189,7 +189,7 @@ traits:
     conf: 0.4
     for: [shell, batch]
     if:
-      type: string
+      type: content
       regex: "(?i)-o\\b"
 
   - id: call-cmd
@@ -198,7 +198,7 @@ traits:
     conf: 0.4
     for: [shell, batch]
     if:
-      type: string
+      type: content
       regex: "(?i)\\bcall\\b"
 
   # PowerShell launcher from batch
@@ -209,9 +209,8 @@ traits:
     for: [shell, batch]
     attack: "T1059.001"
     if:
-      type: string
-      regex: "powershell\\.exe"
-      case_insensitive: true
+      type: content
+      regex: "(?i)powershell(\\.exe)?"
 
   # PowerShell with -c flag (command)
   - id: powershell-command
@@ -221,8 +220,8 @@ traits:
     for: [shell, batch]
     attack: "T1059.001"
     if:
-      type: string
-      regex: "powershell[^\\n]*-[Cc]\\s"
+      type: content
+      regex: "(?i)powershell[^\\n]*-[Cc]\\s"
 
   # OutFile parameter (download to disk)
   - id: outfile-param
@@ -231,9 +230,8 @@ traits:
     conf: 0.75
     for: [shell, batch, powershell]
     if:
-      type: string
-      regex: "-OutFile"
-      case_insensitive: true
+      type: content
+      regex: "(?i)-OutFile"
 
   # Go build stealth compilation
   - id: go-build-cmd

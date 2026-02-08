@@ -62,7 +62,7 @@ traits:
     for: [python, javascript, ruby, go, rust, c, cpp, pe, elf, macho]
     if:
       type: string
-      regex: 'chmod\s+(\-[a-zA-Z]+\s+)*\+x'
+      regex: 'chmod\s+(\-[a-zA-Z]+\s+)*\+x\s+[/\.\$\w\{]'
 
   - id: chmod-1777-sticky
     desc: chmod 1777 (sticky bit, legitimate

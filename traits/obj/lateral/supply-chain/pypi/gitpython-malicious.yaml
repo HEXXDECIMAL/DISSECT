@@ -34,7 +34,7 @@ traits:
     conf: 0.80
     if:
       type: string
-      regex: "git\\.Git.{0,50}clone|clone.{0,50}github\\.com"
+      regex: "git\\.Git.{0,50}clone|clone[_(].{0,30}github\\.com"
 
   - id: git-clone-in-setup
     desc: Git clone during setup
@@ -42,7 +42,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: "install.{0,50}clone|clone.{0,50}install|setup.{0,50}clone"
+      regex: "install.{2,50}clone|clone.{2,50}install|setup.{2,50}clone"
 
   # === Suspicious Repo Names ===
   - id: obfuscated-repo-name
@@ -51,10 +51,12 @@ traits:
     conf: 0.70
     if:
       type: string
-      regex: "(not|no|anti|un|dis).{0,50}(grabber|logger|stealer|malware|virus)|^[a-z]{8,15}[0-9]{2,4}$"
+      regex: "(not|no|anti|un|dis)[-_a-z0-9]{0,12}(grabber|logger|stealer|malware|virus)|^[a-z]{8,15}[0-9]{3,5}$"
     not:
       - "datetime64"
       - "timedelta64"
+      - "manylinux2010"
+      - "manylinux2014"
 
   # === Post-Install Execution ===
   - id: cmdclass-custom-install

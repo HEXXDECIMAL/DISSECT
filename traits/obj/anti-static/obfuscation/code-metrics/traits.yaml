@@ -469,6 +469,9 @@ traits:
     unless:
       - type: basename
         regex: "\\.(s|S|asm)$"
+      # Markdown/docs with CJK text naturally have high byte entropy
+      - type: basename
+        regex: "\\.md$"
 
   - id: low-whitespace
     desc: "Very low whitespace ratio (minified/compressed)"

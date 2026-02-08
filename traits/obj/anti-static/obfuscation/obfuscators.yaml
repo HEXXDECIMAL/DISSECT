@@ -35,6 +35,16 @@ traits:
       type: content
       regex: "pyobfuscate\\s*=\\s*\\(|https://pyobfuscate\\.com|obfuscated|obfuscator"
 
+  # Oas-obf bytecode obfuscator: compiles Python to .pyc with custom
+  # encoding, uses class "Kramer" with __decode__/_rasputin/_execute methods
+  - id: oas-obf-signature
+    desc: Oas-obf bytecode obfuscator signature
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: content
+      substr: "Oas-obf"
+
   # === Variable Name Obfuscation ===
   - id: underscore-only-variables
     desc: Underscore only variable names
@@ -118,6 +128,7 @@ composite_rules:
       - id: blankobf-signature
       - id: pyarmor-signature
       - id: pyobfuscate-signature
+      - id: oas-obf-signature
 
   - id: python-obfuscation-suite
     desc: Python code obfuscation suite

@@ -189,6 +189,16 @@ traits:
       type: content
       regex: '\|\s*sudo\s+'
 
+  # Shell sleep with format specifier followed by command - randomized execution cadence
+  - id: sleep-format-exec
+    desc: Shell sleep with format command template
+    crit: notable
+    conf: 0.85
+    attack: "T1029"
+    if:
+      type: string
+      regex: 'sleep %[ds].{0,10}%[ds]'
+
   # macOS open command to launch applications
   - id: open-a-app
     desc: macOS open -a application launch

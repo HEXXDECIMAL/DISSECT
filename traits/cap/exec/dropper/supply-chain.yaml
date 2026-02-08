@@ -646,6 +646,9 @@ composite_rules:
       - id: wscript-shell
       - id: msxml2-xmlhttp
       - id: microsoft-xmlhttp
+    downgrade:
+      any:
+        - id: meta/library/jquery/library
 
   # Base64 buffer composite
   - id: base64-buffer

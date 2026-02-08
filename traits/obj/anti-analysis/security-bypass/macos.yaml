@@ -26,6 +26,26 @@ traits:
       type: content
       regex: 'curl[^&]*&&[^&]*xattr[^&]*&&[^&]*chmod[^&]*&&[^&]*\./'
 
+  # === Trust/Certificate manipulation ===
+  - id: macos-add-trusted-cert
+    desc: Installs a trusted root certificate on macOS
+    crit: suspicious
+    conf: 0.95
+    attack: "T1553.004"
+    if:
+      type: string
+      regex: "security\\s+add-trusted-cert"
+
+  # === Proxy manipulation ===
+  - id: macos-set-web-proxy
+    desc: Configures a web proxy on macOS
+    crit: suspicious
+    conf: 0.9
+    attack: "T1090"
+    if:
+      type: string
+      regex: "networksetup\\s+-set(secure)?webproxy"
+
 composite_rules:
   # Gatekeeper bypass: xattr clear + execution
   # Complexity: all(2) + file_types(1) = 3 -> suspicious

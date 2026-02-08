@@ -14,7 +14,7 @@ defaults:
 composite_rules:
   - id: timestomp-windows
     desc: Windows file timestamp modification (evasion
-    crit: suspicious
+    crit: notable
     conf: 0.7
     any:
       - id: cap/fs/file/timestamp/windows/set-file-time

@@ -208,7 +208,7 @@ composite_rules:
   # nss3 lib composite
   - id: nss3-lib
     desc: Firefox NSS3 library reference
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1555.003"
     needs: 1

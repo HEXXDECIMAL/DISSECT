@@ -188,7 +188,7 @@ composite_rules:
   # ipify API composite
   - id: ipify-api
     desc: ipify.org IP address API
-    crit: suspicious
+    crit: notable
     conf: 0.8
     attack: "T1016"
     needs: 1

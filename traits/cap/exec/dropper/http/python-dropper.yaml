@@ -111,9 +111,10 @@ composite_rules:
     conf: 0.85
     all:
       - id: platform-architecture-check
-    any:
       - id: arch-64bit-check
+    any:
       - id: http-ip-port-url
+      - id: download-and-execute-func
 
   # Dropper with multiple persistence locations
   # Complexity: file_types:+1, all:+3 = 4 (hostile allowed)

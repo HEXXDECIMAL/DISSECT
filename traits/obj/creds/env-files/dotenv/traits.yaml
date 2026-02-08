@@ -17,7 +17,7 @@ traits:
     conf: 0.75
     if:
       type: content
-      regex: "open\\(.{0,50}\\.env.{0,50}\\)|with open\\(.{0,50}\\.env"
+      regex: "open\\(.{0,50}\\.env[^a-zA-Z].{0,50}\\)|with open\\(.{0,50}\\.env[^a-zA-Z]"
 
   - id: dotenv-read-secrets
     desc: Dotenv secrets reading
@@ -25,12 +25,12 @@ traits:
     conf: 0.85
     if:
       type: content
-      regex: "\\.env.{0,50}read\\(\\)|dotenv.{0,50}read"
+      regex: "\\.env[^a-zA-Z].{0,50}read\\(\\)|dotenv.{0,50}read"
 
   # === Environment Variable Theft ===
   - id: environ-iteration
     desc: Environment variable iteration
-    crit: suspicious
+    crit: notable
     conf: 0.80
     if:
       type: content

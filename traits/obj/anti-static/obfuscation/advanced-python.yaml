@@ -17,7 +17,7 @@ traits:
     conf: 0.85
     if:
       type: content
-      regex: "(?:^|\\n)\\s*(?:[\\u4E00-\\u9FFF\\u3040-\\u309F\\u30A0-\\u30FF][\\u4E00-\\u9FFF\\u3040-\\u309F\\u30A0-\\u30FFA-Za-z0-9_]{0,63}|[A-Za-z_][A-Za-z0-9_]{0,62}[\\u4E00-\\u9FFF\\u3040-\\u309F\\u30A0-\\u30FF][A-Za-z0-9_]{0,63})\\s*="
+      regex: "(?:^|\\n)\\s*(?:[\\u4E00-\\u9FFF\\u3040-\\u309F\\u30A0-\\u30FF][\\u4E00-\\u9FFF\\u3040-\\u309F\\u30A0-\\u30FFA-Za-z0-9_]{0,63}|[A-Za-z_][A-Za-z0-9_]{0,62}[\\u4E00-\\u9FFF\\u3040-\\u309F\\u30A0-\\u30FF][A-Za-z0-9_]{0,63})\\s*=[^=\\n]"
 
   - id: chinese-char-variables
     desc: Chinese character variables
@@ -79,7 +79,7 @@ traits:
     conf: 0.75
     if:
       type: content
-      regex: "[\u4e00-\u9fff]{5,}.{0,30}=.{0,30}[0-9]+"
+      regex: "[\u4e00-\u9fff]{5,}\\s*=\\s*[0-9]+"
 
   # === COM/Object Instantiation ===
   - id: com-dispatch-usage
@@ -97,6 +97,28 @@ traits:
     if:
       type: content
       regex: "ctypes\\.windll|windll\\.shell32"
+
+  # === chr() String Reconstruction via map ===
+  - id: join-map-getattr-chr
+    desc: String built via join(map(getattr(__builtins__)))
+    crit: suspicious
+    conf: 0.92
+    if:
+      type: content
+      substr: "join(map(getattr(__builtins__"
+      count_min: 3
+
+  # === Builtin repr introspection for chr ===
+  # Constructs "chr" by extracting chars from repr of builtins:
+  # oct.__str__()[-3] → 'c', hex.__str__()[-4] → 'h', copyright.__str__()[4] → 'r'
+  - id: builtin-repr-chr-construction
+    desc: Builds chr via builtin repr introspection
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: content
+      regex: "(?:oct|hex|copyright|credits|license)\\.__str__\\(\\)"
+      count_min: 3
 
   # === Admin Check Bypass ===
   - id: admin-check-ctypes
@@ -120,6 +142,7 @@ composite_rules:
       - id: unicode-variable-names
       - id: bit-shift-arithmetic
       - id: getattr-builtins-obfuscation
+      - id: builtin-repr-chr-construction
 
   - id: state-machine-obfuscation
     desc: State machine obfuscation

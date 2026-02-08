@@ -75,6 +75,8 @@ traits:
       regex: "packages\\s*="
 
   # Directory masquerading (evasion technique)
+  # Detects os.path.join building paths to .py files, but excludes
+  # common setup.py patterns like reading __init__.py for version
   - id: directory-masquerade
     desc: Directory masquerading as file (e.g.
     crit: suspicious
@@ -83,6 +85,9 @@ traits:
     if:
       type: string
       regex: "os\\.path\\.join\\(.{0,50}\\.py.{0,30}\\)"
+    not:
+      - type: string
+        regex: "os\\.path\\.join\\(.{0,50}__init__\\.py"
 
   # === cmdclass override atomic indicators ===
   - id: cmdclass-dict

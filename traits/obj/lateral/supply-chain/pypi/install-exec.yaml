@@ -101,17 +101,22 @@ traits:
             $legit_bdist = "bdist_wheel" ascii nocase
             $legit_twine = "twine upload" ascii nocase
             $legit_test = "setup.py test" ascii nocase
-            $legit_pytest = "pytest" ascii
+            $legit_pytest = "def test_" ascii
             // Reading version file with exec is common
             $legit_version_exec = "exec(f.read()" ascii
             $legit_version_exec2 = "exec(open(" ascii
+            $legit_version_exec3 = "exec(compile(" ascii
             $legit_literal_eval = "ast.literal_eval" ascii
             // Testing commands
             $legit_develop = "setup.py develop" ascii nocase
+            // Compiler/tool version checking (subprocess + --version)
+            $legit_version_check = "'--version'" ascii
+            $legit_version_check2 = "\"--version\"" ascii
+            // Git revision checking (subprocess + git rev-parse)
+            $legit_git_rev = "rev-parse" ascii
             // Scientific / complex build patterns
             $legit_numpy = "numpy.distutils" ascii
             $legit_config = "Configuration(" ascii
-            $legit_sys_exec = "sys.executable" ascii
           condition:
             ($setup or $setuptools or $distutils) and
             ($os_system or $subprocess or $exec or $eval or $pip or $requests or $urllib or $aiohttp or $httpx or $socket or $webhook) and
@@ -150,6 +155,8 @@ traits:
             $legit_pypi = "pypi.org" ascii nocase
             $legit_readthedocs = "readthedocs" ascii nocase
             $legit_github = "github.com" ascii nocase
+            $legit_version_check = "'--version'" ascii
+            $legit_version_check2 = "'-version'" ascii
           condition:
             $init_marker and
             ($os_system or $subprocess_run or $subprocess_call or $subprocess_popen) and

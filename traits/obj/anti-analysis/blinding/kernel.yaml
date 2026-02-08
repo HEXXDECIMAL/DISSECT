@@ -65,14 +65,14 @@ traits:
 
   # === Generic Kernel Security Functions ===
   - id: check-integrity
-    desc: check_integrity function
+    desc: kernel check_integrity function
     crit: suspicious
     conf: 0.85
     attack: "T1562.001"
     for: [c, elf]
     if:
       type: string
-      regex: "(?i)check_integrity"
+      regex: "(p_check_integrity|lkrg.{0,30}check_integrity|check_integrity.{0,30}(kernel|kmod|module|lkm|rootkit|hook)|(kernel|kmod|module|lkm|rootkit|hook).{0,30}check_integrity)"
 
   - id: validate-sp
     desc: validate_sp stack pointer check

@@ -795,6 +795,15 @@ traits:
       type: string
       exact: "nice "
 
+  - id: cp-command
+    desc: cp command
+    crit: inert
+    conf: 0.5
+    for: [shell]
+    if:
+      type: string
+      regex: "\\bcp\\s"
+
   - id: renice-command
     desc: renice command
     crit: inert

@@ -56,7 +56,7 @@ traits:
     desc: jmp rsi instruction
     crit: notable
     conf: 0.8
-    size_max: 500
+    size_max: 8192
     if:
       type: hex
       pattern: "ff e6"
@@ -66,7 +66,7 @@ traits:
     desc: jmp rax instruction
     crit: notable
     conf: 0.8
-    size_max: 500
+    size_max: 8192
     if:
       type: hex
       pattern: "ff e0"
@@ -76,7 +76,7 @@ traits:
     desc: call rax instruction
     crit: notable
     conf: 0.8
-    size_max: 500
+    size_max: 8192
     if:
       type: hex
       pattern: "ff d0"
@@ -86,10 +86,29 @@ traits:
     desc: call rsi instruction
     crit: notable
     conf: 0.8
-    size_max: 500
+    size_max: 8192
     if:
       type: hex
       pattern: "ff d6"
+
+  # x86-64 nanosleep syscall: push 0x23; pop rax (35 = nanosleep)
+  # Used for retry-loop delays between connection attempts
+  - id: x64-nanosleep-syscall
+    desc: x86-64 nanosleep syscall via push/pop
+    crit: notable
+    conf: 0.85
+    if:
+      type: hex
+      pattern: "6a 23 58 [0-20] 0f 05"
+
+  # x86-64 exit syscall: push 0x3c; pop rax (60 = exit)
+  - id: x64-exit-syscall
+    desc: x86-64 exit syscall via push/pop
+    crit: inert
+    conf: 0.85
+    if:
+      type: hex
+      pattern: "6a 3c 58 [0-20] 0f 05"
 
   # sockaddr_in structure with port (bytes 2-3) and IP (bytes 4-7)
   # Pattern: 02 00 PP PP II II II II where PP=port, II=IP
@@ -103,14 +122,14 @@ traits:
       # movabs rcx, immediate (48 b9) followed by sockaddr_in
       pattern: "48 b9 02 00"
 
-  # Tiny ELF with minimal headers (typical stager size < 500 bytes)
+  # Small ELF with minimal headers (stagers: raw ~100-500 bytes, page-aligned up to 8KB)
   - id: tiny-elf
-    desc: Tiny ELF binary
+    desc: Small ELF binary (stager-sized)
     crit: notable
     conf: 0.7
     if:
       type: filesize
-      max: 500
+      max: 8192
 
   # ELF with no section headers (stripped shellcode)
   # Section header offset at bytes 0x28-0x2f (e_shoff) = 0
@@ -179,4 +198,20 @@ composite_rules:
       - id: x64-socket-syscall
       - id: x64-connect-syscall
       - id: sockaddr-in-struct
+      - id: x64-jmp-register
+
+  # Reverse stager with retry loop (nanosleep between connect attempts)
+  # This is the "reverse_tcp" variant with exponential/fixed retry
+  # Complexity: all(5) + for(1) = 6 >= 4 ✓ HOSTILE
+  - id: linux-x64-reverse-stager-retry
+    desc: x86-64 Linux reverse stager with retry
+    crit: hostile
+    conf: 0.95
+    attack: "T1059.004"
+    for: [elf]
+    all:
+      - id: x64-mmap-syscall
+      - id: x64-socket-syscall
+      - id: x64-connect-syscall
+      - id: x64-nanosleep-syscall
       - id: x64-jmp-register

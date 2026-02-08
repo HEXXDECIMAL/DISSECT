@@ -14,9 +14,8 @@ traits:
     crit: notable
     conf: 0.75
     if:
-      type: string
-      regex: "\\biex\\b|Invoke-Expression"
-      case_insensitive: true
+      type: content
+      regex: "(?i)\\biex\\b|Invoke-Expression"
 
   # Invoke-Command (icm) - remote and local execution
   - id: icm
@@ -24,9 +23,8 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: string
-      regex: "\\bicm\\b|Invoke-Command"
-      case_insensitive: true
+      type: content
+      regex: "(?i)\\bicm\\b|Invoke-Command"
 
   # ScriptBlock execution
   - id: scriptblock
@@ -34,9 +32,8 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: string
-      regex: "\\[ScriptBlock\\]|Invoke-ScriptBlock|ScriptBlock\\.Create"
-      case_insensitive: true
+      type: content
+      regex: "(?i)\\[ScriptBlock\\]|Invoke-ScriptBlock|ScriptBlock\\.Create"
 
   # Add-Type for compiling C#
   - id: add-type
@@ -44,9 +41,8 @@ traits:
     crit: notable
     conf: 0.75
     if:
-      type: string
-      regex: "Add-Type\\s+-TypeDefinition"
-      case_insensitive: true
+      type: content
+      regex: "(?i)Add-Type\\s+-TypeDefinition"
 
   # Start-Process for spawning
   - id: start-process
@@ -54,9 +50,8 @@ traits:
     crit: notable
     conf: 0.6
     if:
-      type: string
-      regex: "Start-Process|\\bsaps\\b"
-      case_insensitive: true
+      type: content
+      regex: "(?i)Start-Process|\\bsaps\\b"
 
   # Call operator (&)
   - id: call-operator
@@ -65,7 +60,7 @@ traits:
     conf: 0.5
     for: [powershell]
     if:
-      type: string
+      type: content
       regex: "&\\s*\\("
 
 composite_rules:

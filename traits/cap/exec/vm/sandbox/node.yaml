@@ -210,10 +210,10 @@ composite_rules:
     conf: 0.6
     for: [javascript, typescript]
     any:
-      - id: cap/comm/http/request/javascript/https-request
-      - id: cap/comm/http/request/javascript/http-request
-      - id: cap/comm/http/request/javascript/fetch-string
-      - id: cap/comm/http/request/javascript/axios
+      - id: cap/comm/http/request/https-request
+      - id: cap/comm/http/request/http-request
+      - id: cap/comm/http/request/fetch-string
+      - id: cap/comm/http/request/axios
 
   # Remote Code Execution via VM
   - id: vm-with-http
@@ -237,6 +237,7 @@ composite_rules:
       - id: new-function-call
       - id: function-constructor-access
       - id: function-direct-call
+      - id: cap/exec/eval/dynamic/function-constructor-from-typeof
 
   # HTTP methods for remote loading
   - id: http-fetch-methods
@@ -245,11 +246,11 @@ composite_rules:
     conf: 0.6
     for: [javascript, typescript]
     any:
-      - id: cap/comm/http/request/javascript/axios-get-call
-      - id: cap/comm/http/request/javascript/axios-direct-call
-      - id: cap/comm/http/request/javascript/fetch-string
-      - id: cap/comm/http/request/javascript/https-get
-      - id: cap/comm/http/request/javascript/http-get
+      - id: cap/comm/http/request/axios-get-call
+      - id: cap/comm/http/request/axios-direct-call
+      - id: cap/comm/http/request/fetch-string
+      - id: cap/comm/http/request/https-get
+      - id: cap/comm/http/request/http-get
       - id: request-method-call
 
   # Remote Code Loading via Function Constructor

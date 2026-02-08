@@ -113,6 +113,24 @@ traits:
       type: string
       regex: "^arm$"
 
+  - id: arch-macro-detection
+    desc: Architecture detection macros
+    crit: notable
+    conf: 0.8
+    for: [c]
+    if:
+      type: content
+      regex: "#ifdef\\s+__(?:x86_64|arm|i386|aarch64)__"
+
+  - id: arch-aware-lib-filter
+    desc: Architecture-aware library filtering
+    crit: suspicious
+    conf: 0.9
+    for: [c]
+    if:
+      type: content
+      regex: 'strstr\s*\(\s*[^,]+d_name\s*,\s*"(?:x86_64|arm|i386|aarch64|linux)"\s*\)'
+
   # === Library Resolver Function Patterns ===
   # Function naming patterns that suggest library resolution code
 
@@ -254,3 +272,18 @@ composite_rules:
     all:
       - id: lib-path-enum
       - id: ssl-lib-targets
+
+  # Manual library resolver implementation
+  # Systematic search + architecture awareness = manual linker/hooker utility
+  - id: manual-library-resolver
+    desc: Manual recursive library resolver
+    crit: suspicious
+    conf: 0.95
+    mbc: "E1083"
+    attack: "T1518"
+    all:
+      - id: lib-search-infra
+    any:
+      - id: arch-aware-lib-filter
+      - id: arch-macro-detection
+      - id: lookup-path-fn

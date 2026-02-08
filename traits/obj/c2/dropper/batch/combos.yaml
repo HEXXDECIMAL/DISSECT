@@ -93,3 +93,31 @@ composite_rules:
       - id: obj/anti-analysis/security-bypass/malwarebytes-stop-service
       - id: cap/exec/dropper/windows/download-tool
       - id: cap/exec/dropper/windows/exec-cmd
+
+  # MSHTA remote fetch with obfuscated IP address
+  # LOLBin proxy execution + IP evasion = strong dropper signal
+  # Precision: all(2 traits) -> sum of both trait precisions > 4.0
+  - id: mshta-obfuscated-dropper
+    desc: MSHTA dropper with obfuscated IP
+    crit: hostile
+    conf: 0.95
+    mbc: "E1218.005"
+    attack: "T1218.005"
+    for: [batch, shell, powershell]
+    all:
+      - id: cap/exec/dropper/windows/mshta-remote-url
+      - id: obj/anti-static/obfuscation/ip-notation/hex-octal-ip-in-url
+
+  # Heavy Obfuscation + PowerShell Execution + MOTW Removal
+  # Complexity: all(3) + file_types(1) = 4 -> hostile
+  - id: obfuscated-powershell-loader
+    desc: Obfuscated PowerShell loader in batch
+    crit: hostile
+    conf: 0.95
+    mbc: "B0032"
+    attack: "T1027"
+    for: [batch, shell]
+    all:
+      - id: obj/anti-static/obfuscation/strings/batch-heavy-obfuscation
+      - id: cap/exec/dropper/windows/powershell-exe
+      - id: obj/anti-forensics/evidence-removal/motw-removal-stream

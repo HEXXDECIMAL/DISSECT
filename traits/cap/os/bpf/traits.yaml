@@ -752,6 +752,44 @@ traits:
       type: content
       substr: "BPF_MAP_TYPE_HASH"
 
+  # === BPF Loader API ===
+  - id: bpf-object-open
+    desc: Load BPF object from file
+    crit: notable
+    conf: 0.8
+    for: [c, elf]
+    if:
+      type: symbol
+      regex: "bpf_object__open(?:_file)?"
+
+  - id: bpf-object-load
+    desc: Load BPF object into kernel
+    crit: notable
+    conf: 0.8
+    for: [c, elf]
+    if:
+      type: symbol
+      regex: "bpf_object__load"
+
+  - id: bpf-program-find
+    desc: Find BPF program in object by name
+    crit: notable
+    conf: 0.8
+    for: [c, elf]
+    if:
+      type: symbol
+      regex: "bpf_object__find_program_by_name"
+
+  - id: bpf-rlimit-memlock
+    desc: High RLIMIT_MEMLOCK for BPF
+    crit: notable
+    conf: 0.8
+    for: [c, elf]
+    if:
+      type: content
+      # Matches RLIMIT_MEMLOCK combined with large shift (common in BPF loaders)
+      regex: "(?s)(?:RLIMIT_MEMLOCK.{0,200}(?:\\d+UL\\s*<<\\s*20|1\\s*<<\\s*30)|(?:\\d+UL\\s*<<\\s*20|1\\s*<<\\s*30).{0,200}RLIMIT_MEMLOCK)"
+
   # === SSL/TLS Context Tracking ===
   # Map names indicating SSL context tracking (fd_to_ssl_ctx, ssl_ctx_map, etc.)
   - id: ssl-ctx-map

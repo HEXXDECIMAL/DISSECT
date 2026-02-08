@@ -12,7 +12,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      substr: "/Google/Chrome"
+      regex: "(?i)Google/Chrome"
 
   - id: brave-path
     desc: Brave browser profile path
@@ -104,8 +104,8 @@ traits:
     attack: "T1555.003"
     for: [python, javascript, shell, elf, pe]
     if:
-      type: string
-      substr: "/Cookies"
+      type: content
+      regex: "['\"/\\\\]Cookies\\b"
       not:
         - "entitlement"
         - "plist"
@@ -240,7 +240,7 @@ composite_rules:
   # Arc path composite
   - id: arc-path
     desc: Arc browser profile path
-    crit: suspicious
+    crit: notable
     conf: 0.7
     attack: "T1555.003"
     needs: 1
@@ -269,6 +269,20 @@ composite_rules:
     all:
       - id: chrome-path
       - id: cookies-path
+
+  - id: shell-cookie-theft
+    desc: Chrome cookie theft via shell
+    crit: suspicious
+    conf: 0.9
+    attack: "T1555.003"
+    for: [shell]
+    all:
+      - id: chrome-path
+      - id: cookies-path
+    any:
+      - id: cap/os/admin/legitimate/cp-command
+      - id: cap/exec/dropper/windows/curl-cmd
+      - id: cap/fs/attributes/xattr/shell-xattr-remove
 
   - id: master-decrypt
     desc: Chromium master password decryption

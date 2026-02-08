@@ -224,6 +224,49 @@ traits:
       type: content
       regex: '/bin/(sh|bash|zsh)'
 
+  # Embedded plist template traits (non-plist files containing plist data)
+  - id: embedded-plist-shell
+    desc: Embedded plist template with shell program
+    crit: notable
+    conf: 0.8
+    for: [c, macho, elf]
+    platforms: [macos]
+    if:
+      type: string
+      substr: "<key>Program</key>"
+
+  - id: embedded-plist-shell-sh
+    desc: Embedded plist /bin/sh string element
+    crit: notable
+    conf: 0.8
+    for: [c, macho, elf]
+    platforms: [macos]
+    if:
+      type: string
+      substr: "<string>/bin/sh</string>"
+
+  - id: embedded-sock-service
+    desc: Embedded SockServiceName plist key
+    crit: notable
+    conf: 0.8
+    for: [c, macho, elf]
+    platforms: [macos]
+    if:
+      type: string
+      substr: "SockServiceName"
+
+  - id: fake-apple-label
+    desc: Fake com.apple identifier in non-Apple binary
+    crit: suspicious
+    conf: 0.85
+    for: [c, macho, elf]
+    platforms: [macos]
+    if:
+      type: string
+      regex: 'com\.apple\.[A-Z][A-Za-z]+'
+    unless:
+      - id: meta/sign/anchor-apple
+
   # Masquerading Traits
   - id: label-apple
     desc: Launchd Label starting with com.apple
@@ -409,6 +452,17 @@ composite_rules:
       - id: inetd-compat
       - id: shell-program
 
+  - id: embedded-plist-bind-shell
+    desc: Embedded plist bind-shell template in binary
+    crit: suspicious
+    conf: 0.85
+    mbc: B0028
+    attack: T1543.004
+    for: [c, macho, elf]
+    all:
+      - id: embedded-plist-shell-sh
+      - id: embedded-sock-service
+
   - id: launchd-dropper
     desc: Launchd persistence installer via system commands
     crit: hostile
@@ -421,6 +475,21 @@ composite_rules:
       - id: launchctl-command
       - id: cap/exec/command/shell/system-call-symbol
       - id: cap/exec/fileless/exec-function
+
+  # Embedded bind-shell plist dropper: binary/source contains full plist template
+  # with socket-activated shell + drops to LaunchAgents
+  # Complexity: all(3) + for(1) = 4 (meets hostile threshold)
+  - id: launchd-embedded-bind-shell
+    desc: Embedded plist bind-shell dropped to LaunchAgents
+    crit: hostile
+    conf: 0.95
+    mbc: B0028
+    attack: T1543.004
+    for: [c, macho]
+    all:
+      - id: embedded-plist-bind-shell
+      - id: launch-agents
+      - id: cap/exec/command/shell/system-call-symbol
 
   - id: launchd-app-trojan
     desc: Launchd persistence with app bundle hijacking
@@ -445,7 +514,7 @@ composite_rules:
 
   - id: program-unusual-location
     desc: Launchd Program/ProgramArguments in unusual location
-    crit: suspicious
+    crit: notable
     conf: 0.7
     any:
       - id: program-tmp

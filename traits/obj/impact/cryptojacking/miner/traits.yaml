@@ -351,7 +351,7 @@ composite_rules:
   # Helper: any known mining pool
   - id: known-mining-pool
     desc: Known mining pool detected
-    crit: suspicious
+    crit: notable
     conf: 0.9
     attack: "T1496"
     any:

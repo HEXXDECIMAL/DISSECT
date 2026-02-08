@@ -90,6 +90,15 @@ traits:
       type: string
       substr: "gethostname"
 
+  # === Local IP discovery via socket connect ===
+  - id: getsockname-local-ip
+    desc: Local IP extraction via socket getsockname
+    crit: notable
+    conf: 0.85
+    if:
+      type: content
+      substr: "getsockname"
+
   # === MAC address discovery (atomic) ===
   - id: getmac-module
     desc: getmac module for MAC address
@@ -114,6 +123,16 @@ traits:
     if:
       type: string
       substr: "uuid.getnode()"
+
+  # os.uname() call - content-based for cases where AST extraction
+  # doesn't capture it (e.g. os.uname()[1] subscript access)
+  - id: os-uname-content
+    desc: os.uname() system info call
+    crit: notable
+    conf: 0.8
+    if:
+      type: content
+      regex: "os\\.uname\\s*\\("
 
 composite_rules:
   # Username discovery composite
@@ -146,9 +165,15 @@ composite_rules:
     any:
       - id: python-platform-system
       - id: python-platform-machine
+      - id: python-platform-uname
+      - id: os-uname-content
       - id: python-getpass-user
+      - id: python-getpass-user-symbol
       - id: gethostname-call
+      - id: gethostname-string
       - id: getuser-call
+      - id: getuser-string
+      - id: getsockname-local-ip
 
   # Composite: Intensive system enumeration (Alias-resistant)
   - id: python-enumeration

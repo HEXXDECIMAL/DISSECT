@@ -46,7 +46,7 @@ traits:
 
   - id: google-analytics-id
     desc: Hardcoded Google Analytics ID
-    crit: suspicious
+    crit: notable
     conf: 0.8
     attack: "T1005"
     platforms: [all]

@@ -105,8 +105,29 @@ traits:
          (#match? @mod "^subprocess$")
          (#match? @meth "^(Popen|run|call|check_output|check_call)$"))
 
+  # === Content-based fallback ===
+  # subprocess calls appear as code, not string literals, so string type misses them.
+  # Content type matches raw file bytes.
+  - id: popen-content
+    desc: subprocess.Popen call (content)
+    crit: notable
+    conf: 0.75
+    mbc: "E1059.006"
+    if:
+      type: content
+      substr: "subprocess.Popen("
+
+  - id: check-call-content
+    desc: subprocess.check_call call (content)
+    crit: notable
+    conf: 0.75
+    mbc: "E1059.006"
+    if:
+      type: content
+      substr: "subprocess.check_call("
+
 composite_rules:
-  # All subprocess methods
+  # All subprocess methods (string-based, AST-based, and content-based)
   - id: methods
     desc: subprocess module methods
     crit: notable
@@ -118,3 +139,6 @@ composite_rules:
       - id: call
       - id: check-output
       - id: check-call
+      - id: run-ast
+      - id: popen-content
+      - id: check-call-content

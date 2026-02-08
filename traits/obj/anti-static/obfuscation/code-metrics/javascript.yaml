@@ -50,6 +50,16 @@ traits:
       field: text.max_line_length
       min: 1000
 
+  - id: js-sphinx-searchindex
+    desc: "Sphinx documentation search index"
+    crit: inert
+    conf: 0.9
+    attack: ""
+    mbc: ""
+    if:
+      type: content
+      substr: "Search.setIndex"
+
 composite_rules:
   - id: js-obfuscator-pattern
     desc: "JavaScript obfuscator tool output"
@@ -74,6 +84,5 @@ composite_rules:
     any:
       - id: obj/anti-static/obfuscation/code-metrics/js-webpack-minified
       - id: obj/anti-static/obfuscation/code-metrics/very-long-lines
-    unless:
-      - type: string
-        regex: "searchindex|jquery"
+    none:
+      - id: js-sphinx-searchindex

@@ -14,7 +14,7 @@ traits:
     crit: suspicious
     conf: 0.9
     if:
-      type: string
+      type: content
       regex: "\\[char\\[\\]\\]@\\("
 
   # Alternative: -join(... charcode patterns
@@ -23,7 +23,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: string
+      type: content
       regex: "-join\\s*\\[char\\[\\]\\]"
 
   # Numeric character codes pattern (many numbers in array)
@@ -32,7 +32,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: string
+      type: content
       regex: "@\\(\\d{1,3}(,\\d{1,3}){10,}\\)"
 
   # [char]N pattern for individual characters
@@ -41,7 +41,7 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: string
+      type: content
       regex: "\\[char\\]\\d{2,3}"
 
   # ToCharArray with pipeline for ROT cipher
@@ -50,8 +50,8 @@ traits:
     crit: suspicious
     conf: 0.9
     if:
-      type: string
-      regex: "\\.ToCharArray\\(\\)\\s*\\|\\s*%\\s*\\{"
+      type: content
+      regex: "(?i)\\.ToCharArray\\(\\)\\s*\\|\\s*%\\s*\\{.{0,200}if\\(\\$c-ge65-and\\$c-le90\\)"
 
   # Execution policy bypass
   - id: ps-ep-bypass
@@ -61,8 +61,8 @@ traits:
     for: [powershell, batch, shell]
     attack: "T1059.001"
     if:
-      type: string
-      regex: "-e[px]\\s+[Bb]ypass|-ExecutionPolicy\\s+[Bb]ypass"
+      type: content
+      regex: "(?i)-e[px]\\s+[Bb]ypass|-ExecutionPolicy\\s+[Bb]ypass"
 
   # Hidden window style
   - id: ps-hidden-window
@@ -72,8 +72,8 @@ traits:
     for: [powershell, batch, shell]
     attack: "T1564.003"
     if:
-      type: string
-      regex: "-[Ww]indow[Ss]tyle\\s+[Hh]idden|-[Ww]\\s+[Hh]idden"
+      type: content
+      regex: "(?i)-[Ww](indow)?[Ss](tyle)?\\s+[Hh]idden"
 
   # NoProfile flag (avoid loading user profile)
   - id: ps-noprofile
@@ -82,8 +82,8 @@ traits:
     conf: 0.7
     for: [powershell, batch, shell]
     if:
-      type: string
-      regex: "-[Nn]o[Pp]rofile|-[Nn]op\\b"
+      type: content
+      regex: "(?i)-[Nn]o[Pp]rofile|-[Nn]op\\b"
 
   # Encoded command
   - id: ps-encoded-command
@@ -93,8 +93,8 @@ traits:
     for: [powershell, batch, shell]
     attack: "T1027"
     if:
-      type: string
-      regex: "-[Ee]ncoded[Cc]ommand|-[Ee][Cc]\\s"
+      type: content
+      regex: "(?i)-[Ee]ncoded[Cc]ommand|-[Ee][Cc]\\s"
 
   # === Density-Based Obfuscation Detection ===
   # Legitimate PowerShell rarely uses many char casts.
@@ -108,7 +108,7 @@ traits:
     attack: "T1027"
     for: [powershell]
     if:
-      type: string
+      type: content
       regex: "\\[char\\]\\d{2,3}"
       count_min: 8
       per_kb_min: 2.0

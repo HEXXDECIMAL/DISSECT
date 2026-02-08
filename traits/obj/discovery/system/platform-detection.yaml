@@ -16,24 +16,24 @@ traits:
     crit: notable
     conf: 0.70
     if:
-      type: string
-      regex: "platform\\.system\\(\\)"
+      type: content
+      substr: "platform.system()"
 
   - id: platform-node-call
     desc: platform.node() hostname call
     crit: notable
     conf: 0.70
     if:
-      type: string
-      regex: "platform\\.node\\(\\)"
+      type: content
+      substr: "platform.node()"
 
   - id: platform-platform-call
     desc: platform.platform() full info
     crit: notable
     conf: 0.70
     if:
-      type: string
-      regex: "platform\\.platform\\(\\)"
+      type: content
+      substr: "platform.platform()"
 
   # === OS String Checks ===
   - id: os-check-windows

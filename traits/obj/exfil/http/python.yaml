@@ -14,7 +14,7 @@ traits:
     conf: 0.8
     if:
       type: content
-      regex: "\\b(platform|uname|hostname)\\b.{0,50}\\b(post|send|request)\\b"
+      regex: "(?:platform\\.|uname\\(|hostname\\().{0,50}\\b(post|send|request)\\b"
 
   - id: file-read-http-send
     desc: Read file and HTTP send

@@ -23,7 +23,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "ICMP"
+      substr: "ICMP"
 
   - id: icmp-lower
     desc: icmp lowercase
@@ -31,7 +31,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "icmp"
+      substr: "icmp"
 
   - id: ipproto-icmp
     desc: IPPROTO_ICMP constant

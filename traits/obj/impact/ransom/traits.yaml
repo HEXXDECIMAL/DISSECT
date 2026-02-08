@@ -123,7 +123,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: '(README.{0,20}RESTORE|DECRYPT.{0,20}INSTRUCTIONS|HOW.{0,20}RECOVER|RANSOM.{0,20}NOTE|_readme\.txt)'
+      regex: '(README.{0,20}RESTORE|DECRYPT.{0,20}INSTRUCTIONS|HOW[_\-\.].{0,18}RECOVER|RANSOM.{0,20}NOTE|_readme\.txt)'
       case_insensitive: true
 
   - id: ransom-extension

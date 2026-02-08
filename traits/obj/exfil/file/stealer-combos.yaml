@@ -105,3 +105,28 @@ composite_rules:
       - id: obj/discovery/fingerprint/hardware-uuid-macos
       - id: obj/discovery/fingerprint/machine-id
       - id: obj/discovery/fingerprint/full-system
+
+  # Combination 7: Chrome cookie path + curl upload
+  - id: chrome-cookie-upload
+    desc: Chrome cookie theft and upload
+    crit: hostile
+    conf: 0.95
+    attack: "T1555.003"
+    mbc: "B0028"
+    all:
+      - id: obj/creds/browser/chromium/cookies-path
+      - id: cap/comm/http/upload/curl-upload-file
+
+  # Combination 8: CookieMiner dropper script
+  - id: cookieminer-dropper
+    desc: CookieMiner dropper script
+    crit: hostile
+    conf: 1.0
+    attack: "T1059.004"
+    mbc: "B0024"
+    for: [shell]
+    all:
+      - id: cap/exec/dropper/script/curl-download
+      - id: obj/creds/browser/chromium/cookies-path
+      - id: cap/os/admin/legitimate/cp-command
+      - id: cap/comm/http/upload/curl-upload-file

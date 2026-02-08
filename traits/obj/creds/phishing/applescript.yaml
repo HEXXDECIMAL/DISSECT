@@ -55,7 +55,7 @@ traits:
     for: [applescript, shell, python, ruby, perl, javascript]
     if:
       type: string
-      regex: "(?i)enter.{0,30}password"
+      regex: "(?i)enter.{0,15}password"
 
   # ============================================
   # Keychain Password Prompts
@@ -65,6 +65,9 @@ traits:
     crit: suspicious
     conf: 0.9
     attack: "T1555.001"
+    # Restrict to AppleScript/shell where this pattern indicates phishing dialogs.
+    # Python/Ruby/JS legitimately manage keychains (e.g., requests SecureTransport).
+    for: [applescript, shell]
     if:
       type: string
       regex: "(?i)keychain.{0,30}password"
@@ -75,7 +78,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: "(?i)admin.{0,30}password"
+      regex: "(?i)\\badmin\\b.{0,30}password"
 
 composite_rules:
   # Password prompt patterns group

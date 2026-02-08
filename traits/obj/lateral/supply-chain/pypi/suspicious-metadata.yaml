@@ -132,6 +132,26 @@ traits:
       path: platform
       exact: "UNKNOWN"
 
+  - id: unknown-description
+    desc: PKG-INFO has UNKNOWN description
+    crit: notable
+    conf: 0.75
+    for: [all]
+    if:
+      type: kv
+      path: description
+      exact: "UNKNOWN"
+
+  - id: unknown-author-email
+    desc: PKG-INFO has UNKNOWN author email
+    crit: notable
+    conf: 0.75
+    for: [all]
+    if:
+      type: kv
+      path: author-email
+      exact: "UNKNOWN"
+
   # === Throwaway Package Indicators ===
   - id: pkginfo-lowest-version
     desc: PKG-INFO with lowest possible version
@@ -141,7 +161,7 @@ traits:
     if:
       type: kv
       path: version
-      regex: "^0\\.0(?:\\.[0-9])?$"
+      regex: "^0\\.0(?:\\.[0-9]+)?$"
 
   - id: pkginfo-free-hosting-homepage
     desc: PKG-INFO homepage on free hosting service
@@ -174,7 +194,7 @@ traits:
     if:
       type: kv
       path: version
-      regex: "^[1-9][0-9]{2,}\\."
+      regex: "^(?:[1-9][0-9]{2}|1[0-9]{3}|2[1-9][0-9]{2}|[3-9][0-9]{3}|[1-9][0-9]{4,})\\."
 
   - id: summary-mentions-victim
     desc: Package summary explicitly mentions victims
@@ -224,6 +244,51 @@ traits:
       regex: "\\bbeacon\\b"
       case_insensitive: true
 
+  # === Dependency Confusion Indicators (Python source) ===
+  # String-based variants for detecting depconf language in setup.py description args
+  - id: desc-mentions-victim
+    desc: Description string explicitly mentions victims
+    crit: suspicious
+    conf: 0.90
+    attack: "T1195.002"
+    for: [python]
+    if:
+      type: string
+      substr: victim
+      case_insensitive: true
+
+  - id: desc-poc-research
+    desc: Description claims proof of concept or research
+    crit: notable
+    conf: 0.65
+    attack: "T1195.002"
+    for: [python]
+    if:
+      type: string
+      regex: "(?:proof.of.concept|\\bpoc\\b|security.research|bug.bounty|dependency.confusion)"
+      case_insensitive: true
+
+  - id: desc-confirms-install
+    desc: Description mentions confirming installation
+    crit: suspicious
+    conf: 0.90
+    attack: "T1195.002"
+    for: [python]
+    if:
+      type: string
+      regex: "confirm.{0,30}install"
+      case_insensitive: true
+
+  - id: setup-py-high-version
+    desc: setup.py with abnormally high version number
+    crit: suspicious
+    conf: 0.85
+    attack: "T1195.002"
+    for: [python]
+    if:
+      type: content
+      regex: "(?:^|[\\s(,])version.{0,30}=.{0,30}['\"](?:[1-9][0-9]{2}|[1-9][0-9]{3,})\\."
+
   - id: placeholder-author-pkginfo
     desc: PKG-INFO has placeholder author name
     crit: notable
@@ -269,6 +334,20 @@ traits:
       regex: "^\\s*(?:test(?:\\s+package)?|example(?:\\s+package)?|placeholder|my\\s+package|TODO|FIXME|description|nothing|empty|temp|dummy)\\s*$"
       case_insensitive: true
 
+  # === Low-Effort Summary ===
+  # Summaries like "A very basic firstbasicpyapp" indicate low-effort malicious
+  # packages. Matches "A very basic <word>" filler phrase or compound words
+  # ending in "pyapp" — patterns seen across malware family campaigns.
+  - id: pkginfo-low-effort-summary
+    desc: PKG-INFO with low-effort filler summary
+    crit: notable
+    conf: 0.80
+    for: [all]
+    if:
+      type: kv
+      path: summary
+      regex: "(?i)(?:(?:a |my )?very basic \\w+|\\w+pyapp\\b)"
+
   # === Single-Word Summary ===
   - id: pkginfo-single-word-summary
     desc: PKG-INFO with single-word summary
@@ -291,18 +370,31 @@ traits:
       path: description
       regex: "^\\s*$"
 
+  # === Missing Description Body ===
+  - id: pkginfo-missing-description
+    desc: PKG-INFO with no description body at all
+    crit: notable
+    conf: 0.70
+    for: [all]
+    if:
+      type: kv
+      path: metadata-version
+    unless:
+      - type: kv
+        path: description
+
   # === Tiny PKG-INFO ===
   - id: pkginfo-tiny
     desc: Extremely small PKG-INFO file
     crit: notable
     conf: 0.70
-    for: [pkginfo]
+    for: [all]
     if:
       type: filesize
       max: 200
     unless:
       - type: basename
-        regex: "\\.(py|sh|js|ts|c|cpp|h|hpp|md|txt|html|css|json|yml|yaml|pyi|rtf)$"
+        regex: "\\.(py|sh|js|ts|c|cpp|h|hpp|md|txt|html|css|json|yml|yaml|pyi|rtf|bat|cmd|ps1)$"
 
   # === pyproject.toml Skeleton Indicators ===
   - id: pyproject-is-pyproject
@@ -342,6 +434,20 @@ traits:
       type: content
       regex: "\\[project\\.scripts\\]"
 
+  # === Suspicious Build Dependencies ===
+  # Runtime HTTP/network libraries as build-system requirements indicate
+  # the build process will make network calls — a supply-chain red flag.
+  - id: pyproject-requests-build-dep
+    desc: pyproject.toml requires requests at build time
+    crit: suspicious
+    conf: 0.90
+    attack: "T1195.002"
+    for: [all]
+    if:
+      type: kv
+      path: "build-system.requires"
+      substr: "requests"
+
   # === Missing PKG-INFO Fields ===
   - id: pkginfo-no-summary
     desc: PKG-INFO missing Summary field
@@ -377,6 +483,18 @@ traits:
       path: author
       regex: "^.{1,3}$"
 
+  - id: pkginfo-no-author
+    desc: PKG-INFO missing Author field
+    crit: notable
+    conf: 0.70
+    for: [all]
+    if:
+      type: kv
+      path: metadata-version
+    unless:
+      - type: kv
+        path: author
+
   - id: pkginfo-no-author-email
     desc: PKG-INFO missing Author-email field
     crit: notable
@@ -388,6 +506,201 @@ traits:
     unless:
       - type: kv
         path: author-email
+
+  # === Privacy/Anonymous Email Provider ===
+  - id: pkginfo-privacy-email
+    desc: PKG-INFO author uses privacy email provider
+    crit: notable
+    conf: 0.75
+    for: [all]
+    if:
+      type: kv
+      path: author-email
+      regex: "@(proton\\.me|protonmail\\.com|tutanota\\.com|tutamail\\.com|guerrillamail\\.|mailinator\\.com|yopmail\\.com|sharklasers\\.com|tempmail\\.|dispostable\\.com|trashmail\\.|throwaway\\.email)"
+      case_insensitive: true
+
+  # === pyproject.toml Privacy Email ===
+  - id: pyproject-privacy-email
+    desc: pyproject.toml author uses privacy email
+    crit: notable
+    conf: 0.75
+    for: [all]
+    if:
+      type: kv
+      path: "project.authors"
+      regex: "@(proton\\.me|protonmail\\.com|tutanota\\.com|tutamail\\.com|guerrillamail\\.|mailinator\\.com|yopmail\\.com|sharklasers\\.com)"
+      case_insensitive: true
+
+  # === pyproject.toml Missing URLs ===
+  - id: pyproject-no-urls
+    desc: pyproject.toml with no project URLs
+    crit: notable
+    conf: 0.65
+    for: [all]
+    if:
+      type: content
+      substr: "[build-system]"
+    unless:
+      - type: content
+        substr: "[project.urls]"
+
+  # === pyproject.toml Missing Dependencies ===
+  - id: pyproject-no-dependencies
+    desc: pyproject.toml with no dependencies declared
+    crit: notable
+    conf: 0.60
+    for: [all]
+    if:
+      type: content
+      substr: "[build-system]"
+    unless:
+      - type: content
+        regex: "dependencies\\s*="
+
+  # === Non-Latin Summary (Social Engineering Lure) ===
+  # PKG-INFO summary written in non-Latin script (Cyrillic, Arabic, CJK, etc.)
+  # is unusual for PyPI packages and commonly indicates social engineering lures
+  # targeting specific language communities to install malicious packages.
+  - id: pkginfo-non-latin-summary
+    desc: PKG-INFO summary in non-Latin script
+    crit: notable
+    conf: 0.75
+    attack: "T1204.001"
+    for: [all]
+    if:
+      type: kv
+      path: summary
+      regex: "[А-яЁёÀ-ÖØ-öø-ÿ\u0600-\u06FF\u4E00-\u9FFF\u3040-\u309F\u30A0-\u30FF\uAC00-\uD7AF]"
+
+  # === Messaging Platform Security Lure Name ===
+  # Package name combines a messaging platform (Discord, Telegram, etc.) with
+  # security/safety terms — a social engineering pattern used to trick users
+  # into installing token stealers and credential harvesters.
+  - id: pkginfo-name-messaging-security-lure
+    desc: Package name impersonates messaging platform security tool
+    crit: suspicious
+    conf: 0.85
+    attack: "T1036.005"
+    for: [all]
+    if:
+      type: kv
+      path: name
+      regex: "(?i)(?:discord|telegram|whatsapp|slack|signal|skype|teams)[-_.]?(?:safe|secur|protect|guard|shield|verif|checker|scan|auth|token|backup|recover)"
+
+  # === Malware/Offensive Terms in Package Name ===
+  - id: pkginfo-name-malware-term
+    desc: PKG-INFO package name contains malware/offensive term
+    crit: suspicious
+    conf: 0.85
+    attack: "T1036.005"
+    for: [all]
+    if:
+      type: kv
+      path: name
+      regex: "(?:hack|exploit|trojan|malware|inject|keylog|stealer|ransomware|rootkit|botnet|phish|spyware|backdoor|rat(?:tool|kit|net))"
+      case_insensitive: true
+
+  # === Cloned README Indicators ===
+  - id: pkginfo-body-has-badges
+    desc: PKG-INFO body contains CI/CD badge URLs
+    crit: inert
+    conf: 0.70
+    for: [all]
+    if:
+      type: content
+      substr: "img.shields.io"
+      count_min: 2
+
+  - id: pkginfo-body-has-sponsorship
+    desc: PKG-INFO body references Tidelift sponsorship
+    crit: inert
+    conf: 0.70
+    for: [all]
+    if:
+      type: content
+      substr: "tidelift.com"
+
+  - id: pkginfo-body-has-maintainer-list
+    desc: PKG-INFO body lists GitHub @username maintainers
+    crit: inert
+    conf: 0.70
+    for: [all]
+    if:
+      type: content
+      regex: "github\\.com/[a-zA-Z0-9_-]+>"
+      count_min: 3
+
+  # === Development Version ===
+  - id: pkginfo-dev-version
+    desc: PKG-INFO with development version string
+    crit: inert
+    conf: 0.80
+    for: [all]
+    if:
+      type: kv
+      path: version
+      regex: "(?:dev|alpha|beta|\\brc\\d|pre|post)"
+      case_insensitive: true
+
+  # === Version Inflation ===
+  - id: pkginfo-inflated-version
+    desc: PKG-INFO with inflated version number
+    crit: notable
+    conf: 0.75
+    attack: "T1195.002"
+    for: [all]
+    if:
+      type: kv
+      path: version
+      regex: "^(?:[5-9]|[1-9][0-9]+)\\."
+
+  - id: pyproject-inflated-version
+    desc: pyproject.toml with inflated version number
+    crit: notable
+    conf: 0.75
+    attack: "T1195.002"
+    for: [all]
+    if:
+      type: kv
+      path: "project.version"
+      regex: "^(?:[5-9]|[1-9][0-9]+)\\."
+
+  # === pyproject.toml Boilerplate Description ===
+  # Malware campaigns (e.g. EsqueleSquad) reuse stock "A library for creating a
+  # terminal user interface" or similar generic phrases across hundreds of packages.
+  # These boilerplate descriptions don't match the actual package content.
+  - id: pyproject-boilerplate-description
+    desc: pyproject.toml with boilerplate library description
+    crit: notable
+    conf: 0.75
+    for: [all]
+    if:
+      type: kv
+      path: "project.description"
+      regex: "^A (?:library|package|module) for (?:creating|building|making) (?:a |an )?(?:terminal|beautiful|simple|modern|command.?line)"
+      case_insensitive: true
+
+  # === Leet-Speak / Numeric Author Names ===
+  - id: pkginfo-numeric-author
+    desc: PKG-INFO author with numeric sequences
+    crit: notable
+    conf: 0.70
+    for: [all]
+    if:
+      type: kv
+      path: author
+      regex: "(?:[a-zA-Z]+[0-9]{3,}|[0-9]{3,}[a-zA-Z]+)"
+
+  # === Single Generic Keyword ===
+  - id: pkginfo-single-generic-keyword
+    desc: PKG-INFO with single generic keyword
+    crit: notable
+    conf: 0.70
+    for: [all]
+    if:
+      type: kv
+      path: keywords
+      regex: "^[a-zA-Z]{2,15}$"
 
   # === Social Engineering for Privileges ===
   - id: summary-requests-admin
@@ -401,6 +714,67 @@ traits:
       path: summary
       regex: "(?:admin|root|sudo|elevat).{0,40}(?:install|permiss)"
       case_insensitive: true
+
+  # === Misspelled Social Engineering ===
+  # PKG-INFO summary contains common misspellings near privilege-related
+  # words — a pattern seen across malicious supply-chain packages that
+  # use social engineering to trick users into installing with elevated
+  # privileges. The misspellings ("evoid"/"administative"/"permisions")
+  # suggest non-native English-speaking threat actors.
+  - id: summary-misspelled-privilege-request
+    desc: Misspelled social engineering in PKG-INFO summary
+    crit: suspicious
+    conf: 0.90
+    attack: "T1204.001"
+    for: [all]
+    if:
+      type: kv
+      path: summary
+      regex: "(?:evoid|administative|permisions|adminstrat|privileg|instaling|elavat)"
+      case_insensitive: true
+
+  # === Package Name Contains Popular Library Name ===
+  # PKG-INFO package name contains "requests" as a component,
+  # indicating a typosquatting or confusion attack that masquerades
+  # as or extends the popular `requests` library.
+  - id: pkginfo-name-contains-requests
+    desc: Package name contains requests library name
+    crit: inert
+    conf: 0.70
+    attack: "T1036.005"
+    for: [all]
+    if:
+      type: kv
+      path: name
+      regex: "(?:^|[_-])requests(?:[_-]|$)"
+
+  # === Package Name with Concatenated Module Fragments ===
+  # Mass typosquatting campaigns (e.g. EsqueleSquad) generate package names
+  # by concatenating common Python module name fragments without separators
+  # (e.g. "tppyhttprand", "esqpylibhttp", "ultrapycrypto"). Matching 2+
+  # well-known module fragments in a single unseparated name is a strong
+  # supply-chain signal.
+  - id: pkginfo-name-module-fragments
+    desc: Package name with concatenated module name fragments
+    crit: notable
+    conf: 0.75
+    attack: "T1036.005"
+    for: [all]
+    if:
+      type: kv
+      path: name
+      regex: "(?:http|url|rand|pip|tool|info|api|web|net|req|crypto|token|socket|base64|encode|decode).*(?:http|url|rand|pip|tool|info|api|web|net|req|crypto|token|socket|base64|encode|decode)"
+
+  - id: pyproject-name-module-fragments
+    desc: pyproject.toml name with concatenated module fragments
+    crit: notable
+    conf: 0.75
+    attack: "T1036.005"
+    for: [all]
+    if:
+      type: kv
+      path: "project.name"
+      regex: "(?:http|url|rand|pip|tool|info|api|web|net|req|crypto|token|socket|base64|encode|decode).*(?:http|url|rand|pip|tool|info|api|web|net|req|crypto|token|socket|base64|encode|decode)"
 
 composite_rules:
   # === Suspicious Metadata Profile ===
@@ -435,19 +809,42 @@ composite_rules:
   # === PKG-INFO Metadata Anomalies ===
   - id: pkg-info-unknown-fields
     desc: PKG-INFO with UNKNOWN metadata fields
-    crit: suspicious
-    conf: 0.85
+    crit: notable
+    conf: 0.75
     attack: "T1036.005"
     mbc: "F0004"
     for: [all]
     platforms: [all]
-    needs: 2
+    needs: 3
     any:
       - id: unknown-summary
       - id: unknown-homepage
       - id: unknown-author
       - id: unknown-license
       - id: unknown-platform
+      - id: unknown-description
+      - id: unknown-author-email
+
+  # === All-UNKNOWN Metadata Package ===
+  # PKG-INFO where all metadata fields are UNKNOWN — a completely empty
+  # throwaway package with no author, homepage, license, description, or email.
+  # Precision: all(+5) + for(+1) = 6 (SUSPICIOUS)
+  - id: pkginfo-all-unknown-metadata
+    desc: PKG-INFO with all metadata fields UNKNOWN
+    crit: suspicious
+    conf: 0.90
+    attack: "T1195.002"
+    mbc: "F0004"
+    for: [all]
+    platforms: [all]
+    all:
+      - id: unknown-summary
+      - id: unknown-homepage
+      - id: unknown-author
+      - id: unknown-description
+      - id: unknown-author-email
+    none:
+      - id: pkginfo-dev-version
 
   # === Social Engineering Supply Chain Package ===
   # PKG-INFO that requests elevated privileges combined with
@@ -512,6 +909,18 @@ composite_rules:
       - id: depconf-victim-indicators
       - id: placeholder-author-pkginfo
 
+  # === No Description Helper ===
+  # Matches either empty description body or completely missing description
+  - id: pkginfo-no-description
+    desc: PKG-INFO with empty or missing description
+    crit: inert
+    conf: 0.70
+    for: [all]
+    platforms: [all]
+    any:
+      - id: pkginfo-no-description-body
+      - id: pkginfo-missing-description
+
   # === Throwaway Package Indicators ===
   - id: pkginfo-low-effort-indicators
     desc: PKG-INFO with low-effort package indicators
@@ -562,6 +971,24 @@ composite_rules:
       - id: summary-poc-research
       - id: summary-confirms-install
 
+  # === Dependency Confusion setup.py ===
+  # setup.py with description containing victim-targeting language, PoC claims,
+  # and install confirmation — the Python source equivalent of depconf-victim-package.
+  # Precision: all(+4) + for(+0.3) = 4.3 (HOSTILE)
+  - id: depconf-victim-setup-py
+    desc: Dependency confusion setup.py targeting victims
+    crit: hostile
+    conf: 0.92
+    attack: "T1195.002"
+    mbc: "F0004"
+    for: [python]
+    platforms: [all]
+    all:
+      - id: setup-py-file
+      - id: desc-mentions-victim
+      - id: desc-poc-research
+      - id: desc-confirms-install
+
   # === Minimal PKG-INFO Shell Package ===
   # Tiny PKG-INFO with single-word summary indicates a minimal/shell package
   # commonly used as typosquat or dependency confusion probe.
@@ -578,6 +1005,8 @@ composite_rules:
       - id: is-pkginfo-file
       - id: pkginfo-single-word-summary
       - id: pkginfo-tiny
+    none:
+      - id: pkginfo-dev-version
 
   # === Tiny PKG-INFO with Lowest Version ===
   # Tiny PKG-INFO with version 0.0 or 0.0.x indicates a skeleton/throwaway
@@ -644,8 +1073,10 @@ composite_rules:
     platforms: [all]
     all:
       - id: is-pkginfo-file
+      - id: pkginfo-no-description
+    any:
       - id: pkginfo-placeholder-summary
-      - id: pkginfo-no-description-body
+      - id: pkginfo-low-effort-summary
 
   # === PKG-INFO with Stripped Metadata ===
   # PKG-INFO missing essential fields (Summary, Home-page) with a very short
@@ -684,6 +1115,42 @@ composite_rules:
       - id: pkginfo-short-author
       - id: pkginfo-no-author-email
 
+  # === PKG-INFO with Anonymous Email + Missing Metadata ===
+  # PKG-INFO using a privacy email provider (proton.me, tutanota) combined
+  # with missing homepage and no description body. Strong supply-chain signal.
+  # Complexity: all(+4) + for(+1) = 5 (SUSPICIOUS)
+  - id: pkginfo-anonymous-author-skeleton
+    desc: PKG-INFO with anonymous email and sparse metadata
+    crit: suspicious
+    conf: 0.88
+    attack: "T1195.002"
+    mbc: "F0004"
+    for: [all]
+    platforms: [all]
+    all:
+      - id: is-pkginfo-file
+      - id: pkginfo-privacy-email
+      - id: pkginfo-no-homepage
+      - id: pkginfo-no-description
+
+  # === pyproject.toml Anonymous Email + Missing Metadata ===
+  # pyproject.toml with privacy email provider, no URLs, and no dependencies.
+  # Minimal metadata skeleton with anonymous contact — supply-chain indicator.
+  # Complexity: all(+4) + for(+1) = 5 (SUSPICIOUS)
+  - id: pyproject-anonymous-skeleton
+    desc: pyproject.toml with anonymous email and no URLs
+    crit: suspicious
+    conf: 0.88
+    attack: "T1195.002"
+    mbc: "F0004"
+    for: [all]
+    platforms: [all]
+    all:
+      - id: pyproject-is-pyproject
+      - id: pyproject-privacy-email
+      - id: pyproject-no-urls
+      - id: pyproject-no-dependencies
+
   # === pyproject.toml Skeleton Package ===
   # pyproject.toml with placeholder description, empty dependencies, and a
   # script entry point indicates a skeleton supply-chain package.
@@ -701,3 +1168,221 @@ composite_rules:
       - id: pyproject-placeholder-description
       - id: pyproject-empty-dependencies
       - id: pyproject-has-script-entrypoint
+
+  # === Cloned README Body Indicators ===
+  # PKG-INFO body contains multiple popular library README elements
+  # (badges, sponsorship, maintainer list) suggesting copied content.
+  - id: pkginfo-cloned-readme-body
+    desc: PKG-INFO body with cloned library README content
+    crit: notable
+    conf: 0.80
+    attack: "T1036.005"
+    mbc: "F0004"
+    for: [all]
+    platforms: [all]
+    needs: 2
+    any:
+      - id: pkginfo-body-has-badges
+      - id: pkginfo-body-has-sponsorship
+      - id: pkginfo-body-has-maintainer-list
+
+  # === Cloned Library Identity Package ===
+  # PKG-INFO with anonymous/privacy email and cloned popular library
+  # README content (badges, maintainer lists) — impersonating a well-known
+  # package to trick users into installing malicious code.
+  # Precision: all(+4) + for(+1) = 5 (SUSPICIOUS)
+  - id: pkginfo-cloned-library-identity
+    desc: PKG-INFO impersonating a popular library
+    crit: suspicious
+    conf: 0.90
+    attack: "T1195.002"
+    mbc: "F0004"
+    for: [all]
+    platforms: [all]
+    all:
+      - id: is-pkginfo-file
+      - id: pkginfo-privacy-email
+      - id: pkginfo-no-homepage
+      - id: pkginfo-cloned-readme-body
+
+  # === Malware-Named Package with Anonymous Author ===
+  # PKG-INFO with malware/offensive term in name and anonymous metadata.
+  # Precision: all(+4) + for(+1) = 5 (SUSPICIOUS)
+  - id: pkginfo-malware-named-anonymous
+    desc: Package with offensive name and anonymous author
+    crit: suspicious
+    conf: 0.90
+    attack: "T1195.002"
+    mbc: "F0004"
+    for: [all]
+    platforms: [all]
+    all:
+      - id: is-pkginfo-file
+      - id: pkginfo-name-malware-term
+      - id: pkginfo-privacy-email
+      - id: pkginfo-no-homepage
+
+  # === PKG-INFO with Inflated Version + Cloned Identity ===
+  # PKG-INFO with inflated version (>= 5.0) combined with cloned library
+  # identity (anonymous email, no homepage, stolen README) — malicious
+  # package impersonating a popular library with artificially high version.
+  # Precision: all(+5) + for(+1) = 6 (SUSPICIOUS)
+  - id: pkginfo-inflated-cloned-identity
+    desc: Inflated-version PKG-INFO impersonating library
+    crit: suspicious
+    conf: 0.92
+    attack: "T1195.002"
+    mbc: "F0004"
+    for: [all]
+    platforms: [all]
+    all:
+      - id: is-pkginfo-file
+      - id: pkginfo-inflated-version
+      - id: pkginfo-privacy-email
+      - id: pkginfo-no-homepage
+      - id: pkginfo-cloned-readme-body
+
+  # === pyproject.toml with Inflated Version + Anonymous Skeleton ===
+  # pyproject.toml with inflated version (>= 5.0) combined with anonymous
+  # email, no URLs, and no dependencies — skeleton package designed to
+  # override legitimate internal packages via version inflation.
+  # Precision: all(+5) + for(+1) = 6 (SUSPICIOUS)
+  - id: pyproject-inflated-anonymous-skeleton
+    desc: Inflated-version pyproject.toml with anonymous author
+    crit: suspicious
+    conf: 0.92
+    attack: "T1195.002"
+    mbc: "F0004"
+    for: [all]
+    platforms: [all]
+    all:
+      - id: pyproject-is-pyproject
+      - id: pyproject-inflated-version
+      - id: pyproject-privacy-email
+      - id: pyproject-no-urls
+      - id: pyproject-no-dependencies
+
+  # === pyproject.toml Boilerplate Inflated Anonymous Skeleton ===
+  # pyproject.toml with boilerplate description (e.g. "A library for creating
+  # a terminal user interface"), inflated version, anonymous email, no URLs,
+  # and no dependencies — a supply-chain attack package with stolen description.
+  # Precision: all(+6) + for(+1) = 7 (HOSTILE)
+  - id: pyproject-boilerplate-inflated-skeleton
+    desc: Inflated pyproject.toml with boilerplate description
+    crit: hostile
+    conf: 0.95
+    attack: "T1195.002"
+    mbc: "F0004"
+    for: [all]
+    platforms: [all]
+    all:
+      - id: pyproject-is-pyproject
+      - id: pyproject-inflated-version
+      - id: pyproject-privacy-email
+      - id: pyproject-no-urls
+      - id: pyproject-no-dependencies
+      - id: pyproject-boilerplate-description
+
+  # === PKG-INFO Filler Package with Anonymous Author ===
+  # PKG-INFO with low-effort filler summary (e.g. "A very basic pyapp"),
+  # completely missing Author and Author-email fields, and no description
+  # body — a disposable supply-chain attack package with no attribution.
+  # Precision: all(+4) + for(+0.3) = 4.3 (SUSPICIOUS)
+  - id: pkginfo-filler-anonymous-package
+    desc: Filler PKG-INFO with no author attribution
+    crit: suspicious
+    conf: 0.90
+    attack: "T1195.002"
+    mbc: "F0004"
+    for: [all]
+    platforms: [all]
+    all:
+      - id: is-pkginfo-file
+      - id: pkginfo-no-author
+      - id: pkginfo-no-author-email
+    any:
+      - id: pkginfo-low-effort-summary
+      - id: pkginfo-placeholder-summary
+
+  # === PKG-INFO Deceptive Throwaway Package ===
+  # PKG-INFO with multiple red flags: UNKNOWN homepage, no author email,
+  # no description body, and a numeric/leet-speak author name — a low-effort
+  # throwaway package with deceptive metadata.
+  # Precision: all(+5) + for(+0.3) = 5.3 (SUSPICIOUS)
+  - id: pkginfo-deceptive-throwaway
+    desc: PKG-INFO with deceptive throwaway metadata
+    crit: suspicious
+    conf: 0.88
+    attack: "T1195.002"
+    mbc: "F0004"
+    for: [all]
+    platforms: [all]
+    all:
+      - id: is-pkginfo-file
+      - id: unknown-homepage
+      - id: pkginfo-no-author-email
+      - id: pkginfo-no-description
+      - id: pkginfo-numeric-author
+
+  # === Impersonation Package with Social Engineering ===
+  # PKG-INFO that requests elevated privileges with misspelled social
+  # engineering combined with a cloned popular library README (badges,
+  # sponsorship) and UNKNOWN platform. This pattern indicates a
+  # typosquatting package that impersonates a legitimate library while
+  # using social engineering to trick users into installing with admin
+  # privileges. The stolen author identity (vs privacy email) makes
+  # the impersonation more convincing.
+  # Precision: all(+4) + for(+0.3) = 4.3 (HOSTILE)
+  - id: pkginfo-impersonation-social-engineering
+    desc: Impersonation package with privilege social engineering
+    crit: hostile
+    conf: 0.93
+    attack: "T1195.002"
+    mbc: "F0004"
+    for: [all]
+    platforms: [all]
+    all:
+      - id: is-pkginfo-file
+      - id: summary-requests-admin
+      - id: pkginfo-body-has-badges
+      - id: unknown-platform
+
+  # === Misspelled Privilege Request with Cloned README ===
+  # PKG-INFO with misspelled social engineering text requesting elevated
+  # permissions combined with a cloned library README body. The combination
+  # of deliberate social engineering misspellings and stolen documentation
+  # strongly indicates a supply-chain impersonation attack.
+  # Precision: all(+4) + for(+0.3) = 4.3 (HOSTILE)
+  - id: pkginfo-misspelled-impersonation
+    desc: Misspelled social engineering with cloned README
+    crit: hostile
+    conf: 0.93
+    attack: "T1195.002"
+    mbc: "F0004"
+    for: [all]
+    platforms: [all]
+    all:
+      - id: is-pkginfo-file
+      - id: summary-misspelled-privilege-request
+      - id: summary-requests-admin
+      - id: pkginfo-body-has-badges
+
+  # === Messaging Platform Lure Package ===
+  # PKG-INFO with a name impersonating a messaging platform security tool
+  # (e.g. DiscordSafety, TelegramProtect) combined with UNKNOWN metadata
+  # fields and non-Latin summary. This pattern targets users of messaging
+  # platforms with fake security/safety tools that are actually stealers.
+  # Precision: all(+4) + for(+0.3) = 4.3 (HOSTILE)
+  - id: pkginfo-messaging-lure-package
+    desc: Messaging platform lure package with sparse metadata
+    crit: hostile
+    conf: 0.93
+    attack: "T1195.002"
+    mbc: "F0004"
+    for: [all]
+    platforms: [all]
+    all:
+      - id: is-pkginfo-file
+      - id: pkginfo-name-messaging-security-lure
+      - id: unknown-homepage
+      - id: unknown-description

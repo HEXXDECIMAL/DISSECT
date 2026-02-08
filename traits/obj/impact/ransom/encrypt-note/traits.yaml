@@ -46,7 +46,7 @@ traits:
 composite_rules:
   - id: generic_msg
     desc: "Generic ransom note string"
-    crit: suspicious
+    crit: notable
     conf: 0.6
     needs: 1
     any:

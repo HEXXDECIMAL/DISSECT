@@ -248,6 +248,7 @@ composite_rules:
   - id: python-win32clipboard
     desc: "Windows clipboard access (win32clipboard)"
     conf: 0.8
+    crit: notable
     platforms: [windows]
     needs: 1
     any:
@@ -260,16 +261,21 @@ composite_rules:
   - id: python-pyperclip
     desc: "Clipboard access (pyperclip)"
     conf: 0.7
+    crit: notable
     needs: 1
     any:
       - id: import-pyperclip
       - id: pyperclip-paste
       - id: pyperclip-copy
+    downgrade:
+      any:
+        - id: meta/quality/versioned
 
   # wxPython clipboard composite
   - id: python-wx-clipboard
     desc: "Clipboard access (wxPython)"
     conf: 0.75
+    crit: notable
     needs: 1
     any:
       - id: wx-clipboard

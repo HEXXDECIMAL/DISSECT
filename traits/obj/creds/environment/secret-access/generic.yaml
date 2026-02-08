@@ -24,21 +24,21 @@ traits:
 
   - id: aws-access-key
     desc: AWS_ACCESS_KEY environment variable access
-    crit: suspicious
-    conf: 0.95
+    crit: notable
+    conf: 0.85
     attack: "T1552.001"
     if:
       type: string
-      regex: "AWS_ACCESS_KEY"
+      regex: "^AWS_ACCESS_KEY"
 
   - id: aws-secret
     desc: AWS_SECRET environment variable access
-    crit: suspicious
-    conf: 0.95
+    crit: notable
+    conf: 0.85
     attack: "T1552.001"
     if:
       type: string
-      regex: "AWS_SECRET"
+      regex: "^AWS_SECRET"
 
   - id: api-key-generic
     desc: Generic API_KEY environment variable access

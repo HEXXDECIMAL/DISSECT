@@ -34,6 +34,14 @@ traits:
       type: string
       regex: 'send.{0,50}\.zip'
 
+  - id: curl-upload-file
+    desc: curl --upload-file flag
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: content
+      regex: "curl\\s+.{0,100}--upload-file\\b"
+
 composite_rules:
   # ZIP upload
   - id: zip-upload
@@ -46,3 +54,4 @@ composite_rules:
       - id: post-zip
       - id: upload-zip
       - id: send-zip
+      - id: curl-upload-file

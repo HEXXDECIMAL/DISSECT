@@ -293,6 +293,25 @@ traits:
       type: string
       substr: "ActiveScriptEventConsumer"
 
+  # === Shortcut file enumeration ===
+  - id: lnk-endswith-filter
+    desc: Filters files by .lnk extension
+    crit: notable
+    conf: 0.8
+    platforms: [windows]
+    if:
+      type: string
+      substr: ".lnk"
+
+  - id: endswith-filter-content
+    desc: Python endswith file extension filter
+    crit: inert
+    conf: 0.65
+    for: [python]
+    if:
+      type: content
+      substr: ".endswith("
+
   # === Windows shortcut manipulation ===
   - id: create-shortcut
     desc: COM CreateShortcut method call
@@ -311,6 +330,24 @@ traits:
     if:
       type: content
       substr: ".TargetPath"
+
+  - id: shortcut-arguments
+    desc: Shortcut Arguments property modification
+    crit: notable
+    conf: 0.75
+    platforms: [windows]
+    if:
+      type: content
+      substr: ".Arguments"
+
+  - id: shortcut-save
+    desc: Shortcut Save method call
+    crit: inert
+    conf: 0.65
+    platforms: [windows]
+    if:
+      type: content
+      substr: ".Save()"
 
   # === Executable payload atomic indicators ===
   - id: exe-extension
@@ -558,6 +595,51 @@ composite_rules:
     all:
       - id: create-shortcut
       - id: shortcut-target-path
+
+  # Shortcut argument injection composite
+  - id: windows-shortcut-argument-injection
+    desc: "Shortcut argument injection via COM"
+    crit: suspicious
+    conf: 0.90
+    attack: "T1547.009"
+    platforms: [windows]
+    all:
+      - id: create-shortcut
+      - id: shortcut-arguments
+      - id: shortcut-save
+
+  # Shortcut enumeration + modification
+  # Walks directories to find .lnk files and modifies them
+  # Complexity: all(+2) + any(+1) = 3 (SUSPICIOUS)
+  - id: windows-shortcut-walk-modify
+    desc: "Enumerates and modifies shortcut files"
+    crit: suspicious
+    conf: 0.90
+    attack: "T1547.009"
+    platforms: [windows]
+    all:
+      - id: cap/fs/directory/traverse/traverse-walk
+      - id: create-shortcut
+    any:
+      - id: lnk-endswith-filter
+      - id: endswith-filter-content
+
+  # Full browser shortcut argument injection chain
+  # Walks directories for .lnk files and injects arguments into browser shortcuts
+  # This is a complete persistence/hijack operation with no legitimate use
+  # Complexity: all(+4) = 4 (meets HOSTILE threshold)
+  - id: windows-shortcut-walk-argument-inject
+    desc: "Enumerates shortcuts and injects arguments"
+    crit: hostile
+    conf: 0.95
+    attack: "T1547.009"
+    mbc: "F0012"
+    platforms: [windows]
+    all:
+      - id: cap/fs/directory/traverse/traverse-walk
+      - id: create-shortcut
+      - id: shortcut-arguments
+      - id: shortcut-save
 
   # Scheduled task with suspicious payload
   - id: windows-schtasks-payload

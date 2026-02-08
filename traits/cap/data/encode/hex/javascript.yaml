@@ -1,0 +1,24 @@
+traits:
+  - id: cap/data/encode/hex/javascript/buffer-from
+    desc: Hex decoding/usage via Buffer.from
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: ast
+      language: javascript
+      query: |
+        (call_expression
+          function: (member_expression
+            object: (identifier) @buf
+            property: (property_identifier) @from
+          )
+          arguments: (arguments
+            (_)
+            (string) @enc
+          )
+          (#eq? @buf "Buffer")
+          (#eq? @from "from")
+          (#match? @enc "hex")
+        )
+

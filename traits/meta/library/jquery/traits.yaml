@@ -14,22 +14,22 @@ traits:
       type: string
       regex: "jQuery v[0-9]\\.[0-9]+\\.[0-9]+"
 
-  # Detect jquery.org domain
+  # Detect jquery.org domain (in comments, not string literals)
   - id: domain
     desc: jquery.org domain reference
     crit: benign
     conf: 0.9
     if:
-      type: string
+      type: content
       substr: "jquery.org"
 
-  # jQuery copyright
+  # jQuery copyright (in comments, not string literals)
   - id: copyright
     desc: jQuery copyright notice
     crit: benign
     conf: 0.95
     if:
-      type: string
+      type: content
       substr: "jQuery JavaScript Library"
 
   # jQuery function signatures
@@ -38,8 +38,8 @@ traits:
     crit: benign
     conf: 0.85
     if:
-      type: string
-      regex: "jQuery\\.fn\\.extend"
+      type: content
+      substr: "jQuery.fn.extend"
 
 composite_rules:
   # Detect if file is jQuery (neutral, benign detection)

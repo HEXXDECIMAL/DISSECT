@@ -266,7 +266,7 @@ composite_rules:
   # Firefox history composite
   - id: firefox-history
     desc: Firefox browser history
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1217"
     for: [all]

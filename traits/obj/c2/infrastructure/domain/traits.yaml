@@ -70,7 +70,7 @@ traits:
       - regex: "^[A-Za-z_$][A-Za-z0-9_$]*\\.style\\.(top|left|right|bottom|width|height)$"
     unless:
       - type: content
-        regex: "sina\\.com\\.cn|163\\.com|126\\.com|sohu\\.com|qq\\.com|yahoo\\.com\\.cn|mysite"
+        regex: "sina\\.com\\.cn|163\\.com|126\\.com|sohu\\.com|qq\\.com|yahoo\\.com\\.cn|mysite|rambler\\.ru|yandex\\.ru|mail\\.ru"
 
   - id: short-domain-url-pattern
     desc: "Very short domain in URL"
@@ -177,9 +177,15 @@ traits:
         - "mdn\\.io"
         - "developer\\.mozilla\\.org"
         - "docs\\.github\\.com"
+        - "docs\\.rs"
+        - "docs\\.python\\.org"
         - "nodejs\\.org"
         - "npmjs\\.com"
         - "npmjs\\.org"
+        - "pypi\\.org"
+        - "python\\.org"
+        - "rust-lang\\.org"
+        - "crates\\.io"
         # CI/CD services
         - "travis-ci\\.org"
         - "travis-ci\\.com"
@@ -201,6 +207,8 @@ traits:
         - "microsoft\\.com"
         - "amazon\\.com"
         - "aws\\.amazon\\.com"
+        - "google\\.com"
+        - "sourceforge\\.net"
         # LLVM/compiler projects
         - "llvm\\.org"
         - "clang\\.llvm\\.org"
@@ -720,7 +728,7 @@ composite_rules:
   # Malware hosting services
   - id: malware-hosting
     desc: Contacts known malware/payload hosting service
-    crit: suspicious
+    crit: notable
     conf: 0.95
     attack: "T1105"
     needs: 1
@@ -740,7 +748,7 @@ composite_rules:
   # PHP collector endpoints
   - id: php-collector
     desc: Contacts PHP data collection endpoint
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1041"
     needs: 1

@@ -1,0 +1,27 @@
+# Python win32com COM Automation
+# Detects usage of Windows COM automation via win32com
+# ATT&CK: T1559.001 (Inter-Process Communication: Component Object Model)
+
+defaults:
+  for: [python]
+  attack: "T1559.001"
+  platforms: [windows]
+
+traits:
+  # win32com.client import or usage
+  - id: import-win32com
+    desc: Python win32com module import
+    crit: notable
+    conf: 0.85
+    if:
+      type: content
+      substr: "import win32com"
+
+  # win32com.client.Dispatch call
+  - id: dispatch-call
+    desc: COM Dispatch object creation
+    crit: notable
+    conf: 0.85
+    if:
+      type: content
+      substr: "Dispatch("

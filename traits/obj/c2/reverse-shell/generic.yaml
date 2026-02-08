@@ -35,7 +35,7 @@ composite_rules:
   # Reverse shell string match
   - id: reverse-shell-match
     desc: Matches reverse shell string patterns
-    crit: suspicious
+    crit: notable
     conf: 0.7
     attack: "T1059"
     needs: 1

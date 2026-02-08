@@ -13,7 +13,7 @@ traits:
     for: [elf, macho, so, dylib, c]
     if:
       type: symbol
-      regex: stat|lstat|fstat
+      regex: "^_?(stat|lstat|fstat|fstatat|stat64|lstat64|fstat64)$"
     platforms: [unix, linux, macos]
 
   - id: access
@@ -25,7 +25,7 @@ traits:
     for: [elf, macho, so, dylib, c]
     if:
       type: symbol
-      regex: access
+      regex: "^_?(access|faccessat)$"
     platforms: [unix, linux, macos]
 
   # File locking
@@ -38,7 +38,7 @@ traits:
     for: [elf, macho, so, dylib, c]
     if:
       type: symbol
-      regex: flock
+      regex: "^_?flock$"
     platforms: [unix, linux, macos]
 
   - id: fcntl
@@ -50,5 +50,5 @@ traits:
     for: [elf, macho, so, dylib, c]
     if:
       type: symbol
-      regex: fcntl
+      regex: "^_?fcntl$"
     platforms: [unix, linux, macos]

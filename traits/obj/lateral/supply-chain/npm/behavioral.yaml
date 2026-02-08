@@ -289,7 +289,7 @@ traits:
     attack: "T1071.001"
     if:
       type: content
-      regex: "WebSocket\\s+(?:Backup|backup|fallback)|sendViaWebSocket|ws\\.send\\("
+      regex: "WebSocket\\s+(?:Backup|backup|fallback)|sendViaWebSocket"
 
   # === HEADER-BASED BACKDOOR PATTERNS ===
   # getcookies-style backdoors that extract commands from HTTP headers

@@ -1,0 +1,40 @@
+# macOS Info.plist Identity Masquerade
+# Detects trojanized app bundles with fake or placeholder identities
+# ATT&CK: T1036.005 (Masquerading: Match Legitimate Name)
+
+defaults:
+  platforms: [macos]
+  attack: "T1036.005"
+
+traits:
+  # com.example.* is a reserved placeholder domain (RFC 2606)
+  # No legitimate developer ships production apps with this identifier
+  - id: example-bundle-id
+    desc: Placeholder com.example bundle identifier
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: kv
+      path: "CFBundleIdentifier"
+      regex: "^com\\.example\\."
+
+  - id: appl-package-type
+    desc: Application package type declaration
+    crit: inert
+    conf: 0.9
+    if:
+      type: kv
+      path: "CFBundlePackageType"
+      exact: "APPL"
+
+composite_rules:
+  # Application with placeholder bundle ID = trojanized/repackaged app
+  # Precision: 3.8 (meets suspicious >= 2.0 threshold)
+  - id: fake-app-identity
+    desc: Application with placeholder bundle identifier
+    crit: suspicious
+    conf: 0.95
+    attack: "T1036.005"
+    all:
+      - id: example-bundle-id
+      - id: appl-package-type

@@ -12,12 +12,75 @@ traits:
     for: [javascript]
     if:
       type: content
+      regex: "while\\(!!\\[\\]\\)"
+
+  - id: while-not-zero
+    desc: while(0x0) infinite loop pattern
+    crit: notable
+    conf: 0.85
+    attack: "T1027"
+    for: [javascript]
+    if:
+      type: content
+      regex: "while\\(0x0\\)"
+
+  - id: while-not-space-zero
+    desc: while(!![]) with space infinite loop
+    crit: notable
+    conf: 0.85
+    attack: "T1027"
+    for: [javascript]
+    if:
+      type: content
+      regex: "while\\(\\s*!!\\s*\\[\\]\\s*\\)"
+
+  # === Array manipulation patterns ===
+  - id: push-shift-pattern
+    desc: Array push/shift rotation pattern
+    crit: notable
+    conf: 0.8
+    attack: "T1027"
+    for: [javascript]
+    if:
+      type: content
+      regex: "\\.push\\([^)]+\\).*?\\.shift\\(\\)"
+
+  - id: shift-push-pattern
+    desc: Array shift/push rotation pattern
+    crit: notable
+    conf: 0.8
+    attack: "T1027"
+    for: [javascript]
+    if:
+      type: content
+      regex: "\\.shift\\(\\).*?\\.push\\([^)]+\\)"
+
+  # === Array shuffle algorithm patterns ===
+  - id: array-shuffle-algorithm
+    desc: Array shuffle algorithm in infinite loop
+    crit: suspicious
+    conf: 0.88
+    attack: "T1027"
+    for: [javascript]
+    if:
+      type: content
+      regex: "while\\(!!\\[\\]\\).*?try.*?parseInt.*?\\.push.*?\\.shift"
+
+  - id: array-swap-elements
+    desc: Array element swap pattern
+    crit: notable
+    conf: 0.75
+    attack: "T1027"
+    for: [javascript]
+    if:
+      type: content
+      regex: "\\w+\\[\\w+\\]\\s*=\\s*\\w+\\[\\w+\\];\\s*\\w+\\[\\w+\\]\\s*=\\s*\\w+\\[\\w+\\];\\s*\\w+\\[\\w+\\]\\s*=\\s*\\w+"
 
 composite_rules:
   # Infinite loop composite
   - id: infinite-loop
     desc: Obfuscated infinite loop (while(!![]) pattern)
-    crit: suspicious
+    crit: notable
     conf: 0.9
     attack: "T1027"
     for: [javascript]
@@ -31,18 +94,33 @@ composite_rules:
   - id: string-array-rotation
     desc: String array with rotation decoder
     crit: suspicious
-    conf: 0.85
+    conf: 0.9
     attack: "T1027"
     for: [javascript]
     needs: 1
     any:
       - id: push-shift-pattern
       - id: shift-push-pattern
+      - id: array-shuffle-algorithm
+
+  # Advanced array shuffling composite
+  - id: advanced-array-shuffling
+    desc: Advanced array shuffling algorithm
+    crit: hostile
+    conf: 0.95
+    attack: "T1027.002"
+    for: [javascript]
+    all:
+      - id: infinite-loop
+      - id: string-array-rotation
+    any:
+      - id: array-swap-elements
+      - id: string-array-rotation
 
   # Buffer hex encoding composite
   - id: buffer-hex-encoding
     desc: Buffer with hex encoding (obfuscation)
-    crit: suspicious
+    crit: notable
     conf: 0.8
     attack: "T1027"
     for: [javascript]
@@ -55,7 +133,7 @@ composite_rules:
   # fromCharCode composite
   - id: fromCharCode
     desc: String.fromCharCode obfuscation
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1027"
     for: [javascript]
