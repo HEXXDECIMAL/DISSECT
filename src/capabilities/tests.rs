@@ -3077,7 +3077,11 @@ fn test_collect_trait_refs_finds_internal_paths() {
         .iter()
         .filter(|(ref_id, _)| ref_id.starts_with("meta/internal/"))
         .collect();
-    assert_eq!(internal_refs.len(), 2, "Should find 2 internal path references");
+    assert_eq!(
+        internal_refs.len(),
+        2,
+        "Should find 2 internal path references"
+    );
 
     // Verify specific internal paths found
     let internal_ids: Vec<&str> = internal_refs.iter().map(|(id, _)| id.as_str()).collect();

@@ -86,7 +86,7 @@ composite_rules:
     attack: "T1059.004"
     for: [shell, python, ruby, perl]
     all:
-      - { id: obj/anti-analysis/applescript/osascript-exec }
+      - { id: obj/anti-analysis/window-hide::osascript-exec }
       - { id: sysoexec-string }
 
   # ============================================
@@ -98,7 +98,7 @@ composite_rules:
     conf: 0.8
     for: [shell, python, ruby, perl]
     all:
-      - { id: obj/anti-analysis/applescript/osascript-exec }
+      - { id: obj/anti-analysis/window-hide::osascript-exec }
     any:
       - { id: ref-system-settings }
       - { id: ref-system-prefs }

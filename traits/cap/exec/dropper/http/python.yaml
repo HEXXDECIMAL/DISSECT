@@ -50,14 +50,6 @@ traits:
       type: string
       regex: "requests\\.(get|post)\\("
 
-  - id: write-call
-    desc: .write() call
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      regex: "\\.write\\("
-
   - id: popen-call
     desc: subprocess module call
     crit: inert
@@ -117,22 +109,16 @@ composite_rules:
     desc: Subprocess execution
     crit: notable
     conf: 0.5
-    needs: 1
     any:
-      - id: cap/exec/command/subprocess/python/popen
-      - id: cap/exec/command/subprocess/python/run-call
-      - id: cap/exec/command/subprocess/python/call
+      - id: cap/exec/command/subprocess/python
 
   # Code or process execution composite
   - id: python-exec-any
     desc: Code or process execution
     crit: notable
     conf: 0.5
-    needs: 1
     any:
-      - id: cap/exec/command/subprocess/python/popen
-      - id: cap/exec/command/subprocess/python/run-call
-      - id: cap/exec/command/subprocess/python/call
+      - id: cap/exec/command/subprocess/python
       - id: os-system-call
       - id: exec-call
 
@@ -203,6 +189,6 @@ composite_rules:
       - id: multi-download-funcs
     all:
       - id: requests-method
-      - id: write-call
+      - id: cap/fs/file-ops/py-write
       - id: popen-call
       - id: payload-keyword

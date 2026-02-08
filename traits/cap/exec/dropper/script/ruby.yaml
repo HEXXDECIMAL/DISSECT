@@ -248,15 +248,9 @@ composite_rules:
     crit: suspicious
     needs: 4
     any:
-      - id: cap/comm/http/request/ruby-http-get-response
-      - id: cap/comm/http/request/ruby-http-client
-      - id: cap/fs/write/file/ruby-file-open-write-binary
-      - id: cap/fs/write/file/ruby-file-binmode
-      - id: cap/fs/write/file/ruby-file-chmod
-      - id: cap/fs/write/file/ruby-chmod-777
-      - id: cap/exec/command/shell/ruby-system
-      - id: cap/exec/command/shell/ruby-exec
-      - id: cap/fs/write/file/ruby-file-write-tmp
+      - id: cap/comm/http/request
+      - id: cap/fs/write/file
+      - id: cap/exec/command/shell
 
   - id: ruby-obfuscated-c2
     desc: Obfuscated C2 with Base64 and
@@ -270,27 +264,23 @@ composite_rules:
       - id: cap/comm/http/request/ruby-http-get-response
 
   - id: ruby-tmp-execution
-    desc: Write to /tmp, chmod, and
+    desc: Write to /tmp, chmod, and execute
     conf: 0.93
     crit: suspicious
-    needs: 4
+    needs: 3
     any:
-      - id: cap/fs/write/file/ruby-file-write-tmp
-      - id: cap/fs/write/file/ruby-file-chmod
-      - id: cap/fs/write/file/ruby-chmod-777
-      - id: cap/exec/command/shell/ruby-system
-      - id: cap/exec/command/shell/ruby-exec
+      - id: cap/fs/write/file
+      - id: cap/fs/chmod
+      - id: cap/exec/command/shell
 
   - id: ruby-reverse-shell
     desc: Reverse shell connection
     conf: 0.90
     crit: suspicious
-    needs: 3
+    needs: 2
     any:
       - id: cap/comm/socket/listen/ruby-tcp-socket
-      - id: cap/exec/command/shell/ruby-system
-      - id: cap/exec/command/shell/ruby-exec
-      - id: cap/exec/command/shell/ruby-popen
+      - id: cap/exec/command/shell
       - id: cap/process/tty/pty/ruby-pty
 
   - id: ruby-windows-vbs-dropper
@@ -311,9 +301,7 @@ composite_rules:
     desc: Downloads and writes binary payload
     conf: 0.94
     crit: suspicious
-    needs: 3
+    needs: 2
     any:
       - id: cap/comm/http/request/ruby-http-get-response
-      - id: cap/fs/write/file/ruby-file-binmode
-      - id: cap/fs/write/file/ruby-file-open-write-binary
-      - id: cap/fs/write/file/ruby-file-write-tmp
+      - id: cap/fs/write/file

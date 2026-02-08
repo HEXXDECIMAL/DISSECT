@@ -1,9 +1,11 @@
+defaults:
+  for: [javascript, typescript]
+
 traits:
-  - id: cap/data/encode/hex/javascript/buffer-from
+  - id: buffer-from-hex
     desc: Hex decoding/usage via Buffer.from
     crit: inert
     conf: 0.8
-    for: [javascript, typescript]
     if:
       type: ast
       language: javascript

@@ -166,4 +166,4 @@ composite_rules:
     all:
       - id: cap/exec/command/shell/open-a-app
       - id: cap/exec/command/shell/shell-symbols
-      - id: cap/fs/permission/chmod/chmod-777-shell
+      - id: cap/fs/chmod/executable/dangerous::shell-777

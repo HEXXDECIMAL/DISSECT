@@ -272,12 +272,8 @@ composite_rules:
     crit: inert
     conf: 0.8
     for: [javascript, typescript]
-    needs: 1
     any:
-      - id: cap/comm/http/request/javascript/https-request
-      - id: cap/comm/http/request/javascript/http-request
-      - id: cap/comm/http/request/javascript/fetch-call
-      - id: cap/comm/http/request/javascript/axios
+      - id: cap/comm/http/request/javascript
       - id: dns-resolve-txt
 
   # Compression library composite

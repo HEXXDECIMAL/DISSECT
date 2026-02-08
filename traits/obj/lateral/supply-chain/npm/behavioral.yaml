@@ -446,7 +446,7 @@ composite_rules:
     conf: 0.8
     needs: 1
     any:
-      - id: cap/exec/javascript/eval/spawn-call
+      - id: cap/exec/command/shell/node::spawn-call
       - id: exec-call
 
   # npm package with interpreter dropper (hostile combination)
@@ -462,7 +462,7 @@ composite_rules:
       - id: node-interpreter-exec
     all:
       - id: spawn-or-exec-call
-      - id: cap/exec/javascript/eval/child-process-require
+      - id: cap/exec/command/shell/node::child-process-require
 
   # Supply-chain trojan with obfuscated payload
   - id: obfuscated-trojan

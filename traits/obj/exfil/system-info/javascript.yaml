@@ -1,10 +1,10 @@
 composite_rules:
-  - id: obj/exfil/system-info/javascript/env-vars
+  - id: env-vars
     desc: Obfuscated exfiltration of environment variables
     crit: hostile
     conf: 0.95
     for: [javascript, typescript]
     all:
       - id: cap/os/env/read/javascript
-      - id: cap/exec/load/javascript/require/obfuscated/hex
-      - id: cap/data/encode/base64/javascript/tostring
+      - id: cap/exec/load/obfuscated::require-hex
+      - id: cap/data/encode/base64

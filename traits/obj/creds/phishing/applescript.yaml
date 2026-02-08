@@ -80,6 +80,17 @@ traits:
       type: string
       regex: "(?i)\\badmin\\b.{0,30}password"
 
+  # ============================================
+  # Hidden Input (Password Masking)
+  # ============================================
+  - id: hidden-answer
+    desc: "AppleScript hidden answer (password masking)"
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: string
+      regex: "with hidden answer"
+
 composite_rules:
   # Password prompt patterns group
   - id: password-prompt-pattern
@@ -101,7 +112,7 @@ composite_rules:
     conf: 0.7
     needs: 1
     any:
-      - id: obj/anti-analysis/applescript/with-hidden-answer
+      - id: hidden-answer
       - id: icon-caution
       - id: icon-stop
 

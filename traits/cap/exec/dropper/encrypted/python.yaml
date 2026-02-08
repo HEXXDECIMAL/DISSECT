@@ -53,10 +53,7 @@ composite_rules:
     conf: 0.95
     needs: 3
     any:
-      - id: cap/crypto/symmetric/aes/pyaes-gcm
-      - id: cap/crypto/symmetric/aes/pyaes-ctr
-      - id: cap/crypto/symmetric/aes/pyaes-cbc
-      - id: cap/crypto/symmetric/aes/pycrypto-aes-new
+      - id: cap/crypto/symmetric/aes
       - id: cap/exec/dynamic-load/python-zipimporter
       - id: cap/exec/dynamic-load/python-zipimporter-load
       - id: obj/anti-static/base64/decode/decode-python

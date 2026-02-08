@@ -133,8 +133,10 @@ impl ElfAnalyzer {
             if let Ok(batched) = self.radare2.extract_batched(file_path) {
                 // Compute metrics from batched data
                 let binary_metrics = self.radare2.compute_metrics_from_batched(&batched);
-                let mut elf_metrics = ElfMetrics::default();
-                elf_metrics.e_type = elf_type;
+                let elf_metrics = ElfMetrics {
+                    e_type: elf_type,
+                    ..Default::default()
+                };
                 report.metrics = Some(Metrics {
                     binary: Some(binary_metrics),
                     elf: Some(elf_metrics),

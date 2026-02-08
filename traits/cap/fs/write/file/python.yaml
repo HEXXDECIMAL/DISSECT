@@ -117,14 +117,6 @@ traits:
       type: string
       regex: "urllib\\.request\\.urlretrieve"
 
-  # os.chmod with executable permission
-  - id: python-chmod-executable
-    desc: "Make file executable with os.chmod"
-    conf: 0.9
-    if:
-      type: string
-      regex: "os\\.chmod\\([^)]+0[o]?7"
-
 composite_rules:
   - id: python-tempfile
     desc: "Temporary file creation (tempfile module)"
@@ -173,4 +165,4 @@ composite_rules:
     attack: "T1222.002"
     all:
       - id: python-open-write-binary
-      - id: python-chmod-executable
+      - id: cap/fs/chmod/executable

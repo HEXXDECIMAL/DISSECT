@@ -73,56 +73,6 @@ traits:
       type: string
       regex: 'File\.open\(/tmp/'
 
-  # chmod variants
-  - id: file-chmod-string
-    desc: File.chmod string
-    crit: inert
-    conf: 0.75
-    if:
-      type: string
-      substr: "File.chmod"
-
-  - id: chmod-call-string
-    desc: ".chmod( string"
-    crit: inert
-    conf: 0.75
-    if:
-      type: string
-      substr: ".chmod("
-
-  - id: chmod-symbol
-    desc: chmod symbol
-    crit: inert
-    conf: 0.75
-    if:
-      type: symbol
-      regex: "chmod"
-
-  # chmod 777 variants
-  - id: chmod-0777-parens
-    desc: "chmod(0777) string"
-    crit: inert
-    conf: 0.85
-    if:
-      type: string
-      substr: "chmod(0777)"
-
-  - id: chmod-0777-space
-    desc: "chmod 0777 string"
-    crit: inert
-    conf: 0.85
-    if:
-      type: string
-      substr: "chmod 0777"
-
-  - id: chmod-0o777
-    desc: "chmod(0o777) string"
-    crit: inert
-    conf: 0.85
-    if:
-      type: string
-      substr: "chmod(0o777)"
-
   # File deletion
   - id: file-delete-string
     desc: File.delete string
@@ -208,25 +158,6 @@ composite_rules:
     any:
       - id: binmode-string
       - id: binmode-symbol
-
-
-  - id: ruby-file-chmod
-    desc: Modify file permissions
-    crit: notable
-    conf: 0.90
-    any:
-      - id: file-chmod-string
-      - id: chmod-call-string
-      - id: chmod-symbol
-
-  - id: ruby-chmod-777
-    desc: Make file world-executable (chmod 777)
-    crit: suspicious
-    conf: 0.95
-    any:
-      - id: chmod-0777-parens
-      - id: chmod-0777-space
-      - id: chmod-0o777
 
   - id: ruby-file-delete
     desc: Delete file

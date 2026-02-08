@@ -10,7 +10,7 @@ use crate::composite_rules::{
     CompositeTrait, Condition, FileType as RuleFileType, Platform, TraitDefinition,
 };
 use crate::types::Criticality;
-use std::collections::{BTreeSet, HashMap, HashSet};
+use std::collections::{HashMap, HashSet};
 
 use super::parsing::parse_file_types;
 
@@ -504,7 +504,23 @@ pub fn calculate_composite_precision(
     }
 
     // Try to find as composite rule first
-    if let Some(rule) = all_composites.iter().find(|r| r.id == rule_id) {
+    // Support both new format (dir::name) and legacy format (dir/name)
+    let rule = all_composites.iter().find(|r| r.id == rule_id).or_else(|| {
+        if rule_id.contains("::") {
+            let legacy_id = rule_id.replace("::", "/");
+            all_composites.iter().find(|r| r.id == legacy_id)
+        } else if rule_id.contains('/') {
+            if let Some(idx) = rule_id.rfind('/') {
+                let new_id = format!("{}::{}", &rule_id[..idx], &rule_id[idx + 1..]);
+                all_composites.iter().find(|r| r.id == new_id)
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    });
+    if let Some(rule) = rule {
         let mut precision = 0.0f32;
 
         for file_type in rule
@@ -599,7 +615,28 @@ pub fn calculate_composite_precision(
     }
 
     // Not a composite - try to find as a trait definition
-    if let Some(trait_def) = all_traits.iter().find(|t| t.id == rule_id) {
+    // Support both new format (dir::name) and legacy format (dir/name)
+    let trait_def = all_traits.iter().find(|t| t.id == rule_id).or_else(|| {
+        // Try converting legacy format to new format or vice versa
+        if rule_id.contains("::") {
+            // Reference uses new format, trait might use legacy
+            let legacy_id = rule_id.replace("::", "/");
+            all_traits.iter().find(|t| t.id == legacy_id)
+        } else if rule_id.contains('/') {
+            // Reference uses legacy format, trait might use new format
+            // Convert last '/' to '::'
+            if let Some(idx) = rule_id.rfind('/') {
+                let new_id = format!("{}::{}", &rule_id[..idx], &rule_id[idx + 1..]);
+                all_traits.iter().find(|t| t.id == new_id)
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    });
+
+    if let Some(trait_def) = trait_def {
         let precision = calculate_trait_precision(trait_def);
         visiting.remove(rule_id);
         cache.insert(rule_id.to_string(), precision);
@@ -691,54 +728,48 @@ pub(crate) fn validate_hostile_composite_precision(
     }
 
     // Pass 4: Detect duplicate composite rules (same effective condition sets)
+    // Include ALL conditions (not just trait refs) so rules with different inline conditions
+    // are not falsely flagged as duplicates
     let mut composite_sigs: HashMap<String, Vec<String>> = HashMap::new();
     for r in composite_rules {
-        // Sort IDs within all/any to make signatures deterministic regardless of order
-        let mut all_ids = BTreeSet::new();
-        if let Some(ref all) = r.all {
-            for cond in all {
-                if let Condition::Trait { id } = cond {
-                    all_ids.insert(id.clone());
-                }
-            }
-        }
+        // Collect ALL conditions as sorted strings for deterministic comparison
+        let mut all_conds: Vec<String> = r
+            .all
+            .as_ref()
+            .map(|c| c.iter().map(|cond| format!("{:?}", cond)).collect())
+            .unwrap_or_default();
+        all_conds.sort();
 
-        let mut any_ids = BTreeSet::new();
-        if let Some(ref any) = r.any {
-            for cond in any {
-                if let Condition::Trait { id } = cond {
-                    any_ids.insert(id.clone());
-                }
-            }
-        }
+        let mut any_conds: Vec<String> = r
+            .any
+            .as_ref()
+            .map(|c| c.iter().map(|cond| format!("{:?}", cond)).collect())
+            .unwrap_or_default();
+        any_conds.sort();
 
-        let mut none_ids = BTreeSet::new();
-        if let Some(ref none) = r.none {
-            for cond in none {
-                if let Condition::Trait { id } = cond {
-                    none_ids.insert(id.clone());
-                }
-            }
-        }
+        let mut none_conds: Vec<String> = r
+            .none
+            .as_ref()
+            .map(|c| c.iter().map(|cond| format!("{:?}", cond)).collect())
+            .unwrap_or_default();
+        none_conds.sort();
 
-        let mut unless_ids = BTreeSet::new();
-        if let Some(ref unless) = r.unless {
-            for cond in unless {
-                if let Condition::Trait { id } = cond {
-                    unless_ids.insert(id.clone());
-                }
-            }
-        }
+        let mut unless_conds: Vec<String> = r
+            .unless
+            .as_ref()
+            .map(|c| c.iter().map(|cond| format!("{:?}", cond)).collect())
+            .unwrap_or_default();
+        unless_conds.sort();
 
-        // Only check signatures for rules that reference other traits (the common case for duplicates)
-        if !all_ids.is_empty()
-            || !any_ids.is_empty()
-            || !none_ids.is_empty()
-            || !unless_ids.is_empty()
+        // Only check signatures for rules that have conditions
+        if !all_conds.is_empty()
+            || !any_conds.is_empty()
+            || !none_conds.is_empty()
+            || !unless_conds.is_empty()
         {
             let signature = format!(
                 "all:{:?}|any:{:?}|none:{:?}|unless:{:?}|needs:{:?}|for:{:?}|platforms:{:?}|size_min:{:?}|size_max:{:?}",
-                all_ids, any_ids, none_ids, unless_ids, r.needs, r.r#for, r.platforms, r.size_min, r.size_max
+                all_conds, any_conds, none_conds, unless_conds, r.needs, r.r#for, r.platforms, r.size_min, r.size_max
             );
             composite_sigs
                 .entry(signature)
@@ -799,14 +830,14 @@ pub(crate) fn validate_composite_trait_only(
 }
 
 /// Auto-prefix trait references in composite rule conditions
-/// If a trait reference doesn't contain '/', prepend the given prefix
+/// If a trait reference doesn't contain '::' or '/', prepend the given prefix with ::
 pub(crate) fn autoprefix_trait_refs(rule: &mut CompositeTrait, prefix: &str) {
     fn prefix_conditions(conditions: &mut [Condition], prefix: &str) {
         for cond in conditions {
             if let Condition::Trait { id } = cond {
-                // Only prefix if ID doesn't already contain '/' (i.e., it's local to this file)
-                if !id.contains('/') {
-                    *id = format!("{}/{}", prefix, id);
+                // Only prefix if ID doesn't already contain '::' or '/' (i.e., it's local to this file)
+                if !id.contains("::") && !id.contains('/') {
+                    *id = format!("{}::{}", prefix, id);
                 }
             }
         }
@@ -850,6 +881,228 @@ pub(crate) fn collect_trait_refs_from_rule(rule: &CompositeTrait) -> Vec<(String
     }
 
     refs
+}
+
+/// Find `any:` clauses that reference 3+ traits from the same external directory.
+/// Returns a list of (rule_id, directory, trait_count, trait_ids) for violations.
+pub(crate) fn find_redundant_any_refs(
+    rule: &CompositeTrait,
+) -> Vec<(String, String, usize, Vec<String>)> {
+    let mut violations = Vec::new();
+
+    let Some(ref any_conditions) = rule.any else {
+        return violations;
+    };
+
+    // Extract the rule's own directory prefix
+    let rule_dir = if let Some(idx) = rule.id.find("::") {
+        &rule.id[..idx]
+    } else if let Some(idx) = rule.id.rfind('/') {
+        &rule.id[..idx]
+    } else {
+        ""
+    };
+
+    // Collect trait refs from `any:` and group by directory
+    let mut dir_refs: HashMap<String, Vec<String>> = HashMap::new();
+
+    for cond in any_conditions {
+        if let Condition::Trait { id } = cond {
+            // Extract directory from trait ID
+            let trait_dir = if let Some(idx) = id.find("::") {
+                &id[..idx]
+            } else if let Some(idx) = id.rfind('/') {
+                &id[..idx]
+            } else {
+                continue; // Short name, skip
+            };
+
+            // Only flag external directories (different from rule's directory)
+            // Skip meta/ paths since those are auto-generated and can't use directory notation
+            if trait_dir != rule_dir && !trait_dir.starts_with("meta/") {
+                dir_refs
+                    .entry(trait_dir.to_string())
+                    .or_default()
+                    .push(id.clone());
+            }
+        }
+    }
+
+    // Find directories with 3+ references
+    for (dir, trait_ids) in dir_refs {
+        if trait_ids.len() >= 3 {
+            violations.push((rule.id.clone(), dir, trait_ids.len(), trait_ids));
+        }
+    }
+
+    violations
+}
+
+/// Platform/language names that should be YAML filenames, not directories.
+/// These match values that can be used in `for:` or `platform:` fields.
+const PLATFORM_NAMES: &[&str] = &[
+    // Languages
+    "python",
+    "javascript",
+    "typescript",
+    "ruby",
+    "java",
+    "go",
+    "rust",
+    "c",
+    "php",
+    "perl",
+    "lua",
+    "swift",
+    "csharp",
+    "powershell",
+    "groovy",
+    "scala",
+    "zig",
+    "elixir",
+    // Note: "shell" and "batch" excluded - they represent execution categories, not just platforms
+    // Note: "dylib", "so", "dll" excluded - they represent library operation categories
+    "objectivec",
+    "applescript",
+    // Binary formats (allowed in meta/format/)
+    "elf",
+    "macho",
+    "pe",
+    // Node.js variants
+    "node",
+    "nodejs",
+    // Common aliases
+    "bash",
+    "sh",
+    "zsh",
+    "dotnet",
+    // Operating systems / platforms
+    "linux",
+    "unix",
+    "windows",
+    "macos",
+    "darwin",
+    "android",
+    "ios",
+    "freebsd",
+    "openbsd",
+];
+
+/// Check if a directory path contains platform/language names as directories.
+/// Returns a list of (directory_path, platform_name) violations.
+pub(crate) fn find_platform_named_directories(
+    trait_dirs: &[String],
+) -> Vec<(String, String)> {
+    let mut violations = Vec::new();
+
+    for dir_path in trait_dirs {
+        // Skip meta/format/ paths - binary format names are legitimate there
+        if dir_path.starts_with("meta/format/") {
+            continue;
+        }
+
+        // Split the path and check each component
+        for component in dir_path.split('/') {
+            let lower = component.to_lowercase();
+            if PLATFORM_NAMES.contains(&lower.as_str()) {
+                violations.push((dir_path.clone(), component.to_string()));
+                break; // Only report first violation per path
+            }
+        }
+    }
+
+    violations
+}
+
+/// Check if YAML file paths in cap/ or obj/ are at the correct depth.
+/// Valid depths are 3 or 4 subdirectories: cap/a/b/c/x.yaml or cap/a/b/c/d/x.yaml
+/// Returns (path, depth, "shallow" or "deep") for violations.
+pub(crate) fn find_depth_violations(yaml_files: &[String]) -> Vec<(String, usize, &'static str)> {
+    let mut violations = Vec::new();
+
+    for path in yaml_files {
+        // Only check cap/ and obj/ paths
+        if !path.starts_with("cap/") && !path.starts_with("obj/") {
+            continue;
+        }
+
+        // Count directory components (excluding the root cap/ or obj/ and the filename)
+        // e.g., "cap/comm/http/client/shell.yaml" -> ["cap", "comm", "http", "client", "shell.yaml"]
+        let parts: Vec<&str> = path.split('/').collect();
+        if parts.len() < 2 {
+            continue;
+        }
+
+        // Subdirectory count = total parts - 1 (root) - 1 (filename)
+        let subdir_count = parts.len() - 2;
+
+        if subdir_count < 3 {
+            violations.push((path.clone(), subdir_count, "shallow"));
+        } else if subdir_count > 4 {
+            violations.push((path.clone(), subdir_count, "deep"));
+        }
+    }
+
+    violations
+}
+
+/// Validate that a trait ID contains only valid characters.
+/// Valid characters are: alphanumerics, dashes, and underscores.
+/// Returns None if valid, Some(invalid_char) if invalid.
+fn validate_trait_id_chars(id: &str) -> Option<char> {
+    for c in id.chars() {
+        if !c.is_ascii_alphanumeric() && c != '-' && c != '_' {
+            return Some(c);
+        }
+    }
+    None
+}
+
+/// Find trait and composite rule IDs that contain invalid characters.
+/// IDs should only contain alphanumerics, dashes, and underscores (no slashes).
+/// Returns a list of (id, invalid_char, source_file) violations.
+pub(crate) fn find_invalid_trait_ids(
+    trait_definitions: &[TraitDefinition],
+    composite_rules: &[CompositeTrait],
+    rule_source_files: &HashMap<String, String>,
+) -> Vec<(String, char, String)> {
+    let mut violations = Vec::new();
+
+    for trait_def in trait_definitions {
+        // Extract local ID (after :: delimiter, or the whole ID if no delimiter)
+        let local_id = if let Some(idx) = trait_def.id.find("::") {
+            &trait_def.id[idx + 2..]
+        } else {
+            &trait_def.id
+        };
+
+        if let Some(invalid_char) = validate_trait_id_chars(local_id) {
+            let source = rule_source_files
+                .get(&trait_def.id)
+                .cloned()
+                .unwrap_or_else(|| "unknown".to_string());
+            violations.push((trait_def.id.clone(), invalid_char, source));
+        }
+    }
+
+    for rule in composite_rules {
+        // Extract local ID (after :: delimiter, or the whole ID if no delimiter)
+        let local_id = if let Some(idx) = rule.id.find("::") {
+            &rule.id[idx + 2..]
+        } else {
+            &rule.id
+        };
+
+        if let Some(invalid_char) = validate_trait_id_chars(local_id) {
+            let source = rule_source_files
+                .get(&rule.id)
+                .cloned()
+                .unwrap_or_else(|| "unknown".to_string());
+            violations.push((rule.id.clone(), invalid_char, source));
+        }
+    }
+
+    violations
 }
 
 /// Try to find the line number where a string appears in a file

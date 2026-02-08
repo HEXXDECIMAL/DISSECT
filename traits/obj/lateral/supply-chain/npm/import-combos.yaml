@@ -221,7 +221,7 @@ composite_rules:
     crit: notable
     conf: 0.75
     any:
-      - id: cap/exec/javascript/eval/
+      - id: cap/exec/eval/dynamic/javascript
       - id: vm-run-context
 
   # === SUSPICIOUS: Unusual patterns ===

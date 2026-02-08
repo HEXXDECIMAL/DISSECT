@@ -6,14 +6,13 @@
 use crate::analyzers::FileType;
 use crate::types::{AnalysisReport, Import};
 
+/// Function type for extracting imports from a syntax tree node
+type ImportExtractFn = fn(&tree_sitter::Node, &[u8]) -> Option<String>;
+
 /// Extract actual module imports from source code (e.g., require in Ruby, import in Python)
 /// This is separate from function call extraction for capability matching.
-pub fn extract_imports(
-    source: &str,
-    file_type: &FileType,
-    report: &mut AnalysisReport,
-) {
-    let (lang, import_fn): (tree_sitter::Language, fn(&tree_sitter::Node, &[u8]) -> Option<String>) = match file_type {
+pub fn extract_imports(source: &str, file_type: &FileType, report: &mut AnalysisReport) {
+    let (lang, import_fn): (tree_sitter::Language, ImportExtractFn) = match file_type {
         FileType::Ruby => (tree_sitter_ruby::LANGUAGE.into(), extract_ruby_import),
         FileType::Python => (tree_sitter_python::LANGUAGE.into(), extract_python_import),
         FileType::JavaScript | FileType::TypeScript => {
@@ -479,20 +478,43 @@ Foo.run()
 
         // Should have exactly 4 imports (the require statements)
         let import_symbols: Vec<&str> = report.imports.iter().map(|i| i.symbol.as_str()).collect();
-        assert_eq!(import_symbols.len(), 4, "Expected 4 imports, got: {:?}", import_symbols);
+        assert_eq!(
+            import_symbols.len(),
+            4,
+            "Expected 4 imports, got: {:?}",
+            import_symbols
+        );
 
         // Check the specific imports
-        assert!(import_symbols.contains(&"net/http"), "Missing net/http import");
+        assert!(
+            import_symbols.contains(&"net/http"),
+            "Missing net/http import"
+        );
         assert!(import_symbols.contains(&"uri"), "Missing uri import");
         assert!(import_symbols.contains(&"base64"), "Missing base64 import");
         assert!(import_symbols.contains(&"resolv"), "Missing resolv import");
 
         // Method calls like system, open, write, chmod should NOT be in imports
-        assert!(!import_symbols.contains(&"system"), "system should not be an import");
-        assert!(!import_symbols.contains(&"open"), "open should not be an import");
-        assert!(!import_symbols.contains(&"write"), "write should not be an import");
-        assert!(!import_symbols.contains(&"chmod"), "chmod should not be an import");
-        assert!(!import_symbols.contains(&"run"), "run should not be an import");
+        assert!(
+            !import_symbols.contains(&"system"),
+            "system should not be an import"
+        );
+        assert!(
+            !import_symbols.contains(&"open"),
+            "open should not be an import"
+        );
+        assert!(
+            !import_symbols.contains(&"write"),
+            "write should not be an import"
+        );
+        assert!(
+            !import_symbols.contains(&"chmod"),
+            "chmod should not be an import"
+        );
+        assert!(
+            !import_symbols.contains(&"run"),
+            "run should not be an import"
+        );
     }
 
     #[test]
@@ -547,7 +569,10 @@ func main() {
 
         let import_symbols: Vec<&str> = report.imports.iter().map(|i| i.symbol.as_str()).collect();
         assert!(import_symbols.contains(&"net"), "Missing net import");
-        assert!(import_symbols.contains(&"os/exec"), "Missing os/exec import");
+        assert!(
+            import_symbols.contains(&"os/exec"),
+            "Missing os/exec import"
+        );
         assert!(import_symbols.contains(&"fmt"), "Missing fmt import");
     }
 }

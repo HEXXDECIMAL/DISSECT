@@ -372,13 +372,12 @@ fn extract_certificate_info(cms_data: &[u8]) -> (Option<String>, SignatureType, 
             authorities.push(cn_trimmed.clone());
 
             // Determine signature type from CN
-            if cn.contains("Developer ID Application") {
+            if cn.contains("Developer ID Application") || cn.contains("Developer ID Installer") {
                 signature_type = SignatureType::DeveloperID;
-            } else if cn.contains("Developer ID Installer") {
-                signature_type = SignatureType::DeveloperID;
-            } else if cn.contains("Mac Developer") || cn.contains("iPhone Developer") {
-                signature_type = SignatureType::Platform;
-            } else if cn.contains("3rd Party Mac Developer") {
+            } else if cn.contains("Mac Developer")
+                || cn.contains("iPhone Developer")
+                || cn.contains("3rd Party Mac Developer")
+            {
                 signature_type = SignatureType::Platform;
             }
             break;

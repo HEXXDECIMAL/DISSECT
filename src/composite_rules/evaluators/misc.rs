@@ -52,14 +52,18 @@ pub fn eval_structure(
 /// Evaluate trait reference condition - check if a trait has already been matched
 ///
 /// Reference formats:
-/// - Short names (e.g., "terminate"): suffix match within same directory
-/// - Directory paths (e.g., "anti-static/obfuscation/strings"): matches ANY trait
-///   within that directory (prefix match). Cross-directory references cannot
-///   specify exact trait IDs - they can only reference the directory.
+/// - Specific trait (contains `::`): exact match only
+///   e.g., "cap/comm/http::curl-download" matches exactly that trait
+/// - Short names (no `/` or `::`): suffix match within same directory
+///   e.g., "terminate" matches "exec/process::terminate"
+/// - Directory paths (contains `/` but no `::`): matches ANY trait within that directory
+///   e.g., "anti-static/obfuscation" matches "anti-static/obfuscation::python-hex"
 pub fn eval_trait(id: &str, ctx: &EvaluationContext) -> ConditionResult {
+    // Check if this is a specific trait reference (contains ::)
+    let is_specific = id.contains("::");
+
     // Fast path: exact match using O(1) index lookup
     if ctx.has_finding_exact(id) {
-        // Found exact match - collect evidence
         let evidence: Vec<_> = ctx
             .report
             .findings
@@ -74,22 +78,34 @@ pub fn eval_trait(id: &str, ctx: &EvaluationContext) -> ConditionResult {
             evidence,
             traits: vec![id.to_string()],
             warnings: Vec::new(),
-            precision: 1.0, // Base precision for trait reference confirmation
+            precision: 1.0,
         };
     }
 
-    // Slow path: prefix/suffix matching for non-exact references
+    // Specific trait references (with ::) only match exactly - no fallback
+    if is_specific {
+        return ConditionResult {
+            matched: false,
+            evidence: Vec::new(),
+            traits: Vec::new(),
+            warnings: Vec::new(),
+            precision: 0.0,
+        };
+    }
+
+    // Slow path: prefix/suffix matching for non-specific references
     let slash_count = id.matches('/').count();
     if slash_count == 0 {
         // Short name: suffix match for same-directory relative reference
-        // e.g., "terminate" matches "exec/process/terminate"
-        let suffix = format!("/{}", id);
+        // e.g., "terminate" matches "exec/process::terminate" or legacy "exec/process/terminate"
+        let suffix_new = format!("::{}", id);
+        let suffix_legacy = format!("/{}", id);
         let matching: Vec<_> = ctx
             .report
             .findings
             .iter()
             .chain(ctx.additional_findings.into_iter().flatten())
-            .filter(|f| f.id.ends_with(&suffix))
+            .filter(|f| f.id.ends_with(&suffix_new) || f.id.ends_with(&suffix_legacy))
             .collect();
 
         if !matching.is_empty() {
@@ -103,20 +119,22 @@ pub fn eval_trait(id: &str, ctx: &EvaluationContext) -> ConditionResult {
                 evidence,
                 traits: vec![id.to_string()],
                 warnings: Vec::new(),
-                precision: 1.0, // Base precision for trait reference confirmation
+                precision: 1.0,
             };
         }
     } else {
         // Directory path: prefix match (any trait within that directory)
-        // e.g., "anti-static/obfuscation/strings" matches
-        // "anti-static/obfuscation/strings/python-hex"
-        let prefix = format!("{}/", id);
+        // e.g., "anti-static/obfuscation" matches:
+        //   - "anti-static/obfuscation::python-hex" (new format)
+        //   - "anti-static/obfuscation/python-hex" (legacy format)
+        let prefix_new = format!("{}::", id);
+        let prefix_legacy = format!("{}/", id);
         let matching: Vec<_> = ctx
             .report
             .findings
             .iter()
             .chain(ctx.additional_findings.into_iter().flatten())
-            .filter(|f| f.id.starts_with(&prefix))
+            .filter(|f| f.id.starts_with(&prefix_new) || f.id.starts_with(&prefix_legacy))
             .collect();
 
         if !matching.is_empty() {
@@ -130,7 +148,7 @@ pub fn eval_trait(id: &str, ctx: &EvaluationContext) -> ConditionResult {
                 evidence,
                 traits: vec![id.to_string()],
                 warnings: Vec::new(),
-                precision: 1.0, // Base precision for trait reference confirmation
+                precision: 1.0,
             };
         }
     }

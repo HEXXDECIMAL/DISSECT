@@ -22,8 +22,9 @@ use super::indexes::{RawContentRegexIndex, StringMatchIndex, TraitIndex};
 use super::models::{TraitInfo, TraitMappings};
 use super::parsing::{apply_composite_defaults, apply_trait_defaults};
 use super::validation::{
-    autoprefix_trait_refs, collect_trait_refs_from_rule, find_line_number,
-    simple_rule_to_composite_rule, validate_composite_trait_only,
+    autoprefix_trait_refs, collect_trait_refs_from_rule, find_depth_violations,
+    find_invalid_trait_ids, find_line_number, find_platform_named_directories,
+    find_redundant_any_refs, simple_rule_to_composite_rule, validate_composite_trait_only,
     validate_hostile_composite_precision,
 };
 
@@ -313,9 +314,13 @@ impl CapabilityMapper {
                     apply_trait_defaults(raw_trait, &mappings.defaults, &mut warnings, &path);
 
                 // Auto-prefix trait ID if it doesn't already have the path prefix
+                // Uses :: as delimiter between directory path and trait name
                 if let Some(ref prefix) = trait_prefix {
-                    if !trait_def.id.starts_with(prefix) && !trait_def.id.contains('/') {
-                        trait_def.id = format!("{}/{}", prefix, trait_def.id);
+                    if !trait_def.id.starts_with(prefix)
+                        && !trait_def.id.contains("::")
+                        && !trait_def.id.contains('/')
+                    {
+                        trait_def.id = format!("{}::{}", prefix, trait_def.id);
                     }
                 }
                 // Validate YARA/AST conditions at load time
@@ -414,8 +419,12 @@ impl CapabilityMapper {
 
                 // Auto-prefix composite rule ID if it doesn't already have the path prefix
                 if let Some(ref prefix) = trait_prefix {
-                    if !rule.id.starts_with(prefix) && !rule.id.contains('/') {
-                        rule.id = format!("{}/{}", prefix, rule.id);
+                    // Auto-prefix composite rule ID using :: delimiter
+                    if !rule.id.starts_with(prefix)
+                        && !rule.id.contains("::")
+                        && !rule.id.contains('/')
+                    {
+                        rule.id = format!("{}::{}", prefix, rule.id);
                     }
                     // Also auto-prefix trait references within the rule's conditions
                     autoprefix_trait_refs(&mut rule, prefix);
@@ -507,20 +516,135 @@ impl CapabilityMapper {
         );
 
         // Validate trait references in composite rules
-        // Cross-directory references (containing '/') must match an existing directory prefix
+        // Cross-directory references must match an existing directory prefix
         // Include both trait definition prefixes AND composite rule prefixes (rules can reference rules)
         let mut known_prefixes: std::collections::HashSet<String> = trait_definitions
             .iter()
             .filter_map(|t| {
-                // Extract the directory prefix from trait IDs (everything before the last '/')
-                t.id.rfind('/').map(|idx| t.id[..idx].to_string())
+                // Extract the directory prefix from trait IDs
+                // New format: everything before '::' (e.g., "cap/comm/http::curl" -> "cap/comm/http")
+                // Legacy format: everything before last '/' (e.g., "cap/comm/http/curl" -> "cap/comm/http")
+                if let Some(idx) = t.id.find("::") {
+                    Some(t.id[..idx].to_string())
+                } else {
+                    t.id.rfind('/').map(|idx| t.id[..idx].to_string())
+                }
             })
             .collect();
 
         // Also add composite rule prefixes (composite rules can reference other composite rules)
         for rule in &composite_rules {
-            if let Some(idx) = rule.id.rfind('/') {
+            if let Some(idx) = rule.id.find("::") {
                 known_prefixes.insert(rule.id[..idx].to_string());
+            } else if let Some(idx) = rule.id.rfind('/') {
+                known_prefixes.insert(rule.id[..idx].to_string());
+            }
+        }
+
+        // Set DISSECT_ALLOW_VIOLATIONS=1 to bypass validation checks during migration
+        let allow_violations = std::env::var("DISSECT_ALLOW_VIOLATIONS").is_ok();
+
+        // Check for taxonomy violations: platform/language names as directories
+        // According to TAXONOMY.md, languages should be YAML filenames, not directories
+        if !allow_violations {
+            let dir_list: Vec<String> = known_prefixes.iter().cloned().collect();
+            let platform_dir_violations = find_platform_named_directories(&dir_list);
+            if !platform_dir_violations.is_empty() {
+                eprintln!(
+                    "\n⚠️  WARNING: {} directories are named after platforms/languages (TAXONOMY.md violation)",
+                    platform_dir_violations.len()
+                );
+                eprintln!("   Languages and platforms should be YAML filenames, not directories:\n");
+                for (dir_path, platform_name) in &platform_dir_violations {
+                    eprintln!(
+                        "   {}: contains platform directory '{}'",
+                        dir_path, platform_name
+                    );
+                }
+                eprintln!("\n   Example: Instead of 'cap/exec/python/runtime.yaml',");
+                eprintln!("   use 'cap/exec/runtime/python.yaml'\n");
+                warnings.push(format!(
+                    "{} directories named after platforms (should be YAML filenames)",
+                    platform_dir_violations.len()
+                ));
+            }
+
+            // Check for depth violations: cap/ and obj/ files must be 3-4 subdirectories deep
+            let relative_paths: Vec<String> = yaml_files
+                .iter()
+                .filter_map(|p| {
+                    p.strip_prefix(dir_path)
+                        .ok()
+                        .map(|rel| rel.to_string_lossy().replace('\\', "/"))
+                })
+                .collect();
+            let depth_violations = find_depth_violations(&relative_paths);
+            if !depth_violations.is_empty() {
+                let shallow: Vec<_> = depth_violations
+                    .iter()
+                    .filter(|(_, _, kind)| *kind == "shallow")
+                    .collect();
+                let deep: Vec<_> = depth_violations
+                    .iter()
+                    .filter(|(_, _, kind)| *kind == "deep")
+                    .collect();
+
+                if !shallow.is_empty() {
+                    eprintln!(
+                        "\n⚠️  WARNING: {} files are too shallow (need 3-4 subdirectories in cap/obj)",
+                        shallow.len()
+                    );
+                    for (path, depth, _) in &shallow {
+                        eprintln!("   {} ({} subdirs, need 3-4)", path, depth);
+                    }
+                }
+                if !deep.is_empty() {
+                    eprintln!(
+                        "\n⚠️  WARNING: {} files are too deep (max 4 subdirectories in cap/obj)",
+                        deep.len()
+                    );
+                    for (path, depth, _) in &deep {
+                        eprintln!("   {} ({} subdirs, max 4)", path, depth);
+                    }
+                }
+                warnings.push(format!(
+                    "{} files at wrong depth (need 3-4 subdirectories in cap/obj)",
+                    depth_violations.len()
+                ));
+            }
+
+            // Check for invalid characters in trait/rule IDs
+            let invalid_ids =
+                find_invalid_trait_ids(&trait_definitions, &composite_rules, &rule_source_files);
+            if !invalid_ids.is_empty() {
+                eprintln!(
+                    "\n⚠️  WARNING: {} trait/rule IDs contain invalid characters",
+                    invalid_ids.len()
+                );
+                if debug {
+                    eprintln!("   IDs must only contain alphanumerics, dashes, and underscores:\n");
+                    for (id, invalid_char, source_file) in &invalid_ids {
+                        let line_hint = find_line_number(source_file, id);
+                        if let Some(line) = line_hint {
+                            eprintln!(
+                                "   {}:{}: ID '{}' contains invalid char '{}'",
+                                source_file, line, id, invalid_char
+                            );
+                        } else {
+                            eprintln!(
+                                "   {}: ID '{}' contains invalid char '{}'",
+                                source_file, id, invalid_char
+                            );
+                        }
+                    }
+                    eprintln!("\n   Use only [a-zA-Z0-9_-] in trait IDs. No slashes allowed.\n");
+                } else {
+                    eprintln!("   Set DISSECT_DEBUG=1 to see details\n");
+                }
+                warnings.push(format!(
+                    "{} trait/rule IDs contain invalid characters",
+                    invalid_ids.len()
+                ));
             }
         }
 
@@ -528,18 +652,30 @@ impl CapabilityMapper {
         for rule in &composite_rules {
             let trait_refs = collect_trait_refs_from_rule(rule);
             for (ref_id, rule_id) in trait_refs {
-                // Only validate cross-directory references (those with slashes)
-                if ref_id.contains('/') {
-                    // Skip validation for meta/import/ and meta/dylib/ references - these are
-                    // dynamically generated at runtime from discovered imports
-                    if ref_id.starts_with("meta/import/") || ref_id.starts_with("meta/dylib/") {
+                // Only validate cross-directory references (those with slashes or ::)
+                let is_cross_dir = ref_id.contains("::") || ref_id.contains('/');
+                if is_cross_dir {
+                    // Skip validation for meta/ paths - these are dynamically generated
+                    if ref_id.starts_with("meta/import/")
+                        || ref_id.starts_with("meta/dylib/")
+                        || ref_id.starts_with("meta/internal/")
+                    {
                         continue;
                     }
 
+                    // Extract the directory part for validation
+                    let dir_part = if let Some(idx) = ref_id.find("::") {
+                        &ref_id[..idx]
+                    } else if let Some(idx) = ref_id.rfind('/') {
+                        &ref_id[..idx]
+                    } else {
+                        &ref_id[..]
+                    };
+
                     // Check if this matches any known prefix
-                    let matches_prefix = known_prefixes
-                        .iter()
-                        .any(|prefix| prefix.starts_with(&ref_id) || ref_id.starts_with(prefix));
+                    let matches_prefix = known_prefixes.iter().any(|prefix| {
+                        prefix.starts_with(dir_part) || dir_part.starts_with(prefix.as_str())
+                    });
                     if !matches_prefix {
                         let source_file = rule_source_files
                             .get(&rule_id)
@@ -615,7 +751,7 @@ impl CapabilityMapper {
             );
             eprintln!("   Internal paths (meta/internal/) are for ML usage only and cannot be used in composite rules:\n");
             for (rule_id, ref_id, source_file) in &internal_refs {
-                let line_hint = find_line_number(source_file, &ref_id);
+                let line_hint = find_line_number(source_file, ref_id);
                 if let Some(line) = line_hint {
                     eprintln!(
                         "   {}:{}: Rule '{}' references internal path: '{}'",
@@ -635,6 +771,56 @@ impl CapabilityMapper {
             ));
         }
 
+        // Validate that `any:` clauses don't have 3+ traits from the same external directory
+        // Recommend using directory references instead for better maintainability
+        let mut redundant_any_refs = Vec::new();
+        if !allow_violations {
+            for rule in &composite_rules {
+                let violations = find_redundant_any_refs(rule);
+                for (rule_id, dir, count, trait_ids) in violations {
+                    let source_file = rule_source_files
+                        .get(&rule_id)
+                        .map(|s| s.as_str())
+                        .unwrap_or("unknown");
+                    redundant_any_refs.push((
+                        rule_id,
+                        dir,
+                        count,
+                        trait_ids,
+                        source_file.to_string(),
+                    ));
+                }
+            }
+        }
+
+        if !redundant_any_refs.is_empty() {
+            eprintln!(
+                "\n❌ FATAL: {} composite rules have redundant any: clauses",
+                redundant_any_refs.len()
+            );
+            eprintln!("   Rules with 3+ trait references from the same directory should use directory notation:\n");
+            for (rule_id, dir, count, trait_ids, source_file) in &redundant_any_refs {
+                let line_hint = find_line_number(source_file, rule_id);
+                if let Some(line) = line_hint {
+                    eprintln!(
+                        "   {}:{}: Rule '{}' references {} traits from '{}'",
+                        source_file, line, rule_id, count, dir
+                    );
+                } else {
+                    eprintln!(
+                        "   {}: Rule '{}' references {} traits from '{}'",
+                        source_file, rule_id, count, dir
+                    );
+                }
+                eprintln!("      Traits: {}", trait_ids.join(", "));
+                eprintln!("      Recommendation: Use 'id: {}', or create a new subdirectory within it to hold common traits instead.\n", dir);
+            }
+            warnings.push(format!(
+                "{} composite rules have redundant any: clauses (use directory notation)",
+                redundant_any_refs.len()
+            ));
+        }
+
         let mut broken_refs = Vec::new();
         for rule in &composite_rules {
             let trait_refs = collect_trait_refs_from_rule(rule);
@@ -651,7 +837,10 @@ impl CapabilityMapper {
                     || ref_id.starts_with("meta/internal/");
 
                 // Check if the exact trait ID exists (unless it's an intentional directory ref)
-                if !is_directory_ref && !is_dynamic_or_internal && !valid_trait_ids.contains(&ref_id) {
+                if !is_directory_ref
+                    && !is_dynamic_or_internal
+                    && !valid_trait_ids.contains(&ref_id)
+                {
                     // Also check if it's a partial match to a known prefix (could be typo)
                     let matches_any_prefix = known_prefixes
                         .iter()
@@ -693,9 +882,7 @@ impl CapabilityMapper {
 
         // Validate that composite rules only contain trait references (not inline primitives)
         // Strict mode is the default - composite rules must only reference traits
-        // Set DISSECT_ALLOW_INLINE_PRIMITIVES=1 to temporarily allow inline primitives
-        let allow_inline = std::env::var("DISSECT_ALLOW_INLINE_PRIMITIVES").is_ok();
-        if !allow_inline {
+        if !allow_violations {
             let mut inline_errors = Vec::new();
             for rule in &composite_rules {
                 let source = rule_source_files
@@ -718,7 +905,7 @@ impl CapabilityMapper {
                     "   Convert inline conditions (string, symbol, yara, etc.) to atomic traits."
                 );
                 eprintln!(
-                    "   Set DISSECT_ALLOW_INLINE_PRIMITIVES=1 to temporarily bypass this check.\n"
+                    "   Set DISSECT_ALLOW_VIOLATIONS=1 to temporarily bypass this check.\n"
                 );
                 std::process::exit(1);
             }
@@ -856,7 +1043,7 @@ impl CapabilityMapper {
             for warning in &warnings {
                 eprintln!("   ⚠️  {}", warning);
             }
-            eprintln!("\n   Fix these issues in the YAML files before continuing.\n");
+            eprintln!("\n   Fix these issues in the YAML files, or set DISSECT_ALLOW_VIOLATIONS=1 to bypass.\n");
             std::process::exit(1);
         }
 
@@ -963,7 +1150,7 @@ impl CapabilityMapper {
             for warning in &warnings {
                 eprintln!("   ⚠️  {}", warning);
             }
-            eprintln!("\n   Fix these issues in the YAML files before continuing.\n");
+            eprintln!("\n   Fix these issues in the YAML files, or set DISSECT_ALLOW_VIOLATIONS=1 to bypass.\n");
             std::process::exit(1);
         }
 

@@ -1,9 +1,11 @@
+defaults:
+  for: [javascript, typescript]
+
 traits:
-  - id: cap/data/encode/base64/javascript/tostring
+  - id: tostring-base64
     desc: Base64 encoding via toString
     crit: inert
     conf: 0.8
-    for: [javascript, typescript]
     if:
       type: ast
       language: javascript
@@ -19,11 +21,10 @@ traits:
           (#match? @enc "base64")
         )
 
-  - id: cap/data/encode/base64/javascript/buffer-from
+  - id: buffer-from-base64
     desc: Base64 decoding/usage via Buffer.from
     crit: inert
     conf: 0.8
-    for: [javascript, typescript]
     if:
       type: ast
       language: javascript

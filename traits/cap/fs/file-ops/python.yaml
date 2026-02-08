@@ -1,0 +1,36 @@
+traits:
+  - id: py-walk
+    desc: "walk() call (iterates files)"
+    crit: inert
+    conf: 0.6
+    for: [python]
+    if:
+      type: string
+      regex: '\.walk\('
+
+  - id: py-rmtree
+    desc: "rmtree() call (recursive delete)"
+    crit: notable
+    conf: 0.8
+    for: [python]
+    if:
+      type: string
+      regex: '\.rmtree\('
+
+  - id: py-remove
+    desc: "remove() or unlink() call (delete file)"
+    crit: notable
+    conf: 0.8
+    for: [python]
+    if:
+      type: string
+      regex: '\.remove\(|\.unlink\('
+
+  - id: py-write
+    desc: "write() call"
+    crit: inert
+    conf: 0.5
+    for: [python]
+    if:
+      type: string
+      regex: '\.write\('

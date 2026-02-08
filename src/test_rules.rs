@@ -2249,11 +2249,10 @@ impl<'a> RuleDebugger<'a> {
         );
 
         // Get section bounds
-        let section_size = if let Some(bounds) = self.section_map.bounds(section) {
-            Some(bounds.1 - bounds.0)
-        } else {
-            None
-        };
+        let section_size = self
+            .section_map
+            .bounds(section)
+            .map(|bounds| bounds.1 - bounds.0);
 
         let total_size = self.binary_data.len() as u64;
 

@@ -110,8 +110,10 @@ impl MachOAnalyzer {
         self.analyze_sections(&macho, data, &mut report)?;
 
         // Initialize metrics with Mach-O header info
-        let mut macho_metrics = MachoMetrics::default();
-        macho_metrics.file_type = macho.header.filetype;
+        let macho_metrics = MachoMetrics {
+            file_type: macho.header.filetype,
+            ..Default::default()
+        };
         report.metrics = Some(Metrics {
             macho: Some(macho_metrics),
             ..Default::default()
@@ -146,7 +148,7 @@ impl MachOAnalyzer {
 
                             // Count dangerous entitlements
                             let mut dangerous_count = 0u32;
-                            for (ent_key, _) in &codesig.entitlements {
+                            for ent_key in codesig.entitlements.keys() {
                                 if ent_key.contains("disable-library-validation")
                                     || ent_key.contains("allow-jit")
                                     || ent_key.contains("unsigned-executable-memory")
@@ -733,7 +735,7 @@ impl MachOAnalyzer {
         }
 
         // Entitlements traits
-        for (entitlement_key, _value) in &codesig.entitlements {
+        for entitlement_key in codesig.entitlements.keys() {
             let ent_trait_id = format!("meta/entitlement/{}", entitlement_key);
             let desc = describe_entitlement(entitlement_key);
             report.findings.push(Finding {

@@ -794,8 +794,8 @@ composite_rules:
     for: [javascript]
     all:
       - { id: dropper/builder/activex-object }
-      - { id: cap/exec/javascript/es6-features/modern-javascript }
-      - { id: cap/exec/javascript/es6-features/template-literals }
+      - { id: meta/lang/javascript-es6::modern-javascript }
+      - { id: meta/lang/javascript-es6::template-literal }
 
   # ActiveXObject + any network operation = likely malicious
   - id: activex-network

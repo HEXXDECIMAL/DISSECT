@@ -25,7 +25,7 @@ Value-neutral observations about what code can do. High confidence from static a
 
 Within obj/ - rules should be organized in the following directory structure: obj/OBJECTIVE/BEHAVIOR/METHOD/ - with invididual YAML files per platform or ecosystem within that directory. In some cases, you may need to add a sub-method subdirectory for methods with many options, for instance string obfuscation.
 
-Within cap/ - rules should be organized by cap/CATEGORY/BEHAVIOR/METHOD/ - and if necessary, an additional level for  sub-methods. So for example, use cap/crypto/symmetric/aes/ruby.yaml rather than cap/crypto/symmetric/aes.yaml. Another example: cap/data/encode/base64/ 
+Within cap/ - rules should be organized by cap/CATEGORY/BEHAVIOR/METHOD/ - and if necessary, an additional level for  sub-methods. So for example, use cap/crypto/symmetric/aes/ruby.yaml rather than cap/crypto/symmetric/aes.yaml. Another example: cap/data/encode/base64/ - if you can't think of a specific method, consider what could bring multiple traits together, like a common syscall, protocol, or other logical grouping. This directory name may be referenced in composite traits in order to match similar rules, so think about that when grouping them.
 
 ```
 cap/

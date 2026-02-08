@@ -60,4 +60,4 @@ composite_rules:
       - id: crontab-add
       - id: crontab-with-curl-wget
       - id: mass-crontab-cleanup
-      - id: obj/c2/dropper/shell/download-execute
+      - id: obj/c2/dropper/remote-eval/shell::download-execute

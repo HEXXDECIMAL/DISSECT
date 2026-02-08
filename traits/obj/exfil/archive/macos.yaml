@@ -72,21 +72,21 @@ composite_rules:
   # ditto compress composite
   - id: ditto-compress
     desc: ditto archive creation with compression
-    crit: suspicious
+    crit: notable
     conf: 0.85
     needs: 1
     any:
-      - id: obj/collect/archive/macos/ditto-ck-flags
+      - id: obj/collect/archive::ditto-ck-flags
       - id: ditto-keepparent
 
   # ditto sequester composite
   - id: ditto-sequester
     desc: ditto with resource fork handling
-    crit: suspicious
+    crit: notable
     conf: 0.9
     needs: 1
     any:
-      - id: obj/collect/archive/macos/ditto-sequester
+      - id: obj/collect/archive::ditto-sequester
       - id: ditto-rsrc-flag
 
   # zip create composite
