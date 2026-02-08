@@ -1,0 +1,292 @@
+# Native Binary Credential Stealer Detection
+# Detects suspicious library import combinations in ELF/Mach-O binaries
+# ATT&CK: T1555 (Credentials from Password Stores)
+
+defaults:
+  for: [elf, macho]
+  attack: "T1555"
+
+traits:
+  # === Library strings ===
+  - id: libsqlite3-string
+    desc: libsqlite3 library reference
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      substr: "libsqlite3"
+
+  - id: libcrypto-string
+    desc: Crypto library reference
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: "lib(crypto|ssl|nss3|nspr4)"
+
+  - id: libcurl-string
+    desc: libcurl library reference
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      substr: "libcurl"
+
+  - id: security-framework
+    desc: macOS Security.framework
+    crit: inert
+    conf: 0.6
+    for: [macho]
+    if:
+      type: string
+      substr: "Security.framework"
+
+  - id: libsecret-string
+    desc: libsecret library reference
+    crit: inert
+    conf: 0.6
+    for: [elf]
+    if:
+      type: string
+      substr: "libsecret"
+
+  # === X11/input strings ===
+  - id: libx11-string
+    desc: libX11 library reference
+    crit: inert
+    conf: 0.5
+    for: [elf]
+    if:
+      type: string
+      substr: "libX11"
+
+  - id: libxcb-string
+    desc: libxcb library reference
+    crit: inert
+    conf: 0.5
+    for: [elf]
+    if:
+      type: string
+      substr: "libxcb"
+
+  - id: dev-input-event
+    desc: /dev/input/event path
+    crit: notable
+    conf: 0.75
+    for: [elf]
+    if:
+      type: string
+      substr: "/dev/input/event"
+
+  # === Credential paths ===
+  - id: ssh-private-key
+    desc: SSH private key path
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: "\\.ssh/(id_rsa|id_ed25519|id_ecdsa)"
+
+  - id: ssh-authorized-keys
+    desc: SSH authorized_keys path
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      substr: "/.ssh/authorized_keys"
+
+  - id: wallet-dat
+    desc: Bitcoin wallet.dat file
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      regex: "wallet\\.dat|wallets/.{0,50}\\.json"
+
+  - id: dotbitcoin-path
+    desc: .bitcoin directory
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      substr: ".bitcoin"
+
+  - id: doteth-path
+    desc: .ethereum directory
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      substr: ".ethereum"
+
+  - id: electrum-wallets
+    desc: Electrum wallets path
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      substr: "Electrum/wallets"
+
+  # === Browser credential files ===
+  - id: browser-login-data
+    desc: Browser Login Data file
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      regex: "Login Data|cookies\\.sqlite|logins\\.json|signons\\.sqlite"
+
+  - id: browser-names-multi
+    desc: Multiple browser name references
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: "Chrome|Firefox|Chromium|Opera|Brave"
+      count_min: 2
+
+composite_rules:
+  # === INERT: Library patterns ===
+
+  - id: sqlite-imports
+    desc: SQLite database library
+    crit: inert
+    conf: 0.5
+    any:
+      - id: meta/import/sqlite3_open
+      - id: meta/import/sqlite3_exec
+      - id: libsqlite3-string
+
+  - id: crypto-imports
+    desc: Cryptographic library imports
+    crit: inert
+    conf: 0.5
+    any:
+      - id: libcrypto-string
+      - id: meta/import/evp_decryptinit
+      - id: meta/import/pk11_decrypt
+      - id: meta/import/cccrypt
+
+  - id: network-imports
+    desc: Network client library imports
+    crit: inert
+    conf: 0.5
+    any:
+      - id: libcurl-string
+      - id: meta/import/curl_easy_perform
+      - id: meta/import/socket
+      - id: meta/import/connect
+
+  # === SUSPICIOUS: Unusual library combinations ===
+
+  # SQLite + NSS/Crypto + Network = Browser credential chain
+  - id: browser-credential-chain
+    desc: Browser credential access library chain
+    crit: suspicious
+    conf: 0.85
+    mbc: "E1555.003"
+    attack: "T1555.003"
+    all:
+      - id: sqlite-imports
+      - id: crypto-imports
+      - id: network-imports
+
+  # Keychain access + network (macOS)
+  - id: keychain-exfil
+    desc: Keychain access with network capability
+    crit: suspicious
+    conf: 0.85
+    platforms: [macos]
+    for: [macho]
+    all:
+      - id: network-imports
+    any:
+      - id: meta/import/secitemcopymatching
+      - id: meta/import/seckeychainfindgenericpassword
+      - id: security-framework
+
+  # libsecret + network (Linux GNOME keyring)
+  - id: libsecret-exfil
+    desc: GNOME keyring access with network
+    crit: suspicious
+    conf: 0.85
+    platforms: [linux]
+    for: [elf]
+    all:
+      - id: network-imports
+    any:
+      - id: libsecret-string
+      - id: meta/import/secret_password_lookup
+
+  # SSH key access + network
+  - id: ssh-key-exfil
+    desc: SSH key access with network capability
+    crit: suspicious
+    conf: 0.85
+    all:
+      - id: network-imports
+    any:
+      - id: ssh-private-key
+      - id: ssh-authorized-keys
+
+  # Wallet file access + network
+  - id: crypto-wallet-exfil
+    desc: Cryptocurrency wallet access with network
+    crit: suspicious
+    conf: 0.9
+    all:
+      - id: network-imports
+    any:
+      - id: wallet-dat
+      - id: dotbitcoin-path
+      - id: doteth-path
+      - id: electrum-wallets
+
+  # X11 input capture + network = keylogger
+  - id: x11-keylogger
+    desc: X11 input capture with network
+    crit: suspicious
+    conf: 0.85
+    platforms: [linux]
+    for: [elf]
+    all:
+      - id: network-imports
+    any:
+      - id: libx11-string
+      - id: libxcb-string
+      - id: meta/import/xopendisplay
+      - id: meta/import/xquerykeymap
+      - id: dev-input-event
+
+  # === HOSTILE: Clear stealer patterns ===
+
+  # Browser stealer with full chain
+  # Precision: all(2) + any(2) = 4.0 (meets hostile threshold)
+  - id: browser-stealer-binary
+    desc: Native browser credential stealer
+    crit: hostile
+    conf: 0.95
+    mbc: "E1555.003"
+    attack: "T1555.003"
+    all:
+      - id: browser-credential-chain
+    any:
+      - id: browser-login-data
+      - id: browser-names-multi
+
+  # Multi-target credential stealer
+  # Precision: all(1) + any(needs 2) = 3.0+ (may need adjustment)
+  - id: multi-credential-stealer
+    desc: Multi-target credential stealer
+    crit: hostile
+    conf: 0.95
+    mbc: "E1555"
+    all:
+      - id: network-imports
+    any:
+      - id: browser-credential-chain
+      - id: ssh-key-exfil
+      - id: crypto-wallet-exfil
+      - id: keychain-exfil
+      - id: libsecret-exfil
+    needs: 2

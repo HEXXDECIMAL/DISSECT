@@ -1,0 +1,402 @@
+# RubyGems Supply Chain - Suspicious Import Combinations
+# Detects unusual import patterns in Ruby gems
+# ATT&CK: T1195.002 (Compromise Software Supply Chain)
+
+defaults:
+  for: [ruby]
+  attack: "T1195.002"
+
+traits:
+  # === File detection ===
+  - id: gemspec-file
+    desc: Ruby gemspec file
+    crit: inert
+    conf: 1.0
+    if:
+      type: basename
+      regex: "\\.gemspec$"
+
+  - id: extconf-file
+    desc: Ruby native extension config
+    crit: inert
+    conf: 1.0
+    if:
+      type: basename
+      exact: "extconf.rb"
+
+  # === Require patterns ===
+  - id: require-net-http
+    desc: Requires net/http
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      regex: "require\\s+['\"]net/http['\"]"
+
+  # === Shell execution patterns ===
+  - id: system-call
+    desc: system() shell execution
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: "\\bsystem\\s*\\("
+
+  - id: backtick-exec
+    desc: Backtick shell execution
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: "`[^`]+`"
+
+  - id: percent-x-exec
+    desc: Percent-x shell execution
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: "%x\\{|%x\\["
+
+  - id: io-popen-exec
+    desc: IO.popen execution
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      regex: "IO\\.popen"
+
+  - id: open3-exec
+    desc: Open3 execution
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      regex: "Open3\\.(capture|popen)"
+
+  # === Eval patterns ===
+  - id: eval-call
+    desc: eval() call
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      regex: "\\beval\\s*\\("
+
+  - id: instance-eval
+    desc: instance_eval call
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: "\\binstance_eval\\b"
+
+  - id: class-eval
+    desc: class_eval call
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: "\\bclass_eval\\b"
+
+  # === Base64 patterns ===
+  - id: base64-decode
+    desc: Base64 decode call
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      regex: "Base64\\.(decode64|encode64)"
+
+  # === Obfuscation patterns ===
+  - id: eval-base64-decode
+    desc: eval with Base64 decode
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: content
+      regex: "eval\\s*\\(\\s*Base64\\.decode64"
+
+  - id: hex-escape-dense
+    desc: Dense hex escape sequences
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      regex: "\\\\x[0-9a-f]{2}\\\\x[0-9a-f]{2}"
+      count_min: 10
+
+  - id: pack-hex
+    desc: pack('H*') hex decode
+    crit: notable
+    conf: 0.8
+    if:
+      type: content
+      regex: "\\.pack\\(['\"]H\\*['\"]\\)"
+
+  - id: load-call
+    desc: load() dynamic load
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      regex: "\\bload\\s*\\("
+
+  # === Credential paths ===
+  - id: ssh-private-key-path
+    desc: SSH private key path
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: string
+      substr: ".ssh/id_rsa"
+
+  - id: aws-credentials-path
+    desc: AWS credentials path
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: string
+      substr: ".aws/credentials"
+
+  - id: netrc-path
+    desc: .netrc file path
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      substr: ".netrc"
+
+  - id: browser-login-data
+    desc: Browser Login Data file
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      substr: "Login Data"
+
+  - id: chrome-config-path
+    desc: Chrome config path
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      regex: "\\.config/(google-chrome|chromium)"
+
+  # === Webhook patterns ===
+  - id: ruby-discord-webhook
+    desc: Discord webhook URL
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: string
+      regex: "discord(app)?\\.com/api/webhooks"
+
+  - id: telegram-bot-api
+    desc: Telegram bot API URL
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: string
+      regex: "api\\.telegram\\.org/bot"
+
+  # === Remote download patterns ===
+  - id: remote-binary-url
+    desc: Remote binary URL
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      regex: "https?://[^\\s]+\\.(so|dll|dylib|exe|sh|rb)"
+
+  # === Reverse shell patterns ===
+  - id: tcpsocket-exec
+    desc: TCPSocket with exec
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: content
+      regex: "TCPSocket\\.new.{0,50}(exec|system|spawn|`)"
+
+  - id: socket-stdin
+    desc: Socket redirecting stdin
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: content
+      regex: "Socket\\.tcp.{0,100}\\$stdin"
+
+  - id: stdin-reopen
+    desc: STDIN reopen pattern
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: string
+      regex: "dup2.{0,30}STDIN|STDIN.{0,30}reopen"
+
+  # === File operations ===
+  - id: file-read-write
+    desc: File read/write operations
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: "File\\.(read|write|open|delete)"
+
+composite_rules:
+  # === INERT: Common legitimate patterns ===
+
+  - id: http-client-imports
+    desc: HTTP client imports
+    crit: inert
+    conf: 0.5
+    any:
+      - id: meta/import/ruby/net/http
+      - id: meta/import/ruby/faraday
+      - id: meta/import/ruby/httparty
+      - id: meta/import/ruby/rest-client
+      - id: require-net-http
+
+  - id: file-imports
+    desc: File operation imports
+    crit: inert
+    conf: 0.5
+    any:
+      - id: meta/import/ruby/fileutils
+      - id: file-read-write
+
+  # === NOTABLE: Patterns that define gem purpose ===
+
+  - id: shell-exec-imports
+    desc: Shell execution patterns
+    crit: notable
+    conf: 0.7
+    any:
+      - id: meta/import/ruby/open3
+      - id: system-call
+      - id: backtick-exec
+      - id: percent-x-exec
+      - id: io-popen-exec
+      - id: open3-exec
+
+  - id: eval-imports
+    desc: Dynamic code evaluation
+    crit: notable
+    conf: 0.75
+    any:
+      - id: eval-call
+      - id: instance-eval
+      - id: class-eval
+
+  - id: base64-imports
+    desc: Base64 encoding operations
+    crit: inert
+    conf: 0.5
+    any:
+      - id: meta/import/ruby/base64
+      - id: base64-decode
+
+  # === SUSPICIOUS: Unusual patterns in gem context ===
+
+  - id: gemspec-shell-exec
+    desc: Gemspec executes shell commands
+    crit: suspicious
+    conf: 0.85
+    all:
+      - id: gemspec-file
+      - id: shell-exec-imports
+
+  - id: extconf-remote-download
+    desc: Native extension downloads remote code
+    crit: suspicious
+    conf: 0.85
+    all:
+      - id: extconf-file
+      - id: http-client-imports
+    any:
+      - id: remote-binary-url
+      - id: shell-exec-imports
+
+  - id: network-eval-exec-chain
+    desc: Network fetch with eval and exec
+    crit: suspicious
+    conf: 0.9
+    all:
+      - id: http-client-imports
+      - id: eval-imports
+    any:
+      - id: shell-exec-imports
+      - id: load-call
+
+  - id: obfuscated-payload
+    desc: Obfuscated code payload
+    crit: suspicious
+    conf: 0.85
+    any:
+      - id: eval-base64-decode
+      - id: hex-escape-dense
+      - id: pack-hex
+
+  - id: credential-path-access
+    desc: Accesses credential storage paths
+    crit: suspicious
+    conf: 0.9
+    any:
+      - id: ssh-private-key-path
+      - id: aws-credentials-path
+      - id: netrc-path
+      - id: browser-login-data
+      - id: chrome-config-path
+    needs: 1
+
+  - id: webhook-exfil
+    desc: Webhook data exfiltration
+    crit: suspicious
+    conf: 0.85
+    all:
+      - id: http-client-imports
+    any:
+      - id: ruby-discord-webhook
+      - id: telegram-bot-api
+
+  # === HOSTILE: Clear malware patterns ===
+
+  # gemspec downloads and evals remote code
+  # Precision: all(3) = 3.0, + for(1) = 4.0 (meets hostile threshold)
+  - id: gemspec-remote-eval
+    desc: Gemspec downloads and evaluates remote code
+    crit: hostile
+    conf: 0.95
+    mbc: "B0024"
+    all:
+      - id: gemspec-file
+      - id: http-client-imports
+      - id: eval-imports
+
+  # Credential stealer pattern
+  # Precision: all(3) + any(1) = 4.0 (meets hostile threshold)
+  - id: credential-stealer
+    desc: Steals and exfiltrates credentials
+    crit: hostile
+    conf: 0.95
+    mbc: "E1555"
+    attack: "T1555"
+    all:
+      - id: credential-path-access
+      - id: file-imports
+      - id: http-client-imports
+
+  # Reverse shell pattern
+  # Precision: all(1) + any(hostile traits) = 4.0+ (meets hostile threshold)
+  - id: reverse-shell-pattern
+    desc: Ruby reverse shell pattern
+    crit: hostile
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1059.004"
+    all:
+      - id: meta/import/ruby/socket
+    any:
+      - id: tcpsocket-exec
+      - id: socket-stdin
+      - id: stdin-reopen

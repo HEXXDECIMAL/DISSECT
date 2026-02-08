@@ -18,8 +18,8 @@ traits:
       exact: "wget"
 
   # === Wget output atomic indicators ===
-  - id: wget-output-dash-O
-    desc: "Wget with -O flag"
+  - id: cli-output-dash-upper-o
+    desc: "CLI tool with -O flag"
     crit: notable
     conf: 0.7
     mbc: "C0002"
@@ -121,14 +121,14 @@ traits:
 
   # === Dropper atomic patterns (content search) ===
   - id: curl-download-file
-    desc: "curl downloading to file"
+    desc: "curl downloading to file (-o, -O, --output)"
     crit: notable
     conf: 0.7
     mbc: "C0002"
     attack: "T1105"
     if:
       type: content
-      regex: 'curl\s+[^|&\n]*\s+-o\s+'
+      regex: 'curl\s+(?:[^|&\n]+\s+)?(-o\s+|--output\s+|-O)'
 
   - id: chmod-plus-x-cmd
     desc: "chmod +x command"
@@ -160,7 +160,7 @@ composite_rules:
     attack: "T1105"
     needs: 1
     any:
-      - id: wget-output-dash-O
+      - id: cli-output-dash-upper-o
       - id: wget-output-document
 
   # Curl output file composite
@@ -173,6 +173,7 @@ composite_rules:
     needs: 1
     any:
       - id: curl-output-dash-o
+      - id: cli-output-dash-upper-o
       - id: curl-output-flag
 
   # Tmp staging composite

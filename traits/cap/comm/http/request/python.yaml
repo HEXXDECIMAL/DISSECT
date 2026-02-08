@@ -91,6 +91,15 @@ traits:
       - type: basename
         regex: '(test_|_test\.|\.test\.|\.spec\.).*\.(py)$'
 
+  - id: py-post-generic
+    desc: "Generic .post() call"
+    crit: inert
+    conf: 0.5
+    for: [python]
+    if:
+      type: string
+      regex: "\\.post\\("
+
 composite_rules:
   # HTTP request composite
   - id: request-python
