@@ -2,17 +2,6 @@
 # MBC: B0009 - Probabilistic Execution
 
 traits:
-  - id: instantiation
-    desc: Random number generator instantiation
-    crit: notable
-    mbc: "B0009"
-    conf: 0.7
-    for: [csharp]
-    if:
-      type: ast
-      node: object_creation_expression
-      exact: "new Random"
-
   - id: next
     desc: Random number generation (potential probabilistic
     crit: notable

@@ -6,23 +6,6 @@ defaults:
   platforms: [all]
 
 traits:
-  # DNS resolution
-  - id: resolv-getaddress
-    desc: Resolv.getaddress method
-    crit: inert
-    conf: 0.7
-    if:
-      type: string
-      regex: 'Resolv\.getaddress'
-
-  - id: resolv-getname
-    desc: Resolv.getname method
-    crit: inert
-    conf: 0.7
-    if:
-      type: string
-      regex: 'Resolv\.getname'
-
   # Environment variables
   - id: env-bracket-access
     desc: ENV bracket access
@@ -74,14 +57,6 @@ traits:
       regex: "Process.{0,50}gid"
 
 composite_rules:
-  - id: ruby-dns-resolve
-    desc: DNS hostname resolution
-    crit: notable
-    conf: 0.85
-    any:
-      - id: resolv-getaddress
-      - id: resolv-getname
-
   - id: ruby-env-read
     desc: Read environment variables
     crit: notable

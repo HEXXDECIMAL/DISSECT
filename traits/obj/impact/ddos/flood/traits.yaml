@@ -32,14 +32,6 @@ traits:
       type: string
       regex: "(?i)syn[_\\s]?flood"
 
-  - id: syn-flood
-    desc: SYN flood identifier string
-    crit: notable
-    conf: 0.7
-    if:
-      type: string
-      regex: "(?i)syn[ _]?flood"
-
   # === UDP Flood micro-traits ===
   - id: udpbuf
     desc: udpbuf buffer reference

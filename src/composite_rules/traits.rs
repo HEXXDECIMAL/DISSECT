@@ -128,6 +128,125 @@ impl TraitDefinition {
         }
     }
 
+    /// Check if `not:` field is used appropriately based on match type.
+    /// Returns a warning message if misused, None otherwise.
+    pub fn check_not_field_usage(&self) -> Option<String> {
+        let not_exceptions = self.not.as_ref()?;
+
+        // Helper to check if a pattern could match a literal string
+        fn pattern_could_match(pattern: &str, literal: &str) -> bool {
+            if let Ok(re) = regex::Regex::new(pattern) {
+                re.is_match(literal)
+            } else {
+                false
+            }
+        }
+
+        // Helper to extract exception string for validation
+        fn get_exception_str(exc: &NotException) -> Option<&str> {
+            match exc {
+                NotException::Shorthand(s) => Some(s.as_str()),
+                NotException::Structured {
+                    exact: Some(s), ..
+                }
+                | NotException::Structured {
+                    substr: Some(s), ..
+                }
+                | NotException::Structured {
+                    regex: Some(s), ..
+                } => Some(s.as_str()),
+                _ => None,
+            }
+        }
+
+        match &self.r#if {
+            // Exact or substr matches (without regex/word) should use `unless:` instead of `not:`
+            Condition::String {
+                exact: Some(_),
+                regex: None,
+                word: None,
+                ..
+            }
+            | Condition::String {
+                substr: Some(_),
+                regex: None,
+                word: None,
+                ..
+            } => {
+                return Some(
+                    "not: field used with exact/substr match - consider using 'unless:' instead for deterministic patterns".to_string()
+                );
+            }
+            Condition::Content {
+                exact: Some(_),
+                regex: None,
+                word: None,
+                ..
+            }
+            | Condition::Content {
+                substr: Some(_),
+                regex: None,
+                word: None,
+                ..
+            } => {
+                return Some(
+                    "not: field used with exact/substr match - consider using 'unless:' instead for deterministic patterns".to_string()
+                );
+            }
+            // For regex matches, validate that exceptions could actually match
+            Condition::String {
+                regex: Some(pattern),
+                ..
+            }
+            | Condition::Content {
+                regex: Some(pattern),
+                ..
+            } => {
+                for exc in not_exceptions {
+                    if let Some(exc_str) = get_exception_str(exc) {
+                        if !pattern_could_match(pattern, exc_str) {
+                            return Some(format!(
+                                "not: exception '{}' does not match the search regex '{}' - it will never be applied",
+                                exc_str, pattern
+                            ));
+                        }
+                    }
+                }
+            }
+            // For hex patterns, validate exceptions match
+            Condition::Hex { pattern: _, .. } => {
+                // For hex patterns, we should validate that not: exceptions make sense
+                // Since hex matching is complex, we'll do a basic check
+                // Hex patterns match byte sequences, so not: exceptions should be regex-based
+                for exc in not_exceptions {
+                    match exc {
+                        NotException::Structured {
+                            exact: Some(_), ..
+                        }
+                        | NotException::Structured {
+                            substr: Some(_), ..
+                        }
+                        | NotException::Shorthand(_) => {
+                            // For hex matches, exact/substr don't make as much sense
+                            // The matched bytes need to be converted to string representation first
+                            // This is a valid but potentially confusing use case
+                            // We'll allow it but note it in the debug logs if needed
+                        }
+                        NotException::Structured {
+                            regex: Some(_), ..
+                        } => {
+                            // Regex-based exceptions for hex matches are fine
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            _ => {}
+        }
+
+        None
+    }
+
     /// Evaluate this trait definition against the analysis context
     pub fn evaluate(&self, ctx: &EvaluationContext) -> Option<Finding> {
         use super::debug::{ConditionDebug, DowngradeDebug, SkipReason};

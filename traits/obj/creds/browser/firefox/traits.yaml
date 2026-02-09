@@ -62,15 +62,6 @@ traits:
       type: string
       substr: "Pale Moon/Profiles"
 
-  - id: cookies-sqlite
-    desc: Firefox cookies.sqlite database
-    crit: suspicious
-    conf: 0.8
-    attack: "T1555.003"
-    if:
-      type: string
-      substr: "cookies.sqlite"
-
   - id: formhistory-sqlite
     desc: Firefox formhistory.sqlite database
     crit: suspicious
@@ -79,15 +70,6 @@ traits:
     if:
       type: string
       substr: "formhistory.sqlite"
-
-  - id: logins-json
-    desc: Firefox logins.json file
-    crit: suspicious
-    conf: 0.85
-    attack: "T1555.003"
-    if:
-      type: string
-      substr: "logins.json"
 
   - id: key4-db
     desc: Firefox key4.db (master password database)
@@ -189,7 +171,7 @@ composite_rules:
     attack: "T1555.003"
     all:
       - id: path
-      - id: cookies-sqlite
+      - id: obj/creds/browser/firefox::cookies
 
   - id: password-theft
     desc: Firefox password/form history theft
@@ -201,7 +183,7 @@ composite_rules:
     any:
       - id: formhistory-sqlite
       - id: nss-private
-      - id: logins-json
+      - id: obj/creds/browser/firefox::logins
       - id: key4-db
 
   # nss3 lib composite

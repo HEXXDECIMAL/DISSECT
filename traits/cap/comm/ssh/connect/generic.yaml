@@ -4,8 +4,6 @@
 
 traits:
   # === SSH Indicators ===
-  # NOTE: Matching just "ssh" is too broad - matches LLVM tools (clang-ssh),
-  # compiler paths, openssh references, etc. Require SSH-specific context.
   - id: ssh-string
     desc: ssh string
     crit: inert
@@ -13,20 +11,7 @@ traits:
     attack: "T1021.004"
     if:
       type: string
-      regex: "\\bssh\\b"
-    not:
-      # LLVM/compiler references
-      - "openssh"
-      - "OpenSSH"
-      - "libssh"
-      - regex: "clang.*ssh"
-      - regex: "llvm.*ssh"
-      # Common false positives
-      - regex: "ssh[-_]?keygen"
-      - regex: "ssh[-_]?agent"
-      - regex: "ssh[-_]?add"
-      - regex: "/usr/.*ssh"
-      - regex: "known_hosts"
+      word: "ssh"
 
   - id: paramiko
     desc: paramiko Python SSH library

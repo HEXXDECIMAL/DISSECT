@@ -359,6 +359,14 @@ impl CapabilityMapper {
                     ));
                 }
 
+                // Check for improper use of not: field
+                if let Some(warning) = trait_def.check_not_field_usage() {
+                    warnings.push(format!(
+                        "trait '{}' in {:?}: {}",
+                        trait_def.id, path, warning
+                    ));
+                }
+
                 // Check for ID conflicts with previously loaded traits (cross-file duplicates)
                 if trait_definitions.iter().any(|t| t.id == trait_def.id) {
                     warnings.push(format!(

@@ -16,7 +16,7 @@ composite_rules:
 
   - id: http-fingerprinting-campaign
     desc: HTTP fingerprinting evasion campaign
-    crit: hostile
+    crit: notable
     conf: 0.90
     for: [all]
     attack: "T1071.001"

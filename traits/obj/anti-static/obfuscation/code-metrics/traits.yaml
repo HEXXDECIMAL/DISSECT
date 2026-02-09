@@ -25,32 +25,6 @@ defaults:
 traits:
   # === Identifier Obfuscation ===
 
-  - id: high-entropy-identifiers
-    desc: "High entropy identifiers (random-looking variable"
-    crit: inert
-    conf: 0.85
-    # NOTE: Shell has its own threshold (3.2) in code-metrics/shell.yaml
-    for:
-      [
-        python,
-        javascript,
-        typescript,
-        php,
-        ruby,
-        perl,
-        go,
-        rust,
-        java,
-        lua,
-        csharp,
-        powershell,
-      ]
-    if:
-      type: metrics
-      field: identifiers.avg_entropy
-      min: 2.5
-      min_size: 2048
-
   - id: many-high-entropy-identifiers
     desc: "Many high-entropy identifiers (>20% have"
     crit: notable
@@ -542,7 +516,7 @@ composite_rules:
     attack: "T1027"
     needs: 2
     any:
-      - id: obj/anti-static/obfuscation/code-metrics::high-entropy-identifiers
+      - id: cap/code/metrics/obfuscation::high-entropy-identifiers
       - id: obj/anti-static/obfuscation/code-metrics::many-high-entropy-identifiers
       - id: obj/anti-static/obfuscation/code-metrics::go-many-high-entropy-identifiers
       - id: obj/anti-static/obfuscation/code-metrics::py-many-high-entropy-identifiers

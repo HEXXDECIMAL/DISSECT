@@ -67,7 +67,7 @@ composite_rules:
     conf: 0.9
     needs: 3
     any:
-      - id: obj/anti-static/obfuscation/code-metrics::high-entropy-identifiers
+      - id: cap/code/metrics/obfuscation::high-entropy-identifiers
       - id: obj/anti-static/obfuscation/code-metrics::js-arrow-function-abuse
       - id: obj/anti-static/obfuscation/code-metrics::high-entropy-strings
       - id: obj/anti-static/obfuscation/code-metrics::no-comments
@@ -79,7 +79,7 @@ composite_rules:
     # Real npm malware implants are typically small
     size_max: 50000
     all:
-      - id: obj/anti-static/obfuscation/code-metrics::high-entropy-identifiers
+      - id: cap/code/metrics/obfuscation::high-entropy-identifiers
       - id: obj/anti-static/obfuscation/code-metrics::no-comments
     any:
       - id: obj/anti-static/obfuscation/code-metrics::js-webpack-minified

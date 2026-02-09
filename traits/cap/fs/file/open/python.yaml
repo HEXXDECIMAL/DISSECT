@@ -23,14 +23,6 @@ traits:
       regex: "open\\([^)]*['\"]r\\+b['\"]"
 
   # Sensitive file paths (browser/wallet)
-  - id: cookies-path
-    desc: Browser cookies file
-    crit: inert
-    conf: 0.7
-    if:
-      type: string
-      substr: "Cookies"
-
   - id: key4-db-path
     desc: Firefox key database
     crit: inert
@@ -63,26 +55,3 @@ traits:
       type: content
       regex: "cookiejar"
 
-composite_rules:
-  # Helper: Any sensitive file path
-  - id: sensitive-paths
-    desc: Browser or wallet file paths
-    any:
-      - id: cap/fs/path/config::chromium-login-data
-      - id: cookies-path
-      - id: key4-db-path
-      - id: exodus-wallet-path
-      - id: wallet-dat-path
-
-  - id: sensitive-path
-    desc: Accesses sensitive browser or wallet
-    crit: notable
-    conf: 0.95
-    for: [python]
-    # Stealth stealers are typically small
-    size_max: 5000
-    all:
-      - id: generic
-      - id: sensitive-paths
-    none:
-      - id: cookiejar-exclusion

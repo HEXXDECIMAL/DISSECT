@@ -13,16 +13,6 @@ traits:
       type: structure
       feature: "binary/stripped"
 
-  # NOTE: Static linking is common for portable binaries (Go, Rust)
-  - id: static-linked-struct
-    desc: "Statically linked binary (self-contained)"
-    crit: inert
-    conf: 0.7
-    for: [elf]
-    if:
-      type: structure
-      feature: "binary/static"
-
   - id: no-pie-struct
     desc: "Binary not position-independent (no ASLR)"
     crit: notable
@@ -52,4 +42,4 @@ composite_rules:
     for: [elf]
     all:
       - id: stripped-binary-struct
-      - id: static-linked-struct
+      - id: meta/hardening::static-linked

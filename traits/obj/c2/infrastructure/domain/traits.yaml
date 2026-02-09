@@ -227,15 +227,6 @@ traits:
         - "mesa3d\\.org"
         - "x\\.org"
 
-  - id: url-path-payload-pattern
-    desc: "URL path suggesting payload download"
-    crit: suspicious
-    conf: 0.8
-    attack: "T1105" # Override: Ingress Tool Transfer
-    if:
-      type: string
-      regex: "(?:GET|POST|PUT)\\s+/[a-zA-Z0-9_./-]*\\.(bin|exe|sh|elf|dll|so|dat|payload|bot|drop)"
-
   # === Malicious file hosting domains (atomic) ===
   - id: bullethost-cloud
     desc: Bullethost.cloud file hosting

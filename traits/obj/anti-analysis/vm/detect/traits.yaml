@@ -370,7 +370,7 @@ composite_rules:
   # DMI/SMBIOS VM detection
   - id: dmi-check
     desc: DMI/SMBIOS check for VM detection
-    crit: suspicious
+    crit: notable
     conf: 0.85
     any:
       - id: cap/os/sysinfo

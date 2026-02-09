@@ -111,33 +111,6 @@ traits:
         - "plist"
         - "com.apple"
 
-  - id: local-state
-    desc: Chromium Local State file
-    crit: suspicious
-    conf: 0.8
-    attack: "T1555.003"
-    if:
-      type: string
-      substr: "Local State"
-
-  - id: login-data
-    desc: Chromium Login Data file reference
-    crit: suspicious
-    conf: 0.8
-    attack: "T1555.003"
-    if:
-      type: string
-      substr: "Login Data"
-
-  - id: web-data
-    desc: Chromium Web Data file (passwords,
-    crit: suspicious
-    conf: 0.8
-    attack: "T1555.003"
-    if:
-      type: string
-      substr: "Web Data"
-
   # === Encryption/Decryption Keys ===
 
   - id: encrypted-key
@@ -289,7 +262,7 @@ composite_rules:
     attack: "T1555.003"
     mbc: "E1003"
     all:
-      - id: local-state
+      - id: obj/creds/browser/chromium::local-state
       - id: encrypted-key
       - id: os-crypt
 
@@ -307,7 +280,7 @@ composite_rules:
     for: [python, javascript, elf, pe, macho]
     all:
       - id: chrome-path
-      - id: web-data
+      - id: obj/creds/browser/chromium::web-data
       - id: credit-cards-table
 
   # Multi-browser targeting (stealer behavior)
