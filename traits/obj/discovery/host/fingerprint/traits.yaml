@@ -494,9 +494,6 @@ traits:
       # Require more specific fingerprint patterns, not just "fingerprint" alone
       # Exclude ssh_fingerprint (legitimate), require context like "hardware", "device", "hwid"
       regex: '(?i)(hardware|device|machine|system|host)[\s_-]?fingerprint|fingerprint[\s_-]?(id|gen|collect)'
-    not:
-      # Exclude SSH fingerprint which is legitimate
-      - regex: '(?i)ssh[\s_-]?fingerprint'
 
 composite_rules:
   # Machine ID composite (migrated from YARA)

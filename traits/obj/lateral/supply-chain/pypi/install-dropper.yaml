@@ -97,8 +97,6 @@ traits:
       type: string
       # Domains pretending to be official Python downloads
       regex: "https?://[a-z0-9-]*python[a-z0-9-]*\\.[a-z]+/[^\\s]{0,50}\\.(exe|scr|msi|bat|cmd|ps1)"
-    not:
-      - regex: "^https?://(www\\.)?python\\.org/"
 
   - id: executable-download-url
     desc: URL ending in executable extension
@@ -107,9 +105,6 @@ traits:
     if:
       type: string
       regex: "https?://[^\\s'\"]+\\.(exe|scr|msi|bat|cmd|ps1|dll)(?:[?#][^\\s'\"]*)?$"
-    not:
-      - regex: "https?://[^/]*mozilla\\.org/"
-      - regex: "https?://[^/]*example\\.(com|org|net)/"
 
   # === Install Hook Pattern ===
   # setup.py install command override (post-install execution)

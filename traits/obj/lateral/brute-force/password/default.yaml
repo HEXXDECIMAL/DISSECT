@@ -111,17 +111,6 @@ traits:
       # Match credential combos but exclude common programming patterns like
       # user:group, user:groupFilter, root:path, etc.
       regex: "\\b(root|admin|user|guest|support):(root|admin|1234|pass|default|qwerty|letmein|[a-zA-Z0-9]{4,8})\\b"
-    not:
-      - "user:group"
-      - "user:uid"
-      - "user:request"
-      - "root:path"
-      - "root:/"
-      # Exclude help text patterns from CLI tools
-      - "<user:password>"
-      - "user:password>"
-      - "--user <"
-      - "-u, --user"
     unless:
       # Exclude curl/libcurl which has credential help text
       - id: cap/comm/download/curl::curl-easy-init

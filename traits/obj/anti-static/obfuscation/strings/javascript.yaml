@@ -228,15 +228,6 @@ traits:
       type: content
       regex: "\\[(\"|')(eval|Function|constructor|fromCharCode|charCodeAt|atob|btoa|decodeURIComponent|unescape|setTimeout|setInterval)(\"|')\\]"
       count_min: 1
-    not:
-      - '["class"]'
-      - '["id"]'
-      - '["style"]'
-      - '["type"]'
-      - "['class']"
-      - "['id']"
-      - "['style']"
-      - "['type']"
 
 composite_rules:
   # String deobfuscation pattern (charAt/split + swap + join)

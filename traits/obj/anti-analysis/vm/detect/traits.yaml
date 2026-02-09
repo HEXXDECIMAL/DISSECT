@@ -73,10 +73,6 @@ traits:
     if:
       type: string
       exact: VBOX
-    not:
-      - "MathJax"
-      - "flexbox"
-      - "hbox"
 
   # === Hyper-V hypervisor atomic indicators ===
   - id: vendor-hyperv-dash

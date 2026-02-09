@@ -55,9 +55,6 @@ traits:
     if:
       type: string
       substr: "/var/run/hald-"
-    # Exception for actual HAL components
-    not:
-      - exact: "hald-runner"
 
   # Generic daemon PID file in suspicious location
   - id: suspicious-pidfile

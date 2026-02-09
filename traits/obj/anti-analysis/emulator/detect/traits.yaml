@@ -36,10 +36,6 @@ traits:
       type: string
       # Use word boundary to avoid matching "gruvbox" color schemes
       regex: "(?i)\\bvbox\\b"
-    not:
-      - "MathJax"
-      - "flexbox"
-      - "hbox"
 
   # === QEMU atomic indicators ===
   - id: qemu-upper

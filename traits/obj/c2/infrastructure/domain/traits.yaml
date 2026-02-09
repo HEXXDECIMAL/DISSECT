@@ -17,44 +17,6 @@ traits:
     if:
       type: string
       regex: "\\b[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\\.(com|org|net)\\b"
-    not:
-      # Major vendors
-      - "apple.com"
-      - "microsoft.com"
-      - "google.com"
-      - "amazon.com"
-      # Dev platforms
-      - "github.com"
-      - "gitlab.com"
-      - "bitbucket.org"
-      # Package registries
-      - "npmjs.com"
-      - "npmjs.org"
-      - "python.org"
-      - "pypi.org"
-      - "golang.org"
-      - "rust-lang.org"
-      - "crates.io"
-      # Infrastructure
-      - "amazonaws.com"
-      - "cloudflare.com"
-      - "docker.com"
-      # Linux distros
-      - "mozilla.org"
-      - "kernel.org"
-      - "debian.org"
-      - "ubuntu.com"
-      - "redhat.com"
-      # Cryptography & security libraries
-      - "openssl.org"
-      # Documentation
-      - "w3.org"
-      - "ietf.org"
-      - "example.com"
-      - "example.org"
-      - "example.net"
-      # Binary data/internal strings (false positives)
-      - "cstr.com"
 
   - id: hardcoded-domain-suspicious-pattern
     desc: "Hardcoded suspicious TLD domain pattern"
@@ -66,8 +28,6 @@ traits:
       # Removed: .date (matches Go time.Time.date), .pro (too common)
       # Added: .pe (Peru - commonly abused for short URLs), .su (Soviet Union - malware favorite)
       regex: "['\\\"](?:https?://(?:[a-zA-Z0-9-]{1,63}\\.)+(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|work|stream|download|racing|win|party|review|accountant|science|trade|webcam|bid|loan|pe|su|icu|buzz)(?::\\d{1,5})?(?:[/?#][^'\\\"\\s]*)?|(?:[a-zA-Z0-9-]{1,63}\\.)+(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|work|stream|download|racing|win|party|review|accountant|science|trade|webcam|bid|loan|pe|su|icu|buzz)(?::\\d{1,5}|/[A-Za-z0-9._~!$&'()*+,;=:@%/-]+|\\?[^'\\\"\\s]+))['\\\"]"
-    not:
-      - regex: "^[A-Za-z_$][A-Za-z0-9_$]*\\.style\\.(top|left|right|bottom|width|height)$"
     unless:
       - type: content
         regex: "sina\\.com\\.cn|163\\.com|126\\.com|sohu\\.com|qq\\.com|yahoo\\.com\\.cn|mysite|rambler\\.ru|yandex\\.ru|mail\\.ru"
@@ -425,17 +385,6 @@ traits:
         - "(?i)pypi\\.org"
         - "(?i)npmjs\\.com"
         - "(?i)github\\.com"
-    not:
-      - "doku.php"
-      - "index.php"
-      - "install\\.php"
-      - "update\\.php"
-      - "upgrade\\.php"
-      - "xmlrpc\\.php"
-      - "wp-cron\\.php"
-      - "admin-ajax\\.php"
-      - "config\\.php"
-      - "settings\\.php"
   # Internal API probing
   - id: internal-api-probe
     desc: Probes internal network API endpoints

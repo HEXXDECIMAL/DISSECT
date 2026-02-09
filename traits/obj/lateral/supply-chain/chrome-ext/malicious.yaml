@@ -182,13 +182,6 @@ traits:
     if:
       type: string
       regex: "https?://[a-zA-Z0-9][-a-zA-Z0-9]*\\.(io|xyz|top|click|link|info)/[a-zA-Z]"
-    not:
-      - "googleapis.com"
-      - "google.com"
-      - "gstatic.com"
-      - "cloudflare.com"
-      - "cdn.jsdelivr.net"
-      - "unpkg.com"
 
 composite_rules:
   # URL parameter manipulation capability

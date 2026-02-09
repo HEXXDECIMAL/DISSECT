@@ -12,20 +12,6 @@ traits:
     if:
       type: string
       regex: "^[A-Za-z0-9+/]{200,}={0,2}$"
-    # Exclude CamelCase identifier strings (CLI options, enum variants, etc.)
-    # These are common in compiled binaries and not actual payloads
-    # Pattern: strings that are mostly CamelCase words without + or /
-    not:
-      # Pure CamelCase identifiers (no +/)
-      - regex: "^([A-Z][a-z0-9]*)+$"
-      # Strings starting with multiple CamelCase words (enum variants, struct names)
-      - regex: "^([A-Z][a-z]+){5,}"
-      # Pure alphabetic strings (font glyph tables, identifier data - not real base64)
-      - regex: "^[A-Za-z]+$"
-      # Sequential digit pair table (00010203...9899) used for fast integer-to-string conversion
-      - regex: "^0001020304050607"
-      # Pure lowercase hex strings (crypto keys, hashes) - handled by large-hex-payload
-      - regex: "^[0-9a-f]+$"
     attack: "T1140"
     mbc: "C0043"
 
@@ -38,9 +24,6 @@ traits:
     if:
       type: string
       regex: "^[0-9A-Fa-f]{512,}$"
-    not:
-      # Sequential digit pair table (00010203...9899) used for fast integer-to-string conversion
-      - regex: "^0001020304050607"
     attack: "T1140"
     mbc: "C0043"
 

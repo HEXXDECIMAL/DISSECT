@@ -39,33 +39,6 @@ traits:
       # Match fixed-length custom base64-like alphabets (64 chars)
       # to avoid matching API/method signatures that include symbols.
       regex: "^[a-zA-Z0-9><*%#!()@$&\\-+]{64}$"
-    not:
-      # Exclude strings lacking lowercase letters (not alphabet-like)
-      - regex: "^[^a-z]*$"
-      # Exclude strings lacking uppercase letters
-      - regex: "^[^A-Z]*$"
-      # Exclude strings lacking digits
-      - regex: "^[^0-9]*$"
-      # Exclude strings lacking custom special chars
-      - regex: "^[^><*%#!()@$&]*$"
-      # Exclude strings with 2 or fewer special chars (weak custom alphabet signal)
-      - regex: "^(?:[a-zA-Z0-9+\\-]*[><*%#!()@$&]){0,2}[a-zA-Z0-9+\\-]*$"
-      # Exclude standard/base64url alphabet-like strings
-      - regex: "^[A-Za-z0-9+/=]{64}$"
-      - regex: "^[A-Za-z0-9_\\-]{64}$"
-      # Exclude printf/format strings (have % at start with letter codes)
-      - regex: "^%[a-zA-Z@]"
-      # Exclude simple two-char format sequences
-      - regex: "^%[@sd]"
-      # Exclude XML/HTML tags
-      - regex: "^<"
-      - regex: ">$"
-      # Exclude Apple OS constants (all uppercase)
-      - regex: "^[A-Z][A-Z0-9_]+$"
-      # Exclude strings with common English words (help text, descriptions)
-      - regex: "(?i)(with|line|author|newline|text|format|string)"
-      # Exclude strings that are mostly hyphens (formatting separators)
-      - regex: "-{10,}"
 
 composite_rules:
   # libcurl network dropper: downloads content via libcurl, writes to disk, executes via shell

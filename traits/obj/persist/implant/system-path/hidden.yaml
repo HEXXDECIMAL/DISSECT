@@ -27,8 +27,6 @@ traits:
     if:
       type: content
       regex: '/bin/\.[A-Za-z0-9][A-Za-z0-9_-]*/'
-    not:
-      - regex: '/usr/bin/'
 
   # Hidden directory in /sbin
   - id: sbin-hidden-dir
@@ -74,8 +72,6 @@ traits:
     if:
       type: content
       regex: '/(usr/)?lib(64)?/\.[A-Za-z0-9][A-Za-z0-9_-]*/'
-    not:
-      - "/.build-id/"
 
   # Hidden directory in user home - classic backdoor staging (e.g., /home/www/.Xl1/kde)
   # ATT&CK: T1564.001 (Hide Artifacts: Hidden Files and Directories)
@@ -86,24 +82,6 @@ traits:
     if:
       type: content
       regex: '/home/\w+/\.[A-Za-z0-9][A-Za-z0-9_-]*/'
-    not:
-      - "/.rvm/"
-      - "/.cargo/"
-      - "/.gem/"
-      - "/.bundle/"
-      - "/.local/"
-      - "/.cache/"
-      - "/.config/"
-      - "/.npm/"
-      - "/.node_modules/"
-      - "/.vscode/"
-      - "/.ssh/"
-      - "/.gnupg/"
-      - "/.aws/"
-      - "/.azure/"
-      - "/.docker/"
-      - "/.python/"
-      - "/.conda/"
 
   # Hidden directory in web server paths - common webshell staging
   - id: var-www-hidden-dir

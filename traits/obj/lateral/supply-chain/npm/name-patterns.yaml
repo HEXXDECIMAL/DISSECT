@@ -165,11 +165,6 @@ traits:
       type: content
       regex: '"name":\s*"mysql-[^"]*"'
       case_insensitive: true
-    not:
-      - exact: "mysql-connector"
-      - exact: "mysql-promise"
-      - exact: "mysql-pool"
-      - exact: "mysql-wrapper"
 
   - id: name-express-prefix
     desc: Package name prefixes "express"

@@ -18,8 +18,6 @@ traits:
     if:
       type: string
       regex: "(?i)ddos\\s*(?:attack|flood|tool|bot|module|method|type)|(?:launch|start|run|execute)\\s*ddos|dd0s"
-    not:
-      - regex: "(?i)anti.?ddos|ddos.?protect|ddos.?mitiga"
 
   - id: syn-flood
     desc: SYN flood attack reference

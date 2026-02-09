@@ -85,9 +85,6 @@ traits:
     if:
       type: string
       regex: "os\\.path\\.join\\(.{0,50}\\.py.{0,30}\\)"
-    not:
-      - type: string
-        regex: "os\\.path\\.join\\(.{0,50}__init__\\.py"
 
   # === cmdclass override atomic indicators ===
   - id: cmdclass-dict

@@ -56,9 +56,6 @@ traits:
       regex: "[A-Za-z0-9+/]{40,}[=]{0,3}"
       exclude_patterns:
         - "^ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\\+/=?$"
-    # Keep not as fallback if needed in other contexts
-    not:
-      - "ABCDEF"
     unless:
       - type: content
         regex: "postgresql|libgcc|libc"

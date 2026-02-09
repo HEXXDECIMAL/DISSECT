@@ -1,0 +1,46 @@
+traits:
+  # This should trigger a warning - using not: with substr match
+  - id: test-substr-with-not
+    desc: Test trait with substr and not
+    crit: notable
+    conf: 0.8
+    for: [elf]
+    if:
+      type: string
+      substr: "test"
+    not:
+      - "testing"
+
+  # This should trigger a warning - using not: with exact match
+  - id: test-exact-with-not
+    desc: Test trait with exact and not
+    crit: notable
+    conf: 0.8
+    for: [elf]
+    if:
+      type: string
+      exact: "test"
+    not:
+      - "test"
+
+  # This should NOT trigger a warning - using not: with regex match (correct usage)
+  - id: test-regex-with-not
+    desc: Test trait with regex and not
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: "test.{0,50}"
+    not:
+      - "testing"
+
+  # This should trigger a warning - not: exception doesn't match the regex
+  - id: test-regex-bad-exception
+    desc: Test trait with non-matching not exception
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: "c?rl"
+    not:
+      - "hurl"

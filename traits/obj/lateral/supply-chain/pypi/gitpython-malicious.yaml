@@ -52,11 +52,6 @@ traits:
     if:
       type: string
       regex: "(not|no|anti|un|dis)[-_a-z0-9]{0,12}(grabber|logger|stealer|malware|virus)|^[a-z]{8,15}[0-9]{3,5}$"
-    not:
-      - "datetime64"
-      - "timedelta64"
-      - "manylinux2010"
-      - "manylinux2014"
 
   # === Post-Install Execution ===
   - id: cmdclass-custom-install

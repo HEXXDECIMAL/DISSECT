@@ -99,14 +99,6 @@ traits:
     if:
       type: content
       regex: '\w+\[\w+\]\s*\('
-    not:
-      - "process.env["
-      - "module.exports["
-      - "global["
-      - "console["
-      - "Array["
-      - "Object["
-      - "Math["
 
   # === VM runIn atomic indicators ===
   - id: vm-runIn-method

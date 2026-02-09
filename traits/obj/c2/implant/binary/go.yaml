@@ -47,8 +47,6 @@ traits:
     if:
       type: string
       regex: '(xorBytes|XORKeyStream)'
-    not:
-      - "crypto/cipher"
 
   # Monitor/worker pattern common in C2 agents
   - id: go-monitor-worker
@@ -76,11 +74,6 @@ traits:
     if:
       type: string
       regex: '/var/(tmp|log)/[a-z]{4,8}\.(log|l)$'
-    not:
-      - "/var/log/syslog"
-      - "/var/log/messages"
-      - "/var/log/auth.log"
-      - "/var/log/kern.log"
 
   # DoPost pattern for C2 beacon
   - id: go-http-post-beacon

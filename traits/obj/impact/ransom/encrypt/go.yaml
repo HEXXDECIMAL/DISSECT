@@ -22,10 +22,6 @@ traits:
     if:
       type: string
       regex: '[A-Za-z][A-Za-z0-9_]{6,14}\.\(\*[A-Za-z][A-Za-z0-9_]{6,14}\)\.(Encrypt|Decrypt)$'
-    not:
-      - "QUIC"
-      - "TLS"
-      - "crypto/"
 
   # Go obfuscated XORKeyStream (stream cipher operations on obfuscated packages)
   # Matches patterns like: fyxPC7a.(*BNEsQlmUYze).XORKeyStream
@@ -37,9 +33,6 @@ traits:
     if:
       type: string
       regex: '[A-Za-z][A-Za-z0-9_]{5,14}\.\(\*[A-Za-z][A-Za-z0-9_]{6,14}\)\.XORKeyStream'
-    not:
-      - "crypto/"
-      - "cipher."
 
   # Go obfuscated key generation (asymmetric/symmetric key operations)
   # Matches patterns like: CxBOmNK.(*jgRRCb).GenerateKey
@@ -51,10 +44,6 @@ traits:
     if:
       type: string
       regex: '[A-Za-z][A-Za-z0-9_]{5,14}\.\(\*[A-Za-z][A-Za-z0-9_]{5,14}\)\.(GenerateKey|NewPrivateKey|NewPublicKey)'
-    not:
-      - "crypto/"
-      - "ecdh."
-      - "ecdsa."
 
   # Go ransomware EncryptFilename function
   - id: go-encrypt-filename-func
@@ -135,18 +124,6 @@ traits:
     if:
       type: string
       regex: '\b[a-z][a-z0-9]{6,9}\.\(\*[A-Z][a-zA-Z0-9]{6,9}\)\.'
-    not:
-      - "strconv."
-      - "reflect."
-      - "strings."
-      - "godebug."
-      - "syscall."
-      - "runtime."
-      - "filepath."
-      - "internal/"
-      - "windows."
-      - "context."
-      - "testing."
 
   # Go crypto/rsa EncryptOAEP - asymmetric encryption for ransomware
   - id: go-rsa-encrypt-oaep

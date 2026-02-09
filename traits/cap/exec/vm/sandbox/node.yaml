@@ -155,9 +155,6 @@ traits:
     if:
       type: string
       regex: '[a-zA-Z0-9+/=]{20,}'
-    not:
-      - "../"
-      - "./"
 
   # HTTP/HTTPS protocol patterns
   - id: http-protocol-string

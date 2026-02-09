@@ -82,11 +82,6 @@ traits:
     if:
       type: string
       substr: "Local"
-    not:
-      - "localhost"
-      - "localization"
-      - "localize"
-      - "Localize"
 
   - id: suspicious-python-version
     desc: Non-standard Python version format
@@ -103,9 +98,6 @@ traits:
     if:
       type: string
       regex: '[A-Za-z]+\\\\[A-Za-z]+\\\\[A-Za-z]+'
-    not:
-      - "node_modules" # Common in legitimate paths
-      - "package.json"
 
 composite_rules:
   # PATH prepending via AST analysis (most precise)

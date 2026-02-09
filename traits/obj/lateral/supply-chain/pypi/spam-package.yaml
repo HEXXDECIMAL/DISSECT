@@ -27,9 +27,6 @@ traits:
       type: string
       # Common affiliate networks used for spam
       regex: "\\b(?:hop\\.clickbank\\.net|jvz[0-9]*\\.com|warriorplus\\.com|digistore24\\.com|clickbooth\\.com|shareasale\\.com|cj\\.com|impact\\.com)\\b"
-    not:
-      - type: string
-        regex: "^https?://(?:www\\.)?(?:shareasale|cj|impact)\\.com/?$"  # Homepages OK
 
   - id: tid-tracking-param
     desc: tid= tracking parameter in URL

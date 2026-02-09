@@ -51,30 +51,6 @@ traits:
     if:
       type: string
       regex: "(githuk\\.|gihhub\\.|gituhb\\.|githbu\\.|githyb\\.)[a-z]{2,}"
-    not:
-      - "github.com"
-      - "github.io"
-      - "githubusercontent.com"
-      - "github.blog"
-      - "github.community"
-      - "github.dev"
-      - "github.help"
-      - "github.jobs"
-      - "github.market"
-      - "github.shop"
-      - "github.status"
-      - "githubapp.com"
-      - "githubstatus.com"
-      - "github.yml"
-      - "github.yaml"
-      - "github.json"
-      - "github.rb"
-      - "github.sh"
-      - "github.js"
-      - "github.png"
-      - "github.svg"
-      - "github.md"
-      - "github.txt"
 
   # === Popular Service Typosquatting ===
   - id: typosquat-google-domain

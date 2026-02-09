@@ -69,9 +69,6 @@ traits:
     if:
       type: string
       regex: "(?:cmd|command|code|type)[\\s=:]*501"
-    not:
-      - regex: "HTTP/[0-9]\\.[0-9] 501"
-
   - id: c2-cmd-exec
     desc: C2 command execution (502)
     crit: notable
@@ -80,9 +77,6 @@ traits:
     if:
       type: string
       regex: "(?:cmd|command|code|type)[\\s=:]*502"
-    not:
-      - regex: "HTTP/[0-9]\\.[0-9] 502"
-
   - id: c2-cmd-download
     desc: C2 download command (503)
     crit: notable
@@ -91,9 +85,6 @@ traits:
     if:
       type: string
       regex: "(?:cmd|command|code|type)[\\s=:]*503"
-    not:
-      - regex: "HTTP/[0-9]\\.[0-9] 503"
-
   - id: c2-cmd-kill
     desc: C2 self-terminate command (504)
     crit: notable
@@ -102,9 +93,6 @@ traits:
     if:
       type: string
       regex: "(?:cmd|command|code|type)[\\s=:]*504"
-    not:
-      - regex: "HTTP/[0-9]\\.[0-9] 504"
-
   # === Protocol Structure ===
   - id: c2-protocol-builder
     desc: C2 protocol string builder

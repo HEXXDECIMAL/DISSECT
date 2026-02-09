@@ -114,8 +114,6 @@ traits:
     if:
       type: string
       regex: "kill_services|kill_processes"
-    not:
-      - "botkill"
 
   - id: ransom-note-filename
     desc: Ransom note filename patterns
@@ -134,9 +132,6 @@ traits:
       type: string
       # Require at least 2 chars before extension to avoid OpenSSL internals like d.encrypted
       regex: '[a-zA-Z0-9_]{2,}\.(crypt|encrypted|locked|enc|crypted|cry)$'
-    not:
-      - "exithook.locked"
-      - regex: '^[a-z_][a-z0-9_]*\.(crypt|encrypted|locked|enc|crypted|cry)$'
     unless:
       - type: content
         regex: "matplotlib|tex"
