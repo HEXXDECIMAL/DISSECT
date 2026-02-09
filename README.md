@@ -17,11 +17,15 @@ DISSECT does all three. It's built for supply chain defenders and threat hunters
 
 ## What It Analyzes
 
-**Binaries**: Mach-O, ELF, PE
-**Source**: Shell, Python, JavaScript, TypeScript, Go, Rust, Java, Ruby, C, PHP, Lua, Perl, PowerShell, C#, Swift, Objective-C, Groovy, Scala, Zig, Elixir
-**Packages**: npm, Chrome extensions, VSCode extensions
-**Archives**: ZIP, TAR, 7z, RAR, XAR (unpacked recursively)
-**Bytecode**: Java .class files and JAR constant pool analysis
+- **Binaries**: Mach-O, ELF, PE
+- **Source**: Shell, Python, JavaScript, TypeScript, Go, Rust, Java, Ruby, C, PHP, Lua, Perl, PowerShell, C#, Swift, Objective-C, Groovy, Scala, Zig, Elixir
+- **Packages**: npm, Chrome extensions, VSCode extensions
+- **Archives**: ZIP, TAR, 7z, RAR, XAR (unpacked recursively)
+- **Bytecode**: Java .class files and JAR constant pool analysis
+
+## Try It!
+
+Try our [demo web interface](https://dissect-web-362492245899.us-central1.run.app/) if you are curious about real-world behavior.
 
 ## Quick Start
 
