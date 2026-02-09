@@ -286,9 +286,9 @@ composite_rules:
     downgrade:
       any:
         - id: meta/apple/system-component
-        - id: cap/exec/load/library/debugger-tool-marker
-        - id: cap/exec/load/library/system-lib-marker
-        - id: cap/exec/load/library/shell-interpreter
+        - id: cap/exec/load/library::debugger-tool-marker
+        - id: cap/exec/load/library::system-lib-marker
+        - id: cap/exec/load/library::shell-interpreter
 
   # PTY-based network backdoor - combines PTY with network operations
   # NOTE: This matches legitimate shells (/bin/bash) which have all these symbols
@@ -304,26 +304,26 @@ composite_rules:
     for: [elf, macho]
     platforms: [macos, linux, unix]
     all:
-      - id: cap/comm/socket/create/create
-      - id: cap/comm/socket/connect/connect
-      - id: cap/process/fork/clone/fork
+      - id: cap/comm/socket/create::create
+      - id: cap/comm/socket/connect::connect
+      - id: cap/process/fork/clone::fork
     needs: 1
     any:
       - id: posix-openpt
       - id: openpty
       - id: grantpt
       - id: unlockpt
-      - id: cap/comm/socket/receive/receive
-      - id: cap/comm/socket/send/send
-      - id: cap/exec/command/shell/c-execve
-      - id: cap/exec/command/shell/bin-sh
+      - id: cap/comm/socket/receive::receive
+      - id: cap/comm/socket/send::send
+      - id: cap/exec/command/shell::c-execve
+      - id: cap/exec/command/shell::bin-sh
     # Downgrade for Apple system components (e.g., /bin/bash), debuggers, graphics libs, and system libraries
     downgrade:
       any:
         - id: meta/apple/system-component
-        - id: cap/exec/load/library/debugger-tool-marker
-        - id: cap/exec/load/library/system-lib-marker
-        - id: cap/exec/load/library/shell-interpreter
-        - id: cap/exec/load/library/graphics-lib-marker
-        - id: cap/exec/load/library/x11-ipc-lib-marker
-        - id: cap/exec/load/library/network-lib-marker
+        - id: cap/exec/load/library::debugger-tool-marker
+        - id: cap/exec/load/library::system-lib-marker
+        - id: cap/exec/load/library::shell-interpreter
+        - id: cap/exec/load/library::graphics-lib-marker
+        - id: cap/exec/load/library::x11-ipc-lib-marker
+        - id: cap/exec/load/library::network-lib-marker

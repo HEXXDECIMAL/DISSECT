@@ -16,8 +16,8 @@ composite_rules:
     mbc: "F0004"
     for: [go]
     all:
-      - id: obj/persist/startup/registry/windows/windows-startup-folder
-      - id: cap/fs/file/operations/go/os-create
+      - id: obj/persist/startup/registry::windows-startup-folder
+      - id: cap/fs/file/operations::os-create
 
   # Startup persistence + system shutdown (complete destructive chain)
   - id: startup-shutdown-chain
@@ -28,6 +28,6 @@ composite_rules:
     mbc: "F0004"
     for: [go]
     all:
-      - id: obj/persist/startup/registry/windows/windows-startup-folder
-      - id: cap/fs/file/operations/go/os-create
-      - id: obj/impact/system/shutdown/shutdown-immediate-reboot
+      - id: obj/persist/startup/registry::windows-startup-folder
+      - id: cap/fs/file/operations::os-create
+      - id: obj/impact/system/shutdown::shutdown-immediate-reboot

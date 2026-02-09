@@ -26,9 +26,9 @@ composite_rules:
     # Exclude legitimate tools that do network operations
     downgrade:
       any:
-        - id: cap/exec/load/library/debugger-tool-marker
-        - id: cap/exec/load/library/system-lib-marker
-        - id: cap/exec/load/library/network-lib-marker
+        - id: cap/exec/load/library::debugger-tool-marker
+        - id: cap/exec/load/library::system-lib-marker
+        - id: cap/exec/load/library::network-lib-marker
         - id: cap/comm/ssh/connect/connect
         - id: meta/quality/has-help
 
@@ -47,22 +47,6 @@ composite_rules:
 
   # === IoT Credential Brute Force ===
   # NOTE: IoT credential attack detection is defined in lateral/brute-force/iot-creds/traits.yaml
-
-  - id: router-brute-force
-    desc: Router credential brute force attack
-    crit: suspicious
-    conf: 0.85
-    attack: "T1110.001"
-    for: [all]
-    all:
-      - id: ssh-dir-ref
-      - id: etc-hosts-ref
-    needs: 2
-    any:
-      - id: weak-pass-root123
-      - id: weak-pass-admin123
-      - id: weak-pass-passw0rd
-      - id: weak-pass-qwerty
 
   # === Random IP Scanning ===
 
@@ -90,7 +74,7 @@ composite_rules:
     mbc: "E1046"
     for: [all]
     all:
-      - id: known/tools/offensive/nmap-ref
+      - id: known/tools/offensive::nmap-ref
       - id: port-ref
     any:
       - id: cidr-range

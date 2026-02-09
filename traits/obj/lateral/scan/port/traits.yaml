@@ -357,7 +357,7 @@ traits:
     for: [scripts]
     if:
       type: string
-      regex: '\b21\b'
+      word: "21"
 
   - id: port-number-ssh
     desc: SSH port number (22)
@@ -367,7 +367,7 @@ traits:
     for: [scripts]
     if:
       type: string
-      regex: '\b22\b'
+      word: "22"
 
   - id: port-number-http
     desc: HTTP port number (80)
@@ -377,7 +377,7 @@ traits:
     for: [scripts]
     if:
       type: string
-      regex: '\b80\b'
+      word: "80"
 
   - id: port-number-https
     desc: HTTPS port number (443)
@@ -387,7 +387,7 @@ traits:
     for: [scripts]
     if:
       type: string
-      regex: '\b443\b'
+      word: "443"
 
   # === CIDR Network Range Scanning ===
 
@@ -502,7 +502,7 @@ composite_rules:
     # "qwerty" appears legitimately in X11/graphics libraries (keyboard layouts, test strings)
     downgrade:
       any:
-        - id: cap/exec/load/library/graphics-lib-marker
+        - id: cap/exec/load/library::graphics-lib-marker
         - id: cap/exec/load/x11-ref
 
   # Root exploitation terminology

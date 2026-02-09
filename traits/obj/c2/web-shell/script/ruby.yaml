@@ -51,8 +51,8 @@ composite_rules:
     any:
       - id: web-shell-cmd-param
       - id: php-shell-function
-      - id: cap/data/control-flow/analysis/ruby/ruby-while-true
-      - id: cap/exec/command/shell/ruby-system
+      - id: cap/data/control-flow/analysis::ruby-while-true
+      - id: cap/exec/command/shell::ruby-system
 
   # === Interactive Shell Client ===
   - id: interactive-shell-client
@@ -62,9 +62,9 @@ composite_rules:
     attack: "T1059"
     needs: 4
     any:
-      - id: cap/os/console/io/ruby/stdin-gets
+      - id: cap/os/console/io::stdin-gets
       - id: shell-prompt-string
-      - id: cap/os/console/io/ruby/exit-command-check
-      - id: cap/data/control-flow/analysis/ruby/ruby-while-true
+      - id: cap/os/console/io::exit-command-check
+      - id: cap/data/control-flow/analysis::ruby-while-true
       - id: ruby-open-uri
-      - id: cap/exec/command/shell/ruby-system
+      - id: cap/exec/command/shell::ruby-system

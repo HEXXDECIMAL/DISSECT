@@ -89,7 +89,6 @@ composite_rules:
       - id: payload-blob-metrics
     none:
       - id: meta/signed/platform::apple
-      - id: meta/lang/cpp
 
   - id: binary-to-c-array
     desc: Binary to C array converter

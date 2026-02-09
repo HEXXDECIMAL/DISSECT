@@ -8,8 +8,8 @@ composite_rules:
     conf: 0.90
     for: ["pe", "dll"]
     all:
-      - id: cap/exec/native/api/load-library-a
-      - id: cap/exec/native/api/get-proc-address
+      - id: cap/exec/native/api::load-library-a
+      - id: cap/exec/native/api::get-proc-address
 
   - id: dynamic-load-extended
     desc: Extended dynamic loading with alternate APIs
@@ -17,5 +17,5 @@ composite_rules:
     conf: 0.85
     for: ["pe", "dll"]
     any:
-      - id: cap/exec/native/api/load-library-ex
-      - id: cap/exec/native/api/load-library-a
+      - id: cap/exec/native/api::load-library-ex
+      - id: cap/exec/native/api::load-library-a

@@ -79,10 +79,10 @@ composite_rules:
     mbc: "B0030"
     for: [macho]
     all:
-      - id: cap/time/schedule/timers/nstimer-scheduled
-      - id: cap/comm/http/request/nsurlsession-http-request
-      - id: obj/c2/network/beacon/nsurl-post-json
-      - id: obj/c2/network/beacon/json-sdf-payload
+      - id: cap/time/schedule/timers::nstimer-scheduled
+      - id: cap/comm/http/request::nsurlsession-http-request
+      - id: obj/c2/network/beacon::nsurl-post-json
+      - id: obj/c2/network/beacon::json-sdf-payload
 
   - id: objc-c2-command-execution
     desc: Objective-C C2 RAT
@@ -92,6 +92,6 @@ composite_rules:
     mbc: "B0030"
     for: [macho]
     all:
-      - id: obj/c2/network/beacon/objc-http-c2-beacon
-      - id: obj/c2/network/beacon/nstask-launch
-      - id: obj/c2/network/beacon/command-execution-response
+      - id: obj/c2/network/beacon::objc-http-c2-beacon
+      - id: obj/c2/network/beacon::nstask-launch
+      - id: obj/c2/network/beacon::command-execution-response

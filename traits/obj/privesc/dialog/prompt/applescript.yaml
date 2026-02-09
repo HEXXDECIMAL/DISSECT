@@ -67,5 +67,5 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     all:
-      - { id: obj/anti-analysis/window-hide/ui/applescript/do-shell-script }
+      - { id: obj/anti-analysis/window-hide/ui::do-shell-script }
       - { id: with-admin-privileges }

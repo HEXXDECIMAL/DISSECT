@@ -114,13 +114,3 @@ composite_rules:
       - id: devnull-redirect
       - id: hidden-dir-execution
 
-  - id: advanced-payload-exec
-    desc: Advanced payload execution
-    crit: hostile
-    conf: 0.98
-    attack: "T1059"
-    mbc: "E1059"
-    platforms: [all]
-    all:
-      - id: compiler-execution
-      - id: stealth-execution

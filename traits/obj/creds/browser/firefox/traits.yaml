@@ -126,7 +126,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      regex: "\\bnss3\\b"
+      word: "nss3"
 
   - id: libnss3-ref
     desc: libnss3 library reference

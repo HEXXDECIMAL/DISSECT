@@ -220,27 +220,3 @@ composite_rules:
 
   # Full dropper chain: fetch + write + execute + delete (hostile)
   # complexity = file_types(1) + all(4) = 5
-  - id: fetch-dropper-full
-    desc: Complete fetch dropper chain
-    crit: hostile
-    conf: 0.98
-    attack: "T1105"
-    for: [javascript, typescript]
-    all:
-      - id: fetch-call
-      - id: file-write
-      - id: process-exec
-      - id: file-delete
-
-  # Fetch + write temp JS + execute (hostile)
-  # complexity = file_types(1) + all(3) = 4
-  - id: fetch-temp-exec
-    desc: Fetch to temp file and execute
-    crit: hostile
-    conf: 0.95
-    attack: "T1105"
-    for: [javascript, typescript]
-    all:
-      - id: fetch-call
-      - id: temp-js
-      - id: process-exec

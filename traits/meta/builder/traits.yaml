@@ -600,8 +600,8 @@ composite_rules:
       - id: github-runner-worker
     any:
       - id: github-actions
-      - id: cap/fs/proc/process/process-pid-cmdline
-      - id: cap/fs/proc/process/process-pid-maps
+      - id: cap/fs/proc/process::process-pid-cmdline
+      - id: cap/fs/proc/process::process-pid-maps
 
   # GitLab CI composite (migrated from YARA)
   - id: gitlab-ci

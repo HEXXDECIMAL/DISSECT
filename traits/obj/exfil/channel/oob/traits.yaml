@@ -279,7 +279,7 @@ composite_rules:
     mbc: "B0030"
     for: [javascript]
     all:
-      - { id: cap/crypto/symmetric/aes/crypto-require-call }
+      - { id: cap/crypto/symmetric/aes::crypto-require-call }
       - { id: oob-domains }
 
   - id: multiple-encoded-indicators

@@ -111,7 +111,7 @@ composite_rules:
     any:
       - id: histfile-devnull
       - id: export-histfile
-      - id: obj/anti-forensics/log-clear/system/unset-histfile
+      - id: obj/anti-forensics/log-clear/system::unset-histfile
       - id: histsize-zero
       - id: histfilesize-zero
 
@@ -140,17 +140,6 @@ composite_rules:
       - id: prompt-command-empty
       - id: prompt-command-unset
 
-  # Terminal setup (migrated from YARA)
-  - id: term-setup
-    desc: Sets TERM variable (backdoor shell
-    crit: notable
-    conf: 0.7
-    needs: 1
-    any:
-      - id: term-vt100
-      - id: term-xterm
-      - id: term-linux
-
   # Combined anti-forensics helper
   - id: history-clearing
     desc: Shell history clearing techniques
@@ -160,7 +149,6 @@ composite_rules:
     any:
       - id: histfile-null
       - id: mysql-histfile-null
-      - id: term-setup
 
   # BPFDoor-style anti-forensics setup
   - id: backdoor-shell-setup
@@ -172,4 +160,3 @@ composite_rules:
     all:
       - id: history-clearing
       - id: prompt-command-clear
-      - id: term-setup

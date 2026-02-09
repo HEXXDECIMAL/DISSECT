@@ -22,3 +22,10 @@ traits:
     if:
       type: content
       regex: "Base64\\.urlsafe_decode64"
+
+  - id: decode64-symbol
+    desc: decode64 symbol call
+    conf: 0.88
+    if:
+      type: symbol
+      exact: "decode64"

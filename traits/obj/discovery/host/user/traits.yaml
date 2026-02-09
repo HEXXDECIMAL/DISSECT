@@ -227,7 +227,7 @@ composite_rules:
     needs: 1
     any:
       - id: whoami
-      - id: cap/fs/path/config/accounts/etc-passwd
+      - id: cap/fs/path/config/accounts::etc-passwd
       - id: dscl
       - id: finger
       - id: last-cmd

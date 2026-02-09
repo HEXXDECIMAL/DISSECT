@@ -11,7 +11,7 @@ composite_rules:
     for: [python]
     all:
       - id: meta/import/python/requests
-      - id: py-post-generic
+      - id: cap/comm/http/request::py-post-generic
     any:
-      - id: py-rmtree
-      - id: py-remove
+      - id: cap/fs/file/delete::shutil-rmtree
+      - id: cap/fs/file/delete::os-remove

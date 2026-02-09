@@ -55,8 +55,8 @@ composite_rules:
     mbc: "B0029"
     for: [go]
     all:
-      - id: obj/impact/system/shutdown/windows-shutdown-cmd
-      - id: obj/impact/system/shutdown/shutdown-force-restart
+      - id: obj/impact/system/shutdown::windows-shutdown-cmd
+      - id: obj/impact/system/shutdown::shutdown-force-restart
 
   # Full shutdown with force + no delay (immediate reboot)
   - id: shutdown-immediate-reboot
@@ -67,6 +67,6 @@ composite_rules:
     mbc: "B0029"
     for: [go]
     all:
-      - id: obj/impact/system/shutdown/windows-shutdown-cmd
-      - id: obj/impact/system/shutdown/shutdown-force-flag
-      - id: obj/impact/system/shutdown/shutdown-no-delay
+      - id: obj/impact/system/shutdown::windows-shutdown-cmd
+      - id: obj/impact/system/shutdown::shutdown-force-flag
+      - id: obj/impact/system/shutdown::shutdown-no-delay

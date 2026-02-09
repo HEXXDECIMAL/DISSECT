@@ -354,7 +354,7 @@ composite_rules:
       - id: libssl-ref
       - id: libcrypto-ref
       - id: libcurl-ref
-      - id: cap/comm/ssh/client/libssh
+      - id: cap/comm/ssh/client::libssh
       - id: x11-ipc-lib-marker
 
   - id: video-lib-marker

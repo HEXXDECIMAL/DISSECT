@@ -118,4 +118,4 @@ composite_rules:
     attack: "T1552.001"
     all:
       - id: github-token-indicators
-      - id: cap/os/env/vars/env-access
+      - id: cap/os/env/vars::env-access

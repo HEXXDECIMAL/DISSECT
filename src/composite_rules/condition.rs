@@ -56,6 +56,17 @@ fn normalize_any_matchers(
     Option<String>,
     Option<String>,
 ) {
+    // If we have a standalone word field with no other matchers, preserve it
+    if word.is_some()
+        && exact.is_none()
+        && substr.is_none()
+        && regex.is_none()
+        && any.is_none()
+        && allow_word
+    {
+        return (None, None, None, word);
+    }
+
     let mut fragments = matcher_to_regex_fragment(exact, substr, regex, word);
 
     if let Some(items) = any {
@@ -1788,13 +1799,107 @@ impl Condition {
                         .all(|c| c.is_alphanumeric() || c == '_' || c == '-')
                 {
                     return Some(format!(
-                        "regex is a simple word boundary pattern - use 'type: word' with 'exact: \"{}\"' instead",
+                        "regex is a simple word boundary pattern - use 'word: \"{}\"' instead",
                         word
                     ));
                 }
             }
         }
         None
+    }
+
+    /// Check for short case-insensitive patterns that have high collision risk.
+    /// Rules:
+    /// - 3 or less characters (alphabetic only): always warn
+    /// - 4 characters (alphabetic only): only warn if applies to more than 2 file types
+    /// Mixed alphanumeric strings (like "x509") are exempt - they have fewer variants
+    /// Returns a warning message if found, None otherwise.
+    pub fn check_short_case_insensitive(&self, file_type_count: usize) -> Option<String> {
+        let check_pattern = |s: &str| -> Option<String> {
+            let len = s.len();
+            // Only check strings that are entirely alphabetic
+            // Mixed alphanumeric like "x509" have fewer collision variants
+            if !s.chars().all(|c| c.is_alphabetic()) {
+                return None;
+            }
+
+            if len <= 3 {
+                return Some(format!(
+                    "case-insensitive match on very short alphabetic string '{}' ({} chars) - high collision risk, use case-sensitive or longer pattern",
+                    s, len
+                ));
+            } else if len == 4 && file_type_count > 2 {
+                return Some(format!(
+                    "case-insensitive match on short alphabetic string '{}' (4 chars) applies to {} file types - high collision risk, limit to 1-2 types or use case-sensitive",
+                    s, file_type_count
+                ));
+            }
+            None
+        };
+
+        match self {
+            Condition::String {
+                exact: Some(s),
+                case_insensitive: true,
+                ..
+            } => check_pattern(s),
+            Condition::String {
+                substr: Some(s),
+                case_insensitive: true,
+                ..
+            } => check_pattern(s),
+            Condition::String {
+                word: Some(s),
+                case_insensitive: true,
+                ..
+            } => check_pattern(s),
+            Condition::Content {
+                exact: Some(s),
+                case_insensitive: true,
+                ..
+            } => check_pattern(s),
+            Condition::Content {
+                substr: Some(s),
+                case_insensitive: true,
+                ..
+            } => check_pattern(s),
+            Condition::Content {
+                word: Some(s),
+                case_insensitive: true,
+                ..
+            } => check_pattern(s),
+            Condition::Ast {
+                exact: Some(s),
+                case_insensitive: true,
+                ..
+            } => check_pattern(s),
+            Condition::Ast {
+                substr: Some(s),
+                case_insensitive: true,
+                ..
+            } => check_pattern(s),
+            Condition::Base64 {
+                exact: Some(s),
+                case_insensitive: true,
+                ..
+            } => check_pattern(s),
+            Condition::Base64 {
+                substr: Some(s),
+                case_insensitive: true,
+                ..
+            } => check_pattern(s),
+            Condition::Xor {
+                exact: Some(s),
+                case_insensitive: true,
+                ..
+            } => check_pattern(s),
+            Condition::Xor {
+                substr: Some(s),
+                case_insensitive: true,
+                ..
+            } => check_pattern(s),
+            _ => None,
+        }
     }
 
     /// Pre-compile regexes in this condition for performance.

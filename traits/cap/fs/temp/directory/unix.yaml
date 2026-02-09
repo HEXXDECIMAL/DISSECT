@@ -32,4 +32,4 @@ composite_rules:
     attack: T1083
     all:
       - id: tmpdir-env-var
-      - id: cap/os/env/vars/getenv
+      - id: cap/os/env/vars::getenv

@@ -346,3 +346,285 @@ pub(crate) fn apply_composite_defaults(
         downgrade: raw.downgrade,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // ==================== is_unset Tests ====================
+
+    #[test]
+    fn test_is_unset_none_value() {
+        assert!(!is_unset(&None));
+    }
+
+    #[test]
+    fn test_is_unset_none_keyword_lowercase() {
+        assert!(is_unset(&Some("none".to_string())));
+    }
+
+    #[test]
+    fn test_is_unset_none_keyword_uppercase() {
+        assert!(is_unset(&Some("NONE".to_string())));
+    }
+
+    #[test]
+    fn test_is_unset_none_keyword_mixed() {
+        assert!(is_unset(&Some("NoNe".to_string())));
+    }
+
+    #[test]
+    fn test_is_unset_other_value() {
+        assert!(!is_unset(&Some("something".to_string())));
+    }
+
+    // ==================== apply_string_default Tests ====================
+
+    #[test]
+    fn test_apply_string_default_raw_value() {
+        let result = apply_string_default(
+            Some("custom".to_string()),
+            &Some("default".to_string()),
+        );
+        assert_eq!(result, Some("custom".to_string()));
+    }
+
+    #[test]
+    fn test_apply_string_default_uses_default() {
+        let result = apply_string_default(None, &Some("default".to_string()));
+        assert_eq!(result, Some("default".to_string()));
+    }
+
+    #[test]
+    fn test_apply_string_default_none_unsets() {
+        let result = apply_string_default(
+            Some("none".to_string()),
+            &Some("default".to_string()),
+        );
+        assert_eq!(result, None);
+    }
+
+    #[test]
+    fn test_apply_string_default_both_none() {
+        let result = apply_string_default(None, &None);
+        assert_eq!(result, None);
+    }
+
+    // ==================== apply_vec_default Tests ====================
+
+    #[test]
+    fn test_apply_vec_default_raw_value() {
+        let result = apply_vec_default(
+            Some(vec!["a".to_string(), "b".to_string()]),
+            &Some(vec!["default".to_string()]),
+        );
+        assert_eq!(result, Some(vec!["a".to_string(), "b".to_string()]));
+    }
+
+    #[test]
+    fn test_apply_vec_default_uses_default() {
+        let result = apply_vec_default(None, &Some(vec!["default".to_string()]));
+        assert_eq!(result, Some(vec!["default".to_string()]));
+    }
+
+    #[test]
+    fn test_apply_vec_default_none_unsets() {
+        let result = apply_vec_default(
+            Some(vec!["none".to_string()]),
+            &Some(vec!["default".to_string()]),
+        );
+        assert_eq!(result, None);
+    }
+
+    #[test]
+    fn test_apply_vec_default_none_mixed() {
+        // If "none" appears anywhere in the vec, it unsets
+        let result = apply_vec_default(
+            Some(vec!["value".to_string(), "NONE".to_string()]),
+            &Some(vec!["default".to_string()]),
+        );
+        assert_eq!(result, None);
+    }
+
+    // ==================== parse_criticality Tests ====================
+
+    #[test]
+    fn test_parse_criticality_inert() {
+        assert_eq!(parse_criticality("inert"), Criticality::Inert);
+        assert_eq!(parse_criticality("INERT"), Criticality::Inert);
+    }
+
+    #[test]
+    fn test_parse_criticality_notable() {
+        assert_eq!(parse_criticality("notable"), Criticality::Notable);
+        assert_eq!(parse_criticality("NOTABLE"), Criticality::Notable);
+    }
+
+    #[test]
+    fn test_parse_criticality_suspicious() {
+        assert_eq!(parse_criticality("suspicious"), Criticality::Suspicious);
+        assert_eq!(parse_criticality("SUSPICIOUS"), Criticality::Suspicious);
+    }
+
+    #[test]
+    fn test_parse_criticality_hostile() {
+        assert_eq!(parse_criticality("hostile"), Criticality::Hostile);
+        assert_eq!(parse_criticality("HOSTILE"), Criticality::Hostile);
+        assert_eq!(parse_criticality("malicious"), Criticality::Hostile);
+    }
+
+    #[test]
+    fn test_parse_criticality_unknown_defaults_to_inert() {
+        assert_eq!(parse_criticality("unknown"), Criticality::Inert);
+        assert_eq!(parse_criticality(""), Criticality::Inert);
+    }
+
+    // ==================== parse_platforms Tests ====================
+
+    #[test]
+    fn test_parse_platforms_all() {
+        let result = parse_platforms(&["all".to_string()]);
+        assert_eq!(result, vec![Platform::All]);
+    }
+
+    #[test]
+    fn test_parse_platforms_multiple() {
+        let result = parse_platforms(&[
+            "linux".to_string(),
+            "macos".to_string(),
+            "windows".to_string(),
+        ]);
+        assert!(result.contains(&Platform::Linux));
+        assert!(result.contains(&Platform::MacOS));
+        assert!(result.contains(&Platform::Windows));
+    }
+
+    #[test]
+    fn test_parse_platforms_case_insensitive() {
+        let result = parse_platforms(&["LINUX".to_string(), "MacOS".to_string()]);
+        assert!(result.contains(&Platform::Linux));
+        assert!(result.contains(&Platform::MacOS));
+    }
+
+    #[test]
+    fn test_parse_platforms_unknown_ignored() {
+        let result = parse_platforms(&["linux".to_string(), "unknown".to_string()]);
+        assert_eq!(result.len(), 1);
+        assert!(result.contains(&Platform::Linux));
+    }
+
+    #[test]
+    fn test_parse_platforms_unix_android_ios() {
+        let result = parse_platforms(&[
+            "unix".to_string(),
+            "android".to_string(),
+            "ios".to_string(),
+        ]);
+        assert!(result.contains(&Platform::Unix));
+        assert!(result.contains(&Platform::Android));
+        assert!(result.contains(&Platform::Ios));
+    }
+
+    // ==================== parse_file_types Tests ====================
+
+    #[test]
+    fn test_parse_file_types_all() {
+        let result = parse_file_types(&["all".to_string()]);
+        assert_eq!(result, vec![RuleFileType::All]);
+    }
+
+    #[test]
+    fn test_parse_file_types_star() {
+        let result = parse_file_types(&["*".to_string()]);
+        assert_eq!(result, vec![RuleFileType::All]);
+    }
+
+    #[test]
+    fn test_parse_file_types_specific() {
+        let result = parse_file_types(&["python".to_string(), "javascript".to_string()]);
+        assert!(result.contains(&RuleFileType::Python));
+        assert!(result.contains(&RuleFileType::JavaScript));
+    }
+
+    #[test]
+    fn test_parse_file_types_aliases() {
+        let result = parse_file_types(&[
+            "py".to_string(),
+            "js".to_string(),
+            "ts".to_string(),
+            "rb".to_string(),
+        ]);
+        assert!(result.contains(&RuleFileType::Python));
+        assert!(result.contains(&RuleFileType::JavaScript));
+        assert!(result.contains(&RuleFileType::TypeScript));
+        assert!(result.contains(&RuleFileType::Ruby));
+    }
+
+    #[test]
+    fn test_parse_file_types_binaries() {
+        let result = parse_file_types(&["binaries".to_string()]);
+        assert!(result.contains(&RuleFileType::Elf));
+        assert!(result.contains(&RuleFileType::Macho));
+        assert!(result.contains(&RuleFileType::Pe));
+    }
+
+    #[test]
+    fn test_parse_file_types_scripts() {
+        let result = parse_file_types(&["scripts".to_string()]);
+        assert!(result.contains(&RuleFileType::Shell));
+        assert!(result.contains(&RuleFileType::Python));
+        assert!(result.contains(&RuleFileType::JavaScript));
+    }
+
+    #[test]
+    fn test_parse_file_types_exclusion() {
+        let result = parse_file_types(&["all".to_string(), "!python".to_string()]);
+        assert!(!result.contains(&RuleFileType::Python));
+        assert!(result.contains(&RuleFileType::JavaScript));
+        assert!(result.contains(&RuleFileType::Shell));
+    }
+
+    #[test]
+    fn test_parse_file_types_comma_separated() {
+        let result = parse_file_types(&["python,javascript,ruby".to_string()]);
+        assert!(result.contains(&RuleFileType::Python));
+        assert!(result.contains(&RuleFileType::JavaScript));
+        assert!(result.contains(&RuleFileType::Ruby));
+    }
+
+    #[test]
+    fn test_parse_file_types_case_insensitive() {
+        let result = parse_file_types(&["PYTHON".to_string(), "JavaScript".to_string()]);
+        assert!(result.contains(&RuleFileType::Python));
+        assert!(result.contains(&RuleFileType::JavaScript));
+    }
+
+    #[test]
+    fn test_parse_file_types_package_files() {
+        let result = parse_file_types(&[
+            "package.json".to_string(),
+            "cargo.toml".to_string(),
+            "pyproject.toml".to_string(),
+        ]);
+        assert!(result.contains(&RuleFileType::PackageJson));
+        assert!(result.contains(&RuleFileType::CargoToml));
+        assert!(result.contains(&RuleFileType::PyProjectToml));
+    }
+
+    #[test]
+    fn test_parse_file_types_image_formats() {
+        let result = parse_file_types(&["jpeg".to_string(), "png".to_string()]);
+        assert!(result.contains(&RuleFileType::Jpeg));
+        assert!(result.contains(&RuleFileType::Png));
+    }
+
+    #[test]
+    fn test_parse_file_types_exclusion_only() {
+        // When only exclusions are provided, start with all and remove
+        let result = parse_file_types(&["!python".to_string(), "!javascript".to_string()]);
+        assert!(!result.contains(&RuleFileType::Python));
+        assert!(!result.contains(&RuleFileType::JavaScript));
+        assert!(result.contains(&RuleFileType::Shell));
+        assert!(result.contains(&RuleFileType::Ruby));
+    }
+}

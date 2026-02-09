@@ -29,10 +29,10 @@ composite_rules:
     attack: "T1041"
     for: [ruby]
     all:
-      - id: cap/os/sysinfo/system/ruby/socket-hostname
-      - id: cap/os/sysinfo/system/ruby/socket-ip-address
-      - id: cap/comm/http/request/net-http
-      - id: cap/comm/http/request/hardcoded-ip-url
+      - id: cap/os/sysinfo/system::socket-hostname
+      - id: cap/os/sysinfo/system::socket-ip-address
+      - id: cap/comm/http/request::net-http
+      - id: cap/comm/http/request::hardcoded-ip-url
 
   # === System Info Exfiltration - SUSPICIOUS ===
   # Less certainty than info-stealer, but still concerning
@@ -44,6 +44,6 @@ composite_rules:
     needs: 2
     any:
       - id: cap/os/sysinfo
-      - id: cap/comm/http/request/hardcoded-ip-url
+      - id: cap/comm/http/request::hardcoded-ip-url
       - id: base64-json-encode
-      - id: obj/discovery/host/fingerprint/method/getenv-user
+      - id: obj/discovery/host/fingerprint/method::getenv-user

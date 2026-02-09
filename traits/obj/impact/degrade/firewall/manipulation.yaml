@@ -1,0 +1,20 @@
+# Firewall Manipulation Detection
+# Detects comprehensive firewall abuse patterns
+# ATT&CK: T1562.004 (Disable or Modify System Firewall)
+
+composite_rules:
+  - id: firewall-comprehensive-abuse
+    desc: Complete firewall manipulation pattern
+    crit: hostile
+    conf: 0.9
+    for: [elf, shell]
+    attack: "T1562.004"
+    mbc: "E1562"
+    needs: 3
+    any:
+      - id: cap/os/firewall/rules::firewall-cmd-add-port
+      - id: cap/os/firewall/rules::firewall-cmd-permanent
+      - id: cap/os/firewall/rules::firewall-cmd-reload
+      - id: cap/os/firewall/rules::ufw-allow-ssh
+      - id: cap/os/firewall/rules::ufw-enable
+      - id: cap/os/firewall/rules::firewalld-service-control

@@ -78,7 +78,7 @@ traits:
       regex: '/proc/(?!self/)[^/]+/environ'
     downgrade:
       any:
-        - id: cap/exec/load/library/debugger-tool-marker
+        - id: cap/exec/load/library::debugger-tool-marker
 
   - id: process-pid-fd
     desc: Access process file descriptors via

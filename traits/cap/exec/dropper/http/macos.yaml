@@ -17,6 +17,6 @@ composite_rules:
     conf: 0.80
     for: [macho, dylib]
     all:
-      - id: cap/comm/http/request/nsurlsession-download-task
-      - id: cap/fs/file/write/nsfilehandle-write
-      - id: cap/fs/file/write/nsfilemanager-move
+      - id: cap/comm/http/request::nsurlsession-download-task
+      - id: cap/fs/file/write::nsfilehandle-write
+      - id: cap/fs/file/write::nsfilemanager-move

@@ -441,8 +441,8 @@ composite_rules:
     desc: Network exfiltration patterns
     for: [javascript, typescript]
     any:
-      - { id: cap/comm/http/request/javascript/fetch-string }
-      - { id: cap/comm/http/request/javascript/https-request }
+      - { id: cap/comm/http/request::fetch-string }
+      - { id: cap/comm/http/request::https-request }
       - { id: post-method }
       - { id: webhook-keyword }
 
@@ -459,4 +459,4 @@ composite_rules:
       - { id: network-exfil-patterns }
     downgrade:
       any:
-        - id: meta/library/jquery/library
+        - id: meta/library/jquery::library

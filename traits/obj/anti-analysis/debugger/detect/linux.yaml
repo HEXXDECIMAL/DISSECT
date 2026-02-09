@@ -23,7 +23,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: '\bgdb\b'
+      word: "gdb"
 
   - id: lldb-ref
     desc: LLDB debugger reference
@@ -31,7 +31,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: '\blldb\b'
+      word: "lldb"
 
 composite_rules:
   # Debugger names alone aren't suspicious - many programs ship with debug info

@@ -248,4 +248,4 @@ composite_rules:
       - id: dscl-authonly
     any:
       - id: credential-keyword
-      - id: obj/anti-analysis/window-hide/ui/applescript/password-dialog
+      - id: obj/anti-analysis/window-hide/ui::password-dialog

@@ -301,3 +301,296 @@ pub struct ArchiveEntry {
     /// File size in bytes
     pub size_bytes: u64,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::types::traits_findings::FindingKind;
+
+    fn test_target() -> TargetInfo {
+        TargetInfo {
+            path: "/test/sample.bin".to_string(),
+            file_type: "elf".to_string(),
+            size_bytes: 1024,
+            sha256: "abc123".to_string(),
+            architectures: Some(vec!["x86_64".to_string()]),
+        }
+    }
+
+    fn test_finding(id: &str, crit: Criticality) -> Finding {
+        Finding {
+            id: id.to_string(),
+            kind: FindingKind::Capability,
+            desc: format!("Test finding {}", id),
+            conf: 0.9,
+            crit,
+            mbc: None,
+            attack: None,
+            trait_refs: vec![],
+            evidence: vec![],
+        }
+    }
+
+    // ==================== Criticality Tests ====================
+
+    #[test]
+    fn test_criticality_ordering() {
+        assert!(Criticality::Filtered < Criticality::Inert);
+        assert!(Criticality::Inert < Criticality::Notable);
+        assert!(Criticality::Notable < Criticality::Suspicious);
+        assert!(Criticality::Suspicious < Criticality::Hostile);
+    }
+
+    #[test]
+    fn test_criticality_max() {
+        let crits = vec![
+            Criticality::Inert,
+            Criticality::Hostile,
+            Criticality::Notable,
+        ];
+        assert_eq!(crits.into_iter().max(), Some(Criticality::Hostile));
+    }
+
+    #[test]
+    fn test_criticality_default() {
+        assert_eq!(Criticality::default(), Criticality::Inert);
+    }
+
+    #[test]
+    fn test_criticality_equality() {
+        assert_eq!(Criticality::Hostile, Criticality::Hostile);
+        assert_ne!(Criticality::Hostile, Criticality::Suspicious);
+    }
+
+    // ==================== AnalysisReport::new Tests ====================
+
+    #[test]
+    fn test_analysis_report_new() {
+        let report = AnalysisReport::new(test_target());
+
+        assert_eq!(report.schema_version, "2.0");
+        assert_eq!(report.target.path, "/test/sample.bin");
+        assert!(report.findings.is_empty());
+        assert!(report.traits.is_empty());
+        assert!(report.strings.is_empty());
+    }
+
+    #[test]
+    fn test_analysis_report_new_with_timestamp() {
+        use chrono::TimeZone;
+        let ts = Utc.with_ymd_and_hms(2024, 1, 15, 12, 0, 0).unwrap();
+        let report = AnalysisReport::new_with_timestamp(test_target(), ts);
+
+        assert_eq!(report.analysis_timestamp, ts);
+    }
+
+    // ==================== add_finding Tests ====================
+
+    #[test]
+    fn test_add_finding_basic() {
+        let mut report = AnalysisReport::new(test_target());
+        let finding = test_finding("test/cap1", Criticality::Notable);
+
+        report.add_finding(finding);
+
+        assert_eq!(report.findings.len(), 1);
+        assert_eq!(report.findings[0].id, "test/cap1");
+    }
+
+    #[test]
+    fn test_add_finding_dedup() {
+        let mut report = AnalysisReport::new(test_target());
+
+        report.add_finding(test_finding("test/cap1", Criticality::Notable));
+        report.add_finding(test_finding("test/cap1", Criticality::Hostile)); // Same ID
+
+        // Should deduplicate - only one finding
+        assert_eq!(report.findings.len(), 1);
+    }
+
+    #[test]
+    fn test_add_finding_different_ids() {
+        let mut report = AnalysisReport::new(test_target());
+
+        report.add_finding(test_finding("test/cap1", Criticality::Notable));
+        report.add_finding(test_finding("test/cap2", Criticality::Hostile));
+
+        assert_eq!(report.findings.len(), 2);
+    }
+
+    // ==================== add_finding_with_refs Tests ====================
+
+    #[test]
+    fn test_add_finding_with_refs() {
+        let mut report = AnalysisReport::new(test_target());
+        let finding = test_finding("test/cap1", Criticality::Notable);
+
+        report.add_finding_with_refs(finding, vec!["trait1".to_string(), "trait2".to_string()]);
+
+        assert_eq!(report.findings.len(), 1);
+        assert_eq!(report.findings[0].trait_refs.len(), 2);
+        assert!(report.findings[0].trait_refs.contains(&"trait1".to_string()));
+    }
+
+    // ==================== add_trait Tests ====================
+
+    #[test]
+    fn test_add_trait_returns_index() {
+        use crate::types::traits_findings::TraitKind;
+
+        let mut report = AnalysisReport::new(test_target());
+
+        let trait1 = Trait {
+            kind: TraitKind::String,
+            value: "test_string_1".to_string(),
+            offset: Some("0x100".to_string()),
+            encoding: Some("utf8".to_string()),
+            section: None,
+            source: "strings".to_string(),
+        };
+        let trait2 = Trait {
+            kind: TraitKind::Import,
+            value: "malloc".to_string(),
+            offset: None,
+            encoding: None,
+            section: None,
+            source: "imports".to_string(),
+        };
+
+        let idx1 = report.add_trait(trait1);
+        let idx2 = report.add_trait(trait2);
+
+        assert_eq!(idx1, 0);
+        assert_eq!(idx2, 1);
+        assert_eq!(report.traits.len(), 2);
+    }
+
+    // ==================== highest_criticality Tests ====================
+
+    #[test]
+    fn test_highest_criticality_empty() {
+        let report = AnalysisReport::new(test_target());
+        assert_eq!(report.highest_criticality(), None);
+    }
+
+    #[test]
+    fn test_highest_criticality_single() {
+        let mut report = AnalysisReport::new(test_target());
+        report.add_finding(test_finding("test/cap1", Criticality::Notable));
+
+        assert_eq!(report.highest_criticality(), Some(Criticality::Notable));
+    }
+
+    #[test]
+    fn test_highest_criticality_multiple() {
+        let mut report = AnalysisReport::new(test_target());
+        report.add_finding(test_finding("test/cap1", Criticality::Inert));
+        report.add_finding(test_finding("test/cap2", Criticality::Hostile));
+        report.add_finding(test_finding("test/cap3", Criticality::Notable));
+
+        assert_eq!(report.highest_criticality(), Some(Criticality::Hostile));
+    }
+
+    // ==================== minimize Tests ====================
+
+    #[test]
+    fn test_minimize_clears_fields() {
+        use crate::types::traits_findings::TraitKind;
+        use crate::types::binary::StringType;
+
+        let mut report = AnalysisReport::new(test_target());
+
+        // Add some data
+        report.traits.push(Trait {
+            kind: TraitKind::String,
+            value: "test".to_string(),
+            offset: None,
+            encoding: None,
+            section: None,
+            source: "strings".to_string(),
+        });
+        report.strings.push(StringInfo {
+            value: "test_string".to_string(),
+            offset: Some(0x100),
+            encoding: "utf8".to_string(),
+            string_type: StringType::Plain,
+            section: None,
+            encoding_chain: vec![],
+            fragments: None,
+        });
+        report.imports.push(Import {
+            symbol: "malloc".to_string(),
+            library: Some("libc".to_string()),
+            source: "elf".to_string(),
+        });
+        report.add_finding(test_finding("test/cap1", Criticality::Notable));
+
+        report.minimize();
+
+        // Verbose fields should be cleared
+        assert!(report.traits.is_empty());
+        assert!(report.strings.is_empty());
+        assert!(report.imports.is_empty());
+
+        // Findings should remain
+        assert_eq!(report.findings.len(), 1);
+    }
+
+    // ==================== TargetInfo Tests ====================
+
+    #[test]
+    fn test_target_info_creation() {
+        let target = TargetInfo {
+            path: "/path/to/file".to_string(),
+            file_type: "macho".to_string(),
+            size_bytes: 2048,
+            sha256: "deadbeef".to_string(),
+            architectures: Some(vec!["arm64".to_string(), "x86_64".to_string()]),
+        };
+
+        assert_eq!(target.path, "/path/to/file");
+        assert_eq!(target.file_type, "macho");
+        assert_eq!(target.size_bytes, 2048);
+        assert_eq!(target.architectures.as_ref().unwrap().len(), 2);
+    }
+
+    #[test]
+    fn test_target_info_no_architectures() {
+        let target = TargetInfo {
+            path: "/path/to/script.py".to_string(),
+            file_type: "python".to_string(),
+            size_bytes: 512,
+            sha256: "abc123".to_string(),
+            architectures: None,
+        };
+
+        assert!(target.architectures.is_none());
+    }
+
+    // ==================== ArchiveEntry Tests ====================
+
+    #[test]
+    fn test_archive_entry_simple_path() {
+        let entry = ArchiveEntry {
+            path: "lib/utils.so".to_string(),
+            file_type: "elf".to_string(),
+            sha256: "abc123".to_string(),
+            size_bytes: 4096,
+        };
+
+        assert_eq!(entry.path, "lib/utils.so");
+        assert!(!entry.path.contains('!'));
+    }
+
+    #[test]
+    fn test_archive_entry_nested_path() {
+        let entry = ArchiveEntry {
+            path: "inner.tar.gz!malware/script.sh".to_string(),
+            file_type: "shell".to_string(),
+            sha256: "def456".to_string(),
+            size_bytes: 256,
+        };
+
+        assert!(entry.path.contains('!'));
+    }
+}

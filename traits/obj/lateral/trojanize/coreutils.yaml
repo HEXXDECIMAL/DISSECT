@@ -1,0 +1,18 @@
+# Trojanized GNU Utilities Detection
+# Spirit malware family trojanizes legitimate coreutils binaries
+# ATT&CK: T1027.009 (Embedded Payloads)
+
+composite_rules:
+  # Trojanized GNU utility: legitimate coreutils + obfuscation marker + embedded payload
+  # Spirit malware family drops trojanized versions of timeout, dd, etc.
+  - id: trojanized-coreutils
+    desc: Trojanized GNU utility with embedded payload
+    crit: hostile
+    conf: 0.92
+    mbc: "F0001.006"
+    attack: "T1027.009"
+    for: [elf]
+    all:
+      - id: cap/data/embedded/payload::lzma-magic
+      - id: cap/data/obfuscation/payload::xixa-marker
+      - id: cap/exec/load/library::system-lib-marker

@@ -239,7 +239,7 @@ composite_rules:
     any:
       - id: history-file
       - id: cookies-file
-      - id: obj/creds/browser/chromium/login-data
+      - id: obj/creds/browser/chromium::login-data
       - id: places-sqlite
 
   # Chrome history composite
@@ -254,7 +254,7 @@ composite_rules:
     any:
       - id: history-file
       - id: cookies-file
-      - id: obj/creds/browser/chromium/login-data
+      - id: obj/creds/browser/chromium::login-data
     downgrade:
       any:
         # Chrome binaries legitimately reference their own data files
@@ -273,8 +273,8 @@ composite_rules:
     needs: 1
     any:
       - id: places-sqlite
-      - id: obj/creds/browser/firefox/cookies-sqlite
-      - id: obj/creds/browser/firefox/logins-json
+      - id: obj/creds/browser/firefox::cookies-sqlite
+      - id: obj/creds/browser/firefox::logins-json
     downgrade:
       any:
         - type: basename
@@ -349,8 +349,8 @@ composite_rules:
     for: [all]
     needs: 1
     any:
-      - id: obj/creds/discord/token/local-storage-ref
-      - id: obj/creds/discord/token/leveldb-ref
+      - id: obj/creds/discord/token::local-storage-ref
+      - id: obj/creds/discord/token::leveldb-ref
 
   # Extensions composite
   - id: extensions
@@ -401,8 +401,8 @@ composite_rules:
       - id: search-engine-id
     any:
       - id: safari-plist
-      - id: cap/fs/file/write/write
-      - id: cap/fs/watch/fswatch/fseventstream
+      - id: cap/fs/file/write::write
+      - id: cap/fs/watch/fswatch::fseventstream
     downgrade:
       any:
         - type: basename

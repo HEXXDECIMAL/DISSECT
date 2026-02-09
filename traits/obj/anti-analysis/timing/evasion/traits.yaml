@@ -22,7 +22,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      regex: '\bclock_gettime\b'
+      word: "clock_gettime"
 
   - id: sys-gettimeofday
     desc: gettimeofday function (syscall)
@@ -30,7 +30,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      regex: '\bgettimeofday\b'
+      word: "gettimeofday"
 
   # NOTE: "time" is far too generic - matches Go runtime, standard library, etc.
   # Changed to more specific pattern

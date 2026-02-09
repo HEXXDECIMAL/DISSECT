@@ -26,4 +26,3 @@ composite_rules:
       - id: virtualbox-string
       - id: qemu-string
       - id: vm-hardware
-      - id: macos-vm-sysctl

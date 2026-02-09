@@ -86,7 +86,7 @@ composite_rules:
     attack: "T1129"
     all:
       - id: thread-pool-based-malware
-      - id: cap/exec/command
+      - id: cap/exec/command/
     downgrade:
       any:
         - id: meta/quality/versioned

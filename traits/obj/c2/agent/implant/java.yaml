@@ -177,10 +177,7 @@ composite_rules:
     needs: 4
     any:
       # Credential access
-      - id: chrome-pass-string
-      - id: firefox-pass-string
-      - id: keylogger-string
-      - id: all-pass-string
+      - id: obj/creds/extract/method
       # C2 commands
       - id: remote-cmd-string
       - id: power-shell-string
@@ -188,8 +185,8 @@ composite_rules:
       - id: up-n-exec-string
       - id: remote-screen-string
       # Impact
-      - id: reboot-string
-      - id: uninstall-string
+      - id: obj/impact/system-control/rce::reboot-string
+      - id: obj/impact/system-control/rce::uninstall-string
 
   # Java credential stealer
   - id: credential-stealer
@@ -200,14 +197,7 @@ composite_rules:
     conf: 0.95
     needs: 2
     any:
-      - id: chrome-pass-string
-      - id: firefox-pass-string
-      - id: ie-pass-string
-      - id: outlook-pass-string
-      - id: thunderbird-pass-string
-      - id: foxmail-pass-string
-      - id: all-pass-string
-      - id: save-all-pass-string
+      - id: obj/creds/extract/method
 
   # Java keylogger
   - id: keylogger
@@ -218,8 +208,8 @@ composite_rules:
     conf: 0.95
     needs: 1
     any:
-      - id: keylogger-string
-      - id: o-keylogger-string
+      - id: obj/creds/extract/method::keylogger-string
+      - id: obj/creds/extract/method::o-keylogger-string
 
   # Java remote access
   - id: remote-access
@@ -267,12 +257,12 @@ composite_rules:
     attack: "T1140"
     conf: 0.92
     all:
-      - id: cap/exec/dynamic-load/class/java-defineclass
-      - id: cap/exec/dynamic-load/class/java-reflective-invoke
-      - id: cap/exec/dynamic-load/class/java-string-reversal
+      - id: cap/exec/dynamic-load/class::java-defineclass
+      - id: cap/exec/dynamic-load/class::java-reflective-invoke
+      - id: cap/exec/dynamic-load/class::java-string-reversal
     any:
-      - id: cap/exec/dynamic-load/class/java-reflection
-      - id: cap/exec/dynamic-load/class/java-defineclass
+      - id: cap/exec/dynamic-load/class::java-reflection
+      - id: cap/exec/dynamic-load/class::java-defineclass
 
   # Java Adwind RAT C2 infrastructure pattern
   - id: adwind-c2-infrastructure

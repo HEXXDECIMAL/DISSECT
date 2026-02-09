@@ -172,14 +172,6 @@ composite_rules:
       - id: target-vscode-dir
       - id: target-idea-dir
 
-  - id: http-callback
-    desc: HTTP request pattern for callback/reporting
-    crit: notable
-    conf: 0.8
-    for: [javascript, typescript]
-    any:
-      - id: cap/comm/http/request/javascript
-
   # Protestware pattern (env-conditional destruction)
   - id: protestware
     desc: Protestware pattern - conditional destruction
@@ -189,8 +181,8 @@ composite_rules:
     mbc: "B0031"
     for: [javascript, typescript]
     all:
-      - id: obj/impact/wiper/disk/conditional-destroy
-      - id: obj/impact/wiper/disk/target-dev-dirs
+      - id: obj/impact/wiper/disk::conditional-destroy
+      - id: obj/impact/wiper/disk::target-dev-dirs
 
   # Full wiper with HTTP callback (report success)
   - id: with-callback
@@ -201,5 +193,5 @@ composite_rules:
     mbc: "B0031"
     for: [javascript, typescript]
     all:
-      - id: obj/impact/wiper/disk/recursive-delete
-      - id: obj/impact/wiper/disk/http-callback
+      - id: obj/impact/wiper/disk::recursive-delete
+      - id: cap/comm/http/request/

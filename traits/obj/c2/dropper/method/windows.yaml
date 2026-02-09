@@ -1,0 +1,18 @@
+# Windows Dropper Patterns
+# Detects Windows-specific dropper behaviors
+# ATT&CK: T1027.002, T1059.001
+
+composite_rules:
+  - id: windows-dropper-pattern
+    desc: Windows dropper with decode and execute
+    crit: hostile
+    conf: 0.95
+    for: [python, shell]
+    mbc: "B0024"
+    attack: "T1027.002"
+    all:
+      - id: cap/exec/command/launch::windows-startfile-exec
+      - id: cap/data/obfuscation/code::b64decode-exec
+    any:
+      - id: cap/data/obfuscation/payload::exec-decode-pattern
+      - id: cap/fs/path/temp

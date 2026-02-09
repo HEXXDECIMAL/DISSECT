@@ -959,7 +959,7 @@ composite_rules:
     needs: 1
     any:
       - id: macos-kext-getdirentries-hook
-      - id: obj/anti-analysis/kernel-hide/ebpf/hide-string
+      - id: obj/anti-analysis/kernel-hide/ebpf::hide-string
 
   # macOS kext rootkit binary
   - id: macos-kext-rootkit-binary
@@ -998,7 +998,7 @@ composite_rules:
     all:
       - id: rootkit-give-root
       - id: rootkit-controller-hiding
-      - id: obj/c2/backdoor/method/generic/backdoor-ref
+      - id: obj/c2/backdoor/method::backdoor-ref
 
   # Rootkit controller hiding helper
   - id: rootkit-controller-hiding

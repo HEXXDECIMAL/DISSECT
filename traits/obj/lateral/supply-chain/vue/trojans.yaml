@@ -14,9 +14,9 @@ composite_rules:
     crit: hostile
     conf: 0.98
     all:
-      - { id: meta/library/vue/library }
-      - { id: meta/library/vue/version-string }
-      - { id: cap/exec/activex/com/activex-object-create }
+      - { id: meta/library/vue::library }
+      - { id: meta/library/vue::version-string }
+      - { id: cap/exec/activex/com::activex-object-create }
 
   # Vue + Reverse Shell = HOSTILE
   - id: trojanized-reverse-shell
@@ -24,9 +24,9 @@ composite_rules:
     crit: hostile
     conf: 0.98
     all:
-      - { id: meta/library/vue/library }
-      - { id: meta/library/vue/version-string }
-      - { id: obj/c2/reverse-shell/method/node/socket-with-exec }
+      - { id: meta/library/vue::library }
+      - { id: meta/library/vue::version-string }
+      - { id: obj/c2/reverse-shell/method::socket-with-exec }
 
   # Vue + Base64 Eval = HOSTILE (hidden payload)
   - id: trojanized-base64-eval
@@ -34,9 +34,9 @@ composite_rules:
     crit: hostile
     conf: 0.95
     all:
-      - { id: meta/library/vue/library }
-      - { id: meta/library/vue/version-string }
-      - { id: obj/anti-static/base64/decode/javascript/decode-exec-js }
+      - { id: meta/library/vue::library }
+      - { id: meta/library/vue::version-string }
+      - { id: obj/anti-static/base64/decode::decode-exec-js }
 
   # Vue + Credential Access = HOSTILE
   - id: trojanized-credential-access
@@ -44,11 +44,11 @@ composite_rules:
     crit: hostile
     conf: 0.98
     all:
-      - { id: meta/library/vue/library }
-      - { id: meta/library/vue/version-string }
+      - { id: meta/library/vue::library }
+      - { id: meta/library/vue::version-string }
     any:
-      - { id: obj/creds/browser/chromium/login-data }
-      - { id: obj/creds/browser/firefox/cookies-sqlite }
+      - { id: obj/creds/browser/chromium::login-data }
+      - { id: obj/creds/browser/firefox::cookies-sqlite }
 
   # Vue + Command Execution = HOSTILE
   - id: trojanized-exec
@@ -56,11 +56,11 @@ composite_rules:
     crit: hostile
     conf: 0.98
     all:
-      - { id: meta/library/vue/library }
-      - { id: meta/library/vue/version-string }
+      - { id: meta/library/vue::library }
+      - { id: meta/library/vue::version-string }
     any:
       - { id: cap/exec/command/shell }
-      - { id: cap/exec/command/shell/child-process-exec }
+      - { id: cap/exec/command/shell::child-process-exec }
 
   # Vue + Network Backdoor = HOSTILE
   - id: trojanized-backdoor
@@ -68,6 +68,6 @@ composite_rules:
     crit: hostile
     conf: 0.95
     all:
-      - { id: meta/library/vue/library }
-      - { id: meta/library/vue/version-string }
+      - { id: meta/library/vue::library }
+      - { id: meta/library/vue::version-string }
       - { id: obj/c2/infrastructure/domain/suspicious }

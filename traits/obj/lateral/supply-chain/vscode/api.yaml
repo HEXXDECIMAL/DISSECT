@@ -167,15 +167,6 @@ composite_rules:
       - id: vscode-extensions
       - id: function-activate
 
-  # HTTP helpers
-  - id: http-request-libs
-    desc: HTTP request libraries
-    crit: notable
-    conf: 0.7
-    for: [javascript, typescript]
-    any:
-      - id: cap/comm/http/request/javascript
-
   # Suspicious VSCode Extension Behaviors
   # IMPORTANT: Requires VSCode markers to avoid FPs on regular npm packages
   - id: env-access
@@ -187,7 +178,7 @@ composite_rules:
     for: [javascript, typescript]
     all:
       - id: vscode-context
-      - id: obj/discovery/host/fingerprint/method/node/process-env-access
+      - id: obj/discovery/host/fingerprint/method::process-env-access
 
   # Telemetry/Exfiltration Patterns
   # IMPORTANT: Requires VSCode markers to avoid FPs on regular npm packages
@@ -198,7 +189,7 @@ composite_rules:
     for: [javascript, typescript]
     all:
       - id: vscode-context
-      - id: http-request-libs
+      - id: cap/comm/http/request/
 
   # Activate composite
   - id: activate

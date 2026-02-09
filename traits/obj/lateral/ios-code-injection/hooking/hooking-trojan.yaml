@@ -15,9 +15,9 @@ composite_rules:
     mbc: "C0041"
     for: [ipa]
     all:
-      - id: cap/exec/inject/code/ios-framework/cydia-substrate-detected
-      - id: cap/discovery/ios-obfuscation/bundle/obfuscated-bundle-identity
-      - id: cap/exec/inject/code/ios-framework/runtime-code-injection
+      - id: cap/exec/inject/code::cydia-substrate-detected
+      - id: cap/discovery/ios-obfuscation/bundle::obfuscated-bundle-identity
+      - id: cap/exec/inject/code::runtime-code-injection
 
   - id: ios-reverse-engineering-instrumented
     desc: Reverse engineering tool
@@ -27,8 +27,8 @@ composite_rules:
     for: [ipa]
     needs: 1
     any:
-      - id: cap/exec/inject/code/ios-framework/reveal-server-framework
-      - id: cap/exec/inject/code/ios-framework/cbinjection-framework
+      - id: cap/exec/inject/code::reveal-server-framework
+      - id: cap/exec/inject/code::cbinjection-framework
 
   - id: ios-obfuscated-trojan
     desc: Obfuscated injection
@@ -38,6 +38,6 @@ composite_rules:
     mbc: "C0041"
     for: [ipa]
     all:
-      - id: cap/discovery/ios-obfuscation/bundle/suspicious-bundle-masquerading
-      - id: cap/exec/inject/code/ios-framework/runtime-code-injection
-      - id: cap/exec/inject/code/ios-framework/cydia-substrate-detected
+      - id: cap/discovery/ios-obfuscation/bundle::suspicious-bundle-masquerading
+      - id: cap/exec/inject/code::runtime-code-injection
+      - id: cap/exec/inject/code::cydia-substrate-detected

@@ -214,7 +214,7 @@ composite_rules:
     any:
       - id: unhexlify-import
       - id: binascii-import
-      - id: obj/anti-static/obfuscation/code-metrics/low-whitespace
+      - id: obj/anti-static/obfuscation/code-metrics::low-whitespace
 
   # Large encoded string composite (migrated from YARA)
   - id: large-encoded-string
@@ -258,5 +258,5 @@ composite_rules:
       - id: bytecode-self-reader
     any:
       - id: unhexlify-in-bytecode
-      - id: obj/anti-static/obfuscation/code-metrics/minified-code
-      - id: obj/anti-static/obfuscation/tools/obfuscators/known-obfuscator-detected
+      - id: obj/anti-static/obfuscation/code-metrics::minified-code
+      - id: obj/anti-static/obfuscation/tools::known-obfuscator-detected

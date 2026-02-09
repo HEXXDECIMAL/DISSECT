@@ -8,8 +8,8 @@ composite_rules:
     attack: "T1567.001"
     conf: 0.95
     all:
-      - id: obj/creds/discord/token/telegram-exfil
-      - id: telegram-send
+      - id: obj/creds/discord/token::telegram-exfil
+      - id: http-post
 
   - id: discord
     desc: Data exfiltration via Discord webhook
@@ -19,4 +19,4 @@ composite_rules:
     conf: 0.9
     for: [javascript, python, powershell, shell]
     any:
-      - id: discord-webhook
+      - id: obj/exfil/channel/webhook::discord-exfiltration

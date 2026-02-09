@@ -105,4 +105,4 @@ composite_rules:
     all:
       - id: ast-staged-payload-delivery
       - id: ast-method-with-clone-and-startfile
-      - id: obj/lateral/supply-chain/pypi/ast-install-method-override
+      - id: obj/lateral/supply-chain/pypi::ast-install-method-override

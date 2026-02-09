@@ -194,7 +194,7 @@ composite_rules:
     needs: 1
     any:
       - id: api-ipify
-      - id: obj/discovery/network/discovery/ipify
+      - id: obj/discovery/network/discovery::ipify
 
   # MaxMind API composite
   - id: maxmind-api
@@ -251,7 +251,7 @@ composite_rules:
     needs: 1
     any:
       - id: db-ip-api
-      - id: obj/discovery/network/discovery/ipinfo
+      - id: obj/discovery/network/discovery::ipinfo
       - id: ipapi-api
       - id: ipgeolocation-api
       - id: freegeoip-api

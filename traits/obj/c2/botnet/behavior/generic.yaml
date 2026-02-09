@@ -12,7 +12,7 @@ composite_rules:
     conf: 0.75
     needs: 1
     any:
-      - id: cap/data/text/malware/botnet
+      - id: cap/data/text/malware::botnet-term
 
   - id: botnet-agent
     desc: Bot agent patterns (multiple terms)
@@ -20,4 +20,4 @@ composite_rules:
     conf: 0.66
     needs: 2
     any:
-      - id: cap/data/text/malware/botnet
+      - id: cap/data/text/malware::botnet-term

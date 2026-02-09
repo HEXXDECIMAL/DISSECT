@@ -184,3 +184,6 @@ pub fn format_diff_terminal(report: &DiffReport) -> String {
 
     output
 }
+
+// Note: Integration tests for format_diff_terminal are in tests/diff_formatting_test.rs
+// Unit tests here would require constructing complex DiffReport structures with many fields

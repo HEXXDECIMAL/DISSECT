@@ -98,16 +98,3 @@ composite_rules:
       - id: write-binary-execute
       - id: background-execution-devnull
 
-  - id: stealthy-downloader
-    desc: Stealthy payload downloader
-    crit: hostile
-    conf: 0.95
-    attack: "T1059"
-    mbc: "E1105"
-    platforms: [all]
-    needs: 3
-    any:
-      - id: curl-silent-output
-      - id: curl-with-cookie
-      - id: download-to-home
-      - id: urlsafe-b64decode

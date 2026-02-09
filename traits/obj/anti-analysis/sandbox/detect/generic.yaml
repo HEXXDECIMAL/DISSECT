@@ -15,7 +15,7 @@ traits:
     for: [elf, macho, pe, shell, python]
     if:
       type: string
-      regex: '\bcuckoo\b'
+      word: "cuckoo"
       case_insensitive: true
 
   - id: joe-sandbox
@@ -65,7 +65,7 @@ traits:
     for: [elf, macho, pe, shell, python]
     if:
       type: string
-      regex: '\bwireshark\b'
+      word: "wireshark"
       case_insensitive: true
 
   - id: fiddler
@@ -75,7 +75,7 @@ traits:
     for: [elf, macho, pe, shell, python]
     if:
       type: string
-      regex: '\bfiddler\b'
+      word: "fiddler"
       case_insensitive: true
 
   - id: procmon
@@ -85,7 +85,7 @@ traits:
     for: [elf, macho, pe, shell, python]
     if:
       type: string
-      regex: '\bprocmon\b'
+      word: "procmon"
       case_insensitive: true
 
   - id: process-hacker
@@ -105,7 +105,7 @@ traits:
     for: [elf, macho, pe, shell, python]
     if:
       type: string
-      regex: '\bx64dbg\b'
+      word: "x64dbg"
       case_insensitive: true
 
   - id: ollydbg
@@ -115,7 +115,7 @@ traits:
     for: [elf, macho, pe, shell, python]
     if:
       type: string
-      regex: '\bollydbg\b'
+      word: "ollydbg"
       case_insensitive: true
 
   - id: sandbox-path

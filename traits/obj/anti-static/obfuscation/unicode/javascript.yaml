@@ -143,5 +143,5 @@ composite_rules:
       - id: international-script-obfuscation
       - id: unicode-string-concatenation
     any:
-      - id: obj/anti-static/obfuscation/strings/dense-unicode-escapes
+      - id: obj/anti-static/obfuscation/strings::dense-unicode-escapes
       - id: mixed-unicode-blocks

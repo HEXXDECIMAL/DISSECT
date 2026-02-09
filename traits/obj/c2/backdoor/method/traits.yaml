@@ -132,10 +132,10 @@ composite_rules:
     platforms: [all]
     for: [perl]
     all:
-      - id: cap/comm/socket/create/perl/socket-call
-      - id: cap/comm/socket/create/perl/open-call
-      - id: cap/comm/socket/create/perl/fd-redirect
-      - id: cap/exec/command/shell/interactive/sh-interactive
+      - id: cap/comm/socket/create::socket-call
+      - id: cap/comm/socket/create::open-call
+      - id: cap/comm/socket/create::fd-redirect
+      - id: cap/exec/command/shell::sh-interactive
 
   - id: mkfifo-netcat-shell
     desc: Reverse shell via mkfifo and
@@ -145,8 +145,8 @@ composite_rules:
     mbc: "B0022"
     platforms: [linux, macos, unix]
     all:
-      - id: cap/fs/pipe/fifo/mkfifo-cmd
-      - id: cap/exec/command/shell/interactive/sh-interactive
+      - id: cap/fs/pipe/fifo::mkfifo-cmd
+      - id: cap/exec/command/shell::sh-interactive
       - id: nc-pipe
 
   - id: go-reverse-shell
@@ -158,13 +158,12 @@ composite_rules:
     platforms: [all]
     for: [elf, macho]
     any:
-      - id: cap/exec/command/shell/bin-bash
-      - id: cap/exec/command/shell/bin-sh
+      - id: cap/exec/command/shell::bin-bash
+      - id: cap/exec/command/shell::bin-sh
     all:
-      - id: cap/exec/command/direct/go/cmd-run
-      - id: cap/comm/socket/connect/go/net-conn-write
+      - id: obj/c2/reverse-shell/method::exec-cmd-run
       - id: go-child-stdin
-      - id: cap/comm/socket/connect/go/dial-tcp
+      - id: cap/comm/socket/connect::dial-tcp
 
   - id: generic-reverse-shell
     desc: Generic reverse shell pattern (socket
@@ -174,7 +173,7 @@ composite_rules:
     platforms: [all]
     all:
       - id: reverse-keyword
-      - id: cap/data/text/pattern/socket
+      - id: cap/data/text/pattern::socket
     any:
-      - id: cap/exec/command/shell/bin-bash
-      - id: cap/exec/command/shell/bin-sh
+      - id: cap/exec/command/shell::bin-bash
+      - id: cap/exec/command/shell::bin-sh

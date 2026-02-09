@@ -131,9 +131,9 @@ composite_rules:
     platforms: [linux]
     needs: 1
     any:
-      - id: cap/os/syscall/invoke/ptrace/ptrace
-      - id: cap/fs/proc/process/process-self-status
-      - id: cap/fs/proc/process/process-self-maps
+      - id: cap/os/syscall/invoke::ptrace
+      - id: cap/fs/proc/process::process-self-status
+      - id: cap/fs/proc/process::process-self-maps
       - id: tracerpid-string
 
   # ptrace constant composite

@@ -185,7 +185,7 @@ composite_rules:
       - id: axios-post-call
       - id: node-https-request
       - id: node-http-request
-      - id: cap/comm/http/request/fetch-string
+      - id: cap/comm/http/request::fetch-string
 
   # HTTP libraries composite
   - id: node-http-libs
@@ -195,10 +195,10 @@ composite_rules:
     for: [javascript, typescript]
     needs: 1
     any:
-      - id: cap/comm/http/request/axios
+      - id: cap/comm/http/request::axios
       - id: node-https-request
       - id: node-http-request
-      - id: cap/comm/http/request/fetch-string
+      - id: cap/comm/http/request::fetch-string
 
   # Collect and exfil pattern
   - id: node-collect-exfil
@@ -208,7 +208,7 @@ composite_rules:
     attack: "T1041"
     for: [javascript, typescript]
     all:
-      - id: obj/discovery/host/system/javascript
+      - id: obj/discovery/host/system/
       - id: node-http-methods
 
   # Stealthy exfil (silent errors)

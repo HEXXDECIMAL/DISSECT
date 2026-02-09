@@ -43,7 +43,7 @@ composite_rules:
     platforms: [windows]
     for: [pe]
     all:
-      - id: cap/data/encode/payload/embedded-obfuscated-payload
+      - id: cap/data/encode/payload::embedded-obfuscated-payload
       - id: dynamic-library-loading
       - id: remote-code-injection
     downgrade:
@@ -61,7 +61,7 @@ composite_rules:
     needs: 2
     any:
       - id: obj/process/injection
-      - id: cap/process/inject/atom-bombing/atom-bombing-capable
+      - id: cap/process/inject/atom-bombing::atom-bombing-capable
     downgrade:
       any:
         - id: meta/vendor/valve/valve-corp-binary

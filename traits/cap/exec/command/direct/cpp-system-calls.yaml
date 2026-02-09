@@ -55,8 +55,8 @@ composite_rules:
       - id: cpp-stdlib
     needs: 1
     any:
-      - id: system-call
-      - id: popen-call
+      - id: cap/exec/command/shell::c-system
+      - id: cap/exec/command/shell::c-popen
 
   # C++ with shell commands in compact binary (more suspicious)
   - id: cpp-with-system-compact
@@ -69,8 +69,8 @@ composite_rules:
       - id: cpp-stdlib
     needs: 1
     any:
-      - id: system-call
-      - id: popen-call
+      - id: cap/exec/command/shell::c-system
+      - id: cap/exec/command/shell::c-popen
 
   # C++ with popen (command output capture)
   - id: cpp-command-capture
@@ -80,21 +80,7 @@ composite_rules:
     attack: "T1059.004"
     all:
       - id: cpp-string
-      - id: popen-call
+      - id: cap/exec/command/shell::c-popen
     any:
       - id: fgets-loop
       - id: string-append
-
-  # High-confidence backdoor pattern
-  - id: cpp-command-backdoor
-    desc: "C++ command execution backdoor (popen"
-    crit: hostile
-    conf: 0.95
-    attack: "T1059.004"
-    mbc: "B0022"
-    all:
-      - id: cpp-stdlib
-      - id: cpp-string
-      - id: cpp-exception
-      - id: cpp-command-capture
-      - id: obj/anti-static/obfuscation/strings/string-concealment/string-concealment

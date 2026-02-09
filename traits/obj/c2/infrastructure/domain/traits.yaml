@@ -821,4 +821,4 @@ composite_rules:
     any:
       - id: chisel-client
       - id: chisel-server
-      - id: known/tools/offensive/chisel-ref
+      - id: known/tools/offensive::chisel-ref

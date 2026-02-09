@@ -103,8 +103,8 @@ composite_rules:
       - id: eval-get-text
       - id: exec-urlopen-read
     all:
-      - id: obj/anti-static/obfuscation/payload/exec-function-call
-      - id: cap/comm/http/request/request-python
+      - id: obj/anti-static/obfuscation/payload::exec-function-call
+      - id: cap/comm/http/request::request-python
 
   # Obfuscated remote exec - exec on .get().text with chr/join obfuscation
   # Complexity: file_types(+1) + any(+1) + all(+2) = 4
@@ -120,7 +120,7 @@ composite_rules:
       - id: exec-get-content
       - id: eval-get-text
     all:
-      - id: obj/anti-static/obfuscation/payload/exec-function-call
+      - id: obj/anti-static/obfuscation/payload::exec-function-call
       - id: join-chr-comprehension
 
   # Obfuscated URL with bitshift arithmetic

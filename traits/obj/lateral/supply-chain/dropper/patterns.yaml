@@ -614,7 +614,7 @@ composite_rules:
     needs: 1
     any:
       - id: py-os-system
-      - id: cap/exec/eval/invoke/exec-call-python
+      - id: cap/exec/eval/invoke::exec-call-python
       - id: py-subprocess
 
   # WScript/XMLHTTP composite
@@ -630,7 +630,7 @@ composite_rules:
       - id: microsoft-xmlhttp
     downgrade:
       any:
-        - id: meta/library/jquery/library
+        - id: meta/library/jquery::library
 
   # Base64 buffer composite
   - id: base64-buffer
@@ -662,7 +662,7 @@ composite_rules:
     mbc: "B0024"
     for: [javascript, typescript]
     all:
-      - id: download-zip
+      - id: cap/exec/dropper/archive::download-zip
       - id: extract-execute
     any:
       - id: cap/exec/dropper/executable
@@ -676,8 +676,8 @@ composite_rules:
     attack: "T1105"
     for: [python]
     all:
-      - id: cap/comm/http/request/get
-      - id: cap/fs/file/write/generic
+      - id: cap/comm/http/request::get
+      - id: cap/fs/file/write/
       - id: python-exec-call
 
   # Full interpreter dropper: download + extract + stdin exec
@@ -719,7 +719,6 @@ composite_rules:
     all:
       - id: python-standalone
       - id: stdin-exec
-      - id: hex-url-array
 
   # Full dropper lifecycle: download + extract + execute
   - id: full-dropper
@@ -770,8 +769,8 @@ composite_rules:
     for: [javascript]
     all:
       - { id: activex-object }
-      - { id: meta/lang/javascript-es6::modern-javascript }
-      - { id: meta/lang/javascript-es6::template-literal }
+      - { id: meta/lang::modern-javascript }
+      - { id: meta/lang::template-literal }
 
   # ActiveXObject + any network operation = likely malicious
   - id: activex-network
@@ -784,7 +783,7 @@ composite_rules:
     all:
       - { id: activex-object }
     any:
-      - { id: cap/comm/http/client }
+      - { id: cap/comm/http/client::client }
       - { id: cap/comm/socket/connect }
       - { id: cap/comm/dns/lookup }
 

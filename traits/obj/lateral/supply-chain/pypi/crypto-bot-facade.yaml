@@ -139,5 +139,5 @@ composite_rules:
     any:
       - id: helper-subprocess-exec
       - id: helper-os-system
-      - id: cap/exec/command/subprocess/run-ast
-      - id: cap/exec/command/shell/python-os-system
+      - id: cap/exec/command/subprocess::run-ast
+      - id: cap/exec/command/shell::python-os-system

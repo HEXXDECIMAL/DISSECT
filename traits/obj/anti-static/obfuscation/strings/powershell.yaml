@@ -177,7 +177,7 @@ composite_rules:
     attack: "T1027"
     for: [powershell, batch, shell]
     all:
-      - id: cap/exec/eval/invoke/iex
+      - id: cap/exec/eval/invoke::iex
     any:
       - id: ps-chararray
       - id: ps-join-char

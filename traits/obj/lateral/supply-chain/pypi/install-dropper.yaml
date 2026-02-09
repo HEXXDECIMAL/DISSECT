@@ -76,7 +76,7 @@ traits:
     if:
       type: string
       # open(..., 'wb') pattern
-      regex: "\\bwb\\b"
+      word: "wb"
 
   - id: open-write-content
     desc: open().write() to file
@@ -361,9 +361,9 @@ composite_rules:
     conf: 0.85
     needs: 1
     any:
-      - id: cap/exec/command/shell/python-os-system
+      - id: cap/exec/command/shell::python-os-system
       - id: os-system-string
-      - id: cap/exec/command/subprocess/methods
+      - id: cap/exec/command/subprocess::methods
 
   # === Windows Command Execution ===
   # Complexity: for(+1) + all(+2) = 3 (SUSPICIOUS)
@@ -383,7 +383,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     all:
-      - id: cap/comm/http/request/request-python
+      - id: cap/comm/http/request::request-python
       - id: executable-download-url
 
   # === Binary File Drop ===
@@ -398,7 +398,7 @@ composite_rules:
       - id: exe-file-extension
     any:
       - id: python-command-exec
-      - id: cap/comm/http/request/request-python
+      - id: cap/comm/http/request::request-python
     needs: 1
 
   # === HOSTILE: PyPI Install-Time Dropper ===
@@ -411,8 +411,8 @@ composite_rules:
     mbc: "E1204"
     attack: "T1204.002"
     all:
-      - id: obj/lateral/supply-chain/pypi/setup-py-file
-      - id: cap/comm/http/request/request-python
+      - id: obj/lateral/supply-chain/pypi::setup-py-file
+      - id: cap/comm/http/request::request-python
       - id: binary-file-write
       - id: python-command-exec
 
@@ -441,10 +441,10 @@ composite_rules:
     mbc: "E1204"
     attack: "T1204.002"
     all:
-      - id: obj/lateral/supply-chain/pypi/setup-py-file
-      - id: obj/c2/infrastructure/ip/http-raw-ip-url-script
+      - id: obj/lateral/supply-chain/pypi::setup-py-file
+      - id: obj/c2/infrastructure/ip::http-raw-ip-url-script
       - id: binary-file-write
-      - id: cap/exec/command/subprocess/methods
+      - id: cap/exec/command/subprocess::methods
 
   # === Windows File Rename-Execute-Delete Dropper ===
   # Pattern: download → write → rename to .bat → execute → delete
@@ -456,7 +456,7 @@ composite_rules:
     mbc: "E1204"
     attack: "T1059.003"
     all:
-      - id: cap/exec/command/shell/cmd-exe
+      - id: cap/exec/command/shell::cmd-exe
       - id: cmd-move-rename
       - id: cmd-del-cleanup
 
@@ -470,10 +470,10 @@ composite_rules:
     mbc: "E1204"
     attack: "T1176"
     all:
-      - id: obj/lateral/supply-chain/pypi/setup-py-basename
-      - id: cap/exec/autoinstall/pip/main-call-content
-      - id: obj/persist/startup/registry/windows/windows-shortcut-argument-injection
-      - id: obj/anti-static/obfuscation/code/advanced-python/advanced-python-obfuscation
+      - id: obj/lateral/supply-chain/pypi::setup-py-basename
+      - id: cap/exec/autoinstall/pip::main-call-content
+      - id: obj/persist/startup/registry::windows-shortcut-argument-injection
+      - id: obj/anti-static/obfuscation/code::advanced-python-obfuscation
 
   # === HOSTILE: PyPI Shortcut Hijack Dropper ===
   # setup.py that walks directories for shortcuts and modifies them
@@ -486,10 +486,10 @@ composite_rules:
     mbc: "E1204"
     attack: "T1176"
     all:
-      - id: obj/lateral/supply-chain/pypi/setup-py-basename
-      - id: cap/exec/autoinstall/pip/main-call-content
-      - id: obj/persist/startup/registry/windows/windows-shortcut-walk-modify
-      - id: cap/fs/directory/mkdir/mkdir-python
+      - id: obj/lateral/supply-chain/pypi::setup-py-basename
+      - id: cap/exec/autoinstall/pip::main-call-content
+      - id: obj/persist/startup/registry::windows-shortcut-walk-modify
+      - id: cap/fs/directory/mkdir::mkdir-python
 
   # === HOSTILE: PyPI COM Automation Extension Dropper ===
   # setup.py imports COM automation (win32com.client.Dispatch), creates directories,
@@ -506,7 +506,7 @@ composite_rules:
       - id: setup-py-win32com-import
       - id: setup-py-getenv
       - id: setup-py-file-write
-      - id: obj/persist/startup/registry/windows/create-shortcut
+      - id: obj/persist/startup/registry::create-shortcut
 
   # === SUSPICIOUS: Browser Shortcut Target Fingerprinting ===
   # Extracts executable basename from shortcut TargetPath to identify which
@@ -519,10 +519,10 @@ composite_rules:
     attack: "T1518"
     all:
       - id: setup-py-shortcut-target-fingerprint
-      - id: obj/persist/startup/registry/windows/shortcut-target-path
+      - id: obj/persist/startup/registry::shortcut-target-path
     any:
-      - id: obj/persist/startup/registry/windows/shortcut-arguments
-      - id: obj/persist/startup/registry/windows/create-shortcut
+      - id: obj/persist/startup/registry::shortcut-arguments
+      - id: obj/persist/startup/registry::create-shortcut
 
   # === HOSTILE: Install-Time Gated Execution ===
   # setup.py that checks sys.platform + sys.argv to only execute during install
@@ -535,10 +535,10 @@ composite_rules:
     mbc: "B0024"
     attack: "T1195.002"
     all:
-      - id: obj/lateral/supply-chain/pypi/setup-py-basename
-      - id: cap/os/info/system/python/sys-platform-check
-      - id: cap/os/info/system/python/sys-argv-access
-      - id: cap/exec/autoinstall/pip/main-call-content
+      - id: obj/lateral/supply-chain/pypi::setup-py-basename
+      - id: cap/os/info/system::sys-platform-check
+      - id: cap/os/info/system::sys-argv-access
+      - id: cap/exec/autoinstall/pip::main-call-content
     downgrade:
       any:
         - id: meta/quality/versioned
@@ -555,10 +555,10 @@ composite_rules:
     mbc: "E1204"
     attack: "T1195.002"
     all:
-      - id: obj/lateral/supply-chain/pypi/setup-py-basename
-      - id: obj/anti-static/obfuscation/code/advanced-python/advanced-python-obfuscation
+      - id: obj/lateral/supply-chain/pypi::setup-py-basename
+      - id: obj/anti-static/obfuscation/code::advanced-python-obfuscation
       - id: setup-py-file-write
-      - id: cap/fs/directory/mkdir/mkdir-python
+      - id: cap/fs/directory/mkdir::mkdir-python
 
   # === HOSTILE: PyPI PowerShell Dropper ===
   # setup.py invokes PowerShell via subprocess to download and execute payloads
@@ -571,8 +571,8 @@ composite_rules:
     mbc: "E1204"
     attack: "T1059.001"
     all:
-      - id: obj/lateral/supply-chain/pypi/setup-py-file
-      - id: cap/exec/dropper/stealth/subprocess-popen
+      - id: obj/lateral/supply-chain/pypi::setup-py-file
+      - id: cap/exec/dropper/stealth::subprocess-popen
       - id: powershell-download-in-string
       - id: cap/exec/background/daemon/windows/powershell-hidden
 
@@ -587,8 +587,8 @@ composite_rules:
     mbc: "E1204"
     attack: "T1059.001"
     all:
-      - id: obj/lateral/supply-chain/pypi/setup-py-file
-      - id: cap/exec/dropper/stealth/subprocess-popen
+      - id: obj/lateral/supply-chain/pypi::setup-py-file
+      - id: cap/exec/dropper/stealth::subprocess-popen
       - id: powershell-encoded-command-in-string
       - id: cap/exec/background/daemon/windows/powershell-hidden
 
@@ -603,10 +603,10 @@ composite_rules:
     mbc: "B0024"
     attack: "T1195.002"
     all:
-      - id: obj/lateral/supply-chain/pypi/setup-py-file
+      - id: obj/lateral/supply-chain/pypi::setup-py-file
       - id: powershell-download-in-string
       - id: powershell-expand-archive
-      - id: cap/exec/vbscript/interpreter/vbs-powershell-launch
+      - id: cap/exec/vbscript/interpreter::vbs-powershell-launch
 
   # === HOSTILE: PyPI Extension Dropper with Admin Gating ===
   # setup.py reads env vars to locate drop directory, checks admin status,
@@ -621,8 +621,8 @@ composite_rules:
     attack: "T1195.002"
     all:
       - id: setup-py-getenv
-      - id: cap/os/admin/check/ctypes-is-admin
-      - id: cap/fs/directory/mkdir/mkdir-python
+      - id: cap/os/admin/check::ctypes-is-admin
+      - id: cap/fs/directory/mkdir::mkdir-python
       - id: setup-py-file-write
 
   # === HOSTILE: Windows Impersonation Dropper ===

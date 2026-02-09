@@ -57,28 +57,6 @@ traits:
 
 
 composite_rules:
-  - id: identity
-    desc: VSCode extension identity metadata
-    crit: inert
-    conf: 1.0
-    for: [vsixmanifest]
-    all:
-      - id: identity-tag
-      - id: publisher-attr
-      - id: id-attr
-      - id: version-attr
-
-  - id: links
-    desc: Extension manifest contains external links
-    crit: inert
-    conf: 0.8
-    for: [vsixmanifest]
-    needs: 1
-    any:
-      - id: link-source
-      - id: link-github
-      - id: link-support
-
   # Suspicious: stub links (impersonation indicator)
   - id: suspicious-stub-links
     desc: Extension with stub links

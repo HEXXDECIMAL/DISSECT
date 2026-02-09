@@ -287,8 +287,8 @@ composite_rules:
     for: [python]
     needs: 1
     any:
-      - id: cap/exec/tty/pty/pty-spawn
-      - id: cap/exec/tty/pty/import-pty
+      - id: cap/exec/tty/pty::pty-spawn
+      - id: cap/exec/tty/pty::import-pty
 
   # Shell path composite
   - id: py-shell-path
@@ -297,8 +297,8 @@ composite_rules:
     conf: 0.5
     needs: 1
     any:
-      - id: cap/exec/command/shell/generic/bin-sh
-      - id: cap/exec/command/shell/generic/bin-bash
+      - id: cap/exec/command/shell::bin-sh
+      - id: cap/exec/command/shell::bin-bash
 
   # Python PTY shell (migrated from YARA)
   - id: python-pty
@@ -335,7 +335,7 @@ composite_rules:
     all:
       - id: socket-socket
       - id: socket-connect
-      - id: cap/exec/fileless/memory/linux/subprocess-mod
+      - id: cap/exec/fileless/memory::subprocess-mod
       - id: python-pipe
 
   # Node.js PTY composite

@@ -259,7 +259,7 @@ composite_rules:
     any:
       - id: arch-detection
       - id: lib-resolver-fn
-      - id: cap/fs/directory/readdir/readdir
+      - id: cap/fs/directory/readdir::readdir
 
   # SSL library discovery for interception
   # Library search + SSL targets = SSL interception prep

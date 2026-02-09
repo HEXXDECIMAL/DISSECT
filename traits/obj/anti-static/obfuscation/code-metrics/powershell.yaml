@@ -65,8 +65,8 @@ composite_rules:
     crit: hostile
     conf: 0.9
     all:
-      - id: obj/anti-static/obfuscation/code-metrics/ps-encoded-commands
-      - id: obj/anti-static/obfuscation/code-metrics/ps-no-comments
+      - id: obj/anti-static/obfuscation/code-metrics::ps-encoded-commands
+      - id: obj/anti-static/obfuscation/code-metrics::ps-no-comments
     any:
-      - id: obj/anti-static/obfuscation/code-metrics/ps-single-line-script
-      - id: obj/anti-static/obfuscation/code-metrics/ps-obfuscated-vars
+      - id: obj/anti-static/obfuscation/code-metrics::ps-single-line-script
+      - id: obj/anti-static/obfuscation/code-metrics::ps-obfuscated-vars

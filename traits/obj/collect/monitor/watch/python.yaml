@@ -105,6 +105,6 @@ composite_rules:
     for: [python]
     needs: 1
     any:
-      - id: cap/hw/display/screen/python/mss-screenshot
+      - id: cap/hw/display/screen::mss-screenshot
       - id: pil-imagegrab
       - id: pyautogui-screenshot

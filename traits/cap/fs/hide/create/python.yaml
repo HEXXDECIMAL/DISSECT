@@ -130,11 +130,3 @@ composite_rules:
       - id: python-open-write
 
   # Home + hidden directory - classic malware staging area
-  - id: python-home-hidden-staging
-    desc: "Malware staging in hidden home"
-    conf: 0.95
-    crit: hostile
-    all:
-      - id: python-home-expansion
-      - id: python-hidden-join-pattern
-      - id: python-write-or-makedirs

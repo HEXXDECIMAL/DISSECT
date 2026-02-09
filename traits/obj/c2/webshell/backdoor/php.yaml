@@ -71,7 +71,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "\\b30000\\b"
+      word: "30000"
 
   - id: port-31337-php
     desc: Port 31337 (leet)
@@ -79,7 +79,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: "\\b31337\\b"
+      word: "31337"
 
   - id: port-4444-php
     desc: Port 4444 (Metasploit)
@@ -87,7 +87,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: "\\b4444\\b"
+      word: "4444"
 
   - id: port-5555
     desc: Port 5555
@@ -95,7 +95,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "\\b5555\\b"
+      word: "5555"
 
   - id: port-6666
     desc: Port 6666
@@ -103,7 +103,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "\\b6666\\b"
+      word: "6666"
 
   - id: port-8080-php
     desc: Port 8080 (HTTP alt)
@@ -111,7 +111,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: "\\b8080\\b"
+      word: "8080"
 
   - id: port-9999
     desc: Port 9999
@@ -119,7 +119,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "\\b9999\\b"
+      word: "9999"
 
   - id: ssrf-pattern
     desc: Server-Side Request Forgery pattern (URL

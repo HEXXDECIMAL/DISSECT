@@ -63,7 +63,7 @@ traits:
     for: [shell, packagejson]
     if:
       type: string
-      regex: '\bmkfifo\b'
+      word: "mkfifo"
 
   - id: nc-pipe
     desc: Netcat with pipe
@@ -155,7 +155,7 @@ composite_rules:
     for: [shell, packagejson]
     all:
       - id: mkfifo-cmd
-      - id: cap/exec/command/shell/interactive/sh-interactive
+      - id: cap/exec/command/shell::sh-interactive
       - id: nc-pipe
 
   # Netcat reverse shell variants

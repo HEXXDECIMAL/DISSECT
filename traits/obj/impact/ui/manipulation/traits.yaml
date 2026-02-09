@@ -164,6 +164,6 @@ composite_rules:
     attack: "T1204.001"
     for: [macho, objectivec]
     all:
-      - id: cap/exec/command/shell/open-a-app
-      - id: cap/exec/command/shell/shell-symbols
+      - id: cap/exec/command/shell::open-a-app
+      - id: cap/exec/command/shell::shell-symbols
       - id: cap/fs/chmod/executable/dangerous::shell-777

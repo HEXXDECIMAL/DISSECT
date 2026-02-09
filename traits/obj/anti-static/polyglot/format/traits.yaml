@@ -141,7 +141,7 @@ traits:
       pattern: "50 4B 03 04"
       offset_range: [64, null]  # ZIP header not at start
     unless:
-      - id: meta/format/magic/zip-archive
+      - id: meta/format/magic::zip-archive
 
   # === Steganographic Indicators ===
 
@@ -191,7 +191,7 @@ composite_rules:
       - id: appended-elf-binary
       - id: appended-pe-binary
     none:
-      - id: meta/format/magic/zip-archive  # Exclude if primary format is ZIP
+      - id: meta/format/magic::zip-archive  # Exclude if primary format is ZIP
 
   # Binary with appended script (common dropper technique)
   # Note: The binary format check is implicit via file type filtering

@@ -47,20 +47,3 @@ traits:
 
 composite_rules:
   # [System.Convert]::FromBase64String(...) combined with assembly load
-  - id: ps-decode-and-load
-    desc: Base64 decode and assembly load
-    crit: hostile
-    conf: 0.95
-    all:
-      - id: ps-assembly-load
-      - id: ps-b64-decode
-
-  - id: ps-reflective-load
-    desc: PowerShell reflective .NET loading
-    crit: hostile
-    conf: 0.98
-    needs: 2
-    any:
-      - id: ps-assembly-load
-      - id: ps-assembly-invoke
-      - id: ps-decode-and-load

@@ -95,7 +95,7 @@ composite_rules:
     mbc: "B0031"
     needs: 2
     any:
-      - id: obj/impact/wiper/disk/go/secure-wipe-pattern
-      - id: obj/impact/wiper/disk/go/mass-destruction
-      - id: obj/impact/wiper/disk/go/standards-reference
-      - id: obj/impact/wiper/disk/go/gutmann-patterns
+      - id: secure-wipe-pattern
+      - id: mass-destruction
+      - id: standards-reference
+      - id: gutmann-patterns

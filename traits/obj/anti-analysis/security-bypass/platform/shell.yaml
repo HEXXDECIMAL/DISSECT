@@ -16,7 +16,7 @@ traits:
     attack: "T1562.001"
     if:
       type: content
-      regex: "\\bsetsebool\\b"
+      word: "setsebool"
 
   - id: selinux-setenforce
     desc: SELinux mode change

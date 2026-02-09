@@ -420,11 +420,7 @@ composite_rules:
     conf: 0.75
     needs: 1
     any:
-      - id: cap/os/container/runtime/docker/dockerenv
-      - id: cap/os/container/runtime/docker/docker-sock
-      - id: cap/os/container/runtime/cgroup-check
-      - id: cap/os/container/runtime/kubernetes/service-env
-      - id: cap/os/container/runtime/kubernetes/secrets-path
+      - id: cap/os/container/runtime
 
   # Comprehensive VM evasion (3+ VM indicators + exit)
   - id: comprehensive-evasion
@@ -439,6 +435,6 @@ composite_rules:
       - id: vendor-xen
       - id: mac-vmware-1
       - id: mac-vbox
-      - id: cap/os/container/runtime/docker/dockerenv
+      - id: cap/os/container/runtime::dockerenv
       - id: file-vmtoolsd
       - id: cap/process/exit

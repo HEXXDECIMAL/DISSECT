@@ -591,3 +591,243 @@ impl RawContentRegexIndex {
         matching_traits
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // ==================== TraitIndex Tests ====================
+
+    #[test]
+    fn test_trait_index_new() {
+        let index = TraitIndex::new();
+        assert!(index.universal.is_empty());
+        assert!(index.by_file_type.is_empty());
+    }
+
+    #[test]
+    fn test_trait_index_get_applicable_empty() {
+        let index = TraitIndex::new();
+        let applicable: Vec<usize> = index.get_applicable(&RuleFileType::All).collect();
+        assert!(applicable.is_empty());
+    }
+
+    #[test]
+    fn test_trait_index_applicable_count_empty() {
+        let index = TraitIndex::new();
+        assert_eq!(index.applicable_count(&RuleFileType::All), 0);
+        assert_eq!(index.applicable_count(&RuleFileType::Elf), 0);
+    }
+
+    // ==================== StringMatchIndex Tests ====================
+
+    #[test]
+    fn test_extract_regex_literal_simple() {
+        // Simple alphanumeric prefix - note that . is allowed as a literal char
+        // The * is what stops extraction, so "hello." is included
+        assert_eq!(
+            StringMatchIndex::extract_regex_literal("hello.*world"),
+            Some("hello.".to_string())
+        );
+    }
+
+    #[test]
+    fn test_extract_regex_literal_with_special_chars() {
+        // ':' is not an allowed char, so stops at "http"
+        assert_eq!(
+            StringMatchIndex::extract_regex_literal("http://example\\.com/.*"),
+            Some("http".to_string())
+        );
+        // Without colon, should work (. / - _ are allowed)
+        assert_eq!(
+            StringMatchIndex::extract_regex_literal("example/path/file.txt"),
+            Some("example/path/file.txt".to_string())
+        );
+    }
+
+    #[test]
+    fn test_extract_regex_literal_too_short() {
+        // "ab." is 3 chars, which is the minimum - returns Some
+        assert_eq!(
+            StringMatchIndex::extract_regex_literal("ab.*"),
+            Some("ab.".to_string())
+        );
+        // Starts with metachar, returns None
+        assert_eq!(StringMatchIndex::extract_regex_literal(".*test"), None);
+    }
+
+    #[test]
+    fn test_extract_regex_literal_escaped() {
+        // Escaped metacharacters
+        assert_eq!(
+            StringMatchIndex::extract_regex_literal(r"test\.\*\+"),
+            Some("test.*+".to_string())
+        );
+    }
+
+    #[test]
+    fn test_extract_regex_literal_meta_escape() {
+        // \d, \w, etc. should stop extraction
+        assert_eq!(
+            StringMatchIndex::extract_regex_literal(r"test\d+"),
+            Some("test".to_string())
+        );
+    }
+
+    #[test]
+    fn test_extract_regex_literal_with_path_chars() {
+        // Unix path-like patterns - . is a literal char
+        assert_eq!(
+            StringMatchIndex::extract_regex_literal("/usr/bin/.*"),
+            Some("/usr/bin/.".to_string())
+        );
+        // Windows paths with drive letters use : which stops extraction
+        // So C:\\ extracts just "C" which is too short (< 3 chars)
+        assert_eq!(
+            StringMatchIndex::extract_regex_literal(r"C:\\Windows\\.*"),
+            None
+        );
+        // But without the drive letter, Windows paths work
+        assert_eq!(
+            StringMatchIndex::extract_regex_literal(r"\\Windows\\System32\\.*"),
+            Some("\\Windows\\System32\\.".to_string())
+        );
+    }
+
+    #[test]
+    fn test_extract_regex_literal_with_underscore() {
+        // Underscores are allowed - . before * is included
+        assert_eq!(
+            StringMatchIndex::extract_regex_literal("some_function_name.*"),
+            Some("some_function_name.".to_string())
+        );
+    }
+
+    #[test]
+    fn test_extract_regex_literal_with_hyphen() {
+        // Hyphens are allowed - . before * is included
+        assert_eq!(
+            StringMatchIndex::extract_regex_literal("my-app-name-.*"),
+            Some("my-app-name-.".to_string())
+        );
+    }
+
+    #[test]
+    fn test_extract_regex_literal_starts_with_metachar() {
+        // Pattern starting with metachar should return None
+        assert_eq!(StringMatchIndex::extract_regex_literal(".*hello"), None);
+        assert_eq!(StringMatchIndex::extract_regex_literal("[a-z]+"), None);
+        assert_eq!(StringMatchIndex::extract_regex_literal("(foo|bar)"), None);
+    }
+
+    #[test]
+    fn test_extract_regex_literal_empty() {
+        assert_eq!(StringMatchIndex::extract_regex_literal(""), None);
+    }
+
+    #[test]
+    fn test_extract_regex_literal_only_metachar() {
+        assert_eq!(StringMatchIndex::extract_regex_literal(".*"), None);
+        assert_eq!(StringMatchIndex::extract_regex_literal(".+"), None);
+        assert_eq!(StringMatchIndex::extract_regex_literal("\\d+"), None);
+    }
+
+    #[test]
+    fn test_extract_regex_literal_alternation() {
+        // Alternation | should stop extraction
+        assert_eq!(
+            StringMatchIndex::extract_regex_literal("foo|bar"),
+            Some("foo".to_string())
+        );
+    }
+
+    #[test]
+    fn test_extract_regex_literal_question_mark() {
+        // Question mark should stop extraction
+        assert_eq!(
+            StringMatchIndex::extract_regex_literal("hello?world"),
+            Some("hello".to_string())
+        );
+    }
+
+    #[test]
+    fn test_extract_regex_literal_plus() {
+        // Plus should stop extraction
+        assert_eq!(
+            StringMatchIndex::extract_regex_literal("hello+world"),
+            Some("hello".to_string())
+        );
+    }
+
+    #[test]
+    fn test_extract_regex_literal_bracket() {
+        // Bracket should stop extraction
+        assert_eq!(
+            StringMatchIndex::extract_regex_literal("hello[0-9]"),
+            Some("hello".to_string())
+        );
+    }
+
+    #[test]
+    fn test_string_match_index_build_empty() {
+        let index = StringMatchIndex::build(&[]);
+
+        assert!(!index.has_patterns());
+        assert_eq!(index.total_patterns, 0);
+        assert!(index.automaton.is_none());
+        assert!(index.ci_automaton.is_none());
+    }
+
+    #[test]
+    fn test_string_match_index_is_regex_trait_empty() {
+        let index = StringMatchIndex::build(&[]);
+        assert!(!index.is_regex_trait(0));
+        assert!(!index.is_regex_trait(100));
+    }
+
+    // ==================== RawContentRegexIndex Tests ====================
+
+    #[test]
+    fn test_raw_content_regex_index_build_empty() {
+        let index = RawContentRegexIndex::build(&[]).unwrap();
+
+        assert!(!index.has_patterns());
+        assert_eq!(index.total_patterns, 0);
+    }
+
+    #[test]
+    fn test_raw_content_regex_index_has_applicable_patterns_empty() {
+        let index = RawContentRegexIndex::build(&[]).unwrap();
+
+        assert!(!index.has_applicable_patterns(&[]));
+        assert!(!index.has_applicable_patterns(&[0, 1, 2]));
+    }
+
+    #[test]
+    fn test_raw_content_regex_index_is_indexed_trait_empty() {
+        let index = RawContentRegexIndex::build(&[]).unwrap();
+
+        assert!(!index.is_indexed_trait(0));
+        assert!(!index.is_indexed_trait(100));
+    }
+
+    #[test]
+    fn test_raw_content_regex_index_find_matches_empty() {
+        let index = RawContentRegexIndex::build(&[]).unwrap();
+        let content = b"some content";
+
+        let matches = index.find_matches(content, &RuleFileType::All);
+        assert!(matches.is_empty());
+    }
+
+    #[test]
+    fn test_raw_content_regex_index_find_matches_invalid_utf8() {
+        let index = RawContentRegexIndex::build(&[]).unwrap();
+        // Invalid UTF-8 data
+        let content = &[0xFF, 0xFE, 0x00, 0x01];
+
+        let matches = index.find_matches(content, &RuleFileType::All);
+        // Should handle invalid UTF-8 gracefully (return empty matches)
+        assert!(matches.is_empty());
+    }
+}

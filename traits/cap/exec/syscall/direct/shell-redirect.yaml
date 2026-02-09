@@ -61,8 +61,8 @@ composite_rules:
     platforms: [linux]
     for: [elf]
     all:
-      - id: cap/comm/socket/create/unix/socket-create
-      - id: cap/comm/socket/create/unix/socket-connect
+      - id: cap/comm/socket/create::socket-create
+      - id: cap/comm/socket/create::socket-connect
       - id: syscall-dup-redirect-linux
       - id: syscall-execve-linux
 
@@ -83,7 +83,7 @@ composite_rules:
     platforms: [macos]
     for: [macho]
     all:
-      - id: cap/comm/socket/create/unix/socket-socket-macos
-      - id: cap/comm/socket/create/unix/socket-connect-macos
+      - id: cap/comm/socket/create::socket-socket-macos
+      - id: cap/comm/socket/create::socket-connect-macos
       - id: syscall-dup-redirect-macos
       - id: syscall-execve-macos

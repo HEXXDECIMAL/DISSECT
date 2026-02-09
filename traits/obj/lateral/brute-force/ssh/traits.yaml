@@ -209,14 +209,14 @@ composite_rules:
     desc: SSH authentication methods
     any:
       - id: password-auth
-      - id: cap/comm/ssh/client/keyboard-interactive
+      - id: cap/comm/ssh/client::keyboard-interactive
 
   # Helper: SSH authentication errors
   - id: ssh-auth-errors
     desc: SSH authentication error messages
     any:
-      - id: cap/comm/ssh/client/auth-failed
-      - id: cap/comm/ssh/client/permission-denied
+      - id: cap/comm/ssh/client::auth-failed
+      - id: cap/comm/ssh/client::permission-denied
       - id: too-many-auth-failures
 
   # Helper: SSH port references
@@ -234,7 +234,7 @@ composite_rules:
     any:
       - id: scanner-keyword
       - id: scanning-keyword
-      - id: cap/comm/socket/connect/connect
+      - id: cap/comm/socket/connect::connect
 
   # Helper: Default IoT credentials (all 15)
   - id: default-creds
@@ -315,8 +315,8 @@ composite_rules:
     desc: SSH port with threading
     all:
       - id: ssh-port-refs
-      - id: cap/process/threading/thread/concurrent
-      - id: cap/comm/socket/connect/connect
+      - id: cap/process/threading/thread::concurrent
+      - id: cap/comm/socket/connect::connect
 
   # SSH scanner patterns
   - id: scanner

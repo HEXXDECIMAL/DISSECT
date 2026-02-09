@@ -113,23 +113,9 @@ composite_rules:
     any:
       - id: etc-cron-d
       - id: etc-crontab
-      - id: obj/persist/cron/job/var-spool-cron-path
+      - id: obj/persist/cron/job::var-spool-cron-path
       - id: crontab-dash
 
-  # Helper: Download commands
-  - id: download-commands
-    desc: Download tool commands
-    any:
-      - id: curl-space
-      - id: wget-space
-
-  # Helper: Frequent schedules
-  - id: frequent-schedules
-    desc: Frequent cron execution schedules
-    any:
-      - id: every-minute
-      - id: every-5-minutes
-      - id: at-reboot
 
   # Helper: Download cradles
   - id: download-cradles
@@ -159,46 +145,22 @@ composite_rules:
     desc: Cron-related keywords
     any:
       - id: crontab-keyword
-      - id: obj/persist/cron/job/etc-cron-path
+      - id: obj/persist/cron/job::etc-cron-path
 
-  # Helper: Cron with download and execute
-  - id: cron-download-execute
-    desc: Cron with download and execute
-    all:
-      - id: cron-paths
-      - id: download-commands
-      - id: cap/os/console/io/redirection/shell-pipes
-
-  # Helper: Cron with frequent execution and download
-  - id: cron-frequent-download
-    desc: Cron with frequent schedule and
-    all:
-      - id: cron-paths
-      - id: frequent-schedules
-      - id: download-commands
-
-  # Malicious cron persistence
-  - id: malicious
-    desc: Malicious crontab persistence patterns
-    crit: suspicious
-    conf: 0.8
-    any:
-      - id: cron-download-execute
-      - id: cron-frequent-download
 
   # Helper: Download cradle with shell pipe
   - id: cradle-with-shell
     desc: Download cradle piped to shell
     all:
       - id: download-cradles
-      - id: cap/os/console/io/redirection/shell-pipes
+      - id: cap/os/console/io::shell-pipes
 
   # Helper: Download cradle with suppression
   - id: cradle-with-suppression
     desc: Download cradle with output suppression
     all:
       - id: download-cradles
-      - id: cap/os/console/io/redirection/output-suppression
+      - id: cap/os/console/io::output-suppression
 
   # Helper: Cron with base64
   - id: cron-with-base64

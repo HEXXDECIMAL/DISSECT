@@ -181,3 +181,169 @@ pub struct PackageJsonMetrics {
 // =============================================================================
 // COMPOSITE SCORES
 // =============================================================================
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // ==================== ArchiveMetrics Tests ====================
+
+    #[test]
+    fn test_archive_metrics_default() {
+        let metrics = ArchiveMetrics::default();
+        assert_eq!(metrics.file_count, 0);
+        assert_eq!(metrics.directory_count, 0);
+        assert!(!metrics.zip64_format);
+    }
+
+    #[test]
+    fn test_archive_metrics_structure() {
+        let metrics = ArchiveMetrics {
+            file_count: 100,
+            directory_count: 20,
+            total_uncompressed: 1024 * 1024,
+            total_compressed: 512 * 1024,
+            compression_ratio: 0.5,
+            ..Default::default()
+        };
+        assert_eq!(metrics.file_count, 100);
+        assert_eq!(metrics.directory_count, 20);
+    }
+
+    #[test]
+    fn test_archive_metrics_suspicious() {
+        let metrics = ArchiveMetrics {
+            path_traversal_count: 5,
+            symlink_count: 10,
+            symlink_escape_count: 2,
+            hidden_files: 15,
+            ..Default::default()
+        };
+        assert_eq!(metrics.path_traversal_count, 5);
+        assert_eq!(metrics.symlink_escape_count, 2);
+    }
+
+    #[test]
+    fn test_archive_metrics_filenames() {
+        let metrics = ArchiveMetrics {
+            max_filename_length: 255,
+            unicode_filenames: 5,
+            homoglyph_filenames: 2,
+            double_extension_count: 3,
+            rtlo_filenames: 1,
+            ..Default::default()
+        };
+        assert_eq!(metrics.double_extension_count, 3);
+        assert_eq!(metrics.rtlo_filenames, 1);
+    }
+
+    #[test]
+    fn test_archive_metrics_zip_specific() {
+        let metrics = ArchiveMetrics {
+            encrypted_entries: 10,
+            zip_bomb_ratio: 1000.0,
+            zip64_format: true,
+            has_comment: true,
+            extra_field_size: 1024,
+            ..Default::default()
+        };
+        assert!(metrics.zip64_format);
+        assert!(metrics.has_comment);
+        assert!((metrics.zip_bomb_ratio - 1000.0).abs() < f32::EPSILON);
+    }
+
+    #[test]
+    fn test_archive_metrics_content() {
+        let metrics = ArchiveMetrics {
+            nested_archive_count: 3,
+            misplaced_executables: 2,
+            high_entropy_files: 5,
+            executable_count: 10,
+            script_count: 15,
+            ..Default::default()
+        };
+        assert_eq!(metrics.nested_archive_count, 3);
+        assert_eq!(metrics.executable_count, 10);
+    }
+
+    // ==================== PackageJsonMetrics Tests ====================
+
+    #[test]
+    fn test_package_json_metrics_default() {
+        let metrics = PackageJsonMetrics::default();
+        assert_eq!(metrics.dependency_count, 0);
+        assert!(!metrics.has_postinstall);
+    }
+
+    #[test]
+    fn test_package_json_metrics_dependencies() {
+        let metrics = PackageJsonMetrics {
+            dependency_count: 50,
+            dev_dependency_count: 30,
+            peer_dependency_count: 5,
+            optional_dependency_count: 3,
+            ..Default::default()
+        };
+        assert_eq!(metrics.dependency_count, 50);
+        assert_eq!(metrics.dev_dependency_count, 30);
+    }
+
+    #[test]
+    fn test_package_json_metrics_lifecycle_scripts() {
+        let metrics = PackageJsonMetrics {
+            has_preinstall: true,
+            has_postinstall: true,
+            has_preuninstall: false,
+            script_count: 10,
+            scripts_with_download: 2,
+            scripts_with_eval: 1,
+            ..Default::default()
+        };
+        assert!(metrics.has_preinstall);
+        assert!(metrics.has_postinstall);
+        assert_eq!(metrics.scripts_with_download, 2);
+    }
+
+    #[test]
+    fn test_package_json_metrics_non_registry() {
+        let metrics = PackageJsonMetrics {
+            git_dependencies: 5,
+            github_dependencies: 3,
+            url_dependencies: 2,
+            local_dependencies: 1,
+            wildcard_dependencies: 4,
+            ..Default::default()
+        };
+        assert_eq!(metrics.git_dependencies, 5);
+        assert_eq!(metrics.wildcard_dependencies, 4);
+    }
+
+    #[test]
+    fn test_package_json_metrics_suspicious() {
+        let metrics = PackageJsonMetrics {
+            typosquat_score: 0.85,
+            name_entropy: 3.5,
+            missing_author: true,
+            missing_repository: true,
+            missing_license: false,
+            suspicious_bin_names: 2,
+            ..Default::default()
+        };
+        assert!(metrics.missing_author);
+        assert!(metrics.missing_repository);
+        assert!(!metrics.missing_license);
+        assert!((metrics.typosquat_score - 0.85).abs() < f32::EPSILON);
+    }
+
+    #[test]
+    fn test_package_json_metrics_obfuscation() {
+        let metrics = PackageJsonMetrics {
+            scripts_with_base64: 3,
+            script_total_chars: 10000,
+            obfuscated_scripts: 2,
+            ..Default::default()
+        };
+        assert_eq!(metrics.scripts_with_base64, 3);
+        assert_eq!(metrics.obfuscated_scripts, 2);
+    }
+}

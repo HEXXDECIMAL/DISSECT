@@ -134,7 +134,7 @@ composite_rules:
     mbc: "E1105"
     for: [shell]
     all:
-      - id: cap/exec/dropper/script/chmod-plus-x-cmd
+      - id: cap/exec/dropper/script::chmod-plus-x-cmd
     any:
       - id: unzip-command
       - id: tar-extract

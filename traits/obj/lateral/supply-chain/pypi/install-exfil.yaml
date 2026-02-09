@@ -344,7 +344,7 @@ composite_rules:
     all:
       - id: triple-hash-delimiter
     any:
-      - id: obj/discovery/system
+      - id: obj/discovery/system/
 
   # === HOSTILE: PyPI Install-Time Exfiltration ===
   # Classic pattern: setup.py collects system info, base64 encodes, POSTs to external server
@@ -358,9 +358,9 @@ composite_rules:
     attack: "T1020"
     all:
       - id: setup-py-file
-      - id: obj/discovery/host/system/python/python-sysinfo-multi
+      - id: obj/discovery/host/system::python-sysinfo-multi
       - id: base64-encode
-      - id: cap/comm/http/request/request-python
+      - id: cap/comm/http/request::request-python
 
   # === HOSTILE: PyPI Install-Time Atexit Exfiltration ===
   # setup.py registers atexit callback that collects system info and
@@ -377,7 +377,7 @@ composite_rules:
       - id: setup-py-file
       - id: atexit-register-callback
       - id: base64-encode
-      - id: cap/comm/http/request/request-python
+      - id: cap/comm/http/request::request-python
 
   # Lighter variant without setup.py check
   # Complexity: for(+1) + all(+3) = 4 (meets HOSTILE threshold)
@@ -388,9 +388,9 @@ composite_rules:
     mbc: "E1041"
     attack: "T1020"
     all:
-      - id: obj/discovery/host/system/python/python-sysinfo-multi
+      - id: obj/discovery/host/system::python-sysinfo-multi
       - id: base64-encode
-      - id: cap/comm/http/request/request-python
+      - id: cap/comm/http/request::request-python
 
   # === HOSTILE: Python Environment Variable Exfiltration ===
   # Pattern: enumerate environ + base64 encode + HTTP send
@@ -403,9 +403,9 @@ composite_rules:
     mbc: "E1041"
     attack: "T1020"
     all:
-      - id: cap/os/env/vars/py-environ-enumerate
+      - id: cap/os/env/vars::py-environ-enumerate
       - id: base64-encode
-      - id: cap/comm/http/request/request-python
+      - id: cap/comm/http/request::request-python
 
   # Fingerprint with VID parameter (high confidence)
   # Complexity: for(+1) + all(+3) = 4 (meets SUSPICIOUS threshold; HOSTILE would need >=4)
@@ -418,7 +418,7 @@ composite_rules:
     all:
       - id: vid-parameter
       - id: base64-encode
-      - id: cap/comm/http/request/request-python
+      - id: cap/comm/http/request::request-python
 
   # === HOSTILE: PyPI OOB Callback with User Info ===
   # Supply-chain package that POSTs user information to an OOB testing domain
@@ -431,9 +431,9 @@ composite_rules:
     mbc: "E1041"
     attack: "T1195.002"
     all:
-      - id: obj/exfil/channel/oob/oob-domains
-      - id: cap/comm/http/request/post
-      - id: obj/discovery/host/user/username-env
+      - id: obj/exfil/channel/oob::oob-domains
+      - id: cap/comm/http/request::post
+      - id: obj/discovery/host/user::username-env
 
   # === HOSTILE: PyPI Install-Time Beacon ===
   # setup.py sends system identifier (COMPUTERNAME, hostname) to a PHP endpoint
@@ -449,8 +449,8 @@ composite_rules:
     all:
       - id: setup-py-file
       - id: suspicious-php-endpoint
-      - id: cap/comm/http/request/request-python
-      - id: obj/lateral/supply-chain/pypi/windows-computername-env
+      - id: cap/comm/http/request::request-python
+      - id: obj/lateral/supply-chain/pypi::windows-computername-env
 
   # === SUSPICIOUS: PyPI Probe Package ===
   # Typosquat/dependency confusion probe: setup.py imports a network library

@@ -68,11 +68,11 @@ traits:
         - "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     attack: "T1027"
     unless:
-      - id: cap/exec/load/library/system-lib-marker
+      - id: cap/exec/load/library::system-lib-marker
       - id: cap/interface/usage/usage-help
       - id: cap/data/encode/base64/alphabet-standard
       # Exclude curl/libcurl which has special chars in help text
-      - id: cap/comm/download/curl/curl-easy-init
+      - id: cap/comm/download/curl::curl-easy-init
       # Exclude character set definitions
       - id: cap/data/text/encoding/iso-8859-1
     downgrade:
@@ -134,7 +134,7 @@ traits:
         - regex: "^[\\xA0-\\xFF]{8,}$"
     attack: "T1027"
     unless:
-      - id: cap/exec/load/library/system-lib-marker
+      - id: cap/exec/load/library::system-lib-marker
       - id: cap/data/compression/zstd
       - id: cap/data/compression/lzma
       - id: meta/lang/go
@@ -195,5 +195,5 @@ composite_rules:
     all:
       # Require actual Mirai detection (composite), not just any trait in the directory
       # The /detected composite requires 6+ indicators plus size constraints
-      - id: known/malware/botnet/mirai/detected
+      - id: known/malware/botnet/mirai::detected
       - id: xor-obfuscation-evidence

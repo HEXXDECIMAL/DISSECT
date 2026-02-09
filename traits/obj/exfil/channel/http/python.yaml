@@ -33,5 +33,5 @@ composite_rules:
       - id: system-data-post
       - id: file-read-http-send
     all:
-      - id: obj/discovery/system
+      - id: obj/discovery/system/
       - id: cap/comm/http/request

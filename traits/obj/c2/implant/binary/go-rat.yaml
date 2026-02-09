@@ -124,7 +124,7 @@ composite_rules:
     all:
       - id: go-shell-module
       - id: go-socks-proxy-module
-      - id: cap/exec/command/shell/go-shell-strings
+      - id: cap/exec/command/shell::go-shell-strings
 
   # Go RAT with full capability set
   # Complexity: all(4) + for(1) = 5 >= 4 HOSTILE
@@ -139,7 +139,7 @@ composite_rules:
       - id: go-shell-module
       - id: go-file-utils
       - id: go-system-recon
-      - id: cap/exec/command/shell/go-shell-strings
+      - id: cap/exec/command/shell::go-shell-strings
 
   # Go RAT with anti-forensics
   # Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
@@ -153,7 +153,7 @@ composite_rules:
     all:
       - id: go-shell-module
       - id: go-clean-history
-      - id: cap/exec/command/shell/go-shell-strings
+      - id: cap/exec/command/shell::go-shell-strings
 
   # Go RAT with timestomping
   # Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
@@ -167,7 +167,7 @@ composite_rules:
     all:
       - id: go-shell-module
       - id: go-timestomp
-      - id: cap/exec/command/shell/go-shell-strings
+      - id: cap/exec/command/shell::go-shell-strings
 
   # Go implant with proxy + file transfer
   # Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
@@ -181,4 +181,4 @@ composite_rules:
     all:
       - id: go-socks-proxy-module
       - id: go-file-utils
-      - id: cap/exec/command/shell/go-shell-strings
+      - id: cap/exec/command/shell::go-shell-strings

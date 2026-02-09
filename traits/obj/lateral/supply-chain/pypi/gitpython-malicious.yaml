@@ -87,7 +87,7 @@ composite_rules:
     any:
       - id: git-clone-url
       - id: git-clone-in-setup
-      - id: cap/data/text/malware/suspicious-repo-name
+      - id: cap/data/text/malware::suspicious-repo-name
     all:
       - id: gitpython-import
 

@@ -14,11 +14,24 @@
 
 See [TAXONOMY.md](./TAXONOMY.md) for complete tier structure.
 
+**Tier dependencies:**
+- `cap/` → can reference `cap/` and `meta/` only
+- `obj/` → can reference `cap/`, `obj/`, and `meta/`
+- `known/` → can reference `cap/`, `obj/`, `known/`, and `meta/`
+- `meta/` → typically references `meta/` only
+
+**Critical rules:**
+- `cap/` must NOT reference `obj/` (capabilities are atomic, objectives infer intent)
+- `cap/` must NOT use `crit: hostile` (hostile requires intent inference, belongs in `obj/`)
+
 ## Trait Placement & IDs
 
-- IDs auto-prefixed by directory path
-- Cross-tier references use full paths: `cap/exec/shell/subprocess`
-- Directory match: `cap/exec/shell/` matches all in directory
+- IDs auto-prefixed by directory path (e.g., `traits/cap/exec/shell/` → prefix `cap/exec/shell`)
+- **Filenames are NEVER part of trait IDs** - only the directory path is used for prefixing
+  - A trait `foo` in `traits/cap/exec/shell/python.yaml` has ID `cap/exec/shell::foo`
+  - NOT `cap/exec/shell/python::foo` or `cap/exec/shell/python/foo`
+- Cross-tier references use full paths: `cap/exec/shell::subprocess`
+- Directory match: `cap/exec/shell/` matches all traits in that directory
 - Generic capabilities NEVER go in `known/`
 
 ## Criticality Levels

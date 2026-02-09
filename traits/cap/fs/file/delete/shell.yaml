@@ -23,4 +23,4 @@ composite_rules:
     all:
       - id: rm-force-tmp-var-dev
     none:
-      - id: cap/fs/path/package-manager/apt-lists
+      - id: cap/fs/path/package-manager::apt-lists

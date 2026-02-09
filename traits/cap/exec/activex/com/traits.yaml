@@ -87,15 +87,3 @@ composite_rules:
       - id: activex-shell-app
       - id: activex-wmi
 
-  - id: activex-malware-toolkit
-    desc: COM malware toolkit
-    crit: hostile
-    conf: 0.9
-    needs: 3
-    any:
-      - id: activex-filesystem
-      - id: activex-wshell
-      - id: activex-shell-app
-      - id: activex-xmlhttp
-      - id: activex-winhttp
-      - id: activex-wmi

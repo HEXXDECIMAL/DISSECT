@@ -392,12 +392,3 @@ composite_rules:
       - id: execv-fn
 
   # Complete fileless dropper pattern
-  - id: linux-dropper
-    desc: Linux fileless dropper (download +
-    crit: hostile
-    conf: 0.99
-    for: [python, elf]
-    all:
-      - id: memfd-create
-      - id: http-download-python
-      - id: fd-write-raw

@@ -11,12 +11,12 @@ composite_rules:
     for: [python]
     needs: 4
     all:
-      - id: obj/discovery/system
+      - id: obj/discovery/system/
       - id: cap/comm/http/request
     any:
       - id: cap/fs/file/write
-      - id: cred
-      - id: collect
+      - id: obj/creds/
+      - id: obj/collect/
 
   - id: dynamic-dropper
     desc: "Dynamic Python dropper behavior"
@@ -29,7 +29,7 @@ composite_rules:
     all:
       - id: obj/anti-static/obfuscation/strings
       - id: obj/lateral/supply-chain
-      - id: exec
+      - id: cap/exec/
 
   - id: evasive-profiler
     desc: "Evasive Python system profiler"
@@ -40,8 +40,8 @@ composite_rules:
     for: [python]
     needs: 3
     all:
-      - id: obj/anti-analysis/aliasing/dynamic/python/python-std-alias
-      - id: obj/discovery/system
+      - id: obj/anti-analysis/aliasing/dynamic::python-std-alias
+      - id: obj/discovery/system/
       - id: cap/comm/http/request
 
   - id: data-staging
@@ -54,7 +54,7 @@ composite_rules:
     near_lines: 100
     needs: 4
     all:
-      - id: obj/discovery/system
+      - id: obj/discovery/system/
     any:
       - id: cap/fs/file/write
       - id: obj/collect/archive

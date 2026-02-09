@@ -14,8 +14,8 @@ composite_rules:
     desc: ARM direct network syscalls
     crit: notable
     any:
-      - id: cap/comm/syscall/socket/arm/svc-socket
-      - id: cap/comm/syscall/socket/arm/svc-connect
+      - id: cap/comm/syscall/socket::svc-socket
+      - id: cap/comm/syscall/socket::svc-connect
 
   # Helper: Structural anomalies
   # NOTE: Stripped binaries are normal for release builds. Require additional
@@ -24,15 +24,15 @@ composite_rules:
     desc: Suspicious binary structure
     crit: notable
     all:
-      - id: meta/format/dominant-text-section
+      - id: meta/format::text-section-ratio-dominant
     any:
-      - id: obj/anti-static/hardening/detection/minimal
+      - id: meta/hardening::minimal-hardening
 
   - id: tiny-network-stager
     desc: "Tiny network stager"
     crit: hostile
     all:
-      - id: meta/format/tiny-elf
+      - id: meta/format::tiny-elf
       - id: arm-network-syscalls
       - id: structural-anomalies
 
@@ -41,5 +41,5 @@ composite_rules:
     crit: suspicious
     needs: 2
     any:
-      - id: cap/comm/syscall/socket/arm/svc-socket
-      - id: cap/comm/syscall/socket/arm/svc-connect
+      - id: cap/comm/syscall/socket::svc-socket
+      - id: cap/comm/syscall/socket::svc-connect

@@ -66,7 +66,7 @@ traits:
     for: [c]
     if:
       type: string
-      regex: "\\blinux_dirent\\b"
+      word: "linux_dirent"
 
   - id: cr0-variable-str
     desc: cr0 register variable
@@ -75,7 +75,7 @@ traits:
     for: [c]
     if:
       type: string
-      regex: "\\bcr0\\b"
+      word: "cr0"
     downgrade:
       none:
         - id: kernel-module-header
@@ -884,7 +884,6 @@ traits:
       type: ast
       node: switch_statement
       exact: "sig"
-      case_insensitive: true
 
   # ============================================================
   # TASK/PROCESS MANIPULATION

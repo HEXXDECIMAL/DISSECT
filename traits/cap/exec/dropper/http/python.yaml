@@ -59,29 +59,13 @@ traits:
       regex: "subprocess\\.(Popen|run|call)\\("
 
 composite_rules:
-  # HTTP library composite
+  # HTTP library composite (unified python-http-lib and python-http-download-call)
   - id: python-http-lib
     desc: Python HTTP library usage
     crit: notable
     conf: 0.6
-    needs: 1
     any:
-      - id: requests-get
-      - id: requests-post
-      - id: urllib-request
-      - id: http-client
-
-  # HTTP download call composite
-  - id: python-http-download-call
-    desc: Python HTTP download function call
-    crit: notable
-    conf: 0.6
-    needs: 1
-    any:
-      - id: requests-get
-      - id: requests-post
-      - id: urlopen-call
-      - id: urlretrieve-call
+      - id: cap/comm/http/request/
 
   # Temp directory composite
   - id: python-tmp-dir
@@ -90,19 +74,16 @@ composite_rules:
     conf: 0.5
     needs: 1
     any:
-      - id: tmp-path
-      - id: tempfile-module
+      - id: cap/fs/temp/directory::temp-directory
+      - id: cap/fs/temp/directory::directory-python
 
   # Home directory composite
   - id: python-home-dir
     desc: Home directory access
     crit: notable
     conf: 0.5
-    needs: 1
     any:
-      - id: expanduser-home
-      - id: path-home-call
-      - id: environ-home
+      - id: cap/fs/path/user/
 
   # Code or process execution composite
   - id: python-exec-any
@@ -110,9 +91,9 @@ composite_rules:
     crit: notable
     conf: 0.5
     any:
-      - id: cap/exec/command/subprocess/python
-      - id: os-system-call
-      - id: exec-call
+      - id: cap/exec/command/subprocess/
+      - id: cap/exec/command/shell::python-os-system
+      - id: cap/exec/eval/invoke::exec-call-python
 
   # C2 endpoint path composite
   - id: python-endpoint-path
@@ -120,15 +101,8 @@ composite_rules:
     crit: notable
     conf: 0.65
     any:
-      - id: path-payload
-      - id: path-stage
-      - id: path-drop
-      - id: path-brow
-      - id: path-mclip
-      - id: path-clip
-      - id: path-steal
-      - id: path-grab
-      - id: path-exfil
+      - id: cap/comm/http/patterns::payload-path
+      - id: cap/comm/http/patterns::php-collector
 
   # Original rule - tmp directory dropper
   - id: tmp-dropper
@@ -138,8 +112,8 @@ composite_rules:
     any:
       - id: python-http-lib
       - id: python-tmp-dir
-      - id: python-chmod
-      - id: cap/exec/command/subprocess/python
+      - id: cap/fs/chmod/commands::python-os-chmod
+      - id: cap/exec/command/subprocess/
 
   # Home directory dropper - downloads to hidden dir in home
   - id: home-dropper
@@ -148,9 +122,9 @@ composite_rules:
     crit: suspicious
     needs: 3
     any:
-      - id: python-http-download-call
+      - id: python-http-lib
       - id: python-home-dir
-      - id: python-write-binary
+      - id: cap/fs/write/file::python-open-write-binary
       - id: python-exec-any
 
   # Generic download + write + execute (any location)
@@ -159,8 +133,8 @@ composite_rules:
     conf: 0.9
     all:
       - id: python-http-lib
-      - id: python-write-content
-      - id: cap/exec/command/subprocess/python
+      - id: cap/fs/write/file::python-open-write-binary
+      - id: cap/exec/command/subprocess/
 
   # Multiple download functions composite
   - id: multi-download-funcs
@@ -181,6 +155,6 @@ composite_rules:
       - id: multi-download-funcs
     all:
       - id: requests-method
-      - id: cap/fs/file-ops/modes/python/py-write
+      - id: cap/fs/file-ops/modes::py-write
       - id: popen-call
       - id: payload-keyword

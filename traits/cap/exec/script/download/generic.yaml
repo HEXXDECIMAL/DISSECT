@@ -14,35 +14,3 @@ traits:
       type: content
       regex: "perl\\s+.{1,120}\\.(pl|pm)|perl\\s+-e\\s+"
 
-composite_rules:
-  # Shell execute composite
-  - id: sh-execute
-    desc: Shell script execution
-    crit: notable
-    conf: 0.7
-    mbc: "C0059"
-    attack: "T1059.004"
-    for: [all]
-    needs: 1
-    any:
-      - id: sh-execute-cmd
-      - id: bash-execute-cmd
-      - id: zsh-execute-cmd
-
-  # Pipe to shell composite
-  - id: pipe-to-shell
-    desc: Pipe to shell execution (very
-    crit: suspicious
-    conf: 0.95
-    mbc: "B0024"
-    attack: "T1059.004"
-    for: [shell, elf, macho, pe]
-    needs: 1
-    any:
-      - id: pipe-to-sh
-      - id: pipe-to-bash
-      - id: pipe-to-zsh
-      - id: pipe-to-perl
-      - id: pipe-to-python
-      - id: pipe-to-ruby
-      - id: pipe-to-node

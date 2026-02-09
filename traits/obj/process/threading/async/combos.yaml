@@ -10,8 +10,8 @@ composite_rules:
     conf: 0.80
     for: ["pe", "dll"]
     all:
-      - id: cap/process/thread/create/create-thread
-      - id: cap/os/message/queue/peek-message-a
+      - id: cap/process/thread/create::create-thread
+      - id: cap/os/message/queue::peek-message-a
 
   # === Threaded Worker Pool ===
   - id: worker-pool
@@ -20,9 +20,9 @@ composite_rules:
     conf: 0.75
     for: ["pe", "dll"]
     all:
-      - id: cap/process/thread/create/create-thread
-      - id: cap/mem/protect/modify/virtual-alloc
-      - id: cap/os/exception/handler/capture-context
+      - id: cap/process/thread/create::create-thread
+      - id: cap/mem/protect/modify::virtual-alloc
+      - id: cap/os/exception/handler::capture-context
 
   # === Background Executor ===
   - id: background-execution
@@ -31,6 +31,6 @@ composite_rules:
     conf: 0.80
     for: ["pe", "dll"]
     all:
-      - id: cap/process/thread/create/create-thread
-      - id: cap/os/exception/register/rtl-add-function-table
-      - id: cap/os/exception/handler/virtual-unwind
+      - id: cap/process/thread/create::create-thread
+      - id: cap/os/exception/register::rtl-add-function-table
+      - id: cap/os/exception/handler::virtual-unwind

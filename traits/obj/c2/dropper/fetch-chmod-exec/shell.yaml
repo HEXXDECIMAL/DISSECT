@@ -14,9 +14,9 @@ composite_rules:
     attack: "T1105"
     for: [shell]
     all:
-      - id: obj/c2/infrastructure/ip/http-raw-ip-url
-      - id: cap/exec/dropper/script/curl-download
-      - id: cap/exec/dropper/script/chmod-plus-x-cmd
+      - id: obj/c2/infrastructure/ip::http-raw-ip-url-script
+      - id: cap/exec/dropper/script::curl-download
+      - id: cap/exec/dropper/script::chmod-plus-x-cmd
 
   # Download from raw IP + Gatekeeper bypass + execute
   # Complexity: all(4) = 4 -> hostile
@@ -28,10 +28,10 @@ composite_rules:
     attack: "T1553.001"
     for: [shell]
     all:
-      - id: obj/c2/infrastructure/ip/http-raw-ip-url
-      - id: cap/exec/dropper/script/curl-download
-      - id: cap/fs/attributes/xattr/xattr-clear
-      - id: cap/exec/dropper/script/execute-dot-slash
+      - id: obj/c2/infrastructure/ip::http-raw-ip-url-script
+      - id: cap/exec/dropper/script::curl-download
+      - id: cap/fs/attributes/xattr::xattr-clear
+      - id: cap/exec/dropper/script::execute-dot-slash
 
   # Temp directory staging dropper
   # Complexity: all(4) = 4 -> hostile
@@ -44,9 +44,9 @@ composite_rules:
     for: [shell]
     all:
       - id: tmpdir-variable
-      - id: cap/exec/dropper/script/curl-download
-      - id: cap/exec/dropper/script/chmod-plus-x-cmd
-      - id: cap/exec/dropper/script/execute-dot-slash
+      - id: cap/exec/dropper/script::curl-download
+      - id: cap/exec/dropper/script::chmod-plus-x-cmd
+      - id: cap/exec/dropper/script::execute-dot-slash
 
   # Download from external URL + chmod + execute
   # Complexity: all(4) = 4 -> hostile
@@ -59,9 +59,9 @@ composite_rules:
     for: [shell]
     all:
       - id: obj/c2/infrastructure/domain/http-url-with-domain-pattern
-      - id: cap/exec/dropper/script/curl-download-file
-      - id: cap/exec/dropper/script/chmod-plus-x-cmd
-      - id: cap/exec/dropper/script/execute-dot-slash
+      - id: cap/exec/dropper/script::curl-download-file
+      - id: cap/exec/dropper/script::chmod-plus-x-cmd
+      - id: cap/exec/dropper/script::execute-dot-slash
 
 traits:
   - id: tmpdir-variable

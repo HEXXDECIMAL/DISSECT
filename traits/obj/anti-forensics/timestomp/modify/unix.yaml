@@ -17,4 +17,4 @@ composite_rules:
     crit: suspicious
     conf: 0.7
     any:
-      - id: cap/fs/file/timestamp/unix
+      - id: cap/fs/file/timestamp/

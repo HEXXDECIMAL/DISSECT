@@ -150,7 +150,7 @@ composite_rules:
     all:
       - id: libcurl-version
       - id: ecdh-key-exchange
-      - id: cap/crypto/symmetric/stream/chacha-salsa-constant
+      - id: cap/crypto/symmetric/stream::chacha-salsa-constant
     any:
       - id: socks5h-proto
       - id: socks4a-proto

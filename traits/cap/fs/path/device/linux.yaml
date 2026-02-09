@@ -68,5 +68,5 @@ composite_rules:
     downgrade:
       any:
         - id: cap/exec/load/x11-dga-marker
-        - id: cap/exec/load/library/graphics-lib-marker
+        - id: cap/exec/load/library::graphics-lib-marker
         - id: cap/exec/load/drm-driver-ref

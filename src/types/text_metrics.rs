@@ -441,3 +441,334 @@ pub struct FunctionMetrics {
 // =============================================================================
 // LANGUAGE-SPECIFIC METRICS
 // =============================================================================
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // ==================== TextMetrics Tests ====================
+
+    #[test]
+    fn test_text_metrics_default() {
+        let metrics = TextMetrics::default();
+        assert_eq!(metrics.char_entropy, 0.0);
+        assert_eq!(metrics.total_lines, 0);
+        assert!(metrics.most_common_char.is_none());
+        assert!(!metrics.mixed_indent);
+    }
+
+    #[test]
+    fn test_text_metrics_creation() {
+        let metrics = TextMetrics {
+            char_entropy: 4.5,
+            unique_chars: 75,
+            total_lines: 100,
+            avg_line_length: 45.0,
+            max_line_length: 200,
+            ..Default::default()
+        };
+        assert!((metrics.char_entropy - 4.5).abs() < f32::EPSILON);
+        assert_eq!(metrics.total_lines, 100);
+    }
+
+    #[test]
+    fn test_text_metrics_escape_sequences() {
+        let metrics = TextMetrics {
+            hex_escape_count: 50,
+            unicode_escape_count: 25,
+            octal_escape_count: 10,
+            escape_density: 1.5,
+            ..Default::default()
+        };
+        assert_eq!(metrics.hex_escape_count, 50);
+        assert!((metrics.escape_density - 1.5).abs() < f32::EPSILON);
+    }
+
+    #[test]
+    fn test_text_metrics_whitespace() {
+        let metrics = TextMetrics {
+            whitespace_ratio: 0.15,
+            tab_count: 100,
+            space_count: 500,
+            mixed_indent: true,
+            unusual_whitespace: 5,
+            ..Default::default()
+        };
+        assert!(metrics.mixed_indent);
+        assert_eq!(metrics.unusual_whitespace, 5);
+    }
+
+    #[test]
+    fn test_text_metrics_long_lines() {
+        let metrics = TextMetrics {
+            lines_over_200: 10,
+            lines_over_500: 3,
+            lines_over_1000: 1,
+            ..Default::default()
+        };
+        assert_eq!(metrics.lines_over_200, 10);
+        assert_eq!(metrics.lines_over_1000, 1);
+    }
+
+    // ==================== IdentifierMetrics Tests ====================
+
+    #[test]
+    fn test_identifier_metrics_default() {
+        let metrics = IdentifierMetrics::default();
+        assert_eq!(metrics.total, 0);
+        assert_eq!(metrics.unique, 0);
+        assert_eq!(metrics.avg_length, 0.0);
+    }
+
+    #[test]
+    fn test_identifier_metrics_creation() {
+        let metrics = IdentifierMetrics {
+            total: 500,
+            unique: 150,
+            reuse_ratio: 0.3,
+            avg_length: 8.5,
+            min_length: 1,
+            max_length: 25,
+            ..Default::default()
+        };
+        assert_eq!(metrics.total, 500);
+        assert_eq!(metrics.unique, 150);
+    }
+
+    #[test]
+    fn test_identifier_metrics_entropy() {
+        let metrics = IdentifierMetrics {
+            avg_entropy: 3.2,
+            high_entropy_count: 20,
+            high_entropy_ratio: 0.15,
+            ..Default::default()
+        };
+        assert!((metrics.high_entropy_ratio - 0.15).abs() < f32::EPSILON);
+    }
+
+    #[test]
+    fn test_identifier_metrics_suspicious() {
+        let metrics = IdentifierMetrics {
+            hex_like_names: 5,
+            base64_like_names: 3,
+            sequential_names: 10,
+            keyboard_pattern_names: 2,
+            repeated_char_names: 1,
+            ..Default::default()
+        };
+        assert_eq!(metrics.hex_like_names, 5);
+        assert_eq!(metrics.sequential_names, 10);
+    }
+
+    #[test]
+    fn test_identifier_metrics_single_char() {
+        let metrics = IdentifierMetrics {
+            single_char_count: 50,
+            single_char_ratio: 0.1,
+            ..Default::default()
+        };
+        assert_eq!(metrics.single_char_count, 50);
+    }
+
+    // ==================== StringMetrics Tests ====================
+
+    #[test]
+    fn test_string_metrics_default() {
+        let metrics = StringMetrics::default();
+        assert_eq!(metrics.total, 0);
+        assert_eq!(metrics.total_bytes, 0);
+    }
+
+    #[test]
+    fn test_string_metrics_creation() {
+        let metrics = StringMetrics {
+            total: 200,
+            total_bytes: 5000,
+            avg_length: 25.0,
+            max_length: 500,
+            empty_count: 5,
+            ..Default::default()
+        };
+        assert_eq!(metrics.total, 200);
+        assert_eq!(metrics.total_bytes, 5000);
+    }
+
+    #[test]
+    fn test_string_metrics_entropy() {
+        let metrics = StringMetrics {
+            avg_entropy: 4.5,
+            entropy_stddev: 1.2,
+            high_entropy_count: 15,
+            very_high_entropy_count: 3,
+            ..Default::default()
+        };
+        assert_eq!(metrics.high_entropy_count, 15);
+        assert_eq!(metrics.very_high_entropy_count, 3);
+    }
+
+    #[test]
+    fn test_string_metrics_encoding() {
+        let metrics = StringMetrics {
+            base64_candidates: 10,
+            hex_strings: 5,
+            url_encoded_strings: 3,
+            unicode_heavy_strings: 2,
+            ..Default::default()
+        };
+        assert_eq!(metrics.base64_candidates, 10);
+    }
+
+    #[test]
+    fn test_string_metrics_content() {
+        let metrics = StringMetrics {
+            url_count: 20,
+            path_count: 30,
+            ip_count: 5,
+            email_count: 2,
+            domain_count: 15,
+            ..Default::default()
+        };
+        assert_eq!(metrics.url_count, 20);
+        assert_eq!(metrics.path_count, 30);
+    }
+
+    #[test]
+    fn test_string_metrics_construction() {
+        let metrics = StringMetrics {
+            concat_operations: 50,
+            format_strings: 20,
+            char_construction: 10,
+            array_join_construction: 5,
+            ..Default::default()
+        };
+        assert_eq!(metrics.concat_operations, 50);
+        assert_eq!(metrics.char_construction, 10);
+    }
+
+    // ==================== CommentMetrics Tests ====================
+
+    #[test]
+    fn test_comment_metrics_default() {
+        let metrics = CommentMetrics::default();
+        assert_eq!(metrics.total, 0);
+        assert_eq!(metrics.lines, 0);
+    }
+
+    #[test]
+    fn test_comment_metrics_creation() {
+        let metrics = CommentMetrics {
+            total: 100,
+            lines: 150,
+            chars: 5000,
+            to_code_ratio: 0.2,
+            ..Default::default()
+        };
+        assert_eq!(metrics.total, 100);
+        assert_eq!(metrics.chars, 5000);
+    }
+
+    #[test]
+    fn test_comment_metrics_patterns() {
+        let metrics = CommentMetrics {
+            todo_count: 10,
+            fixme_count: 5,
+            hack_count: 2,
+            xxx_count: 1,
+            empty_comments: 3,
+            ..Default::default()
+        };
+        assert_eq!(metrics.todo_count, 10);
+        assert_eq!(metrics.fixme_count, 5);
+    }
+
+    #[test]
+    fn test_comment_metrics_suspicious() {
+        let metrics = CommentMetrics {
+            high_entropy_comments: 3,
+            code_in_comments: 5,
+            url_in_comments: 10,
+            base64_in_comments: 2,
+            ..Default::default()
+        };
+        assert_eq!(metrics.high_entropy_comments, 3);
+        assert_eq!(metrics.base64_in_comments, 2);
+    }
+
+    // ==================== FunctionMetrics Tests ====================
+
+    #[test]
+    fn test_function_metrics_default() {
+        let metrics = FunctionMetrics::default();
+        assert_eq!(metrics.total, 0);
+        assert_eq!(metrics.anonymous, 0);
+    }
+
+    #[test]
+    fn test_function_metrics_creation() {
+        let metrics = FunctionMetrics {
+            total: 50,
+            anonymous: 10,
+            async_count: 5,
+            generator_count: 2,
+            ..Default::default()
+        };
+        assert_eq!(metrics.total, 50);
+        assert_eq!(metrics.anonymous, 10);
+    }
+
+    #[test]
+    fn test_function_metrics_size() {
+        let metrics = FunctionMetrics {
+            avg_length_lines: 25.5,
+            max_length_lines: 200,
+            min_length_lines: 1,
+            length_stddev: 15.0,
+            over_100_lines: 5,
+            over_500_lines: 1,
+            one_liners: 10,
+            ..Default::default()
+        };
+        assert_eq!(metrics.max_length_lines, 200);
+        assert_eq!(metrics.over_100_lines, 5);
+    }
+
+    #[test]
+    fn test_function_metrics_params() {
+        let metrics = FunctionMetrics {
+            avg_params: 3.5,
+            max_params: 15,
+            no_params_count: 10,
+            many_params_count: 2,
+            single_char_params: 20,
+            ..Default::default()
+        };
+        assert_eq!(metrics.max_params, 15);
+        assert_eq!(metrics.single_char_params, 20);
+    }
+
+    #[test]
+    fn test_function_metrics_nesting() {
+        let metrics = FunctionMetrics {
+            max_nesting_depth: 10,
+            avg_nesting_depth: 3.5,
+            nested_functions: 5,
+            recursive_count: 2,
+            ..Default::default()
+        };
+        assert_eq!(metrics.max_nesting_depth, 10);
+        assert_eq!(metrics.recursive_count, 2);
+    }
+
+    #[test]
+    fn test_function_metrics_naming() {
+        let metrics = FunctionMetrics {
+            avg_name_length: 12.5,
+            single_char_names: 3,
+            high_entropy_names: 5,
+            numeric_suffix_names: 10,
+            ..Default::default()
+        };
+        assert_eq!(metrics.single_char_names, 3);
+        assert_eq!(metrics.numeric_suffix_names, 10);
+    }
+}

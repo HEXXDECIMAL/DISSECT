@@ -160,18 +160,3 @@ composite_rules:
       - id: firewall-cmd-permanent
       - id: firewall-cmd-reload
 
-  - id: firewall-comprehensive-abuse
-    desc: Complete firewall manipulation pattern
-    crit: hostile
-    conf: 0.9
-    for: [elf, shell]
-    attack: "T1562.004"
-    mbc: "E1562"
-    needs: 3
-    any:
-      - id: firewall-cmd-add-port
-      - id: firewall-cmd-permanent
-      - id: firewall-cmd-reload
-      - id: ufw-allow-ssh
-      - id: ufw-enable
-      - id: firewalld-service-control

@@ -266,17 +266,6 @@ composite_rules:
       - id: mirai-cred-hi3518
 
   # Camera credential list detection
-  - id: camera-creds
-    desc: "IoT camera credentials brute-force"
-    crit: suspicious
-    conf: 0.95
-    attack: "T1110"
-    mbc: "B0009"
-    all:
-      - id: iot-creds
-    any:
-      - id: camera-keywords
-
   - id: telnet-attack
     desc: "IoT telnet attack patterns"
     crit: notable

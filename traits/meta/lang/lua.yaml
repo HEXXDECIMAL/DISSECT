@@ -114,7 +114,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     all:
-      - id: obj/anti-static/obfuscation/encoding/xor-string
+      - id: obj/anti-static/obfuscation/encoding::xor-string
     any:
       - id: base64-decoder-custom
       - id: bytecode-interpreter

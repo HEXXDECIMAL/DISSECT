@@ -113,7 +113,7 @@ composite_rules:
     all:
       - id: go-heartbeat-function
       - id: go-cmd-exec-module
-      - id: cap/exec/command/shell/go-shell-strings
+      - id: cap/exec/command/shell::go-shell-strings
 
   # Go C2 implant with file transfer
   # Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
@@ -127,7 +127,7 @@ composite_rules:
     all:
       - id: go-heartbeat-function
       - id: go-file-transfer
-      - id: cap/exec/command/shell/go-shell-strings
+      - id: cap/exec/command/shell::go-shell-strings
 
   # Go C2 with monitor/worker pattern
   # Complexity: all(4) + for(1) = 5 >= 4 HOSTILE
@@ -141,7 +141,7 @@ composite_rules:
       - id: go-heartbeat-function
       - id: go-monitor-worker
       - id: go-cmd-exec-module
-      - id: cap/exec/command/shell/go-shell-strings
+      - id: cap/exec/command/shell::go-shell-strings
 
   # Full Go C2 implant
   # Complexity: all(4) + any(1) + for(1) = 6 >= 4 HOSTILE
@@ -156,7 +156,7 @@ composite_rules:
       - id: go-heartbeat-function
       - id: go-cmd-exec-module
       - id: go-file-transfer
-      - id: cap/exec/command/shell/go-shell-strings
+      - id: cap/exec/command/shell::go-shell-strings
     any:
       - id: go-xor-encoding
       - id: suspicious-log-path

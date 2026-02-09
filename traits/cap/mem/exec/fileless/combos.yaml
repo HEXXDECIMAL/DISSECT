@@ -70,11 +70,11 @@ composite_rules:
     platforms: [linux]
     for: [elf]
     all:
-      - id: cap/mem/anonymous/create/memfd-create
+      - id: cap/mem/anonymous/create::memfd-create
     any:
       - id: fexecve-symbol
-      - id: cap/exec/command/shell/c-execve
-      - id: cap/mem/protect/modify/mprotect
+      - id: cap/exec/command/shell::c-execve
+      - id: cap/mem/protect/modify::mprotect
 
   - id: python-shellcode
     desc: Python shellcode injection via VirtualProtect
@@ -85,7 +85,7 @@ composite_rules:
     platforms: [windows]
     for: [python]
     all:
-      - id: cap/mem/protect/modify/virtualprotect-ctypes
+      - id: cap/mem/protect/modify::virtualprotect-ctypes
     any:
       - id: python-encode-call
       - id: python-b64decode-call

@@ -258,10 +258,10 @@ composite_rules:
     crit: suspicious
     needs: 3
     any:
-      - id: obj/anti-static/obfuscation/code/base64-decode
-      - id: obj/discovery/host/system/ruby/ruby-dns-resolve
-      - id: cap/comm/http/request/ruby-http-client
-      - id: cap/comm/http/request/ruby-http-get-response
+      - id: cap/data/encode/base64::base64-decode
+      - id: cap/comm/dns/lookup::dns-resolve
+      - id: cap/comm/http/request::net-http
+      - id: cap/comm/http/request::http-get-method
 
   - id: ruby-tmp-execution
     desc: Write to /tmp, chmod, and execute
@@ -279,9 +279,9 @@ composite_rules:
     crit: suspicious
     needs: 2
     any:
-      - id: cap/comm/socket/listen/ruby-tcp-socket
+      - id: cap/comm/socket/listen::ruby-tcp-socket
       - id: cap/exec/command/shell
-      - id: cap/process/tty/pty/ruby-pty
+      - id: cap/process/tty/pty::ruby-pty
 
   - id: ruby-windows-vbs-dropper
     desc: Windows VBS payload dropper
@@ -293,9 +293,9 @@ composite_rules:
       - id: base64-separator-obfuscation
       - id: vbs-script-write
       - id: wscript-execution
-      - id: cap/exec/command/shell/ruby-system
-      - id: obj/anti-static/obfuscation/code/base64-decode
-      - id: obj/anti-static/obfuscation/code/base64-decode-symbol
+      - id: cap/exec/command/shell::ruby-system
+      - id: cap/data/encode/base64::base64-decode
+      - id: cap/data/encode/base64::decode64-symbol
 
   - id: ruby-binary-dropper
     desc: Downloads and writes binary payload
@@ -303,5 +303,5 @@ composite_rules:
     crit: suspicious
     needs: 2
     any:
-      - id: cap/comm/http/request/ruby-http-get-response
+      - id: cap/comm/http/request::http-get-method
       - id: cap/fs/write/file

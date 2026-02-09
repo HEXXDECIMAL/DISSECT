@@ -24,7 +24,7 @@ composite_rules:
     mbc: "B0033"
     attack: "T1059"
     all:
-      - id: cap/comm/socket/create/perl/socket-call
-      - id: cap/comm/socket/create/perl/open-call
+      - id: cap/comm/socket/create::socket-call
+      - id: cap/comm/socket/create::open-call
       - id: perl-redir
-      - id: cap/exec/command/shell/interactive/sh-interactive
+      - id: cap/exec/command/shell::sh-interactive

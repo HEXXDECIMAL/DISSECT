@@ -149,5 +149,5 @@ composite_rules:
     for: [elf, shell]
     attack: "T1548.004"
     all:
-      - id: kinsing-identifier
+      - id: known/malware/miner/kinsing-enhanced::kinsing-identifier
       - id: multi-distro-sudo-deployment

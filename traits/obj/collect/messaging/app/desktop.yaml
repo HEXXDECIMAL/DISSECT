@@ -248,6 +248,6 @@ composite_rules:
     for: [python]
     all:
       - id: telegram-tdata
-      - id: obj/discovery/host/system/python/python-username
-      - id: cap/fs/temp/directory/temp-directory
-      - id: cap/fs/directory/mkdir/mkdir-python
+      - id: obj/discovery/host/system::python-username
+      - id: cap/fs/temp/directory::temp-directory
+      - id: cap/fs/directory/mkdir::mkdir-python

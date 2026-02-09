@@ -68,7 +68,7 @@ composite_rules:
     conf: 0.7
     mbc: "C0027.001"
     any:
-      - id: obj/anti-static/obfuscation/encoding/rc4-sbox-init
-      - id: obj/anti-static/obfuscation/encoding/stream-cipher-decrypt
-      - id: obj/anti-static/obfuscation/encoding/cipher-key-schedule
+      - id: obj/anti-static/obfuscation/encoding::rc4-sbox-init
+      - id: obj/anti-static/obfuscation/encoding::stream-cipher-decrypt
+      - id: obj/anti-static/obfuscation/encoding::cipher-key-schedule
     needs: 2

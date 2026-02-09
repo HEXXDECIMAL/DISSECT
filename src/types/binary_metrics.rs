@@ -484,3 +484,369 @@ pub struct JavaClassMetrics {
 // =============================================================================
 // CONTAINER/ARCHIVE METRICS
 // =============================================================================
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // ==================== BinaryMetrics Default Tests ====================
+
+    #[test]
+    fn test_binary_metrics_default() {
+        let metrics = BinaryMetrics::default();
+        assert_eq!(metrics.overall_entropy, 0.0);
+        assert_eq!(metrics.section_count, 0);
+        assert_eq!(metrics.import_count, 0);
+        assert_eq!(metrics.function_count, 0);
+        assert!(!metrics.has_overlay);
+    }
+
+    #[test]
+    fn test_binary_metrics_creation() {
+        let metrics = BinaryMetrics {
+            overall_entropy: 7.5,
+            code_entropy: 6.8,
+            section_count: 5,
+            executable_sections: 2,
+            import_count: 150,
+            function_count: 50,
+            ..Default::default()
+        };
+        assert!((metrics.overall_entropy - 7.5).abs() < f32::EPSILON);
+        assert_eq!(metrics.section_count, 5);
+        assert_eq!(metrics.import_count, 150);
+    }
+
+    #[test]
+    fn test_binary_metrics_high_entropy_regions() {
+        let metrics = BinaryMetrics {
+            high_entropy_regions: 3,
+            entropy_variance: 1.5,
+            ..Default::default()
+        };
+        assert_eq!(metrics.high_entropy_regions, 3);
+    }
+
+    #[test]
+    fn test_binary_metrics_wx_sections() {
+        let metrics = BinaryMetrics {
+            wx_sections: 1,
+            writable_sections: 2,
+            executable_sections: 3,
+            ..Default::default()
+        };
+        assert_eq!(metrics.wx_sections, 1);
+    }
+
+    #[test]
+    fn test_binary_metrics_complexity() {
+        let metrics = BinaryMetrics {
+            avg_complexity: 15.5,
+            max_complexity: 100,
+            high_complexity_functions: 5,
+            high_complexity_function_names: vec!["process_data".to_string()],
+            ..Default::default()
+        };
+        assert_eq!(metrics.max_complexity, 100);
+        assert_eq!(metrics.high_complexity_function_names.len(), 1);
+    }
+
+    #[test]
+    fn test_binary_metrics_overlay() {
+        let metrics = BinaryMetrics {
+            has_overlay: true,
+            overlay_size: 65536,
+            overlay_ratio: 0.25,
+            overlay_entropy: 7.9,
+            ..Default::default()
+        };
+        assert!(metrics.has_overlay);
+        assert_eq!(metrics.overlay_size, 65536);
+    }
+
+    // ==================== ElfMetrics Default Tests ====================
+
+    #[test]
+    fn test_elf_metrics_default() {
+        let metrics = ElfMetrics::default();
+        assert_eq!(metrics.e_type, 0);
+        assert!(!metrics.entry_not_in_text);
+        assert!(!metrics.stripped);
+        assert!(metrics.entry_section.is_none());
+    }
+
+    #[test]
+    fn test_elf_metrics_creation() {
+        let metrics = ElfMetrics {
+            e_type: 2, // ET_EXEC
+            needed_libs: 15,
+            stripped: true,
+            nx_enabled: true,
+            pie_enabled: true,
+            ..Default::default()
+        };
+        assert_eq!(metrics.e_type, 2);
+        assert!(metrics.stripped);
+        assert!(metrics.nx_enabled);
+    }
+
+    #[test]
+    fn test_elf_metrics_security_features() {
+        let metrics = ElfMetrics {
+            relro: Some("full".to_string()),
+            stack_canary: true,
+            nx_enabled: true,
+            pie_enabled: true,
+            ..Default::default()
+        };
+        assert_eq!(metrics.relro, Some("full".to_string()));
+        assert!(metrics.stack_canary);
+    }
+
+    #[test]
+    fn test_elf_metrics_dynamic_linking() {
+        let metrics = ElfMetrics {
+            rpath_set: true,
+            runpath_set: false,
+            init_array_count: 3,
+            fini_array_count: 1,
+            ..Default::default()
+        };
+        assert!(metrics.rpath_set);
+        assert_eq!(metrics.init_array_count, 3);
+    }
+
+    #[test]
+    fn test_elf_metrics_special_sections() {
+        let metrics = ElfMetrics {
+            has_plt: true,
+            has_got: true,
+            has_eh_frame: true,
+            gnu_hash_present: true,
+            ..Default::default()
+        };
+        assert!(metrics.has_plt);
+        assert!(metrics.has_got);
+    }
+
+    // ==================== PeMetrics Default Tests ====================
+
+    #[test]
+    fn test_pe_metrics_default() {
+        let metrics = PeMetrics::default();
+        assert!(!metrics.timestamp_anomaly);
+        assert!(!metrics.is_dotnet);
+        assert!(metrics.clr_version.is_none());
+    }
+
+    #[test]
+    fn test_pe_metrics_creation() {
+        let metrics = PeMetrics {
+            timestamp_anomaly: true,
+            checksum_valid: false,
+            rich_header_present: true,
+            resource_count: 10,
+            ..Default::default()
+        };
+        assert!(metrics.timestamp_anomaly);
+        assert!(metrics.rich_header_present);
+    }
+
+    #[test]
+    fn test_pe_metrics_imports() {
+        let metrics = PeMetrics {
+            delay_load_imports: 5,
+            ordinal_imports: 3,
+            suspicious_import_combo: true,
+            api_hashing_indicators: 2,
+            ..Default::default()
+        };
+        assert!(metrics.suspicious_import_combo);
+        assert_eq!(metrics.delay_load_imports, 5);
+    }
+
+    #[test]
+    fn test_pe_metrics_dotnet() {
+        let metrics = PeMetrics {
+            is_dotnet: true,
+            clr_version: Some("4.0.30319".to_string()),
+            mixed_mode: false,
+            ..Default::default()
+        };
+        assert!(metrics.is_dotnet);
+        assert_eq!(metrics.clr_version, Some("4.0.30319".to_string()));
+    }
+
+    #[test]
+    fn test_pe_metrics_signature() {
+        let metrics = PeMetrics {
+            has_signature: true,
+            signature_valid: Some(true),
+            ..Default::default()
+        };
+        assert!(metrics.has_signature);
+        assert_eq!(metrics.signature_valid, Some(true));
+    }
+
+    #[test]
+    fn test_pe_metrics_resources() {
+        let metrics = PeMetrics {
+            rsrc_size: 102400,
+            rsrc_entropy: 5.2,
+            embedded_pe_count: 2,
+            icon_count: 5,
+            version_info_present: true,
+            manifest_present: true,
+            ..Default::default()
+        };
+        assert_eq!(metrics.rsrc_size, 102400);
+        assert_eq!(metrics.embedded_pe_count, 2);
+    }
+
+    // ==================== MachoMetrics Default Tests ====================
+
+    #[test]
+    fn test_macho_metrics_default() {
+        let metrics = MachoMetrics::default();
+        assert_eq!(metrics.file_type, 0);
+        assert!(!metrics.is_universal);
+        assert!(!metrics.hardened_runtime);
+    }
+
+    #[test]
+    fn test_macho_metrics_creation() {
+        let metrics = MachoMetrics {
+            file_type: 2, // MH_EXECUTE
+            load_command_count: 25,
+            segment_count: 4,
+            dylib_count: 15,
+            ..Default::default()
+        };
+        assert_eq!(metrics.file_type, 2);
+        assert_eq!(metrics.load_command_count, 25);
+    }
+
+    #[test]
+    fn test_macho_metrics_universal() {
+        let metrics = MachoMetrics {
+            is_universal: true,
+            slice_count: 2,
+            ..Default::default()
+        };
+        assert!(metrics.is_universal);
+        assert_eq!(metrics.slice_count, 2);
+    }
+
+    #[test]
+    fn test_macho_metrics_code_signing() {
+        let metrics = MachoMetrics {
+            has_code_signature: true,
+            signature_valid: Some(true),
+            signature_type: Some("developer-id".to_string()),
+            team_identifier: Some("ABC123DEF".to_string()),
+            ..Default::default()
+        };
+        assert!(metrics.has_code_signature);
+        assert_eq!(metrics.signature_type, Some("developer-id".to_string()));
+    }
+
+    #[test]
+    fn test_macho_metrics_entitlements() {
+        let metrics = MachoMetrics {
+            has_entitlements: true,
+            dangerous_entitlements: 2,
+            ..Default::default()
+        };
+        assert!(metrics.has_entitlements);
+        assert_eq!(metrics.dangerous_entitlements, 2);
+    }
+
+    #[test]
+    fn test_macho_metrics_hardened_runtime() {
+        let metrics = MachoMetrics {
+            hardened_runtime: true,
+            allow_jit: false,
+            ..Default::default()
+        };
+        assert!(metrics.hardened_runtime);
+        assert!(!metrics.allow_jit);
+    }
+
+    // ==================== JavaClassMetrics Default Tests ====================
+
+    #[test]
+    fn test_java_class_metrics_default() {
+        let metrics = JavaClassMetrics::default();
+        assert_eq!(metrics.major_version, 0);
+        assert_eq!(metrics.method_count, 0);
+        assert!(metrics.java_version.is_none());
+    }
+
+    #[test]
+    fn test_java_class_metrics_creation() {
+        let metrics = JavaClassMetrics {
+            major_version: 55, // Java 11
+            minor_version: 0,
+            java_version: Some("11".to_string()),
+            method_count: 25,
+            constant_pool_size: 150,
+            ..Default::default()
+        };
+        assert_eq!(metrics.major_version, 55);
+        assert_eq!(metrics.java_version, Some("11".to_string()));
+    }
+
+    #[test]
+    fn test_java_class_metrics_constant_pool() {
+        let metrics = JavaClassMetrics {
+            constant_pool_size: 500,
+            utf8_constants: 200,
+            class_refs: 50,
+            method_refs: 100,
+            string_constant_entropy: 4.5,
+            ..Default::default()
+        };
+        assert_eq!(metrics.constant_pool_size, 500);
+        assert_eq!(metrics.utf8_constants, 200);
+    }
+
+    #[test]
+    fn test_java_class_metrics_methods() {
+        let metrics = JavaClassMetrics {
+            method_count: 50,
+            native_methods: 3,
+            synthetic_methods: 10,
+            avg_method_size: 150.5,
+            max_method_size: 5000,
+            ..Default::default()
+        };
+        assert_eq!(metrics.method_count, 50);
+        assert_eq!(metrics.native_methods, 3);
+    }
+
+    #[test]
+    fn test_java_class_metrics_debug_info() {
+        let metrics = JavaClassMetrics {
+            has_source_file: true,
+            has_line_numbers: true,
+            has_local_vars: true,
+            inner_class_count: 5,
+            ..Default::default()
+        };
+        assert!(metrics.has_source_file);
+        assert!(metrics.has_line_numbers);
+        assert_eq!(metrics.inner_class_count, 5);
+    }
+
+    #[test]
+    fn test_java_class_metrics_obfuscation() {
+        let metrics = JavaClassMetrics {
+            obfuscated_strings: 10,
+            invokedynamic_count: 5,
+            reflection_patterns: 15,
+            ..Default::default()
+        };
+        assert_eq!(metrics.obfuscated_strings, 10);
+        assert_eq!(metrics.reflection_patterns, 15);
+    }
+}

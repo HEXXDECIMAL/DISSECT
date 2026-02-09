@@ -426,7 +426,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: '\bx509\b'
+      word: "x509"
       case_insensitive: true
 
   - id: certificate-ref
@@ -434,7 +434,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: '\bcertificate\b'
+      word: "certificate"
       case_insensitive: true
 
   - id: pem-begin

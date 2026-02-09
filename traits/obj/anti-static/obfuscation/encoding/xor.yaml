@@ -132,15 +132,6 @@ traits:
       exact: "fYztZORL5VNS7nCUH1ktn5UoJ8VSgaf"
 
 composite_rules:
-  - id: single-byte-xor-key
-    desc: "Single byte XOR key"
-    crit: notable
-    conf: 0.5
-    any:
-      - id: xor-key-hex-0x55
-      - id: xor-key-hex-0xaa
-      - id: xor-key-hex-0xff
-
   - id: xor-decode-loop
     desc: "XOR decryption loop pattern"
     crit: suspicious

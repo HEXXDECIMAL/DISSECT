@@ -6,9 +6,9 @@ composite_rules:
     desc: "Reference to sensitive credentials"
     crit: notable
     any:
-      - id: obj/creds/ssh/key/id-rsa
-      - id: obj/creds/cloud/token/gcloud-config
-      - id: obj/creds/cloud/token/gcp-default-credentials
+      - id: obj/creds/ssh/key::id-rsa
+      - id: obj/creds/cloud/token::gcloud-config
+      - id: obj/creds/cloud/token::gcp-default-credentials
 
   - id: sensitive-archiving
     desc: "Archiving of sensitive credentials or keys"
@@ -19,4 +19,4 @@ composite_rules:
       - id: cap/data/archive/zip
       - id: cap/os/user
       - id: cap/fs/file
-      - id: obj/collect/archive/data/sensitive-archiving/sensitive-credentials
+      - id: sensitive-credentials

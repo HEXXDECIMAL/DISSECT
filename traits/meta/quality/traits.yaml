@@ -796,8 +796,8 @@ composite_rules:
       - { id: python-test-file }
       - { id: unittest-module }
       - { id: pytest-module }
-      - { id: meta/dev/testing/rust-test-attr }
-      - { id: meta/dev/testing/go-testing-t }
+      - { id: meta/dev/testing::rust-test-attr }
+      - { id: meta/dev/testing::go-testing-t }
 
   # Metrics/telemetry
   - id: has-metrics

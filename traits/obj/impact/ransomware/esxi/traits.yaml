@@ -171,7 +171,7 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     all:
-      - id: obj/impact/ransomware/esxi/file-targeting
+      - id: obj/impact/ransomware/esxi::file-targeting
     any:
-      - id: obj/impact/ransomware/esxi/vm-kill
-      - id: obj/impact/ransomware/esxi/snapshot
+      - id: obj/impact/ransomware/esxi::vm-kill
+      - id: obj/impact/ransomware/esxi::snapshot

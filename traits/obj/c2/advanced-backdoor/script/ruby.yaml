@@ -121,10 +121,10 @@ composite_rules:
     any:
       - id: rsa-public-key
       - id: cookie-session-extract
-      - id: cap/crypto/verification/signature-verify
+      - id: cap/crypto/verification/signature::signature-verify
       - id: json-parse
       - id: timestamp-validation
-      - id: obj/c2/web-framework/script/ruby/rack-sendfile-hook
+      - id: obj/c2/web-framework/script::rack-sendfile-hook
 
   # === Remote Code Execution Backdoor ===
   - id: remote-code-execution
@@ -138,4 +138,4 @@ composite_rules:
       - id: sleep-timer
       - id: remote-code-download
       - id: rails-env-check
-      - id: cap/exec/command/shell/ruby-eval
+      - id: cap/exec/command/shell::ruby-eval

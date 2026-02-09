@@ -50,5 +50,5 @@ composite_rules:
     any:
       - id: chrome-keychain-query
       - id: openssl-aes-decryption-cmd
-      - id: obj/creds/browser/chromium/login-data
-      - id: obj/creds/browser/chromium/web-data
+      - id: obj/creds/browser/chromium::login-data
+      - id: obj/creds/browser/chromium::web-data

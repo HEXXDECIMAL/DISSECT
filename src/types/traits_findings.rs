@@ -251,3 +251,321 @@ pub struct Evidence {
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub location: Option<String>,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // ==================== TraitKind Tests ====================
+
+    #[test]
+    fn test_trait_kind_equality() {
+        assert_eq!(TraitKind::String, TraitKind::String);
+        assert_ne!(TraitKind::String, TraitKind::Path);
+    }
+
+    #[test]
+    fn test_trait_kind_all_variants() {
+        // Ensure all variants are distinct
+        let variants = vec![
+            TraitKind::String,
+            TraitKind::Path,
+            TraitKind::EnvVar,
+            TraitKind::Import,
+            TraitKind::Export,
+            TraitKind::Ip,
+            TraitKind::Url,
+            TraitKind::Domain,
+            TraitKind::Email,
+            TraitKind::Base64,
+            TraitKind::Hash,
+            TraitKind::Registry,
+            TraitKind::Function,
+        ];
+        for (i, v1) in variants.iter().enumerate() {
+            for (j, v2) in variants.iter().enumerate() {
+                if i == j {
+                    assert_eq!(v1, v2);
+                } else {
+                    assert_ne!(v1, v2);
+                }
+            }
+        }
+    }
+
+    // ==================== Trait Tests ====================
+
+    #[test]
+    fn test_trait_new() {
+        let t = Trait::new(TraitKind::String, "test_value".to_string(), "strings".to_string());
+
+        assert_eq!(t.kind, TraitKind::String);
+        assert_eq!(t.value, "test_value");
+        assert_eq!(t.source, "strings");
+        assert!(t.offset.is_none());
+        assert!(t.encoding.is_none());
+        assert!(t.section.is_none());
+    }
+
+    #[test]
+    fn test_trait_with_offset() {
+        let t = Trait::new(TraitKind::String, "test".to_string(), "src".to_string())
+            .with_offset("0x1234".to_string());
+
+        assert_eq!(t.offset, Some("0x1234".to_string()));
+    }
+
+    #[test]
+    fn test_trait_with_encoding() {
+        let t = Trait::new(TraitKind::String, "test".to_string(), "src".to_string())
+            .with_encoding("utf16le".to_string());
+
+        assert_eq!(t.encoding, Some("utf16le".to_string()));
+    }
+
+    #[test]
+    fn test_trait_with_section() {
+        let t = Trait::new(TraitKind::String, "test".to_string(), "src".to_string())
+            .with_section(".rodata".to_string());
+
+        assert_eq!(t.section, Some(".rodata".to_string()));
+    }
+
+    #[test]
+    fn test_trait_builder_chain() {
+        let t = Trait::new(TraitKind::Import, "malloc".to_string(), "elf".to_string())
+            .with_offset("0x400".to_string())
+            .with_section(".plt".to_string());
+
+        assert_eq!(t.kind, TraitKind::Import);
+        assert_eq!(t.value, "malloc");
+        assert_eq!(t.offset, Some("0x400".to_string()));
+        assert_eq!(t.section, Some(".plt".to_string()));
+    }
+
+    // ==================== FindingKind Tests ====================
+
+    #[test]
+    fn test_finding_kind_default() {
+        assert_eq!(FindingKind::default(), FindingKind::Capability);
+    }
+
+    #[test]
+    fn test_finding_kind_equality() {
+        assert_eq!(FindingKind::Capability, FindingKind::Capability);
+        assert_ne!(FindingKind::Capability, FindingKind::Structural);
+    }
+
+    // ==================== Finding Tests ====================
+
+    #[test]
+    fn test_finding_new() {
+        let f = Finding::new(
+            "test/cap".to_string(),
+            FindingKind::Capability,
+            "Test capability".to_string(),
+            0.9,
+        );
+
+        assert_eq!(f.id, "test/cap");
+        assert_eq!(f.kind, FindingKind::Capability);
+        assert_eq!(f.desc, "Test capability");
+        assert!((f.conf - 0.9).abs() < f32::EPSILON);
+        assert_eq!(f.crit, Criticality::Inert);
+        assert!(f.mbc.is_none());
+        assert!(f.attack.is_none());
+        assert!(f.trait_refs.is_empty());
+        assert!(f.evidence.is_empty());
+    }
+
+    #[test]
+    fn test_finding_capability() {
+        let f = Finding::capability("net/socket".to_string(), "Socket operations".to_string(), 0.8);
+
+        assert_eq!(f.id, "net/socket");
+        assert_eq!(f.kind, FindingKind::Capability);
+    }
+
+    #[test]
+    fn test_finding_structural() {
+        let f = Finding::structural(
+            "obfuscation/base64".to_string(),
+            "Base64 obfuscation".to_string(),
+            0.7,
+        );
+
+        assert_eq!(f.kind, FindingKind::Structural);
+    }
+
+    #[test]
+    fn test_finding_indicator() {
+        let f = Finding::indicator("c2/beacon".to_string(), "C2 beacon pattern".to_string(), 0.95);
+
+        assert_eq!(f.kind, FindingKind::Indicator);
+    }
+
+    #[test]
+    fn test_finding_weakness() {
+        let f = Finding::weakness(
+            "vuln/sql-injection".to_string(),
+            "SQL injection".to_string(),
+            0.85,
+        );
+
+        assert_eq!(f.kind, FindingKind::Weakness);
+    }
+
+    #[test]
+    fn test_finding_with_criticality() {
+        let f = Finding::capability("test".to_string(), "desc".to_string(), 0.9)
+            .with_criticality(Criticality::Hostile);
+
+        assert_eq!(f.crit, Criticality::Hostile);
+    }
+
+    #[test]
+    fn test_finding_with_mbc() {
+        let f = Finding::capability("test".to_string(), "desc".to_string(), 0.9)
+            .with_mbc("B0015.001".to_string());
+
+        assert_eq!(f.mbc, Some("B0015.001".to_string()));
+    }
+
+    #[test]
+    fn test_finding_with_attack() {
+        let f = Finding::capability("test".to_string(), "desc".to_string(), 0.9)
+            .with_attack("T1059.001".to_string());
+
+        assert_eq!(f.attack, Some("T1059.001".to_string()));
+    }
+
+    #[test]
+    fn test_finding_with_trait_refs() {
+        let f = Finding::capability("test".to_string(), "desc".to_string(), 0.9)
+            .with_trait_refs(vec!["trait1".to_string(), "trait2".to_string()]);
+
+        assert_eq!(f.trait_refs.len(), 2);
+        assert!(f.trait_refs.contains(&"trait1".to_string()));
+    }
+
+    #[test]
+    fn test_finding_with_evidence() {
+        let evidence = vec![Evidence {
+            method: "symbol".to_string(),
+            source: "goblin".to_string(),
+            value: "connect".to_string(),
+            location: Some("0x1000".to_string()),
+        }];
+
+        let f = Finding::capability("test".to_string(), "desc".to_string(), 0.9)
+            .with_evidence(evidence);
+
+        assert_eq!(f.evidence.len(), 1);
+        assert_eq!(f.evidence[0].value, "connect");
+    }
+
+    #[test]
+    fn test_finding_builder_chain() {
+        let f = Finding::capability("net/http".to_string(), "HTTP client".to_string(), 0.95)
+            .with_criticality(Criticality::Suspicious)
+            .with_mbc("C0002".to_string())
+            .with_attack("T1071.001".to_string());
+
+        assert_eq!(f.id, "net/http");
+        assert_eq!(f.crit, Criticality::Suspicious);
+        assert_eq!(f.mbc, Some("C0002".to_string()));
+        assert_eq!(f.attack, Some("T1071.001".to_string()));
+    }
+
+    // ==================== truncate_str Tests ====================
+
+    #[test]
+    fn test_truncate_str_short() {
+        let s = "hello";
+        assert_eq!(truncate_str(s, 100), "hello");
+    }
+
+    #[test]
+    fn test_truncate_str_exact() {
+        let s = "hello";
+        assert_eq!(truncate_str(s, 5), "hello");
+    }
+
+    #[test]
+    fn test_truncate_str_cut() {
+        let s = "hello world";
+        assert_eq!(truncate_str(s, 5), "hello");
+    }
+
+    #[test]
+    fn test_truncate_str_utf8_boundary() {
+        // "é" is 2 bytes in UTF-8
+        let s = "café";
+        // Truncating at byte 3 would split the é, so it should back up to byte 3 (caf)
+        let result = truncate_str(s, 4);
+        assert_eq!(result, "caf");
+    }
+
+    #[test]
+    fn test_truncate_str_multibyte() {
+        // "日" is 3 bytes in UTF-8
+        let s = "日本語"; // 9 bytes total
+        // Truncating at 5 bytes should give us just "日" (3 bytes)
+        let result = truncate_str(s, 5);
+        assert_eq!(result, "日");
+    }
+
+    #[test]
+    fn test_truncate_str_zero() {
+        let s = "hello";
+        assert_eq!(truncate_str(s, 0), "");
+    }
+
+    // ==================== Evidence Tests ====================
+
+    #[test]
+    fn test_evidence_creation() {
+        let e = Evidence {
+            method: "yara".to_string(),
+            source: "yara-x".to_string(),
+            value: "suspicious_pattern".to_string(),
+            location: Some("0x1234".to_string()),
+        };
+
+        assert_eq!(e.method, "yara");
+        assert_eq!(e.source, "yara-x");
+        assert_eq!(e.value, "suspicious_pattern");
+        assert_eq!(e.location, Some("0x1234".to_string()));
+    }
+
+    #[test]
+    fn test_evidence_no_location() {
+        let e = Evidence {
+            method: "import".to_string(),
+            source: "goblin".to_string(),
+            value: "CreateRemoteThread".to_string(),
+            location: None,
+        };
+
+        assert!(e.location.is_none());
+    }
+
+    // ==================== StructuralFeature Tests ====================
+
+    #[test]
+    fn test_structural_feature_creation() {
+        let sf = StructuralFeature {
+            id: "binary/format/pe".to_string(),
+            desc: "PE executable format".to_string(),
+            evidence: vec![Evidence {
+                method: "magic".to_string(),
+                source: "goblin".to_string(),
+                value: "MZ".to_string(),
+                location: Some("0x0".to_string()),
+            }],
+        };
+
+        assert_eq!(sf.id, "binary/format/pe");
+        assert_eq!(sf.evidence.len(), 1);
+    }
+}

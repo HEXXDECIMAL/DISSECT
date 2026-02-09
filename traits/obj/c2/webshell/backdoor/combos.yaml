@@ -14,10 +14,10 @@ composite_rules:
     for: [php]
     all:
       - id: obj/persist/session
-      - id: cap/data/user-input
+      - id: cap/data/user-input/
     any:
-      - id: obj/anti-static/obfuscation
-      - id: cap/fs/write
+      - id: obj/anti-static/obfuscation/
+      - id: cap/fs/write/
       - id: cap/exec/command/shell
 
   # Dropper webshell (writes decoded payloads)
@@ -29,11 +29,11 @@ composite_rules:
     attack: "T1105"
     for: [php]
     all:
-      - id: obj/anti-static/obfuscation
-      - id: cap/fs/write
+      - id: obj/anti-static/obfuscation/
+      - id: cap/fs/write/
     any:
-      - id: cap/data/user-input
-      - id: cap/data/user-input
+      - id: cap/data/user-input/
+      - id: cap/data/user-input/
 
   # Self-destructing webshell
   - id: php-self-destruct
@@ -44,8 +44,8 @@ composite_rules:
     attack: "T1070.004"
     for: [php]
     all:
-      - id: obj/anti-forensics/self-destruct/script/script-self-delete
-      - id: cap/data/user-input
+      - id: obj/anti-forensics/self-destruct/script::script-self-delete
+      - id: cap/data/user-input/
 
   # SSRF/Proxy webshell
   - id: php-proxy
@@ -56,12 +56,12 @@ composite_rules:
     attack: "T1090"
     for: [php]
     all:
-      - id: cap/comm/http/curl/init
+      - id: cap/comm/http/curl::init
     any:
-      - id: cap/data/user-input
-      - id: cap/data/user-input
-      - id: cap/comm/http/curl/ssl-verify-disable
-      - id: cap/comm/http/curl/ssl-host-disable
+      - id: cap/data/user-input/
+      - id: cap/data/user-input/
+      - id: cap/comm/http/curl::ssl-verify-disable
+      - id: cap/comm/http/curl::ssl-host-disable
 
     needs: 1
 
@@ -74,8 +74,8 @@ composite_rules:
     attack: "T1070.006"
     for: [php]
     all:
-      - id: obj/anti-forensics/timestomp/modify/timestomp
-      - id: cap/fs/write
+      - id: obj/anti-forensics/timestomp/modify::timestomp
+      - id: cap/fs/write/
 
   # Hardcoded authentication backdoor
   - id: php-hardcoded-auth
@@ -86,8 +86,8 @@ composite_rules:
     attack: "T1505.003"
     for: [php]
     any:
-      - id: obj/c2/webshell/backdoor/php/hardcoded-hash-auth
-      - id: obj/c2/webshell/backdoor/php/substr-hash-compare
+      - id: obj/c2/webshell/backdoor::hardcoded-hash-auth
+      - id: obj/c2/webshell/backdoor::substr-hash-compare
 
   # File upload webshell
   - id: php-uploader
@@ -98,10 +98,10 @@ composite_rules:
     attack: "T1105"
     for: [php]
     any:
-      - id: cap/data/user-input
-      - id: cap/comm/http/curl/file-upload
-      - id: cap/fs/write
-      - id: cap/fs/write
+      - id: cap/data/user-input/
+      - id: cap/comm/http/curl::file-upload
+      - id: cap/fs/write/
+      - id: cap/fs/write/
 
     needs: 1
   # Command execution webshell
@@ -114,8 +114,8 @@ composite_rules:
     for: [php]
     any:
       - id: cap/exec/command/shell
-      - id: obj/anti-static/obfuscation
-      - id: cap/data/user-input
+      - id: obj/anti-static/obfuscation/
+      - id: cap/data/user-input/
 
     needs: 1
 
@@ -129,8 +129,8 @@ composite_rules:
     attack: "T1505.003"
     for: [php]
     all:
-      - id: obj/c2/webshell/backdoor/eval-base64-large-payload
-      - id: obj/anti-static/obfuscation/code-metrics/php-webshell-pattern
+      - id: obj/c2/webshell/backdoor::eval-base64-large-payload
+      - id: obj/anti-static/obfuscation/code-metrics::php-webshell-pattern
   # Web UI webshell (has HTML interface)
   - id: php-web-ui
     desc: "PHP webshell with web-based user"
@@ -140,10 +140,10 @@ composite_rules:
     attack: "T1505.003"
     for: [php]
     all:
-      - id: obj/c2/webshell/backdoor/php/password-form
+      - id: obj/c2/webshell/backdoor::password-form
     any:
       - id: obj/persist/session
-      - id: cap/data/user-input
+      - id: cap/data/user-input/
 
   # Google scraping webshell (SEO spam tool)
   - id: php-seo-tool
@@ -154,8 +154,8 @@ composite_rules:
     attack: "T1505.003"
     for: [php]
     all:
-      - id: obj/c2/webshell/backdoor/php/google-search-scrape
-      - id: cap/comm/http/curl/init
+      - id: obj/c2/webshell/backdoor::google-search-scrape
+      - id: cap/comm/http/curl::init
 
   # Obfuscated payload webshell
   - id: php-obfuscated
@@ -166,7 +166,7 @@ composite_rules:
     attack: "T1027"
     for: [php]
     all:
-      - id: obj/anti-static/obfuscation
+      - id: obj/anti-static/obfuscation/
 
   # Decompressed code execution
   - id: php-gz-eval
@@ -177,8 +177,8 @@ composite_rules:
     attack: "T1027"
     for: [php]
     all:
-      - id: obj/anti-static/obfuscation/encoding/gzinflate
-      - id: obj/anti-static/obfuscation/encoding/eval
+      - id: obj/anti-static/obfuscation/encoding::gzinflate
+      - id: obj/anti-static/obfuscation/encoding::eval
 
   # Obfuscated dynamic backdoor
   - id: php-obfuscated-dynamic-backdoor
@@ -191,8 +191,8 @@ composite_rules:
     all:
       - id: cap/exec/command/shell/
     any:
-      - id: obj/anti-static/obfuscation/code-metrics/php-obfuscated-vars
-      - id: obj/anti-static/obfuscation/code-metrics/php-encoded-strings
+      - id: obj/anti-static/obfuscation/code-metrics::php-obfuscated-vars
+      - id: obj/anti-static/obfuscation/code-metrics::php-encoded-strings
       - id: obj/anti-static/obfuscation/encoding
 
   # Non-ASCII dynamic backdoor
@@ -205,7 +205,7 @@ composite_rules:
     for: [php]
     all:
       - id: cap/exec/command/shell/
-      - id: obj/anti-static/obfuscation/code-metrics/php-high-non-ascii-ratio
+      - id: obj/anti-static/obfuscation/code-metrics::php-high-non-ascii-ratio
 
   - id: php-non-ascii-identifiers-backdoor
     desc: "PHP: backdoor using non-ASCII identifiers"
@@ -228,7 +228,7 @@ composite_rules:
       - id: cap/exec/command/shell
     any:
       - id: cap/data/user-input/request
-      - id: obj/anti-static/obfuscation
+      - id: obj/anti-static/obfuscation/
       - id: cap/fs/read/file
       - id: cap/fs/write/file
 
@@ -261,11 +261,11 @@ composite_rules:
     attack: "T1505.003"
     for: [php]
     all:
-      - id: obj/c2/webshell/backdoor/dynamic-user-input-call  # $_POST['x']() pattern
+      - id: obj/c2/webshell/backdoor::dynamic-user-input-call  # $_POST['x']() pattern
       - id: cap/exec/command/shell   # has shell execution capability
     any:
       - id: cap/data/user-input/request
-      - id: cap/fs/write
+      - id: cap/fs/write/
       - id: cap/fs/read
 
   # Hostile: Webshell with backtick RCE from user input
@@ -277,11 +277,11 @@ composite_rules:
     attack: "T1059.004"
     for: [php]
     all:
-      - id: cap/exec/command/shell/backtick
+      - id: cap/exec/command/shell::backtick
       - id: cap/data/user-input/request
     any:
       - id: cap/exec/command/shell
-      - id: cap/fs/write
+      - id: cap/fs/write/
       - id: obj/persist/session
 
   # Hostile: WSO webshell family with command execution
@@ -293,11 +293,11 @@ composite_rules:
     attack: "T1505.003"
     for: [php]
     all:
-      - id: obj/c2/webshell/script/wso-version
+      - id: obj/c2/webshell/script::wso-version
       - id: cap/exec/command/shell
     any:
       - id: cap/data/user-input/request
-      - id: cap/fs/write
+      - id: cap/fs/write/
       - id: obj/persist/session
 
   # Hostile: Full-featured webshell (multiple indicators)
@@ -312,10 +312,10 @@ composite_rules:
     all:
       - id: cap/exec/command/shell  # shell execution
       - id: cap/data/user-input/request  # user input handling
-      - id: cap/fs/write  # file write capability
+      - id: cap/fs/write/  # file write capability
       - id: obj/c2/webshell  # webshell family indicators
-      - id: obj/c2/webshell/backdoor/dynamic-user-input-call  # variable function backdoor
-      - id: cap/exec/command/shell/backtick  # backtick RCE
+      - id: obj/c2/webshell/backdoor::dynamic-user-input-call  # variable function backdoor
+      - id: cap/exec/command/shell::backtick  # backtick RCE
 
   # WordPress CMS backdoor - creates admin user with obfuscated code
   - id: php-wordpress-backdoor
@@ -326,9 +326,9 @@ composite_rules:
     attack: "T1505.003"
     for: [php]
     all:
-      - id: obj/c2/webshell/backdoor/wp-user-creation
-      - id: obj/c2/webshell/backdoor/wp-role-assignment
+      - id: obj/c2/webshell/backdoor::wp-user-creation
+      - id: obj/c2/webshell/backdoor::wp-role-assignment
     any:
-      - id: obj/anti-static/obfuscation/encoding/strrev-chained
-      - id: obj/anti-static/obfuscation/encoding/base64-admin-role
-      - id: obj/c2/webshell/backdoor/wp-plugin-path-encoded
+      - id: obj/anti-static/obfuscation/encoding::strrev-chained
+      - id: obj/anti-static/obfuscation/encoding::base64-admin-role
+      - id: obj/c2/webshell/backdoor::wp-plugin-path-encoded

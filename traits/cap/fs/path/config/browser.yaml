@@ -1,0 +1,59 @@
+# Browser Configuration File Paths
+# Detects references to browser configuration and data files
+# ATT&CK: T1555.003 (Credentials from Web Browsers)
+
+defaults:
+  crit: notable
+  conf: 0.8
+
+traits:
+  # Chromium-based browsers
+  - id: chromium-login-data
+    desc: Chromium Login Data file path
+    attack: "T1555.003"
+    if:
+      type: string
+      substr: "Login Data"
+
+  - id: chromium-local-state
+    desc: Chromium Local State file path
+    attack: "T1555.003"
+    if:
+      type: string
+      substr: "Local State"
+
+  - id: chromium-web-data
+    desc: Chromium Web Data file path
+    attack: "T1555.003"
+    if:
+      type: string
+      substr: "Web Data"
+
+  - id: chromium-cookies
+    desc: Chromium Cookies file path
+    attack: "T1555.003"
+    if:
+      type: string
+      substr: "Cookies"
+
+  # Firefox
+  - id: firefox-profiles
+    desc: Firefox profiles directory path
+    attack: "T1555.003"
+    if:
+      type: string
+      substr: ".mozilla/firefox/profiles"
+
+  - id: firefox-logins
+    desc: Firefox logins.json file path
+    attack: "T1555.003"
+    if:
+      type: string
+      substr: "logins.json"
+
+  - id: firefox-cookies-sqlite
+    desc: Firefox cookies.sqlite file path
+    attack: "T1555.003"
+    if:
+      type: string
+      substr: "cookies.sqlite"

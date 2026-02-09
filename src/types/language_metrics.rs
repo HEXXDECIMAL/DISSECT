@@ -1071,3 +1071,351 @@ pub struct CSharpMetrics {
 }
 
 // =============================================================================
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // ==================== PythonMetrics Tests ====================
+
+    #[test]
+    fn test_python_metrics_default() {
+        let metrics = PythonMetrics::default();
+        assert_eq!(metrics.eval_count, 0);
+        assert_eq!(metrics.exec_count, 0);
+        assert!(!metrics.getattribute_override);
+    }
+
+    #[test]
+    fn test_python_metrics_dynamic_execution() {
+        let metrics = PythonMetrics {
+            eval_count: 5,
+            exec_count: 3,
+            compile_count: 1,
+            dunder_import_count: 2,
+            ..Default::default()
+        };
+        assert_eq!(metrics.eval_count, 5);
+        assert_eq!(metrics.exec_count, 3);
+    }
+
+    #[test]
+    fn test_python_metrics_obfuscation() {
+        let metrics = PythonMetrics {
+            chr_calls: 50,
+            ord_calls: 45,
+            lambda_count: 20,
+            nested_lambda_count: 5,
+            ..Default::default()
+        };
+        assert_eq!(metrics.chr_calls, 50);
+        assert_eq!(metrics.nested_lambda_count, 5);
+    }
+
+    #[test]
+    fn test_python_metrics_serialization() {
+        let metrics = PythonMetrics {
+            pickle_usage: 2,
+            marshal_usage: 1,
+            yaml_load_unsafe: 1,
+            ..Default::default()
+        };
+        assert_eq!(metrics.pickle_usage, 2);
+        assert_eq!(metrics.yaml_load_unsafe, 1);
+    }
+
+    #[test]
+    fn test_python_metrics_magic_methods() {
+        let metrics = PythonMetrics {
+            dunder_method_count: 15,
+            getattribute_override: true,
+            new_override: true,
+            descriptor_protocol: true,
+            ..Default::default()
+        };
+        assert!(metrics.getattribute_override);
+        assert!(metrics.descriptor_protocol);
+    }
+
+    // ==================== JavaScriptMetrics Tests ====================
+
+    #[test]
+    fn test_javascript_metrics_default() {
+        let metrics = JavaScriptMetrics::default();
+        assert_eq!(metrics.eval_count, 0);
+        assert_eq!(metrics.function_constructor, 0);
+    }
+
+    #[test]
+    fn test_javascript_metrics_dynamic_execution() {
+        let metrics = JavaScriptMetrics {
+            eval_count: 10,
+            function_constructor: 5,
+            settimeout_string: 3,
+            document_write: 2,
+            ..Default::default()
+        };
+        assert_eq!(metrics.eval_count, 10);
+        assert_eq!(metrics.function_constructor, 5);
+    }
+
+    #[test]
+    fn test_javascript_metrics_obfuscation() {
+        let metrics = JavaScriptMetrics {
+            from_char_code_count: 30,
+            char_code_at_count: 25,
+            array_join_strings: 10,
+            split_reverse_join: 5,
+            ..Default::default()
+        };
+        assert_eq!(metrics.from_char_code_count, 30);
+        assert_eq!(metrics.split_reverse_join, 5);
+    }
+
+    // ==================== PowerShellMetrics Tests ====================
+
+    #[test]
+    fn test_powershell_metrics_default() {
+        let metrics = PowerShellMetrics::default();
+        assert_eq!(metrics.invoke_expression_count, 0);
+        assert_eq!(metrics.amsi_bypass_indicators, 0);
+    }
+
+    #[test]
+    fn test_powershell_metrics_execution() {
+        let metrics = PowerShellMetrics {
+            invoke_expression_count: 5,
+            invoke_command_count: 3,
+            webrequest_count: 10,
+            ..Default::default()
+        };
+        assert_eq!(metrics.invoke_expression_count, 5);
+        assert_eq!(metrics.webrequest_count, 10);
+    }
+
+    #[test]
+    fn test_powershell_metrics_bypass() {
+        let metrics = PowerShellMetrics {
+            amsi_bypass_indicators: 3,
+            etw_bypass_indicators: 2,
+            execution_policy_bypass: true,
+            ..Default::default()
+        };
+        assert_eq!(metrics.amsi_bypass_indicators, 3);
+        assert!(metrics.execution_policy_bypass);
+    }
+
+    // ==================== ShellMetrics Tests ====================
+
+    #[test]
+    fn test_shell_metrics_default() {
+        let metrics = ShellMetrics::default();
+        assert_eq!(metrics.eval_count, 0);
+        assert_eq!(metrics.curl_wget_count, 0);
+    }
+
+    #[test]
+    fn test_shell_metrics_creation() {
+        let metrics = ShellMetrics {
+            eval_count: 50,
+            exec_count: 10,
+            curl_wget_count: 5,
+            nc_netcat_count: 2,
+            ..Default::default()
+        };
+        assert_eq!(metrics.eval_count, 50);
+        assert_eq!(metrics.curl_wget_count, 5);
+    }
+
+    // ==================== PhpMetrics Tests ====================
+
+    #[test]
+    fn test_php_metrics_default() {
+        let metrics = PhpMetrics::default();
+        assert_eq!(metrics.eval_count, 0);
+        assert_eq!(metrics.preg_replace_e_count, 0);
+    }
+
+    #[test]
+    fn test_php_metrics_execution() {
+        let metrics = PhpMetrics {
+            eval_count: 5,
+            shell_exec_count: 3,
+            passthru_count: 2,
+            preg_replace_e_count: 1,
+            ..Default::default()
+        };
+        assert_eq!(metrics.eval_count, 5);
+        assert_eq!(metrics.preg_replace_e_count, 1);
+    }
+
+    // ==================== RubyMetrics Tests ====================
+
+    #[test]
+    fn test_ruby_metrics_default() {
+        let metrics = RubyMetrics::default();
+        assert_eq!(metrics.eval_count, 0);
+    }
+
+    #[test]
+    fn test_ruby_metrics_creation() {
+        let metrics = RubyMetrics {
+            eval_count: 3,
+            instance_eval_count: 2,
+            binding_usage: 1,
+            ..Default::default()
+        };
+        assert_eq!(metrics.eval_count, 3);
+        assert_eq!(metrics.instance_eval_count, 2);
+    }
+
+    // ==================== GoMetrics Tests ====================
+
+    #[test]
+    fn test_go_metrics_default() {
+        let metrics = GoMetrics::default();
+        assert_eq!(metrics.unsafe_usage, 0);
+        assert_eq!(metrics.cgo_usage, 0);
+    }
+
+    #[test]
+    fn test_go_metrics_creation() {
+        let metrics = GoMetrics {
+            unsafe_usage: 10,
+            reflect_usage: 5,
+            cgo_usage: 3,
+            plugin_usage: 2,
+            ..Default::default()
+        };
+        assert_eq!(metrics.unsafe_usage, 10);
+        assert_eq!(metrics.cgo_usage, 3);
+    }
+
+    // ==================== RustMetrics Tests ====================
+
+    #[test]
+    fn test_rust_metrics_default() {
+        let metrics = RustMetrics::default();
+        assert_eq!(metrics.unsafe_block_count, 0);
+        assert_eq!(metrics.raw_pointer_count, 0);
+    }
+
+    #[test]
+    fn test_rust_metrics_creation() {
+        let metrics = RustMetrics {
+            unsafe_block_count: 15,
+            unsafe_fn_count: 5,
+            raw_pointer_count: 10,
+            transmute_count: 3,
+            ..Default::default()
+        };
+        assert_eq!(metrics.unsafe_block_count, 15);
+        assert_eq!(metrics.raw_pointer_count, 10);
+    }
+
+    // ==================== CMetrics Tests ====================
+
+    #[test]
+    fn test_c_metrics_default() {
+        let metrics = CMetrics::default();
+        assert_eq!(metrics.malloc_count, 0);
+        assert_eq!(metrics.inline_asm_count, 0);
+    }
+
+    #[test]
+    fn test_c_metrics_creation() {
+        let metrics = CMetrics {
+            malloc_count: 50,
+            free_count: 45,
+            inline_asm_count: 10,
+            goto_count: 5,
+            ..Default::default()
+        };
+        assert_eq!(metrics.malloc_count, 50);
+        assert_eq!(metrics.inline_asm_count, 10);
+    }
+
+    // ==================== PerlMetrics Tests ====================
+
+    #[test]
+    fn test_perl_metrics_default() {
+        let metrics = PerlMetrics::default();
+        assert_eq!(metrics.eval_string_count, 0);
+    }
+
+    #[test]
+    fn test_perl_metrics_creation() {
+        let metrics = PerlMetrics {
+            eval_string_count: 5,
+            eval_block_count: 3,
+            backtick_qx_count: 10,
+            system_count: 2,
+            ..Default::default()
+        };
+        assert_eq!(metrics.eval_string_count, 5);
+        assert_eq!(metrics.backtick_qx_count, 10);
+    }
+
+    // ==================== LuaMetrics Tests ====================
+
+    #[test]
+    fn test_lua_metrics_default() {
+        let metrics = LuaMetrics::default();
+        assert_eq!(metrics.loadstring_count, 0);
+    }
+
+    #[test]
+    fn test_lua_metrics_creation() {
+        let metrics = LuaMetrics {
+            loadstring_count: 5,
+            dofile_count: 3,
+            os_execute_count: 10,
+            ..Default::default()
+        };
+        assert_eq!(metrics.loadstring_count, 5);
+        assert_eq!(metrics.os_execute_count, 10);
+    }
+
+    // ==================== JavaSourceMetrics Tests ====================
+
+    #[test]
+    fn test_java_source_metrics_default() {
+        let metrics = JavaSourceMetrics::default();
+        assert_eq!(metrics.invoke_count, 0);
+        assert_eq!(metrics.native_method_count, 0);
+    }
+
+    #[test]
+    fn test_java_source_metrics_creation() {
+        let metrics = JavaSourceMetrics {
+            invoke_count: 20,
+            class_forname_count: 10,
+            native_method_count: 5,
+            ..Default::default()
+        };
+        assert_eq!(metrics.invoke_count, 20);
+        assert_eq!(metrics.native_method_count, 5);
+    }
+
+    // ==================== CSharpMetrics Tests ====================
+
+    #[test]
+    fn test_csharp_metrics_default() {
+        let metrics = CSharpMetrics::default();
+        assert_eq!(metrics.reflection_invoke, 0);
+        assert_eq!(metrics.unsafe_block_count, 0);
+    }
+
+    #[test]
+    fn test_csharp_metrics_creation() {
+        let metrics = CSharpMetrics {
+            reflection_invoke: 15,
+            dllimport_count: 10,
+            unsafe_block_count: 5,
+            registry_access: 3,
+            ..Default::default()
+        };
+        assert_eq!(metrics.reflection_invoke, 15);
+        assert_eq!(metrics.dllimport_count, 10);
+    }
+}

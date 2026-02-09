@@ -33,7 +33,7 @@ traits:
       max: 20
       min_length: 4
     unless:
-      - id: meta/format/tiny-elf
+      - id: meta/format::tiny-elf
 
 composite_rules:
   # String concealment pattern
@@ -48,4 +48,4 @@ composite_rules:
     any:
       - id: cap/exec/command/shell
       - id: cap/comm/socket/create
-      - id: cap/fs/file-ops/modes/binary-file-ops
+      - id: cap/fs/file-ops/modes::binary-file-ops

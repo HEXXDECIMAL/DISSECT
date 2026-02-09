@@ -73,3 +73,37 @@ traits:
     if:
       type: string
       regex: 'curl.{0,50}@/tmp/'
+
+composite_rules:
+  # General HTTP client tools (curl/wget)
+  - id: client
+    desc: HTTP client command line tool
+    crit: notable
+    conf: 0.5
+    needs: 1
+    any:
+      - id: curl-cmd
+      - id: wget-cmd
+
+  # curl POST with custom identification headers
+  - id: curl-post
+    desc: curl POST with custom headers
+    crit: notable
+    conf: 0.7
+    mbc: "C0002"
+    needs: 1
+    any:
+      - id: curl-post-x
+      - id: curl-user-header
+      - id: curl-buildid-header
+
+  # curl file upload operations
+  - id: curl-upload
+    desc: curl file upload
+    crit: notable
+    conf: 0.6
+    needs: 1
+    any:
+      - id: curl-form-upload
+      - id: curl-data-binary
+      - id: curl-at-tmp

@@ -43,6 +43,6 @@ composite_rules:
     any:
       - id: subprocess-popen
       - id: devnull
-      - id: cap/exec/command/setsid/python
+      - id: cap/exec/command/setsid::python
       - id: close-fds
-      - id: cap/exec/command/setsid/preexec-fn
+      - id: cap/exec/command/setsid::preexec-fn

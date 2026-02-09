@@ -1,0 +1,6 @@
+# Download-Execute Dropper Patterns
+# Detects stealthy download and execute patterns
+# ATT&CK: T1105
+
+# NOTE: Incomplete - traits don't exist yet
+composite_rules: []

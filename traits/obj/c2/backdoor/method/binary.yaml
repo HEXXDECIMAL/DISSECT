@@ -155,11 +155,11 @@ composite_rules:
     conf: 0.7
     for: [elf]
     all:
-      - id: cap/exec/dylib/load/dlsym
+      - id: cap/exec/dylib/load::dlsym
     any:
       - id: rtld-next-ref
-      - id: meta/format/elf/rtld-default-ref
-      - id: meta/format/elf/sections/gnu-version
+      - id: meta/format/elf::rtld-default-ref
+      - id: meta/format/elf::gnu-version
 
   # === XZ CRC patterns ===
   - id: xz-crc-pattern
@@ -171,7 +171,7 @@ composite_rules:
     any:
       - id: lzma-crc64-table
       - id: lzma-crc64
-      - id: meta/format/elf/ifunc
+      - id: meta/format/elf::ifunc
 
   # === XZ backdoor signature ===
   - id: xz-backdoor-signature
@@ -195,9 +195,9 @@ composite_rules:
     conf: 0.4
     for: [elf]
     all:
-      - id: meta/format/x86/cpuid-instr
-      - id: meta/format/elf/resolver-markers
-      - id: meta/format/elf/ifunc-markers
+      - id: meta/format/x86::cpuid-instr
+      - id: meta/format/elf::resolver-markers
+      - id: meta/format/elf::ifunc-markers
 
   # === RSA in compression library ===
   - id: rsa-in-compression-lib
@@ -205,8 +205,8 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     all:
-      - id: cap/crypto/asymmetric/rsa-operations
-      - id: meta/library/compression-lib
+      - id: cap/crypto/asymmetric/rsa::rsa-operations
+      - id: meta/library/compression::compression-lib
 
   # === SSH hook patterns ===
   - id: ssh-hook-pattern
@@ -214,9 +214,9 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     all:
-      - id: cap/os/service/remote/sshd-ref
+      - id: cap/os/service/remote::sshd-ref
     any:
-      - id: cap/crypto/asymmetric/rsa-public-decrypt
+      - id: cap/crypto/asymmetric/rsa::rsa-public-decrypt
       - id: mm-answer-keyallowed
       - id: mm-answer-authpassword
       - id: pubkey-auth-ref
@@ -233,18 +233,18 @@ composite_rules:
     for: [elf]
     all:
       # Require basic dynamic loading
-      - id: cap/exec/dylib/load/dlsym
+      - id: cap/exec/dylib/load::dlsym
     any:
       # Plus at least one actual hijacking indicator (not just dlopen)
       - id: rtld-global-ref
       - id: la-symbind-ref
-      - id: cap/os/linker/env/ld-preload
-      - id: cap/os/linker/env/ld-audit
+      - id: cap/os/linker/env::ld-preload
+      - id: cap/os/linker/env::ld-audit
     # Graphics libraries use dlopen/dlsym for GPU driver loading - not hijacking
     downgrade:
       any:
         - id: meta/library/graphics-lib-marker
-        - id: cap/exec/load/library/system-lib-marker
+        - id: cap/exec/load/library::system-lib-marker
 
   # === Unexpected capability combinations ===
   # References external traits for socket/process operations
@@ -259,15 +259,15 @@ composite_rules:
     crit: notable
     conf: 0.6
     all:
-      - id: cap/comm/socket/create/create
-      - id: cap/comm/socket/connect/connect
+      - id: cap/comm/socket/create::create
+      - id: cap/comm/socket/connect::connect
     none:
-      - id: cap/exec/load/library/network-lib-marker
-      - id: cap/exec/load/library/system-lib-marker
-      - id: cap/exec/load/library/x11-ipc-lib-marker
-      - id: cap/exec/load/library/graphics-lib-marker
+      - id: cap/exec/load/library::network-lib-marker
+      - id: cap/exec/load/library::system-lib-marker
+      - id: cap/exec/load/library::x11-ipc-lib-marker
+      - id: cap/exec/load/library::graphics-lib-marker
       - id: cap/exec/load/go-runtime/
-      - id: cap/exec/load/library/debugger-tool-marker
+      - id: cap/exec/load/library::debugger-tool-marker
 
   - id: unexpected-process-ops
     desc: Process operations in utility library
@@ -275,19 +275,19 @@ composite_rules:
     conf: 0.75
     needs: 3
     any:
-      - id: cap/process/fork/clone/fork
+      - id: cap/process/fork/clone::fork
       - id: cap/exec/command/shell
     none:
       - id: cap/exec/load/go-runtime/
-      - id: cap/exec/load/library/shell-interpreter
-      - id: cap/exec/load/library/system-lib-marker
+      - id: cap/exec/load/library::shell-interpreter
+      - id: cap/exec/load/library::system-lib-marker
       # Compiler tools legitimately spawn processes for compilation
-      - id: cap/exec/load/library/llvm-project-ref
-      - id: cap/exec/load/library/llvm-lib-ref
-      - id: cap/exec/load/library/gcc-project-ref
-      - id: cap/exec/load/library/cmake-build-ref
+      - id: cap/exec/load/library::llvm-project-ref
+      - id: cap/exec/load/library::llvm-lib-ref
+      - id: cap/exec/load/library::gcc-project-ref
+      - id: cap/exec/load/library::cmake-build-ref
       # Debuggers legitimately use process control for debugging
-      - id: cap/exec/load/library/debugger-tool-marker
+      - id: cap/exec/load/library::debugger-tool-marker
 
   - id: unexpected-crypto
     desc: Cryptographic operations in non-crypto library
@@ -295,9 +295,9 @@ composite_rules:
     conf: 0.75
     needs: 2
     any:
-      - id: cap/crypto/symmetric/aes/binary/aes-sbox-bytes
-      - id: cap/crypto/asymmetric/rsa-operations
-      - id: cap/crypto/asymmetric/rsa/ed25519-constant-bytes
+      - id: cap/crypto/symmetric/aes::aes-sbox-bytes
+      - id: cap/crypto/asymmetric/rsa::rsa-operations
+      - id: cap/crypto/asymmetric/rsa::ed25519-constant-bytes
 
   # === Unexpected capability combination ===
   - id: unexpected-capabilities
@@ -376,7 +376,7 @@ composite_rules:
     crit: suspicious
     conf: 0.75
     all:
-      - id: cap/mem/protect/modify/rwx-prot-bytes
+      - id: cap/mem/protect/modify::rwx-prot-bytes
     any:
       - id: glibc-hijack
       - id: symbol-interposition
@@ -396,11 +396,11 @@ composite_rules:
     conf: 0.95
     for: [elf]
     all:
-      - id: meta/library/compression/compression-lib
-      - id: cap/data/embedded/payload/multiple-compressed-payloads
+      - id: meta/library/compression::compression-lib
+      - id: cap/data/embedded/payload::multiple-compressed-payloads
     any:
-      - id: obj/anti-forensics/geofencing/location/russian-system-check
-      - id: obj/anti-forensics/geofencing/location/cis-timezone-checks
+      - id: obj/anti-forensics/geofencing/location::russian-system-check
+      - id: obj/anti-forensics/geofencing/location::cis-timezone-checks
 
   # === Compression library with embedded executable ===
   # A compression library embedding ELF/PE binaries is highly suspicious
@@ -410,10 +410,10 @@ composite_rules:
     conf: 0.95
     for: [elf]
     all:
-      - id: meta/library/compression/compression-lib
+      - id: meta/library/compression::compression-lib
     any:
-      - id: cap/data/embedded/payload/elf-magic-embedded
-      - id: cap/data/embedded/payload/pe-magic-embedded
+      - id: cap/data/embedded/payload::elf-magic-embedded
+      - id: cap/data/embedded/payload::pe-magic-embedded
 
   # === Library with embedded payload and geofencing (generic) ===
   # Any shared library with both hidden payloads and country exclusion logic
@@ -424,8 +424,8 @@ composite_rules:
     conf: 0.85
     for: [elf]
     all:
-      - id: cap/data/embedded/payload/multiple-compressed-payloads
-      - id: obj/anti-forensics/geofencing/location/cis-country-codes
+      - id: cap/data/embedded/payload::multiple-compressed-payloads
+      - id: obj/anti-forensics/geofencing/location::cis-country-codes
 
   # === Compression library with suspicious CPUID feature selection ===
   # A compression library with:
@@ -442,6 +442,6 @@ composite_rules:
     conf: 0.95
     for: [elf]
     all:
-      - id: meta/library/compression/compression-lib
-      - id: cap/data/embedded/payload/multiple-compressed-payloads
+      - id: meta/library/compression::compression-lib
+      - id: cap/data/embedded/payload::multiple-compressed-payloads
       - id: xz-cpuid-mask-check

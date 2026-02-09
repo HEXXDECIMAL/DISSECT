@@ -61,4 +61,4 @@ composite_rules:
       - id: password-theft-ruby
       - id: global-var-storage
       - id: credential-append
-      - id: obj/c2/advanced-backdoor/script/ruby/faraday-http
+      - id: obj/c2/advanced-backdoor/script::faraday-http

@@ -21,7 +21,7 @@ traits:
       - "telnet TELNET"
     unless:
       # Exclude curl/libcurl which supports telnet as a client protocol
-      - id: cap/comm/download/curl/curl-easy-init
+      - id: cap/comm/download/curl::curl-easy-init
     attack: "T1021.004"
 
   - id: telnetd-daemon

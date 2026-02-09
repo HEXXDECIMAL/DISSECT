@@ -33,8 +33,8 @@ composite_rules:
     attack: "T1003.008"
     needs: 1
     any:
-      - id: cap/fs/path/config/accounts/etc-shadow
-      - id: cap/fs/path/config/groups/etc-gshadow
+      - id: cap/fs/path/config/accounts::etc-shadow
+      - id: cap/fs/path/config/groups::etc-gshadow
       - id: etc-master-passwd
 
   - id: shadow-extraction

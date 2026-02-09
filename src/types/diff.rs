@@ -211,3 +211,365 @@ pub struct FullDiffReport {
     pub aggregate_counts: Option<DiffCounts>,
     pub metadata: AnalysisMetadata,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // ==================== FileDiff Tests ====================
+
+    #[test]
+    fn test_file_diff_default() {
+        let diff = FileDiff::default();
+        assert_eq!(diff.file, "");
+        assert!(diff.added_findings.is_empty());
+        assert!(diff.removed_findings.is_empty());
+        assert!(diff.added_traits.is_empty());
+        assert!(diff.removed_traits.is_empty());
+        assert!(!diff.risk_increase);
+        assert!(diff.risk_score_delta.is_none());
+    }
+
+    #[test]
+    fn test_file_diff_with_file() {
+        let diff = FileDiff {
+            file: "test.py".to_string(),
+            ..Default::default()
+        };
+        assert_eq!(diff.file, "test.py");
+    }
+
+    #[test]
+    fn test_file_diff_collections_empty() {
+        let diff = FileDiff::default();
+        assert!(diff.added_strings.is_empty());
+        assert!(diff.removed_strings.is_empty());
+        assert!(diff.added_imports.is_empty());
+        assert!(diff.removed_imports.is_empty());
+        assert!(diff.added_exports.is_empty());
+        assert!(diff.removed_exports.is_empty());
+        assert!(diff.added_functions.is_empty());
+        assert!(diff.removed_functions.is_empty());
+    }
+
+    #[test]
+    fn test_file_diff_syscalls_and_paths() {
+        let diff = FileDiff::default();
+        assert!(diff.added_syscalls.is_empty());
+        assert!(diff.removed_syscalls.is_empty());
+        assert!(diff.added_paths.is_empty());
+        assert!(diff.removed_paths.is_empty());
+        assert!(diff.added_env_vars.is_empty());
+        assert!(diff.removed_env_vars.is_empty());
+    }
+
+    #[test]
+    fn test_file_diff_yara_matches() {
+        let diff = FileDiff::default();
+        assert!(diff.added_yara_matches.is_empty());
+        assert!(diff.removed_yara_matches.is_empty());
+    }
+
+    #[test]
+    fn test_file_diff_optional_fields() {
+        let diff = FileDiff::default();
+        assert!(diff.metrics_delta.is_none());
+        assert!(diff.counts.is_none());
+    }
+
+    #[test]
+    fn test_file_diff_risk_increase() {
+        let diff = FileDiff {
+            risk_increase: true,
+            risk_score_delta: Some(0.5),
+            ..Default::default()
+        };
+        assert!(diff.risk_increase);
+        assert_eq!(diff.risk_score_delta, Some(0.5));
+    }
+
+    // ==================== DiffCounts Tests ====================
+
+    #[test]
+    fn test_diff_counts_default() {
+        let counts = DiffCounts::default();
+        assert_eq!(counts.findings_added, 0);
+        assert_eq!(counts.findings_removed, 0);
+        assert_eq!(counts.traits_added, 0);
+        assert_eq!(counts.traits_removed, 0);
+    }
+
+    #[test]
+    fn test_diff_counts_strings() {
+        let counts = DiffCounts {
+            strings_added: 10,
+            strings_removed: 5,
+            ..Default::default()
+        };
+        assert_eq!(counts.strings_added, 10);
+        assert_eq!(counts.strings_removed, 5);
+    }
+
+    #[test]
+    fn test_diff_counts_imports_exports() {
+        let counts = DiffCounts {
+            imports_added: 3,
+            imports_removed: 1,
+            exports_added: 2,
+            exports_removed: 0,
+            ..Default::default()
+        };
+        assert_eq!(counts.imports_added, 3);
+        assert_eq!(counts.imports_removed, 1);
+        assert_eq!(counts.exports_added, 2);
+        assert_eq!(counts.exports_removed, 0);
+    }
+
+    #[test]
+    fn test_diff_counts_functions_syscalls() {
+        let counts = DiffCounts {
+            functions_added: 5,
+            functions_removed: 2,
+            syscalls_added: 8,
+            syscalls_removed: 3,
+            ..Default::default()
+        };
+        assert_eq!(counts.functions_added, 5);
+        assert_eq!(counts.functions_removed, 2);
+        assert_eq!(counts.syscalls_added, 8);
+        assert_eq!(counts.syscalls_removed, 3);
+    }
+
+    #[test]
+    fn test_diff_counts_paths_env_vars() {
+        let counts = DiffCounts {
+            paths_added: 4,
+            paths_removed: 1,
+            env_vars_added: 2,
+            env_vars_removed: 0,
+            ..Default::default()
+        };
+        assert_eq!(counts.paths_added, 4);
+        assert_eq!(counts.paths_removed, 1);
+        assert_eq!(counts.env_vars_added, 2);
+        assert_eq!(counts.env_vars_removed, 0);
+    }
+
+    // ==================== MetricsDelta Tests ====================
+
+    #[test]
+    fn test_metrics_delta_default() {
+        let delta = MetricsDelta::default();
+        assert_eq!(delta.size_bytes, 0);
+        assert_eq!(delta.total_lines, 0);
+        assert_eq!(delta.code_lines, 0);
+    }
+
+    #[test]
+    fn test_metrics_delta_size() {
+        let delta = MetricsDelta {
+            size_bytes: 1024,
+            ..Default::default()
+        };
+        assert_eq!(delta.size_bytes, 1024);
+    }
+
+    #[test]
+    fn test_metrics_delta_negative() {
+        let delta = MetricsDelta {
+            size_bytes: -500,
+            total_lines: -100,
+            code_lines: -80,
+            ..Default::default()
+        };
+        assert_eq!(delta.size_bytes, -500);
+        assert_eq!(delta.total_lines, -100);
+        assert_eq!(delta.code_lines, -80);
+    }
+
+    #[test]
+    fn test_metrics_delta_lines() {
+        let delta = MetricsDelta {
+            total_lines: 100,
+            code_lines: 80,
+            comment_lines: 10,
+            blank_lines: 10,
+            ..Default::default()
+        };
+        assert_eq!(delta.total_lines, 100);
+        assert_eq!(delta.code_lines, 80);
+        assert_eq!(delta.comment_lines, 10);
+        assert_eq!(delta.blank_lines, 10);
+    }
+
+    #[test]
+    fn test_metrics_delta_complexity() {
+        let delta = MetricsDelta {
+            avg_complexity: 2.5,
+            max_complexity: 15,
+            total_functions: 10,
+            ..Default::default()
+        };
+        assert!((delta.avg_complexity - 2.5).abs() < f32::EPSILON);
+        assert_eq!(delta.max_complexity, 15);
+        assert_eq!(delta.total_functions, 10);
+    }
+
+    #[test]
+    fn test_metrics_delta_strings() {
+        let delta = MetricsDelta {
+            string_count: 50,
+            avg_string_length: 15.5,
+            avg_string_entropy: 3.2,
+            ..Default::default()
+        };
+        assert_eq!(delta.string_count, 50);
+        assert!((delta.avg_string_length - 15.5).abs() < f32::EPSILON);
+        assert!((delta.avg_string_entropy - 3.2).abs() < f32::EPSILON);
+    }
+
+    #[test]
+    fn test_metrics_delta_identifiers() {
+        let delta = MetricsDelta {
+            unique_identifiers: 200,
+            avg_identifier_length: 12.3,
+            ..Default::default()
+        };
+        assert_eq!(delta.unique_identifiers, 200);
+        assert!((delta.avg_identifier_length - 12.3).abs() < f32::EPSILON);
+    }
+
+    #[test]
+    fn test_metrics_delta_binary() {
+        let delta = MetricsDelta {
+            total_basic_blocks: 500,
+            total_instructions: 5000,
+            code_density: 0.85,
+            ..Default::default()
+        };
+        assert_eq!(delta.total_basic_blocks, 500);
+        assert_eq!(delta.total_instructions, 5000);
+        assert!((delta.code_density - 0.85).abs() < f32::EPSILON);
+    }
+
+    // ==================== FileRenameInfo Tests ====================
+
+    #[test]
+    fn test_file_rename_info_creation() {
+        let rename = FileRenameInfo {
+            from: "old_name.py".to_string(),
+            to: "new_name.py".to_string(),
+            similarity: 0.95,
+        };
+        assert_eq!(rename.from, "old_name.py");
+        assert_eq!(rename.to, "new_name.py");
+        assert!((rename.similarity - 0.95).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn test_file_rename_info_high_similarity() {
+        let rename = FileRenameInfo {
+            from: "module.rs".to_string(),
+            to: "module_v2.rs".to_string(),
+            similarity: 1.0,
+        };
+        assert!((rename.similarity - 1.0).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn test_file_rename_info_low_similarity() {
+        let rename = FileRenameInfo {
+            from: "a.txt".to_string(),
+            to: "completely_different.txt".to_string(),
+            similarity: 0.3,
+        };
+        assert!((rename.similarity - 0.3).abs() < f64::EPSILON);
+    }
+
+    // ==================== FileChanges Tests ====================
+
+    #[test]
+    fn test_file_changes_empty() {
+        let changes = FileChanges {
+            added: vec![],
+            removed: vec![],
+            modified: vec![],
+            renamed: vec![],
+        };
+        assert!(changes.added.is_empty());
+        assert!(changes.removed.is_empty());
+        assert!(changes.modified.is_empty());
+        assert!(changes.renamed.is_empty());
+    }
+
+    #[test]
+    fn test_file_changes_with_files() {
+        let changes = FileChanges {
+            added: vec!["new_file.py".to_string()],
+            removed: vec!["old_file.py".to_string()],
+            modified: vec!["changed.py".to_string()],
+            renamed: vec![],
+        };
+        assert_eq!(changes.added.len(), 1);
+        assert_eq!(changes.removed.len(), 1);
+        assert_eq!(changes.modified.len(), 1);
+    }
+
+    #[test]
+    fn test_file_changes_with_renames() {
+        let changes = FileChanges {
+            added: vec![],
+            removed: vec![],
+            modified: vec![],
+            renamed: vec![FileRenameInfo {
+                from: "old.py".to_string(),
+                to: "new.py".to_string(),
+                similarity: 0.9,
+            }],
+        };
+        assert_eq!(changes.renamed.len(), 1);
+        assert_eq!(changes.renamed[0].from, "old.py");
+    }
+
+    // ==================== ModifiedFileAnalysis Tests ====================
+
+    #[test]
+    fn test_modified_file_analysis_creation() {
+        let analysis = ModifiedFileAnalysis {
+            file: "test.py".to_string(),
+            new_capabilities: vec![],
+            removed_capabilities: vec![],
+            capability_delta: 0,
+            risk_increase: false,
+        };
+        assert_eq!(analysis.file, "test.py");
+        assert_eq!(analysis.capability_delta, 0);
+        assert!(!analysis.risk_increase);
+    }
+
+    #[test]
+    fn test_modified_file_analysis_positive_delta() {
+        let analysis = ModifiedFileAnalysis {
+            file: "malicious.py".to_string(),
+            new_capabilities: vec![],
+            removed_capabilities: vec![],
+            capability_delta: 5,
+            risk_increase: true,
+        };
+        assert_eq!(analysis.capability_delta, 5);
+        assert!(analysis.risk_increase);
+    }
+
+    #[test]
+    fn test_modified_file_analysis_negative_delta() {
+        let analysis = ModifiedFileAnalysis {
+            file: "cleaned.py".to_string(),
+            new_capabilities: vec![],
+            removed_capabilities: vec![],
+            capability_delta: -3,
+            risk_increase: false,
+        };
+        assert_eq!(analysis.capability_delta, -3);
+        assert!(!analysis.risk_increase);
+    }
+}

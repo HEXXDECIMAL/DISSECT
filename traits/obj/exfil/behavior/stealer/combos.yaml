@@ -10,6 +10,6 @@ composite_rules:
     mbc: "E1041"
     for: [go]
     all:
-      - id: cap/crypto/symmetric/aes/go-cfb-encrypter
-      - id: cap/comm/http/request/go-http-client-do
+      - id: cap/crypto/symmetric/aes::go-cfb-encrypter
+      - id: cap/comm/http/request::go-http-client-do
       - id: obj/c2/network/beacon/json-c2/json-content-type

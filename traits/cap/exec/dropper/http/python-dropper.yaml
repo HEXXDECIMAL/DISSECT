@@ -118,28 +118,4 @@ composite_rules:
 
   # Dropper with multiple persistence locations
   # Complexity: file_types:+1, all:+3 = 4 (hostile allowed)
-  - id: multi-location-dropper
-    desc: "Dropper targeting multiple persistence"
-    crit: hostile
-    conf: 0.95
-    for: [python]
-    all:
-      - id: download-and-execute-func
-      - id: multi-persist-dirs
-      - id: http-ip-port-url
 
-  # Generic Python dropper pattern
-  # Complexity: file_types:+1, all:+3, any:+1 = 5 (hostile allowed)
-  - id: python-dropper
-    desc: "Python dropper with download and"
-    crit: hostile
-    conf: 0.95
-    for: [python]
-    all:
-      - id: download-and-execute-func
-      - id: http-ip-port-url
-      - id: cap/fs/path/temp
-    any:
-      - id: is-process-running-func
-      - id: arch-64bit-check
-      - id: cap/exec/command/subprocess/run-ast

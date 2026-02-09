@@ -19,4 +19,4 @@ composite_rules:
     for: [elf]
     all:
       - id: syscall-memfd-create
-      - id: cap/exec/syscall/direct/shell-redirect/syscall-execve-linux
+      - id: cap/exec/syscall/direct::syscall-execve-linux

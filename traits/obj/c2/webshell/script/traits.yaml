@@ -107,7 +107,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: '\bwebshell\b'
+      word: "webshell"
       case_insensitive: true
 
   # === Known webshell families ===
@@ -117,7 +117,7 @@ traits:
     conf: 0.95
     if:
       type: string
-      regex: '\bc99shell\b'
+      word: "c99shell"
       case_insensitive: true
 
   - id: r57shell
@@ -126,7 +126,7 @@ traits:
     conf: 0.95
     if:
       type: string
-      regex: '\br57shell\b'
+      word: "r57shell"
       case_insensitive: true
 
   - id: b374k
@@ -135,7 +135,7 @@ traits:
     conf: 0.95
     if:
       type: string
-      regex: '\bb374k\b'
+      word: "b374k"
       case_insensitive: true
 
   - id: phpspy
@@ -144,7 +144,7 @@ traits:
     conf: 0.95
     if:
       type: string
-      regex: '\bphpspy\b'
+      word: "phpspy"
       case_insensitive: true
 
   - id: wso-shell
@@ -193,7 +193,7 @@ traits:
     conf: 0.95
     if:
       type: string
-      regex: '\bIndoXploit\b'
+      word: "IndoXploit"
       case_insensitive: true
 
   # === HTTP error response pages in web directories ===

@@ -1057,7 +1057,7 @@ composite_rules:
     all:
       - id: is-pkginfo-file
       - id: pkginfo-lowest-version
-      - id: obj/lateral/scan/port/brute-force-ref
+      - id: obj/lateral/scan/port::brute-force-ref
 
   # === PKG-INFO Placeholder Package ===
   # PKG-INFO with placeholder summary (e.g. "test package") and no description

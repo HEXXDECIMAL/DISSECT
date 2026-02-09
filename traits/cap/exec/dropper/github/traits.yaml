@@ -27,7 +27,7 @@ composite_rules:
     conf: 0.8
     any:
       - id: python-os-chmod
-      - id: cap/exec/command/subprocess/python
+      - id: cap/exec/command/subprocess/
 
   - id: execute
     desc: "Download from GitHub blob API"

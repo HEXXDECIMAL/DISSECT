@@ -89,7 +89,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: "\\binstance_eval\\b"
+      word: "instance_eval"
 
   - id: class-eval
     desc: class_eval call
@@ -97,7 +97,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: "\\bclass_eval\\b"
+      word: "class_eval"
 
   # === Base64 patterns ===
   - id: base64-decode

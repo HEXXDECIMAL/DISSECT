@@ -600,7 +600,7 @@ composite_rules:
     conf: 0.4
     attack: "T1082"
     all:
-      - id: cap/fs/proc/system/system-cpuinfo
+      - id: cap/fs/proc/system::system-cpuinfo
       - id: cpu-fields
 
   # Network interface composite (migrated from YARA)
@@ -616,8 +616,8 @@ composite_rules:
       - id: ether-prefix
       - id: getifaddrs-func
       - id: siocgifhwaddr
-      - id: cap/comm/diagnostic/commands/ip-link
-      - id: cap/comm/diagnostic/commands/ifconfig
+      - id: cap/os/network/interface::ip-link
+      - id: cap/os/network/interface::ifconfig
 
   # Disk serial composite (migrated from YARA)
   - id: fp-disk-serial
@@ -680,7 +680,7 @@ composite_rules:
       - id: getenv-home
       - id: whoami-cmd
       - id: id-u-cmd
-      - id: cap/fs/path/config/accounts/etc-passwd
+      - id: cap/fs/path/config/accounts::etc-passwd
 
   # Hardware UUID composite (migrated from YARA)
   - id: hardware-uuid

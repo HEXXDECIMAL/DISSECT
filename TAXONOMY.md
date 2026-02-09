@@ -11,6 +11,33 @@ A three-tier taxonomy following [MBC (Malware Behavior Catalog)](https://github.
 | **Known Entities** (`known/`) | Specific signatures | suspicious → hostile | (MBC corpus) |
 | **Meta** (`meta/`) | File-level properties (informational only) | inert | — |
 
+## Tier Dependencies
+
+Rules must follow a strict dependency hierarchy to maintain taxonomy clarity:
+
+| Tier | Can Reference | Rationale |
+|------|--------------|-----------|
+| **`cap/`** | `cap/`, `meta/` | Capabilities are atomic micro-behaviors and must not depend on objectives |
+| **`obj/`** | `cap/`, `obj/`, `meta/` | Objectives build on capabilities and other objectives |
+| **`known/`** | `cap/`, `obj/`, `known/`, `meta/` | Specific signatures can reference any trait type |
+| **`meta/`** | `meta/` | Informational properties typically reference only other meta traits |
+
+**Key Principle:** `cap/` traits must NOT reference `obj/` traits. Capabilities represent atomic, observable mechanics (micro-behaviors), while objectives represent inferred attacker intent. Mixing these layers violates the taxonomy's separation of concerns.
+
+**Hostile Criticality:** `cap/` traits must NEVER use `crit: hostile`. Hostile criticality requires intent inference and must be in `obj/` where rules are properly categorized by attacker objective (C2, exfil, impact, etc.). Cap's maximum criticality is `suspicious` for rarely legitimate but still observable capabilities.
+
+**Examples:**
+- ✅ `obj/c2/reverse-shell` references `cap/comm/socket/create` (objective uses capability)
+- ✅ `cap/exec/shell` references `cap/fs/file/read` (capability uses capability)
+- ✅ `cap/process/hollow` with `crit: suspicious` (rarely legitimate capability)
+- ❌ `cap/exec/dropper` references `obj/anti-static/obfuscation` (capability cannot depend on objective)
+- ❌ `cap/anything` with `crit: hostile` (hostile requires intent, belongs in obj/)
+
+If a `cap/` rule needs functionality from an `obj/` trait, either:
+1. Move the `obj/` trait to `cap/` if it's actually a capability
+2. Refactor the `cap/` rule to not depend on the objective-level detection
+3. Move the entire `cap/` rule to `obj/` if it's actually inferring intent
+
 ## Tier 1: Capabilities (`cap/`)
 
 Value-neutral observations about what code can do. High confidence from static analysis. Maps to MBC's [Micro-objectives](https://github.com/MBCProject/mbc-markdown/tree/master/micro-behaviors).
@@ -19,7 +46,9 @@ Value-neutral observations about what code can do. High confidence from static a
 - **inert** - Universal baseline (`open`, `read`, `malloc`)
 - **notable** - Defines program purpose (`socket`, `exec`, `eval`)
 - **suspicious** - Rarely legitimate (`shellcode-inject`, `process-hollow`)
-- Never hostile (requires objective-level evidence)
+- **Never hostile** - Hostile requires objective-level evidence (belongs in `obj/`)
+
+**Validation:** Cap rules with hostile criticality will fail validation. Hostile implies intent inference, which requires combining multiple capabilities into an objective.
 
 ### Directory Structure
 
@@ -31,12 +60,25 @@ Within cap/ - rules should be organized by cap/CATEGORY/BEHAVIOR/METHOD/ - and i
 cap/
 ├── comm/               # Network communication
 │   ├── socket/         # Raw socket operations          → MBC: Communication
+│   │   ├── netcat/     # nc/netcat tools
+│   │   └── telnet/     # Telnet connections
 │   ├── http/           # HTTP client/server
 │   ├── dns/            # DNS operations
 │   │   ├── lookup/     # DNS lookups (platform-based: unix, node)
 │   │   │   ├── txt/    # TXT record lookups (C2 common)
 │   │   │   └── reverse/ # Reverse DNS lookups
-│   │   └── doh/        # DNS over HTTPS
+│   │   ├── doh/        # DNS over HTTPS
+│   │   └── tools/      # DNS CLI tools (dig, nslookup, host)
+│   ├── icmp/           # ICMP operations
+│   │   ├── ping/       # Host reachability (ping, fping)
+│   │   └── trace/      # Route tracing (traceroute, mtr)
+│   ├── capture/        # Packet capture
+│   │   ├── tcpdump/    # tcpdump
+│   │   └── wireshark/  # Wireshark/tshark
+│   ├── benchmark/      # Network performance testing
+│   │   ├── iperf/      # Bandwidth testing
+│   │   ├── http/       # HTTP benchmarking (ab, wrk)
+│   │   └── speedtest/  # Internet speed testing
 │   ├── ipc/            # Inter-process communication
 │   └── proxy/          # Proxy protocols (SOCKS, etc.)
 │
@@ -93,7 +135,15 @@ cap/
 │   ├── user/           # User management
 │   ├── syscall/        # Direct syscall invocation
 │   ├── bpf/            # BPF/eBPF operations
-│   └── info/           # Basic system queries (inert)
+│   ├── info/           # Basic system queries (inert)
+│   ├── network/        # Network configuration
+│   │   ├── interface/  # Interface listing (ifconfig, ip addr)
+│   │   └── status/     # Connection status (netstat, ss, lsof)
+│   └── firewall/       # Firewall management (by implementation)
+│       ├── iptables/   # iptables/ip6tables
+│       ├── nftables/   # nft/nftables
+│       ├── ufw/        # Uncomplicated Firewall
+│       └── firewalld/  # firewalld/firewall-cmd
 │
 ├── process/            # Process control                → MBC: Process
 │   ├── create/         # Process creation
@@ -152,7 +202,26 @@ obj/
 ├── c2/                 # Command & control              → MBC: Command and Control
 │   ├── beacon/         # Check-in patterns                B0030
 │   ├── channel/        # Communication channels
-│   └── reverse-shell/  # Reverse shell patterns
+│   │   └── covert/     # Covert channels (ICMP, DNS, etc.)
+│   ├── reverse-shell/  # Reverse shell patterns
+│   ├── backdoor/       # Backdoor patterns
+│   ├── dropper/        # Payload delivery (hostile patterns)
+│   │   ├── encrypted/  # Encrypted payload droppers
+│   │   ├── http/       # HTTP-based droppers
+│   │   ├── loader/     # Loader patterns
+│   │   ├── method/     # Dropper methods/techniques
+│   │   ├── payload/    # Payload execution
+│   │   ├── script/     # Script-based droppers
+│   │   ├── fileless/   # Fileless droppers
+│   │   ├── install-time/ # Install-time droppers
+│   │   ├── silent-install/ # Silent installer patterns
+│   │   └── stager/     # Multi-stage droppers
+│   ├── implant/        # Implant execution patterns
+│   │   ├── eval/       # Remote code execution via eval
+│   │   ├── activex/    # ActiveX-based implants
+│   │   └── reflective-load/ # Reflective loading
+│   └── infrastructure/ # C2 infrastructure
+│       └── spoofing/   # Infrastructure spoofing
 │
 ├── collect/            # Information gathering          → MBC: Collection
 │   ├── keylog/         # Keystroke logging                T1056.001
@@ -183,18 +252,25 @@ obj/
 │   ├── destroy/        # Data destruction                 T1485
 │   ├── encrypt/        # Ransomware encryption            T1486
 │   ├── dos/            # Denial of service                B0033
-│   └── deface/         # Defacement                       T1491
+│   ├── deface/         # Defacement                       T1491
+│   └── degrade/        # Degrade system capabilities
+│       └── firewall/   # Firewall manipulation/abuse
 │
 ├── lateral/            # Lateral movement               → MBC: Lateral Movement
 │   ├── remote-exec/    # Remote execution                 T1021
 │   ├── exploit/        # Exploitation
-│   └── pass-the-hash/  # Credential reuse                 T1550.002
+│   ├── pass-the-hash/  # Credential reuse                 T1550.002
+│   ├── code-injection/ # Code injection attacks
+│   ├── trojanize/      # Software trojanization
+│   └── supply-chain/   # Supply chain attacks
+│       └── dropper/    # Supply chain dropper patterns
 │
 ├── persist/            # Persistence mechanisms         → MBC: Persistence
 │   ├── startup/        # Startup entries                  T1547
 │   ├── service/        # Service installation             T1543
 │   ├── scheduled/      # Scheduled tasks                  T1053
 │   ├── implant/        # Code implants
+│   │   └── hidden-staging/ # Hidden staging directories
 │   └── bootkit/        # Boot-level persistence           T1542
 │
 └── privesc/            # Privilege escalation           → MBC: Privilege Escalation

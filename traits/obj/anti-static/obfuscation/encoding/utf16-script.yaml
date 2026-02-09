@@ -24,4 +24,4 @@ composite_rules:
     conf: 0.85
     all:
       - id: utf16-bom-script
-      - id: cap/exec/activex/com/utf16/utf16-wsh-com-objects
+      - id: cap/exec/activex/com::utf16-wsh-com-objects

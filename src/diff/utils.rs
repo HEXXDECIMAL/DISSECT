@@ -290,3 +290,276 @@ pub(super) fn detect_renames(removed: &[String], added: &[String]) -> Vec<FileRe
 
     matches
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // ==================== is_shared_library Tests ====================
+
+    #[test]
+    fn test_is_shared_library_ends_with_so() {
+        assert!(is_shared_library("libssl.so"));
+        assert!(is_shared_library("libcrypto.so"));
+        assert!(is_shared_library("libc.so"));
+    }
+
+    #[test]
+    fn test_is_shared_library_with_version() {
+        assert!(is_shared_library("libssl.so.1"));
+        assert!(is_shared_library("libssl.so.1.0.0"));
+        assert!(is_shared_library("libssl.so.1.1.1k"));
+        assert!(is_shared_library("libc.so.6"));
+    }
+
+    #[test]
+    fn test_is_shared_library_not_so() {
+        assert!(!is_shared_library("libssl.a"));
+        assert!(!is_shared_library("libssl.dylib"));
+        assert!(!is_shared_library("libssl.dll"));
+        assert!(!is_shared_library("program.exe"));
+        assert!(!is_shared_library("file.txt"));
+    }
+
+    #[test]
+    fn test_is_shared_library_edge_cases() {
+        // ".so" technically matches the pattern (contains and ends with .so)
+        assert!(is_shared_library(".so"));
+        assert!(!is_shared_library("noextension"));
+        assert!(!is_shared_library(""));
+    }
+
+    // ==================== library_similarity Tests ====================
+
+    #[test]
+    fn test_library_similarity_same_library_different_version() {
+        // Same base library with different versions should have high similarity
+        let sim = library_similarity("libssl.so.1.0.0", "libssl.so.1.1.1");
+        assert_eq!(sim, 0.95);
+    }
+
+    #[test]
+    fn test_library_similarity_same_library() {
+        let sim = library_similarity("libssl.so", "libssl.so");
+        assert_eq!(sim, 0.95);
+    }
+
+    #[test]
+    fn test_library_similarity_different_libraries() {
+        // Different libraries should have lower similarity
+        let sim = library_similarity("libssl.so", "libcrypto.so");
+        assert!(sim < 0.8);
+    }
+
+    #[test]
+    fn test_library_similarity_similar_names() {
+        // Similar but different library names
+        let sim = library_similarity("libfoo.so", "libfoo2.so");
+        assert!(sim > 0.7); // Should be reasonably similar
+        assert!(sim < 0.95); // But not same library
+    }
+
+    // ==================== calculate_file_similarity Tests ====================
+
+    #[test]
+    fn test_calculate_file_similarity_identical() {
+        let sim = calculate_file_similarity("/path/to/file.txt", "/other/path/to/file.txt");
+        assert_eq!(sim, 1.0);
+    }
+
+    #[test]
+    fn test_calculate_file_similarity_similar_names() {
+        let sim = calculate_file_similarity("/path/file1.txt", "/path/file2.txt");
+        assert!(sim > 0.8); // Should be similar
+    }
+
+    #[test]
+    fn test_calculate_file_similarity_different_names() {
+        let sim = calculate_file_similarity("/path/foo.txt", "/path/bar.txt");
+        // Short filenames have higher Levenshtein similarity even when different
+        assert!(sim < 0.9); // Should not be considered a rename match
+    }
+
+    #[test]
+    fn test_calculate_file_similarity_library_versions() {
+        // Library version changes should be detected as similar
+        let sim = calculate_file_similarity("/lib/libssl.so.1.0.0", "/lib/libssl.so.1.1.1");
+        assert_eq!(sim, 0.95);
+    }
+
+    // ==================== extract_library_base Tests ====================
+
+    #[test]
+    fn test_extract_library_base_with_version() {
+        assert_eq!(extract_library_base("libssl.so.1.0.0"), Some("libssl"));
+        assert_eq!(extract_library_base("libc.so.6"), Some("libc"));
+    }
+
+    #[test]
+    fn test_extract_library_base_without_version() {
+        assert_eq!(extract_library_base("libssl.so"), Some("libssl"));
+    }
+
+    #[test]
+    fn test_extract_library_base_not_library() {
+        assert_eq!(extract_library_base("file.txt"), None);
+        assert_eq!(extract_library_base("program"), None);
+        assert_eq!(extract_library_base("libfoo.a"), None);
+    }
+
+    // ==================== detect_renames Tests ====================
+
+    #[test]
+    fn test_detect_renames_exact_basename_match() {
+        let removed = vec!["dir1/unique_file.txt".to_string()];
+        let added = vec!["dir2/unique_file.txt".to_string()];
+
+        let renames = detect_renames(&removed, &added);
+
+        assert_eq!(renames.len(), 1);
+        assert_eq!(renames[0].baseline_path, "dir1/unique_file.txt");
+        assert_eq!(renames[0].target_path, "dir2/unique_file.txt");
+        assert_eq!(renames[0].similarity_score, 1.0);
+    }
+
+    #[test]
+    fn test_detect_renames_library_version_upgrade() {
+        let removed = vec!["/lib/libssl.so.1.0.0".to_string()];
+        let added = vec!["/lib/libssl.so.1.1.1".to_string()];
+
+        let renames = detect_renames(&removed, &added);
+
+        assert_eq!(renames.len(), 1);
+        assert_eq!(renames[0].similarity_score, 0.95);
+    }
+
+    #[test]
+    fn test_detect_renames_no_match() {
+        let removed = vec!["file1.txt".to_string()];
+        let added = vec!["completely_different.dat".to_string()];
+
+        let renames = detect_renames(&removed, &added);
+
+        assert!(renames.is_empty());
+    }
+
+    #[test]
+    fn test_detect_renames_multiple_files() {
+        let removed = vec![
+            "dir1/file1.txt".to_string(),
+            "dir1/file2.txt".to_string(),
+        ];
+        let added = vec![
+            "dir2/file1.txt".to_string(),
+            "dir2/file2.txt".to_string(),
+        ];
+
+        let renames = detect_renames(&removed, &added);
+
+        assert_eq!(renames.len(), 2);
+    }
+
+    #[test]
+    fn test_detect_renames_empty_input() {
+        let removed: Vec<String> = vec![];
+        let added: Vec<String> = vec![];
+
+        let renames = detect_renames(&removed, &added);
+
+        assert!(renames.is_empty());
+    }
+
+    #[test]
+    fn test_detect_renames_duplicate_basenames_not_matched() {
+        // When basename appears multiple times, don't match automatically
+        let removed = vec![
+            "dir1/config.json".to_string(),
+            "dir2/config.json".to_string(),
+        ];
+        let added = vec!["dir3/config.json".to_string()];
+
+        let renames = detect_renames(&removed, &added);
+
+        // Should not match because basename is not unique in removed set
+        assert!(renames.is_empty());
+    }
+
+    // ==================== compute_added_removed Tests ====================
+
+    #[test]
+    fn test_compute_added_removed_basic() {
+        let baseline = vec!["a".to_string(), "b".to_string(), "c".to_string()];
+        let target = vec!["b".to_string(), "c".to_string(), "d".to_string()];
+
+        let (added, removed) = compute_added_removed(&baseline, &target, |s| s.clone());
+
+        assert_eq!(added, vec!["d".to_string()]);
+        assert_eq!(removed, vec!["a".to_string()]);
+    }
+
+    #[test]
+    fn test_compute_added_removed_all_new() {
+        let baseline: Vec<String> = vec![];
+        let target = vec!["a".to_string(), "b".to_string()];
+
+        let (added, removed) = compute_added_removed(&baseline, &target, |s| s.clone());
+
+        assert_eq!(added.len(), 2);
+        assert!(removed.is_empty());
+    }
+
+    #[test]
+    fn test_compute_added_removed_all_removed() {
+        let baseline = vec!["a".to_string(), "b".to_string()];
+        let target: Vec<String> = vec![];
+
+        let (added, removed) = compute_added_removed(&baseline, &target, |s| s.clone());
+
+        assert!(added.is_empty());
+        assert_eq!(removed.len(), 2);
+    }
+
+    #[test]
+    fn test_compute_added_removed_no_change() {
+        let baseline = vec!["a".to_string(), "b".to_string()];
+        let target = vec!["a".to_string(), "b".to_string()];
+
+        let (added, removed) = compute_added_removed(&baseline, &target, |s| s.clone());
+
+        assert!(added.is_empty());
+        assert!(removed.is_empty());
+    }
+
+    #[test]
+    fn test_compute_added_removed_with_key_fn() {
+        // Test with a custom key function (extracting just the filename)
+        #[derive(Clone, Debug, PartialEq)]
+        struct FileEntry {
+            path: String,
+            size: u64,
+        }
+
+        let baseline = vec![
+            FileEntry { path: "/old/file1.txt".to_string(), size: 100 },
+            FileEntry { path: "/old/file2.txt".to_string(), size: 200 },
+        ];
+        let target = vec![
+            FileEntry { path: "/new/file2.txt".to_string(), size: 200 },
+            FileEntry { path: "/new/file3.txt".to_string(), size: 300 },
+        ];
+
+        let (added, removed) = compute_added_removed(&baseline, &target, |f| {
+            std::path::Path::new(&f.path)
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or(&f.path)
+                .to_string()
+        });
+
+        // file1.txt was removed, file3.txt was added, file2.txt is in both
+        assert_eq!(added.len(), 1);
+        assert_eq!(added[0].path, "/new/file3.txt");
+        assert_eq!(removed.len(), 1);
+        assert_eq!(removed[0].path, "/old/file1.txt");
+    }
+}

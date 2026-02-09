@@ -12,5 +12,5 @@ composite_rules:
     all:
       - id: obj/collect/archive/data/sensitive-archiving/sensitive-archiving
     any:
-      - id: cap/comm/http/post/go/http-post
-      - id: obj/c2/infrastructure/domain/c2-domain
+      - id: cap/comm/http/post::http-post
+      - id: obj/c2/infrastructure/domain::c2-domain

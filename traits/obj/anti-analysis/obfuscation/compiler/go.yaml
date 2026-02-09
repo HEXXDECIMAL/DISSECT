@@ -68,7 +68,7 @@ traits:
     size_max: 1048576
     if:
       type: string
-      regex: "\\bptrace\\b"
+      word: "ptrace"
     unless:
       - type: content
         regex: "syscall|runtime"

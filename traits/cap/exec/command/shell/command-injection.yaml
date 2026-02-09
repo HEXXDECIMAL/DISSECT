@@ -37,15 +37,3 @@ traits:
       regex: system
 
 composite_rules:
-  - id: command-injection-format-exec
-    desc: Format string executed via system()
-    crit: hostile
-    conf: 0.90
-    mbc: "E1059"
-    attack: "T1059"
-    for: [c, elf, macho]
-    all:
-      - id: format-string-injection
-      - id: system-call-symbol
-      - id: cap/comm/socket/create/create
-      - id: cap/comm/socket/connect/connect

@@ -12,11 +12,11 @@ composite_rules:
     mbc: "B0030"
     for: [elf, macho, pe]
     all:
-      - id: cap/comm/download/curl/libcurl-http
+      - id: cap/comm/download/curl::libcurl-http
     needs: 1
     any:
       - id: obj/collect/file-targeting
-      - id: obj/creds/wallet/mnemonic/wallet-word
+      - id: obj/creds/wallet/mnemonic::wallet-word
 
   # Combination 2: fcopyfile + network (macOS)
   - id: macos-file-copy-exfil
@@ -27,10 +27,10 @@ composite_rules:
     platforms: [macos]
     for: [macho]
     all:
-      - id: cap/fs/file-ops/modes/binary-modes/fcopyfile-macos
+      - id: cap/fs/file-ops/modes::fcopyfile-macos
     needs: 1
     any:
-      - id: cap/comm/download/curl/libcurl-http
+      - id: cap/comm/download/curl::libcurl-http
       - id: cap/comm/socket/create
 
   # Combination 3: Directory traversal + file extensions + network
@@ -47,12 +47,12 @@ composite_rules:
     needs: 2
     any:
       - id: obj/collect/file-targeting
-      - id: cap/comm/download/curl/libcurl-http
+      - id: cap/comm/download/curl::libcurl-http
       - id: cap/comm/socket/create
     none:
-      - id: cap/exec/load/library/system-lib-marker
-      - id: cap/exec/load/library/network-lib-marker
-      - id: cap/exec/load/library/debugger-tool-marker
+      - id: cap/exec/load/library::system-lib-marker
+      - id: cap/exec/load/library::network-lib-marker
+      - id: cap/exec/load/library::debugger-tool-marker
 
   # Combination 4: Hardware UUID + base64 = fingerprint encoding
   - id: encoded-hardware-fingerprint
@@ -62,7 +62,7 @@ composite_rules:
     attack: "T1082"
     for: [elf, macho, pe]
     all:
-      - id: cap/data/encode/base64/custom-implementation
+      - id: cap/data/encode/base64::custom-implementation
     any:
       - id: obj/discovery/host/fingerprint
 
@@ -75,11 +75,11 @@ composite_rules:
     mbc: "B0032"
     for: [elf, macho, pe]
     all:
-      - id: cap/data/encode/base64/custom-implementation
-      - id: obj/anti-static/obfuscation/encoding/string-decrypt
+      - id: cap/data/encode/base64::custom-implementation
+      - id: obj/anti-static/obfuscation/encoding::string-decrypt
     needs: 1
     any:
-      - id: cap/comm/download/curl/libcurl-http
+      - id: cap/comm/download/curl::libcurl-http
       - id: cap/comm/socket/create
 
   # Combination 6: libcurl + fingerprinting + obfuscation
@@ -91,8 +91,8 @@ composite_rules:
     mbc: "B0030"
     for: [elf, macho, pe]
     all:
-      - id: cap/comm/download/curl/libcurl-http
-      - id: obj/anti-static/obfuscation/encoding/string-decrypt
+      - id: cap/comm/download/curl::libcurl-http
+      - id: obj/anti-static/obfuscation/encoding::string-decrypt
     any:
       - id: obj/discovery/host/fingerprint
 
@@ -104,8 +104,8 @@ composite_rules:
     attack: "T1555.003"
     mbc: "B0028"
     all:
-      - id: obj/creds/browser/chromium/cookies-path
-      - id: cap/comm/http/upload/curl-upload-file
+      - id: obj/creds/browser/chromium::cookies-path
+      - id: cap/comm/http/upload::curl-upload-file
 
   # Combination 8: CookieMiner dropper script
   - id: cookieminer-dropper
@@ -116,7 +116,7 @@ composite_rules:
     mbc: "B0024"
     for: [shell]
     all:
-      - id: cap/exec/dropper/script/curl-download
-      - id: obj/creds/browser/chromium/cookies-path
-      - id: cap/os/admin/legitimate/cp-command
-      - id: cap/comm/http/upload/curl-upload-file
+      - id: cap/exec/dropper/script::curl-download
+      - id: obj/creds/browser/chromium::cookies-path
+      - id: cap/os/admin/legitimate::cp-command
+      - id: cap/comm/http/upload::curl-upload-file

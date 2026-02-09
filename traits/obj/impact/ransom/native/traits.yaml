@@ -266,6 +266,6 @@ composite_rules:
       - id: encryption-artifacts
       - id: file-targeting
     any:
-      - id: cap/fs/directory/traverse/traverse-fts
-      - id: cap/fs/directory/traverse/fts-open
-      - id: cap/process/threading/thread/pthread
+      - id: cap/fs/directory/traverse::traverse-fts
+      - id: cap/fs/directory/traverse::fts-open
+      - id: cap/process/threading/thread::pthread

@@ -11,6 +11,17 @@ defaults:
 
 traits:
   # ============================================
+  # Command Execution
+  # ============================================
+  - id: osascript-exec
+    desc: osascript command execution
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: "osascript\\s+-e\\s+['\"]"
+
+  # ============================================
   # Low-Level Apple Event Indicators (in strings)
   # ============================================
   - id: sysoexec-string
@@ -86,7 +97,7 @@ composite_rules:
     attack: "T1059.004"
     for: [shell, python, ruby, perl]
     all:
-      - { id: obj/anti-analysis/window-hide/ui/applescript/osascript-exec }
+      - { id: cap/exec/command/script::osascript-exec }
       - { id: sysoexec-string }
 
   # ============================================
@@ -98,7 +109,7 @@ composite_rules:
     conf: 0.8
     for: [shell, python, ruby, perl]
     all:
-      - { id: obj/anti-analysis/window-hide/ui/applescript/osascript-exec }
+      - { id: cap/exec/command/script::osascript-exec }
     any:
       - { id: ref-system-settings }
       - { id: ref-system-prefs }

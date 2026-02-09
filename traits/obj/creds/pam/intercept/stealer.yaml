@@ -50,7 +50,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     all:
-      - id: cap/os/pam/auth/module
+      - id: cap/os/pam/auth::module
     any:
       - id: meta/import/curl_easy_perform
       - id: meta/import/curl_easy_init
@@ -62,7 +62,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     all:
-      - id: cap/os/pam/auth/module
+      - id: cap/os/pam/auth::module
     any:
       - id: meta/import/socket
       - id: meta/import/connect

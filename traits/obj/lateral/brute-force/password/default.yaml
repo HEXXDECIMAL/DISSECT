@@ -124,7 +124,7 @@ traits:
       - "-u, --user"
     unless:
       # Exclude curl/libcurl which has credential help text
-      - id: cap/comm/download/curl/curl-easy-init
+      - id: cap/comm/download/curl::curl-easy-init
 
   # Real brute-force dictionaries have many credential entries packed densely.
   # A few scattered credential-like strings are common in help text; 10+ entries
@@ -155,7 +155,7 @@ composite_rules:
     for: [elf]
     needs: 1
     any:
-      - id: obj/lateral/brute-force/iot-creds/router-cred-zte
+      - id: obj/lateral/brute-force/iot-creds::router-cred-zte
       - id: iot-pte521
       - id: iot-pon521
       - id: iot-zxic521
@@ -169,8 +169,8 @@ composite_rules:
     for: [elf]
     needs: 4
     any:
-      - id: obj/creds/username/admin/detected
-      - id: obj/creds/username/root/detected
+      - id: obj/creds/username/admin::detected
+      - id: obj/creds/username/root::detected
       - id: guest
       - id: numeric-123456
       - id: literal-password

@@ -89,16 +89,3 @@ composite_rules:
       - id: powershell-irm-iex
       - id: powershell-iwr-iex
 
-  - id: js-silent-installer
-    desc: Silent download and execute installer
-    crit: hostile
-    conf: 0.95
-    attack: "T1105"
-    mbc: "B0024"
-    for: [javascript]
-    all:
-      - id: cap/exec/command/shell/js-execsync
-      - id: cap/exec/download/fetch/javascript/js-stdio-ignore
-    any:
-      - id: cap/exec/download/fetch/javascript/js-installer-sh
-      - id: cap/exec/download/fetch/javascript/js-installer-ps1

@@ -29,7 +29,7 @@ composite_rules:
     conf: 0.4
     needs: 1
     any:
-      - id: cap/data/text/pattern/tmp
+      - id: cap/data/text/pattern::tmp
       - id: tempfile-ref
       - id: environ-tmp
 
@@ -39,6 +39,6 @@ composite_rules:
     conf: 0.95
     near_lines: 50
     all:
-      - id: cap/fs/file/open/generic
-      - id: cap/exec/command/subprocess/run
+      - id: cap/fs/file/open::generic
+      - id: cap/exec/command/subprocess::run-call
       - id: temp-dir-reference

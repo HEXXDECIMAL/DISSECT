@@ -175,5 +175,5 @@ composite_rules:
     for: [elf, shell]
     attack: "T1070.004"
     all:
-      - id: kinsing-identifier
+      - id: known/malware/miner/kinsing-enhanced::kinsing-identifier
       - id: comprehensive-cron-evidence-removal

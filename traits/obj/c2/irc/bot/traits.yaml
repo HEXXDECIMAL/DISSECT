@@ -82,7 +82,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: '\btsunami\b'
+      word: "tsunami"
       case_insensitive: true
 
   - id: kaiten-name
@@ -91,7 +91,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: '\bkaiten\b'
+      word: "kaiten"
       case_insensitive: true
 
   # === DDoS indicators ===
@@ -187,8 +187,8 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     all:
-      - id: obj/c2/irc/bot/tsunami-artifact
-      - id: obj/c2/irc/bot-logic
+      - id: obj/c2/irc/bot::tsunami-artifact
+      - id: bot-logic
 
   # Tsunami DDoS bot
   - id: tsunami-ddos-bot
@@ -196,8 +196,8 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     all:
-      - id: obj/c2/irc/bot/tsunami-artifact
-      - id: obj/c2/irc/bot/irc-ddos
+      - id: obj/c2/irc/bot::tsunami-artifact
+      - id: obj/c2/irc/bot::irc-ddos
 
   # IRC bot with DDoS
   - id: irc-bot-ddos
@@ -205,5 +205,5 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     all:
-      - id: obj/c2/irc/bot-logic
-      - id: obj/c2/irc/bot/irc-ddos
+      - id: bot-logic
+      - id: obj/c2/irc/bot::irc-ddos

@@ -364,6 +364,387 @@ fn parse_encoding_suffix(s: &str) -> Option<(Vec<String>, usize)> {
 mod tests {
     use super::*;
 
+    // ==================== Constants Tests ====================
+
+    #[test]
+    fn test_archive_delimiter() {
+        assert_eq!(ARCHIVE_DELIMITER, "!!");
+    }
+
+    #[test]
+    fn test_encoding_delimiter() {
+        assert_eq!(ENCODING_DELIMITER, "##");
+    }
+
+    // ==================== FileAnalysis Tests ====================
+
+    #[test]
+    fn test_file_analysis_new() {
+        let fa = FileAnalysis::new(
+            0,
+            "test.py".to_string(),
+            "python".to_string(),
+            "abc123def".to_string(),
+            1024,
+        );
+        assert_eq!(fa.id, 0);
+        assert_eq!(fa.path, "test.py");
+        assert_eq!(fa.file_type, "python");
+        assert_eq!(fa.sha256, "abc123def");
+        assert_eq!(fa.size, 1024);
+        assert_eq!(fa.depth, 0);
+        assert!(fa.parent_id.is_none());
+    }
+
+    #[test]
+    fn test_file_analysis_new_all_collections_empty() {
+        let fa = FileAnalysis::new(
+            0,
+            "test.py".to_string(),
+            "python".to_string(),
+            "abc".to_string(),
+            100,
+        );
+        assert!(fa.findings.is_empty());
+        assert!(fa.traits.is_empty());
+        assert!(fa.structure.is_empty());
+        assert!(fa.functions.is_empty());
+        assert!(fa.strings.is_empty());
+        assert!(fa.sections.is_empty());
+        assert!(fa.imports.is_empty());
+        assert!(fa.exports.is_empty());
+        assert!(fa.yara_matches.is_empty());
+        assert!(fa.syscalls.is_empty());
+        assert!(fa.paths.is_empty());
+        assert!(fa.directories.is_empty());
+        assert!(fa.env_vars.is_empty());
+    }
+
+    #[test]
+    fn test_file_analysis_new_all_options_none() {
+        let fa = FileAnalysis::new(
+            0,
+            "test.py".to_string(),
+            "python".to_string(),
+            "abc".to_string(),
+            100,
+        );
+        assert!(fa.risk.is_none());
+        assert!(fa.counts.is_none());
+        assert!(fa.encoding.is_none());
+        assert!(fa.binary_properties.is_none());
+        assert!(fa.source_code_metrics.is_none());
+        assert!(fa.metrics.is_none());
+        assert!(fa.extracted_path.is_none());
+    }
+
+    #[test]
+    fn test_file_analysis_with_parent() {
+        let fa = FileAnalysis::new(
+            1,
+            "inner.py".to_string(),
+            "python".to_string(),
+            "def456".to_string(),
+            512,
+        )
+        .with_parent(0, 1);
+
+        assert_eq!(fa.parent_id, Some(0));
+        assert_eq!(fa.depth, 1);
+    }
+
+    #[test]
+    fn test_file_analysis_with_parent_deep_nesting() {
+        let fa = FileAnalysis::new(
+            5,
+            "deep.py".to_string(),
+            "python".to_string(),
+            "xyz".to_string(),
+            256,
+        )
+        .with_parent(4, 5);
+
+        assert_eq!(fa.parent_id, Some(4));
+        assert_eq!(fa.depth, 5);
+    }
+
+    #[test]
+    fn test_file_analysis_with_encoding() {
+        let fa = FileAnalysis::new(
+            2,
+            "decoded.py".to_string(),
+            "python".to_string(),
+            "ghi789".to_string(),
+            200,
+        )
+        .with_encoding(vec!["base64".to_string(), "gzip".to_string()]);
+
+        let encoding = fa.encoding.unwrap();
+        assert_eq!(encoding.len(), 2);
+        assert_eq!(encoding[0], "base64");
+        assert_eq!(encoding[1], "gzip");
+    }
+
+    #[test]
+    fn test_file_analysis_with_encoding_single() {
+        let fa = FileAnalysis::new(
+            2,
+            "decoded.py".to_string(),
+            "python".to_string(),
+            "ghi789".to_string(),
+            200,
+        )
+        .with_encoding(vec!["base64".to_string()]);
+
+        let encoding = fa.encoding.unwrap();
+        assert_eq!(encoding.len(), 1);
+        assert_eq!(encoding[0], "base64");
+    }
+
+    #[test]
+    fn test_file_analysis_compute_summary_empty() {
+        let mut fa = FileAnalysis::new(
+            0,
+            "test.py".to_string(),
+            "python".to_string(),
+            "abc".to_string(),
+            100,
+        );
+        fa.compute_summary();
+        assert!(fa.risk.is_none());
+        assert!(fa.counts.is_none());
+    }
+
+    #[test]
+    fn test_file_analysis_compute_summary_notable_only() {
+        let mut fa = FileAnalysis::new(
+            0,
+            "test.py".to_string(),
+            "python".to_string(),
+            "abc".to_string(),
+            100,
+        );
+        fa.findings.push(
+            Finding::capability("test/notable".to_string(), "Test".to_string(), 0.5)
+                .with_criticality(Criticality::Notable),
+        );
+        fa.compute_summary();
+        assert_eq!(fa.risk, Some(Criticality::Notable));
+        let counts = fa.counts.unwrap();
+        assert_eq!(counts.notable, 1);
+        assert_eq!(counts.suspicious, 0);
+        assert_eq!(counts.hostile, 0);
+    }
+
+    #[test]
+    fn test_file_analysis_compute_summary_inert_only() {
+        let mut fa = FileAnalysis::new(
+            0,
+            "test.py".to_string(),
+            "python".to_string(),
+            "abc".to_string(),
+            100,
+        );
+        fa.findings.push(
+            Finding::capability("test/inert".to_string(), "Test".to_string(), 0.1)
+                .with_criticality(Criticality::Inert),
+        );
+        fa.compute_summary();
+        // Inert findings don't contribute to risk
+        assert!(fa.risk.is_none());
+        assert!(fa.counts.is_none());
+    }
+
+    #[test]
+    fn test_file_analysis_minimize() {
+        use super::super::traits_findings::TraitKind;
+
+        let mut fa = FileAnalysis::new(
+            0,
+            "test.py".to_string(),
+            "python".to_string(),
+            "abc".to_string(),
+            100,
+        );
+        // Add some data that should be cleared
+        fa.traits.push(Trait {
+            kind: TraitKind::String,
+            value: "test".to_string(),
+            offset: None,
+            encoding: None,
+            section: None,
+            source: "test".to_string(),
+        });
+
+        fa.minimize();
+
+        assert!(fa.traits.is_empty());
+        assert!(fa.structure.is_empty());
+        assert!(fa.functions.is_empty());
+        assert!(fa.strings.is_empty());
+        assert!(fa.sections.is_empty());
+        assert!(fa.imports.is_empty());
+        assert!(fa.exports.is_empty());
+        assert!(fa.yara_matches.is_empty());
+        assert!(fa.syscalls.is_empty());
+        assert!(fa.binary_properties.is_none());
+        assert!(fa.source_code_metrics.is_none());
+        assert!(fa.metrics.is_none());
+        assert!(fa.paths.is_empty());
+        assert!(fa.directories.is_empty());
+        assert!(fa.env_vars.is_empty());
+    }
+
+    #[test]
+    fn test_file_analysis_minimize_preserves_core_fields() {
+        let mut fa = FileAnalysis::new(
+            42,
+            "test.py".to_string(),
+            "python".to_string(),
+            "abc123".to_string(),
+            1000,
+        );
+        fa.findings.push(
+            Finding::capability("test".to_string(), "Test".to_string(), 0.9)
+                .with_criticality(Criticality::Hostile),
+        );
+        fa.compute_summary();
+
+        fa.minimize();
+
+        // Core fields should be preserved
+        assert_eq!(fa.id, 42);
+        assert_eq!(fa.path, "test.py");
+        assert_eq!(fa.file_type, "python");
+        assert_eq!(fa.sha256, "abc123");
+        assert_eq!(fa.size, 1000);
+        assert!(!fa.findings.is_empty()); // Findings preserved
+        assert!(fa.risk.is_some()); // Risk preserved
+    }
+
+    // ==================== FindingCounts Tests ====================
+
+    #[test]
+    fn test_finding_counts_default() {
+        let counts = FindingCounts::default();
+        assert_eq!(counts.hostile, 0);
+        assert_eq!(counts.suspicious, 0);
+        assert_eq!(counts.notable, 0);
+    }
+
+    #[test]
+    fn test_finding_counts_with_values() {
+        let counts = FindingCounts {
+            hostile: 5,
+            suspicious: 10,
+            notable: 15,
+        };
+        assert_eq!(counts.hostile, 5);
+        assert_eq!(counts.suspicious, 10);
+        assert_eq!(counts.notable, 15);
+    }
+
+    // ==================== ReportSummary Tests ====================
+
+    #[test]
+    fn test_report_summary_default() {
+        let summary = ReportSummary::default();
+        assert_eq!(summary.files_analyzed, 0);
+        assert_eq!(summary.max_depth, 0);
+        assert_eq!(summary.counts.hostile, 0);
+        assert_eq!(summary.counts.suspicious, 0);
+        assert_eq!(summary.counts.notable, 0);
+    }
+
+    #[test]
+    fn test_report_summary_from_empty_files() {
+        let summary = ReportSummary::from_files(&[]);
+        assert_eq!(summary.files_analyzed, 0);
+        assert_eq!(summary.max_depth, 0);
+    }
+
+    #[test]
+    fn test_report_summary_from_single_file() {
+        let mut file = FileAnalysis::new(
+            0,
+            "a.py".to_string(),
+            "python".to_string(),
+            "abc".to_string(),
+            100,
+        );
+        file.depth = 0;
+
+        let summary = ReportSummary::from_files(&[file]);
+        assert_eq!(summary.files_analyzed, 1);
+        assert_eq!(summary.max_depth, 0);
+    }
+
+    #[test]
+    fn test_report_summary_max_depth_calculation() {
+        let mut file1 = FileAnalysis::new(
+            0,
+            "a.py".to_string(),
+            "python".to_string(),
+            "abc".to_string(),
+            100,
+        );
+        file1.depth = 0;
+
+        let mut file2 = FileAnalysis::new(
+            1,
+            "b.py".to_string(),
+            "python".to_string(),
+            "def".to_string(),
+            200,
+        );
+        file2.depth = 3;
+
+        let mut file3 = FileAnalysis::new(
+            2,
+            "c.py".to_string(),
+            "python".to_string(),
+            "ghi".to_string(),
+            300,
+        );
+        file3.depth = 1;
+
+        let summary = ReportSummary::from_files(&[file1, file2, file3]);
+        assert_eq!(summary.files_analyzed, 3);
+        assert_eq!(summary.max_depth, 3);
+    }
+
+    // ==================== is_zero helper Tests ====================
+
+    #[test]
+    fn test_is_zero_true() {
+        assert!(is_zero(&0));
+    }
+
+    #[test]
+    fn test_is_zero_false() {
+        assert!(!is_zero(&1));
+        assert!(!is_zero(&100));
+    }
+
+    // ==================== ParsedPath Tests ====================
+
+    #[test]
+    fn test_parsed_path_simple() {
+        let parsed = parse_file_path("simple.txt");
+        assert_eq!(parsed.root, "simple.txt");
+        assert!(parsed.archive_parts.is_empty());
+        assert!(parsed.encoding.is_none());
+    }
+
+    #[test]
+    fn test_parsed_path_with_directory() {
+        let parsed = parse_file_path("/home/user/file.py");
+        assert_eq!(parsed.root, "/home/user/file.py");
+        assert!(parsed.archive_parts.is_empty());
+    }
+
+    // ==================== Path Encoding Tests ====================
+
     #[test]
     fn test_encode_archive_path() {
         assert_eq!(

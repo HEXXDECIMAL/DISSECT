@@ -319,10 +319,10 @@ composite_rules:
       # Require some eBPF indicator to avoid FPs on games/generic binaries
       - id: ebpf-indicator
     any:
-      - id: meta/intent/magic
-      - id: meta/intent/trigger
-      - id: meta/intent/backdoor
-      - id: meta/intent/secret
+      - id: meta/intent::magic
+      - id: meta/intent::trigger
+      - id: meta/intent::backdoor
+      - id: meta/intent::secret
 
   # Helper: any eBPF-related indicator
   - id: ebpf-indicator

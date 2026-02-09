@@ -130,7 +130,7 @@ composite_rules:
     for: [elf, shell]
     all:
       - id: capsh
-      - id: cap/fs/proc/process/process-self-status
+      - id: cap/fs/proc/process::process-self-status
 
   # Linux capabilities via cap_get/set_proc
   - id: linux-caps-via-api
@@ -171,6 +171,6 @@ composite_rules:
     downgrade:
       any:
         - id: cap/exec/load/video-lib-marker
-        - id: cap/exec/load/library/graphics-lib-marker
-        - id: cap/exec/load/library/system-lib-marker
-        - id: cap/exec/load/library/x11-ipc-lib-marker
+        - id: cap/exec/load/library::graphics-lib-marker
+        - id: cap/exec/load/library::system-lib-marker
+        - id: cap/exec/load/library::x11-ipc-lib-marker

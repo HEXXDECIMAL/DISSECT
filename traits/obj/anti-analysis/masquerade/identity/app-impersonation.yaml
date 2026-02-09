@@ -137,7 +137,7 @@ composite_rules:
     for: [macho, dylib]
     all:
       - id: apple-runtime-identifier
-      - id: meta/sign/signature/apple::developer-id
+      - id: meta/sign/certificate/apple::developer-id
 
   - id: fake-system-binary
     desc: Fake system binary

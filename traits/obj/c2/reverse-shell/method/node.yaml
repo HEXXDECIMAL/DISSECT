@@ -50,7 +50,7 @@ traits:
       exact: "net.connect"
 
   # === child_process micro-traits ===
-  # Use cap/exec/command/shell/node::child-process-require instead of duplicating
+  # Use cap/exec/command/shell::child-process-require instead of duplicating
 
   - id: spawn-call
     desc: spawn function call
@@ -333,7 +333,7 @@ composite_rules:
     for: [javascript, typescript]
     all:
       - id: net-socket
-      - id: cap/exec/command/shell/node::child-process-require
+      - id: cap/exec/command/shell::child-process-require
       - id: exec-function
       - id: pipe-string
 

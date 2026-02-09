@@ -185,3 +185,177 @@ pub struct SupplyChainScore {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub signals: Vec<String>,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // ==================== Metrics Default Tests ====================
+
+    #[test]
+    fn test_metrics_default() {
+        let metrics = Metrics::default();
+        assert!(metrics.text.is_none());
+        assert!(metrics.binary.is_none());
+        assert!(metrics.python.is_none());
+        assert!(metrics.obfuscation.is_none());
+    }
+
+    #[test]
+    fn test_metrics_with_text() {
+        let metrics = Metrics {
+            text: Some(TextMetrics::default()),
+            ..Default::default()
+        };
+        assert!(metrics.text.is_some());
+        assert!(metrics.binary.is_none());
+    }
+
+    #[test]
+    fn test_metrics_with_binary() {
+        let metrics = Metrics {
+            binary: Some(BinaryMetrics::default()),
+            elf: Some(ElfMetrics::default()),
+            ..Default::default()
+        };
+        assert!(metrics.binary.is_some());
+        assert!(metrics.elf.is_some());
+        assert!(metrics.pe.is_none());
+    }
+
+    #[test]
+    fn test_metrics_with_language() {
+        let metrics = Metrics {
+            python: Some(PythonMetrics::default()),
+            ..Default::default()
+        };
+        assert!(metrics.python.is_some());
+        assert!(metrics.javascript.is_none());
+    }
+
+    // ==================== ObfuscationScore Default Tests ====================
+
+    #[test]
+    fn test_obfuscation_score_default() {
+        let score = ObfuscationScore::default();
+        assert_eq!(score.score, 0.0);
+        assert_eq!(score.conf, 0.0);
+        assert!(score.signals.is_empty());
+    }
+
+    #[test]
+    fn test_obfuscation_score_creation() {
+        let score = ObfuscationScore {
+            score: 0.75,
+            conf: 0.9,
+            naming_score: 0.8,
+            string_score: 0.6,
+            structure_score: 0.5,
+            encoding_score: 0.9,
+            dynamic_score: 0.7,
+            signals: vec!["high entropy identifiers".to_string()],
+        };
+        assert!((score.score - 0.75).abs() < f32::EPSILON);
+        assert!((score.conf - 0.9).abs() < f32::EPSILON);
+        assert_eq!(score.signals.len(), 1);
+    }
+
+    #[test]
+    fn test_obfuscation_score_component_scores() {
+        let score = ObfuscationScore {
+            naming_score: 0.9,
+            string_score: 0.8,
+            dynamic_score: 0.95,
+            ..Default::default()
+        };
+        assert!((score.naming_score - 0.9).abs() < f32::EPSILON);
+        assert!((score.dynamic_score - 0.95).abs() < f32::EPSILON);
+    }
+
+    // ==================== PackingScore Default Tests ====================
+
+    #[test]
+    fn test_packing_score_default() {
+        let score = PackingScore::default();
+        assert_eq!(score.score, 0.0);
+        assert!(score.known_packer.is_none());
+        assert!(score.signals.is_empty());
+    }
+
+    #[test]
+    fn test_packing_score_creation() {
+        let score = PackingScore {
+            score: 0.95,
+            conf: 0.85,
+            entropy_score: 0.9,
+            import_score: 0.8,
+            string_score: 0.95,
+            section_score: 0.85,
+            known_packer: Some("UPX".to_string()),
+            signals: vec!["high entropy".to_string(), "few imports".to_string()],
+        };
+        assert!((score.score - 0.95).abs() < f32::EPSILON);
+        assert_eq!(score.known_packer, Some("UPX".to_string()));
+        assert_eq!(score.signals.len(), 2);
+    }
+
+    #[test]
+    fn test_packing_score_without_known_packer() {
+        let score = PackingScore {
+            score: 0.6,
+            conf: 0.5,
+            entropy_score: 0.7,
+            ..Default::default()
+        };
+        assert!(score.known_packer.is_none());
+    }
+
+    // ==================== SupplyChainScore Default Tests ====================
+
+    #[test]
+    fn test_supply_chain_score_default() {
+        let score = SupplyChainScore::default();
+        assert_eq!(score.score, 0.0);
+        assert!(score.signals.is_empty());
+    }
+
+    #[test]
+    fn test_supply_chain_score_creation() {
+        let score = SupplyChainScore {
+            score: 0.8,
+            conf: 0.9,
+            install_script_score: 0.95,
+            dependency_score: 0.6,
+            metadata_score: 0.3,
+            typosquat_score: 0.7,
+            signals: vec!["suspicious install script".to_string()],
+        };
+        assert!((score.score - 0.8).abs() < f32::EPSILON);
+        assert!((score.install_script_score - 0.95).abs() < f32::EPSILON);
+    }
+
+    #[test]
+    fn test_supply_chain_score_component_scores() {
+        let score = SupplyChainScore {
+            install_script_score: 0.9,
+            dependency_score: 0.5,
+            typosquat_score: 0.85,
+            ..Default::default()
+        };
+        assert!((score.typosquat_score - 0.85).abs() < f32::EPSILON);
+        assert_eq!(score.metadata_score, 0.0);
+    }
+
+    #[test]
+    fn test_supply_chain_score_signals() {
+        let score = SupplyChainScore {
+            signals: vec![
+                "postinstall script".to_string(),
+                "typosquat candidate".to_string(),
+                "missing repository".to_string(),
+            ],
+            ..Default::default()
+        };
+        assert_eq!(score.signals.len(), 3);
+    }
+}

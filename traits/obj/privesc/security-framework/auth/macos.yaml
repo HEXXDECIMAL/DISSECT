@@ -30,6 +30,6 @@ composite_rules:
     for: [macho]
     platforms: [macos]
     all:
-      - id: obj/impact/ui/manipulation/dock-hide
+      - id: obj/impact/ui/manipulation::dock-hide
       - id: auth-privesc-api-combo
-      - id: obj/c2/network/beacon/nstask-launch
+      - id: obj/c2/network/beacon::nstask-launch

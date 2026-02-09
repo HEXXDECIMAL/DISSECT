@@ -61,4 +61,4 @@ composite_rules:
       - id: env-serialization
       - id: env-bracket-access
       - id: host-env-check
-      - id: obj/c2/advanced-backdoor/script/ruby/faraday-http
+      - id: obj/c2/advanced-backdoor/script::faraday-http

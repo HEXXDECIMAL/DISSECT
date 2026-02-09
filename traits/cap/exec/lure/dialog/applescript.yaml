@@ -217,4 +217,4 @@ composite_rules:
     for: [applescript]
     all:
       - id: compat-lure
-      - id: cap/exec/command/shell-execution
+      - id: cap/exec/command/shell::shell-execution

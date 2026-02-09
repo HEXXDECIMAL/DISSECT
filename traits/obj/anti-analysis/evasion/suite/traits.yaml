@@ -38,11 +38,11 @@ composite_rules:
     platforms: [all]
     for: [pe, elf, macho]
     all:
-      - id: obj/anti-analysis/debugger/detect/win-comprehensive
+      - id: obj/anti-analysis/debugger/detect::win-comprehensive
     any:
       - id: timing-check-api
       - id: cpu-feature-check
-      - id: obj/anti-analysis/emulator/detect/comprehensive
+      - id: obj/anti-analysis/emulator/detect::comprehensive
     downgrade:
       any:
         - id: meta/quality/versioned

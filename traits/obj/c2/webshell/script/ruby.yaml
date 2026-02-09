@@ -64,8 +64,8 @@ composite_rules:
     for: [ruby]
     all:
       - id: http-cookie-extract
-      - id: cap/data/encode/base64/base64-decode
-      - id: cap/exec/eval/dynamic/eval-call
+      - id: cap/data/encode/base64::base64-decode
+      - id: cap/exec/eval/dynamic::eval-call
 
   # === Ruby Middleware Backdoor ===
   # Complexity: file_types(+1) + all(+4) = 5 (meets HOSTILE threshold)
@@ -78,9 +78,9 @@ composite_rules:
     for: [ruby]
     all:
       - id: rack-middleware-hook
-      - id: cap/exec/eval/dynamic/ruby/prepend-module
-      - id: cap/data/encode/base64/base64-decode
-      - id: cap/exec/eval/dynamic/eval-call
+      - id: cap/exec/eval/dynamic::prepend-module
+      - id: cap/data/encode/base64::base64-decode
+      - id: cap/exec/eval/dynamic::eval-call
 
   # === Base64 Eval RCE ===
   # Complexity: file_types(+1) + all(+2) = 3 (suspicious)
@@ -91,5 +91,5 @@ composite_rules:
     attack: "T1059.005"
     for: [ruby]
     all:
-      - id: cap/data/encode/base64/base64-decode
-      - id: cap/exec/eval/dynamic/eval-call
+      - id: cap/data/encode/base64::base64-decode
+      - id: cap/exec/eval/dynamic::eval-call

@@ -68,7 +68,7 @@ composite_rules:
   - id: sensitive-paths
     desc: Browser or wallet file paths
     any:
-      - id: obj/creds/browser/chromium/login-data
+      - id: cap/fs/path/config::chromium-login-data
       - id: cookies-path
       - id: key4-db-path
       - id: exodus-wallet-path

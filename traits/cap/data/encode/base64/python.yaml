@@ -64,6 +64,15 @@ traits:
       type: symbol
       exact: "binascii.b2a_base64"
 
+  # String-based detection (broader than symbol matching)
+  - id: b64decode-string
+    desc: Base64 decode string reference
+    crit: notable
+    conf: 0.66
+    if:
+      type: string
+      substr: b64decode
+
 composite_rules:
   - id: base64-encoding
     desc: Base64 encoding capability

@@ -329,9 +329,9 @@ composite_rules:
       - id: go-obfuscated-encrypt-method
       - id: go-obfuscated-keygen
     any:
-      - id: cap/crypto/symmetric/stream/chacha-salsa-constant
+      - id: cap/crypto/symmetric/stream::chacha-salsa-constant
       - id: go-obfuscated-xor-stream
-      - id: obj/c2/implant/binary/go/go-xor-encoding
+      - id: obj/c2/implant/binary::go-xor-encoding
 
   # Simple Go ransomware with main.* functions - complexity 5 (file_types:1 + all:3 + any:1)
   # Detects ransomware using simple naming like main.encryptData, main.isPayed
@@ -345,7 +345,7 @@ composite_rules:
     all:
       - id: go-main-encrypt-data
       - id: go-main-payment-check
-      - id: obj/impact/ransom/encrypt/ransom-note-text
+      - id: obj/impact/ransom/encrypt::ransom-note-text
     any:
       - id: go-main-self-remove
       - id: go-main-show-message
@@ -385,7 +385,7 @@ composite_rules:
       - id: go-main-payment-check
       - id: go-main-self-remove
       - id: go-main-show-message
-      - id: cap/crypto/symmetric/stream/chacha-salsa-constant
+      - id: cap/crypto/symmetric/stream::chacha-salsa-constant
 
   # Go ransomware with anti-forensics - complexity 5 (file_types:1 + all:3 + any:1)
   - id: go-ransomware-antiforensics
@@ -402,4 +402,4 @@ composite_rules:
     any:
       - id: go-main-payment-check
       - id: go-main-run-connection
-      - id: obj/impact/ransom/encrypt/ransom-note-text
+      - id: obj/impact/ransom/encrypt::ransom-note-text

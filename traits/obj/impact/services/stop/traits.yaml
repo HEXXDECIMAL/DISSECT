@@ -294,8 +294,3 @@ composite_rules:
     any:
       - id: word-encrypted
       - id: word-ransom
-      - id: word-tor
-      - id: word-bitcoin
-      - id: word-victim
-      - id: word-company
-      - id: phrase-your-data

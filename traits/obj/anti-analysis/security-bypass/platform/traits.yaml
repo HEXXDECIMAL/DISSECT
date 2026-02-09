@@ -335,7 +335,9 @@ composite_rules:
     for: [c, elf, shell]
     all:
       - { id: security-selinux-xattr }
-      - { id: setxattr-functions }
+    any:
+      - { id: setxattr-symbol }
+      - { id: setxattr-command }
 
   - id: unconfined-context
     desc: SELinux unconfined context assignment
@@ -360,7 +362,7 @@ composite_rules:
       - { id: policy-files }
     downgrade:
       any:
-        - id: cap/exec/load/library/debugger-tool-marker
+        - id: cap/exec/load/library::debugger-tool-marker
 
   - id: kernel-disable
     desc: SELinux kernel parameter disable

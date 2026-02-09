@@ -108,8 +108,8 @@ composite_rules:
     for: [applescript]
     needs: 1
     any:
-      - id: cap/exec/command/script/scpt/do-script
-      - id: cap/exec/command/script/scpt/activate
+      - id: cap/exec/command/script::do-script
+      - id: cap/exec/command/script::activate
 
   # ============================================
   # Terminal Automation
@@ -135,4 +135,4 @@ composite_rules:
     for: [applescript]
     all:
       - { id: automates-settings }
-      - { id: cap/exec/command/shell-execution }
+      - { id: cap/exec/command/shell::shell-execution }

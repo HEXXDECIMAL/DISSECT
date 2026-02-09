@@ -109,8 +109,8 @@ composite_rules:
     for: [elf, macho, pe]
     all:
       - id: aws-s3-disguised-payload
-      - id: cap/fs/proc/process/process-pid-exe
-      - id: cap/crypto/symmetric/stream/chacha-salsa-constant
+      - id: cap/fs/proc/process::process-pid-exe
+      - id: cap/crypto/symmetric/stream::chacha-salsa-constant
     any:
       - id: rust-ureq-http-client
       - id: rust-rustls-tls
@@ -127,7 +127,7 @@ composite_rules:
     all:
       - id: rust-ureq-http-client
       - id: rust-rustls-tls
-      - id: cap/fs/proc/process/process-pid-exe
+      - id: cap/fs/proc/process::process-pid-exe
       - id: aws-s3-disguised-payload
 
   # Generic cloud-hosted payload with crypto capability
@@ -139,8 +139,8 @@ composite_rules:
     mbc: "B0030"
     for: [elf, macho, pe]
     all:
-      - id: cap/crypto/symmetric/stream/chacha-salsa-constant
-      - id: cap/fs/proc/process/process-pid-exe
+      - id: cap/crypto/symmetric/stream::chacha-salsa-constant
+      - id: cap/fs/proc/process::process-pid-exe
     any:
       - id: aws-s3-disguised-payload
       - id: azure-blob-url

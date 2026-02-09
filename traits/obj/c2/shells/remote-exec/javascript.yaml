@@ -11,8 +11,8 @@ composite_rules:
     conf: 0.3
     needs: 1
     any:
-      - id: cap/data/text/pattern/output
-      - id: cap/data/text/pattern/command
+      - id: cap/data/text/pattern::output
+      - id: cap/data/text/pattern::command
 
   - id: js-http-backdoor
     desc: Remote shell backdoor (Poll C2
@@ -20,7 +20,7 @@ composite_rules:
     conf: 0.98
     attack: "T1059.003"
     all:
-      - id: cap/comm/http/request/js-axios-get
-      - id: cap/exec/command/shell/js-execsync
-      - id: cap/comm/http/request/js-axios-post
+      - id: cap/comm/http/request::js-axios-get
+      - id: cap/exec/command/shell::js-execsync
+      - id: cap/comm/http/request::js-axios-post
       - id: js-output-command-var

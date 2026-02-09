@@ -103,7 +103,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     all:
-      - id: obj/lateral/supply-chain/pypi/setup-py-file
+      - id: obj/lateral/supply-chain/pypi::setup-py-file
       - id: meta/import/python/socket
 
   # setup.py with ctypes - no legitimate reason for FFI in setup
@@ -112,7 +112,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     all:
-      - id: obj/lateral/supply-chain/pypi/setup-py-file
+      - id: obj/lateral/supply-chain/pypi::setup-py-file
       - id: meta/import/python/ctypes
 
   # setup.py with keyboard/input capture - surveillance in package install
@@ -121,7 +121,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     all:
-      - id: obj/lateral/supply-chain/pypi/setup-py-file
+      - id: obj/lateral/supply-chain/pypi::setup-py-file
     any:
       - id: meta/import/python/pynput
       - id: meta/import/python/keyboard
@@ -144,7 +144,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     all:
-      - id: obj/lateral/supply-chain/pypi/setup-py-file
+      - id: obj/lateral/supply-chain/pypi::setup-py-file
       - id: browser-paths
 
   # Shellcode loader pattern: ctypes + mmap + struct
@@ -169,7 +169,7 @@ composite_rules:
     conf: 0.95
     mbc: "B0024"
     all:
-      - id: obj/lateral/supply-chain/pypi/setup-py-file
+      - id: obj/lateral/supply-chain/pypi::setup-py-file
       - id: meta/import/python/socket
       - id: meta/import/python/base64
     any:
@@ -186,7 +186,7 @@ composite_rules:
     mbc: "E1510"
     attack: "T1115"
     all:
-      - id: obj/lateral/supply-chain/pypi/setup-py-file
+      - id: obj/lateral/supply-chain/pypi::setup-py-file
       - id: network-client-imports
     any:
       - id: meta/import/python/pyperclip

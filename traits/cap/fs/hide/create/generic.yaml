@@ -18,38 +18,3 @@ traits:
       regex: "curl\\s+-o\\s+\\.[^\\s/]+"
 
 
-composite_rules:
-  - id: hidden-file-write
-    desc: Writing to hidden dotfile (malware
-    crit: notable
-    conf: 0.85
-    mbc: "F0005"
-    attack: "T1564.001"
-    needs: 1
-    any:
-      - id: curl-o-hidden
-      - id: redirect-hidden-space
-      - id: redirect-hidden-nospace
-
-  - id: hidden-file-execute
-    desc: Executing hidden dotfile
-    crit: notable
-    conf: 0.9
-    mbc: "B0024"
-    attack: "T1059"
-    needs: 1
-    any:
-      - id: exec-hidden-space
-      - id: exec-hidden-eol
-      - id: exec-hidden-semi
-
-  - id: chmod-hidden-file
-    desc: Making hidden file executable
-    crit: notable
-    conf: 0.9
-    mbc: "C0047"
-    attack: "T1222.002"
-    needs: 1
-    any:
-      - id: chmod-x-hidden
-      - id: chmod-7xx-hidden

@@ -29,6 +29,6 @@ composite_rules:
     mbc: "F0001"
     for: [python]
     all:
-      - id: cap/exec/reflection/dynamic-import
-      - id: obj/anti-static/obfuscation/strings/python-hex
-      - id: cap/exec/reflection/dynamic/python/getattr-module
+      - id: dynamic-import
+      - id: cap/data/obfuscation/strings::hex-encoding
+      - id: cap/exec/reflection/dynamic::getattr-module

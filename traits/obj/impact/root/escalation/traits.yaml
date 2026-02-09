@@ -30,15 +30,4 @@ traits:
       type: string
       substr: "prepare_creds"
 
-composite_rules:
-  # Become Root Flow
-  - id: my-become-root
-    desc: Complete 'become root' flow (prepare_creds
-    crit: suspicious
-    conf: 1.0
-    attack: "T1068"
-    all:
-      - id: obj/impact/root/escalation/prepare-creds-string
-      - id: prepare-creds-call
-      - id: commit-creds-call
-      - id: obj/impact/root/escalation/credential-manipulation
+composite_rules: []

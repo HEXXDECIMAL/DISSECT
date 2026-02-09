@@ -34,9 +34,9 @@ composite_rules:
     crit: notable
     conf: 0.9
     any:
-      - id: meta/builder/github-actions
-      - id: meta/builder/github-runner-worker
-      - id: meta/builder/github-runner-listener
+      - id: meta/builder::github-actions
+      - id: meta/builder::github-runner-worker
+      - id: meta/builder::github-runner-listener
       - id: github-actions-targeting-shell
 
   - id: github-runner-memory-dumper
@@ -46,14 +46,14 @@ composite_rules:
     for: [python, javascript, shell, rust, go]
     all:
       - id: github-actions-targeting
-      - id: cap/fs/proc/process/process-pid-mem
-      - id: cap/fs/proc/process/process-pid-maps
+      - id: cap/fs/proc/process::process-pid-mem
+      - id: cap/fs/proc/process::process-pid-maps
 
   - id: github-actions-secret-marker-helper
     desc: Helper for secret or memory access
     any:
-      - id: meta/intent/secret
-      - id: cap/fs/proc/process/process-pid-mem
+      - id: meta/intent::secret
+      - id: cap/fs/proc/process::process-pid-mem
       - id: github-actions-targeting-shell
 
   - id: github-actions-secret-harvest
@@ -64,9 +64,9 @@ composite_rules:
     all:
       - id: github-actions-targeting
       - id: github-actions-secret-marker-helper
-      - id: cap/exec/command/shell/shell-platform-check
+      - id: cap/exec/command/shell::shell-platform-check
     any:
-      - id: cap/exec/command/shell/curl-pipe-exec
-      - id: cap/exec/command/shell/sudo-piped-exec
+      - id: cap/exec/command/shell::curl-pipe-exec
+      - id: cap/exec/command/shell::sudo-piped-exec
       - id: double-base64-encode
       - id: python-sudo-execution

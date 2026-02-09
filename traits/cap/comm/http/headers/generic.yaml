@@ -234,7 +234,7 @@ composite_rules:
     conf: 0.6
     needs: 1
     any:
-      - id: cap/comm/http/post/multipart-form
+      - id: cap/comm/http/post::multipart-form
       - id: boundary-param
       - id: content-disposition-filename
       - id: form-data-header

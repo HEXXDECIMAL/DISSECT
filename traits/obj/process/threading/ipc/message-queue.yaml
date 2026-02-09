@@ -78,5 +78,5 @@ composite_rules:
     mbc: "C0019"
     all:
       - id: message-based-command-server
-      - id: cap/exec/command
+      - id: cap/exec/command/
 

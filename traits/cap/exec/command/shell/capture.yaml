@@ -4,16 +4,16 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     all:
-      - id: cap/exec/command/direct/popen-call
+      - id: cap/exec/command/direct::popen-call
     any:
-      - id: cap/exec/command/direct/cpp/fgets-loop
-      - id: cap/exec/command/direct/cpp/cpp-exception
+      - id: cap/exec/command/direct::fgets-loop
+      - id: cap/exec/command/direct::cpp-exception
     for: [macho, elf, pe]
     none:
       - id: meta/signed/platform::apple
     # Downgrade for system libraries and shell interpreters
     downgrade:
       any:
-        - id: cap/exec/load/library/system-lib-marker
-        - id: cap/exec/load/library/shell-interpreter
-        - id: cap/exec/load/library/debugger-tool-marker
+        - id: cap/exec/load/library::system-lib-marker
+        - id: cap/exec/load/library::shell-interpreter
+        - id: cap/exec/load/library::debugger-tool-marker

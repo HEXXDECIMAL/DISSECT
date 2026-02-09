@@ -235,8 +235,8 @@ composite_rules:
     for: [macho, dylib, elf, so]
     all:
       - id: framework-binary-marker
-      - id: cap/data/embedded/payload/lzma-magic
-      - id: cap/fs/file/delete/delete
+      - id: cap/data/embedded/payload::lzma-magic
+      - id: cap/fs/file/delete::delete
 
   # Even more suspicious: trojanized framework with socket binding (network capability)
   - id: trojanized-framework-networked
@@ -248,7 +248,7 @@ composite_rules:
     for: [macho, dylib, elf, so]
     all:
       - id: suspicious-trojanized-framework
-      - id: cap/comm/socket/bind/bind
+      - id: cap/comm/socket/bind::bind
 
   # Most suspicious: trojanized framework with C2 communication
   - id: trojanized-framework-with-c2
@@ -260,7 +260,7 @@ composite_rules:
     for: [macho, dylib, elf, so]
     all:
       - id: trojanized-framework-networked
-      - id: obj/c2/infrastructure/domain/hardcoded-domain-com
+      - id: obj/c2/infrastructure/domain::hardcoded-domain-com
 
   # nanopb in wallet app with iOS code injection framework
   - id: nanopb-with-ios-injection

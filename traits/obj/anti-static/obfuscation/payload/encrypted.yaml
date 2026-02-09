@@ -224,8 +224,8 @@ composite_rules:
       - id: high-entropy-const
       - id: tiny-cstring
     any:
-      - id: obj/persist/daemon/init/macos-double-fork-daemon
-      - id: cap/exec/command/shell/shell-execution
+      - id: obj/persist/daemon/init::macos-double-fork-daemon
+      - id: cap/exec/command/shell::shell-execution
 
   - id: obfuscated-elf-daemon-dropper
     desc: "Obfuscated ELF daemon dropper (embedded payload"
@@ -241,11 +241,11 @@ composite_rules:
     # obfuscation. This excludes legitimate Rust/Go binaries with embedded lookup tables.
     size_max: 2097152
     all:
-      - id: cap/data/embedded/payload/lzma-magic
-      - id: obj/persist/daemon/init/daemon-fork
+      - id: cap/data/embedded/payload::lzma-magic
+      - id: obj/persist/daemon/init::daemon-fork
     any:
-      - id: cap/exec/command/shell/shell-execution
-      - id: cap/exec/command/shell/go-shell-execution
+      - id: cap/exec/command/shell::shell-execution
+      - id: cap/exec/command/shell::go-shell-execution
     unless:
       - type: string
         regex: "findutils|libtsan|sanitizer"

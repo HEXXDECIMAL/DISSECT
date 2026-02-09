@@ -25,5 +25,5 @@ composite_rules:
     crit: benign
     conf: 0.98
     any:
-      - id: meta/vendor/valve/valve-corp-string
-      - id: meta/vendor/valve/steam-path-string
+      - id: meta/vendor/valve::valve-corp-string
+      - id: meta/vendor/valve::steam-path-string

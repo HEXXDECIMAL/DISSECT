@@ -56,7 +56,7 @@ traits:
     for: [all]
     if:
       type: string
-      regex: "\\btorrc\\b"
+      word: "torrc"
 
   # === Tor Project Download ===
   - id: torproject-url

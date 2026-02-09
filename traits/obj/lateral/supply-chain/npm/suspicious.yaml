@@ -454,9 +454,9 @@ composite_rules:
     conf: 0.85
     needs: 1
     any:
-      - id: obj/lateral/supply-chain/npm/preinstall-hook-key
-      - id: obj/lateral/supply-chain/npm/postinstall-hook-key
-      - id: obj/lateral/supply-chain/npm/install-hook-key
+      - id: obj/lateral/supply-chain/npm::preinstall-hook-key
+      - id: obj/lateral/supply-chain/npm::postinstall-hook-key
+      - id: obj/lateral/supply-chain/npm::install-hook-key
 
   # No deps with hooks - migrated from YARA
   - id: no-deps-with-hooks
@@ -475,9 +475,9 @@ composite_rules:
     conf: 0.85
     needs: 2
     any:
-      - id: obj/lateral/supply-chain/npm/preinstall-hook-key
-      - id: obj/lateral/supply-chain/npm/postinstall-hook-key
-      - id: obj/lateral/supply-chain/npm/install-hook-key
+      - id: obj/lateral/supply-chain/npm::preinstall-hook-key
+      - id: obj/lateral/supply-chain/npm::postinstall-hook-key
+      - id: obj/lateral/supply-chain/npm::install-hook-key
 
   # New version with hooks - migrated from YARA
   - id: new-version-hooks
@@ -496,7 +496,7 @@ composite_rules:
     all:
       - id: npm-suspicious-install-hooks
     none:
-      - id: obj/lateral/supply-chain/npm/repository-key
+      - id: obj/lateral/supply-chain/npm::repository-key
 
   # Child unref composite
   - id: child-unref
@@ -508,19 +508,6 @@ composite_rules:
     any:
       - id: child-dot-unref
       - id: spawn-unref
-
-  # Fork loader script (generic supply chain loader)
-  - id: suspicious-fork-loader
-    desc: Small file forking a script (loader pattern)
-    crit: suspicious
-    conf: 0.85
-    attack: "T1195.002"
-    mbc: "B0024"
-    for: [javascript]
-    all:
-      - id: fork-call
-      - id: require-child-process
-      - id: small-file-5k
 
   # Stdio ignore composite
   - id: stdio-ignore
@@ -559,25 +546,7 @@ composite_rules:
     all:
       - id: placeholder-author-your-name
     none:
-      - id: obj/lateral/supply-chain/npm/repository-key
-
-  # === Script Recon with Missing Metadata ===
-
-  # System recon command in npm scripts + missing metadata = suspicious package
-  # Typosquatting packages often run system discovery commands (uname, whoami)
-  # in scripts while having minimal/fake metadata
-  # Complexity: all(+4) = 4
-  - id: npm-script-recon-no-metadata
-    desc: System recon in scripts with missing metadata
-    crit: suspicious
-    conf: 0.85
-    attack: "T1195.002"
-    for: [packagejson]
-    all:
-      - id: obj/lateral/supply-chain/npm/script-sysinfo-cmd
-      - id: obj/lateral/supply-chain/npm/no-repository-field
-      - id: obj/lateral/supply-chain/npm/no-bugs-field
-      - id: pkg-no-description-short
+      - id: obj/lateral/supply-chain/npm::repository-key
 
   # === Data Exfiltration Patterns ===
 
@@ -592,8 +561,8 @@ composite_rules:
     mbc: "E1041"
     for: [javascript]
     all:
-      - id: obj/discovery/host/system/javascript/js-sysinfo-multi
-      - id: cap/comm/http/post/post
+      - id: obj/discovery/host/system::js-sysinfo-multi
+      - id: cap/comm/http/post::post
       - id: small-file-5k
 
   # Victim identification with HTTP POST - slightly less certainty but still hostile
@@ -606,8 +575,8 @@ composite_rules:
     mbc: "E1041"
     for: [javascript]
     all:
-      - id: obj/discovery/host/system/javascript/js-victim-id
-      - id: cap/comm/http/post/post
+      - id: obj/discovery/host/system::js-victim-id
+      - id: cap/comm/http/post::post
       - id: small-file-5k
 
   # Suspicious combo: system info + HTTP but larger file
@@ -618,8 +587,8 @@ composite_rules:
     attack: "T1082"
     for: [javascript]
     all:
-      - id: obj/discovery/host/system/javascript/js-victim-id
-      - id: cap/comm/http/post/post
+      - id: obj/discovery/host/system::js-victim-id
+      - id: cap/comm/http/post::post
 
   # === Deceptive Placeholder Package Composites ===
 
@@ -636,23 +605,6 @@ composite_rules:
       - id: desc-dependency-confusion
       - id: desc-placeholder-package
       - id: desc-prevent-squat
-
-  # Deceptive placeholder: claims protection but lacks legitimacy markers
-  # This is suspicious because legitimate placeholder packages typically have:
-  # - A repository link to the organization claiming the namespace
-  # - Contact information or homepage
-  # - A more detailed description explaining the reservation
-  - id: deceptive-placeholder-package
-    desc: Deceptive dependency confusion placeholder
-    crit: suspicious
-    conf: 0.85
-    attack: "T1195.002"
-    mbc: "B0024"
-    for: [packagejson]
-    all:
-      - id: dependency-confusion-claim
-      - id: obj/lateral/supply-chain/npm/no-repository-field
-      - id: obj/lateral/supply-chain/npm/no-bugs-field
 
   # === Fake Placeholder Package Detection ===
   # Tiny JS files that announce themselves as "fake" or "placeholder" packages
@@ -673,19 +625,3 @@ composite_rules:
     none:
       - id: has-exports
 
-  # === Skeleton Package / Name Squatter Detection ===
-  # Skeleton packages ship only package.json with no actual source code.
-  # They claim to provide libraries/CLIs but contain no implementation.
-  # Common in typosquatting, name confusion, and dependency confusion attacks.
-  # Complexity: all(+4) = 4 (meets suspicious threshold)
-  - id: skeleton-squatter-package
-    desc: Skeleton package claims functionality but has no code
-    crit: suspicious
-    conf: 0.85
-    attack: "T1195.002"
-    for: [packagejson]
-    all:
-      - id: pkg-skeleton-small
-      - id: pkg-claims-bin
-      - id: obj/lateral/supply-chain/npm/no-bugs-field
-      - id: obj/lateral/supply-chain/npm/no-homepage-field

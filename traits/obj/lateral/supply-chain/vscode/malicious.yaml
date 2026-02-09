@@ -127,7 +127,7 @@ composite_rules:
     for: [javascript, typescript]
     needs: 1
     any:
-      - id: obj/lateral/supply-chain/vscode/api/globalState
+      - id: obj/lateral/supply-chain/vscode::globalState
       - id: postInstall-word
 
   # Credential paths
@@ -141,7 +141,7 @@ composite_rules:
       - id: ssh-dir
       - id: aws-dir
       - id: npmrc-file
-      - id: obj/creds/environment/secret-access/dotenv-file
+      - id: obj/creds/environment/secret-access::dotenv-file
 
   # Send methods
   - id: send-methods
@@ -152,8 +152,8 @@ composite_rules:
     needs: 1
     any:
       - id: cap/comm/http/post-method
-      - id: cap/comm/http/request/javascript/fetch-call
-      - id: cap/comm/http/request/javascript/axios-lib
+      - id: cap/comm/http/request::fetch-call
+      - id: cap/comm/http/request::axios-lib
 
   # Post-Install Code Execution
   - id: post-install-exec
@@ -190,7 +190,7 @@ composite_rules:
     attack: "T1027"
     for: [javascript, typescript]
     all:
-      - id: known/malware/dropper/javascript/dropper/js-decrypt-eval
+      - id: known/malware/dropper::js-decrypt-eval
       - id: api-usage
       - id: vscode-namespace
 

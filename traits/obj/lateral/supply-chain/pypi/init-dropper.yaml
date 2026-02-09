@@ -182,8 +182,8 @@ composite_rules:
       - id: download-with-delete
       - id: safe-run-call
       - id: import-safe-download
-      - id: cap/exec/dropper/tmp-exec/tmp-path
-      - id: cap/exec/dropper/tmp-exec/tmp-path-short
+      - id: cap/exec/dropper/tmp-exec::tmp-path
+      - id: cap/exec/dropper/tmp-exec::tmp-path-short
       - id: os-system-call
       - id: platform-os-system-combo
       - id: inline-wget-exec

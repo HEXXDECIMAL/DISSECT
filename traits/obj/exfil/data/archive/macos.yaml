@@ -76,7 +76,7 @@ composite_rules:
     conf: 0.85
     needs: 1
     any:
-      - id: obj/collect/archive/data/macos/ditto-ck-flags
+      - id: obj/collect/archive/data::ditto-ck-flags
       - id: ditto-keepparent
 
   # ditto sequester composite
@@ -86,7 +86,7 @@ composite_rules:
     conf: 0.9
     needs: 1
     any:
-      - id: obj/collect/archive/data/macos/ditto-sequester
+      - id: obj/collect/archive/data::ditto-sequester
       - id: ditto-rsrc-flag
 
   # zip create composite

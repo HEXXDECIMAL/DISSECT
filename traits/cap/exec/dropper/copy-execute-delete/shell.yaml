@@ -147,14 +147,3 @@ composite_rules:
 
   # Copy-execute-delete shell dropper (HOSTILE)
   # complexity = file_types(1) + all(3) = 4
-  - id: shell-dropper
-    desc: Copy-execute-delete shell dropper
-    crit: hostile
-    conf: 0.95
-    mbc: "B0024"
-    attack: "T1059.004"
-    for: [shell]
-    all:
-      - id: copy-to-system-bin
-      - id: exec-and-rm-chain
-      - id: delete-from-system-bin

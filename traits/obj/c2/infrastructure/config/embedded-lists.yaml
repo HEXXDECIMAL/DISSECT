@@ -49,5 +49,5 @@ composite_rules:
     mbc: "C0002"
     all:
       - id: distributed-c2-redundancy
-      - id: cap/comm/socket
+      - id: cap/comm/socket/
 

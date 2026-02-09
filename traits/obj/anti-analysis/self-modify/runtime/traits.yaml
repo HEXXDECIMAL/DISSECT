@@ -13,7 +13,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: '\bmprotect\b'
+      word: "mprotect"
 
   - id: virtualprotect-win
     desc: Windows VirtualProtect API
@@ -37,7 +37,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: '\bPROT_WRITE\b'
+      word: "PROT_WRITE"
 
   - id: prot-exec
     desc: PROT_EXEC memory protection constant
@@ -45,7 +45,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: '\bPROT_EXEC\b'
+      word: "PROT_EXEC"
 
   - id: page-rwx
     desc: PAGE_EXECUTE_READWRITE constant
@@ -161,7 +161,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: '\bLD_PRELOAD\b'
+      word: "LD_PRELOAD"
 
   - id: dyld-insert
     desc: macOS DYLD_INSERT_LIBRARIES injection
@@ -169,7 +169,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: '\bDYLD_INSERT_LIBRARIES\b'
+      word: "DYLD_INSERT_LIBRARIES"
 
   # === IAT/GOT hooking (atomic) ===
   - id: import-descriptor
@@ -194,7 +194,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      regex: '\bIAT\b'
+      word: "IAT"
 
   - id: got-plt-section
     desc: ELF .got.plt section reference
@@ -210,7 +210,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      regex: '\bGOT\b'
+      word: "GOT"
 
   # === Polymorphic/metamorphic (atomic) ===
   # NOTE: "polymorphic" has legitimate uses in:
@@ -275,8 +275,8 @@ composite_rules:
     downgrade:
       any:
         - id: cap/exec/load/x11-dga-marker
-        - id: cap/exec/load/library/graphics-lib-marker
-        - id: cap/exec/load/library/system-lib-marker
+        - id: cap/exec/load/library::graphics-lib-marker
+        - id: cap/exec/load/library::system-lib-marker
 
   # Self-overwriting code
   # Note: Removed proc-self-maps since it's commonly used by legitimate software

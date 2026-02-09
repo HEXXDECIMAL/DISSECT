@@ -49,5 +49,5 @@ composite_rules:
     any:
       - id: tmp-path-short
       - id: os-chmod
-      - id: cap/exec/command/subprocess/python
+      - id: cap/exec/command/subprocess/
       - id: os-remove

@@ -57,5 +57,5 @@ composite_rules:
       - id: for-loop-content
       - id: for-loop-symbol
       - id: while-loop
-      - id: cap/fs/directory/traverse/traverse-walk
+      - id: cap/fs/directory/traverse::traverse-walk
       - id: glob-pattern

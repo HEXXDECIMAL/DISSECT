@@ -262,7 +262,7 @@ composite_rules:
       - id: locker-namespace
       - id: config-note-fields
       - id: vm-kill-config
-      - id: cap/vm/detect/vmware/esxcli-vm-kill
+      - id: cap/vm/detect/vmware::esxcli-vm-kill
     any:
       - id: config-cipher-fields
       - id: encrypt-lib-path
@@ -290,9 +290,9 @@ composite_rules:
     conf: 0.92
     for: [elf]
     all:
-      - id: cap/crypto/symmetric/stream/chacha-salsa-constant
-      - id: cap/process/threading/thread/pthread
-      - id: cap/fs/proc/process/process-pid-exe
+      - id: cap/crypto/symmetric/stream::chacha-salsa-constant
+      - id: cap/process/threading/thread::pthread
+      - id: cap/fs/proc/process::process-pid-exe
       - id: cap/fs/file/read
 
   # C/C++ file encryption ransomware - complexity 5 (for:1 + all:3 + any:1)
@@ -308,4 +308,4 @@ composite_rules:
       - id: payment-status-check
     any:
       - id: data-loss-threat
-      - id: cap/fs/proc/process/process-pid-exe
+      - id: cap/fs/proc/process::process-pid-exe

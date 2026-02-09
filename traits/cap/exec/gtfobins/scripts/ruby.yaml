@@ -77,8 +77,8 @@ composite_rules:
     attack: "T1059"
     needs: 2
     any:
-      - id: cap/exec/dylib/load/ruby/fiddle-dlopen
-      - id: cap/exec/dylib/load/ruby/shared-lib-exec
+      - id: cap/exec/dylib/load::fiddle-dlopen
+      - id: cap/exec/dylib/load::shared-lib-exec
 
   # === GTFOBins Privilege Escalation ===
   - id: gtfobins-privesc
@@ -104,13 +104,5 @@ composite_rules:
       - id: ruby-file-write
       - id: cli-ruby-exec
 
-  # === GTFOBins Reverse Shell ===
-  - id: gtfobins-reverse-shell
-    desc: GTFOBins reverse shell
-    crit: suspicious
-    conf: 0.93
-    attack: "T1059"
-    needs: 2
-    any:
-      - id: obj/c2/reverse-shell
-      - id: cli-ruby-exec
+  # Note: gtfobins-reverse-shell moved to obj/c2/reverse-shell/method/gtfobins.yaml
+  # as it infers objective (reverse shell) rather than just capability

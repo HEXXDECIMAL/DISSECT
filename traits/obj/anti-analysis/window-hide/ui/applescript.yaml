@@ -173,7 +173,6 @@ composite_rules:
     any:
       - id: dialog-password
       - id: default-answer-password
-      - id: obj/creds/phishing/lure/applescript/hidden-answer
 
   # Fake system dialog composite
   - id: fake-system-dialog
@@ -220,7 +219,7 @@ composite_rules:
     for: [applescript]
     all:
       - id: terminal-hide
-      - id: cap/exec/command/shell-execution
+      - id: cap/exec/command/shell::shell-execution
 
   # Window hiding with credential access
   - id: hidden-cred-access
@@ -231,5 +230,5 @@ composite_rules:
     all:
       - id: terminal-hide
     any:
-      - id: obj/creds/phishing/lure/applescript/hidden-answer
-      - id: obj/creds/validation/check/macos/dscl-authonly
+      - id: obj/creds/phishing/lure::hidden-answer
+      - id: obj/creds/validation/check::dscl-authonly

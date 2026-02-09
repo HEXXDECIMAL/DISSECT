@@ -122,14 +122,3 @@ traits:
 
 composite_rules:
   # Full supply chain dropper in shell
-  - id: shell-dropper
-    desc: Supply chain dropper in package
-    crit: hostile
-    conf: 0.95
-    mbc: "B0030"
-    attack: "T1195.002"
-    for: [shell, text]
-    all:
-      - id: base64-binary-embed
-      - id: echo-cron
-      - id: botdir-selection

@@ -16,5 +16,5 @@ composite_rules:
     needs: 2
     any:
       - id: cap/exec/inject
-      - id: cap/process/inject/atom-bombing/atom-bombing-capable
-      - id: obj/process/injection/technique/process-hollowing
+      - id: cap/process/inject/atom-bombing::atom-bombing-capable
+      - id: obj/process/injection/technique::process-hollowing

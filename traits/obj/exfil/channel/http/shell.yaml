@@ -16,7 +16,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     any:
-      - id: cap/comm/http/client/shell
+      - id: cap/comm/http/client::curl-post
     unless:
       - id: cap/os/admin/legitimate/http-tools/package-manager
       - id: cap/os/admin/legitimate/http-tools/ci-cd-pipeline
@@ -28,7 +28,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     any:
-      - id: cap/comm/http/client/shell
+      - id: cap/comm/http/client::curl-upload
     unless:
       - id: cap/os/admin/legitimate/http-tools/package-manager
       - id: cap/os/admin/legitimate/http-tools/ci-cd-pipeline
@@ -40,8 +40,8 @@ composite_rules:
     conf: 0.8
     needs: 1
     any:
-      - id: cap/comm/http/client/shell/wget-post-data
-      - id: cap/comm/http/client/shell/wget-post-file
+      - id: cap/comm/http/client::wget-post-data
+      - id: cap/comm/http/client::wget-post-file
     unless:
       - id: cap/os/admin/legitimate/http-tools/package-manager
       - id: cap/os/admin/legitimate/http-tools/ci-cd-pipeline
@@ -53,6 +53,6 @@ composite_rules:
     conf: 0.85
     attack: "T1048"
     any:
-      - id: cap/comm/http/client/shell
+      - id: cap/comm/http/client::client
     unless:
       - id: cap/os/admin/legitimate/http-tools/backup-script

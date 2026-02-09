@@ -88,8 +88,8 @@ composite_rules:
     downgrade:
       any:
         - id: cap/exec/load/video-lib-marker
-        - id: cap/exec/load/library/graphics-lib-marker
-        - id: cap/exec/load/library/system-lib-marker
+        - id: cap/exec/load/library::graphics-lib-marker
+        - id: cap/exec/load/library::system-lib-marker
         - id: cap/exec/load/async-io-lib-marker
 
   # Delay with network = evasion or C2 beaconing
@@ -105,7 +105,7 @@ composite_rules:
     needs: 1
     any:
       - id: cap/comm/socket/create
-      - id: cap/comm/download/curl/libcurl-http
+      - id: cap/comm/download/curl::libcurl-http
 
   # Timing measurement + delay = sandbox evasion
   # NOTE: clock_gettime + nanosleep is extremely common in legitimate software.

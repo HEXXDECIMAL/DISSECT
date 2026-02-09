@@ -11,11 +11,4 @@ defaults:
   mbc: "F0006"
   attack: "T1070.006"
 
-composite_rules:
-  - id: timestomp-windows
-    desc: Windows file timestamp modification (evasion
-    crit: notable
-    conf: 0.7
-    any:
-      - id: cap/fs/file/timestamp/windows/set-file-time
-      - id: cap/fs/file/timestamp/windows/set-file-information-by-handle
+composite_rules: []

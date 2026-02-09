@@ -21,7 +21,7 @@ composite_rules:
     conf: 0.6
     any:
       - id: npm-malicious-preinstall-hook
-      - id: postinstall-hook
+      - id: obj/lateral/supply-chain/npm::postinstall-hook-key
 
   # Download command helpers
   - id: download-command
@@ -29,8 +29,8 @@ composite_rules:
     crit: notable
     conf: 0.7
     any:
-      - id: curl-command
-      - id: wget-command
+      - id: cap/comm/http/client::curl-cmd
+      - id: cap/comm/http/client::wget-cmd
 
   # Pipe to shell helpers
   - id: pipe-to-shell
@@ -38,9 +38,7 @@ composite_rules:
     crit: notable
     conf: 0.75
     any:
-      - id: pipe-to-bash
-      - id: pipe-to-sh
-      - id: pipe-to-node
+      - id: cap/exec/script/download::pipe-to-shell
 
   # Node eval helpers
   - id: node-eval
@@ -48,8 +46,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     any:
-      - id: node-dash-e
-      - id: node-eval-flag
+      - id: cap/exec/eval/dynamic/
 
   # NPM preinstall/postinstall abuse with dropper behavior
   - id: lifecycle-dropper
@@ -82,4 +79,4 @@ composite_rules:
     attack: "T1195.002"
     all:
       - id: lifecycle-hook
-      - id: child-process-module
+      - id: cap/exec/command/shell::child-process-require

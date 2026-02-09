@@ -219,17 +219,3 @@ composite_rules:
       any:
         - id: gnu-debugdata-section
 
-  # Trojanized GNU utility: legitimate coreutils + obfuscation marker + embedded payload
-  # Spirit malware family drops trojanized versions of timeout, dd, etc.
-  # Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
-  - id: trojanized-coreutils
-    desc: Trojanized GNU utility with embedded payload
-    crit: hostile
-    conf: 0.92
-    mbc: "F0001.006"
-    attack: "T1027.009"
-    for: [elf]
-    all:
-      - id: lzma-magic
-      - id: obj/anti-static/obfuscation/payload/xixa-marker
-      - id: cap/exec/load/library/system-lib-marker

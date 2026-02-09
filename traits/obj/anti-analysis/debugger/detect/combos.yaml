@@ -44,18 +44,5 @@ composite_rules:
     needs: 2
     any:
       - id: ld-debug
-      - id: proc-status
-      - id: ptrace
-
-  - id: ptrace-self
-    desc: Anti-debugging via ptrace self-attachment
-    crit: suspicious
-    mbc: "B0001.m01"
-    attack: "T1622"
-    conf: 0.95
-    platforms: [linux, unix]
-    for: [elf]
-    all:
-      - id: ptrace
-      - id: getpid
+      - id: tracerpid-string
       - id: ptrace-traceme-or-deny

@@ -199,48 +199,6 @@ composite_rules:
       - id: phantom-word
       - id: browser-word
 
-  # Private key variable composite
-  - id: private-key-var
-    desc: Private key variable or property
-    crit: notable
-    conf: 0.7
-    needs: 1
-    any:
-      - id: private-key-underscore
-      - id: privatekey-nospace
-      - id: privatekey-camel
-
-  # Keystore reference composite
-  - id: keystore-ref
-    desc: Keystore reference
-    crit: notable
-    conf: 0.7
-    needs: 1
-    any:
-      - id: keystore-singular
-      - id: keystores-plural
-
-  # Derivation path composite
-  - id: derivation-pattern
-    desc: Wallet derivation path pattern
-    crit: notable
-    conf: 0.7
-    needs: 1
-    any:
-      - id: derivation-path-words
-      - id: bip44-path-prefix
-
-  # BIP-39 reference composite
-  - id: bip39-ref
-    desc: BIP-39 or wordlist reference
-    crit: notable
-    conf: 0.7
-    needs: 1
-    any:
-      - id: bip39-exact
-      - id: bip-39-hyphen
-      - id: wordlist-word
-
   # Mnemonic extraction with file/network operations
   - id: stealer-pattern
     desc: "Mnemonic phrase theft (extraction +"
@@ -251,7 +209,7 @@ composite_rules:
     for: [python, javascript]
     all:
       - id: mnemonic-terms
-      - id: cap/comm/http/request/http-client
+      - id: cap/comm/http/request::http-client
       - id: wallet-context
 
   # Multiple wallet-related patterns = wallet stealer

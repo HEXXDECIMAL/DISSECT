@@ -20,8 +20,8 @@ composite_rules:
     conf: 0.8
     needs: 1
     any:
-      - id: cap/comm/dns/lookup/node
-      - id: cap/comm/dns/lookup/txt/node
+      - id: cap/comm/dns/lookup
+      - id: cap/comm/dns/lookup/txt
 
   - id: dns-resolve-txt
     desc: DNS TXT record resolution (common C2 channel)
@@ -30,7 +30,7 @@ composite_rules:
     mbc: "C0002"
     attack: "T1071.004"
     all:
-      - id: cap/comm/dns/lookup/txt/node
+      - id: cap/comm/dns/lookup/txt
 
   # DNS with crypto (migrated from YARA)
   - id: dns-with-crypto
@@ -41,7 +41,7 @@ composite_rules:
     attack: "T1573"
     all:
       - id: dns-resolve-txt
-      - id: cap/crypto/symmetric/aes/node
+      - id: cap/crypto/symmetric/aes
 
   # DNS polling loop (migrated from YARA)
   - id: dns-polling-loop

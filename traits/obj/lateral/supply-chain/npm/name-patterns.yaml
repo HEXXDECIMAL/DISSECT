@@ -339,7 +339,7 @@ composite_rules:
     all:
       - id: name-has-theft-keyword
     none:
-      - id: obj/lateral/supply-chain/npm/metadata/npm-has-repository
+      - id: obj/lateral/supply-chain/npm::npm-has-repository
 
   - id: theft-name-no-bugs
     desc: Theft keyword in name without bugs URL
@@ -348,7 +348,7 @@ composite_rules:
     all:
       - id: name-has-theft-keyword
     none:
-      - id: obj/lateral/supply-chain/npm/metadata/has-bugs-url
+      - id: obj/lateral/supply-chain/npm::npm-has-bugs-url
 
   - id: theft-name-no-homepage
     desc: Theft keyword in name without homepage
@@ -357,7 +357,7 @@ composite_rules:
     all:
       - id: name-has-theft-keyword
     none:
-      - id: obj/lateral/supply-chain/npm/metadata/has-homepage
+      - id: obj/lateral/supply-chain/npm::npm-has-homepage
 
   # === Credential stealer package name pattern (SUSPICIOUS) ===
   # Complexity: 3 (all) = 3 -> suspicious (needs 4 for hostile)
@@ -371,4 +371,4 @@ composite_rules:
       - id: name-theft-target-combo
       - id: keyword-target-patterns
     none:
-      - id: obj/lateral/supply-chain/npm/metadata/npm-has-repository
+      - id: obj/lateral/supply-chain/npm::npm-has-repository

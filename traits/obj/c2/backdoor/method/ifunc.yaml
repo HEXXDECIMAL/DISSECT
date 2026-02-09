@@ -15,9 +15,9 @@ composite_rules:
     crit: suspicious
     conf: 0.7
     all:
-      - id: meta/format/elf/ifunc
+      - id: meta/format/elf::ifunc
     none:
-      - id: cap/exec/load/library/system-lib-marker  # Exclude glibc/libm
+      - id: cap/exec/load/library::system-lib-marker  # Exclude glibc/libm
       - id: cap/exec/load/go-runtime/
 
   # === Sensitive Target Functions ===
@@ -26,10 +26,10 @@ composite_rules:
     crit: suspicious
     conf: 0.8
     all:
-      - id: meta/format/elf/ifunc
+      - id: meta/format/elf::ifunc
     any:
-      - id: cap/os/pam/auth/pam-authenticate-symbol
-      - id: cap/crypto/asymmetric/rsa-public-decrypt
+      - id: cap/os/pam/auth::pam-authenticate-symbol
+      - id: cap/crypto/asymmetric/rsa::rsa-public-decrypt
 
   # === Resolver Side Effects ===
   - id: ifunc-with-env-check
@@ -37,17 +37,17 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     all:
-      - id: meta/format/elf/ifunc
-      - id: cap/os/env/vars/env-access
+      - id: meta/format/elf::ifunc
+      - id: cap/os/env/vars::env-access
     none:
-      - id: cap/exec/load/library/system-lib-marker
+      - id: cap/exec/load/library::system-lib-marker
 
   - id: ifunc-with-process-discovery
     desc: IFUNC resolver combined with process discovery
     crit: suspicious
     conf: 0.85
     all:
-      - id: meta/format/elf/ifunc
-      - id: cap/process/info/query/getpid
+      - id: meta/format/elf::ifunc
+      - id: cap/process/info/query::getpid
     none:
-      - id: cap/exec/load/library/system-lib-marker
+      - id: cap/exec/load/library::system-lib-marker

@@ -303,7 +303,7 @@ composite_rules:
       - id: pool-moneropool
       - id: xmrig-ref
       - id: cryptonight
-      - id: known/malware/miner/cn-variants
+      - id: known/malware/miner::cn-variants
       - id: donate-level
       - id: miner-name
 
@@ -345,8 +345,8 @@ composite_rules:
     all:
       - id: xmrig-ref
       - id: pool-supportxmr
-      - id: known/malware/miner/monero-wallets
-      - id: cap/exec/command/shell/python-os-system
+      - id: known/malware/miner::monero-wallets
+      - id: cap/exec/command/shell::python-os-system
 
   # Helper: any known mining pool
   - id: known-mining-pool
@@ -377,8 +377,8 @@ composite_rules:
     all:
       - id: xmrig-ref
       - id: known-mining-pool
-      - id: known/malware/miner/monero-wallets
-      - id: cap/exec/command/shell/python-os-system
+      - id: known/malware/miner::monero-wallets
+      - id: cap/exec/command/shell::python-os-system
 
   # === HOSTILE: Stealth Cryptominer Dropper ===
   # Detects cryptominer droppers that execute in stealth mode
@@ -392,7 +392,7 @@ composite_rules:
     mbc: "B0036"
     for: [python]
     all:
-      - id: known/malware/miner/monero-wallets
-      - id: cap/exec/dropper/stealth/python
+      - id: known/malware/miner::monero-wallets
+      - id: cap/exec/dropper/stealth::python
       - id: cap/fs/chmod/executable
-      - id: cap/exec/dropper/stealth/subprocess-popen
+      - id: cap/exec/dropper/stealth::subprocess-popen

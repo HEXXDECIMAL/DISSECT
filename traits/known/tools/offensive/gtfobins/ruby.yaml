@@ -48,8 +48,8 @@ composite_rules:
     needs: 2
     any:
       - id: gtfobins-ruby-marker
-      - id: cap/exec/dylib/load/ruby/ruby-ffi-dlopen
-      - id: cap/exec/dylib/load/ruby/fiddle-dlopen
+      - id: cap/exec/dylib/load::ruby-ffi-dlopen
+      - id: cap/exec/dylib/load::fiddle-dlopen
 
   # === GTFOBins Privilege Escalation ===
   - id: gtfobins-ruby-privesc
@@ -60,8 +60,8 @@ composite_rules:
     needs: 2
     any:
       - id: gtfobins-ruby-marker
-      - id: obj/privesc/setuid/abuse/ruby/ruby-setuid
-      - id: cap/exec/command/shell/ruby-root-shell
+      - id: obj/privesc/setuid/abuse::ruby-setuid
+      - id: obj/privesc/setuid/abuse::ruby-root-shell
 
   # === GTFOBins File Operations ===
   - id: gtfobins-ruby-file-ops
@@ -72,8 +72,8 @@ composite_rules:
     needs: 2
     any:
       - id: gtfobins-ruby-marker
-      - id: cap/fs/file/read/ruby-file-read-content
-      - id: cap/fs/write/file/ruby-file-write-content
+      - id: cap/fs/file/read::ruby-file-read-content
+      - id: cap/fs/write/file::ruby-file-write-content
 
   # === GTFOBins Reverse Shell ===
   - id: gtfobins-ruby-reverse-shell
@@ -95,4 +95,4 @@ composite_rules:
     needs: 2
     any:
       - id: gtfobins-ruby-marker
-      - id: cap/exec/command/shell/ruby-shell-exec
+      - id: cap/exec/command/shell::ruby-shell-exec

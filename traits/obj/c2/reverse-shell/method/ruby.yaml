@@ -135,7 +135,7 @@ composite_rules:
     attack: "T1059"
     all:
       - id: tcpsocket-ref
-      - id: cap/exec/command/shell/interactive/bin-sh-interactive
+      - id: cap/exec/command/shell::bin-sh-interactive
 
   # Ruby reverse shell with command loop
   - id: ruby-cmd-loop-shell

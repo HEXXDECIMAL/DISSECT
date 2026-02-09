@@ -87,6 +87,7 @@ If behavior is real but severity is wrong, fix criticality; do not delete detect
 - For source code, prefer AST/semantic signals over raw-string coincidences.
 - Keep trait placement taxonomy-accurate (` + "`cap/*`" + ` atomic capability, ` + "`obj/*`" + ` composed objective, ` + "`known/*`" + ` family/tool-specific).
 - Prefer precise queries over ` + "`unless:`" + `/` + "`downgrade:`" + `; use those only as last resort.
+- If a composite matches that seems to be missing a necessary restriction - the rule was likely broken during a refactor - fix it so that it's more specific
 - Keep changes minimal, generic, and maintainable.
 
 {{.TaskBlock}}
@@ -131,6 +132,7 @@ Add high-signal detections for behaviors this sample family exhibits and current
 - Use reusable behavioral patterns, not sample-specific fingerprints.
 - Keep trait IDs, location, and criticality semantically correct.
 - For source code, prefer AST/semantic signals over raw-string coincidences.
+- Some traits may have been mistakenly changed from 'symbol' to 'string' search: for AST-based languages, symbols are not in string literals.
 - Minimize future false positives at ecosystem scale.
 
 {{.TaskBlock}}
@@ -193,6 +195,7 @@ const badTaskFile = `## Workflow
 7. Prefer multi-signal logic (` + "`all:`" + `, proximity, structural anchors) to suppress false positives.
 8. If traits are renamed/removed, update all references (` + "`depends`" + `, composites, etc.).
 9. If you see an existing rule that describes truly suspicious behavior, see if you can improve upon its precision and upgrade it to suspicious.
+10. If you find a trait that should have caught this file but didn't, then the rule was likely broken during a refactor - fix it so that it applies to this case and others.
 
 ## Taxonomy Guardrails
 - HTTP/socket alone: ` + "`cap/comm/`" + `, not ` + "`obj/c2/`" + `.

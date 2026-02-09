@@ -19,18 +19,18 @@ composite_rules:
     conf: 0.9
     all:
       # Must have socket connectivity
-      - id: cap/comm/socket/connect/connect
+      - id: cap/comm/socket/connect::connect
     any:
       # Plus server capabilities or shell execution
-      - id: cap/comm/socket/bind/bind
-      - id: cap/comm/socket/listen/accept-sym
-      - id: cap/exec/command/shell/c-popen
-      - id: cap/exec/command/shell/c-system
-      - id: cap/exec/command/direct/popen-call
+      - id: cap/comm/socket/bind::bind
+      - id: cap/comm/socket/listen::accept-sym
+      - id: cap/exec/command/shell::c-popen
+      - id: cap/exec/command/shell::c-system
+      - id: cap/exec/command/direct::popen-call
     # Exclude system network libraries
     none:
-      - id: cap/exec/load/library/network-lib-marker
-      - id: cap/exec/load/library/system-lib-marker
+      - id: cap/exec/load/library::network-lib-marker
+      - id: cap/exec/load/library::system-lib-marker
 
   # Shared library targeting credentials
   # .so with both SSH and shell config access is highly suspicious
@@ -41,13 +41,13 @@ composite_rules:
     attack: "T1552.004"
     needs: 2
     any:
-      - id: obj/creds/ssh/key/dot-ssh-path
-      - id: obj/creds/ssh/key/dot-ssh-dir
-      - id: obj/persist/shell/config/bash-files
-      - id: obj/persist/shell/config/profile
+      - id: obj/creds/ssh/key::dot-ssh-path
+      - id: obj/creds/ssh/key::dot-ssh-dir
+      - id: obj/persist/shell/config::bash-files
+      - id: obj/persist/shell/config::profile
     none:
-      - id: cap/exec/load/library/shell-interpreter
-      - id: cap/exec/load/library/system-lib-marker
+      - id: cap/exec/load/library::shell-interpreter
+      - id: cap/exec/load/library::system-lib-marker
 
   # Shared library with C2 infrastructure
   # .so with suspicious domain + network operations
@@ -56,12 +56,12 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     all:
-      - id: obj/c2/infrastructure/domain/c2-domain
+      - id: obj/c2/infrastructure/domain::c2-domain
     any:
-      - id: cap/comm/socket/connect/connect
-      - id: cap/comm/socket/bind/bind
+      - id: cap/comm/socket/connect::connect
+      - id: cap/comm/socket/bind::bind
     none:
-      - id: cap/exec/load/library/network-lib-marker
+      - id: cap/exec/load/library::network-lib-marker
 
   # Shared library with rootkit capabilities
   # LD_PRELOAD + shell execution in a library is highly suspicious
@@ -71,11 +71,11 @@ composite_rules:
     conf: 0.9
     attack: "T1574.006"
     all:
-      - id: cap/os/linker/env/ld-preload
+      - id: cap/os/linker/env::ld-preload
     any:
       - id: cap/exec/command/shell
-      - id: cap/exec/command/direct/popen-call
-      - id: cap/exec/dylib/load/dlsym
+      - id: cap/exec/command/direct::popen-call
+      - id: cap/exec/dylib/load::dlsym
 
   # Full supply chain backdoor pattern
   # Combines multiple suspicious behaviors into hostile indicator
@@ -88,18 +88,18 @@ composite_rules:
     for: [elf]
     all:
       # Must have network + shell execution
-      - id: cap/comm/socket/connect/connect
-      - id: cap/exec/command/shell/shell-execution
+      - id: cap/comm/socket/connect::connect
+      - id: cap/exec/command/shell::shell-execution
     any:
       # Plus credential targeting or C2 infrastructure
       - id: so-credential-targeting
       - id: so-c2-infrastructure
-      - id: obj/c2/infrastructure/domain/c2-domain
-      - id: obj/creds/ssh/key/dot-ssh-path
+      - id: obj/c2/infrastructure/domain::c2-domain
+      - id: obj/creds/ssh/key::dot-ssh-path
     none:
-      - id: cap/exec/load/library/system-lib-marker
-      - id: cap/exec/load/library/network-lib-marker
-      - id: cap/exec/load/library/shell-interpreter
+      - id: cap/exec/load/library::system-lib-marker
+      - id: cap/exec/load/library::network-lib-marker
+      - id: cap/exec/load/library::shell-interpreter
 
   # Alternative: Network + credential + rootkit pattern
   # Complexity: all(3) + for: = 4
@@ -109,14 +109,14 @@ composite_rules:
     conf: 0.95
     for: [elf]
     all:
-      - id: cap/comm/socket/connect/connect
-      - id: cap/exec/command/shell/shell-execution
-      - id: cap/os/linker/env/ld-preload
+      - id: cap/comm/socket/connect::connect
+      - id: cap/exec/command/shell::shell-execution
+      - id: cap/os/linker/env::ld-preload
     any:
-      - id: obj/creds/ssh/key/dot-ssh-path
-      - id: obj/persist/shell/config/bash-files
+      - id: obj/creds/ssh/key::dot-ssh-path
+      - id: obj/persist/shell/config::bash-files
     none:
-      - id: cap/exec/load/library/system-lib-marker
+      - id: cap/exec/load/library::system-lib-marker
 
   # Simpler pattern: socket + shell + credential paths
   # Complexity: all(3) + any(1 via count_min) = still need more
@@ -127,12 +127,12 @@ composite_rules:
     conf: 0.9
     for: [elf]
     all:
-      - id: cap/comm/socket/connect/connect
-      - id: cap/exec/command/shell/shell-execution
+      - id: cap/comm/socket/connect::connect
+      - id: cap/exec/command/shell::shell-execution
     any:
-      - id: obj/creds/ssh/key/dot-ssh-path
-      - id: obj/persist/shell/config/bash-files
-      - id: obj/c2/infrastructure/domain/c2-domain
+      - id: obj/creds/ssh/key::dot-ssh-path
+      - id: obj/persist/shell/config::bash-files
+      - id: obj/c2/infrastructure/domain::c2-domain
     none:
-      - id: cap/exec/load/library/system-lib-marker
-      - id: cap/exec/load/library/shell-interpreter
+      - id: cap/exec/load/library::system-lib-marker
+      - id: cap/exec/load/library::shell-interpreter

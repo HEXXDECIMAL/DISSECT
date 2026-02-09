@@ -196,7 +196,7 @@ composite_rules:
     any:
       - id: dev-grep-pattern
       - id: proc-mounts-read
-      - id: cap/fs/proc/mounts/mounts
+      - id: cap/fs/proc/mounts::mounts
 
   # Destructive dd composite
   - id: dd-destructive
@@ -211,8 +211,8 @@ composite_rules:
       - id: dd-dev-zero
       - id: dd-of-dev
       - id: xargs-dd-pipeline
-      - id: obj/impact/wipe/disk/dd-zero
-      - id: obj/impact/wipe/disk/dd-random
+      - id: obj/impact/wipe/disk::dd-zero
+      - id: obj/impact/wipe/disk::dd-random
 
   # Parallel execution
   - id: parallel-exec

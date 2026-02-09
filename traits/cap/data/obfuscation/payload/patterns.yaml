@@ -1,0 +1,34 @@
+# Payload Obfuscation Patterns
+# Detects specific obfuscation markers and patterns
+# ATT&CK: T1027 (Obfuscated Files or Information)
+
+defaults:
+  crit: suspicious
+  attack: "T1027"
+
+traits:
+  - id: xixa-marker
+    desc: Xixa obfuscation marker string
+    conf: 0.95
+    for: [elf]
+    if:
+      type: string
+      substr: "Xixa"
+
+  - id: eval-function-call
+    desc: eval function call pattern
+    crit: notable
+    conf: 0.8
+    for: [python]
+    if:
+      type: string
+      substr: "eval("
+
+  - id: exec-decode-pattern
+    desc: exec with decode pattern
+    crit: notable
+    conf: 0.85
+    for: [python]
+    if:
+      type: string
+      regex: "exec\\(.{0,20}decode"

@@ -10,8 +10,8 @@ composite_rules:
     attack: "T1055.001"
     for: ["pe", "dll"]
     all:
-      - id: cap/exec/inject/code/create-remote-thread
-      - id: cap/exec/inject/code/write-process-memory
+      - id: cap/exec/inject/code::create-remote-thread
+      - id: cap/exec/inject/code::write-process-memory
 
   # === Suspended Process Injection ===
   - id: suspended-process-inject
@@ -21,9 +21,9 @@ composite_rules:
     attack: "T1055"
     for: ["pe", "dll"]
     all:
-      - id: cap/exec/inject/code/suspend-thread
-      - id: cap/exec/inject/code/get-thread-context
-      - id: cap/exec/inject/code/set-thread-context
+      - id: cap/exec/inject/code::suspend-thread
+      - id: cap/exec/inject/code::get-thread-context
+      - id: cap/exec/inject/code::set-thread-context
     downgrade:
       any:
         - id: cap/exec/load/go-runtime/go-runtime-marker
@@ -37,8 +37,8 @@ composite_rules:
     attack: "T1055.004"
     for: ["pe", "dll"]
     all:
-      - id: cap/exec/inject/code/queue-user-apc
-      - id: cap/exec/inject/code/write-process-memory
+      - id: cap/exec/inject/code::queue-user-apc
+      - id: cap/exec/inject/code::write-process-memory
     downgrade:
       any:
         - id: meta/vendor/valve/valve-corp-binary
@@ -51,10 +51,10 @@ composite_rules:
     attack: "T1055.012"
     for: ["pe", "dll"]
     all:
-      - id: cap/process/create/spawn/create-process-a
-      - id: cap/exec/inject/code/suspend-thread
-      - id: cap/exec/inject/code/write-process-memory
-      - id: cap/exec/inject/code/set-thread-context
+      - id: cap/process/create/spawn::create-process-a
+      - id: cap/exec/inject/code::suspend-thread
+      - id: cap/exec/inject/code::write-process-memory
+      - id: cap/exec/inject/code::set-thread-context
     downgrade:
       any:
         - id: meta/vendor/valve/valve-corp-binary
@@ -67,8 +67,8 @@ composite_rules:
     attack: "T1055.001"
     for: ["pe", "dll"]
     all:
-      - id: cap/exec/inject/code/create-remote-thread
-      - id: cap/exec/native/api/load-library-a
+      - id: cap/exec/inject/code::create-remote-thread
+      - id: cap/exec/native/api::load-library-a
     downgrade:
       any:
         - id: meta/vendor/valve/valve-corp-binary

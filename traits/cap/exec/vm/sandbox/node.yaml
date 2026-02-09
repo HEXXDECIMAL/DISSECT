@@ -234,7 +234,7 @@ composite_rules:
       - id: new-function-call
       - id: function-constructor-access
       - id: function-direct-call
-      - id: cap/exec/eval/dynamic/function-constructor-from-typeof
+      - id: cap/exec/eval/dynamic::function-constructor-from-typeof
 
   # HTTP methods for remote loading
   - id: http-fetch-methods

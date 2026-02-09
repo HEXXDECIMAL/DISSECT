@@ -126,10 +126,10 @@ composite_rules:
     for: [pe, dll]
     all:
       - id: dotnet-vbs-dropper
-      - id: obj/anti-forensics/self-delete/file/vbs-file-delete
+      - id: obj/anti-forensics/self-delete/file::vbs-file-delete
     any:
-      - id: cap/exec/reflective-load/memory/powershell-dotnet/sma-namespace
-      - id: cap/exec/reflective-load/memory/powershell-dotnet/runspace-factory
+      - id: cap/exec/reflective-load/memory::sma-namespace
+      - id: cap/exec/reflective-load/memory::runspace-factory
 
   # .NET PowerShell dropper (drops VBS that launches PowerShell)
   # Complexity: all(3) + file_types(1) = 4
@@ -141,5 +141,5 @@ composite_rules:
     for: [pe, dll]
     all:
       - id: dotnet-vbs-dropper
-      - id: cap/exec/reflective-load/memory/powershell-dotnet/sma-namespace
-      - id: cap/exec/reflective-load/memory/powershell-dotnet/add-script
+      - id: cap/exec/reflective-load/memory::sma-namespace
+      - id: cap/exec/reflective-load/memory::add-script

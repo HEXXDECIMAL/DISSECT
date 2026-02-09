@@ -266,9 +266,9 @@ composite_rules:
     attack: "T1543"
     for: [elf, macho, c, objectivec]
     all:
-      - id: cap/process/fork/clone/fork
-      - id: cap/exec/command/shell/sleep-format-exec
-      - id: cap/os/random/crypto/seeded-random
+      - id: cap/process/fork/clone::fork
+      - id: cap/exec/command/shell::sleep-format-exec
+      - id: cap/os/random/crypto::seeded-random
 
   # macOS double-fork daemon pattern
   # This is the classic fork() -> setsid() -> fork() -> umask() -> chdir() pattern

@@ -104,7 +104,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     all:
-      - id: cap/comm/socket
+      - id: cap/comm/socket/
 
   # Go exec composite
   - id: go-exec
@@ -116,7 +116,7 @@ composite_rules:
       - id: os-exec-command
       - id: exec-cmd-start
       - id: exec-cmd-run
-      - id: cap/exec/command/direct/go/exec-command
+      - id: cap/exec/command/direct::exec-command
 
   # Go pipe composite
   - id: go-pipe
@@ -139,8 +139,8 @@ composite_rules:
     conf: 0.5
     needs: 1
     any:
-      - id: cap/exec/command/shell/generic/bin-sh
-      - id: cap/exec/command/shell/generic/bin-bash
+      - id: cap/exec/command/shell::bin-sh
+      - id: cap/exec/command/shell::bin-bash
       - id: cmd-exe
       - id: cmd-plain
 

@@ -618,7 +618,7 @@ composite_rules:
     attack: "T1547.009"
     platforms: [windows]
     all:
-      - id: cap/fs/directory/traverse/traverse-walk
+      - id: cap/fs/directory/traverse::traverse-walk
       - id: create-shortcut
     any:
       - id: lnk-endswith-filter
@@ -636,7 +636,7 @@ composite_rules:
     mbc: "F0012"
     platforms: [windows]
     all:
-      - id: cap/fs/directory/traverse/traverse-walk
+      - id: cap/fs/directory/traverse::traverse-walk
       - id: create-shortcut
       - id: shortcut-arguments
       - id: shortcut-save

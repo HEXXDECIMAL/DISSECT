@@ -16,8 +16,8 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     all:
-      - id: cap/data/encode/base64/javascript
-      - id: cap/comm/http/request/javascript/http-client-usage
+      - id: cap/data/encode/base64
+      - id: cap/comm/http/request::http-client-usage
     unless:
       - id: cap/os/admin/legitimate/http-tools/package-manager
       - id: cap/os/admin/legitimate/http-tools/ci-cd-pipeline

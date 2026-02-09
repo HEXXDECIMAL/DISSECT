@@ -69,7 +69,7 @@ composite_rules:
     crit: notable
     needs: 1
     any:
-      - id: cap/exec/command/subprocess/python
+      - id: cap/exec/command/subprocess/
 
   # hidden window flag composite
   - id: hidden-window-flag
