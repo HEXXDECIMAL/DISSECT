@@ -26,9 +26,9 @@ composite_rules:
     # Exclude legitimate tools that do network operations
     downgrade:
       any:
-        - id: cap/exec/load/debugger-tool-marker
-        - id: cap/exec/load/system-lib-marker
-        - id: cap/exec/load/network-lib-marker
+        - id: cap/exec/load/library/debugger-tool-marker
+        - id: cap/exec/load/library/system-lib-marker
+        - id: cap/exec/load/library/network-lib-marker
         - id: cap/comm/ssh/connect/connect
         - id: meta/quality/has-help
 

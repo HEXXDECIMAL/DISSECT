@@ -70,12 +70,8 @@ composite_rules:
     conf: 0.6
     attack: "T1560"
     platforms: [all]
-    needs: 1
-    any:
-      - id: cap/data/archive/library-imports/go-archive-zip
-      - id: cap/data/archive/library-imports/rust-zip-writer
-      - id: cap/data/archive/library-imports/python-zipfile
-      - id: cap/data/archive/library-imports/zip64-format
+    all:
+      - id: cap/data/archive/library-imports
 
   - id: binary-tar-exec
     desc: "Binary executes tar command"

@@ -40,14 +40,6 @@ traits:
       regex: "os\\.remove\\("
 
 composite_rules:
-  # subprocess execution composite
-  - id: subprocess-exec
-    desc: Python subprocess execution (Popen, run,
-    crit: notable
-    conf: 0.8
-    any:
-      - id: cap/exec/command/subprocess/python
-
   - id: python
     desc: Download to /tmp, chmod, execute
     conf: 0.95
@@ -57,5 +49,5 @@ composite_rules:
     any:
       - id: tmp-path-short
       - id: os-chmod
-      - id: subprocess-exec
+      - id: cap/exec/command/subprocess/python
       - id: os-remove

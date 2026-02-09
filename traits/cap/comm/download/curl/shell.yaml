@@ -68,7 +68,7 @@ composite_rules:
     needs: 1
     any:
       - id: curl-cmd
-      - id: cap/exec/load/libcurl-ref
+      - id: cap/exec/load/library/libcurl-ref
       - id: curlopt-ref
 
   - id: wget

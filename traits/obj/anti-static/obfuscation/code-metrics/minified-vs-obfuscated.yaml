@@ -1,0 +1,46 @@
+# Distinguish Legitimate Minification from Malicious Obfuscation
+# Minified code is compressed but readable, obfuscated code hides intent
+
+defaults:
+  for: [javascript, typescript]
+
+composite_rules:
+  # Legitimate minification patterns (benign compression)
+  - id: minification-pattern
+    desc: "Code appears minified by webpack/uglify/terser"
+    crit: notable
+    conf: 0.8
+    all:
+      - { id: obj/anti-static/obfuscation/code-metrics/very-long-lines }
+      - {
+          id: obj/anti-static/obfuscation/code-metrics/single-char-function-names,
+        }
+    not:
+      - { id: obj/anti-static/base64/decode/javascript/decode-exec-js }
+
+  # Hostile obfuscation (malicious encoding)
+  - id: hostile-obfuscation
+    desc: "Hostile obfuscation techniques (not just"
+    crit: suspicious
+    conf: 0.90
+    any:
+      - { id: obj/anti-static/base64/decode/javascript/decode-exec-js }
+      - { id: obj/anti-static/obfuscation/encoding/xor-string }
+
+  # Minified library with hostile capabilities (trojanized)
+  - id: minified-with-hostile-caps
+    desc: "Minified code with hostile capabilities"
+    crit: suspicious
+    conf: 0.92
+    attack: "T1195.002"
+    mbc: "B0024"
+    all:
+      - {
+          id: obj/anti-static/obfuscation/code-metrics/minified-vs-obfuscated/minification-pattern,
+        }
+    any:
+      - { id: cap/exec/activex/com/activex-object-create }
+      - { id: obj/c2/rat/script/javascript/socket-command-handler }
+      - {
+          id: obj/anti-static/obfuscation/code-metrics/minified-vs-obfuscated/hostile-obfuscation,
+        }

@@ -74,6 +74,6 @@ composite_rules:
     mbc: "E1059"
     for: [python]
     all:
-      - id: cap/exec/command/powershell/python-download
-      - id: cap/exec/command/powershell/python-start-process
-      - id: cap/exec/command/powershell/system-masquerade
+      - id: python-download
+      - id: python-start-process
+      - id: system-masquerade

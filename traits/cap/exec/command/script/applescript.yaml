@@ -1,0 +1,104 @@
+# AppleScript Command Execution Detection (Source Files)
+# For string-based detection in shell scripts invoking osascript
+# Symbol-based detection for .scpt files is in scpt.yaml
+# Social engineering lures are in evasion/social-engineering/applescript.yaml
+# ATT&CK: T1059.002 (AppleScript)
+
+defaults:
+  for: [shell, python, ruby, perl]
+  platforms: [macos]
+  attack: "T1059.002"
+
+traits:
+  # ============================================
+  # Low-Level Apple Event Indicators (in strings)
+  # ============================================
+  - id: sysoexec-string
+    desc: "sysoexec Apple Event in string"
+    crit: suspicious
+    conf: 0.8
+    attack: "T1059.004"
+    if:
+      type: string
+      substr: "sysoexec"
+
+  - id: sysoload-string
+    desc: "sysoload Apple Event in string"
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      substr: "sysoload"
+
+  - id: sysodela-string
+    desc: "sysodela Apple Event in string"
+    crit: inert
+    conf: 0.8
+    if:
+      type: string
+      substr: "sysodela"
+
+  # ============================================
+  # Application References (in source)
+  # ============================================
+  - id: ref-system-settings
+    desc: "References System Settings"
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      substr: "System Settings"
+
+  - id: ref-system-prefs
+    desc: "References System Preferences"
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      substr: "System Preferences"
+
+  - id: ref-keychain
+    desc: "References Keychain Access"
+    crit: suspicious
+    conf: 0.9
+    attack: "T1555.001"
+    if:
+      type: string
+      substr: "Keychain Access"
+
+  - id: ref-terminal
+    desc: "References Terminal"
+    crit: notable
+    conf: 0.85
+    attack: "T1059.004"
+    if:
+      type: string
+      regex: '"Terminal"'
+
+composite_rules:
+  # ============================================
+  # Shell Execution via osascript
+  # ============================================
+  - id: osascript-shell
+    desc: "osascript invoking shell command"
+    crit: notable
+    conf: 0.85
+    attack: "T1059.004"
+    for: [shell, python, ruby, perl]
+    all:
+      - { id: obj/anti-analysis/window-hide/ui/applescript/osascript-exec }
+      - { id: sysoexec-string }
+
+  # ============================================
+  # Settings Automation via osascript
+  # ============================================
+  - id: osascript-settings
+    desc: "osascript automating System Settings"
+    crit: notable
+    conf: 0.8
+    for: [shell, python, ruby, perl]
+    all:
+      - { id: obj/anti-analysis/window-hide/ui/applescript/osascript-exec }
+    any:
+      - { id: ref-system-settings }
+      - { id: ref-system-prefs }

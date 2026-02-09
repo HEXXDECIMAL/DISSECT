@@ -259,4 +259,4 @@ composite_rules:
     any:
       - id: unhexlify-in-bytecode
       - id: obj/anti-static/obfuscation/code-metrics/minified-code
-      - id: obj/anti-static/obfuscation/known-obfuscator-detected
+      - id: obj/anti-static/obfuscation/tools/obfuscators/known-obfuscator-detected

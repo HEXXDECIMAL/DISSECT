@@ -408,10 +408,10 @@ composite_rules:
     downgrade:
       any:
         - id: meta/apple/system-component
-        - id: cap/exec/load/system-lib-marker
+        - id: cap/exec/load/library/system-lib-marker
         - id: cap/exec/load/video-lib-marker
-        - id: cap/exec/load/graphics-lib-marker
-        - id: cap/exec/load/shell-interpreter
+        - id: cap/exec/load/library/graphics-lib-marker
+        - id: cap/exec/load/library/shell-interpreter
 
   # ctypes CDLL composite
   - id: ctypes-cdll

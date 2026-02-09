@@ -324,7 +324,7 @@ composite_rules:
     size_max: 500
     all:
       - id: small-no-imports
-      - id: cap/data/control-flow/for-loop
+      - id: cap/data/control-flow/analysis/generic/for-loop
 
   # Base64 encoding composite
   - id: base64-encode
@@ -344,10 +344,7 @@ composite_rules:
     all:
       - id: triple-hash-delimiter
     any:
-      - id: obj/discovery/system/getuser-call
-      - id: obj/discovery/system/getuser-string
-      - id: obj/discovery/system/gethostname-call
-      - id: obj/discovery/system/gethostname-string
+      - id: obj/discovery/system
 
   # === HOSTILE: PyPI Install-Time Exfiltration ===
   # Classic pattern: setup.py collects system info, base64 encodes, POSTs to external server
@@ -361,7 +358,7 @@ composite_rules:
     attack: "T1020"
     all:
       - id: setup-py-file
-      - id: obj/discovery/system/python-sysinfo-multi
+      - id: obj/discovery/host/system/python/python-sysinfo-multi
       - id: base64-encode
       - id: cap/comm/http/request/request-python
 
@@ -391,7 +388,7 @@ composite_rules:
     mbc: "E1041"
     attack: "T1020"
     all:
-      - id: obj/discovery/system/python-sysinfo-multi
+      - id: obj/discovery/host/system/python/python-sysinfo-multi
       - id: base64-encode
       - id: cap/comm/http/request/request-python
 
@@ -436,7 +433,7 @@ composite_rules:
     all:
       - id: obj/exfil/channel/oob/oob-domains
       - id: cap/comm/http/request/post
-      - id: obj/discovery/user/username-env
+      - id: obj/discovery/host/user/username-env
 
   # === HOSTILE: PyPI Install-Time Beacon ===
   # setup.py sends system identifier (COMPUTERNAME, hostname) to a PHP endpoint
@@ -467,5 +464,5 @@ composite_rules:
     attack: "T1195.002"
     all:
       - id: setup-py-file
-      - id: obj/creds/browser/import-requests
+      - id: cap/comm/http/request/python
       - id: probe-print-test

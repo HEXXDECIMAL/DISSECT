@@ -17,8 +17,4 @@ composite_rules:
     crit: suspicious
     conf: 0.7
     any:
-      - id: cap/fs/file/timestamp/unix/utime-syscall
-      - id: cap/fs/file/timestamp/unix/utimes-syscall
-      - id: cap/fs/file/timestamp/unix/utimensat-syscall
-      - id: cap/fs/file/timestamp/unix/futimens-syscall
-      - id: cap/fs/file/timestamp/unix/lutimes-syscall
+      - id: cap/fs/file/timestamp/unix

@@ -259,7 +259,7 @@ composite_rules:
     needs: 3
     any:
       - id: obj/anti-static/obfuscation/code/base64-decode
-      - id: obj/discovery/system/ruby-dns-resolve
+      - id: obj/discovery/host/system/ruby/ruby-dns-resolve
       - id: cap/comm/http/request/ruby-http-client
       - id: cap/comm/http/request/ruby-http-get-response
 

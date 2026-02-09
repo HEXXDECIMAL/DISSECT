@@ -1,19 +1,19 @@
 composite_rules:
-  - id: cap/exec/command/shell/capture-command-output
+  - id: capture-command-output
     desc: "Executes shell command and captures"
     crit: suspicious
     conf: 0.9
     all:
-      - id: cap/exec/command/popen-call
+      - id: cap/exec/command/direct/popen-call
     any:
-      - id: cap/exec/command/fgets-loop
-      - id: cap/exec/command/cpp-exception
+      - id: cap/exec/command/direct/cpp/fgets-loop
+      - id: cap/exec/command/direct/cpp/cpp-exception
     for: [macho, elf, pe]
     none:
-      - id: meta/signed/type/platform
+      - id: meta/signed/platform::apple
     # Downgrade for system libraries and shell interpreters
     downgrade:
       any:
-        - id: cap/exec/load/system-lib-marker
-        - id: cap/exec/load/shell-interpreter
-        - id: cap/exec/load/debugger-tool-marker
+        - id: cap/exec/load/library/system-lib-marker
+        - id: cap/exec/load/library/shell-interpreter
+        - id: cap/exec/load/library/debugger-tool-marker

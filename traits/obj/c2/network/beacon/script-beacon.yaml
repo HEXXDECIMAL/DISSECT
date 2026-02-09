@@ -21,11 +21,7 @@ composite_rules:
     all:
       - id: cap/comm/http/request/post
       - id: obj/c2/infrastructure/domain/c2-domain
-    any:
-      - id: cap/comm/http/request/invoke-restmethod
-      - id: cap/comm/http/request/invoke-webrequest
-      - id: cap/comm/http/request/webclient-download
-      - id: cap/comm/http/request/webclient-upload
+      - id: cap/comm/http/request
 
   # PowerShell C2 exfil beacon - POST with body to suspicious domain
   # Complexity: all(3) + file_types(1) = 4
@@ -52,8 +48,5 @@ composite_rules:
     for: [powershell, shell, python, javascript]
     all:
       - id: obj/c2/infrastructure/domain/c2-domain
-      - id: cap/comm/http/generic/post-method
-    any:
-      - id: cap/comm/http/request/invoke-restmethod
-      - id: cap/comm/http/request/invoke-webrequest
-      - id: cap/comm/http/request/webclient-download
+      - id: cap/comm/http/post/generic/post-method
+      - id: cap/comm/http/request

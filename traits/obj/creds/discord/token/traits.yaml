@@ -334,7 +334,7 @@ composite_rules:
     for: [javascript, typescript, python, elf, pe, macho]
     all:
       - id: discord-path
-      - id: cap/data/text/generic/token
+      - id: cap/data/text/pattern/token
 
   # LevelDB token harvester - targets browser local storage for tokens
   # Complexity: file_types:+1, all:+4 = 5 (hostile allowed)
@@ -349,7 +349,7 @@ composite_rules:
       - id: leveldb-ref
       - id: local-storage-ref
       - id: appdata-ref
-      - id: obj/discovery/system/os-homedir-call
+      - id: obj/discovery/host/system/os-homedir-call
 
   # Firefox storage databases used for Discord token theft
   - id: firefox-storage-access
@@ -374,7 +374,7 @@ composite_rules:
     all:
       - id: firefox-storage-access
       - id: appdata-ref
-      - id: obj/discovery/system/os-homedir-call
+      - id: obj/discovery/host/system/os-homedir-call
     any:
       - id: extract-tokens-fn
       - id: get-tokens-fn

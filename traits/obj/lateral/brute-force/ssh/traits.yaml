@@ -202,9 +202,7 @@ composite_rules:
   - id: ssh-protocol
     desc: SSH protocol indicators
     any:
-      - id: cap/comm/ssh/client/ssh-userauth
-      - id: cap/comm/ssh/client/libssh
-      - id: cap/comm/ssh/client/ssh-version
+      - id: cap/comm/ssh/client
 
   # Helper: SSH authentication methods
   - id: ssh-auth-methods
@@ -317,7 +315,7 @@ composite_rules:
     desc: SSH port with threading
     all:
       - id: ssh-port-refs
-      - id: cap/process/threading/concurrent
+      - id: cap/process/threading/thread/concurrent
       - id: cap/comm/socket/connect/connect
 
   # SSH scanner patterns

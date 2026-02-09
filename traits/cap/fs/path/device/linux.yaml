@@ -1,6 +1,10 @@
-# Device Paths
+# Device Paths - General
 # MBC: E1083 (File and Directory Discovery)
 # ATT&CK: T1083
+#
+# Note:
+#   - Storage devices (sda, nvme, etc.) are in storage/traits.yaml
+#   - Terminal devices (tty, pts, etc.) are in terminal/traits.yaml
 
 traits:
   - id: dev-path-pattern
@@ -29,33 +33,25 @@ traits:
       type: string
       substr: "/dev/shm/"
 
-  - id: dev-sda
-    desc: /dev/sda device
-    crit: notable
-    conf: 0.6
+  - id: dev-zero
+    desc: /dev/zero (legitimate zero source)
+    crit: inert
+    conf: 1.0
     if:
       type: string
-      substr: "/dev/sda"
+      substr: "/dev/zero"
 
-  - id: dev-hda
-    desc: /dev/hda device
-    crit: notable
-    conf: 0.6
+  - id: dev-random
+    desc: /dev/random or /dev/urandom
+    crit: inert
+    conf: 1.0
     if:
       type: string
-      substr: "/dev/hda"
-
-  - id: dev-nvme
-    desc: /dev/nvme device
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      substr: "/dev/nvme"
+      regex: "/dev/u?random"
 
 composite_rules:
   - id: device-dev
-    desc: Reference to /dev devices (excludes /dev/null, /dev/shm)
+    desc: Reference to /dev devices (excludes common legitimate)
     crit: notable
     conf: 0.66
     mbc: E1083
@@ -65,10 +61,12 @@ composite_rules:
     none:
       - id: dev-null
       - id: dev-shm
+      - id: dev-zero
+      - id: dev-random
+      - id: cap/fs/path/device/terminal
     # Graphics libraries legitimately access /dev/mem, /dev/fb*, /dev/dri/*
     downgrade:
       any:
         - id: cap/exec/load/x11-dga-marker
-        - id: cap/exec/load/graphics-lib-marker
+        - id: cap/exec/load/library/graphics-lib-marker
         - id: cap/exec/load/drm-driver-ref
-

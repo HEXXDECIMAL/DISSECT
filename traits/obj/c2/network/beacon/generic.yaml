@@ -315,10 +315,8 @@ composite_rules:
     # Size constraint: Large binaries (Rust/Go with regex, Unicode tables, SQLite) often have
     # byte patterns that look like IPs. C2 implants are typically compact (<1.5MB).
     size_max: 1500000
-    any:
-      - id: obj/c2/infrastructure/ip/http-raw-ip-url-content
-      - id: obj/c2/infrastructure/ip/http-raw-ip-url-string
-      - id: obj/c2/infrastructure/ip/hardcoded-ipv4
+    all:
+      - id: obj/c2/infrastructure/ip
 
   - id: c2-http-ip-binary
     desc: HTTP IP-based C2 in binary

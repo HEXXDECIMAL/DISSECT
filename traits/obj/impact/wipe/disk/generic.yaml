@@ -83,7 +83,5 @@ composite_rules:
       - id: mbr-ref
       - id: boot-sector
       - id: master-boot-record
-      - id: cap/fs/path/device/dev-sda
-      - id: cap/fs/path/device/dev-hda
-      - id: cap/fs/path/device/dev-nvme
+      - id: cap/fs/path/device/storage
       - id: physicaldrive

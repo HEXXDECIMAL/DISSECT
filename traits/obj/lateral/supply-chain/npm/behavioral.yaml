@@ -519,7 +519,7 @@ composite_rules:
     needs: 1
     any:
       - id: cap/comm/http/post/post
-      - id: obj/exfil/http/node/node-post-json
+      - id: obj/exfil/channel/http/node/node-post-json
 
   # === SUPPLY CHAIN EXFIL COMPOSITES (HOSTILE) ===
 

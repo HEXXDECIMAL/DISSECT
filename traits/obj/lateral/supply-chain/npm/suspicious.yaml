@@ -592,7 +592,7 @@ composite_rules:
     mbc: "E1041"
     for: [javascript]
     all:
-      - id: obj/discovery/system/js-sysinfo-multi
+      - id: obj/discovery/host/system/javascript/js-sysinfo-multi
       - id: cap/comm/http/post/post
       - id: small-file-5k
 
@@ -606,7 +606,7 @@ composite_rules:
     mbc: "E1041"
     for: [javascript]
     all:
-      - id: obj/discovery/system/js-victim-id
+      - id: obj/discovery/host/system/javascript/js-victim-id
       - id: cap/comm/http/post/post
       - id: small-file-5k
 
@@ -618,7 +618,7 @@ composite_rules:
     attack: "T1082"
     for: [javascript]
     all:
-      - id: obj/discovery/system/js-victim-id
+      - id: obj/discovery/host/system/javascript/js-victim-id
       - id: cap/comm/http/post/post
 
   # === Deceptive Placeholder Package Composites ===

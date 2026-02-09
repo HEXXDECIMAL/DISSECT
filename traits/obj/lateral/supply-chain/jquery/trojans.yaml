@@ -16,7 +16,7 @@ composite_rules:
     all:
       - { id: meta/library/jquery/library }
       - { id: meta/library/jquery/version-string }
-      - { id: cap/exec/dropper/activex-object }
+      - { id: cap/exec/activex/com/activex-object-create }
 
   # jQuery + Reverse Shell = HOSTILE
   - id: trojanized-reverse-shell
@@ -26,7 +26,7 @@ composite_rules:
     all:
       - { id: meta/library/jquery/library }
       - { id: meta/library/jquery/version-string }
-      - { id: obj/c2/reverse-shell/node/socket-with-exec }
+      - { id: obj/c2/reverse-shell/method/node/socket-with-exec }
 
   # jQuery + Base64 Eval = HOSTILE (hidden payload)
   - id: trojanized-base64-eval
@@ -36,7 +36,7 @@ composite_rules:
     all:
       - { id: meta/library/jquery/library }
       - { id: meta/library/jquery/version-string }
-      - { id: obj/anti-static/obfuscation/base64-eval }
+      - { id: obj/anti-static/base64/decode/javascript/decode-exec-js }
 
   # jQuery + Credential Access = HOSTILE
   - id: trojanized-credential-access
@@ -60,7 +60,7 @@ composite_rules:
       - { id: meta/library/jquery/version-string }
     any:
       - { id: cap/exec/command/shell }
-      - { id: cap/exec/command/node/child-process }
+      - { id: cap/exec/command/shell/child-process-exec }
 
   # jQuery + Network Backdoor = HOSTILE
   - id: trojanized-backdoor

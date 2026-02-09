@@ -54,8 +54,8 @@ composite_rules:
     needs: 3
     any:
       - id: cap/crypto/symmetric/aes
-      - id: cap/exec/dynamic-load/python-zipimporter
-      - id: cap/exec/dynamic-load/python-zipimporter-load
+      - id: cap/exec/dynamic-load/class/python-zipimporter
+      - id: cap/exec/dynamic-load/class/python-zipimporter-load
       - id: obj/anti-static/base64/decode/decode-python
       - id: cap/fs/temp/pyinstaller/pyinstaller-meipass
       - id: hardcoded-aes-key
@@ -69,7 +69,7 @@ composite_rules:
     conf: 0.98
     for: [python]
     all:
-      - id: cap/exec/dynamic-load/python-zipimporter-load
+      - id: cap/exec/dynamic-load/class/python-zipimporter-load
       - id: obj/anti-static/base64/decode/decode-python
     any:
       - id: cap/crypto/symmetric/aes/pyaes-usage

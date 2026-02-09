@@ -173,13 +173,8 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
-    needs: 1
     any:
-      - id: cap/comm/http/request/javascript/https-request
-      - id: cap/comm/http/request/javascript/http-request
-      - id: cap/comm/http/request/javascript/axios
-      - id: cap/comm/http/request/javascript/node-fetch-import
-      - id: cap/comm/http/request/javascript/fetch-string
+      - id: cap/comm/http/request/javascript
 
   # Suspicious VSCode Extension Behaviors
   # IMPORTANT: Requires VSCode markers to avoid FPs on regular npm packages
@@ -192,7 +187,7 @@ composite_rules:
     for: [javascript, typescript]
     all:
       - id: vscode-context
-      - id: obj/discovery/fingerprint/system/process-env-access
+      - id: obj/discovery/host/fingerprint/method/node/process-env-access
 
   # Telemetry/Exfiltration Patterns
   # IMPORTANT: Requires VSCode markers to avoid FPs on regular npm packages

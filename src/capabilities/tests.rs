@@ -2682,14 +2682,14 @@ fn test_generate_import_findings_basic() {
 
     // Check IDs
     let ids: Vec<&str> = report.findings.iter().map(|f| f.id.as_str()).collect();
-    assert!(ids.contains(&"meta/import/python/socket"));
-    assert!(ids.contains(&"meta/import/python/os/system"));
+    assert!(ids.contains(&"meta/import/python::socket"));
+    assert!(ids.contains(&"meta/import/python::os/system"));
 
     // Check finding properties
     let socket_finding = report
         .findings
         .iter()
-        .find(|f| f.id == "meta/import/python/socket")
+        .find(|f| f.id == "meta/import/python::socket")
         .unwrap();
     assert_eq!(socket_finding.crit, Criticality::Inert);
     assert_eq!(socket_finding.kind, FindingKind::Structural);
@@ -2725,7 +2725,7 @@ fn test_generate_import_findings_with_library() {
     let symbol_finding = report
         .findings
         .iter()
-        .find(|f| f.id == "meta/internal/imported/printf")
+        .find(|f| f.id == "meta/internal/imported::printf")
         .expect("should have symbol-level finding in meta/internal/imported/");
     assert_eq!(symbol_finding.desc, "imports printf");
 
@@ -2733,7 +2733,7 @@ fn test_generate_import_findings_with_library() {
     let dylib_finding = report
         .findings
         .iter()
-        .find(|f| f.id == "meta/dylib/libc/so/6")
+        .find(|f| f.id == "meta/dylib::libc/so/6")
         .expect("should have dylib finding");
     assert!(dylib_finding.desc.contains("links libc.so.6"));
 }
@@ -2771,7 +2771,7 @@ fn test_generate_import_findings_dedup() {
 #[test]
 fn test_generate_import_findings_script_function_calls() {
     // Test that function calls in scripts go to meta/internal/imported/
-    // while actual imports go to meta/import/{lang}/{module}
+    // while actual imports go to meta/import/{lang}::{module}
     use crate::types::Import;
 
     let mut report = AnalysisReport::new(TargetInfo {
@@ -2812,17 +2812,17 @@ fn test_generate_import_findings_script_function_calls() {
 
     // Actual import goes to meta/import/
     assert!(
-        ids.contains(&"meta/import/ruby/net/http"),
+        ids.contains(&"meta/import/ruby::net/http"),
         "Should have meta/import/ for actual imports"
     );
 
     // Function calls go to meta/internal/imported/
     assert!(
-        ids.contains(&"meta/internal/imported/system"),
+        ids.contains(&"meta/internal/imported::system"),
         "Should have meta/internal/imported/ for function calls"
     );
     assert!(
-        ids.contains(&"meta/internal/imported/open"),
+        ids.contains(&"meta/internal/imported::open"),
         "Should have meta/internal/imported/ for function calls"
     );
 }
@@ -2848,7 +2848,7 @@ fn test_generate_import_findings_npm_package() {
     CapabilityMapper::generate_import_findings(&mut report);
 
     assert_eq!(report.findings.len(), 1);
-    assert_eq!(report.findings[0].id, "meta/import/npm/axios");
+    assert_eq!(report.findings[0].id, "meta/import/npm::axios");
 }
 
 #[test]
@@ -2920,7 +2920,7 @@ fn test_generate_import_findings_preserves_existing() {
     assert!(report
         .findings
         .iter()
-        .any(|f| f.id == "meta/import/python/socket"));
+        .any(|f| f.id == "meta/import/python::socket"));
 }
 
 #[test]
@@ -2937,7 +2937,7 @@ fn test_generate_import_findings_skips_existing_import_finding() {
 
     // Pre-existing import finding (shouldn't be duplicated)
     report.findings.push(Finding {
-        id: "meta/import/python/socket".to_string(),
+        id: "meta/import/python::socket".to_string(),
         kind: FindingKind::Structural,
         desc: "imports socket".to_string(),
         conf: 0.95,
@@ -2989,7 +2989,7 @@ fn test_generate_import_findings_evidence_structure() {
     let symbol_finding = report
         .findings
         .iter()
-        .find(|f| f.id == "meta/internal/imported/nslog")
+        .find(|f| f.id == "meta/internal/imported::nslog")
         .expect("should have symbol-level finding in meta/internal/imported/");
     assert_eq!(symbol_finding.evidence.len(), 1);
     let evidence = &symbol_finding.evidence[0];
@@ -3002,7 +3002,7 @@ fn test_generate_import_findings_evidence_structure() {
     let dylib_finding = report
         .findings
         .iter()
-        .find(|f| f.id == "meta/dylib/foundation")
+        .find(|f| f.id == "meta/dylib::foundation")
         .expect("should have dylib finding");
     assert_eq!(dylib_finding.evidence.len(), 1);
     let dylib_evidence = &dylib_finding.evidence[0];
@@ -3045,18 +3045,18 @@ fn test_collect_trait_refs_finds_internal_paths() {
         r#for: vec![RuleFileType::All],
         all: Some(vec![
             Condition::Trait {
-                id: "meta/internal/imported/printf".to_string(), // Forbidden!
+                id: "meta/internal/imported::printf".to_string(), // Forbidden!
             },
             Condition::Trait {
-                id: "meta/import/python/socket".to_string(), // OK
+                id: "meta/import/python::socket".to_string(), // OK
             },
         ]),
         any: Some(vec![Condition::Trait {
-            id: "meta/internal/imported/malloc".to_string(), // Forbidden!
+            id: "meta/internal/imported::malloc".to_string(), // Forbidden!
         }]),
         needs: None,
         none: Some(vec![Condition::Trait {
-            id: "meta/dylib/libc".to_string(), // OK
+            id: "meta/dylib::libc".to_string(), // OK
         }]),
         near_lines: None,
         near_bytes: None,
@@ -3085,8 +3085,8 @@ fn test_collect_trait_refs_finds_internal_paths() {
 
     // Verify specific internal paths found
     let internal_ids: Vec<&str> = internal_refs.iter().map(|(id, _)| id.as_str()).collect();
-    assert!(internal_ids.contains(&"meta/internal/imported/printf"));
-    assert!(internal_ids.contains(&"meta/internal/imported/malloc"));
+    assert!(internal_ids.contains(&"meta/internal/imported::printf"));
+    assert!(internal_ids.contains(&"meta/internal/imported::malloc"));
 }
 
 #[test]
@@ -3104,7 +3104,7 @@ fn test_meta_internal_paths_forbidden_in_composite_rules() {
         platforms: vec![Platform::All],
         r#for: vec![RuleFileType::All],
         all: Some(vec![Condition::Trait {
-            id: "meta/internal/imported/evil_func".to_string(),
+            id: "meta/internal/imported::evil_func".to_string(),
         }]),
         any: None,
         needs: None,
@@ -3131,7 +3131,7 @@ fn test_meta_internal_paths_forbidden_in_composite_rules() {
     );
 
     // Document the allowed vs forbidden patterns:
-    // - meta/import/{lang}/{module} : OK (dynamically generated, allowed in composites)
+    // - meta/import/{lang}::{module} : OK (dynamically generated, allowed in composites)
     // - meta/dylib/{library}        : OK (dynamically generated, allowed in composites)
     // - meta/internal/{anything}    : FORBIDDEN (ML-only, not for composite rules)
 }

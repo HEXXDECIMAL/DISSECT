@@ -281,7 +281,7 @@ composite_rules:
       - id: cookies-path
     any:
       - id: cap/os/admin/legitimate/cp-command
-      - id: cap/exec/dropper/windows/curl-cmd
+      - id: cap/exec/dropper/script/batch/curl-cmd
       - id: cap/fs/attributes/xattr/shell-xattr-remove
 
   - id: master-decrypt

@@ -61,8 +61,8 @@ composite_rules:
     mbc: "B0024"
     for: [go]
     all:
-      - id: cap/exec/command/go-exec-command
-      - id: cap/comm/socket/go-network-dial
+      - id: cap/exec/command/direct/go/exec-command
+      - id: cap/comm/socket/connect/go/dial
       - id: many-init-functions
 
   # Detect supply chain attack patterns
@@ -76,6 +76,6 @@ composite_rules:
     all:
       - id: many-init-functions
     any:
-      - id: cap/exec/command/go-exec-command
-      - id: cap/comm/socket/go-network-dial
-      - id: cap/comm/socket/go-http-operations
+      - id: cap/exec/command/direct/go/exec-command
+      - id: cap/comm/socket/connect/go/dial
+      - id: cap/comm/http/post/go/http-post

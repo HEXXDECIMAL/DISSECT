@@ -216,7 +216,7 @@ composite_rules:
     for: [macho]
     all:
       - id: self-replication-symbols
-      - id: obj/discovery/software/spotlight-app-enum
+      - id: obj/discovery/host/software/library-search/spotlight-app-enum
       - id: cap/exec/command/shell/shell-symbols
 
   - id: pkill-ledger
@@ -328,7 +328,7 @@ composite_rules:
     attack: "T1547.001"
     for: [macho]
     all:
-      - id: cap/process/info/get-process-for-pid
+      - id: cap/process/info/query/get-process-for-pid
       - id: nsworkspace-app-launch
       - id: cap/os/time/query/sleep
 

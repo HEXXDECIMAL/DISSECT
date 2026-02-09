@@ -65,7 +65,7 @@ composite_rules:
     any:
       - id: cap/process/terminate/
       - id: cap/exec/eval/invoke/
-      - id: cap/exec/reflection/assembly-load
+      - id: cap/exec/reflection/invoke/csharp/assembly-load
 
   # Concentrated malicious code: all behaviors within 30 lines (tight proximity)
   - id: concentrated-logic-bomb

@@ -16,7 +16,7 @@ composite_rules:
     all:
       - {id: meta/library/react/library}
       - {id: meta/library/react/version-banner}
-      - {id: cap/exec/dropper/activex-object}
+      - {id: cap/exec/activex/com/activex-object-create}
   # React + Reverse Shell = HOSTILE
   - id: trojanized-reverse-shell
     desc: "React library with reverse shell"
@@ -25,7 +25,7 @@ composite_rules:
     all:
       - {id: meta/library/react/library}
       - {id: meta/library/react/version-banner}
-      - {id: obj/c2/reverse-shell/node/socket-with-exec}
+      - {id: obj/c2/reverse-shell/method/node/socket-with-exec}
   # React + Base64 Eval = HOSTILE (hidden payload)
   - id: trojanized-base64-eval
     desc: "React library with base64+eval payload"
@@ -34,7 +34,7 @@ composite_rules:
     all:
       - {id: meta/library/react/library}
       - {id: meta/library/react/version-banner}
-      - {id: obj/anti-static/obfuscation/base64-eval}
+      - {id: obj/anti-static/base64/decode/javascript/decode-exec-js}
   # React + Credential Access = HOSTILE
   - id: trojanized-credential-access
     desc: "React library with credential access"
@@ -56,7 +56,7 @@ composite_rules:
       - {id: meta/library/react/version-banner}
     any:
       - {id: cap/exec/command/shell}
-      - {id: cap/exec/command/node/child-process}
+      - {id: cap/exec/command/shell/child-process-exec}
   # React + Network Backdoor = HOSTILE
   - id: trojanized-backdoor
     desc: "React library with network backdoor"

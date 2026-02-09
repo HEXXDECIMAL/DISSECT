@@ -5,14 +5,14 @@
 
 composite_rules:
   # Output/command variable composite - references generic terms
-  - id: obj/c2/shells/remote-exec/js-output-command-var
+  - id: js-output-command-var
     desc: Variable names suggesting command output
     crit: inert
     conf: 0.3
     needs: 1
     any:
-      - id: cap/data/text/generic/output
-      - id: cap/data/text/generic/command
+      - id: cap/data/text/pattern/output
+      - id: cap/data/text/pattern/command
 
   - id: js-http-backdoor
     desc: Remote shell backdoor (Poll C2
@@ -23,4 +23,4 @@ composite_rules:
       - id: cap/comm/http/request/js-axios-get
       - id: cap/exec/command/shell/js-execsync
       - id: cap/comm/http/request/js-axios-post
-      - id: obj/c2/shells/remote-exec/js-output-command-var
+      - id: js-output-command-var

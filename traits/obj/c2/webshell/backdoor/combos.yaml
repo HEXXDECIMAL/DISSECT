@@ -18,7 +18,7 @@ composite_rules:
     any:
       - id: obj/anti-static/obfuscation
       - id: cap/fs/write
-      - id: cap/exec/command/exec
+      - id: cap/exec/command/shell
 
   # Dropper webshell (writes decoded payloads)
   - id: php-dropper
@@ -86,8 +86,8 @@ composite_rules:
     attack: "T1505.003"
     for: [php]
     any:
-      - id: obj/c2/webshell/hardcoded-hash-auth
-      - id: obj/c2/webshell/substr-hash-compare
+      - id: obj/c2/webshell/backdoor/php/hardcoded-hash-auth
+      - id: obj/c2/webshell/backdoor/php/substr-hash-compare
 
   # File upload webshell
   - id: php-uploader
@@ -113,10 +113,8 @@ composite_rules:
     attack: "T1059.004"
     for: [php]
     any:
-      - id: cap/exec/command/exec-user-input
+      - id: cap/exec/command/shell
       - id: obj/anti-static/obfuscation
-      - id: obj/anti-static/obfuscation
-      - id: cap/data/user-input
       - id: cap/data/user-input
 
     needs: 1
@@ -142,7 +140,7 @@ composite_rules:
     attack: "T1505.003"
     for: [php]
     all:
-      - id: obj/c2/webshell/password-form
+      - id: obj/c2/webshell/backdoor/php/password-form
     any:
       - id: obj/persist/session
       - id: cap/data/user-input
@@ -156,23 +154,18 @@ composite_rules:
     attack: "T1505.003"
     for: [php]
     all:
-      - id: obj/c2/webshell/google-search-scrape
+      - id: obj/c2/webshell/backdoor/php/google-search-scrape
       - id: cap/comm/http/curl/init
 
   # Obfuscated payload webshell
   - id: php-obfuscated
     desc: "PHP webshell with heavily obfuscated"
-    crit: suspicious
+    crit: notable
     conf: 0.9
     mbc: "B0032"
     attack: "T1027"
     for: [php]
-    needs: 2
-    any:
-      - id: obj/anti-static/obfuscation
-      - id: obj/anti-static/obfuscation
-      - id: obj/anti-static/obfuscation
-      - id: obj/anti-static/obfuscation
+    all:
       - id: obj/anti-static/obfuscation
 
   # Decompressed code execution
@@ -216,32 +209,25 @@ composite_rules:
 
   - id: php-non-ascii-identifiers-backdoor
     desc: "PHP: backdoor using non-ASCII identifiers"
-    crit: suspicious
+    crit: notable
     conf: 0.98
     mbc: "B0032"
     attack: "T1027"
     for: [php]
-    any:
-      - id: obj/anti-static/obfuscation/code-metrics/php-non-ascii-call
-      - id: obj/anti-static/obfuscation/code-metrics/php-non-ascii-variable
-      - id: obj/anti-static/obfuscation/code-metrics/php-non-ascii-name
+    all:
+      - id: obj/anti-static/obfuscation/code-metrics
 
   - id: php-shell-functional
-    desc: "PHP: functional webshell (exec +"
+    desc: "PHP: functional webshell (exec + user input)"
     crit: suspicious
     conf: 0.98
     mbc: "B0030"
     attack: "T1505.003"
     for: [php]
     all:
-      - id: cap/exec/command/shell/
+      - id: cap/exec/command/shell
     any:
-      - id: cap/data/user-input/request/get
-      - id: cap/data/user-input/request/post
-      - id: cap/data/user-input/request/request
-      - id: cap/data/user-input/request/cookie
-      - id: cap/data/user-input/request/server
-      - id: obj/anti-static/obfuscation
+      - id: cap/data/user-input/request
       - id: obj/anti-static/obfuscation
       - id: cap/fs/read/file
       - id: cap/fs/write/file
@@ -307,7 +293,7 @@ composite_rules:
     attack: "T1505.003"
     for: [php]
     all:
-      - id: obj/c2/webshell/wso-version
+      - id: obj/c2/webshell/script/wso-version
       - id: cap/exec/command/shell
     any:
       - id: cap/data/user-input/request
@@ -327,11 +313,7 @@ composite_rules:
       - id: cap/exec/command/shell  # shell execution
       - id: cap/data/user-input/request  # user input handling
       - id: cap/fs/write  # file write capability
-    needs: 2
-    any:
-      - id: obj/c2/webshell/filesman  # FilesMan pattern
-      - id: obj/c2/webshell/wso-version  # WSO family
-      - id: obj/c2/webshell/wso-shell  # WSO family
+      - id: obj/c2/webshell  # webshell family indicators
       - id: obj/c2/webshell/backdoor/dynamic-user-input-call  # variable function backdoor
       - id: cap/exec/command/shell/backtick  # backtick RCE
 

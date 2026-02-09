@@ -18,9 +18,9 @@ composite_rules:
     attack: "T1562.001"
     for: [batch, shell]
     all:
-      - id: obj/anti-analysis/security-bypass/bypass
-      - id: cap/exec/dropper/windows/download-tool
-      - id: cap/exec/dropper/windows/exec-cmd
+      - id: obj/anti-analysis/security-bypass/platform/bypass
+      - id: cap/exec/dropper/script/download-tool
+      - id: cap/exec/dropper/script/exec-cmd
 
   # Download + Execute + Defender Exclusion specifically
   # Complexity: all(3) + file_types(1) = 4 -> hostile
@@ -32,9 +32,9 @@ composite_rules:
     attack: "T1562.001"
     for: [batch, shell, powershell]
     all:
-      - id: obj/anti-analysis/security-bypass/defender-exclusion
-      - id: cap/exec/dropper/windows/download-file-ps
-      - id: cap/exec/dropper/windows/start-cmd
+      - id: obj/anti-analysis/security-bypass/platform/windows/defender-exclusion
+      - id: cap/exec/dropper/script/batch/download-file-ps
+      - id: cap/exec/dropper/script/batch/start-cmd
 
   # PowerShell download cradle in batch with security bypass
   # Complexity: all(3) + file_types(1) = 4 -> hostile
@@ -46,9 +46,9 @@ composite_rules:
     attack: "T1059.001"
     for: [batch, shell]
     all:
-      - id: obj/anti-analysis/security-bypass/bypass
-      - id: cap/exec/dropper/windows/powershell-download
-      - id: cap/exec/dropper/windows/exec-cmd
+      - id: obj/anti-analysis/security-bypass/platform/bypass
+      - id: cap/exec/dropper/script/powershell-download
+      - id: cap/exec/dropper/script/exec-cmd
 
   # UAC bypass + Download + Execute
   # Complexity: all(3) + file_types(1) = 4 -> hostile
@@ -60,9 +60,9 @@ composite_rules:
     attack: "T1548.002"
     for: [batch, shell, powershell]
     all:
-      - id: obj/anti-analysis/security-bypass/start-process-runas
-      - id: cap/exec/dropper/windows/download-tool
-      - id: cap/exec/dropper/windows/exec-cmd
+      - id: obj/anti-analysis/security-bypass/platform/windows/start-process-runas
+      - id: cap/exec/dropper/script/download-tool
+      - id: cap/exec/dropper/script/exec-cmd
 
   # AV check (tasklist) + Security bypass + dropper
   # Classic pattern: check for AV, disable it, then download/execute
@@ -75,10 +75,10 @@ composite_rules:
     attack: "T1562.001"
     for: [batch, shell]
     all:
-      - id: obj/anti-analysis/security-bypass/tasklist-av-check
-      - id: obj/anti-analysis/security-bypass/bypass
-      - id: cap/exec/dropper/windows/download-tool
-      - id: cap/exec/dropper/windows/exec-cmd
+      - id: obj/anti-analysis/security-bypass/platform/windows/tasklist-av-check
+      - id: obj/anti-analysis/security-bypass/platform/bypass
+      - id: cap/exec/dropper/script/download-tool
+      - id: cap/exec/dropper/script/exec-cmd
 
   # Malwarebytes disable + dropper
   # Complexity: all(3) + file_types(1) = 4 -> hostile
@@ -90,9 +90,9 @@ composite_rules:
     attack: "T1562.001"
     for: [batch, shell]
     all:
-      - id: obj/anti-analysis/security-bypass/malwarebytes-stop-service
-      - id: cap/exec/dropper/windows/download-tool
-      - id: cap/exec/dropper/windows/exec-cmd
+      - id: obj/anti-analysis/security-bypass/platform/windows/malwarebytes-stop-service
+      - id: cap/exec/dropper/script/download-tool
+      - id: cap/exec/dropper/script/exec-cmd
 
   # MSHTA remote fetch with obfuscated IP address
   # LOLBin proxy execution + IP evasion = strong dropper signal
@@ -105,7 +105,7 @@ composite_rules:
     attack: "T1218.005"
     for: [batch, shell, powershell]
     all:
-      - id: cap/exec/dropper/windows/mshta-remote-url
+      - id: cap/exec/dropper/loader/mshta/mshta-remote-url
       - id: obj/anti-static/obfuscation/ip-notation/hex-octal-ip-in-url
 
   # Heavy Obfuscation + PowerShell Execution + MOTW Removal
@@ -119,5 +119,5 @@ composite_rules:
     for: [batch, shell]
     all:
       - id: obj/anti-static/obfuscation/strings/batch-heavy-obfuscation
-      - id: cap/exec/dropper/windows/powershell-exe
-      - id: obj/anti-forensics/evidence-removal/motw-removal-stream
+      - id: cap/exec/dropper/script/powershell-exe
+      - id: obj/anti-forensics/evidence-removal/cleanup/windows/motw-removal-stream

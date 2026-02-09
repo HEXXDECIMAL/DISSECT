@@ -241,7 +241,7 @@ composite_rules:
     # obfuscation. This excludes legitimate Rust/Go binaries with embedded lookup tables.
     size_max: 2097152
     all:
-      - id: cap/data/embedded/lzma-magic
+      - id: cap/data/embedded/payload/lzma-magic
       - id: obj/persist/daemon/init/daemon-fork
     any:
       - id: cap/exec/command/shell/shell-execution

@@ -48,8 +48,8 @@ composite_rules:
     needs: 2
     any:
       - id: gtfobins-ruby-marker
-      - id: cap/exec/dylib/ruby-ffi-dlopen
-      - id: cap/exec/dylib/fiddle-dlopen
+      - id: cap/exec/dylib/load/ruby/ruby-ffi-dlopen
+      - id: cap/exec/dylib/load/ruby/fiddle-dlopen
 
   # === GTFOBins Privilege Escalation ===
   - id: gtfobins-ruby-privesc
@@ -60,7 +60,7 @@ composite_rules:
     needs: 2
     any:
       - id: gtfobins-ruby-marker
-      - id: obj/privesc/setuid/ruby-setuid
+      - id: obj/privesc/setuid/abuse/ruby/ruby-setuid
       - id: cap/exec/command/shell/ruby-root-shell
 
   # === GTFOBins File Operations ===
@@ -84,9 +84,7 @@ composite_rules:
     needs: 2
     any:
       - id: gtfobins-ruby-marker
-      - id: obj/c2/reverse-shell/tcpsocket-ref
-      - id: obj/c2/reverse-shell/io-popen
-      - id: obj/c2/reverse-shell/ruby-tcp-socket
+      - id: obj/c2/reverse-shell
 
   # === GTFOBins Shell ===
   - id: gtfobins-ruby-shell

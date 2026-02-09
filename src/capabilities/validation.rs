@@ -938,6 +938,46 @@ pub(crate) fn find_redundant_any_refs(
     violations
 }
 
+/// Find composite rules that have only a single condition total across `any:` and `all:`.
+/// A single-item `any:` or `all:` is only a problem if there's no other clause.
+/// When both exist, they work together and aren't redundant.
+/// Also skip rules that have `none:` or `downgrade:` clauses - these add meaningful logic.
+/// Returns (rule_id, clause_type: "any" or "all", trait_id).
+pub(crate) fn find_single_item_clauses(rule: &CompositeTrait) -> Vec<(String, &'static str, String)> {
+    let mut violations = Vec::new();
+
+    // Skip rules with none: or downgrade: clauses - they add meaningful conditions
+    let has_none = rule.none.as_ref().map_or(false, |v| !v.is_empty());
+    let has_downgrade = rule.downgrade.is_some();
+    if has_none || has_downgrade {
+        return violations;
+    }
+
+    let any_count = rule.any.as_ref().map_or(0, |v| v.len());
+    let all_count = rule.all.as_ref().map_or(0, |v| v.len());
+    let total_count = any_count + all_count;
+
+    // Only flag if there's exactly 1 condition total
+    if total_count != 1 {
+        return violations;
+    }
+
+    // Check which clause has the single item
+    if any_count == 1 {
+        if let Some(Condition::Trait { id }) = rule.any.as_ref().and_then(|v| v.first()) {
+            violations.push((rule.id.clone(), "any", id.clone()));
+        }
+    }
+
+    if all_count == 1 {
+        if let Some(Condition::Trait { id }) = rule.all.as_ref().and_then(|v| v.first()) {
+            violations.push((rule.id.clone(), "all", id.clone()));
+        }
+    }
+
+    violations
+}
+
 /// Platform/language names that should be YAML filenames, not directories.
 /// These match values that can be used in `for:` or `platform:` fields.
 const PLATFORM_NAMES: &[&str] = &[

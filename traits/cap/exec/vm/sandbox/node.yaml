@@ -209,11 +209,8 @@ composite_rules:
     crit: inert
     conf: 0.6
     for: [javascript, typescript]
-    any:
-      - id: cap/comm/http/request/https-request
-      - id: cap/comm/http/request/http-request
-      - id: cap/comm/http/request/fetch-string
-      - id: cap/comm/http/request/axios
+    all:
+      - id: cap/comm/http/request
 
   # Remote Code Execution via VM
   - id: vm-with-http
@@ -246,11 +243,7 @@ composite_rules:
     conf: 0.6
     for: [javascript, typescript]
     any:
-      - id: cap/comm/http/request/axios-get-call
-      - id: cap/comm/http/request/axios-direct-call
-      - id: cap/comm/http/request/fetch-string
-      - id: cap/comm/http/request/https-get
-      - id: cap/comm/http/request/http-get
+      - id: cap/comm/http/request
       - id: request-method-call
 
   # Remote Code Loading via Function Constructor

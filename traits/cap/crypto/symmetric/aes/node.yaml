@@ -109,15 +109,6 @@ traits:
       type: string
       substr: "aes256gcm"
 
-  - id: dns-resolve-txt
-    desc: DNS TXT record resolution
-    crit: notable
-    conf: 0.85
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "resolveTxt"
-
   # === AES algorithm string ===
   - id: aes-algorithm
     desc: AES algorithm string prefix
@@ -272,9 +263,8 @@ composite_rules:
     crit: inert
     conf: 0.8
     for: [javascript, typescript]
-    any:
+    all:
       - id: cap/comm/http/request/javascript
-      - id: dns-resolve-txt
 
   # Compression library composite
   - id: compression-lib

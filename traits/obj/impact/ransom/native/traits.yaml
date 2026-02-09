@@ -268,4 +268,4 @@ composite_rules:
     any:
       - id: cap/fs/directory/traverse/traverse-fts
       - id: cap/fs/directory/traverse/fts-open
-      - id: cap/process/threading/pthread
+      - id: cap/process/threading/thread/pthread

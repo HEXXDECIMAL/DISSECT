@@ -2,7 +2,7 @@
 # ATT&CK: T1046 (Network Service Scanning)
 
 traits:
-  - id: scanner/vncjew/read-vncs
+  - id: read-vncs
     desc: VNCJew VNC reader function
     crit: suspicious
     conf: 0.95
@@ -13,7 +13,7 @@ traits:
       substr: "readVNCs"
 
 composite_rules:
-  - id: scanner/vncjew/detected
+  - id: vncjew-detected
     desc: VNCJew VNC scanner
     crit: suspicious
     conf: 0.95
@@ -21,6 +21,6 @@ composite_rules:
     mbc: "B0046"
     for: [elf]
     all:
-      - id: scanner/vncjew/read-vncs
-      - id: cap/os/firewall/iptables-tool
+      - id: read-vncs
+      - id: cap/os/firewall/rules/iptables-tool
       - id: known/tools/offensive/masscan-ref

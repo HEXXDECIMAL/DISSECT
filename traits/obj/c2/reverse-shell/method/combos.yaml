@@ -1,0 +1,62 @@
+# Composite Shell Capabilities
+
+composite_rules:
+  - id: combo-reverse-shell
+    desc: Classic reverse shell pattern (socket
+    crit: hostile
+    mbc: "B0030.002"
+    attack: "T1059"
+    conf: 0.95
+    platforms: [linux, macos, unix]
+    all:
+      - id: cap/comm/socket/connect/connect
+      - id: dup2-redirect
+    any:
+      - id: cap/exec/command/shell/bin-sh
+      - id: cap/exec/command/shell/bin-bash
+    # Downgrade for legitimate system libraries and shell interpreters
+    downgrade:
+      any:
+        - id: cap/exec/load/library/system-lib-marker
+        - id: cap/exec/load/library/shell-interpreter
+        - id: cap/exec/load/library/debugger-tool-marker
+
+  - id: bind-shell
+    desc: Bind shell pattern (socket +
+    crit: hostile
+    mbc: "B0030.003"
+    attack: "T1059"
+    conf: 0.95
+    all:
+      - id: cap/comm/socket/bind/bind
+      - id: cap/comm/socket/listen/listen
+    any:
+      - id: cap/exec/command/shell/bin-sh
+      - id: cap/exec/command/shell/bin-bash
+    none:
+      - id: meta/signed/platform::apple
+    # Downgrade for legitimate network servers/debuggers/system libraries
+    downgrade:
+      any:
+        - id: cap/exec/load/library/debugger-tool-marker
+        - id: cap/exec/load/library/system-lib-marker
+        - id: cap/exec/load/library/shell-interpreter
+
+  - id: python-reverse-shell
+    desc: "Python reverse shell detected (socket"
+    crit: hostile
+    mbc: "B0022"
+    attack: "T1059"
+    conf: 0.98
+    for: [python]
+    near_lines: 20
+    all:
+      - id: python-socket-connect
+      - id: obj/c2/reverse-shell/method/python-redirection
+
+  - id: python-redirection
+    desc: "Python shell redirection (pty/dup2)"
+    crit: suspicious
+    any:
+      - id: python-pty-spawn
+      - id: python-dup2

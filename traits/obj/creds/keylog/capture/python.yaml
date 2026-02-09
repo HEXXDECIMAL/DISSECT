@@ -299,9 +299,7 @@ composite_rules:
     conf: 0.7
     needs: 1
     any:
-      - id: cap/comm/http/request/py-requests-post
-      - id: cap/comm/http/request/py-requests-get
-      - id: cap/comm/http/request/urllib
+      - id: cap/comm/http/request
       - id: socket-call
 
   # Key event handlers composite

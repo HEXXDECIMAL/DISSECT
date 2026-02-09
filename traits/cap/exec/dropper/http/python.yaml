@@ -104,14 +104,6 @@ composite_rules:
       - id: path-home-call
       - id: environ-home
 
-  # Subprocess execution composite
-  - id: python-subprocess-exec
-    desc: Subprocess execution
-    crit: notable
-    conf: 0.5
-    any:
-      - id: cap/exec/command/subprocess/python
-
   # Code or process execution composite
   - id: python-exec-any
     desc: Code or process execution
@@ -147,7 +139,7 @@ composite_rules:
       - id: python-http-lib
       - id: python-tmp-dir
       - id: python-chmod
-      - id: python-subprocess-exec
+      - id: cap/exec/command/subprocess/python
 
   # Home directory dropper - downloads to hidden dir in home
   - id: home-dropper
@@ -168,7 +160,7 @@ composite_rules:
     all:
       - id: python-http-lib
       - id: python-write-content
-      - id: python-subprocess-exec
+      - id: cap/exec/command/subprocess/python
 
   # Multiple download functions composite
   - id: multi-download-funcs
@@ -189,6 +181,6 @@ composite_rules:
       - id: multi-download-funcs
     all:
       - id: requests-method
-      - id: cap/fs/file-ops/py-write
+      - id: cap/fs/file-ops/modes/python/py-write
       - id: popen-call
       - id: payload-keyword

@@ -1,126 +1,405 @@
-# Go file encryption patterns (ransomware)
-# Note: Go package/function names persist in compiled binaries as strings
-defaults:
-  for: [go, elf, macho, pe]
+# Go ransomware traits
+# Detects ransomware written in Go through exported function symbols
 
 traits:
-  - id: crypto-aes
-    desc: crypto/aes import
-    crit: inert
-    conf: 0.5
+  # Go ransomware EncryptFiles function
+  - id: go-encrypt-files-func
+    desc: Go EncryptFiles function symbol
+    crit: suspicious
+    conf: 0.95
+    for: [elf, macho, pe]
     if:
       type: string
-      substr: "crypto/aes"
+      regex: '\)\.(Encrypt|encrypt)Files(\.|$)'
 
-  - id: crypto-cipher
-    desc: crypto/cipher import
-    crit: inert
-    conf: 0.5
+  # Go obfuscated Encrypt/Decrypt methods (garble-style obfuscation)
+  # Matches patterns like: DeaU3RKXOvnv.(*dAiSaldT99sS).Encrypt
+  - id: go-obfuscated-encrypt-method
+    desc: Obfuscated Go Encrypt/Decrypt methods
+    crit: suspicious
+    conf: 0.9
+    for: [elf, macho, pe]
     if:
       type: string
-      substr: "crypto/cipher"
+      regex: '[A-Za-z][A-Za-z0-9_]{6,14}\.\(\*[A-Za-z][A-Za-z0-9_]{6,14}\)\.(Encrypt|Decrypt)$'
+    not:
+      - "QUIC"
+      - "TLS"
+      - "crypto/"
 
-  - id: crypto-rsa
-    desc: crypto/rsa import
-    crit: inert
-    conf: 0.5
+  # Go obfuscated XORKeyStream (stream cipher operations on obfuscated packages)
+  # Matches patterns like: fyxPC7a.(*BNEsQlmUYze).XORKeyStream
+  - id: go-obfuscated-xor-stream
+    desc: Obfuscated Go XOR stream cipher
+    crit: suspicious
+    conf: 0.85
+    for: [elf, macho, pe]
     if:
       type: string
-      substr: "crypto/rsa"
+      regex: '[A-Za-z][A-Za-z0-9_]{5,14}\.\(\*[A-Za-z][A-Za-z0-9_]{6,14}\)\.XORKeyStream'
+    not:
+      - "crypto/"
+      - "cipher."
 
-  - id: filepath-walk
-    desc: filepath.Walk call
-    crit: inert
-    conf: 0.5
+  # Go obfuscated key generation (asymmetric/symmetric key operations)
+  # Matches patterns like: CxBOmNK.(*jgRRCb).GenerateKey
+  - id: go-obfuscated-keygen
+    desc: Obfuscated Go key generation
+    crit: notable
+    conf: 0.85
+    for: [elf, macho, pe]
     if:
       type: string
-      substr: "filepath.Walk"
+      regex: '[A-Za-z][A-Za-z0-9_]{5,14}\.\(\*[A-Za-z][A-Za-z0-9_]{5,14}\)\.(GenerateKey|NewPrivateKey|NewPublicKey)'
+    not:
+      - "crypto/"
+      - "ecdh."
+      - "ecdsa."
 
-  - id: filepath-walkdir
-    desc: filepath.WalkDir call
-    crit: inert
-    conf: 0.5
+  # Go ransomware EncryptFilename function
+  - id: go-encrypt-filename-func
+    desc: Go EncryptFilename function symbol
+    crit: suspicious
+    conf: 0.9
+    for: [elf, macho, pe]
     if:
       type: string
-      substr: "filepath.WalkDir"
+      regex: '\)\.(Encrypt|Decrypt)Filename(\.|$)'
 
-  - id: ioutil-writefile
-    desc: ioutil.WriteFile call
-    crit: inert
-    conf: 0.5
+  # Go ransomware KillNonRoot function - kills processes before encryption
+  - id: go-kill-nonroot-func
+    desc: Go KillNonRoot function symbol
+    crit: suspicious
+    conf: 0.95
+    for: [elf, macho, pe]
     if:
       type: string
-      substr: "ioutil.WriteFile"
+      regex: '\)\.KillNonRoot(\.|$)'
 
-  - id: os-writefile
-    desc: os.WriteFile call
-    crit: inert
-    conf: 0.5
+  # Go ransomware ExportPaths/ScanPaths - file enumeration
+  - id: go-scan-export-paths
+    desc: Go ScanPaths/ExportPaths function symbols
+    crit: notable
+    conf: 0.9
+    for: [elf, macho, pe]
     if:
       type: string
-      substr: "os.WriteFile"
+      regex: '\)\.(Scan|Export)(Files|Paths)(\.|$)'
 
-  - id: encrypted-ext
-    desc: .encrypted extension
-    crit: inert
-    conf: 0.5
+  # Go ransomware WipePaths function
+  - id: go-wipe-paths-func
+    desc: Go WipePaths function symbol
+    crit: suspicious
+    conf: 0.95
+    for: [elf, macho, pe]
     if:
       type: string
-      substr: ".encrypted"
+      regex: '\)\.WipePaths(\.|$)'
 
-  - id: locked-ext
-    desc: .locked extension
-    crit: inert
-    conf: 0.5
+  # Go ransomware EraseKey function - erases encryption key after use
+  - id: go-erase-key-func
+    desc: Go EraseKey function symbol
+    crit: suspicious
+    conf: 0.9
+    for: [elf, macho, pe]
     if:
       type: string
-      substr: ".locked"
+      regex: '\)\.EraseKey(\.|$)'
+
+  # Go ransomware ExportKey function - exports public key
+  - id: go-export-key-func
+    desc: Go ExportKey function symbol
+    crit: notable
+    conf: 0.85
+    for: [elf, macho, pe]
+    if:
+      type: string
+      regex: '\)\.(Export|Import)(Key|PublicKey)(\.|$)'
+
+  # Go ransomware TryToFixFile function - handles encryption errors
+  - id: go-try-fix-file-func
+    desc: Go TryToFixFile function symbol
+    crit: suspicious
+    conf: 0.9
+    for: [elf, macho, pe]
+    if:
+      type: string
+      regex: '\)\.TryToFixFile(\.|$)'
+
+  # Go obfuscated package names (short random alphanumeric)
+  - id: go-obfuscated-pkg
+    desc: Go obfuscated package names
+    crit: suspicious
+    conf: 0.85
+    for: [elf, macho, pe]
+    if:
+      type: string
+      regex: '\b[a-z][a-z0-9]{6,9}\.\(\*[A-Z][a-zA-Z0-9]{6,9}\)\.'
+    not:
+      - "strconv."
+      - "reflect."
+      - "strings."
+      - "godebug."
+      - "syscall."
+      - "runtime."
+      - "filepath."
+      - "internal/"
+      - "windows."
+      - "context."
+      - "testing."
+
+  # Go crypto/rsa EncryptOAEP - asymmetric encryption for ransomware
+  - id: go-rsa-encrypt-oaep
+    desc: Go RSA OAEP encryption
+    crit: notable
+    conf: 0.9
+    for: [elf, macho, pe]
+    if:
+      type: string
+      substr: "crypto/rsa.EncryptOAEP"
+
+  # Go ransomware main.encryptData function - simple ransomware pattern
+  - id: go-main-encrypt-data
+    desc: Go main.encryptData function
+    crit: suspicious
+    conf: 0.95
+    for: [elf, macho, pe]
+    if:
+      type: string
+      regex: 'main\.(encrypt|decrypt)Data(\.|$)'
+
+  # Go ransomware main.isPayed/getHasPayed - payment verification functions
+  - id: go-main-payment-check
+    desc: Go main payment check functions
+    crit: suspicious
+    conf: 0.95
+    for: [elf, macho, pe]
+    if:
+      type: string
+      regex: 'main\.(isPay|getHasPay|checkPay)'
+
+  # Go ransomware main.selfRemove - anti-forensics function
+  - id: go-main-self-remove
+    desc: Go main.selfRemove function
+    crit: suspicious
+    conf: 0.95
+    for: [elf, macho, pe]
+    if:
+      type: string
+      regex: 'main\.selfRemove(\.|$)'
+
+  # Go ransomware main.createAndShowMessage - ransom note display
+  - id: go-main-show-message
+    desc: Go main ransom message function
+    crit: suspicious
+    conf: 0.9
+    for: [elf, macho, pe]
+    if:
+      type: string
+      regex: 'main\.(createAndShowMessage|showRansomNote|displayMessage)(\.|$)'
+
+  # Go ransomware main.makeAutoRun - persistence function
+  - id: go-main-autorun
+    desc: Go main autorun persistence
+    crit: suspicious
+    conf: 0.95
+    for: [elf, macho, pe]
+    if:
+      type: string
+      regex: 'main\.(makeAutoRun|setupAutoStart|installPersistence)(\.|$)'
+
+  # Go ransomware main.debuggerPresent - anti-debugging
+  - id: go-main-debugger-check
+    desc: Go main debugger detection
+    crit: suspicious
+    conf: 0.9
+    for: [elf, macho, pe]
+    if:
+      type: string
+      regex: 'main\.(debuggerPresent|doSomeThingElseWithDebugger|checkDebugger)(\.|$)'
+
+  # Go ransomware main.runConnection - C2 connection function
+  - id: go-main-run-connection
+    desc: Go main C2 connection function
+    crit: suspicious
+    conf: 0.9
+    for: [elf, macho, pe]
+    if:
+      type: string
+      regex: 'main\.(runConnection|connectToServer|startBeacon)(\.|$)'
+
+  # Go ransomware main.removeAllFiles - destructive function
+  - id: go-main-remove-all-files
+    desc: Go main remove all files
+    crit: suspicious
+    conf: 0.95
+    for: [elf, macho, pe]
+    if:
+      type: string
+      regex: 'main\.(removeAllFiles|deleteAllFiles|wipeFiles)(\.|$)'
+
+  # Go ransomware main.getKey - key retrieval
+  - id: go-main-get-key
+    desc: Go main getKey function
+    crit: notable
+    conf: 0.85
+    for: [elf, macho, pe]
+    if:
+      type: string
+      regex: 'main\.(getKey|getKeyAndIV|retrieveKey)(\.|$)'
+
+  # Ransomware source path indicator (ransomware in dev path)
+  - id: go-ransomware-source-path
+    desc: Go ransomware source path
+    crit: suspicious
+    conf: 0.99
+    for: [elf, macho, pe]
+    if:
+      type: string
+      regex: '/ransomware[_-]?(thesis|poc|test|dev)?/'
+      case_insensitive: true
 
 composite_rules:
-  - id: crypto-import
-    desc: Cryptographic imports
-    crit: notable
-    conf: 0.6
-    needs: 1
-    any:
-      - id: crypto-aes
-      - id: crypto-cipher
-      - id: crypto-rsa
-
-  - id: walk-func
-    desc: Filesystem walk function
-    crit: notable
-    conf: 0.6
-    needs: 1
-    any:
-      - id: filepath-walk
-      - id: filepath-walkdir
-
-  - id: write-func
-    desc: File write function
-    crit: notable
-    conf: 0.6
-    needs: 1
-    any:
-      - id: ioutil-writefile
-      - id: os-writefile
-
-  - id: encrypt-ext
-    desc: Encryption-related extension
-    crit: notable
-    conf: 0.6
-    needs: 1
-    any:
-      - id: encrypted-ext
-      - id: locked-ext
-
-  - id: file-encrypt
-    desc: Go file encryption patterns (potential
-    crit: suspicious
-    conf: 0.8
+  # Go ransomware core pattern - complexity 5 (file_types:1 + all:4)
+  - id: go-ransomware-encrypt
+    desc: Go ransomware encryption pattern
+    crit: hostile
+    conf: 0.98
+    for: [elf, macho, pe]
     all:
-      - id: crypto-import
-      - id: walk-func
+      - id: go-encrypt-files-func
+      - id: go-encrypt-filename-func
+      - id: go-scan-export-paths
+      - id: go-rsa-encrypt-oaep
+
+  # Go ransomware with process killing - complexity 5 (file_types:1 + all:3 + any:1)
+  - id: go-ransomware-with-kill
+    desc: Go ransomware with process kill
+    crit: hostile
+    conf: 0.97
+    for: [elf, macho, pe]
+    all:
+      - id: go-encrypt-files-func
+      - id: go-kill-nonroot-func
+      - id: go-rsa-encrypt-oaep
     any:
-      - id: write-func
-      - id: encrypt-ext
+      - id: go-encrypt-filename-func
+      - id: go-scan-export-paths
+      - id: go-erase-key-func
+
+  # Go ransomware with key management - complexity 5 (file_types:1 + all:4)
+  - id: go-ransomware-key-mgmt
+    desc: Go ransomware with key management
+    crit: hostile
+    conf: 0.95
+    for: [elf, macho, pe]
+    all:
+      - id: go-encrypt-files-func
+      - id: go-erase-key-func
+      - id: go-export-key-func
+      - id: go-rsa-encrypt-oaep
+
+  # Go ransomware obfuscated - complexity 5 (file_types:1 + all:3 + any:1)
+  - id: go-ransomware-obfuscated
+    desc: Go obfuscated ransomware
+    crit: hostile
+    conf: 0.95
+    for: [elf, macho, pe]
+    all:
+      - id: go-obfuscated-pkg
+      - id: go-encrypt-files-func
+      - id: go-rsa-encrypt-oaep
+    any:
+      - id: go-encrypt-filename-func
+      - id: go-kill-nonroot-func
+      - id: go-scan-export-paths
+
+  # Go garble-obfuscated malware with crypto - complexity 5 (file_types:1 + all:3 + any:1)
+  # Detects Go binaries obfuscated with garble that have crypto operations
+  # This catches ransomware/implants where function names are also obfuscated
+  - id: go-garble-crypto-malware
+    desc: Garble-obfuscated Go crypto malware
+    crit: hostile
+    conf: 0.92
+    mbc: "B0032"
+    attack: "T1027"
+    for: [elf, macho, pe]
+    all:
+      - id: go-obfuscated-pkg
+      - id: go-obfuscated-encrypt-method
+      - id: go-obfuscated-keygen
+    any:
+      - id: cap/crypto/symmetric/stream/chacha-salsa-constant
+      - id: go-obfuscated-xor-stream
+      - id: obj/c2/implant/binary/go/go-xor-encoding
+
+  # Simple Go ransomware with main.* functions - complexity 5 (file_types:1 + all:3 + any:1)
+  # Detects ransomware using simple naming like main.encryptData, main.isPayed
+  - id: go-simple-ransomware
+    desc: Simple Go ransomware pattern
+    crit: hostile
+    conf: 0.98
+    mbc: "B0040"
+    attack: "T1486"
+    for: [elf, macho, pe]
+    all:
+      - id: go-main-encrypt-data
+      - id: go-main-payment-check
+      - id: obj/impact/ransom/encrypt/ransom-note-text
+    any:
+      - id: go-main-self-remove
+      - id: go-main-show-message
+      - id: go-main-autorun
+      - id: go-main-get-key
+
+  # Go ransomware with encryption and payment - complexity 5 (file_types:1 + all:2 + any:2)
+  - id: go-ransomware-encrypt-payment
+    desc: Go ransomware with payment check
+    crit: hostile
+    conf: 0.97
+    mbc: "B0040"
+    attack: "T1486"
+    for: [elf, macho, pe]
+    all:
+      - id: go-main-encrypt-data
+      - id: go-main-payment-check
+    any:
+      - id: go-main-remove-all-files
+      - id: go-main-self-remove
+      - id: go-main-run-connection
+      - id: go-main-debugger-check
+
+  # Go ransomware with C2 and encryption - complexity 5 (file_types:1 + all:3 + any:1)
+  - id: go-ransomware-c2
+    desc: Go ransomware with C2 connection
+    crit: hostile
+    conf: 0.96
+    mbc: "B0040"
+    attack: "T1486"
+    for: [elf, macho, pe]
+    all:
+      - id: go-main-encrypt-data
+      - id: go-main-run-connection
+      - id: go-main-get-key
+    any:
+      - id: go-main-payment-check
+      - id: go-main-self-remove
+      - id: go-main-show-message
+      - id: cap/crypto/symmetric/stream/chacha-salsa-constant
+
+  # Go ransomware with anti-forensics - complexity 5 (file_types:1 + all:3 + any:1)
+  - id: go-ransomware-antiforensics
+    desc: Go ransomware with cleanup
+    crit: hostile
+    conf: 0.97
+    mbc: "B0040"
+    attack: "T1486"
+    for: [elf, macho, pe]
+    all:
+      - id: go-main-encrypt-data
+      - id: go-main-self-remove
+      - id: go-main-remove-all-files
+    any:
+      - id: go-main-payment-check
+      - id: go-main-run-connection
+      - id: obj/impact/ransom/encrypt/ransom-note-text

@@ -161,9 +161,9 @@ composite_rules:
     downgrade:
       any:
         - id: cap/exec/load/video-lib-marker
-        - id: cap/exec/load/graphics-lib-marker
-        - id: cap/exec/load/system-lib-marker
-        - id: cap/exec/load/debugger-tool-marker
+        - id: cap/exec/load/library/graphics-lib-marker
+        - id: cap/exec/load/library/system-lib-marker
+        - id: cap/exec/load/library/debugger-tool-marker
 
   - id: taint-keyword
     desc: Taint keyword (case variants)
@@ -187,9 +187,9 @@ composite_rules:
     downgrade:
       any:
         - id: cap/exec/load/video-lib-marker
-        - id: cap/exec/load/graphics-lib-marker
-        - id: cap/exec/load/system-lib-marker
-        - id: cap/exec/load/debugger-tool-marker
+        - id: cap/exec/load/library/graphics-lib-marker
+        - id: cap/exec/load/library/system-lib-marker
+        - id: cap/exec/load/library/debugger-tool-marker
 
   - id: ftrace-state-vars
     desc: Ftrace state variables

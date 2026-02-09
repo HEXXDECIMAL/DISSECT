@@ -138,7 +138,7 @@ composite_rules:
     all:
       - id: download-and-execute-func
       - id: http-ip-port-url
-      - id: cap/fs/file/tmp-ref
+      - id: cap/fs/path/temp
     any:
       - id: is-process-running-func
       - id: arch-64bit-check

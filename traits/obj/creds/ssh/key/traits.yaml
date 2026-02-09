@@ -405,7 +405,7 @@ composite_rules:
     all:
       - id: ptrace-tracer
       - id: password-pattern
-      - id: cap/os/service/ssh/sshd-ref
+      - id: cap/os/service/remote/sshd-ref
 
   # === Composite: SSH credential theft behavior ===
   - id: credential-theft
@@ -420,4 +420,4 @@ composite_rules:
       - id: ssh-sniffing-indicators
       - id: ssh-password-files
     all:
-      - id: cap/os/service/ssh/sshd-ref
+      - id: cap/os/service/remote/sshd-ref

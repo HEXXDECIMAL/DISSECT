@@ -24,8 +24,8 @@ use super::parsing::{apply_composite_defaults, apply_trait_defaults};
 use super::validation::{
     autoprefix_trait_refs, collect_trait_refs_from_rule, find_depth_violations,
     find_invalid_trait_ids, find_line_number, find_platform_named_directories,
-    find_redundant_any_refs, simple_rule_to_composite_rule, validate_composite_trait_only,
-    validate_hostile_composite_precision,
+    find_redundant_any_refs, find_single_item_clauses, simple_rule_to_composite_rule,
+    validate_composite_trait_only, validate_hostile_composite_precision,
 };
 
 /// Maps symbols (function names, library calls) to capability IDs
@@ -332,6 +332,13 @@ impl CapabilityMapper {
                 })?;
                 // Check for greedy regex patterns
                 if let Some(warning) = trait_def.r#if.check_greedy_patterns() {
+                    warnings.push(format!(
+                        "trait '{}' in {:?}: {}",
+                        trait_def.id, path, warning
+                    ));
+                }
+                // Check for word boundary regex patterns that should use type: word
+                if let Some(warning) = trait_def.r#if.check_word_boundary_regex() {
                     warnings.push(format!(
                         "trait '{}' in {:?}: {}",
                         trait_def.id, path, warning
@@ -658,6 +665,7 @@ impl CapabilityMapper {
                     // Skip validation for meta/ paths - these are dynamically generated
                     if ref_id.starts_with("meta/import/")
                         || ref_id.starts_with("meta/dylib/")
+                        || ref_id.starts_with("meta/signed/")
                         || ref_id.starts_with("meta/internal/")
                     {
                         continue;
@@ -821,6 +829,49 @@ impl CapabilityMapper {
             ));
         }
 
+        // Validate that `any:` and `all:` clauses don't have exactly 1 item
+        // Single-item clauses are pointless wrappers that add complexity
+        let mut single_item_clauses = Vec::new();
+        if !allow_violations {
+            for rule in &composite_rules {
+                let violations = find_single_item_clauses(rule);
+                for (rule_id, clause_type, trait_id) in violations {
+                    let source_file = rule_source_files
+                        .get(&rule_id)
+                        .map(|s| s.as_str())
+                        .unwrap_or("unknown");
+                    single_item_clauses.push((rule_id, clause_type, trait_id, source_file.to_string()));
+                }
+            }
+        }
+
+        if !single_item_clauses.is_empty() {
+            eprintln!(
+                "\n⚠️  WARNING: {} composite rules have single-item any:/all: clauses",
+                single_item_clauses.len()
+            );
+            eprintln!("   Single-item clauses add no value - reference the trait directly instead:\n");
+            for (rule_id, clause_type, trait_id, source_file) in &single_item_clauses {
+                let line_hint = find_line_number(source_file, rule_id);
+                if let Some(line) = line_hint {
+                    eprintln!(
+                        "   {}:{}: Rule '{}' has single-item {}: clause referencing '{}'",
+                        source_file, line, rule_id, clause_type, trait_id
+                    );
+                } else {
+                    eprintln!(
+                        "   {}: Rule '{}' has single-item {}: clause referencing '{}'",
+                        source_file, rule_id, clause_type, trait_id
+                    );
+                }
+            }
+            eprintln!();
+            warnings.push(format!(
+                "{} composite rules have single-item any:/all: clauses",
+                single_item_clauses.len()
+            ));
+        }
+
         let mut broken_refs = Vec::new();
         for rule in &composite_rules {
             let trait_refs = collect_trait_refs_from_rule(rule);
@@ -829,11 +880,13 @@ impl CapabilityMapper {
                 // e.g., "discovery/system" matches any trait in that directory
                 let is_directory_ref = known_prefixes.contains(&ref_id);
 
-                // Skip validation for meta/import/, meta/dylib/, and meta/internal/ references
-                // - meta/import/ and meta/dylib/ are dynamically generated at runtime
+                // Skip validation for dynamically generated meta/* references
+                // - meta/import/ and meta/dylib/ are generated from binary imports
+                // - meta/signed/ is generated from code signature parsing
                 // - meta/internal/ is validated separately (forbidden in composite rules)
                 let is_dynamic_or_internal = ref_id.starts_with("meta/import/")
                     || ref_id.starts_with("meta/dylib/")
+                    || ref_id.starts_with("meta/signed/")
                     || ref_id.starts_with("meta/internal/");
 
                 // Check if the exact trait ID exists (unless it's an intentional directory ref)
@@ -1794,7 +1847,7 @@ impl CapabilityMapper {
                 // Generate symbol-level finding for ML (not for composite trait matching)
                 let normalized_symbol = Self::normalize_import_name(&import.symbol);
                 if !normalized_symbol.is_empty() {
-                    let symbol_id = format!("meta/internal/imported/{}", normalized_symbol);
+                    let symbol_id = format!("meta/internal/imported::{}", normalized_symbol);
                     if !seen_ids.contains(&symbol_id) {
                         seen_ids.insert(symbol_id.clone());
                         new_findings.push(Finding {
@@ -1825,7 +1878,7 @@ impl CapabilityMapper {
                 }
 
                 // No format prefix - we don't encode file types in trait IDs
-                let id = format!("meta/dylib/{}", normalized_lib);
+                let id = format!("meta/dylib::{}", normalized_lib);
 
                 if seen_ids.contains(&id) {
                     continue;
@@ -1874,7 +1927,7 @@ impl CapabilityMapper {
 
                 if import.source == "ast" {
                     // Function calls go to meta/internal/imported/ for ML usage only
-                    let symbol_id = format!("meta/internal/imported/{}", normalized);
+                    let symbol_id = format!("meta/internal/imported::{}", normalized);
                     if !seen_ids.contains(&symbol_id) {
                         seen_ids.insert(symbol_id.clone());
                         new_findings.push(Finding {
@@ -1899,7 +1952,7 @@ impl CapabilityMapper {
                     let source_ecosystem =
                         Self::detect_import_ecosystem(&file_type, &import.source);
 
-                    let id = format!("meta/import/{}/{}", source_ecosystem, normalized);
+                    let id = format!("meta/import/{}::{}", source_ecosystem, normalized);
 
                     if seen_ids.contains(&id) {
                         continue;

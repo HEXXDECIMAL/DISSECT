@@ -1754,6 +1754,49 @@ impl Condition {
         None
     }
 
+    /// Check for regex patterns that are just `\bWORD\b` which should use `type: word` instead.
+    /// Returns a warning message if found, None otherwise.
+    pub fn check_word_boundary_regex(&self) -> Option<String> {
+        let regex_to_check = match self {
+            Condition::String { regex: Some(r), .. } => Some(r.as_str()),
+            Condition::Content { regex: Some(r), .. } => Some(r.as_str()),
+            _ => None,
+        };
+
+        if let Some(regex) = regex_to_check {
+            // Check for patterns like \bWORD\b (after YAML parsing, \\b becomes \b)
+            // Also handle wrapped patterns like (?:(?:\bWORD\b)) from normalization
+            let pattern = regex.trim();
+            let unwrapped = pattern
+                .strip_prefix("(?:")
+                .and_then(|s| s.strip_suffix(")"))
+                .map(|s| {
+                    s.strip_prefix("(?:")
+                        .and_then(|s| s.strip_suffix(")"))
+                        .unwrap_or(s)
+                })
+                .unwrap_or(pattern);
+
+            if unwrapped.starts_with(r"\b") && unwrapped.ends_with(r"\b") && unwrapped.len() > 4 {
+                // Extract the word between boundaries
+                let word = &unwrapped[2..unwrapped.len() - 2];
+
+                // Check if it's a simple alphanumeric word (no regex metacharacters)
+                if !word.is_empty()
+                    && word
+                        .chars()
+                        .all(|c| c.is_alphanumeric() || c == '_' || c == '-')
+                {
+                    return Some(format!(
+                        "regex is a simple word boundary pattern - use 'type: word' with 'exact: \"{}\"' instead",
+                        word
+                    ));
+                }
+            }
+        }
+        None
+    }
+
     /// Pre-compile regexes in this condition for performance.
     /// Should be called once after deserialization.
     pub fn precompile_regexes(&mut self) {

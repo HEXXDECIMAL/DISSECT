@@ -102,4 +102,4 @@ composite_rules:
     attack: "T1027"
     all:
       - id: ruby-ast-base64-dns
-      - id: obj/discovery/system/ruby-dns-resolve
+      - id: obj/discovery/host/system/ruby/ruby-dns-resolve

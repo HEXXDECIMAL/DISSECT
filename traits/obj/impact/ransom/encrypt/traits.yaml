@@ -1,0 +1,311 @@
+# Ransomware objective traits
+# Detects file encryption ransomware patterns
+
+traits:
+  # Ransom note indicators
+  - id: ransom-note-text
+    desc: Ransom note message patterns
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: string
+      regex: '(your files.{0,30}(have been|were).{0,20}encrypted|files (have been|were).{0,20}encrypted|decrypt.{0,20}(your|all your|the) files|pay.{0,30}(ransom|bitcoin)|ransom.{0,30}(note|payment)|tor browser|\.onion/|irreversibly encrypted)'
+      case_insensitive: true
+
+  # Ransomware encryption complete message
+  - id: encryption-complete-msg
+    desc: Ransomware completion message
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: string
+      regex: "(Encryption|Encrypting).{0,20}complete"
+      case_insensitive: true
+
+  # Encrypt file/directory function symbols
+  - id: encrypt-func-symbol
+    desc: File encryption function symbols
+    crit: suspicious
+    conf: 0.9
+    for: [elf, pe, macho]
+    if:
+      type: symbol
+      regex: "^encrypt_(file|directory|folder|data|content)s?$"
+
+  # Ransomware source file indicator
+  - id: ransomware-source-path
+    desc: Ransomware source file path
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: string
+      regex: '(ransomware|ransom|locker|crypter)\.(c|cpp|rs|go)$'
+      case_insensitive: true
+
+  # Ransomware locker module namespaces (Rust-based lockers)
+  - id: locker-namespace
+    desc: Ransomware locker module namespace
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: string
+      regex: "locker::(core|lib|app)::"
+
+  # Encrypt library path references
+  - id: encrypt-lib-path
+    desc: Encryption library source paths
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: string
+      regex: "library/(encrypt-lib|locker)/src/"
+
+  # Ransomware config field patterns - note handling
+  - id: config-note-fields
+    desc: Ransomware note config fields
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: string
+      regex: "note_file_name|note_full_text|note_short_text"
+
+  # Ransomware encryption config fields
+  # Note: public_key removed - too generic, used by OpenSSL, Node.js, etc.
+  - id: config-cipher-fields
+    desc: Ransomware cipher config fields
+    crit: notable
+    conf: 0.9
+    if:
+      type: string
+      regex: "default_file_cipher|default_file_mode"
+
+  # Template placeholders for ransomware
+  - id: template-placeholders
+    desc: Ransomware template placeholders
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: string
+      regex: '\$\{(EXTENSION|NOTE_FILE_NAME|ACCESS_KEY)\}'
+
+  # File encryption pipeline strings
+  - id: encryption-pipeline
+    desc: File encryption pipeline patterns
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: string
+      regex: "(File already has encrypted extension|Starting File Processing Pipeline|Files processed.{0,50}Files scanned)"
+
+  # VM kill configuration
+  - id: vm-kill-config
+    desc: VM kill configuration fields
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: string
+      regex: "enable_esxi_vm_kill|enable_esxi_vm_snapshot_kill|esxi_vm_kill_exclude"
+
+  # Kill services/processes config for pre-encryption
+  - id: kill-services-config
+    desc: Service kill config for ransomware
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      regex: "kill_services|kill_processes"
+    not:
+      - "botkill"
+
+  - id: ransom-note-filename
+    desc: Ransom note filename patterns
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: string
+      regex: '(README.{0,20}RESTORE|DECRYPT.{0,20}INSTRUCTIONS|HOW[_\-\.].{0,18}RECOVER|RANSOM.{0,20}NOTE|_readme\.txt)'
+      case_insensitive: true
+
+  - id: ransom-extension
+    desc: Ransomware file extension markers
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      # Require at least 2 chars before extension to avoid OpenSSL internals like d.encrypted
+      regex: '[a-zA-Z0-9_]{2,}\.(crypt|encrypted|locked|enc|crypted|cry)$'
+    not:
+      - "exithook.locked"
+      - regex: '^[a-z_][a-z0-9_]*\.(crypt|encrypted|locked|enc|crypted|cry)$'
+    unless:
+      - type: content
+        regex: "matplotlib|tex"
+
+  # Cryptographic symbols for ransomware
+  - id: crypto-openssl-encrypt
+    desc: OpenSSL encryption functions
+    crit: notable
+    conf: 0.9
+    if:
+      type: string
+      regex: "EVP_(Encrypt|Cipher)Init_ex|AES_set_encrypt_key|AES_cbc_encrypt"
+
+  - id: crypto-openssl-asymmetric
+    desc: OpenSSL asymmetric key operations
+    crit: notable
+    conf: 0.9
+    if:
+      type: string
+      regex: "ECDH_compute_key|EC_KEY_generate_key|RSA_public_encrypt"
+
+  # File locking indicators
+  - id: file-locked-message
+    desc: File locked status message
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: string
+      regex: "File Locked|locked.{0,20}PID|error.{0,20}encrypt.{0,20}rename"
+
+  # Total encrypted count
+  - id: crypted-counter
+    desc: Encryption counter message
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: string
+      regex: "Total (Crypted|Encrypted)|Crypted:.{0,20}Error:|Files Encrypted:"
+
+  # Payment status check functions (ransomware C2 pattern)
+  - id: payment-status-check
+    desc: Ransomware payment verification
+    crit: suspicious
+    conf: 0.9
+    for: [elf, pe, macho]
+    if:
+      type: string
+      regex: "(getHasPayed|checkPayment|isPaid|payment.{0,20}status|verify.{0,20}payment)"
+      case_insensitive: true
+
+  # Data loss threat message
+  - id: data-loss-threat
+    desc: Ransomware data loss threat
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: string
+      regex: "(data (will be|is) lost|lost forever|cannot.{0,20}recover|unrecoverable.{0,30}(pay|ransom|decrypt|restore))"
+      case_insensitive: true
+
+  # Desktop ransom note pattern
+  - id: desktop-note-path
+    desc: Desktop ransom note path
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: string
+      regex: '(/Desktop/|\\Desktop\\)[^/\\]{1,50}\.(html?|txt)'
+
+composite_rules:
+  # Basic ransomware detection - need complexity >= 4
+  - id: ransomware-basic
+    desc: Ransomware encryption pattern
+    crit: hostile
+    conf: 0.95
+    for: [elf, pe, macho]
+    all:
+      - id: crypto-openssl-encrypt
+      - id: ransom-note-text
+    any:
+      - id: ransom-note-filename
+      - id: ransom-extension
+      - id: crypted-counter
+      - id: file-locked-message
+
+  # Full ransomware with note
+  - id: ransomware-with-note
+    desc: Ransomware with ransom note
+    crit: hostile
+    conf: 0.98
+    for: [elf, pe, macho]
+    all:
+      - id: ransom-note-text
+      - id: ransom-extension
+    any:
+      - id: crypto-openssl-encrypt
+      - id: crypto-openssl-asymmetric
+      - id: crypted-counter
+
+  # Rust-based ransomware locker - complexity 5 (all:3 + any:2 groups)
+  - id: ransomware-locker
+    desc: Rust-based ransomware locker
+    crit: hostile
+    conf: 0.95
+    for: [elf, pe, macho]
+    all:
+      - id: locker-namespace
+      - id: config-note-fields
+      - id: config-cipher-fields
+    any:
+      - id: template-placeholders
+      - id: encryption-pipeline
+      - id: vm-kill-config
+      - id: encrypt-lib-path
+
+  # Ransomware locker with ESXi targeting - complexity 6 (all:4 + any:2)
+  - id: ransomware-locker-esxi
+    desc: ESXi-targeting ransomware locker
+    crit: hostile
+    conf: 0.98
+    for: [elf]
+    all:
+      - id: locker-namespace
+      - id: config-note-fields
+      - id: vm-kill-config
+      - id: cap/vm/detect/vmware/esxcli-vm-kill
+    any:
+      - id: config-cipher-fields
+      - id: encrypt-lib-path
+
+  # Simple ransomware with encrypt functions - complexity 4 (all:2 + any:2)
+  - id: ransomware-encrypt-funcs
+    desc: Ransomware with encryption functions
+    crit: hostile
+    conf: 0.95
+    for: [elf, pe, macho]
+    all:
+      - id: encrypt-func-symbol
+      - id: ransom-note-text
+    any:
+      - id: encryption-complete-msg
+      - id: ransomware-source-path
+      - id: crypted-counter
+      - id: ransom-note-filename
+
+  # Rust stream cipher file encryptor - complexity 5 (file_types:1 + all:4)
+  # Detects file encryption malware using stream ciphers with thread pools
+  - id: rust-file-encryptor
+    desc: Rust stream cipher file encryptor
+    crit: hostile
+    conf: 0.92
+    for: [elf]
+    all:
+      - id: cap/crypto/symmetric/stream/chacha-salsa-constant
+      - id: cap/process/threading/thread/pthread
+      - id: cap/fs/proc/process/process-pid-exe
+      - id: cap/fs/file/read
+
+  # C/C++ file encryption ransomware - complexity 5 (for:1 + all:3 + any:1)
+  # Detects file encryption malware with ransom messaging
+  - id: c-file-encryptor
+    desc: C/C++ file encryption ransomware
+    crit: hostile
+    conf: 0.95
+    for: [elf, pe, macho]
+    all:
+      - id: ransom-note-text
+      - id: desktop-note-path
+      - id: payment-status-check
+    any:
+      - id: data-loss-threat
+      - id: cap/fs/proc/process/process-pid-exe

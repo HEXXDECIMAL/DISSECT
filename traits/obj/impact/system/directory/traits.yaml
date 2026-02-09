@@ -176,5 +176,5 @@ composite_rules:
     conf: 0.95
     all:
       - id: recursive-delete-cmd
-      - id: cap/data/control-flow/iteration-loop-pattern
+      - id: cap/data/control-flow/analysis/generic/iteration-loop-pattern
       - id: system-dir-reference

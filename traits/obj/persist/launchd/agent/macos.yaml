@@ -474,7 +474,7 @@ composite_rules:
       - id: launch-agents
       - id: launchctl-command
       - id: cap/exec/command/shell/system-call-symbol
-      - id: cap/exec/fileless/exec-function
+      - id: cap/exec/fileless/memory/linux/exec-function
 
   # Embedded bind-shell plist dropper: binary/source contains full plist template
   # with socket-activated shell + drops to LaunchAgents

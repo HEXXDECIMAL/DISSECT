@@ -1,96 +1,48 @@
-# Timestomping Detection - Shell
-# Behavioral composites for timestamp manipulation in evasion context
-# MBC: F0006 (Timestomp)
-# ATT&CK: T1070.006
-#
-# Note: Atomic touch flags moved to fs/file/timestamp/shell.yaml
-# This file contains only behavioral composites
+# Shell Timestomping Detection
+# Detects shell scripts that modify file timestamps to cover tracks
+# ATT&CK: T1070.006 (Indicator Removal: Timestomp)
+# MBC: F0006 (Indicator Removal)
 
 defaults:
+  crit: suspicious
   attack: "T1070.006"
   mbc: "F0006"
   for: [shell]
 
 traits:
-  # === Advanced timestamp manipulation techniques ===
-  - id: dd-timestamp-modify
-    desc: dd to modify file timestamps
+  # touch -r (copy timestamp from another file)
+  - id: touch-reference
+    desc: Copies timestamp from reference file
     crit: suspicious
-    conf: 0.7
+    conf: 0.9
     if:
-      type: string
-      regex: "dd\\s+.{0,50}conv=notrunc"
+      type: content
+      regex: 'touch\s+-r\s+[^\s]+'
 
-  - id: debugfs-timestamp
-    desc: debugfs to modify ext filesystem
-    crit: suspicious
-    conf: 0.85
-    if:
-      type: string
-      regex: "debugfs.{0,50}-w.{0,50}set_inode_field"
-
-  - id: setfile-timestamp-macos
-    desc: SetFile to modify macOS timestamps
-    crit: suspicious
+  # touch -d (set specific timestamp)
+  - id: touch-date
+    desc: Sets specific file timestamp
+    crit: notable
     conf: 0.8
     if:
-      type: string
-      regex: "SetFile\\s+-[dm]"
+      type: content
+      regex: 'touch\s+-d\s+["\x27][^"\x27]+["\x27]'
 
-  - id: powershell-timestamp-modify
-    desc: PowerShell timestamp modification
-    crit: suspicious
+  # touch -t (set timestamp with STAMP)
+  - id: touch-timestamp
+    desc: Sets timestamp with STAMP format
+    crit: notable
     conf: 0.8
-    for: [powershell]
     if:
-      type: string
-      regex: "\\.(CreationTime|LastWriteTime|LastAccessTime)\\s*="
+      type: content
+      regex: 'touch\s+-t\s+\d+'
 
-  # === Timestamp-related keywords ===
-  - id: timestomp-keyword
-    desc: timestomp keyword (explicit evasion intent)
-    crit: notable
-    conf: 0.85
+  # Multiple touch -r operations (strong indicator)
+  - id: touch-reference-multiple
+    desc: Multiple timestamp copy operations
+    crit: suspicious
+    conf: 0.95
     if:
-      type: string
-      word: "timestomp"
-
-  - id: timestamp-forge-keyword
-    desc: timestamp forge keyword (explicit evasion
-    crit: notable
-    conf: 0.7
-    if:
-      type: string
-      regex: "forge.{0,50}timestamp"
-
-composite_rules:
-  # Touch-based timestamp manipulation
-  - id: timestomp-touch-specific
-    desc: Set specific timestamp via touch
-    crit: notable
-    conf: 0.75
-    any:
-      - id: cap/fs/file/timestamp/shell/touch-t-flag
-      - id: cap/fs/file/timestamp/shell/touch-r-flag
-      - id: cap/fs/file/timestamp/shell/touch-date-flag
-
-  # Generic touch timestamp modification
-  - id: timestomp-touch
-    desc: Timestamp modification via touch command
-    crit: notable
-    conf: 0.7
-    any:
-      - id: cap/fs/file/timestamp/shell/touch-timestamp-modification
-
-  # Combined timestamp manipulation (multiple techniques)
-  - id: timestamp-manipulation
-    desc: Timestamp manipulation
-    crit: notable
-    conf: 0.6
-    any:
-      - id: timestomp-touch-specific
-      - id: dd-timestamp-modify
-      - id: debugfs-timestamp
-      - id: setfile-timestamp-macos
-      - id: powershell-timestamp-modify
-      - id: timestomp-keyword
+      type: content
+      regex: 'touch\s+-r\s+[^\s]+'
+      count_min: 2

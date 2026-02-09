@@ -1,0 +1,726 @@
+# Machine Fingerprinting Detection
+# ATT&CK: T1082 (System Information Discovery)
+# Used by malware for victim identification and C2 tracking
+
+traits:
+  # === Machine ID micro-traits ===
+  - id: fp-dbus-machine-id
+    desc: dbus machine-id path
+    crit: notable
+    conf: 0.7
+    attack: "T1082"
+    if:
+      type: string
+      substr: "/var/lib/dbus/machine-id"
+
+  - id: fp-etc-machine-id
+    desc: /etc/machine-id path
+    crit: notable
+    conf: 0.7
+    attack: "T1082"
+    if:
+      type: string
+      substr: "/etc/machine-id"
+
+  - id: machine-id-string
+    desc: machine-id string
+    crit: inert
+    conf: 0.5
+    attack: "T1082"
+    if:
+      type: string
+      substr: "machine-id"
+
+  - id: machineguid
+    desc: MachineGuid registry key
+    crit: notable
+    conf: 0.7
+    attack: "T1082"
+    if:
+      type: string
+      substr: "MachineGuid"
+
+  - id: machineid-camel
+    desc: MachineId string
+    crit: inert
+    conf: 0.5
+    attack: "T1082"
+    if:
+      type: string
+      substr: "MachineId"
+
+  - id: product-uuid-path
+    desc: DMI product_uuid path
+    crit: notable
+    conf: 0.7
+    attack: "T1082"
+    if:
+      type: string
+      substr: "/sys/class/dmi/id/product_uuid"
+
+  - id: product-uuid-string
+    desc: product_uuid string
+    crit: inert
+    conf: 0.5
+    attack: "T1082"
+    if:
+      type: string
+      substr: "product_uuid"
+
+  # === DMI/SMBIOS micro-traits ===
+  - id: dmi-class-path
+    desc: /sys/class/dmi/id/ path
+    crit: inert
+    conf: 0.5
+    attack: "T1082"
+    if:
+      type: string
+      substr: "/sys/class/dmi/id/"
+
+  - id: dmi-devices-path
+    desc: /sys/devices/virtual/dmi/id/ path
+    crit: inert
+    conf: 0.5
+    attack: "T1082"
+    if:
+      type: string
+      substr: "/sys/devices/virtual/dmi/id/"
+
+  - id: sys-vendor
+    desc: sys_vendor DMI field
+    crit: inert
+    conf: 0.5
+    attack: "T1082"
+    if:
+      type: string
+      substr: "sys_vendor"
+
+  - id: product-name
+    desc: product_name DMI field
+    crit: inert
+    conf: 0.5
+    attack: "T1082"
+    if:
+      type: string
+      substr: "product_name"
+
+  - id: product-serial
+    desc: product_serial DMI field
+    crit: notable
+    conf: 0.6
+    attack: "T1082"
+    if:
+      type: string
+      substr: "product_serial"
+
+  - id: board-serial
+    desc: board_serial DMI field
+    crit: notable
+    conf: 0.6
+    attack: "T1082"
+    if:
+      type: string
+      substr: "board_serial"
+
+  - id: bios-vendor
+    desc: bios_vendor DMI field
+    crit: inert
+    conf: 0.5
+    attack: "T1082"
+    if:
+      type: string
+      substr: "bios_vendor"
+
+  - id: bios-version
+    desc: bios_version DMI field
+    crit: inert
+    conf: 0.5
+    attack: "T1082"
+    if:
+      type: string
+      substr: "bios_version"
+
+  - id: fp-dmidecode-cmd
+    desc: dmidecode command
+    crit: notable
+    conf: 0.7
+    attack: "T1082"
+    if:
+      type: string
+      substr: "dmidecode"
+
+  # === CPU info micro-traits ===
+  - id: cpu-model-name
+    desc: model name CPU field
+    crit: inert
+    conf: 0.4
+    attack: "T1082"
+    if:
+      type: string
+      substr: "model name"
+
+  - id: cpu-family
+    desc: cpu family field
+    crit: inert
+    conf: 0.4
+    attack: "T1082"
+    if:
+      type: string
+      substr: "cpu family"
+
+  - id: cpu-cores
+    desc: cpu cores field
+    crit: inert
+    conf: 0.4
+    attack: "T1082"
+    if:
+      type: string
+      substr: "cpu cores"
+
+  - id: lscpu-cmd
+    desc: lscpu command
+    crit: inert
+    conf: 0.4
+    attack: "T1082"
+    if:
+      type: string
+      substr: "lscpu"
+
+  # === Network interface micro-traits ===
+  - id: sys-class-net
+    desc: /sys/class/net/ path
+    crit: inert
+    conf: 0.5
+    attack: "T1082"
+    if:
+      type: string
+      substr: "/sys/class/net/"
+
+  - id: hwaddr
+    desc: HWaddr MAC prefix
+    crit: notable
+    conf: 0.6
+    attack: "T1082"
+    if:
+      type: string
+      substr: "HWaddr"
+
+  - id: ether-prefix
+    desc: '"ether " MAC prefix'
+    crit: notable
+    conf: 0.6
+    attack: "T1082"
+    # Only match in scripts or source code where network commands are parsed
+    for: [shell, python, ruby, perl, go]
+    if:
+      type: string
+      # Match ifconfig/ip output format - require more complete MAC address pattern
+      # Format: "ether XX:XX:XX" or "ether XX-XX-XX" (at least 3 octets)
+      regex: "ether\\s+[0-9a-fA-F]{2}[:-][0-9a-fA-F]{2}[:-][0-9a-fA-F]{2}"
+
+  - id: getifaddrs-func
+    desc: getifaddrs function
+    crit: notable
+    conf: 0.6
+    attack: "T1082"
+    if:
+      type: symbol
+      regex: "getifaddrs"
+
+  - id: siocgifhwaddr
+    desc: SIOCGIFHWADDR ioctl
+    crit: notable
+    conf: 0.6
+    attack: "T1082"
+    if:
+      type: string
+      substr: "SIOCGIFHWADDR"
+
+  # === Disk serial micro-traits ===
+  - id: sys-block
+    desc: /sys/block/ path
+    crit: inert
+    conf: 0.5
+    attack: "T1082"
+    if:
+      type: string
+      substr: "/sys/block/"
+
+  - id: device-serial
+    desc: /device/serial path
+    crit: notable
+    conf: 0.6
+    attack: "T1082"
+    if:
+      type: string
+      substr: "/device/serial"
+
+  - id: hdio-get-identity
+    desc: HDIO_GET_IDENTITY ioctl
+    crit: notable
+    conf: 0.6
+    attack: "T1082"
+    if:
+      type: string
+      substr: "HDIO_GET_IDENTITY"
+
+  - id: hdparm-cmd
+    desc: hdparm -i command
+    crit: notable
+    conf: 0.6
+    attack: "T1082"
+    if:
+      type: string
+      substr: "hdparm -i"
+
+  - id: lsblk-cmd
+    desc: lsblk command
+    crit: inert
+    conf: 0.5
+    attack: "T1082"
+    if:
+      type: string
+      substr: "lsblk"
+
+  - id: blkid-cmd
+    desc: blkid command
+    crit: inert
+    conf: 0.5
+    attack: "T1082"
+    if:
+      type: string
+      substr: "blkid"
+
+  - id: serial-short
+    desc: serial_short udev field
+    crit: notable
+    conf: 0.6
+    attack: "T1082"
+    if:
+      type: string
+      substr: "serial_short"
+
+  - id: id-serial
+    desc: ID_SERIAL udev field
+    crit: notable
+    conf: 0.6
+    attack: "T1082"
+    if:
+      type: string
+      substr: "ID_SERIAL"
+
+  # === OS info micro-traits ===
+  - id: os-release
+    desc: /etc/os-release path
+    crit: inert
+    conf: 0.5
+    attack: "T1082"
+    if:
+      type: string
+      substr: "/etc/os-release"
+
+  - id: lsb-release
+    desc: /etc/lsb-release path
+    crit: inert
+    conf: 0.5
+    attack: "T1082"
+    if:
+      type: string
+      substr: "/etc/lsb-release"
+
+  - id: redhat-release
+    desc: /etc/redhat-release path
+    crit: inert
+    conf: 0.5
+    attack: "T1082"
+    if:
+      type: string
+      substr: "/etc/redhat-release"
+
+  - id: debian-version
+    desc: /etc/debian_version path
+    crit: inert
+    conf: 0.5
+    attack: "T1082"
+    if:
+      type: string
+      substr: "/etc/debian_version"
+
+  - id: centos-release
+    desc: /etc/centos-release path
+    crit: inert
+    conf: 0.5
+    attack: "T1082"
+    if:
+      type: string
+      substr: "/etc/centos-release"
+
+  - id: proc-version
+    desc: /proc/version path
+    crit: inert
+    conf: 0.5
+    attack: "T1082"
+    if:
+      type: string
+      substr: "/proc/version"
+
+  - id: uname-a-cmd
+    desc: uname -a command
+    crit: inert
+    conf: 0.5
+    attack: "T1082"
+    if:
+      type: string
+      substr: "uname -a"
+
+  - id: hostnamectl-cmd
+    desc: hostnamectl command
+    crit: inert
+    conf: 0.5
+    attack: "T1082"
+    if:
+      type: string
+      substr: "hostnamectl"
+
+  # === Hostname micro-traits ===
+  - id: gethostname-func
+    desc: gethostname function
+    crit: inert
+    conf: 0.4
+    attack: "T1082"
+    if:
+      type: symbol
+      regex: "gethostname"
+
+  - id: etc-hostname
+    desc: /etc/hostname path
+    crit: inert
+    conf: 0.5
+    attack: "T1082"
+    if:
+      type: string
+      substr: "/etc/hostname"
+
+  - id: hostname-env
+    desc: HOSTNAME env variable
+    crit: inert
+    conf: 0.4
+    attack: "T1082"
+    if:
+      type: string
+      substr: "HOSTNAME"
+
+  - id: getfqdn-func
+    desc: getfqdn function
+    crit: inert
+    conf: 0.5
+    attack: "T1082"
+    if:
+      type: string
+      substr: "getfqdn"
+
+  # === User info micro-traits ===
+  - id: getlogin-func
+    desc: getlogin function
+    crit: inert
+    conf: 0.5
+    attack: "T1033"
+    if:
+      type: symbol
+      regex: "getlogin"
+
+  - id: getpwuid-func
+    desc: getpwuid function
+    crit: inert
+    conf: 0.5
+    attack: "T1033"
+    if:
+      type: symbol
+      regex: "getpwuid"
+
+  - id: getenv-user
+    desc: getenv USER
+    crit: inert
+    conf: 0.5
+    attack: "T1033"
+    if:
+      type: string
+      regex: 'getenv\("USER"\)'
+
+  - id: getenv-home
+    desc: getenv HOME
+    crit: inert
+    conf: 0.5
+    attack: "T1033"
+    if:
+      type: string
+      regex: 'getenv\("HOME"\)'
+
+  - id: whoami-cmd
+    desc: whoami command
+    crit: inert
+    conf: 0.5
+    attack: "T1033"
+    if:
+      type: string
+      substr: "whoami"
+
+  - id: id-u-cmd
+    desc: id -u command
+    crit: inert
+    conf: 0.5
+    attack: "T1033"
+    if:
+      type: string
+      substr: "id -u"
+
+  # === Hardware UUID micro-traits ===
+  - id: generate-hwid
+    desc: GenerateHardwareId function
+    crit: suspicious
+    conf: 0.8
+    attack: "T1082"
+    if:
+      type: string
+      substr: "GenerateHardwareId"
+
+  - id: get-hwid
+    desc: GetHardwareId function
+    crit: suspicious
+    conf: 0.8
+    attack: "T1082"
+    if:
+      type: string
+      substr: "GetHardwareId"
+
+  - id: hardware-id-string
+    desc: hardware_id string
+    crit: notable
+    conf: 0.7
+    attack: "T1082"
+    if:
+      type: string
+      regex: "(?i)hardware_id"
+
+  - id: hwid-string
+    desc: hwid string
+    crit: notable
+    conf: 0.7
+    attack: "T1082"
+    if:
+      type: string
+      regex: "(?i)\\bhwid\\b"
+
+  - id: fingerprint-string
+    desc: fingerprint string
+    crit: inert
+    conf: 0.4
+    attack: "T1082"
+    if:
+      type: string
+      # Require more specific fingerprint patterns, not just "fingerprint" alone
+      # Exclude ssh_fingerprint (legitimate), require context like "hardware", "device", "hwid"
+      regex: '(?i)(hardware|device|machine|system|host)[\s_-]?fingerprint|fingerprint[\s_-]?(id|gen|collect)'
+    not:
+      # Exclude SSH fingerprint which is legitimate
+      - regex: '(?i)ssh[\s_-]?fingerprint'
+
+composite_rules:
+  # Machine ID composite (migrated from YARA)
+  - id: machine-id
+    desc: Machine ID collection for victim
+    crit: notable
+    conf: 0.8
+    attack: "T1082"
+    needs: 2
+    any:
+      - id: fp-dbus-machine-id
+      - id: fp-etc-machine-id
+      - id: machine-id-string
+      - id: machineguid
+      - id: machineid-camel
+      - id: product-uuid-path
+      - id: product-uuid-string
+
+  # DMI fields helper
+  - id: dmi-fields
+    desc: DMI/SMBIOS fields
+    crit: inert
+    conf: 0.5
+    attack: "T1082"
+    needs: 2
+    any:
+      - id: dmi-class-path
+      - id: dmi-devices-path
+      - id: sys-vendor
+      - id: product-name
+      - id: product-serial
+      - id: board-serial
+      - id: bios-vendor
+      - id: bios-version
+
+  # DMI/SMBIOS composite (migrated from YARA)
+  - id: dmi-smbios
+    desc: DMI/SMBIOS hardware information collection
+    crit: notable
+    conf: 0.75
+    attack: "T1082"
+    needs: 1
+    any:
+      - id: dmi-fields
+      - id: fp-dmidecode-cmd
+
+  # CPU info helper
+  - id: cpu-fields
+    desc: CPU info fields
+    crit: inert
+    conf: 0.4
+    attack: "T1082"
+    needs: 1
+    any:
+      - id: cpu-model-name
+      - id: cpu-family
+      - id: cpu-cores
+
+  # CPU info composite (migrated from YARA)
+  - id: cpu-info
+    desc: CPU information fingerprinting
+    crit: inert
+    conf: 0.4
+    attack: "T1082"
+    needs: 1
+    any:
+      - id: cpu-proc-cpuinfo
+      - id: lscpu-cmd
+
+  # Helper: /proc/cpuinfo + fields
+  - id: cpu-proc-cpuinfo
+    desc: /proc/cpuinfo with fields
+    crit: inert
+    conf: 0.4
+    attack: "T1082"
+    all:
+      - id: cap/fs/proc/system/system-cpuinfo
+      - id: cpu-fields
+
+  # Network interface composite (migrated from YARA)
+  - id: network-interfaces
+    desc: Network interface fingerprinting (MAC address)
+    crit: notable
+    conf: 0.75
+    attack: "T1082"
+    needs: 1
+    any:
+      - id: sys-class-net
+      - id: hwaddr
+      - id: ether-prefix
+      - id: getifaddrs-func
+      - id: siocgifhwaddr
+      - id: cap/comm/diagnostic/commands/ip-link
+      - id: cap/comm/diagnostic/commands/ifconfig
+
+  # Disk serial composite (migrated from YARA)
+  - id: fp-disk-serial
+    desc: Disk serial number fingerprinting
+    crit: notable
+    conf: 0.75
+    attack: "T1082"
+    needs: 2
+    any:
+      - id: sys-block
+      - id: device-serial
+      - id: hdio-get-identity
+      - id: hdparm-cmd
+      - id: lsblk-cmd
+      - id: blkid-cmd
+      - id: serial-short
+      - id: id-serial
+
+  # OS info composite (migrated from YARA)
+  - id: os-info
+    desc: Operating system fingerprinting
+    crit: notable
+    conf: 0.7
+    attack: "T1082"
+    needs: 2
+    any:
+      - id: os-release
+      - id: lsb-release
+      - id: redhat-release
+      - id: debian-version
+      - id: centos-release
+      - id: proc-version
+      - id: uname-a-cmd
+      - id: hostnamectl-cmd
+
+  # Hostname composite (migrated from YARA)
+  - id: hostname
+    desc: Hostname collection for identification
+    crit: notable
+    conf: 0.7
+    attack: "T1082"
+    needs: 2
+    any:
+      - id: gethostname-func
+      - id: etc-hostname
+      - id: hostname-env
+      - id: getfqdn-func
+
+  # User info composite (migrated from YARA)
+  - id: user-info
+    desc: User information fingerprinting
+    crit: notable
+    conf: 0.7
+    attack: "T1033"
+    needs: 2
+    any:
+      - id: getlogin-func
+      - id: getpwuid-func
+      - id: getenv-user
+      - id: getenv-home
+      - id: whoami-cmd
+      - id: id-u-cmd
+      - id: cap/fs/path/config/accounts/etc-passwd
+
+  # Hardware UUID composite (migrated from YARA)
+  - id: hardware-uuid
+    desc: Hardware-based UUID generation
+    crit: suspicious
+    conf: 0.8
+    attack: "T1082"
+    needs: 1
+    any:
+      - id: generate-hwid
+      - id: get-hwid
+      - id: hardware-id-string
+      - id: hwid-string
+      - id: fingerprint-string
+
+  # Full system fingerprinting
+  # Note: Legitimate build tools, system monitors, and installers commonly collect system info
+  # Downgraded to notable for large binaries; compact binaries get suspicious rating
+  - id: full-system
+    desc: Comprehensive system fingerprinting
+    crit: notable
+    conf: 0.85
+    needs: 3
+    any:
+      - id: machine-id
+      - id: cpu-info
+      - id: network-interfaces
+      - id: fp-disk-serial
+      - id: os-info
+
+  # Compact binary with full system fingerprinting (more suspicious)
+  - id: full-system-compact
+    desc: Compact binary with comprehensive system fingerprinting
+    crit: suspicious
+    conf: 0.9
+    size_max: 500000
+    needs: 3
+    any:
+      - id: machine-id
+      - id: cpu-info
+      - id: network-interfaces
+      - id: fp-disk-serial
+      - id: os-info

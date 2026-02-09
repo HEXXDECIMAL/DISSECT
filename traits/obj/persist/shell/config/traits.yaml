@@ -13,7 +13,7 @@ traits:
       substr: ".bash_profile"
     downgrade:
       any:
-        - id: cap/exec/load/system-lib-marker
+        - id: cap/exec/load/library/system-lib-marker
 
   - id: bashrc
     desc: .bashrc shell configuration file
@@ -25,7 +25,7 @@ traits:
       substr: ".bashrc"
     downgrade:
       any:
-        - id: cap/exec/load/system-lib-marker
+        - id: cap/exec/load/library/system-lib-marker
 
   - id: bash-login
     desc: .bash_login shell configuration file
@@ -57,7 +57,7 @@ traits:
       regex: '(?:^|[/~])\.profile$|\.profile(?:\s|$)'
     downgrade:
       any:
-        - id: cap/exec/load/system-lib-marker
+        - id: cap/exec/load/library/system-lib-marker
         - id: cap/exec/load/video-lib-marker
 
   - id: etc-profile
@@ -89,7 +89,7 @@ traits:
       substr: ".zshrc"
     downgrade:
       any:
-        - id: cap/exec/load/system-lib-marker
+        - id: cap/exec/load/library/system-lib-marker
 
   - id: zprofile
     desc: .zprofile shell configuration file
@@ -101,7 +101,7 @@ traits:
       substr: ".zprofile"
     downgrade:
       any:
-        - id: cap/exec/load/system-lib-marker
+        - id: cap/exec/load/library/system-lib-marker
 
   - id: zlogin
     desc: .zlogin shell configuration file

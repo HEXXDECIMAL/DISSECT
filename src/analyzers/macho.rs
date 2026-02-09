@@ -288,7 +288,7 @@ impl MachOAnalyzer {
         report.findings.push(Finding {
             kind: FindingKind::Capability,
             trait_refs: vec![],
-            id: format!("meta/arch/{}", arch),
+            id: format!("meta/arch::{}", arch),
             desc: format!("{} architecture", arch),
             conf: 1.0,
             crit: Criticality::Inert,
@@ -392,7 +392,7 @@ impl MachOAnalyzer {
                     report.findings.push(Finding {
                         kind: FindingKind::Capability,
                         trait_refs: vec![],
-                        id: format!("meta/library/{}", base_name),
+                        id: format!("meta/library::{}", base_name),
                         desc: format!("Links to {} library", lib_name),
                         conf: 1.0,
                         crit: Criticality::Inert,
@@ -656,21 +656,41 @@ impl MachOAnalyzer {
         codesig: &macho_codesign::CodeSignature,
         report: &mut AnalysisReport,
     ) {
-        // Signature type trait - uniquely identified by the type itself
-        let sig_type = codesig.signature_type.as_str();
-        let sig_type_desc = match codesig.signature_type {
-            macho_codesign::SignatureType::DeveloperID => "Developer ID Application",
-            macho_codesign::SignatureType::AppStore => "Mac App Store",
-            macho_codesign::SignatureType::Platform => "macOS Platform Binary",
-            macho_codesign::SignatureType::Adhoc => "Ad-hoc Signature",
-            macho_codesign::SignatureType::Unknown => "Unknown Signature",
+        // Combined signature trait: meta/signed/{type}::{signer}
+        // This allows matching by type (meta/signed/developer) or specific signer
+        let team_id = codesig.team_id.as_deref().unwrap_or("unknown");
+        let (sig_category, signer, desc) = match codesig.signature_type {
+            macho_codesign::SignatureType::DeveloperID => {
+                let company = codesig
+                    .authorities
+                    .first()
+                    .and_then(|auth| {
+                        auth.split(": ")
+                            .nth(1)
+                            .map(|s| s.split(" (").next().unwrap_or(s).to_string())
+                    })
+                    .unwrap_or_else(|| team_id.to_string());
+                ("developer", team_id, format!("Developer ID: {}", company))
+            }
+            macho_codesign::SignatureType::AppStore => {
+                ("app-store", team_id, "Mac App Store".to_string())
+            }
+            macho_codesign::SignatureType::Platform => {
+                ("platform", "apple", "macOS Platform Binary".to_string())
+            }
+            macho_codesign::SignatureType::Adhoc => {
+                ("adhoc", "unsigned", "Ad-hoc Signature".to_string())
+            }
+            macho_codesign::SignatureType::Unknown => {
+                ("unknown", "unknown", "Unknown Signature".to_string())
+            }
         };
 
         report.findings.push(Finding {
             kind: FindingKind::Capability,
             trait_refs: vec![],
-            id: format!("meta/signed/type/{}", sig_type),
-            desc: sig_type_desc.to_string(),
+            id: format!("meta/signed/{}::{}", sig_category, signer),
+            desc,
             conf: 1.0,
             crit: Criticality::Notable,
             mbc: None,
@@ -678,48 +698,17 @@ impl MachOAnalyzer {
             evidence: vec![Evidence {
                 method: "code_signature".to_string(),
                 source: "codesign_parser".to_string(),
-                value: sig_type.to_string(),
+                value: format!("{}::{}", sig_category, signer),
                 location: None,
             }],
         });
-
-        // Team ID trait (if present) - complete trait ID includes the team ID
-        if let Some(team_id) = &codesig.team_id {
-            let desc = codesig
-                .authorities
-                .first()
-                .and_then(|auth| {
-                    // Extract just the company name from "Developer ID Application: Google LLC (EQHXZ8M8AV)"
-                    auth.split(": ")
-                        .nth(1)
-                        .map(|s| s.split(" (").next().unwrap_or(s).to_string())
-                })
-                .unwrap_or_default();
-
-            report.findings.push(Finding {
-                kind: FindingKind::Capability,
-                trait_refs: vec![],
-                id: format!("meta/signed/team/{}", team_id),
-                desc,
-                conf: 1.0,
-                crit: Criticality::Notable,
-                mbc: None,
-                attack: None,
-                evidence: vec![Evidence {
-                    method: "cms_certificate".to_string(),
-                    source: "codesign_parser".to_string(),
-                    value: team_id.clone(),
-                    location: None,
-                }],
-            });
-        }
 
         // Identifier trait - complete trait ID includes the bundle identifier
         if let Some(identifier) = &codesig.identifier {
             report.findings.push(Finding {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
-                id: format!("meta/signed/id/{}", identifier),
+                id: format!("meta/signed/id::{}", identifier),
                 desc: "Identifier".to_string(),
                 conf: 1.0,
                 crit: Criticality::Notable,
@@ -736,7 +725,7 @@ impl MachOAnalyzer {
 
         // Entitlements traits
         for entitlement_key in codesig.entitlements.keys() {
-            let ent_trait_id = format!("meta/entitlement/{}", entitlement_key);
+            let ent_trait_id = format!("meta/entitlement::{}", entitlement_key);
             let desc = describe_entitlement(entitlement_key);
             report.findings.push(Finding {
                 kind: FindingKind::Capability,

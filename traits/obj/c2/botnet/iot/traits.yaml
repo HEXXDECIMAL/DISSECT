@@ -246,7 +246,7 @@ composite_rules:
     for: [elf]
     platforms: [linux]
     all:
-      - id: cap/os/proc/proc-self-exe
+      - id: cap/os/proc/filesystem/proc-self-exe
       - id: send-or-download
 
   - id: mirai-variant
@@ -287,6 +287,6 @@ composite_rules:
     for: [elf]
     platforms: [linux]
     all:
-      - id: cap/os/proc/proc-self-exe
+      - id: cap/os/proc/filesystem/proc-self-exe
       - id: cap/mem/protect/modify/rwx-prot-bytes
       - id: known/tools/offensive/stagers/x64-jmp-register

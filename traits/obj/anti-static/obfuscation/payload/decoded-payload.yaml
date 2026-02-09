@@ -1,0 +1,108 @@
+# Base64 Decoded Payload Analysis
+# Detects malicious behaviors in decoded base64 content
+# ATT&CK: T1027 (Obfuscated Files)
+# MBC: E1014 (Data Encoding)
+
+defaults:
+  crit: suspicious
+  attack: "T1027"
+  mbc: "E1014"
+  for: [python, shell, binary]
+
+traits:
+  # === Shell Commands in Decoded Payload ===
+  - id: decoded-shell-command
+    desc: Shell command in decoded payload
+    crit: suspicious
+    conf: 0.90
+    if:
+      type: base64
+      regex: "os\\.system|subprocess\\.call|exec\\("
+
+  - id: decoded-file-creation
+    desc: File creation in decoded payload
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: base64
+      regex: ">.{0,50}\\.(txt|exe|dll|bat|ps1)"
+
+  - id: decoded-windows-command
+    desc: Windows command in decoded payload
+    crit: suspicious
+    conf: 0.80
+    if:
+      type: base64
+      regex: "type nul|echo.{0,50}>|copy.{0,50}>|del\\s+"
+
+  # === Network in Decoded Payload ===
+  - id: decoded-http-url
+    desc: HTTP URL in decoded payload
+    crit: notable
+    conf: 0.90
+    if:
+      type: base64
+      regex: "https?://[a-zA-Z0-9.-]+\\.[a-z]{2,}"
+      not:
+        - substr: "apple.com"
+        - substr: "digicert.com"
+        - substr: "entrust.net"
+        - substr: "globalsign.com"
+        - substr: "sectigo.com"
+        - substr: "pki.goog"
+        - substr: "microsoft.com"
+        - regex: "crl\\.|ocsp\\."
+    unless:
+      - id: meta/signed/platform::apple
+
+  - id: decoded-curl-wget
+    desc: Download command in decoded payload
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: base64
+      regex: "curl.{0,50}-o|wget.{0,50}-O|Invoke-WebRequest"
+
+  # === Malicious Code Patterns ===
+  - id: decoded-python-import
+    desc: Python imports in decoded payload
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: base64
+      regex: "import\\s+(os|sys|subprocess|socket|requests)"
+
+  - id: decoded-eval-exec
+    desc: Code execution in decoded payload
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: base64
+      regex: "eval\\(|exec\\(|compile\\("
+
+composite_rules:
+  # === Decoded Malicious Payload ===
+  - id: decoded-malicious-shell
+    desc: Malicious shell command decoded
+    crit: suspicious
+    conf: 0.92
+    attack: "T1059"
+    for: [python, shell]
+    needs: 1
+    any:
+      - id: decoded-shell-command
+      - id: decoded-windows-command
+      - id: decoded-file-creation
+
+  - id: decoded-c2-payload
+    desc: C2 payload decoded from base64
+    crit: suspicious
+    conf: 0.96
+    attack: "T1071"
+    mbc: "B0030"
+    platforms: [all]
+    needs: 2
+    any:
+      - id: decoded-http-url
+      - id: decoded-curl-wget
+      - id: decoded-eval-exec

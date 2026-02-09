@@ -30,7 +30,7 @@ composite_rules:
     attack: "T1027"
     for: [shell, batch, powershell]
     all:
-      - id: cap/data/text/suspicious-repo-name
+      - id: cap/data/text/malware/suspicious-repo-name
       - id: pyinstaller-bundling
 
   - id: pyinstaller-screenshotter-rat
@@ -42,4 +42,4 @@ composite_rules:
     for: [shell, batch, powershell]
     all:
       - id: pyinstaller-bundling
-      - id: obj/collect/monitor/screen-capture
+      - id: obj/collect/monitor/watch/python/screen-capture

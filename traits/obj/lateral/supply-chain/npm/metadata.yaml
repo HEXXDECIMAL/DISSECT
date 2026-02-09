@@ -41,7 +41,7 @@ traits:
       path: "scripts.install"
 
   # === Version Patterns ===
-  - id: version-1.0.0
+  - id: version-1-0-0
     desc: Package version is 1.0.0
     crit: inert
     conf: 0.6
@@ -203,12 +203,12 @@ composite_rules:
       - id: install-hook-key
 
   # Version 1.0.0 with install hooks
-  - id: version-1.0.0-with-hooks
+  - id: version-1-0-0-with-hooks
     desc: Version 1.0.0 with install hooks
     crit: suspicious
     conf: 0.75
     all:
-      - id: version-1.0.0
+      - id: version-1-0-0
       - id: install-hooks
 
   # npm URL as homepage/repository

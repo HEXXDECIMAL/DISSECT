@@ -192,6 +192,7 @@ const badTaskFile = `## Workflow
 6. Author generic reusable traits; avoid sample-only literals unless broadly durable.
 7. Prefer multi-signal logic (` + "`all:`" + `, proximity, structural anchors) to suppress false positives.
 8. If traits are renamed/removed, update all references (` + "`depends`" + `, composites, etc.).
+9. If you see an existing rule that describes truly suspicious behavior, see if you can improve upon its precision and upgrade it to suspicious.
 
 ## Taxonomy Guardrails
 - HTTP/socket alone: ` + "`cap/comm/`" + `, not ` + "`obj/c2/`" + `.

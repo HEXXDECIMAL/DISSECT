@@ -423,9 +423,8 @@ composite_rules:
     conf: 0.7
     needs: 1
     any:
-      - id: obj/discovery/permissions/etc-sudoers
-      - id: obj/discovery/permissions/etc-shadow
-      - id: obj/discovery/permissions/etc-passwd
+      - id: cap/fs/path/config/accounts
+      - id: cap/fs/path/config/privesc
 
   # Sudoers manipulation (migrated from YARA)
   - id: sudoers-manipulation

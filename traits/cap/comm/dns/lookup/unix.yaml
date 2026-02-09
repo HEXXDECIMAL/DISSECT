@@ -1,17 +1,21 @@
-# DNS Lookup Operations
+# DNS Lookup Operations (Unix/C)
 # MBC: C0011 (DNS Communication)
 # ATT&CK: T1071.004
+#
+# Type-specific lookups are in subdirectories:
+#   txt/     - TXT record lookups
+#   reverse/ - Reverse DNS lookups
 
 defaults:
   for: [elf, macho, so, dylib, c]
+  mbc: "C0011"
+  attack: "T1071.004"
 
 traits:
   - id: lookup
     desc: Uses DNS (Domain Name Service)
     crit: notable
     conf: 0.66
-    mbc: "C0011"
-    attack: "T1071.004"
     if:
       type: symbol
       regex: res_query|res_search|getaddrinfo|gethostbyname
@@ -23,85 +27,3 @@ traits:
     if:
       type: string
       substr: resolv.conf
-
-  # === Reverse lookup atomic indicators ===
-  - id: in-addr-arpa
-    desc: in-addr.arpa reverse lookup
-    crit: inert
-    conf: 0.56
-    if:
-      type: string
-      substr: ".in-addr.arpa"
-
-  - id: ip6-arpa
-    desc: ip6.arpa reverse lookup
-    crit: inert
-    conf: 0.56
-    if:
-      type: string
-      substr: "ip6.arpa"
-
-  # === DNS TXT query micro-traits ===
-  - id: txt-record-string
-    desc: TXT record string reference
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      regex: "(?i)TXT record"
-
-  - id: query-txt-string
-    desc: query TXT string reference
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      regex: "(?i)query TXT"
-
-  - id: dns-type-txt
-    desc: DNS_TYPE_TXT constant
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      substr: "DNS_TYPE_TXT"
-
-  - id: t-txt-constant
-    desc: T_TXT constant
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      substr: "T_TXT"
-
-  - id: ns-t-txt-constant
-    desc: ns_t_txt constant
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      substr: "ns_t_txt"
-
-composite_rules:
-  # DNS TXT query composite (migrated from YARA)
-  - id: lookup-txt
-    desc: DNS TXT record queries
-    crit: notable
-    conf: 0.66
-    needs: 1
-    any:
-      - id: txt-record-string
-      - id: query-txt-string
-      - id: dns-type-txt
-      - id: t-txt-constant
-      - id: ns-t-txt-constant
-
-  # Reverse lookup composite
-  - id: lookup-reverse
-    desc: Reverse DNS lookup
-    crit: notable
-    conf: 0.66
-    needs: 1
-    any:
-      - id: in-addr-arpa
-      - id: ip6-arpa

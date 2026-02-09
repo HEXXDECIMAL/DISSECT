@@ -7,6 +7,15 @@ defaults:
   attack: "T1071.001"
 
 traits:
+  # === HTTP POST method literal ===
+  - id: post-method
+    desc: POST HTTP method
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      word: "POST"
+
   # === HTTP POST atomic indicators ===
   - id: http-post-call
     desc: http.post call
@@ -56,7 +65,7 @@ composite_rules:
     conf: 0.66
     needs: 1
     any:
-      - id: cap/comm/http/post-method
+      - id: post-method
       - id: http-post-call
       - id: requests-post-call
 

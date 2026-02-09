@@ -998,7 +998,7 @@ composite_rules:
     all:
       - id: rootkit-give-root
       - id: rootkit-controller-hiding
-      - id: obj/c2/backdoor/backdoor-ref
+      - id: obj/c2/backdoor/method/generic/backdoor-ref
 
   # Rootkit controller hiding helper
   - id: rootkit-controller-hiding

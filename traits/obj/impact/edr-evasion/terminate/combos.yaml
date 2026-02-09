@@ -1,0 +1,32 @@
+# Impact: EDR/Security Software Evasion
+# Composite rules for terminating security processes
+
+composite_rules:
+  - id: terminate-process-evasion
+    desc: EDR/antivirus termination capability
+    crit: suspicious
+    conf: 0.85
+    attack: "T1562.001"
+    mbc: "B0033"
+    for: ["pe", "dll"]
+    all:
+      - id: cap/process/terminate/kill/terminate-process
+      - id: cap/exec/module/load/get-current-process
+    downgrade:
+      any:
+        - id: meta/quality/versioned
+
+  - id: process-termination-chain
+    desc: Debugger evasion with process termination
+    crit: notable
+    conf: 0.80
+    attack: "T1562.001"
+    for: ["pe", "dll"]
+    size_max: 200000
+    all:
+      - id: cap/exec/native/api/debugger-detect-api
+      - id: cap/process/terminate/kill/terminate-process
+      - id: cap/exec/native/api/load-library-a
+    downgrade:
+      any:
+        - id: meta/quality/versioned

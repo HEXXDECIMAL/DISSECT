@@ -1,5 +1,5 @@
 traits:
-  - id: obj/anti-static/obfuscation/unicode/homoglyphs
+  - id: homoglyphs
     desc: "Mathematical homoglyphs used for obfuscation"
     crit: notable
     conf: 0.9

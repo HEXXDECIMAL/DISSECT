@@ -1,0 +1,176 @@
+# Permissions Discovery
+# ATT&CK: T1069 (Permission Groups Discovery)
+# NOTE: Config file paths moved to cap/fs/path/config/{accounts,groups,privesc}/
+
+traits:
+  - id: capsh
+    desc: Linux capability shell
+    crit: suspicious
+    conf: 0.85
+    attack: "T1069"
+    for: ["*"]
+    if:
+      type: string
+      substr: "capsh"
+
+  - id: getgroups
+    desc: Get group list
+    crit: notable
+    conf: 0.75
+    attack: "T1069"
+    for: [elf, macho]
+    if:
+      type: string
+      substr: "getgroups"
+
+  # NOTE: getgid/getegid/geteuid are extremely common POSIX functions.
+  # Mark as inert unless combined with other permission discovery indicators.
+  - id: getgid
+    desc: Get group ID
+    crit: inert
+    conf: 0.5
+    attack: "T1069"
+    for: [elf, macho]
+    if:
+      type: symbol
+      exact: "getgid"
+
+  - id: getegid
+    desc: Get effective group ID
+    crit: inert
+    conf: 0.5
+    attack: "T1069"
+    for: [elf, macho]
+    if:
+      type: symbol
+      exact: "getegid"
+
+  - id: geteuid
+    desc: Get effective user ID
+    crit: inert
+    conf: 0.5
+    attack: "T1033"
+    for: [elf, macho]
+    if:
+      type: symbol
+      exact: "geteuid"
+
+  # === Linux capability API ===
+  - id: cap-get-file
+    desc: cap_get_file function
+    crit: inert
+    conf: 0.6
+    attack: "T1069"
+    for: [elf]
+    if:
+      type: string
+      substr: "cap_get_file"
+
+  - id: cap-set-file
+    desc: cap_set_file function
+    crit: inert
+    conf: 0.6
+    attack: "T1069"
+    for: [elf]
+    if:
+      type: string
+      substr: "cap_set_file"
+
+  - id: cap-get-proc
+    desc: Get process capabilities
+    crit: notable
+    conf: 0.75
+    attack: "T1069"
+    for: [elf]
+    if:
+      type: string
+      substr: "cap_get_proc"
+
+  - id: cap-set-proc
+    desc: Set process capabilities
+    crit: notable
+    conf: 0.75
+    attack: "T1069"
+    for: [elf]
+    if:
+      type: string
+      substr: "cap_set_proc"
+
+  - id: sudo-l
+    desc: Sudo permission listing
+    crit: suspicious
+    conf: 0.85
+    attack: "T1069"
+    for: [shell]
+    if:
+      type: string
+      regex: "sudo\\s+-l"
+
+composite_rules:
+  # Linux capability get/set composite
+  - id: cap-api
+    desc: Linux capability API usage
+    crit: notable
+    conf: 0.7
+    attack: "T1069"
+    for: [elf]
+    needs: 1
+    any:
+      - id: cap-get-proc
+      - id: cap-set-proc
+      - id: cap-get-file
+      - id: cap-set-file
+
+  # Linux capabilities via capsh + /proc/self/status
+  - id: linux-caps-via-capsh
+    desc: Linux capabilities via capsh
+    crit: suspicious
+    conf: 0.85
+    attack: "T1069"
+    for: [elf, shell]
+    all:
+      - id: capsh
+      - id: cap/fs/proc/process/process-self-status
+
+  # Linux capabilities via cap_get/set_proc
+  - id: linux-caps-via-api
+    desc: Linux capabilities via API
+    crit: suspicious
+    conf: 0.85
+    attack: "T1069"
+    for: [elf]
+    all:
+      - id: cap-get-proc
+      - id: cap-set-proc
+
+  - id: linux-caps-enum
+    desc: Linux capabilities enumeration
+    crit: suspicious
+    conf: 0.9
+    attack: "T1069"
+    mbc: "B0046"
+    for: [elf, shell]
+    needs: 1
+    any:
+      - id: linux-caps-via-capsh
+      - id: linux-caps-via-api
+
+  # User/group ID gathering - only notable when combined with multiple checks
+  - id: uid-gid-gathering
+    desc: User/group ID gathering
+    crit: notable
+    conf: 0.7
+    attack: "T1069"
+    for: [elf, macho]
+    needs: 3
+    any:
+      - id: getgid
+      - id: getegid
+      - id: geteuid
+      - id: getgroups
+    downgrade:
+      any:
+        - id: cap/exec/load/video-lib-marker
+        - id: cap/exec/load/library/graphics-lib-marker
+        - id: cap/exec/load/library/system-lib-marker
+        - id: cap/exec/load/library/x11-ipc-lib-marker

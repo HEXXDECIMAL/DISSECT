@@ -1,0 +1,44 @@
+# Root Privilege Escalation Traits
+# Detects behavioral and structural patterns for becoming root
+
+traits:
+  # Become Root Pattern (AST Structural)
+  - id: credential-manipulation
+    desc: Structural pattern of resetting multiple
+    crit: suspicious
+    conf: 0.99
+    attack: "T1068"
+    for: [c]
+    platforms: [linux]
+    if:
+      type: ast
+      query: |
+        ((assignment_expression
+          left: (field_expression
+            field: (field_identifier) @field)
+          right: (number_literal) @val)
+         (#eq? @val "0")
+         (#match? @field "^(uid|gid|euid|egid|suid|sgid|fsuid|fsgid|val)$"))
+
+  - id: prepare-creds-string
+    desc: "Reference to prepare_creds kernel function"
+    crit: notable
+    conf: 0.8
+    for: [c]
+    platforms: [linux]
+    if:
+      type: string
+      substr: "prepare_creds"
+
+composite_rules:
+  # Become Root Flow
+  - id: my-become-root
+    desc: Complete 'become root' flow (prepare_creds
+    crit: suspicious
+    conf: 1.0
+    attack: "T1068"
+    all:
+      - id: obj/impact/root/escalation/prepare-creds-string
+      - id: prepare-creds-call
+      - id: commit-creds-call
+      - id: obj/impact/root/escalation/credential-manipulation

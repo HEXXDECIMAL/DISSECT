@@ -472,8 +472,8 @@ composite_rules:
     all:
       - id: obj/lateral/supply-chain/pypi/setup-py-basename
       - id: cap/exec/autoinstall/pip/main-call-content
-      - id: obj/persist/startup/windows-shortcut-argument-injection
-      - id: obj/anti-static/obfuscation/advanced-python-obfuscation
+      - id: obj/persist/startup/registry/windows/windows-shortcut-argument-injection
+      - id: obj/anti-static/obfuscation/code/advanced-python/advanced-python-obfuscation
 
   # === HOSTILE: PyPI Shortcut Hijack Dropper ===
   # setup.py that walks directories for shortcuts and modifies them
@@ -488,7 +488,7 @@ composite_rules:
     all:
       - id: obj/lateral/supply-chain/pypi/setup-py-basename
       - id: cap/exec/autoinstall/pip/main-call-content
-      - id: obj/persist/startup/windows-shortcut-walk-modify
+      - id: obj/persist/startup/registry/windows/windows-shortcut-walk-modify
       - id: cap/fs/directory/mkdir/mkdir-python
 
   # === HOSTILE: PyPI COM Automation Extension Dropper ===
@@ -506,7 +506,7 @@ composite_rules:
       - id: setup-py-win32com-import
       - id: setup-py-getenv
       - id: setup-py-file-write
-      - id: obj/persist/startup/create-shortcut
+      - id: obj/persist/startup/registry/windows/create-shortcut
 
   # === SUSPICIOUS: Browser Shortcut Target Fingerprinting ===
   # Extracts executable basename from shortcut TargetPath to identify which
@@ -519,10 +519,10 @@ composite_rules:
     attack: "T1518"
     all:
       - id: setup-py-shortcut-target-fingerprint
-      - id: obj/persist/startup/shortcut-target-path
+      - id: obj/persist/startup/registry/windows/shortcut-target-path
     any:
-      - id: obj/persist/startup/shortcut-arguments
-      - id: obj/persist/startup/create-shortcut
+      - id: obj/persist/startup/registry/windows/shortcut-arguments
+      - id: obj/persist/startup/registry/windows/create-shortcut
 
   # === HOSTILE: Install-Time Gated Execution ===
   # setup.py that checks sys.platform + sys.argv to only execute during install
@@ -536,8 +536,8 @@ composite_rules:
     attack: "T1195.002"
     all:
       - id: obj/lateral/supply-chain/pypi/setup-py-basename
-      - id: cap/os/info/sys-platform-check
-      - id: cap/os/info/sys-argv-access
+      - id: cap/os/info/system/python/sys-platform-check
+      - id: cap/os/info/system/python/sys-argv-access
       - id: cap/exec/autoinstall/pip/main-call-content
     downgrade:
       any:
@@ -556,7 +556,7 @@ composite_rules:
     attack: "T1195.002"
     all:
       - id: obj/lateral/supply-chain/pypi/setup-py-basename
-      - id: obj/anti-static/obfuscation/advanced-python-obfuscation
+      - id: obj/anti-static/obfuscation/code/advanced-python/advanced-python-obfuscation
       - id: setup-py-file-write
       - id: cap/fs/directory/mkdir/mkdir-python
 
@@ -574,7 +574,7 @@ composite_rules:
       - id: obj/lateral/supply-chain/pypi/setup-py-file
       - id: cap/exec/dropper/stealth/subprocess-popen
       - id: powershell-download-in-string
-      - id: cap/exec/background/windows/powershell-hidden
+      - id: cap/exec/background/daemon/windows/powershell-hidden
 
   # === HOSTILE: PyPI PowerShell Encoded Dropper ===
   # setup.py invokes PowerShell with -EncodedCommand to hide the actual payload.
@@ -590,7 +590,7 @@ composite_rules:
       - id: obj/lateral/supply-chain/pypi/setup-py-file
       - id: cap/exec/dropper/stealth/subprocess-popen
       - id: powershell-encoded-command-in-string
-      - id: cap/exec/background/windows/powershell-hidden
+      - id: cap/exec/background/daemon/windows/powershell-hidden
 
   # === HOSTILE: PyPI Setup.py PowerShell Stager ===
   # setup.py downloads archive via PowerShell, extracts, and runs hidden payload
@@ -606,7 +606,7 @@ composite_rules:
       - id: obj/lateral/supply-chain/pypi/setup-py-file
       - id: powershell-download-in-string
       - id: powershell-expand-archive
-      - id: cap/exec/vbscript/vbs-powershell-launch
+      - id: cap/exec/vbscript/interpreter/vbs-powershell-launch
 
   # === HOSTILE: PyPI Extension Dropper with Admin Gating ===
   # setup.py reads env vars to locate drop directory, checks admin status,

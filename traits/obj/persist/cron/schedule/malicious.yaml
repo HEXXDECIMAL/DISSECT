@@ -1,0 +1,233 @@
+# Malicious Crontab Persistence
+# ATT&CK: T1053.003 (Scheduled Task/Job: Cron)
+
+defaults:
+  attack: "T1053.003"
+
+traits:
+  # Cron paths
+  - id: etc-cron-d
+    desc: /etc/cron.d/ directory
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      substr: "/etc/cron.d/"
+
+  - id: etc-crontab
+    desc: /etc/crontab file
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      substr: "/etc/crontab"
+
+  - id: crontab-dash
+    desc: crontab command with dash
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      substr: "crontab -"
+
+  # Download cradles
+  - id: curl-silent
+    desc: curl -s (silent mode)
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      substr: "curl -s"
+
+  - id: wget-quiet
+    desc: wget -q (quiet mode)
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      substr: "wget -q"
+
+  - id: wget-stdout
+    desc: wget -O - (output to
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      substr: "wget -O -"
+
+  # Base64 decode
+  - id: base64-d
+    desc: base64 -d decode
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      substr: "base64 -d"
+
+  - id: base64-decode-flag
+    desc: base64 --decode long form
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      substr: "base64 --decode"
+
+  # Hidden file paths
+  - id: tmp-hidden
+    desc: Hidden file in /tmp
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      substr: "/tmp/."
+
+  - id: var-tmp-hidden
+    desc: Hidden file in /var/tmp
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      substr: "/var/tmp/."
+
+  - id: dev-shm-hidden
+    desc: Hidden file in /dev/shm
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      substr: "/dev/shm/."
+
+  # Additional cron keywords
+  - id: crontab-keyword
+    desc: crontab keyword
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      substr: "crontab"
+
+composite_rules:
+  # Helper: Cron paths
+  - id: cron-paths
+    desc: Cron file paths
+    any:
+      - id: etc-cron-d
+      - id: etc-crontab
+      - id: obj/persist/cron/job/var-spool-cron-path
+      - id: crontab-dash
+
+  # Helper: Download commands
+  - id: download-commands
+    desc: Download tool commands
+    any:
+      - id: curl-space
+      - id: wget-space
+
+  # Helper: Frequent schedules
+  - id: frequent-schedules
+    desc: Frequent cron execution schedules
+    any:
+      - id: every-minute
+      - id: every-5-minutes
+      - id: at-reboot
+
+  # Helper: Download cradles
+  - id: download-cradles
+    desc: Silent/quiet download cradles
+    any:
+      - id: curl-silent
+      - id: wget-quiet
+      - id: wget-stdout
+
+  # Helper: Base64 decoding
+  - id: base64-decode
+    desc: Base64 decode operations
+    any:
+      - id: base64-d
+      - id: base64-decode-flag
+
+  # Helper: Hidden paths
+  - id: hidden-paths
+    desc: Hidden file paths in temp
+    any:
+      - id: tmp-hidden
+      - id: var-tmp-hidden
+      - id: dev-shm-hidden
+
+  # Helper: Cron keywords
+  - id: cron-keywords
+    desc: Cron-related keywords
+    any:
+      - id: crontab-keyword
+      - id: obj/persist/cron/job/etc-cron-path
+
+  # Helper: Cron with download and execute
+  - id: cron-download-execute
+    desc: Cron with download and execute
+    all:
+      - id: cron-paths
+      - id: download-commands
+      - id: cap/os/console/io/redirection/shell-pipes
+
+  # Helper: Cron with frequent execution and download
+  - id: cron-frequent-download
+    desc: Cron with frequent schedule and
+    all:
+      - id: cron-paths
+      - id: frequent-schedules
+      - id: download-commands
+
+  # Malicious cron persistence
+  - id: malicious
+    desc: Malicious crontab persistence patterns
+    crit: suspicious
+    conf: 0.8
+    any:
+      - id: cron-download-execute
+      - id: cron-frequent-download
+
+  # Helper: Download cradle with shell pipe
+  - id: cradle-with-shell
+    desc: Download cradle piped to shell
+    all:
+      - id: download-cradles
+      - id: cap/os/console/io/redirection/shell-pipes
+
+  # Helper: Download cradle with suppression
+  - id: cradle-with-suppression
+    desc: Download cradle with output suppression
+    all:
+      - id: download-cradles
+      - id: cap/os/console/io/redirection/output-suppression
+
+  # Helper: Cron with base64
+  - id: cron-with-base64
+    desc: Cron with base64 decode
+    all:
+      - id: cron-keywords
+      - id: base64-decode
+
+  # Helper: Cron with hidden paths
+  - id: cron-with-hidden
+    desc: Cron with hidden file paths
+    all:
+      - id: cron-keywords
+      - id: hidden-paths
+
+  # Cron download cradle
+  - id: download-cradle
+    desc: Cron-based download and execute
+    crit: suspicious
+    conf: 0.85
+    any:
+      - id: cradle-with-shell
+      - id: cradle-with-suppression
+
+  # Hidden cron entries
+  - id: hidden
+    desc: Hidden or obfuscated cron entries
+    crit: suspicious
+    conf: 0.8
+    any:
+      - id: cron-with-base64
+      - id: cron-with-hidden

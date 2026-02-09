@@ -1,0 +1,411 @@
+# SELinux Bypass/Manipulation Detection
+# ATT&CK: T1562.001 (Impair Defenses: Disable or Modify Tools)
+
+defaults:
+  attack: "T1562.001"
+  platforms: [linux]
+
+traits:
+  # === Extended attribute manipulation ===
+  - id: security-selinux-xattr
+    desc: security.selinux extended attribute
+    crit: inert
+    conf: 0.7
+    for: [c, elf, shell]
+    if:
+      type: string
+      substr: "security.selinux"
+
+  - id: setxattr-symbol
+    desc: setxattr function
+    crit: inert
+    conf: 0.7
+    for: [elf]
+    if:
+      type: symbol
+      exact: "setxattr"
+
+  - id: fsetxattr-symbol
+    desc: fsetxattr function
+    crit: inert
+    conf: 0.7
+    for: [elf]
+    if:
+      type: symbol
+      exact: "fsetxattr"
+
+  - id: lsetxattr-symbol
+    desc: lsetxattr function
+    crit: inert
+    conf: 0.7
+    for: [elf]
+    if:
+      type: symbol
+      exact: "lsetxattr"
+
+  - id: setxattr-command
+    desc: setxattr command reference
+    crit: inert
+    conf: 0.65
+    for: [shell, c]
+    if:
+      type: string
+      word: "setxattr"
+
+  # === Unconfined context labels ===
+  - id: unconfined-u-label
+    desc: unconfined_u SELinux user
+    crit: inert
+    conf: 0.75
+    for: [shell, c, elf]
+    if:
+      type: string
+      substr: "unconfined_u:"
+
+  - id: unconfined-r-label
+    desc: unconfined_r SELinux role
+    crit: inert
+    conf: 0.75
+    for: [shell, c, elf]
+    if:
+      type: string
+      substr: "unconfined_r:"
+
+  - id: unconfined-t-label
+    desc: unconfined_t SELinux type
+    crit: inert
+    conf: 0.75
+    for: [shell, c, elf]
+    if:
+      type: string
+      substr: "unconfined_t"
+
+  - id: object-r-label
+    desc: object_r SELinux role
+    crit: inert
+    conf: 0.7
+    for: [shell, c, elf]
+    if:
+      type: string
+      substr: "object_r:"
+
+  # === Enforcement mode commands ===
+  - id: setenforce-command
+    desc: setenforce command
+    crit: inert
+    conf: 0.8
+    for: [shell]
+    if:
+      type: string
+      word: "setenforce"
+
+  - id: getenforce-command
+    desc: getenforce command
+    crit: inert
+    conf: 0.75
+    for: [shell]
+    if:
+      type: string
+      word: "getenforce"
+
+  - id: selinux-enforce-sysfs
+    desc: /sys/fs/selinux/enforce path
+    crit: inert
+    conf: 0.8
+    for: [shell, c, elf]
+    if:
+      type: string
+      substr: "/sys/fs/selinux/enforce"
+
+  - id: selinux-enforce-legacy
+    desc: /selinux/enforce legacy path
+    crit: inert
+    conf: 0.8
+    for: [shell, c, elf]
+    if:
+      type: string
+      substr: "/selinux/enforce"
+
+  - id: permissive-keyword
+    desc: Permissive mode keyword
+    crit: inert
+    conf: 0.7
+    for: [shell, c, elf]
+    if:
+      type: string
+      word: "Permissive"
+
+  # === Policy manipulation commands ===
+  - id: load-policy-command
+    desc: load_policy command
+    crit: inert
+    conf: 0.8
+    for: [shell]
+    if:
+      type: string
+      word: "load_policy"
+
+  - id: semodule-command
+    desc: semodule command
+    crit: inert
+    conf: 0.8
+    for: [shell]
+    if:
+      type: string
+      word: "semodule"
+
+  - id: selinux-config-dir
+    desc: /etc/selinux directory
+    crit: inert
+    conf: 0.7
+    for: [shell, c, elf]
+    if:
+      type: string
+      substr: "/etc/selinux"
+
+  # NOTE: SELinux policy files have specific naming patterns.
+  # Must avoid matching generic "policy" words in C++ std::locale, exception handlers, etc.
+  - id: policy-file-pattern
+    desc: SELinux policy binary file
+    crit: inert
+    conf: 0.65
+    for: [shell, c, elf]
+    if:
+      type: string
+      # Match SELinux-specific policy paths, not generic "policy" references
+      regex: "/etc/selinux/.{0,50}/policy/|/selinux/policy|selinux.{0,30}policy\\.(3[0-9]|pp|te|fc|if)$"
+
+  - id: chcon-command
+    desc: chcon command
+    crit: inert
+    conf: 0.75
+    for: [shell]
+    if:
+      type: string
+      word: "chcon"
+
+  - id: restorecon-command
+    desc: restorecon command
+    crit: inert
+    conf: 0.7
+    for: [shell]
+    if:
+      type: string
+      word: "restorecon"
+
+  # === Kernel parameters ===
+  - id: selinux-equals-zero
+    desc: selinux=0 kernel parameter
+    crit: inert
+    conf: 0.85
+    for: [shell]
+    if:
+      type: string
+      substr: "selinux=0"
+
+  - id: enforcing-equals-zero
+    desc: enforcing=0 kernel parameter
+    crit: inert
+    conf: 0.85
+    for: [shell]
+    if:
+      type: string
+      substr: "enforcing=0"
+
+  - id: selinux-disabled-config
+    desc: SELINUX=disabled config
+    crit: inert
+    conf: 0.85
+    for: [shell]
+    if:
+      type: string
+      substr: "SELINUX=disabled"
+
+  - id: selinux-permissive-config
+    desc: SELINUX=permissive config
+    crit: inert
+    conf: 0.8
+    for: [shell]
+    if:
+      type: string
+      substr: "SELINUX=permissive"
+
+  # === Runtime kernel patching ===
+  - id: selinux-state-symbol
+    desc: selinux_state kernel structure
+    crit: inert
+    conf: 0.75
+    for: [c, elf]
+    if:
+      type: symbol
+      exact: "selinux_state"
+
+  - id: enforcing-keyword
+    desc: enforcing keyword
+    crit: inert
+    conf: 0.6
+    for: [c, elf, shell]
+    if:
+      type: string
+      word: "enforcing"
+
+  - id: fake-enforce-identifier
+    desc: fake_enforce identifier
+    crit: inert
+    conf: 0.8
+    for: [c, elf]
+    if:
+      type: string
+      substr: "fake_enforce"
+
+  - id: sel-read-enforce-symbol
+    desc: sel_read_enforce function
+    crit: inert
+    conf: 0.8
+    for: [c, elf]
+    if:
+      type: symbol
+      exact: "sel_read_enforce"
+
+  - id: sel-write-enforce-symbol
+    desc: sel_write_enforce function
+    crit: inert
+    conf: 0.8
+    for: [c, elf]
+    if:
+      type: symbol
+      exact: "sel_write_enforce"
+
+composite_rules:
+  - id: unconfined-labels
+    desc: Unconfined SELinux context labels
+    for: [shell, c, elf]
+    any:
+      - { id: unconfined-u-label }
+      - { id: unconfined-r-label }
+      - { id: unconfined-t-label }
+
+  - id: enforcement-commands
+    desc: SELinux enforcement commands
+    for: [shell, c, elf]
+    any:
+      - { id: setenforce-command }
+      - { id: getenforce-command }
+      - { id: selinux-enforce-sysfs }
+      - { id: selinux-enforce-legacy }
+      - { id: permissive-keyword }
+
+  - id: policy-commands
+    desc: SELinux policy manipulation commands
+    for: [shell]
+    any:
+      - { id: load-policy-command }
+      - { id: semodule-command }
+      - { id: chcon-command }
+      - { id: restorecon-command }
+
+  - id: policy-files
+    desc: SELinux policy file references
+    for: [shell, c, elf]
+    any:
+      - { id: selinux-config-dir }
+      - { id: policy-file-pattern }
+
+  - id: kernel-parameters
+    desc: SELinux kernel boot parameters
+    for: [shell]
+    any:
+      - { id: selinux-equals-zero }
+      - { id: enforcing-equals-zero }
+      - { id: selinux-disabled-config }
+      - { id: selinux-permissive-config }
+
+  - id: sel-enforce-symbols
+    desc: SELinux enforcement symbols
+    for: [c, elf]
+    all:
+      - { id: sel-read-enforce-symbol }
+      - { id: sel-write-enforce-symbol }
+
+  # Migrated from YARA
+  - id: xattr-manipulation
+    desc: SELinux extended attribute manipulation
+    crit: suspicious
+    conf: 0.75
+    for: [c, elf, shell]
+    all:
+      - { id: security-selinux-xattr }
+      - { id: setxattr-functions }
+
+  - id: unconfined-context
+    desc: SELinux unconfined context assignment
+    crit: suspicious
+    conf: 0.8
+    for: [shell, c, elf]
+    any:
+      - { id: unconfined-labels }
+      - { id: object-r-label }
+
+  # NOTE: Debuggers may have SELinux policy file references for:
+  # - Analyzing security contexts of target processes
+  # - Understanding SELinux-related crashes/issues
+  # - Documentation/help text about SELinux
+  - id: policy-manipulation
+    desc: SELinux policy load or manipulation
+    crit: suspicious
+    conf: 0.8
+    for: [shell, c, elf]
+    any:
+      - { id: policy-commands }
+      - { id: policy-files }
+    downgrade:
+      any:
+        - id: cap/exec/load/library/debugger-tool-marker
+
+  - id: kernel-disable
+    desc: SELinux kernel parameter disable
+    crit: suspicious
+    conf: 0.9
+    for: [shell, elf]
+    any:
+      - { id: kernel-parameters }
+
+  # Helper: selinux state + enforcing keyword combo
+  - id: selinux-state-enforcing
+    desc: SELinux state with enforcing keyword
+    for: [c, elf]
+    all:
+      - { id: selinux-state-symbol }
+      - { id: enforcing-keyword }
+
+  # Helper: fake enforce + selinux state combo
+  - id: fake-enforce-selinux
+    desc: Fake enforce with SELinux state
+    for: [c, elf]
+    all:
+      - { id: fake-enforce-identifier }
+      - { id: selinux-state-symbol }
+
+  - id: runtime-patch
+    desc: Direct kernel memory manipulation of
+    crit: suspicious
+    conf: 0.95
+    for: [c, elf]
+    any:
+      - { id: selinux-state-enforcing }
+      - { id: sel-enforce-symbols }
+      - { id: fake-enforce-selinux }
+
+  # Active SELinux bypass (multi-technique detection)
+  - id: bypass
+    desc: "SELinux bypass detected"
+    crit: suspicious
+    conf: 0.95
+    for: [shell, c, elf]
+    needs: 2
+    any:
+      - { id: xattr-manipulation }
+      - { id: unconfined-context }
+      - { id: enforcement-commands }
+      - { id: kernel-disable }
+      - { id: runtime-patch }

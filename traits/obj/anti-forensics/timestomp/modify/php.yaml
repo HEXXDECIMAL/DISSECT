@@ -3,18 +3,6 @@
 # MBC: F0006 (Indicator Removal)
 # ATT&CK: T1070.006 (Timestomp)
 #
-# Note: Atomic PHP function traits moved to fs/file/timestamp/php.yaml
-# This file contains only behavioral composites
-
-defaults:
-  for: [php]
-  mbc: "F0006"
-  attack: "T1070.006"
-
-composite_rules:
-  - id: touch
-    desc: PHP touch() file timestamp modification
-    crit: notable
-    conf: 0.65
-    any:
-      - id: cap/fs/file/timestamp/php/touch-function
+# Note: Atomic PHP function traits are in fs/file/timestamp/php.yaml
+# Use that directory reference directly in rules that need PHP timestamp detection.
+# No composite needed here - the directory reference provides the same functionality.

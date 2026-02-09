@@ -394,5 +394,5 @@ composite_rules:
     all:
       - id: known/malware/miner/monero-wallets
       - id: cap/exec/dropper/stealth/python
-      - id: cap/exec/command/chmod/executable
+      - id: cap/fs/chmod/executable
       - id: cap/exec/dropper/stealth/subprocess-popen

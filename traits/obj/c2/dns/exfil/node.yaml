@@ -4,8 +4,8 @@
 # ATT&CK: T1071.004 (DNS), T1048 (Exfiltration Over Alternative Protocol)
 #
 # Note: Atomic traits moved to appropriate micro-trait directories:
-# - DNS traits: comm/dns/lookup/node.yaml
-# - Crypto traits: crypto/symmetric/aes/node.yaml
+# - DNS traits: cap/comm/dns/lookup/txt/ (by record type)
+# - Crypto traits: cap/crypto/symmetric/aes/node/
 # This file contains only behavioral composites that indicate C2/exfiltration usage
 
 defaults:
@@ -15,42 +15,37 @@ defaults:
 
 composite_rules:
   - id: dns-resolve
-    desc: Node.js DNS resolve function (potential
+    desc: Node.js DNS resolve function (potential C2)
     crit: notable
     conf: 0.8
     needs: 1
     any:
-      - id: cap/comm/dns/lookup/node/dns-resolve-call
-      - id: cap/comm/dns/lookup/node/dns-resolve4-call
-      - id: cap/comm/dns/lookup/node/dns-resolve6-call
+      - id: cap/comm/dns/lookup/node
+      - id: cap/comm/dns/lookup/txt/node
 
   - id: dns-resolve-txt
-    desc: DNS TXT record resolution (common
+    desc: DNS TXT record resolution (common C2 channel)
     crit: suspicious
     conf: 0.9
     mbc: "C0002"
     attack: "T1071.004"
-    needs: 1
-    any:
-      - id: cap/comm/dns/lookup/node/dns-resolveTxt-method
-      - id: cap/comm/dns/lookup/node/resolveTxt-call
-      - id: cap/comm/dns/lookup/node/txt-record-single-quote
-      - id: cap/comm/dns/lookup/node/txt-record-double-quote
+    all:
+      - id: cap/comm/dns/lookup/txt/node
 
   # DNS with crypto (migrated from YARA)
   - id: dns-with-crypto
-    desc: DNS combined with encryption (encrypted
+    desc: DNS combined with encryption (encrypted C2)
     crit: suspicious
     conf: 0.9
     mbc: "C0002"
     attack: "T1573"
     all:
       - id: dns-resolve-txt
-      - id: cap/crypto/symmetric/aes/node/cipher-create
+      - id: cap/crypto/symmetric/aes/node
 
   # DNS polling loop (migrated from YARA)
   - id: dns-polling-loop
-    desc: DNS polling loop (C2 beacon
+    desc: DNS polling loop (C2 beacon pattern)
     crit: suspicious
     conf: 0.85
     mbc: "C0002"
@@ -58,5 +53,4 @@ composite_rules:
     all:
       - id: dns-resolve-txt
     any:
-      - id: cap/time/schedule/timers/
-      - id: cap/time/schedule/timers/
+      - id: cap/time/schedule/timers

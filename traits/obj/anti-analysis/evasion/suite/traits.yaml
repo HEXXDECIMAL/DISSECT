@@ -58,5 +58,5 @@ composite_rules:
     all:
       - id: evasion-aware-malware
     any:
-      - id: obj/anti-forensics/log-clear/clear-logs
-      - id: obj/anti-forensics/self-delete/remove-self
+      - id: obj/anti-forensics/log-clear
+      - id: obj/anti-forensics/self-delete

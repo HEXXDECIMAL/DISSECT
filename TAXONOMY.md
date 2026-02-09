@@ -33,6 +33,10 @@ cap/
 │   ├── socket/         # Raw socket operations          → MBC: Communication
 │   ├── http/           # HTTP client/server
 │   ├── dns/            # DNS operations
+│   │   ├── lookup/     # DNS lookups (platform-based: unix, node)
+│   │   │   ├── txt/    # TXT record lookups (C2 common)
+│   │   │   └── reverse/ # Reverse DNS lookups
+│   │   └── doh/        # DNS over HTTPS
 │   ├── ipc/            # Inter-process communication
 │   └── proxy/          # Proxy protocols (SOCKS, etc.)
 │
@@ -60,7 +64,15 @@ cap/
 │   ├── write/          # File writing
 │   ├── delete/         # File deletion
 │   ├── enumerate/      # Directory listing
-│   └── hide/           # Hidden file manipulation (suspicious)
+│   ├── hide/           # Hidden file manipulation (suspicious)
+│   └── path/           # Path-related traits
+│       ├── config/     # Configuration file paths
+│       │   ├── accounts/  # User accounts (/etc/passwd, /etc/shadow)
+│       │   ├── groups/    # Group membership (/etc/group, /etc/gshadow)
+│       │   └── privesc/   # Privilege config (/etc/sudoers)
+│       └── device/     # Device paths (/dev/*)
+│           ├── storage/  # Block storage (/dev/sda, /dev/nvme) - wiper relevant
+│           └── terminal/ # TTY/PTY devices (/dev/tty, /dev/pts)
 │
 ├── hw/                 # Hardware interaction           → MBC: Hardware
 │   ├── input/          # Keyboard, mouse
@@ -240,15 +252,39 @@ meta/
 │   ├── macho/          # Mach-O dylib imports (libSystem.B.dylib)
 │   ├── elf/            # ELF shared object imports (libcrypto.so)
 │   └── pe/             # PE DLL imports (kernel32.dll)
+├── signed/             # Code signature traits (auto-generated from binary analysis)
+│   ├── platform::apple # Apple platform binary
+│   ├── developer::*    # Developer ID signed (TEAM_ID as suffix)
+│   ├── app-store::*    # Mac App Store signed
+│   └── adhoc::unsigned # Ad-hoc signature (no identity)
 ├── arch/               # Architecture (x86, x64, arm, arm64)
-├── sign/               # Code signing status
+├── sign/               # Code signing certificate detection (YAML-defined)
+│   ├── certificate/    # Certificate string patterns
+│   └── signature/      # Signature type patterns
 ├── quality/            # Code quality (logging, error handling, docs, tests)
 └── hardening/          # Security hardening (sandbox, seccomp, pledge)
 ```
 
 **Note:** `meta/import/` traits are auto-generated from discovered imports - no YAML definition needed. They enable composite rules to reference specific dependencies.
 
+**Note:** `meta/signed/` traits are auto-generated from code signature analysis. Use `meta/signed/platform` to match any platform-signed binary, or `meta/signed/developer::TEAMID` for a specific developer.
+
 **Note:** `meta/hardening/` traits can be used in `downgrade:` rules to reduce criticality for security-conscious code.
+
+## Trait ID Format
+
+Trait IDs use `::` to separate directory path from trait name:
+
+```
+directory/path::trait-name
+└─────┬──────┘  └────┬────┘
+  directory      local ID
+```
+
+**Reference patterns:**
+- `trait-name` - Matches trait in same directory (local reference)
+- `cap/comm/http` - Matches any trait in that directory (directory reference)
+- `cap/comm/http::curl-download` - Matches specific trait (exact match)
 
 ## Decision Framework
 
