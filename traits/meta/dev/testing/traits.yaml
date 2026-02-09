@@ -317,7 +317,7 @@ traits:
     desc: "describe() function"
     crit: inert
     conf: 0.6
-    for: [javascript]
+    for: [javascript, typescript]
     if:
       type: string
       substr: "describe("
@@ -431,7 +431,7 @@ traits:
     desc: "expect() function"
     crit: inert
     conf: 0.6
-    for: [ruby]
+    for: [ruby, rust, javascript, typescript]
     if:
       type: string
       substr: "expect("

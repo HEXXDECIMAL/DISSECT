@@ -154,7 +154,6 @@ composite_rules:
     desc: Tsunami/Kaiten IRC bot identifier
     crit: notable
     conf: 0.7
-    needs: 1
     any:
       - id: tsunami-name
       - id: kaiten-name

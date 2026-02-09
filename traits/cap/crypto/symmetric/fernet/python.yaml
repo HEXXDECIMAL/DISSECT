@@ -149,7 +149,6 @@ composite_rules:
     desc: Fernet symmetric encryption library import
     crit: notable
     conf: 0.9
-    needs: 1
     any:
       - { id: import-fernet-direct }
       - { id: from-cryptography-fernet }

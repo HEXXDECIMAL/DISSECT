@@ -79,7 +79,7 @@ composite_rules:
     mbc: "B0030"
     for: [macho]
     all:
-      - id: cap/time/schedule/timers::nstimer-scheduled
+      - id: cap/time/schedule/interval::nstimer-scheduled
       - id: cap/comm/http/request::nsurlsession-http-request
       - id: obj/c2/network/beacon::nsurl-post-json
       - id: obj/c2/network/beacon::json-sdf-payload

@@ -223,7 +223,7 @@ composite_rules:
     needs: 3
     any:
       - id: mnemonic-terms
-      - id: private-key-var
-      - id: keystore-ref
-      - id: derivation-pattern
-      - id: bip39-ref
+      - id: private-key-hex
+      - id: keystore-file
+      - id: derivation-path
+      - id: bip39-wordlist

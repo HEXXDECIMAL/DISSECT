@@ -13,5 +13,5 @@ composite_rules:
       - id: meta/import/python/requests
       - id: cap/comm/http/request::py-post-generic
     any:
-      - id: cap/fs/file/delete::shutil-rmtree
-      - id: cap/fs/file/delete::os-remove
+      - id: cap/fs/file/delete::py-rmtree
+      - id: cap/fs/file/delete::py-remove

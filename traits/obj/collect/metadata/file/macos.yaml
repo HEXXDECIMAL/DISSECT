@@ -96,7 +96,6 @@ composite_rules:
     attack: "T1083"
     all:
       - id: ds-store
-    needs: 1
     any:
       - id: user-directory-enum
       - id: cap/fs/directory/traverse

@@ -74,7 +74,6 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     for: [python]
-    needs: 1
     any:
       - id: pyperclip-paste
       - id: clipboard-get
@@ -90,7 +89,6 @@ composite_rules:
     mbc: "F0002"
     attack: "T1056.001"
     for: [python]
-    needs: 1
     any:
       - id: pynput-keyboard
       - id: keyboard-on-press
@@ -103,7 +101,6 @@ composite_rules:
     mbc: "B0002"
     attack: "T1113"
     for: [python]
-    needs: 1
     any:
       - id: cap/hw/display/screen::mss-screenshot
       - id: pil-imagegrab

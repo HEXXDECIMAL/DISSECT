@@ -886,7 +886,6 @@ composite_rules:
     attack: "T1195.002"
     for: [all]
     platforms: [all]
-    needs: 1
     any:
       - id: summary-mentions-victim
       - id: summary-poc-research
@@ -929,7 +928,6 @@ composite_rules:
     attack: "T1036.005"
     for: [all]
     platforms: [all]
-    needs: 1
     any:
       - id: pkginfo-free-hosting-homepage
       - id: pkginfo-security-claim

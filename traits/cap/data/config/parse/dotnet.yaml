@@ -49,7 +49,6 @@ composite_rules:
     desc: AppSettings configuration access
     crit: notable
     conf: 0.70
-    needs: 1
     any:
       - id: appsettings-pascal
       - id: appsettings-lower
@@ -59,7 +58,6 @@ composite_rules:
     desc: Environment variable access
     crit: notable
     conf: 0.70
-    needs: 1
     any:
       - id: get-env-var
       - id: environment-class

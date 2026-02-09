@@ -6,22 +6,6 @@ defaults:
 
 traits:
   # Cron paths
-  - id: etc-cron-d
-    desc: /etc/cron.d/ directory
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      substr: "/etc/cron.d/"
-
-  - id: etc-crontab
-    desc: /etc/crontab file
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      substr: "/etc/crontab"
-
   - id: crontab-dash
     desc: crontab command with dash
     crit: inert
@@ -111,8 +95,8 @@ composite_rules:
   - id: cron-paths
     desc: Cron file paths
     any:
-      - id: etc-cron-d
-      - id: etc-crontab
+      - id: cap/os/admin/legitimate::cron-d-path
+      - id: cap/os/admin/legitimate::crontab-file
       - id: obj/persist/cron/job::var-spool-cron-path
       - id: crontab-dash
 

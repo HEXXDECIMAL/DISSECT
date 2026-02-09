@@ -25,7 +25,6 @@ composite_rules:
     conf: 0.85
     attack: "T1564"
     for: [ipa]
-    needs: 1
     any:
       - id: cap/exec/inject/code::reveal-server-framework
       - id: cap/exec/inject/code::cbinjection-framework

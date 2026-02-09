@@ -21,7 +21,7 @@ traits:
     conf: 0.5
     mbc: "E1059"
     attack: "T1059"
-    for: [shell, javascript]
+    for: [shell, javascript, typescript]
     if:
       type: string
       regex: "exec\\("
@@ -68,7 +68,6 @@ composite_rules:
     mbc: "E1059"
     attack: "T1059"
     for: [shell, javascript]
-    needs: 1
     any:
       - id: eval-call-shell
       - id: exec-call-shell
@@ -80,7 +79,6 @@ composite_rules:
     mbc: "E1059"
     attack: "T1059"
     for: [python]
-    needs: 1
     any:
       - id: eval-call-python
       - id: exec-call-python

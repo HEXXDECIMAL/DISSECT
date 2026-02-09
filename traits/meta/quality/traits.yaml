@@ -51,15 +51,6 @@ traits:
       type: string
       substr: "unwrap_or"
 
-  - id: rust-expect-method
-    desc: Rust expect() method
-    crit: inert
-    conf: 0.6
-    for: [rust]
-    if:
-      type: string
-      substr: "expect("
-
   # === Atomic: Generic Try/Catch ===
 
   - id: try-block-open
@@ -140,7 +131,7 @@ traits:
     desc: syslog reference
     crit: inert
     conf: 0.6
-    for: [c, go, python]
+    for: [c, go, python, shell]
     if:
       type: string
       word: "syslog"
@@ -668,7 +659,7 @@ composite_rules:
     any:
       - { id: rust-result-type }
       - { id: rust-unwrap-or }
-      - { id: rust-expect-method }
+      - { id: meta/dev/testing::rspec-expect }
 
   # Generic try/catch helper
   - id: try-catch-handling

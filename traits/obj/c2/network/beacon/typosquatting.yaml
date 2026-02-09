@@ -135,7 +135,6 @@ composite_rules:
     attack: "T1036.005"
     mbc: "B0030"
     for: [python, javascript, shell]
-    needs: 1
     any:
       - id: typosquat-git-hub-domain
       - id: typosquat-githab-domain
@@ -148,7 +147,6 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     attack: "T1036.005"
-    needs: 1
     any:
       - id: typosquat-google-domain
       - id: typosquat-apple-domain
@@ -159,7 +157,6 @@ composite_rules:
     crit: notable
     conf: 0.80
     attack: "T1071.001"
-    needs: 1
     any:
       - id: c2-view-php-endpoint
       - id: c2-gate-php-endpoint

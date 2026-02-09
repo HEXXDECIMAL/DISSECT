@@ -8,7 +8,7 @@ defaults:
   attack: "T1071"
 
 traits:
-  - id: listen
+  - id: listen-go
     desc: Go net.Listen call
     crit: notable
     conf: 0.9

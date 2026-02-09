@@ -228,7 +228,6 @@ composite_rules:
     desc: Highly privileged entitlements
     crit: suspicious
     conf: 0.95
-    needs: 1
     any:
       - id: disable-library-validation
       - id: allow-unsigned-executable-memory

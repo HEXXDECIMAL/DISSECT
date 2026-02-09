@@ -1,0 +1,182 @@
+# Reverse Shell Detection - Shell/Bash
+# MBC: B0033 (Adversary-in-the-Middle)
+# ATT&CK: T1059.004 (Unix Shell)
+# NOTE: stdin-redirect (0>&1) is defined in c2/backdoor/traits.yaml
+
+defaults:
+  attack: "T1059.004"
+
+traits:
+  # Complete bash reverse shell pattern (no legitimate use)
+  - id: reverse-shell-bash-complete
+    desc: Bash reverse shell via /dev/tcp
+    crit: suspicious
+    conf: 0.98
+    for: [shell, packagejson, javascript]
+    if:
+      type: string
+      regex: "bash\\s+-i\\s+>&\\s*/dev/tcp/[0-9.]+/[0-9]+\\s+0>&1"
+
+  - id: reverse-shell-bash
+    desc: Bash reverse shell via /dev/tcp
+    crit: suspicious
+    conf: 0.95
+    for: [shell, packagejson, javascript]
+    if:
+      type: string
+      regex: "bash\\s+-i\\s+>&\\s*/dev/tcp/"
+
+  # Bash /dev/tcp HTTP client pattern (exec FD<>/dev/tcp)
+  # Used by droppers and C2 for HTTP over bash sockets
+  - id: bash-dev-tcp-fd
+    desc: Bash fd redirect to /dev/tcp
+    crit: suspicious
+    conf: 0.95
+    for: [shell]
+    if:
+      type: content
+      regex: 'exec\s+[0-9]+<>"?/dev/tcp/'
+
+  - id: dev-tcp-http-get
+    desc: HTTP GET via /dev/tcp socket
+    crit: suspicious
+    conf: 0.95
+    for: [shell]
+    if:
+      type: string
+      regex: '/dev/tcp/.{0,64}GET\s+/'
+
+  - id: dev-tcp-http-host
+    desc: HTTP Host header via /dev/tcp
+    crit: suspicious
+    conf: 0.9
+    for: [shell]
+    if:
+      type: string
+      regex: "/dev/tcp/.{0,50}Host:"
+
+  # === mkfifo netcat atomic indicators ===
+  - id: mkfifo-cmd
+    desc: mkfifo command for named pipe
+    crit: inert
+    conf: 0.5
+    for: [shell, packagejson]
+    if:
+      type: string
+      word: "mkfifo"
+
+  - id: nc-pipe
+    desc: Netcat with pipe
+    crit: inert
+    conf: 0.5
+    for: [shell, packagejson]
+    if:
+      type: string
+      regex: '\| {0,2}nc '
+
+  # Python reverse shell
+  - id: reverse-shell-python
+    desc: Python reverse shell pattern
+    crit: suspicious
+    conf: 0.95
+    attack: "T1059.006"
+    for: [shell, packagejson, python]
+    if:
+      type: string
+      regex: "python[23]?\\s+-c\\s+['\"]import socket.{0,50}subprocess.{0,50}connect"
+
+  # Perl reverse shell
+  - id: sh-reverse-shell-perl
+    desc: Perl socket reverse shell
+    crit: suspicious
+    conf: 0.95
+    attack: "T1059"
+    for: [shell, packagejson]
+    if:
+      type: string
+      regex: "perl\\s+-e\\s+['\"].{0,50}socket.{0,50}connect.{0,50}exec"
+
+  # === Netcat reverse shell atomic indicators ===
+  - id: nc-exec-sh
+    desc: nc -e /bin/sh pattern
+    crit: suspicious
+    conf: 0.9
+    for: [shell, packagejson]
+    if:
+      type: string
+      regex: 'nc\s+-e\s+/bin/(ba)?sh'
+
+  - id: ncat-exec-sh
+    desc: ncat -e /bin/sh pattern
+    crit: suspicious
+    conf: 0.9
+    for: [shell, packagejson]
+    if:
+      type: string
+      regex: 'ncat\s+-e\s+/bin/(ba)?sh'
+
+  - id: netcat-exec-sh
+    desc: netcat -e /bin/sh pattern
+    crit: suspicious
+    conf: 0.9
+    for: [shell, packagejson]
+    if:
+      type: string
+      regex: 'netcat\s+-e\s+/bin/(ba)?sh'
+
+  # Ruby reverse shell
+  - id: sh-reverse-shell-ruby
+    desc: Ruby socket reverse shell
+    crit: suspicious
+    conf: 0.95
+    attack: "T1059"
+    for: [shell, packagejson, ruby]
+    if:
+      type: string
+      regex: "ruby\\s+-rsocket\\s+-e|TCPSocket\\.open.{0,50}exec"
+
+  # PHP reverse shell
+  - id: reverse-shell-php
+    desc: PHP reverse shell pattern
+    crit: suspicious
+    conf: 0.95
+    attack: "T1059"
+    for: [shell, packagejson, php]
+    if:
+      type: string
+      regex: "php\\s+-r\\s+['\"].{0,50}fsockopen.{0,50}shell_exec|\\$sock\\s*=\\s*fsockopen"
+
+composite_rules:
+  # mkfifo + netcat reverse shell (all of them + small file)
+  - id: reverse-shell-mkfifo
+    desc: Reverse shell using mkfifo and
+    crit: hostile
+    conf: 0.95
+    for: [shell, packagejson]
+    all:
+      - id: mkfifo-cmd
+      - id: cap/exec/command/shell::sh-interactive
+      - id: nc-pipe
+
+  # Netcat reverse shell variants
+  - id: reverse-shell-netcat
+    desc: Netcat reverse shell pattern
+    crit: suspicious
+    conf: 0.9
+    for: [shell, packagejson]
+    any:
+      - id: nc-exec-sh
+      - id: ncat-exec-sh
+      - id: netcat-exec-sh
+
+  # Bash /dev/tcp HTTP client (dropper technique)
+  - id: bash-dev-tcp-http
+    desc: Bash /dev/tcp HTTP client
+    crit: hostile
+    conf: 0.95
+    for: [shell]
+    all:
+      - id: bash-dev-tcp-fd
+    any:
+      - id: dev-tcp-http-get
+      - id: dev-tcp-http-host

@@ -75,7 +75,6 @@ composite_rules:
     desc: OAuth authentication
     crit: notable
     conf: 0.66
-    needs: 1
     any:
       - id: oauth-lower
       - id: oauth-upper
@@ -86,7 +85,6 @@ composite_rules:
     desc: Google OAuth
     crit: notable
     conf: 0.66
-    needs: 1
     any:
       - id: google-accounts
       - id: googleapis-oauth
@@ -95,7 +93,6 @@ composite_rules:
     desc: Office365 OAuth
     crit: notable
     conf: 0.66
-    needs: 1
     any:
       - id: microsoft-login
       - id: microsoft-graph

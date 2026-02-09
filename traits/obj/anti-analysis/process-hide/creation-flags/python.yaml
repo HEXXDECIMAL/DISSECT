@@ -67,7 +67,6 @@ composite_rules:
     desc: "Subprocess module process creation call"
     conf: 0.7
     crit: notable
-    needs: 1
     any:
       - id: cap/exec/command/subprocess/
 
@@ -76,7 +75,6 @@ composite_rules:
     desc: "Hidden or detached process window"
     conf: 0.85
     crit: notable
-    needs: 1
     any:
       - id: create-no-window
       - id: detached-process

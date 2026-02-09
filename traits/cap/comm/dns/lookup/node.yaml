@@ -62,7 +62,6 @@ composite_rules:
     desc: Node.js DNS lookup operations
     crit: notable
     conf: 0.7
-    needs: 1
     any:
       - id: dns-lookup-call
       - id: dns-resolve-call

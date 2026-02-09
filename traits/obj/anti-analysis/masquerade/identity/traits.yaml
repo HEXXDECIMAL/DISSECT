@@ -128,7 +128,7 @@ composite_rules:
     for: [elf]
     all:
       - id: prctl-symbol
-      - id: obj/c2/backdoor/method::daemon-symbols
+      - id: obj/c2/backdoor/pty-shell::daemon-symbols
     any:
       - id: fake-smartd
       - id: fake-syslogd
@@ -162,4 +162,4 @@ composite_rules:
     all:
       - id: daemon-paths
       - id: cap/comm/socket/create
-      - id: obj/c2/backdoor/method::daemon-symbols
+      - id: obj/c2/backdoor/pty-shell::daemon-symbols

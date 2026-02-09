@@ -25,7 +25,6 @@ composite_rules:
     crit: notable
     conf: 0.8
     for: [binaries, python, javascript]
-    needs: 1
     any:
       - id: azure-ai-openai
       - id: openai-ref

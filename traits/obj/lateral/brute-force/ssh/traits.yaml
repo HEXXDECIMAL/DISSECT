@@ -315,7 +315,7 @@ composite_rules:
     desc: SSH port with threading
     all:
       - id: ssh-port-refs
-      - id: cap/process/threading/thread::concurrent
+      - id: cap/process/threading/operations::concurrent
       - id: cap/comm/socket/connect::connect
 
   # SSH scanner patterns

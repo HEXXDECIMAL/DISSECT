@@ -142,7 +142,6 @@ composite_rules:
     desc: File write operation
     crit: inert
     conf: 0.7
-    needs: 1
     any:
       - id: writeFileSync-call
       - id: writeFile-call
@@ -152,7 +151,6 @@ composite_rules:
     desc: File delete operation
     crit: inert
     conf: 0.7
-    needs: 1
     any:
       - id: unlinkSync-call
       - id: unlink-call
@@ -162,7 +160,6 @@ composite_rules:
     desc: Process execution (spawn/spawnSync)
     crit: notable
     conf: 0.7
-    needs: 1
     any:
       - id: spawnSync-call
       - id: spawn-call
@@ -173,7 +170,6 @@ composite_rules:
     desc: Detached process spawn
     crit: notable
     conf: 0.8
-    needs: 1
     any:
       - id: detached-true
       - id: detached-colon-true
@@ -183,7 +179,6 @@ composite_rules:
     desc: Temporary JavaScript file
     crit: notable
     conf: 0.8
-    needs: 1
     any:
       - id: temp-js-file
       - id: random-temp-filename
@@ -193,7 +188,6 @@ composite_rules:
     desc: Immediately invoked function
     crit: inert
     conf: 0.6
-    needs: 1
     any:
       - id: iife-start
       - id: iife-arrow

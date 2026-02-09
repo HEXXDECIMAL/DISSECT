@@ -80,7 +80,6 @@ composite_rules:
     desc: HTTP client command line tool
     crit: notable
     conf: 0.5
-    needs: 1
     any:
       - id: curl-cmd
       - id: wget-cmd
@@ -91,7 +90,6 @@ composite_rules:
     crit: notable
     conf: 0.7
     mbc: "C0002"
-    needs: 1
     any:
       - id: curl-post-x
       - id: curl-user-header
@@ -102,7 +100,6 @@ composite_rules:
     desc: curl file upload
     crit: notable
     conf: 0.6
-    needs: 1
     any:
       - id: curl-form-upload
       - id: curl-data-binary

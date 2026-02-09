@@ -49,7 +49,6 @@ composite_rules:
     crit: suspicious
     conf: 0.92
     for: [javascript, typescript]
-    needs: 1
     any:
       - id: nested-atob
       - id: nested-buffer-base64

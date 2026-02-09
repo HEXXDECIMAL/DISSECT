@@ -15,7 +15,7 @@ composite_rules:
     desc: Curl POST with data (potential
     crit: suspicious
     conf: 0.85
-    any:
+    all:
       - id: cap/comm/http/client::curl-post
     unless:
       - id: cap/os/admin/legitimate/http-tools/package-manager
@@ -27,32 +27,19 @@ composite_rules:
     desc: Curl file upload
     crit: suspicious
     conf: 0.85
-    any:
+    all:
       - id: cap/comm/http/client::curl-upload
     unless:
       - id: cap/os/admin/legitimate/http-tools/package-manager
       - id: cap/os/admin/legitimate/http-tools/ci-cd-pipeline
       - id: cap/os/admin/legitimate/http-tools/backup-script
 
-  - id: wget-post
-    desc: Wget POST request (potential exfiltration)
-    crit: suspicious
-    conf: 0.8
-    needs: 1
-    any:
-      - id: cap/comm/http/client::wget-post-data
-      - id: cap/comm/http/client::wget-post-file
-    unless:
-      - id: cap/os/admin/legitimate/http-tools/package-manager
-      - id: cap/os/admin/legitimate/http-tools/ci-cd-pipeline
-      - id: cap/os/admin/legitimate/http-tools/installer-script
-
   - id: nc-exfil
     desc: Netcat exfiltration
     crit: suspicious
     conf: 0.85
     attack: "T1048"
-    any:
+    all:
       - id: cap/comm/http/client::client
     unless:
       - id: cap/os/admin/legitimate/http-tools/backup-script

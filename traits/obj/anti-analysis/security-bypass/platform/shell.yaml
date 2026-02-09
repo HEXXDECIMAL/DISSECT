@@ -1,166 +1,51 @@
-# Shell Security Bypass Detection
-# Detects attempts to disable security controls in shell scripts
-# ATT&CK: T1562 (Impair Defenses)
+# Security Monitoring Agent Bypass Detection
+# Detects attempts to disable security monitoring and detection agents
+# ATT&CK: T1562.001 (Impair Defenses: Disable or Modify Tools)
+#
+# NOTE: MAC controls (SELinux/AppArmor) moved to obj/impact/degrade/mac/
+# NOTE: Firewall controls moved to obj/impact/degrade/firewall/
+# This file focuses on disabling monitoring/detection agents (true anti-analysis)
 
 defaults:
   crit: suspicious
-  attack: "T1562"
+  attack: "T1562.001"
   for: [shell]
 
 traits:
-  # === SELinux Bypass ===
-  - id: selinux-setsebool
-    desc: SELinux boolean modification
-    crit: suspicious
-    conf: 0.85
-    attack: "T1562.001"
-    if:
-      type: content
-      word: "setsebool"
-
-  - id: selinux-setenforce
-    desc: SELinux mode change
-    crit: suspicious
-    conf: 0.90
-    attack: "T1562.001"
-    if:
-      type: content
-      regex: "\\bsetenforce\\s+0\\b"
-
-  - id: selinux-disable
-    desc: SELinux disable pattern
-    crit: suspicious
-    conf: 0.90
-    attack: "T1562.001"
-    if:
-      type: content
-      regex: "SELINUX\\s*=\\s*disabled"
-
-  # === AppArmor Bypass ===
-  - id: apparmor-disable
-    desc: AppArmor profile disable
-    crit: suspicious
-    conf: 0.90
-    attack: "T1562.001"
-    if:
-      type: content
-      regex: "\\baa-disable\\b|apparmor_parser\\s+-R"
-
-  - id: apparmor-stop
-    desc: AppArmor service stop
-    crit: suspicious
-    conf: 0.90
-    attack: "T1562.001"
-    if:
-      type: content
-      regex: "service\\s+apparmor\\s+stop|systemctl\\s+(?:stop|disable)\\s+apparmor"
-
-  # === Firewall Bypass ===
-  - id: ufw-disable
-    desc: UFW firewall disable
-    crit: suspicious
-    conf: 0.90
-    attack: "T1562.004"
-    if:
-      type: content
-      regex: "\\bufw\\s+disable\\b"
-
-  - id: iptables-flush
-    desc: Iptables flush all rules
-    crit: suspicious
-    conf: 0.90
-    attack: "T1562.004"
-    if:
-      type: content
-      regex: "\\biptables\\s+-F\\b"
-
-  - id: firewalld-stop
-    desc: Firewalld service stop
-    crit: suspicious
-    conf: 0.90
-    attack: "T1562.004"
-    if:
-      type: content
-      regex: "systemctl\\s+(?:stop|disable)\\s+firewalld|service\\s+firewalld\\s+stop"
 
   # === Cloud Security Agent Removal ===
   - id: aliyun-agent-disable
     desc: Aliyun security agent disable
-    crit: suspicious
     conf: 0.95
-    attack: "T1562.001"
     if:
       type: content
       regex: "(?:pkill|kill)[^;]{0,20}aliyun|aegis[^;]{0,20}uninstall|systemctl\\s+(?:stop|disable)\\s+aliyun"
 
   - id: cloud-agent-uninstall
     desc: Cloud security agent uninstall
-    crit: suspicious
     conf: 0.90
-    attack: "T1562.001"
     if:
       type: content
       # Detects uninstall scripts for cloud agents
       regex: "(?:qcloud|aegis|YunJing)[^;]{0,30}uninstall|update\\.aegis\\.aliyun\\.com/download/uninstall"
 
-  # === File Attribute Manipulation ===
-  - id: chattr-remove-immutable
-    desc: Removes immutable attribute
-    crit: suspicious
-    conf: 0.85
-    attack: "T1222.002"
-    if:
-      type: content
-      # chattr -i or -iau to remove immutable/append-only flags
-      regex: "\\bchattr\\s+-[iau]+"
-
   # === Watchdog/NMI Disable ===
   - id: nmi-watchdog-disable
-    desc: NMI watchdog disable
-    crit: suspicious
+    desc: NMI watchdog disable (crash detection)
     conf: 0.85
-    attack: "T1562.001"
     if:
       type: content
       regex: "nmi_watchdog\\s*=\\s*0|echo\\s+['\"]?0['\"]?[^>]{0,20}>[^\\n]{0,50}nmi_watchdog"
 
 composite_rules:
-  # Multiple security bypasses indicate malware preparation
-  # Complexity: count_min(3) from any(6) + for(1) = 4 >= 4 ✓ HOSTILE
-  - id: multi-security-bypass
-    desc: Multiple security controls disabled
+  # Multiple monitoring agents disabled
+  - id: multi-agent-disable
+    desc: Multiple monitoring agents disabled
     crit: hostile
     conf: 0.95
-    attack: "T1562"
+    attack: "T1562.001"
+    needs: 2
     any:
-      - id: selinux-setenforce
-      - id: selinux-disable
-      - id: apparmor-disable
-      - id: apparmor-stop
-      - id: ufw-disable
-      - id: iptables-flush
-    needs: 3
-
-  # Firewall + SELinux + AppArmor disable is a strong malware indicator
-  # Complexity: all(3) + for(1) = 4 >= 4 ✓ HOSTILE
-  - id: full-security-disable
-    desc: Full security stack disable
-    crit: hostile
-    conf: 0.95
-    attack: "T1562"
-    all:
-      - id: selinux-setenforce
-      - id: ufw-disable
-      - id: apparmor-stop
-
-  # SELinux disable + firewall flush + file attributes
-  # Complexity: all(3) + for(1) = 4 >= 4 ✓ HOSTILE
-  - id: selinux-firewall-disable
-    desc: SELinux and firewall disabled
-    crit: hostile
-    conf: 0.95
-    attack: "T1562"
-    all:
-      - id: selinux-disable
-      - id: iptables-flush
-      - id: chattr-remove-immutable
+      - id: aliyun-agent-disable
+      - id: cloud-agent-uninstall
+      - id: nmi-watchdog-disable

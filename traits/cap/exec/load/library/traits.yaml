@@ -339,7 +339,6 @@ composite_rules:
     desc: X11 IPC library markers (ICE, SM)
     crit: inert
     conf: 0.6
-    needs: 1
     any:
       - id: x11-ice-ref
       - id: x11-sm-ref
@@ -349,7 +348,6 @@ composite_rules:
     desc: Known network library markers
     crit: inert
     conf: 0.5
-    needs: 1
     any:
       - id: libssl-ref
       - id: libcrypto-ref
@@ -361,7 +359,6 @@ composite_rules:
     desc: Video acceleration library markers (VA-API, VDPAU)
     crit: inert
     conf: 0.9
-    needs: 1
     any:
       - id: vaapi-ref
       - id: vdpau-ref
@@ -371,7 +368,6 @@ composite_rules:
     desc: Graphics/OpenGL library markers
     crit: inert
     conf: 0.6
-    needs: 1
     any:
       - id: mesa-ref
       - id: opengl-ref
@@ -383,7 +379,6 @@ composite_rules:
     desc: C++ standard library markers (libc++, libstdc++)
     crit: inert
     conf: 0.9
-    needs: 1
     any:
       - id: libcxx-ref
       - id: libstdcxx-ref
@@ -393,7 +388,6 @@ composite_rules:
     desc: Known system library markers
     crit: inert
     conf: 0.5
-    needs: 1
     any:
       - id: gnu-coreutils-ref
       - id: glibc-ref
@@ -409,7 +403,6 @@ composite_rules:
     desc: Compression library markers
     crit: inert
     conf: 0.4
-    needs: 1
     any:
       - id: lzma-ref
       - id: xz-ref
@@ -420,7 +413,6 @@ composite_rules:
     crit: inert
     conf: 0.9
     for: [elf, macho]
-    needs: 1
     any:
       - id: shell-keyword-marker
       - id: shell-builtin-marker
@@ -429,7 +421,6 @@ composite_rules:
     desc: Compiler or build tool binary
     crit: inert
     conf: 0.8
-    needs: 1
     any:
       - id: llvm-project-ref
       - id: llvm-lib-ref
@@ -449,7 +440,6 @@ composite_rules:
     crit: inert
     conf: 0.9
     for: [elf, macho]
-    needs: 1
     any:
       - id: gdb-debugger-ref
       - id: lldb-debugger-ref

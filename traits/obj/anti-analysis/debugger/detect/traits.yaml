@@ -1,7 +1,7 @@
 # Debugger Detection
 # MBC: OB0001 (Anti-Behavioral Analysis) → B0001 (Debugger Detection)
 # ATT&CK: T1622 (Debugger Evasion)
-# NOTE: /proc/self/status is defined in fs/proc/process/linux.yaml (process-self-status)
+# NOTE: /proc/self/status is defined in fs/proc/info/linux.yaml (process-self-status)
 
 traits:
   # === ptrace constant atomic indicators ===
@@ -129,11 +129,10 @@ composite_rules:
     mbc: "B0001"
     attack: "T1622"
     platforms: [linux]
-    needs: 1
     any:
       - id: cap/os/syscall/invoke::ptrace
-      - id: cap/fs/proc/process::process-self-status
-      - id: cap/fs/proc/process::process-self-maps
+      - id: cap/fs/proc/info::process-self-status
+      - id: cap/fs/proc/info::process-self-maps
       - id: tracerpid-string
 
   # ptrace constant composite
@@ -143,7 +142,6 @@ composite_rules:
     mbc: "B0001.m01"
     attack: "T1622"
     conf: 0.8
-    needs: 1
     any:
       - id: ptrace-traceme
       - id: pt-deny-attach
@@ -158,7 +156,6 @@ composite_rules:
     attack: "T1622"
     conf: 0.9
     platforms: [windows]
-    needs: 1
     any:
       - id: win-isdebuggerpresent
       - id: win-checkremotedebugger

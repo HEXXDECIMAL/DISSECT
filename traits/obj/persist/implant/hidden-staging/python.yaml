@@ -11,6 +11,5 @@ composite_rules:
     mbc: "E1564"
     attack: "T1564.001"
     all:
-      - id: cap/fs/hide/create::hidden-dir-creation
-      - id: cap/fs/path::user-home-dir
+      - id: cap/fs/path/user::python-home-hidden-dir
       - id: cap/exec/command/subprocess

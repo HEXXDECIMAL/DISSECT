@@ -51,7 +51,6 @@ composite_rules:
     desc: "Iteration or loop pattern"
     crit: inert
     conf: 0.5
-    needs: 1
     any:
       - id: for-loop-ast
       - id: for-loop-content

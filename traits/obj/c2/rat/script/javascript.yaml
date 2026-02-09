@@ -170,10 +170,9 @@ composite_rules:
     conf: 0.85
     attack: "T1082"
     for: [javascript] # +1
-    all: # +2
-      - id: hostname-username-concatenation
+    all: # +1
       - id: client-uuid-pattern
     any: # +1
       - id: process-id-collection
       - id: obj/discovery/host/system::os-homedir-call
-    # Total complexity: 4 (1 + 2 + 1 = 4)
+    # Total complexity: 3 (1 + 1 + 1 = 3)

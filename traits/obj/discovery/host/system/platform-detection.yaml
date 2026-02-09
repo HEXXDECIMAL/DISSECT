@@ -94,22 +94,6 @@ traits:
       type: string
       substr: "ifconfig"
 
-  - id: windows-tasklist
-    desc: Windows tasklist command
-    crit: inert
-    conf: 0.50
-    if:
-      type: string
-      substr: "tasklist"
-
-  - id: unix-ps
-    desc: Unix ps command
-    crit: inert
-    conf: 0.50
-    if:
-      type: string
-      substr: "ps -ef"
-
 composite_rules:
   # === Platform Detection Composites ===
   - id: platform-profiling

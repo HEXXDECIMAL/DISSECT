@@ -51,7 +51,6 @@ composite_rules:
     conf: 0.4
     all:
       - id: rdtsc
-    needs: 1
     any:
       - id: sys-clock-gettime
       - id: sys-gettimeofday

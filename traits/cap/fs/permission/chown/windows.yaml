@@ -34,7 +34,6 @@ composite_rules:
     desc: Take ownership of files (Windows
     crit: notable
     conf: 0.66
-    needs: 1
     any:
       - id: takeown-lower
       - id: takeown-upper

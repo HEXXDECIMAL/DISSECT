@@ -98,7 +98,6 @@ composite_rules:
     desc: Anti-duplicate infection pattern
     crit: suspicious
     conf: 0.9
-    needs: 1
     any:
       - id: is-process-running-func
       - id: kill-process-md5

@@ -186,6 +186,7 @@ traits:
     conf: 0.95
     attack: "T1555.003"
     mbc: "B0028"
+    for: [all]
     if:
       type: string
       regex: "SELECT.{0,30}origin_url.{0,30}username_value.{0,30}password_value.{0,30}FROM\\s+logins"
@@ -232,7 +233,6 @@ composite_rules:
     crit: suspicious
     conf: 0.7
     attack: "T1555.003"
-    needs: 1
     any:
       - id: opera-macos-path
       - id: opera-windows-path
@@ -243,7 +243,6 @@ composite_rules:
     crit: notable
     conf: 0.7
     attack: "T1555.003"
-    needs: 1
     any:
       - id: arc-macos-path
       - id: arc-userdata-path
@@ -254,7 +253,6 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     attack: "T1555.003"
-    needs: 1
     any:
       - id: chromium-cookie-sql
       - id: firefox-cookie-sql

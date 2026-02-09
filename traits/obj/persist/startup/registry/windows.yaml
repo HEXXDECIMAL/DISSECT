@@ -411,7 +411,6 @@ composite_rules:
     conf: 0.85
     crit: suspicious
     platforms: [windows]
-    needs: 1
     any:
       - id: start-menu-startup
       - id: appdata-startup
@@ -423,7 +422,6 @@ composite_rules:
     conf: 0.9
     crit: suspicious
     platforms: [windows]
-    needs: 1
     any:
       - id: software-run-key
       - id: hkcu-run
@@ -439,7 +437,6 @@ composite_rules:
     conf: 0.9
     crit: suspicious
     platforms: [windows]
-    needs: 1
     any:
       - id: currentversion-runonce
       - id: runonce-word
@@ -451,7 +448,6 @@ composite_rules:
     crit: notable
     platforms: [windows]
     for: [python]
-    needs: 1
     any:
       - id: import-winreg
       - id: from-winreg
@@ -466,7 +462,6 @@ composite_rules:
     size_max: 5000
     platforms: [windows]
     for: [python]
-    needs: 1
     any:
       - id: import-winreg
       - id: from-winreg
@@ -484,7 +479,6 @@ composite_rules:
     conf: 0.8
     crit: notable
     platforms: [windows]
-    needs: 1
     any:
       - id: currentversion-run
       - id: openkey-hkey
@@ -497,7 +491,6 @@ composite_rules:
     attack: "T1053.005"
     size_max: 500000
     platforms: [windows]
-    needs: 1
     any:
       - id: schtasks-create-cmd
       - id: schtasks-exe-create
@@ -512,7 +505,6 @@ composite_rules:
     attack: "T1053.005"
     size_max: 500000
     platforms: [windows]
-    needs: 1
     any:
       - id: schtasks-create-cmd
       - id: schtasks-exe-create
@@ -524,7 +516,6 @@ composite_rules:
     conf: 0.85
     attack: "T1543.003"
     platforms: [windows]
-    needs: 1
     any:
       - id: sc-create-cmd
       - id: createservice-api
@@ -537,7 +528,6 @@ composite_rules:
     conf: 0.9
     crit: suspicious
     platforms: [windows]
-    needs: 1
     any:
       - id: set-itemproperty-run
       - id: new-itemproperty-run
@@ -550,7 +540,6 @@ composite_rules:
     crit: suspicious
     attack: "T1546.003"
     platforms: [windows]
-    needs: 1
     any:
       - id: wmi-eventfilter
       - id: wmi-filtertoconsumer
@@ -563,7 +552,6 @@ composite_rules:
     conf: 0.6
     crit: notable
     platforms: [windows]
-    needs: 1
     any:
       - id: exe-extension
       - id: bat-extension

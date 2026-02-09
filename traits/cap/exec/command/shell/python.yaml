@@ -59,7 +59,6 @@ composite_rules:
     desc: "Masquerades as system process"
     crit: notable
     conf: 0.8
-    needs: 1
     any:
       - id: masq-realtek
       - id: masq-windowsupdate

@@ -1428,7 +1428,32 @@ impl CapabilityMapper {
             trait_file_types.insert(rule.id.clone(), rule.r#for.clone());
         }
 
+        // Build metadata lookup for traits and composites
+        let mut trait_metadata: FxHashMap<
+            String,
+            (Criticality, f32, Option<String>, Option<String>),
+        > = FxHashMap::default();
+        for trait_def in &trait_definitions {
+            trait_metadata.insert(
+                trait_def.id.clone(),
+                (
+                    trait_def.crit,
+                    trait_def.conf,
+                    trait_def.attack.clone(),
+                    trait_def.mbc.clone(),
+                ),
+            );
+        }
+        for rule in &composite_rules {
+            trait_metadata.insert(
+                rule.id.clone(),
+                (rule.crit, rule.conf, rule.attack.clone(), rule.mbc.clone()),
+            );
+        }
+
         let mut redundant_composites = Vec::new();
+        let mut unless_only_composites = Vec::new();
+
         for rule in &composite_rules {
             // Check if this is a single-rule composite
             let mut total_conditions = 0;
@@ -1456,11 +1481,41 @@ impl CapabilityMapper {
                                 .get(&rule.id)
                                 .map(|s| s.as_str())
                                 .unwrap_or("unknown");
-                            redundant_composites.push((
-                                rule.id.clone(),
-                                ref_id.clone(),
-                                source_file.to_string(),
-                            ));
+
+                            // Check if this composite only adds an 'unless' clause
+                            // If so, it might be better expressed as a downgrade
+                            let has_unless = rule.unless.as_ref().map_or(false, |u| !u.is_empty());
+                            let has_downgrade = rule.downgrade.is_some();
+
+                            // Check if metadata is being changed
+                            let metadata_changed = if let Some((ref_crit, ref_conf, ref_attack, ref_mbc)) =
+                                trait_metadata.get(ref_id)
+                            {
+                                rule.crit != *ref_crit
+                                    || (rule.conf - ref_conf).abs() > 0.001
+                                    || rule.attack != *ref_attack
+                                    || rule.mbc != *ref_mbc
+                            } else {
+                                false
+                            };
+
+                            if has_unless && !has_downgrade && !metadata_changed {
+                                // Only adds unless, no metadata changes - suggest downgrade pattern
+                                unless_only_composites.push((
+                                    rule.id.clone(),
+                                    ref_id.clone(),
+                                    source_file.to_string(),
+                                ));
+                            } else if !has_unless && !has_downgrade && !metadata_changed {
+                                // Truly useless - no unless, no downgrade, no metadata changes, same file types
+                                redundant_composites.push((
+                                    rule.id.clone(),
+                                    ref_id.clone(),
+                                    source_file.to_string(),
+                                ));
+                            }
+                            // If metadata_changed is true, this is a legitimate composite
+                            // that's creating a distinct finding with different properties
                         }
                     }
                 }
@@ -1469,22 +1524,49 @@ impl CapabilityMapper {
 
         if !redundant_composites.is_empty() {
             eprintln!(
-                "\n⚠️  WARNING: {} single-rule composites have identical file types to their referenced trait",
+                "\n⚠️  WARNING: {} single-trait composites add no value",
                 redundant_composites.len()
             );
             eprintln!(
-                "   These composites add no value - consider removing them or adding more conditions:\n"
+                "   These composites only reference one trait with identical file types and no unless/downgrade clauses.\n"
             );
+            eprintln!("   Consider removing them or adding more conditions:\n");
             for (rule_id, ref_id, source_file) in &redundant_composites {
                 let line_hint = find_line_number(source_file, rule_id);
                 if let Some(line) = line_hint {
                     eprintln!(
-                        "   {}:{}: Composite '{}' only references '{}' with same file types",
+                        "   {}:{}: Composite '{}' only references '{}'",
                         source_file, line, rule_id, ref_id
                     );
                 } else {
                     eprintln!(
-                        "   {}: Composite '{}' only references '{}' with same file types",
+                        "   {}: Composite '{}' only references '{}'",
+                        source_file, rule_id, ref_id
+                    );
+                }
+            }
+            eprintln!();
+            std::process::exit(1);
+        }
+
+        if !unless_only_composites.is_empty() {
+            eprintln!(
+                "\n⚠️  WARNING: {} single-trait composites only add 'unless' clauses",
+                unless_only_composites.len()
+            );
+            eprintln!("   Instead of creating a composite with only an unless clause:");
+            eprintln!("   1. Increase the criticality of the base trait");
+            eprintln!("   2. Add a downgrade clause to the base trait for the unless conditions\n");
+            for (rule_id, ref_id, source_file) in &unless_only_composites {
+                let line_hint = find_line_number(source_file, rule_id);
+                if let Some(line) = line_hint {
+                    eprintln!(
+                        "   {}:{}: Composite '{}' only adds unless to '{}'",
+                        source_file, line, rule_id, ref_id
+                    );
+                } else {
+                    eprintln!(
+                        "   {}: Composite '{}' only adds unless to '{}'",
                         source_file, rule_id, ref_id
                     );
                 }

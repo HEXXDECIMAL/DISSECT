@@ -171,7 +171,6 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     for: [shell, batch, powershell]
-    needs: 1
     any:
       - id: defender-add-exclusion
       - id: defender-exclusion-path
@@ -185,7 +184,6 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     for: [shell, batch, powershell]
-    needs: 1
     any:
       - id: defender-disable-realtime
       - id: defender-disable-behavior
@@ -198,7 +196,6 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     for: [shell, batch, powershell]
-    needs: 1
     any:
       - id: amsi-bypass-init
       - id: amsi-bypass-reflection
@@ -209,7 +206,6 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     for: [shell, batch, powershell]
-    needs: 1
     any:
       - id: defender-exclusion
       - id: defender-disable

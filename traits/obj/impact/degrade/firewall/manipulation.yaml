@@ -10,11 +10,5 @@ composite_rules:
     for: [elf, shell]
     attack: "T1562.004"
     mbc: "E1562"
-    needs: 3
     any:
-      - id: cap/os/firewall/rules::firewall-cmd-add-port
-      - id: cap/os/firewall/rules::firewall-cmd-permanent
-      - id: cap/os/firewall/rules::firewall-cmd-reload
-      - id: cap/os/firewall/rules::ufw-allow-ssh
-      - id: cap/os/firewall/rules::ufw-enable
-      - id: cap/os/firewall/rules::firewalld-service-control
+      - id: cap/os/firewall/rules

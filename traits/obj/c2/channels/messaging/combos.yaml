@@ -10,13 +10,3 @@ composite_rules:
     all:
       - id: obj/creds/discord/token::telegram-exfil
       - id: http-post
-
-  - id: discord
-    desc: Data exfiltration via Discord webhook
-    crit: suspicious
-    mbc: "B0030.001"
-    attack: "T1567.001"
-    conf: 0.9
-    for: [javascript, python, powershell, shell]
-    any:
-      - id: obj/exfil/channel/webhook::discord-exfiltration

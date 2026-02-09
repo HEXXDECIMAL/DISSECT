@@ -1,0 +1,472 @@
+# PTY-based Reverse Shell Patterns
+# ATT&CK: T1059 (Command and Scripting Interpreter)
+# Detects interactive shell spawning via PTY
+
+traits:
+  # === Python PTY micro-traits ===
+  - id: python-socket
+    desc: socket module reference
+    crit: inert
+    conf: 0.4
+    for: [python]
+    if:
+      type: string
+      substr: "socket"
+
+  # === Python subprocess micro-traits ===
+  - id: socket-socket
+    desc: socket.socket call
+    crit: notable
+    conf: 0.6
+    for: [python]
+    if:
+      type: string
+      substr: "socket.socket"
+
+  - id: socket-connect
+    desc: .connect( socket method
+    crit: notable
+    conf: 0.6
+    for: [python]
+    if:
+      type: string
+      substr: ".connect("
+
+  - id: py-stdin-pipe
+    desc: stdin= pipe argument (Python)
+    crit: notable
+    conf: 0.6
+    for: [python]
+    if:
+      type: string
+      substr: "stdin="
+
+  - id: py-stdout-pipe
+    desc: stdout= pipe argument (Python)
+    crit: inert
+    conf: 0.4
+    for: [python]
+    if:
+      type: string
+      substr: "stdout="
+
+  - id: py-stderr-pipe
+    desc: stderr= pipe argument (Python)
+    crit: inert
+    conf: 0.4
+    for: [python]
+    if:
+      type: string
+      substr: "stderr="
+
+  # === Node.js PTY micro-traits ===
+  - id: pty-node-module-ref
+    desc: node-pty module reference
+    crit: notable
+    conf: 0.7
+    attack: "T1059.007"
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "node-pty"
+
+  - id: pty-spawn-node
+    desc: pty.spawn call (Node.js)
+    crit: notable
+    conf: 0.7
+    attack: "T1059.007"
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "pty.spawn"
+
+  - id: pty-js-require
+    desc: require('pty.js') call
+    crit: notable
+    conf: 0.7
+    attack: "T1059.007"
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "require('pty.js')"
+
+  - id: net-socket-node
+    desc: net.Socket reference
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "new net.Socket"
+
+  - id: socket-connect-node
+    desc: socket.connect call
+    crit: notable
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "socket.connect"
+
+  - id: websocket-ref
+    desc: WebSocket reference
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "WebSocket"
+
+  # === STDIO piping micro-traits ===
+  - id: stdin-string
+    desc: stdin string reference
+    crit: inert
+    conf: 0.3
+    for: [python, javascript, typescript]
+    if:
+      type: string
+      substr: "stdin"
+
+  - id: stdout-string
+    desc: stdout string reference
+    crit: inert
+    conf: 0.3
+    for: [python, javascript, typescript]
+    if:
+      type: string
+      substr: "stdout"
+
+  - id: stderr-string
+    desc: stderr string reference
+    crit: inert
+    conf: 0.3
+    for: [python, javascript, typescript]
+    if:
+      type: string
+      substr: "stderr"
+
+  - id: dot-pipe
+    desc: .pipe( method call
+    crit: inert
+    conf: 0.4
+    for: [python, javascript, typescript]
+    if:
+      type: string
+      substr: ".pipe("
+
+  - id: pipe-constant
+    desc: PIPE constant reference
+    crit: inert
+    conf: 0.4
+    for: [python]
+    if:
+      type: string
+      exact: "PIPE"
+
+  # === Interactive shell micro-traits ===
+  - id: isatty-call
+    desc: isatty function call
+    crit: inert
+    conf: 0.4
+    for: [python, javascript, shell]
+    if:
+      type: string
+      substr: "isatty"
+
+  - id: ttyname-call
+    desc: ttyname function call
+    crit: notable
+    conf: 0.5
+    for: [python, javascript, shell]
+    if:
+      type: string
+      substr: "ttyname"
+
+  - id: dev-tty
+    desc: /dev/tty device reference
+    crit: notable
+    conf: 0.6
+    for: [python, javascript, shell]
+    if:
+      type: string
+      substr: "/dev/tty"
+
+  - id: term-env
+    desc: TERM= environment setting
+    crit: inert
+    conf: 0.3
+    for: [python, javascript, shell]
+    if:
+      type: string
+      substr: "TERM="
+
+  - id: xterm-ref
+    desc: xterm terminal reference
+    crit: inert
+    conf: 0.3
+    for: [python, javascript, shell]
+    if:
+      type: string
+      substr: "xterm"
+
+  - id: stty-cmd
+    desc: stty command reference
+    crit: inert
+    conf: 0.4
+    for: [python, javascript, shell]
+    # NOTE: stty alone is legitimate (reading user input in installers)
+    # Only suspicious when combined with socket/network operations
+    if:
+      type: string
+      exact: "stty"
+
+  - id: raw-mode
+    desc: raw mode reference
+    crit: inert
+    conf: 0.4
+    for: [python, javascript, shell]
+    if:
+      type: string
+      # Match "raw mode", "setraw", "cfmakeraw", "stty raw" etc.
+      # Avoid matching "draw", "drawing" etc.
+      regex: "\\braw\\s*(mode)?\\b|setraw|cfmakeraw|stty\\s+raw"
+
+  # === Socat atomic indicators ===
+  - id: socat-exec-sh
+    desc: socat EXEC shell pattern
+    crit: inert
+    conf: 0.8
+    for: [shell, packagejson]
+    if:
+      type: string
+      regex: 'socat\s+.{0,50}EXEC.{0,20}sh'
+
+  - id: socat-tcp-exec
+    desc: socat TCP EXEC pattern
+    crit: inert
+    conf: 0.8
+    for: [shell, packagejson]
+    if:
+      type: string
+      regex: 'socat\s+.{0,50}TCP.{0,30}EXEC'
+
+  - id: socat-pty
+    desc: socat PTY pattern
+    crit: inert
+    conf: 0.8
+    for: [shell, packagejson]
+    if:
+      type: string
+      regex: 'socat\s+.{0,50}PTY'
+
+  # === Telnet atomic indicators ===
+  - id: telnet-pipe
+    desc: telnet piped reverse shell pattern
+    crit: inert
+    conf: 0.8
+    for: [shell, packagejson]
+    if:
+      type: string
+      regex: 'telnet\s+\S+\s+\d+\s*\|.{0,50}\|\s*telnet'
+
+  - id: mknod-telnet
+    desc: mknod telnet reverse shell pattern
+    crit: inert
+    conf: 0.8
+    for: [shell, packagejson]
+    if:
+      type: string
+      regex: "mknod.{0,30}telnet"
+
+composite_rules:
+  # Python PTY composite
+  - id: python-pty-module
+    desc: Python pty module usage
+    crit: notable
+    conf: 0.7
+    for: [python]
+    any:
+      - id: cap/exec/tty/pty::pty-spawn
+      - id: cap/exec/tty/pty::import-pty
+
+  # Shell path composite
+  - id: py-shell-path
+    desc: Shell executable path (Python)
+    crit: notable
+    conf: 0.5
+    any:
+      - id: cap/exec/command/shell::bin-sh
+      - id: cap/exec/command/shell::bin-bash
+
+  # Python PTY shell (migrated from YARA)
+  - id: python-pty
+    desc: Python PTY spawn reverse shell
+    crit: suspicious
+    conf: 0.95
+    attack: "T1059.006"
+    for: [python]
+    all:
+      - id: python-pty-module
+    any:
+      - id: py-shell-path
+      - id: python-socket
+
+  # Python pipe composite
+  - id: python-pipe
+    desc: Python subprocess pipe arguments
+    crit: notable
+    conf: 0.6
+    for: [python]
+    any:
+      - id: py-stdin-pipe
+      - id: py-stdout-pipe
+      - id: py-stderr-pipe
+
+  # Python socket shell (migrated from YARA)
+  - id: python-socket-shell
+    desc: Python socket-based reverse shell
+    crit: suspicious
+    conf: 0.95
+    attack: "T1059.006"
+    for: [python]
+    all:
+      - id: socket-socket
+      - id: socket-connect
+      - id: cap/exec/fileless/memory::subprocess-mod
+      - id: python-pipe
+
+  # Node.js PTY composite
+  - id: node-pty-module
+    desc: Node.js PTY module usage
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
+    any:
+      - id: pty-node-module-ref
+      - id: pty-spawn-node
+      - id: pty-js-require
+
+  # Node.js socket composite
+  - id: node-socket
+    desc: Node.js socket connection
+    crit: notable
+    conf: 0.6
+    for: [javascript, typescript]
+    any:
+      - id: net-socket-node
+      - id: socket-connect-node
+      - id: websocket-ref
+
+  # Node.js PTY shell (migrated from YARA)
+  - id: node-pty
+    desc: Node.js PTY-based reverse shell
+    crit: suspicious
+    conf: 0.95
+    attack: "T1059.007"
+    for: [javascript, typescript]
+    all:
+      - id: node-pty-module
+      - id: node-socket
+
+  # STDIO strings composite
+  - id: stdio-refs
+    desc: Standard I/O references
+    crit: inert
+    conf: 0.4
+    needs: 2
+    any:
+      - id: stdin-string
+      - id: stdout-string
+      - id: stderr-string
+
+  # Pipe methods composite
+  - id: pipe-methods
+    desc: Pipe methods
+    crit: inert
+    conf: 0.5
+    any:
+      - id: dot-pipe
+      - id: pipe-constant
+
+  # Socket connect composite
+  - id: socket-connection
+    desc: Socket connection pattern
+    crit: notable
+    conf: 0.6
+    any:
+      - id: python-socket
+      - id: socket-connect
+
+  # STDIO socket piping (migrated from YARA)
+  - id: stdio-socket
+    desc: Stdin/stdout piped to socket (reverse
+    crit: suspicious
+    conf: 0.9
+    attack: "T1059"
+    for: [python, javascript, typescript]
+    all:
+      - id: stdio-refs
+      - id: pipe-methods
+      - id: socket-connection
+
+  # TTY marker composite
+  - id: tty-markers
+    desc: TTY device markers
+    crit: notable
+    conf: 0.5
+    any:
+      - id: isatty-call
+      - id: ttyname-call
+      - id: dev-tty
+
+  # Terminal setup composite
+  - id: terminal-setup
+    desc: Terminal setup markers
+    crit: inert
+    conf: 0.4
+    any:
+      - id: term-env
+      - id: xterm-ref
+      - id: stty-cmd
+      - id: raw-mode
+
+  # Interactive shell markers (migrated from YARA)
+  # NOTE: TTY manipulation alone is legitimate (e.g., reading user input)
+  # Only flag as suspicious when combined with network/socket operations
+  - id: interactive-markers
+    desc: Interactive shell session markers
+    crit: notable
+    conf: 0.7
+    attack: "T1059"
+    for: [python, javascript, shell]
+    needs: 3
+    any:
+      - id: tty-markers
+      - id: terminal-setup
+      - id: isatty-call
+      - id: ttyname-call
+      - id: dev-tty
+      - id: stty-cmd
+
+  # Socat composite
+  - id: socat
+    desc: Socat reverse shell pattern
+    crit: suspicious
+    conf: 0.95
+    attack: "T1059.004"
+    for: [shell, packagejson]
+    any:
+      - id: socat-exec-sh
+      - id: socat-tcp-exec
+      - id: socat-pty
+
+  # Telnet composite
+  - id: telnet
+    desc: Telnet-based reverse shell
+    crit: suspicious
+    conf: 0.9
+    attack: "T1059.004"
+    for: [shell, packagejson]
+    any:
+      - id: telnet-pipe
+      - id: mknod-telnet

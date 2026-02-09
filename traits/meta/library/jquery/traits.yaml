@@ -47,7 +47,6 @@ composite_rules:
     desc: "File contains jQuery library"
     crit: benign
     conf: 0.9
-    needs: 1
     any:
       - { id: version-string }
       - { id: domain }

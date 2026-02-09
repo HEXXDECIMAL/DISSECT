@@ -213,7 +213,6 @@ composite_rules:
     desc: High port number (proxy/backdoor indicator)
     crit: suspicious
     conf: 0.8
-    needs: 1
     any:
       - id: port-30000
       - id: port-31337-php

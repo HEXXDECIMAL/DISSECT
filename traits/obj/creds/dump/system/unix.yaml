@@ -31,11 +31,9 @@ composite_rules:
     crit: notable
     conf: 0.9
     attack: "T1003.008"
-    needs: 1
     any:
       - id: cap/fs/path/config/accounts::etc-shadow
       - id: cap/fs/path/config/groups::etc-gshadow
-      - id: etc-master-passwd
 
   - id: shadow-extraction
     desc: Shadow file credential extraction

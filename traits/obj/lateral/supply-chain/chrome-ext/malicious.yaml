@@ -266,7 +266,7 @@ composite_rules:
     conf: 0.85
     for: [javascript, typescript]
     all:
-      - id: obj/lateral/supply-chain/chrome-ext/api/mutation-observer
+      - id: obj/lateral/supply-chain/chrome-ext::mutation-observer
       - id: queryselector-href
     any:
       - id: link-href-assignment
@@ -279,5 +279,5 @@ composite_rules:
     conf: 0.85
     for: [javascript, typescript]
     all:
-      - id: obj/lateral/supply-chain/chrome-ext/api/is-extension
+      - id: obj/lateral/supply-chain/chrome-ext::is-extension
       - id: external-domain-hardcoded

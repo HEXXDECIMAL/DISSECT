@@ -1474,7 +1474,6 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     for: [elf, c]
-    needs: 1
     any:
       - id: memfd-create-call
       - id: sys-memfd-create-ref
@@ -1485,7 +1484,6 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     for: [elf, c]
-    needs: 1
     any:
       - id: finit-module-call
       - id: sys-finit-module-ref
@@ -1507,7 +1505,6 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     for: [c]
-    needs: 1
     any:
       - id: page-rw-flag
       - id: page-nx-flag
@@ -1588,7 +1585,6 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     for: [c]
-    needs: 1
     any:
       - id: cr0-variable-str
       - id: force-order-str
@@ -1623,7 +1619,6 @@ composite_rules:
     all:
       - id: linkage-include-str
       - id: kprobes-kallsyms
-    needs: 1
     any:
       - id: syscall-hook-setup
       - id: cr0-bypass
@@ -1635,7 +1630,6 @@ composite_rules:
     conf: 0.95
     attack: "T1014"
     for: [c]
-    needs: 1
     any:
       - id: solaris-ddi-header
       - id: solaris-sunddi-header
@@ -1650,7 +1644,6 @@ composite_rules:
     for: [c]
     all:
       - id: hot-patch-kernel-text-call
-    needs: 1
     any:
       - id: ddi-crit-lock-call
       - id: sysent-reference
@@ -1673,7 +1666,6 @@ composite_rules:
     conf: 0.95
     attack: "T1014"
     for: [c]
-    needs: 1
     any:
       - id: dtrace-interrupt-disable-call
       - id: dtrace-interrupt-enable-call
@@ -1685,7 +1677,6 @@ composite_rules:
     conf: 0.98
     attack: "T1014"
     for: [c]
-    needs: 1
     any:
       - id: opcode-structure-definition
       - id: sethi-opcode-struct
@@ -1701,7 +1692,6 @@ composite_rules:
     all:
       - id: solaris-ddi-headers
       - id: solaris-kernel-patch
-    needs: 1
     any:
       - id: solaris-privesc
       - id: solaris-dtrace-bypass

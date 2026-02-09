@@ -27,7 +27,7 @@ composite_rules:
     attack: "T1059.006"
     all:
       - id: cap/exec/eval/invoke::python-eval
-      - id: cap/comm/http/client::python-urllib
+      - id: cap/comm/http/request::urllib-word
     any:
       - id: cap/data/obfuscation/payload::eval-function-call
       - id: cap/exec/eval/remote::eval-config-access

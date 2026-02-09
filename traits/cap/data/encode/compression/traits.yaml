@@ -33,6 +33,7 @@ traits:
     desc: zlib compression library
     crit: notable
     conf: 0.80
+    for: ["elf", "macho", "pe", "dll", "so", "dylib", "javascript", "typescript"]
     if:
       type: string
       exact: "zlib"

@@ -45,7 +45,6 @@ composite_rules:
     conf: 0.66
     mbc: "B0032"
     attack: "T1027"
-    needs: 1
     any:
       - id: xor-key
       - id: xor-encrypt

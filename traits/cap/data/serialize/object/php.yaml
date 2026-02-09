@@ -85,7 +85,6 @@ composite_rules:
     mbc: "E1059"
     attack: "T1059"
     for: [php]
-    needs: 1
     any:
       - id: unserialize-get
       - id: unserialize-post

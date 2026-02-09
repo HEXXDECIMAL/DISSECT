@@ -112,7 +112,6 @@ composite_rules:
     desc: Python package distribution (setuptools)
     crit: notable
     conf: 0.8
-    needs: 1
     any:
       - id: from-setuptools-import
       - id: import-setuptools
@@ -122,7 +121,6 @@ composite_rules:
     desc: Python package metadata definition
     crit: notable
     conf: 0.7
-    needs: 1
     any:
       - id: metadata-author
       - id: metadata-version
@@ -134,7 +132,6 @@ composite_rules:
     desc: Custom install command class override
     crit: suspicious
     conf: 0.85
-    needs: 1
     any:
       - id: cmdclass-dict
       - id: install-class-inherit

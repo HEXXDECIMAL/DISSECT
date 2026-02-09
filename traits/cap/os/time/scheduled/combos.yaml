@@ -14,17 +14,6 @@ composite_rules:
       - id: cap/exec/process/spawn/
       - id: cap/process/terminate/
 
-  # Probabilistic execution: Random number decides whether to execute
-  - id: probabilistic-execution
-    desc: "Probabilistic execution: uses randomness to"
-    crit: notable
-    mbc: "B0009"
-    attack: "T1497"
-    conf: 0.9
-    for: [all]
-    all:
-      - id: cap/os/random::random-instantiation
-
   # Logic bomb with self-destruct
   - id: logic-bomb-self-destruct
     desc: "Logic bomb: time-triggered self-destruct with"
@@ -48,7 +37,7 @@ composite_rules:
     for: [all]
     all:
       - id: hardcoded-datetime
-      - id: cap/os/random::random-instantiation
+      - id: cap/os/random/prng::random-instantiation
       - id: cap/exec/process/spawn/
       - id: cap/process/terminate/
 

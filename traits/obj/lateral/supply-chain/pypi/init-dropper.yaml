@@ -90,15 +90,6 @@ traits:
       type: string
       regex: "safe_run\\s*\\("
 
-  # File saved to tmp then executed
-  - id: tmp-file-path
-    desc: Tmp file path literal
-    crit: notable
-    conf: 0.70
-    if:
-      type: string
-      regex: '"/tmp/[a-zA-Z_][a-zA-Z0-9_]*"'
-
   # os.system shell execution (common in init droppers)
   - id: os-system-call
     desc: os.system() shell execution
@@ -162,7 +153,7 @@ composite_rules:
       - id: darwin-string-check
       - id: arch-string-check
     all:
-      - id: tmp-file-path
+      - id: cap/exec/dropper/tmp-run::tmp-path
 
   # Full dropper pattern: detect platform, download, execute
   - id: init-dropper
@@ -178,12 +169,11 @@ composite_rules:
       - id: linux-string-check
       - id: darwin-string-check
       - id: arch-string-check
-      - id: tmp-file-path
       - id: download-with-delete
       - id: safe-run-call
       - id: import-safe-download
-      - id: cap/exec/dropper/tmp-exec::tmp-path
-      - id: cap/exec/dropper/tmp-exec::tmp-path-short
+      - id: cap/exec/dropper/tmp-run::tmp-path
+      - id: cap/exec/dropper/tmp-run::tmp-path-short
       - id: os-system-call
       - id: platform-os-system-combo
       - id: inline-wget-exec

@@ -69,15 +69,6 @@ traits:
       regex: "set frontmost.{0,10}false"
 
   # === Command execution ===
-  - id: osascript-exec
-    desc: "osascript command execution"
-    crit: notable
-    conf: 0.8
-    attack: "T1059.002"
-    if:
-      type: string
-      regex: "osascript\\s+-e\\s+['\"]"
-
   - id: do-shell-script
     desc: "AppleScript shell command execution"
     crit: suspicious
@@ -169,7 +160,6 @@ composite_rules:
     conf: 0.95
     attack: "T1056.002"
     mbc: "E1056.002"
-    needs: 1
     any:
       - id: dialog-password
       - id: default-answer-password
@@ -180,7 +170,6 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     attack: "T1056.002"
-    needs: 1
     any:
       - id: icon-caution-button
       - id: icon-stop-button

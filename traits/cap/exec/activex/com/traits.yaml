@@ -19,6 +19,7 @@ traits:
 
   - id: activex-wshell
     desc: WScript.Shell COM
+    for: [all]  # Used in both JavaScript and VBScript
     if:
       type: string
       substr: "WScript.Shell"
@@ -64,7 +65,6 @@ composite_rules:
     conf: 0.8
     attack: "T1071"
     mbc: "C0005"
-    needs: 1
     any:
       - id: activex-xmlhttp
       - id: activex-winhttp

@@ -179,7 +179,6 @@ composite_rules:
     desc: Layer 7 DDoS identifier string
     crit: notable
     conf: 0.7
-    needs: 1
     any:
       - id: slowloris-string
       - id: layer7-string

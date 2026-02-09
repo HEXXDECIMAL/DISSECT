@@ -96,8 +96,8 @@ traits:
       substr: "freegeoip.io"
 
   # NOTE: Generic IP lookup services (checkip.amazonaws.com, icanhazip.com, ifconfig.me, etc.)
-  # are defined in discovery/network/discovery/ip-lookup.yaml
-  # Use discovery/network/discovery directory reference for IP lookup detection
+  # are defined in discovery/network/scan/ip-lookup.yaml
+  # Use discovery/network/scan directory reference for IP lookup detection
 
   # === Response Fields (JSON parsing) ===
 
@@ -180,7 +180,6 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1016"
-    needs: 1
     any:
       - id: api-db-ip
       - id: db-ip-v2
@@ -191,10 +190,9 @@ composite_rules:
     crit: notable
     conf: 0.8
     attack: "T1016"
-    needs: 1
     any:
       - id: api-ipify
-      - id: obj/discovery/network/discovery::ipify
+      - id: obj/discovery/network/scan::ipify
 
   # MaxMind API composite
   - id: maxmind-api
@@ -202,7 +200,6 @@ composite_rules:
     crit: notable
     conf: 0.7
     attack: "T1016"
-    needs: 1
     any:
       - id: geoip-maxmind
       - id: maxmind-geoip
@@ -213,7 +210,6 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1016"
-    needs: 1
     any:
       - id: freegeoip-app
       - id: freegeoip-net
@@ -225,7 +221,6 @@ composite_rules:
     crit: notable
     conf: 0.6
     attack: "T1016"
-    needs: 1
     any:
       - id: country-code-camel
       - id: country-code-snake
@@ -236,7 +231,6 @@ composite_rules:
     crit: notable
     conf: 0.5
     attack: "T1016"
-    needs: 1
     any:
       - id: ip-address-camel
       - id: ip-address-snake
@@ -248,10 +242,9 @@ composite_rules:
     crit: notable
     conf: 0.7
     attack: "T1016"
-    needs: 1
     any:
       - id: db-ip-api
-      - id: obj/discovery/network/discovery::ipinfo
+      - id: obj/discovery/network/scan::ipinfo
       - id: ipapi-api
       - id: ipgeolocation-api
       - id: freegeoip-api
@@ -264,7 +257,6 @@ composite_rules:
     crit: notable
     conf: 0.5
     attack: "T1016"
-    needs: 1
     any:
       - id: country-code-field
       - id: ip-address-field

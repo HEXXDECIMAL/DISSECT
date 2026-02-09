@@ -134,7 +134,6 @@ composite_rules:
     conf: 0.85
     attack: "T1016"
     for: [javascript, typescript]
-    needs: 1
     any:
       - id: exec-ifconfig
       - id: exec-ip-addr
@@ -147,7 +146,6 @@ composite_rules:
     conf: 0.9
     attack: "T1041"
     for: [javascript, typescript, python, shell]
-    needs: 1
     any:
       - id: curl-d-flag
       - id: curl-data-flag

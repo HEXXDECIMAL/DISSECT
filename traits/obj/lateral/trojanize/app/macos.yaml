@@ -222,7 +222,6 @@ composite_rules:
   - id: pkill-ledger
     desc: "Kill Ledger Live process"
     conf: 0.9
-    needs: 1
     any:
       - id: pkill-ledger-live
       - id: killall-ledger
@@ -231,7 +230,6 @@ composite_rules:
     desc: "Remove application from /Applications"
     crit: suspicious
     conf: 0.9
-    needs: 1
     any:
       - id: rm-applications-dir
       - id: sudo-rm-app
@@ -240,7 +238,6 @@ composite_rules:
     desc: "Unzip to /Applications directory"
     crit: suspicious
     conf: 0.85
-    needs: 1
     any:
       - id: unzip-to-applications
       - id: unzip-d-applications
@@ -249,7 +246,6 @@ composite_rules:
     desc: "Download application archive"
     crit: suspicious
     conf: 0.85
-    needs: 1
     any:
       - id: curl-app-zip
       - id: curl-app-archive
@@ -259,7 +255,6 @@ composite_rules:
     desc: "Application replacement pattern"
     crit: suspicious
     conf: 0.8
-    needs: 1
     any:
       - id: rm-app-unzip
       - id: rm-app-cp
@@ -270,7 +265,6 @@ composite_rules:
     crit: suspicious
     conf: 0.8
     for: [shell, applescript, python]
-    needs: 1
     any:
       - id: pkill-ledger
       - id: rm-applications
@@ -281,7 +275,6 @@ composite_rules:
     crit: suspicious
     conf: 0.8
     for: [shell, applescript, python]
-    needs: 1
     any:
       - id: unzip-applications
       - id: download-app-zip

@@ -136,7 +136,6 @@ composite_rules:
     conf: 0.85
     attack: "T1102"
     for: [javascript, typescript]
-    needs: 1
     any:
       - id: etherscan-api-prefix
       - id: etherscan-api-suffix
@@ -158,7 +157,6 @@ composite_rules:
     crit: notable
     conf: 0.6
     for: [javascript, typescript]
-    needs: 1
     any:
       - id: eth-call
       - id: eth-getstorageat
@@ -169,7 +167,6 @@ composite_rules:
     crit: inert
     conf: 0.3
     for: [javascript, typescript]
-    needs: 1
     any:
       - id: contract-keyword
       - id: eth-address
@@ -181,7 +178,6 @@ composite_rules:
     conf: 0.7
     attack: "T1102"
     for: [javascript, typescript]
-    needs: 1
     any:
       - id: arweave-net
       - id: ar-io-net

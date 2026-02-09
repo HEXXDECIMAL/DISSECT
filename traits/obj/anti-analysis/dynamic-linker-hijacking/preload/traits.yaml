@@ -44,7 +44,7 @@ traits:
       type: symbol
       any:
         - exact: "_dlfcn_hook"
-        - contains: "_dlfcn_hook"
+        - substr: "_dlfcn_hook"
     attack: "T1547.015"
 
   - id: rtld-next-symbol
@@ -59,16 +59,24 @@ traits:
         - substr: "dlsym(RTLD_NEXT"
     attack: "T1547.015"
 
-  - id: dlopen-dlsym-pattern
-    desc: dlopen+dlsym dynamic loading pair
-    crit: notable
-    conf: 0.7
+  - id: dlopen-call
+    desc: dlopen dynamic loading call
+    crit: inert
+    conf: 0.5
     for: [elf, shell]
     if:
       type: string
-      all:
-        - substr: "dlopen"
-        - substr: "dlsym"
+      substr: "dlopen"
+    attack: "T1574.006"
+
+  - id: dlsym-call
+    desc: dlsym symbol lookup call
+    crit: inert
+    conf: 0.5
+    for: [elf, shell]
+    if:
+      type: string
+      substr: "dlsym"
     attack: "T1574.006"
 
   - id: libc-preload
@@ -106,6 +114,16 @@ traits:
     attack: "T1547.015"
 
 composite_rules:
+  - id: dlopen-dlsym-pattern
+    desc: dlopen+dlsym dynamic loading pair
+    crit: notable
+    conf: 0.7
+    for: [elf, shell]
+    attack: "T1574.006"
+    all:
+      - id: dlopen-call
+      - id: dlsym-call
+
   - id: ld-environment-hijacking
     desc: LD environment variable hijacking
     crit: suspicious

@@ -176,7 +176,6 @@ composite_rules:
     conf: 0.3
     for: [elf]
     platforms: [linux]
-    needs: 1
     any:
       - id: curl-cmd
       - id: wget-cmd
@@ -188,7 +187,6 @@ composite_rules:
     conf: 0.6
     for: [elf]
     platforms: [linux]
-    needs: 1
     any:
       - id: pipe-sh
       - id: pipe-bash
@@ -215,7 +213,6 @@ composite_rules:
     attack: "T1059.004"
     for: [elf]
     platforms: [linux]
-    needs: 1
     any:
       - id: download-pipe-shell
       - id: output-pipe-sh
@@ -227,7 +224,6 @@ composite_rules:
     conf: 0.3
     for: [elf]
     platforms: [linux]
-    needs: 1
     any:
       - id: send-func
       - id: sendto-func

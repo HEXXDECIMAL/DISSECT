@@ -69,7 +69,6 @@ composite_rules:
     desc: macOS security software discovery
     crit: notable
     conf: 0.95
-    needs: 1
     any:
       - id: little-snitch-name
       - id: lulu-name
@@ -85,4 +84,4 @@ composite_rules:
     conf: 0.95
     all:
       - id: little-snitch-name
-      - id: unix-ps
+      - id: obj/discovery/host/process::ps-ef-cmd

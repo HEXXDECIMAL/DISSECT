@@ -5,7 +5,7 @@
 # ATT&CK: T1059.002 (AppleScript)
 
 defaults:
-  for: [shell, python, ruby, perl]
+  for: [shell, python, ruby, perl, applescript, javascript, elf, macho]
   platforms: [macos]
   attack: "T1059.002"
 

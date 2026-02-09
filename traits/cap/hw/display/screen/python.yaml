@@ -73,7 +73,6 @@ composite_rules:
     for: [python]
     mbc: "B0002"
     attack: "T1113"
-    needs: 1
     any:
       - id: mss-import
       - id: mss-screenshot

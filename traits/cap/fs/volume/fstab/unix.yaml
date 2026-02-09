@@ -45,7 +45,6 @@ composite_rules:
     desc: Reads mount table files (/etc/fstab,
     crit: inert
     conf: 0.66
-    needs: 1
     any:
       - id: etc-fstab
       - id: etc-mtab

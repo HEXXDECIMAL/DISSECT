@@ -52,7 +52,6 @@ composite_rules:
     desc: Unix DNS TXT record query
     crit: notable
     conf: 0.66
-    needs: 1
     any:
       - id: txt-record-string
       - id: query-txt-string

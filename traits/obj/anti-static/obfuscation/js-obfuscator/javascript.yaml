@@ -84,7 +84,6 @@ composite_rules:
     conf: 0.9
     attack: "T1027"
     for: [javascript]
-    needs: 1
     any:
       - id: while-not-not-array
       - id: while-not-zero
@@ -97,7 +96,6 @@ composite_rules:
     conf: 0.9
     attack: "T1027"
     for: [javascript]
-    needs: 1
     any:
       - id: push-shift-pattern
       - id: shift-push-pattern

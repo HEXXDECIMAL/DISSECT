@@ -272,4 +272,4 @@ composite_rules:
     for: [macho, dylib, ipa]
     all:
       - id: nanopb-framework
-      - id: cap/exec/inject/code/ios-framework/cbinjection-framework
+      - id: cap/exec/inject/code::cbinjection-framework

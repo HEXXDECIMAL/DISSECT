@@ -44,8 +44,7 @@ composite_rules:
     attack: "T1027.010"
     all:
       - id: tiny-cstring-section
-    needs: 1
     any:
       - id: cap/exec/command/shell
       - id: cap/comm/socket/create
-      - id: cap/fs/file-ops/modes::binary-file-ops
+      - id: cap/fs/file/operations::binary-file-ops

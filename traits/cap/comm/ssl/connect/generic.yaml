@@ -61,7 +61,6 @@ composite_rules:
     conf: 0.66
     # Small binaries/scripts skipping verification are more suspicious
     size_max: 10000
-    needs: 1
     any:
       - id: insecure-skip-verify
       - id: verify-mode-none

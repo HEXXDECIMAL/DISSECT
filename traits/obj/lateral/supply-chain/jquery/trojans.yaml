@@ -26,7 +26,7 @@ composite_rules:
     all:
       - { id: meta/library/jquery::library }
       - { id: meta/library/jquery::version-string }
-      - { id: obj/c2/reverse-shell/method::socket-with-exec }
+      - { id: obj/c2/reverse-shell/socket::socket-with-exec }
 
   # jQuery + Base64 Eval = HOSTILE (hidden payload)
   - id: trojanized-base64-eval
@@ -70,4 +70,4 @@ composite_rules:
     all:
       - { id: meta/library/jquery::library }
       - { id: meta/library/jquery::version-string }
-      - { id: obj/c2/infrastructure/domain/suspicious }
+      - { id: obj/c2/infrastructure/domain::hardcoded-domain-suspicious-pattern }

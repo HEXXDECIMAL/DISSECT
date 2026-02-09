@@ -167,7 +167,6 @@ composite_rules:
     conf: 0.85
     attack: "T1485"
     for: [javascript, typescript]
-    needs: 1
     any:
       - id: target-vscode-dir
       - id: target-idea-dir

@@ -149,7 +149,6 @@ composite_rules:
     desc: Known DoH endpoint reference
     crit: inert
     conf: 0.7
-    needs: 1
     any:
       - id: doh-cloudflare
       - id: doh-google
@@ -159,7 +158,6 @@ composite_rules:
     desc: DoH content-type indicator
     crit: inert
     conf: 0.6
-    needs: 1
     any:
       - id: cap/comm/dns/doh::doh-content-type
       - id: doh-json-content
@@ -169,7 +167,6 @@ composite_rules:
     desc: dnscat2 DNS tunneling tool
     crit: notable
     conf: 0.95
-    needs: 1
     any:
       - id: dnscat-secret
       - id: dnscat-name
@@ -192,7 +189,6 @@ composite_rules:
     desc: Generic DNS tunneling patterns
     crit: notable
     conf: 0.8
-    needs: 1
     any:
       - id: dns-exfil
       - id: dns-c2

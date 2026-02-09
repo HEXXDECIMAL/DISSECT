@@ -26,15 +26,6 @@ traits:
       type: string
       regex: "CreateObject.{0,30}WScript\\.Shell"
 
-  - id: createobject-wscript
-    desc: CreateObject WScript pattern (binary)
-    crit: notable
-    conf: 0.8
-    for: [all]
-    if:
-      type: string
-      substr: "WScript.Shell"
-
   # === VBScript Execution Methods ===
   - id: wscript-run
     desc: WScript Run method
@@ -95,11 +86,9 @@ composite_rules:
     crit: notable
     conf: 0.85
     attack: "T1059.005"
-    needs: 1
     any:
       - id: wscript-createobject
       - id: wscript-shell-create
-      - id: createobject-wscript
 
   # VBScript PowerShell launcher
   - id: vbs-powershell-launcher

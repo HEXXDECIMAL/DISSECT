@@ -202,7 +202,6 @@ composite_rules:
     crit: notable
     conf: 0.9
     for: [php]
-    needs: 1
     any:
       - id: extract-get
       - id: extract-post
@@ -215,7 +214,6 @@ composite_rules:
     crit: notable
     conf: 0.9
     for: [php]
-    needs: 1
     any:
       - id: parse-str-get
       - id: parse-str-post

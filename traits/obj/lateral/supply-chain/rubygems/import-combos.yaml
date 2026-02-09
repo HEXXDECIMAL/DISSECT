@@ -75,13 +75,7 @@ traits:
       regex: "Open3\\.(capture|popen)"
 
   # === Eval patterns ===
-  - id: eval-call
-    desc: eval() call
-    crit: notable
-    conf: 0.75
-    if:
-      type: string
-      regex: "\\beval\\s*\\("
+  # NOTE: eval-call moved to cap/exec/eval/dynamic (content type, not string)
 
   - id: instance-eval
     desc: instance_eval call
@@ -192,14 +186,6 @@ traits:
       type: string
       regex: "discord(app)?\\.com/api/webhooks"
 
-  - id: telegram-bot-api
-    desc: Telegram bot API URL
-    crit: suspicious
-    conf: 0.9
-    if:
-      type: string
-      regex: "api\\.telegram\\.org/bot"
-
   # === Remote download patterns ===
   - id: remote-binary-url
     desc: Remote binary URL
@@ -284,7 +270,7 @@ composite_rules:
     crit: notable
     conf: 0.75
     any:
-      - id: eval-call
+      - id: cap/exec/eval/dynamic::eval-call-ruby
       - id: instance-eval
       - id: class-eval
 
@@ -347,7 +333,6 @@ composite_rules:
       - id: netrc-path
       - id: browser-login-data
       - id: chrome-config-path
-    needs: 1
 
   - id: webhook-exfil
     desc: Webhook data exfiltration
@@ -357,7 +342,7 @@ composite_rules:
       - id: http-client-imports
     any:
       - id: ruby-discord-webhook
-      - id: telegram-bot-api
+      - id: obj/lateral/supply-chain/npm::telegram-bot-api
 
   # === HOSTILE: Clear malware patterns ===
 

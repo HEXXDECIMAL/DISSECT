@@ -209,7 +209,6 @@ composite_rules:
     attack: "T1555.001"
     platforms: [macos]
     for: [shell, macho]
-    needs: 1
     any:
       - id: security-find
       - id: security-dump

@@ -125,7 +125,6 @@ composite_rules:
     crit: notable
     conf: 0.75
     for: [javascript, typescript]
-    needs: 1
     any:
       - id: obj/lateral/supply-chain/vscode::globalState
       - id: postInstall-word
@@ -136,7 +135,6 @@ composite_rules:
     crit: notable
     conf: 0.8
     for: [javascript, typescript]
-    needs: 1
     any:
       - id: ssh-dir
       - id: aws-dir
@@ -149,11 +147,10 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
-    needs: 1
     any:
-      - id: cap/comm/http/post-method
+      - id: cap/comm/http/post::post-method
       - id: cap/comm/http/request::fetch-call
-      - id: cap/comm/http/request::axios-lib
+      - id: cap/comm/http/request::axios
 
   # Post-Install Code Execution
   - id: post-install-exec

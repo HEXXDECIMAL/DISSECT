@@ -104,5 +104,5 @@ composite_rules:
       - id: ruby-file-write
       - id: cli-ruby-exec
 
-  # Note: gtfobins-reverse-shell moved to obj/c2/reverse-shell/method/gtfobins.yaml
+  # Note: gtfobins-reverse-shell moved to obj/c2/reverse-shell/technique/gtfobins.yaml
   # as it infers objective (reverse shell) rather than just capability

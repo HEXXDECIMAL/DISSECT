@@ -43,7 +43,6 @@ composite_rules:
     desc: RSA cryptographic operations
     crit: notable
     conf: 0.6
-    needs: 1
     any:
       - id: rsa-public-decrypt
       - id: rsa-public-encrypt

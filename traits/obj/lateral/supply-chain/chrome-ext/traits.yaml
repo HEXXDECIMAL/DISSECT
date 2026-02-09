@@ -289,7 +289,6 @@ composite_rules:
     crit: inert
     conf: 0.95
     for: [javascript]
-    needs: 1
     any:
       - id: chrome-runtime
       - id: chrome-tabs

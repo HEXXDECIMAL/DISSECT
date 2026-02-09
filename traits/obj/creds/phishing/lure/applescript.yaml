@@ -99,7 +99,6 @@ composite_rules:
     conf: 0.8
     # Only apply to script types - ELF/Macho binaries legitimately prompt for passwords
     for: [applescript, shell, python, ruby, perl, javascript]
-    needs: 1
     any:
       - id: display-dialog-password
       - id: default-answer-password
@@ -110,7 +109,6 @@ composite_rules:
     desc: Fake dialog UI element
     crit: notable
     conf: 0.7
-    needs: 1
     any:
       - id: hidden-answer
       - id: icon-caution
@@ -121,7 +119,6 @@ composite_rules:
     desc: System credential prompt
     crit: suspicious
     conf: 0.85
-    needs: 1
     any:
       - id: keychain-password
       - id: admin-password

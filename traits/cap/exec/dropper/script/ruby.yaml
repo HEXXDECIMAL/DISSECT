@@ -246,7 +246,7 @@ composite_rules:
     desc: HTTP dropper downloads and executes
     conf: 0.95
     crit: suspicious
-    needs: 4
+    needs: 3
     any:
       - id: cap/comm/http/request
       - id: cap/fs/write/file

@@ -1,6 +1,6 @@
 # Filesystem file opening
 traits:
-  - id: open
+  - id: open-go
     desc: "Open file"
     crit: inert
     conf: 0.9

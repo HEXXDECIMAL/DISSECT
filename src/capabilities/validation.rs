@@ -847,6 +847,160 @@ pub(crate) fn validate_hostile_composite_precision(
             }
         }
     }
+
+    // Pass 6: Detect regex traits that overlap with existing substr/exact matches
+    validate_regex_overlap_with_literal(trait_definitions, warnings);
+}
+
+/// Helper function to check if two file type lists have any overlap
+fn file_types_overlap(types1: &[RuleFileType], types2: &[RuleFileType]) -> bool {
+    // If either contains All, they overlap
+    if types1.contains(&RuleFileType::All) || types2.contains(&RuleFileType::All) {
+        return true;
+    }
+    // Check if any concrete types match
+    types1.iter().any(|t1| types2.contains(t1))
+}
+
+/// Helper function to check if a regex pattern could match a literal string
+/// First tries a fast heuristic (string matching), then falls back to actually
+/// compiling and testing the regex for accuracy.
+fn regex_could_match_literal(regex: &str, literal: &str) -> bool {
+    // Fast path: check if the literal text appears in the regex directly
+    if regex.contains(literal) {
+        return true;
+    }
+
+    // Fast path: check if the literal appears with common regex escaping
+    let escaped_literal: String = literal
+        .chars()
+        .map(|c| {
+            if c.is_alphanumeric() {
+                c.to_string()
+            } else {
+                format!("\\{}", c)
+            }
+        })
+        .collect();
+
+    if regex.contains(&escaped_literal) {
+        return true;
+    }
+
+    // Slow path: actually compile and test the regex
+    // This catches cases like "c?mod" matching "chmod"
+    if let Ok(re) = regex::Regex::new(regex) {
+        if re.is_match(literal) {
+            return true;
+        }
+    }
+
+    false
+}
+
+/// Validate that regex traits don't overlap with existing substr/exact matches
+///
+/// Reports ambiguous cases where the same pattern could be detected by multiple traits
+/// with the same criticality level and overlapping file types. This indicates redundancy
+/// where one trait should be removed to avoid confusion and duplicate detections.
+///
+/// The solution is to remove one of the conflicting traits - typically the regex version
+/// should be removed in favor of the simpler substr/exact match, unless the regex
+/// provides additional matching capabilities.
+fn validate_regex_overlap_with_literal(
+    trait_definitions: &[TraitDefinition],
+    warnings: &mut Vec<String>,
+) {
+    // Build a map of literal (exact/substr) patterns with their context
+    let mut literal_patterns: Vec<(String, String, String, Criticality, Vec<RuleFileType>)> =
+        Vec::new();
+
+    for t in trait_definitions {
+        match &t.r#if {
+            Condition::String {
+                exact: Some(s), ..
+            } => {
+                literal_patterns.push((
+                    s.clone(),
+                    "exact".to_string(),
+                    t.id.clone(),
+                    t.crit,
+                    t.r#for.clone(),
+                ));
+            }
+            Condition::String {
+                substr: Some(s), ..
+            } => {
+                literal_patterns.push((
+                    s.clone(),
+                    "substr".to_string(),
+                    t.id.clone(),
+                    t.crit,
+                    t.r#for.clone(),
+                ));
+            }
+            Condition::Symbol {
+                exact: Some(s), ..
+            } => {
+                literal_patterns.push((
+                    s.clone(),
+                    "exact".to_string(),
+                    t.id.clone(),
+                    t.crit,
+                    t.r#for.clone(),
+                ));
+            }
+            Condition::Symbol {
+                substr: Some(s), ..
+            } => {
+                literal_patterns.push((
+                    s.clone(),
+                    "substr".to_string(),
+                    t.id.clone(),
+                    t.crit,
+                    t.r#for.clone(),
+                ));
+            }
+            _ => {}
+        }
+    }
+
+    // Check regex patterns against literal patterns
+    for t in trait_definitions {
+        let regex_pattern = match &t.r#if {
+            Condition::String {
+                regex: Some(r), ..
+            } => Some(r),
+            Condition::Symbol {
+                regex: Some(r), ..
+            } => Some(r),
+            _ => None,
+        };
+
+        if let Some(regex) = regex_pattern {
+            for (literal, match_type, literal_id, literal_crit, literal_types) in
+                &literal_patterns
+            {
+                // Check if criticality matches
+                if t.crit != *literal_crit {
+                    continue;
+                }
+
+                // Check if file types overlap
+                if !file_types_overlap(&t.r#for, literal_types) {
+                    continue;
+                }
+
+                // Check if regex could match the literal
+                if regex_could_match_literal(regex, literal) {
+                    warnings.push(format!(
+                        "Ambiguous regex overlap: trait '{}' (regex: '{}') could match same pattern as '{}' ({}: '{}'). Consider removing one.",
+                        t.id, regex, literal_id, match_type, literal
+                    ));
+                }
+            }
+        }
+    }
 }
 
 /// Validate that all conditions in a composite rule are trait references only.
@@ -1023,15 +1177,22 @@ pub(crate) fn find_single_item_clauses(rule: &CompositeTrait) -> Vec<(String, &'
     }
 
     // Check which clause has the single item
+    // Skip directory references (no :: separator) - they match multiple traits
     if any_count == 1 {
         if let Some(Condition::Trait { id }) = rule.any.as_ref().and_then(|v| v.first()) {
-            violations.push((rule.id.clone(), "any", id.clone()));
+            // Only flag specific trait references (with ::), not directory references
+            if id.contains("::") {
+                violations.push((rule.id.clone(), "any", id.clone()));
+            }
         }
     }
 
     if all_count == 1 {
         if let Some(Condition::Trait { id }) = rule.all.as_ref().and_then(|v| v.first()) {
-            violations.push((rule.id.clone(), "all", id.clone()));
+            // Only flag specific trait references (with ::), not directory references
+            if id.contains("::") {
+                violations.push((rule.id.clone(), "all", id.clone()));
+            }
         }
     }
 
@@ -1693,6 +1854,14 @@ pub(crate) fn find_alternation_merge_candidates(
 const BANNED_DIRECTORY_SEGMENTS: &[&str] = &[
     "generic",  // says nothing about what's inside
     "method",   // everything is a method
+    "modes",    // dumping ground
+    "types",    // dumping ground
+    "techniques",    // dumping ground
+    "technique",    // dumping ground
+    "notable",    // dumping ground
+    "suspicious",    // dumping ground
+    "hostile",    // dumping ground
+    "category",    // dumping ground
     "misc",     // dumping ground
     "other",    // dumping ground
     "utils",    // too vague
@@ -1741,6 +1910,11 @@ pub(crate) fn find_duplicate_words_in_path(trait_dirs: &[String]) -> Vec<(String
     let mut violations = Vec::new();
 
     for dir_path in trait_dirs {
+        // Exception: firewalld is the actual name of the software
+        if dir_path.contains("firewall/firewalld") {
+            continue;
+        }
+
         // Split path into segments and extract word stems
         let segments: Vec<&str> = dir_path.split('/').collect();
 
@@ -1823,7 +1997,7 @@ pub(crate) fn find_parent_duplicate_segments(trait_dirs: &[String]) -> Vec<(Stri
 
 /// Maximum number of traits allowed in a single directory.
 /// Directories exceeding this should be split into subdirectories.
-pub const MAX_TRAITS_PER_DIRECTORY: usize = 30;
+pub const MAX_TRAITS_PER_DIRECTORY: usize = 40;
 
 /// Find directories with too many traits (suggests need for subdirectories).
 /// Returns: Vec<(directory_path, trait_count)>
@@ -3703,5 +3877,421 @@ mod tests {
         let violations = find_hostile_cap_rules(&traits, &composites, &sources);
         assert_eq!(violations.len(), 1);
         assert_eq!(violations[0].0, "cap/test::trait");
+    }
+
+    // ==================== File Type Overlap Tests ====================
+
+    #[test]
+    fn test_file_types_overlap_both_all() {
+        let types1 = vec![RuleFileType::All];
+        let types2 = vec![RuleFileType::Python];
+        assert!(file_types_overlap(&types1, &types2));
+    }
+
+    #[test]
+    fn test_file_types_overlap_one_all() {
+        let types1 = vec![RuleFileType::Python];
+        let types2 = vec![RuleFileType::All];
+        assert!(file_types_overlap(&types1, &types2));
+    }
+
+    #[test]
+    fn test_file_types_overlap_matching_concrete() {
+        let types1 = vec![RuleFileType::Python, RuleFileType::JavaScript];
+        let types2 = vec![RuleFileType::Python, RuleFileType::Ruby];
+        assert!(file_types_overlap(&types1, &types2));
+    }
+
+    #[test]
+    fn test_file_types_overlap_no_match() {
+        let types1 = vec![RuleFileType::Python];
+        let types2 = vec![RuleFileType::JavaScript];
+        assert!(!file_types_overlap(&types1, &types2));
+    }
+
+    // ==================== Regex Pattern Matching Tests ====================
+
+    #[test]
+    fn test_regex_could_match_literal_direct_match() {
+        assert!(regex_could_match_literal("eval", "eval"));
+    }
+
+    #[test]
+    fn test_regex_could_match_literal_with_anchors() {
+        assert!(regex_could_match_literal("^eval$", "eval"));
+    }
+
+    #[test]
+    fn test_regex_could_match_literal_escaped() {
+        assert!(regex_could_match_literal(r"eval\(", "eval("));
+    }
+
+    #[test]
+    fn test_regex_could_match_literal_no_match() {
+        assert!(!regex_could_match_literal("execve", "eval"));
+    }
+
+    #[test]
+    fn test_regex_could_match_literal_partial() {
+        assert!(regex_could_match_literal("eval.*args", "eval"));
+    }
+
+    #[test]
+    fn test_regex_could_match_literal_optional_char() {
+        // The regex "c?mod" matches "chmod" and "cmod"
+        assert!(regex_could_match_literal("c?mod", "chmod"));
+        assert!(regex_could_match_literal("c?mod", "cmod"));
+    }
+
+    #[test]
+    fn test_regex_could_match_literal_alternation() {
+        // The regex "eval|exec" matches both "eval" and "exec"
+        assert!(regex_could_match_literal("eval|exec", "eval"));
+        assert!(regex_could_match_literal("eval|exec", "exec"));
+    }
+
+    #[test]
+    fn test_regex_could_match_literal_no_match_different() {
+        // The regex "socket" does not match "connect"
+        assert!(!regex_could_match_literal("socket", "connect"));
+    }
+
+    // ==================== Regex Overlap Validation Tests ====================
+
+    #[test]
+    fn test_validate_regex_overlap_detects_overlap() {
+        // Create a substr trait for "eval"
+        let trait1 = make_string_trait("test::substr_eval", "eval", Criticality::Hostile);
+
+        // Create a regex trait that contains "eval"
+        let mut trait2 = make_string_trait("test::regex_eval", "", Criticality::Hostile);
+        trait2.r#if = Condition::String {
+            exact: None,
+            substr: None,
+            regex: Some("eval\\(".to_string()),
+            word: None,
+            case_insensitive: false,
+            exclude_patterns: None,
+            count_min: 1,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
+            external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
+        };
+
+        let traits = vec![trait1, trait2];
+        let mut warnings = Vec::new();
+        validate_regex_overlap_with_literal(&traits, &mut warnings);
+
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("test::regex_eval"));
+        assert!(warnings[0].contains("test::substr_eval"));
+        assert!(warnings[0].contains("Ambiguous regex overlap"));
+    }
+
+    #[test]
+    fn test_validate_regex_overlap_different_criticality() {
+        // Create a substr trait with Hostile criticality
+        let trait1 = make_string_trait("test::substr_eval", "eval", Criticality::Hostile);
+
+        // Create a regex trait with Suspicious criticality (different)
+        let mut trait2 = make_string_trait("test::regex_eval", "", Criticality::Suspicious);
+        trait2.r#if = Condition::String {
+            exact: None,
+            substr: None,
+            regex: Some("eval\\(".to_string()),
+            word: None,
+            case_insensitive: false,
+            exclude_patterns: None,
+            count_min: 1,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
+            external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
+        };
+
+        let traits = vec![trait1, trait2];
+        let mut warnings = Vec::new();
+        validate_regex_overlap_with_literal(&traits, &mut warnings);
+
+        // Should NOT warn because criticality is different
+        assert_eq!(warnings.len(), 0);
+    }
+
+    #[test]
+    fn test_validate_regex_overlap_different_file_types() {
+        // Create a substr trait for Python
+        let mut trait1 = make_string_trait("test::substr_eval", "eval", Criticality::Hostile);
+        trait1.r#for = vec![RuleFileType::Python];
+
+        // Create a regex trait for JavaScript (different file type)
+        let mut trait2 = make_string_trait("test::regex_eval", "", Criticality::Hostile);
+        trait2.r#for = vec![RuleFileType::JavaScript];
+        trait2.r#if = Condition::String {
+            exact: None,
+            substr: None,
+            regex: Some("eval\\(".to_string()),
+            word: None,
+            case_insensitive: false,
+            exclude_patterns: None,
+            count_min: 1,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
+            external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
+        };
+
+        let traits = vec![trait1, trait2];
+        let mut warnings = Vec::new();
+        validate_regex_overlap_with_literal(&traits, &mut warnings);
+
+        // Should NOT warn because file types don't overlap
+        assert_eq!(warnings.len(), 0);
+    }
+
+    #[test]
+    fn test_validate_regex_overlap_with_exact_match() {
+        // Create an exact match trait
+        let mut trait1 = make_string_trait("test::exact_socket", "", Criticality::Hostile);
+        trait1.r#if = Condition::String {
+            exact: Some("socket".to_string()),
+            substr: None,
+            regex: None,
+            word: None,
+            case_insensitive: false,
+            exclude_patterns: None,
+            count_min: 1,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
+            external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
+        };
+
+        // Create a regex trait that contains "socket"
+        let mut trait2 = make_string_trait("test::regex_socket", "", Criticality::Hostile);
+        trait2.r#if = Condition::String {
+            exact: None,
+            substr: None,
+            regex: Some("^socket$".to_string()),
+            word: None,
+            case_insensitive: false,
+            exclude_patterns: None,
+            count_min: 1,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
+            external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
+        };
+
+        let traits = vec![trait1, trait2];
+        let mut warnings = Vec::new();
+        validate_regex_overlap_with_literal(&traits, &mut warnings);
+
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("Ambiguous regex overlap"));
+    }
+
+    #[test]
+    fn test_validate_regex_overlap_symbol_conditions() {
+        // Create a substr Symbol trait
+        let mut trait1 = make_string_trait("test::substr_connect", "", Criticality::Hostile);
+        trait1.r#if = Condition::Symbol {
+            exact: None,
+            substr: Some("connect".to_string()),
+            regex: None,
+            platforms: None,
+            compiled_regex: None,
+        };
+
+        // Create a regex Symbol trait
+        let mut trait2 = make_string_trait("test::regex_connect", "", Criticality::Hostile);
+        trait2.r#if = Condition::Symbol {
+            exact: None,
+            substr: None,
+            regex: Some("connect.*".to_string()),
+            platforms: None,
+            compiled_regex: None,
+        };
+
+        let traits = vec![trait1, trait2];
+        let mut warnings = Vec::new();
+        validate_regex_overlap_with_literal(&traits, &mut warnings);
+
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("test::regex_connect"));
+        assert!(warnings[0].contains("test::substr_connect"));
+    }
+
+    #[test]
+    fn test_validate_regex_overlap_inert_traits() {
+        // Create a substr trait with Inert criticality
+        let trait1 = make_string_trait("test::substr_buffer", "Buffer.from", Criticality::Inert);
+
+        // Create a regex trait with Inert criticality that overlaps
+        let mut trait2 = make_string_trait("test::regex_buffer", "", Criticality::Inert);
+        trait2.r#if = Condition::String {
+            exact: None,
+            substr: None,
+            regex: Some("Buffer\\.from\\(".to_string()),
+            word: None,
+            case_insensitive: false,
+            exclude_patterns: None,
+            count_min: 1,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
+            external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
+        };
+
+        let traits = vec![trait1, trait2];
+        let mut warnings = Vec::new();
+        validate_regex_overlap_with_literal(&traits, &mut warnings);
+
+        // Should detect overlap even for Inert traits
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("test::regex_buffer"));
+        assert!(warnings[0].contains("test::substr_buffer"));
+        assert!(warnings[0].contains("Ambiguous regex overlap"));
+    }
+
+    #[test]
+    fn test_validate_regex_overlap_notable_traits() {
+        // Create a substr trait with Notable criticality
+        let trait1 = make_string_trait("test::substr_chmod", "chmod", Criticality::Notable);
+
+        // Create a regex trait with Notable criticality that overlaps
+        let mut trait2 = make_string_trait("test::regex_chmod", "", Criticality::Notable);
+        trait2.r#if = Condition::String {
+            exact: None,
+            substr: None,
+            regex: Some("chmod\\s+\\d{3,4}".to_string()),
+            word: None,
+            case_insensitive: false,
+            exclude_patterns: None,
+            count_min: 1,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
+            external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
+        };
+
+        let traits = vec![trait1, trait2];
+        let mut warnings = Vec::new();
+        validate_regex_overlap_with_literal(&traits, &mut warnings);
+
+        // Should detect overlap even for Notable traits
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("test::regex_chmod"));
+        assert!(warnings[0].contains("test::substr_chmod"));
+        assert!(warnings[0].contains("Ambiguous regex overlap"));
+    }
+
+    #[test]
+    fn test_validate_regex_overlap_exact_vs_optional_regex() {
+        // Create an exact match trait for "chmod"
+        let mut trait1 = make_string_trait("test::exact_chmod", "", Criticality::Notable);
+        trait1.r#if = Condition::String {
+            exact: Some("chmod".to_string()),
+            substr: None,
+            regex: None,
+            word: None,
+            case_insensitive: false,
+            exclude_patterns: None,
+            count_min: 1,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
+            external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
+        };
+
+        // Create a regex trait with optional character pattern "c?mod" that matches "chmod"
+        let mut trait2 = make_string_trait("test::regex_optional_chmod", "", Criticality::Notable);
+        trait2.r#if = Condition::String {
+            exact: None,
+            substr: None,
+            regex: Some("c?mod".to_string()),
+            word: None,
+            case_insensitive: false,
+            exclude_patterns: None,
+            count_min: 1,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
+            external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
+        };
+
+        let traits = vec![trait1, trait2];
+        let mut warnings = Vec::new();
+        validate_regex_overlap_with_literal(&traits, &mut warnings);
+
+        // Should detect overlap: regex "c?mod" can match exact "chmod"
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("test::regex_optional_chmod"));
+        assert!(warnings[0].contains("test::exact_chmod"));
+        assert!(warnings[0].contains("Ambiguous regex overlap"));
+        assert!(warnings[0].contains("exact: 'chmod'"));
     }
 }

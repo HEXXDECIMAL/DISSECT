@@ -123,7 +123,6 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     attack: "T1027"
-    needs: 1
     any:
       - id: blankobf-signature
       - id: pyarmor-signature

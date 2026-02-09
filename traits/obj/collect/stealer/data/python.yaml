@@ -9,7 +9,7 @@ composite_rules:
     mbc: "OB0003"
     attack: "T1041"
     for: [python]
-    needs: 4
+    needs: 3
     all:
       - id: obj/discovery/system/
       - id: cap/comm/http/request
@@ -52,7 +52,7 @@ composite_rules:
     attack: "T1074"
     for: [python]
     near_lines: 100
-    needs: 4
+    needs: 3
     all:
       - id: obj/discovery/system/
     any:

@@ -12,4 +12,4 @@ composite_rules:
     all:
       - id: cap/crypto/symmetric/aes::go-cfb-encrypter
       - id: cap/comm/http/request::go-http-client-do
-      - id: obj/c2/network/beacon/json-c2/json-content-type
+      - id: obj/c2/network/beacon::json-content-type

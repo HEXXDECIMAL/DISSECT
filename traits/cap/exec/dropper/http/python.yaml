@@ -72,7 +72,6 @@ composite_rules:
     desc: Temporary directory access
     crit: notable
     conf: 0.5
-    needs: 1
     any:
       - id: cap/fs/temp/directory::temp-directory
       - id: cap/fs/temp/directory::directory-python
@@ -155,6 +154,6 @@ composite_rules:
       - id: multi-download-funcs
     all:
       - id: requests-method
-      - id: cap/fs/file-ops/modes::py-write
+      - id: cap/fs/file/write::py-write
       - id: popen-call
       - id: payload-keyword

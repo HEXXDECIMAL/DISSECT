@@ -78,7 +78,6 @@ composite_rules:
     conf: 0.95
     attack: "T1041"
     for: [python, shell]
-    needs: 1
     any:
       - id: slack-webhook-url
       - id: slack-incoming-webhook
@@ -89,7 +88,6 @@ composite_rules:
     conf: 0.95
     attack: "T1041"
     for: [python, shell, javascript]
-    needs: 1
     any:
       - id: discord-webhook-url
       - id: discord-webhook-pattern

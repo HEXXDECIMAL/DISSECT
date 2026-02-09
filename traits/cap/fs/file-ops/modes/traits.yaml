@@ -1,8 +1,0 @@
-traits:
-  - id: binary-file-ops
-    desc: Binary file operations
-    crit: inert
-    conf: 0.8
-    if:
-      type: symbol
-      regex: "^(fopen|open|fread|fwrite|read|write)$"

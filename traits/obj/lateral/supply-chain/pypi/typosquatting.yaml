@@ -70,7 +70,6 @@ composite_rules:
     conf: 0.98
     attack: "T1036.005"
     for: [python, shell]
-    needs: 1
     any:
       - id: pypi-online-typosquat
       - id: pypi-typosquat-pattern

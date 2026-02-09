@@ -71,15 +71,6 @@ traits:
       substr: "PAM_AUTHTOK"
 
   # === Authentication functions (symbols) ===
-  - id: pam-authenticate
-    desc: pam_authenticate function
-    crit: inert
-    conf: 0.7
-    for: [elf, so]
-    if:
-      type: symbol
-      exact: "pam_authenticate"
-
   - id: pam-authenticate-string
     desc: pam_authenticate function reference (string)
     crit: inert
@@ -148,7 +139,7 @@ composite_rules:
     desc: PAM authentication functions
     for: [c, cpp, elf, so]
     any:
-      - { id: pam-authenticate }
+      - { id: cap/os/pam/auth::pam-authenticate-symbol }
       - { id: pam-authenticate-string }
       - { id: pam-open-session }
       - { id: pam-acct-mgmt }

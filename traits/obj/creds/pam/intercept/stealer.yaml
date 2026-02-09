@@ -85,7 +85,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     all:
-      - id: obj/creds/pam/interceptor
+      - id: obj/creds/pam/intercept::interceptor
     any:
       - id: tmp-hidden-file
       - id: var-log-hidden-file
@@ -99,6 +99,6 @@ composite_rules:
     conf: 0.95
     mbc: "E1003"
     all:
-      - id: obj/creds/pam/interceptor
+      - id: obj/creds/pam/intercept::interceptor
       - id: pam-with-curl
       - id: pam-credential-logger

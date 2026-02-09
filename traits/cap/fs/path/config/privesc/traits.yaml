@@ -25,7 +25,6 @@ composite_rules:
     desc: Sudo configuration file access
     crit: notable
     conf: 0.85
-    needs: 1
     any:
       - id: etc-sudoers
       - id: etc-sudoers-d

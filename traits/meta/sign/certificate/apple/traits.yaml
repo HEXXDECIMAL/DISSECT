@@ -52,7 +52,6 @@ composite_rules:
     desc: Apple code signature markers
     crit: inert
     conf: 0.85
-    needs: 1
     any:
       - id: apple-development
       - id: apple-distribution
@@ -62,7 +61,6 @@ composite_rules:
     desc: Code signature requirement blob
     crit: inert
     conf: 0.9
-    needs: 1
     any:
       - id: anchor-apple
       - id: certificate-leaf

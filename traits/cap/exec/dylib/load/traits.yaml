@@ -283,7 +283,6 @@ composite_rules:
     conf: 0.8
     attack: "T1574.006"
     for: [macho]
-    needs: 1
     any:
       - id: messaging-app-ichat
       - id: messaging-app-mail
@@ -367,7 +366,6 @@ composite_rules:
     conf: 0.7
     attack: "T1574.006"
     for: [elf, macho]
-    needs: 1
     any:
       - id: dlopen
       - id: dlsym
@@ -400,7 +398,6 @@ composite_rules:
     attack: "T1574.006"
     mbc: "B0023"
     for: [elf, macho]
-    needs: 1
     any:
       - id: dlopen-dlsym
       - id: nsbundle-dynamic
@@ -420,7 +417,6 @@ composite_rules:
     conf: 0.85
     attack: "T1574"
     for: [python]
-    needs: 1
     any:
       - id: ctypes-cdll-dot
       - id: cdll-paren

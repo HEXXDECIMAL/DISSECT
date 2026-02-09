@@ -486,7 +486,6 @@ composite_rules:
     desc: Built with CMake
     crit: benign
     conf: 0.85
-    needs: 1
     any:
       - id: cmakefiles
       - id: cmake-min-required
@@ -498,7 +497,6 @@ composite_rules:
     desc: Built with Meson
     crit: benign
     conf: 0.85
-    needs: 1
     any:
       - id: meson-build
       - id: meson-options
@@ -509,7 +507,6 @@ composite_rules:
     desc: Built with Bazel
     crit: benign
     conf: 0.85
-    needs: 1
     any:
       - id: bazel-out
       - id: workspace-file
@@ -521,7 +518,6 @@ composite_rules:
     desc: Built with Autotools (autoconf/automake)
     crit: benign
     conf: 0.8
-    needs: 1
     any:
       - id: configure-ac
       - id: makefile-am
@@ -534,7 +530,6 @@ composite_rules:
     desc: Built with Cargo (Rust)
     crit: benign
     conf: 0.9
-    needs: 1
     any:
       - id: cargo-toml
       - id: cargo-namespace
@@ -546,7 +541,6 @@ composite_rules:
     desc: Built with Go modules
     crit: benign
     conf: 0.9
-    needs: 1
     any:
       - id: go-mod
       - id: go-sum
@@ -558,7 +552,6 @@ composite_rules:
     desc: Built with npm/yarn (Node.js)
     crit: benign
     conf: 0.85
-    needs: 1
     any:
       - id: package-json
       - id: node-modules
@@ -570,7 +563,6 @@ composite_rules:
     desc: Built with pip/setuptools (Python)
     crit: benign
     conf: 0.85
-    needs: 1
     any:
       - id: setup-py
       - id: pyproject-toml
@@ -582,7 +574,6 @@ composite_rules:
     desc: GitHub Actions CI artifacts
     crit: benign
     conf: 0.9
-    needs: 1
     any:
       - id: github-actions-env
       - id: github-run-id
@@ -600,15 +591,14 @@ composite_rules:
       - id: github-runner-worker
     any:
       - id: github-actions
-      - id: cap/fs/proc/process::process-pid-cmdline
-      - id: cap/fs/proc/process::process-pid-maps
+      - id: cap/fs/proc/info::process-pid-cmdline
+      - id: cap/fs/proc/info::process-pid-maps
 
   # GitLab CI composite (migrated from YARA)
   - id: gitlab-ci
     desc: GitLab CI artifacts
     crit: benign
     conf: 0.9
-    needs: 1
     any:
       - id: ci-pipeline-id
       - id: ci-job-id
@@ -632,7 +622,6 @@ composite_rules:
     desc: CircleCI artifacts
     crit: benign
     conf: 0.9
-    needs: 1
     any:
       - id: circleci-env
       - id: circle-build-num
@@ -643,7 +632,6 @@ composite_rules:
     desc: Built in Docker container
     crit: benign
     conf: 0.8
-    needs: 1
     any:
       - id: dockerfile
       - id: docker-env-prefix
@@ -655,7 +643,6 @@ composite_rules:
     desc: Reproducible build markers
     crit: benign
     conf: 0.85
-    needs: 1
     any:
       - id: source-date-epoch
       - id: reproducible-string

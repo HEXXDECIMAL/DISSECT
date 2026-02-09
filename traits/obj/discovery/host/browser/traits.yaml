@@ -235,7 +235,6 @@ composite_rules:
     conf: 0.7
     attack: "T1217"
     for: [all]
-    needs: 1
     any:
       - id: history-file
       - id: cookies-file
@@ -270,7 +269,6 @@ composite_rules:
     conf: 0.85
     attack: "T1217"
     for: [all]
-    needs: 1
     any:
       - id: places-sqlite
       - id: obj/creds/browser/firefox::cookies-sqlite
@@ -323,7 +321,6 @@ composite_rules:
     conf: 0.8
     attack: "T1217"
     for: [all]
-    needs: 1
     any:
       - id: bookmarks-word
       - id: bookmarks-plist
@@ -347,7 +344,6 @@ composite_rules:
     conf: 0.8
     attack: "T1217"
     for: [all]
-    needs: 1
     any:
       - id: obj/creds/discord/token::local-storage-ref
       - id: obj/creds/discord/token::leveldb-ref
@@ -359,7 +355,6 @@ composite_rules:
     conf: 0.8
     attack: "T1217"
     for: [all]
-    needs: 1
     any:
       - id: chrome-extension-url
       - id: extensions-hash-path

@@ -94,7 +94,6 @@ composite_rules:
     crit: suspicious
     conf: 0.90
     attack: "T1059"
-    needs: 1
     any:
       - id: gcc-compile-execute
       - id: compiler-payload-build

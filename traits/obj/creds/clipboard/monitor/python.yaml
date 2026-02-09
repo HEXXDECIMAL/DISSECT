@@ -250,7 +250,6 @@ composite_rules:
     conf: 0.8
     crit: notable
     platforms: [windows]
-    needs: 1
     any:
       - id: import-win32clipboard
       - id: win32-get-clipboard
@@ -262,7 +261,6 @@ composite_rules:
     desc: "Clipboard access (pyperclip)"
     conf: 0.7
     crit: notable
-    needs: 1
     any:
       - id: import-pyperclip
       - id: pyperclip-paste
@@ -276,7 +274,6 @@ composite_rules:
     desc: "Clipboard access (wxPython)"
     conf: 0.75
     crit: notable
-    needs: 1
     any:
       - id: wx-clipboard
       - id: clipboard-getdata
@@ -287,7 +284,6 @@ composite_rules:
     desc: "Clipboard access (tkinter)"
     conf: 0.65
     crit: notable
-    needs: 1
     any:
       - id: clipboard-get-method
       - id: clipboard-clear-method
@@ -299,7 +295,6 @@ composite_rules:
     conf: 0.9
     crit: suspicious
     platforms: [windows]
-    needs: 1
     any:
       - id: wm-drawclipboard
       - id: wm-changecbchain
@@ -308,7 +303,6 @@ composite_rules:
   - id: python-pynput-clipboard
     desc: "Clipboard monitoring via pynput"
     conf: 0.75
-    needs: 1
     any:
       - id: pynput-import-clipboard
       - id: pynput-clipboard-mod
@@ -318,7 +312,6 @@ composite_rules:
     desc: "Clipboard access via any library"
     conf: 0.7
     crit: notable
-    needs: 1
     any:
       - id: python-win32clipboard
       - id: python-pyperclip
@@ -330,7 +323,6 @@ composite_rules:
     desc: "Network communication for potential exfiltration"
     conf: 0.6
     crit: notable
-    needs: 1
     any:
       - id: requests-post-clip
       - id: requests-get-clip
@@ -342,7 +334,6 @@ composite_rules:
     desc: "Clipboard loop persistence"
     conf: 0.6
     crit: notable
-    needs: 1
     any:
       - id: while-clipboard-loop
       - id: schedule-clipboard
@@ -354,7 +345,6 @@ composite_rules:
     conf: 0.85
     crit: suspicious
     platforms: [windows]
-    needs: 1
     any:
       - id: set-clipboard-viewer
       - id: wm-drawclipboard
@@ -364,7 +354,6 @@ composite_rules:
     desc: "Clipboard data retrieval function"
     conf: 0.8
     crit: notable
-    needs: 1
     any:
       - id: getclipboarddata-fn
       - id: clipboard-getdata
@@ -375,9 +364,8 @@ composite_rules:
     conf: 0.6
     crit: notable
     platforms: [windows]
-    needs: 1
     any:
-      - id: while-keyword
+      - id: while-clipboard-loop
       - id: wndproc-keyword
       - id: message-loop-str
 

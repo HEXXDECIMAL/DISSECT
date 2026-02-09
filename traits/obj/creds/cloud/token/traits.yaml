@@ -82,7 +82,7 @@ traits:
     crit: inert
     conf: 0.7
     attack: "T1552.005"
-    for: [javascript, typescript, python, shell]
+    for: [javascript, typescript, python, shell, elf, go]
     if:
       type: string
       substr: "169.254.169.254"
@@ -157,7 +157,6 @@ composite_rules:
     conf: 0.95
     attack: "T1552.005"
     for: [javascript, typescript, python, shell]
-    needs: 1
     any:
       - id: aws-imds-ip
       - id: aws-imds-path
@@ -170,7 +169,6 @@ composite_rules:
     conf: 0.95
     attack: "T1552.005"
     for: [javascript, typescript, python, shell]
-    needs: 1
     any:
       - id: gcp-metadata-host
       - id: gcp-compute-metadata
@@ -182,7 +180,6 @@ composite_rules:
     conf: 0.95
     attack: "T1552.005"
     for: [javascript, typescript, python, shell]
-    needs: 1
     any:
       - id: azure-metadata-identity
       - id: azure-metadata-header

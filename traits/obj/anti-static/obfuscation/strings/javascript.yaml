@@ -265,9 +265,8 @@ composite_rules:
     mbc: "B0032"
     attack: "T1027"
     for: [javascript, typescript]
-    needs: 1
     any:
-      - id: cap/exec/eval/dynamic::eval-call
+      - id: cap/exec/eval/dynamic::eval-call-js
       - id: js-function-call
       - id: js-new-function
 

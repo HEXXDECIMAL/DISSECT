@@ -107,7 +107,6 @@ composite_rules:
     attack: "T1036.005"
     mbc: "F0004"
     platforms: [macos]
-    needs: 1
     any:
       - id: apple-account-app
       - id: apple-account-assistant

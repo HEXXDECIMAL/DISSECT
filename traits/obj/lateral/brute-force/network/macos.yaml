@@ -118,7 +118,6 @@ composite_rules:
     desc: Multi-socket attack status strings
     crit: suspicious
     conf: 0.8
-    needs: 1
     any:
       - id: sockets-status-string
       - id: proxy-sock-server

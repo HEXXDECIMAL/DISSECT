@@ -74,7 +74,6 @@ composite_rules:
     desc: ditto archive creation with compression
     crit: notable
     conf: 0.85
-    needs: 1
     any:
       - id: obj/collect/archive/data::ditto-ck-flags
       - id: ditto-keepparent
@@ -84,7 +83,6 @@ composite_rules:
     desc: ditto with resource fork handling
     crit: notable
     conf: 0.9
-    needs: 1
     any:
       - id: obj/collect/archive/data::ditto-sequester
       - id: ditto-rsrc-flag
@@ -94,7 +92,6 @@ composite_rules:
     desc: zip archive creation
     crit: notable
     conf: 0.7
-    needs: 1
     any:
       - id: zip-recursive-quiet
       - id: zip-output-file
@@ -104,7 +101,6 @@ composite_rules:
     desc: "Archive creation in /tmp"
     crit: suspicious
     conf: 0.8
-    needs: 1
     any:
       - id: tmp-zip-path
       - id: tmp-out-zip

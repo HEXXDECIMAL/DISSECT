@@ -191,7 +191,6 @@ composite_rules:
     desc: HTTP Authorization header
     crit: notable
     conf: 0.66
-    needs: 1
     any:
       - id: auth-header
       - id: bearer-token
@@ -201,7 +200,6 @@ composite_rules:
     desc: Fake or suspicious User-Agent
     crit: notable
     conf: 0.66
-    needs: 1
     any:
       - id: ua-mozilla-old
       - id: ua-curl
@@ -213,7 +211,6 @@ composite_rules:
     desc: Bot identification HTTP headers
     crit: notable
     conf: 0.7
-    needs: 1
     any:
       - id: header-user
       - id: header-client
@@ -232,7 +229,6 @@ composite_rules:
     desc: Multipart form data upload
     crit: notable
     conf: 0.6
-    needs: 1
     any:
       - id: cap/comm/http/post::multipart-form
       - id: boundary-param

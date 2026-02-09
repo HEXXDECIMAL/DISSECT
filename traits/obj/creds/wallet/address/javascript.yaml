@@ -121,7 +121,6 @@ composite_rules:
     desc: Ethereum address regex pattern (0x...40
     conf: 0.9
     crit: suspicious
-    needs: 1
     any:
       - id: ethereum-regex-40
       - id: ethereum-regex-boundary
@@ -131,7 +130,6 @@ composite_rules:
     desc: Litecoin address regex pattern
     conf: 0.9
     crit: suspicious
-    needs: 1
     any:
       - id: litecoin-segwit-regex
       - id: litecoin-legacy-regex

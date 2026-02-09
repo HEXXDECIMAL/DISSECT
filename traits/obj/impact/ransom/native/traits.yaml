@@ -154,7 +154,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      contains: "mbedtls_aes_crypt"
+      substr: "mbedtls_aes_crypt"
 
   - id: ransom-cmdline-flag
     desc: "Ransomware command line flag"
@@ -216,7 +216,6 @@ composite_rules:
     desc: "Ransomware contact patterns"
     crit: notable
     conf: 0.75
-    needs: 1
     any:
       - id: protonmail-contact
       - id: onionmail-contact
@@ -228,7 +227,6 @@ composite_rules:
     desc: "Ransomware file targeting"
     crit: notable
     conf: 0.75
-    needs: 1
     any:
       - id: extension-target-list
       - id: multi-extension-pattern
@@ -238,7 +236,6 @@ composite_rules:
     desc: "Encryption code artifacts"
     crit: notable
     conf: 0.75
-    needs: 1
     any:
       - id: encrypt-decrypt-func
       - id: mbedtls-aes-encrypt
@@ -268,4 +265,4 @@ composite_rules:
     any:
       - id: cap/fs/directory/traverse::traverse-fts
       - id: cap/fs/directory/traverse::fts-open
-      - id: cap/process/threading/thread::pthread
+      - id: cap/process/threading/operations::pthread

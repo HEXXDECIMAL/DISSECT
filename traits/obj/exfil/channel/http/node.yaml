@@ -180,7 +180,6 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
-    needs: 1
     any:
       - id: axios-post-call
       - id: node-https-request
@@ -193,7 +192,6 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
-    needs: 1
     any:
       - id: cap/comm/http/request::axios
       - id: node-https-request

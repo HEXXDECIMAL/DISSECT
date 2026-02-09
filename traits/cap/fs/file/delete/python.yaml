@@ -1,52 +1,21 @@
 # File Delete Operations - Python
-# MBC: C0047 (Delete File)
-# ATT&CK: T1070.004
+
+defaults:
+  for: [python]
 
 traits:
-  - id: os-remove
-    desc: Deletes file via os.remove
+  - id: py-remove
+    desc: "remove() or unlink() call (delete file)"
     crit: notable
-    conf: 0.9
-    mbc: "C0047"
-    attack: "T1070.004"
-    for: [python]
+    conf: 0.8
     if:
-      type: ast
-      kind: call
-      exact: "os.remove"
-
-  - id: os-unlink
-    desc: Deletes file via os.unlink
+      type: string
+      regex: '\.remove\(|\.unlink\('
+      
+  - id: py-rmtree
+    desc: "rmtree() call (recursive delete)"
     crit: notable
-    conf: 0.9
-    mbc: "C0047"
-    attack: "T1070.004"
-    for: [python]
+    conf: 0.8
     if:
-      type: ast
-      kind: call
-      exact: "os.unlink"
-
-  - id: shutil-rmtree
-    desc: Deletes directory recursively via shutil.rmtree
-    crit: notable
-    conf: 0.9
-    mbc: "C0047"
-    attack: "T1070.004"
-    for: [python]
-    if:
-      type: ast
-      kind: call
-      exact: "shutil.rmtree"
-
-  - id: pathlib-unlink
-    desc: Deletes file via pathlib.unlink
-    crit: notable
-    conf: 0.9
-    mbc: "C0047"
-    attack: "T1070.004"
-    for: [python]
-    if:
-      type: ast
-      kind: call
-      exact: ".unlink("
+      type: string
+      regex: '\.rmtree\('

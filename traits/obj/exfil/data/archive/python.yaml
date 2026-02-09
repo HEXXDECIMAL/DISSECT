@@ -11,8 +11,8 @@ composite_rules:
     for: [python]
     all:
       - id: meta/import/python/zipfile
-      - id: py-walk
-      - id: py-write
+      - id: cap/fs/directory/traverse::traverse-walk
+      - id: cap/fs/file/write::py-write
     any:
-      - id: py-post-generic
+      - id: cap/comm/http/request::py-post-generic
       - id: cap/comm/http/request::post

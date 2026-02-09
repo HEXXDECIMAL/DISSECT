@@ -70,7 +70,6 @@ composite_rules:
     crit: notable
     conf: 0.8
     for: [powershell, batch, shell]
-    needs: 1
     any:
       - id: iex
       - id: scriptblock

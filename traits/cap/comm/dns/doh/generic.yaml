@@ -60,7 +60,6 @@ composite_rules:
     desc: DNS over HTTPS support
     crit: notable
     conf: 0.66
-    needs: 1
     any:
       - id: doh-provider
       - id: doh-class

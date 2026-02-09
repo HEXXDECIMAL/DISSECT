@@ -651,7 +651,6 @@ composite_rules:
   - id: rust-crypto
     desc: Rust cryptographic crate usage
     conf: 0.75
-    needs: 1
     any:
       - id: rust-ring
       - id: rust-rustls
@@ -693,7 +692,6 @@ composite_rules:
   - id: secure-random
     desc: Secure random number generation
     conf: 0.8
-    needs: 1
     any:
       - id: dev-urandom
       - id: dev-random
@@ -707,7 +705,6 @@ composite_rules:
   - id: key-derivation
     desc: Key derivation function usage
     conf: 0.75
-    needs: 1
     any:
       - id: pbkdf2
       - id: scrypt

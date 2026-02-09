@@ -133,6 +133,7 @@ Add high-signal detections for behaviors this sample family exhibits and current
 - Keep trait IDs, location, and criticality semantically correct.
 - For source code, prefer AST/semantic signals over raw-string coincidences.
 - Some traits may have been mistakenly changed from 'symbol' to 'string' search: for AST-based languages, symbols are not in string literals.
+- When there is overlap - choose improving existing traits over creating new traits
 - Minimize future false positives at ecosystem scale.
 
 {{.TaskBlock}}

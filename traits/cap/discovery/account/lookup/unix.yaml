@@ -32,7 +32,6 @@ composite_rules:
     conf: 0.85
     mbc: E1083
     attack: T1087
-    needs: 1
     any:
       - id: user-lookup
       - id: group-lookup

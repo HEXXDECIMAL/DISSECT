@@ -65,7 +65,7 @@ composite_rules:
     for: [python]
     needs: 2
     any:
-      - id: ast-custom-install-class
+      - id: custom-install-inherit
       - id: ast-cmdclass-custom
       - id: ast-preinstall-call
 

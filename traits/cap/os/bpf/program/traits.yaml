@@ -528,7 +528,7 @@ traits:
     for: [c, elf]
     if:
       type: string
-      contains: "retprobe"
+      substr: "retprobe"
 
   # === SSL/TLS Function Hooking Targets ===
   - id: ssl-openssl-fn
@@ -701,7 +701,7 @@ traits:
     for: [c, elf]
     if:
       type: content
-      regex: "\\bdata_event\\b"
+      word: "data_event"
 
   # Kernel to userspace data transfer comment/intent
   - id: kernel-userspace-transfer
@@ -829,7 +829,6 @@ composite_rules:
     desc: BPF filter attachment
     crit: notable
     conf: 0.7
-    needs: 1
     any:
       - id: so-attach-filter
       - id: so-attach-bpf
@@ -839,7 +838,6 @@ composite_rules:
     desc: Raw packet socket
     crit: notable
     conf: 0.6
-    needs: 1
     any:
       - id: af-packet
       - id: sock-raw
@@ -887,7 +885,6 @@ composite_rules:
     for: [elf, c]
     all:
       - id: cap/exec/command/shell::bin-sh
-    needs: 1
     any:
       - id: cap/process/fd/dup::dup2
       - id: cap/exec/command/shell::c-execve
@@ -898,7 +895,6 @@ composite_rules:
     crit: inert
     conf: 0.6
     for: [elf, c]
-    needs: 1
     any:
       - id: ipproto-icmp
       - id: ipproto-udp
@@ -930,7 +926,6 @@ composite_rules:
     desc: eBPF tracing frameworks
     crit: benign
     conf: 0.85
-    needs: 1
     any:
       - id: bpftrace
       - id: bcc-lib
@@ -941,7 +936,6 @@ composite_rules:
     desc: eBPF tracing functions
     crit: benign
     conf: 0.8
-    needs: 1
     any:
       - id: bpf-probe-read
       - id: bpf-kprobe
@@ -952,7 +946,6 @@ composite_rules:
     desc: eBPF observability tools
     crit: benign
     conf: 0.9
-    needs: 1
     any:
       - id: cilium
       - id: falco
@@ -963,7 +956,6 @@ composite_rules:
     desc: Legitimate eBPF tracing/observability
     crit: benign
     conf: 0.85
-    needs: 1
     any:
       - id: tracing-frameworks
       - id: tracing-functions
@@ -975,7 +967,6 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     for: [c, elf]
-    needs: 1
     any:
       - id: ssl-attach-openssl
       - id: ssl-attach-gnutls
@@ -1015,7 +1006,6 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [c, elf]
-    needs: 1
     any:
       - id: bpf-map-ringbuf
       - id: bpf-ring-buffer
@@ -1043,7 +1033,6 @@ composite_rules:
     for: [c]
     all:
       - id: ssl-op-string
-    needs: 1
     any:
       - id: data-event-struct
       - id: ssl-op-type
@@ -1059,7 +1048,6 @@ composite_rules:
     all:
       - id: ebpf-kernel-types
       - id: data-event-struct
-    needs: 1
     any:
       - id: kernel-userspace-transfer
       - id: ssl-op-string
@@ -1150,7 +1138,6 @@ composite_rules:
     for: [c]
     all:
       - id: icmp-type-field
-    needs: 1
     any:
       - id: icmp-echo-request
       - id: icmp-echo-reply
@@ -1161,7 +1148,6 @@ composite_rules:
     crit: notable
     conf: 0.8
     for: [c, elf]
-    needs: 1
     any:
       - id: icmp-pingback
       - id: icmp-prog-reply

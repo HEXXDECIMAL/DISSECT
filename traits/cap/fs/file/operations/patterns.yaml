@@ -27,7 +27,6 @@ composite_rules:
     desc: "Reference to a temporary directory"
     crit: inert
     conf: 0.4
-    needs: 1
     any:
       - id: cap/data/text/pattern::tmp
       - id: tempfile-ref

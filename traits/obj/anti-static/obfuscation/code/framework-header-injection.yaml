@@ -57,7 +57,6 @@ composite_rules:
     crit: suspicious
     conf: 0.90
     for: [c]
-    needs: 1
     any:
       - id: openssl-evp-header
       - id: openssl-copyright-block

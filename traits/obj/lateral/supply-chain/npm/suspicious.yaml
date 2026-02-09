@@ -250,15 +250,6 @@ traits:
       type: string
       substr: "oast.me"
 
-  - id: webhook-site-domain
-    desc: webhook.site exfil domain
-    crit: suspicious
-    conf: 0.9
-    for: [javascript, typescript, packagejson]
-    if:
-      type: string
-      substr: "webhook.site"
-
   - id: pipedream-domain
     desc: pipedream.net exfil domain
     crit: suspicious
@@ -418,7 +409,6 @@ composite_rules:
     crit: inert
     conf: 0.8
     for: [javascript]
-    needs: 1
     any:
       - id: module-exports-pattern
       - id: exports-dot-pattern
@@ -447,24 +437,13 @@ composite_rules:
       - id: small-file-5k
       - id: dangerous-requires
 
-  # Install hooks composite
-  - id: npm-suspicious-install-hooks
-    desc: Package has install hooks
-    crit: notable
-    conf: 0.85
-    needs: 1
-    any:
-      - id: obj/lateral/supply-chain/npm::preinstall-hook-key
-      - id: obj/lateral/supply-chain/npm::postinstall-hook-key
-      - id: obj/lateral/supply-chain/npm::install-hook-key
-
   # No deps with hooks - migrated from YARA
   - id: no-deps-with-hooks
     desc: Package has install hooks but
     crit: suspicious
     conf: 0.85
     all:
-      - id: npm-suspicious-install-hooks
+      - id: install-hooks
     none:
       - id: pkg-dependencies
 
@@ -486,7 +465,7 @@ composite_rules:
     conf: 0.8
     all:
       - id: pkg-version-001
-      - id: npm-suspicious-install-hooks
+      - id: install-hooks
 
   # Missing metadata with hooks - migrated from YARA
   - id: missing-metadata-hooks
@@ -494,7 +473,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     all:
-      - id: npm-suspicious-install-hooks
+      - id: install-hooks
     none:
       - id: obj/lateral/supply-chain/npm::repository-key
 
@@ -504,7 +483,6 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     for: [javascript, typescript]
-    needs: 1
     any:
       - id: child-dot-unref
       - id: spawn-unref
@@ -515,7 +493,6 @@ composite_rules:
     crit: notable
     conf: 0.8
     for: [javascript, typescript]
-    needs: 1
     any:
       - id: stdio-ignore-string
       - id: stdio-ignore-array
@@ -531,7 +508,7 @@ composite_rules:
       - id: oast-fun-domain
       - id: oastify-domain
       - id: oast-me-domain
-      - id: webhook-site-domain
+      - id: obj/exfil/channel/oob::webhook-site
       - id: pipedream-domain
       - id: discord-webhook
 
@@ -600,7 +577,6 @@ composite_rules:
     crit: notable
     conf: 0.8
     for: [packagejson]
-    needs: 1
     any:
       - id: desc-dependency-confusion
       - id: desc-placeholder-package

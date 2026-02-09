@@ -52,7 +52,6 @@ composite_rules:
     conf: 0.66
     mbc: "E1561"
     attack: "T1561"
-    needs: 1
     any:
       - id: dd-zero
       - id: dd-random
@@ -64,6 +63,5 @@ composite_rules:
     desc: Direct disk device access
     crit: notable
     conf: 0.66
-    needs: 1
     any:
       - id: cap/fs/path/device/storage

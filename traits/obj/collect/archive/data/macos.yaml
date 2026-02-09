@@ -164,7 +164,6 @@ composite_rules:
     crit: notable
     conf: 0.75
     attack: "T1560.001"
-    needs: 1
     any:
       - id: hdiutil-create-cmd
       - id: hdiutil-format-flag
@@ -175,7 +174,6 @@ composite_rules:
     crit: notable
     conf: 0.65
     attack: "T1560.001"
-    needs: 1
     any:
       - id: zip-flags
       - id: unzip-overwrite
@@ -186,7 +184,6 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1560.001"
-    needs: 1
     any:
       - id: ditto-ck-flags
       - id: ditto-sequester
@@ -198,7 +195,6 @@ composite_rules:
     crit: notable
     conf: 0.6
     attack: "T1560.001"
-    needs: 1
     any:
       - id: tar-create-flag
       - id: tar-create-long
@@ -210,7 +206,6 @@ composite_rules:
     crit: notable
     conf: 0.7
     attack: "T1074.001"
-    needs: 1
     any:
       - id: tmp-zip-staging
       - id: tmp-tar-file

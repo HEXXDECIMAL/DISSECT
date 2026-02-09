@@ -46,14 +46,14 @@ composite_rules:
     for: [python, javascript, shell, rust, go]
     all:
       - id: github-actions-targeting
-      - id: cap/fs/proc/process::process-pid-mem
-      - id: cap/fs/proc/process::process-pid-maps
+      - id: cap/fs/proc/info::process-pid-mem
+      - id: cap/fs/proc/info::process-pid-maps
 
   - id: github-actions-secret-marker-helper
     desc: Helper for secret or memory access
     any:
       - id: meta/intent::secret
-      - id: cap/fs/proc/process::process-pid-mem
+      - id: cap/fs/proc/info::process-pid-mem
       - id: github-actions-targeting-shell
 
   - id: github-actions-secret-harvest

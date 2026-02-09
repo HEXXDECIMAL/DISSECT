@@ -78,4 +78,4 @@ composite_rules:
     any:
       - id: cap/exec/command/direct::exec-command
       - id: cap/comm/socket/connect::dial
-      - id: cap/comm/http/post/go/http-post
+      - id: cap/comm/http/post::http-post

@@ -756,15 +756,6 @@ traits:
       substr: "Signin."
 
   # === Bot detection patterns ===
-  - id: navigator-webdriver
-    desc: navigator.webdriver property access
-    crit: inert
-    conf: 0.6
-    for: [javascript]
-    if:
-      type: string
-      substr: "navigator.webdriver"
-
   - id: navigator-plugins-length
     desc: navigator.plugins.length property access
     crit: inert
@@ -1347,7 +1338,7 @@ composite_rules:
     for: [javascript, html]
     needs: 2
     any:
-      - { id: navigator-webdriver }
+      - { id: obj/anti-analysis/sandbox/detect::js-navigator-webdriver }
       - { id: navigator-plugins-length }
       - { id: screen-width }
       - { id: screen-height }

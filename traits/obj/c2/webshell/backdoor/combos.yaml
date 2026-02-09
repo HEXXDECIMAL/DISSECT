@@ -102,8 +102,6 @@ composite_rules:
       - id: cap/comm/http/curl::file-upload
       - id: cap/fs/write/
       - id: cap/fs/write/
-
-    needs: 1
   # Command execution webshell
   - id: php-rce
     desc: "PHP webshell with remote command"
@@ -116,8 +114,6 @@ composite_rules:
       - id: cap/exec/command/shell
       - id: obj/anti-static/obfuscation/
       - id: cap/data/user-input/
-
-    needs: 1
 
   # HOSTILE: eval(base64_decode(...)) pattern - classic PHP backdoor
   # This pattern has no legitimate use and is a hallmark of PHP webshells

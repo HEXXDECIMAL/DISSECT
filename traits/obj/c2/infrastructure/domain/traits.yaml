@@ -720,7 +720,6 @@ composite_rules:
     conf: 0.85
     # REAL C2 implants are typically small (<5KB scripts)
     size_max: 5000
-    needs: 1
     any:
       - id: hardcoded-domain-suspicious-pattern
       - id: dynamic-dns-domain-pattern
@@ -731,7 +730,6 @@ composite_rules:
     crit: notable
     conf: 0.95
     attack: "T1105"
-    needs: 1
     any:
       - id: bullethost-cloud
       - id: anonfiles-com
@@ -751,7 +749,6 @@ composite_rules:
     crit: notable
     conf: 0.85
     attack: "T1041"
-    needs: 1
     any:
       - id: php-collect
       - id: php-log
@@ -765,7 +762,6 @@ composite_rules:
     crit: notable
     conf: 0.7
     attack: "T1071"
-    needs: 1
     any:
       - id: aws-api-gateway
       - id: azure-websites
@@ -779,7 +775,6 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     attack: "T1071"
-    needs: 1
     any:
       - id: ngrok-io
       - id: ngrok-free-app
@@ -790,7 +785,6 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1102"
-    needs: 1
     any:
       - id: pastebin-com
       - id: hastebin-com
@@ -806,7 +800,6 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1071"
-    needs: 1
     any:
       - id: replit-dev
       - id: repl-co
@@ -817,7 +810,6 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     attack: "T1572"
-    needs: 1
     any:
       - id: chisel-client
       - id: chisel-server

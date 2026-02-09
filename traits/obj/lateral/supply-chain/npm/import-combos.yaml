@@ -59,6 +59,7 @@ traits:
     desc: Telegram bot API URL
     crit: suspicious
     conf: 0.9
+    for: [javascript, typescript, ruby]
     if:
       type: string
       regex: "api\\.telegram\\.org/bot"
@@ -221,7 +222,7 @@ composite_rules:
     crit: notable
     conf: 0.75
     any:
-      - id: cap/exec/eval/dynamic/javascript
+      - id: cap/exec/eval/dynamic::eval-call-js
       - id: vm-run-context
 
   # === SUSPICIOUS: Unusual patterns ===

@@ -62,17 +62,6 @@ traits:
       regex: "[Uu]narchive"
 
 composite_rules:
-  # Zip library composite
-  # Note: Library imports moved to data/archive/library-imports.yaml
-  - id: zip-library
-    desc: "Uses ZIP compression library"
-    crit: notable
-    conf: 0.6
-    attack: "T1560"
-    platforms: [all]
-    all:
-      - id: cap/data/archive/library-imports
-
   - id: binary-tar-exec
     desc: "Binary executes tar command"
     crit: suspicious

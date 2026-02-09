@@ -53,7 +53,6 @@ composite_rules:
     desc: Windows indicator and defense removal
     crit: suspicious
     conf: 0.9
-    needs: 1
     any:
       - id: motw-removal-stream
       - id: unblock-file

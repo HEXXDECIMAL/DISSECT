@@ -167,7 +167,6 @@ composite_rules:
     desc: Apple advertising framework usage
     crit: notable
     conf: 0.9
-    needs: 1
     any:
       - id: adcore-framework
       - id: adid-framework
@@ -177,7 +176,6 @@ composite_rules:
     desc: Apple privacy framework usage
     crit: notable
     conf: 0.9
-    needs: 1
     any:
       - id: apptrackingtransparency-framework
       - id: privacycontentprediction-framework
@@ -185,7 +183,6 @@ composite_rules:
   - id: dispatch-queue
     desc: Grand Central Dispatch queue usage
     conf: 0.8
-    needs: 1
     any:
       - id: dispatch-queue-create
       - id: dispatch-get-global-queue
@@ -193,7 +190,6 @@ composite_rules:
   - id: dispatch-async
     desc: Grand Central Dispatch async execution
     conf: 0.8
-    needs: 1
     any:
       - id: dispatch-async-symbol
       - id: dispatch-sync-symbol

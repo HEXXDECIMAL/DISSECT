@@ -8,7 +8,6 @@ composite_rules:
     crit: notable
     conf: 0.8
     for: [c, elf]
-    needs: 1
     any:
       - id: cap/os/bpf/program::uprobe-attach
       - id: cap/os/bpf/program::uprobe-sec

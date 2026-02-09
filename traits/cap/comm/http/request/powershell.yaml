@@ -98,7 +98,6 @@ composite_rules:
     desc: "Performs HTTP request"
     crit: notable
     conf: 0.9
-    needs: 1
     any:
       - id: invoke-webrequest
       - id: invoke-restmethod
@@ -110,7 +109,6 @@ composite_rules:
     desc: "Downloads content from URL"
     crit: notable
     conf: 0.9
-    needs: 1
     any:
       - id: invoke-webrequest
       - id: invoke-restmethod

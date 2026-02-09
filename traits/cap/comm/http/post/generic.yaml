@@ -73,7 +73,6 @@ composite_rules:
     desc: HTTP POST request capability
     crit: notable
     conf: 0.8
-    needs: 1
     any:
       - id: post-method
       - id: http-post-call
@@ -85,7 +84,6 @@ composite_rules:
     desc: Makes HTTP POST requests (method detection)
     crit: notable
     conf: 0.75
-    needs: 1
     any:
       - id: post-method
       - id: http-post-call
@@ -95,7 +93,6 @@ composite_rules:
     desc: HTTP form data upload
     crit: notable
     conf: 0.75
-    needs: 1
     any:
       - id: multipart-form
       - id: formdata-class

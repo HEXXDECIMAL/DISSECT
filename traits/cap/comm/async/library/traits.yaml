@@ -469,7 +469,6 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [elf, macho, rust]
-    needs: 1
     any:
       - id: tokio-namespace
       - id: tokio-runtime
@@ -502,7 +501,6 @@ composite_rules:
     desc: Direct epoll/kqueue usage for async
     crit: notable
     conf: 0.65
-    needs: 1
     any:
       - id: epoll-usage
       - id: kqueue-usage
@@ -516,7 +514,6 @@ composite_rules:
     desc: Uses high-performance async I/O library
     crit: notable
     conf: 0.75
-    needs: 1
     any:
       - id: libev
       - id: c-ares

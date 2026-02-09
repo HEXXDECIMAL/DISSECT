@@ -291,8 +291,8 @@ composite_rules:
     for: [elf]
     all:
       - id: cap/crypto/symmetric/stream::chacha-salsa-constant
-      - id: cap/process/threading/thread::pthread
-      - id: cap/fs/proc/process::process-pid-exe
+      - id: cap/process/threading/operations::pthread
+      - id: cap/fs/proc/info::process-pid-exe
       - id: cap/fs/file/read
 
   # C/C++ file encryption ransomware - complexity 5 (for:1 + all:3 + any:1)
@@ -308,4 +308,4 @@ composite_rules:
       - id: payment-status-check
     any:
       - id: data-loss-threat
-      - id: cap/fs/proc/process::process-pid-exe
+      - id: cap/fs/proc/info::process-pid-exe

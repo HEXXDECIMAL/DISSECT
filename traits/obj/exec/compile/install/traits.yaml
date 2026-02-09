@@ -25,5 +25,5 @@ composite_rules:
     for: [shell]
     all:
       - id: cap/exec/command/shell::gcc-invocation
-      - id: cap/fs/file/read-file
+      - id: cap/fs/file/read::read
       - id: obj/impact/system/directory::recursive-delete-cmd

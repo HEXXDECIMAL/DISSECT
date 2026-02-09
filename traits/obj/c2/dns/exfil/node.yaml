@@ -18,7 +18,6 @@ composite_rules:
     desc: Node.js DNS resolve function (potential C2)
     crit: notable
     conf: 0.8
-    needs: 1
     any:
       - id: cap/comm/dns/lookup
       - id: cap/comm/dns/lookup/txt
@@ -53,4 +52,4 @@ composite_rules:
     all:
       - id: dns-resolve-txt
     any:
-      - id: cap/time/schedule/timers
+      - id: cap/time/schedule/interval

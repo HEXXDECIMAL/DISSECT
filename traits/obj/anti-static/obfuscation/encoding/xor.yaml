@@ -136,7 +136,6 @@ composite_rules:
     desc: "XOR decryption loop pattern"
     crit: suspicious
     conf: 0.85
-    needs: 1
     any:
       - id: xor-decode-symbol
       - id: decode-xor-symbol
@@ -148,7 +147,6 @@ composite_rules:
     desc: "Table-based decoding function"
     crit: notable
     conf: 0.7
-    needs: 1
     any:
       - id: decode-table-symbol
       - id: table-decode-symbol

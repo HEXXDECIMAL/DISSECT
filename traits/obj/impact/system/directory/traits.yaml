@@ -150,7 +150,6 @@ composite_rules:
     desc: "Recursive deletion command pattern"
     crit: notable
     conf: 0.8
-    needs: 1
     any:
       - id: rmtree-call
       - id: rm-rf-cmd
@@ -162,7 +161,6 @@ composite_rules:
     desc: "Reference to critical system directories"
     crit: inert
     conf: 0.4
-    needs: 1
     any:
       - id: windows-dir-ref
       - id: system32-ref

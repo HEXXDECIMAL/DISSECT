@@ -42,7 +42,6 @@ composite_rules:
     desc: TCP connection operations
     crit: inert
     conf: 0.66
-    needs: 1
     any:
       - id: sock-stream
       - id: net-dial

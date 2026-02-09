@@ -36,24 +36,6 @@ traits:
       type: string
       substr: "Europe/Moscow"
 
-  - id: minsk-timezone
-    desc: Minsk timezone check
-    crit: notable
-    conf: 0.8
-    for: [elf, macho, pe]
-    if:
-      type: string
-      substr: "Europe/Minsk"
-
-  - id: kiev-timezone
-    desc: Kyiv timezone check
-    crit: notable
-    conf: 0.7
-    for: [elf, macho, pe]
-    if:
-      type: string
-      substr: "Europe/Kiev"
-
   # Environment variable locale checks
   - id: lang-env-check
     desc: LANG environment variable access
@@ -133,11 +115,10 @@ composite_rules:
     desc: CIS region timezone checks
     crit: suspicious
     conf: 0.85
-    needs: 1
     any:
       - id: moscow-timezone
-      - id: minsk-timezone
-      - id: kiev-timezone
+      - id: obj/anti-analysis/geofencing/location::tz-europe-minsk
+      - id: obj/anti-analysis/geofencing/location::tz-europe-kiev
 
   # Russian system detection (classic CIS exclusion pattern)
   - id: russian-system-check

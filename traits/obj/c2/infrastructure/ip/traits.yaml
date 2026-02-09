@@ -52,26 +52,13 @@ traits:
       - type: content
         regex: "pytest|def test_"
 
-  - id: http-raw-ip-url-binary
-    desc: HTTP direct IP in extracted strings (binary)
+  - id: http-raw-ip-url
+    desc: HTTP direct IP in extracted strings
     crit: suspicious
     conf: 0.95
     mbc: "B0030"
     attack: "T1071.001"
-    for: [elf, macho, pe]
-    if:
-      type: string
-      # Match HTTP URLs with IP addresses; external_ip validates they're routable
-      regex: 'https?://[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'
-      external_ip: true
-
-  - id: http-raw-ip-url-script
-    desc: HTTP direct IP in extracted strings (script)
-    crit: suspicious
-    conf: 0.95
-    mbc: "B0030"
-    attack: "T1071.001"
-    for: [scripts]
+    for: [elf, macho, pe, scripts]
     if:
       type: string
       # Match HTTP URLs with IP addresses; external_ip validates they're routable
@@ -142,7 +129,6 @@ composite_rules:
     conf: 0.6
     mbc: none
     attack: none
-    needs: 1
     any:
       - id: port-23
       - id: port-80

@@ -20,28 +20,28 @@ traits:
     attack: "T1041"
     if:
       type: string
-      regex: "\\.php\\?.*(?:collect|data|info)"
+      regex: "\\.php\\?.{0,200}(?:collect|data|info)"
 
   - id: php-log
     desc: PHP logging endpoint
     attack: "T1041"
     if:
       type: string
-      regex: "\\.php\\?.*log"
+      regex: "\\.php\\?.{0,200}log"
 
   - id: php-report
     desc: PHP reporting endpoint
     attack: "T1041"
     if:
       type: string
-      regex: "\\.php\\?.*report"
+      regex: "\\.php\\?.{0,200}report"
 
   - id: php-beacon
     desc: PHP beacon endpoint
     attack: "T1041"
     if:
       type: string
-      regex: "\\.php\\?.*beacon"
+      regex: "\\.php\\?.{0,200}beacon"
 
 composite_rules:
   - id: php-collector
@@ -49,7 +49,6 @@ composite_rules:
     crit: notable
     conf: 0.85
     attack: "T1041"
-    needs: 1
     any:
       - id: php-collect
       - id: php-log

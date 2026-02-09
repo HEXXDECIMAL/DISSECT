@@ -50,7 +50,6 @@ composite_rules:
     conf: 0.7
     platforms: [all]
     for: [ruby]
-    needs: 1
     any:
       - id: fork-brace-block
       - id: fork-do-block
@@ -62,7 +61,6 @@ composite_rules:
     conf: 0.88
     platforms: [all]
     for: [ruby]
-    needs: 1
     any:
       - id: process-fork
       - id: fork-block

@@ -156,7 +156,6 @@ composite_rules:
     conf: 0.95
     mbc: "F0004"
     attack: "T1090.003"
-    needs: 1
     any:
       - id: hidden-service-dir
       - id: hidden-service-port

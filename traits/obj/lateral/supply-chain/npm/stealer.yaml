@@ -155,7 +155,6 @@ composite_rules:
     desc: Local stealer/grabber module import
     crit: suspicious
     conf: 0.9
-    needs: 1
     any:
       - id: local-stealer-import
       - id: stealer-string
@@ -178,7 +177,6 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     mbc: "B0024"
-    needs: 1
     any:
       - id: postinstall-argv-check
       - id: postinstall-flag-string

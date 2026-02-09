@@ -17,14 +17,7 @@ traits:
       regex: "import subprocess|from subprocess"
 
   # === String-based method detection ===
-  - id: popen
-    desc: subprocess.Popen call
-    crit: notable
-    conf: 0.75
-    mbc: "E1059.006"
-    if:
-      type: string
-      substr: "subprocess.Popen("
+  # NOTE: popen removed - use popen-content (content type is broader)
 
   - id: run-call
     desc: subprocess.run call
@@ -53,14 +46,7 @@ traits:
       type: string
       substr: "subprocess.check_output("
 
-  - id: check-call
-    desc: subprocess.check_call call
-    crit: notable
-    conf: 0.75
-    mbc: "E1059.006"
-    if:
-      type: string
-      substr: "subprocess.check_call("
+  # NOTE: check-call removed - use check-call-content (content type is broader)
 
   # === os.popen detection ===
   - id: os-popen
@@ -132,13 +118,10 @@ composite_rules:
     desc: subprocess module methods
     crit: notable
     conf: 0.75
-    needs: 1
     any:
-      - id: popen
+      - id: popen-content
       - id: run-call
       - id: call
       - id: check-output
-      - id: check-call
-      - id: run-ast
-      - id: popen-content
       - id: check-call-content
+      - id: run-ast

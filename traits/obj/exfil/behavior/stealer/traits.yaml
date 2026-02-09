@@ -44,7 +44,6 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     for: [shell, python, javascript]
-    needs: 1
     any:
       - id: gate-var-http
       - id: c2-var-http
@@ -52,44 +51,6 @@ composite_rules:
 
   # curl POST with custom headers
   # NOTE: This is suspicious because legitimate downloads don't use custom POST headers
-  - id: curl-post-headers
-    desc: curl POST with custom identification
-    crit: suspicious
-    conf: 0.9
-    mbc: "C0001"
-    for: [shell]
-    any:
-      - id: cap/comm/http/client::curl-post
-
-  # curl file upload
-  - id: curl-upload
-    desc: curl file upload
-    crit: suspicious
-    conf: 0.8
-    for: [shell]
-    any:
-      - id: cap/comm/http/client::curl-upload
-
-  # Bot identification headers (references comm/http/headers/)
-  - id: bot-headers
-    desc: Bot identification HTTP headers
-    crit: notable
-    conf: 0.9
-    for: [shell]
-    any:
-      - id: cap/comm/http/headers::bot-headers
-
-  # ZIP upload (references comm/http/upload/)
-  - id: zip-upload
-    desc: ZIP archive upload for exfiltration
-    crit: suspicious
-    conf: 0.9
-    for: [shell]
-    any:
-      - id: cap/comm/http/upload::zip-upload
-
-  # Multipart upload (references comm/http/headers/)
-  # Excludes test contexts (WPT, Jest, Mocha, etc.) where multipart uploads are legitimate
   - id: multipart-upload
     desc: Multipart upload with stealer context
     crit: suspicious
@@ -97,10 +58,9 @@ composite_rules:
     for: [shell, python, javascript]
     all:
       - id: cap/comm/http/headers::multipart-upload
-    needs: 1
     any:
       - id: gate-url
-      - id: bot-headers
+      - id: cap/comm/http/headers::bot-headers
       - id: cap/comm/http/client
     none:
       - id: obj/lateral/supply-chain/npm::wpt-test-file
@@ -119,8 +79,8 @@ composite_rules:
     for: [shell]
     needs: 3
     any:
-      - id: curl-post-headers
-      - id: curl-upload
-      - id: bot-headers
+      - id: cap/comm/http/client::curl-post
+      - id: cap/comm/http/client::curl-upload
+      - id: cap/comm/http/headers::bot-headers
       - id: gate-url
-      - id: zip-upload
+      - id: cap/comm/http/upload::zip-upload

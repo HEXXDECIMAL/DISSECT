@@ -251,7 +251,6 @@ composite_rules:
     crit: inert
     conf: 0.7
     for: [javascript, typescript]
-    needs: 1
     any:
       - id: process-platform-content
       - id: process-arch-content

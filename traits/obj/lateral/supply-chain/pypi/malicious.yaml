@@ -323,7 +323,7 @@ composite_rules:
     attack: "T1195.002"
     all:
       - id: install-network-core
-      - id: obj/lateral/supply-chain/pypi/install-exfil/setup-py-file
+      - id: obj/lateral/supply-chain/pypi::setup-py-file
     unless:
       - type: basename
         exact: "six.py"

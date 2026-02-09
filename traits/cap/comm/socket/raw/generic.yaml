@@ -29,7 +29,6 @@ composite_rules:
     desc: Create raw network sockets
     crit: notable
     conf: 0.8
-    needs: 1
     any:
       - id: raw-socket-ref
       - id: proc-net-raw

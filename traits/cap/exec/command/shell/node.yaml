@@ -72,7 +72,6 @@ composite_rules:
     crit: notable
     conf: 0.85
     mbc: "C0017"
-    needs: 1
     any:
       - id: exec-call
       - id: spawn-call

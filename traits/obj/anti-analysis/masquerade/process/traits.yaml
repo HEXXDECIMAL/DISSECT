@@ -175,7 +175,6 @@ composite_rules:
     mbc: "F0004"
     attack: "T1036.004"
     for: [elf]
-    needs: 1
     any:
       - id: prctl-symbol
       - id: pr-set-name-const
@@ -189,7 +188,6 @@ composite_rules:
     mbc: "F0004"
     attack: "T1036.004"
     for: [elf]
-    needs: 1
     any:
       - id: fake-abrtd-path
       - id: fake-abrtd-name
@@ -223,7 +221,6 @@ composite_rules:
     mbc: "F0004"
     attack: "T1036.004"
     for: [c, elf]
-    needs: 1
     any:
       - id: strncpy-argv0
       - id: memset-argv0

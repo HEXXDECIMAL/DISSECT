@@ -50,15 +50,6 @@ traits:
       type: string
       regex: "spawn\\("
 
-  - id: exec-paren
-    desc: exec() call
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "exec\\("
-
   - id: execfile-paren
     desc: execFile() call
     crit: inert
@@ -345,15 +336,6 @@ traits:
       regex: "password:\\s*['\"][^'\"]+['\"]"
 
   # === WScript/XMLHTTP atomic indicators ===
-  - id: wscript-shell
-    desc: WScript.Shell object
-    crit: inert
-    conf: 0.7
-    for: [javascript]
-    if:
-      type: string
-      substr: "WScript.Shell"
-
   - id: msxml2-xmlhttp
     desc: MSXML2.XMLHTTP object
     crit: inert
@@ -560,7 +542,6 @@ composite_rules:
     crit: notable
     conf: 0.6
     for: [javascript, typescript]
-    needs: 1
     any:
       - id: process-env-temp
       - id: process-env-tmp
@@ -585,10 +566,9 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
-    needs: 1
     any:
       - id: spawn-paren
-      - id: exec-paren
+      - id: cap/exec/eval/invoke::exec-call-shell
       - id: execfile-paren
 
   # Spawn executable after extraction
@@ -602,7 +582,7 @@ composite_rules:
       - id: spawn-exec
     any:
       - id: cap/exec/dropper/archive
-      - id: cap/exec/dropper/executable
+      - id: cap/exec/dropper/binary-files
 
   # Python exec composite
   - id: python-exec-call
@@ -611,7 +591,6 @@ composite_rules:
     conf: 0.85
     attack: "T1059"
     for: [python]
-    needs: 1
     any:
       - id: py-os-system
       - id: cap/exec/eval/invoke::exec-call-python
@@ -623,9 +602,8 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     for: [javascript]
-    needs: 1
     any:
-      - id: wscript-shell
+      - id: cap/exec/scripting/host::wscript-shell-string
       - id: msxml2-xmlhttp
       - id: microsoft-xmlhttp
     downgrade:
@@ -638,7 +616,6 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
-    needs: 1
     any:
       - id: buffer-from-base64
       - id: atob-call
@@ -665,7 +642,7 @@ composite_rules:
       - id: cap/exec/dropper/archive::download-zip
       - id: extract-execute
     any:
-      - id: cap/exec/dropper/executable
+      - id: cap/exec/dropper/binary-files
 
   # Complete dropper lifecycle (Fetch + Write + Execute)
   - id: fetch-write-execute
@@ -800,4 +777,4 @@ composite_rules:
     any:
       - { id: cap/exec/command/shell }
       - { id: cap/exec/command/direct }
-      - { id: wscript-shell }
+      - { id: cap/exec/scripting/host::wscript-shell-string }

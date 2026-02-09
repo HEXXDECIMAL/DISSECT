@@ -65,7 +65,7 @@ traits:
     desc: /proc/self/fd path
     crit: inert
     conf: 0.5
-    for: [python, c, shell]
+    for: [python, c, shell, elf]
     if:
       type: string
       substr: "/proc/self/fd"
@@ -271,7 +271,6 @@ composite_rules:
     crit: inert
     conf: 0.5
     for: [python, c, shell]
-    needs: 1
     any:
       - id: execv-fn
       - id: execve-fn
@@ -286,7 +285,6 @@ composite_rules:
     conf: 0.8
     attack: "T1105"
     for: [python]
-    needs: 1
     any:
       - id: requests-get
       - id: urllib-mod
@@ -299,7 +297,6 @@ composite_rules:
     crit: notable
     conf: 0.8
     for: [python, c]
-    needs: 1
     any:
       - id: os-write
       - id: write-fd
@@ -310,7 +307,6 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     for: [python, c, shell]
-    needs: 1
     any:
       - id: memfd-create-fn
       - id: sys-memfd-create
@@ -321,7 +317,6 @@ composite_rules:
     crit: inert
     conf: 0.5
     for: [python, c, shell]
-    needs: 1
     any:
       - id: proc-self-fd
       - id: proc-self-fd-slash
@@ -346,7 +341,6 @@ composite_rules:
     all:
       - id: ctypes-mod
       - id: dot-syscall
-    needs: 1
     any:
       - id: ctypes-cdll
       - id: libc-so
@@ -359,7 +353,6 @@ composite_rules:
     for: [python]
     all:
       - id: os-write
-    needs: 1
     any:
       - id: os-lseek
       - id: seek-set
@@ -373,7 +366,6 @@ composite_rules:
     all:
       - id: http-download-python
       - id: memfd-create
-    needs: 1
     any:
       - id: exec-function
       - id: fd-write-raw

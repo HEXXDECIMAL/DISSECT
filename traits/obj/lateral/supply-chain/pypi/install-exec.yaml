@@ -9,22 +9,6 @@ defaults:
   attack: "T1195.002"
 
 traits:
-  - id: setup-py-basename
-    desc: "File is setup.py"
-    crit: inert
-    conf: 1.0
-    if:
-      type: basename
-      exact: "setup.py"
-
-  - id: init-py-basename
-    desc: "File is __init__.py"
-    crit: inert
-    conf: 1.0
-    if:
-      type: basename
-      exact: "__init__.py"
-
   # os.system call at module level (outside functions)
   - id: module-level-system
     desc: "os.system at module level (install-time"
@@ -202,7 +186,7 @@ composite_rules:
     mbc: "B0030"
     attack: "T1195.002"
     all:
-      - id: setup-py-basename
+      - id: obj/lateral/supply-chain/pypi::setup-py-file
       - id: setup-py-exec-yara-core
     unless:
       - type: content
@@ -215,5 +199,5 @@ composite_rules:
     mbc: "B0030"
     attack: "T1195.002"
     all:
-      - id: init-py-basename
+      - id: obj/lateral/supply-chain/pypi::init-py-file
       - id: init-py-exec-yara-core

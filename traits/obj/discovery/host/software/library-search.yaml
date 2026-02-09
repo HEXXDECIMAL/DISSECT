@@ -227,7 +227,6 @@ composite_rules:
     desc: SSL/TLS library search targets
     crit: inert
     conf: 0.8
-    needs: 1
     any:
       - id: libssl-so
       - id: libcrypto-so
@@ -239,7 +238,6 @@ composite_rules:
     desc: Library resolver function patterns
     crit: notable
     conf: 0.75
-    needs: 1
     any:
       - id: resolve-library-fn
       - id: global-search-library-fn
@@ -255,7 +253,6 @@ composite_rules:
     attack: "T1518"
     all:
       - id: lib-path-enum
-    needs: 1
     any:
       - id: arch-detection
       - id: lib-resolver-fn

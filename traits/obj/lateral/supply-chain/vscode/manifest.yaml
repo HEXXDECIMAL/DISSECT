@@ -10,6 +10,7 @@ traits:
     for: [vsixmanifest]
     if:
       type: content
+      substr: "<Identity"
 
   # === Suspicious link patterns ===
   # Legitimate extensions have real GitHub repos, not stub links
@@ -65,7 +66,6 @@ composite_rules:
     attack: "T1036.005"
     mbc: "B0033"
     for: [vsixmanifest]
-    needs: 1
     any:
       - id: stub-github-link
       - id: multiple-stub-links

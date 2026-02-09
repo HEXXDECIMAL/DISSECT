@@ -156,7 +156,6 @@ composite_rules:
     conf: 0.8
     attack: "T1195"
     for: [rust]
-    needs: 1
     any:
       - id: sha-rust-crate
       - id: rust-sha-crate
@@ -170,7 +169,6 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [rust]
-    needs: 1
     any:
       - id: filte-var-typo
       - id: connecion-typo
@@ -196,7 +194,6 @@ composite_rules:
     crit: notable
     conf: 0.6
     for: [rust]
-    needs: 1
     any:
       - id: dummy-key-word
       - id: dummy-value-word

@@ -3,16 +3,6 @@
 # ATT&CK: T1140
 
 traits:
-  - id: decode-python
-    desc: Base64 decoding in Python
-    crit: notable
-    conf: 0.66
-    mbc: "B0032"
-    attack: "T1140"
-    if:
-      type: string
-      substr: b64decode
-
   - id: decode-exec-python
     desc: Base64 decode and execute in
     crit: suspicious

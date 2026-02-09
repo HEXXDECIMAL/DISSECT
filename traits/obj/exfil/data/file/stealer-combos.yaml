@@ -13,7 +13,6 @@ composite_rules:
     for: [elf, macho, pe]
     all:
       - id: cap/comm/download/curl::libcurl-http
-    needs: 1
     any:
       - id: obj/collect/file-targeting
       - id: obj/creds/wallet/mnemonic::wallet-word
@@ -27,8 +26,7 @@ composite_rules:
     platforms: [macos]
     for: [macho]
     all:
-      - id: cap/fs/file-ops/modes::fcopyfile-macos
-    needs: 1
+      - id: cap/fs/file/binary::fcopyfile-macos
     any:
       - id: cap/comm/download/curl::libcurl-http
       - id: cap/comm/socket/create
@@ -77,7 +75,6 @@ composite_rules:
     all:
       - id: cap/data/encode/base64::custom-implementation
       - id: obj/anti-static/obfuscation/encoding::string-decrypt
-    needs: 1
     any:
       - id: cap/comm/download/curl::libcurl-http
       - id: cap/comm/socket/create

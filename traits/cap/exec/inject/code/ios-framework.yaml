@@ -77,7 +77,6 @@ composite_rules:
     conf: 0.95
     attack: "T1546"
     for: [ipa]
-    needs: 1
     any:
       - id: cydia-substrate-dylib
       - id: substrate-function-hook

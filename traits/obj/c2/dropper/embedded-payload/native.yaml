@@ -87,8 +87,8 @@ composite_rules:
     all:
       - id: cap/comm/download/curl::libcurl-http
       - id: cap/exec/command/shell::shell-execution
-      - id: cap/fs/file-ops/modes::binary-file-ops
-      - id: cap/fs/proc/process::process-pid-exe
+      - id: cap/fs/file/operations::binary-file-ops
+      - id: cap/fs/proc/info::process-pid-exe
 
   # Minimal libcurl dropper: stripped binary with curl + system + few imports
   # This variant doesn't need /proc/self/exe but has minimal imports indicating malicious intent

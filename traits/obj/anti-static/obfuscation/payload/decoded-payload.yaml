@@ -88,7 +88,6 @@ composite_rules:
     conf: 0.92
     attack: "T1059"
     for: [python, shell]
-    needs: 1
     any:
       - id: decoded-shell-command
       - id: decoded-windows-command

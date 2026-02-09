@@ -279,7 +279,6 @@ composite_rules:
     desc: reGeorg/Tunna web tunneling
     crit: notable
     conf: 0.9
-    needs: 1
     any:
       - id: regeorg-name
       - id: tunna-name
@@ -291,7 +290,6 @@ composite_rules:
     desc: Chisel HTTP tunneling tool
     crit: suspicious
     conf: 0.9
-    needs: 1
     any:
       - id: chisel-import
       - id: chisel-client
@@ -302,7 +300,6 @@ composite_rules:
     desc: Ngrok tunneling service
     crit: notable
     conf: 0.85
-    needs: 1
     any:
       - id: ngrok-name
       - id: ngrok-io

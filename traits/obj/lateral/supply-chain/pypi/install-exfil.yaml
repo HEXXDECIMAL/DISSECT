@@ -324,14 +324,13 @@ composite_rules:
     size_max: 500
     all:
       - id: small-no-imports
-      - id: cap/data/control-flow/analysis/generic/for-loop
+      - id: cap/data/control-flow/analysis::for-loop-ast
 
   # Base64 encoding composite
   - id: base64-encode
     desc: Base64 encoding capability
     crit: notable
     conf: 0.8
-    needs: 1
     any:
       - id: base64-encode-call
       - id: base64-encode-string
@@ -464,5 +463,5 @@ composite_rules:
     attack: "T1195.002"
     all:
       - id: setup-py-file
-      - id: cap/comm/http/request/python
+      - id: cap/comm/http/request::request-python
       - id: probe-print-test

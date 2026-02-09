@@ -364,14 +364,6 @@ composite_rules:
       any:
         - id: cap/exec/load/library::debugger-tool-marker
 
-  - id: kernel-disable
-    desc: SELinux kernel parameter disable
-    crit: suspicious
-    conf: 0.9
-    for: [shell, elf]
-    any:
-      - { id: kernel-parameters }
-
   # Helper: selinux state + enforcing keyword combo
   - id: selinux-state-enforcing
     desc: SELinux state with enforcing keyword
@@ -409,5 +401,5 @@ composite_rules:
       - { id: xattr-manipulation }
       - { id: unconfined-context }
       - { id: enforcement-commands }
-      - { id: kernel-disable }
+      - { id: kernel-parameters }
       - { id: runtime-patch }

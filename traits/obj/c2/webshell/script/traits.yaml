@@ -238,7 +238,6 @@ composite_rules:
     desc: Known webshell family identifier
     crit: notable
     conf: 0.9
-    needs: 1
     any:
       - id: c99shell
       - id: r57shell

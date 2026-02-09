@@ -525,7 +525,6 @@ composite_rules:
     attack: "T1027"
     all:
       - id: obj/anti-static/obfuscation/code-metrics::low-whitespace
-    needs: 1
     any:
       - id: obj/anti-static/obfuscation/code-metrics::high-function-density
       - id: obj/anti-static/obfuscation/code-metrics::many-one-liner-functions
@@ -545,7 +544,6 @@ composite_rules:
     any:
       - id: obj/anti-static/obfuscation/code-metrics::high-entropy-identifiers
       - id: obj/anti-static/obfuscation/code-metrics::many-high-entropy-identifiers
-      - id: obj/anti-static/obfuscation/code-metrics::ruby-many-high-entropy-identifiers
       - id: obj/anti-static/obfuscation/code-metrics::go-many-high-entropy-identifiers
       - id: obj/anti-static/obfuscation/code-metrics::py-many-high-entropy-identifiers
       - id: obj/anti-static/obfuscation/code-metrics::rust-many-high-entropy-identifiers

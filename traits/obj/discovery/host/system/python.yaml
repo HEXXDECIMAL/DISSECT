@@ -108,14 +108,6 @@ traits:
       type: string
       substr: "getmac"
 
-  - id: ifconfig-cmd
-    desc: ifconfig command for network info
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      substr: "ifconfig"
-
   - id: uuid-getnode
     desc: uuid.getnode() for MAC address
     crit: inert
@@ -140,7 +132,6 @@ composite_rules:
     desc: Gets current system username
     crit: notable
     conf: 0.85
-    needs: 1
     any:
       - id: python-getpass-user
       - id: python-getpass-user-symbol
@@ -150,10 +141,9 @@ composite_rules:
     desc: Collects hardware MAC addresses for
     crit: notable
     conf: 0.8
-    needs: 1
     any:
       - id: getmac-module
-      - id: ifconfig-cmd
+      - id: unix-ifconfig
       - id: uuid-getnode
 
   # Multiple system information collection

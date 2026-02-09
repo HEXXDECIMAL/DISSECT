@@ -106,7 +106,6 @@ composite_rules:
     desc: "Performs HTTP request (urllib, requests,"
     crit: inert
     conf: 0.9
-    needs: 1
     any:
       - id: py-requests-get
       - id: py-requests-post
@@ -122,7 +121,6 @@ composite_rules:
     desc: "Performs HTTP GET request"
     crit: notable
     conf: 0.9
-    needs: 1
     any:
       - id: requests-get
       - id: httpx-get
@@ -132,7 +130,6 @@ composite_rules:
     desc: "Performs HTTP POST request (Exfiltration"
     crit: notable
     conf: 0.9
-    needs: 1
     any:
       - id: requests-post
       - id: httpx-post

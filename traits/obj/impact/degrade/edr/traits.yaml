@@ -161,7 +161,6 @@ composite_rules:
     crit: notable
     conf: 0.8
     for: [pe, elf]
-    needs: 1
     any:
       - id: defender-name
       - id: malwarebytes-name
@@ -181,7 +180,6 @@ composite_rules:
     crit: inert
     conf: 0.5
     for: [elf, pe]
-    needs: 1
     any:
       - id: kill-keyword
       - id: terminate-keyword

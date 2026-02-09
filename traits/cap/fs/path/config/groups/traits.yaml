@@ -26,7 +26,6 @@ composite_rules:
     desc: Group configuration file access
     crit: notable
     conf: 0.8
-    needs: 1
     any:
       - id: etc-group
       - id: etc-gshadow

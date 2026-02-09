@@ -227,7 +227,6 @@ composite_rules:
     conf: 0.7
     attack: "T1110.001"
     for: [elf]
-    needs: 1
     any:
       - id: telnet-connect-str
       - id: telnet-scanner-str
@@ -240,7 +239,6 @@ composite_rules:
     conf: 0.8
     attack: "T1110.001"
     for: [elf]
-    needs: 1
     any:
       - id: busybox-wget
       - id: busybox-tftp

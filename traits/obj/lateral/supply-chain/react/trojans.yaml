@@ -16,7 +16,7 @@ composite_rules:
     all:
       - {id: meta/library/react::library}
       - {id: meta/library/react::version-banner}
-      - {id: cap/exec/activex/com/activex-object-create}
+      - {id: cap/exec/activex/com::activex-object-create}
   # React + Reverse Shell = HOSTILE
   - id: trojanized-reverse-shell
     desc: "React library with reverse shell"
@@ -25,7 +25,7 @@ composite_rules:
     all:
       - {id: meta/library/react::library}
       - {id: meta/library/react::version-banner}
-      - {id: obj/c2/reverse-shell/method::socket-with-exec}
+      - {id: obj/c2/reverse-shell/socket::socket-with-exec}
   # React + Base64 Eval = HOSTILE (hidden payload)
   - id: trojanized-base64-eval
     desc: "React library with base64+eval payload"
@@ -44,7 +44,7 @@ composite_rules:
       - {id: meta/library/react::library}
       - {id: meta/library/react::version-banner}
     any:
-      - {id: obj/creds/browser/chromium/login-data}
+      - {id: obj/creds/browser/chromium::login-data}
       - {id: obj/creds/browser/firefox::cookies-sqlite}
   # React + Command Execution = HOSTILE
   - id: trojanized-exec
@@ -65,4 +65,4 @@ composite_rules:
     all:
       - {id: meta/library/react::library}
       - {id: meta/library/react::version-banner}
-      - {id: obj/c2/infrastructure/domain/suspicious}
+      - {id: obj/c2/infrastructure/domain::hardcoded-domain-suspicious-pattern}

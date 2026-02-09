@@ -9,7 +9,7 @@ defaults:
 
 traits:
   # === Basic Eval Patterns ===
-  - id: eval-call
+  - id: eval-call-ruby
     desc: Ruby eval call
     crit: notable
     conf: 0.90

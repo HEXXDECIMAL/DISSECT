@@ -2,7 +2,7 @@
 # Detects obfuscation patterns in Go source code via metrics analysis
 
 defaults:
-  for: [go]
+  for: [go, ruby]
   attack: "T1027"
   mbc: "B0032"
 

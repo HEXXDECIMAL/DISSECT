@@ -263,7 +263,6 @@ composite_rules:
     desc: Package name contains theft-related keyword
     crit: notable
     conf: 0.75
-    needs: 1
     any:
       - id: name-dump-keyword
       - id: name-grab-keyword
@@ -278,7 +277,6 @@ composite_rules:
     desc: Package name contains target application
     crit: inert
     conf: 0.5
-    needs: 1
     any:
       - id: name-discord-target
       - id: name-telegram-target
@@ -304,7 +302,6 @@ composite_rules:
     desc: Keywords contain theft-related terms
     crit: notable
     conf: 0.75
-    needs: 1
     any:
       - id: keyword-dump
       - id: keyword-grab
@@ -314,7 +311,6 @@ composite_rules:
     desc: Keywords contain target app terms
     crit: inert
     conf: 0.5
-    needs: 1
     any:
       - id: keyword-discord
       - id: keyword-token
@@ -348,7 +344,7 @@ composite_rules:
     all:
       - id: name-has-theft-keyword
     none:
-      - id: obj/lateral/supply-chain/npm::npm-has-bugs-url
+      - id: obj/lateral/supply-chain/npm::has-bugs-url
 
   - id: theft-name-no-homepage
     desc: Theft keyword in name without homepage
@@ -357,7 +353,7 @@ composite_rules:
     all:
       - id: name-has-theft-keyword
     none:
-      - id: obj/lateral/supply-chain/npm::npm-has-homepage
+      - id: obj/lateral/supply-chain/npm::has-homepage
 
   # === Credential stealer package name pattern (SUSPICIOUS) ===
   # Complexity: 3 (all) = 3 -> suspicious (needs 4 for hostile)

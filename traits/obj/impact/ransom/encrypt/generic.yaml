@@ -80,6 +80,5 @@ composite_rules:
     desc: Ransom note patterns
     crit: notable
     conf: 0.66
-    needs: 2
     any:
       - id: cap/data/text/malware/

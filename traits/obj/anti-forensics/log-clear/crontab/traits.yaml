@@ -85,7 +85,7 @@ traits:
     desc: Direct crontab command usage
     crit: inert
     conf: 0.7
-    for: [elf, shell]
+    for: [elf, macho, pe, so, dylib, dll, shell]
     if:
       type: string
       word: "crontab"

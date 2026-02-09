@@ -41,7 +41,6 @@ composite_rules:
     crit: notable
     conf: 0.85
     mbc: "F0005"
-    needs: 1
     any:
       - id: rust-fork-daemon
       - id: rust-daemonize-crate

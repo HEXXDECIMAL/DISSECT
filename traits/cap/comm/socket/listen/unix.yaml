@@ -54,7 +54,6 @@ composite_rules:
     conf: 0.6
     mbc: "C0001"
     attack: "T1071"
-    needs: 1
     any:
       - id: accept-sym
       - id: accept64-sym

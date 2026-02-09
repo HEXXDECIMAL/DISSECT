@@ -78,7 +78,7 @@ traits:
     desc: Europe/Minsk timezone string
     crit: notable
     conf: 0.8
-    for: [javascript, typescript, python, shell, ruby, php]
+    for: [javascript, typescript, python, shell, ruby, php, elf, macho, pe]
     if:
       type: string
       substr: "Europe/Minsk"
@@ -87,7 +87,7 @@ traits:
     desc: Europe/Kiev timezone string
     crit: notable
     conf: 0.7
-    for: [javascript, typescript, python, shell, ruby, php]
+    for: [javascript, typescript, python, shell, ruby, php, elf, macho, pe]
     if:
       type: string
       substr: "Europe/Kiev"
@@ -202,7 +202,6 @@ composite_rules:
     desc: Russian locale indicator
     crit: notable
     conf: 0.75
-    needs: 1
     any:
       - id: locale-ru-ru-underscore
       - id: locale-ru-ru-dash
@@ -213,7 +212,6 @@ composite_rules:
     desc: CIS region locale indicator
     crit: notable
     conf: 0.7
-    needs: 1
     any:
       - id: russian-locale
       - id: locale-uk-ua
@@ -225,7 +223,6 @@ composite_rules:
     desc: CIS region timezone check
     crit: notable
     conf: 0.75
-    needs: 1
     any:
       - id: tz-europe-moscow
       - id: tz-europe-minsk
@@ -251,7 +248,6 @@ composite_rules:
     crit: notable
     conf: 0.65
     for: [javascript, typescript]
-    needs: 1
     any:
       - id: js-intl-datetime-options
       - id: js-gettimezoneoffset

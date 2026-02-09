@@ -4,26 +4,13 @@
 
 composite_rules:
   - id: embedded-c2-list
-    desc: Multiple hardcoded C2 IP addresses
-    crit: notable
-    conf: 0.8
-    platforms: [all]
-    for: [pe, elf, macho]
-    attack: "T1043"
-    mbc: "C0002"
-    needs: 5
-    any:
-      - id: cap/comm/ip
-
-  - id: distributed-c2-redundancy
-    desc: Distributed C2 infrastructure redundancy
+    desc: Multiple hardcoded C2 IP addresses or distributed C2 infrastructure redundancy
     crit: notable
     conf: 0.85
     platforms: [all]
     for: [pe, elf, macho]
     attack: "T1043"
     mbc: "C0002"
-    needs: 20
     any:
       - id: cap/comm/ip
 
@@ -48,6 +35,6 @@ composite_rules:
     attack: "T1043"
     mbc: "C0002"
     all:
-      - id: distributed-c2-redundancy
+      - id: embedded-c2-list
       - id: cap/comm/socket/
 

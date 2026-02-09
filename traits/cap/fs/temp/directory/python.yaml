@@ -24,7 +24,6 @@ composite_rules:
     desc: Gets system temp directory
     crit: inert
     conf: 0.75
-    needs: 1
     any:
       - id: directory-python
       - id: directory-python-symbol

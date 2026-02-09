@@ -29,8 +29,8 @@ composite_rules:
     attack: "T1041"
     for: [ruby]
     all:
-      - id: cap/os/sysinfo/system::socket-hostname
-      - id: cap/os/sysinfo/system::socket-ip-address
+      - id: cap/os/sysinfo/hostname::socket-hostname
+      - id: cap/os/network/interface::socket-ip-address
       - id: cap/comm/http/request::net-http
       - id: cap/comm/http/request::hardcoded-ip-url
 
@@ -46,4 +46,4 @@ composite_rules:
       - id: cap/os/sysinfo
       - id: cap/comm/http/request::hardcoded-ip-url
       - id: base64-json-encode
-      - id: obj/discovery/host/fingerprint/method::getenv-user
+      - id: obj/discovery/host/fingerprint::getenv-user

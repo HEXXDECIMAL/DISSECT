@@ -74,7 +74,7 @@ composite_rules:
     mbc: "B0024"
     attack: "T1195.002"
     all:
-      - id: setup-py-spam-url
+      - id: obj/lateral/supply-chain/pypi::setup-py-file
       - id: affiliate-network-url
 
   # === SUSPICIOUS: Clickbank Affiliate Package ===
@@ -87,7 +87,7 @@ composite_rules:
     mbc: "B0024"
     attack: "T1195.002"
     all:
-      - id: setup-py-spam-url
+      - id: obj/lateral/supply-chain/pypi::setup-py-file
       - id: clickbank-affiliate-url
 
   # === SUSPICIOUS: SEO Spam Package ===

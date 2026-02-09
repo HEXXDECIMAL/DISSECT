@@ -13,4 +13,5 @@ traits:
     conf: 0.8
     if:
       type: content
+      regex: "\\x1b\\["
 

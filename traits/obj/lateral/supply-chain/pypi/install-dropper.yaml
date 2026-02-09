@@ -359,7 +359,6 @@ composite_rules:
     desc: Python command execution
     crit: notable
     conf: 0.85
-    needs: 1
     any:
       - id: cap/exec/command/shell::python-os-system
       - id: os-system-string
@@ -442,7 +441,7 @@ composite_rules:
     attack: "T1204.002"
     all:
       - id: obj/lateral/supply-chain/pypi::setup-py-file
-      - id: obj/c2/infrastructure/ip::http-raw-ip-url-script
+      - id: obj/c2/infrastructure/ip::http-raw-ip-url
       - id: binary-file-write
       - id: cap/exec/command/subprocess::methods
 
@@ -470,7 +469,7 @@ composite_rules:
     mbc: "E1204"
     attack: "T1176"
     all:
-      - id: obj/lateral/supply-chain/pypi::setup-py-basename
+      - id: obj/lateral/supply-chain/pypi::setup-py-file
       - id: cap/exec/autoinstall/pip::main-call-content
       - id: obj/persist/startup/registry::windows-shortcut-argument-injection
       - id: obj/anti-static/obfuscation/code::advanced-python-obfuscation
@@ -486,7 +485,7 @@ composite_rules:
     mbc: "E1204"
     attack: "T1176"
     all:
-      - id: obj/lateral/supply-chain/pypi::setup-py-basename
+      - id: obj/lateral/supply-chain/pypi::setup-py-file
       - id: cap/exec/autoinstall/pip::main-call-content
       - id: obj/persist/startup/registry::windows-shortcut-walk-modify
       - id: cap/fs/directory/mkdir::mkdir-python
@@ -535,7 +534,7 @@ composite_rules:
     mbc: "B0024"
     attack: "T1195.002"
     all:
-      - id: obj/lateral/supply-chain/pypi::setup-py-basename
+      - id: obj/lateral/supply-chain/pypi::setup-py-file
       - id: cap/os/info/system::sys-platform-check
       - id: cap/os/info/system::sys-argv-access
       - id: cap/exec/autoinstall/pip::main-call-content
@@ -555,7 +554,7 @@ composite_rules:
     mbc: "E1204"
     attack: "T1195.002"
     all:
-      - id: obj/lateral/supply-chain/pypi::setup-py-basename
+      - id: obj/lateral/supply-chain/pypi::setup-py-file
       - id: obj/anti-static/obfuscation/code::advanced-python-obfuscation
       - id: setup-py-file-write
       - id: cap/fs/directory/mkdir::mkdir-python
@@ -574,7 +573,7 @@ composite_rules:
       - id: obj/lateral/supply-chain/pypi::setup-py-file
       - id: cap/exec/dropper/stealth::subprocess-popen
       - id: powershell-download-in-string
-      - id: cap/exec/background/daemon/windows/powershell-hidden
+      - id: cap/exec/background/daemon::powershell-hidden
 
   # === HOSTILE: PyPI PowerShell Encoded Dropper ===
   # setup.py invokes PowerShell with -EncodedCommand to hide the actual payload.
@@ -590,7 +589,7 @@ composite_rules:
       - id: obj/lateral/supply-chain/pypi::setup-py-file
       - id: cap/exec/dropper/stealth::subprocess-popen
       - id: powershell-encoded-command-in-string
-      - id: cap/exec/background/daemon/windows/powershell-hidden
+      - id: cap/exec/background/daemon::powershell-hidden
 
   # === HOSTILE: PyPI Setup.py PowerShell Stager ===
   # setup.py downloads archive via PowerShell, extracts, and runs hidden payload

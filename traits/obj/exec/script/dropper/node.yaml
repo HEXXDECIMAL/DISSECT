@@ -17,7 +17,7 @@ composite_rules:
     for: [javascript]
     all:
       - id: cap/comm/http/request::node-http
-      - id: cap/exec/eval/dynamic::eval-call
+      - id: cap/exec/eval/dynamic::eval-call-js
 
   # Network Request + Eval + Decoding = Hostile (Very High Conf)
   - id: node-net-eval-decode
@@ -27,5 +27,5 @@ composite_rules:
     for: [javascript]
     all:
       - id: cap/comm/http/request::node-http
-      - id: cap/exec/eval/dynamic::eval-call
+      - id: cap/exec/eval/dynamic::eval-call-js
       - id: obj/anti-static/obfuscation/strings::js-buffer-from-base64

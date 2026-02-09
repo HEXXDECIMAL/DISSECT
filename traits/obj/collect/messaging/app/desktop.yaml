@@ -145,7 +145,6 @@ composite_rules:
     desc: Telegram Desktop tdata directory
     crit: suspicious
     conf: 0.9
-    needs: 1
     any:
       - id: telegram-tdata-desktop
       - id: telegram-tdata-desktop-win
@@ -167,7 +166,6 @@ composite_rules:
     desc: Discord LevelDB storage
     crit: suspicious
     conf: 0.85
-    needs: 1
     any:
       - id: discord-leveldb-lower
       - id: discord-leveldb-upper
@@ -177,7 +175,6 @@ composite_rules:
     desc: Signal Desktop configuration
     crit: suspicious
     conf: 0.85
-    needs: 1
     any:
       - id: signal-config-json
       - id: signal-sql-db
@@ -187,7 +184,6 @@ composite_rules:
     desc: Slack Desktop storage
     crit: suspicious
     conf: 0.85
-    needs: 1
     any:
       - id: slack-storage-path
       - id: slack-indexeddb-path
@@ -197,30 +193,9 @@ composite_rules:
     desc: WhatsApp Desktop storage
     crit: suspicious
     conf: 0.85
-    needs: 1
     any:
       - id: whatsapp-indexeddb-path
       - id: whatsapp-localstorage-path
-
-  # Telegram data theft
-  - id: telegram-theft
-    desc: "Telegram Desktop session/data theft"
-    crit: suspicious
-    conf: 0.95
-    attack: "T1005"
-    for: [shell, python, applescript, macho, elf, pe]
-    all:
-      - id: telegram-tdata
-
-  # Discord data theft
-  - id: discord-theft
-    desc: "Discord Desktop data theft"
-    crit: suspicious
-    conf: 0.9
-    attack: "T1005"
-    for: [shell, python, javascript, macho, elf, pe]
-    all:
-      - id: discord-leveldb
 
   # Multi-messenger theft
   - id: multi-messenger

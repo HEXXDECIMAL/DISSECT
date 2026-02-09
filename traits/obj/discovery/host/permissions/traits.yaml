@@ -114,7 +114,6 @@ composite_rules:
     conf: 0.7
     attack: "T1069"
     for: [elf]
-    needs: 1
     any:
       - id: cap-get-proc
       - id: cap-set-proc
@@ -130,7 +129,7 @@ composite_rules:
     for: [elf, shell]
     all:
       - id: capsh
-      - id: cap/fs/proc/process::process-self-status
+      - id: cap/fs/proc/info::process-self-status
 
   # Linux capabilities via cap_get/set_proc
   - id: linux-caps-via-api
@@ -150,7 +149,6 @@ composite_rules:
     attack: "T1069"
     mbc: "B0046"
     for: [elf, shell]
-    needs: 1
     any:
       - id: linux-caps-via-capsh
       - id: linux-caps-via-api

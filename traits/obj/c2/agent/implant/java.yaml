@@ -177,7 +177,7 @@ composite_rules:
     needs: 4
     any:
       # Credential access
-      - id: obj/creds/extract/method
+      - id: obj/creds/extract/keylogger::keylogger-string
       # C2 commands
       - id: remote-cmd-string
       - id: power-shell-string
@@ -188,17 +188,6 @@ composite_rules:
       - id: obj/impact/system-control/rce::reboot-string
       - id: obj/impact/system-control/rce::uninstall-string
 
-  # Java credential stealer
-  - id: credential-stealer
-    desc: Java-based credential stealing capability
-    crit: suspicious
-    mbc: "T1555"
-    attack: "T1555"
-    conf: 0.95
-    needs: 2
-    any:
-      - id: obj/creds/extract/method
-
   # Java keylogger
   - id: keylogger
     desc: Java keylogging capability
@@ -206,10 +195,9 @@ composite_rules:
     mbc: "T1056.001"
     attack: "T1056.001"
     conf: 0.95
-    needs: 1
     any:
-      - id: obj/creds/extract/method::keylogger-string
-      - id: obj/creds/extract/method::o-keylogger-string
+      - id: obj/creds/extract/keylogger::keylogger-string
+      - id: obj/creds/extract/keylogger::o-keylogger-string
 
   # Java remote access
   - id: remote-access
@@ -233,7 +221,6 @@ composite_rules:
     mbc: "B0025"
     attack: "T1105"
     conf: 0.95
-    needs: 1
     any:
       - id: down-n-exec-string
       - id: up-n-exec-string

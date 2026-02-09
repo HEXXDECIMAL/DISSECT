@@ -305,7 +305,6 @@ composite_rules:
     desc: Command execution capability
     crit: inert
     conf: 0.7
-    needs: 1
     any:
       - id: execve-symbol
       - id: system-symbol

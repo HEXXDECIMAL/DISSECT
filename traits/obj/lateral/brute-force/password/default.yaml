@@ -153,7 +153,6 @@ composite_rules:
     conf: 0.95
     attack: "T1110.001"
     for: [elf]
-    needs: 1
     any:
       - id: obj/lateral/brute-force/iot-creds::router-cred-zte
       - id: iot-pte521

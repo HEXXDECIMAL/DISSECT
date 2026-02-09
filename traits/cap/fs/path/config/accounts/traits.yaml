@@ -27,7 +27,6 @@ composite_rules:
     desc: Account configuration file access
     crit: notable
     conf: 0.8
-    needs: 1
     any:
       - id: etc-passwd
       - id: etc-shadow
