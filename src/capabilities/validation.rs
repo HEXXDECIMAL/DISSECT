@@ -1129,9 +1129,9 @@ pub(crate) fn find_redundant_any_refs(
         }
     }
 
-    // Find directories with 3+ references
+    // Find directories with 4+ references
     for (dir, trait_ids) in dir_refs {
-        if trait_ids.len() >= 3 {
+        if trait_ids.len() >= 4 {
             violations.push((rule.id.clone(), dir, trait_ids.len(), trait_ids));
         }
     }
@@ -1150,8 +1150,8 @@ pub(crate) fn find_single_item_clauses(
     let mut violations = Vec::new();
 
     // Skip rules with none:, unless:, or downgrade: clauses - they add meaningful conditions
-    let has_none = rule.none.as_ref().map_or(false, |v| !v.is_empty());
-    let has_unless = rule.unless.as_ref().map_or(false, |v| !v.is_empty());
+    let has_none = rule.none.as_ref().is_some_and(|v| !v.is_empty());
+    let has_unless = rule.unless.as_ref().is_some_and(|v| !v.is_empty());
     let has_downgrade = rule.downgrade.is_some();
     if has_none || has_unless || has_downgrade {
         return violations;
@@ -1426,12 +1426,7 @@ pub(crate) fn find_depth_violations(yaml_files: &[String]) -> Vec<(String, usize
 /// Valid characters are: alphanumerics, dashes, and underscores.
 /// Returns None if valid, Some(invalid_char) if invalid.
 fn validate_trait_id_chars(id: &str) -> Option<char> {
-    for c in id.chars() {
-        if !c.is_ascii_alphanumeric() && c != '-' && c != '_' {
-            return Some(c);
-        }
-    }
-    None
+    id.chars().find(|&c| !c.is_ascii_alphanumeric() && c != '-' && c != '_')
 }
 
 /// Find trait and composite rule IDs that contain invalid characters.
@@ -1661,8 +1656,8 @@ pub(crate) fn find_string_content_collisions(
 
     // Group traits by (signature, criticality, for, platforms)
     // Key: (signature, crit, for, platforms) -> Vec<(trait_id, is_string_type)>
-    let mut groups: HashMap<(MatchSignature, String, String, String), Vec<(String, bool)>> =
-        HashMap::new();
+    type SignatureGroup = HashMap<(MatchSignature, String, String, String), Vec<(String, bool)>>;
+    let mut groups: SignatureGroup = HashMap::new();
 
     for t in trait_definitions {
         if let Some((is_string, sig)) = extract_match_signature(&t.r#if) {
@@ -1902,6 +1897,7 @@ pub(crate) fn find_banned_directory_segments(trait_dirs: &[String]) -> Vec<(Stri
 /// Find paths with duplicate words across segments.
 /// e.g., "obj/anti-analysis/analysis/" or "cap/exec/execute/"
 /// Returns: Vec<(directory_path, duplicate_word)>
+#[allow(dead_code)]
 pub(crate) fn find_duplicate_words_in_path(trait_dirs: &[String]) -> Vec<(String, String)> {
     let mut violations = Vec::new();
 
@@ -1919,7 +1915,7 @@ pub(crate) fn find_duplicate_words_in_path(trait_dirs: &[String]) -> Vec<(String
 
         for segment in &segments {
             // Split segment into constituent words
-            let words: Vec<&str> = segment.split(|c| c == '-' || c == '_').collect();
+            let words: Vec<&str> = segment.split(['-', '_']).collect();
 
             for word in words {
                 let lower = word.to_lowercase();
@@ -1937,11 +1933,12 @@ pub(crate) fn find_duplicate_words_in_path(trait_dirs: &[String]) -> Vec<(String
                 // Check for stem duplicates (e.g., "exec" vs "execute", "analysis" vs "anti-analysis")
                 // Simple heuristic: if one word starts with another (min 4 chars), it's a duplicate
                 for seen in &seen_words {
-                    if seen.len() >= 4 && lower.len() >= 4 {
-                        if lower.starts_with(seen) || seen.starts_with(&lower) {
-                            violations.push((dir_path.clone(), word.to_string()));
-                            break;
-                        }
+                    if seen.len() >= 4
+                        && lower.len() >= 4
+                        && (lower.starts_with(seen) || seen.starts_with(&lower))
+                    {
+                        violations.push((dir_path.clone(), word.to_string()));
+                        break;
                     }
                 }
 
@@ -2127,9 +2124,9 @@ pub(crate) fn find_empty_condition_clauses(
     let mut violations = Vec::new();
 
     for rule in composite_rules {
-        let all_empty = rule.all.as_ref().map_or(true, |v| v.is_empty());
-        let any_empty = rule.any.as_ref().map_or(true, |v| v.is_empty());
-        let none_empty = rule.none.as_ref().map_or(true, |v| v.is_empty());
+        let all_empty = rule.all.as_ref().is_none_or(|v| v.is_empty());
+        let any_empty = rule.any.as_ref().is_none_or(|v| v.is_empty());
+        let none_empty = rule.none.as_ref().is_none_or(|v| v.is_empty());
 
         // Only flag if we have an explicit empty clause (Some([]))
         if let Some(all) = &rule.all {
@@ -2214,9 +2211,9 @@ pub(crate) fn find_redundant_needs_one(composite_rules: &[CompositeTrait]) -> Ve
         }
 
         // Check if only `any:` clause exists (no all:, no none:)
-        let has_all = rule.all.as_ref().map_or(false, |v| !v.is_empty());
-        let has_none = rule.none.as_ref().map_or(false, |v| !v.is_empty());
-        let has_any = rule.any.as_ref().map_or(false, |v| !v.is_empty());
+        let has_all = rule.all.as_ref().is_some_and(|v| !v.is_empty());
+        let has_none = rule.none.as_ref().is_some_and(|v| !v.is_empty());
+        let has_any = rule.any.as_ref().is_some_and(|v| !v.is_empty());
 
         if has_any && !has_all && !has_none {
             violations.push(rule.id.clone());

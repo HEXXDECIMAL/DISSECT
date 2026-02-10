@@ -1812,8 +1812,9 @@ impl Condition {
     /// Rules:
     /// - 3 or less characters (alphabetic only): always warn
     /// - 4 characters (alphabetic only): only warn if applies to more than 2 file types
-    /// Mixed alphanumeric strings (like "x509") are exempt - they have fewer variants
-    /// Returns a warning message if found, None otherwise.
+    ///
+    ///   Mixed alphanumeric strings (like "x509") are exempt - they have fewer variants
+    ///   Returns a warning message if found, None otherwise.
     pub fn check_short_case_insensitive(&self, file_type_count: usize) -> Option<String> {
         let check_pattern = |s: &str| -> Option<String> {
             let len = s.len();

@@ -3,6 +3,7 @@
 //! Comprehensive tests for AES key extraction, decryption, and payload analysis.
 
 #[cfg(test)]
+#[allow(clippy::module_inception)]
 mod tests {
     use super::super::*;
     use aes::cipher::{block_padding::Pkcs7, BlockEncryptMut, KeyIvInit};

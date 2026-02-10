@@ -67,7 +67,7 @@ traits:
       min: 1
 
   - id: go-cgo-directives
-    desc: Uses #cgo preprocessor directives (C interop)
+    desc: Uses cgo preprocessor directives for C interop
     crit: notable
     conf: 0.75
     if:

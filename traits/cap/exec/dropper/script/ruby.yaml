@@ -260,8 +260,8 @@ composite_rules:
     any:
       - id: cap/data/encode/base64::base64-decode
       - id: cap/comm/dns/lookup::dns-resolve
-      - id: cap/comm/http/request::net-http
-      - id: cap/comm/http/request::http-get-method
+      - id: cap/comm/http/lib/netlib::net-http
+      - id: cap/comm/http/lib/netlib::http-get-method
 
   - id: ruby-tmp-execution
     desc: Write to /tmp, chmod, and execute
@@ -303,5 +303,5 @@ composite_rules:
     crit: suspicious
     needs: 2
     any:
-      - id: cap/comm/http/request::http-get-method
+      - id: cap/comm/http/lib/netlib::http-get-method
       - id: cap/fs/write/file

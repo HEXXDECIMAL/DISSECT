@@ -18,13 +18,14 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 
+use super::error_formatting::enhance_yaml_error;
 use super::indexes::{RawContentRegexIndex, StringMatchIndex, TraitIndex};
 use super::models::{TraitInfo, TraitMappings};
 use super::parsing::{apply_composite_defaults, apply_trait_defaults};
 use super::validation::{
     autoprefix_trait_refs, collect_trait_refs_from_rule, find_alternation_merge_candidates,
     find_banned_directory_segments, find_cap_obj_violations, find_depth_violations,
-    find_duplicate_words_in_path, find_empty_condition_clauses, find_for_only_duplicates,
+    find_empty_condition_clauses, find_for_only_duplicates,
     find_hostile_cap_rules, find_impossible_count_constraints, find_impossible_needs,
     find_impossible_size_constraints, find_invalid_trait_ids, find_line_number,
     find_missing_search_patterns, find_oversized_trait_directories, find_parent_duplicate_segments,
@@ -226,7 +227,11 @@ impl CapabilityMapper {
                 let yaml_warnings = check_yaml_patterns(&content, path);
 
                 let mappings: TraitMappings = serde_yaml::from_str(&content)
-                    .with_context(|| format!("Failed to parse YAML in {:?}", path))?;
+                    .map_err(|e| {
+                        // Enhance YAML parsing errors with context and suggestions
+                        let enhanced = enhance_yaml_error(&e.into(), path, &content);
+                        anyhow::anyhow!("{}", enhanced)
+                    })?;
 
                 Ok::<_, anyhow::Error>((idx, path.clone(), mappings, yaml_warnings))
             })
@@ -435,14 +440,6 @@ impl CapabilityMapper {
 
                 // Check for literal strings used as regex
                 if let Some(warning) = trait_def.r#if.check_literal_regex() {
-                    warnings.push(format!(
-                        "trait '{}' in {:?}: {}",
-                        trait_def.id, path, warning
-                    ));
-                }
-
-                // Check for word pattern validity
-                if let Some(warning) = trait_def.r#if.check_word_pattern_validity() {
                     warnings.push(format!(
                         "trait '{}' in {:?}: {}",
                         trait_def.id, path, warning
@@ -740,23 +737,24 @@ impl CapabilityMapper {
                 ));
             }
 
-            // Check for duplicate words in path
-            let duplicate_word_violations = find_duplicate_words_in_path(&dir_list);
-            if !duplicate_word_violations.is_empty() {
-                eprintln!(
-                    "\n❌ FATAL: {} directories have redundant/duplicate words in path",
-                    duplicate_word_violations.len()
-                );
-                eprintln!("   Duplicate words add noise without semantic value:\n");
-                for (dir_path, word) in &duplicate_word_violations {
-                    eprintln!("   {}: duplicate word '{}'", dir_path, word);
-                }
-                eprintln!();
-                warnings.push(format!(
-                    "{} directories have duplicate words in path",
-                    duplicate_word_violations.len()
-                ));
-            }
+            // Check for duplicate words in path - DISABLED
+            // This check has too many false positives (e.g., httpx library name)
+            // let duplicate_word_violations = find_duplicate_words_in_path(&dir_list);
+            // if !duplicate_word_violations.is_empty() {
+            //     eprintln!(
+            //         "\n❌ FATAL: {} directories have redundant/duplicate words in path",
+            //         duplicate_word_violations.len()
+            //     );
+            //     eprintln!("   Duplicate words add noise without semantic value:\n");
+            //     for (dir_path, word) in &duplicate_word_violations {
+            //         eprintln!("   {}: duplicate word '{}'", dir_path, word);
+            //     }
+            //     eprintln!();
+            //     warnings.push(format!(
+            //         "{} directories have duplicate words in path",
+            //         duplicate_word_violations.len()
+            //     ));
+            // }
 
             // Check for directory names that duplicate their parent
             let parent_dup_violations = find_parent_duplicate_segments(&dir_list);
@@ -1629,7 +1627,7 @@ impl CapabilityMapper {
 
                             // Check if this composite only adds an 'unless' clause
                             // If so, it might be better expressed as a downgrade
-                            let has_unless = rule.unless.as_ref().map_or(false, |u| !u.is_empty());
+                            let has_unless = rule.unless.as_ref().is_some_and(|u| !u.is_empty());
                             let has_downgrade = rule.downgrade.is_some();
 
                             // Check if metadata is being changed

@@ -23,4 +23,4 @@ composite_rules:
     for: [javascript]
     all:
       - id: js-keyboard-listener
-      - id: cap/comm/http/request::js-axios-post
+      - id: cap/comm/http/lib/axios::js-axios-post

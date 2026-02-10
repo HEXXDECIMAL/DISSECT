@@ -1,7 +1,6 @@
 # Testing Framework - FUZZING
 
 traits:
-
   # === Atomic: Fuzzing ===
 
   - id: libfuzzer-word
@@ -47,7 +46,7 @@ traits:
     for: [go]
     if:
       type: string
-      regex: "\\bgo-fuzz\\b"
+      word: "go-fuzz"
 
   - id: cargo-fuzz
     desc: cargo-fuzz reference
@@ -56,10 +55,9 @@ traits:
     for: [rust]
     if:
       type: string
-      regex: "\\bcargo-fuzz\\b"
+      word: "cargo-fuzz"
 
 composite_rules:
-
   # Fuzzing frameworks
   - id: fuzzing
     desc: Fuzzing test framework

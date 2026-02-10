@@ -118,6 +118,6 @@ composite_rules:
     attack: "T1027"
     for: [batch, shell]
     all:
-      - id: obj/anti-static/obfuscation/strings::batch-heavy-obfuscation
+      - id: obj/anti-static/obfuscation/strings/concatenation::batch-heavy-obfuscation
       - id: cap/exec/dropper/script::powershell-exe
       - id: obj/anti-forensics/evidence-removal/cleanup::motw-removal-stream

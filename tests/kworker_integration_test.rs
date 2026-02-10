@@ -79,18 +79,18 @@ fn test_kworker_stackstring_detection() {
     println!("  1. Check extracted strings:");
     println!("     cargo run -- strings {}", sample_path);
     println!("     Look for: StackString [kworker/...");
-    println!("");
+    println!();
     println!("  2. Check JSON encoding_chain:");
     println!("     cargo run -- analyze {} --json | jq '.files[0].strings[] | select(.value | contains(\"kworker\"))'", sample_path);
     println!("     Should show: \"encoding_chain\": [\"stack\"]");
-    println!("");
+    println!();
     println!("  3. Check trait matching:");
     println!(
         "     cargo run -- test-rules --rules meta/layers {}",
         sample_path
     );
     println!("     Should match: meta/layers/.text/stack or similar");
-    println!("");
+    println!();
     println!("  4. Debug layer_path evaluation:");
     println!("     cargo run -- analyze {} --json | jq '.files[0].strings[] | select(.encoding_chain | length > 0) | {{value: .value, section: .section, encoding_chain: .encoding_chain}}'", sample_path);
 }

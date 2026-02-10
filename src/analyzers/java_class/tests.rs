@@ -1,4 +1,5 @@
 #[cfg(test)]
+#[allow(clippy::module_inception)]
 mod tests {
     use crate::analyzers::{java_class::JavaClassAnalyzer, Analyzer};
     use std::path::Path;

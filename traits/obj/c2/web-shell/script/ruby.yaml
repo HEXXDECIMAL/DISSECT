@@ -66,5 +66,5 @@ composite_rules:
       - id: shell-prompt-string
       - id: cap/os/console/io::exit-command-check
       - id: cap/data/control-flow/analysis::ruby-while-true
-      - id: cap/comm/http/request::open-uri
+      - id: cap/comm/http/lib/netlib::open-uri
       - id: cap/exec/command/shell::ruby-system

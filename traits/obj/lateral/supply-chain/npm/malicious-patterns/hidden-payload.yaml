@@ -170,7 +170,7 @@ composite_rules:
     all:
       - id: file-read-operation
       - id: eval-processed-arg
-      - id: obj/lateral/supply-chain/npm/suspicious-indicators::require-fs
+      - id: obj/lateral/supply-chain/npm/behavior::require-fs
     any:
       - id: non-code-file-reference
       - id: local-parse-require
@@ -185,4 +185,4 @@ composite_rules:
     for: [javascript]
     all:
       - id: eval-processed-arg
-      - id: obj/lateral/supply-chain/npm/suspicious-indicators::small-file-5k
+      - id: obj/lateral/supply-chain/npm/behavior::small-file-5k

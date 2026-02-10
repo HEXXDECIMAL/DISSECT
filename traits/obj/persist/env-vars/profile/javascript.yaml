@@ -152,5 +152,5 @@ composite_rules:
       - id: localappdata-string
     any: # +1
       - id: env-localappdata
-      - id: obj/discovery/host/system::os-homedir-call
+      - id: obj/discovery/host/system/hardware-fingerprint::os-homedir-call
     # Total complexity: 4 (1 + 2 + 1 = 4)

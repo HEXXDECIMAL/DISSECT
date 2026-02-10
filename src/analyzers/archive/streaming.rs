@@ -1985,13 +1985,15 @@ mod tests {
             .contains("Invalid RPM header magic"));
     }
 
+    type StreamingAnalyzerFn =
+        fn(&ArchiveAnalyzer, &Path, fn(StreamingFileResult)) -> Result<ArchiveSummary>;
+
     #[test]
     fn test_deb_streaming_creates_analyzer() {
         // Just test that the analyzer can be created and has the streaming method
         let analyzer = ArchiveAnalyzer::new();
         // This is a compile-time check that the method exists
-        let _: fn(&ArchiveAnalyzer, &Path, fn(StreamingFileResult)) -> Result<ArchiveSummary> =
-            ArchiveAnalyzer::analyze_deb_streaming;
+        let _: StreamingAnalyzerFn = ArchiveAnalyzer::analyze_deb_streaming;
         assert!(analyzer.max_depth > 0);
     }
 
@@ -2000,8 +2002,7 @@ mod tests {
         // Just test that the analyzer can be created and has the streaming method
         let analyzer = ArchiveAnalyzer::new();
         // This is a compile-time check that the method exists
-        let _: fn(&ArchiveAnalyzer, &Path, fn(StreamingFileResult)) -> Result<ArchiveSummary> =
-            ArchiveAnalyzer::analyze_rpm_streaming;
+        let _: StreamingAnalyzerFn = ArchiveAnalyzer::analyze_rpm_streaming;
         assert!(analyzer.max_depth > 0);
     }
 }

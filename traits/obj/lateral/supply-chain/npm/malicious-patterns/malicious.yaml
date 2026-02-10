@@ -22,7 +22,7 @@ composite_rules:
     conf: 0.6
     any:
       - id: npm-malicious-preinstall-hook
-      - id: obj/lateral/supply-chain/npm/suspicious-indicators::postinstall-hook-key
+      - id: obj/lateral/supply-chain/npm/metadata::postinstall-hook-key
 
   # Download command helpers
   - id: download-command

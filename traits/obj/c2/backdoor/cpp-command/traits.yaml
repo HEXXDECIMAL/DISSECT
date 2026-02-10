@@ -16,4 +16,4 @@ composite_rules:
       - id: cap/exec/command/direct::cpp-string
       - id: cap/exec/command/direct::cpp-exception
       - id: cap/exec/command/direct::cpp-command-capture
-      - id: obj/anti-static/obfuscation/strings::string-concealment
+      - id: obj/anti-static/obfuscation/strings/encoding::string-concealment

@@ -57,7 +57,7 @@ traits:
         path: description
 
   - id: pyproject-placeholder-description
-    desc: pyproject.toml description contains placeholder text (test, example, TODO)
+    desc: pyproject.toml description contains placeholder text
     crit: notable
     conf: 0.80
     for: [all]

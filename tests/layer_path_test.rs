@@ -36,7 +36,7 @@ fn test_layer_path_condition_basic() {
 #[test]
 fn test_layer_path_no_encoding_chain() {
     // String without encoding chain should not match
-    let strings = vec![StringInfo {
+    let strings = [StringInfo {
         value: "hello".to_string(),
         offset: Some(0x2000),
         encoding: "utf8".to_string(),
@@ -53,7 +53,7 @@ fn test_layer_path_no_encoding_chain() {
 #[test]
 fn test_layer_path_multiple_encoding_layers() {
     // String with multiple encoding layers
-    let strings = vec![StringInfo {
+    let strings = [StringInfo {
         value: "YWJj".to_string(), // abc in base64
         offset: Some(0x3000),
         encoding: "utf8".to_string(),

@@ -28,7 +28,7 @@ traits:
       regex: "com\\.[a-z]\\.[a-z0-9]+$"
 
   - id: placeholder-bundle-id
-    desc: Bundle ID with placeholder or testing components (sdfdf, xxxx, dummy, fake)
+    desc: Bundle ID with placeholder components
     crit: suspicious
     conf: 0.8
     attack: "T1036"

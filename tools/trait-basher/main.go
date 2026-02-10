@@ -355,39 +355,29 @@ func memberPath(path string) string {
 }
 
 // archiveNeedsReview returns true if the archive needs review.
-// Uses the archive summary risk when available (from DISSECT's aggregated output).
-// For known-good archives: review if flagged (to reduce false positives).
+// Uses the archive summary findings when available (from DISSECT's aggregated output).
+// For known-good archives: review if ANY hostile OR 2+ suspicious (to reduce false positives).
+//                          Up to 1 suspicious finding is acceptable.
 // For known-bad archives: review if NOT flagged (missing detections).
 func archiveNeedsReview(a *ArchiveAnalysis, knownGood bool) bool {
-	// Use summary risk if available (preferred - avoids race conditions from parallel streaming)
-	if a.SummaryRisk != "" {
-		r := strings.ToLower(a.SummaryRisk)
-		hasDetection := r == "suspicious" || r == "hostile"
-		if knownGood {
-			// Known-good: review if HAS detections (to reduce false positives)
-			return hasDetection
+	// Use summary findings if available (preferred - avoids race conditions from parallel streaming)
+	if len(a.SummaryFindings) > 0 || a.SummaryRisk != "" {
+		// Create aggregate FileAnalysis from summary to reuse needsReview logic
+		agg := FileAnalysis{
+			Path:     a.ArchivePath,
+			Risk:     a.SummaryRisk,
+			Findings: a.SummaryFindings,
 		}
-		// Known-bad: review only if NO detections (to add missing ones)
-		return !hasDetection
+		return needsReview(agg, knownGood)
 	}
 
 	// Fallback to member-based logic (legacy behavior, shouldn't happen with new DISSECT)
-	if knownGood {
-		// Known-good: review if ANY member has findings
-		for _, m := range a.Members {
-			if needsReview(m, knownGood) {
-				return true
-			}
-		}
-		return false
-	}
-	// Known-bad: review only if ALL members are undetected
+	// Aggregate all member findings for accurate threshold checking
+	agg := FileAnalysis{Path: a.ArchivePath}
 	for _, m := range a.Members {
-		if !needsReview(m, knownGood) {
-			return false
-		}
+		agg.Findings = append(agg.Findings, m.Findings...)
 	}
-	return true
+	return needsReview(agg, knownGood)
 }
 
 // archiveProblematicMembers returns the members that need review.
@@ -1054,31 +1044,48 @@ func processRealFile(ctx context.Context, st *streamState) {
 }
 
 // needsReview determines if a file needs AI review based on mode.
-// --good: Review files WITH suspicious/hostile findings (reduce false positives).
+// --good: Review files WITH hostile findings OR 2+ suspicious findings (reduce false positives).
+//         Up to 1 suspicious finding is acceptable for known-good samples.
 // --bad: Review files WITHOUT suspicious/hostile findings (find false negatives).
 func needsReview(f FileAnalysis, knownGood bool) bool {
+	if !knownGood {
+		// Known-bad mode: review if no suspicious/hostile findings (FN check)
+		for _, finding := range f.Findings {
+			c := strings.ToLower(finding.Crit)
+			if c == "suspicious" || c == "hostile" {
+				return false // Has detection, skip review
+			}
+		}
+		return true // No detection, needs review
+	}
+
+	// Known-good mode: count hostile and suspicious separately
+	hostileCount := 0
+	suspiciousCount := 0
 	for _, finding := range f.Findings {
 		c := strings.ToLower(finding.Crit)
-		if c == "suspicious" || c == "hostile" {
-			return knownGood // Has suspicious: review if --good (FP check)
+		if c == "hostile" {
+			hostileCount++
+		} else if c == "suspicious" {
+			suspiciousCount++
 		}
 	}
-	return !knownGood // No suspicious: review if --bad (FN check)
+
+	// Review if: any hostile OR 2+ suspicious
+	return hostileCount > 0 || suspiciousCount > 1
 }
 
 // realFileNeedsReview determines if a real file (with all its fragments) needs review.
 func realFileNeedsReview(rf *RealFileAnalysis, knownGood bool) bool {
-	// Check root file
-	if needsReview(rf.Root, knownGood) {
-		return true
+	// Aggregate findings from root and all fragments for accurate counting
+	agg := FileAnalysis{
+		Path:     rf.RealPath,
+		Findings: append([]Finding{}, rf.Root.Findings...),
 	}
-	// Check any fragment
 	for _, frag := range rf.Fragments {
-		if needsReview(frag, knownGood) {
-			return true
-		}
+		agg.Findings = append(agg.Findings, frag.Findings...)
 	}
-	return false
+	return needsReview(agg, knownGood)
 }
 
 // sanityCheck runs dissect on /bin/ls to catch code errors early.

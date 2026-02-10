@@ -42,7 +42,7 @@ composite_rules:
     mbc: "B0014"
     for: [javascript]
     all:
-      - id: cap/comm/http/request::js-axios-post
+      - id: cap/comm/http/lib/axios::js-axios-post
     any:
       - id: js-pbpaste
       - id: js-powershell-clipboard

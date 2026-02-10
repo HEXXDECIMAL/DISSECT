@@ -11,5 +11,5 @@ composite_rules:
     for: [go]
     all:
       - id: cap/crypto/symmetric/aes::go-cfb-encrypter
-      - id: cap/comm/http/request::go-http-client-do
+      - id: cap/comm/http/lib/netlib::go-http-client-do
       - id: obj/c2/network/beacon::json-content-type

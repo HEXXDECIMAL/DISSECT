@@ -28,4 +28,4 @@ composite_rules:
     all:
       - id: cap/comm/http/request::node-http
       - id: cap/exec/eval/dynamic::eval-call-js
-      - id: obj/anti-static/obfuscation/strings::js-buffer-from-base64
+      - id: obj/anti-static/obfuscation/strings/encoding::js-buffer-from-base64

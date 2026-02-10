@@ -349,7 +349,7 @@ composite_rules:
       - id: leveldb-ref
       - id: local-storage-ref
       - id: appdata-ref
-      - id: obj/discovery/host/system::os-homedir-call
+      - id: obj/discovery/host/system/hardware-fingerprint::os-homedir-call
 
   # Firefox storage databases used for Discord token theft
   - id: firefox-storage-access
@@ -374,7 +374,7 @@ composite_rules:
     all:
       - id: firefox-storage-access
       - id: appdata-ref
-      - id: obj/discovery/host/system::os-homedir-call
+      - id: obj/discovery/host/system/hardware-fingerprint::os-homedir-call
     any:
       - id: extract-tokens-fn
       - id: get-tokens-fn

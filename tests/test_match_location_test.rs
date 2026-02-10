@@ -207,10 +207,7 @@ fn test_string_search_offset_range_filters() {
     let stdout = String::from_utf8_lossy(&output.get_output().stdout);
 
     // If MATCH is found, verify it's within the expected range
-    if stdout.contains("MATCHED") {
-        // Good - string was found in the range
-        assert!(true);
-    } else {
+    if !stdout.contains("MATCHED") {
         // String wasn't found - could be due to string extraction
         // This is acceptable if the string extractor didn't pick it up
         eprintln!("Note: string search didn't find pattern (may be extraction issue)");
@@ -531,7 +528,7 @@ def ANOTHER_FUNCTION():
         eprintln!("Note: Both matched (symbol extraction may normalize case)");
     } else if !stdout_no_ci.contains("MATCHED") && stdout_ci.contains("MATCHED") {
         // Perfect: case-sensitive didn't match, case-insensitive did
-        assert!(true, "Case-insensitive matching works correctly");
+        eprintln!("Case-insensitive matching works correctly");
     }
 }
 

@@ -18,7 +18,7 @@ traits:
       exact: "UNKNOWN"
 
   - id: pkginfo-placeholder-summary
-    desc: PKG-INFO summary contains placeholder text (test, example, TODO, dummy)
+    desc: PKG-INFO summary contains placeholder text
     crit: notable
     conf: 0.80
     if:

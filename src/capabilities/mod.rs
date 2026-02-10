@@ -25,6 +25,7 @@
 //! - `mapper.evaluate_composite_rules()` - Evaluate composite rules
 //! - `mapper.lookup()` - Look up symbol by name
 
+mod error_formatting;
 mod indexes;
 mod mapper;
 mod models;

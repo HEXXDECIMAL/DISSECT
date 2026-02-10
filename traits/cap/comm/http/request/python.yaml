@@ -1,4 +1,4 @@
-# HTTP Request Operations - Python
+# HTTP Request Operations - Python generic patterns
 # MBC: C0002 (HTTP Communication)
 # ATT&CK: T1071.001
 
@@ -6,71 +6,6 @@ defaults:
   for: [python]
 
 traits:
-  # === HTTP library atomic indicators ===
-  - id: py-requests-get
-    desc: requests.get call (Python)
-    crit: inert
-    conf: 0.7
-    if:
-      type: string
-      substr: "requests.get"
-
-  - id: py-requests-post
-    desc: requests.post call (Python)
-    crit: inert
-    conf: 0.7
-    if:
-      type: string
-      substr: "requests.post"
-
-  - id: urllib
-    desc: urllib module reference
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      substr: "urllib"
-
-  - id: urllib-urlopen
-    desc: urllib.request.urlopen call
-    crit: inert
-    conf: 0.7
-    if:
-      type: string
-      substr: "urllib.request.urlopen"
-
-  - id: urllib-urlopen-py2
-    desc: urllib.urlopen call (Python 2)
-    crit: inert
-    conf: 0.7
-    if:
-      type: string
-      substr: "urllib.urlopen"
-
-  - id: aiohttp-session
-    desc: aiohttp.ClientSession usage
-    crit: inert
-    conf: 0.7
-    if:
-      type: string
-      substr: "aiohttp.ClientSession"
-
-  - id: httpx-get
-    desc: httpx.get call
-    crit: inert
-    conf: 0.7
-    if:
-      type: string
-      substr: "httpx.get"
-
-  - id: httpx-post
-    desc: httpx.post call
-    crit: inert
-    conf: 0.7
-    if:
-      type: string
-      substr: "httpx.post"
-
   - id: url-literal
     desc: "Direct URL literal in HTTP"
     crit: notable
@@ -103,35 +38,15 @@ traits:
 composite_rules:
   # HTTP request composite
   - id: request-python
-    desc: "Performs HTTP request (urllib, requests,"
+    desc: "Performs HTTP request (urllib, requests, httpx)"
     crit: inert
     conf: 0.9
     any:
-      - id: py-requests-get
-      - id: py-requests-post
-      - id: urllib-urlopen
-      - id: urllib-urlopen-py2
+      - id: cap/comm/http/lib/requests::requests-get
+      - id: cap/comm/http/lib/requests::requests-post
+      - id: cap/comm/http/lib/urllib::urllib-urlopen
+      - id: cap/comm/http/lib/urllib::urllib-urlopen-py2
       - id: url-literal
-      - id: aiohttp-session
-      - id: httpx-get
-      - id: httpx-post
-
-  # HTTP GET composite
-  - id: get
-    desc: "Performs HTTP GET request"
-    crit: notable
-    conf: 0.9
-    any:
-      - id: requests-get
-      - id: httpx-get
-
-  # HTTP POST composite
-  - id: post
-    desc: "Performs HTTP POST request (Exfiltration"
-    crit: notable
-    conf: 0.9
-    any:
-      - id: requests-post
-      - id: httpx-post
-
-# Note: Exfiltration composite rule moved to exfil/http/python.yaml
+      - id: cap/comm/http/lib/aiohttp::aiohttp-session
+      - id: cap/comm/http/lib/httpx::httpx-get
+      - id: cap/comm/http/lib/httpx::httpx-post

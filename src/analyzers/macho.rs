@@ -1607,7 +1607,7 @@ mod tests {
     fn test_describe_entitlement_fallback() {
         // Test fallback behavior for unknown entitlements
         let desc = describe_entitlement("com.example.unknown-entitlement");
-        assert!(desc.len() > 0);
+        assert!(!desc.is_empty());
         assert_ne!(desc, "com.example.unknown-entitlement"); // Should be transformed
     }
 

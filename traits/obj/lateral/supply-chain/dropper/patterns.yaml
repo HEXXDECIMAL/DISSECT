@@ -653,7 +653,7 @@ composite_rules:
     attack: "T1105"
     for: [python]
     all:
-      - id: cap/comm/http/request::get
+      - id: cap/comm/http/lib/requests::requests-get
       - id: cap/fs/file/write/
       - id: python-exec-call
 

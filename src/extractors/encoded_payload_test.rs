@@ -3,6 +3,7 @@
 //! Comprehensive tests for base64 detection, decoding, and extraction.
 
 #[cfg(test)]
+#[allow(clippy::module_inception)]
 mod tests {
     use super::super::*;
     use base64::{engine::general_purpose, Engine as _};
@@ -218,7 +219,7 @@ exec(zlib.decompress(base64.b64decode('{}')))
         let payloads = extract_encoded_payloads(content.as_bytes());
 
         // Should stop at 3 levels
-        assert!(payloads.len() >= 1, "Should extract at least 1 payload");
+        assert!(!payloads.is_empty(), "Should extract at least 1 payload");
 
         // Cleanup
         for payload in payloads {

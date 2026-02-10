@@ -15,4 +15,4 @@ composite_rules:
       - id: cap/fs/file/write::py-write
     any:
       - id: cap/comm/http/request::py-post-generic
-      - id: cap/comm/http/request::post
+      - id: cap/comm/http/lib/requests::requests-post

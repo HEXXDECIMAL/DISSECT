@@ -168,7 +168,7 @@ composite_rules:
     mbc: "B0007"
     attack: "T1497.001"
     all:
-      - id: obj/discovery/host/system::os-homedir-call
+      - id: obj/discovery/host/system/hardware-fingerprint::os-homedir-call
       - id: app-path-string
 
   # Postinstall hook abuse
@@ -192,7 +192,7 @@ composite_rules:
     all:
       - id: stealer-import
       - id: postinstall-abuse
-      - id: obj/discovery/host/system::os-homedir-call
+      - id: obj/discovery/host/system/hardware-fingerprint::os-homedir-call
 
   # Stealer with sandbox evasion (HOSTILE)
   # Complexity: file_types(+1) + all(+3) = 4

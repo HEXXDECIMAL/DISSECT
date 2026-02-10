@@ -357,7 +357,7 @@ composite_rules:
     attack: "T1020"
     all:
       - id: setup-py-file
-      - id: obj/discovery/host/system::python-sysinfo-multi
+      - id: obj/discovery/host/system/hardware-fingerprint::python-sysinfo-multi
       - id: base64-encode
       - id: cap/comm/http/request::request-python
 
@@ -387,7 +387,7 @@ composite_rules:
     mbc: "E1041"
     attack: "T1020"
     all:
-      - id: obj/discovery/host/system::python-sysinfo-multi
+      - id: obj/discovery/host/system/hardware-fingerprint::python-sysinfo-multi
       - id: base64-encode
       - id: cap/comm/http/request::request-python
 
@@ -431,7 +431,7 @@ composite_rules:
     attack: "T1195.002"
     all:
       - id: obj/exfil/channel/oob::oob-domains
-      - id: cap/comm/http/request::post
+      - id: cap/comm/http/lib/requests::requests-post
       - id: obj/discovery/host/user::username-env
 
   # === HOSTILE: PyPI Install-Time Beacon ===

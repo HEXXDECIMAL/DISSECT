@@ -1,0 +1,312 @@
+# String Obfuscation Detection - JavaScript
+# MBC: B0032 (Obfuscated Files or Information)
+# ATT&CK: T1027
+
+traits:
+  # fromCharCode obfuscation
+  - id: fromcharcode
+    desc: String obfuscation via fromCharCode
+    crit: notable
+    conf: 0.66
+    mbc: "B0032"
+    attack: "T1027"
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "fromCharCode"
+
+  # Unicode escape sequences used to hide strings
+  - id: js-unicode-escape
+    desc: Unicode escape sequences in string
+    crit: notable
+    conf: 0.85
+    mbc: "B0032"
+    attack: "T1027"
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: '(\\u[0-9a-fA-F]{4}){4,}'
+
+  # Hex escape sequences
+  - id: js-hex-escape
+    desc: Hex escape sequences in string
+    crit: notable
+    conf: 0.75
+    mbc: "B0032"
+    attack: "T1027"
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: '(\\x[0-9a-fA-F]{2}){4,}'
+
+  # Buffer.from with encoding (atomic)
+  - id: js-buffer-from-base64
+    desc: Buffer.from base64
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: content
+      regex: 'Buffer.from\(.{0,50}["\'']base64["\'']\)'
+
+  - id: js-buffer-from-hex
+    desc: Buffer.from hex
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: content
+      regex: 'Buffer.from\(.{0,50}["\'']hex["\'']\)'
+
+  # Hex-encoded require statement - obfuscated module import
+  # Pattern: require(Buffer.from("6f73", "hex").toString()) = require("os")
+  # This is a strong malware indicator - hiding sensitive imports
+  - id: js-hex-encoded-require
+    desc: Hex-encoded require statement
+    crit: suspicious
+    conf: 0.92
+    mbc: "B0032"
+    attack: "T1027"
+    for: [javascript]
+    if:
+      type: content
+      regex: 'require\s*\(\s*Buffer\.from\s*\(\s*["\x27][0-9a-fA-F]+["\x27]\s*,\s*["\x27]hex["\x27]\s*\)\.toString\s*\(\s*\)'
+
+  # Global object manipulation via assignment to high-risk decode/exec APIs
+  - id: js-global-property-write
+    desc: Global object property assignment
+    crit: suspicious
+    conf: 0.8
+    attack: "T1027.002"
+    mbc: "B0032"
+    for: [javascript]
+    if:
+      type: content
+      regex: '(globalThis|window|self)\s*(?:\.\s*[A-Za-z_$][\w$]*|\[\s*["''][^"'']+["'']\s*\])\s*=\s*(?:eval|Function|atob|btoa|unescape|decodeURIComponent|String\.fromCharCode)'
+
+  - id: js-require-alias
+    desc: Require function aliasing
+    crit: suspicious
+    conf: 0.9
+    attack: "T1027.002"
+    mbc: "B0032"
+    for: [javascript]
+    if:
+      type: content
+      regex: '=\\s*require\\s*;'
+
+  # Version marker pattern (common in malware tracking)
+  - id: js-version-marker
+    desc: Malware version tracking pattern
+    crit: suspicious
+    conf: 0.7
+    for: [javascript]
+    if:
+      type: string
+      regex: '^[0-9]+-[a-z]{3,15}[0-9]{1,4}$'
+
+  # Custom string shuffling/decoding loop pattern
+  - id: js-charat-loop
+    desc: charAt in loop pattern
+    crit: inert
+    conf: 0.7
+    mbc: "B0032"
+    attack: "T1027"
+    for: [javascript]
+    if:
+      type: symbol
+      regex: ".{0,50}\\.charAt"
+
+  # Array element swapping (common in shuffle algorithms)
+  - id: js-array-swap
+    desc: Array element swap pattern
+    crit: notable
+    conf: 0.65
+    mbc: "B0032"
+    for: [javascript]
+    if:
+      type: content
+      regex: '\b(?:var|let|const)\s+\w+\s*=\s*\w+\s*\[[^\]]+\]\s*;\s*\w+\s*\[[^\]]+\]\s*=\s*\w+\s*\[[^\]]+\]\s*;\s*\w+\s*\[[^\]]+\]\s*=\s*\w+'
+
+  # String split to array
+  - id: js-string-split
+    desc: Split to empty-delimiter char array
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
+      type: content
+      regex: '\.split\(\s*["'']\s*["'']\s*\)'
+
+  # Dynamic code execution patterns (atomic)
+  # Moved to cap/exec/eval/dynamic/eval-call
+
+  - id: js-function-call
+    desc: Function() constructor
+    crit: inert
+    conf: 0.5
+    mbc: "B0032"
+    attack: "T1027"
+    for: [javascript, typescript]
+    if:
+      type: symbol
+      exact: "Function"
+
+  - id: js-new-function
+    desc: new Function constructor
+    crit: inert
+    conf: 0.5
+    mbc: "B0032"
+    attack: "T1027"
+    for: [javascript, typescript]
+    if:
+      type: content
+      substr: "new Function"
+
+  - id: js-array-join-symbol
+    desc: Join using empty string delimiter
+    crit: inert
+    conf: 0.5
+    for: [javascript]
+    if:
+      type: content
+      regex: '\.join\(\s*["'']\s*["'']\s*\)'
+
+  # === Density-Based Obfuscation Detection ===
+  # Legitimate code rarely has more than a few escape sequences.
+  # Obfuscated code packs many encoded chars per KB.
+
+  - id: dense-fromcharcode
+    desc: Dense fromCharCode calls (string obfuscation)
+    crit: suspicious
+    conf: 0.90
+    mbc: "B0032"
+    attack: "T1027"
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "fromCharCode\\s*\\(\\s*\\d"
+      count_min: 5
+      per_kb_min: 1.0
+
+  - id: dense-unicode-escapes
+    desc: Dense Unicode escape sequences
+    crit: suspicious
+    conf: 0.88
+    mbc: "B0032"
+    attack: "T1027"
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: '(\\u[0-9a-fA-F]{4}){3,}'
+      count_min: 4
+      per_kb_min: 0.8
+
+  - id: js-dense-hex-escapes
+    desc: Dense hex escape sequences
+    crit: suspicious
+    conf: 0.88
+    mbc: "B0032"
+    attack: "T1027"
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: '(\\x[0-9a-fA-F]{2}){4,}'
+      count_min: 4
+      per_kb_min: 0.8
+
+  # Bracket notation property access is used to hide method names
+  # e.g., window["eval"] instead of window.eval
+  - id: dense-bracket-notation
+    desc: Dense bracket notation access (method hiding)
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0032"
+    attack: "T1027"
+    for: [javascript, typescript]
+    if:
+      type: content
+      regex: "\\[(\"|')(eval|Function|constructor|fromCharCode|charCodeAt|atob|btoa|decodeURIComponent|unescape|setTimeout|setInterval)(\"|')\\]"
+      count_min: 1
+
+composite_rules:
+  # String deobfuscation pattern (charAt/split + swap + join)
+  - id: js-string-deobfuscation
+    desc: String deobfuscation routine
+    crit: suspicious
+    conf: 0.9
+    mbc: "B0032"
+    attack: "T1027.002"
+    for: [javascript]
+    all:
+      - id: js-array-join-symbol
+      - id: js-string-split
+      - id: js-array-swap
+    any:
+      - id: js-charat-loop
+      - id: dense-fromcharcode
+      - id: dense-unicode-escapes
+      - id: js-dense-hex-escapes
+
+  # Dynamic exec composite (eval-equivalent patterns)
+  - id: js-dynamic-exec
+    desc: Dynamic code execution capability
+    crit: notable
+    conf: 0.7
+    mbc: "B0032"
+    attack: "T1027"
+    for: [javascript, typescript]
+    any:
+      - id: cap/exec/eval/dynamic::eval-call-js
+      - id: js-function-call
+      - id: js-new-function
+
+  # Global manipulation combo
+  - id: js-global-manipulation
+    desc: Global object manipulation pattern
+    crit: suspicious
+    conf: 0.85
+    attack: "T1027.002"
+    for: [javascript]
+    needs: 2
+    any:
+      - id: js-global-property-write
+      - id: js-require-alias
+      - id: js-version-marker
+
+  # Obfuscated dynamic execution
+  - id: js-obfuscated-eval
+    desc: Obfuscated dynamic code execution
+    crit: notable
+    conf: 0.95
+    attack: "T1027.002"
+    mbc: "B0032"
+    for: [javascript]
+    # Small snippets with eval + encoding are more suspicious
+    size_max: 5000
+    all:
+      - id: js-dynamic-exec
+    any:
+      - id: js-string-deobfuscation
+      - id: fromcharcode
+      - id: js-unicode-escape
+      - id: js-hex-escape
+      - id: js-buffer-from-base64
+      - id: js-buffer-from-hex
+    unless:
+      - type: string
+        regex: "MathJax|jquery|jquery-ui"
+
+  # Hex-encoded require obfuscation (npm supply chain malware pattern)
+  # Complexity: file_types(+1) + all(+3) = 4 (meets HOSTILE threshold)
+  - id: js-obfuscated-requires
+    desc: Obfuscated module imports via hex encoding
+    crit: hostile
+    conf: 0.95
+    attack: "T1195.002"
+    mbc: "B0032"
+    for: [javascript]
+    all:
+      - id: js-hex-encoded-require
+      - id: js-buffer-from-hex
+      - id: obj/lateral/supply-chain/npm/malicious-patterns::auto-execute

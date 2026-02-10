@@ -165,19 +165,19 @@ fn test_known_bad_integrity() {
     let mut mismatches = Vec::new();
 
     for snapshot_path in &test_files {
-        let snapshot_content = fs::read_to_string(snapshot_path)
-            .expect(&format!("Failed to read {}", snapshot_path.display()));
+        let snapshot_content = fs::read_to_string(snapshot_path).unwrap_or_else(|_| {
+            panic!("Failed to read {}", snapshot_path.display())
+        });
 
-        let mut expected_result: Value = serde_json::from_str(&snapshot_content).expect(&format!(
-            "Failed to parse JSON in {}",
-            snapshot_path.display()
-        ));
+        let mut expected_result: Value = serde_json::from_str(&snapshot_content).unwrap_or_else(|_| {
+            panic!("Failed to parse JSON in {}", snapshot_path.display())
+        });
 
         // Extract the original binary path from the snapshot
         let binary_path = expected_result
             .get("path")
             .and_then(|p| p.as_str())
-            .expect(&format!("No path field in {}", snapshot_path.display()));
+            .unwrap_or_else(|| panic!("No path field in {}", snapshot_path.display()));
         let binary_path = binary_path.to_string();
 
         // Skip if binary no longer exists
@@ -191,7 +191,7 @@ fn test_known_bad_integrity() {
             .arg("jsonl")
             .arg(&binary_path)
             .output()
-            .expect(&format!("Failed to run dissect on {}", binary_path));
+            .unwrap_or_else(|_| panic!("Failed to run dissect on {}", binary_path));
 
         if !output.status.success() {
             eprintln!(
@@ -204,7 +204,7 @@ fn test_known_bad_integrity() {
 
         let stdout = String::from_utf8_lossy(&output.stdout);
         let mut actual_result = extract_file_result(&stdout)
-            .expect(&format!("Failed to extract result from {}", binary_path));
+            .unwrap_or_else(|_| panic!("Failed to extract result from {}", binary_path));
 
         normalize_file_result(&mut expected_result);
         normalize_file_result(&mut actual_result);

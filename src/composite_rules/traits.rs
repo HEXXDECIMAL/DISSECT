@@ -187,37 +187,6 @@ impl TraitDefinition {
             ));
         }
 
-        // Check for placeholder/generic descriptions that LLMs often generate
-        // Use word boundary checks to avoid false positives (e.g., "todo" matching "photo")
-        let generic_phrases = [
-            ("test trait", false),     // phrase match
-            (" todo ", true),          // word boundary required
-            ("todo:", true),           // at start with colon
-            ("placeholder", false),    // phrase match
-            ("example", false),        // word match
-            ("sample", false),         // word match
-            ("default description", false),
-        ];
-
-        let desc_lower = desc.to_lowercase();
-        for (phrase, word_boundary) in &generic_phrases {
-            let matches = if *word_boundary {
-                // Check for word boundaries or start/end of string
-                desc_lower.starts_with(&phrase[1..]) // Remove leading space for start check
-                    || desc_lower.ends_with(&phrase[..phrase.len()-1]) // Remove trailing space for end check
-                    || desc_lower.contains(phrase)
-            } else {
-                desc_lower.contains(phrase)
-            };
-
-            if matches {
-                return Some(format!(
-                    "desc: '{}' contains placeholder text ('{}'). Remove placeholder and write what this trait actually detects. Instead of 'Placeholder for X', write 'Detects X' or describe what X indicates",
-                    desc, phrase.trim()
-                ));
-            }
-        }
-
         None
     }
 

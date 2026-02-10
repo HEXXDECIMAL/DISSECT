@@ -174,5 +174,5 @@ composite_rules:
       - id: client-uuid-pattern
     any: # +1
       - id: process-id-collection
-      - id: obj/discovery/host/system::os-homedir-call
+      - id: obj/discovery/host/system/hardware-fingerprint::os-homedir-call
     # Total complexity: 3 (1 + 1 + 1 = 3)
