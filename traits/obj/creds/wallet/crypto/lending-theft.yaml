@@ -168,7 +168,7 @@ traits:
     if:
       type: symbol
       regex: "_\\$s.*[A-Z][a-zA-Z]*"
-      min_count: 10
+      count_min: 10
 
   - id: swift-name-mangling
     desc: Swift name mangling in dylib
@@ -177,7 +177,7 @@ traits:
     if:
       type: symbol
       regex: "_\\$s[0-9]+[A-Za-z]+"
-      min_count: 20
+      count_min: 20
 
 composite_rules:
   # === Lending Framework Code Injection ===

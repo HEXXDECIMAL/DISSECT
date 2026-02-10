@@ -34,7 +34,7 @@ traits:
     if:
       type: string
       substr: "discord"
-      min_count: 1
+      count_min: 1
 
   - id: dependency-dhooks
     desc: dhooks Discord webhook library

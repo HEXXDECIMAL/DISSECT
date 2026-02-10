@@ -32,7 +32,7 @@ traits:
     conf: 0.85
     for: [python]
     if:
-      type: raw
+      type: content
       regex: "os\\.chmod\\([^\\n]{0,120}0o7[0-7][0-7]"
 
   # Python chmod with 0o755 or similar

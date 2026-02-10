@@ -43,9 +43,7 @@ traits:
     desc: Tiny Python file
     crit: notable
     conf: 0.8
-    if:
-      type: filesize
-      max: 100
+    size_max: 100
     unless:
       - type: content
         regex: "^(?:from\\s+\\S+\\s+import|import\\s+\\S+)"
@@ -54,9 +52,7 @@ traits:
     desc: Small Python file with no imports
     crit: notable
     conf: 0.75
-    if:
-      type: filesize
-      max: 500
+    size_max: 500
     unless:
       - type: content
         substr: "import "
@@ -75,9 +71,7 @@ traits:
     crit: inert
     conf: 1.0
     for: [all]
-    if:
-      type: filesize
-      max: 0
+    size_max: 0
 
   - id: webhook-package-name
     desc: Package name contains webhook

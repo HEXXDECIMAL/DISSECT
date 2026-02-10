@@ -10,7 +10,7 @@ traits:
     attack: "T1036"
     for: [python]
     if:
-      type: raw
+      type: content
       substr: "os.setsid"
 
   - id: preexec-fn
@@ -20,7 +20,7 @@ traits:
     mbc: "F0003"
     for: [python]
     if:
-      type: raw
+      type: content
       substr: "preexec_fn="
 
   - id: c

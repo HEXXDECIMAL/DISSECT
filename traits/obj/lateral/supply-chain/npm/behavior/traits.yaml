@@ -207,9 +207,7 @@ traits:
     crit: inert
     conf: 0.7
     for: [javascript]
-    if:
-      type: filesize
-      max: 5120
+    size_max: 5120
 
   # Skeleton package.json (under 2KB) - metadata-only, no source code
   # Name squatters and impersonation packages often ship only package.json
@@ -218,9 +216,7 @@ traits:
     crit: inert
     conf: 0.7
     for: [packagejson]
-    if:
-      type: filesize
-      max: 2048
+    size_max: 2048
 
   # === OOB exfil domain micro-traits ===
   - id: oast-fun-domain

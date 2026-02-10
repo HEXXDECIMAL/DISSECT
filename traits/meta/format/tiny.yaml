@@ -8,16 +8,12 @@ defaults:
 traits:
   - id: tiny-elf
     desc: "Tiny ELF binary (< 4KB)"
-    if:
-      type: filesize
-      max: 4096
+    size_max: 4096
 
   - id: micro-elf
     desc: "Micro ELF binary (< 1KB)"
     crit: suspicious
-    if:
-      type: filesize
-      max: 1024
+    size_max: 1024
 
   - id: text-section-ratio-dominant
     desc: ".text section is >75% of"

@@ -849,9 +849,6 @@ impl<'a> RuleDebugger<'a> {
             Condition::Metrics {
                 field, min, max, ..
             } => self.debug_metrics_condition(field, *min, *max),
-            Condition::YaraMatch { namespace, rule } => {
-                self.debug_yara_match_condition(namespace, rule.as_ref())
-            }
             Condition::Yara { source, .. } => self.debug_yara_inline_condition(source),
             Condition::Structure { feature, .. } => self.debug_structure_condition(feature),
             Condition::Content {
@@ -2566,13 +2563,6 @@ fn describe_condition(condition: &Condition) -> String {
         } => {
             format!("metrics: {} [{:?}, {:?}]", field, min, max)
         }
-        Condition::YaraMatch { namespace, rule } => {
-            if let Some(r) = rule {
-                format!("yara_match: {}:{}", namespace, r)
-            } else {
-                format!("yara_match: {}:*", namespace)
-            }
-        }
         Condition::Yara { .. } => "yara[inline]".to_string(),
         Condition::Structure { feature, .. } => format!("structure: {}", feature),
         Condition::Content {
@@ -2888,8 +2878,6 @@ fn evaluate_condition_simple(
 
     // Evaluate conditions that fall through to the _ => case in debug_condition
     match condition {
-        Condition::Filesize { min, max } => eval_filesize(*min, *max, ctx),
-        Condition::TraitGlob { pattern, r#match } => eval_trait_glob(pattern, r#match, ctx),
         Condition::Base64 {
             exact,
             substr,
@@ -2977,9 +2965,6 @@ fn evaluate_condition_simple(
             *min_count,
             ctx,
         ),
-        Condition::ImportsCount { min, max, filter } => {
-            eval_imports_count(*min, *max, filter.as_ref(), ctx)
-        }
         Condition::ExportsCount { min, max } => eval_exports_count(*min, *max, ctx),
         Condition::StringCount {
             min,

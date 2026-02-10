@@ -127,9 +127,7 @@ traits:
     desc: Small ELF binary (stager-sized)
     crit: notable
     conf: 0.7
-    if:
-      type: filesize
-      max: 8192
+    size_max: 8192
 
   # ELF with no section headers (stripped shellcode)
   # Section header offset at bytes 0x28-0x2f (e_shoff) = 0

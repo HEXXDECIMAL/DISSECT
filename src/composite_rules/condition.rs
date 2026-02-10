@@ -199,8 +199,8 @@ enum ConditionTagged {
         case_insensitive: bool,
         #[serde(default)]
         exclude_patterns: Option<Vec<String>>,
-        /// Minimum match count (preferred over deprecated min_count)
-        #[serde(default = "default_count_min", alias = "min_count")]
+        /// Minimum match count
+        #[serde(default = "default_count_min")]
         count_min: usize,
         /// Maximum match count - matches fail if exceeded
         #[serde(default)]
@@ -230,18 +230,9 @@ enum ConditionTagged {
         #[serde(default)]
         section_offset_range: Option<(i64, Option<i64>)>,
     },
-    YaraMatch {
-        namespace: String,
-        rule: Option<String>,
-    },
     Structure {
         feature: String,
         min_sections: Option<usize>,
-    },
-    ImportsCount {
-        min: Option<usize>,
-        max: Option<usize>,
-        filter: Option<String>,
     },
     ExportsCount {
         min: Option<usize>,
@@ -326,8 +317,8 @@ enum ConditionTagged {
         /// Absolute offset range: [start, end) (negative values resolved from file end, null = open-ended)
         #[serde(default)]
         offset_range: Option<(i64, Option<i64>)>,
-        /// Minimum match count (preferred over deprecated min_count)
-        #[serde(default = "default_count_min", alias = "min_count")]
+        /// Minimum match count
+        #[serde(default = "default_count_min")]
         count_min: usize,
         /// Maximum match count - matches fail if exceeded
         #[serde(default)]
@@ -352,30 +343,10 @@ enum ConditionTagged {
         section_offset_range: Option<(i64, Option<i64>)>,
     },
 
-    /// Check file size constraints
-    /// Example: { type: filesize, max: 10485760 }  # max 10MB
-    Filesize {
-        /// Minimum file size in bytes
-        #[serde(skip_serializing_if = "Option::is_none")]
-        min: Option<usize>,
-        /// Maximum file size in bytes
-        #[serde(skip_serializing_if = "Option::is_none")]
-        max: Option<usize>,
-    },
-    /// Match multiple traits by glob pattern
-    /// Example: { type: trait_glob, pattern: "xdp-*", match: any }
-    TraitGlob {
-        /// Glob pattern to match trait IDs (e.g., "xdp-*", "socket-*")
-        pattern: String,
-        /// How to combine matches: "any" (default), "all", or count (e.g., "3")
-        #[serde(default = "default_match_mode")]
-        r#match: String,
-    },
-
     /// Search raw file content (for source files or when you need to match
     /// across string boundaries in binaries). Unlike `type: string` which only
     /// searches properly extracted/bounded strings, this searches the raw bytes.
-    #[serde(rename = "content", alias = "raw")]
+    #[serde(rename = "content")]
     Content {
         /// Full match (entire content must equal this - rarely useful)
         exact: Option<String>,
@@ -387,8 +358,8 @@ enum ConditionTagged {
         any: Option<Vec<AnyMatcher>>,
         #[serde(default)]
         case_insensitive: bool,
-        /// Minimum match count (preferred over deprecated min_count)
-        #[serde(default = "default_count_min", alias = "min_count")]
+        /// Minimum match count
+        #[serde(default = "default_count_min")]
         count_min: usize,
         /// Maximum match count - matches fail if exceeded
         #[serde(default)]
@@ -448,8 +419,8 @@ enum ConditionTagged {
         /// Case insensitive matching
         #[serde(default)]
         case_insensitive: bool,
-        /// Minimum match count (preferred over deprecated min_count)
-        #[serde(default = "default_count_min", alias = "min_count")]
+        /// Minimum match count
+        #[serde(default = "default_count_min")]
         count_min: usize,
         /// Maximum match count - matches fail if exceeded
         #[serde(default)]
@@ -498,8 +469,8 @@ enum ConditionTagged {
         /// Case insensitive matching
         #[serde(default)]
         case_insensitive: bool,
-        /// Minimum match count (preferred over deprecated min_count)
-        #[serde(default = "default_count_min", alias = "min_count")]
+        /// Minimum match count
+        #[serde(default = "default_count_min")]
         count_min: usize,
         /// Maximum match count - matches fail if exceeded
         #[serde(default)]
@@ -543,13 +514,6 @@ enum ConditionTagged {
         /// Case insensitive matching (default: false)
         #[serde(default)]
         case_insensitive: bool,
-    },
-
-    /// Match strings by their encoding layer path
-    /// Example: { type: layer_path, value: "meta/layers/.text/stack" }
-    /// Layer paths are computed as: meta/layers/{section}/{encoding_chain_joined}
-    LayerPath {
-        value: String,
     },
 
     /// Query structured data in JSON, YAML, and TOML manifests using path expressions.
@@ -643,9 +607,6 @@ impl From<ConditionDeser> for Condition {
                         compiled_excludes: Vec::new(),
                     }
                 }
-                ConditionTagged::YaraMatch { namespace, rule } => {
-                    Condition::YaraMatch { namespace, rule }
-                }
                 ConditionTagged::Structure {
                     feature,
                     min_sections,
@@ -653,9 +614,6 @@ impl From<ConditionDeser> for Condition {
                     feature,
                     min_sections,
                 },
-                ConditionTagged::ImportsCount { min, max, filter } => {
-                    Condition::ImportsCount { min, max, filter }
-                }
                 ConditionTagged::ExportsCount { min, max } => Condition::ExportsCount { min, max },
                 ConditionTagged::Trait { id } => Condition::Trait { id },
                 ConditionTagged::Ast {
@@ -770,10 +728,6 @@ impl From<ConditionDeser> for Condition {
                     section_offset,
                     section_offset_range,
                 },
-                ConditionTagged::Filesize { min, max } => Condition::Filesize { min, max },
-                ConditionTagged::TraitGlob { pattern, r#match } => {
-                    Condition::TraitGlob { pattern, r#match }
-                }
                 ConditionTagged::Content {
                     exact,
                     substr,
@@ -897,7 +851,6 @@ impl From<ConditionDeser> for Condition {
                     regex,
                     case_insensitive,
                 },
-                ConditionTagged::LayerPath { value } => Condition::LayerPath { value },
                 ConditionTagged::Kv {
                     path,
                     exact,
@@ -961,7 +914,7 @@ pub enum Condition {
         case_insensitive: bool,
         #[serde(skip_serializing_if = "Option::is_none")]
         exclude_patterns: Option<Vec<String>>,
-        /// Minimum match count (use count_min in YAML, min_count is deprecated alias)
+        /// Minimum match count
         #[serde(default = "default_count_min")]
         count_min: usize,
         /// Maximum match count - matches fail if exceeded
@@ -999,28 +952,11 @@ pub enum Condition {
         compiled_excludes: Vec<regex::Regex>,
     },
 
-    /// Match a YARA rule result
-    YaraMatch {
-        namespace: String,
-        #[serde(skip_serializing_if = "Option::is_none")]
-        rule: Option<String>,
-    },
-
     /// Match a structural feature
     Structure {
         feature: String,
         #[serde(skip_serializing_if = "Option::is_none")]
         min_sections: Option<usize>,
-    },
-
-    /// Check import count
-    ImportsCount {
-        #[serde(skip_serializing_if = "Option::is_none")]
-        min: Option<usize>,
-        #[serde(skip_serializing_if = "Option::is_none")]
-        max: Option<usize>,
-        #[serde(skip_serializing_if = "Option::is_none")]
-        filter: Option<String>,
     },
 
     /// Check export count
@@ -1211,7 +1147,7 @@ pub enum Condition {
         /// Absolute offset range: [start, end) (negative values resolved from file end, null = open-ended)
         #[serde(skip_serializing_if = "Option::is_none")]
         offset_range: Option<(i64, Option<i64>)>,
-        /// Minimum match count (use count_min in YAML, min_count is deprecated alias)
+        /// Minimum match count
         #[serde(default = "default_count_min")]
         count_min: usize,
         /// Maximum match count - matches fail if exceeded
@@ -1235,28 +1171,6 @@ pub enum Condition {
         /// Section-relative offset range: [start, end) within section bounds
         #[serde(skip_serializing_if = "Option::is_none")]
         section_offset_range: Option<(i64, Option<i64>)>,
-    },
-
-    /// Check file size constraints
-    /// Example: { type: filesize, max: 10485760 }  # max 10MB
-    Filesize {
-        /// Minimum file size in bytes
-        #[serde(skip_serializing_if = "Option::is_none")]
-        min: Option<usize>,
-        /// Maximum file size in bytes
-        #[serde(skip_serializing_if = "Option::is_none")]
-        max: Option<usize>,
-    },
-
-    /// Match multiple traits by glob pattern
-    /// Example: { type: trait_glob, pattern: "xdp-*", match: any }
-    /// Example: { type: trait_glob, pattern: "socket-*", match: "3" }
-    TraitGlob {
-        /// Glob pattern to match trait IDs (e.g., "xdp-*", "socket-*")
-        pattern: String,
-        /// How to combine matches: "any" (at least 1), "all", or a number (e.g., "3")
-        #[serde(default = "default_match_mode")]
-        r#match: String,
     },
 
     /// Search raw file content directly (for source files or matching across
@@ -1284,7 +1198,7 @@ pub enum Condition {
         /// Case insensitive matching (default: false)
         #[serde(default)]
         case_insensitive: bool,
-        /// Minimum match count (use count_min in YAML, min_count is deprecated alias)
+        /// Minimum match count
         #[serde(default = "default_count_min")]
         count_min: usize,
         /// Maximum match count - matches fail if exceeded
@@ -1346,7 +1260,7 @@ pub enum Condition {
         /// Case insensitive matching
         #[serde(default)]
         case_insensitive: bool,
-        /// Minimum match count (use count_min in YAML, min_count is deprecated alias)
+        /// Minimum match count
         #[serde(default = "default_count_min")]
         count_min: usize,
         /// Maximum match count - matches fail if exceeded
@@ -1393,7 +1307,7 @@ pub enum Condition {
         /// Case insensitive matching
         #[serde(default)]
         case_insensitive: bool,
-        /// Minimum match count (use count_min in YAML, min_count is deprecated alias)
+        /// Minimum match count
         #[serde(default = "default_count_min")]
         count_min: usize,
         /// Maximum match count - matches fail if exceeded
@@ -1440,10 +1354,6 @@ pub enum Condition {
         #[serde(default)]
         case_insensitive: bool,
     },
-
-    /// Match strings by their encoding layer path
-    /// Layer paths are computed as: meta/layers/{section}/{encoding_chain_joined}
-    LayerPath { value: String },
 
     /// Query structured data in JSON, YAML, and TOML manifests using path expressions.
     /// Supports dot notation for nested access and [*] for array iteration.
@@ -1513,8 +1423,7 @@ impl Condition {
             Condition::SectionRatio { .. }
             | Condition::SectionEntropy { .. }
             | Condition::SectionName { .. }
-            | Condition::Structure { .. }
-            | Condition::LayerPath { .. } => is_binary,
+            | Condition::Structure { .. } => is_binary,
 
             // AST requires source code
             Condition::Ast { .. } => file_type.is_source_code(),
@@ -1529,9 +1438,7 @@ impl Condition {
         match self {
             Condition::Symbol { .. } => "symbol",
             Condition::String { .. } => "string",
-            Condition::YaraMatch { .. } => "yara_match",
             Condition::Structure { .. } => "structure",
-            Condition::ImportsCount { .. } => "imports_count",
             Condition::ExportsCount { .. } => "exports_count",
             Condition::Trait { .. } => "trait",
             Condition::Ast { .. } => "ast",
@@ -1543,14 +1450,11 @@ impl Condition {
             Condition::StringCount { .. } => "string_count",
             Condition::Metrics { .. } => "metrics",
             Condition::Hex { .. } => "hex",
-            Condition::Filesize { .. } => "filesize",
-            Condition::TraitGlob { .. } => "trait_glob",
             Condition::Content { .. } => "content",
             Condition::SectionName { .. } => "section_name",
             Condition::Base64 { .. } => "base64",
             Condition::Xor { .. } => "xor",
             Condition::Basename { .. } => "basename",
-            Condition::LayerPath { .. } => "layer_path",
             Condition::Kv { .. } => "kv",
         }
     }

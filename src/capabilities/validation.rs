@@ -157,21 +157,12 @@ fn score_condition(condition: &Condition) -> f32 {
                 score *= CASE_INSENSITIVE_MULTIPLIER;
             }
         }
-        Condition::YaraMatch { namespace, rule } => {
-            score += score_string_value(namespace);
-            score += rule.as_deref().map(score_string_value).unwrap_or(0.0);
-        }
         Condition::Structure {
             feature,
             min_sections,
         } => {
             score += score_string_value(feature);
             score += score_presence(min_sections.as_ref());
-        }
-        Condition::ImportsCount { min, max, filter } => {
-            score += score_presence(min.as_ref());
-            score += score_presence(max.as_ref());
-            score += filter.as_deref().map(score_string_value).unwrap_or(0.0);
         }
         Condition::ExportsCount { min, max } => {
             score += score_presence(min.as_ref());
@@ -315,14 +306,6 @@ fn score_condition(condition: &Condition) -> f32 {
             score += score_presence(section_offset.as_ref());
             score += score_presence(section_offset_range.as_ref());
         }
-        Condition::Filesize { min, max } => {
-            score += score_presence(min.as_ref());
-            score += score_presence(max.as_ref());
-        }
-        Condition::TraitGlob { pattern, r#match } => {
-            score += score_string_value(pattern);
-            score += score_string_value(r#match);
-        }
         Condition::SectionName { pattern, regex } => {
             score += score_regex_value(pattern);
             if *regex {
@@ -397,9 +380,6 @@ fn score_condition(condition: &Condition) -> f32 {
             if *case_insensitive {
                 score *= CASE_INSENSITIVE_MULTIPLIER;
             }
-        }
-        Condition::LayerPath { value } => {
-            score += score_string_value(value);
         }
     }
 

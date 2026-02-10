@@ -10,7 +10,7 @@ traits:
     mbc: "F0005"
     for: [python]
     if:
-      type: raw
+      type: content
       substr: "subprocess.DEVNULL"
 
   - id: close-fds
@@ -19,7 +19,7 @@ traits:
     conf: 0.7
     for: [python]
     if:
-      type: raw
+      type: content
       substr: "close_fds=True"
 
   - id: subprocess-popen
@@ -28,7 +28,7 @@ traits:
     conf: 0.6
     for: [python]
     if:
-      type: raw
+      type: content
       regex: "subprocess\\.Popen\\("
 
 composite_rules:

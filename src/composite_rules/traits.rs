@@ -769,16 +769,10 @@ impl TraitDefinition {
                 };
                 eval_string(&params, self.not.as_ref(), ctx)
             }
-            Condition::YaraMatch { namespace, rule } => {
-                eval_yara_match(namespace, rule.as_ref(), ctx)
-            }
             Condition::Structure {
                 feature,
                 min_sections,
             } => eval_structure(feature, *min_sections, ctx),
-            Condition::ImportsCount { min, max, filter } => {
-                eval_imports_count(*min, *max, filter.as_ref(), ctx)
-            }
             Condition::ExportsCount { min, max } => eval_exports_count(*min, *max, ctx),
             Condition::Trait { id } => eval_trait(id, ctx),
             Condition::Ast {
@@ -878,8 +872,6 @@ impl TraitDefinition {
                 },
                 ctx,
             ),
-            Condition::Filesize { min, max } => eval_filesize(*min, *max, ctx),
-            Condition::TraitGlob { pattern, r#match } => eval_trait_glob(pattern, r#match, ctx),
             Condition::Content {
                 exact,
                 substr,
@@ -1010,7 +1002,6 @@ impl TraitDefinition {
                 *case_insensitive,
                 ctx,
             ),
-            Condition::LayerPath { value } => eval_layer_path(value, ctx),
             Condition::Kv { .. } => {
                 // Delegate to kv evaluator
                 let file_path = std::path::Path::new(&ctx.report.target.path);
@@ -1693,16 +1684,10 @@ impl CompositeTrait {
                 };
                 eval_string(&params, self.not.as_ref(), ctx)
             }
-            Condition::YaraMatch { namespace, rule } => {
-                self.eval_yara_match(namespace, rule.as_ref(), ctx)
-            }
             Condition::Structure {
                 feature,
                 min_sections,
             } => self.eval_structure(feature, *min_sections, ctx),
-            Condition::ImportsCount { min, max, filter } => {
-                self.eval_imports_count(*min, *max, filter.as_ref(), ctx)
-            }
             Condition::ExportsCount { min, max } => self.eval_exports_count(*min, *max, ctx),
             Condition::Trait { id } => eval_trait(id, ctx),
             Condition::Ast {
@@ -1802,8 +1787,6 @@ impl CompositeTrait {
                 },
                 ctx,
             ),
-            Condition::Filesize { min, max } => eval_filesize(*min, *max, ctx),
-            Condition::TraitGlob { pattern, r#match } => eval_trait_glob(pattern, r#match, ctx),
             Condition::Content {
                 exact,
                 substr,
@@ -1934,7 +1917,6 @@ impl CompositeTrait {
                 *case_insensitive,
                 ctx,
             ),
-            Condition::LayerPath { value } => eval_layer_path(value, ctx),
             Condition::Kv { .. } => {
                 // Delegate to kv evaluator
                 let file_path = std::path::Path::new(&ctx.report.target.path);
@@ -1980,16 +1962,6 @@ impl CompositeTrait {
         eval_symbol(exact, substr, pattern, None, compiled_regex, None, ctx)
     }
 
-    /// Evaluate YARA match condition
-    fn eval_yara_match(
-        &self,
-        namespace: &str,
-        rule: Option<&String>,
-        ctx: &EvaluationContext,
-    ) -> ConditionResult {
-        eval_yara_match(namespace, rule, ctx)
-    }
-
     /// Evaluate structure condition
     fn eval_structure(
         &self,
@@ -1998,49 +1970,6 @@ impl CompositeTrait {
         ctx: &EvaluationContext,
     ) -> ConditionResult {
         eval_structure(feature, min_sections, ctx)
-    }
-
-    /// Evaluate imports count condition
-    fn eval_imports_count(
-        &self,
-        min: Option<usize>,
-        max: Option<usize>,
-        filter: Option<&String>,
-        ctx: &EvaluationContext,
-    ) -> ConditionResult {
-        let count = if let Some(filter_pattern) = filter {
-            // Compile regex once, then filter
-            if let Ok(re) = Regex::new(filter_pattern) {
-                ctx.report
-                    .imports
-                    .iter()
-                    .filter(|imp| re.is_match(&imp.symbol))
-                    .count()
-            } else {
-                0
-            }
-        } else {
-            ctx.report.imports.len()
-        };
-
-        let matched = min.is_none_or(|m| count >= m) && max.is_none_or(|m| count <= m);
-
-        ConditionResult {
-            matched,
-            evidence: if matched {
-                vec![Evidence {
-                    method: "import_count".to_string(),
-                    source: "composite_rule".to_string(),
-                    value: count.to_string(),
-                    location: None,
-                }]
-            } else {
-                Vec::new()
-            },
-            traits: Vec::new(),
-            warnings: Vec::new(),
-            precision: 0.0,
-        }
     }
 
     /// Evaluate exports count condition

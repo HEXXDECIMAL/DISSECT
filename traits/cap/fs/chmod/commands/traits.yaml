@@ -24,7 +24,7 @@ traits:
     conf: 0.85
     for: [python]
     if:
-      type: raw
+      type: content
       regex: "os\\.chmod\\("
 
   # Ruby File.chmod
