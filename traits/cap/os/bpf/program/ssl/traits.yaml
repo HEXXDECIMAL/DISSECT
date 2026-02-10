@@ -9,7 +9,7 @@ traits:
     conf: 0.9
     for: [c, elf]
     if:
-      type: content
+      type: raw
       regex: "(?i)(?:fd_to_ssl|ssl_(?:ctx|context)_(?:map|hash)|ssl_to_fd)"
 
   # SSL CTX reference in comments or identifiers
@@ -19,7 +19,7 @@ traits:
     conf: 0.7
     for: [c, elf]
     if:
-      type: content
+      type: raw
       regex: "\\bSSL[_\\s]?CTX\\b"
       case_insensitive: true
 
@@ -30,7 +30,7 @@ traits:
     conf: 0.85
     for: [c, elf]
     if:
-      type: content
+      type: raw
       regex: "ssl_attach_openssl"
       case_insensitive: true
 
@@ -40,7 +40,7 @@ traits:
     conf: 0.85
     for: [c, elf]
     if:
-      type: content
+      type: raw
       regex: "ssl_attach_gnutls"
       case_insensitive: true
 
@@ -50,7 +50,7 @@ traits:
     conf: 0.85
     for: [c, elf]
     if:
-      type: content
+      type: raw
       regex: "ssl_attach_nss"
       case_insensitive: true
 
@@ -62,7 +62,7 @@ traits:
     conf: 0.9
     for: [c]
     if:
-      type: content
+      type: raw
       substr: "ssl_attach_##"
 
   # NSS library target (Mozilla NSS via libnspr4)
@@ -72,7 +72,7 @@ traits:
     conf: 0.8
     for: [c, elf]
     if:
-      type: content
+      type: raw
       substr: "libnspr4.so"
 
   # eBPF loader header include
@@ -82,7 +82,7 @@ traits:
     conf: 0.85
     for: [c]
     if:
-      type: content
+      type: raw
       substr: "ebpf/loader"
 
   # Library resolver/searcher pattern
@@ -92,7 +92,7 @@ traits:
     conf: 0.75
     for: [c]
     if:
-      type: content
+      type: raw
       substr: "libresolver"
 
   - id: ssl-listen-event
@@ -101,7 +101,7 @@ traits:
     conf: 0.8
     for: [c, elf]
     if:
-      type: content
+      type: raw
       regex: "ssl_listen_event"
       case_insensitive: true
 
@@ -111,7 +111,7 @@ traits:
     conf: 0.7
     for: [c, elf]
     if:
-      type: content
+      type: raw
       regex: "\\bssl_load\\s*\\("
       case_insensitive: true
 
@@ -149,7 +149,7 @@ traits:
     conf: 0.75
     for: [c, elf]
     if:
-      type: content
+      type: raw
       regex: "SSL_OP_(?:READ|WRITE)"
 
   # SSL operation type definition (ssl_op_t enum/typedef)
@@ -159,7 +159,7 @@ traits:
     conf: 0.8
     for: [c, elf]
     if:
-      type: content
+      type: raw
       regex: "\\bssl_op(?:_t)?\\b"
       case_insensitive: true
 

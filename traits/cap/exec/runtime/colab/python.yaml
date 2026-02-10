@@ -15,7 +15,7 @@ traits:
   - id: invoke-function
     desc: Invokes Colab function from JS
     if:
-      type: content
+      type: raw
       substr: "google.colab.kernel.invokeFunction"
 
   - id: browser-display-html

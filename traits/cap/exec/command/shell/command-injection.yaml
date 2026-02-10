@@ -24,7 +24,7 @@ traits:
     platforms: [unix, linux, macos]
     for: [c]
     if:
-      type: content
+      type: raw
       regex: '(?:snprintf|sprintf)[\s\S]{0,50}%s[\s\S]{0,50}(?:system\s*\(|popen\s*\(|execl\s*\(|execv\s*\(|/bin/sh|sh\s+-c|cmd\.exe)'
 
   - id: system-call-symbol

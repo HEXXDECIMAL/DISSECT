@@ -14,7 +14,7 @@ traits:
     crit: notable
     conf: 0.85
     if:
-      type: content
+      type: raw
       substr: "import win32com"
 
   # win32com.client.Dispatch call
@@ -23,5 +23,5 @@ traits:
     crit: notable
     conf: 0.85
     if:
-      type: content
+      type: raw
       substr: "Dispatch("

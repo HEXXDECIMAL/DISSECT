@@ -15,7 +15,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       regex: '(?i)Set-Content.{0,100}Zone\.Identifier.{0,50}Value\s*[''"][''"]'
 
   - id: unblock-file
@@ -24,7 +24,7 @@ traits:
     conf: 0.9
     for: [powershell, batch, shell]
     if:
-      type: content
+      type: raw
       regex: '(?i)Unblock-File'
 
   # Clearing Event Logs
@@ -35,7 +35,7 @@ traits:
     for: [batch, shell]
     attack: "T1070.001"
     if:
-      type: content
+      type: raw
       regex: '(?i)wevtutil\s+cl\s+'
 
   - id: powershell-clear-eventlog
@@ -45,7 +45,7 @@ traits:
     for: [powershell, batch, shell]
     attack: "T1070.001"
     if:
-      type: content
+      type: raw
       regex: '(?i)Clear-EventLog'
 
 composite_rules:

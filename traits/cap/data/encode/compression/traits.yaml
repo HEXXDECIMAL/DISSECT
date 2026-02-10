@@ -15,7 +15,7 @@ traits:
     mbc: "C0032"
     # Bootloaders use LZMA for firmware/kernel compression; not inherently suspicious
     if:
-      type: content
+      type: raw
       substr: "$lzma"
 
   - id: lzma-magic

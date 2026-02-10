@@ -151,7 +151,7 @@ traits:
     conf: 0.85
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: "(?i)(MFA\\s*[=:]\\s*[0-9]|TokenType\\.MFA|type:\\s*MFA)"
 
   # Users/@me API path
@@ -251,7 +251,7 @@ traits:
     crit: suspicious
     conf: 0.9
     if:
-      type: content
+      type: raw
       regex: "extractTokens?\\("
 
   # getTokens function - common in token stealers
@@ -260,7 +260,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "getTokens?\\("
 
   # Discord domain filtering regex in code - targets Discord storage
@@ -269,7 +269,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       regex: 'discord\(\?:app\)\?'
 
   # Firefox webappsstore.sqlite - used to steal Discord tokens from Firefox

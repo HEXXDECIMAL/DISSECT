@@ -2871,8 +2871,8 @@ fn evaluate_condition_simple(
     ctx: &EvaluationContext,
 ) -> crate::composite_rules::context::ConditionResult {
     use crate::composite_rules::evaluators::{
-        eval_base64, eval_basename, eval_exports_count, eval_filesize, eval_imports_count,
-        eval_section_name, eval_string_count, eval_syscall, eval_trait_glob, eval_xor,
+        eval_base64, eval_basename, eval_exports_count,
+        eval_section_name, eval_string_count, eval_syscall, eval_xor,
         ContentLocationParams,
     };
 

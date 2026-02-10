@@ -6,16 +6,15 @@
 use super::condition::{Condition, NotException};
 use super::context::{ConditionResult, EvaluationContext, StringParams};
 use super::evaluators::{
-    eval_ast, eval_base64, eval_basename, eval_exports_count, eval_filesize, eval_hex,
-    eval_import_combination, eval_imports_count, eval_layer_path, eval_metrics, eval_raw,
+    eval_ast, eval_base64, eval_basename, eval_exports_count, eval_hex,
+    eval_import_combination, eval_metrics, eval_raw,
     eval_section_entropy, eval_section_name, eval_section_ratio, eval_string, eval_string_count,
-    eval_structure, eval_symbol, eval_syscall, eval_trait, eval_trait_glob, eval_xor,
-    eval_yara_inline, eval_yara_match, ContentLocationParams,
+    eval_structure, eval_symbol, eval_syscall, eval_trait, eval_xor,
+    eval_yara_inline, ContentLocationParams,
 };
 use super::types::{default_file_types, default_platforms, FileType, Platform};
 use crate::types::{Criticality, Evidence, Finding, FindingKind};
 use anyhow::Context;
-use regex::Regex;
 use serde::Deserialize;
 
 fn default_confidence() -> f32 {

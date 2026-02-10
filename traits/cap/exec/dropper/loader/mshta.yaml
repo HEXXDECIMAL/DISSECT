@@ -13,7 +13,7 @@ traits:
     crit: notable
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: '(?i)\bmshta\b'
 
   - id: mshta-remote-url
@@ -22,7 +22,7 @@ traits:
     conf: 0.95
     mbc: "E1218.005"
     if:
-      type: content
+      type: raw
       regex: '(?i)\bmshta\s+https?://'
 
   - id: mshta-inline-vbscript
@@ -31,7 +31,7 @@ traits:
     conf: 0.9
     mbc: "E1218.005"
     if:
-      type: content
+      type: raw
       regex: '(?i)\bmshta\s+[''"]?vbscript:'
 
   - id: mshta-inline-javascript
@@ -40,5 +40,5 @@ traits:
     conf: 0.9
     mbc: "E1218.005"
     if:
-      type: content
+      type: raw
       regex: '(?i)\bmshta\s+[''"]?javascript:'

@@ -133,7 +133,7 @@ traits:
       # Require at least 2 chars before extension to avoid OpenSSL internals like d.encrypted
       regex: '[a-zA-Z0-9_]{2,}\.(crypt|encrypted|locked|enc|crypted|cry)$'
     unless:
-      - type: content
+      - type: raw
         regex: "matplotlib|tex"
 
   # Cryptographic symbols for ransomware

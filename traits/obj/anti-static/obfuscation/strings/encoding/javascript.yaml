@@ -46,7 +46,7 @@ traits:
     conf: 0.6
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: 'Buffer.from\(.{0,50}["\'']base64["\'']\)'
 
   - id: js-buffer-from-hex
@@ -55,7 +55,7 @@ traits:
     conf: 0.6
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: 'Buffer.from\(.{0,50}["\'']hex["\'']\)'
 
   # Hex-encoded require statement - obfuscated module import
@@ -69,7 +69,7 @@ traits:
     attack: "T1027"
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: 'require\s*\(\s*Buffer\.from\s*\(\s*["\x27][0-9a-fA-F]+["\x27]\s*,\s*["\x27]hex["\x27]\s*\)\.toString\s*\(\s*\)'
 
   # Global object manipulation via assignment to high-risk decode/exec APIs
@@ -81,7 +81,7 @@ traits:
     mbc: "B0032"
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: '(globalThis|window|self)\s*(?:\.\s*[A-Za-z_$][\w$]*|\[\s*["''][^"'']+["'']\s*\])\s*=\s*(?:eval|Function|atob|btoa|unescape|decodeURIComponent|String\.fromCharCode)'
 
   - id: js-require-alias
@@ -92,7 +92,7 @@ traits:
     mbc: "B0032"
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: '=\\s*require\\s*;'
 
   # Version marker pattern (common in malware tracking)
@@ -125,7 +125,7 @@ traits:
     mbc: "B0032"
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: '\b(?:var|let|const)\s+\w+\s*=\s*\w+\s*\[[^\]]+\]\s*;\s*\w+\s*\[[^\]]+\]\s*=\s*\w+\s*\[[^\]]+\]\s*;\s*\w+\s*\[[^\]]+\]\s*=\s*\w+'
 
   # String split to array
@@ -135,7 +135,7 @@ traits:
     conf: 0.6
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: '\.split\(\s*["'']\s*["'']\s*\)'
 
   # Dynamic code execution patterns (atomic)
@@ -160,7 +160,7 @@ traits:
     attack: "T1027"
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       substr: "new Function"
 
   - id: js-array-join-symbol
@@ -169,7 +169,7 @@ traits:
     conf: 0.5
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: '\.join\(\s*["'']\s*["'']\s*\)'
 
   # === Density-Based Obfuscation Detection ===
@@ -225,7 +225,7 @@ traits:
     attack: "T1027"
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: "\\[(\"|')(eval|Function|constructor|fromCharCode|charCodeAt|atob|btoa|decodeURIComponent|unescape|setTimeout|setInterval)(\"|')\\]"
       count_min: 1
 

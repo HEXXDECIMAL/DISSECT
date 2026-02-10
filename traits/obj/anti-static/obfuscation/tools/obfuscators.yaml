@@ -16,7 +16,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       substr: "Obfuscated with BlankOBF"
 
   - id: pyarmor-signature
@@ -24,7 +24,7 @@ traits:
     crit: suspicious
     conf: 0.90
     if:
-      type: content
+      type: raw
       regex: "pyarmor|__pyarmor"
 
   - id: pyobfuscate-signature
@@ -32,7 +32,7 @@ traits:
     crit: suspicious
     conf: 0.90
     if:
-      type: content
+      type: raw
       regex: "pyobfuscate\\s*=\\s*\\(|https://pyobfuscate\\.com|obfuscated|obfuscator"
 
   # Oas-obf bytecode obfuscator: compiles Python to .pyc with custom
@@ -42,7 +42,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       substr: "Oas-obf"
 
   # === Variable Name Obfuscation ===
@@ -51,7 +51,7 @@ traits:
     crit: suspicious
     conf: 0.80
     if:
-      type: content
+      type: raw
       regex: "^_{3,20}="
 
   - id: excessive-underscore-vars
@@ -59,7 +59,7 @@ traits:
     crit: suspicious
     conf: 0.75
     if:
-      type: content
+      type: raw
       regex: "_{10,50}="
 
   # Dense underscore variables indicate heavy obfuscation.
@@ -70,7 +70,7 @@ traits:
     crit: suspicious
     conf: 0.92
     if:
-      type: content
+      type: raw
       regex: "_{3,}\\s*="
       count_min: 10
       per_kb_min: 2.0
@@ -81,7 +81,7 @@ traits:
     crit: suspicious
     conf: 0.90
     if:
-      type: content
+      type: raw
       regex: "eval\\(.{0,50}compile\\("
 
   - id: nested-eval-compile
@@ -89,7 +89,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       regex: "eval\\(compile\\(.{0,50}eval\\(compile"
 
   # === Extreme Line Length ===
@@ -113,7 +113,7 @@ traits:
     crit: suspicious
     conf: 0.80
     if:
-      type: content
+      type: raw
       regex: "__import__.{0,50}compile|compile.{0,50}__import__"
 
 composite_rules:

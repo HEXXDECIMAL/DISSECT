@@ -17,7 +17,7 @@ traits:
     conf: 0.85
     attack: "T1070.003"
     if:
-      type: content
+      type: raw
       regex: "\\bhistory\\s+-c\\b|>\\s*/root/\\.bash_history|echo\\s*>\\s*[^\\n]{0,30}\\.bash_history"
 
   - id: bash-history-wipe
@@ -26,7 +26,7 @@ traits:
     conf: 0.85
     attack: "T1070.003"
     if:
-      type: content
+      type: raw
       regex: "echo\\s*>\\s*(?:/root/|~/|\\$HOME/)\\.bash_history|rm\\s+-[rf]+\\s+[^\\n]{0,20}\\.bash_history"
 
   # === System Log Clearing ===
@@ -36,7 +36,7 @@ traits:
     conf: 0.90
     attack: "T1070.002"
     if:
-      type: content
+      type: raw
       regex: "echo\\s*>\\s*/var/log/wtmp|>\\s*/var/log/wtmp|rm\\s+-[rf]+\\s+/var/log/wtmp"
 
   - id: secure-log-clear
@@ -45,7 +45,7 @@ traits:
     conf: 0.90
     attack: "T1070.002"
     if:
-      type: content
+      type: raw
       regex: "echo\\s*>\\s*/var/log/(?:secure|auth\\.log)|>\\s*/var/log/(?:secure|auth\\.log)"
 
   - id: syslog-clear
@@ -54,7 +54,7 @@ traits:
     conf: 0.90
     attack: "T1070.002"
     if:
-      type: content
+      type: raw
       regex: "echo\\s*>\\s*/var/log/syslog|rm\\s+-[rf]+\\s+/var/log/syslog|>\\s*/var/log/syslog"
 
   - id: mail-spool-clear
@@ -63,7 +63,7 @@ traits:
     conf: 0.80
     attack: "T1070.002"
     if:
-      type: content
+      type: raw
       regex: "echo\\s*>\\s*/var/spool/mail/|>\\s*/var/spool/mail/"
 
   # === Mass Log Clearing ===
@@ -73,7 +73,7 @@ traits:
     conf: 0.90
     attack: "T1070.002"
     if:
-      type: content
+      type: raw
       regex: "rm\\s+-[rf]+\\s+/var/log/\\*|for\\s+[^;]{0,30}in\\s+/var/log/|find\\s+/var/log"
 
   # find + exec rm pattern for mass log deletion
@@ -83,7 +83,7 @@ traits:
     conf: 0.95
     attack: "T1070.002"
     if:
-      type: content
+      type: raw
       regex: 'find\s+[^\n]{0,30}-name\s+[^\n]{0,30}\.log[^\n]{0,30}-exec\s+rm'
 
 composite_rules:

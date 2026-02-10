@@ -28,7 +28,7 @@ traits:
     conf: 0.85
     size_min: 2048
     if:
-      type: content
+      type: raw
       regex: "\\(\\s*(?:async\\s+)?function\\s*\\([^)]{0,50}\\)\\s*\\{|\\(\\s*(?:async\\s*)?\\([^)]{0,50}\\)\\s*=>"
       count_min: 5
 
@@ -57,7 +57,7 @@ traits:
     attack: ""
     mbc: ""
     if:
-      type: content
+      type: raw
       substr: "Search.setIndex"
 
 composite_rules:

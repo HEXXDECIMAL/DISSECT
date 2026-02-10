@@ -14,7 +14,7 @@ traits:
     crit: suspicious
     conf: 0.9
     if:
-      type: content
+      type: raw
       regex: '(?i)set%[^% \t\n]+%'
 
   # %VAR%set trick (obfuscated command start)
@@ -23,7 +23,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: '(?i)%[^% \t\n]+%set\s+'
 
   # Fragmented command reconstruction (multiple sets of 1-4 chars)
@@ -32,7 +32,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: '(?i)set\s+[^=]+=[^ \t\n\r]{1,4}(?:[\t\r\n ]|$)'
       count_min: 5
 
@@ -42,7 +42,7 @@ traits:
     crit: suspicious
     conf: 0.8
     if:
-      type: content
+      type: raw
       regex: 'set\s+[^=]+=[A-Za-z0-9+/]{100,}'
 
 composite_rules:

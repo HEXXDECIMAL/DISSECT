@@ -189,7 +189,7 @@ composite_rules:
       - id: obj/lateral/supply-chain/pypi/general::setup-py-file
       - id: setup-py-exec-yara-core
     unless:
-      - type: content
+      - type: raw
         regex: "scipy|numpy|docutils"
 
   - id: init-py-exec-yara

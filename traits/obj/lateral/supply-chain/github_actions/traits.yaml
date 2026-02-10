@@ -16,7 +16,7 @@ traits:
     conf: 0.9
     for: [shell, python]
     if:
-      type: content
+      type: raw
       regex: "sudo python3?"
 
   - id: double-base64-encode
@@ -25,7 +25,7 @@ traits:
     conf: 0.8
     for: [shell]
     if:
-      type: content
+      type: raw
       regex: 'base64.{0,50}\|.{0,50}base64'
 
 composite_rules:

@@ -55,7 +55,7 @@ traits:
     conf: 0.8
     for: [shell]
     if:
-      type: content
+      type: raw
       regex: '"\$\{UID\}"\s*==\s*0'
 
   - id: proc-mounts-content
@@ -64,7 +64,7 @@ traits:
     conf: 0.7
     for: [shell]
     if:
-      type: content
+      type: raw
       substr: "/proc/mounts"
 
   - id: dd-devzero-content
@@ -73,7 +73,7 @@ traits:
     conf: 0.85
     for: [shell]
     if:
-      type: content
+      type: raw
       regex: 'dd\s+if=/dev/zero.{0,50}of=/dev/'
 
   # YARA-based patterns for content that isn't extracted by AST

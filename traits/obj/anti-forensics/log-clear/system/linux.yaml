@@ -9,7 +9,7 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: content
+      type: raw
       substr: "/var/log/wtmp"
 
   - id: var-log-btmp
@@ -17,7 +17,7 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: content
+      type: raw
       substr: "/var/log/btmp"
 
   - id: var-log-lastlog
@@ -25,7 +25,7 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: content
+      type: raw
       substr: "/var/log/lastlog"
 
   - id: var-log-auth
@@ -33,7 +33,7 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: content
+      type: raw
       substr: "/var/log/auth"
 
   - id: var-log-secure
@@ -41,7 +41,7 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: content
+      type: raw
       substr: "/var/log/secure"
 
   - id: var-log-messages
@@ -49,7 +49,7 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: content
+      type: raw
       substr: "/var/log/messages"
 
   - id: var-log-cron
@@ -57,7 +57,7 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: content
+      type: raw
       substr: "/var/log/cron"
 
   - id: var-spool-mail
@@ -65,7 +65,7 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: content
+      type: raw
       substr: "/var/spool/mail"
 
   # === Log Clearing Commands ===
@@ -77,7 +77,7 @@ traits:
     attack: "T1070.001"
     for: [shell]
     if:
-      type: content
+      type: raw
       regex: 'echo\s+\S+\s*>\s*/var/log/'
 
   - id: echo-redirect-var-spool
@@ -88,7 +88,7 @@ traits:
     attack: "T1070.001"
     for: [shell]
     if:
-      type: content
+      type: raw
       regex: 'echo\s+\S+\s*>\s*/var/spool/'
 
   - id: redirect-var-log
@@ -98,7 +98,7 @@ traits:
     mbc: "F0005"
     attack: "T1070.001"
     if:
-      type: content
+      type: raw
       regex: '>\s*/var/log/'
 
   - id: history-c
@@ -137,7 +137,7 @@ traits:
     mbc: "F0005"
     attack: "T1070.001"
     if:
-      type: content
+      type: raw
       regex: 'truncate\s+(-s\s*0\s+)?/var/log'
 
 composite_rules:

@@ -21,7 +21,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       regex: "typedef.{0,50}EVP_(CIPHER|MD|PKEY)(_CTX)?|#define EVP_(CIPHER|MD|PKEY)(_CTX)?"
 
   - id: openssl-copyright-block

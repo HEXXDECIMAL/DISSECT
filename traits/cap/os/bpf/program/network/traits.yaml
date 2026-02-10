@@ -113,7 +113,7 @@ traits:
     conf: 0.8
     for: [c, elf]
     if:
-      type: content
+      type: raw
       substr: "XDP_TX"
 
   - id: xdp-drop
@@ -122,7 +122,7 @@ traits:
     conf: 0.5
     for: [c, elf]
     if:
-      type: content
+      type: raw
       substr: "XDP_DROP"
 
   - id: xdp-pass
@@ -131,7 +131,7 @@ traits:
     conf: 0.5
     for: [c, elf]
     if:
-      type: content
+      type: raw
       substr: "XDP_PASS"
 
   # === XDP Attachment API ===
@@ -142,7 +142,7 @@ traits:
     conf: 0.9
     for: [c, elf]
     if:
-      type: content
+      type: raw
       substr: "bpf_xdp_attach"
 
   # XDP flags for attachment mode
@@ -152,7 +152,7 @@ traits:
     conf: 0.6
     for: [c, elf]
     if:
-      type: content
+      type: raw
       regex: "XDP_FLAGS_(?:UPDATE_IF_NOEXIST|SKB_MODE|DRV_MODE|HW_MODE)"
 
   # BPF skeleton header include (.skel.h)
@@ -163,7 +163,7 @@ traits:
     conf: 0.9
     for: [c]
     if:
-      type: content
+      type: raw
       regex: "#include\\s+\"[^\"]+\\.skel\\.h\""
 
   # === XDP Packet Reflection ===
@@ -174,7 +174,7 @@ traits:
     conf: 0.5
     for: [c, elf]
     if:
-      type: content
+      type: raw
       regex: "struct\\s+ethhdr|ethhdr\\s*\\*"
 
   - id: iphdr-struct
@@ -183,7 +183,7 @@ traits:
     conf: 0.5
     for: [c, elf]
     if:
-      type: content
+      type: raw
       regex: "struct\\s+iphdr|iphdr\\s*\\*"
 
   - id: ip-addr-swap
@@ -192,7 +192,7 @@ traits:
     conf: 0.75
     for: [c]
     if:
-      type: content
+      type: raw
       # Match IP address field swaps (saddr/daddr swap)
       regex: "swap.{0,30}(?:saddr|daddr)|(?:saddr|daddr).{0,30}swap"
 

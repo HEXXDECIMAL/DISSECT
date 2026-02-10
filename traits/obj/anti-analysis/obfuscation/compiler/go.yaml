@@ -70,7 +70,7 @@ traits:
       type: string
       word: "ptrace"
     unless:
-      - type: content
+      - type: raw
         regex: "syscall|runtime"
 
 composite_rules:

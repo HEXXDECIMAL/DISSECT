@@ -62,7 +62,7 @@ traits:
     conf: 0.80
     for: [all]
     if:
-      type: content
+      type: raw
       regex: "description\\s*=\\s*[\"'].{0,30}\\b(?:test(?:\\s+package)?|example(?:\\s+package)?|placeholder|my\\s+package|TODO|FIXME|nothing|empty|temp|dummy)\\b"
       case_insensitive: true
 

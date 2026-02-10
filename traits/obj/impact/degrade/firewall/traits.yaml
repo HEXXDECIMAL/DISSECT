@@ -12,7 +12,7 @@ traits:
     conf: 0.9
     for: [shell]
     if:
-      type: content
+      type: raw
       regex: '\bufw\s+disable\b'
 
   - id: ufw-reset
@@ -21,7 +21,7 @@ traits:
     conf: 0.9
     for: [shell]
     if:
-      type: content
+      type: raw
       regex: '\bufw\s+--force\s+reset\b'
 
   # === iptables Flush/Clear ===
@@ -31,7 +31,7 @@ traits:
     conf: 0.85
     for: [shell]
     if:
-      type: content
+      type: raw
       regex: '\biptables\s+-F\b'
 
   - id: iptables-delete-all

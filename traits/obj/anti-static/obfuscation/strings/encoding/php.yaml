@@ -24,7 +24,7 @@ traits:
     crit: suspicious
     conf: 0.90
     if:
-      type: content
+      type: raw
       regex: "chr\\s*\\(\\s*\\d"
       count_min: 10
       per_kb_min: 2.0
@@ -35,7 +35,7 @@ traits:
     crit: suspicious
     conf: 0.88
     if:
-      type: content
+      type: raw
       regex: "pack\\s*\\("
       count_min: 4
       per_kb_min: 0.8
@@ -46,7 +46,7 @@ traits:
     crit: suspicious
     conf: 0.90
     if:
-      type: content
+      type: raw
       regex: "base64_decode\\s*\\("
       count_min: 3
       per_kb_min: 0.5
@@ -57,7 +57,7 @@ traits:
     crit: suspicious
     conf: 0.88
     if:
-      type: content
+      type: raw
       regex: "(gzinflate|gzuncompress|gzdecode)\\s*\\("
       count_min: 2
       per_kb_min: 0.3
@@ -68,7 +68,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "str_rot13\\s*\\("
       count_min: 2
       per_kb_min: 0.3
@@ -79,7 +79,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "\\$\\$+[a-zA-Z_]"
       count_min: 5
       per_kb_min: 1.0
@@ -90,7 +90,7 @@ traits:
     crit: suspicious
     conf: 0.92
     if:
-      type: content
+      type: raw
       regex: "(eval|assert|create_function)\\s*\\("
       count_min: 3
       per_kb_min: 0.5
@@ -101,7 +101,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       regex: 'preg_replace\s*\(\s*["\x27][^"\x27]*/e[^"\x27]*["\x27]'
 
 composite_rules:

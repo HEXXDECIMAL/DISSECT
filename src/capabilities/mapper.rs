@@ -1156,10 +1156,10 @@ impl CapabilityMapper {
                     collisions.len()
                 );
                 eprintln!(
-                    "   When both `type: string` and `type: content` exist for the same pattern,"
+                    "   When both `type: string` and `type: raw` exist for the same pattern,"
                 );
                 eprintln!(
-                    "   merge to `content` only (it's broader and includes string matches):\n"
+                    "   merge to `raw` only (it's broader and includes string matches):\n"
                 );
                 for (string_id, content_id, pattern) in &collisions {
                     let string_source = rule_source_files
@@ -2898,9 +2898,9 @@ fn check_condition(
 
     if let Condition::Content { exact: Some(_), .. } = condition {
         eprintln!(
-            "⚠️  WARNING: Trait '{}' in {} uses 'type: content' with 'exact' match. \
+            "⚠️  WARNING: Trait '{}' in {} uses 'type: raw' with 'exact' match. \
             This requires the entire file content to exactly match the pattern, \
-            which is rarely useful. Consider using 'contains' instead.",
+            which is rarely useful. Consider using 'substr' instead.",
             trait_id,
             path.display()
         );

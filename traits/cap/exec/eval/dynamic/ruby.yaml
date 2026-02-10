@@ -14,7 +14,7 @@ traits:
     crit: notable
     conf: 0.90
     if:
-      type: content
+      type: raw
       regex: "\\beval\\s*\\("
 
   - id: instance-eval
@@ -22,7 +22,7 @@ traits:
     crit: notable
     conf: 0.90
     if:
-      type: content
+      type: raw
       regex: "\\.instance_eval\\b"
 
   - id: class-eval
@@ -30,7 +30,7 @@ traits:
     crit: notable
     conf: 0.90
     if:
-      type: content
+      type: raw
       regex: "\\.class_eval\\b"
 
   - id: module-eval
@@ -38,7 +38,7 @@ traits:
     crit: notable
     conf: 0.90
     if:
-      type: content
+      type: raw
       regex: "\\.module_eval\\b"
 
   # === Module Monkey Patching ===
@@ -47,7 +47,7 @@ traits:
     crit: notable
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "\\.prepend\\s+Module\\.new"
 
   - id: define-method-dynamic
@@ -55,5 +55,5 @@ traits:
     crit: notable
     conf: 0.80
     if:
-      type: content
+      type: raw
       regex: "define_method\\s*\\(\\s*:[a-z_]+"

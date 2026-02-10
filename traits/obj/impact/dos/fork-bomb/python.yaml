@@ -41,7 +41,7 @@ traits:
     crit: inert
     conf: 0.6
     if:
-      type: content
+      type: raw
       exact: "while True:"
 
   - id: while-1
@@ -49,7 +49,7 @@ traits:
     crit: inert
     conf: 0.6
     if:
-      type: content
+      type: raw
       exact: "while 1:"
 
   - id: for-iter-int
@@ -57,7 +57,7 @@ traits:
     crit: inert
     conf: 0.6
     if:
-      type: content
+      type: raw
       exact: "for _ in iter(int, 1):"
 
   # Fork call string
@@ -66,7 +66,7 @@ traits:
     crit: inert
     conf: 0.6
     if:
-      type: content
+      type: raw
       substr: "os.fork()"
 
   # Large range loops (4+ digits)
@@ -75,7 +75,7 @@ traits:
     crit: inert
     conf: 0.6
     if:
-      type: content
+      type: raw
       regex: 'for\s+\w+\s+in\s+range\(\d{4,}\):'
 
   # While loops with True or 1
@@ -84,7 +84,7 @@ traits:
     crit: inert
     conf: 0.6
     if:
-      type: content
+      type: raw
       substr: "while True:"
 
   - id: while-1-loop
@@ -92,7 +92,7 @@ traits:
     crit: inert
     conf: 0.6
     if:
-      type: content
+      type: raw
       substr: "while 1:"
 
   # Exclusions (legitimate patterns)

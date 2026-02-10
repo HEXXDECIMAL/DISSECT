@@ -16,7 +16,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "(?:^|\\n)\\s*(?:[\\u4E00-\\u9FFF\\u3040-\\u309F\\u30A0-\\u30FF][\\u4E00-\\u9FFF\\u3040-\\u309F\\u30A0-\\u30FFA-Za-z0-9_]{0,63}|[A-Za-z_][A-Za-z0-9_]{0,62}[\\u4E00-\\u9FFF\\u3040-\\u309F\\u30A0-\\u30FF][A-Za-z0-9_]{0,63})\\s*=[^=\\n]"
 
   - id: chinese-char-variables
@@ -24,7 +24,7 @@ traits:
     crit: suspicious
     conf: 0.90
     if:
-      type: content
+      type: raw
       regex: "[\u4e00-\u9fff]+="
 
   # === Bit Shift Obfuscation ===
@@ -33,7 +33,7 @@ traits:
     crit: suspicious
     conf: 0.80
     if:
-      type: content
+      type: raw
       regex: "<<[0-9]+.{0,50}>>[0-9]+|>>[0-9]+.{0,50}<<[0-9]+"
 
   - id: arithmetic-expression-chains
@@ -41,7 +41,7 @@ traits:
     crit: suspicious
     conf: 0.75
     if:
-      type: content
+      type: raw
       regex: "[*].{0,30}//.{0,30}[|].{0,30}<<.{0,30}>>"
 
   # === getattr/__builtins__ Obfuscation ===
@@ -50,7 +50,7 @@ traits:
     crit: suspicious
     conf: 0.90
     if:
-      type: content
+      type: raw
       regex: "getattr\\((?:__builtins__|.{0,30}builtins)\\s*,\\s*(?:[A-Za-z_][A-Za-z0-9_]{0,40}|[\"'][^\"'\\n]{1,20}[\"']\\s*\\+\\s*[\"'][^\"'\\n]{1,20}[\"']|chr\\(|bytes\\(|base64\\.|decode\\()"
     unless:
       - type: basename
@@ -61,7 +61,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "getattr\\(.{0,40},\\s*(?:[\"'][^\"'\\n]{1,20}[\"']\\s*\\+\\s*[\"'][^\"'\\n]{1,20}[\"']|chr\\([^\\n\\)]{1,20}\\)\\s*\\+\\s*chr\\([^\\n\\)]{1,20}\\))"
 
   # === State Machine Pattern ===
@@ -70,7 +70,7 @@ traits:
     crit: suspicious
     conf: 0.80
     if:
-      type: content
+      type: raw
       regex: "while.{0,30}:[^}]{0,50}if.{0,30}==.{0,30}[0-9]{5,}"
 
   - id: obfuscated-state-variable
@@ -78,7 +78,7 @@ traits:
     crit: suspicious
     conf: 0.75
     if:
-      type: content
+      type: raw
       regex: "[\u4e00-\u9fff]{5,}\\s*=\\s*[0-9]+"
 
   # === COM/Object Instantiation ===
@@ -87,7 +87,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "\\bDispatch\\(|\\bwin32com\\b|\\bpythoncom\\b"
 
   - id: ctypes-windll-usage
@@ -95,7 +95,7 @@ traits:
     crit: notable
     conf: 0.70
     if:
-      type: content
+      type: raw
       regex: "ctypes\\.windll|windll\\.shell32"
 
   # === chr() String Reconstruction via map ===
@@ -104,7 +104,7 @@ traits:
     crit: suspicious
     conf: 0.92
     if:
-      type: content
+      type: raw
       substr: "join(map(getattr(__builtins__"
       count_min: 3
 
@@ -116,7 +116,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       regex: "(?:oct|hex|copyright|credits|license)\\.__str__\\(\\)"
       count_min: 3
 
@@ -126,7 +126,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "IsUserAnAdmin|IsAdmin|CheckTokenMembership"
 
 composite_rules:

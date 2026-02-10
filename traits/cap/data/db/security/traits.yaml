@@ -3,5 +3,5 @@ traits:
     desc: Commented out unique constraint (often disables security)
     crit: notable
     if:
-      type: content
+      type: raw
       regex: '//\s*unique\s*:\s*true'

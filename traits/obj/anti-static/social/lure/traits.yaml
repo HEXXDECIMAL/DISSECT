@@ -7,7 +7,7 @@ traits:
     crit: suspicious
     conf: 0.9
     if:
-      type: content
+      type: raw
       regex: "(?i)(don't|do not) have to look(s)? further|ignore this (file|module)|no pretty code"
 
   - id: fake-author-claim
@@ -15,6 +15,6 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: content
+      type: raw
       regex: "(?i)this module contains abstractions for the input stream"
       # This specific phrase was used in PyYMAL reader.py along with the discouragement

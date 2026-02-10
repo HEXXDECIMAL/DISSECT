@@ -16,7 +16,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "(?:cat|grep|awk)\\s+[^\\n]{0,50}/\\.ssh/known_hosts|known_hosts"
 
   - id: known-hosts-ip-extract
@@ -24,7 +24,7 @@ traits:
     crit: suspicious
     conf: 0.90
     if:
-      type: content
+      type: raw
       # Extracts IP addresses from known_hosts
       regex: "grep\\s+-oE[^\\n]{0,50}known_hosts|awk[^\\n]{0,50}known_hosts"
 
@@ -34,7 +34,7 @@ traits:
     crit: suspicious
     conf: 0.80
     if:
-      type: content
+      type: raw
       regex: "-f\\s+[^\\n]{0,30}id_rsa|\\$\\(cat\\s+[^)]{0,30}id_rsa\\)"
 
   - id: ssh-key-access
@@ -42,7 +42,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "/root/\\.ssh/id_rsa|~/.ssh/id_rsa\\.pub|\\$HOME/\\.ssh/id_rsa"
 
   # === SSH Worm Spreading ===
@@ -51,7 +51,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       # SSH options commonly used by worms
       regex: "ssh\\s+[^\\n]{0,50}-o\\s*(?:BatchMode=yes|StrictHostKeyChecking=no|ConnectTimeout=)"
 
@@ -60,7 +60,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       # ssh host 'command' pattern
       regex: "ssh\\s+[^\\n]{0,80}'[^']{5,}'"
 
@@ -69,7 +69,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       # for h in $(grep ... known_hosts); do ssh $h pattern
       regex: "for\\s+\\w+\\s+in\\s+\\$\\([^)]{0,80}known_hosts[^)]{0,30}\\)[^;]{0,10};\\s*do\\s+ssh"
 
@@ -79,7 +79,7 @@ traits:
     conf: 0.95
     attack: "T1210"
     if:
-      type: content
+      type: raw
       # ssh $host 'curl URL | bash' pattern
       regex: "ssh\\s+[^']{0,50}'[^']{0,30}(?:curl|wget)[^']{0,50}\\|\\s*bash"
 

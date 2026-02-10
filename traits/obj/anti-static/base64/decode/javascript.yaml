@@ -30,7 +30,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       regex: "atob\\(atob\\("
 
   # Buffer.from double decode
@@ -39,7 +39,7 @@ traits:
     crit: suspicious
     conf: 0.90
     if:
-      type: content
+      type: raw
       regex: "Buffer\\.from\\(Buffer\\.from\\(.{0,50}base64"
 
 composite_rules:

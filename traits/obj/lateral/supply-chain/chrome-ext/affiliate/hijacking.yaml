@@ -9,7 +9,7 @@ traits:
     conf: 0.85
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: "\\.searchParams\\.set\\(|params\\.set\\("
 
   - id: url-searchparams-append
@@ -18,7 +18,7 @@ traits:
     conf: 0.85
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: "\\.searchParams\\.append\\(|params\\.append\\("
 
   - id: url-searchparams-delete
@@ -77,7 +77,7 @@ traits:
     conf: 0.9
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: "querySelectorAll\\([^)]{0,50}/dp/|querySelectorAll\\([^)]{0,50}/gp/product"
 
   # === Affiliate Tag Patterns ===
@@ -105,7 +105,7 @@ traits:
     conf: 0.9
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: "\\.set\\(['\"]tag['\"]|params\\.set\\(['\"]tag|searchParams\\.set\\(['\"]tag"
 
   - id: params-tag-append
@@ -114,7 +114,7 @@ traits:
     conf: 0.9
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: "\\.append\\(['\"]tag['\"]|params\\.append\\(['\"]tag|searchParams\\.append\\(['\"]tag"
 
   - id: params-ref-manipulation
@@ -132,7 +132,7 @@ traits:
     conf: 0.85
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: "params\\.has\\(['\"]tag['\"]|searchParams\\.has\\(['\"]tag"
 
   # === E-commerce Domain Targeting ===
@@ -142,7 +142,7 @@ traits:
     conf: 0.9
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: "hostname\\.includes\\(['\"]amazon|hostname\\.match\\([^)]{0,30}amazon|domain.{0,20}amazon"
 
   - id: shopping-site-targeting

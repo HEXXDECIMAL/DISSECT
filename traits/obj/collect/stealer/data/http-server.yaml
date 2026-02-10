@@ -15,7 +15,7 @@ traits:
     conf: 0.8
     for: [python]
     if:
-      type: content
+      type: raw
       regex: "request\\.json|request\\.get_json"
 
   - id: extract-from-request-form
@@ -24,7 +24,7 @@ traits:
     conf: 0.8
     for: [python]
     if:
-      type: content
+      type: raw
       regex: "request\\.form|request\\.args"
 
   - id: extract-from-request-data
@@ -33,7 +33,7 @@ traits:
     conf: 0.75
     for: [python]
     if:
-      type: content
+      type: raw
       substr: "request.data"
 
   # === Data storage ===
@@ -43,7 +43,7 @@ traits:
     conf: 0.75
     for: [python]
     if:
-      type: content
+      type: raw
       regex: "open\\(.{0,30}[\"'][wa]"
 
   - id: file-store-variable
@@ -52,7 +52,7 @@ traits:
     conf: 0.5
     for: [python]
     if:
-      type: content
+      type: raw
       regex: "file\\.write\\(|f\\.write\\("
 
   # === Exfiltration endpoint pattern ===
@@ -62,7 +62,7 @@ traits:
     conf: 0.8
     for: [python]
     if:
-      type: content
+      type: raw
       regex: "@app\\.post\\(|@route.{0,30}POST"
 
   - id: http-root-endpoint
@@ -71,8 +71,8 @@ traits:
     conf: 0.7
     for: [python]
     if:
-      type: content
-      regex: "@.{0,30}(route|post).{0,20}['\"]/?['\"]"
+      type: raw
+      regex: '@.{0,30}(route|post).{0,20}[''"]/?[''"]'
 
 composite_rules:
   # Data collection with HTTP server storage

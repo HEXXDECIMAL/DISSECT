@@ -11,6 +11,6 @@ traits:
     attack: "T1059.006"
     for: [all]
     if:
-      type: content
+      type: raw
       regex: "perl\\s+.{1,120}\\.(pl|pm)|perl\\s+-e\\s+"
 

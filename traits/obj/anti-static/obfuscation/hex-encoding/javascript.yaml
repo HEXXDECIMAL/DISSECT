@@ -27,7 +27,7 @@ traits:
     attack: "T1027"
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: "\\w+\\[\\s*0x[0-9a-fA-F]{2,}\\s*\\]"
       count_min: 5
       per_kb_min: 0.3
@@ -41,7 +41,7 @@ traits:
     attack: "T1027"
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: "0x[0-9a-fA-F]+\\s*[\\+\\-\\*\\/]"
       count_min: 3
 
@@ -54,7 +54,7 @@ traits:
     attack: "T1027"
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: "fromCharCode\\s*\\(\\s*0x[0-9a-fA-F]+"
       count_min: 3
       per_kb_min: 0.2
@@ -68,7 +68,7 @@ traits:
     attack: "T1027"
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: "Buffer\\.from\\s*\\(\\s*['\"][0-9a-fA-F]+['\"]\\s*,\\s*['\"]hex['\"]"
       count_min: 2
 
@@ -81,7 +81,7 @@ traits:
     attack: "T1027"
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: "\\+\\s*0x[0-9a-fA-F]{4,}"
       count_min: 3
 
@@ -94,7 +94,7 @@ traits:
     attack: "T1027"
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: "\\d+\\s*[\\+\\-\\*\\/]\\s*0x[0-9a-fA-F]+"
       count_min: 2
 
@@ -107,7 +107,7 @@ traits:
     attack: "T1027"
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: "if\\s*\\([^)]*0x[0-9a-fA-F]+[^)]*\\)"
       count_min: 2
 

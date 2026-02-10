@@ -46,7 +46,7 @@ traits:
     mbc: "C0002"
     attack: "T1105"
     if:
-      type: content
+      type: raw
       regex: 'wget\s+[^|&\n]*-q[^|&\n]*-O\s*-|wget\s+[^|&\n]*-O\s*-[^|&\n]*-q'
 
   - id: curl-silent-stdout
@@ -58,7 +58,7 @@ traits:
     # Small scripts using silent curl to stdout are more suspicious
     size_max: 5000
     if:
-      type: content
+      type: raw
       regex: 'curl\s+[^|&\n]*-s[^|&\n]*(https?://|ftp://)|curl\s+[^|&\n]*--silent[^|&\n]*(https?://|ftp://)'
       exclude_patterns:
         - "(?i)netbsd\\.org"
@@ -107,7 +107,7 @@ traits:
     conf: 0.5
     attack: "T1059.004"
     if:
-      type: content
+      type: raw
       regex: '\./[a-zA-Z0-9_.-]+'
 
   - id: execute-tmp-staging
@@ -116,7 +116,7 @@ traits:
     conf: 0.75
     attack: "T1059.004"
     if:
-      type: content
+      type: raw
       regex: '/(tmp|var/tmp|dev/shm)/[a-zA-Z0-9_.-]+'
 
   # === Dropper atomic patterns (content search) ===
@@ -127,7 +127,7 @@ traits:
     mbc: "C0002"
     attack: "T1105"
     if:
-      type: content
+      type: raw
       # Matches -o, -O, --output, and combined flags like -LO, -sLO
       regex: 'curl\s+(?:[^|&\n]+\s+)?(-o\s+|--output\s+|-[a-zA-Z]*O)'
 
@@ -137,7 +137,7 @@ traits:
     conf: 0.7
     attack: "T1222"
     if:
-      type: content
+      type: raw
       regex: 'chmod\s+\+x'
 
   - id: chmod-7xx-cmd
@@ -146,7 +146,7 @@ traits:
     conf: 0.7
     attack: "T1222"
     if:
-      type: content
+      type: raw
       regex: 'chmod\s+0?7[0-7][0-7]\s'
 
   # === One-liner detection ===

@@ -9,7 +9,7 @@ traits:
     conf: 0.9
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: "/(?:dp|gp/product)/"
 
   - id: url-searchparams-api
@@ -18,7 +18,7 @@ traits:
     conf: 0.9
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: "searchParams"
 
   - id: url-params-set
@@ -27,7 +27,7 @@ traits:
     conf: 0.9
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: "params\\.(?:set|append)"
 
   - id: href-assignment
@@ -36,7 +36,7 @@ traits:
     conf: 0.85
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: "\\.href\\s*="
 
   - id: affiliate-tag-constant
@@ -45,7 +45,7 @@ traits:
     conf: 0.9
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: "[A-Z_]*(?:AFFILIATE|REFERRAL)[A-Z_]*TAG"
 
   - id: tag-param-literal
@@ -54,7 +54,7 @@ traits:
     conf: 0.7
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: "['\"]tag['\"]\\s*[:=]"
 
   - id: ext-mutation-observer
@@ -63,7 +63,7 @@ traits:
     conf: 0.9
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: "MutationObserver"
 
   - id: amazon-hostname-check
@@ -72,7 +72,7 @@ traits:
     conf: 0.85
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: "hostname.{0,50}amazon|amazon.{0,50}hostname"
       case_insensitive: true
 
@@ -82,7 +82,7 @@ traits:
     conf: 0.8
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: "querySelectorAll\\([^)]*a\\[href"
 
 composite_rules:

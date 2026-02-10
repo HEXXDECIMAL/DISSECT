@@ -9,7 +9,7 @@ traits:
     conf: 0.85
     for: [c, elf]
     if:
-      type: content
+      type: raw
       regex: "(?i)(?:icmp[_-]?ping[_-]?back|ping[_-]?back[_-]?(?:server|client|daemon)|icmp[_-]?(?:shell|backdoor|c2|covert))"
 
   # ICMP reply program - XDP program that sends ICMP replies
@@ -19,7 +19,7 @@ traits:
     conf: 0.8
     for: [c, elf]
     if:
-      type: content
+      type: raw
       regex: "(?i)icmp[_-]?(?:prog[_-]?)?reply|reply[_-]?icmp"
 
   # === ICMP Header Manipulation ===
@@ -29,7 +29,7 @@ traits:
     conf: 0.7
     for: [c, elf]
     if:
-      type: content
+      type: raw
       regex: "struct\\s+icmphdr|icmphdr\\s*\\*"
 
   - id: icmp-type-field
@@ -38,7 +38,7 @@ traits:
     conf: 0.75
     for: [c]
     if:
-      type: content
+      type: raw
       # Match direct ICMP type field manipulation (icmph->type, icmp->type, etc.)
       regex: "icmp[h]?->type"
 
@@ -48,7 +48,7 @@ traits:
     conf: 0.6
     for: [c, elf]
     if:
-      type: content
+      type: raw
       # Match ICMP type 8 (echo request) checks
       regex: "->type\\s*==\\s*8|type\\s*==\\s*(?:ICMP_ECHO|8)"
 
@@ -58,7 +58,7 @@ traits:
     conf: 0.6
     for: [c, elf]
     if:
-      type: content
+      type: raw
       # Match ICMP type being set to 0 (echo reply)
       regex: "->type\\s*=\\s*0[^0-9]|type\\s*=\\s*(?:ICMP_ECHOREPLY|0)[^0-9]"
 

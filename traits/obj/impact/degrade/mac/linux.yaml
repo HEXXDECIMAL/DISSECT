@@ -13,21 +13,21 @@ traits:
     desc: SELinux boolean modification
     conf: 0.85
     if:
-      type: content
+      type: raw
       word: "setsebool"
 
   - id: selinux-setenforce
     desc: SELinux mode change to permissive
     conf: 0.90
     if:
-      type: content
+      type: raw
       regex: "\\bsetenforce\\s+0\\b"
 
   - id: selinux-disable
     desc: SELinux disable in config
     conf: 0.90
     if:
-      type: content
+      type: raw
       regex: "SELINUX\\s*=\\s*disabled"
 
   # === AppArmor Manipulation ===
@@ -35,14 +35,14 @@ traits:
     desc: AppArmor profile disable
     conf: 0.90
     if:
-      type: content
+      type: raw
       regex: "\\baa-disable\\b|apparmor_parser\\s+-R"
 
   - id: apparmor-stop
     desc: AppArmor service stop
     conf: 0.90
     if:
-      type: content
+      type: raw
       regex: "service\\s+apparmor\\s+stop|systemctl\\s+(?:stop|disable)\\s+apparmor"
 
 composite_rules:

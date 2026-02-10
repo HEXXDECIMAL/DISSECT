@@ -12,7 +12,7 @@ traits:
     conf: 0.7
     attack: "T1204.002"
     if:
-      type: content
+      type: raw
       regex: 'open\s+[^|&
 ]*\.(pdf|doc|docx|xls|xlsx|ppt|pptx|rtf|txt)'
 

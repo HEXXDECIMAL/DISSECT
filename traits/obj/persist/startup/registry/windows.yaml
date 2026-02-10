@@ -309,7 +309,7 @@ traits:
     conf: 0.65
     for: [python]
     if:
-      type: content
+      type: raw
       substr: ".endswith("
 
   # === Windows shortcut manipulation ===
@@ -319,7 +319,7 @@ traits:
     conf: 0.75
     platforms: [windows]
     if:
-      type: content
+      type: raw
       substr: "CreateShortcut"
 
   - id: shortcut-target-path
@@ -328,7 +328,7 @@ traits:
     conf: 0.75
     platforms: [windows]
     if:
-      type: content
+      type: raw
       substr: ".TargetPath"
 
   - id: shortcut-arguments
@@ -337,7 +337,7 @@ traits:
     conf: 0.75
     platforms: [windows]
     if:
-      type: content
+      type: raw
       substr: ".Arguments"
 
   - id: shortcut-save
@@ -346,7 +346,7 @@ traits:
     conf: 0.65
     platforms: [windows]
     if:
-      type: content
+      type: raw
       substr: ".Save()"
 
   # === Executable payload atomic indicators ===

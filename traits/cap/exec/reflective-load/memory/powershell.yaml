@@ -15,7 +15,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       regex: '(?i)\[System\.Reflection\.Assembly\]::Load\('
 
   # [System.Reflection.Assembly]::LoadWithPartialName(...)
@@ -24,7 +24,7 @@ traits:
     crit: notable
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: '(?i)\[System\.Reflection\.Assembly\]::LoadWithPartialName\('
 
   # Assembly EntryPoint Invocation
@@ -33,7 +33,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       regex: '(?i)\.EntryPoint\.Invoke\('
 
   # [System.Convert]::FromBase64String(...)
@@ -42,7 +42,7 @@ traits:
     crit: inert
     conf: 0.9
     if:
-      type: content
+      type: raw
       regex: '(?i)\[System\.Convert\]::FromBase64String'
 
 composite_rules:

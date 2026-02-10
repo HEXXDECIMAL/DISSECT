@@ -13,7 +13,7 @@ traits:
     crit: notable
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: '\bgcc\s+(?:-|[a-zA-Z0-9_./]+)'
 
   - id: gpp-invocation
@@ -21,7 +21,7 @@ traits:
     crit: notable
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: '\bg\+\+\s+(?:-|[a-zA-Z0-9_./]+)'
 
   - id: clang-invocation
@@ -29,7 +29,7 @@ traits:
     crit: notable
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: '\bclang(?:\+\+)?\s+(?:-|[a-zA-Z0-9_./]+)'
 
   - id: cc-invocation
@@ -37,7 +37,7 @@ traits:
     crit: notable
     conf: 0.8
     if:
-      type: content
+      type: raw
       regex: '\bcc\s+(?:-|[a-zA-Z0-9_./]+)'
 
   - id: make-invocation
@@ -45,5 +45,5 @@ traits:
     crit: notable
     conf: 0.8
     if:
-      type: content
+      type: raw
       regex: '\bmake(?:\s+(?:-|[a-zA-Z0-9_]+))?(?:\s|$)'

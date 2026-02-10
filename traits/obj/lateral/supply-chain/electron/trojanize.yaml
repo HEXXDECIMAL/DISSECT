@@ -17,7 +17,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "asar\\.extract(All)?\\s*\\("
 
   - id: asar-create
@@ -25,7 +25,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "asar\\.(createPackage|pack)\\s*\\("
 
   - id: asar-reference
@@ -63,7 +63,7 @@ traits:
     crit: inert
     conf: 0.5
     if:
-      type: content
+      type: raw
       regex: "fs\\.copyFile(Sync)?\\s*\\("
 
   - id: fs-rm-recursive
@@ -71,7 +71,7 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: content
+      type: raw
       regex: "fs\\.rm(Sync)?\\s*\\([^)]+recursive"
 
   # === Cryptocurrency Wallet Targets ===

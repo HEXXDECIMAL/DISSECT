@@ -79,7 +79,7 @@ traits:
         - substr: "dnf"
       count_min: 2
     unless:
-      - type: content
+      - type: raw
         regex: "postgresql|libc|libgcc|libstdc\\+\\+"
 
   - id: conditional-install

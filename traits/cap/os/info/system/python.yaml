@@ -13,7 +13,7 @@ traits:
     crit: inert
     conf: 0.8
     if:
-      type: content
+      type: raw
       substr: "sys.platform"
 
   # sys.argv access - command-line argument inspection
@@ -22,5 +22,5 @@ traits:
     crit: inert
     conf: 0.7
     if:
-      type: content
+      type: raw
       substr: "sys.argv"

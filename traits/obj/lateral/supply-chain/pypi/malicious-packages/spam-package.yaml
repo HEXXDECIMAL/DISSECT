@@ -57,7 +57,7 @@ traits:
     crit: notable
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "install_requires\\s*=\\s*\\w+\\.read\\(|install_requires\\s*=\\s*read_requirements"
 
 composite_rules:

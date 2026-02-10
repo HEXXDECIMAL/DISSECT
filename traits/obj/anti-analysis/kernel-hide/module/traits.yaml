@@ -396,7 +396,7 @@ traits:
     attack: "T1014"
     for: [c]
     if:
-      type: content
+      type: raw
       substr: "sy_call"
 
   - id: macos-kauth-cred-setuidgid
@@ -406,7 +406,7 @@ traits:
     attack: "T1068"
     for: [c]
     if:
-      type: content
+      type: raw
       substr: "kauth_cred_setuidgid"
 
   - id: macos-ipf-addv4
@@ -416,7 +416,7 @@ traits:
     mbc: "F0015"
     for: [c]
     if:
-      type: content
+      type: raw
       substr: "ipf_addv4"
 
   - id: macos-kunc-execute
@@ -426,7 +426,7 @@ traits:
     attack: "T1059"
     for: [c]
     if:
-      type: content
+      type: raw
       substr: "KUNCExecute"
 
   - id: macos-kext-getdirentries-hook

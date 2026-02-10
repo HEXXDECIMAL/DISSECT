@@ -15,7 +15,7 @@ traits:
     crit: inert
     conf: 0.6
     if:
-      type: content
+      type: raw
       regex: "fetch\\s*\\("
 
   - id: fetch-then-json
@@ -23,7 +23,7 @@ traits:
     crit: inert
     conf: 0.7
     if:
-      type: content
+      type: raw
       regex: "fetch\\(.{0,50}\\.then\\(.{0,50}\\.json\\("
 
   # === File write patterns ===
@@ -32,7 +32,7 @@ traits:
     crit: inert
     conf: 0.6
     if:
-      type: content
+      type: raw
       regex: "\\.writeFileSync\\s*\\("
 
   - id: writeFile-call
@@ -40,7 +40,7 @@ traits:
     crit: inert
     conf: 0.6
     if:
-      type: content
+      type: raw
       regex: "\\.writeFile\\s*\\("
 
   # === Spawn/exec patterns ===
@@ -49,7 +49,7 @@ traits:
     crit: inert
     conf: 0.6
     if:
-      type: content
+      type: raw
       regex: "\\.spawnSync\\s*\\("
 
   - id: spawn-call
@@ -57,7 +57,7 @@ traits:
     crit: inert
     conf: 0.6
     if:
-      type: content
+      type: raw
       regex: "\\.spawn\\s*\\("
 
   - id: spawn-node
@@ -65,7 +65,7 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: content
+      type: raw
       regex: "spawn(?:Sync)?\\s*\\(['\"]node['\"]"
 
   # === Cleanup patterns ===
@@ -74,7 +74,7 @@ traits:
     crit: inert
     conf: 0.6
     if:
-      type: content
+      type: raw
       regex: "\\.unlinkSync\\s*\\("
 
   - id: unlink-call
@@ -82,7 +82,7 @@ traits:
     crit: inert
     conf: 0.6
     if:
-      type: content
+      type: raw
       regex: "\\.unlink\\s*\\("
 
   # === Temp file patterns ===

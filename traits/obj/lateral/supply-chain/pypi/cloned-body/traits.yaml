@@ -10,20 +10,20 @@ traits:
   - id: pkginfo-body-has-badges
     desc: PKG-INFO body contains CI/CD badge URLs
     if:
-      type: content
+      type: raw
       substr: "img.shields.io"
       count_min: 2
 
   - id: pkginfo-body-has-sponsorship
     desc: PKG-INFO body references Tidelift sponsorship
     if:
-      type: content
+      type: raw
       substr: "tidelift.com"
 
   - id: pkginfo-body-has-maintainer-list
     desc: PKG-INFO body lists GitHub @username maintainers
     if:
-      type: content
+      type: raw
       regex: "github\\.com/[a-zA-Z0-9_-]+>"
       count_min: 3
 

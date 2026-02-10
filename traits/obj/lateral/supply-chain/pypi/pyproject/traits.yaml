@@ -13,7 +13,7 @@ traits:
     crit: inert
     conf: 1.0
     if:
-      type: content
+      type: raw
       substr: "[build-system]"
 
   - id: pyproject-empty-dependencies
@@ -21,7 +21,7 @@ traits:
     crit: inert
     conf: 0.70
     if:
-      type: content
+      type: raw
       regex: "dependencies\\s*=\\s*\\[\\]"
 
   - id: pyproject-has-script-entrypoint
@@ -29,7 +29,7 @@ traits:
     crit: inert
     conf: 0.80
     if:
-      type: content
+      type: raw
       regex: "\\[project\\.scripts\\]"
 
   - id: pyproject-requests-build-dep
@@ -47,8 +47,8 @@ traits:
     crit: notable
     conf: 0.60
     if:
-      type: content
+      type: raw
       substr: "[build-system]"
     unless:
-      - type: content
+      - type: raw
         regex: "dependencies\\s*="

@@ -14,7 +14,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "class.{0,50}\\(install\\):"
 
   # === cmdclass with custom install ===
@@ -23,7 +23,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "cmdclass.{0,50}install.{0,50}Custom"
 
   # === Pre-install function call ===
@@ -32,7 +32,7 @@ traits:
     crit: suspicious
     conf: 0.90
     if:
-      type: content
+      type: raw
       exact: "pre_install()"
 
   # === AST Pattern: subprocess in setup ===

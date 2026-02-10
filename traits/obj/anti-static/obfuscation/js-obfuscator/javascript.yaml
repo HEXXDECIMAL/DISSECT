@@ -11,7 +11,7 @@ traits:
     attack: "T1027"
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: "while\\(!!\\[\\]\\)"
 
   - id: while-not-zero
@@ -21,7 +21,7 @@ traits:
     attack: "T1027"
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: "while\\(0x0\\)"
 
   - id: while-not-space-zero
@@ -31,7 +31,7 @@ traits:
     attack: "T1027"
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: "while\\(\\s*!!\\s*\\[\\]\\s*\\)"
 
   # === Array manipulation patterns ===
@@ -42,7 +42,7 @@ traits:
     attack: "T1027"
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: "\\.push\\([^)]+\\).*?\\.shift\\(\\)"
 
   - id: shift-push-pattern
@@ -52,7 +52,7 @@ traits:
     attack: "T1027"
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: "\\.shift\\(\\).*?\\.push\\([^)]+\\)"
 
   # === Array shuffle algorithm patterns ===
@@ -63,7 +63,7 @@ traits:
     attack: "T1027"
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: "while\\(!!\\[\\]\\).*?try.*?parseInt.*?\\.push.*?\\.shift"
 
   - id: array-swap-elements
@@ -73,7 +73,7 @@ traits:
     attack: "T1027"
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: "\\w+\\[\\w+\\]\\s*=\\s*\\w+\\[\\w+\\];\\s*\\w+\\[\\w+\\]\\s*=\\s*\\w+\\[\\w+\\];\\s*\\w+\\[\\w+\\]\\s*=\\s*\\w+"
 
 composite_rules:

@@ -10,7 +10,7 @@ traits:
     mbc: E1222
     attack: T1222
     if:
-      type: content
+      type: raw
       regex: 'xattr\s+-c\b'
 
   - id: xattr-delete
@@ -20,7 +20,7 @@ traits:
     mbc: E1222
     attack: T1222
     if:
-      type: content
+      type: raw
       regex: 'xattr\s+-d\b'
 
   - id: xattr-write
@@ -30,7 +30,7 @@ traits:
     mbc: E1222
     attack: T1222
     if:
-      type: content
+      type: raw
       regex: 'xattr\s+-w\b'
 
   - id: xattr-quarantine-remove-1

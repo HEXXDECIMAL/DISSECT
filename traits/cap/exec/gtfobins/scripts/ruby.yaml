@@ -65,7 +65,7 @@ traits:
     crit: inert
     conf: 0.50
     if:
-      type: content
+      type: raw
       regex: "ruby -e|ruby -rsocket|ruby -ropen-uri"
 
 composite_rules:

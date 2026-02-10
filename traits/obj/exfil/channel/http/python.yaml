@@ -13,14 +13,14 @@ traits:
     desc: POST system data
     conf: 0.8
     if:
-      type: content
+      type: raw
       regex: "(?:platform\\.|uname\\(|hostname\\().{0,50}\\b(post|send|request)\\b"
 
   - id: file-read-http-send
     desc: Read file and HTTP send
     conf: 0.8
     if:
-      type: content
+      type: raw
       regex: "\\bopen\\b.{0,50}\\bread\\b.{0,50}\\b(post|send|request)\\b"
 
 composite_rules:

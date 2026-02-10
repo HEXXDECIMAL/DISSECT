@@ -199,7 +199,7 @@ traits:
     mbc: "B0024"
     attack: "T1195.002"
     if:
-      type: content
+      type: raw
       word: "isPreinstall"
 
   - id: npm-lifecycle-env-check
@@ -209,7 +209,7 @@ traits:
     mbc: "B0024"
     attack: "T1195.002"
     if:
-      type: content
+      type: raw
       regex: "npm_lifecycle_event|npm_lifecycle_script"
 
   - id: not-is-preinstall-guard
@@ -219,7 +219,7 @@ traits:
     mbc: "B0024"
     attack: "T1195.002"
     if:
-      type: content
+      type: raw
       regex: "!\\s*isPreinstall|if\\s*\\(!\\s*isPreinstall"
 
   # === EXFILTRATION FUNCTION NAMING ===
@@ -232,7 +232,7 @@ traits:
     mbc: "E1041"
     attack: "T1041"
     if:
-      type: content
+      type: raw
       regex: "(?:async\\s+)?function\\s+sendData\\s*\\(|sendData\\s*=\\s*(?:async\\s+)?(?:function|\\()"
 
   - id: send-via-websocket-function
@@ -242,7 +242,7 @@ traits:
     mbc: "E1041"
     attack: "T1041"
     if:
-      type: content
+      type: raw
       regex: "(?:async\\s+)?function\\s+sendViaWebSocket\\s*\\(|sendViaWebSocket\\s*\\("
 
   - id: exfil-function-call
@@ -252,7 +252,7 @@ traits:
     mbc: "E1041"
     attack: "T1041"
     if:
-      type: content
+      type: raw
       regex: "\\bsendData\\s*\\(|\\bexfilData\\s*\\(|\\bsendInfo\\s*\\("
 
   # === DYNAMIC C2 ENDPOINT ===
@@ -265,7 +265,7 @@ traits:
     mbc: "B0030"
     attack: "T1071"
     if:
-      type: content
+      type: raw
       regex: "getAvailableEndpoint\\s*\\(|getEndpoint\\s*\\(|selectEndpoint\\s*\\("
 
   - id: build-query-params
@@ -275,7 +275,7 @@ traits:
     mbc: "E1041"
     attack: "T1041"
     if:
-      type: content
+      type: raw
       regex: "buildQueryParams\\s*\\("
 
   # === WEBSOCKET BACKUP CHANNEL ===
@@ -288,7 +288,7 @@ traits:
     mbc: "B0030"
     attack: "T1071.001"
     if:
-      type: content
+      type: raw
       regex: "WebSocket\\s+(?:Backup|backup|fallback)|sendViaWebSocket"
 
   # === HEADER-BASED BACKDOOR PATTERNS ===
@@ -301,7 +301,7 @@ traits:
     mbc: "B0030"
     attack: "T1071.001"
     if:
-      type: content
+      type: raw
       # Pattern matches: req.headers.something.replace(/regex/, ...) or JSON.stringify(req.headers).replace(...)
       regex: "(?:req\\.headers|headers).{0,50}\\.replace\\s*\\(\\s*/[^/]+/"
 
@@ -312,7 +312,7 @@ traits:
     mbc: "B0032"
     attack: "T1027"
     if:
-      type: content
+      type: raw
       # Pattern: require('\x...')['...'](  - obfuscated module with bracket method access
       regex: "require\\s*\\(\\s*['\"]\\\\x[0-9a-fA-F]{2}.{0,50}['\"]\\s*\\)\\s*\\[\\s*['\"]"
 
@@ -321,7 +321,7 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: content
+      type: raw
       regex: "Buffer\\.alloc\\s*\\(\\s*0x[fF]{2,}"
 
   - id: buffer-write-loop
@@ -331,7 +331,7 @@ traits:
     mbc: "B0032"
     attack: "T1027"
     if:
-      type: content
+      type: raw
       # Pattern: buffer[index] = value in a loop
       regex: "\\w+\\[\\s*\\w+\\s*\\+\\s*\\w+\\s*\\]\\s*=\\s*\\w+\\[\\s*\\w+\\s*\\]"
 
@@ -340,7 +340,7 @@ traits:
     crit: notable
     conf: 0.75
     if:
-      type: content
+      type: raw
       # setTimeout with arrow function that calls something suspicious
       regex: "setTimeout\\s*\\(\\s*\\(\\s*\\)\\s*=>\\s*\\{"
 
@@ -351,7 +351,7 @@ traits:
     mbc: "B0032"
     attack: "T1059"
     if:
-      type: content
+      type: raw
       # \x76\x6d = 'vm'
       regex: "require\\s*\\(\\s*['\"]\\\\x76\\\\x6d['\"]\\s*\\)"
 
@@ -362,7 +362,7 @@ traits:
     mbc: "B0032"
     attack: "T1059"
     if:
-      type: content
+      type: raw
       # \x72\x75\x6e\x49\x6e\x54\x68\x69\x73\x43\x6f\x6e\x74\x65\x78\x74 = 'runInThisContext'
       regex: "\\\\x72\\\\x75\\\\x6e\\\\x49\\\\x6e\\\\x54\\\\x68\\\\x69\\\\x73\\\\x43\\\\x6f\\\\x6e\\\\x74\\\\x65\\\\x78\\\\x74"
 
@@ -373,7 +373,7 @@ traits:
     mbc: "B0024"
     attack: "T1195.002"
     if:
-      type: content
+      type: raw
       # Unusual: importing test/harness in non-test file
       regex: "require\\s*\\(\\s*['\"][^'\"]*(?:test|spec)[/\\\\]harness[^'\"]*['\"]\\s*\\)"
 
@@ -415,7 +415,7 @@ traits:
     attack: "T1041"
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: "toString\\s*\\(\\s*['\"]base64['\"]\\s*\\)|Buffer\\.from\\s*\\([^)]*\\)['\"]base64"
 
 composite_rules:

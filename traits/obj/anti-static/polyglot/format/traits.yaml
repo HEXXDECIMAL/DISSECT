@@ -29,7 +29,7 @@ traits:
     conf: 0.8
     for: [elf, macho, pe]
     if:
-      type: content
+      type: raw
       regex: "#!/(bin/|usr/bin/)(sh|bash|zsh)"
       offset_range: [-4096, null]  # Last 4KB
 
@@ -39,7 +39,7 @@ traits:
     conf: 0.8
     for: [elf, macho, pe]
     if:
-      type: content
+      type: raw
       regex: "#!/(usr/bin/|bin/)(python|python3)"
       offset_range: [-4096, null]
 
@@ -100,12 +100,12 @@ traits:
     conf: 0.85
     for: [all]
     if:
-      type: content
+      type: raw
       substr: "%%EOF"
       offset_range: [0, -1024]  # Finds %%EOF NOT in last 1KB (content appended after)
     unless:
       - id: pdf-trailer-eof-at-end
-      - type: content
+      - type: raw
         regex: "matplotlib|ttconv"
 
   # PDF trailer at actual end (benign)
@@ -115,7 +115,7 @@ traits:
     conf: 0.95
     for: [all]
     if:
-      type: content
+      type: raw
       regex: "%%EOF\\s*$"
       offset_range: [-64, null]
 
@@ -126,7 +126,7 @@ traits:
     conf: 0.85
     for: [png, jpeg]
     if:
-      type: content
+      type: raw
       regex: "<script|<\\?php|#!/"
       offset_range: [-8192, null]
 
@@ -176,7 +176,7 @@ traits:
     conf: 0.8
     for: [shell, python, perl]
     if:
-      type: content
+      type: raw
       regex: "^__DATA__|^__END__|#.{0,50}PAYLOAD.{0,50}BELOW"
 
 composite_rules:

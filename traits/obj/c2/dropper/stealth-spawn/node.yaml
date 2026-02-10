@@ -18,7 +18,7 @@ traits:
     mbc: "F0011"
     attack: "T1059"
     if:
-      type: content
+      type: raw
       regex: "detached:\\s*true"
 
   # === Silent I/O patterns ===
@@ -29,7 +29,7 @@ traits:
     conf: 0.85
     mbc: "F0005"
     if:
-      type: content
+      type: raw
       regex: "stdio:\\s*\\[[^\\]]*['\"]ignore['\"]"
 
   - id: stdio-ignore-string
@@ -38,7 +38,7 @@ traits:
     conf: 0.75
     mbc: "F0005"
     if:
-      type: content
+      type: raw
       regex: "stdio:\\s*['\"]ignore['\"]"
 
   # === Orphan process patterns ===
@@ -49,7 +49,7 @@ traits:
     conf: 0.85
     mbc: "F0011"
     if:
-      type: content
+      type: raw
       substr: ".unref()"
 
   # === Node.js self-execution for dropper ===
@@ -61,7 +61,7 @@ traits:
     mbc: "B0024"
     attack: "T1059.007"
     if:
-      type: content
+      type: raw
       substr: "process.execPath"
 
   # === Path construction for secondary payload ===
@@ -71,7 +71,7 @@ traits:
     crit: inert
     conf: 0.5
     if:
-      type: content
+      type: raw
       regex: "path\\.join\\s*\\(\\s*__dirname"
 
   - id: local-script-path
@@ -79,7 +79,7 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: content
+      type: raw
       regex: "__dirname.{0,50}\\.(js|mjs|cjs)['\"]"
 
 composite_rules:

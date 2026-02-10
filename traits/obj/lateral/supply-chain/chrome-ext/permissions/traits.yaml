@@ -73,7 +73,7 @@ traits:
     conf: 0.8
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: "onInstalled[\\s\\S]{0,50}(https?://[^\"'\\s]+)"
 
 composite_rules:

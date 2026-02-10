@@ -13,7 +13,7 @@ traits:
     mbc: "E1074"
     for: [javascript, shell, batch, powershell]
     if:
-      type: content
+      type: raw
       regex: "(?i)Users\\\\Public\\\\"
 
   - id: users-public-path-utf16
@@ -22,5 +22,5 @@ traits:
     mbc: "E1074"
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: "U\\x00s\\x00e\\x00r\\x00s\\x00.\\x00.\\x00P\\x00u\\x00b\\x00l\\x00i\\x00c"

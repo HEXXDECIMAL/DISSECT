@@ -56,7 +56,7 @@ traits:
     conf: 0.55
     for: [elf]
     if:
-      type: content
+      type: raw
       regex: "0x37"
 
   # === Table-based decode atomic indicators ===
@@ -128,7 +128,7 @@ traits:
     crit: suspicious
     conf: 1.0
     if:
-      type: content
+      type: raw
       exact: "fYztZORL5VNS7nCUH1ktn5UoJ8VSgaf"
 
 composite_rules:

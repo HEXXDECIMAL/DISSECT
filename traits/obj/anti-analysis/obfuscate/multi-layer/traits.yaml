@@ -39,7 +39,7 @@ traits:
     unless:
       - type: string
         substr: "binascii"
-      - type: content
+      - type: raw
         regex: "postgresql|libgcc|libc"
     attack: "T1027"
 
@@ -50,14 +50,14 @@ traits:
     crit: notable
     conf: 0.8
     for: [elf]
-    size_max: 500000  # Compact malware; exclude large binaries with lookup tables
+    size_max: 500000 # Compact malware; exclude large binaries with lookup tables
     if:
       type: string
       regex: "[A-Za-z0-9+/]{40,}[=]{0,3}"
       exclude_patterns:
         - "^ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\\+/=?$"
     unless:
-      - type: content
+      - type: raw
         regex: "postgresql|libgcc|libc"
     attack: "T1027"
 

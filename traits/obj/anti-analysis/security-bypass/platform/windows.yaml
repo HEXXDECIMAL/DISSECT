@@ -14,7 +14,7 @@ traits:
     conf: 0.95
     for: [shell, batch, powershell]
     if:
-      type: content
+      type: raw
       regex: "Add-MpPreference\\s+.{0,50}-Exclusion"
       case_insensitive: true
 
@@ -24,7 +24,7 @@ traits:
     conf: 0.95
     for: [shell, batch, powershell]
     if:
-      type: content
+      type: raw
       regex: "-ExclusionPath"
       case_insensitive: true
 
@@ -34,7 +34,7 @@ traits:
     conf: 0.9
     for: [shell, batch, powershell]
     if:
-      type: content
+      type: raw
       regex: "-ExclusionExtension"
       case_insensitive: true
 
@@ -44,7 +44,7 @@ traits:
     conf: 0.9
     for: [shell, batch, powershell]
     if:
-      type: content
+      type: raw
       regex: "-ExclusionProcess"
       case_insensitive: true
 
@@ -54,7 +54,7 @@ traits:
     conf: 0.95
     for: [shell, batch, powershell]
     if:
-      type: content
+      type: raw
       regex: "Set-MpPreference\\s+.{0,50}-DisableRealtimeMonitoring\\s+\\$?true"
       case_insensitive: true
 
@@ -64,7 +64,7 @@ traits:
     conf: 0.95
     for: [shell, batch, powershell]
     if:
-      type: content
+      type: raw
       regex: "Set-MpPreference\\s+.{0,50}-DisableBehaviorMonitoring\\s+\\$?true"
       case_insensitive: true
 
@@ -74,7 +74,7 @@ traits:
     conf: 0.9
     for: [shell, batch, powershell]
     if:
-      type: content
+      type: raw
       regex: "Set-MpPreference\\s+.{0,50}-DisableIOAVProtection\\s+\\$?true"
       case_insensitive: true
 
@@ -85,7 +85,7 @@ traits:
     conf: 0.95
     for: [shell, batch, powershell]
     if:
-      type: content
+      type: raw
       regex: "-ExclusionPath\\s+[\"']?[A-Za-z]:\\\\?[\"']?"
       case_insensitive: true
 
@@ -96,7 +96,7 @@ traits:
     conf: 0.9
     for: [powershell, shell, batch]
     if:
-      type: content
+      type: raw
       regex: "amsiInitFailed|AmsiScanBuffer"
       case_insensitive: true
 
@@ -106,7 +106,7 @@ traits:
     conf: 0.9
     for: [powershell]
     if:
-      type: content
+      type: raw
       regex: "\\[Ref\\]\\.Assembly\\.GetType.{0,50}amsi"
       case_insensitive: true
 
@@ -117,7 +117,7 @@ traits:
     conf: 0.9
     for: [shell, batch, powershell]
     if:
-      type: content
+      type: raw
       regex: "Start-Process\\s+.{0,50}-Verb\\s+RunAs"
       case_insensitive: true
 
@@ -128,7 +128,7 @@ traits:
     conf: 0.95
     for: [shell, batch, powershell]
     if:
-      type: content
+      type: raw
       regex: "malwarebytes.{0,50}--stopservice|--stopservice.{0,50}malwarebytes"
       case_insensitive: true
 
@@ -149,7 +149,7 @@ traits:
     conf: 0.9
     for: [shell, batch, powershell]
     if:
-      type: content
+      type: raw
       regex: "(sc|net)\\s+(stop|delete|config).{0,50}(WinDefend|WdNisSvc|SecurityHealthService)"
       case_insensitive: true
 
@@ -160,7 +160,7 @@ traits:
     conf: 0.8
     for: [shell, batch]
     if:
-      type: content
+      type: raw
       regex: "tasklist.{0,50}(Malwarebytes|avast|avg|norton|mcafee|kaspersky|defender|bitdefender|sophos|eset)"
       case_insensitive: true
 

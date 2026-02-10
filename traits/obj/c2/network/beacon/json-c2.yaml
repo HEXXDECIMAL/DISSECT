@@ -46,7 +46,7 @@ traits:
       type: string
       regex: "post.{0,50}json|json.{0,50}post"
     unless:
-      - type: content
+      - type: raw
         regex: "requests|test"
 
   # === Data Exfiltration Pattern ===
@@ -60,7 +60,7 @@ traits:
       type: string
       regex: "requests\\.post.{0,50}data.{0,50}json|post.{0,50}data=.{0,50}b64"
     unless:
-      - type: content
+      - type: raw
         regex: "requests|test"
 
   - id: base64-json-payload
@@ -73,7 +73,7 @@ traits:
       type: string
       regex: "json.{0,50}b64encode|b64encode.{0,50}data"
     unless:
-      - type: content
+      - type: raw
         regex: "requests|test"
 
   # === C2 Response Handling ===
@@ -123,7 +123,7 @@ composite_rules:
     all:
       - id: json-content-type
     unless:
-      - type: content
+      - type: raw
         regex: "requests|test"
 
   - id: json-c2-protocol

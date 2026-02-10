@@ -16,7 +16,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "\\bpkill\\s+-f\\b"
 
   - id: mass-kill-pattern
@@ -24,7 +24,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       # ps aux | grep X | kill pattern
       regex: "ps\\s+aux[^|]{0,20}\\|[^|]{0,30}grep[^|]{0,30}\\|[^|]{0,30}(?:kill|xargs[^|]{0,20}kill)"
 
@@ -33,7 +33,7 @@ traits:
     crit: suspicious
     conf: 0.90
     if:
-      type: content
+      type: raw
       # netstat | grep IP/port | kill pattern
       regex: "netstat[^|]{0,20}\\|[^|]{0,30}grep[^|]{0,30}\\|[^|]{0,30}(?:kill|xargs[^|]{0,20}kill)"
 
@@ -43,7 +43,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       # Common miner process names
       regex: "(?:pkill|kill)[^;]{0,30}(?:xmrig|minerd|kworkerds|cryptonight|stratum)"
 
@@ -52,7 +52,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       # Mining pool domains/patterns
       regex: "(?:grep|pkill)[^;]{0,50}(?:moneropool|crypto-pool|xmrpool|stratum\\.f2pool|monerohash)"
 
@@ -62,7 +62,7 @@ traits:
     crit: suspicious
     conf: 0.80
     if:
-      type: content
+      type: raw
       regex: "rm\\s+-rf\\s+/tmp/"
 
   - id: competitor-path-removal
@@ -70,7 +70,7 @@ traits:
     crit: suspicious
     conf: 0.90
     if:
-      type: content
+      type: raw
       # Known malware file locations
       regex: "rm\\s+-rf?\\s+(?:/tmp/kworkerds|/var/tmp/xmrig|/tmp/systemd|/tmp/java)"
 
@@ -80,7 +80,7 @@ traits:
     crit: notable
     conf: 0.80
     if:
-      type: content
+      type: raw
       regex: "docker\\s+(?:ps|kill|rm)[^;]{0,30}(?:xmr|mine|monero|crypto)"
 
 composite_rules:

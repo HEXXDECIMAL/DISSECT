@@ -17,7 +17,7 @@ traits:
     crit: inert
     conf: 0.3
     if:
-      type: content
+      type: raw
       # Matches 'for ' or 'for(' at start of line or after space/semicolon
       # and expects some iteration-like structure (e.g. ' in ', ';', or a bracket)
       regex: '(?m)(?:^|[;{}\s])for(?:\s+\w+\s+in\s+|\s*\(|(?:\s+\w+\s*:[^=]))'

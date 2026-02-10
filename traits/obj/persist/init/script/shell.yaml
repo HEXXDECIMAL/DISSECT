@@ -15,9 +15,9 @@ traits:
     crit: notable
     conf: 0.95
     if:
-      type: content
+      type: raw
       regex: "#\\s*chkconfig:\\s*[-0-9]+\\s+[0-9]+\\s+[0-9]+"
-      offset_range: [0, 1024]  # Must be in header area
+      offset_range: [0, 1024] # Must be in header area
 
   # Aggressive persistence: runs in ALL runlevels (12345 or 2345)
   - id: chkconfig-all-runlevels
@@ -25,7 +25,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       # Matches chkconfig with runlevels 12345, 2345, or similar (4+ runlevels)
       regex: "#\\s*chkconfig:\\s*[-]?[0-9]{4,}\\s+[0-9]+\\s+[0-9]+"
       offset_range: [0, 1024]
@@ -36,7 +36,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       # Priority 01-10 is unusually early (most legitimate services use 50+)
       regex: "#\\s*chkconfig:\\s*[-0-9]+\\s+0[0-9]\\s+[0-9]+"
       offset_range: [0, 1024]
@@ -46,7 +46,7 @@ traits:
     crit: notable
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "\\.\\s+/etc/rc\\.d/init\\.d/functions|source\\s+/etc/rc\\.d/init\\.d/functions"
 
   - id: source-sysconfig
@@ -54,7 +54,7 @@ traits:
     crit: notable
     conf: 0.80
     if:
-      type: content
+      type: raw
       regex: "\\.\\s+/etc/sysconfig/|source\\s+/etc/sysconfig/"
 
   - id: source-selinux-config
@@ -63,7 +63,7 @@ traits:
     conf: 0.85
     attack: "T1562.001"
     if:
-      type: content
+      type: raw
       regex: "\\.\\s+/etc/selinux/|source\\s+/etc/selinux/"
 
   - id: lockfile-subsys
@@ -71,7 +71,7 @@ traits:
     crit: notable
     conf: 0.90
     if:
-      type: content
+      type: raw
       regex: "/var/lock/subsys/"
 
   - id: daemon-function
@@ -79,7 +79,7 @@ traits:
     crit: notable
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "\\bdaemon\\s+\\$"
 
   # === Process Control Patterns ===
@@ -90,7 +90,7 @@ traits:
     conf: 0.90
     attack: "T1489"
     if:
-      type: content
+      type: raw
       # kill -9 -$var or kill -SIGKILL -$var patterns
       regex: "kill\\s+(?:-9|-SIGKILL|-KILL)\\s+-\\$?\\{?[a-zA-Z_][a-zA-Z0-9_]*\\}?"
 
@@ -101,7 +101,7 @@ traits:
     conf: 0.85
     attack: "T1057"
     if:
-      type: content
+      type: raw
       regex: "ps\\s+(?:-ef|-aux)[^|]{0,30}\\|[^|]{0,50}grep"
 
   # Process inspection via /proc
@@ -111,7 +111,7 @@ traits:
     conf: 0.85
     attack: "T1057"
     if:
-      type: content
+      type: raw
       regex: "/proc/\\$[a-zA-Z_][a-zA-Z0-9_]*/cmdline|/proc/\\$\\{[a-zA-Z_][a-zA-Z0-9_]*\\}/cmdline"
 
   # Process discovery via pgrep
@@ -121,7 +121,7 @@ traits:
     conf: 0.80
     attack: "T1057"
     if:
-      type: content
+      type: raw
       regex: "\\bpgrep\\s+"
 
   # === Kernel/Device Operations (Suspicious in Init Scripts) ===
@@ -132,7 +132,7 @@ traits:
     conf: 0.80
     attack: "T1547.006"
     if:
-      type: content
+      type: raw
       regex: "\\bmodprobe\\s+\\$|\\binsmod\\s+"
 
   # Init script creates device nodes - can create backdoor devices
@@ -142,7 +142,7 @@ traits:
     conf: 0.85
     attack: "T1543"
     if:
-      type: content
+      type: raw
       regex: "\\bmknod\\s+[^\\n]{1,50}\\s+c\\s+[0-9]+"
 
   # Sources non-standard init helper files (not /etc/init.d/functions or /etc/rc.d/init.d/functions)
@@ -153,7 +153,7 @@ traits:
     conf: 0.85
     attack: "T1037"
     if:
-      type: content
+      type: raw
       # Sources /etc/init.d/modules or /etc/init.d/status (not standard)
       regex: "\\.\\s+/etc/init\\.d/(?:modules|status)|source\\s+/etc/init\\.d/(?:modules|status)"
 
@@ -164,7 +164,7 @@ traits:
     conf: 0.90
     attack: "T1543"
     if:
-      type: content
+      type: raw
       regex: '"/root/[^"]+"|PROGNAME="/root/|DAEMON="/root/'
 
   # Deceptive processname comment - claims to be one process but might run another
@@ -174,7 +174,7 @@ traits:
     conf: 0.85
     attack: "T1036"
     if:
-      type: content
+      type: raw
       # processname that looks like a library (lib*.a, lib*.so, etc)
       regex: "#\\s*processname:\\s*lib[a-z_]+[._][aso]"
 

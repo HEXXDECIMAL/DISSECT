@@ -47,7 +47,7 @@ traits:
     for: [python]
     size_max: 15000
     if:
-      type: content
+      type: raw
       regex: "b64decode[\\s\\S]{0,80}\\.decode\\s*\\(\\s*\\)"
 
   - id: base64-with-codecs
@@ -94,7 +94,7 @@ traits:
     for: [javascript]
     size_max: 10000
     if:
-      type: content
+      type: raw
       regex: "\\.split\\(\\s*['\"]['\"]\\s*\\).{0,50}\\.join\\(\\s*['\"]['\"]\\s*\\)"
 
 composite_rules:

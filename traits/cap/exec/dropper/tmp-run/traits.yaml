@@ -29,7 +29,7 @@ traits:
     conf: 0.7
     for: [python]
     if:
-      type: content
+      type: raw
       regex: "os\\.remove\\("
 
 composite_rules:

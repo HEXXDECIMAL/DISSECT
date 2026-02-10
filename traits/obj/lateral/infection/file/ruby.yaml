@@ -15,7 +15,7 @@ traits:
     conf: 0.75
     attack: "T1083"
     if:
-      type: content
+      type: raw
       regex: 'Dir\.foreach|Dir\.glob|Dir\.entries'
 
   - id: recursive-call-self
@@ -24,7 +24,7 @@ traits:
     conf: 0.80
     attack: "T1083"
     if:
-      type: content
+      type: raw
       regex: 'find_files\s*\([^)]*,[^)]*,\s*\w+\s*,'
 
   - id: depth-limit-param
@@ -33,7 +33,7 @@ traits:
     conf: 0.70
     attack: "T1083"
     if:
-      type: content
+      type: raw
       regex: 'max_depth|depth\s*[=-]'
 
   # === File Collection ===
@@ -43,7 +43,7 @@ traits:
     conf: 0.75
     attack: "T1083"
     if:
-      type: content
+      type: raw
       regex: '(files|paths|targets|list)\s*<<'
 
   - id: directory-array-append
@@ -52,7 +52,7 @@ traits:
     conf: 0.75
     attack: "T1083"
     if:
-      type: content
+      type: raw
       regex: 'directories\s*<<|dirs\s*<<'
 
   # === Extension Manipulation ===
@@ -62,7 +62,7 @@ traits:
     conf: 0.85
     attack: "T1027"
     if:
-      type: content
+      type: raw
       regex: 'File\.rename.{0,50}\.rb|\.rb.{0,50}File\.rename'
 
   # === Self-Replication ===
@@ -72,7 +72,7 @@ traits:
     conf: 0.80
     attack: "T1059"
     if:
-      type: content
+      type: raw
       regex: '__FILE__'
 
   - id: read-self-content
@@ -81,7 +81,7 @@ traits:
     conf: 0.85
     attack: "T1059"
     if:
-      type: content
+      type: raw
       regex: 'File\.open.{0,50}malware|File\.read.{0,50}malware|file_malware\.read'
 
   - id: write-to-other-files
@@ -90,7 +90,7 @@ traits:
     conf: 0.90
     attack: "T1059"
     if:
-      type: content
+      type: raw
       regex: 'file_target\.write|\.write\s*\(\s*content'
 
   # === Self-Preservation ===
@@ -100,7 +100,7 @@ traits:
     conf: 0.80
     attack: "T1070"
     if:
-      type: content
+      type: raw
       regex: 'next\s+if\s+file\s*==\s*__FILE__|!=.{0,30}malware\.rb|!=.{0,30}main\.rb'
 
   - id: exception-swallow-file-ops
@@ -109,7 +109,7 @@ traits:
     conf: 0.75
     attack: "T1070"
     if:
-      type: content
+      type: raw
       regex: 'rescue\s*\n\s*next|begin\s*\n.{0,50}File.{0,50}rescue'
 
 composite_rules:

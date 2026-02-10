@@ -19,7 +19,7 @@ traits:
     conf: 0.85
     for: [python]
     if:
-      type: content
+      type: raw
       regex: "open\\([^)]*['\"]r\\+b['\"]"
 
   # Sensitive file paths (browser/wallet)
@@ -52,6 +52,6 @@ traits:
     desc: Exclude standard cookiejar implementation
     crit: inert
     if:
-      type: content
+      type: raw
       regex: "cookiejar"
 

@@ -30,7 +30,7 @@ traits:
     crit: inert
     conf: 0.4
     if:
-      type: content
+      type: raw
       regex: '\|\s*base64'
 
 composite_rules:

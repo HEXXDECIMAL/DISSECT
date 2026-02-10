@@ -134,7 +134,7 @@ traits:
     conf: 0.80
     attack: "T1027"
     if:
-      type: content
+      type: raw
       substr: "import random"
 
   # === Deprecated distutils import (content-based) ===
@@ -147,7 +147,7 @@ traits:
     conf: 0.80
     attack: "T1195.002"
     if:
-      type: content
+      type: raw
       substr: "from distutils"
 
   # === User home directory resolution in setup.py ===
@@ -160,7 +160,7 @@ traits:
     conf: 0.85
     attack: "T1083"
     if:
-      type: content
+      type: raw
       substr: "os.path.expanduser"
 
   # === Shortcut target executable fingerprinting ===
@@ -172,7 +172,7 @@ traits:
     conf: 0.85
     attack: "T1518"
     if:
-      type: content
+      type: raw
       substr: "os.path.basename"
 
   # === File write to disk in setup.py ===
@@ -183,7 +183,7 @@ traits:
     crit: notable
     conf: 0.80
     if:
-      type: content
+      type: raw
       substr: ".write("
 
   # === PowerShell -EncodedCommand in Python String ===
@@ -293,7 +293,7 @@ traits:
     conf: 0.9
     attack: "T1033"
     if:
-      type: content
+      type: raw
       substr: "net session"
 
   # === COM automation import in setup.py ===
@@ -307,7 +307,7 @@ traits:
     conf: 0.90
     attack: "T1559.001"
     if:
-      type: content
+      type: raw
       substr: "from win32com.client import Dispatch"
 
   # === Directory creation in setup.py ===
@@ -319,7 +319,7 @@ traits:
     conf: 0.85
     attack: "T1074.001"
     if:
-      type: content
+      type: raw
       substr: "os.path.exists"
 
   # === Environment variable access in setup.py ===
@@ -332,7 +332,7 @@ traits:
     conf: 0.85
     attack: "T1082"
     if:
-      type: content
+      type: raw
       substr: "os.getenv"
 
   # === Social engineering admin install prompt ===

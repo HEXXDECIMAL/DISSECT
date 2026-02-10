@@ -16,18 +16,18 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       # Match: print("installed"), print('installed') - exact confirmation output
       # Uses content type because AST string extraction only yields the literal,
       # not the surrounding print() call that makes it suspicious
       regex: "\\bprint\\s*\\(\\s*[\"'][^\"']{0,50}\\binstalled\\b[^\"']{0,20}[\"']\\s*\\)"
     unless:
       # Legitimate contexts: error messages about missing packages
-      - type: content
+      - type: raw
         substr: "not installed"
-      - type: content
+      - type: raw
         substr: "is installed"
-      - type: content
+      - type: raw
         substr: "pip install"
 
   - id: placeholder-ellipsis
@@ -45,7 +45,7 @@ traits:
     conf: 0.8
     size_max: 100
     unless:
-      - type: content
+      - type: raw
         regex: "^(?:from\\s+\\S+\\s+import|import\\s+\\S+)"
 
   - id: small-no-imports
@@ -54,7 +54,7 @@ traits:
     conf: 0.75
     size_max: 500
     unless:
-      - type: content
+      - type: raw
         substr: "import "
 
   - id: py-basename
@@ -134,7 +134,7 @@ traits:
       regex: "https?://[^/]+/[^'\"\\s]*\\.php\\?(?:[^'\"\\s]*&)?(?:vid|id|uid|token|key|data|payload|info|host|user|pass|cmd|exec|shell|upload|post|send|collect|exfil|live|status|msg|resp|callback|ping|report|log|event|action)="
     unless:
       # DokuWiki uses doku.php?id=<pagename> as standard URL format
-      - type: content
+      - type: raw
         substr: "doku.php"
 
   - id: version-check-url
@@ -156,7 +156,7 @@ traits:
     conf: 0.85
     size_max: 10000
     if:
-      type: content
+      type: raw
       regex: "atexit\\.register\\s*\\("
 
   # === Base64 Encoding for Exfil ===
@@ -194,7 +194,7 @@ traits:
     crit: notable
     conf: 0.75
     if:
-      type: content
+      type: raw
       # Pattern: var = val1 + "###" + val2 + "###" + ...
       regex: "=\\s*\\w+\\s*\\+\\s*['\"]###['\"]\\s*\\+\\s*\\w+"
 
@@ -204,7 +204,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       # Require explicit data keyword to avoid matching timeout-only calls
       regex: "urlopen\\s*\\([^)]*\\bdata\\s*="
 

@@ -24,7 +24,7 @@ traits:
     crit: suspicious
     conf: 0.98
     if:
-      type: content
+      type: raw
       regex: "procvesp111.{0,50}procdump|procdump.{0,50}-ma|procvesp.{0,50}-accepteula"
 
   - id: dmp-file-creation
@@ -32,7 +32,7 @@ traits:
     crit: suspicious
     conf: 0.90
     if:
-      type: content
+      type: raw
       regex: "\\.dmp.{0,50}write|write.{0,50}\\.dmp|exodus\\.dmp"
 
   # === Wallet Process Targeting ===
@@ -41,7 +41,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       regex: "Exodus\\.exe.{0,50}process_iter|process_iter.{0,50}Exodus"
 
   - id: wallet-process-targeting
@@ -49,7 +49,7 @@ traits:
     crit: suspicious
     conf: 0.90
     if:
-      type: content
+      type: raw
       regex: "exodus\\.wallet|process.{0,50}Exodus|Exodus.{0,50}pid"
 
   # === Additional Wallet Extensions ===
@@ -58,7 +58,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "atomic.{0,50}wallet|Atomic.{0,50}wallet"
 
   - id: electrum-wallet-target
@@ -66,7 +66,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "electrum.{0,50}wallet|electrum.{0,50}path"
 
   - id: guarda-wallet-target
@@ -74,7 +74,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "guarda.{0,50}wallet|GUARDA.{0,50}wallet"
 
   - id: bitpay-wallet-target
@@ -82,7 +82,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "bitpay.{0,50}wallet|B1Tpay.{0,50}wallet"
 
   - id: coinomi-wallet-target
@@ -90,7 +90,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "coinomi.{0,50}wallet|coinomi.{0,50}path"
 
   - id: armory-wallet-target
@@ -98,7 +98,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "armory.{0,50}wallet|armory.{0,50}path"
 
   # === Vespy Markers ===
@@ -115,7 +115,7 @@ traits:
     crit: suspicious
     conf: 0.90
     if:
-      type: content
+      type: raw
       regex: "P4THF0LDR|W4ll3ts|Wallets.{0,50}class"
 
   # === Multi-Profile Browser Targeting ===
@@ -124,7 +124,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "Profile [0-9].{0,50}Local Extension|Default.{0,50}Profile [0-9]"
 
 composite_rules:

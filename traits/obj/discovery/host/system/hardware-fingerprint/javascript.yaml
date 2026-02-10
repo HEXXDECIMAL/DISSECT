@@ -159,7 +159,7 @@ traits:
     conf: 0.7
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       substr: "process.platform"
 
   - id: process-arch-content
@@ -168,7 +168,7 @@ traits:
     conf: 0.7
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       substr: "process.arch"
 
   - id: process-versions-content
@@ -177,7 +177,7 @@ traits:
     conf: 0.7
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       substr: "process.versions"
 
   - id: process-argv-content
@@ -186,7 +186,7 @@ traits:
     conf: 0.6
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       substr: "process.argv"
 
 composite_rules:

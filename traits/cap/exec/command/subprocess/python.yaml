@@ -100,7 +100,7 @@ traits:
     conf: 0.75
     mbc: "E1059.006"
     if:
-      type: content
+      type: raw
       substr: "subprocess.Popen("
 
   - id: check-call-content
@@ -109,7 +109,7 @@ traits:
     conf: 0.75
     mbc: "E1059.006"
     if:
-      type: content
+      type: raw
       substr: "subprocess.check_call("
 
 composite_rules:

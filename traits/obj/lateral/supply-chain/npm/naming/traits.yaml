@@ -14,7 +14,7 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: content
+      type: raw
       regex: '"name":\s*"[^"]*dump[^"]*"'
       case_insensitive: true
 
@@ -23,7 +23,7 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: content
+      type: raw
       regex: '"name":\s*"[^"]*grab(?:ber)?[^"]*"'
       case_insensitive: true
 
@@ -32,7 +32,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: '"name":\s*"[^"]*steal(?:er)?[^"]*"'
       case_insensitive: true
 
@@ -41,7 +41,7 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: content
+      type: raw
       regex: '"name":\s*"[^"]*hack(?:er|ing)?[^"]*"'
       case_insensitive: true
 
@@ -50,7 +50,7 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: content
+      type: raw
       regex: '"name":\s*"[^"]*crack(?:er)?[^"]*"'
       case_insensitive: true
 
@@ -59,7 +59,7 @@ traits:
     crit: inert
     conf: 0.5
     if:
-      type: content
+      type: raw
       regex: '"name":\s*"[^"]*token[^"]*"'
       case_insensitive: true
 
@@ -68,7 +68,7 @@ traits:
     crit: inert
     conf: 0.5
     if:
-      type: content
+      type: raw
       regex: '"name":\s*"[^"]*logger[^"]*"'
       case_insensitive: true
 
@@ -77,7 +77,7 @@ traits:
     crit: suspicious
     conf: 0.9
     if:
-      type: content
+      type: raw
       regex: '"name":\s*"[^"]*exfil[^"]*"'
       case_insensitive: true
 
@@ -88,7 +88,7 @@ traits:
     crit: inert
     conf: 0.5
     if:
-      type: content
+      type: raw
       regex: '"name":\s*"[^"]*discord[^"]*"'
       case_insensitive: true
 
@@ -97,7 +97,7 @@ traits:
     crit: inert
     conf: 0.5
     if:
-      type: content
+      type: raw
       regex: '"name":\s*"[^"]*telegram[^"]*"'
       case_insensitive: true
 
@@ -106,7 +106,7 @@ traits:
     crit: inert
     conf: 0.5
     if:
-      type: content
+      type: raw
       regex: '"name":\s*"[^"]*slack[^"]*"'
       case_insensitive: true
 
@@ -115,7 +115,7 @@ traits:
     crit: inert
     conf: 0.5
     if:
-      type: content
+      type: raw
       regex: '"name":\s*"[^"]*wallet[^"]*"'
       case_insensitive: true
 
@@ -124,7 +124,7 @@ traits:
     crit: inert
     conf: 0.4
     if:
-      type: content
+      type: raw
       regex: '"name":\s*"[^"]*crypto[^"]*"'
       case_insensitive: true
 
@@ -133,7 +133,7 @@ traits:
     crit: inert
     conf: 0.5
     if:
-      type: content
+      type: raw
       regex: '"name":\s*"[^"]*metamask[^"]*"'
       case_insensitive: true
 
@@ -142,7 +142,7 @@ traits:
     crit: inert
     conf: 0.4
     if:
-      type: content
+      type: raw
       regex: '"name":\s*"[^"]*browser[^"]*"'
       case_insensitive: true
 
@@ -151,7 +151,7 @@ traits:
     crit: inert
     conf: 0.5
     if:
-      type: content
+      type: raw
       regex: '"name":\s*"[^"]*pass(?:word)?[^"]*"'
       case_insensitive: true
 
@@ -162,7 +162,7 @@ traits:
     crit: inert
     conf: 0.5
     if:
-      type: content
+      type: raw
       regex: '"name":\s*"mysql-[^"]*"'
       case_insensitive: true
 
@@ -171,7 +171,7 @@ traits:
     crit: inert
     conf: 0.5
     if:
-      type: content
+      type: raw
       regex: '"name":\s*"express-[^"]*"'
       case_insensitive: true
 
@@ -180,7 +180,7 @@ traits:
     crit: inert
     conf: 0.5
     if:
-      type: content
+      type: raw
       regex: '"name":\s*"react-[^"]*"'
       case_insensitive: true
 
@@ -189,7 +189,7 @@ traits:
     crit: inert
     conf: 0.5
     if:
-      type: content
+      type: raw
       regex: '"name":\s*"vue-[^"]*"'
       case_insensitive: true
 
@@ -198,7 +198,7 @@ traits:
     crit: inert
     conf: 0.5
     if:
-      type: content
+      type: raw
       regex: '"name":\s*"node-[^"]*"'
       case_insensitive: true
 
@@ -211,7 +211,7 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: content
+      type: raw
       regex: '"keywords":\s*\[[^\]]*"[^"]*dump[^"]*"'
       case_insensitive: true
 
@@ -220,7 +220,7 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: content
+      type: raw
       regex: '"keywords":\s*\[[^\]]*"[^"]*grab[^"]*"'
       case_insensitive: true
 
@@ -229,7 +229,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: '"keywords":\s*\[[^\]]*"[^"]*steal[^"]*"'
       case_insensitive: true
 
@@ -238,7 +238,7 @@ traits:
     crit: inert
     conf: 0.5
     if:
-      type: content
+      type: raw
       regex: '"keywords":\s*\[[^\]]*"[^"]*token[^"]*"'
       case_insensitive: true
 
@@ -247,7 +247,7 @@ traits:
     crit: inert
     conf: 0.5
     if:
-      type: content
+      type: raw
       regex: '"keywords":\s*\[[^\]]*"[^"]*discord[^"]*"'
       case_insensitive: true
 

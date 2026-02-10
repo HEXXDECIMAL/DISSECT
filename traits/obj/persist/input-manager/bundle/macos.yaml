@@ -13,7 +13,7 @@ traits:
     conf: 0.9
     attack: "T1547.015"
     if:
-      type: content
+      type: raw
       substr: "LoadBundleOnLaunch"
 
   - id: no-menu-entry
@@ -22,7 +22,7 @@ traits:
     conf: 0.8
     attack: "T1547.015"
     if:
-      type: content
+      type: raw
       substr: "NoMenuEntry"
 
 composite_rules:

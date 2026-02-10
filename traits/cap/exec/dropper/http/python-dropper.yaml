@@ -68,7 +68,7 @@ traits:
     crit: suspicious
     conf: 0.9
     if:
-      type: content
+      type: raw
       # Match scripts that reference multiple temp/persist directories
       regex: "/tmp.{0,50}/var/tmp|/var/tmp.{0,50}/dev/shm|/tmp.{0,50}/dev/shm"
 

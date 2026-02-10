@@ -68,7 +68,7 @@ traits:
     mbc: "C0029"
     for: [c]
     if:
-      type: content
+      type: raw
       regex: "#include\\s*<openssl/md5"
 
   - id: md5-password-hash-c
@@ -78,5 +78,5 @@ traits:
     mbc: "C0029"
     for: [c]
     if:
-      type: content
+      type: raw
       regex: "(?s)(password|passwd|crypt).{0,50}MD5_(Init|Update|Final)"

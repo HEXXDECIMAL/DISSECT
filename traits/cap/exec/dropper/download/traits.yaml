@@ -18,7 +18,7 @@ traits:
     # Small files downloading to home are more suspicious
     size_max: 5000
     if:
-      type: content
+      type: raw
       regex: "(curl|wget).{0,50}(HOME|~/|\\$HOME)"
       exclude_patterns:
         - "(?i)netbsd\\.org"
@@ -34,7 +34,7 @@ traits:
     crit: notable
     conf: 0.75
     if:
-      type: content
+      type: raw
       regex: "curl.{0,50}--silent.{0,50}--output|curl.{0,50}-s.{0,50}-o"
 
   # === Cookie-based Download Tracking ===
@@ -43,7 +43,7 @@ traits:
     crit: suspicious
     conf: 0.80
     if:
-      type: content
+      type: raw
       regex: "curl.{0,50}--cookie.{0,50}[0-9]{10,}|curl.{0,50}-b.{0,50}[0-9]{10,}"
 
   # === Download and Execute Chain ===
@@ -52,7 +52,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       regex: "(curl|wget).{0,50}chmod.{0,50}\\+x.{0,50}os\\.system"
 
   - id: write-binary-execute
@@ -60,7 +60,7 @@ traits:
     crit: suspicious
     conf: 0.90
     if:
-      type: content
+      type: raw
       regex: "write\\(fileData\\).{0,50}system.{0,50}&|write\\(.{0,50}\\).{0,50}chmod.{0,50}\\+x"
 
   # === Background Execution ===
@@ -70,7 +70,7 @@ traits:
     conf: 0.85
     for: [python]
     if:
-      type: content
+      type: raw
       regex: "> /dev/null 2>&1 &|> /dev/null 2>&1$"
 
   # === URL-based Decode ===
@@ -81,7 +81,7 @@ traits:
     # Small binaries using URL-safe decoding are more suspicious
     size_max: 5000
     if:
-      type: content
+      type: raw
       regex: "urlsafe_b64decode"
 
 composite_rules:

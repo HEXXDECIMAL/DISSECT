@@ -10,14 +10,14 @@ traits:
   - id: csum-helper
     desc: Checksum helper function
     if:
-      type: content
+      type: raw
       regex: "csum_(?:fold|replace|update|diff)"
 
   - id: eth-swap
     desc: Ethernet address swap macro
     conf: 0.8
     if:
-      type: content
+      type: raw
       substr: "eth_swap"
 
   - id: eth-alen
@@ -25,7 +25,7 @@ traits:
     crit: inert
     conf: 0.6
     if:
-      type: content
+      type: raw
       substr: "ETH_ALEN"
 
   - id: ntohs-bswap
@@ -33,7 +33,7 @@ traits:
     crit: inert
     conf: 0.5
     if:
-      type: content
+      type: raw
       regex: "(?:ntohs|htons|ntohl|htonl|__builtin_bswap(?:16|32|64))"
 
 

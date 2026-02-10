@@ -16,7 +16,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       regex: '/usr/bin/\.[A-Za-z0-9][A-Za-z0-9_-]*/'
 
   # Hidden directory in /bin
@@ -25,7 +25,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       regex: '/bin/\.[A-Za-z0-9][A-Za-z0-9_-]*/'
 
   # Hidden directory in /sbin
@@ -34,7 +34,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       regex: '/sbin/\.[A-Za-z0-9][A-Za-z0-9_-]*/'
 
   # Hidden directory in /usr/sbin
@@ -43,7 +43,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       regex: '/usr/sbin/\.[A-Za-z0-9][A-Za-z0-9_-]*/'
 
   # Hidden directory in /usr/local/bin
@@ -52,7 +52,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       regex: '/usr/local/bin/\.[A-Za-z0-9][A-Za-z0-9_-]*/'
 
   # Hidden directory in /opt
@@ -61,7 +61,7 @@ traits:
     crit: suspicious
     conf: 0.9
     if:
-      type: content
+      type: raw
       regex: '/opt/\.[A-Za-z0-9][A-Za-z0-9_-]*/'
 
   # Hidden directory in /lib or /usr/lib - library hijacking
@@ -70,7 +70,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       regex: '/(usr/)?lib(64)?/\.[A-Za-z0-9][A-Za-z0-9_-]*/'
 
   # Hidden directory in user home - classic backdoor staging (e.g., /home/www/.Xl1/kde)
@@ -80,7 +80,7 @@ traits:
     crit: suspicious
     conf: 0.9
     if:
-      type: content
+      type: raw
       regex: '/home/\w+/\.[A-Za-z0-9][A-Za-z0-9_-]*/'
 
   # Hidden directory in web server paths - common webshell staging
@@ -89,7 +89,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       regex: '/var/www/\.[A-Za-z0-9][A-Za-z0-9_-]*/'
 
   # Hidden directory in /tmp - temporary malware staging
@@ -98,7 +98,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: '/tmp/\.[A-Za-z0-9][A-Za-z0-9_-]*/'
 
 composite_rules:

@@ -168,7 +168,7 @@ traits:
     conf: 0.8
     for: [shell]
     if:
-      type: content
+      type: raw
       regex: '$OSTYPE|linux-gnu|darwin|msys|cygwin'
 
   - id: curl-pipe-exec
@@ -177,7 +177,7 @@ traits:
     conf: 0.9
     for: [shell]
     if:
-      type: content
+      type: raw
       regex: 'curl.{0,50}\|.{0,50}(sudo\s+)?(python|bash|sh|node|php)'
 
   - id: sudo-piped-exec
@@ -186,7 +186,7 @@ traits:
     conf: 0.9
     for: [shell]
     if:
-      type: content
+      type: raw
       regex: '\|\s*sudo\s+'
 
   # Shell sleep with format specifier followed by command - randomized execution cadence

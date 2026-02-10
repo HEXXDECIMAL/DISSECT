@@ -13,7 +13,7 @@ traits:
     conf: 0.9
     for: [c, elf]
     if:
-      type: content
+      type: raw
       substr: "__NR_getdents"
 
   - id: nr-getdents64
@@ -22,7 +22,7 @@ traits:
     conf: 0.9
     for: [c, elf]
     if:
-      type: content
+      type: raw
       substr: "__NR_getdents64"
 
   - id: nr-openat
@@ -31,7 +31,7 @@ traits:
     conf: 0.8
     for: [c, elf]
     if:
-      type: content
+      type: raw
       substr: "__NR_openat"
 
   - id: nr-close
@@ -40,7 +40,7 @@ traits:
     conf: 0.5
     for: [c, elf]
     if:
-      type: content
+      type: raw
       substr: "__NR_close"
 
   # === syscall() function call ===
@@ -50,7 +50,7 @@ traits:
     conf: 0.85
     for: [c]
     if:
-      type: content
+      type: raw
       regex: "\\bsyscall\\s*\\("
 
   # === dirent64 structure manipulation ===
@@ -60,7 +60,7 @@ traits:
     conf: 0.8
     for: [c, elf]
     if:
-      type: content
+      type: raw
       substr: "dirent64"
 
   - id: d-reclen-field
@@ -69,7 +69,7 @@ traits:
     conf: 0.85
     for: [c, elf]
     if:
-      type: content
+      type: raw
       substr: "d_reclen"
 
   - id: d-name-field
@@ -78,7 +78,7 @@ traits:
     conf: 0.5
     for: [c, elf]
     if:
-      type: content
+      type: raw
       substr: "d_name"
 
 composite_rules:

@@ -126,7 +126,7 @@ Available on `string`, `content`, `hex`, `base64`, `xor`:
 ```yaml
 - id: dense-chr-calls
   if:
-    type: content
+    type: raw
     regex: "chr\\s*\\("
     count_min: 10
     per_kb_min: 2.0

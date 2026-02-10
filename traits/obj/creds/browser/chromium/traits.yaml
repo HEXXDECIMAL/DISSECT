@@ -104,7 +104,7 @@ traits:
     attack: "T1555.003"
     for: [python, javascript, shell, elf, pe]
     if:
-      type: content
+      type: raw
       regex: "['\"/\\\\]Cookies\\b"
       not:
         - "entitlement"

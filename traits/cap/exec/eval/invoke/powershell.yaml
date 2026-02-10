@@ -14,7 +14,7 @@ traits:
     crit: notable
     conf: 0.75
     if:
-      type: content
+      type: raw
       regex: "(?i)\\biex\\b|Invoke-Expression"
 
   # Invoke-Command (icm) - remote and local execution
@@ -23,7 +23,7 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: content
+      type: raw
       regex: "(?i)\\bicm\\b|Invoke-Command"
 
   # ScriptBlock execution
@@ -32,7 +32,7 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: content
+      type: raw
       regex: "(?i)\\[ScriptBlock\\]|Invoke-ScriptBlock|ScriptBlock\\.Create"
 
   # Add-Type for compiling C#
@@ -41,7 +41,7 @@ traits:
     crit: notable
     conf: 0.75
     if:
-      type: content
+      type: raw
       regex: "(?i)Add-Type\\s+-TypeDefinition"
 
   # Start-Process for spawning
@@ -50,7 +50,7 @@ traits:
     crit: notable
     conf: 0.6
     if:
-      type: content
+      type: raw
       regex: "(?i)Start-Process|\\bsaps\\b"
 
   # Call operator (&)
@@ -60,7 +60,7 @@ traits:
     conf: 0.5
     for: [powershell]
     if:
-      type: content
+      type: raw
       regex: "&\\s*\\("
 
 composite_rules:

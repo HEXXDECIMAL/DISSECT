@@ -16,7 +16,7 @@ traits:
     crit: notable
     conf: 0.75
     if:
-      type: content
+      type: raw
       regex: "open\\(.{0,50}\\.env[^a-zA-Z].{0,50}\\)|with open\\(.{0,50}\\.env[^a-zA-Z]"
 
   - id: dotenv-read-secrets
@@ -24,7 +24,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "\\.env[^a-zA-Z].{0,50}read\\(\\)|dotenv.{0,50}read"
 
   # === Environment Variable Theft ===
@@ -33,7 +33,7 @@ traits:
     crit: notable
     conf: 0.80
     if:
-      type: content
+      type: raw
       regex: "for.{0,50}os\\.environ\\.items\\(\\)|os\\.environ\\.items\\(\\)"
 
   - id: environ-dict-access
@@ -43,7 +43,7 @@ traits:
     # Small binaries with environment dumps are more suspicious
     size_max: 50000
     if:
-      type: content
+      type: raw
       regex: "dict\\(os\\.environ\\)|str\\(os\\.environ\\)"
 
   # === Powershell Enumeration ===
@@ -52,7 +52,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "powershell.{0,50}Get-ChildItem|Get-ChildItem.{0,50}-Recurse"
 
   - id: available-drives-enum
@@ -60,7 +60,7 @@ traits:
     crit: suspicious
     conf: 0.80
     if:
-      type: content
+      type: raw
       regex: "ascii_uppercase.{0,50}exists|available_drives"
 
 composite_rules:

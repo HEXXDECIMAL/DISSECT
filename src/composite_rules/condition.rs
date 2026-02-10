@@ -346,7 +346,7 @@ enum ConditionTagged {
     /// Search raw file content (for source files or when you need to match
     /// across string boundaries in binaries). Unlike `type: string` which only
     /// searches properly extracted/bounded strings, this searches the raw bytes.
-    #[serde(rename = "content")]
+    #[serde(rename = "raw")]
     Content {
         /// Full match (entire content must equal this - rarely useful)
         exact: Option<String>,
@@ -537,10 +537,6 @@ enum ConditionTagged {
         #[serde(default)]
         case_insensitive: bool,
     },
-}
-
-fn default_match_mode() -> String {
-    "any".to_string()
 }
 
 impl From<ConditionDeser> for Condition {
@@ -1450,7 +1446,7 @@ impl Condition {
             Condition::StringCount { .. } => "string_count",
             Condition::Metrics { .. } => "metrics",
             Condition::Hex { .. } => "hex",
-            Condition::Content { .. } => "content",
+            Condition::Content { .. } => "raw",
             Condition::SectionName { .. } => "section_name",
             Condition::Base64 { .. } => "base64",
             Condition::Xor { .. } => "xor",

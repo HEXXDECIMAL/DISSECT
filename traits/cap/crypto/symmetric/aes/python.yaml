@@ -55,7 +55,7 @@ traits:
     crit: notable
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "from\\s+Crypto\\.Cipher\\s+import\\s+AES"
 
   - id: pycrypto-aes-new

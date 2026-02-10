@@ -17,7 +17,7 @@ traits:
     crit: suspicious
     conf: 0.75
     if:
-      type: content
+      type: raw
       regex: "from\\s+helpers\\.[a-zA-Z_]+\\s+import\\s+\\*"
 
   - id: wildcard-import-server
@@ -25,7 +25,7 @@ traits:
     crit: suspicious
     conf: 0.75
     if:
-      type: content
+      type: raw
       regex: "from\\s+[a-zA-Z_.]+server\\s+import\\s+\\*"
 
   - id: wildcard-import-utils
@@ -33,7 +33,7 @@ traits:
     crit: notable
     conf: 0.60
     if:
-      type: content
+      type: raw
       regex: "from\\s+(?:[a-zA-Z_]+\\.)*utils\\s+import\\s+\\*"
 
   # === Crypto Trading Terminology ===

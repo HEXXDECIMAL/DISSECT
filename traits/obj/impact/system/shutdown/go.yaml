@@ -24,7 +24,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       regex: '(?is)shutdown(?:\.exe)?.{0,50}/r\b'
 
   # Shutdown flags: /f (force)
@@ -33,7 +33,7 @@ traits:
     crit: suspicious
     conf: 0.9
     if:
-      type: content
+      type: raw
       regex: '(?is)shutdown(?:\.exe)?.{0,50}/f\b'
 
   # Shutdown timeout flag: /t 0 (no delay)
@@ -42,7 +42,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: '(?is)shutdown(?:\.exe)?.{0,50}/t\b.{0,64}(?:\b0\b|"0")'
 
 composite_rules:

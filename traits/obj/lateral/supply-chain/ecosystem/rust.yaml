@@ -3,7 +3,7 @@
 
 traits:
   # === Suspicious crate atomic indicators ===
-  # These use `type: content` because crate names appear as code identifiers, not string literals
+  # These use `type: raw` because crate names appear as code identifiers, not string literals
   - id: sha-rust-crate
     desc: sha_rust suspicious crate
     crit: suspicious
@@ -11,7 +11,7 @@ traits:
     attack: "T1195"
     for: [rust]
     if:
-      type: content
+      type: raw
       substr: "sha_rust::"
 
   - id: rust-sha-crate
@@ -21,7 +21,7 @@ traits:
     attack: "T1195"
     for: [rust]
     if:
-      type: content
+      type: raw
       substr: "rust_sha::"
 
   - id: reqwest-rust-crate
@@ -31,7 +31,7 @@ traits:
     attack: "T1195"
     for: [rust]
     if:
-      type: content
+      type: raw
       substr: "reqwest_rust::"
 
   - id: tokio-rust-crate
@@ -41,7 +41,7 @@ traits:
     attack: "T1195"
     for: [rust]
     if:
-      type: content
+      type: raw
       substr: "tokio_rust::"
 
   - id: base64-rust-crate
@@ -51,18 +51,18 @@ traits:
     attack: "T1195"
     for: [rust]
     if:
-      type: content
+      type: raw
       substr: "base64_rust::"
 
   # === Misspelled word atomic indicators ===
-  # Use type: content since these are identifiers in code, not string literals
+  # Use type: raw since these are identifiers in code, not string literals
   - id: filte-var-typo
     desc: filte_var misspelling
     crit: notable
     conf: 0.7
     for: [rust]
     if:
-      type: content
+      type: raw
       substr: "filte_var"
 
   - id: connecion-typo
@@ -71,7 +71,7 @@ traits:
     conf: 0.7
     for: [rust]
     if:
-      type: content
+      type: raw
       substr: "connecion"
 
   - id: payloaad-typo
@@ -80,7 +80,7 @@ traits:
     conf: 0.7
     for: [rust]
     if:
-      type: content
+      type: raw
       substr: "payloaad"
 
   - id: exfiltrat-word
@@ -89,7 +89,7 @@ traits:
     conf: 0.7
     for: [rust]
     if:
-      type: content
+      type: raw
       substr: "exfiltrat"
 
   # === Dummy key/value atomic indicators ===
@@ -118,7 +118,7 @@ traits:
     conf: 0.5
     for: [rust]
     if:
-      type: content
+      type: raw
       substr: "pub struct "
 
   - id: pub-enum
@@ -127,7 +127,7 @@ traits:
     conf: 0.5
     for: [rust]
     if:
-      type: content
+      type: raw
       substr: "pub enum "
 
   - id: impl-keyword
@@ -136,7 +136,7 @@ traits:
     conf: 0.5
     for: [rust]
     if:
-      type: content
+      type: raw
       substr: "impl "
 
   - id: pub-trait
@@ -145,7 +145,7 @@ traits:
     conf: 0.5
     for: [rust]
     if:
-      type: content
+      type: raw
       substr: "pub trait "
 
 composite_rules:

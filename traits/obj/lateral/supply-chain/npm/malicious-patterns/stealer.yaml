@@ -110,7 +110,7 @@ traits:
     conf: 0.85
     mbc: "B0024"
     if:
-      type: content
+      type: raw
       regex: "__[a-z_]*postinstall"
       case_insensitive: true
 
@@ -121,7 +121,7 @@ traits:
     mbc: "E1059"
     attack: "T1528"
     if:
-      type: content
+      type: raw
       regex: "__[a-z_]*_token\\b"
       case_insensitive: true
 

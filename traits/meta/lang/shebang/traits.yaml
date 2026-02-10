@@ -12,7 +12,7 @@ traits:
     conf: 1.0
     for: [shell, all]
     if:
-      type: content
+      type: raw
       regex: "^#!\\s*/bin/sh"
       offset_range: [0, 64]
 
@@ -22,7 +22,7 @@ traits:
     conf: 1.0
     for: [shell, all]
     if:
-      type: content
+      type: raw
       regex: "^#!\\s*(/usr)?/bin/bash"
       offset_range: [0, 64]
 
@@ -32,7 +32,7 @@ traits:
     conf: 1.0
     for: [shell, all]
     if:
-      type: content
+      type: raw
       regex: "^#!\\s*(/usr)?/bin/zsh"
       offset_range: [0, 64]
 
@@ -42,7 +42,7 @@ traits:
     conf: 1.0
     for: [shell, all]
     if:
-      type: content
+      type: raw
       regex: "^#!\\s*/bin/dash"
       offset_range: [0, 64]
 
@@ -53,7 +53,7 @@ traits:
     conf: 1.0
     for: [python, all]
     if:
-      type: content
+      type: raw
       regex: "^#!\\s*(/usr)?/bin/(env\\s+)?python\\s*$"
       offset_range: [0, 64]
 
@@ -63,7 +63,7 @@ traits:
     conf: 1.0
     for: [python, all]
     if:
-      type: content
+      type: raw
       regex: "^#!\\s*(/usr)?/bin/(env\\s+)?python2"
       offset_range: [0, 64]
 
@@ -73,7 +73,7 @@ traits:
     conf: 1.0
     for: [python, all]
     if:
-      type: content
+      type: raw
       regex: "^#!\\s*(/usr)?/bin/(env\\s+)?python3"
       offset_range: [0, 64]
 
@@ -84,7 +84,7 @@ traits:
     conf: 1.0
     for: [perl, all]
     if:
-      type: content
+      type: raw
       regex: "^#!\\s*(/usr)?/bin/(env\\s+)?perl"
       offset_range: [0, 64]
 
@@ -94,7 +94,7 @@ traits:
     conf: 1.0
     for: [ruby, all]
     if:
-      type: content
+      type: raw
       regex: "^#!\\s*(/usr)?/bin/(env\\s+)?ruby"
       offset_range: [0, 64]
 
@@ -104,7 +104,7 @@ traits:
     conf: 1.0
     for: [php, all]
     if:
-      type: content
+      type: raw
       regex: "^#!\\s*(/usr)?/bin/(env\\s+)?php"
       offset_range: [0, 64]
 
@@ -114,7 +114,7 @@ traits:
     conf: 1.0
     for: [javascript, all]
     if:
-      type: content
+      type: raw
       regex: "^#!\\s*(/usr)?/bin/(env\\s+)?node"
       offset_range: [0, 64]
 
@@ -124,7 +124,7 @@ traits:
     conf: 1.0
     for: [all]
     if:
-      type: content
+      type: raw
       regex: "^#!\\s*(/usr)?/bin/(env\\s+)?lua"
       offset_range: [0, 64]
 
@@ -134,7 +134,7 @@ traits:
     conf: 1.0
     for: [shell, all]
     if:
-      type: content
+      type: raw
       regex: "^#!\\s*(/usr)?/bin/(env\\s+)?(g|m|n)?awk"
       offset_range: [0, 64]
 
@@ -145,7 +145,7 @@ traits:
     platforms: [macos]
     for: [all]
     if:
-      type: content
+      type: raw
       regex: "^#!\\s*(/usr)?/bin/(env\\s+)?osascript"
       offset_range: [0, 64]
 
@@ -156,7 +156,7 @@ traits:
     conf: 0.9
     for: [all]
     if:
-      type: content
+      type: raw
       regex: "^#!\\s*/usr/bin/env\\s+\\w+"
       offset_range: [0, 64]
 
@@ -167,7 +167,7 @@ traits:
     conf: 0.85
     for: [all]
     if:
-      type: content
+      type: raw
       regex: "^#!\\s*(/tmp|/var/tmp|/dev/shm|\\.\\./)"
       offset_range: [0, 128]
 

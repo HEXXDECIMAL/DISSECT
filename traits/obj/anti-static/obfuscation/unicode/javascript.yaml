@@ -54,7 +54,7 @@ traits:
     attack: "T1027"
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: "[\\U00010000-\\U0010FFFF][\\u0900-\\u097F][\\U0001F000-\\U0001F999]"
       count_min: 2
 
@@ -67,7 +67,7 @@ traits:
     attack: "T1027"
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: "\\+\\s*[\"'][^\\x00-\\x7F]{3,}[\"']"
       count_min: 5
       per_kb_min: 0.3
@@ -94,7 +94,7 @@ traits:
     attack: "T1027"
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: "[\\$a-zA-Z_][\\$a-zA-Z0-9_]*[^\\x00-\\x7F][\\$a-zA-Z0-9_]*"
       count_min: 3
 

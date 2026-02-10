@@ -108,7 +108,7 @@ traits:
     crit: suspicious
     conf: 0.9
     if:
-      type: content
+      type: raw
       regex: "eval\\s*\\(\\s*Base64\\.decode64"
 
   - id: hex-escape-dense
@@ -125,7 +125,7 @@ traits:
     crit: notable
     conf: 0.8
     if:
-      type: content
+      type: raw
       regex: "\\.pack\\(['\"]H\\*['\"]\\)"
 
   - id: load-call
@@ -201,7 +201,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       regex: "TCPSocket\\.new.{0,50}(exec|system|spawn|`)"
 
   - id: socket-stdin
@@ -209,7 +209,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       regex: "Socket\\.tcp.{0,100}\\$stdin"
 
   - id: stdin-reopen

@@ -3,15 +3,15 @@ traits:
     desc: Service Worker forces protocol synchronization (downgrade attack)
     crit: suspicious
     if:
-      type: content
+      type: raw
       regex: '\.protocol\s*=\s*self\.location\.protocol'
 
   - id: cache-busting
     desc: Service Worker implements aggressive cache busting
     crit: notable
     if:
-      type: content
-      regex: 'cache-bust='
+      type: raw
+      regex: "cache-bust="
 
 composite_rules:
   - id: intercept-all

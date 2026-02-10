@@ -156,7 +156,7 @@ traits:
     attack: "T1485"
     for: [javascript, typescript, python, shell]
     if:
-      type: content
+      type: raw
       regex: "(fs\\.readdirSync|os\\.walk|find\\s+\\.)[\\s\\S]{0,50}(unlinkSync|os\\.remove|os\\.unlink|-delete|rm\\s+-rf)"
 
 composite_rules:

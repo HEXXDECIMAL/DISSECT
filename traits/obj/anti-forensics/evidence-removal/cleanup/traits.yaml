@@ -98,7 +98,7 @@ traits:
         - regex: "(?:^|\\s)find\\s+.{0,50}-exec\\s+rm"
         - regex: "(?:^|\\s)find\\s+.{0,50}-delete\\b"
     unless:
-      - type: content
+      - type: raw
         regex: "gcc|gcov"
     attack: "T1070.003"
 

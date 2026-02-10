@@ -13,7 +13,7 @@ traits:
     for: [elf, all]
     if:
       type: hex
-      pattern: "7F 45 4C 46"  # \x7fELF
+      pattern: "7F 45 4C 46" # \x7fELF
       offset: 0
 
   - id: macho-32
@@ -23,7 +23,7 @@ traits:
     for: [macho, all]
     if:
       type: hex
-      pattern: "CE FA ED FE"  # feedface (little-endian)
+      pattern: "CE FA ED FE" # feedface (little-endian)
       offset: 0
 
   - id: macho-64
@@ -33,7 +33,7 @@ traits:
     for: [macho, all]
     if:
       type: hex
-      pattern: "CF FA ED FE"  # feedfacf (little-endian)
+      pattern: "CF FA ED FE" # feedfacf (little-endian)
       offset: 0
 
   # NOTE: CAFEBABE is used for both Mach-O fat binaries and Java class files.
@@ -55,7 +55,7 @@ traits:
     for: [pe, dll, all]
     if:
       type: hex
-      pattern: "4D 5A"  # MZ
+      pattern: "4D 5A" # MZ
       offset: 0
 
   # Archive formats
@@ -66,7 +66,7 @@ traits:
     for: [all]
     if:
       type: hex
-      pattern: "50 4B 03 04"  # PK..
+      pattern: "50 4B 03 04" # PK..
       offset: 0
 
   - id: zip-empty
@@ -76,7 +76,7 @@ traits:
     for: [all]
     if:
       type: hex
-      pattern: "50 4B 05 06"  # PK..
+      pattern: "50 4B 05 06" # PK..
       offset: 0
 
   - id: gzip
@@ -86,7 +86,7 @@ traits:
     for: [all]
     if:
       type: hex
-      pattern: "1F 8B 08"  # gzip magic + deflate
+      pattern: "1F 8B 08" # gzip magic + deflate
       offset: 0
 
   - id: bzip2
@@ -96,7 +96,7 @@ traits:
     for: [all]
     if:
       type: hex
-      pattern: "42 5A 68"  # BZh
+      pattern: "42 5A 68" # BZh
       offset: 0
 
   - id: xz
@@ -106,7 +106,7 @@ traits:
     for: [all]
     if:
       type: hex
-      pattern: "FD 37 7A 58 5A 00"  # XZ magic
+      pattern: "FD 37 7A 58 5A 00" # XZ magic
       offset: 0
 
   - id: 7z
@@ -116,7 +116,7 @@ traits:
     for: [all]
     if:
       type: hex
-      pattern: "37 7A BC AF 27 1C"  # 7z magic
+      pattern: "37 7A BC AF 27 1C" # 7z magic
       offset: 0
 
   - id: rar-v4
@@ -126,7 +126,7 @@ traits:
     for: [all]
     if:
       type: hex
-      pattern: "52 61 72 21 1A 07 00"  # Rar!...
+      pattern: "52 61 72 21 1A 07 00" # Rar!...
       offset: 0
 
   - id: rar-v5
@@ -136,7 +136,7 @@ traits:
     for: [all]
     if:
       type: hex
-      pattern: "52 61 72 21 1A 07 01 00"  # Rar!....
+      pattern: "52 61 72 21 1A 07 01 00" # Rar!....
       offset: 0
 
   - id: tar-ustar
@@ -146,8 +146,8 @@ traits:
     for: [all]
     if:
       type: hex
-      pattern: "75 73 74 61 72"  # ustar
-      offset: 257  # USTAR magic is at offset 257
+      pattern: "75 73 74 61 72" # ustar
+      offset: 257 # USTAR magic is at offset 257
 
   - id: ar-archive
     desc: AR archive magic (static libraries, .deb)
@@ -155,7 +155,7 @@ traits:
     conf: 1.0
     for: [all]
     if:
-      type: content
+      type: raw
       exact: "!<arch>\n"
       offset: 0
 
@@ -176,7 +176,7 @@ traits:
     conf: 1.0
     for: [all]
     if:
-      type: content
+      type: raw
       substr: "%PDF-"
       offset_range: [0, 16]
 
@@ -186,7 +186,7 @@ traits:
     conf: 1.0
     for: [all]
     if:
-      type: content
+      type: raw
       exact: "SQLite format 3\x00"
       offset: 0
 
@@ -217,7 +217,7 @@ traits:
     conf: 1.0
     for: [all]
     if:
-      type: content
+      type: raw
       regex: "^GIF8[79]a"
       offset: 0
 
@@ -262,13 +262,13 @@ traits:
     if:
       type: hex
       pattern: "7F 45 4C 46"
-      offset_range: [1024, null]  # Not in first 1KB
+      offset_range: [1024, null] # Not in first 1KB
 
   - id: embedded-pe
     desc: MZ/PE magic found past file header
     crit: suspicious
     conf: 0.85
-    for: [elf, macho, shell, python, javascript]  # Suspicious only for non-PE file types
+    for: [elf, macho, shell, python, javascript] # Suspicious only for non-PE file types
     if:
       type: hex
       pattern: "4D 5A [2-4096] 50 45 00 00"
@@ -276,19 +276,19 @@ traits:
 
   - id: embedded-pe-in-pe
     desc: Embedded PE resource in executable
-    crit: notable  # Common for PE files with resources
+    crit: notable # Common for PE files with resources
     conf: 0.7
     for: [pe, dll]
     if:
       type: hex
       pattern: "4D 5A"
-      offset_range: [4096, null]  # Further in to avoid section tables
+      offset_range: [4096, null] # Further in to avoid section tables
 
   - id: embedded-zip
     desc: ZIP magic found past file header
     crit: notable
     conf: 0.8
-    for: [elf, macho, pe]  # Only flag in executables
+    for: [elf, macho, pe] # Only flag in executables
     if:
       type: hex
       pattern: "50 4B 03 04"

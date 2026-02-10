@@ -39,7 +39,7 @@ traits:
     conf: 0.95
     attack: "T1056.002"
     if:
-      type: content
+      type: raw
       regex: "dscl . authonly.{0,50}while"
 
   - id: sudo-refresh-stdin
@@ -48,7 +48,7 @@ traits:
     conf: 0.9
     attack: "T1548.002"
     if:
-      type: content
+      type: raw
       substr: "sudo -v -S"
 
   - id: homabrews-domain
@@ -65,7 +65,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "echo.{0,50}password.{0,50}base64"
 
 composite_rules:

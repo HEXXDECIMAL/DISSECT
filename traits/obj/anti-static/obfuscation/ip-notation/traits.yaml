@@ -11,5 +11,5 @@ traits:
     mbc: "B0032"
     attack: "T1027"
     if:
-      type: content
+      type: raw
       regex: '(?i)https?://[^/\s]*0x[0-9a-f]{2}'

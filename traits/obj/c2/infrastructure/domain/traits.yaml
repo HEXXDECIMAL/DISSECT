@@ -23,13 +23,13 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       # Require URL/network endpoint context to avoid matching benign dotted config keys like "figure.subplot.top".
       # Removed: .date (matches Go time.Time.date), .pro (too common)
       # Added: .pe (Peru - commonly abused for short URLs), .su (Soviet Union - malware favorite)
       regex: "['\\\"](?:https?://(?:[a-zA-Z0-9-]{1,63}\\.)+(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|work|stream|download|racing|win|party|review|accountant|science|trade|webcam|bid|loan|pe|su|icu|buzz)(?::\\d{1,5})?(?:[/?#][^'\\\"\\s]*)?|(?:[a-zA-Z0-9-]{1,63}\\.)+(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|work|stream|download|racing|win|party|review|accountant|science|trade|webcam|bid|loan|pe|su|icu|buzz)(?::\\d{1,5}|/[A-Za-z0-9._~!$&'()*+,;=:@%/-]+|\\?[^'\\\"\\s]+))['\\\"]"
     unless:
-      - type: content
+      - type: raw
         regex: "sina\\.com\\.cn|163\\.com|126\\.com|sohu\\.com|qq\\.com|yahoo\\.com\\.cn|mysite|rambler\\.ru|yandex\\.ru|mail\\.ru"
 
   - id: short-domain-url-pattern

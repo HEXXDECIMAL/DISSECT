@@ -83,7 +83,7 @@ traits:
       # Exclude FTP protocol documentation (USER is FTP command)
       - regex: '^\s*USER\s+(user|fwuser)(@|$)'
       # Exclude variable names that contain USER but aren't env access
-      - regex: 'USERNAME|USERPROFILE|USERID'
+      - regex: "USERNAME|USERPROFILE|USERID"
 
   - id: logname-var
     desc: LOGNAME environment variable
@@ -260,5 +260,5 @@ composite_rules:
       - id: username-env
       - id: home-env
     unless:
-      - type: content
+      - type: raw
         regex: "requests|test"

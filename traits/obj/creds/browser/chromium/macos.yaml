@@ -11,7 +11,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       regex: "security\\s+find-generic-password\\s+-wa.{0,50}'?Chrome'?"
 
   - id: chrome-safe-storage-key-string
@@ -36,7 +36,7 @@ traits:
     crit: suspicious
     conf: 0.8
     if:
-      type: content
+      type: raw
       regex: "openssl\\s+enc\\s+.{0,100}-aes-128-cbc\\s+-iv\\s+.{0,100}-K\\s+"
 
 composite_rules:

@@ -16,7 +16,7 @@ traits:
     crit: notable
     conf: 0.8
     if:
-      type: content
+      type: raw
       regex: "module\\.exports\\s*=\\s*function"
 
 composite_rules:

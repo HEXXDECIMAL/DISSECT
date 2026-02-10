@@ -16,7 +16,7 @@ traits:
     crit: notable
     conf: 0.70
     if:
-      type: content
+      type: raw
       substr: "platform.system()"
 
   - id: platform-node-call
@@ -24,7 +24,7 @@ traits:
     crit: notable
     conf: 0.70
     if:
-      type: content
+      type: raw
       substr: "platform.node()"
 
   - id: platform-platform-call
@@ -32,7 +32,7 @@ traits:
     crit: notable
     conf: 0.70
     if:
-      type: content
+      type: raw
       substr: "platform.platform()"
 
   # === OS String Checks ===

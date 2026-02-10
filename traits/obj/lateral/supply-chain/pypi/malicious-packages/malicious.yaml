@@ -173,11 +173,11 @@ traits:
       type: string
       regex: "requests\\.packages(?:\\.|\\b)"
     unless:
-      - type: content
+      - type: raw
         substr: "from .packages.urllib3"
-      - type: content
+      - type: raw
         substr: "'requests.packages'"
-      - type: content
+      - type: raw
         substr: "from .compat import chardet"
 
   # Vendored requests version metadata file - contains __title__ = "requests"
@@ -191,7 +191,7 @@ traits:
     attack: "T1036.005"
     size_max: 2000
     if:
-      type: content
+      type: raw
       regex: '__title__\s*=\s*["\x27]requests["\x27]'
 
   # Vendored requests library full identity metadata - contains both

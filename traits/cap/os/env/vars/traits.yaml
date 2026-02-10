@@ -58,7 +58,7 @@ traits:
     conf: 0.85
     for: [python]
     if:
-      type: content
+      type: raw
       regex: "environ\\.(items|values|keys)"
 
 composite_rules:

@@ -171,7 +171,7 @@ traits:
     attack: "T1027"
     for: [php]
     if:
-      type: content
+      type: raw
       regex: "strrev\\([^)]+\\)\\s*\\.\\s*strrev\\("
 
   - id: base64-admin-role
@@ -182,7 +182,7 @@ traits:
     attack: "T1027"
     for: [php]
     if:
-      type: content
+      type: raw
       # YWRtaW5pc3RyYXRvcg== decodes to "administrator"
       substr: "YWRtaW5pc3RyYXRvcg"
 

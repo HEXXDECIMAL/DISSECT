@@ -343,7 +343,7 @@ pub fn eval_string(
 
     // Fall back to raw content search ONLY for binaries when no strings were extracted.
     // Source code files should NOT fall back to raw content - that bypasses AST extraction
-    // which intentionally excludes comments. Use `type: content` for raw content search.
+    // which intentionally excludes comments. Use `type: raw` for raw content search.
     if evidence.is_empty() && ctx.report.strings.is_empty() && !ctx.file_type.is_source_code() {
         if let Ok(content) = std::str::from_utf8(ctx.binary_data) {
             let mut matched = false;
@@ -473,9 +473,9 @@ pub fn eval_string(
     }
 }
 
-/// Evaluate content-based condition - searches directly in file bytes as text.
+/// Evaluate raw content condition - searches directly in file bytes as text.
 ///
-/// Used by `type: content` conditions to search raw file content rather than extracted strings.
+/// Used by `type: raw` conditions to search raw file content rather than extracted strings.
 /// Use for cross-boundary patterns or when string extraction is insufficient.
 #[allow(clippy::too_many_arguments)]
 pub fn eval_raw(

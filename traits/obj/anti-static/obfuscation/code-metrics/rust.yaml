@@ -22,20 +22,20 @@ traits:
       - type: basename
         regex: '^[a-z]+\d+\.rs$|^(avx|sse|neon|simd|intrinsic|vpclmul|pclmul|aes|vaes).*\.rs$|.*adapter\.rs$'
       # SIMD intrinsic headers often contain architectural feature names that trigger high entropy
-      - type: content
+      - type: raw
         substr: "relaxed_simd"
       # Rust benchmark files often contain many repetitive benchmark-oriented
       # identifiers (bench_*, iterator combinator chains) without obfuscation intent.
-      - type: content
+      - type: raw
         regex: '(?m)^\s*#\[bench\]'
         count_min: 6
       # Runtime CPU feature detection tests include many short architecture
       # feature identifiers (e.g., avx512*, sve2-*) that inflate entropy.
-      - type: content
+      - type: raw
         regex: 'is_(x86|aarch64|arm|powerpc|powerpc64)_feature_detected!\s*\('
         count_min: 8
       # Generated FFI/binding tables often contain thousands of long ALL_CAPS
       # constants and are not identifier obfuscation.
-      - type: content
+      - type: raw
         regex: '(?m)^pub const [A-Z0-9_]{20,}:'
         count_min: 200

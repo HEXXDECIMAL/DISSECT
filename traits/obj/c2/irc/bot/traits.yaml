@@ -14,7 +14,7 @@ traits:
       type: string
       exact: "PRIVMSG "
     unless:
-      - type: content
+      - type: raw
         regex: "ftplib|urllib"
 
   - id: irc-nick
@@ -25,7 +25,7 @@ traits:
       type: string
       exact: "NICK "
     unless:
-      - type: content
+      - type: raw
         regex: "ftplib|urllib"
 
   - id: irc-user
@@ -36,7 +36,7 @@ traits:
       type: string
       exact: "USER "
     unless:
-      - type: content
+      - type: raw
         regex: "ftplib|urllib"
 
   # === Bot command indicators ===
@@ -48,7 +48,7 @@ traits:
       type: string
       regex: "\\.login\\b"
     unless:
-      - type: content
+      - type: raw
         regex: "ftplib|urllib"
 
   - id: cmd-udp

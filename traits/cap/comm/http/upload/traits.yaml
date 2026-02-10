@@ -39,7 +39,7 @@ traits:
     crit: suspicious
     conf: 0.9
     if:
-      type: content
+      type: raw
       regex: "curl\\s+.{0,100}--upload-file\\b"
 
 composite_rules:

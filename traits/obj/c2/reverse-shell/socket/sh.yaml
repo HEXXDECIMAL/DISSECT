@@ -34,7 +34,7 @@ traits:
     conf: 0.95
     for: [shell]
     if:
-      type: content
+      type: raw
       regex: 'exec\s+[0-9]+<>"?/dev/tcp/'
 
   - id: dev-tcp-http-get

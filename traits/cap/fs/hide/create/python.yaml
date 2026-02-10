@@ -60,7 +60,7 @@ traits:
     crit: notable
     conf: 0.9
     if:
-      type: content
+      type: raw
       regex: "\\.mkdir\\(\\s*[\"'](?:\\.[a-zA-Z][a-zA-Z0-9_-]*|[^\"']*[\\\\/]\\.[a-zA-Z][a-zA-Z0-9_-]*)[\"']"
     unless:
       - type: string

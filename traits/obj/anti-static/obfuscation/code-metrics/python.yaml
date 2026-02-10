@@ -48,7 +48,7 @@ traits:
       min: 4.5
       min_size: 4096
     unless:
-      - type: content
+      - type: raw
         substr: "weave"
 
 composite_rules:
@@ -64,7 +64,7 @@ composite_rules:
       - id: obj/anti-static/obfuscation/code-metrics/functions::single-char-function-names
       - id: obj/anti-static/obfuscation/code-metrics/identifiers::py-many-high-entropy-identifiers
     unless:
-      - type: content
+      - type: raw
         substr: "pandas"
 
   - id: py-pypi-malware-pattern

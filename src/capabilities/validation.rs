@@ -1695,9 +1695,9 @@ fn extract_match_signature(condition: &Condition) -> Option<(bool, MatchSignatur
     }
 }
 
-/// Find traits where both `type: string` and `type: content` exist for the same pattern
-/// at the same criticality. These should be merged to just `content` (which is broader).
-/// Returns: Vec<(string_trait_id, content_trait_id, pattern_description)>
+/// Find traits where both `type: string` and `type: raw` exist for the same pattern
+/// at the same criticality. These should be merged to just `raw` (which is broader).
+/// Returns: Vec<(string_trait_id, raw_trait_id, pattern_description)>
 pub(crate) fn find_string_content_collisions(
     trait_definitions: &[TraitDefinition],
 ) -> Vec<(String, String, String)> {

@@ -178,7 +178,7 @@ traits:
     conf: 0.75
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: '["'']https["'']\)\s*\.get'
 
   - id: node-http-get-dynamic
@@ -187,7 +187,7 @@ traits:
     conf: 0.75
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: '["'']http["'']\)\s*\.get'
 
   # === Browser/Universal APIs ===

@@ -142,7 +142,7 @@ traits:
     conf: 0.88
     attack: "T1027"
     if:
-      type: content
+      type: raw
       regex: 'gsub\(.{0,10}"---"|\.gsub\(.{0,10}"---"|decode64.{0,50}gsub'
 
   # === Windows OS Check ===
@@ -153,7 +153,7 @@ traits:
     attack: "T1497"
     if:
       type: string
-      regex: 'mswin|msys|mingw|cygwin|bccwin|wince|emc|host_os.{0,50}match'
+      regex: "mswin|msys|mingw|cygwin|bccwin|wince|emc|host_os.{0,50}match"
 
   # === VBS Script Writing ===
   - id: vbs-script-write
@@ -162,7 +162,7 @@ traits:
     conf: 0.85
     attack: "T1059"
     if:
-      type: content
+      type: raw
       regex: 'File\.open\(.{0,50}\.vbs|\.vbs.{0,50}File\.open'
 
   # === WScript Execution ===

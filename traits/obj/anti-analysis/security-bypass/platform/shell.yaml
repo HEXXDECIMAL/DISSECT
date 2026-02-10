@@ -18,14 +18,14 @@ traits:
     desc: Aliyun security agent disable
     conf: 0.95
     if:
-      type: content
+      type: raw
       regex: "(?:pkill|kill)[^;]{0,20}aliyun|aegis[^;]{0,20}uninstall|systemctl\\s+(?:stop|disable)\\s+aliyun"
 
   - id: cloud-agent-uninstall
     desc: Cloud security agent uninstall
     conf: 0.90
     if:
-      type: content
+      type: raw
       # Detects uninstall scripts for cloud agents
       regex: "(?:qcloud|aegis|YunJing)[^;]{0,30}uninstall|update\\.aegis\\.aliyun\\.com/download/uninstall"
 
@@ -34,7 +34,7 @@ traits:
     desc: NMI watchdog disable (crash detection)
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "nmi_watchdog\\s*=\\s*0|echo\\s+['\"]?0['\"]?[^>]{0,20}>[^\\n]{0,50}nmi_watchdog"
 
 composite_rules:

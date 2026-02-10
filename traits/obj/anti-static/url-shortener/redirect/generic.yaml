@@ -12,5 +12,5 @@ traits:
     attack: "T1027"
     for: [all]
     if:
-      type: content
+      type: raw
       substr: "bit.ly/"

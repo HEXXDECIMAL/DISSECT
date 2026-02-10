@@ -164,7 +164,7 @@ traits:
     crit: inert
     conf: 0.5
     if:
-      type: content
+      type: raw
       regex: "clipboard.{0,50}requests\\.post|requests\\.post.{0,50}clipboard"
 
   - id: requests-get-clip
@@ -172,7 +172,7 @@ traits:
     crit: inert
     conf: 0.4
     if:
-      type: content
+      type: raw
       regex: "clipboard.{0,50}requests\\.get|requests\\.get.{0,50}clipboard"
 
   - id: urllib-clip
@@ -180,7 +180,7 @@ traits:
     crit: inert
     conf: 0.4
     if:
-      type: content
+      type: raw
       regex: "clipboard.{0,50}urllib|urllib.{0,50}clipboard"
 
   - id: socket-clip
@@ -188,7 +188,7 @@ traits:
     crit: inert
     conf: 0.4
     if:
-      type: content
+      type: raw
       regex: "clipboard.{0,50}socket|socket.{0,50}clipboard"
 
   # === Loop/persistence atomic (require clipboard context) ===
@@ -197,7 +197,7 @@ traits:
     crit: inert
     conf: 0.5
     if:
-      type: content
+      type: raw
       regex: "while.{0,50}clipboard|clipboard.{0,50}while"
 
   - id: schedule-clipboard
@@ -205,7 +205,7 @@ traits:
     crit: inert
     conf: 0.5
     if:
-      type: content
+      type: raw
       regex: "schedule.{0,50}clipboard|clipboard.{0,50}schedule"
 
   - id: time-sleep-clipboard
@@ -213,7 +213,7 @@ traits:
     crit: inert
     conf: 0.5
     if:
-      type: content
+      type: raw
       regex: "time\\.sleep.{0,50}clipboard|clipboard.{0,50}time\\.sleep"
 
   # === Message loop atomic ===

@@ -9,14 +9,14 @@ defaults:
 
 traits:
   # === PowerShell HTTP cmdlets ===
-  # NOTE: Use type: content because string extractor only captures string literals,
+  # NOTE: Use type: raw because string extractor only captures string literals,
   # not cmdlet/identifier names from PowerShell AST
   - id: invoke-webrequest
     desc: Invoke-WebRequest cmdlet (iwr/wget/curl alias)
     crit: notable
     conf: 0.8
     if:
-      type: content
+      type: raw
       regex: "Invoke-WebRequest|\\biwr\\b|\\bwget\\b|\\bcurl\\b"
       case_insensitive: true
 
@@ -25,7 +25,7 @@ traits:
     crit: notable
     conf: 0.8
     if:
-      type: content
+      type: raw
       regex: "Invoke-RestMethod|\\birm\\b"
       case_insensitive: true
 
@@ -34,7 +34,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "WebClient\\)?\\.Download|New-Object\\s+.{0,30}WebClient|\\(Net\\.WebClient\\)"
       case_insensitive: true
 
@@ -43,7 +43,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "WebClient\\)?\\.Upload|UploadString|UploadFile|UploadData"
       case_insensitive: true
 
@@ -52,7 +52,7 @@ traits:
     crit: notable
     conf: 0.75
     if:
-      type: content
+      type: raw
       regex: "-Method\\s+POST|-Method\\s+['\"]POST['\"]"
       case_insensitive: true
 
@@ -61,7 +61,7 @@ traits:
     crit: inert
     conf: 0.6
     if:
-      type: content
+      type: raw
       regex: "-Body\\s+[@$\\{\"']"
       case_insensitive: true
 
@@ -71,7 +71,7 @@ traits:
     conf: 0.85
     attack: "T1197"
     if:
-      type: content
+      type: raw
       regex: "Start-BitsTransfer|Import-Module\\s+BitsTransfer"
       case_insensitive: true
 
@@ -80,7 +80,7 @@ traits:
     crit: notable
     conf: 0.75
     if:
-      type: content
+      type: raw
       regex: "HttpWebRequest|\\[System\\.Net\\.HttpWebRequest\\]"
       case_insensitive: true
 

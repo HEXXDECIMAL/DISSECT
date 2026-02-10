@@ -17,7 +17,7 @@ traits:
     attack: "T1105"
     mbc: "E1059"
     if:
-      type: content
+      type: raw
       regex: "exec\\s*\\(.{0,50}\\.get\\s*\\(.{0,50}\\)\\.text\\s*\\)"
 
   # exec() with .get().content - binary response
@@ -28,7 +28,7 @@ traits:
     attack: "T1105"
     mbc: "E1059"
     if:
-      type: content
+      type: raw
       regex: "exec\\s*\\(.{0,50}\\.get\\s*\\(.{0,50}\\)\\.content\\s*\\)"
 
   # eval() with .get().text
@@ -39,7 +39,7 @@ traits:
     attack: "T1105"
     mbc: "E1059"
     if:
-      type: content
+      type: raw
       regex: "eval\\s*\\(.{0,50}\\.get\\s*\\(.{0,50}\\)\\.text\\s*\\)"
 
   # exec() with urlopen().read()
@@ -50,7 +50,7 @@ traits:
     attack: "T1105"
     mbc: "E1059"
     if:
-      type: content
+      type: raw
       regex: "exec\\s*\\(.{0,50}urlopen\\s*\\(.{0,50}\\)\\.read\\s*\\(\\s*\\)"
 
   # Numeric array with chr() - URL obfuscation pattern
@@ -62,7 +62,7 @@ traits:
     mbc: "B0032"
     attack: "T1027"
     if:
-      type: content
+      type: raw
       regex: "\\[\\s*\\d{2,4}\\s*,\\s*\\d{2,4}\\s*,\\s*\\d{2,4}[^\\]]{0,50}\\][^c]{0,50}chr\\s*\\("
 
   # join(chr(x) for x in ...) - common deobfuscation pattern
@@ -73,7 +73,7 @@ traits:
     mbc: "B0032"
     attack: "T1027"
     if:
-      type: content
+      type: raw
       regex: "\\.join\\s*\\([^)]*chr\\s*\\([^)]*\\)\\s*for\\s+\\w+\\s+in"
 
   # Bitshift operations on numeric arrays - obfuscation
@@ -84,7 +84,7 @@ traits:
     mbc: "B0032"
     attack: "T1027"
     if:
-      type: content
+      type: raw
       regex: "\\[\\s*\\w+\\s*(<<|>>)\\s*\\d+\\s+for\\s+\\w+\\s+in"
 
 composite_rules:

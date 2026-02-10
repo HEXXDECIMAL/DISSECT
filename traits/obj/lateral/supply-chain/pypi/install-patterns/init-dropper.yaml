@@ -35,7 +35,7 @@ traits:
     crit: notable
     conf: 0.75
     if:
-      type: content
+      type: raw
       regex: "platform\\.system.{0,50}platform\\.machine|platform\\.machine.{0,50}platform\\.system"
 
   # OS string checks (match extracted string literals)
@@ -60,7 +60,7 @@ traits:
     crit: inert
     conf: 0.5
     if:
-      type: content
+      type: raw
       regex: '"(x86|AMD64|arm64|aarch64)" in platform'
 
   # Import of safe_download or similar dropper functions
@@ -69,7 +69,7 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: content
+      type: raw
       substr: "import safe_download"
 
   # Combination: download function with delete=True
@@ -78,7 +78,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       substr: "delete=True"
 
   # Download and run function call pattern
@@ -87,7 +87,7 @@ traits:
     crit: suspicious
     conf: 0.90
     if:
-      type: content
+      type: raw
       regex: "safe_run\\s*\\("
 
   # os.system shell execution (common in init droppers)
@@ -106,7 +106,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "platform\\.system.{0,50}os\\.system|os\\.system.{0,50}platform\\.system"
 
   # Inline shell download+execute pattern: wget ... && tar ... && ./
@@ -135,7 +135,7 @@ traits:
     mbc: "B0012"
     attack: "T1082"
     if:
-      type: content
+      type: raw
       substr: '"Linux" in platform.system()'
 
 composite_rules:

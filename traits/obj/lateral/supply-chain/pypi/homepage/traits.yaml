@@ -42,8 +42,8 @@ traits:
     crit: notable
     conf: 0.65
     if:
-      type: content
+      type: raw
       substr: "[build-system]"
     unless:
-      - type: content
+      - type: raw
         substr: "[project.urls]"

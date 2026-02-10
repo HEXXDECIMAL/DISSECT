@@ -30,7 +30,7 @@ traits:
       type: string
       regex: "\\bDo\\b.{0,50}\\bLoop\\b|\\bWhile\\b.{0,30}\\bTrue\\b.{0,30}Clipboard|Clipboard.{0,30}sleep"
     unless:
-      - type: content
+      - type: raw
         regex: "nodejs|usr/bin"
 
   # === Bitcoin Address Pattern ===

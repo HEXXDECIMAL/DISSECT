@@ -17,7 +17,7 @@ traits:
     mbc: "B0024"
     attack: "T1574.010"
     if:
-      type: content
+      type: raw
       regex: 'cp\s+[^|&;\n]+\s+/bin/[a-zA-Z0-9_.-]+'
 
   - id: cp-to-sbin
@@ -27,7 +27,7 @@ traits:
     mbc: "B0024"
     attack: "T1574.010"
     if:
-      type: content
+      type: raw
       regex: 'cp\s+[^|&;\n]+\s+/sbin/[a-zA-Z0-9_.-]+'
 
   - id: cp-to-usr-bin
@@ -37,7 +37,7 @@ traits:
     mbc: "B0024"
     attack: "T1574.010"
     if:
-      type: content
+      type: raw
       regex: 'cp\s+[^|&;\n]+\s+/usr/(s?bin|local/s?bin)/[a-zA-Z0-9_.-]+'
 
   - id: cp-force-flag
@@ -45,7 +45,7 @@ traits:
     crit: inert
     conf: 0.5
     if:
-      type: content
+      type: raw
       regex: 'cp\s+(-[a-z]*f|-f\s)'
 
   # === Execute from system directory ===
@@ -55,7 +55,7 @@ traits:
     conf: 0.7
     attack: "T1059.004"
     if:
-      type: content
+      type: raw
       regex: '(?:^|&&|\|\||;)\s*/bin/[a-zA-Z0-9_.-]+(?:\s|$|>|&|;)'
 
   - id: exec-sbin-absolute
@@ -64,7 +64,7 @@ traits:
     conf: 0.7
     attack: "T1059.004"
     if:
-      type: content
+      type: raw
       regex: '(?:^|&&|\|\||;)\s*/sbin/[a-zA-Z0-9_.-]+(?:\s|$|>|&|;)'
 
   # === Delete after execution ===
@@ -75,7 +75,7 @@ traits:
     mbc: "F0007"
     attack: "T1070.004"
     if:
-      type: content
+      type: raw
       regex: '&&\s*rm\s+(-[a-z]+\s+)*(/bin/|/sbin/|/usr/)'
 
   - id: rm-bin-path
@@ -85,7 +85,7 @@ traits:
     mbc: "F0007"
     attack: "T1070.004"
     if:
-      type: content
+      type: raw
       regex: 'rm\s+(-[a-z]+\s+)*(--\s+)?/bin/[a-zA-Z0-9_.-]+'
 
   - id: rm-sbin-path
@@ -95,7 +95,7 @@ traits:
     mbc: "F0007"
     attack: "T1070.004"
     if:
-      type: content
+      type: raw
       regex: 'rm\s+(-[a-z]+\s+)*(--\s+)?/sbin/[a-zA-Z0-9_.-]+'
 
   # === Combined patterns ===
@@ -106,7 +106,7 @@ traits:
     mbc: "B0024"
     attack: "T1059.004"
     if:
-      type: content
+      type: raw
       regex: 'cp\s+[^|&;\n]+&&[^;]*rm\s+'
 
   - id: exec-and-rm-chain
@@ -116,7 +116,7 @@ traits:
     mbc: "F0007"
     attack: "T1070.004"
     if:
-      type: content
+      type: raw
       regex: '/(?:bin|sbin|usr/(?:local/)?(?:s?bin))/[a-zA-Z0-9_.-]+[^;]*&&[^;]*rm\s+'
 
 composite_rules:

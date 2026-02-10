@@ -363,7 +363,7 @@ impl StringMatchIndex {
     }
 }
 
-/// Index for regex patterns from `type: content` conditions.
+/// Index for regex patterns from `type: raw` conditions.
 /// Builds per-file-type RegexSets to avoid running irrelevant patterns.
 #[derive(Clone, Default)]
 pub(crate) struct RawContentRegexIndex {

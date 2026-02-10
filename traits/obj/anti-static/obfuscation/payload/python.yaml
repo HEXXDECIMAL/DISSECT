@@ -13,7 +13,7 @@ traits:
     attack: "T1140"
     for: [python]
     if:
-      type: content
+      type: raw
       substr: "binascii.unhexlify"
 
   - id: unhexlify-import
@@ -24,7 +24,7 @@ traits:
     attack: "T1140"
     for: [python]
     if:
-      type: content
+      type: raw
       regex: "from\\s+binascii\\s+import.{0,50}unhexlify"
 
   - id: binascii-import
@@ -33,7 +33,7 @@ traits:
     conf: 0.9
     for: [python]
     if:
-      type: content
+      type: raw
       regex: "import\\s+binascii\\b"
 
   # === Content-based exec/eval detection ===
@@ -46,7 +46,7 @@ traits:
     attack: "T1059"
     for: [python]
     if:
-      type: content
+      type: raw
       regex: "exec\\s*\\("
 
   - id: eval-function-call
@@ -57,7 +57,7 @@ traits:
     attack: "T1059"
     for: [python]
     if:
-      type: content
+      type: raw
       # Match eval( preceded by = or ( or : or , (assignment/call/dict/args)
       # Excludes: def eval(), .eval(), etc.
       regex: "[=(,]\\s*eval\\s*\\("
@@ -149,7 +149,7 @@ traits:
     attack: "T1140"
     for: [python]
     if:
-      type: content
+      type: raw
       substr: "unhexlify"
 
   # Bytecode containing both exec and eval names alongside __import__

@@ -20,7 +20,7 @@ traits:
     crit: benign
     conf: 0.9
     if:
-      type: content
+      type: raw
       substr: "jquery.org"
 
   # jQuery copyright (in comments, not string literals)
@@ -29,7 +29,7 @@ traits:
     crit: benign
     conf: 0.95
     if:
-      type: content
+      type: raw
       substr: "jQuery JavaScript Library"
 
   # jQuery function signatures
@@ -38,7 +38,7 @@ traits:
     crit: benign
     conf: 0.85
     if:
-      type: content
+      type: raw
       substr: "jQuery.fn.extend"
 
 composite_rules:

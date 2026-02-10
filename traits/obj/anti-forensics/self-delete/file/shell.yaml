@@ -16,7 +16,7 @@ traits:
       type: string
       regex: "(?:^|\\s|;)rm\\s+\\$0\\b"
     unless:
-      - type: content
+      - type: raw
         regex: "docutils|math2html"
 
   - id: rm-dollar-zero-quoted
@@ -31,7 +31,7 @@ traits:
       type: string
       regex: "(?:^|\\s|;)rm\\s+\"\\$0\"\\b"
     unless:
-      - type: content
+      - type: raw
         regex: "docutils|math2html"
 
   - id: shred-dollar-zero

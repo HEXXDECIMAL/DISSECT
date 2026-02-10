@@ -58,7 +58,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "(?:^|[\\x22\\x27\\s])[A-Za-z0-9+/]{120,}={0,2}(?:[\\x22\\x27\\s]|$)"
 
   - id: sh-long-lines
@@ -91,7 +91,7 @@ traits:
     mbc: "B0032"
     attack: "T1027"
     if:
-      type: content
+      type: raw
       regex: "\\$'[^']*\\\\x[0-9a-fA-F]{2}"
       count_min: 5
       per_kb_min: 1.0
@@ -104,7 +104,7 @@ traits:
     mbc: "B0032"
     attack: "T1027"
     if:
-      type: content
+      type: raw
       regex: "\\$'[^']*\\\\[0-7]{3}"
       count_min: 5
       per_kb_min: 1.0
@@ -117,7 +117,7 @@ traits:
     mbc: "B0032"
     attack: "T1027"
     if:
-      type: content
+      type: raw
       regex: "\\$\\([^)]*\\$\\("
       count_min: 4
       per_kb_min: 0.8
@@ -130,7 +130,7 @@ traits:
     mbc: "B0032"
     attack: "T1027"
     if:
-      type: content
+      type: raw
       regex: "eval\\s"
       count_min: 3
       per_kb_min: 0.5
@@ -143,7 +143,7 @@ traits:
     mbc: "B0032"
     attack: "T1027"
     if:
-      type: content
+      type: raw
       regex: 'printf\s+["\x27]%s["\x27]|printf\s+["\x27]\\\\x'
       count_min: 4
       per_kb_min: 0.8

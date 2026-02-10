@@ -22,7 +22,7 @@ traits:
     crit: suspicious
     conf: 0.90
     if:
-      type: content
+      type: raw
       regex: "\\['HTTP_COOKIE'\\]\\.(match|scan|=~)"
 
   # === Rack/Rails Middleware Hooking ===
@@ -31,7 +31,7 @@ traits:
     crit: notable
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "Rack::[A-Z][a-zA-Z]+\\.prepend"
 
   # === Base64 Decode + Eval (RCE pattern) ===
@@ -40,7 +40,7 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: content
+      type: raw
       regex: "eval\\s*\\(\\s*Base64\\.(decode64|urlsafe_decode64|strict_decode64)"
 
   # === External Data Exfiltration ===
@@ -49,7 +49,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "Faraday\\.(get|post).{0,50}ENV\\["
 
 composite_rules:

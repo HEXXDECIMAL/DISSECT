@@ -29,7 +29,7 @@ traits:
     conf: 0.75
     for: [python]
     if:
-      type: content
+      type: raw
       regex: "\\bcert_reqs\\s*=\\s*(?:ssl\\.)?CERT_NONE\\b"
 
   - id: verify-mode-none
@@ -38,7 +38,7 @@ traits:
     conf: 0.85
     for: [python]
     if:
-      type: content
+      type: raw
       regex: "\\bverify_mode\\s*=\\s*(?:ssl\\.)?CERT_NONE\\b"
     unless:
       - type: string

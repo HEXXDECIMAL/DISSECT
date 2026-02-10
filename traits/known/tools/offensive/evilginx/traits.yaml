@@ -21,7 +21,7 @@ traits:
     conf: 0.9
     for: [all]
     if:
-      type: content
+      type: raw
       substr: "proxy_hosts:"
 
   - id: phishlet-phish-sub
@@ -30,7 +30,7 @@ traits:
     conf: 0.95
     for: [all]
     if:
-      type: content
+      type: raw
       substr: "phish_sub:"
 
   - id: phishlet-orig-sub
@@ -39,7 +39,7 @@ traits:
     conf: 0.95
     for: [all]
     if:
-      type: content
+      type: raw
       substr: "orig_sub:"
 
   - id: phishlet-auth-tokens
@@ -48,7 +48,7 @@ traits:
     conf: 0.95
     for: [all]
     if:
-      type: content
+      type: raw
       substr: "auth_tokens:"
 
   - id: phishlet-credentials
@@ -57,7 +57,7 @@ traits:
     conf: 0.9
     for: [all]
     if:
-      type: content
+      type: raw
       regex: "credentials:\\s*[\\s\\S]{0,50}(username|password|custom):\\s*[\\s\\S]{0,80}(key|search|type):"
 
   - id: phishlet-sub-filters
@@ -66,7 +66,7 @@ traits:
     conf: 0.9
     for: [all]
     if:
-      type: content
+      type: raw
       substr: "sub_filters:"
 
   - id: phishlet-js-inject
@@ -75,7 +75,7 @@ traits:
     conf: 0.95
     for: [all]
     if:
-      type: content
+      type: raw
       substr: "js_inject:"
 
   - id: phishlet-is-landing
@@ -84,7 +84,7 @@ traits:
     conf: 0.9
     for: [all]
     if:
-      type: content
+      type: raw
       substr: "is_landing:"
 
   - id: phishlet-min-ver
@@ -93,7 +93,7 @@ traits:
     conf: 0.8
     for: [all]
     if:
-      type: content
+      type: raw
       regex: "min_ver:\\s*['\"]?[0-9]+\\.[0-9]+"
 
   - id: phishlet-trigger-domains
@@ -102,7 +102,7 @@ traits:
     conf: 0.9
     for: [all]
     if:
-      type: content
+      type: raw
       substr: "trigger_domains:"
 
   - id: phishlet-force-post
@@ -111,7 +111,7 @@ traits:
     conf: 0.9
     for: [all]
     if:
-      type: content
+      type: raw
       substr: "force_post:"
 
   - id: phishlet-auth-urls
@@ -120,7 +120,7 @@ traits:
     conf: 0.9
     for: [all]
     if:
-      type: content
+      type: raw
       substr: "auth_urls:"
 
   # === Evilginx Main Config Detection ===
@@ -132,7 +132,7 @@ traits:
     conf: 0.9
     for: [all]
     if:
-      type: content
+      type: raw
       regex: "\\blures\\s*:"
 
   - id: config-phishlet-ref
@@ -141,7 +141,7 @@ traits:
     conf: 0.9
     for: [all]
     if:
-      type: content
+      type: raw
       regex: "phishlet:\\s*(google|outlook|yahoo|facebook|linkedin|instagram|twitter|microsoft|office365|o365)"
 
   - id: config-redirect-url
@@ -150,7 +150,7 @@ traits:
     conf: 0.8
     for: [all]
     if:
-      type: content
+      type: raw
       substr: "redirect_url:"
 
   - id: config-site-domains
@@ -159,7 +159,7 @@ traits:
     conf: 0.85
     for: [all]
     if:
-      type: content
+      type: raw
       substr: "site_domains:"
 
   - id: config-verification-key
@@ -168,7 +168,7 @@ traits:
     conf: 0.8
     for: [all]
     if:
-      type: content
+      type: raw
       substr: "verification_key:"
 
   - id: config-blacklist-mode
@@ -177,7 +177,7 @@ traits:
     conf: 0.8
     for: [all]
     if:
-      type: content
+      type: raw
       substr: "blacklist_mode:"
 
   # === Core Evilginx identifiers ===

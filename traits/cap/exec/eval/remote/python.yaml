@@ -17,7 +17,7 @@ traits:
     attack: "T1195.002"
     mbc: "E1059"
     if:
-      type: content
+      type: raw
       regex: "eval\\s*\\([^)]*\\.get\\s*\\([^)]*\\)\\s*\\.get\\s*\\("
 
   # eval() on single .get() with default - could be extracting from config
@@ -27,7 +27,7 @@ traits:
     conf: 0.8
     mbc: "E1059"
     if:
-      type: content
+      type: raw
       regex: "eval\\s*\\([^)]*\\.get\\s*\\([^)]*,[^)]*\\)\\s*\\)"
 
   # exec() on chained .get() calls
@@ -38,7 +38,7 @@ traits:
     attack: "T1195.002"
     mbc: "E1059"
     if:
-      type: content
+      type: raw
       regex: "exec\\s*\\([^)]*\\.get\\s*\\([^)]*\\)\\s*\\.get\\s*\\("
 
   # eval/exec on response/config object access
@@ -49,7 +49,7 @@ traits:
     attack: "T1195.002"
     mbc: "E1059"
     if:
-      type: content
+      type: raw
       regex: "eval\\s*\\(\\s*(config|response|data|result|payload|body)\\s*[\\[\\.]"
 
   # Client config evaluation - ML/inference server pattern
@@ -60,7 +60,7 @@ traits:
     attack: "T1195.002"
     mbc: "E1059"
     if:
-      type: content
+      type: raw
       regex: "eval\\s*\\([^)]*client[^)]*\\.get"
 
   # Evaluate string_value field - common malicious config pattern
@@ -71,7 +71,7 @@ traits:
     attack: "T1195.002"
     mbc: "E1059"
     if:
-      type: content
+      type: raw
       regex: "eval\\s*\\([^)]*string_value"
 
   # eval/exec with bracket access on received data
@@ -81,7 +81,7 @@ traits:
     conf: 0.85
     mbc: "E1059"
     if:
-      type: content
+      type: raw
       regex: "eval\\s*\\([^)]*\\[[\"'][^\"']+[\"']\\]"
 
 composite_rules:

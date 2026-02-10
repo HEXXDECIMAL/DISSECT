@@ -9,7 +9,7 @@ traits:
     conf: 0.7
     for: [c, elf]
     if:
-      type: content
+      type: raw
       substr: "bpf_map_lookup_elem"
 
   - id: bpf-map-update
@@ -18,7 +18,7 @@ traits:
     conf: 0.7
     for: [c, elf]
     if:
-      type: content
+      type: raw
       substr: "bpf_map_update_elem"
 
   - id: bpf-map-delete
@@ -27,7 +27,7 @@ traits:
     conf: 0.7
     for: [c, elf]
     if:
-      type: content
+      type: raw
       substr: "bpf_map_delete_elem"
 
   # === BPF Map Type Declarations ===
@@ -37,7 +37,7 @@ traits:
     conf: 0.5
     for: [c, elf]
     if:
-      type: content
+      type: raw
       substr: "BPF_MAP_TYPE_ARRAY"
 
   # === eBPF Map Type Declarations ===
@@ -48,7 +48,7 @@ traits:
     conf: 0.7
     for: [c, elf]
     if:
-      type: content
+      type: raw
       substr: "BPF_MAP_TYPE_RINGBUF"
 
   # BPF_MAP_TYPE_HASH for connection/context tracking
@@ -58,6 +58,6 @@ traits:
     conf: 0.5
     for: [c, elf]
     if:
-      type: content
+      type: raw
       substr: "BPF_MAP_TYPE_HASH"
 

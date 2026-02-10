@@ -18,7 +18,7 @@ traits:
     conf: 0.6
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: "['\"`]LICENSE['\"`]|/LICENSE['\"`]|LICENSE['\"`]\\)"
 
   - id: readme-file-reference
@@ -27,7 +27,7 @@ traits:
     conf: 0.6
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: "['\"`]README(?:\\.md)?['\"`]|/README(?:\\.md)?['\"`]"
 
   - id: changelog-file-reference
@@ -36,7 +36,7 @@ traits:
     conf: 0.6
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: "['\"`]CHANGELOG(?:\\.md)?['\"`]|/CHANGELOG(?:\\.md)?['\"`]"
 
   - id: txt-file-reference
@@ -45,7 +45,7 @@ traits:
     conf: 0.5
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: "['\"`][^'\"`]+\\.txt['\"`]"
 
   - id: dat-file-reference
@@ -54,7 +54,7 @@ traits:
     conf: 0.5
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: "['\"`][^'\"`]+\\.dat['\"`]"
 
   # === Eval with processed argument (not just a variable) ===
@@ -67,7 +67,7 @@ traits:
     mbc: "B0032"
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: "eval\\s*\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s*\\("
 
   - id: eval-method-call-arg
@@ -78,7 +78,7 @@ traits:
     mbc: "B0032"
     for: [javascript, typescript]
     if:
-      type: content
+      type: raw
       regex: "eval\\s*\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\.[a-zA-Z_$][a-zA-Z0-9_$]*\\s*\\("
 
   # === Local parser module patterns ===
@@ -89,7 +89,7 @@ traits:
     conf: 0.7
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: "require\\s*\\(\\s*['\"`]\\./(?:parse|parser|decode|decrypt|transform|convert)['\"`]\\s*\\)"
 
   - id: local-lib-require
@@ -98,7 +98,7 @@ traits:
     conf: 0.5
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: "require\\s*\\(\\s*['\"`]\\./[a-zA-Z0-9_-]+['\"`]\\s*\\)"
 
   # === fs.readFile patterns ===

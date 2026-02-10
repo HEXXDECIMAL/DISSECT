@@ -96,7 +96,7 @@ traits:
     crit: notable
     conf: 0.85
     if:
-      type: content
+      type: raw
       substr: "getsockname"
 
   # === MAC address discovery (atomic) ===
@@ -123,7 +123,7 @@ traits:
     crit: notable
     conf: 0.8
     if:
-      type: content
+      type: raw
       regex: "os\\.uname\\s*\\("
 
 composite_rules:

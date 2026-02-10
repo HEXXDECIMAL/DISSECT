@@ -167,7 +167,7 @@ traits:
     mbc: "B0030"
     attack: "T1505.003"
     if:
-      type: content
+      type: raw
       regex: "base64_decode\\s*\\([\"'][A-Za-z0-9+/=]{500,}"
 
   # WordPress CMS backdoor patterns
@@ -177,7 +177,7 @@ traits:
     conf: 0.7
     attack: "T1136.001"
     if:
-      type: content
+      type: raw
       regex: "wp_create_user|WP_User|username_exists"
 
   - id: wp-role-assignment
@@ -186,7 +186,7 @@ traits:
     conf: 0.7
     attack: "T1098"
     if:
-      type: content
+      type: raw
       substr: "set_role"
 
   - id: wp-plugin-path
@@ -194,7 +194,7 @@ traits:
     crit: inert
     conf: 0.5
     if:
-      type: content
+      type: raw
       substr: "wp-content/plugins"
 
   - id: wp-plugin-path-encoded
@@ -204,7 +204,7 @@ traits:
     mbc: "B0032"
     attack: "T1027"
     if:
-      type: content
+      type: raw
       # d3AtY29udGVudC9wbHVnaW5z decodes to "wp-content/plugins"
       substr: "d3AtY29udGVudC9wbHVnaW5z"
 

@@ -121,7 +121,7 @@ traits:
     for: [shell]
     platforms: [all]
     if:
-      type: content
+      type: raw
       substr: "BEGIN INIT INFO"
 
   - id: update-rc-d-cmd

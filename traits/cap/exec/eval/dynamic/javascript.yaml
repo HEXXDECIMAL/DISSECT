@@ -74,7 +74,7 @@ traits:
     mbc: "B0032"
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: "\\[\\s*[\"']constructor[\"']\\s*\\]"
 
   # Function name derived from typeof() (e.g., "function" -> "Function")
@@ -86,7 +86,7 @@ traits:
     mbc: "B0032"
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: "\\(\\s*typeof[^\\)]{0,80}\\)\\s*\\)\\s*\\.charAt\\(0\\)\\.toUpperCase\\(\\)\\s*\\+\\s*\\(\\s*typeof[^\\)]{0,80}\\)\\s*\\)\\s*\\.slice\\(1\\)"
 
   # Bracket notation function call (variable as function)
@@ -97,7 +97,7 @@ traits:
     attack: "T1027.002"
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: '\w+\[\w+\]\s*\('
 
   # === VM runIn atomic indicators ===
@@ -138,7 +138,7 @@ traits:
     conf: 0.9
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: '\(\s*(?:async\s+)?function\s*\([^)]{0,50}\)\s*\{'
 
   # Variable immediately invoked as function
@@ -148,7 +148,7 @@ traits:
     conf: 0.7
     for: [javascript]
     if:
-      type: content
+      type: raw
       regex: 'var\s+\w+\s*=\s*function\s*\([^)]*\)\s*\{|var\s+\w+\s*=\s*\(\s*\)\s*=>'
 
 composite_rules:

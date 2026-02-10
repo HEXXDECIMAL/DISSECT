@@ -12,6 +12,6 @@ traits:
     desc: "ANSI terminal escape codes"
     conf: 0.8
     if:
-      type: content
+      type: raw
       regex: "\\x1b\\["
 

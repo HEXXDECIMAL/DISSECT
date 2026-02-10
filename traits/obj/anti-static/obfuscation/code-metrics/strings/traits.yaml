@@ -18,7 +18,7 @@ traits:
       min: 4.5
       min_size: 4096
     unless:
-      - type: content
+      - type: raw
         substr: "scipy"
 
   - id: few-strings
@@ -43,5 +43,5 @@ composite_rules:
       - id: few-strings
       - id: obj/anti-static/obfuscation/code-metrics/structure::high-text-entropy
     unless:
-      - type: content
+      - type: raw
         regex: "weave|swig"

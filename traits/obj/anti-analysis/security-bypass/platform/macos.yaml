@@ -14,7 +14,7 @@ traits:
     conf: 0.9
     for: [shell]
     if:
-      type: content
+      type: raw
       regex: 'xattr\s+-c\s+[^&\n]+&&[^&\n]*(chmod|\.\/)'
 
   - id: curl-xattr-chmod-chain
@@ -23,7 +23,7 @@ traits:
     conf: 0.95
     for: [shell]
     if:
-      type: content
+      type: raw
       regex: 'curl[^&]*&&[^&]*xattr[^&]*&&[^&]*chmod[^&]*&&[^&]*\./'
 
   # === Trust/Certificate manipulation ===

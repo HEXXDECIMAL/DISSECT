@@ -49,7 +49,7 @@ traits:
         - "^9\\.9\\.9\\.9$"
         - "^208\\.67\\.22[20]\\.22[20]$"
     unless:
-      - type: content
+      - type: raw
         regex: "pytest|def test_"
 
   - id: http-raw-ip-url

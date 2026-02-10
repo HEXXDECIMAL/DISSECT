@@ -21,7 +21,7 @@ traits:
     crit: suspicious
     conf: 0.9
     if:
-      type: content
+      type: raw
       regex: "/bin/-[a-zA-Z0-9_]+"
 
   - id: dash-file-sbin
@@ -29,7 +29,7 @@ traits:
     crit: suspicious
     conf: 0.9
     if:
-      type: content
+      type: raw
       regex: "/sbin/-[a-zA-Z0-9_]+"
 
   - id: dash-file-usr
@@ -37,7 +37,7 @@ traits:
     crit: suspicious
     conf: 0.9
     if:
-      type: content
+      type: raw
       regex: "/usr/(s?bin|local)/-[a-zA-Z0-9_]+"
 
   - id: dash-file-tmp
@@ -45,7 +45,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: "/(tmp|var/tmp|dev/shm)/-[a-zA-Z0-9_]+"
 
   # === Copy to dash-prefix path ===
@@ -54,7 +54,7 @@ traits:
     crit: suspicious
     conf: 0.9
     if:
-      type: content
+      type: raw
       regex: 'cp\s+[^|&;\n]+\s+/[a-z/]+/-[a-zA-Z0-9_]+'
 
   # === Execute dash-prefix file ===
@@ -63,7 +63,7 @@ traits:
     crit: suspicious
     conf: 0.9
     if:
-      type: content
+      type: raw
       regex: '(exec|\.\/|\$\(|`)\s*\./-[a-zA-Z0-9_]+'
 
   # === Delete with double-dash terminator ===
@@ -72,7 +72,7 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: content
+      type: raw
       regex: 'rm\s+(-[a-z]+\s+)*--\s+'
 
   - id: rm-dash-prefix-file
@@ -80,7 +80,7 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: content
+      type: raw
       regex: 'rm\s+(-[a-z]+\s+)*--\s+-[a-zA-Z0-9_]+'
 
 composite_rules:

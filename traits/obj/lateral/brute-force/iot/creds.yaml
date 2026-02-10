@@ -24,7 +24,7 @@ traits:
     not:
       - id: meta/signed/platform::apple
     unless:
-      - type: content
+      - type: raw
         regex: "pandas|pytest|def test_"
 
   - id: iot-vendor-creds
