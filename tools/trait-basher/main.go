@@ -19,6 +19,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"database/sql"
+	_ "embed"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -62,14 +63,16 @@ type promptData struct {
 	IsBad       bool // true for known-bad mode, false for known-good mode
 }
 
+//go:embed prompt.tmpl
+var promptTemplateData string
+
 var promptTmpl *template.Template
 
 func loadPromptTemplate(repoRoot string) error {
-	tmplPath := filepath.Join(repoRoot, "tools", "trait-basher", "prompt.tmpl")
 	var err error
-	promptTmpl, err = template.ParseFiles(tmplPath)
+	promptTmpl, err = template.New("prompt").Parse(promptTemplateData)
 	if err != nil {
-		return fmt.Errorf("load prompt template: %w", err)
+		return fmt.Errorf("parse prompt template: %w", err)
 	}
 	return nil
 }

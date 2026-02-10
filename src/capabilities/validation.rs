@@ -548,7 +548,7 @@ pub fn calculate_composite_precision(
         // `all` clause: recursively sum all elements
         if let Some(ref conditions) = rule.all {
             for cond in conditions {
-                let before = precision;
+                let _before = precision;
                 match cond {
                     Condition::Trait { id } => {
                         // Recursively calculate trait/composite precision
@@ -609,10 +609,13 @@ pub fn calculate_composite_precision(
 
             if !branch_scores.is_empty() {
                 let required = rule.needs.unwrap_or(1).max(1);
-                let weakest_sum = sum_weakest(branch_scores.clone(), required);
                 if debug {
-                    eprintln!("  [DEBUG] {} any clause: needs={}, scores={:?}, sum_weakest={:.2}",
-                        rule_id, required, branch_scores, weakest_sum);
+                    eprintln!("  [DEBUG] {} any clause: needs={}, scores={:?}",
+                        rule_id, required, branch_scores);
+                }
+                let weakest_sum = sum_weakest(branch_scores, required);
+                if debug {
+                    eprintln!("  [DEBUG] {} any clause: sum_weakest={:.2}", rule_id, weakest_sum);
                 }
                 precision += weakest_sum;
             }
