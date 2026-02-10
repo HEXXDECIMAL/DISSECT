@@ -1,0 +1,49 @@
+traits:
+  - id: api-register
+    desc: Registers a Service Worker
+    crit: inert
+    if:
+      type: content
+      regex: 'navigator\.serviceWorker\.register'
+
+  - id: event-install
+    desc: Service Worker install event listener
+    crit: inert
+    if:
+      type: content
+      regex: 'addEventListener\s*\(\s*["'']install["'']'
+
+  - id: event-activate
+    desc: Service Worker activate event listener
+    crit: inert
+    if:
+      type: content
+      regex: 'addEventListener\s*\(\s*["'']activate["'']'
+
+  - id: event-fetch
+    desc: Service Worker fetch event listener (network interception)
+    crit: notable
+    if:
+      type: content
+      regex: 'addEventListener\s*\(\s*["'']fetch["'']'
+
+  - id: control-claim
+    desc: Service Worker claims clients immediately
+    crit: notable
+    if:
+      type: content
+      regex: 'clients\.claim\s*\(\)'
+
+  - id: control-skip-waiting
+    desc: Service Worker skips waiting phase
+    crit: inert
+    if:
+      type: content
+      regex: 'skipWaiting\s*\(\)'
+
+  - id: api-respond-with
+    desc: Service Worker respondWith (modifies response)
+    crit: inert
+    if:
+      type: content
+      regex: '\.respondWith\s*\('

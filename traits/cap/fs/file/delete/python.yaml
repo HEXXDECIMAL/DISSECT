@@ -5,12 +5,12 @@ defaults:
 
 traits:
   - id: py-remove
-    desc: "remove() or unlink() call (delete file)"
+    desc: "os.remove() or os.unlink() call"
     crit: notable
     conf: 0.8
     if:
-      type: string
-      regex: '\.remove\(|\.unlink\('
+      type: raw
+      regex: 'os\.(remove|unlink)\('
       
   - id: py-rmtree
     desc: "rmtree() call (recursive delete)"

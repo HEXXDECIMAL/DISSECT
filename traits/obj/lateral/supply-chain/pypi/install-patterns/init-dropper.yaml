@@ -38,14 +38,14 @@ traits:
       type: content
       regex: "platform\\.system.{0,50}platform\\.machine|platform\\.machine.{0,50}platform\\.system"
 
-  # OS string checks
+  # OS string checks (match extracted string literals)
   - id: linux-string-check
     desc: Linux OS string in condition
     crit: inert
     conf: 0.5
     if:
       type: string
-      regex: '"Linux"\\s+in\\s+|==\\s*"Linux"|"Linux"\\s*==|in\\s+.{0,20}"Linux"'
+      word: "Linux"
 
   - id: darwin-string-check
     desc: Darwin/macOS string in condition
@@ -53,15 +53,15 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: '"Darwin"\\s+in\\s+|==\\s*"Darwin"|"Darwin"\\s*==|in\\s+.{0,20}"Darwin"'
+      word: "Darwin"
 
   - id: arch-string-check
     desc: Architecture string checks
     crit: inert
     conf: 0.5
     if:
-      type: string
-      regex: '"(x86|AMD64|arm64|aarch64)"\\s+in\\s+|in\\s+.{0,40}"(x86|AMD64|arm64|aarch64)"'
+      type: content
+      regex: '"(x86|AMD64|arm64|aarch64)" in platform'
 
   # Import of safe_download or similar dropper functions
   - id: import-safe-download
@@ -69,8 +69,8 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: string
-      regex: "from\\s+.{1,80}import\\s+.{0,50}safe_download"
+      type: content
+      substr: "import safe_download"
 
   # Combination: download function with delete=True
   - id: download-with-delete
@@ -78,8 +78,8 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: string
-      regex: "(safe_)?download\\(.{0,50}delete\\s*=\\s*True"
+      type: content
+      substr: "delete=True"
 
   # Download and run function call pattern
   - id: safe-run-call
@@ -87,7 +87,7 @@ traits:
     crit: suspicious
     conf: 0.90
     if:
-      type: string
+      type: content
       regex: "safe_run\\s*\\("
 
   # os.system shell execution (common in init droppers)
@@ -136,7 +136,7 @@ traits:
     attack: "T1082"
     if:
       type: content
-      regex: '"Linux"\\s+in\\s+platform\\.system\\(\\)'
+      substr: '"Linux" in platform.system()'
 
 composite_rules:
   # Platform-targeted dropper detection

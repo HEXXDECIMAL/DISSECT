@@ -128,7 +128,8 @@ traits:
     attack: "T1105"
     if:
       type: content
-      regex: 'curl\s+(?:[^|&\n]+\s+)?(-o\s+|--output\s+|-O)'
+      # Matches -o, -O, --output, and combined flags like -LO, -sLO
+      regex: 'curl\s+(?:[^|&\n]+\s+)?(-o\s+|--output\s+|-[a-zA-Z]*O)'
 
   - id: chmod-plus-x-cmd
     desc: "chmod +x command"
@@ -138,5 +139,14 @@ traits:
     if:
       type: content
       regex: 'chmod\s+\+x'
+
+  - id: chmod-7xx-cmd
+    desc: "chmod 7xx command (make executable)"
+    crit: notable
+    conf: 0.7
+    attack: "T1222"
+    if:
+      type: content
+      regex: 'chmod\s+0?7[0-7][0-7]\s'
 
   # === One-liner detection ===

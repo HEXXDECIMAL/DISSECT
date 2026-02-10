@@ -122,6 +122,16 @@ traits:
       type: content
       regex: "#ifdef\\s+__(?:x86_64|arm|i386|aarch64)__"
 
+  - id: arch-const-mapping
+    desc: Multi-architecture numeric constant mapping
+    crit: notable
+    conf: 0.85
+    for: [c]
+    if:
+      type: content
+      regex: "#elif\\s+__(?:x86_64|arm|i386|aarch64)__"
+      count_min: 2
+
   - id: arch-aware-lib-filter
     desc: Architecture-aware library filtering
     crit: suspicious
@@ -269,6 +279,20 @@ composite_rules:
     all:
       - id: lib-path-enum
       - id: ssl-lib-targets
+
+  # Architecture-aware library resolver interface
+  # Arch detection macros + library resolver functions = multi-arch library search utility
+  - id: arch-aware-lib-resolver
+    desc: Architecture-aware library resolver interface
+    crit: suspicious
+    conf: 0.85
+    mbc: "E1083"
+    attack: "T1518"
+    all:
+      - id: lib-resolver-fn
+    any:
+      - id: arch-const-mapping
+      - id: arch-macro-detection
 
   # Manual library resolver implementation
   # Systematic search + architecture awareness = manual linker/hooker utility

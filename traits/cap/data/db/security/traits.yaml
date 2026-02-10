@@ -1,0 +1,7 @@
+traits:
+  - id: commented-out-unique
+    desc: Commented out unique constraint (often disables security)
+    crit: notable
+    if:
+      type: content
+      regex: '//\s*unique\s*:\s*true'

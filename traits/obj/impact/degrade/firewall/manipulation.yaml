@@ -5,7 +5,7 @@
 composite_rules:
   - id: firewall-comprehensive-abuse
     desc: Complete firewall manipulation pattern
-    crit: suspicious
+    crit: notable
     conf: 0.9
     for: [elf, shell]
     attack: "T1562.004"

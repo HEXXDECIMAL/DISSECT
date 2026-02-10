@@ -139,3 +139,18 @@ composite_rules:
     all:
       - id: bitshift-array
       - id: join-chr-comprehension
+
+  # Remote YAML deserialization
+  # Complexity: 2.0 (traits) + 0.3 (file_types) + 1.0 (all) + 1.0 (any) = ~4.3
+  - id: remote-yaml-deserialization
+    desc: "Deserializes YAML data from remote source (RCE risk)"
+    crit: hostile
+    conf: 0.95
+    attack: "T1203" # Exploitation for Client Execution
+    mbc: "B0024"
+    for: [python]
+    all:
+      - id: cap/comm/http/request::request-python
+    any:
+      - id: cap/data/serialize/yaml::yaml-loader-unsafe
+      - id: cap/data/serialize/yaml::yaml-unsafe-load

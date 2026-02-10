@@ -74,7 +74,7 @@ composite_rules:
 
   - id: wscript-com-objects
     desc: WScript COM object usage
-    crit: suspicious
+    crit: notable
     conf: 0.8
     platforms: [windows]
     for: [javascript]

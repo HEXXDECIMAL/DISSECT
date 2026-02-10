@@ -1,0 +1,18 @@
+# Python Dropper Objective: chmod, execute stealthily, delete
+# MBC: B0030 (Dropper)
+# ATT&CK: T1059.006, T1105
+
+composite_rules:
+  # chmod executable + stealth execution + self-delete
+  # Precision: all(3) + for(0.3) >= 4 -> hostile
+  - id: stealth-dropper
+    desc: Chmod, stealth execute, and delete
+    crit: hostile
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1059.006"
+    for: [python]
+    all:
+      - id: cap/fs/chmod/executable::python-executable
+      - id: cap/exec/dropper/stealth::python
+      - id: cap/exec/dropper/tmp-run::os-remove

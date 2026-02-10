@@ -15,8 +15,6 @@ traits:
     desc: os.startfile execution
     crit: notable
     conf: 0.85
-    # Small binaries with startfile are more suspicious
-    size_max: 5000
     if:
       type: string
       regex: "os\\.startfile|startfile\\("

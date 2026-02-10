@@ -10,7 +10,7 @@ defaults:
 composite_rules:
   - id: auth-privesc-api-combo
     desc: "Authorization APIs for privilege escalation"
-    crit: suspicious
+    crit: notable
     conf: 0.9
     for: [macho, dylib, c]
     platforms: [macos]

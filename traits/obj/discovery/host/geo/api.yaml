@@ -32,6 +32,15 @@ traits:
       type: string
       substr: "ip-api.com"
 
+  - id: ipapi-co
+    desc: ipapi.co geolocation API
+    crit: notable
+    conf: 0.8
+    attack: "T1016"
+    if:
+      type: string
+      substr: "ipapi.co"
+
   - id: api-ipify
     desc: api.ipify.org endpoint
     crit: inert
@@ -118,6 +127,15 @@ traits:
     if:
       type: string
       word: "country_code"
+
+  - id: country-name
+    desc: country_name field (geo profiling)
+    crit: inert
+    conf: 0.5
+    attack: "T1016"
+    if:
+      type: string
+      word: "country_name"
 
   - id: ip-address-camel
     desc: ipAddress field (camelCase)
@@ -246,6 +264,7 @@ composite_rules:
       - id: db-ip-api
       - id: obj/discovery/network/scan::ipinfo
       - id: ipapi-api
+      - id: ipapi-co
       - id: ipgeolocation-api
       - id: freegeoip-api
       - id: freegeoip-generic
@@ -259,6 +278,7 @@ composite_rules:
     attack: "T1016"
     any:
       - id: country-code-field
+      - id: country-name
       - id: ip-address-field
       - id: city-field
       - id: region-field

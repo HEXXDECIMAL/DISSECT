@@ -217,6 +217,44 @@ traits:
       path: "content_scripts[*].matches"
       regex: "amazon\\.|ebay\\.|walmart\\.|aliexpress\\."
 
+  - id: content-script-social-media
+    desc: Content script targets social media sites
+    crit: notable
+    conf: 0.9
+    if:
+      type: kv
+      path: "content_scripts[*].matches"
+      regex: "twitter\\.com|x\\.com|facebook\\.com|instagram\\.com|linkedin\\.com|reddit\\.com|tiktok\\.com"
+
+  - id: content-script-crypto-exchange
+    desc: Content script targets crypto exchange sites
+    crit: notable
+    conf: 0.9
+    if:
+      type: kv
+      path: "content_scripts[*].matches"
+      regex: "binance\\.com|coinbase\\.com|kraken\\.com|bybit\\.com|okx\\.com|kucoin\\.com|mexc\\.com|gate\\.io|crypto\\.com|bitfinex\\.com"
+
+  - id: description-crypto-finance
+    desc: Extension description mentions crypto/finance
+    crit: inert
+    conf: 0.85
+    if:
+      type: kv
+      path: "description"
+      regex: "crypto|wallet|blockchain|defi|token|trading|swap|nft|ethereum|solana|bitcoin"
+      case_insensitive: true
+
+  - id: name-crypto-finance
+    desc: Extension name mentions crypto/finance
+    crit: inert
+    conf: 0.85
+    if:
+      type: kv
+      path: "name"
+      regex: "crypto|wallet|blockchain|defi|token|swap|nft|ethereum|solana|bitcoin"
+      case_insensitive: true
+
   # === Background Scripts ===
   - id: background-persistent
     desc: Extension uses persistent background page
@@ -356,3 +394,14 @@ composite_rules:
       - id: update-url-present
     none:
       - id: update-url-google
+
+  # Crypto-themed extension injecting into social media
+  - id: crypto-social-media-injection
+    desc: Crypto extension injects into social media
+    crit: suspicious
+    conf: 0.9
+    all:
+      - id: content-script-social-media
+    any:
+      - id: name-crypto-finance
+      - id: description-crypto-finance

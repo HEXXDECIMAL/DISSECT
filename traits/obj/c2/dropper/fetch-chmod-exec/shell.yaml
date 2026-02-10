@@ -63,6 +63,23 @@ composite_rules:
       - id: cap/exec/dropper/script::chmod-plus-x-cmd
       - id: cap/exec/dropper/script::execute-dot-slash
 
+  # Download file + make executable + detached execution
+  # Precision: all(4) + any(1) + for(1) >= 4 -> hostile
+  - id: fetch-chmod-background-exec
+    desc: Download, chmod, and execute detached
+    crit: hostile
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1105"
+    for: [shell]
+    all:
+      - id: cap/exec/dropper/script::curl-download-file
+      - id: cap/exec/dropper/script::execute-dot-slash
+      - id: cap/exec/background/daemon::nohup-command
+    any:
+      - id: cap/exec/dropper/script::chmod-plus-x-cmd
+      - id: cap/exec/dropper/script::chmod-7xx-cmd
+
 traits:
   - id: tmpdir-variable
     desc: $TMPDIR environment variable usage

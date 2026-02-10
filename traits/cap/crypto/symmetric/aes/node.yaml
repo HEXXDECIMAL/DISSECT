@@ -25,26 +25,24 @@ traits:
 
   # Cipher Creation
   - id: createCipheriv
-    desc: Create cipher with IV (symmetric
+    desc: Create cipher with IV (symmetric)
     crit: notable
     conf: 0.85
     mbc: "C0027"
     for: [javascript, typescript]
     if:
-      type: ast
-      kind: call
-      exact: "createCipheriv"
+      type: symbol
+      substr: "createCipheriv"
 
   - id: createDecipheriv
-    desc: Create decipher with IV (symmetric
+    desc: Create decipher with IV (symmetric)
     crit: notable
     conf: 0.85
     mbc: "C0027"
     for: [javascript, typescript]
     if:
-      type: ast
-      kind: call
-      exact: "createDecipheriv"
+      type: symbol
+      substr: "createDecipheriv"
 
   # === AES-128-CTR atomic indicators ===
   - id: aes-128-ctr-dash
@@ -128,8 +126,8 @@ traits:
     mbc: "C0027"
     for: [javascript, typescript]
     if:
-      type: string
-      regex: "['\"](?:key|secret|password|pass)['\"]\\s*[,:=]\\s*['\"][A-Za-z0-9+/=]{16,}['\"]"
+      type: content
+      regex: "(?:key|secret|password|pass)\\s*[=:]\\s*Buffer\\.from\\(['\"][0-9a-fA-F]{32,}['\"]"
 
   - id: hardcoded-iv-pattern
     desc: Hardcoded IV in string literal
@@ -138,8 +136,18 @@ traits:
     mbc: "C0027"
     for: [javascript, typescript]
     if:
-      type: string
-      regex: "\\biv\\s*[,:=]\\s*['\"][A-Za-z0-9+/=]{16,}['\"]"
+      type: content
+      regex: "\\biv\\b\\s*[=:]\\s*Buffer\\.from\\(['\"][0-9a-fA-F]{16,}['\"]"
+
+  - id: buffer-hex-key-material
+    desc: Buffer.from with hex-encoded key material
+    crit: notable
+    conf: 0.8
+    mbc: "C0027"
+    for: [javascript, typescript]
+    if:
+      type: content
+      regex: "Buffer\\.from\\(['\"][0-9a-fA-F]{32,}['\"],\\s*['\"]hex['\"]"
 
   - id: buffer-from-hex
     desc: Buffer.from with long hex string
@@ -276,6 +284,7 @@ composite_rules:
       - id: hardcoded-key-pattern
       - id: hardcoded-iv-pattern
       - id: buffer-from-hex
+      - id: buffer-hex-key-material
 
   # Encrypted C2 channel detection (migrated from YARA)
   - id: encrypted-c2
