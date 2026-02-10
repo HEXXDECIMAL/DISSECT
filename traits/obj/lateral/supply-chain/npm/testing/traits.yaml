@@ -75,7 +75,7 @@ traits:
     for: [packagejson]
     if:
       type: string
-      regex: 'jest\\.config|"jest":\\s*\\{'
+      regex: 'jest\\.config|"jest"'
 
   # Has Babel config
   - id: pkg-test-script-field

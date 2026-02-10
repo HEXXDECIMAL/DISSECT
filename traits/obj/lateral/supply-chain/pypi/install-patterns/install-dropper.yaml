@@ -84,7 +84,7 @@ traits:
     conf: 0.8
     if:
       type: symbol
-      regex: "open\\(.*\\)\\.write"
+      regex: "open\\(.{0,100}\\)\\.write"
 
   # === Suspicious URL Patterns ===
   # Downloads from suspicious domains that look fake/impersonating

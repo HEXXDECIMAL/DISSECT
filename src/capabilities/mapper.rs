@@ -939,6 +939,17 @@ impl CapabilityMapper {
             valid_trait_ids.insert(rule.id.clone());
         }
 
+        // Debug: Print sample of valid trait IDs
+        if std::env::var("DISSECT_DEBUG").is_ok() {
+            let mut sample_ids: Vec<_> = valid_trait_ids.iter()
+                .filter(|id| id.contains("tiny-elf") || id.contains("small-elf") || id.contains("setup-py") || id.contains("pkginfo"))
+                .collect();
+            sample_ids.sort();
+            for id in sample_ids {
+                eprintln!("[DEBUG] Valid trait ID: {}", id);
+            }
+        }
+
         // Validate that composite rules don't reference meta/internal/ paths
         // Internal paths are for ML usage only and must not be used in composite rules
         let mut internal_refs = Vec::new();
@@ -1505,6 +1516,10 @@ impl CapabilityMapper {
                     && !is_dynamic_or_internal
                     && !valid_trait_ids.contains(&ref_id)
                 {
+                    // Debug: Print broken reference details
+                    if std::env::var("DISSECT_DEBUG").is_ok() && (ref_id.contains("tiny-elf") || ref_id.contains("small-elf") || ref_id.contains("setup-py") || ref_id.contains("pkginfo")) {
+                        eprintln!("[DEBUG] Broken reference: '{}' (from rule '{}')", ref_id, rule_id);
+                    }
                     let source_file = rule_source_files
                         .get(&rule_id)
                         .map(|s| s.as_str())

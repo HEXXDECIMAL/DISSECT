@@ -8,8 +8,9 @@ traits:
     conf: 0.8
     for: [python]
     if:
-      type: string
-      regex: "__import__("
+      type: ast
+      kind: call
+      regex: "^__import__$"
 
   - id: getattr-module
     desc: "Dynamic attribute access on modules"

@@ -82,8 +82,8 @@ traits:
     conf: 0.85
     for: [packagejson]
     if:
-      type: string
-      regex: '"exports":\\s*\\{'
+      type: kv
+      path: "exports"
 
   - id: esm-export-pattern
     desc: ES module export keyword pattern

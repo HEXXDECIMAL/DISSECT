@@ -47,7 +47,7 @@ traits:
     if:
       type: kv
       path: name
-      regex: "(?:http|url|rand|pip|tool|info|api|web|net|req|crypto|token|socket|base64|encode|decode).*(?:http|url|rand|pip|tool|info|api|web|net|req|crypto|token|socket|base64|encode|decode)"
+      regex: "(?:http|url|rand|pip|tool|info|api|web|net|req|crypto|token|socket|base64|encode|decode).{0,80}(?:http|url|rand|pip|tool|info|api|web|net|req|crypto|token|socket|base64|encode|decode)"
 
   - id: pyproject-name-module-fragments
     desc: pyproject.toml name with concatenated module fragments
@@ -57,4 +57,4 @@ traits:
     if:
       type: kv
       path: "project.name"
-      regex: "(?:http|url|rand|pip|tool|info|api|web|net|req|crypto|token|socket|base64|encode|decode).*(?:http|url|rand|pip|tool|info|api|web|net|req|crypto|token|socket|base64|encode|decode)"
+      regex: "(?:http|url|rand|pip|tool|info|api|web|net|req|crypto|token|socket|base64|encode|decode).{0,80}(?:http|url|rand|pip|tool|info|api|web|net|req|crypto|token|socket|base64|encode|decode)"

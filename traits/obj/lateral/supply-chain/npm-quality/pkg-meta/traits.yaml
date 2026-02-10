@@ -55,15 +55,6 @@ traits:
       type: string
       substr: '"types":'
 
-  - id: has-repository
-    desc: Package has repository URL
-    crit: inert
-    conf: 0.8
-    for: [packagejson]
-    if:
-      type: string
-      regex: '"repository":\\s*\\{|"repository":\\s*"'
-
   - id: has-author-email
     desc: Package has author with email
     crit: inert
@@ -79,8 +70,8 @@ traits:
     conf: 0.75
     for: [packagejson]
     if:
-      type: string
-      regex: '"keywords":\\s*\\['
+      type: kv
+      path: "keywords"
 
   - id: has-engines
     desc: Package specifies Node.js engine version
@@ -88,8 +79,8 @@ traits:
     conf: 0.8
     for: [packagejson]
     if:
-      type: string
-      regex: '"engines":\\s*\\{[^}]*"node"'
+      type: kv
+      path: "engines.node"
 
   - id: has-funding
     desc: Package has funding information
@@ -106,8 +97,8 @@ traits:
     conf: 0.8
     for: [packagejson]
     if:
-      type: string
-      regex: '"bugs":\\s*\\{|"bugs":\\s*"http'
+      type: kv
+      path: "bugs"
 
   - id: has-homepage-field
     desc: Package has homepage URL
@@ -178,8 +169,8 @@ traits:
     conf: 0.8
     for: [packagejson]
     if:
-      type: string
-      regex: '"bin":\\s*\\{|"bin":\\s*"'
+      type: kv
+      path: "bin"
 
   - id: peer-range
     desc: Uses version ranges for peer dependencies
@@ -241,8 +232,8 @@ traits:
     conf: 0.8
     for: [packagejson]
     if:
-      type: string
-      regex: '"files":\\s*\\['
+      type: kv
+      path: "files"
 
   - id: semver-deps
     desc: Uses semantic versioning for dependencies
@@ -251,7 +242,7 @@ traits:
     for: [packagejson]
     if:
       type: string
-      regex: '"dependencies":\\s*\\{[^}]*"\\^[0-9]|"~[0-9]'
+      regex: '"dependencies".{0,100}"[\\^~][0-9]'
 
   - id: has-publish-config
     desc: Has publish configuration

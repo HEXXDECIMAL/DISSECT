@@ -41,7 +41,7 @@ traits:
     desc: "UTF-16LE @SSL pattern"
     if:
       type: string
-      regex: '400053534C|40005300530\04C'
+      regex: '400053534C|400053005300004C'
     conf: 0.85
 
   # davwwwroot in UTF-16LE: 64 61 76 77 77 77 72 6F 6F 74

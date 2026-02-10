@@ -158,7 +158,7 @@ traits:
     conf: 0.8
     if:
       type: symbol
-      regex: "RxSwift.*Subject|BehaviorSubject"
+      regex: "RxSwift.{0,50}Subject|BehaviorSubject"
 
   # === Obfuscation Detection ===
   - id: base64-field-encoding
@@ -167,7 +167,7 @@ traits:
     conf: 0.85
     if:
       type: symbol
-      regex: "_\\$s.*[A-Z][a-zA-Z]*"
+      regex: "_\\$s.{0,100}[A-Z][a-zA-Z]*"
       count_min: 10
 
   - id: swift-name-mangling

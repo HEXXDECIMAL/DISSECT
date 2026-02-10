@@ -75,7 +75,9 @@ traits:
     conf: 0.66
     if:
       type: string
-      regex: '/proc/(?!self/)[^/]+/environ'
+      regex: '/proc/[^/]+/environ'
+    not:
+      - substr: "/proc/self/"
     downgrade:
       any:
         - id: cap/exec/load/library::debugger-tool-marker

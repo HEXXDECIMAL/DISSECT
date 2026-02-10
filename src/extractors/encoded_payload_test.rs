@@ -39,23 +39,23 @@ mod tests {
     #[test]
     fn test_decode_base64_simple() {
         let encoded = "aGVsbG8gd29ybGQ="; // "hello world"
-        let (decoded, used_zlib) = decode_base64(encoded).expect("Should decode");
+        let (decoded, compression) = decode_base64(encoded).expect("Should decode");
         assert_eq!(String::from_utf8(decoded).unwrap(), "hello world");
-        assert!(!used_zlib, "Should not use zlib for simple base64");
+        assert!(compression.is_none(), "Should not use compression for simple base64");
     }
 
     #[test]
     fn test_decode_base64_python_code() {
         // Python code: "import base64; exec(...)"
         let encoded = "aW1wb3J0IGJhc2U2NDtleGVjKGJhc2U2NC5iNjRkZWNvZGUoYnl0ZXMoJ2NHeGhkR1p2Y20wZycsJ1VURi04JykpLmRlY29kZSgpKQ==";
-        let (decoded, used_zlib) = decode_base64(encoded).expect("Should decode");
+        let (decoded, compression) = decode_base64(encoded).expect("Should decode");
         let decoded_str = String::from_utf8(decoded).unwrap();
         assert!(
             decoded_str.contains("import base64"),
             "Should decode Python import"
         );
         assert!(decoded_str.contains("exec("), "Should decode exec call");
-        assert!(!used_zlib, "Should not use zlib for plain base64");
+        assert!(compression.is_none(), "Should not use compression for plain base64");
     }
 
     #[test]
@@ -72,14 +72,14 @@ mod tests {
         }
         let encoded = general_purpose::STANDARD.encode(&compressed);
 
-        let (decoded, used_zlib) = decode_base64(&encoded).expect("Should decode");
+        let (decoded, compression) = decode_base64(&encoded).expect("Should decode");
         let decoded_str = String::from_utf8(decoded).unwrap();
         assert_eq!(
             decoded_str,
             String::from_utf8_lossy(original),
             "Should decompress zlib"
         );
-        assert!(used_zlib, "Should detect and use zlib decompression");
+        assert_eq!(compression, Some("zlib".to_string()), "Should detect and use zlib decompression");
     }
 
     #[test]
@@ -304,6 +304,97 @@ exec(data)
                 filename.contains("test.py!base64#0"),
                 "Should have correct format"
             );
+        }
+
+        // Cleanup
+        for payload in payloads {
+            let _ = std::fs::remove_file(&payload.temp_path);
+        }
+    }
+
+    #[test]
+    fn test_is_hex_encoded() {
+        // Valid hex-encoded content
+        let hex = b"636F6E7374205F307831633130303030";
+        assert!(is_hex_encoded(hex), "Should detect hex encoding");
+
+        // Hex with whitespace
+        let hex_ws = b"636F 6E73 7420 5F30 7831 6331 3030 3030";
+        assert!(is_hex_encoded(hex_ws), "Should detect hex with whitespace");
+
+        // Not hex-encoded
+        let not_hex = b"const _0x1c1000 = function() {};";
+        assert!(!is_hex_encoded(not_hex), "Should reject non-hex");
+
+        // Too short
+        let too_short = b"636F6E73";
+        assert!(!is_hex_encoded(too_short), "Should reject short strings");
+
+        // Mixed content
+        let mixed = b"636F6E7374 = value;";
+        assert!(!is_hex_encoded(mixed), "Should reject mixed content");
+    }
+
+    #[test]
+    fn test_decode_hex() {
+        // Decode "const _0x1c1000"
+        let hex = b"636F6E7374205F307831633130303030";
+        let decoded = decode_hex(hex).expect("Should decode hex");
+        let decoded_str = String::from_utf8(decoded).unwrap();
+        assert_eq!(decoded_str, "const _0x1c1000", "Should decode to original");
+
+        // Decode with whitespace
+        let hex_ws = b"636F 6E73 7420 5F30 7831 6331 3030 3030";
+        let decoded = decode_hex(hex_ws).expect("Should decode hex with whitespace");
+        let decoded_str = String::from_utf8(decoded).unwrap();
+        assert_eq!(decoded_str, "const _0x1c1000", "Should handle whitespace");
+
+        // Invalid hex (odd length after removing whitespace)
+        let invalid = b"636F6E737";
+        assert!(decode_hex(invalid).is_none(), "Should reject odd length");
+
+        // Invalid hex characters
+        let invalid_chars = b"636F6E7G74";
+        assert!(decode_hex(invalid_chars).is_none(), "Should reject invalid chars");
+    }
+
+    #[test]
+    fn test_extract_hex_encoded_payload() {
+        // Hex-encoded JavaScript (realistic malware sample)
+        let hex_js = b"636F6E7374205F30783163313030303D5F3078323330643B66756E6374696F6E205F307832333064285F30783939366132322C5F3078353839613536297B636F6E7374205F30783131303533613D5F30783131303528293B72657475726E205F3078323330643D66756E6374696F6E285F30783233306434612C5F3078313737373530297B5F30783233306434613D5F30783233306434612D30783136323B6C6574205F30783235303861353D5F30783131303533615B5F30783233306434615D3B";
+
+        let payloads = extract_encoded_payloads(hex_js);
+        assert!(!payloads.is_empty(), "Should extract hex payload");
+
+        let payload = &payloads[0];
+        assert_eq!(payload.encoding_chain, vec!["hex"], "Should detect hex encoding");
+        assert!(
+            payload.preview.contains("const"),
+            "Should preview decoded content"
+        );
+
+        // Cleanup
+        for payload in payloads {
+            let _ = std::fs::remove_file(&payload.temp_path);
+        }
+    }
+
+    #[test]
+    fn test_hex_encoded_woff2_malware() {
+        // First 200 bytes of hex-encoded JS from real malware (fa-brands-regular.woff2)
+        let hex_content = b"636F6E7374205F30783163313030303D5F3078323330643B66756E6374696F6E205F307832333064285F30783939366132322C5F3078353839613536297B636F6E7374205F30783131303533613D5F30783131303528293B72657475726E205F3078323330643D66756E6374696F6E285F30783233306434612C5F3078313737373530297B5F30783233306434613D5F30783233306434612D30783136323B6C6574205F30783235303861353D5F30783131303533615B5F30783233306434615D3B6966285F3078323330645B276F6B4B736B4D275D3D3D3D756E646566696E6564297B766172205F30783530366662393D66756E6374696F6E285F3078623761313063297B";
+
+        let payloads = extract_encoded_payloads(hex_content);
+        assert!(!payloads.is_empty(), "Should extract payload from woff2 malware");
+
+        let payload = &payloads[0];
+        assert_eq!(payload.encoding_chain, vec!["hex"], "Should be hex encoded");
+
+        // Read decoded content
+        if let Ok(decoded) = std::fs::read(&payload.temp_path) {
+            let decoded_str = String::from_utf8_lossy(&decoded);
+            assert!(decoded_str.contains("function"), "Should contain JavaScript");
+            assert!(decoded_str.contains("_0x"), "Should contain obfuscated vars");
         }
 
         // Cleanup

@@ -15,15 +15,15 @@ traits:
   - id: rtf-malformed-header
     desc: "Malformed RTF header"
     if:
-      type: string
-      regex: '^\{\\?rtf|{\\rtf[^1]'
+      type: raw
+      regex: '^[{]\\\\?rtf|[{]\\\\rtf[^1]'
     conf: 0.85
 
   - id: rtf-excessive-nesting
     desc: "Excessive brace nesting detected"
     if:
       type: string
-      regex: '{{{{{{{{{'
+      substr: '{{{{{{{{{'
     conf: 0.9
     attack: T1204
 
@@ -73,8 +73,8 @@ traits:
   - id: rtf-malformed-nesting
     desc: "Malformed brace nesting pattern"
     if:
-      type: string
-      regex: '{{|}}|{\s*{|\s*}}'
+      type: raw
+      regex: '[{][{]|[}][}]|[{]\\s*[{]|\\s*[}][}]'
     conf: 0.8
     crit: suspicious
 

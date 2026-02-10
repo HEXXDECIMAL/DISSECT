@@ -20,13 +20,6 @@ traits:
       type: syscall
       name: ["setsid"]
 
-  - id: fd-redirect
-    desc: File descriptor redirection (dup2 or
-    crit: notable
-    if:
-      type: syscall
-      name: ["dup2", "dup3"]
-
   - id: fd-redirect-multiple
     desc: Multiple file descriptor redirections
     crit: notable

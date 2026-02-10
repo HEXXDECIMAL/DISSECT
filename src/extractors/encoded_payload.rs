@@ -46,6 +46,52 @@ impl From<PayloadType> for FileType {
 const MAX_RECURSION_DEPTH: usize = 3;
 /// Minimum base64 string length to consider
 const MIN_BASE64_LENGTH: usize = 50;
+/// Minimum hex string length to consider
+const MIN_HEX_LENGTH: usize = 100;
+
+/// Check if content is entirely hex-encoded (common obfuscation technique)
+/// Must be at least MIN_HEX_LENGTH characters and 100% hex digits (optionally with whitespace)
+pub fn is_hex_encoded(content: &[u8]) -> bool {
+    if content.len() < MIN_HEX_LENGTH {
+        return false;
+    }
+
+    // Check if it's ASCII
+    if !content.iter().all(|&b| b.is_ascii()) {
+        return false;
+    }
+
+    let s = String::from_utf8_lossy(content);
+    let hex_chars = s.chars().filter(|c| c.is_ascii_hexdigit()).count();
+    let whitespace = s.chars().filter(|c| c.is_ascii_whitespace()).count();
+    let total = s.chars().count();
+
+    // Must be at least 95% hex digits (allowing some whitespace)
+    hex_chars + whitespace >= total && hex_chars as f64 / total as f64 >= 0.95
+}
+
+/// Decode hex-encoded content
+pub fn decode_hex(content: &[u8]) -> Option<Vec<u8>> {
+    let s = String::from_utf8_lossy(content);
+    let hex_only: String = s.chars().filter(|c| c.is_ascii_hexdigit()).collect();
+
+    // Must have even number of hex digits
+    if hex_only.len() % 2 != 0 {
+        return None;
+    }
+
+    let mut decoded = Vec::new();
+    for i in (0..hex_only.len()).step_by(2) {
+        let byte_str = &hex_only[i..i + 2];
+        if let Ok(byte) = u8::from_str_radix(byte_str, 16) {
+            decoded.push(byte);
+        } else {
+            return None;
+        }
+    }
+
+    Some(decoded)
+}
 
 /// Check if a string is a valid base64 candidate
 pub fn is_base64_candidate(s: &str) -> bool {
@@ -78,16 +124,19 @@ pub fn is_base64_candidate(s: &str) -> bool {
     true
 }
 
-/// Decode base64 string, checking for and decompressing zlib if present
-/// Returns the decoded data and whether zlib decompression was used
-pub fn decode_base64(encoded: &str) -> Option<(Vec<u8>, bool)> {
+/// Decode base64 string, checking for and decompressing zlib or gzip if present
+/// Returns the decoded data and the compression algorithm used (if any)
+pub fn decode_base64(encoded: &str) -> Option<(Vec<u8>, Option<String>)> {
     use base64::{engine::general_purpose::STANDARD, Engine as _};
 
     // Try base64 decode
     let decoded = STANDARD.decode(encoded).ok()?;
 
-    // Check for zlib magic bytes (78 9C = default compression)
-    if decoded.len() > 2 && decoded[0] == 0x78 && decoded[1] == 0x9C {
+    // Check for zlib magic bytes (78 9C = default compression, or 78 01, 78 DA)
+    if decoded.len() > 2
+        && decoded[0] == 0x78
+        && (decoded[1] == 0x9C || decoded[1] == 0x01 || decoded[1] == 0xDA)
+    {
         // Try zlib decompression using flate2
         use flate2::read::ZlibDecoder;
         use std::io::Read;
@@ -95,11 +144,23 @@ pub fn decode_base64(encoded: &str) -> Option<(Vec<u8>, bool)> {
         let mut decoder = ZlibDecoder::new(&decoded[..]);
         let mut decompressed = Vec::new();
         if decoder.read_to_end(&mut decompressed).is_ok() {
-            return Some((decompressed, true));
+            return Some((decompressed, Some("zlib".to_string())));
         }
     }
 
-    Some((decoded, false))
+    // Check for Gzip magic bytes (1F 8B)
+    if decoded.len() > 2 && decoded[0] == 0x1F && decoded[1] == 0x8B {
+        use flate2::read::GzDecoder;
+        use std::io::Read;
+
+        let mut decoder = GzDecoder::new(&decoded[..]);
+        let mut decompressed = Vec::new();
+        if decoder.read_to_end(&mut decompressed).is_ok() {
+            return Some((decompressed, Some("gzip".to_string())));
+        }
+    }
+
+    Some((decoded, None))
 }
 
 /// Detect the type of payload from decoded content
@@ -232,16 +293,47 @@ pub fn extract_encoded_payloads(content: &[u8]) -> Vec<ExtractedPayload> {
     let mut payloads = Vec::new();
     let content_str = String::from_utf8_lossy(content);
 
+    // Check if entire content is hex-encoded (common for obfuscated files)
+    if is_hex_encoded(content) {
+        if let Some(decoded) = decode_hex(content) {
+            let encoding_chain = vec!["hex".to_string()];
+            let payload_type = detect_payload_type(&decoded);
+
+            // Write to temp file
+            if let Ok(temp_file) = tempfile::NamedTempFile::new() {
+                let temp_path = temp_file.path().to_path_buf();
+
+                if let Ok(mut file) = std::fs::File::create(&temp_path) {
+                    if file.write_all(&decoded).is_ok() {
+                        // Keep temp file (don't drop)
+                        let _ = temp_file.keep();
+
+                        payloads.push(ExtractedPayload {
+                            temp_path,
+                            encoding_chain,
+                            preview: generate_preview(&decoded),
+                            detected_type: payload_type.into(),
+                            original_offset: 0,
+                        });
+
+                        // If we found a whole-file hex encoding, return just that
+                        return payloads;
+                    }
+                }
+            }
+        }
+    }
+
     // Find all potential base64 strings
     let base64_candidates = find_base64_strings(&content_str);
 
     for (offset, candidate) in base64_candidates {
         // Try to decode
-        if let Some((decoded, used_zlib)) = decode_base64(&candidate) {
+        if let Some((decoded, compression)) = decode_base64(&candidate) {
             // Build initial encoding chain
             let mut initial_chain = vec!["base64".to_string()];
-            if used_zlib {
-                initial_chain.push("zlib".to_string());
+            if let Some(alg) = compression {
+                initial_chain.push(alg);
             }
 
             // Check for nested encoding (up to MAX_RECURSION_DEPTH)
@@ -319,11 +411,11 @@ fn decode_nested(data: &[u8], chain: Vec<String>, depth: usize) -> (Vec<u8>, Vec
     // Try to detect if data is base64 encoded
     if let Ok(text) = std::str::from_utf8(data) {
         if is_base64_candidate(text.trim()) {
-            if let Some((decoded, used_zlib)) = decode_base64(text.trim()) {
+            if let Some((decoded, compression)) = decode_base64(text.trim()) {
                 let mut new_chain = chain.clone();
                 new_chain.push("base64".to_string());
-                if used_zlib {
-                    new_chain.push("zlib".to_string());
+                if let Some(alg) = compression {
+                    new_chain.push(alg);
                 }
                 return decode_nested(&decoded, new_chain, depth + 1);
             }

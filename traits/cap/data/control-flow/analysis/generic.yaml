@@ -10,7 +10,7 @@ traits:
     if:
       type: ast
       node: for
-      regex: ".*"
+      regex: ".{0,1000}"
 
   - id: for-loop-content
     desc: for loop (content)

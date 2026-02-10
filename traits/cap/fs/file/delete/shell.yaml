@@ -10,8 +10,8 @@ traits:
     mbc: C0047
     attack: T1070.004
     if:
-      type: string
-      regex: 'rm +\-[a-zA-Z]{,1}f[a-zA-Z]{,1} \/(tmp|var|dev)\/[\w\/\.\-\%]{0,64}'
+      type: raw
+      regex: 'rm +\-[a-zA-Z]{0,1}f[a-zA-Z]{0,1} /(tmp|var|dev)/[\w/.\-\%]{0,64}'
 
 composite_rules:
   - id: delete-rm-hardcoded

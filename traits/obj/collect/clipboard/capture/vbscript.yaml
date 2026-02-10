@@ -71,7 +71,7 @@ traits:
     attack: "T1649"
     if:
       type: string
-      regex: 'Left\\(.{0,30}1\\)|Len\\(.{0,30}26|Len\\(.{0,30}35|Len\\(.{0,30}95'
+      regex: 'Left.{0,30}, ?1[)]|Len.{0,30}, ?(?:26|35|95)'
 
   # === Address Replacement ===
   - id: address-replacement

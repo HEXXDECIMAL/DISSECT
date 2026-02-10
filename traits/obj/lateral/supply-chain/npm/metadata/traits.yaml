@@ -157,7 +157,7 @@ traits:
     if:
       type: kv
       path: "description"
-      regex: "modern.*(web|app)"
+      regex: "modern.{0,100}(web|app)"
       case_insensitive: true
 
   - id: desc-universal
@@ -177,7 +177,7 @@ traits:
     if:
       type: kv
       path: "description"
-      regex: "powerful.*(library|framework)"
+      regex: "powerful.{0,100}(library|framework)"
       case_insensitive: true
 
   - id: desc-simple-easy

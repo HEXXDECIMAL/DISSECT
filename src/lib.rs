@@ -152,6 +152,15 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
     // Detect file type
     let file_type = detect_file_type(path)?;
 
+    // Read file for mismatch check and payload extraction
+    let file_data = std::fs::read(path)?;
+
+    // Check for extension/content mismatch
+    let mismatch = analyzers::check_extension_content_mismatch(path, &file_data);
+
+    // Check for encoded payloads (hex, base64, etc.)
+    let encoded_payloads = extractors::encoded_payload::extract_encoded_payloads(&file_data);
+
     // Load YARA rules if not disabled
     let mut yara_engine = if options.disable_yara {
         None
@@ -229,6 +238,72 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
             }
         }
     };
+
+    // Add finding for extension/content mismatch if detected
+    if let Some((expected, actual)) = mismatch {
+        report.findings.push(types::Finding {
+            id: "meta/file-extension-mismatch".to_string(),
+            kind: types::FindingKind::Indicator,
+            desc: format!("File extension claims {} but content is {}", expected, actual),
+            conf: 1.0,
+            crit: types::Criticality::Hostile,
+            mbc: None,
+            attack: Some("T1036.005".to_string()), // Masquerading: Match Legitimate Name or Location
+            trait_refs: vec![],
+            evidence: vec![
+                types::Evidence {
+                    method: "magic-byte".to_string(),
+                    source: "dissect".to_string(),
+                    value: format!("expected={}, actual={}", expected, actual),
+                    location: None,
+                },
+            ],
+        });
+    }
+
+    // Process encoded payloads and analyze them
+    for payload in encoded_payloads {
+        // Add finding for the encoded payload
+        report.findings.push(types::Finding {
+            id: format!("meta/encoded-payload/{}", payload.encoding_chain.join("-")),
+            kind: types::FindingKind::Structural,
+            desc: format!("Encoded payload detected: {}", payload.encoding_chain.join(" → ")),
+            conf: 0.9,
+            crit: types::Criticality::Suspicious,
+            mbc: None,
+            attack: None,
+            trait_refs: vec![],
+            evidence: vec![
+                types::Evidence {
+                    method: "pattern".to_string(),
+                    source: "dissect".to_string(),
+                    value: format!("encoding={}, type={:?}, preview={}", payload.encoding_chain.join(", "), payload.detected_type, payload.preview),
+                    location: Some(format!("offset:{}", payload.original_offset)),
+                },
+            ],
+        });
+
+        // Analyze the decoded payload
+        if let Ok(payload_report) = analyze_file_with_mapper(&payload.temp_path, options, capability_mapper) {
+            // Merge traits from payload analysis
+            for mut trait_item in payload_report.traits {
+                // Prefix trait offset with encoding chain
+                if let Some(ref offset) = trait_item.offset {
+                    trait_item.offset = Some(format!("{}!{}", payload.encoding_chain.join("+"), offset));
+                } else {
+                    trait_item.offset = Some(format!("{}!", payload.encoding_chain.join("+")));
+                }
+                report.traits.push(trait_item);
+            }
+
+            // Merge findings from payload analysis
+            for finding in payload_report.findings {
+                if !report.findings.iter().any(|f| f.id == finding.id) {
+                    report.findings.push(finding);
+                }
+            }
+        }
+    }
 
     // Run YARA for file types that didn't handle it internally
     if let Some(ref engine) = yara_engine {

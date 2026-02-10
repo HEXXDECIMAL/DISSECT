@@ -71,4 +71,4 @@ traits:
     for: [packagejson]
     if:
       type: string
-      regex: '\\.npmignore|"files":\\s*\\['
+      regex: '\\.npmignore|"files"'

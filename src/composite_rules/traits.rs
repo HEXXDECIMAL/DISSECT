@@ -237,19 +237,6 @@ impl TraitDefinition {
             }
         }
 
-        // Helper to extract exception string for validation
-        fn get_exception_str(exc: &NotException) -> Option<&str> {
-            match exc {
-                NotException::Shorthand(s) => Some(s.as_str()),
-                NotException::Structured { exact: Some(s), .. }
-                | NotException::Structured {
-                    substr: Some(s), ..
-                }
-                | NotException::Structured { regex: Some(s), .. } => Some(s.as_str()),
-                _ => None,
-            }
-        }
-
         // Helper to check if a string contains a substring (case-sensitive or insensitive)
         fn contains_substr(haystack: &str, needle: &str, case_insensitive: bool) -> bool {
             if case_insensitive {
@@ -318,22 +305,18 @@ impl TraitDefinition {
                 regex: Some(pattern),
                 ..
             } => {
-                // For symbol regex, validate exceptions match the pattern
+                // For symbol regex, only validate exact exceptions match the pattern
+                // substr and regex exceptions can't be reliably validated without generating all possible matches
                 for exc in not_exceptions {
                     let exc_str = match exc {
-                        NotException::Shorthand(s) => Some(s.as_str()),
-                        NotException::Structured { exact: Some(s), .. }
-                        | NotException::Structured {
-                            substr: Some(s), ..
-                        }
-                        | NotException::Structured { regex: Some(s), .. } => Some(s.as_str()),
+                        NotException::Structured { exact: Some(s), .. } => Some(s.as_str()),
                         _ => None,
                     };
 
                     if let Some(exc_str) = exc_str {
                         if !pattern_could_match(pattern, exc_str) {
                             return Some(format!(
-                                "not: exception '{}' does not match the search regex '{}' - it will never be applied",
+                                "not: exception (exact) '{}' does not match the search regex '{}' - it will never be applied",
                                 exc_str, pattern
                             ));
                         }
@@ -433,7 +416,8 @@ impl TraitDefinition {
                     "not: field used with content/substr match - behavior is unclear because content searches on binary data don't extract individual strings for filtering. Use regex instead, or use 'string' type with substr.".to_string()
                 );
             }
-            // For regex matches, validate that exceptions could actually match
+            // For regex matches, only validate exact exceptions could actually match
+            // substr and regex exceptions can't be reliably validated without generating all possible matches
             Condition::String {
                 regex: Some(pattern),
                 ..
@@ -443,10 +427,11 @@ impl TraitDefinition {
                 ..
             } => {
                 for exc in not_exceptions {
-                    if let Some(exc_str) = get_exception_str(exc) {
+                    // Only validate exact matches - substr and regex exceptions can match substrings
+                    if let NotException::Structured { exact: Some(exc_str), .. } = exc {
                         if !pattern_could_match(pattern, exc_str) {
                             return Some(format!(
-                                "not: exception '{}' does not match the search regex '{}' - it will never be applied",
+                                "not: exception (exact) '{}' does not match the search regex '{}' - it will never be applied",
                                 exc_str, pattern
                             ));
                         }

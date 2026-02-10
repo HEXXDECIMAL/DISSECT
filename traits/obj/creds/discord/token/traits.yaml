@@ -14,7 +14,7 @@ traits:
     if:
       type: string
       # Matches: [A-Za-z0-9_-]{24}.[A-Za-z0-9_-]{6}.[A-Za-z0-9_-]{27}
-      regex: '\\[\\\\w-\\]\\{24\\}\\.\\[\\\\w-\\]\\{6\\}\\.\\[\\\\w-\\]\\{27\\}'
+      regex: '[A-Za-z0-9_-]{24}\\.[A-Za-z0-9_-]{6}\\.[A-Za-z0-9_-]{27}'
 
   # Discord MFA token pattern
   - id: regex-mfa
@@ -24,7 +24,7 @@ traits:
     if:
       type: string
       # Matches: mfa.[A-Za-z0-9_-]{84}
-      regex: 'mfa\\.\\[\\\\w-\\]\\{84\\}'
+      regex: 'mfa\\.[A-Za-z0-9_-]{84}'
 
   # Discord token literal pattern (actual token format)
   - id: literal-pattern

@@ -115,7 +115,9 @@ traits:
     if:
       type: ast
       kind: comment
-      regex: "(?i)(?!.*ssid)hid(e|ing|den)"
+      regex: "(?i)hid(e|ing|den)"
+    not:
+      - substr: "ssid"
 
   - id: stealthy-mention-comment
     desc: Code mentions stealth/stealthy

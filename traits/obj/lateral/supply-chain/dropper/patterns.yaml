@@ -424,7 +424,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      regex: 'replace\\([^)]*"\\^"'
+      regex: 'replace.{0,50}"\\^"'
 
   # === Appdata atomic indicators ===
   - id: appdata-single

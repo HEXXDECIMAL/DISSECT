@@ -11,9 +11,7 @@ traits:
     for: [elf]
     if:
       type: string
-      # Avoid matching ASCII character tables (0123456789...)
-      # Require 123456 not preceded by 0-5 and not followed by 7-9
-      regex: "(?<![0-5])123456(?![7-9])"
+      exact: "123456"
 
   # NOTE: "password" alone is too common (system utilities, config, etc.)
   # Real credential brute-force detection requires multiple indicators

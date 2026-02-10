@@ -105,6 +105,17 @@ pub(crate) fn apply_trait_defaults(
         ));
     }
 
+    // For size-only traits without a condition, create a synthetic "always-true" condition
+    // This uses a basename regex that matches everything
+    let condition = raw.condition.unwrap_or_else(|| {
+        crate::composite_rules::Condition::Basename {
+            exact: None,
+            substr: None,
+            regex: Some(".".to_string()),
+            case_insensitive: false,
+        }
+    });
+
     TraitDefinition {
         id: raw.id,
         desc: raw.desc,
@@ -116,7 +127,7 @@ pub(crate) fn apply_trait_defaults(
         r#for: file_types,
         size_min: raw.size_min,
         size_max: raw.size_max,
-        r#if: raw.condition,
+        r#if: condition,
         not: raw.not,
         unless: raw.unless,
         downgrade: raw.downgrade,

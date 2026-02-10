@@ -264,16 +264,6 @@ traits:
       type: string
       substr: "discord.com/api/webhooks"
 
-  # Package claims to provide CLI binary
-  - id: pkg-claims-bin
-    desc: Package declares CLI binary
-    crit: inert
-    conf: 0.7
-    for: [packagejson]
-    if:
-      type: kv
-      path: "bin"
-
   # === Placeholder/Default Author Patterns ===
   # Malicious packages often use placeholder author values
 
@@ -378,7 +368,7 @@ traits:
     if:
       type: kv
       path: "description"
-      regex: "(prevent|protect|reserve|claim).*(squat|confusion|typo)"
+      regex: "(prevent|protect|reserve|claim).{0,100}(squat|confusion|typo)"
       case_insensitive: true
 
   # === JavaScript Placeholder Announcement ===

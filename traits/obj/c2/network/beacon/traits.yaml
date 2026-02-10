@@ -211,7 +211,11 @@ traits:
     attack: "T1071.001"
     if:
       type: string
-      regex: "(githu[bk]\\.|gi[th]hub\\.|github\\.(?!com|io|org)[a-z]{2,}|githab\\.|githyb\\.)"
+      regex: "githu[bk]\\.|gi[th]hub\\.|github\\.[a-z]{2,}|githab\\.|githyb\\."
+    not:
+      - substr: "github.com"
+      - substr: "github.io"
+      - substr: "github.org"
 
   # === C2 Command Protocols ===
   - id: c2-command-pattern-numeric

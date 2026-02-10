@@ -42,8 +42,9 @@ traits:
     crit: notable
     conf: 0.75
     if:
-      type: string
-      regex: 'def\\s+decrypt\\s*\\('
+      type: ast
+      kind: function_definition
+      regex: "^decrypt$"
 
 composite_rules:
   # Encrypted payload loader - decrypts and executes code from file

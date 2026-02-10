@@ -478,15 +478,8 @@ pub fn calculate_composite_precision(
         return precision;
     }
 
-    // Debug output for the failing rules
-    let debug_rules = [
-        "obj/c2/webshell/backdoor::php-backtick-rce",
-        "obj/exfil/data/file::curl-with-file-targeting",
-        "obj/lateral/code-injection/multi-technique::multi-technique-injector",
-        "obj/lateral/exploit/memory::memory-protection-evasion",
-        "obj/lateral/exploit/memory::memory-exploitation-chain",
-    ];
-    let debug = debug_rules.contains(&rule_id);
+    // Debug output controlled by DISSECT_DEBUG environment variable
+    let debug = std::env::var("DISSECT_DEBUG").is_ok();
 
     // Detect cycles
     if !visiting.insert(rule_id.to_string()) {
