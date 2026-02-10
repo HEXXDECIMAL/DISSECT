@@ -5,7 +5,7 @@
 {{end}}
 **Objective**: {{if .IsBad}}Add high-signal detections for missed behaviors.{{else}}Fix false positives while preserving accurate detections.{{end}}
 
-You are helping us improve DISSECT, a tool designed to detect subtle malware introduced in supply-chain attacks, using differential analysis of its capabilities and unique characteristics.
+You are helping us improve DISSECT, a tool designed to detect subtle malware introduced in supply-chain attacks - such as in xzutils or ultralytics, using differential analysis of its capabilities and unique characteristics.
 
 ## Constraints
 Read `RULES.md`, `TAXONOMY.md`, `PRECISION.md` before editing.
@@ -37,6 +37,7 @@ Read `RULES.md`, `TAXONOMY.md`, `PRECISION.md` before editing.
 - Validate taxonomy placement (wrong tier = likely broken refactor)
 - Adjust criticality if behavior is correct but severity wrong - many traits have an incorrect criticality
 - It's OK for a known-good sample to have 1 suspicious trait - sometimes system tool do suspicious things!
+- There may be benign files mixed in with the known-bad files - look carefully!
 - Hostile criticality is reserved for unquestionably hostile behavior
 - Notable criticality is for anything that describes the purpose of a program. If it opens files or makes connections over the internet, that's notable.
 - This tool will be used against millions of samples across the open-source community, be precise accordingly.
@@ -48,6 +49,8 @@ Read `RULES.md`, `TAXONOMY.md`, `PRECISION.md` before editing.
 {{.DissectBin}} strings {{.Path}}
 {{.DissectBin}} test-rules {{.Path}} --rules "rule-id"
 {{.DissectBin}} test-match {{.Path}} --type string --pattern "X"
+
+Reverse-engineering tools like r2 (radare2), nm, readelf are also available.
 ```
 
 Use `--format jsonl` to see all traits (including inert) for composite building.
