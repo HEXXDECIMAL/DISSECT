@@ -57,168 +57,26 @@ type promptData struct {
 	Files       []fileEntry // Top files with findings (sorted by severity)
 	DissectBin  string
 	TraitsDir   string
-	TaskBlock   string
 	Count       int
 	IsArchive   bool
+	IsBad       bool // true for known-bad mode, false for known-good mode
 }
 
-var goodPromptTmpl = template.Must(template.New("good").Parse(`{{if .IsArchive -}}
-# Known-Good Tuning (False Positive Reduction)
-**Source**: {{.ArchiveName}}
-**Scope**: {{.Count}} flagged files
-## Priority Files
-{{range .Files}}- {{.Path}} ({{.Summary}})
-{{end}}
-{{else -}}
-# Known-Good Tuning (False Positive Reduction)
-**File**: {{.Path}}
-{{end}}
-## Objective
-Keep accurate behavior detections; revise only incorrect matches.
+var promptTmpl *template.Template
 
-## False Positive Test
-A finding is false positive only when the matched pattern does not represent actual behavior, context, or intent.
-If behavior is real but severity is wrong, fix criticality; do not delete detection.
-
-## Hard Constraints
-- Read ` + "`RULES.md`" + `, ` + "`TAXONOMY.md`" + `, and ` + "`PRECISION.md`" + ` before edits.
-- Edit logic only; preserve YAML formatting and file structure.
-- Trait IDs must match what the query truly detects.
-- For source code, prefer AST/semantic signals over raw-string coincidences.
-- Keep trait placement taxonomy-accurate (` + "`cap/*`" + ` atomic capability, ` + "`obj/*`" + ` composed objective, ` + "`known/*`" + ` family/tool-specific).
-- Prefer precise queries over ` + "`unless:`" + `/` + "`downgrade:`" + `; use those only as last resort.
-- If a composite matches that seems to be missing a necessary restriction - the rule was likely broken during a refactor - fix it so that it's more specific
-- Keep changes minimal, generic, and maintainable.
-
-{{.TaskBlock}}
-
-## Done When
-- True behavior coverage is preserved.
-- False positives are reduced.
-- Criticality is appropriate (` + "`hostile`" + `, ` + "`suspicious`" + `, ` + "`notable`" + `, ` + "`inert`" + `).
-- Re-run confirms improvement.
-
-## Debug Loop
-` + "```" + `
-{{.DissectBin}} {{.Path}} --format jsonl
-{{.DissectBin}} strings {{.Path}}
-{{.DissectBin}} test-rules {{.Path}} --rules "rule-id"
-{{.DissectBin}} test-match {{.Path}} --type string --pattern "X"
-` + "```" + `
-
---format=jsonl is critical for reviewing all traits (even inert), both for accuracy, and knowing what hidden traits you can form intelligent composites with.
-
-Traits: {{.TraitsDir}}`))
-
-var badPromptTmpl = template.Must(template.New("bad").Parse(`{{if .IsArchive -}}
-# Known-Bad Tuning (Missing Detection)
-**Source**: {{.ArchiveName}}
-**Scope**: {{.Count}} files to review
-## Priority Files
-{{range .Files}}- {{.Path}}{{if .Summary}} (current: {{.Summary}}){{end}}
-{{end}}
-{{else -}}
-# Known-Bad Tuning (Missing Detection)
-**File**: {{.Path}}
-{{end}}
-Skip genuinely benign content (README/docs/unmodified dependencies).
-
-## Objective
-Add high-signal detections for behaviors this sample family exhibits and current traits miss.
-
-## Hard Constraints
-- Read ` + "`RULES.md`" + `, ` + "`TAXONOMY.md`" + `, and ` + "`PRECISION.md`" + ` before edits.
-- Edit logic only; preserve YAML formatting and file structure.
-- Use reusable behavioral patterns, not sample-specific fingerprints.
-- Keep trait IDs, location, and criticality semantically correct.
-- For source code, prefer AST/semantic signals over raw-string coincidences.
-- Some traits may have been mistakenly changed from 'symbol' to 'string' search: for AST-based languages, symbols are not in string literals.
-- When there is overlap - choose improving existing traits over creating new traits
-- Minimize future false positives at ecosystem scale.
-
-{{.TaskBlock}}
-
-## Done When
-- Missing capabilities/objectives are detected with correct taxonomy.
-- Traits remain accurate, well-described, generic and reusable.
-- Criticality is appropriate.
-- There are no duplicate traits shown in --format=jsonl mode
-- There are no false positives or poorly described traits
-- All unique or surprising traits have rules to feed into our ML analysis to find similar samples
-- Re-run confirms improved coverage.
-
-## Debug Loop
-` + "```" + `
-{{.DissectBin}} {{.Path}} --format jsonl
-{{.DissectBin}} strings {{.Path}}
-{{.DissectBin}} test-rules {{.Path}} --rules "rule-id"
-{{.DissectBin}} test-match {{.Path}} --type string --pattern "X"
-` + "```" + `
-
---format=jsonl is critical for reviewing all traits (even inert), both for accuracy, and knowing what hidden traits you can form intelligent composites with.
-
-Traits: {{.TraitsDir}}`))
-
-const goodTaskFile = `## Workflow
-1. Validate taxonomy mapping first (` + "`cap/`" + ` = capability, ` + "`obj/`" + ` = objective).
-2. Tighten matching logic before adding exclusions. Consult ` + "`PRECISION.md`" + ` for how to boost rule specificity:
-   - add context (` + "`near:`" + ` / ` + "`all:`" + `)
-   - restrict target type (` + "`for:`" + `)
-   - bound broad rules (` + "`size_min/max`" + `)
-3. Add ` + "`not:`" + ` filters only for proven benign collisions.
-4. If behavior is correct but criticality is high, downgrade the criticality. Use ` + "`downgrade:`" + ` sparingly.
-5. Use ` + "`unless:`" + ` only when precise query refinement is impractical.
-6. If traits are renamed/removed, update all references (` + "`depends`" + `, composites, etc.).
-
-## Taxonomy Guardrails
-- ` + "`obj/c2/`" + ` requires control-channel behavior, not generic networking.
-- ` + "`obj/exfil/`" + ` requires collection + transfer semantics.
-- Generic HTTP/socket/crypto usually belongs under ` + "`cap/`" + `.
-
-## Avoid
-- Removing accurate behavior findings. Revise them instead.
-`
-
-const goodTaskArchive = goodTaskFile
-
-const badTaskFile = `## Workflow
-1. Reverse engineer with emphasis on high-signal artifacts (` + "`strings`" + `, control flow, imports/APIs, constants).
-   - For binaries (archive member or standalone file), use ` + "`dissect strings`" + ` first to surface decoded/obfuscated content.
-   - Use binary tooling when needed (` + "`radare2`" + `, ` + "`objdump`" + `, ` + "`nm`" + `) to confirm behavior before writing traits.
-2. Enumerate behaviors that make the sample operationally distinct.
-3. Map behavior to taxonomy:
-   - ` + "`cap/`" + ` for atomic capabilities
-   - ` + "`obj/`" + ` for composed attacker goals
-   - ` + "`known/`" + ` only for well-supported malware-family identity
-4. Build/repair capability traits first, then compose objective traits from those capabilities.
-5. For ` + "`obj/*`" + ` with ` + "`crit: hostile`" + `, ensure composite complexity is >= 4. Consult ` + "`PRECISION.md`" + ` for the exact calculation algorithm.
-6. Author generic reusable traits; avoid sample-only literals unless broadly durable.
-7. Prefer multi-signal logic (` + "`all:`" + `, proximity, structural anchors) to suppress false positives.
-8. If traits are renamed/removed, update all references (` + "`depends`" + `, composites, etc.).
-9. If you see an existing rule that describes truly suspicious behavior, see if you can improve upon its precision and upgrade it to suspicious.
-10. If you find a trait that should have caught this file but didn't, then the rule was likely broken during a refactor - fix it so that it applies to this case and others.
-
-## Taxonomy Guardrails
-- HTTP/socket alone: ` + "`cap/comm/`" + `, not ` + "`obj/c2/`" + `.
-- C2 needs command/control semantics (beaconing, tasking, bidirectional control).
-- Exfil needs data access + outbound transfer semantics.
-- Keep generic crypto/network primitives out of objective traits unless composition justifies it.
-- Consolidate multiple traits that demonstrate the same behavior when possible
-
-## Avoid
-- File-specific signatures as primary detection logic.
-- Misplacing capabilities under ` + "`obj/`" + `.
-- Overly broad rules that will not scale across large benign corpora.`
-
-const badTaskArchive = badTaskFile
-
-func buildGoodPrompt(isArchive bool, path, archiveName string, files []fileEntry, count int, root, bin string) string {
-	task := goodTaskFile
-	if isArchive {
-		task = goodTaskArchive
+func loadPromptTemplate(repoRoot string) error {
+	tmplPath := filepath.Join(repoRoot, "tools", "trait-basher", "prompt.tmpl")
+	var err error
+	promptTmpl, err = template.ParseFiles(tmplPath)
+	if err != nil {
+		return fmt.Errorf("load prompt template: %w", err)
 	}
+	return nil
+}
+
+func buildPrompt(isArchive, isBad bool, path, archiveName string, files []fileEntry, count int, root, bin string) string {
 	var b bytes.Buffer
-	_ = goodPromptTmpl.Execute(&b, promptData{ //nolint:errcheck // template is validated at init
+	_ = promptTmpl.Execute(&b, promptData{ //nolint:errcheck // template is validated after load
 		Path:        path,
 		ArchiveName: archiveName,
 		Files:       files,
@@ -226,26 +84,7 @@ func buildGoodPrompt(isArchive bool, path, archiveName string, files []fileEntry
 		DissectBin:  bin,
 		TraitsDir:   root + "/traits/",
 		IsArchive:   isArchive,
-		TaskBlock:   task,
-	})
-	return b.String()
-}
-
-func buildBadPrompt(isArchive bool, path, archiveName string, files []fileEntry, count int, root, bin string) string {
-	task := badTaskFile
-	if isArchive {
-		task = badTaskArchive
-	}
-	var b bytes.Buffer
-	_ = badPromptTmpl.Execute(&b, promptData{ //nolint:errcheck // template is validated at init
-		Path:        path,
-		ArchiveName: archiveName,
-		Files:       files,
-		Count:       count,
-		DissectBin:  bin,
-		TraitsDir:   root + "/traits/",
-		IsArchive:   isArchive,
-		TaskBlock:   task,
+		IsBad:       isBad,
 	})
 	return b.String()
 }
@@ -493,6 +332,11 @@ gemini-2.5-pro, gemini-2.5-flash. Popular choices:
 			log.Fatalf("Could not detect repo root: %v. Use --repo-root flag.", err)
 		}
 		resolvedRoot = strings.TrimSpace(string(out))
+	}
+
+	// Load prompt template
+	if err := loadPromptTemplate(resolvedRoot); err != nil {
+		log.Fatalf("Could not load prompt template: %v", err)
 	}
 
 	db, err := openDB(context.Background(), *flush)
@@ -1202,10 +1046,10 @@ func invokeYAMLTraitFixer(ctx context.Context, cfg *config, phase, failureOutput
 func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) error {
 	var prompt, task string
 	if cfg.knownGood {
-		prompt = buildGoodPrompt(false, f.Path, "", nil, 0, cfg.repoRoot, cfg.dissectBin)
+		prompt = buildPrompt(false, false, f.Path, "", nil, 0, cfg.repoRoot, cfg.dissectBin)
 		task = "Review for false positives (known-good collection)"
 	} else {
-		prompt = buildBadPrompt(false, f.Path, "", nil, 0, cfg.repoRoot, cfg.dissectBin)
+		prompt = buildPrompt(false, true, f.Path, "", nil, 0, cfg.repoRoot, cfg.dissectBin)
 		task = "Find missing detections (known-bad collection)"
 	}
 
@@ -1402,10 +1246,10 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 
 	var prompt, task string
 	if cfg.knownGood {
-		prompt = buildGoodPrompt(true, dissectPath, archiveName, fileEntries, len(prob), cfg.repoRoot, cfg.dissectBin)
+		prompt = buildPrompt(true, false, dissectPath, archiveName, fileEntries, len(prob), cfg.repoRoot, cfg.dissectBin)
 		task = "Review files for false positives (known-good collection)"
 	} else {
-		prompt = buildBadPrompt(true, dissectPath, archiveName, fileEntries, len(prob), cfg.repoRoot, cfg.dissectBin)
+		prompt = buildPrompt(true, true, dissectPath, archiveName, fileEntries, len(prob), cfg.repoRoot, cfg.dissectBin)
 		task = "Find missing detections (known-bad collection)"
 	}
 

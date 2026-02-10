@@ -498,6 +498,16 @@ pub fn calculate_composite_precision(
         return precision;
     }
 
+    // Debug output for the failing rules
+    let debug_rules = [
+        "obj/c2/webshell/backdoor::php-backtick-rce",
+        "obj/exfil/data/file::curl-with-file-targeting",
+        "obj/lateral/code-injection/multi-technique::multi-technique-injector",
+        "obj/lateral/exploit/memory::memory-protection-evasion",
+        "obj/lateral/exploit/memory::memory-exploitation-chain",
+    ];
+    let debug = debug_rules.contains(&rule_id);
+
     // Detect cycles
     if !visiting.insert(rule_id.to_string()) {
         return BASE_TRAIT_PRECISION;
@@ -528,25 +538,38 @@ pub fn calculate_composite_precision(
             .iter()
             .filter(|f| !matches!(f, RuleFileType::All))
         {
-            precision += score_string_value(&format!("{:?}", file_type).to_lowercase());
+            let score = score_string_value(&format!("{:?}", file_type).to_lowercase());
+            precision += score;
+            if debug {
+                eprintln!("  [DEBUG] {} file_type score: {:.2}", rule_id, score);
+            }
         }
 
         // `all` clause: recursively sum all elements
         if let Some(ref conditions) = rule.all {
             for cond in conditions {
+                let before = precision;
                 match cond {
                     Condition::Trait { id } => {
                         // Recursively calculate trait/composite precision
-                        precision += calculate_composite_precision(
+                        let score = calculate_composite_precision(
                             id,
                             all_composites,
                             all_traits,
                             cache,
                             visiting,
                         );
+                        precision += score;
+                        if debug {
+                            eprintln!("  [DEBUG] {} all trait '{}' score: {:.2}", rule_id, id, score);
+                        }
                     }
                     _ => {
-                        precision += score_condition(cond);
+                        let score = score_condition(cond);
+                        precision += score;
+                        if debug {
+                            eprintln!("  [DEBUG] {} all condition score: {:.2}", rule_id, score);
+                        }
                     }
                 }
             }
@@ -556,21 +579,42 @@ pub fn calculate_composite_precision(
         if let Some(ref conditions) = rule.any {
             let branch_scores: Vec<f32> = conditions
                 .iter()
-                .map(|cond| match cond {
-                    Condition::Trait { id } => calculate_composite_precision(
-                        id,
-                        all_composites,
-                        all_traits,
-                        cache,
-                        visiting,
-                    ),
-                    _ => score_condition(cond),
+                .enumerate()
+                .map(|(i, cond)| {
+                    let score = match cond {
+                        Condition::Trait { id } => {
+                            let s = calculate_composite_precision(
+                                id,
+                                all_composites,
+                                all_traits,
+                                cache,
+                                visiting,
+                            );
+                            if debug {
+                                eprintln!("  [DEBUG] {} any[{}] trait '{}' score: {:.2}", rule_id, i, id, s);
+                            }
+                            s
+                        }
+                        _ => {
+                            let s = score_condition(cond);
+                            if debug {
+                                eprintln!("  [DEBUG] {} any[{}] condition score: {:.2}", rule_id, i, s);
+                            }
+                            s
+                        }
+                    };
+                    score
                 })
                 .collect();
 
             if !branch_scores.is_empty() {
                 let required = rule.needs.unwrap_or(1).max(1);
-                precision += sum_weakest(branch_scores, required);
+                let weakest_sum = sum_weakest(branch_scores.clone(), required);
+                if debug {
+                    eprintln!("  [DEBUG] {} any clause: needs={}, scores={:?}, sum_weakest={:.2}",
+                        rule_id, required, branch_scores, weakest_sum);
+                }
+                precision += weakest_sum;
             }
         }
 
@@ -611,22 +655,34 @@ pub fn calculate_composite_precision(
 
         visiting.remove(rule_id);
         cache.insert(rule_id.to_string(), precision);
+        if debug {
+            eprintln!("  [DEBUG] {} TOTAL PRECISION: {:.2}", rule_id, precision);
+        }
         return precision;
     }
 
     // Not a composite - try to find as a trait definition
     // Support both new format (dir::name) and legacy format (dir/name)
+    if debug {
+        eprintln!("  [DEBUG] Looking up trait: '{}'", rule_id);
+    }
     let trait_def = all_traits.iter().find(|t| t.id == rule_id).or_else(|| {
         // Try converting legacy format to new format or vice versa
         if rule_id.contains("::") {
             // Reference uses new format, trait might use legacy
             let legacy_id = rule_id.replace("::", "/");
+            if debug {
+                eprintln!("  [DEBUG]   Trying legacy conversion: '{}'", legacy_id);
+            }
             all_traits.iter().find(|t| t.id == legacy_id)
         } else if rule_id.contains('/') {
             // Reference uses legacy format, trait might use new format
             // Convert last '/' to '::'
             if let Some(idx) = rule_id.rfind('/') {
                 let new_id = format!("{}::{}", &rule_id[..idx], &rule_id[idx + 1..]);
+                if debug {
+                    eprintln!("  [DEBUG]   Trying new format conversion: '{}'", new_id);
+                }
                 all_traits.iter().find(|t| t.id == new_id)
             } else {
                 None
@@ -638,12 +694,22 @@ pub fn calculate_composite_precision(
 
     if let Some(trait_def) = trait_def {
         let precision = calculate_trait_precision(trait_def);
+        if debug {
+            eprintln!("  [DEBUG]   FOUND trait '{}' with stored ID '{}', precision: {:.2}", rule_id, trait_def.id, precision);
+        }
         visiting.remove(rule_id);
         cache.insert(rule_id.to_string(), precision);
         return precision;
     }
 
     // Not found - treat as external/unknown trait
+    if debug {
+        eprintln!("  [DEBUG]   NOT FOUND - returning BASE_TRAIT_PRECISION: {:.2}", BASE_TRAIT_PRECISION);
+        eprintln!("  [DEBUG]   Available trait IDs (first 20):");
+        for (i, t) in all_traits.iter().take(20).enumerate() {
+            eprintln!("  [DEBUG]     [{}] '{}'", i, t.id);
+        }
+    }
     visiting.remove(rule_id);
     cache.insert(rule_id.to_string(), BASE_TRAIT_PRECISION);
     BASE_TRAIT_PRECISION
