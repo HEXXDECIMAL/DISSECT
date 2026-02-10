@@ -14,6 +14,7 @@ use super::evaluators::{
 };
 use super::types::{default_file_types, default_platforms, FileType, Platform};
 use crate::types::{Criticality, Evidence, Finding, FindingKind};
+use anyhow::Context;
 use regex::Regex;
 use serde::Deserialize;
 
@@ -91,31 +92,38 @@ pub struct TraitDefinition {
 }
 
 impl TraitDefinition {
-    /// Pre-compile all regexes in this trait's conditions for performance
-    pub fn precompile_regexes(&mut self) {
-        self.r#if.precompile_regexes();
+    /// Pre-compile all regexes in this trait's conditions for performance.
+    /// Returns an error if any regex pattern is invalid.
+    pub fn precompile_regexes(&mut self) -> anyhow::Result<()> {
+        self.r#if.precompile_regexes()
+            .with_context(|| format!("in trait '{}' main condition", self.id))?;
         if let Some(ref mut conds) = self.unless {
-            for cond in conds.iter_mut() {
-                cond.precompile_regexes();
+            for (idx, cond) in conds.iter_mut().enumerate() {
+                cond.precompile_regexes()
+                    .with_context(|| format!("in trait '{}' unless condition #{}", self.id, idx + 1))?;
             }
         }
         if let Some(ref mut downgrade) = self.downgrade {
             if let Some(ref mut any) = downgrade.any {
-                for cond in any.iter_mut() {
-                    cond.precompile_regexes();
+                for (idx, cond) in any.iter_mut().enumerate() {
+                    cond.precompile_regexes()
+                        .with_context(|| format!("in trait '{}' downgrade.any condition #{}", self.id, idx + 1))?;
                 }
             }
             if let Some(ref mut all) = downgrade.all {
-                for cond in all.iter_mut() {
-                    cond.precompile_regexes();
+                for (idx, cond) in all.iter_mut().enumerate() {
+                    cond.precompile_regexes()
+                        .with_context(|| format!("in trait '{}' downgrade.all condition #{}", self.id, idx + 1))?;
                 }
             }
             if let Some(ref mut none) = downgrade.none {
-                for cond in none.iter_mut() {
-                    cond.precompile_regexes();
+                for (idx, cond) in none.iter_mut().enumerate() {
+                    cond.precompile_regexes()
+                        .with_context(|| format!("in trait '{}' downgrade.none condition #{}", self.id, idx + 1))?;
                 }
             }
         }
+        Ok(())
     }
 
     /// Pre-compile YARA rules in this trait's condition
@@ -1090,45 +1098,54 @@ pub struct CompositeTrait {
 }
 
 impl CompositeTrait {
-    /// Pre-compile all regexes in this rule's conditions for performance
-    pub fn precompile_regexes(&mut self) {
+    /// Pre-compile all regexes in this rule's conditions for performance.
+    /// Returns an error if any regex pattern is invalid.
+    pub fn precompile_regexes(&mut self) -> anyhow::Result<()> {
         if let Some(ref mut conds) = self.all {
-            for cond in conds.iter_mut() {
-                cond.precompile_regexes();
+            for (idx, cond) in conds.iter_mut().enumerate() {
+                cond.precompile_regexes()
+                    .with_context(|| format!("in composite rule '{}' all condition #{}", self.id, idx + 1))?;
             }
         }
         if let Some(ref mut conds) = self.any {
-            for cond in conds.iter_mut() {
-                cond.precompile_regexes();
+            for (idx, cond) in conds.iter_mut().enumerate() {
+                cond.precompile_regexes()
+                    .with_context(|| format!("in composite rule '{}' any condition #{}", self.id, idx + 1))?;
             }
         }
         if let Some(ref mut conds) = self.none {
-            for cond in conds.iter_mut() {
-                cond.precompile_regexes();
+            for (idx, cond) in conds.iter_mut().enumerate() {
+                cond.precompile_regexes()
+                    .with_context(|| format!("in composite rule '{}' none condition #{}", self.id, idx + 1))?;
             }
         }
         if let Some(ref mut conds) = self.unless {
-            for cond in conds.iter_mut() {
-                cond.precompile_regexes();
+            for (idx, cond) in conds.iter_mut().enumerate() {
+                cond.precompile_regexes()
+                    .with_context(|| format!("in composite rule '{}' unless condition #{}", self.id, idx + 1))?;
             }
         }
         if let Some(ref mut downgrade) = self.downgrade {
             if let Some(ref mut any) = downgrade.any {
-                for cond in any.iter_mut() {
-                    cond.precompile_regexes();
+                for (idx, cond) in any.iter_mut().enumerate() {
+                    cond.precompile_regexes()
+                        .with_context(|| format!("in composite rule '{}' downgrade.any condition #{}", self.id, idx + 1))?;
                 }
             }
             if let Some(ref mut all) = downgrade.all {
-                for cond in all.iter_mut() {
-                    cond.precompile_regexes();
+                for (idx, cond) in all.iter_mut().enumerate() {
+                    cond.precompile_regexes()
+                        .with_context(|| format!("in composite rule '{}' downgrade.all condition #{}", self.id, idx + 1))?;
                 }
             }
             if let Some(ref mut none) = downgrade.none {
-                for cond in none.iter_mut() {
-                    cond.precompile_regexes();
+                for (idx, cond) in none.iter_mut().enumerate() {
+                    cond.precompile_regexes()
+                        .with_context(|| format!("in composite rule '{}' downgrade.none condition #{}", self.id, idx + 1))?;
                 }
             }
         }
+        Ok(())
     }
 
     /// Pre-compile YARA rules in all conditions

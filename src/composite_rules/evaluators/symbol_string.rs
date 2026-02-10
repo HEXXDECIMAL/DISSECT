@@ -16,6 +16,9 @@ use crate::composite_rules::types::Platform;
 use crate::ip_validator::contains_external_ip;
 use crate::types::Evidence;
 
+/// Maximum number of matches to process from regex find_iter() to prevent DoS on pattern-dense files
+const MAX_MATCHES_TO_PROCESS: usize = 10_000;
+
 /// Check if an offset falls within an effective range.
 /// Returns true if no range is specified (no constraint) or if offset is within range.
 #[inline]
@@ -523,7 +526,15 @@ pub fn eval_raw(
     // Use pre-compiled regex (handles both word and regex patterns)
     if let Some(re) = compiled_regex {
         let mut first_match = None;
-        for mat in re.find_iter(&content) {
+        for (idx, mat) in re.find_iter(&content).enumerate() {
+            // Limit match processing to prevent DoS on pattern-dense files
+            if idx >= MAX_MATCHES_TO_PROCESS {
+                eprintln!(
+                    "WARNING: Hit match limit of {} matches for regex pattern, stopping early",
+                    MAX_MATCHES_TO_PROCESS
+                );
+                break;
+            }
             let match_str = mat.as_str();
             // Skip matches without external IP when external_ip is required
             if external_ip && !contains_external_ip(match_str) {

@@ -55,8 +55,8 @@ traits:
     not:
       - "python.exe"
       - "pip.exe"
-      - regex: "\\bwhich\\b.*\\.exe"
-      - regex: "\\bfind\\b.*\\.exe"
+      - regex: "\\bwhich\\b.{0,200}\\.exe"
+      - regex: "\\bfind\\b.{0,200}\\.exe"
 
   - id: scr-file-extension
     desc: .scr file extension (screensaver/executable)
@@ -84,7 +84,7 @@ traits:
     conf: 0.8
     if:
       type: symbol
-      regex: "open\\(.*\\)\\.write"
+      regex: "open\\(.{0,200}\\)\\.write"
 
   # === Suspicious URL Patterns ===
   # Downloads from suspicious domains that look fake/impersonating

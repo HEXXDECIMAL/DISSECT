@@ -926,7 +926,9 @@ impl CapabilityMapper {
 
         // Pre-compile all regexes for performance
         for trait_def in &mut trait_definitions {
-            trait_def.precompile_regexes();
+            if let Err(e) = trait_def.precompile_regexes() {
+                parse_errors.push(format!("Regex compilation error: {:#}", e));
+            }
         }
 
         // Validate exact trait ID references
@@ -1850,7 +1852,9 @@ impl CapabilityMapper {
 
         // Pre-compile all regexes for performance
         for trait_def in &mut trait_definitions {
-            trait_def.precompile_regexes();
+            if let Err(e) = trait_def.precompile_regexes() {
+                return Err(anyhow::anyhow!("Regex compilation error: {:#}", e));
+            }
         }
 
         // Convert raw composite rules to final rules with defaults applied
@@ -1862,7 +1866,9 @@ impl CapabilityMapper {
 
         // Pre-compile all composite rule regexes
         for rule in &mut composite_rules {
-            rule.precompile_regexes();
+            if let Err(e) = rule.precompile_regexes() {
+                return Err(anyhow::anyhow!("Regex compilation error: {:#}", e));
+            }
         }
 
         // Validate HOSTILE composite precision
