@@ -1,455 +1,177 @@
-# Machine ID / Hardware Fingerprinting
+# Machine ID Collection
 # ATT&CK: T1082 (System Information Discovery)
-# Detects collection of unique machine identifiers
 
 defaults:
   attack: "T1082"
 
 traits:
-  # === Machine ID atomic indicators ===
-  - id: etc-machine-id
-    desc: /etc/machine-id file
-    crit: inert
+  # === Machine ID micro-traits ===
+  - id: fp-dbus-machine-id
+    desc: dbus machine-id path
+    crit: notable
     conf: 0.7
-    for: [javascript, typescript, python, shell, elf, macho]
-    if:
-      type: string
-      substr: "/etc/machine-id"
-
-  - id: dbus-machine-id
-    desc: /var/lib/dbus/machine-id file
-    crit: inert
-    conf: 0.7
-    for: [javascript, typescript, python, shell, elf, macho]
     if:
       type: string
       substr: "/var/lib/dbus/machine-id"
 
-  - id: windows-machine-guid
-    desc: Windows MachineGuid reference
-    crit: inert
+  - id: fp-etc-machine-id
+    desc: /etc/machine-id path
+    crit: notable
     conf: 0.7
-    for: [javascript, typescript, powershell, pe]
     if:
       type: string
-      substr: "MachineGuid"
+      substr: "/etc/machine-id"
 
-  # === Node.js machine-id package atomic indicators ===
-  - id: require-node-machine-id
-    desc: require node-machine-id
-    crit: inert
-    conf: 0.7
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "require\\(['\"]node-machine-id['\"]\\)"
-
-  - id: require-machine-id
-    desc: require machine-id
-    crit: inert
-    conf: 0.7
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "require\\(['\"]machine-id['\"]\\)"
-
-  - id: import-node-machine-id
-    desc: import from node-machine-id
-    crit: inert
-    conf: 0.7
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: 'from [''"]node-machine-id[''"]'
-
-  # === macOS hardware UUID atomic indicators ===
-  - id: system-profiler-hardware
-    desc: system_profiler SPHardwareDataType
-    crit: inert
-    conf: 0.7
-    for: [javascript, typescript, shell, python, macho]
-    if:
-      type: string
-      substr: "system_profiler SPHardwareDataType"
-
-  - id: ioplatform-uuid
-    desc: IOPlatformUUID reference
-    crit: inert
-    conf: 0.7
-    for: [javascript, typescript, shell, python, macho]
-    if:
-      type: string
-      substr: "IOPlatformUUID"
-
-  - id: ioreg-serial
-    desc: ioreg IOPlatformSerialNumber
-    crit: inert
-    conf: 0.7
-    for: [javascript, typescript, shell, python, macho]
-    if:
-      type: string
-      regex: "ioreg.{0,50}IOPlatformSerialNumber"
-
-  # === Windows machine GUID atomic indicators ===
-  - id: hklm-cryptography-guid
-    desc: HKLM Cryptography MachineGuid
-    crit: inert
-    conf: 0.7
-    for: [javascript, typescript, powershell, pe]
-    if:
-      type: string
-      regex: "HKLM.{0,30}Cryptography.{0,30}MachineGuid"
-
-  - id: wmic-csproduct-uuid
-    desc: wmic csproduct get uuid
-    crit: inert
-    conf: 0.7
-    for: [javascript, typescript, powershell, shell]
-    if:
-      type: string
-      substr: "wmic csproduct get uuid"
-
-  # === CPU ID atomic indicators ===
-  - id: proc-cpuinfo
-    desc: /proc/cpuinfo file
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript, python, shell, elf]
-    if:
-      type: string
-      substr: "/proc/cpuinfo"
-
-  - id: processor-id
-    desc: processor id reference
+  - id: machine-id-string
+    desc: machine-id string
     crit: inert
     conf: 0.5
-    for: [javascript, typescript, python, shell, elf, pe]
-    if:
-      type: string
-      regex: "processor.{0,30}id"
-
-  - id: cpuid-instruction
-    desc: cpuid instruction/function
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript, python, shell, elf, pe, macho]
-    if:
-      type: string
-      substr: "cpuid"
-
-  # === Disk serial atomic indicators ===
-  - id: hdparm-info
-    desc: hdparm -i command
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript, shell, elf]
-    if:
-      type: string
-      regex: "hdparm.{0,20}-i"
-
-  - id: smartctl-cmd
-    desc: smartctl command
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript, shell, elf]
-    if:
-      type: string
-      substr: "smartctl"
-
-  - id: wmic-diskdrive-serial
-    desc: wmic diskdrive get serialnumber
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript, shell, powershell, pe]
-    if:
-      type: string
-      substr: "wmic diskdrive get serialnumber"
-
-  # === BIOS serial atomic indicators ===
-  - id: dmidecode-cmd
-    desc: dmidecode command
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript, shell, elf]
-    if:
-      type: string
-      substr: "dmidecode"
-
-  - id: wmic-bios-serial
-    desc: wmic bios get serialnumber
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript, shell, powershell, pe]
-    if:
-      type: string
-      substr: "wmic bios get serialnumber"
-
-  # === Node.js os module hardware fingerprint patterns ===
-  - id: network-interfaces-call
-    desc: networkInterfaces() call
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "networkInterfaces"
-
-  - id: cpus-call
-    desc: cpus() call
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "cpus()"
-
-  - id: totalmem-call
-    desc: totalmem() call
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "totalmem"
-
-  - id: hostname-call
-    desc: hostname() call
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "hostname()"
-
-  - id: userinfo-call
-    desc: userInfo() call
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "userInfo()"
-
-  - id: platform-call
-    desc: platform() call
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "platform()"
-
-  - id: arch-call
-    desc: arch() call
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "arch()"
-
-  - id: release-call
-    desc: release() call
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "release()"
-
-  # === Unique identifier keywords ===
-  - id: machine-id-keyword
-    desc: machine-id keyword
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
     if:
       type: string
       substr: "machine-id"
 
-  - id: uuid-keyword
-    desc: uuid keyword
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      word: "uuid"
-
-  - id: fingerprint-keyword
-    desc: fingerprint keyword
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      word: "fingerprint"
-
-  - id: unique-id-keyword
-    desc: uniqueId keyword
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      word: "uniqueId"
-
-  - id: device-id-keyword
-    desc: deviceId keyword
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      word: "deviceId"
-
-  # === Network exfiltration patterns ===
-  - id: post-method
-    desc: POST HTTP method
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      word: "POST"
-
-  - id: webhook-keyword
-    desc: webhook keyword
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      word: "webhook"
-
-composite_rules:
-  # Machine ID file access composite
-  - id: machine-id-file
-    desc: Accesses machine-id file (unique system
-    crit: suspicious
-    conf: 0.85
-    for: [javascript, typescript, python, shell, elf, macho, pe]
-    any:
-      - id: etc-machine-id
-      - id: dbus-machine-id
-      - id: windows-machine-guid
-
-  # Node.js machine-id package composite
-  - id: machine-id-package
-    desc: Uses machine-id npm package
+  - id: machineguid
+    desc: MachineGuid registry key
     crit: notable
+    conf: 0.7
+    if:
+      type: string
+      substr: "MachineGuid"
+
+  - id: machineid-camel
+    desc: MachineId string
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      substr: "MachineId"
+
+  - id: product-uuid-path
+    desc: DMI product_uuid path
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      substr: "/sys/class/dmi/id/product_uuid"
+
+  - id: product-uuid-string
+    desc: product_uuid string
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      substr: "product_uuid"
+
+  # === Hardware UUID micro-traits ===
+  - id: generate-hwid
+    desc: GenerateHardwareId function
+    crit: suspicious
     conf: 0.8
-    for: [javascript, typescript]
-    any:
-      - id: require-node-machine-id
-      - id: require-machine-id
-      - id: import-node-machine-id
+    if:
+      type: string
+      substr: "GenerateHardwareId"
 
-  # macOS hardware UUID composite
-  - id: hardware-uuid-macos
-    desc: Collects macOS hardware UUID
+  - id: get-hwid
+    desc: GetHardwareId function
     crit: suspicious
-    conf: 0.85
-    for: [javascript, typescript, shell, python, macho]
-    any:
-      - id: system-profiler-hardware
-      - id: ioplatform-uuid
-      - id: ioreg-serial
+    conf: 0.8
+    if:
+      type: string
+      substr: "GetHardwareId"
 
-  # Windows machine GUID composite
-  - id: machine-guid-windows
-    desc: Collects Windows machine GUID
-    crit: suspicious
-    conf: 0.85
-    for: [javascript, typescript, powershell, pe]
-    any:
-      - id: hklm-cryptography-guid
-      - id: wmic-csproduct-uuid
+  - id: hardware-id-string
+    desc: hardware_id string
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: "(?i)hardware_id"
 
-  # CPU ID composite
-  # NOTE: Go runtime uses cpuid instruction to check CPU features (AVX, SSE, etc.)
-  # Downgraded to inert for binaries to avoid false positives.
-  - id: cpu-id
-    desc: Collects CPU identifier
+  - id: hwid-string
+    desc: hwid string
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: "(?i)\\bhwid\\b"
+
+  - id: fingerprint-string
+    desc: fingerprint string
     crit: inert
     conf: 0.4
-    for: [javascript, typescript, python, shell, elf, pe, macho]
-    any:
-      - id: proc-cpuinfo
-      - id: processor-id
-      - id: cpuid-instruction
+    if:
+      type: string
+      regex: '(?i)(hardware|device|machine|system|host)[\s_-]?fingerprint|fingerprint[\s_-]?(id|gen|collect)'
 
-  # Disk serial composite
-  - id: disk-serial
-    desc: Collects disk serial number
+  # === Hostname micro-traits ===
+  - id: gethostname-func
+    desc: gethostname function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      regex: "gethostname"
+
+  - id: etc-hostname
+    desc: /etc/hostname path
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      substr: "/etc/hostname"
+
+  - id: hostname-env
+    desc: HOSTNAME env variable
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      substr: "HOSTNAME"
+
+  - id: getfqdn-func
+    desc: getfqdn function
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      substr: "getfqdn"
+
+composite_rules:
+  # Machine ID composite
+  - id: machine-id-collection
+    desc: Machine ID collection for victim tracking
     crit: notable
-    conf: 0.75
-    for: [javascript, typescript, shell, elf, pe]
+    conf: 0.8
+    needs: 2
     any:
-      - id: hdparm-info
-      - id: smartctl-cmd
-      - id: wmic-diskdrive-serial
+      - id: fp-dbus-machine-id
+      - id: fp-etc-machine-id
+      - id: machine-id-string
+      - id: machineguid
+      - id: machineid-camel
+      - id: product-uuid-path
+      - id: product-uuid-string
 
-  # BIOS serial composite
-  - id: bios-serial
-    desc: Collects BIOS/firmware serial
+  # Hardware UUID composite
+  - id: hardware-uuid
+    desc: Hardware-based UUID generation
+    crit: suspicious
+    conf: 0.8
+    any:
+      - id: generate-hwid
+      - id: get-hwid
+      - id: hardware-id-string
+      - id: hwid-string
+      - id: fingerprint-string
+
+  # Hostname composite
+  - id: hostname
+    desc: Hostname collection for identification
     crit: notable
-    conf: 0.75
-    for: [javascript, typescript, shell, elf, pe, macho]
+    conf: 0.7
+    needs: 2
     any:
-      - id: dmidecode-cmd
-      - id: wmic-bios-serial
-      - id: system-profiler-hardware
-
-  # Comprehensive hardware fingerprint (migrated from YARA)
-  - id: hardware-comprehensive
-    desc: Comprehensive hardware fingerprinting (multiple vectors)
-    crit: suspicious
-    conf: 0.9
-    for: [javascript, typescript]
-    needs: 4
-    any:
-      - { id: network-interfaces-call }
-      - { id: cpus-call }
-      - { id: totalmem-call }
-      - { id: hostname-call }
-      - { id: userinfo-call }
-      - { id: platform-call }
-      - { id: arch-call }
-      - { id: release-call }
-
-  # Unique identifier keywords (migrated from YARA)
-  - id: unique-id-keywords
-    desc: Unique identifier keywords
-    for: [javascript, typescript]
-    any:
-      - { id: machine-id-keyword }
-      - { id: uuid-keyword }
-      - { id: fingerprint-keyword }
-      - { id: unique-id-keyword }
-      - { id: device-id-keyword }
-
-  # Network exfiltration patterns (migrated from YARA)
-  - id: network-exfil-patterns
-    desc: Network exfiltration patterns
-    for: [javascript, typescript]
-    any:
-      - { id: cap/comm/http/request::fetch-string }
-      - { id: cap/comm/http/request::https-request }
-      - { id: post-method }
-      - { id: webhook-keyword }
-
-  # Unique identifier with network exfiltration (migrated from YARA)
-  - id: unique-id-exfil
-    desc: Generates unique identifier and sends
-    crit: suspicious
-    conf: 0.95
-    attack: T1082
-    mbc: E1082
-    for: [javascript, typescript]
-    all:
-      - { id: unique-id-keywords }
-      - { id: network-exfil-patterns }
-    downgrade:
-      any:
-        - id: meta/library/jquery::library
+      - id: gethostname-func
+      - id: etc-hostname
+      - id: hostname-env
+      - id: getfqdn-func

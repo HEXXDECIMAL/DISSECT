@@ -1,0 +1,49 @@
+# Homepage/URL Field Patterns
+# Suspicious or missing homepage/URL fields in PyPI packages
+
+defaults:
+  crit: notable
+  attack: "T1036.005"
+  mbc: "F0004"
+  for: [all]
+
+traits:
+  - id: unknown-homepage
+    desc: PKG-INFO has UNKNOWN home page
+    crit: notable
+    conf: 0.75
+    if:
+      type: kv
+      path: home-page
+      exact: "UNKNOWN"
+
+  - id: pkginfo-free-hosting-homepage
+    desc: PKG-INFO homepage on free hosting service
+    crit: notable
+    conf: 0.70
+    if:
+      type: kv
+      path: home-page
+      regex: "(?:yolasite|weebly|wixsite|000webhostapp|blogspot)\\.com"
+
+  - id: pkginfo-no-homepage
+    desc: PKG-INFO missing Home-page field
+    crit: notable
+    conf: 0.70
+    if:
+      type: kv
+      path: metadata-version
+    unless:
+      - type: kv
+        path: home-page
+
+  - id: pyproject-no-urls
+    desc: pyproject.toml with no project URLs
+    crit: notable
+    conf: 0.65
+    if:
+      type: content
+      substr: "[build-system]"
+    unless:
+      - type: content
+        substr: "[project.urls]"

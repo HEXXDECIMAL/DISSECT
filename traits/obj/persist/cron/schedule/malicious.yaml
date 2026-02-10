@@ -95,8 +95,7 @@ composite_rules:
   - id: cron-paths
     desc: Cron file paths
     any:
-      - id: cap/os/admin/legitimate::cron-d-path
-      - id: cap/os/admin/legitimate::crontab-file
+      - id: obj/persist/cron/job::cron-d-path
       - id: obj/persist/cron/job::var-spool-cron-path
       - id: crontab-dash
 

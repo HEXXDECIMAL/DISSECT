@@ -111,7 +111,7 @@ composite_rules:
       - id: obj/anti-static/obfuscation/code-metrics::php-encoded-strings
       - id: obj/anti-static/obfuscation/code-metrics::php-single-long-line
       - id: obj/anti-static/obfuscation/code-metrics::php-obfuscated-vars
-      - id: obj/anti-static/obfuscation/code-metrics::no-comments
+      - id: obj/anti-static/obfuscation/code-metrics/structure::no-comments
 
   - id: php-encoded-payload
     desc: "PHP with encoded payload"

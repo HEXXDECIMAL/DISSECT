@@ -1,0 +1,192 @@
+# eBPF Programs - BPF Program Loading
+# Capabilities for BPF/eBPF program detection
+
+
+traits:
+  - id: bpf-object-open
+    desc: Load BPF object from file
+    crit: notable
+    conf: 0.8
+    for: [c, elf]
+    if:
+      type: symbol
+      regex: "bpf_object__open(?:_file)?"
+
+  - id: bpf-object-load
+    desc: Load BPF object into kernel
+    crit: notable
+    conf: 0.8
+    for: [c, elf]
+    if:
+      type: symbol
+      regex: "bpf_object__load"
+
+  - id: bpf-program-find
+    desc: Find BPF program in object by name
+    crit: notable
+    conf: 0.8
+    for: [c, elf]
+    if:
+      type: symbol
+      regex: "bpf_object__find_program_by_name"
+
+  - id: bpf-rlimit-memlock
+    desc: High RLIMIT_MEMLOCK for BPF
+    crit: notable
+    conf: 0.8
+    for: [c, elf]
+    if:
+      type: content
+      # Matches RLIMIT_MEMLOCK combined with large shift (common in BPF loaders)
+      regex: "(?s)(?:RLIMIT_MEMLOCK.{0,200}(?:\\d+UL\\s*<<\\s*20|1\\s*<<\\s*30)|(?:\\d+UL\\s*<<\\s*20|1\\s*<<\\s*30).{0,200}RLIMIT_MEMLOCK)"
+
+  # === eBPF skeleton patterns ===
+  - id: bpf-skeleton
+    desc: BPF skeleton pattern
+    crit: inert
+    conf: 0.6
+    for: [c, elf]
+    if:
+      type: string
+      regex: "\\w+_bpf__(?:open|load|attach|destroy)"
+
+  - id: bpf-ring-buffer
+    desc: BPF ring buffer usage
+    crit: inert
+    conf: 0.5
+    for: [c, elf]
+    if:
+      type: string
+      regex: "ring_buffer__(?:new|poll|free)"
+
+  # eBPF ringbuf helper functions (kernel-side)
+  - id: bpf-ringbuf
+    desc: eBPF ringbuf helpers
+    crit: notable
+    conf: 0.7
+    for: [c, elf]
+    if:
+      type: symbol
+      regex: "bpf_ringbuf_(?:reserve|submit|discard|output)"
+
+  # === eBPF Development Headers ===
+  # CO-RE (Compile Once - Run Everywhere) BTF header for kernel data structures
+  - id: vmlinux-h
+    desc: vmlinux.h CO-RE eBPF header
+    crit: notable
+    conf: 0.8
+    for: [c]
+    if:
+      type: string
+      substr: "vmlinux.h"
+
+  # eBPF helper functions header (libbpf)
+  - id: bpf-helpers-h
+    desc: bpf/bpf_helpers.h include
+    crit: notable
+    conf: 0.85
+    for: [c]
+    if:
+      type: content
+      substr: "bpf/bpf_helpers.h"
+
+  # SEC("license") declaration - required for BPF programs
+  - id: sec-license
+    desc: eBPF license section declaration
+    crit: notable
+    conf: 0.8
+    for: [c]
+    if:
+      type: content
+      regex: 'SEC\s*\(\s*"license'
+
+  # === eBPF Development Header Patterns ===
+  # eBPF CO-RE development header (vmlinux.h + bpf_helpers.h)
+  - id: sec-xdp
+    desc: SEC("xdp") section marker
+    crit: notable
+    conf: 0.8
+    for: [c, elf]
+    if:
+      type: content
+      substr: 'SEC("xdp'
+
+  # === eBPF Kernel Types ===
+  # __u32, __u64 are eBPF/kernel type aliases
+  - id: ebpf-kernel-types
+    desc: eBPF kernel type aliases
+    crit: inert
+    conf: 0.6
+    for: [c, elf]
+    if:
+      type: content
+      regex: "\\b__u(?:8|16|32|64)\\b"
+
+  # === eBPF Data Event Structures ===
+  # data_event struct is a common pattern for kernel→userspace data transfer
+  - id: data-event-struct
+    desc: eBPF data event structure
+    crit: notable
+    conf: 0.75
+    for: [c, elf]
+    if:
+      type: content
+      word: "data_event"
+
+  # Kernel to userspace data transfer comment/intent
+  - id: kernel-userspace-transfer
+    desc: Kernel to userspace data transfer
+    crit: notable
+    conf: 0.8
+    for: [c, elf]
+    if:
+      type: content
+      regex: "(?i)kernel\\s+to\\s+user\\s*space|user\\s*space.{0,30}kernel"
+
+
+composite_rules:
+  - id: ebpf-core-header
+    desc: eBPF CO-RE development header
+    crit: notable
+    conf: 0.85
+    for: [c]
+    all:
+      - id: vmlinux-h
+      - id: bpf-helpers-h
+
+  # eBPF program header with license
+  - id: ebpf-program-header
+    desc: eBPF program with license section
+    crit: notable
+    conf: 0.8
+    for: [c]
+    needs: 2
+    any:
+      - id: vmlinux-h
+      - id: bpf-helpers-h
+      - id: sec-license
+
+  # eBPF network packet manipulation helpers
+  # Checksum recalculation + MAC swap = packet modification
+  - id: packet-manip-helpers
+    desc: eBPF packet manipulation helpers
+    crit: notable
+    conf: 0.8
+    for: [c]
+    any:
+      - id: cap/os/bpf/network-manip
+
+  # eBPF XDP/TC helper header for packet manipulation
+  # CO-RE header + packet manipulation functions = XDP/TC helper module
+  - id: xdp-helper-header
+    desc: eBPF XDP/TC packet helper header
+    crit: suspicious
+    conf: 0.9
+    attack: "T1205.001"
+    for: [c]
+    all:
+      - id: ebpf-program-header
+      - id: packet-manip-helpers
+
+  # === eBPF Section Markers ===
+  # SEC("xdp") section declaration for XDP programs

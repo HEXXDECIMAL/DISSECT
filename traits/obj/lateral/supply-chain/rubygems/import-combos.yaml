@@ -342,7 +342,7 @@ composite_rules:
       - id: http-client-imports
     any:
       - id: ruby-discord-webhook
-      - id: obj/lateral/supply-chain/npm::telegram-bot-api
+      - id: obj/lateral/supply-chain/npm/install::telegram-bot-api
 
   # === HOSTILE: Clear malware patterns ===
 

@@ -1,0 +1,140 @@
+# Hardware Information Collection (DMI/SMBIOS, CPU)
+# ATT&CK: T1082 (System Information Discovery)
+
+defaults:
+  attack: "T1082"
+
+traits:
+  # === DMI/SMBIOS micro-traits ===
+  - id: dmi-class-path
+    desc: /sys/class/dmi/id/ path
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      substr: "/sys/class/dmi/id/"
+
+  - id: dmi-devices-path
+    desc: /sys/devices/virtual/dmi/id/ path
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      substr: "/sys/devices/virtual/dmi/id/"
+
+  - id: product-serial
+    desc: product_serial DMI field
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      substr: "product_serial"
+
+  - id: board-serial
+    desc: board_serial DMI field
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      substr: "board_serial"
+
+  - id: bios-version
+    desc: bios_version DMI field
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      substr: "bios_version"
+
+  - id: fp-dmidecode-cmd
+    desc: dmidecode command
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      substr: "dmidecode"
+
+  # === CPU info micro-traits ===
+  - id: cpu-model-name
+    desc: model name CPU field
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      substr: "model name"
+
+  - id: cpu-family
+    desc: cpu family field
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      substr: "cpu family"
+
+  - id: cpu-cores
+    desc: cpu cores field
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      substr: "cpu cores"
+
+  - id: lscpu-cmd
+    desc: lscpu command
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      substr: "lscpu"
+
+composite_rules:
+  # DMI fields helper
+  - id: dmi-fields
+    desc: DMI/SMBIOS fields
+    crit: inert
+    conf: 0.5
+    needs: 2
+    any:
+      - id: dmi-class-path
+      - id: dmi-devices-path
+      - id: cap/os/sysinfo/dmi::dmi-vendor-product
+      - id: product-serial
+      - id: board-serial
+      - id: bios-version
+
+  # DMI/SMBIOS composite
+  - id: dmi-smbios
+    desc: DMI/SMBIOS hardware information collection
+    crit: notable
+    conf: 0.75
+    any:
+      - id: dmi-fields
+      - id: fp-dmidecode-cmd
+
+  # CPU info helper
+  - id: cpu-fields
+    desc: CPU info fields
+    crit: inert
+    conf: 0.4
+    any:
+      - id: cpu-model-name
+      - id: cpu-family
+      - id: cpu-cores
+
+  # CPU info composite
+  - id: cpu-info
+    desc: CPU information fingerprinting
+    crit: inert
+    conf: 0.4
+    any:
+      - id: cpu-proc-cpuinfo
+      - id: lscpu-cmd
+
+  # Helper: /proc/cpuinfo + fields
+  - id: cpu-proc-cpuinfo
+    desc: /proc/cpuinfo with fields
+    crit: inert
+    conf: 0.4
+    all:
+      - id: cap/fs/proc/system::system-cpuinfo
+      - id: cpu-fields

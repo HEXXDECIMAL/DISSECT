@@ -309,4 +309,4 @@ composite_rules:
     all:
       - id: js-hex-encoded-require
       - id: js-buffer-from-hex
-      - id: obj/lateral/supply-chain/npm::auto-execute
+      - id: obj/lateral/supply-chain/npm/malicious-patterns::auto-execute

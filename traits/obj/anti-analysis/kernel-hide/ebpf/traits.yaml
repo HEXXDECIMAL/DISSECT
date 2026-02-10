@@ -323,7 +323,7 @@ composite_rules:
     any:
       - id: sec-syscall-enter
       - id: sec-syscall-exit
-      - id: cap/os/bpf/program::sec-xdp
+      - id: cap/os/bpf/program/loader::sec-xdp
       - id: sec-uprobe
       - id: xdp-md-struct
       - id: cilium-ebpf
@@ -349,7 +349,7 @@ composite_rules:
     conf: 0.8
     for: [c, elf]
     any:
-      - id: cap/os/bpf/program::sec-xdp
+      - id: cap/os/bpf/program/loader::sec-xdp
       - id: xdp-md-struct
 
   # Go eBPF loader (migrated from YARA)
@@ -375,7 +375,7 @@ composite_rules:
     any:
       - id: sec-syscall-enter
       - id: sec-syscall-exit
-      - id: cap/os/bpf/program::sec-xdp
+      - id: cap/os/bpf/program/loader::sec-xdp
       - id: sec-uprobe
 
   # Go offensive intent helper
@@ -473,7 +473,7 @@ composite_rules:
     attack: "T1557"
     for: [c, elf]
     all:
-      - id: cap/os/bpf/program::sec-xdp
+      - id: cap/os/bpf/program/loader::sec-xdp
       - id: http-string
       - id: http-manipulation-action
 

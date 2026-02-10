@@ -1,0 +1,70 @@
+# Author Field Patterns
+# Suspicious or placeholder author names in PyPI packages
+
+defaults:
+  crit: notable
+  attack: "T1036.005"
+  mbc: "F0004"
+
+traits:
+  - id: placeholder-author
+    desc: Placeholder author name
+    crit: notable
+    conf: 0.65
+    for: [python]
+    if:
+      type: string
+      regex: 'author.{0,50}=.{0,50}[''"](haha|lol|test|admin|user|dev|me)[''"]'
+
+  - id: unknown-author
+    desc: PKG-INFO has UNKNOWN author
+    crit: notable
+    conf: 0.75
+    for: [all]
+    if:
+      type: kv
+      path: author
+      exact: "UNKNOWN"
+
+  - id: placeholder-author-pkginfo
+    desc: PKG-INFO has placeholder author name
+    crit: notable
+    conf: 0.80
+    for: [all]
+    if:
+      type: kv
+      path: author
+      regex: "^(?:Your Name|Test|Author|TODO|FIXME|Example|Change Me|haha|lol|none|asdf|abc)$"
+      case_insensitive: true
+
+  - id: pkginfo-short-author
+    desc: PKG-INFO with very short author name
+    crit: notable
+    conf: 0.75
+    for: [all]
+    if:
+      type: kv
+      path: author
+      regex: "^.{1,3}$"
+
+  - id: pkginfo-no-author
+    desc: PKG-INFO missing Author field
+    crit: notable
+    conf: 0.70
+    for: [all]
+    if:
+      type: kv
+      path: metadata-version
+    unless:
+      - type: kv
+        path: author
+
+  - id: pkginfo-numeric-author
+    desc: PKG-INFO author with numeric sequences
+    crit: notable
+    conf: 0.70
+    for: [all]
+    if:
+      type: kv
+      path: author
+      regex: "(?:[a-zA-Z]+[0-9]{3,}|[0-9]{3,}[a-zA-Z]+)"

@@ -1,0 +1,74 @@
+# Configuration File Markers
+
+traits:
+  - id: has-docs
+    desc: Package has documentation directory
+    crit: inert
+    conf: 0.85
+    for: [packagejson]
+    if:
+      type: string
+      regex: '"docs"|"documentation"|"doc"'
+
+  - id: has-github-config
+    desc: Package references GitHub configuration
+    crit: inert
+    conf: 0.9
+    for: [packagejson]
+    if:
+      type: string
+      regex: '\\.github|workflows|CONTRIBUTING|CODE_OF_CONDUCT|SECURITY\\.md'
+
+  - id: has-tsconfig
+    desc: Package has TypeScript configuration
+    crit: inert
+    conf: 0.9
+    for: [packagejson]
+    if:
+      type: string
+      regex: 'tsconfig\\.json|tsconfig\\.build\\.json'
+
+  - id: has-eslint-config
+    desc: Package has ESLint configuration
+    crit: inert
+    conf: 0.9
+    for: [packagejson]
+    if:
+      type: string
+      regex: '\\.eslintrc|eslint\\.config|"eslintConfig":'
+
+  - id: has-prettier-config
+    desc: Package has Prettier configuration
+    crit: inert
+    conf: 0.9
+    for: [packagejson]
+    if:
+      type: string
+      regex: '\\.prettierrc|prettier\\.config|"prettier":'
+
+  - id: has-babel-config
+    desc: Package has Babel configuration
+    crit: inert
+    conf: 0.85
+    for: [packagejson]
+    if:
+      type: string
+      regex: '\\.babelrc|babel\\.config|"babel":'
+
+  - id: has-editorconfig
+    desc: Package has editor configuration
+    crit: inert
+    conf: 0.85
+    for: [packagejson]
+    if:
+      type: string
+      regex: '\\.editorconfig'
+
+  - id: has-npmignore-or-files
+    desc: Package has publishing configuration
+    crit: inert
+    conf: 0.85
+    for: [packagejson]
+    if:
+      type: string
+      regex: '\\.npmignore|"files":\\s*\\['

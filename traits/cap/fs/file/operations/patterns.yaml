@@ -28,7 +28,7 @@ composite_rules:
     crit: inert
     conf: 0.4
     any:
-      - id: cap/data/text/pattern::tmp
+      - id: cap/data/text/keywords::tmp
       - id: tempfile-ref
       - id: environ-tmp
 

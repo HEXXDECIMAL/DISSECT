@@ -1,0 +1,67 @@
+# Database Connection - MYSQL
+
+traits:
+  # === MySQL micro-traits ===
+  - id: libmysql
+    desc: libmysql library
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      substr: "libmysql"
+
+  - id: mysql-url
+    desc: mysql:// URL scheme
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      substr: "mysql://"
+
+  - id: mysql-real-connect
+    desc: mysql_real_connect function
+    crit: benign
+    conf: 0.9
+    if:
+      type: symbol
+      regex: "mysql_real_connect"
+
+  - id: mysqlclient
+    desc: mysqlclient library
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      substr: "mysqlclient"
+
+  - id: go-sql-mysql
+    desc: go-sql-driver/mysql
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      substr: "go-sql-driver/mysql"
+
+  - id: pymysql
+    desc: PyMySQL driver
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      substr: "PyMySQL"
+
+
+composite_rules:
+  # MySQL composite (migrated from YARA)
+  - id: mysql
+    desc: MySQL/MariaDB database connectivity
+    crit: benign
+    conf: 0.9
+    any:
+      - id: libmysql
+      - id: mysql-url
+      - id: mysql-real-connect
+      - id: mysqlclient
+      - id: go-sql-mysql
+      - id: pymysql
+

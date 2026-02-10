@@ -1,0 +1,51 @@
+# BPF Infrastructure Components
+# Basic BPF structures and packet capture functions
+
+defaults:
+  crit: inert
+  for: [elf, c]
+
+traits:
+  - id: bpf-program
+    desc: bpf_program struct
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      substr: "bpf_program"
+
+  - id: bpf-prefix
+    desc: BPF_ prefix
+    conf: 0.4
+    if:
+      type: string
+      exact: "BPF_"
+
+  - id: pcap-prefix
+    desc: pcap library function reference
+    conf: 0.5
+    if:
+      type: symbol
+      # Match actual pcap API functions, not just the prefix
+      regex: "pcap_(?:open_live|compile|setfilter|loop|next|close|findalldevs|lookupdev)"
+
+  - id: recvfrom-fn
+    desc: recvfrom function
+    conf: 0.3
+    if:
+      type: symbol
+      regex: "recvfrom"
+
+
+composite_rules:
+  - id: has-bpf-infra
+    desc: Has BPF infrastructure components
+    crit: notable
+    conf: 0.6
+    for: [elf, c]
+    needs: 2
+    any:
+      - { id: bpf-program }
+      - { id: bpf-prefix }
+      - { id: pcap-prefix }
+      - { id: recvfrom-fn }

@@ -1,0 +1,85 @@
+# Testing Framework - JEST
+
+traits:
+
+  # === Atomic: Jest (JavaScript) ===
+
+  - id: jest-word
+    desc: jest reference
+    crit: inert
+    conf: 0.7
+    for: [javascript]
+    if:
+      type: string
+      word: "jest"
+
+  - id: jest-describe
+    desc: "describe() function"
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "describe("
+
+  - id: jest-it
+    desc: "it() function"
+    crit: inert
+    conf: 0.5
+    for: [javascript]
+    if:
+      type: string
+      exact: "it("
+
+  - id: jest-expect
+    desc: "expect() function"
+    crit: inert
+    conf: 0.5
+    for: [javascript]
+    if:
+      type: string
+      substr: "expect("
+
+  - id: jest-to-be
+    desc: "toBe() matcher"
+    crit: inert
+    conf: 0.7
+    for: [javascript]
+    if:
+      type: string
+      substr: "toBe("
+
+  - id: jest-to-equal
+    desc: "toEqual() matcher"
+    crit: inert
+    conf: 0.7
+    for: [javascript]
+    if:
+      type: string
+      substr: "toEqual("
+
+composite_rules:
+
+  # Jest BDD functions helper (shared with Mocha)
+  - id: js-bdd-functions
+    desc: JavaScript BDD test functions
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    needs: 3
+    any:
+      - { id: jest-describe }
+      - { id: jest-it }
+      - { id: jest-expect }
+      - { id: jest-to-be }
+      - { id: jest-to-equal }
+
+  # Jest (JavaScript)
+  - id: jest
+    desc: Jest test framework
+    crit: benign
+    conf: 0.95
+    for: [javascript]
+    any:
+      - { id: jest-word }
+      - { id: js-bdd-functions }

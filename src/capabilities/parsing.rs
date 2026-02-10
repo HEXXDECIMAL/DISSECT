@@ -382,10 +382,7 @@ mod tests {
 
     #[test]
     fn test_apply_string_default_raw_value() {
-        let result = apply_string_default(
-            Some("custom".to_string()),
-            &Some("default".to_string()),
-        );
+        let result = apply_string_default(Some("custom".to_string()), &Some("default".to_string()));
         assert_eq!(result, Some("custom".to_string()));
     }
 
@@ -397,10 +394,7 @@ mod tests {
 
     #[test]
     fn test_apply_string_default_none_unsets() {
-        let result = apply_string_default(
-            Some("none".to_string()),
-            &Some("default".to_string()),
-        );
+        let result = apply_string_default(Some("none".to_string()), &Some("default".to_string()));
         assert_eq!(result, None);
     }
 
@@ -515,11 +509,8 @@ mod tests {
 
     #[test]
     fn test_parse_platforms_unix_android_ios() {
-        let result = parse_platforms(&[
-            "unix".to_string(),
-            "android".to_string(),
-            "ios".to_string(),
-        ]);
+        let result =
+            parse_platforms(&["unix".to_string(), "android".to_string(), "ios".to_string()]);
         assert!(result.contains(&Platform::Unix));
         assert!(result.contains(&Platform::Android));
         assert!(result.contains(&Platform::Ios));

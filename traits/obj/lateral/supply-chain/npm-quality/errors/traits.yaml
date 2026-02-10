@@ -1,0 +1,110 @@
+# Error Handling and Code Patterns
+
+traits:
+  - id: has-try-catch
+    desc: Code has try-catch error handling
+    crit: inert
+    conf: 0.75
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "try\\s*\\{[^}]+\\}\\s*catch"
+
+  - id: has-named-functions
+    desc: Code has named function definitions
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "^(?:async\\s+)?function\\s+[a-z][a-zA-Z0-9]*\\s*\\("
+
+  - id: has-typescript-types
+    desc: Code has TypeScript type annotations
+    crit: inert
+    conf: 0.9
+    for: [typescript]
+    if:
+      type: string
+      regex: ":\\s*(?:string|number|boolean|object|any|void|never|unknown|null|undefined|Array|Record|Promise)\\b"
+
+  - id: has-type-definitions
+    desc: Code defines TypeScript interfaces
+    crit: inert
+    conf: 0.9
+    for: [typescript]
+    if:
+      type: string
+      regex: "^(?:export\\s+)?(?:interface|type)\\s+[A-Z]"
+
+  - id: has-buffer-encoding
+    desc: Code uses Buffer with explicit encoding
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "Buffer\\.from\\([^)]+,\\s*['\"](?:utf8|utf-8|ascii|hex|binary)['\"]\\)"
+
+  - id: has-callback-pattern
+    desc: Code uses Node.js callback pattern
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "function\\s*\\([^)]*,\\s*(?:callback|cb|done|next)\\)"
+
+  - id: has-config-object
+    desc: Code uses configuration objects
+    crit: inert
+    conf: 0.75
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "(?:config|options|settings|opts)\\s*=\\s*\\{|function\\s*\\([^)]*(?:config|options|settings)\\)"
+
+  - id: use-strict
+    desc: Code uses strict mode
+    crit: inert
+    conf: 0.75
+    for: [javascript]
+    if:
+      type: string
+      substr: "'use strict'"
+
+  - id: has-logging
+    desc: Code uses logging library
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "require\\(['\"](?:winston|pino|bunyan|log4js|debug)['\"]\\)|logger\\.|log\\.(?:info|warn|error|debug)"
+
+  - id: has-validation
+    desc: Code uses schema validation
+    crit: inert
+    conf: 0.85
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "require\\(['\"](?:joi|yup|zod|ajv)['\"]\\)|z\\.object\\(|Joi\\.object\\("
+
+  - id: has-database
+    desc: Code interacts with database
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "require\\(['\"](?:mongoose|sequelize|knex|pg|mysql|mongodb)['\"]\\)|prisma\\.|\\$queryRaw"
+
+  - id: has-cli-args
+    desc: Code parses CLI arguments
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "require\\(['\"](?:commander|yargs|meow|minimist)['\"]\\)|program\\.(?:command|option)\\("

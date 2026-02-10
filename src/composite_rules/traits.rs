@@ -128,6 +128,114 @@ impl TraitDefinition {
         }
     }
 
+    /// Check if criticality level is valid for user-defined traits.
+    /// Returns an error message if invalid, None otherwise.
+    pub fn check_criticality(&self) -> Option<String> {
+        use crate::types::Criticality;
+
+        // Check if criticality is "Filtered" which is internal-only
+        if self.crit == Criticality::Filtered {
+            return Some(
+                "crit: 'filtered' is an internal-only criticality level. Use one of: 'inert' (informational), 'notable' (interesting behavior), 'suspicious' (potentially malicious), or 'hostile' (clearly malicious)".to_string()
+            );
+        }
+
+        None
+    }
+
+    /// Check if confidence value is in valid range.
+    /// Returns an error message if invalid, None otherwise.
+    pub fn check_confidence(&self) -> Option<String> {
+        if self.conf < 0.0 || self.conf > 1.0 {
+            return Some(format!(
+                "conf: {} is outside valid range [0.0, 1.0]",
+                self.conf
+            ));
+        }
+        None
+    }
+
+    /// Check if size constraints are valid.
+    /// Returns an error message if invalid, None otherwise.
+    pub fn check_size_constraints(&self) -> Option<String> {
+        if let (Some(min), Some(max)) = (self.size_min, self.size_max) {
+            if max < min {
+                return Some(format!(
+                    "size_max ({}) cannot be less than size_min ({})",
+                    max, min
+                ));
+            }
+        }
+        None
+    }
+
+    /// Check for empty or very short descriptions (common LLM mistake).
+    /// Returns a warning message if found, None otherwise.
+    pub fn check_description_quality(&self) -> Option<String> {
+        let desc = self.desc.trim();
+
+        if desc.is_empty() {
+            return Some(
+                "desc: description is empty - provide a meaningful description of what this trait detects".to_string()
+            );
+        }
+
+        if desc.len() < 5 {
+            return Some(format!(
+                "desc: '{}' is very short ({} chars) - provide a more descriptive explanation",
+                desc, desc.len()
+            ));
+        }
+
+        // Check for placeholder/generic descriptions that LLMs often generate
+        let generic_phrases = [
+            "test trait",
+            "todo",
+            "placeholder",
+            "example",
+            "sample",
+            "default description",
+        ];
+
+        let desc_lower = desc.to_lowercase();
+        for phrase in &generic_phrases {
+            if desc_lower.contains(phrase) {
+                return Some(format!(
+                    "desc: '{}' appears to be a placeholder or generic description - provide a specific description of what this trait detects",
+                    desc
+                ));
+            }
+        }
+
+        None
+    }
+
+    /// Check for empty not: arrays (common LLM mistake).
+    /// Returns a warning message if found, None otherwise.
+    pub fn check_empty_not_array(&self) -> Option<String> {
+        if let Some(not_exceptions) = &self.not {
+            if not_exceptions.is_empty() {
+                return Some(
+                    "not: array is empty - either remove the not: field or add exception patterns".to_string()
+                );
+            }
+        }
+        None
+    }
+
+    /// Check for empty unless: arrays (common LLM mistake).
+    /// Returns a warning message if found, None otherwise.
+    pub fn check_empty_unless_array(&self) -> Option<String> {
+        if let Some(unless_conditions) = &self.unless {
+            if unless_conditions.is_empty() {
+                return Some(
+                    "unless: array is empty - either remove the unless: field or add skip conditions".to_string()
+                );
+            }
+        }
+        None
+    }
+
     /// Check if `not:` field is used appropriately based on match type.
     /// Returns a warning message if misused, None otherwise.
     pub fn check_not_field_usage(&self) -> Option<String> {
@@ -146,51 +254,196 @@ impl TraitDefinition {
         fn get_exception_str(exc: &NotException) -> Option<&str> {
             match exc {
                 NotException::Shorthand(s) => Some(s.as_str()),
-                NotException::Structured {
-                    exact: Some(s), ..
-                }
+                NotException::Structured { exact: Some(s), .. }
                 | NotException::Structured {
                     substr: Some(s), ..
                 }
-                | NotException::Structured {
-                    regex: Some(s), ..
-                } => Some(s.as_str()),
+                | NotException::Structured { regex: Some(s), .. } => Some(s.as_str()),
                 _ => None,
             }
         }
 
+        // Helper to check if a string contains a substring (case-sensitive or insensitive)
+        fn contains_substr(haystack: &str, needle: &str, case_insensitive: bool) -> bool {
+            if case_insensitive {
+                haystack.to_lowercase().contains(&needle.to_lowercase())
+            } else {
+                haystack.contains(needle)
+            }
+        }
+
         match &self.r#if {
-            // Exact or substr matches (without regex/word) should use `unless:` instead of `not:`
+            // Symbol conditions with not: - validate exceptions match the pattern
+            Condition::Symbol {
+                exact: Some(_),
+                regex: None,
+                ..
+            } => {
+                return Some(
+                    "not: field used with symbol exact match - consider using 'unless:' instead for deterministic patterns".to_string()
+                );
+            }
+            Condition::Symbol {
+                substr: Some(search_substr),
+                regex: None,
+                ..
+            } => {
+                // For symbol substr, validate not: exceptions contain the search substr
+                for exc in not_exceptions {
+                    match exc {
+                        NotException::Shorthand(exc_str) => {
+                            if !exc_str.contains(search_substr) {
+                                return Some(format!(
+                                    "not: exception '{}' does not contain the search substr '{}' - symbols matching the substr won't contain this exception, so it will never be applied",
+                                    exc_str, search_substr
+                                ));
+                            }
+                        }
+                        NotException::Structured {
+                            exact: Some(exc_str),
+                            ..
+                        } => {
+                            if !exc_str.contains(search_substr) {
+                                return Some(format!(
+                                    "not: exception (exact) '{}' does not contain the search substr '{}' - symbols matching the substr won't match this exception, so it will never be applied",
+                                    exc_str, search_substr
+                                ));
+                            }
+                        }
+                        NotException::Structured {
+                            substr: Some(exc_substr),
+                            ..
+                        } => {
+                            if !exc_substr.contains(search_substr)
+                                && !search_substr.contains(exc_substr)
+                            {
+                                return Some(format!(
+                                    "not: exception (substr) '{}' has no overlap with search substr '{}' - they won't match the same symbols, so the exception will never be applied",
+                                    exc_substr, search_substr
+                                ));
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            Condition::Symbol {
+                regex: Some(pattern),
+                ..
+            } => {
+                // For symbol regex, validate exceptions match the pattern
+                for exc in not_exceptions {
+                    let exc_str = match exc {
+                        NotException::Shorthand(s) => Some(s.as_str()),
+                        NotException::Structured { exact: Some(s), .. }
+                        | NotException::Structured {
+                            substr: Some(s), ..
+                        }
+                        | NotException::Structured { regex: Some(s), .. } => Some(s.as_str()),
+                        _ => None,
+                    };
+
+                    if let Some(exc_str) = exc_str {
+                        if !pattern_could_match(pattern, exc_str) {
+                            return Some(format!(
+                                "not: exception '{}' does not match the search regex '{}' - it will never be applied",
+                                exc_str, pattern
+                            ));
+                        }
+                    }
+                }
+            }
+            // Exact matches should use `unless:` instead of `not:`
             Condition::String {
                 exact: Some(_),
                 regex: None,
                 word: None,
                 ..
-            }
-            | Condition::String {
-                substr: Some(_),
-                regex: None,
-                word: None,
-                ..
             } => {
                 return Some(
-                    "not: field used with exact/substr match - consider using 'unless:' instead for deterministic patterns".to_string()
+                    "not: field used with exact match - consider using 'unless:' instead for deterministic patterns".to_string()
                 );
             }
+            // For Content exact matches, not: doesn't make sense
             Condition::Content {
                 exact: Some(_),
                 regex: None,
                 word: None,
                 ..
+            } => {
+                return Some(
+                    "not: field used with content/exact match - this doesn't make sense. Content exact matches the entire file content.".to_string()
+                );
             }
-            | Condition::Content {
+            // For String substr matches, validate that not: exceptions could match strings containing the substr
+            Condition::String {
+                substr: Some(search_substr),
+                regex: None,
+                word: None,
+                case_insensitive,
+                ..
+            } => {
+                let case_insensitive = *case_insensitive;
+
+                for exc in not_exceptions {
+                    match exc {
+                        // For shorthand (substr match in not:), check if the exception contains the search substr
+                        NotException::Shorthand(exc_str) => {
+                            if !contains_substr(exc_str, search_substr, case_insensitive) {
+                                return Some(format!(
+                                    "not: exception '{}' does not contain the search substr '{}' - strings matching the substr won't contain this exception, so it will never be applied",
+                                    exc_str, search_substr
+                                ));
+                            }
+                        }
+                        NotException::Structured {
+                            exact: Some(exc_str),
+                            ..
+                        } => {
+                            // Exception is exact match - it should contain the search substr
+                            if !contains_substr(exc_str, search_substr, case_insensitive) {
+                                return Some(format!(
+                                    "not: exception (exact) '{}' does not contain the search substr '{}' - strings matching the substr won't match this exception, so it will never be applied",
+                                    exc_str, search_substr
+                                ));
+                            }
+                        }
+                        NotException::Structured {
+                            substr: Some(exc_substr),
+                            ..
+                        } => {
+                            // Exception is substr - it should contain the search substr or vice versa
+                            // Either the exception contains the search, or the search contains the exception
+                            if !contains_substr(exc_substr, search_substr, case_insensitive)
+                                && !contains_substr(search_substr, exc_substr, case_insensitive)
+                            {
+                                return Some(format!(
+                                    "not: exception (substr) '{}' has no overlap with search substr '{}' - they won't match the same strings, so the exception will never be applied",
+                                    exc_substr, search_substr
+                                ));
+                            }
+                        }
+                        NotException::Structured {
+                            regex: Some(_exc_regex),
+                            ..
+                        } => {
+                            // For regex exceptions with substr search, we can't easily validate
+                            // The regex might match strings containing the substr
+                            // We'll allow this without validation
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            // For Content substr matches, not: is unclear - content searches don't extract individual strings
+            Condition::Content {
                 substr: Some(_),
                 regex: None,
                 word: None,
                 ..
             } => {
                 return Some(
-                    "not: field used with exact/substr match - consider using 'unless:' instead for deterministic patterns".to_string()
+                    "not: field used with content/substr match - behavior is unclear because content searches on binary data don't extract individual strings for filtering. Use regex instead, or use 'string' type with substr.".to_string()
                 );
             }
             // For regex matches, validate that exceptions could actually match
@@ -220,9 +473,7 @@ impl TraitDefinition {
                 // Hex patterns match byte sequences, so not: exceptions should be regex-based
                 for exc in not_exceptions {
                     match exc {
-                        NotException::Structured {
-                            exact: Some(_), ..
-                        }
+                        NotException::Structured { exact: Some(_), .. }
                         | NotException::Structured {
                             substr: Some(_), ..
                         }
@@ -232,9 +483,7 @@ impl TraitDefinition {
                             // This is a valid but potentially confusing use case
                             // We'll allow it but note it in the debug logs if needed
                         }
-                        NotException::Structured {
-                            regex: Some(_), ..
-                        } => {
+                        NotException::Structured { regex: Some(_), .. } => {
                             // Regex-based exceptions for hex matches are fine
                         }
                         _ => {}
@@ -487,6 +736,7 @@ impl TraitDefinition {
                 regex.as_ref(),
                 platforms.as_ref(),
                 compiled_regex.as_ref(),
+                self.not.as_ref(),
                 ctx,
             ),
             Condition::String {
@@ -1730,7 +1980,7 @@ impl CompositeTrait {
             }
         }
 
-        eval_symbol(exact, substr, pattern, None, compiled_regex, ctx)
+        eval_symbol(exact, substr, pattern, None, compiled_regex, None, ctx)
     }
 
     /// Evaluate YARA match condition

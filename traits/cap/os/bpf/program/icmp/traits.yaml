@@ -1,0 +1,104 @@
+# eBPF Programs - ICMP Covert Channels
+# Capabilities for BPF/eBPF program detection
+
+
+traits:
+  - id: icmp-pingback
+    desc: ICMP pingback covert channel marker
+    crit: suspicious
+    conf: 0.85
+    for: [c, elf]
+    if:
+      type: content
+      regex: "(?i)(?:icmp[_-]?ping[_-]?back|ping[_-]?back[_-]?(?:server|client|daemon)|icmp[_-]?(?:shell|backdoor|c2|covert))"
+
+  # ICMP reply program - XDP program that sends ICMP replies
+  - id: icmp-prog-reply
+    desc: ICMP reply program reference
+    crit: notable
+    conf: 0.8
+    for: [c, elf]
+    if:
+      type: content
+      regex: "(?i)icmp[_-]?(?:prog[_-]?)?reply|reply[_-]?icmp"
+
+  # === ICMP Header Manipulation ===
+  - id: icmphdr-struct
+    desc: ICMP header structure
+    crit: notable
+    conf: 0.7
+    for: [c, elf]
+    if:
+      type: content
+      regex: "struct\\s+icmphdr|icmphdr\\s*\\*"
+
+  - id: icmp-type-field
+    desc: ICMP type field access
+    crit: notable
+    conf: 0.75
+    for: [c]
+    if:
+      type: content
+      # Match direct ICMP type field manipulation (icmph->type, icmp->type, etc.)
+      regex: "icmp[h]?->type"
+
+  - id: icmp-echo-request
+    desc: ICMP echo request type (8)
+    crit: inert
+    conf: 0.6
+    for: [c, elf]
+    if:
+      type: content
+      # Match ICMP type 8 (echo request) checks
+      regex: "->type\\s*==\\s*8|type\\s*==\\s*(?:ICMP_ECHO|8)"
+
+  - id: icmp-echo-reply
+    desc: ICMP echo reply type (0)
+    crit: inert
+    conf: 0.6
+    for: [c, elf]
+    if:
+      type: content
+      # Match ICMP type being set to 0 (echo reply)
+      regex: "->type\\s*=\\s*0[^0-9]|type\\s*=\\s*(?:ICMP_ECHOREPLY|0)[^0-9]"
+
+  # === ICMP Manipulation Patterns ===
+  # ICMP header parsing + type field access
+
+composite_rules:
+  - id: icmp-parsing
+    desc: ICMP packet parsing
+    crit: notable
+    conf: 0.75
+    for: [c, elf]
+    needs: 2
+    any:
+      - id: cap/os/bpf/program/network::ipproto-icmp
+      - id: icmphdr-struct
+      - id: icmp-type-field
+      - id: icmp-echo-request
+      - id: icmp-echo-reply
+
+  # ICMP type spoofing/modification
+  # Changing ICMP type field (e.g., request to reply) = covert response
+  - id: icmp-type-spoof
+    desc: ICMP type modification
+    crit: suspicious
+    conf: 0.85
+    for: [c]
+    all:
+      - id: icmp-type-field
+    any:
+      - id: icmp-echo-request
+      - id: icmp-echo-reply
+
+  # ICMP indicators helper
+  - id: icmp-indicators
+    desc: ICMP covert channel indicators
+    crit: notable
+    conf: 0.8
+    for: [c, elf]
+    any:
+      - id: icmp-pingback
+      - id: icmp-prog-reply
+      - id: cap/comm/ip/services::services-icmp

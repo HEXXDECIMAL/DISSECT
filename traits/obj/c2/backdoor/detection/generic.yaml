@@ -173,7 +173,7 @@ composite_rules:
     platforms: [all]
     all:
       - id: reverse-keyword
-      - id: cap/data/text/pattern::socket
+      - id: cap/data/text/keywords::socket
     any:
       - id: cap/exec/command/shell::bin-bash
       - id: cap/exec/command/shell::bin-sh

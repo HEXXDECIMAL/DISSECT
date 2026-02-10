@@ -1,0 +1,49 @@
+# Build System - PIP
+
+traits:
+
+  # === pip/setuptools micro-traits ===
+  - id: setup-py
+    desc: setup.py file
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      substr: "setup.py"
+
+  - id: pyproject-toml
+    desc: pyproject.toml file
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      substr: "pyproject.toml"
+
+  - id: requirements-txt
+    desc: requirements.txt file
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      substr: "requirements.txt"
+
+  - id: site-packages
+    desc: site-packages directory
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      substr: "site-packages"
+
+composite_rules:
+
+  # pip/setuptools composite (migrated from YARA)
+  - id: pip
+    desc: Built with pip/setuptools (Python)
+    crit: benign
+    conf: 0.85
+    any:
+      - id: setup-py
+      - id: pyproject-toml
+      - id: requirements-txt
+      - id: site-packages

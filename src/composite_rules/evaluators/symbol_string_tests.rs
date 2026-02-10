@@ -113,7 +113,15 @@ fn test_eval_symbol_exact_match() {
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
-    let result = eval_symbol(Some(&"socket".to_string()), None, None, None, None, &ctx);
+    let result = eval_symbol(
+        Some(&"socket".to_string()),
+        None,
+        None,
+        None,
+        None,
+        None,
+        &ctx,
+    );
 
     assert!(result.matched);
     assert_eq!(result.evidence.len(), 1);
@@ -132,7 +140,15 @@ fn test_eval_symbol_exact_match_with_leading_underscore() {
     let ctx = create_test_context(&report, &data);
 
     // Should match with exact underscore-prefixed symbol
-    let result = eval_symbol(Some(&"_socket".to_string()), None, None, None, None, &ctx);
+    let result = eval_symbol(
+        Some(&"_socket".to_string()),
+        None,
+        None,
+        None,
+        None,
+        None,
+        &ctx,
+    );
 
     assert!(result.matched);
 }
@@ -151,6 +167,7 @@ fn test_eval_symbol_substr_match() {
     let result = eval_symbol(
         None,
         Some(&"RemoteThread".to_string()),
+        None,
         None,
         None,
         None,
@@ -179,7 +196,7 @@ fn test_eval_symbol_regex_match() {
 
     let pattern = "connect|accept".to_string();
     let re = regex::Regex::new(&pattern).unwrap();
-    let result = eval_symbol(None, None, Some(&pattern), None, Some(&re), &ctx);
+    let result = eval_symbol(None, None, Some(&pattern), None, Some(&re), None, &ctx);
 
     assert!(result.matched);
     assert_eq!(result.evidence.len(), 2);
@@ -196,7 +213,15 @@ fn test_eval_symbol_no_match() {
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
-    let result = eval_symbol(Some(&"socket".to_string()), None, None, None, None, &ctx);
+    let result = eval_symbol(
+        Some(&"socket".to_string()),
+        None,
+        None,
+        None,
+        None,
+        None,
+        &ctx,
+    );
 
     assert!(!result.matched);
     assert!(result.evidence.is_empty());
@@ -220,6 +245,7 @@ fn test_eval_symbol_platform_filtering() {
         None,
         Some(&vec![Platform::Windows]),
         None,
+        None,
         &ctx,
     );
 
@@ -231,6 +257,7 @@ fn test_eval_symbol_platform_filtering() {
         None,
         None,
         Some(&vec![Platform::Linux]),
+        None,
         None,
         &ctx,
     );
@@ -256,6 +283,7 @@ fn test_eval_symbol_platform_all() {
         None,
         Some(&vec![Platform::All]),
         None,
+        None,
         &ctx,
     );
 
@@ -273,7 +301,15 @@ fn test_eval_symbol_in_exports() {
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
-    let result = eval_symbol(None, Some(&"exported".to_string()), None, None, None, &ctx);
+    let result = eval_symbol(
+        None,
+        Some(&"exported".to_string()),
+        None,
+        None,
+        None,
+        None,
+        &ctx,
+    );
 
     assert!(result.matched);
     assert_eq!(result.evidence[0].value, "my_exported_function");
@@ -301,7 +337,15 @@ fn test_eval_symbol_in_functions() {
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
-    let result = eval_symbol(None, Some(&"newproc".to_string()), None, None, None, &ctx);
+    let result = eval_symbol(
+        None,
+        Some(&"newproc".to_string()),
+        None,
+        None,
+        None,
+        None,
+        &ctx,
+    );
 
     assert!(result.matched);
     assert_eq!(result.evidence[0].value, "runtime.newproc");

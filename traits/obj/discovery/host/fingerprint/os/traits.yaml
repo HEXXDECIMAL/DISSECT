@@ -1,0 +1,88 @@
+# Operating System Information Collection
+# ATT&CK: T1082 (System Information Discovery)
+
+defaults:
+  attack: "T1082"
+
+traits:
+  # === OS info micro-traits ===
+  - id: os-release-path
+    desc: /etc/os-release path
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      substr: "/etc/os-release"
+
+  - id: lsb-release
+    desc: /etc/lsb-release path
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      substr: "/etc/lsb-release"
+
+  - id: redhat-release
+    desc: /etc/redhat-release path
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      substr: "/etc/redhat-release"
+
+  - id: debian-version
+    desc: /etc/debian_version path
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      substr: "/etc/debian_version"
+
+  - id: centos-release
+    desc: /etc/centos-release path
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      substr: "/etc/centos-release"
+
+  - id: proc-version
+    desc: /proc/version path
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      substr: "/proc/version"
+
+  - id: uname-a-cmd
+    desc: uname -a command
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      substr: "uname -a"
+
+  - id: hostnamectl-cmd
+    desc: hostnamectl command
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      substr: "hostnamectl"
+
+composite_rules:
+  # OS info composite
+  - id: os-info
+    desc: Operating system fingerprinting
+    crit: notable
+    conf: 0.7
+    needs: 2
+    any:
+      - id: os-release-path
+      - id: lsb-release
+      - id: redhat-release
+      - id: debian-version
+      - id: centos-release
+      - id: proc-version
+      - id: uname-a-cmd
+      - id: hostnamectl-cmd

@@ -1,0 +1,68 @@
+# Code Quality Indicators - Versioning
+
+traits:
+  # === Atomic: Version Information ===
+
+  - id: version-word-lower
+    desc: version word (lowercase)
+    crit: inert
+    conf: 0.4
+    for: [all]
+    if:
+      type: string
+      word: "version"
+
+  - id: version-word-title
+    desc: Version word (title case)
+    crit: inert
+    conf: 0.4
+    for: [all]
+    if:
+      type: string
+      word: "Version"
+
+  - id: version-colon
+    desc: "Version: label"
+    crit: inert
+    conf: 0.5
+    for: [all]
+    if:
+      type: string
+      substr: "Version:"
+
+  - id: version-v1
+    desc: v1. version prefix
+    crit: inert
+    conf: 0.6
+    for: [all]
+    if:
+      type: string
+      exact: "v1."
+
+  - id: version-v2
+    desc: v2. version prefix
+    crit: inert
+    conf: 0.6
+    for: [all]
+    if:
+      type: string
+      exact: "v2."
+
+  - id: version-upper
+    desc: VERSION word (uppercase)
+    crit: inert
+    conf: 0.5
+    for: [all]
+    if:
+      type: string
+      word: "VERSION"
+
+  - id: semver-pattern
+    desc: Semantic version pattern
+    crit: inert
+    conf: 0.7
+    for: [all]
+    if:
+      type: string
+      regex: 'v?\d+\.\d+\.\d+'
+

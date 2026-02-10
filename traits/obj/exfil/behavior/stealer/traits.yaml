@@ -63,11 +63,11 @@ composite_rules:
       - id: cap/comm/http/headers::bot-headers
       - id: cap/comm/http/client
     none:
-      - id: obj/lateral/supply-chain/npm::wpt-test-file
-      - id: obj/lateral/supply-chain/npm::jest-test-file
-      - id: obj/lateral/supply-chain/npm::mocha-test-file
-      - id: obj/lateral/supply-chain/npm::test-filename-pattern
-      - id: obj/lateral/supply-chain/npm::test-fixtures
+      - id: obj/lateral/supply-chain/npm/testing::wpt-test-file
+      - id: obj/lateral/supply-chain/npm/testing::jest-test-file
+      - id: obj/lateral/supply-chain/npm/testing::mocha-test-file
+      - id: obj/lateral/supply-chain/npm/testing::test-filename-pattern
+      - id: obj/lateral/supply-chain/npm/testing::test-fixtures
 
   # Full exfiltration pattern: must have POST with custom headers or C2 indicators
   # NOTE: Simple curl downloads (without POST/upload indicators) won't trigger this

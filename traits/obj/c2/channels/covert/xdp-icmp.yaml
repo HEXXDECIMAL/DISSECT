@@ -11,9 +11,9 @@ composite_rules:
     attack: "T1095"
     for: [c, elf]
     all:
-      - id: cap/os/bpf/program::sec-xdp
-      - id: cap/os/bpf/program::icmp-parsing
-      - id: cap/os/bpf/program::xdp-tx
+      - id: cap/os/bpf/program/loader::sec-xdp
+      - id: cap/os/bpf/program/icmp::icmp-parsing
+      - id: cap/os/bpf/program/network::xdp-tx
 
   # XDP loader with ICMP covert channel markers
   # Userspace loader that attaches XDP program for ICMP manipulation
@@ -24,8 +24,8 @@ composite_rules:
     attack: "T1095"
     for: [c, elf]
     all:
-      - id: cap/os/bpf/program::xdp-attach
-      - id: cap/os/bpf/program::icmp-indicators
+      - id: cap/os/bpf/program/network::xdp-attach
+      - id: cap/os/bpf/program/icmp::icmp-indicators
     any:
-      - id: cap/os/bpf/program::bpf-skeleton-include
+      - id: cap/os/bpf/program/network::bpf-skeleton-include
       - id: cap/comm/ip/services::services-icmp

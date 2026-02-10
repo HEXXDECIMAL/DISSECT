@@ -100,8 +100,8 @@ composite_rules:
     crit: notable
     conf: 0.65
     any:
-      - id: cap/comm/http/patterns::payload-path
-      - id: cap/comm/http/patterns::php-collector
+      - id: cap/comm/http/url::payload-path
+      - id: cap/comm/http/url::php-collector
 
   # Original rule - tmp directory dropper
   - id: tmp-dropper

@@ -31,3 +31,6 @@ pub use types::{FileType, Platform};
 
 #[cfg(test)]
 mod tests;
+
+#[cfg(test)]
+mod not_validation_tests;

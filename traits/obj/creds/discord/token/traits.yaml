@@ -334,7 +334,7 @@ composite_rules:
     for: [javascript, typescript, python, elf, pe, macho]
     all:
       - id: discord-path
-      - id: cap/data/text/pattern::token
+      - id: cap/data/text/keywords::token
 
   # LevelDB token harvester - targets browser local storage for tokens
   # Complexity: file_types:+1, all:+4 = 5 (hostile allowed)

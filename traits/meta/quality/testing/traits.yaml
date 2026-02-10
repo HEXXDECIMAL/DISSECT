@@ -1,0 +1,50 @@
+# Code Quality Indicators - Testing
+
+traits:
+  # === Atomic: Test Code ===
+
+  - id: go-test-main
+    desc: Go TestMain function
+    crit: inert
+    conf: 0.7
+    for: [go]
+    if:
+      type: string
+      substr: "TestMain"
+
+  - id: go-test-file
+    desc: Go test file suffix
+    crit: inert
+    conf: 0.7
+    for: [go]
+    if:
+      type: string
+      substr: "_test.go"
+
+  - id: python-test-file
+    desc: Python test file suffix
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      substr: "_test.py"
+
+  - id: unittest-module
+    desc: unittest module
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      word: "unittest"
+
+  - id: pytest-module
+    desc: pytest module
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      regex: "import\\s+pytest|from\\s+pytest\\s+import"
+

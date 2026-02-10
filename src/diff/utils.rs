@@ -445,14 +445,8 @@ mod tests {
 
     #[test]
     fn test_detect_renames_multiple_files() {
-        let removed = vec![
-            "dir1/file1.txt".to_string(),
-            "dir1/file2.txt".to_string(),
-        ];
-        let added = vec![
-            "dir2/file1.txt".to_string(),
-            "dir2/file2.txt".to_string(),
-        ];
+        let removed = vec!["dir1/file1.txt".to_string(), "dir1/file2.txt".to_string()];
+        let added = vec!["dir2/file1.txt".to_string(), "dir2/file2.txt".to_string()];
 
         let renames = detect_renames(&removed, &added);
 
@@ -540,12 +534,24 @@ mod tests {
         }
 
         let baseline = vec![
-            FileEntry { path: "/old/file1.txt".to_string(), size: 100 },
-            FileEntry { path: "/old/file2.txt".to_string(), size: 200 },
+            FileEntry {
+                path: "/old/file1.txt".to_string(),
+                size: 100,
+            },
+            FileEntry {
+                path: "/old/file2.txt".to_string(),
+                size: 200,
+            },
         ];
         let target = vec![
-            FileEntry { path: "/new/file2.txt".to_string(), size: 200 },
-            FileEntry { path: "/new/file3.txt".to_string(), size: 300 },
+            FileEntry {
+                path: "/new/file2.txt".to_string(),
+                size: 200,
+            },
+            FileEntry {
+                path: "/new/file3.txt".to_string(),
+                size: 300,
+            },
         ];
 
         let (added, removed) = compute_added_removed(&baseline, &target, |f| {

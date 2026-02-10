@@ -792,16 +792,12 @@ pub(crate) fn validate_hostile_composite_precision(
     let mut text_searches: HashMap<String, Vec<(String, String)>> = HashMap::new();
     for t in trait_definitions {
         let search_text = match &t.r#if {
-            Condition::String {
-                exact: Some(s), ..
-            } => Some((s.clone(), "exact".to_string())),
+            Condition::String { exact: Some(s), .. } => Some((s.clone(), "exact".to_string())),
             Condition::String {
                 substr: Some(s), ..
             } => Some((s.clone(), "substr".to_string())),
             Condition::String { word: Some(s), .. } => Some((s.clone(), "word".to_string())),
-            Condition::Content {
-                exact: Some(s), ..
-            } => Some((s.clone(), "exact".to_string())),
+            Condition::Content { exact: Some(s), .. } => Some((s.clone(), "exact".to_string())),
             Condition::Content {
                 substr: Some(s), ..
             } => Some((s.clone(), "substr".to_string())),
@@ -917,9 +913,7 @@ fn validate_regex_overlap_with_literal(
 
     for t in trait_definitions {
         match &t.r#if {
-            Condition::String {
-                exact: Some(s), ..
-            } => {
+            Condition::String { exact: Some(s), .. } => {
                 literal_patterns.push((
                     s.clone(),
                     "exact".to_string(),
@@ -939,9 +933,7 @@ fn validate_regex_overlap_with_literal(
                     t.r#for.clone(),
                 ));
             }
-            Condition::Symbol {
-                exact: Some(s), ..
-            } => {
+            Condition::Symbol { exact: Some(s), .. } => {
                 literal_patterns.push((
                     s.clone(),
                     "exact".to_string(),
@@ -968,18 +960,13 @@ fn validate_regex_overlap_with_literal(
     // Check regex patterns against literal patterns
     for t in trait_definitions {
         let regex_pattern = match &t.r#if {
-            Condition::String {
-                regex: Some(r), ..
-            } => Some(r),
-            Condition::Symbol {
-                regex: Some(r), ..
-            } => Some(r),
+            Condition::String { regex: Some(r), .. } => Some(r),
+            Condition::Symbol { regex: Some(r), .. } => Some(r),
             _ => None,
         };
 
         if let Some(regex) = regex_pattern {
-            for (literal, match_type, literal_id, literal_crit, literal_types) in
-                &literal_patterns
+            for (literal, match_type, literal_id, literal_crit, literal_types) in &literal_patterns
             {
                 // Check if criticality matches
                 if t.crit != *literal_crit {
@@ -1155,15 +1142,18 @@ pub(crate) fn find_redundant_any_refs(
 /// Find composite rules that have only a single condition total across `any:` and `all:`.
 /// A single-item `any:` or `all:` is only a problem if there's no other clause.
 /// When both exist, they work together and aren't redundant.
-/// Also skip rules that have `none:` or `downgrade:` clauses - these add meaningful logic.
+/// Also skip rules that have `none:`, `unless:`, or `downgrade:` clauses - these add meaningful logic.
 /// Returns (rule_id, clause_type: "any" or "all", trait_id).
-pub(crate) fn find_single_item_clauses(rule: &CompositeTrait) -> Vec<(String, &'static str, String)> {
+pub(crate) fn find_single_item_clauses(
+    rule: &CompositeTrait,
+) -> Vec<(String, &'static str, String)> {
     let mut violations = Vec::new();
 
-    // Skip rules with none: or downgrade: clauses - they add meaningful conditions
+    // Skip rules with none:, unless:, or downgrade: clauses - they add meaningful conditions
     let has_none = rule.none.as_ref().map_or(false, |v| !v.is_empty());
+    let has_unless = rule.unless.as_ref().map_or(false, |v| !v.is_empty());
     let has_downgrade = rule.downgrade.is_some();
-    if has_none || has_downgrade {
+    if has_none || has_unless || has_downgrade {
         return violations;
     }
 
@@ -1378,9 +1368,7 @@ const PLATFORM_NAMES: &[&str] = &[
 
 /// Check if a directory path contains platform/language names as directories.
 /// Returns a list of (directory_path, platform_name) violations.
-pub(crate) fn find_platform_named_directories(
-    trait_dirs: &[String],
-) -> Vec<(String, String)> {
+pub(crate) fn find_platform_named_directories(trait_dirs: &[String]) -> Vec<(String, String)> {
     let mut violations = Vec::new();
 
     for dir_path in trait_dirs {
@@ -1833,7 +1821,8 @@ pub(crate) fn find_alternation_merge_candidates(
         // Find suffix groups with 2+ traits
         for (suffix, prefix_traits) in suffix_groups {
             if prefix_traits.len() >= 2 {
-                let trait_ids: Vec<String> = prefix_traits.iter().map(|(id, _)| id.clone()).collect();
+                let trait_ids: Vec<String> =
+                    prefix_traits.iter().map(|(id, _)| id.clone()).collect();
                 let prefixes: Vec<String> = prefix_traits.iter().map(|(_, p)| p.clone()).collect();
 
                 // Build suggested alternation
@@ -1852,37 +1841,44 @@ pub(crate) fn find_alternation_merge_candidates(
 /// Directory name segments that add no semantic meaning.
 /// These make the taxonomy harder to navigate and provide no value for ML classification.
 const BANNED_DIRECTORY_SEGMENTS: &[&str] = &[
-    "generic",  // says nothing about what's inside
-    "method",   // everything is a method
-    "modes",    // dumping ground
-    "types",    // dumping ground
-    "techniques",    // dumping ground
-    "technique",    // dumping ground
+    "generic",    // says nothing about what's inside
+    "method",     // everything is a method
+    "modes",      // dumping ground
+    "types",      // dumping ground
+    "techniques", // dumping ground
+    "technique",  // dumping ground
     "notable",    // dumping ground
-    "suspicious",    // dumping ground
+    "suspicious", // dumping ground
     "hostile",    // dumping ground
-    "category",    // dumping ground
-    "misc",     // dumping ground
-    "other",    // dumping ground
-    "utils",    // too vague
-    "helpers",  // too vague
-    "common",   // too vague
-    "base",     // too vague
-    "impl",     // implementation detail
-    "default",  // meaningless
-    "basic",    // meaningless
-    "simple",   // meaningless
-    "advanced", // subjective
-    "new",      // temporal, will rot
-    "old",      // temporal, will rot
-    "stuff",    // obviously bad
-    "things",   // obviously bad
-    "type",     // too vague
-    "types",    // too vague
-    "kind",     // too vague
-    "kinds",    // too vague
-    "various",  // dumping ground
-    "assorted", // dumping ground
+    "category",   // dumping ground
+    "misc",       // dumping ground
+    "other",      // dumping ground
+    "utils",      // too vague
+    "helpers",    // too vague
+    "composite",  // vague
+    "atomic",     // vague
+    "combos",     // vague
+    "composites", // vague
+    "composite",  // vague
+    "common",     // too vague
+    "base",       // too vague
+    "impl",       // implementation detail
+    "default",    // meaningless
+    "basic",      // meaningless
+    "simple",     // meaningless
+    "advanced",   // subjective
+    "new",        // temporal, will rot
+    "old",        // temporal, will rot
+    "stuff",      // obviously bad
+    "patterns",   // vague
+    "pattern",    // vague
+    "things",     // obviously bad
+    "type",       // too vague
+    "types",      // too vague
+    "kind",       // too vague
+    "kinds",      // too vague
+    "various",    // dumping ground
+    "assorted",   // dumping ground
 ];
 
 /// Find directories containing banned meaningless segments.
@@ -1997,7 +1993,7 @@ pub(crate) fn find_parent_duplicate_segments(trait_dirs: &[String]) -> Vec<(Stri
 
 /// Maximum number of traits allowed in a single directory.
 /// Directories exceeding this should be split into subdirectories.
-pub const MAX_TRAITS_PER_DIRECTORY: usize = 40;
+pub const MAX_TRAITS_PER_DIRECTORY: usize = 69;
 
 /// Find directories with too many traits (suggests need for subdirectories).
 /// Returns: Vec<(directory_path, trait_count)>
@@ -2032,7 +2028,9 @@ pub(crate) fn find_oversized_trait_directories(
 /// Find composite rules where `needs` exceeds the number of items in `any:`.
 /// This makes the rule impossible to satisfy.
 /// Returns: Vec<(rule_id, needs_value, any_length)>
-pub(crate) fn find_impossible_needs(composite_rules: &[CompositeTrait]) -> Vec<(String, usize, usize)> {
+pub(crate) fn find_impossible_needs(
+    composite_rules: &[CompositeTrait],
+) -> Vec<(String, usize, usize)> {
     let mut violations = Vec::new();
 
     for rule in composite_rules {
@@ -2153,9 +2151,7 @@ pub(crate) fn find_empty_condition_clauses(
 /// Find string/content conditions with no actual search pattern.
 /// A condition needs at least one of: exact, substr, regex, word.
 /// Returns: Vec<trait_id>
-pub(crate) fn find_missing_search_patterns(
-    trait_definitions: &[TraitDefinition],
-) -> Vec<String> {
+pub(crate) fn find_missing_search_patterns(trait_definitions: &[TraitDefinition]) -> Vec<String> {
     let mut violations = Vec::new();
 
     for t in trait_definitions {
@@ -2383,9 +2379,9 @@ mod tests {
     #[test]
     fn test_find_depth_violations_valid_depths() {
         let files = vec![
-            "cap/a/b/c/test.yaml".to_string(),    // depth 3, valid
-            "cap/a/b/c/d/test.yaml".to_string(),  // depth 4, valid
-            "obj/x/y/z/file.yaml".to_string(),    // depth 3, valid
+            "cap/a/b/c/test.yaml".to_string(),   // depth 3, valid
+            "cap/a/b/c/d/test.yaml".to_string(), // depth 4, valid
+            "obj/x/y/z/file.yaml".to_string(),   // depth 3, valid
         ];
         assert!(find_depth_violations(&files).is_empty());
     }
@@ -2393,8 +2389,8 @@ mod tests {
     #[test]
     fn test_find_depth_violations_too_shallow() {
         let files = vec![
-            "cap/a/test.yaml".to_string(),        // depth 1, too shallow
-            "cap/a/b/test.yaml".to_string(),      // depth 2, too shallow
+            "cap/a/test.yaml".to_string(),   // depth 1, too shallow
+            "cap/a/b/test.yaml".to_string(), // depth 2, too shallow
         ];
         let violations = find_depth_violations(&files);
         assert_eq!(violations.len(), 2);
@@ -2415,7 +2411,7 @@ mod tests {
     #[test]
     fn test_find_depth_violations_skips_other_paths() {
         let files = vec![
-            "meta/test.yaml".to_string(),         // Not cap/ or obj/, skipped
+            "meta/test.yaml".to_string(),          // Not cap/ or obj/, skipped
             "known/malware/test.yaml".to_string(), // Not cap/ or obj/, skipped
         ];
         assert!(find_depth_violations(&files).is_empty());
@@ -2462,7 +2458,9 @@ mod tests {
             r#for: vec![RuleFileType::All],
             size_min: None,
             size_max: None,
-            all: Some(vec![Condition::Trait { id: "other::trait".to_string() }]),
+            all: Some(vec![Condition::Trait {
+                id: "other::trait".to_string(),
+            }]),
             any: None,
             needs: None,
             none: None,
@@ -2491,8 +2489,12 @@ mod tests {
             size_min: None,
             size_max: None,
             all: Some(vec![
-                Condition::Trait { id: "trait1".to_string() },
-                Condition::Trait { id: "trait2".to_string() },
+                Condition::Trait {
+                    id: "trait1".to_string(),
+                },
+                Condition::Trait {
+                    id: "trait2".to_string(),
+                },
             ]),
             any: None,
             needs: None,
@@ -2519,10 +2521,14 @@ mod tests {
             r#for: vec![RuleFileType::All],
             size_min: None,
             size_max: None,
-            all: Some(vec![Condition::Trait { id: "trait1".to_string() }]),
+            all: Some(vec![Condition::Trait {
+                id: "trait1".to_string(),
+            }]),
             any: None,
             needs: None,
-            none: Some(vec![Condition::Trait { id: "excluded".to_string() }]),
+            none: Some(vec![Condition::Trait {
+                id: "excluded".to_string(),
+            }]),
             near_lines: None,
             near_bytes: None,
             unless: None,
@@ -2576,8 +2582,12 @@ mod tests {
             size_max: None,
             all: None,
             any: Some(vec![
-                Condition::Trait { id: "other/dir::trait1".to_string() },
-                Condition::Trait { id: "other/dir::trait2".to_string() },
+                Condition::Trait {
+                    id: "other/dir::trait1".to_string(),
+                },
+                Condition::Trait {
+                    id: "other/dir::trait2".to_string(),
+                },
             ]),
             needs: None,
             none: None,
@@ -2606,9 +2616,15 @@ mod tests {
             size_max: None,
             all: None,
             any: Some(vec![
-                Condition::Trait { id: "other/dir::trait1".to_string() },
-                Condition::Trait { id: "other/dir::trait2".to_string() },
-                Condition::Trait { id: "other/dir::trait3".to_string() },
+                Condition::Trait {
+                    id: "other/dir::trait1".to_string(),
+                },
+                Condition::Trait {
+                    id: "other/dir::trait2".to_string(),
+                },
+                Condition::Trait {
+                    id: "other/dir::trait3".to_string(),
+                },
             ]),
             needs: None,
             none: None,
@@ -2639,9 +2655,9 @@ mod tests {
             r#for: vec![RuleFileType::All],
             size_min: None,
             size_max: None,
-            all: Some(vec![
-                Condition::Trait { id: "local-trait".to_string() },
-            ]),
+            all: Some(vec![Condition::Trait {
+                id: "local-trait".to_string(),
+            }]),
             any: None,
             needs: None,
             none: None,
@@ -2674,9 +2690,9 @@ mod tests {
             r#for: vec![RuleFileType::All],
             size_min: None,
             size_max: None,
-            all: Some(vec![
-                Condition::Trait { id: "other/path::trait".to_string() },
-            ]),
+            all: Some(vec![Condition::Trait {
+                id: "other/path::trait".to_string(),
+            }]),
             any: None,
             needs: None,
             none: None,
@@ -2738,10 +2754,16 @@ mod tests {
             r#for: vec![RuleFileType::All],
             size_min: None,
             size_max: None,
-            all: Some(vec![Condition::Trait { id: "trait1".to_string() }]),
-            any: Some(vec![Condition::Trait { id: "trait2".to_string() }]),
+            all: Some(vec![Condition::Trait {
+                id: "trait1".to_string(),
+            }]),
+            any: Some(vec![Condition::Trait {
+                id: "trait2".to_string(),
+            }]),
             needs: None,
-            none: Some(vec![Condition::Trait { id: "trait3".to_string() }]),
+            none: Some(vec![Condition::Trait {
+                id: "trait3".to_string(),
+            }]),
             near_lines: None,
             near_bytes: None,
             unless: None,
@@ -3021,7 +3043,10 @@ mod tests {
         assert_eq!(candidates.len(), 1);
         assert_eq!(candidates[0].0.len(), 3);
         // The suggested pattern should include alternation
-        assert!(candidates[0].2.contains("nc|ncat|netcat") || candidates[0].2.contains("ncat|nc|netcat"));
+        assert!(
+            candidates[0].2.contains("nc|ncat|netcat")
+                || candidates[0].2.contains("ncat|nc|netcat")
+        );
     }
 
     #[test]
@@ -3106,7 +3131,11 @@ mod tests {
 
     // ==================== Impossible Size Constraints Tests ====================
 
-    fn make_trait_with_size(id: &str, size_min: Option<usize>, size_max: Option<usize>) -> TraitDefinition {
+    fn make_trait_with_size(
+        id: &str,
+        size_min: Option<usize>,
+        size_max: Option<usize>,
+    ) -> TraitDefinition {
         TraitDefinition {
             id: id.to_string(),
             desc: "test".to_string(),
@@ -3176,7 +3205,11 @@ mod tests {
 
     // ==================== Impossible Count Constraints Tests ====================
 
-    fn make_trait_with_count(id: &str, count_min: usize, count_max: Option<usize>) -> TraitDefinition {
+    fn make_trait_with_count(
+        id: &str,
+        count_min: usize,
+        count_max: Option<usize>,
+    ) -> TraitDefinition {
         TraitDefinition {
             id: id.to_string(),
             desc: "test".to_string(),
@@ -3862,11 +3895,7 @@ mod tests {
     #[test]
     fn test_find_hostile_cap_rules_trait_violation() {
         // Cap trait with hostile criticality is a VIOLATION
-        let mut trait_def = make_string_trait(
-            "cap/test::trait",
-            "test",
-            Criticality::Hostile,
-        );
+        let mut trait_def = make_string_trait("cap/test::trait", "test", Criticality::Hostile);
         trait_def.id = "cap/test::trait".to_string();
 
         let traits = vec![trait_def];

@@ -136,4 +136,4 @@ composite_rules:
     all:
       - id: cap/exec/command/shell::child-process-require
       - id: stealth-spawn
-      - id: obj/lateral/supply-chain/npm::side-effect-only
+      - id: obj/lateral/supply-chain/npm/malicious-patterns::side-effect-only

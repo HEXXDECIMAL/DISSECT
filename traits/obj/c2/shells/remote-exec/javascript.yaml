@@ -10,8 +10,8 @@ composite_rules:
     crit: inert
     conf: 0.3
     any:
-      - id: cap/data/text/pattern::output
-      - id: cap/data/text/pattern::command
+      - id: cap/data/text/keywords::output
+      - id: cap/data/text/keywords::command
 
   - id: js-http-backdoor
     desc: Remote shell backdoor (Poll C2

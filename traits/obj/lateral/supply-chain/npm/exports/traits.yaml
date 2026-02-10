@@ -1,0 +1,116 @@
+# Module Export/Import Patterns
+# CommonJS, ES modules, package.json module fields
+
+
+traits:
+  - id: has-cjs-export
+    desc: Code exports functionality via CommonJS
+    crit: inert
+    conf: 0.85
+    for: [javascript]
+    if:
+      type: string
+      regex: "module\\.exports\\s*=|exports\\.[a-zA-Z]"
+
+  - id: has-esm-export
+    desc: Code exports functionality via ES
+    crit: inert
+    conf: 0.85
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "^export\\s+(default|const|function|class|async|let|var|\\{)"
+
+  - id: imports-dependencies
+    desc: Code imports from external packages
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "require\\(['\"][^./][^'\"]+['\"]\\)|from\\s+['\"][^./][^'\"]+['\"]"
+
+  - id: has-default-export
+    desc: Code has default export
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "export\\s+default|module\\.exports\\s*="
+
+  - id: module-exports-object
+    desc: "module.exports = {} object pattern"
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "module\\.exports = \\{"
+
+  # Package.json module fields
+  - id: has-module-entry
+    desc: Package has ESM module entry
+    crit: inert
+    conf: 0.85
+    for: [packagejson]
+    if:
+      type: string
+      regex: '"module":\s*"'
+
+  - id: pkg-module-field
+    desc: '"module": field in package.json'
+    crit: inert
+    conf: 0.6
+    for: [packagejson]
+    if:
+      type: string
+      substr: '"module":'
+
+  - id: pkg-exports-field-entry
+    desc: '"exports": field in package.json'
+    crit: inert
+    conf: 0.6
+    for: [packagejson]
+    if:
+      type: string
+      substr: '"exports":'
+
+  - id: has-exports-field
+    desc: Package has modern exports field
+    crit: inert
+    conf: 0.85
+    for: [packagejson]
+    if:
+      type: string
+      regex: '"exports":\\s*\\{'
+
+  - id: esm-export-pattern
+    desc: ES module export keyword pattern
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "^export (const|function|class|let|var|async)"
+
+  - id: cjs-exports-pattern
+    desc: CommonJS exports.property pattern
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "exports\\.[a-zA-Z]+ ="
+
+
+composite_rules:
+  - id: has-multiple-exports
+    desc: Code has multiple named exports
+    crit: inert
+    conf: 0.85
+    for: [javascript, typescript]
+    any:
+      - { id: esm-export-pattern }
+      - { id: cjs-exports-pattern }
+      - { id: module-exports-object }

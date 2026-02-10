@@ -9,8 +9,8 @@ composite_rules:
     conf: 0.8
     for: [c, elf]
     any:
-      - id: cap/os/bpf/program::uprobe-attach
-      - id: cap/os/bpf/program::uprobe-sec
+      - id: cap/os/bpf/program/tracing::uprobe-attach
+      - id: cap/os/bpf/program/tracing::uprobe-sec
 
   # eBPF-based SSL/TLS Interception
   # Combines: uprobe attachment + BPF capabilities
@@ -35,8 +35,8 @@ composite_rules:
     all:
       - id: cap/os/bpf/
     any:
-      - id: cap/os/bpf/program::ssl-op-string
-      - id: cap/os/bpf/program::uprobe-attach
+      - id: cap/os/bpf/program/ssl::ssl-op-string
+      - id: cap/os/bpf/program/tracing::uprobe-attach
 
   # SSL sniffer loader program
   # Detects the main loader program (not the eBPF probe itself)
@@ -47,9 +47,9 @@ composite_rules:
     attack: "T1557"
     for: [c, elf]
     all:
-      - id: cap/os/bpf/program::ssl-sniffer-loader
+      - id: cap/os/bpf/program/ssl::ssl-sniffer-loader
     any:
-      - id: cap/os/bpf/program::ebpf-loader-include
+      - id: cap/os/bpf/program/ssl::ebpf-loader-include
       - id: obj/discovery/host/software::ssl-lib-targets
 
   # Multi-TLS library interception tool
@@ -62,6 +62,6 @@ composite_rules:
     mbc: "C0001"
     for: [c, elf]
     all:
-      - id: cap/os/bpf/program::ssl-sniffer-loader
+      - id: cap/os/bpf/program/ssl::ssl-sniffer-loader
       - id: obj/discovery/host/software::ssl-lib-targets
       - id: cap/os/bpf/

@@ -1,0 +1,122 @@
+# Modern JavaScript Language Features
+# Classes, async/await, generators, proxies, etc.
+
+traits:
+  - id: has-class
+    desc: Code defines classes
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "^class\\s+[A-Z][a-zA-Z0-9]*|export\\s+class\\s+[A-Z]"
+
+  # Has JSDoc comments
+  - id: has-async-await
+    desc: Code uses async/await patterns
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "async\\s+function|async\\s*\\(|await\\s+"
+
+  # Has Promise usage
+  - id: has-promise
+    desc: Code uses Promises
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "new\\s+Promise\\(|\\.then\\(|\\.catch\\(|Promise\\.(?:all|race|resolve|reject)"
+
+  # Has named function definitions
+  - id: has-decorators
+    desc: Code uses TypeScript/ES decorators
+    crit: inert
+    conf: 0.85
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "@(?:Controller|Injectable|Service|Module|Component|Prop|Watch)\\("
+
+  # Has dependency injection
+  - id: has-error-class
+    desc: Code defines custom error classes
+    crit: inert
+    conf: 0.85
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "class\\s+\\w+Error\\s+extends\\s+Error"
+
+  # Has getter/setter
+  - id: has-accessors
+    desc: Code uses getters/setters
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "\\bget\\s+\\w+\\s*\\(\\)|\\bset\\s+\\w+\\s*\\("
+
+  # Has symbol usage
+  - id: has-symbols
+    desc: Code uses Symbol for private
+    crit: inert
+    conf: 0.85
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "Symbol\\s*\\(|Symbol\\.(?:for|iterator|asyncIterator)"
+
+  # Has WeakMap/WeakSet (private data pattern)
+  - id: has-weak-collections
+    desc: Code uses WeakMap/WeakSet patterns
+    crit: inert
+    conf: 0.85
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "new\\s+Weak(?:Map|Set)\\s*\\("
+
+  # Has Proxy usage
+  - id: has-proxy
+    desc: Code uses Proxy for metaprogramming
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "new\\s+Proxy\\s*\\("
+
+  # Has generator functions
+  - id: has-generators
+    desc: Code uses generator functions
+    crit: inert
+    conf: 0.85
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "function\\s*\\*|yield\\s+"
+
+  # Multiple export patterns
+  - id: promise-test-call
+    desc: promise_test() WPT call
+    crit: inert
+    conf: 0.95
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "promise_test("
+
+  - id: async-test-call
+    desc: async_test() WPT call
+    crit: inert
+    conf: 0.95
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "async_test("
+

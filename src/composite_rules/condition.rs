@@ -1902,6 +1902,387 @@ impl Condition {
         }
     }
 
+    /// Check if count constraints are valid (count_max >= count_min).
+    /// Returns a warning message if invalid, None otherwise.
+    pub fn check_count_constraints(&self) -> Option<String> {
+        let check_counts = |count_min: usize, count_max: Option<usize>| -> Option<String> {
+            if let Some(max) = count_max {
+                if max < count_min {
+                    return Some(format!(
+                        "count_max ({}) cannot be less than count_min ({})",
+                        max, count_min
+                    ));
+                }
+            }
+            None
+        };
+
+        match self {
+            Condition::String {
+                count_min,
+                count_max,
+                ..
+            }
+            | Condition::Content {
+                count_min,
+                count_max,
+                ..
+            }
+            | Condition::Base64 {
+                count_min,
+                count_max,
+                ..
+            }
+            | Condition::Xor {
+                count_min,
+                count_max,
+                ..
+            } => check_counts(*count_min, *count_max),
+            Condition::Hex {
+                count_min,
+                count_max,
+                ..
+            } => check_counts(*count_min, *count_max),
+            _ => None,
+        }
+    }
+
+    /// Check if per-KB density constraints are valid (per_kb_max >= per_kb_min).
+    /// Returns a warning message if invalid, None otherwise.
+    pub fn check_density_constraints(&self) -> Option<String> {
+        let check_density =
+            |per_kb_min: Option<f64>, per_kb_max: Option<f64>| -> Option<String> {
+                if let (Some(min), Some(max)) = (per_kb_min, per_kb_max) {
+                    if max < min {
+                        return Some(format!(
+                            "per_kb_max ({}) cannot be less than per_kb_min ({})",
+                            max, min
+                        ));
+                    }
+                }
+                None
+            };
+
+        match self {
+            Condition::String {
+                per_kb_min,
+                per_kb_max,
+                ..
+            }
+            | Condition::Content {
+                per_kb_min,
+                per_kb_max,
+                ..
+            }
+            | Condition::Base64 {
+                per_kb_min,
+                per_kb_max,
+                ..
+            }
+            | Condition::Xor {
+                per_kb_min,
+                per_kb_max,
+                ..
+            } => check_density(*per_kb_min, *per_kb_max),
+            _ => None,
+        }
+    }
+
+    /// Check for empty or whitespace-only pattern strings (common LLM mistake).
+    /// Returns a warning message if found, None otherwise.
+    pub fn check_empty_patterns(&self) -> Option<String> {
+        let check_empty = |s: &str, field: &str| -> Option<String> {
+            if s.trim().is_empty() {
+                return Some(format!(
+                    "{}: pattern is empty or whitespace-only - specify a non-empty pattern",
+                    field
+                ));
+            }
+            None
+        };
+
+        match self {
+            Condition::String {
+                exact: Some(s), ..
+            } => check_empty(s, "exact"),
+            Condition::String {
+                substr: Some(s), ..
+            } => check_empty(s, "substr"),
+            Condition::String {
+                regex: Some(s), ..
+            } => check_empty(s, "regex"),
+            Condition::String { word: Some(s), .. } => check_empty(s, "word"),
+            Condition::Content {
+                exact: Some(s), ..
+            } => check_empty(s, "exact"),
+            Condition::Content {
+                substr: Some(s), ..
+            } => check_empty(s, "substr"),
+            Condition::Content {
+                regex: Some(s), ..
+            } => check_empty(s, "regex"),
+            Condition::Content { word: Some(s), .. } => check_empty(s, "word"),
+            Condition::Symbol {
+                exact: Some(s), ..
+            } => check_empty(s, "exact"),
+            Condition::Symbol {
+                substr: Some(s), ..
+            } => check_empty(s, "substr"),
+            Condition::Symbol {
+                regex: Some(s), ..
+            } => check_empty(s, "regex"),
+            _ => None,
+        }
+    }
+
+    /// Check for overly short patterns that will match too broadly (common LLM mistake).
+    /// Returns a warning message if found, None otherwise.
+    pub fn check_short_patterns(&self) -> Option<String> {
+        let check_short = |s: &str, field: &str, min_len: usize| -> Option<String> {
+            if s.len() < min_len {
+                return Some(format!(
+                    "{}: pattern '{}' is very short ({} chars) and may match too broadly - consider using a longer, more specific pattern",
+                    field, s, s.len()
+                ));
+            }
+            None
+        };
+
+        match self {
+            // For exact matches, warn if less than 2 characters
+            Condition::String {
+                exact: Some(s),
+                case_insensitive: false,
+                ..
+            }
+            | Condition::Symbol {
+                exact: Some(s), ..
+            } => {
+                if s.len() == 1 {
+                    return Some(format!(
+                        "exact: pattern '{}' is a single character and will rarely be useful - consider if this is intentional",
+                        s
+                    ));
+                }
+                None
+            }
+            // For substr, warn if less than 3 characters (more prone to false positives)
+            Condition::String {
+                substr: Some(s),
+                case_insensitive: false,
+                ..
+            }
+            | Condition::Symbol {
+                substr: Some(s), ..
+            } => check_short(s, "substr", 3),
+            // For word, warn if less than 2 characters
+            Condition::String {
+                word: Some(s),
+                case_insensitive: false,
+                ..
+            } => check_short(s, "word", 2),
+            _ => None,
+        }
+    }
+
+    /// Check for regex patterns that are just literal strings (should use substr/exact instead).
+    /// Returns a warning message if found, None otherwise.
+    pub fn check_literal_regex(&self) -> Option<String> {
+        let is_literal = |s: &str| -> bool {
+            // Check if string contains any regex metacharacters
+            !s.chars().any(|c| {
+                matches!(
+                    c,
+                    '.' | '*' | '+' | '?' | '^' | '$' | '(' | ')' | '[' | ']' | '{' | '}' | '|'
+                        | '\\'
+                )
+            })
+        };
+
+        match self {
+            Condition::String {
+                regex: Some(r), ..
+            }
+            | Condition::Content {
+                regex: Some(r), ..
+            }
+            | Condition::Symbol {
+                regex: Some(r), ..
+            } => {
+                if is_literal(r) {
+                    return Some(format!(
+                        "regex: pattern '{}' is a literal string with no regex metacharacters - use 'substr' instead for better performance",
+                        r
+                    ));
+                }
+                None
+            }
+            _ => None,
+        }
+    }
+
+    /// Check for word patterns with non-word characters (common LLM mistake).
+    /// Returns a warning message if found, None otherwise.
+    pub fn check_word_pattern_validity(&self) -> Option<String> {
+        match self {
+            Condition::String { word: Some(w), .. } | Condition::Content { word: Some(w), .. } => {
+                // Word boundaries only work with alphanumeric characters and underscores
+                let has_word_chars = w.chars().any(|c| c.is_alphanumeric() || c == '_');
+                let has_non_word_chars = w.chars().any(|c| !c.is_alphanumeric() && c != '_');
+
+                if !has_word_chars {
+                    return Some(format!(
+                        "word: pattern '{}' contains no word characters (letters, digits, underscore) - word boundaries won't work as expected",
+                        w
+                    ));
+                }
+
+                if has_non_word_chars {
+                    return Some(format!(
+                        "word: pattern '{}' contains non-word characters - these may not match at word boundaries as expected. Consider using 'regex' with \\b instead.",
+                        w
+                    ));
+                }
+
+                None
+            }
+            _ => None,
+        }
+    }
+
+    /// Check if case_insensitive is used with patterns that have no letters.
+    /// Returns a warning message if found, None otherwise.
+    pub fn check_case_insensitive_on_non_alpha(&self) -> Option<String> {
+        let check_pattern = |s: &str, field: &str| -> Option<String> {
+            if !s.chars().any(|c| c.is_alphabetic()) {
+                return Some(format!(
+                    "case_insensitive: true is set but {}: '{}' contains no letters - case_insensitive has no effect",
+                    field, s
+                ));
+            }
+            None
+        };
+
+        match self {
+            Condition::String {
+                exact: Some(s),
+                case_insensitive: true,
+                ..
+            } => check_pattern(s, "exact"),
+            Condition::String {
+                substr: Some(s),
+                case_insensitive: true,
+                ..
+            } => check_pattern(s, "substr"),
+            Condition::String {
+                word: Some(s),
+                case_insensitive: true,
+                ..
+            } => check_pattern(s, "word"),
+            _ => None,
+        }
+    }
+
+    /// Check for nonsensical count_min values.
+    /// Returns a warning message if found, None otherwise.
+    pub fn check_count_min_value(&self) -> Option<String> {
+        match self {
+            Condition::String { count_min: 0, .. }
+            | Condition::Content { count_min: 0, .. }
+            | Condition::Hex { count_min: 0, .. }
+            | Condition::Base64 { count_min: 0, .. }
+            | Condition::Xor { count_min: 0, .. } => {
+                return Some(
+                    "count_min: 0 means matches are optional - this is almost never useful. Use count_min: 1 or higher.".to_string()
+                );
+            }
+            _ => {}
+        }
+        None
+    }
+
+    /// Check if mutually exclusive match types are used together.
+    /// Returns a warning message if multiple are set, None otherwise.
+    pub fn check_match_exclusivity(&self) -> Option<String> {
+        let check_exclusive = |exact: bool, substr: bool, regex: bool, word: bool| -> Option<String> {
+            let count = [exact, substr, regex, word].iter().filter(|&&x| x).count();
+            if count > 1 {
+                let mut types = Vec::new();
+                if exact { types.push("exact"); }
+                if substr { types.push("substr"); }
+                if regex { types.push("regex"); }
+                if word { types.push("word"); }
+                return Some(format!(
+                    "multiple mutually exclusive match types specified: {} - use only one",
+                    types.join(", ")
+                ));
+            }
+            None
+        };
+
+        match self {
+            Condition::String {
+                exact,
+                substr,
+                regex,
+                word,
+                ..
+            }
+            | Condition::Content {
+                exact,
+                substr,
+                regex,
+                word,
+                ..
+            } => check_exclusive(
+                exact.is_some(),
+                substr.is_some(),
+                regex.is_some(),
+                word.is_some(),
+            ),
+            Condition::Symbol {
+                exact,
+                substr,
+                regex,
+                ..
+            } => check_exclusive(
+                exact.is_some(),
+                substr.is_some(),
+                regex.is_some(),
+                false,
+            ),
+            Condition::Ast {
+                exact,
+                substr,
+                regex,
+                ..
+            } => check_exclusive(
+                exact.is_some(),
+                substr.is_some(),
+                regex.is_some(),
+                false,
+            ),
+            Condition::Base64 {
+                exact,
+                substr,
+                regex,
+                ..
+            }
+            | Condition::Xor {
+                exact,
+                substr,
+                regex,
+                ..
+            } => check_exclusive(
+                exact.is_some(),
+                substr.is_some(),
+                regex.is_some(),
+                false,
+            ),
+            _ => None,
+        }
+    }
+
     /// Pre-compile regexes in this condition for performance.
     /// Should be called once after deserialization.
     pub fn precompile_regexes(&mut self) {

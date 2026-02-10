@@ -1,0 +1,46 @@
+# Tracking and Monetization Patterns
+# Affiliate domains and tracking parameters
+
+traits:
+  # === Affiliate/Tracking Domain Patterns ===
+  - id: profit-domain
+    desc: Profit/monetization tracking domain
+    crit: suspicious
+    conf: 0.85
+    for: [javascript]
+    if:
+      type: string
+      regex: "\\b\\d*x?profit\\.(?:io|com|net|org)\\b"
+      case_insensitive: true
+
+  - id: tracking-utm-params
+    desc: UTM tracking parameters
+    crit: inert
+    conf: 0.7
+    for: [javascript]
+    if:
+      type: string
+      regex: "utm_(?:source|medium|campaign|content|term)="
+
+  - id: affiliate-domain-pattern
+    desc: Affiliate tracking domain
+    crit: notable
+    conf: 0.75
+    for: [javascript]
+    if:
+      type: string
+      regex: "(?:affiliate|partner|track|click|redir|monetize|revenue|earn)\\.[a-z]{2,6}\\b"
+      case_insensitive: true
+
+composite_rules:
+  # Affiliate/adware extension pattern
+  - id: affiliate-adware
+    desc: Affiliate/adware extension
+    crit: suspicious
+    conf: 0.85
+    for: [javascript]
+    all:
+      - id: obj/lateral/supply-chain/chrome-ext/api::chrome-extension-context
+    any:
+      - id: profit-domain
+      - id: affiliate-domain-pattern

@@ -1,0 +1,64 @@
+# Documentation Patterns
+# JSDoc, README, license references
+
+traits:
+  - id: has-jsdoc
+    desc: Code has JSDoc documentation
+    crit: inert
+    conf: 0.85
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "/\\*\\*[\\s\\S]*?@(?:param|returns?|type|typedef|example)"
+
+  # Has proper error handling
+  - id: references-readme
+    desc: Package references README file
+    crit: inert
+    conf: 0.8
+    for: [packagejson]
+    if:
+      type: string
+      regex: '"readme":|README\\.md|readme\\.md'
+
+  # References LICENSE file
+  - id: references-license
+    desc: Package references LICENSE file
+    crit: inert
+    conf: 0.85
+    for: [packagejson]
+    if:
+      type: string
+      regex: "LICENSE|license|LICENCE|licence|COPYING"
+
+  # References CHANGELOG
+  - id: references-changelog
+    desc: Package references CHANGELOG
+    crit: inert
+    conf: 0.85
+    for: [packagejson]
+    if:
+      type: string
+      regex: "CHANGELOG|changelog|HISTORY|history|CHANGES"
+
+  # Has dist/lib output directory
+  - id: has-changelog-tooling
+    desc: Package uses changelog/versioning tooling
+    crit: inert
+    conf: 0.9
+    for: [packagejson]
+    if:
+      type: string
+      regex: "@changesets/|standard-version|semantic-release|conventional-changelog"
+
+  # Has peer dependency range (well-designed library)
+  - id: has-license
+    desc: Package has license field
+    crit: inert
+    conf: 0.8
+    for: [packagejson]
+    if:
+      type: string
+      regex: '"license":\\s*"(?:MIT|ISC|Apache|BSD|GPL|LGPL|MPL|Unlicense)'
+
+  # Has keywords

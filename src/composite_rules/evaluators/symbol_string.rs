@@ -36,6 +36,7 @@ pub fn eval_symbol(
     pattern: Option<&String>,
     platforms: Option<&Vec<Platform>>,
     compiled_regex: Option<&regex::Regex>,
+    not: Option<&Vec<NotException>>,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
     // Check platform constraint
@@ -61,36 +62,57 @@ pub fn eval_symbol(
     // Search in imports
     for import in &ctx.report.imports {
         if symbol_matches_condition(&import.symbol, exact, substr, pattern, compiled_regex) {
-            evidence.push(Evidence {
-                method: "symbol".to_string(),
-                source: import.source.clone(),
-                value: import.symbol.clone(),
-                location: Some("import".to_string()),
-            });
+            // Check if this symbol should be excluded by not: filters
+            let excluded_by_not = not
+                .map(|exceptions| exceptions.iter().any(|exc| exc.matches(&import.symbol)))
+                .unwrap_or(false);
+
+            if !excluded_by_not {
+                evidence.push(Evidence {
+                    method: "symbol".to_string(),
+                    source: import.source.clone(),
+                    value: import.symbol.clone(),
+                    location: Some("import".to_string()),
+                });
+            }
         }
     }
 
     // Search in exports
     for export in &ctx.report.exports {
         if symbol_matches_condition(&export.symbol, exact, substr, pattern, compiled_regex) {
-            evidence.push(Evidence {
-                method: "symbol".to_string(),
-                source: export.source.clone(),
-                value: export.symbol.clone(),
-                location: export.offset.clone(),
-            });
+            // Check if this symbol should be excluded by not: filters
+            let excluded_by_not = not
+                .map(|exceptions| exceptions.iter().any(|exc| exc.matches(&export.symbol)))
+                .unwrap_or(false);
+
+            if !excluded_by_not {
+                evidence.push(Evidence {
+                    method: "symbol".to_string(),
+                    source: export.source.clone(),
+                    value: export.symbol.clone(),
+                    location: export.offset.clone(),
+                });
+            }
         }
     }
 
     // Search in internal functions (important for statically linked Go binaries)
     for func in &ctx.report.functions {
         if symbol_matches_condition(&func.name, exact, substr, pattern, compiled_regex) {
-            evidence.push(Evidence {
-                method: "symbol".to_string(),
-                source: func.source.clone(),
-                value: func.name.clone(),
-                location: func.offset.clone(),
-            });
+            // Check if this symbol should be excluded by not: filters
+            let excluded_by_not = not
+                .map(|exceptions| exceptions.iter().any(|exc| exc.matches(&func.name)))
+                .unwrap_or(false);
+
+            if !excluded_by_not {
+                evidence.push(Evidence {
+                    method: "symbol".to_string(),
+                    source: func.source.clone(),
+                    value: func.name.clone(),
+                    location: func.offset.clone(),
+                });
+            }
         }
     }
 
@@ -243,7 +265,8 @@ pub fn eval_string(
                 value.contains(contains_str)
             };
             if matched {
-                match_value = contains_str.clone();
+                // Use the full string value for not: filtering, not just the substr pattern
+                match_value = value.to_string();
             }
         } else if let Some(re) = compiled_regex {
             if let Some(mat) = re.find(value) {

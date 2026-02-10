@@ -115,5 +115,5 @@ composite_rules:
     all:
       - id: cap/exec/dropper/script::curl-download
       - id: obj/creds/browser/chromium::cookies-path
-      - id: cap/os/admin/legitimate::cp-command
+      - id: cap/exec/dropper/payload::cp-execute
       - id: cap/comm/http/upload::curl-upload-file

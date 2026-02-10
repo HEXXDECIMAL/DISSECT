@@ -34,9 +34,9 @@ composite_rules:
     crit: notable
     conf: 0.9
     any:
-      - id: meta/builder::github-actions
-      - id: meta/builder::github-runner-worker
-      - id: meta/builder::github-runner-listener
+      - id: meta/builder/github-actions::github-actions
+      - id: meta/builder/github-actions::github-runner-worker
+      - id: meta/builder/github-actions::github-runner-listener
       - id: github-actions-targeting-shell
 
   - id: github-runner-memory-dumper

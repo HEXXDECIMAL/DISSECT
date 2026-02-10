@@ -1,0 +1,204 @@
+# Test File Context Markers
+
+traits:
+  # Jest test file markers (atomic traits)
+  - id: it-call
+    desc: it() function call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "it("
+
+  - id: before-each-call
+    desc: beforeEach hook
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "beforeEach"
+
+  - id: after-each-call
+    desc: afterEach hook
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "afterEach"
+
+  # Mocha test file markers
+  - id: before-call
+    desc: before() hook
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "before("
+
+  - id: after-call
+    desc: after() hook
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "after("
+
+  - id: chai-word
+    desc: chai keyword
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "chai"
+
+  - id: dot-spec-filename
+    desc: .spec. in filename
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: ".spec."
+
+  - id: underscore-spec-filename
+    desc: _spec. in filename
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "_spec."
+
+  - id: mock-data-ref
+    desc: mockData reference
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "mockData"
+
+  - id: mocks-ref
+    desc: __mocks__ reference
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "__mocks__"
+
+  - id: sinon-stub-call
+    desc: sinon.stub call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "sinon.stub"
+
+  - id: faker-word
+    desc: faker keyword
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "faker"
+
+  # Testing library patterns
+  - id: cypress-cy-command
+    desc: cy. Cypress command
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "cy."
+
+  - id: screen-get-by
+    desc: screen.getBy query
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "screen.getBy"
+
+  - id: screen-find-by
+    desc: screen.findBy query
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "screen.findBy"
+
+  - id: screen-query-by
+    desc: screen.queryBy query
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "screen.queryBy"
+
+  - id: screen-get-all-by
+    desc: screen.getAllBy query
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "screen.getAllBy"
+
+  - id: fire-event-method
+    desc: fireEvent. method
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "fireEvent."
+
+  - id: user-event-method
+    desc: userEvent. method
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "userEvent."
+
+  - id: wait-for-call
+    desc: waitFor() call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "waitFor("
+
+  # Test configuration
+  - id: karma-conf-ref
+    desc: karma.conf config file
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "karma.conf"
+
+  - id: coverage-markers
+    desc: Code coverage markers
+    crit: inert
+    conf: 0.9
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "istanbul|nyc|c8|coverage|__coverage__|lcov"

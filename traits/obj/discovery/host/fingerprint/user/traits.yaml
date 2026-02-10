@@ -1,0 +1,71 @@
+# User Information Fingerprinting
+# ATT&CK: T1033 (System Owner/User Discovery)
+
+defaults:
+  attack: "T1033"
+
+traits:
+  # === User info micro-traits ===
+  - id: getlogin-func
+    desc: getlogin function
+    crit: inert
+    conf: 0.5
+    if:
+      type: symbol
+      regex: "getlogin"
+
+  - id: getpwuid-func
+    desc: getpwuid function
+    crit: inert
+    conf: 0.5
+    if:
+      type: symbol
+      regex: "getpwuid"
+
+  - id: getenv-user
+    desc: getenv USER
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: 'getenv\("USER"\)'
+
+  - id: getenv-home
+    desc: getenv HOME
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: 'getenv\("HOME"\)'
+
+  - id: whoami-cmd
+    desc: whoami command
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      substr: "whoami"
+
+  - id: id-u-cmd
+    desc: id -u command
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      substr: "id -u"
+
+composite_rules:
+  # User info composite
+  - id: user-info
+    desc: User information fingerprinting
+    crit: notable
+    conf: 0.7
+    needs: 2
+    any:
+      - id: getlogin-func
+      - id: getpwuid-func
+      - id: getenv-user
+      - id: getenv-home
+      - id: whoami-cmd
+      - id: id-u-cmd
+      - id: cap/fs/path/config/accounts::etc-passwd

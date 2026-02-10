@@ -251,7 +251,7 @@ composite_rules:
       - id: chrome-path
       - id: cookies-path
     any:
-      - id: cap/os/admin/legitimate::cp-command
+      - id: cap/exec/dropper/payload::cp-execute
       - id: cap/exec/dropper/script::curl-cmd
       - id: cap/fs/attributes/xattr::xattr-remove
 

@@ -1,0 +1,49 @@
+# Build System - DOCKER
+
+traits:
+
+  # === Docker micro-traits ===
+  - id: dockerfile
+    desc: Dockerfile
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      substr: "Dockerfile"
+
+  - id: docker-env-prefix
+    desc: DOCKER_ environment prefix
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      regex: "DOCKER_"
+
+  - id: dockerenv
+    desc: /.dockerenv file
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      substr: "/.dockerenv"
+
+  - id: docker-entrypoint
+    desc: /docker-entrypoint path
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      substr: "/docker-entrypoint"
+
+composite_rules:
+
+  # Docker composite (migrated from YARA)
+  - id: docker
+    desc: Built in Docker container
+    crit: benign
+    conf: 0.8
+    any:
+      - id: dockerfile
+      - id: docker-env-prefix
+      - id: dockerenv
+      - id: docker-entrypoint

@@ -1,0 +1,76 @@
+# Database Connection - ORM
+
+traits:
+  # === ORM micro-traits ===
+  - id: gorm-io
+    desc: gorm.io ORM
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      substr: "gorm.io"
+
+  - id: sqlalchemy
+    desc: SQLAlchemy ORM
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      substr: "sqlalchemy"
+
+  - id: hibernate
+    desc: Hibernate ORM
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      substr: "hibernate"
+
+  - id: django-db
+    desc: django.db ORM
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      substr: "django.db"
+
+  - id: sequelize
+    desc: Sequelize ORM
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      substr: "sequelize"
+
+  - id: prisma
+    desc: Prisma ORM
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      substr: "prisma"
+
+  - id: typeorm
+    desc: TypeORM ORM
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      substr: "typeorm"
+
+
+composite_rules:
+  # ORM composite (migrated from YARA)
+  - id: orm
+    desc: ORM framework usage
+    crit: benign
+    conf: 0.85
+    any:
+      - id: gorm-io
+      - id: sqlalchemy
+      - id: hibernate
+      - id: django-db
+      - id: sequelize
+      - id: prisma
+      - id: typeorm
+

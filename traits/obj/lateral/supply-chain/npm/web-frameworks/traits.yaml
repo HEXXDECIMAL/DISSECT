@@ -1,0 +1,74 @@
+# Web Framework Patterns
+# Express, React, middleware, routing patterns
+
+traits:
+  - id: has-eventemitter
+    desc: Code uses EventEmitter pattern
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "extends\\s+EventEmitter|require\\(['\"]events['\"]\\)"
+
+  # Has Stream usage
+  - id: has-stream
+    desc: Code uses Node.js streams
+    crit: inert
+    conf: 0.75
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "require\\(['\"]stream['\"]\\)|Readable|Writable|Transform|Duplex"
+
+  # Has Buffer with encoding (legitimate usage)
+  - id: uses-web-framework
+    desc: Code uses established web framework
+    crit: inert
+    conf: 0.85
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "require\\(['\"](?:express|koa|fastify|hapi|next|nuxt)['\"]\\)|from ['\"](?:express|koa|fastify|hapi|next|nuxt)['\"]"
+
+  # Has middleware pattern
+  - id: has-middleware
+    desc: Code uses middleware pattern
+    crit: inert
+    conf: 0.85
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "(?:app|router)\\.use\\(|middleware\\s*[=:]"
+
+  # Has route definitions
+  - id: has-routes
+    desc: Code defines HTTP routes
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "(?:app|router)\\.(?:get|post|put|delete|patch)\\s*\\(['\"]/"
+
+  # Has proper logging
+  - id: has-frontend-framework
+    desc: Code uses frontend framework patterns
+    crit: inert
+    conf: 0.9
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "(?:React|Vue|Component)\\.(?:createElement|defineComponent)|@Component\\(|useEffect\\(|useState\\("
+
+  # Has decorator patterns
+  - id: has-di-pattern
+    desc: Code uses dependency injection
+    crit: inert
+    conf: 0.85
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "(?:inject|provide|@Inject|container\\.resolve|inversify)"
+
+  # Has CLI argument parsing

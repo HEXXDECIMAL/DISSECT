@@ -1,0 +1,49 @@
+# Build System - GO
+
+traits:
+
+  # === Go modules micro-traits ===
+  - id: go-mod
+    desc: go.mod file
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      substr: "go.mod"
+
+  - id: go-sum
+    desc: go.sum file
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      substr: "go.sum"
+
+  - id: go-pkg-mod
+    desc: go/pkg/mod directory
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      substr: "go/pkg/mod"
+
+  - id: gopath-env
+    desc: GOPATH environment variable
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      substr: "GOPATH"
+
+composite_rules:
+
+  # Go modules composite (migrated from YARA)
+  - id: go-modules
+    desc: Built with Go modules
+    crit: benign
+    conf: 0.9
+    any:
+      - id: go-mod
+      - id: go-sum
+      - id: go-pkg-mod
+      - id: gopath-env

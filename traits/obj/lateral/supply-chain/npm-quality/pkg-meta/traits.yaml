@@ -1,0 +1,272 @@
+# Package Metadata Quality Indicators
+
+traits:
+  - id: has-index-entry
+    desc: Package has standard index entry
+    crit: inert
+    conf: 0.8
+    for: [packagejson]
+    if:
+      type: string
+      regex: '"main":\s*"(?:index\.js|dist/|lib/|src/)'
+
+  - id: has-types-entry
+    desc: Package has TypeScript types entry
+    crit: inert
+    conf: 0.9
+    for: [packagejson]
+    if:
+      type: string
+      regex: '"types":\s*"|"typings":\s*"'
+
+  - id: has-side-effects
+    desc: Package declares sideEffects
+    crit: inert
+    conf: 0.85
+    for: [packagejson]
+    if:
+      type: string
+      regex: '"sideEffects":\s*(?:false|\[)'
+
+  - id: has-browserslist
+    desc: Package has browser target configuration
+    crit: inert
+    conf: 0.8
+    for: [packagejson]
+    if:
+      type: string
+      substr: '"browserslist":'
+
+  - id: pkg-main-field
+    desc: '"main": field in package.json'
+    crit: inert
+    conf: 0.6
+    for: [packagejson]
+    if:
+      type: string
+      substr: '"main":'
+
+  - id: pkg-types-field
+    desc: '"types": field in package.json'
+    crit: inert
+    conf: 0.6
+    for: [packagejson]
+    if:
+      type: string
+      substr: '"types":'
+
+  - id: has-repository
+    desc: Package has repository URL
+    crit: inert
+    conf: 0.8
+    for: [packagejson]
+    if:
+      type: string
+      regex: '"repository":\\s*\\{|"repository":\\s*"'
+
+  - id: has-author-email
+    desc: Package has author with email
+    crit: inert
+    conf: 0.85
+    for: [packagejson]
+    if:
+      type: string
+      regex: '"author":\\s*"[^"]*@[^"]*"|"email":\\s*"[^"]*@'
+
+  - id: has-keywords
+    desc: Package has keywords array
+    crit: inert
+    conf: 0.75
+    for: [packagejson]
+    if:
+      type: string
+      regex: '"keywords":\\s*\\['
+
+  - id: has-engines
+    desc: Package specifies Node.js engine version
+    crit: inert
+    conf: 0.8
+    for: [packagejson]
+    if:
+      type: string
+      regex: '"engines":\\s*\\{[^}]*"node"'
+
+  - id: has-funding
+    desc: Package has funding information
+    crit: inert
+    conf: 0.85
+    for: [packagejson]
+    if:
+      type: string
+      substr: '"funding":'
+
+  - id: has-bugs-url-field
+    desc: Package has bugs/issues URL
+    crit: inert
+    conf: 0.8
+    for: [packagejson]
+    if:
+      type: string
+      regex: '"bugs":\\s*\\{|"bugs":\\s*"http'
+
+  - id: has-homepage-field
+    desc: Package has homepage URL
+    crit: inert
+    conf: 0.8
+    for: [packagejson]
+    if:
+      type: string
+      regex: '"homepage":\\s*"https?://'
+
+  - id: has-contributors
+    desc: Package has contributors list
+    crit: inert
+    conf: 0.85
+    for: [packagejson]
+    if:
+      type: string
+      substr: '"contributors":'
+
+  - id: has-workspaces
+    desc: Package uses workspaces (monorepo pattern)
+    crit: inert
+    conf: 0.9
+    for: [packagejson]
+    if:
+      type: string
+      substr: '"workspaces":'
+
+  - id: is-private
+    desc: Package marked as private
+    crit: inert
+    conf: 0.8
+    for: [packagejson]
+    if:
+      type: string
+      substr: '"private": true'
+
+  - id: conventional-version
+    desc: Uses conventional version format
+    crit: inert
+    conf: 0.75
+    for: [packagejson]
+    if:
+      type: string
+      regex: '"version":\s*"[0-9]+\.[0-9]+\.[0-9]+(?:-(?:alpha|beta|rc|next|canary)\.[0-9]+)?"'
+
+  - id: mature-version
+    desc: Package has mature version number
+    crit: inert
+    conf: 0.7
+    for: [packagejson]
+    if:
+      type: string
+      regex: '"version":\\s*"[1-9]\\.[1-9]|"version":\\s*"[0-9]+\\.[1-9]+\\.[1-9]'
+
+  - id: has-description
+    desc: Package has meaningful description
+    crit: inert
+    conf: 0.75
+    for: [packagejson]
+    if:
+      type: string
+      regex: '"description":\\s*"[^"]{20,}"'
+
+  - id: has-bin-field
+    desc: Package provides CLI binary
+    crit: inert
+    conf: 0.8
+    for: [packagejson]
+    if:
+      type: string
+      regex: '"bin":\\s*\\{|"bin":\\s*"'
+
+  - id: peer-range
+    desc: Uses version ranges for peer dependencies
+    crit: inert
+    conf: 0.85
+    for: [packagejson]
+    if:
+      type: string
+      regex: '"peerDependencies":\s*\{[^}]*"[>=<^~]'
+
+  - id: has-optional-deps
+    desc: Package has optional dependencies
+    crit: inert
+    conf: 0.8
+    for: [packagejson]
+    if:
+      type: string
+      substr: '"optionalDependencies":'
+
+  - id: has-platform-restrictions
+    desc: Package specifies platform restrictions
+    crit: inert
+    conf: 0.85
+    for: [packagejson]
+    if:
+      type: string
+      regex: '"cpu":\s*\[|"os":\s*\['
+
+  - id: scoped-known-org
+    desc: Package from known organization scope
+    crit: inert
+    conf: 0.85
+    for: [packagejson]
+    if:
+      type: string
+      regex: '"name":\s*"@(?:types|babel|rollup|webpack|eslint|typescript-eslint|testing-library|storybook|angular|vue|emotion|chakra-ui)/'
+
+  - id: has-peer-deps
+    desc: Package has peerDependencies (framework plugin)
+    crit: inert
+    conf: 0.85
+    for: [packagejson]
+    if:
+      type: string
+      substr: '"peerDependencies":'
+
+  - id: has-dev-deps
+    desc: Package has devDependencies
+    crit: inert
+    conf: 0.8
+    for: [packagejson]
+    if:
+      type: string
+      substr: '"devDependencies":'
+
+  - id: has-files-field
+    desc: Package explicitly lists published files
+    crit: inert
+    conf: 0.8
+    for: [packagejson]
+    if:
+      type: string
+      regex: '"files":\\s*\\['
+
+  - id: semver-deps
+    desc: Uses semantic versioning for dependencies
+    crit: inert
+    conf: 0.75
+    for: [packagejson]
+    if:
+      type: string
+      regex: '"dependencies":\\s*\\{[^}]*"\\^[0-9]|"~[0-9]'
+
+  - id: has-publish-config
+    desc: Has publish configuration
+    crit: inert
+    conf: 0.85
+    for: [packagejson]
+    if:
+      type: string
+      substr: '"publishConfig":'
+
+  - id: ci-badge-reference
+    desc: References CI service (professional project)
+    crit: inert
+    conf: 0.8
+    for: [packagejson]
+    if:
+      type: string
+      regex: 'travis-ci\.org|circleci\.com|github\.com/.{0,50}actions|codecov\.io|coveralls\.io'

@@ -135,7 +135,7 @@ composite_rules:
     needs: 2
     any:
       - id: file-extension-rename
-      - id: cap/data/text/pattern::split-string
+      - id: cap/data/text/keywords::split-string
 
   # === Self-Replicator ===
   - id: self-replicator

@@ -1,0 +1,58 @@
+# Build System - AUTOTOOLS
+
+traits:
+
+  # === Autotools micro-traits ===
+  - id: configure-ac
+    desc: configure.ac file
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      substr: "configure.ac"
+
+  - id: makefile-am
+    desc: Makefile.am file
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      substr: "Makefile.am"
+
+  - id: config-h-in
+    desc: config.h.in file
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      substr: "config.h.in"
+
+  - id: package-version
+    desc: PACKAGE_VERSION variable
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      substr: "PACKAGE_VERSION"
+
+  - id: ac-init
+    desc: AC_INIT macro
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      substr: "AC_INIT"
+
+composite_rules:
+
+  # Autotools composite (migrated from YARA)
+  - id: autotools
+    desc: Built with Autotools (autoconf/automake)
+    crit: benign
+    conf: 0.8
+    any:
+      - id: configure-ac
+      - id: makefile-am
+      - id: config-h-in
+      - id: package-version
+      - id: ac-init

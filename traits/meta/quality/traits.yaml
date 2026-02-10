@@ -1,640 +1,4 @@
-# Code Quality and Maturity Indicators
-# Useful for ML classification - mature codebases have different patterns than quick scripts
-
-traits:
-  # === Atomic: Go Error Handling ===
-
-  - id: go-err-nil-check
-    desc: Go error nil check pattern
-    crit: inert
-    conf: 0.6
-    for: [go]
-    if:
-      type: string
-      substr: "if err != nil"
-
-  - id: go-errors-new
-    desc: Go errors.New function
-    crit: inert
-    conf: 0.6
-    for: [go]
-    if:
-      type: string
-      substr: "errors.New"
-
-  - id: go-fmt-errorf
-    desc: Go fmt.Errorf function
-    crit: inert
-    conf: 0.6
-    for: [go]
-    if:
-      type: string
-      substr: "fmt.Errorf"
-
-  # === Atomic: Rust Error Handling ===
-
-  - id: rust-result-type
-    desc: Rust Result<T,E> type
-    crit: inert
-    conf: 0.6
-    for: [rust]
-    if:
-      type: string
-      substr: "Result<"
-
-  - id: rust-unwrap-or
-    desc: Rust unwrap_or method
-    crit: inert
-    conf: 0.6
-    for: [rust]
-    if:
-      type: string
-      substr: "unwrap_or"
-
-  # === Atomic: Generic Try/Catch ===
-
-  - id: try-block-open
-    desc: try block opening
-    crit: inert
-    conf: 0.5
-    for: [javascript, python, java, csharp]
-    if:
-      type: string
-      substr: "try {"
-
-  - id: catch-keyword
-    desc: catch keyword
-    crit: inert
-    conf: 0.5
-    for: [javascript, java, csharp, php]
-    if:
-      type: string
-      word: "catch"
-
-  - id: except-keyword
-    desc: except keyword (Python)
-    crit: inert
-    conf: 0.5
-    for: [python]
-    if:
-      type: string
-      word: "except"
-
-  - id: finally-keyword
-    desc: finally keyword
-    crit: inert
-    conf: 0.5
-    for: [javascript, python, java, csharp]
-    if:
-      type: string
-      word: "finally"
-
-  # === Atomic: Logging ===
-
-  - id: log-print
-    desc: log.Print function
-    crit: inert
-    conf: 0.5
-    for: [go]
-    if:
-      type: string
-      substr: "log.Print"
-
-  - id: logger-lower
-    desc: logger reference (lowercase)
-    crit: inert
-    conf: 0.4
-    for: [all]
-    if:
-      type: string
-      word: "logger"
-
-  - id: logger-title
-    desc: Logger reference (title case)
-    crit: inert
-    conf: 0.4
-    for: [all]
-    if:
-      type: string
-      word: "Logger"
-
-  - id: logging-word
-    desc: logging module reference
-    crit: inert
-    conf: 0.5
-    for: [python, javascript]
-    if:
-      type: string
-      word: "logging"
-
-  - id: syslog-word
-    desc: syslog reference
-    crit: inert
-    conf: 0.6
-    for: [c, go, python, shell]
-    if:
-      type: string
-      word: "syslog"
-
-  - id: log-info-lower
-    desc: log.info method (lowercase)
-    crit: inert
-    conf: 0.5
-    for: [python, javascript, java]
-    if:
-      type: string
-      substr: "log.info"
-
-  - id: log-info-title
-    desc: log.Info method (title case)
-    crit: inert
-    conf: 0.5
-    for: [go]
-    if:
-      type: string
-      substr: "log.Info"
-
-  - id: log-debug-lower
-    desc: log.debug method (lowercase)
-    crit: inert
-    conf: 0.5
-    for: [python, javascript, java]
-    if:
-      type: string
-      substr: "log.debug"
-
-  - id: log-debug-title
-    desc: log.Debug method (title case)
-    crit: inert
-    conf: 0.5
-    for: [go]
-    if:
-      type: string
-      substr: "log.Debug"
-
-  - id: log-error-lower
-    desc: log.error method (lowercase)
-    crit: inert
-    conf: 0.5
-    for: [python, javascript, java]
-    if:
-      type: string
-      substr: "log.error"
-
-  - id: log-error-title
-    desc: log.Error method (title case)
-    crit: inert
-    conf: 0.5
-    for: [go]
-    if:
-      type: string
-      substr: "log.Error"
-
-  # === Atomic: Configuration Management ===
-
-  - id: config-yaml-file
-    desc: config.yaml filename
-    crit: inert
-    conf: 0.6
-    for: [all]
-    if:
-      type: string
-      substr: "config.yaml"
-
-  - id: config-json-file
-    desc: config.json filename
-    crit: inert
-    conf: 0.6
-    for: [all]
-    if:
-      type: string
-      substr: "config.json"
-
-  - id: config-toml-file
-    desc: config.toml filename
-    crit: inert
-    conf: 0.6
-    for: [all]
-    if:
-      type: string
-      substr: "config.toml"
-
-  - id: dotenv-file
-    desc: .env file reference
-    crit: inert
-    conf: 0.6
-    for: [all]
-    if:
-      type: string
-      exact: ".env"
-
-  - id: viper-config-lib
-    desc: Viper configuration library
-    crit: inert
-    conf: 0.7
-    for: [go]
-    if:
-      type: string
-      word: "viper"
-
-  - id: configparser-module
-    desc: configparser module
-    crit: inert
-    conf: 0.7
-    for: [python]
-    if:
-      type: string
-      word: "configparser"
-
-  - id: dotenv-module
-    desc: dotenv module reference
-    crit: inert
-    conf: 0.7
-    for: [javascript, python]
-    if:
-      type: string
-      word: "dotenv"
-
-  # === Atomic: Version Information ===
-
-  - id: version-word-lower
-    desc: version word (lowercase)
-    crit: inert
-    conf: 0.4
-    for: [all]
-    if:
-      type: string
-      word: "version"
-
-  - id: version-word-title
-    desc: Version word (title case)
-    crit: inert
-    conf: 0.4
-    for: [all]
-    if:
-      type: string
-      word: "Version"
-
-  - id: version-colon
-    desc: "Version: label"
-    crit: inert
-    conf: 0.5
-    for: [all]
-    if:
-      type: string
-      substr: "Version:"
-
-  - id: version-v1
-    desc: v1. version prefix
-    crit: inert
-    conf: 0.6
-    for: [all]
-    if:
-      type: string
-      exact: "v1."
-
-  - id: version-v2
-    desc: v2. version prefix
-    crit: inert
-    conf: 0.6
-    for: [all]
-    if:
-      type: string
-      exact: "v2."
-
-  - id: version-upper
-    desc: VERSION word (uppercase)
-    crit: inert
-    conf: 0.5
-    for: [all]
-    if:
-      type: string
-      word: "VERSION"
-
-  - id: semver-pattern
-    desc: Semantic version pattern
-    crit: inert
-    conf: 0.7
-    for: [all]
-    if:
-      type: string
-      regex: 'v?\d+\.\d+\.\d+'
-
-  # === Atomic: Help/Usage ===
-
-  - id: help-long-flag
-    desc: --help flag
-    crit: inert
-    conf: 0.6
-    for: [all]
-    if:
-      type: string
-      substr: "--help"
-
-  - id: help-short-flag
-    desc: -h flag
-    crit: inert
-    conf: 0.4
-    for: [all]
-    if:
-      type: string
-      exact: "-h"
-
-  - id: usage-lower
-    desc: "usage: label (lowercase)"
-    crit: inert
-    conf: 0.5
-    for: [all]
-    if:
-      type: string
-      substr: "usage:"
-
-  - id: usage-title
-    desc: "Usage: label (title case)"
-    crit: inert
-    conf: 0.5
-    for: [all]
-    if:
-      type: string
-      substr: "Usage:"
-
-  - id: options-title
-    desc: "Options: label"
-    crit: inert
-    conf: 0.5
-    for: [all]
-    if:
-      type: string
-      substr: "Options:"
-
-  - id: usage-upper
-    desc: "USAGE: label (uppercase)"
-    crit: inert
-    conf: 0.5
-    for: [all]
-    if:
-      type: string
-      substr: "USAGE:"
-
-  # === Atomic: License Information ===
-
-  - id: mit-license-text
-    desc: MIT License text
-    crit: inert
-    conf: 0.8
-    for: [all]
-    if:
-      type: string
-      substr: "MIT License"
-
-  - id: apache-license-text
-    desc: Apache License text
-    crit: inert
-    conf: 0.8
-    for: [all]
-    if:
-      type: string
-      substr: "Apache License"
-
-  - id: gpl-word
-    desc: GPL license reference
-    crit: inert
-    conf: 0.7
-    for: [all]
-    if:
-      type: string
-      word: "GPL"
-
-  - id: bsd-word
-    desc: BSD license reference
-    crit: inert
-    conf: 0.7
-    for: [all]
-    if:
-      type: string
-      word: "BSD"
-
-  - id: license-upper
-    desc: LICENSE file reference
-    crit: inert
-    conf: 0.6
-    for: [all]
-    if:
-      type: string
-      word: "LICENSE"
-
-  - id: copyright-word
-    desc: Copyright notice
-    crit: inert
-    conf: 0.6
-    for: [all]
-    if:
-      type: string
-      word: "Copyright"
-
-  - id: spdx-identifier
-    desc: SPDX license identifier
-    crit: inert
-    conf: 0.9
-    for: [all]
-    if:
-      type: string
-      substr: "SPDX-License-Identifier"
-
-  # === Atomic: Documentation Strings ===
-
-  - id: python-docstring-triple-double
-    desc: Python docstring (triple double quote)
-    crit: inert
-    conf: 0.6
-    for: [python]
-    if:
-      type: string
-      exact: '"""'
-
-  - id: python-docstring-triple-single
-    desc: Python docstring (triple single quote)
-    crit: inert
-    conf: 0.6
-    for: [python]
-    if:
-      type: string
-      exact: "'''"
-
-  - id: rust-doc-comment
-    desc: Rust documentation comment
-    crit: inert
-    conf: 0.6
-    for: [rust]
-    if:
-      type: string
-      exact: "///"
-
-  - id: javadoc-comment
-    desc: JavaDoc comment start
-    crit: inert
-    conf: 0.6
-    for: [java, javascript, c, csharp]
-    if:
-      type: string
-      exact: "/**"
-
-  - id: rust-doc-comment-space
-    desc: Rust doc comment with space
-    crit: inert
-    conf: 0.6
-    for: [rust]
-    if:
-      type: string
-      exact: "/// "
-
-  - id: param-annotation
-    desc: "@param annotation"
-    crit: inert
-    conf: 0.6
-    for: [java, javascript, php]
-    if:
-      type: string
-      substr: "@param"
-
-  - id: return-annotation
-    desc: "@return annotation"
-    crit: inert
-    conf: 0.6
-    for: [java, javascript, php]
-    if:
-      type: string
-      substr: "@return"
-
-  - id: sphinx-param
-    desc: "Sphinx :param: directive"
-    crit: inert
-    conf: 0.6
-    for: [python]
-    if:
-      type: string
-      substr: ":param"
-
-  - id: sphinx-returns
-    desc: "Sphinx :returns: directive"
-    crit: inert
-    conf: 0.6
-    for: [python]
-    if:
-      type: string
-      substr: ":returns:"
-
-  # === Atomic: Test Code ===
-
-  - id: go-test-main
-    desc: Go TestMain function
-    crit: inert
-    conf: 0.7
-    for: [go]
-    if:
-      type: string
-      substr: "TestMain"
-
-  - id: go-test-file
-    desc: Go test file suffix
-    crit: inert
-    conf: 0.7
-    for: [go]
-    if:
-      type: string
-      substr: "_test.go"
-
-  - id: python-test-file
-    desc: Python test file suffix
-    crit: inert
-    conf: 0.7
-    for: [python]
-    if:
-      type: string
-      substr: "_test.py"
-
-  - id: unittest-module
-    desc: unittest module
-    crit: inert
-    conf: 0.7
-    for: [python]
-    if:
-      type: string
-      word: "unittest"
-
-  - id: pytest-module
-    desc: pytest module
-    crit: inert
-    conf: 0.7
-    for: [python]
-    if:
-      type: string
-      regex: "import\\s+pytest|from\\s+pytest\\s+import"
-
-  # === Atomic: Metrics/Telemetry ===
-
-  - id: prometheus-word
-    desc: Prometheus reference
-    crit: inert
-    conf: 0.7
-    for: [all]
-    if:
-      type: string
-      word: "prometheus"
-
-  - id: metrics-word-lower
-    desc: metrics word (lowercase)
-    crit: inert
-    conf: 0.4
-    for: [all]
-    if:
-      type: string
-      word: "metrics"
-
-  - id: metrics-word-title
-    desc: Metrics word (title case)
-    crit: inert
-    conf: 0.4
-    for: [all]
-    if:
-      type: string
-      word: "Metrics"
-
-  - id: statsd-word
-    desc: StatsD reference
-    crit: inert
-    conf: 0.7
-    for: [all]
-    if:
-      type: string
-      word: "statsd"
-
-  - id: datadog-word
-    desc: Datadog reference
-    crit: inert
-    conf: 0.7
-    for: [all]
-    if:
-      type: string
-      word: "datadog"
-
-  - id: opentelemetry-word
-    desc: OpenTelemetry reference
-    crit: inert
-    conf: 0.8
-    for: [all]
-    if:
-      type: string
-      word: "opentelemetry"
-
-  - id: newrelic-word
-    desc: NewRelic reference
-    crit: inert
-    conf: 0.7
-    for: [all]
-    if:
-      type: string
-      word: "NewRelic"
+# Code Quality - Composite Rules
 
 composite_rules:
   # Go error handling helper
@@ -645,9 +9,9 @@ composite_rules:
     for: [go]
     needs: 2
     any:
-      - { id: go-err-nil-check }
-      - { id: go-errors-new }
-      - { id: go-fmt-errorf }
+      - { id: meta/quality/error-handling::go-err-nil-check }
+      - { id: meta/quality/error-handling::go-errors-new }
+      - { id: meta/quality/error-handling::go-fmt-errorf }
 
   # Rust error handling helper
   - id: rust-error-handling
@@ -657,9 +21,9 @@ composite_rules:
     for: [rust]
     needs: 2
     any:
-      - { id: rust-result-type }
-      - { id: rust-unwrap-or }
-      - { id: meta/dev/testing::rspec-expect }
+      - { id: meta/quality/error-handling::rust-result-type }
+      - { id: meta/quality/error-handling::rust-unwrap-or }
+      - { id: meta/dev/testing/rspec::rspec-expect }
 
   # Generic try/catch helper
   - id: try-catch-handling
@@ -669,10 +33,10 @@ composite_rules:
     for: [javascript, python, java, csharp]
     needs: 2
     any:
-      - { id: try-block-open }
-      - { id: catch-keyword }
-      - { id: except-keyword }
-      - { id: finally-keyword }
+      - { id: meta/quality/error-handling::try-block-open }
+      - { id: meta/quality/error-handling::catch-keyword }
+      - { id: meta/quality/error-handling::except-keyword }
+      - { id: meta/quality/error-handling::finally-keyword }
 
   # Error handling patterns (combines all)
   - id: error-handling
@@ -691,17 +55,17 @@ composite_rules:
     conf: 0.85
     needs: 2
     any:
-      - { id: log-print }
-      - { id: logger-lower }
-      - { id: logger-title }
-      - { id: logging-word }
-      - { id: syslog-word }
-      - { id: log-info-lower }
-      - { id: log-info-title }
-      - { id: log-debug-lower }
-      - { id: log-debug-title }
-      - { id: log-error-lower }
-      - { id: log-error-title }
+      - { id: meta/quality/logging::log-print }
+      - { id: meta/quality/logging::logger-lower }
+      - { id: meta/quality/logging::logger-title }
+      - { id: meta/quality/logging::logging-word }
+      - { id: meta/quality/logging::syslog-word }
+      - { id: meta/quality/logging::log-info-lower }
+      - { id: meta/quality/logging::log-info-title }
+      - { id: meta/quality/logging::log-debug-lower }
+      - { id: meta/quality/logging::log-debug-title }
+      - { id: meta/quality/logging::log-error-lower }
+      - { id: meta/quality/logging::log-error-title }
 
   # Configuration management
   - id: config-management
@@ -709,13 +73,13 @@ composite_rules:
     crit: benign
     conf: 0.85
     any:
-      - { id: config-yaml-file }
-      - { id: config-json-file }
-      - { id: config-toml-file }
-      - { id: dotenv-file }
-      - { id: viper-config-lib }
-      - { id: configparser-module }
-      - { id: dotenv-module }
+      - { id: meta/quality/config::config-yaml-file }
+      - { id: meta/quality/config::config-json-file }
+      - { id: meta/quality/config::config-toml-file }
+      - { id: meta/quality/config::dotenv-file }
+      - { id: meta/quality/config::viper-config-lib }
+      - { id: meta/quality/config::configparser-module }
+      - { id: meta/quality/config::dotenv-module }
 
   # Version information
   - id: versioned
@@ -723,13 +87,13 @@ composite_rules:
     crit: benign
     conf: 0.85
     any:
-      - { id: version-word-lower }
-      - { id: version-word-title }
-      - { id: version-colon }
-      - { id: version-v1 }
-      - { id: version-v2 }
-      - { id: version-upper }
-      - { id: semver-pattern }
+      - { id: meta/quality/versioning::version-word-lower }
+      - { id: meta/quality/versioning::version-word-title }
+      - { id: meta/quality/versioning::version-colon }
+      - { id: meta/quality/versioning::version-v1 }
+      - { id: meta/quality/versioning::version-v2 }
+      - { id: meta/quality/versioning::version-upper }
+      - { id: meta/quality/versioning::semver-pattern }
 
   # Help/usage information
   - id: has-help
@@ -738,12 +102,12 @@ composite_rules:
     conf: 0.85
     needs: 2
     any:
-      - { id: help-long-flag }
-      - { id: help-short-flag }
-      - { id: usage-lower }
-      - { id: usage-title }
-      - { id: options-title }
-      - { id: usage-upper }
+      - { id: meta/quality/help::help-long-flag }
+      - { id: meta/quality/help::help-short-flag }
+      - { id: meta/quality/help::usage-lower }
+      - { id: meta/quality/help::usage-title }
+      - { id: meta/quality/help::options-title }
+      - { id: meta/quality/help::usage-upper }
 
   # License information
   - id: licensed
@@ -751,13 +115,13 @@ composite_rules:
     crit: benign
     conf: 0.9
     any:
-      - { id: mit-license-text }
-      - { id: apache-license-text }
-      - { id: gpl-word }
-      - { id: bsd-word }
-      - { id: license-upper }
-      - { id: copyright-word }
-      - { id: spdx-identifier }
+      - { id: meta/quality/license::mit-license-text }
+      - { id: meta/quality/license::apache-license-text }
+      - { id: meta/quality/license::gpl-word }
+      - { id: meta/quality/license::bsd-word }
+      - { id: meta/quality/license::license-upper }
+      - { id: meta/quality/license::copyright-word }
+      - { id: meta/quality/license::spdx-identifier }
 
   # Documentation strings
   - id: documented
@@ -765,15 +129,15 @@ composite_rules:
     crit: benign
     conf: 0.8
     any:
-      - { id: python-docstring-triple-double }
-      - { id: python-docstring-triple-single }
-      - { id: rust-doc-comment }
-      - { id: javadoc-comment }
-      - { id: rust-doc-comment-space }
-      - { id: param-annotation }
-      - { id: return-annotation }
-      - { id: sphinx-param }
-      - { id: sphinx-returns }
+      - { id: meta/quality/documentation::python-docstring-triple-double }
+      - { id: meta/quality/documentation::python-docstring-triple-single }
+      - { id: meta/quality/documentation::rust-doc-comment }
+      - { id: meta/quality/documentation::javadoc-comment }
+      - { id: meta/quality/documentation::rust-doc-comment-space }
+      - { id: meta/quality/documentation::param-annotation }
+      - { id: meta/quality/documentation::return-annotation }
+      - { id: meta/quality/documentation::sphinx-param }
+      - { id: meta/quality/documentation::sphinx-returns }
 
   # Unit test presence (in production binary)
   - id: has-tests
@@ -782,11 +146,11 @@ composite_rules:
     conf: 0.5
     needs: 2
     any:
-      - { id: go-test-main }
-      - { id: go-test-file }
-      - { id: python-test-file }
-      - { id: unittest-module }
-      - { id: pytest-module }
+      - { id: meta/quality/testing::go-test-main }
+      - { id: meta/quality/testing::go-test-file }
+      - { id: meta/quality/testing::python-test-file }
+      - { id: meta/quality/testing::unittest-module }
+      - { id: meta/quality/testing::pytest-module }
       - { id: meta/dev/testing::rust-test-attr }
       - { id: meta/dev/testing::go-testing-t }
 
@@ -796,10 +160,10 @@ composite_rules:
     crit: benign
     conf: 0.85
     any:
-      - { id: prometheus-word }
-      - { id: metrics-word-lower }
-      - { id: metrics-word-title }
-      - { id: statsd-word }
-      - { id: datadog-word }
-      - { id: opentelemetry-word }
-      - { id: newrelic-word }
+      - { id: meta/quality/metrics::prometheus-word }
+      - { id: meta/quality/metrics::metrics-word-lower }
+      - { id: meta/quality/metrics::metrics-word-title }
+      - { id: meta/quality/metrics::statsd-word }
+      - { id: meta/quality/metrics::datadog-word }
+      - { id: meta/quality/metrics::opentelemetry-word }
+      - { id: meta/quality/metrics::newrelic-word }

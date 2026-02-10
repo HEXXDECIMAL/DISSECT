@@ -1,0 +1,44 @@
+# Project Structure Patterns
+# Build directories, source layout markers
+
+traits:
+  - id: has-build-output
+    desc: Package has build output directory
+    crit: inert
+    conf: 0.85
+    for: [packagejson]
+    if:
+      type: string
+      regex: '"main":\\s*"(?:dist/|lib/|build/|out/)'
+
+  # Has src directory structure
+  - id: has-src-directory
+    desc: Package has src directory structure
+    crit: inert
+    conf: 0.8
+    for: [packagejson]
+    if:
+      type: string
+      regex: '"[^"]*src/|"files":[^]]*"src"'
+
+  # Has test directory
+  - id: has-examples
+    desc: Package has examples directory
+    crit: inert
+    conf: 0.85
+    for: [packagejson]
+    if:
+      type: string
+      regex: '"examples"|"example"|"demo"|"demos"'
+
+  # Has docs directory
+  - id: mocks-directory
+    desc: /__mocks__/ directory
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "/__mocks__/"
+
+  # Test fixture/mock data markers

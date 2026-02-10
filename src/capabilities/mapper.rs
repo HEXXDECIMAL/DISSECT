@@ -27,11 +27,10 @@ use super::validation::{
     find_duplicate_words_in_path, find_empty_condition_clauses, find_for_only_duplicates,
     find_hostile_cap_rules, find_impossible_count_constraints, find_impossible_needs,
     find_impossible_size_constraints, find_invalid_trait_ids, find_line_number,
-    find_missing_search_patterns, find_oversized_trait_directories,
-    find_parent_duplicate_segments, find_platform_named_directories, find_redundant_any_refs,
-    find_redundant_needs_one, find_single_item_clauses, find_string_content_collisions,
-    simple_rule_to_composite_rule, validate_composite_trait_only,
-    validate_hostile_composite_precision, MAX_TRAITS_PER_DIRECTORY,
+    find_missing_search_patterns, find_oversized_trait_directories, find_parent_duplicate_segments,
+    find_platform_named_directories, find_redundant_any_refs, find_redundant_needs_one,
+    find_single_item_clauses, find_string_content_collisions, simple_rule_to_composite_rule,
+    validate_composite_trait_only, validate_hostile_composite_precision, MAX_TRAITS_PER_DIRECTORY,
 };
 
 /// Maps symbols (function names, library calls) to capability IDs
@@ -352,7 +351,10 @@ impl CapabilityMapper {
                 }
 
                 // Check for short case-insensitive patterns (high collision risk)
-                if let Some(warning) = trait_def.r#if.check_short_case_insensitive(trait_def.r#for.len()) {
+                if let Some(warning) = trait_def
+                    .r#if
+                    .check_short_case_insensitive(trait_def.r#for.len())
+                {
                     warnings.push(format!(
                         "trait '{}' in {:?}: {}",
                         trait_def.id, path, warning
@@ -361,6 +363,126 @@ impl CapabilityMapper {
 
                 // Check for improper use of not: field
                 if let Some(warning) = trait_def.check_not_field_usage() {
+                    warnings.push(format!(
+                        "trait '{}' in {:?}: {}",
+                        trait_def.id, path, warning
+                    ));
+                }
+
+                // Check for invalid criticality level
+                if let Some(warning) = trait_def.check_criticality() {
+                    warnings.push(format!(
+                        "trait '{}' in {:?}: {}",
+                        trait_def.id, path, warning
+                    ));
+                }
+
+                // Check for invalid confidence value
+                if let Some(warning) = trait_def.check_confidence() {
+                    warnings.push(format!(
+                        "trait '{}' in {:?}: {}",
+                        trait_def.id, path, warning
+                    ));
+                }
+
+                // Check for invalid size constraints
+                if let Some(warning) = trait_def.check_size_constraints() {
+                    warnings.push(format!(
+                        "trait '{}' in {:?}: {}",
+                        trait_def.id, path, warning
+                    ));
+                }
+
+                // Check for invalid count constraints in condition
+                if let Some(warning) = trait_def.r#if.check_count_constraints() {
+                    warnings.push(format!(
+                        "trait '{}' in {:?}: {}",
+                        trait_def.id, path, warning
+                    ));
+                }
+
+                // Check for invalid density constraints in condition
+                if let Some(warning) = trait_def.r#if.check_density_constraints() {
+                    warnings.push(format!(
+                        "trait '{}' in {:?}: {}",
+                        trait_def.id, path, warning
+                    ));
+                }
+
+                // Check for mutually exclusive match types in condition
+                if let Some(warning) = trait_def.r#if.check_match_exclusivity() {
+                    warnings.push(format!(
+                        "trait '{}' in {:?}: {}",
+                        trait_def.id, path, warning
+                    ));
+                }
+
+                // Check for empty patterns
+                if let Some(warning) = trait_def.r#if.check_empty_patterns() {
+                    warnings.push(format!(
+                        "trait '{}' in {:?}: {}",
+                        trait_def.id, path, warning
+                    ));
+                }
+
+                // Check for overly short patterns
+                if let Some(warning) = trait_def.r#if.check_short_patterns() {
+                    warnings.push(format!(
+                        "trait '{}' in {:?}: {}",
+                        trait_def.id, path, warning
+                    ));
+                }
+
+                // Check for literal strings used as regex
+                if let Some(warning) = trait_def.r#if.check_literal_regex() {
+                    warnings.push(format!(
+                        "trait '{}' in {:?}: {}",
+                        trait_def.id, path, warning
+                    ));
+                }
+
+                // Check for word pattern validity
+                if let Some(warning) = trait_def.r#if.check_word_pattern_validity() {
+                    warnings.push(format!(
+                        "trait '{}' in {:?}: {}",
+                        trait_def.id, path, warning
+                    ));
+                }
+
+                // Check for useless case_insensitive
+                if let Some(warning) = trait_def.r#if.check_case_insensitive_on_non_alpha() {
+                    warnings.push(format!(
+                        "trait '{}' in {:?}: {}",
+                        trait_def.id, path, warning
+                    ));
+                }
+
+                // Check for count_min: 0
+                if let Some(warning) = trait_def.r#if.check_count_min_value() {
+                    warnings.push(format!(
+                        "trait '{}' in {:?}: {}",
+                        trait_def.id, path, warning
+                    ));
+                }
+
+                // Check for description quality
+                if let Some(warning) = trait_def.check_description_quality() {
+                    warnings.push(format!(
+                        "trait '{}' in {:?}: {}",
+                        trait_def.id, path, warning
+                    ));
+                }
+
+                // Check for empty not: array
+                if let Some(warning) = trait_def.check_empty_not_array() {
+                    warnings.push(format!(
+                        "trait '{}' in {:?}: {}",
+                        trait_def.id, path, warning
+                    ));
+                }
+
+                // Check for empty unless: array
+                if let Some(warning) = trait_def.check_empty_unless_array() {
                     warnings.push(format!(
                         "trait '{}' in {:?}: {}",
                         trait_def.id, path, warning
@@ -583,7 +705,9 @@ impl CapabilityMapper {
                     "\n⚠️  WARNING: {} directories are named after platforms/languages (TAXONOMY.md violation)",
                     platform_dir_violations.len()
                 );
-                eprintln!("   Languages and platforms should be YAML filenames, not directories:\n");
+                eprintln!(
+                    "   Languages and platforms should be YAML filenames, not directories:\n"
+                );
                 for (dir_path, platform_name) in &platform_dir_violations {
                     eprintln!(
                         "   {}: contains platform directory '{}'",
@@ -899,7 +1023,9 @@ impl CapabilityMapper {
                 hostile_cap_rules.len()
             );
             eprintln!("   Cap contains micro-behaviors (atomic capabilities) which are generally neutral.");
-            eprintln!("   Hostile rules require intent inference and should be in obj/ where they can be");
+            eprintln!(
+                "   Hostile rules require intent inference and should be in obj/ where they can be"
+            );
             eprintln!("   categorized properly by attacker objective (C2, exfil, impact, etc.):\n");
             for (rule_id, source_file) in &hostile_cap_rules {
                 let line_hint = find_line_number(source_file, "crit: hostile");
@@ -978,7 +1104,12 @@ impl CapabilityMapper {
                         .get(&rule_id)
                         .map(|s| s.as_str())
                         .unwrap_or("unknown");
-                    single_item_clauses.push((rule_id, clause_type, trait_id, source_file.to_string()));
+                    single_item_clauses.push((
+                        rule_id,
+                        clause_type,
+                        trait_id,
+                        source_file.to_string(),
+                    ));
                 }
             }
         }
@@ -988,7 +1119,9 @@ impl CapabilityMapper {
                 "\n⚠️  WARNING: {} composite rules have single-item any:/all: clauses",
                 single_item_clauses.len()
             );
-            eprintln!("   Single-item clauses add no value - reference the trait directly instead:\n");
+            eprintln!(
+                "   Single-item clauses add no value - reference the trait directly instead:\n"
+            );
             for (rule_id, clause_type, trait_id, source_file) in &single_item_clauses {
                 let line_hint = find_line_number(source_file, rule_id);
                 if let Some(line) = line_hint {
@@ -1019,8 +1152,12 @@ impl CapabilityMapper {
                     "\n❌ FATAL: {} trait pairs have string/content type collisions",
                     collisions.len()
                 );
-                eprintln!("   When both `type: string` and `type: content` exist for the same pattern,");
-                eprintln!("   merge to `content` only (it's broader and includes string matches):\n");
+                eprintln!(
+                    "   When both `type: string` and `type: content` exist for the same pattern,"
+                );
+                eprintln!(
+                    "   merge to `content` only (it's broader and includes string matches):\n"
+                );
                 for (string_id, content_id, pattern) in &collisions {
                     let string_source = rule_source_files
                         .get(string_id)
@@ -1071,7 +1208,9 @@ impl CapabilityMapper {
                     } else {
                         eprintln!("   {}: {}", source, trait_ids.join(", "));
                     }
-                    eprintln!("      Action: Merge into single trait with `for: [combined file types]`\n");
+                    eprintln!(
+                        "      Action: Merge into single trait with `for: [combined file types]`\n"
+                    );
                 }
                 warnings.push(format!(
                     "{} trait groups differ only in `for:` field (should be merged)",
@@ -1342,9 +1481,9 @@ impl CapabilityMapper {
                 let ref_without_slash = ref_id.trim_end_matches('/');
                 let is_directory_ref = known_prefixes.contains(&ref_id)
                     || known_prefixes.contains(ref_without_slash)
-                    || known_prefixes
-                        .iter()
-                        .any(|p| p.starts_with(ref_without_slash) && p.len() > ref_without_slash.len());
+                    || known_prefixes.iter().any(|p| {
+                        p.starts_with(ref_without_slash) && p.len() > ref_without_slash.len()
+                    });
 
                 // Skip validation for dynamically generated meta/* references
                 // - meta/import/ and meta/dylib/ are generated from binary imports
@@ -1419,9 +1558,7 @@ impl CapabilityMapper {
                 eprintln!(
                     "   Convert inline conditions (string, symbol, yara, etc.) to atomic traits."
                 );
-                eprintln!(
-                    "   Set DISSECT_ALLOW_VIOLATIONS=1 to temporarily bypass this check.\n"
-                );
+                eprintln!("   Set DISSECT_ALLOW_VIOLATIONS=1 to temporarily bypass this check.\n");
                 std::process::exit(1);
             }
         }
@@ -1496,16 +1633,17 @@ impl CapabilityMapper {
                             let has_downgrade = rule.downgrade.is_some();
 
                             // Check if metadata is being changed
-                            let metadata_changed = if let Some((ref_crit, ref_conf, ref_attack, ref_mbc)) =
-                                trait_metadata.get(ref_id)
-                            {
-                                rule.crit != *ref_crit
-                                    || (rule.conf - ref_conf).abs() > 0.001
-                                    || rule.attack != *ref_attack
-                                    || rule.mbc != *ref_mbc
-                            } else {
-                                false
-                            };
+                            let metadata_changed =
+                                if let Some((ref_crit, ref_conf, ref_attack, ref_mbc)) =
+                                    trait_metadata.get(ref_id)
+                                {
+                                    rule.crit != *ref_crit
+                                        || (rule.conf - ref_conf).abs() > 0.001
+                                        || rule.attack != *ref_attack
+                                        || rule.mbc != *ref_mbc
+                                } else {
+                                    false
+                                };
 
                             if has_unless && !has_downgrade && !metadata_changed {
                                 // Only adds unless, no metadata changes - suggest downgrade pattern

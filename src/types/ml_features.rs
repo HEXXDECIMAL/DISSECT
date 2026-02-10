@@ -394,13 +394,11 @@ mod tests {
             instruction_cost: 1000,
             instruction_density: 0.8,
             categories: InstructionCategories::default(),
-            top_opcodes: vec![
-                OpcodeFrequency {
-                    opcode: "mov".to_string(),
-                    count: 150,
-                    percentage: 30.0,
-                },
-            ],
+            top_opcodes: vec![OpcodeFrequency {
+                opcode: "mov".to_string(),
+                count: 150,
+                percentage: 30.0,
+            }],
             unusual_instructions: vec!["rdtsc".to_string()],
         };
         assert_eq!(analysis.total_instructions, 500);
@@ -468,13 +466,11 @@ mod tests {
         let constant = EmbeddedConstant {
             value: "0xDEADBEEF".to_string(),
             constant_type: "dword".to_string(),
-            decoded: vec![
-                DecodedValue {
-                    value_type: "ip_address".to_string(),
-                    decoded_value: "222.173.190.239".to_string(),
-                    conf: 0.8,
-                },
-            ],
+            decoded: vec![DecodedValue {
+                value_type: "ip_address".to_string(),
+                decoded_value: "222.173.190.239".to_string(),
+                conf: 0.8,
+            }],
         };
         assert_eq!(constant.constant_type, "dword");
         assert_eq!(constant.decoded.len(), 1);

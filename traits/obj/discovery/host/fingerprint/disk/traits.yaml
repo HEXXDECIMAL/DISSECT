@@ -1,0 +1,88 @@
+# Disk Serial Number Fingerprinting
+# ATT&CK: T1082 (System Information Discovery)
+
+defaults:
+  attack: "T1082"
+
+traits:
+  # === Disk serial micro-traits ===
+  - id: sys-block
+    desc: /sys/block/ path
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      substr: "/sys/block/"
+
+  - id: device-serial
+    desc: /device/serial path
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      substr: "/device/serial"
+
+  - id: hdio-get-identity
+    desc: HDIO_GET_IDENTITY ioctl
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      substr: "HDIO_GET_IDENTITY"
+
+  - id: hdparm-cmd
+    desc: hdparm -i command
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      substr: "hdparm -i"
+
+  - id: lsblk-cmd
+    desc: lsblk command
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      substr: "lsblk"
+
+  - id: blkid-cmd
+    desc: blkid command
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      substr: "blkid"
+
+  - id: serial-short
+    desc: serial_short udev field
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      substr: "serial_short"
+
+  - id: id-serial
+    desc: ID_SERIAL udev field
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      substr: "ID_SERIAL"
+
+composite_rules:
+  # Disk serial composite
+  - id: fp-disk-serial
+    desc: Disk serial number fingerprinting
+    crit: notable
+    conf: 0.75
+    needs: 2
+    any:
+      - id: sys-block
+      - id: device-serial
+      - id: hdio-get-identity
+      - id: hdparm-cmd
+      - id: lsblk-cmd
+      - id: blkid-cmd
+      - id: serial-short
+      - id: id-serial

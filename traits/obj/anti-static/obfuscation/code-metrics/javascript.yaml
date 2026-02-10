@@ -69,8 +69,8 @@ composite_rules:
     any:
       - id: cap/code/metrics/obfuscation::high-entropy-identifiers
       - id: obj/anti-static/obfuscation/code-metrics::js-arrow-function-abuse
-      - id: obj/anti-static/obfuscation/code-metrics::high-entropy-strings
-      - id: obj/anti-static/obfuscation/code-metrics::no-comments
+      - id: obj/anti-static/obfuscation/code-metrics/strings::high-entropy-strings
+      - id: obj/anti-static/obfuscation/code-metrics/structure::no-comments
 
   - id: js-npm-malware-pattern
     desc: "npm malware obfuscation pattern (install"
@@ -80,9 +80,9 @@ composite_rules:
     size_max: 50000
     all:
       - id: cap/code/metrics/obfuscation::high-entropy-identifiers
-      - id: obj/anti-static/obfuscation/code-metrics::no-comments
+      - id: obj/anti-static/obfuscation/code-metrics/structure::no-comments
     any:
       - id: obj/anti-static/obfuscation/code-metrics::js-webpack-minified
-      - id: obj/anti-static/obfuscation/code-metrics::very-long-lines
+      - id: obj/anti-static/obfuscation/code-metrics/structure::very-long-lines
     none:
       - id: js-sphinx-searchindex

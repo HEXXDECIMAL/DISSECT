@@ -1,0 +1,45 @@
+# Minifier Output Patterns
+# Characteristic patterns from legitimate minifiers
+
+traits:
+  - id: use-strict-quote
+    desc: '"use strict" directive'
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
+      type: string
+      substr: '"use strict"'
+
+  - id: void-zero
+    desc: "void 0 pattern (minifier output)"
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
+      type: string
+      substr: "void 0"
+
+  - id: esmodule-export
+    desc: __esModule property
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
+      type: string
+      substr: "__esModule"
+
+  - id: object-define-property
+    desc: Object.defineProperty call
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
+      type: string
+      substr: "Object.defineProperty"
+
+  # Legitimate JavaScript Code Patterns
+  # These patterns are typically PRESENT in legitimate code and ABSENT in malware
+  # Useful for differential ML analysis
+
+  # Has module.exports (CommonJS export)

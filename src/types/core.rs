@@ -429,7 +429,9 @@ mod tests {
 
         assert_eq!(report.findings.len(), 1);
         assert_eq!(report.findings[0].trait_refs.len(), 2);
-        assert!(report.findings[0].trait_refs.contains(&"trait1".to_string()));
+        assert!(report.findings[0]
+            .trait_refs
+            .contains(&"trait1".to_string()));
     }
 
     // ==================== add_trait Tests ====================
@@ -495,8 +497,8 @@ mod tests {
 
     #[test]
     fn test_minimize_clears_fields() {
-        use crate::types::traits_findings::TraitKind;
         use crate::types::binary::StringType;
+        use crate::types::traits_findings::TraitKind;
 
         let mut report = AnalysisReport::new(test_target());
 

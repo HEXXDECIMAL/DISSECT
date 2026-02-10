@@ -297,7 +297,11 @@ mod tests {
 
     #[test]
     fn test_trait_new() {
-        let t = Trait::new(TraitKind::String, "test_value".to_string(), "strings".to_string());
+        let t = Trait::new(
+            TraitKind::String,
+            "test_value".to_string(),
+            "strings".to_string(),
+        );
 
         assert_eq!(t.kind, TraitKind::String);
         assert_eq!(t.value, "test_value");
@@ -380,7 +384,11 @@ mod tests {
 
     #[test]
     fn test_finding_capability() {
-        let f = Finding::capability("net/socket".to_string(), "Socket operations".to_string(), 0.8);
+        let f = Finding::capability(
+            "net/socket".to_string(),
+            "Socket operations".to_string(),
+            0.8,
+        );
 
         assert_eq!(f.id, "net/socket");
         assert_eq!(f.kind, FindingKind::Capability);
@@ -399,7 +407,11 @@ mod tests {
 
     #[test]
     fn test_finding_indicator() {
-        let f = Finding::indicator("c2/beacon".to_string(), "C2 beacon pattern".to_string(), 0.95);
+        let f = Finding::indicator(
+            "c2/beacon".to_string(),
+            "C2 beacon pattern".to_string(),
+            0.95,
+        );
 
         assert_eq!(f.kind, FindingKind::Indicator);
     }
@@ -510,7 +522,7 @@ mod tests {
     fn test_truncate_str_multibyte() {
         // "日" is 3 bytes in UTF-8
         let s = "日本語"; // 9 bytes total
-        // Truncating at 5 bytes should give us just "日" (3 bytes)
+                          // Truncating at 5 bytes should give us just "日" (3 bytes)
         let result = truncate_str(s, 5);
         assert_eq!(result, "日");
     }
