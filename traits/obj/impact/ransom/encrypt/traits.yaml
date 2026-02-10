@@ -14,7 +14,7 @@ traits:
 
   # Ransomware encryption complete message
   - id: encryption-complete-msg
-    desc: Ransomware completion message
+    desc: Ransomware completion status message
     crit: suspicious
     conf: 0.95
     if:
@@ -81,7 +81,7 @@ traits:
 
   # Template placeholders for ransomware
   - id: template-placeholders
-    desc: Ransomware template placeholders
+    desc: Ransomware config template variables (EXTENSION, NOTE_FILE_NAME, ACCESS_KEY)
     crit: suspicious
     conf: 0.95
     if:
@@ -194,7 +194,7 @@ traits:
 
   # Desktop ransom note pattern
   - id: desktop-note-path
-    desc: Desktop ransom note path
+    desc: Ransom note file dropped to Desktop directory
     crit: suspicious
     conf: 0.9
     if:
@@ -293,7 +293,7 @@ composite_rules:
   # C/C++ file encryption ransomware - complexity 5 (for:1 + all:3 + any:1)
   # Detects file encryption malware with ransom messaging
   - id: c-file-encryptor
-    desc: C/C++ file encryption ransomware
+    desc: C/C++ file encryption ransomware with payment verification
     crit: hostile
     conf: 0.95
     for: [elf, pe, macho]

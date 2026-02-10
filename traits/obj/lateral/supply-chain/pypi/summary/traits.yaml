@@ -18,7 +18,7 @@ traits:
       exact: "UNKNOWN"
 
   - id: pkginfo-placeholder-summary
-    desc: PKG-INFO with placeholder summary text
+    desc: PKG-INFO summary contains placeholder text (test, example, TODO, dummy)
     crit: notable
     conf: 0.80
     if:
@@ -28,7 +28,7 @@ traits:
       case_insensitive: true
 
   - id: pkginfo-low-effort-summary
-    desc: PKG-INFO with low-effort filler summary
+    desc: PKG-INFO summary contains minimal-effort description
     crit: notable
     conf: 0.80
     if:

@@ -55,11 +55,11 @@ traits:
     crit: notable
     conf: 0.85
     if:
-      type: string
+      type: content
       regex: "from\\s+Crypto\\.Cipher\\s+import\\s+AES"
 
   - id: pycrypto-aes-new
-    desc: PyCryptodome AES.new call
+    desc: PyCryptodome AES.new constructor call
     crit: notable
     conf: 0.85
     if:

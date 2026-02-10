@@ -113,7 +113,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      word: ".exe"
+      regex: "\\.exe\\b"
 
   - id: exepath-var
     desc: exePath variable

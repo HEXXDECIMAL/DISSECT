@@ -8,7 +8,7 @@ defaults:
 
 traits:
   - id: placeholder-author
-    desc: Placeholder author name
+    desc: Package author field contains placeholder name (test, admin, lol, haha)
     crit: notable
     conf: 0.65
     for: [python]
@@ -27,7 +27,7 @@ traits:
       exact: "UNKNOWN"
 
   - id: placeholder-author-pkginfo
-    desc: PKG-INFO has placeholder author name
+    desc: PKG-INFO author contains placeholder text (Your Name, TODO, Example, haha)
     crit: notable
     conf: 0.80
     for: [all]
