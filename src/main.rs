@@ -62,6 +62,7 @@ use analyzers::{
 };
 use anyhow::{Context, Result};
 use clap::Parser;
+use crossbeam_channel::bounded;
 use rayon::prelude::*;
 use serde::Serialize;
 use std::fs;
@@ -777,9 +778,22 @@ fn scan_paths(
         Ok(())
     });
 
+    // Process archives with limited concurrency to prevent OOM
+    // Use a semaphore pattern: bounded channel with N tokens
+    const MAX_CONCURRENT_ARCHIVES: usize = 3;
+    let (archive_sem_tx, archive_sem_rx) = bounded(MAX_CONCURRENT_ARCHIVES);
+    for _ in 0..MAX_CONCURRENT_ARCHIVES {
+        archive_sem_tx.send(()).unwrap();
+    }
+
     // Process archives in parallel (skip if files already triggered --error-if)
     let archives_result: Result<(), ()> = if files_result.is_ok() {
         archives_found.par_iter().try_for_each(|path_str| {
+            // Acquire semaphore token (blocks if MAX_CONCURRENT_ARCHIVES already processing)
+            let _token = archive_sem_rx.recv().ok();
+
+            // Process archive (wrapped to ensure token is returned)
+            let result = (|| -> Result<(), ()> {
             // Check if another thread already triggered --error-if
             if error_if_triggered.load(Ordering::Relaxed) {
                 return Err(());
@@ -866,6 +880,13 @@ fn scan_paths(
             }
 
             Ok(())
+            })();
+
+            // Return token to semaphore
+            drop(_token);
+            archive_sem_tx.send(()).ok();
+
+            result
         })
     } else {
         Err(()) // Skip archives if files already failed
@@ -1166,22 +1187,18 @@ fn analyze_archive_streaming_jsonl(
     // After all member files are emitted, emit an archive-level entry
     // This signals archive completion and provides aggregate risk for consumers
     // Format: same as file entries but path has no "!!" (no parent)
-    let mut max_risk = types::Criticality::Inert;
-    let mut counts = types::FindingCounts::default();
 
-    // Aggregate risk and counts from all member files
-    for file in &report.files {
-        if let Some(risk) = &file.risk {
-            if *risk > max_risk {
-                max_risk = *risk;
-            }
-        }
-        if let Some(file_counts) = &file.counts {
-            counts.hostile += file_counts.hostile;
-            counts.suspicious += file_counts.suspicious;
-            counts.notable += file_counts.notable;
-        }
-    }
+    // Get aggregates from summary (computed incrementally during streaming)
+    let mut max_risk = report
+        .summary
+        .as_ref()
+        .and_then(|s| s.max_risk)
+        .unwrap_or(types::Criticality::Inert);
+    let mut counts = report
+        .summary
+        .as_ref()
+        .map(|s| s.counts.clone())
+        .unwrap_or_default();
 
     // Include archive-level findings (zip-bomb, path traversal, etc.)
     for finding in &report.findings {

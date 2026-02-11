@@ -1,0 +1,7 @@
+traits:
+  - id: thread-manipulation-enc
+    desc: Hidden (encoded) thread manipulation API
+    crit: suspicious
+    if:
+      type: encoded
+      exact: NtCreateThreadEx

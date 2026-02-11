@@ -92,6 +92,22 @@ traits:
       type: string
       exact: "zlib"
 
+  - id: zlib-decompress-symbol
+    desc: zlib.decompress symbol
+    crit: benign
+    conf: 0.9
+    if:
+      type: symbol
+      exact: "zlib.decompress"
+
+  - id: zlib-decompress-dynamic
+    desc: zlib.decompress dynamic import
+    crit: benign
+    conf: 0.9
+    if:
+      type: symbol
+      exact: "import__('zlib').decompress"
+
   # === Bzip2 micro-traits ===
   - id: bz2-compress
     desc: BZ2_bzCompress function
@@ -216,6 +232,15 @@ composite_rules:
     all:
       - id: deflate
       - id: inflate
+
+  # Helper: zlib.decompress call
+  - id: zlib-decompress
+    desc: zlib.decompress call
+    crit: benign
+    conf: 0.9
+    any:
+      - id: zlib-decompress-symbol
+      - id: zlib-decompress-dynamic
 
   # Bzip2 composite (migrated from YARA)
   - id: bzip2

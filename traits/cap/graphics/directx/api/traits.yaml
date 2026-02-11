@@ -14,19 +14,73 @@ traits:
       exact: "CreateDXGIFactory"
     attack: "T1657"
 
-  - id: directx-device-api
-    desc: DirectX device creation
+  - id: directx-device-factory1
+    desc: CreateDXGIFactory1 API
     crit: notable
     conf: 0.7
     platforms: [windows]
     for: [pe]
     if:
       type: symbol
-      any:
-        - exact: "CreateDXGIFactory1"
-        - exact: "D3D11CreateDevice"
-        - exact: "D3D12CreateDevice"
+      exact: "CreateDXGIFactory1"
     attack: "T1657"
+
+  - id: directx-device-d3d11
+    desc: D3D11CreateDevice API
+    crit: notable
+    conf: 0.7
+    platforms: [windows]
+    for: [pe]
+    if:
+      type: symbol
+      exact: "D3D11CreateDevice"
+    attack: "T1657"
+
+  - id: directx-device-d3d12
+    desc: D3D12CreateDevice API
+    crit: notable
+    conf: 0.7
+    platforms: [windows]
+    for: [pe]
+    if:
+      type: symbol
+      exact: "D3D12CreateDevice"
+    attack: "T1657"
+
+  - id: cuda-memcpy
+    desc: CUDA cudaMemcpy API
+    crit: notable
+    conf: 0.7
+    platforms: [windows, linux]
+    for: [pe, elf]
+    if:
+      type: symbol
+      substr: "cudaMemcpy"
+    attack: "T1657"
+
+  - id: cuda-launch-kernel
+    desc: CUDA cudaLaunchKernel API
+    crit: notable
+    conf: 0.7
+    platforms: [windows, linux]
+    for: [pe, elf]
+    if:
+      type: symbol
+      substr: "cudaLaunchKernel"
+    attack: "T1657"
+
+composite_rules:
+  - id: directx-device-api
+    desc: DirectX device creation
+    crit: notable
+    conf: 0.7
+    platforms: [windows]
+    for: [pe]
+    attack: "T1657"
+    any:
+      - id: directx-device-factory1
+      - id: directx-device-d3d11
+      - id: directx-device-d3d12
 
   - id: cuda-runtime-api
     desc: NVIDIA CUDA runtime access
@@ -34,14 +88,11 @@ traits:
     conf: 0.7
     platforms: [windows, linux]
     for: [pe, elf]
-    if:
-      type: symbol
-      any:
-        - substr: "cudaMemcpy"
-        - substr: "cudaLaunchKernel"
     attack: "T1657"
+    any:
+      - id: cuda-memcpy
+      - id: cuda-launch-kernel
 
-composite_rules:
   - id: gpu-graphics-access
     desc: GPU graphics infrastructure
     crit: suspicious

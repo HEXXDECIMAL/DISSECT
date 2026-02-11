@@ -49,16 +49,23 @@ traits:
       exact: "EmptyClipboard"
 
   # === MacOS Clipboard Access ===
-  - id: macos-nspasteboard
-    desc: Accesses macOS NSPasteboard
+  - id: macos-nspasteboard-class
+    desc: NSPasteboard class reference
     crit: notable
     conf: 0.8
     for: [macho]
     if:
       type: string
-      any:
-        - substr: "NSPasteboard"
-        - substr: "generalPasteboard"
+      substr: "NSPasteboard"
+
+  - id: macos-general-pasteboard
+    desc: generalPasteboard reference
+    crit: notable
+    conf: 0.8
+    for: [macho]
+    if:
+      type: string
+      substr: "generalPasteboard"
 
   - id: macos-pasteboard-items
     desc: Iterates macOS pasteboard items
@@ -68,3 +75,13 @@ traits:
     if:
       type: string
       substr: "pasteboardItems"
+
+composite_rules:
+  - id: macos-nspasteboard
+    desc: Accesses macOS NSPasteboard
+    crit: notable
+    conf: 0.8
+    for: [macho]
+    any:
+      - id: macos-nspasteboard-class
+      - id: macos-general-pasteboard

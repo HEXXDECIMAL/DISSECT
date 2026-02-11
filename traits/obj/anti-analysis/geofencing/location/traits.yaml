@@ -129,6 +129,15 @@ traits:
       type: string
       substr: "getTimezoneOffset()"
 
+  - id: js-timezone-offset-cis
+    desc: Check for CIS region timezone offset
+    crit: notable
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: 'getTimezoneOffset\(\).{0,20}(?:180|240|300|360)'
+
   # === Locale environment variable access (scripting) ===
   - id: env-lang-check
     desc: LANG environment variable access
@@ -175,6 +184,15 @@ traits:
     if:
       type: string
       regex: "(?:is|check|detect).{0,30}[Rr]ussian"
+
+  - id: func-name-russian-specific
+    desc: Specific Russian geofencing function names
+    crit: suspicious
+    conf: 1.0
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: '\bisRussian(?:Offset|Language|System|Timezone)\b'
 
   - id: func-name-cis-check
     desc: Function checking for CIS region
@@ -257,15 +275,17 @@ composite_rules:
   # Russian geofencing (locale + timezone or function name)
   - id: russian-geofencing
     desc: Russian region geofencing
-    crit: suspicious
+    crit: hostile
     conf: 0.9
     needs: 2
     any:
       - id: russian-locale
       - id: cis-timezone
       - id: func-name-russian-check
+      - id: func-name-russian-specific
       - id: locale-env-access
       - id: js-timezone-detection
+      - id: js-timezone-offset-cis
 
   # CIS geofencing (broader detection)
   - id: cis-geofencing

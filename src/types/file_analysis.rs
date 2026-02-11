@@ -262,6 +262,9 @@ pub struct ReportSummary {
     pub max_depth: u32,
     /// Aggregate finding counts
     pub counts: FindingCounts,
+    /// Maximum risk level across all files
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_risk: Option<Criticality>,
 }
 
 impl ReportSummary {
@@ -271,6 +274,7 @@ impl ReportSummary {
             files_analyzed: files.len() as u32,
             max_depth: 0,
             counts: FindingCounts::default(),
+            max_risk: None,
         };
 
         for file in files {
@@ -281,6 +285,12 @@ impl ReportSummary {
                 summary.counts.hostile += counts.hostile;
                 summary.counts.suspicious += counts.suspicious;
                 summary.counts.notable += counts.notable;
+            }
+            if let Some(risk) = &file.risk {
+                summary.max_risk = Some(match summary.max_risk {
+                    Some(current) if current > *risk => current,
+                    _ => *risk,
+                });
             }
         }
 

@@ -169,6 +169,16 @@ traits:
       pattern: "ED AB EE DB"
       offset: 0
 
+  - id: bplist
+    desc: Binary Plist magic at file start
+    crit: inert
+    conf: 1.0
+    for: [all]
+    if:
+      type: hex
+      pattern: "62 70 6C 69 73 74 30 30" # bplist00
+      offset: 0
+
   # Document/data formats
   - id: pdf
     desc: PDF document magic

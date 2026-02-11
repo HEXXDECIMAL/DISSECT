@@ -12,4 +12,4 @@ traits:
     if:
       type: kv
       path: "NSAppTransportSecurity.NSAllowsArbitraryLoads"
-      exact: "true"
+      regex: "^(true|1)$"

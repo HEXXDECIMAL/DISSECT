@@ -1538,7 +1538,11 @@ pub(crate) fn find_line_number(file_path: &str, search_str: &str) -> Option<usiz
 }
 
 /// Convert a simple rule with constraints into a composite rule
-pub(crate) fn simple_rule_to_composite_rule(rule: super::models::SimpleRule) -> CompositeTrait {
+/// Collects warnings into the provided vector.
+pub(crate) fn simple_rule_to_composite_rule(
+    rule: super::models::SimpleRule,
+    warnings: &mut Vec<String>,
+) -> CompositeTrait {
     // Parse platforms
     let platforms = if rule.platforms.is_empty() {
         vec![Platform::All]
@@ -1562,7 +1566,7 @@ pub(crate) fn simple_rule_to_composite_rule(rule: super::models::SimpleRule) -> 
     let file_types = if rule.file_types.is_empty() {
         vec![RuleFileType::All]
     } else {
-        parse_file_types(&rule.file_types)
+        parse_file_types(&rule.file_types, warnings)
     };
 
     // Create a composite trait with a single symbol condition

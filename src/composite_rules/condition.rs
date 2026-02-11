@@ -5,22 +5,6 @@ use anyhow::Result;
 use serde::Deserialize;
 use std::sync::Arc;
 
-#[derive(Debug, Clone, Deserialize)]
-#[serde(untagged)]
-enum AnyMatcher {
-    Shorthand(String),
-    Structured {
-        #[serde(default)]
-        exact: Option<String>,
-        #[serde(default)]
-        substr: Option<String>,
-        #[serde(default)]
-        regex: Option<String>,
-        #[serde(default)]
-        word: Option<String>,
-    },
-}
-
 /// Encoding specification for encoded string searches
 /// Can be a single encoding, array of encodings (OR), or chain (sequence)
 #[derive(Debug, Clone, Deserialize, PartialEq)]
@@ -30,88 +14,6 @@ pub enum EncodingSpec {
     Single(String),
     /// Multiple encodings (OR): ["base64", "hex"]
     Multiple(Vec<String>),
-}
-
-fn matcher_to_regex_fragment(
-    exact: Option<String>,
-    substr: Option<String>,
-    regex: Option<String>,
-    word: Option<String>,
-) -> Vec<String> {
-    let mut fragments = Vec::new();
-    if let Some(v) = exact {
-        fragments.push(format!("^(?:{})$", regex::escape(&v)));
-    }
-    if let Some(v) = substr {
-        fragments.push(regex::escape(&v));
-    }
-    if let Some(v) = regex {
-        fragments.push(format!("(?:{})", v));
-    }
-    if let Some(v) = word {
-        fragments.push(format!("\\b{}\\b", regex::escape(&v)));
-    }
-    fragments
-}
-
-fn normalize_any_matchers(
-    exact: Option<String>,
-    substr: Option<String>,
-    regex: Option<String>,
-    word: Option<String>,
-    any: Option<Vec<AnyMatcher>>,
-    allow_word: bool,
-) -> (
-    Option<String>,
-    Option<String>,
-    Option<String>,
-    Option<String>,
-) {
-    // If we have a standalone word field with no other matchers, preserve it
-    if word.is_some()
-        && exact.is_none()
-        && substr.is_none()
-        && regex.is_none()
-        && any.is_none()
-        && allow_word
-    {
-        return (None, None, None, word);
-    }
-
-    let mut fragments = matcher_to_regex_fragment(exact, substr, regex, word);
-
-    if let Some(items) = any {
-        for item in items {
-            match item {
-                AnyMatcher::Shorthand(v) => fragments.push(regex::escape(&v)),
-                AnyMatcher::Structured {
-                    exact,
-                    substr,
-                    regex,
-                    word,
-                } => {
-                    let normalized_word = if allow_word { word } else { None };
-                    fragments.extend(matcher_to_regex_fragment(
-                        exact,
-                        substr,
-                        regex,
-                        normalized_word,
-                    ));
-                }
-            }
-        }
-    }
-
-    if fragments.is_empty() {
-        (None, None, None, None)
-    } else {
-        (
-            None,
-            None,
-            Some(format!("(?:{})", fragments.join("|"))),
-            None,
-        )
-    }
 }
 
 /// String exception specification for `not:` directive
@@ -187,8 +89,6 @@ enum ConditionTagged {
         /// Regex pattern to match symbol names
         #[serde(default)]
         regex: Option<String>,
-        #[serde(default)]
-        any: Option<Vec<AnyMatcher>>,
         platforms: Option<Vec<Platform>>,
     },
     String {
@@ -204,8 +104,6 @@ enum ConditionTagged {
         /// Word boundary match (equivalent to regex "\bword\b")
         #[serde(default)]
         word: Option<String>,
-        #[serde(default)]
-        any: Option<Vec<AnyMatcher>>,
         #[serde(default)]
         case_insensitive: bool,
         #[serde(default)]
@@ -365,8 +263,6 @@ enum ConditionTagged {
         regex: Option<String>,
         word: Option<String>,
         #[serde(default)]
-        any: Option<Vec<AnyMatcher>>,
-        #[serde(default)]
         case_insensitive: bool,
         /// Minimum match count
         #[serde(default = "default_count_min")]
@@ -432,8 +328,6 @@ enum ConditionTagged {
         /// Word boundary match (equivalent to regex "\bword\b")
         #[serde(default)]
         word: Option<String>,
-        #[serde(default)]
-        any: Option<Vec<AnyMatcher>>,
         /// Case insensitive matching
         #[serde(default)]
         case_insensitive: bool,
@@ -516,25 +410,19 @@ impl From<ConditionDeser> for Condition {
                     exact,
                     substr,
                     regex,
-                    any,
                     platforms,
-                } => {
-                    let (exact, substr, regex, _) =
-                        normalize_any_matchers(exact, substr, regex, None, any, false);
-                    Condition::Symbol {
-                        exact,
-                        substr,
-                        regex,
-                        platforms,
-                        compiled_regex: None,
-                    }
-                }
+                } => Condition::Symbol {
+                    exact,
+                    substr,
+                    regex,
+                    platforms,
+                    compiled_regex: None,
+                },
                 ConditionTagged::String {
                     exact,
                     substr,
                     regex,
                     word,
-                    any,
                     case_insensitive,
                     exclude_patterns,
                     count_min,
@@ -547,30 +435,26 @@ impl From<ConditionDeser> for Condition {
                     offset_range,
                     section_offset,
                     section_offset_range,
-                } => {
-                    let (exact, substr, regex, word) =
-                        normalize_any_matchers(exact, substr, regex, word, any, true);
-                    Condition::String {
-                        exact,
-                        substr,
-                        regex,
-                        word,
-                        case_insensitive,
-                        exclude_patterns,
-                        count_min,
-                        count_max,
-                        per_kb_min,
-                        per_kb_max,
-                        external_ip,
-                        section,
-                        offset,
-                        offset_range,
-                        section_offset,
-                        section_offset_range,
-                        compiled_regex: None,
-                        compiled_excludes: Vec::new(),
-                    }
-                }
+                } => Condition::String {
+                    exact,
+                    substr,
+                    regex,
+                    word,
+                    case_insensitive,
+                    exclude_patterns,
+                    count_min,
+                    count_max,
+                    per_kb_min,
+                    per_kb_max,
+                    external_ip,
+                    section,
+                    offset,
+                    offset_range,
+                    section_offset,
+                    section_offset_range,
+                    compiled_regex: None,
+                    compiled_excludes: Vec::new(),
+                },
                 ConditionTagged::Structure {
                     feature,
                     min_sections,
@@ -697,7 +581,6 @@ impl From<ConditionDeser> for Condition {
                     substr,
                     regex,
                     word,
-                    any,
                     case_insensitive,
                     count_min,
                     count_max,
@@ -709,28 +592,24 @@ impl From<ConditionDeser> for Condition {
                     offset_range,
                     section_offset,
                     section_offset_range,
-                } => {
-                    let (exact, substr, regex, word) =
-                        normalize_any_matchers(exact, substr, regex, word, any, true);
-                    Condition::Raw {
-                        exact,
-                        substr,
-                        regex,
-                        word,
-                        case_insensitive,
-                        count_min,
-                        count_max,
-                        per_kb_min,
-                        per_kb_max,
-                        external_ip,
-                        section,
-                        offset,
-                        offset_range,
-                        section_offset,
-                        section_offset_range,
-                        compiled_regex: None,
-                    }
-                }
+                } => Condition::Raw {
+                    exact,
+                    substr,
+                    regex,
+                    word,
+                    case_insensitive,
+                    count_min,
+                    count_max,
+                    per_kb_min,
+                    per_kb_max,
+                    external_ip,
+                    section,
+                    offset,
+                    offset_range,
+                    section_offset,
+                    section_offset_range,
+                    compiled_regex: None,
+                },
                 ConditionTagged::SectionName { pattern, regex } => {
                     Condition::SectionName { pattern, regex }
                 }
@@ -740,7 +619,6 @@ impl From<ConditionDeser> for Condition {
                     substr,
                     regex,
                     word,
-                    any,
                     case_insensitive,
                     count_min,
                     count_max,
@@ -751,28 +629,24 @@ impl From<ConditionDeser> for Condition {
                     offset_range,
                     section_offset,
                     section_offset_range,
-                } => {
-                    let (exact, substr, regex, word) =
-                        normalize_any_matchers(exact, substr, regex, word, any, false);
-                    Condition::Encoded {
-                        encoding,
-                        exact,
-                        substr,
-                        regex,
-                        word,
-                        case_insensitive,
-                        count_min,
-                        count_max,
-                        per_kb_min,
-                        per_kb_max,
-                        section,
-                        offset,
-                        offset_range,
-                        section_offset,
-                        section_offset_range,
-                        compiled_regex: None,
-                    }
-                }
+                } => Condition::Encoded {
+                    encoding,
+                    exact,
+                    substr,
+                    regex,
+                    word,
+                    case_insensitive,
+                    count_min,
+                    count_max,
+                    per_kb_min,
+                    per_kb_max,
+                    section,
+                    offset,
+                    offset_range,
+                    section_offset,
+                    section_offset_range,
+                    compiled_regex: None,
+                },
                 ConditionTagged::Basename {
                     exact,
                     substr,

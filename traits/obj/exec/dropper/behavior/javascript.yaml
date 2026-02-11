@@ -23,3 +23,12 @@ composite_rules:
     all:
       - id: local-dropper
       - id: obj/anti-static/obfuscation/strings/encoding::js-double-encoding
+
+  - id: js-malware-hosting-powershell
+    desc: References PowerShell script on known malware hosting (Dropper)
+    crit: hostile
+    conf: 0.95
+    attack: "T1105"
+    all:
+      - id: obj/c2/infrastructure/domain::malware-hosting
+      - id: cap/exec/command/script::powershell-script-execution

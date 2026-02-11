@@ -445,6 +445,7 @@ pub fn parse_jsonl(jsonl: &str) -> Result<AnalysisReport> {
                             .unwrap_or(0) as u32,
                         notable: value.get("notable").and_then(|v| v.as_u64()).unwrap_or(0) as u32,
                     },
+                    max_risk: None,
                 });
             }
             _ => {

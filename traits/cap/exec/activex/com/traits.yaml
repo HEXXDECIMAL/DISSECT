@@ -30,13 +30,17 @@ traits:
       type: string
       substr: "Shell.Application"
 
-  - id: activex-xmlhttp
-    desc: MSXML2.XMLHTTP or MSXML.XMLHTTP COM
+  - id: activex-xmlhttp-msxml2
+    desc: MSXML2.XMLHTTP COM
     if:
       type: string
-      any:
-        - substr: "MSXML2.XMLHTTP"
-        - substr: "MSXML.XMLHTTP"
+      substr: "MSXML2.XMLHTTP"
+
+  - id: activex-xmlhttp-msxml
+    desc: MSXML.XMLHTTP COM
+    if:
+      type: string
+      substr: "MSXML.XMLHTTP"
 
   - id: activex-winhttp
     desc: WinHTTP request object
@@ -60,6 +64,18 @@ traits:
     attack: "T1202"
 
 composite_rules:
+  - id: activex-xmlhttp
+    desc: MSXML2.XMLHTTP or MSXML.XMLHTTP COM
+    crit: notable
+    conf: 0.8
+    platforms: [windows]
+    for: [javascript]
+    attack: "T1059.005"
+    mbc: "E1243"
+    any:
+      - id: activex-xmlhttp-msxml2
+      - id: activex-xmlhttp-msxml
+
   - id: activex-network-access
     desc: ActiveX network capability
     conf: 0.8

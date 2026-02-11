@@ -214,9 +214,39 @@ impl ArchiveAnalyzer {
             .tools_used
             .push("streaming_analyzer".to_string());
 
-        // Collect files for the report
-        let files = std::sync::Arc::new(std::sync::Mutex::new(Vec::new()));
-        let files_clone = files.clone();
+        // Track aggregate data incrementally (instead of accumulating all files)
+        let files_analyzed = std::sync::Arc::new(std::sync::atomic::AtomicU32::new(0));
+        let max_depth = std::sync::Arc::new(std::sync::atomic::AtomicU32::new(0));
+        let max_risk = std::sync::Arc::new(std::sync::Mutex::new(Option::<Criticality>::None));
+        let counts = std::sync::Arc::new(std::sync::Mutex::new(FindingCounts::default()));
+
+        let files_analyzed_clone = files_analyzed.clone();
+        let max_depth_clone = max_depth.clone();
+        let max_risk_clone = max_risk.clone();
+        let counts_clone = counts.clone();
+
+        // Helper to update aggregates from a FileAnalysis
+        let update_aggregates = |file: &FileAnalysis| {
+            let current_max = max_depth_clone.load(std::sync::atomic::Ordering::Relaxed);
+            if file.depth > current_max {
+                max_depth_clone.store(file.depth, std::sync::atomic::Ordering::Relaxed);
+            }
+
+            if let Some(risk) = &file.risk {
+                let mut max_risk = max_risk_clone.lock().unwrap();
+                *max_risk = Some(match *max_risk {
+                    Some(current) if current > *risk => current,
+                    _ => *risk,
+                });
+            }
+
+            if let Some(file_counts) = &file.counts {
+                let mut counts = counts_clone.lock().unwrap();
+                counts.hostile += file_counts.hostile;
+                counts.suspicious += file_counts.suspicious;
+                counts.notable += file_counts.notable;
+            }
+        };
 
         // Determine archive type - use magic detection for ambiguous extensions
         let archive_type = utils::detect_archive_type_with_magic(file_path)
@@ -225,28 +255,25 @@ impl ArchiveAnalyzer {
             "tar" | "tar.gz" | "tgz" | "tar.bz2" | "tbz" | "tbz2" | "tar.xz" | "txz"
             | "tar.zst" | "tzst" => {
                 self.analyze_tar_streaming(file_path, |result: StreamingFileResult| {
-                    // Call user callback
                     on_file(&result.file_analysis);
 
-                    // Collect for report
-                    let mut files = files_clone.lock().unwrap();
-                    files.push(result.file_analysis);
-                    for nested in result.nested_files {
-                        files.push(nested);
+                    // Update aggregates incrementally (don't accumulate files)
+                    files_analyzed_clone.fetch_add(1 + result.nested_files.len() as u32, std::sync::atomic::Ordering::Relaxed);
+                    update_aggregates(&result.file_analysis);
+                    for nested in &result.nested_files {
+                        update_aggregates(nested);
                     }
                 })?
             }
             "zip" | "jar" | "war" | "ear" | "aar" | "egg" | "whl" | "phar" | "nupkg" | "vsix"
             | "xpi" | "ipa" | "epub" => {
                 self.analyze_zip_streaming(file_path, |result: StreamingFileResult| {
-                    // Call user callback
                     on_file(&result.file_analysis);
 
-                    // Collect for report
-                    let mut files = files_clone.lock().unwrap();
-                    files.push(result.file_analysis);
-                    for nested in result.nested_files {
-                        files.push(nested);
+                    files_analyzed_clone.fetch_add(1 + result.nested_files.len() as u32, std::sync::atomic::Ordering::Relaxed);
+                    update_aggregates(&result.file_analysis);
+                    for nested in &result.nested_files {
+                        update_aggregates(nested);
                     }
                 })?
             }
@@ -254,37 +281,37 @@ impl ArchiveAnalyzer {
             "apk" => self.analyze_zip_streaming(file_path, |result: StreamingFileResult| {
                 on_file(&result.file_analysis);
 
-                let mut files = files_clone.lock().unwrap();
-                files.push(result.file_analysis);
-                for nested in result.nested_files {
-                    files.push(nested);
+                files_analyzed_clone.fetch_add(1 + result.nested_files.len() as u32, std::sync::atomic::Ordering::Relaxed);
+                update_aggregates(&result.file_analysis);
+                for nested in &result.nested_files {
+                    update_aggregates(nested);
                 }
             })?,
             "deb" => self.analyze_deb_streaming(file_path, |result: StreamingFileResult| {
                 on_file(&result.file_analysis);
 
-                let mut files = files_clone.lock().unwrap();
-                files.push(result.file_analysis);
-                for nested in result.nested_files {
-                    files.push(nested);
+                files_analyzed_clone.fetch_add(1 + result.nested_files.len() as u32, std::sync::atomic::Ordering::Relaxed);
+                update_aggregates(&result.file_analysis);
+                for nested in &result.nested_files {
+                    update_aggregates(nested);
                 }
             })?,
             "rpm" => self.analyze_rpm_streaming(file_path, |result: StreamingFileResult| {
                 on_file(&result.file_analysis);
 
-                let mut files = files_clone.lock().unwrap();
-                files.push(result.file_analysis);
-                for nested in result.nested_files {
-                    files.push(nested);
+                files_analyzed_clone.fetch_add(1 + result.nested_files.len() as u32, std::sync::atomic::Ordering::Relaxed);
+                update_aggregates(&result.file_analysis);
+                for nested in &result.nested_files {
+                    update_aggregates(nested);
                 }
             })?,
             "7z" => self.analyze_7z_streaming(file_path, |result: StreamingFileResult| {
                 on_file(&result.file_analysis);
 
-                let mut files = files_clone.lock().unwrap();
-                files.push(result.file_analysis);
-                for nested in result.nested_files {
-                    files.push(nested);
+                files_analyzed_clone.fetch_add(1 + result.nested_files.len() as u32, std::sync::atomic::Ordering::Relaxed);
+                update_aggregates(&result.file_analysis);
+                for nested in &result.nested_files {
+                    update_aggregates(nested);
                 }
             })?,
             _ => {
@@ -380,12 +407,21 @@ impl ArchiveAnalyzer {
             }],
         });
 
-        // Merge collected files into report
-        let collected_files = match std::sync::Arc::try_unwrap(files) {
-            Ok(mutex) => mutex.into_inner().unwrap(),
-            Err(arc) => arc.lock().unwrap().clone(),
-        };
-        report.files = collected_files;
+        // Create summary from incrementally computed aggregates (no files accumulated)
+        report.summary = Some(ReportSummary {
+            files_analyzed: files_analyzed.load(std::sync::atomic::Ordering::Relaxed),
+            max_depth: max_depth.load(std::sync::atomic::Ordering::Relaxed),
+            counts: match std::sync::Arc::try_unwrap(counts) {
+                Ok(mutex) => mutex.into_inner().unwrap(),
+                Err(arc) => arc.lock().unwrap().clone(),
+            },
+            max_risk: match std::sync::Arc::try_unwrap(max_risk) {
+                Ok(mutex) => mutex.into_inner().unwrap(),
+                Err(arc) => *arc.lock().unwrap(),
+            },
+        });
+        // Keep files empty in streaming mode to save memory
+        report.files = Vec::new();
 
         // Set timing
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;

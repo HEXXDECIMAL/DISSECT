@@ -193,7 +193,8 @@ fn test_apply_vec_default_unset_with_none_keyword() {
 #[test]
 fn test_parse_file_types_binary_alias() {
     let types = vec!["binaries".to_string()];
-    let result = parsing::parse_file_types(&types);
+    let mut warnings = Vec::new();
+    let result = parsing::parse_file_types(&types, &mut warnings);
     assert_eq!(result.len(), 7);
     assert!(result.contains(&RuleFileType::Elf));
     assert!(result.contains(&RuleFileType::Macho));
@@ -536,7 +537,8 @@ fn test_apply_composite_defaults_applies_all_defaults() {
         }),
     };
 
-    let result = parsing::apply_composite_defaults(raw, &defaults);
+    let mut warnings = Vec::new();
+    let result = parsing::apply_composite_defaults(raw, &defaults, &mut warnings);
 
     assert_eq!(result.conf, 0.75);
     assert_eq!(result.crit, Criticality::Notable);
@@ -599,7 +601,8 @@ fn test_apply_composite_defaults_unset_with_none() {
         }),
     };
 
-    let result = parsing::apply_composite_defaults(raw, &defaults);
+    let mut warnings = Vec::new();
+    let result = parsing::apply_composite_defaults(raw, &defaults, &mut warnings);
 
     assert_eq!(result.mbc, None);
     assert_eq!(result.attack, None);
@@ -692,11 +695,11 @@ composite_rules:
 
     assert_eq!(mappings.composite_rules.len(), 2);
 
-    let rules: Vec<_> = mappings
-        .composite_rules
-        .into_iter()
-        .map(|r| parsing::apply_composite_defaults(r, &mappings.defaults))
-        .collect();
+    let mut warnings = Vec::new();
+    let mut rules = Vec::new();
+    for r in mappings.composite_rules {
+        rules.push(parsing::apply_composite_defaults(r, &mappings.defaults, &mut warnings));
+    }
 
     // First rule uses defaults
     assert_eq!(rules[0].attack, Some("T1071.001".to_string()));
@@ -2482,49 +2485,51 @@ traits:
 
 #[test]
 fn test_parse_file_types_groups_and_exclusions() {
+    let mut warnings = Vec::new();
+
     // Test groups
-    let binaries = parsing::parse_file_types(&["binaries".to_string()]);
+    let binaries = parsing::parse_file_types(&["binaries".to_string()], &mut warnings);
     assert_eq!(binaries.len(), 7);
     assert!(binaries.contains(&RuleFileType::Elf));
     assert!(!binaries.contains(&RuleFileType::Python));
 
-    let scripts = parsing::parse_file_types(&["scripts".to_string()]);
+    let scripts = parsing::parse_file_types(&["scripts".to_string()], &mut warnings);
     assert_eq!(scripts.len(), 11);
     assert!(scripts.contains(&RuleFileType::Python));
     assert!(scripts.contains(&RuleFileType::Shell));
     assert!(!scripts.contains(&RuleFileType::Elf));
 
     // Test alias "all"
-    let all = parsing::parse_file_types(&["all".to_string()]);
+    let all = parsing::parse_file_types(&["all".to_string()], &mut warnings);
     assert_eq!(all, vec![RuleFileType::All]);
 
     // Test exclusions
     // !php means All - Php.
-    let not_php = parsing::parse_file_types(&["!php".to_string()]);
+    let not_php = parsing::parse_file_types(&["!php".to_string()], &mut warnings);
     assert!(!not_php.contains(&RuleFileType::Php));
     assert!(not_php.contains(&RuleFileType::Python));
     assert!(not_php.contains(&RuleFileType::Elf));
     assert!(!not_php.contains(&RuleFileType::All)); // Should be expanded
 
     // Test group + exclusion: scripts,!php
-    let scripts_no_php = parsing::parse_file_types(&["scripts".to_string(), "!php".to_string()]);
+    let scripts_no_php = parsing::parse_file_types(&["scripts".to_string(), "!php".to_string()], &mut warnings);
     assert!(scripts_no_php.contains(&RuleFileType::Python));
     assert!(scripts_no_php.contains(&RuleFileType::Shell));
     assert!(!scripts_no_php.contains(&RuleFileType::Php));
     assert!(!scripts_no_php.contains(&RuleFileType::Elf));
 
     // Test single string comma separation
-    let comma_sep = parsing::parse_file_types(&["scripts,!php".to_string()]);
+    let comma_sep = parsing::parse_file_types(&["scripts,!php".to_string()], &mut warnings);
     assert!(comma_sep.contains(&RuleFileType::Python));
     assert!(!comma_sep.contains(&RuleFileType::Php));
 
     // Test '!binaries' exclusion
-    let not_binaries = parsing::parse_file_types(&["!binaries".to_string()]);
+    let not_binaries = parsing::parse_file_types(&["!binaries".to_string()], &mut warnings);
     assert!(!not_binaries.contains(&RuleFileType::Elf));
     assert!(not_binaries.contains(&RuleFileType::Python));
 
     // Test '!scripts' exclusion
-    let not_scripts = parsing::parse_file_types(&["!scripts".to_string()]);
+    let not_scripts = parsing::parse_file_types(&["!scripts".to_string()], &mut warnings);
     assert!(!not_scripts.contains(&RuleFileType::Python));
     assert!(not_scripts.contains(&RuleFileType::Elf));
 }
@@ -3133,4 +3138,46 @@ fn test_meta_internal_paths_forbidden_in_composite_rules() {
     // - meta/import/{lang}::{module} : OK (dynamically generated, allowed in composites)
     // - meta/dylib/{library}        : OK (dynamically generated, allowed in composites)
     // - meta/internal/{anything}    : FORBIDDEN (ML-only, not for composite rules)
+}
+
+#[test]
+fn test_invalid_file_type_rejection() {
+    use std::fs;
+    use tempfile::TempDir;
+
+    // Create a temporary directory with an invalid trait
+    let temp_dir = TempDir::new().unwrap();
+    let traits_dir = temp_dir.path().join("traits");
+    fs::create_dir(&traits_dir).unwrap();
+
+    // Write a trait with an invalid file type
+    let trait_content = r#"
+defaults:
+  crit: notable
+  conf: 0.8
+
+traits:
+  - id: test_invalid
+    desc: Test with invalid file type
+    for: [invalid_lang, python]
+    if:
+      type: string
+      exact: test
+"#;
+    fs::write(traits_dir.join("test.yaml"), trait_content).unwrap();
+
+    // Try to load the mapper - should fail with unknown file type error
+    let result = CapabilityMapper::from_directory(temp_dir.path());
+
+    match result {
+        Ok(_) => panic!("Expected error for invalid file type, but mapper loaded successfully"),
+        Err(err) => {
+            let err_msg = format!("{:#}", err);
+            assert!(
+                err_msg.contains("Unknown file type") || err_msg.contains("invalid_lang"),
+                "Error message should mention unknown file type, got: {}",
+                err_msg
+            );
+        }
+    }
 }

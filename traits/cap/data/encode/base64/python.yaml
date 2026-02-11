@@ -89,4 +89,5 @@ composite_rules:
     conf: 0.95
     any:
       - id: b64decode-call
+      - id: b85decode-call
       - id: decodestring-call

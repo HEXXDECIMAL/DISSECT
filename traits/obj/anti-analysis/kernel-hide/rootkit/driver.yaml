@@ -1,0 +1,21 @@
+composite_rules:
+  - id: driver-hidden-api
+    desc: Kernel driver hides critical APIs using encoding
+    crit: hostile
+    conf: 0.95
+    all:
+      - id: cap/os/kernel/api::dynamic-resolution
+    any:
+      - id: cap/os/kernel/hiding/exec::thread-manipulation-enc
+      - id: cap/os/kernel/hiding/mem::mem-protect-enc
+      - id: cap/os/kernel/hiding/mem::pe-header-enc
+      - id: cap/os/kernel/hiding/mem::pe-data-enc
+    needs: 2
+
+  - id: driver-suspicious-path
+    desc: Kernel driver references suspicious System32 binary
+    crit: suspicious
+    conf: 0.8
+    all:
+      - id: cap/fs/path/system::system32-bin
+      - id: cap/os/kernel/api::dynamic-resolution

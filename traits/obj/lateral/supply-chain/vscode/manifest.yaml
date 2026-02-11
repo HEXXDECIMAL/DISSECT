@@ -7,7 +7,7 @@ traits:
     desc: Identity XML tag
     crit: inert
     conf: 0.9
-    for: [vsixmanifest]
+    for: [all]
     if:
       type: raw
       substr: "<Identity"
@@ -20,7 +20,7 @@ traits:
     desc: Stub GitHub link
     crit: suspicious
     conf: 0.9
-    for: [vsixmanifest]
+    for: [all]
     if:
       type: raw
       # Matches github.com/ or github.com" without a real path (in XML attribute context)
@@ -31,7 +31,7 @@ traits:
     desc: Multiple stub links
     crit: suspicious
     conf: 0.95
-    for: [vsixmanifest]
+    for: [all]
     if:
       type: raw
       regex: 'github\.com/?["'']'
@@ -42,7 +42,7 @@ traits:
     desc: Stub source link
     crit: suspicious
     conf: 0.85
-    for: [vsixmanifest]
+    for: [all]
     if:
       type: raw
       regex: 'Links\.Source"[^>]*Value\s*=\s*"https?://github\.com/?["'']'
@@ -51,10 +51,31 @@ traits:
     desc: Stub GitHub property
     crit: suspicious
     conf: 0.85
-    for: [vsixmanifest]
+    for: [all]
     if:
       type: raw
       regex: 'Links\.GitHub"[^>]*Value\s*=\s*"https?://github\.com/?["'']'
+
+  # === Localization anomalies ===
+  - id: language-en-us
+    desc: Language set to en-US
+    crit: inert
+    conf: 0.9
+    for: [all]
+    if:
+      type: raw
+      regex: 'Language="en-US"'
+
+  - id: description-contains-chinese
+    desc: Description contains Chinese characters
+    crit: inert
+    conf: 0.9
+    for: [all]
+    if:
+      type: raw
+      # Match common Chinese character ranges (Unified, Ext A) inside Description tag
+      # Using bounded repetition to avoid performance issues
+      regex: '<Description[^>]*>.{0,100}[\u4e00-\u9fa5].{0,100}</Description>'
 
 composite_rules:
   # Suspicious: stub links (impersonation indicator)
@@ -64,9 +85,21 @@ composite_rules:
     conf: 0.95
     attack: "T1036.005"
     mbc: "B0033"
-    for: [vsixmanifest]
+    for: [all]
     any:
       - id: stub-github-link
       - id: multiple-stub-links
       - id: links-source-stub
       - id: links-github-stub
+
+  # Suspicious: Localization mismatch (en-US but Chinese description)
+  # Often seen in low-quality or copy-cat extensions
+  - id: suspicious-localization-mismatch
+    desc: Extension language mismatch (en-US with Chinese description)
+    crit: suspicious
+    conf: 0.8
+    attack: "T1036"
+    for: [all]
+    all:
+      - id: language-en-us
+      - id: description-contains-chinese

@@ -60,7 +60,7 @@ pub(crate) fn apply_trait_defaults(
 ) -> TraitDefinition {
     // Parse file_types: use trait-specific if present (unless "none"), else defaults, else [All]
     let file_types = apply_vec_default(raw.file_types, &defaults.r#for)
-        .map(|types| parse_file_types(&types))
+        .map(|types| parse_file_types(&types, warnings))
         .unwrap_or_else(|| vec![RuleFileType::All]);
 
     // Parse platforms: use trait-specific if present (unless "none"), else defaults, else [All]
@@ -136,7 +136,11 @@ pub(crate) fn apply_trait_defaults(
 }
 
 /// Parse file type strings into FileType enum
-pub(crate) fn parse_file_types(types: &[String]) -> Vec<RuleFileType> {
+/// Collects warnings about unknown file types into the provided vector.
+pub(crate) fn parse_file_types(
+    types: &[String],
+    warnings: &mut Vec<String>,
+) -> Vec<RuleFileType> {
     let mut inclusions = HashSet::new();
     let mut exclusions = HashSet::new();
     let mut has_explicit_inclusion = false;
@@ -225,7 +229,11 @@ pub(crate) fn parse_file_types(types: &[String]) -> Vec<RuleFileType> {
                 }
                 "jpeg" | "jpg" => vec![RuleFileType::Jpeg],
                 "png" => vec![RuleFileType::Png],
-                _ => vec![],
+                _ => {
+                    // Unknown file type - add warning
+                    warnings.push(format!("Unknown file type: '{}'", name));
+                    vec![]
+                }
             };
 
             if name == "*" || name.eq_ignore_ascii_case("all") {
@@ -307,13 +315,15 @@ pub(crate) fn parse_criticality(s: &str) -> Criticality {
 }
 
 /// Convert a raw composite rule to a final CompositeTrait, applying file-level defaults
+/// Collects warnings into the provided vector instead of printing them.
 pub(crate) fn apply_composite_defaults(
     raw: RawCompositeRule,
     defaults: &TraitDefaults,
+    warnings: &mut Vec<String>,
 ) -> CompositeTrait {
     // Parse file_types: use rule-specific if present (unless "none"), else defaults, else [All]
     let file_types = apply_vec_default(raw.file_types, &defaults.r#for)
-        .map(|types| parse_file_types(&types))
+        .map(|types| parse_file_types(&types, warnings))
         .unwrap_or_else(|| vec![RuleFileType::All]);
 
     // Parse platforms: use rule-specific if present (unless "none"), else defaults, else [All]
@@ -531,102 +541,145 @@ mod tests {
 
     #[test]
     fn test_parse_file_types_all() {
-        let result = parse_file_types(&["all".to_string()]);
+        let mut warnings = Vec::new();
+        let result = parse_file_types(&["all".to_string()], &mut warnings);
         assert_eq!(result, vec![RuleFileType::All]);
+        assert!(warnings.is_empty());
     }
 
     #[test]
     fn test_parse_file_types_star() {
-        let result = parse_file_types(&["*".to_string()]);
+        let mut warnings = Vec::new();
+        let result = parse_file_types(&["*".to_string()], &mut warnings);
         assert_eq!(result, vec![RuleFileType::All]);
+        assert!(warnings.is_empty());
     }
 
     #[test]
     fn test_parse_file_types_specific() {
-        let result = parse_file_types(&["python".to_string(), "javascript".to_string()]);
+        let mut warnings = Vec::new();
+        let result = parse_file_types(&["python".to_string(), "javascript".to_string()], &mut warnings);
         assert!(result.contains(&RuleFileType::Python));
         assert!(result.contains(&RuleFileType::JavaScript));
+        assert!(warnings.is_empty());
     }
 
     #[test]
     fn test_parse_file_types_aliases() {
+        let mut warnings = Vec::new();
         let result = parse_file_types(&[
             "py".to_string(),
             "js".to_string(),
             "ts".to_string(),
             "rb".to_string(),
-        ]);
+        ], &mut warnings);
         assert!(result.contains(&RuleFileType::Python));
         assert!(result.contains(&RuleFileType::JavaScript));
         assert!(result.contains(&RuleFileType::TypeScript));
         assert!(result.contains(&RuleFileType::Ruby));
+        assert!(warnings.is_empty());
     }
 
     #[test]
     fn test_parse_file_types_binaries() {
-        let result = parse_file_types(&["binaries".to_string()]);
+        let mut warnings = Vec::new();
+        let result = parse_file_types(&["binaries".to_string()], &mut warnings);
         assert!(result.contains(&RuleFileType::Elf));
         assert!(result.contains(&RuleFileType::Macho));
         assert!(result.contains(&RuleFileType::Pe));
+        assert!(warnings.is_empty());
     }
 
     #[test]
     fn test_parse_file_types_scripts() {
-        let result = parse_file_types(&["scripts".to_string()]);
+        let mut warnings = Vec::new();
+        let result = parse_file_types(&["scripts".to_string()], &mut warnings);
         assert!(result.contains(&RuleFileType::Shell));
         assert!(result.contains(&RuleFileType::Python));
         assert!(result.contains(&RuleFileType::JavaScript));
+        assert!(warnings.is_empty());
     }
 
     #[test]
     fn test_parse_file_types_exclusion() {
-        let result = parse_file_types(&["all".to_string(), "!python".to_string()]);
+        let mut warnings = Vec::new();
+        let result = parse_file_types(&["all".to_string(), "!python".to_string()], &mut warnings);
         assert!(!result.contains(&RuleFileType::Python));
         assert!(result.contains(&RuleFileType::JavaScript));
         assert!(result.contains(&RuleFileType::Shell));
+        assert!(warnings.is_empty());
     }
 
     #[test]
     fn test_parse_file_types_comma_separated() {
-        let result = parse_file_types(&["python,javascript,ruby".to_string()]);
+        let mut warnings = Vec::new();
+        let result = parse_file_types(&["python,javascript,ruby".to_string()], &mut warnings);
         assert!(result.contains(&RuleFileType::Python));
         assert!(result.contains(&RuleFileType::JavaScript));
         assert!(result.contains(&RuleFileType::Ruby));
+        assert!(warnings.is_empty());
     }
 
     #[test]
     fn test_parse_file_types_case_insensitive() {
-        let result = parse_file_types(&["PYTHON".to_string(), "JavaScript".to_string()]);
+        let mut warnings = Vec::new();
+        let result = parse_file_types(&["PYTHON".to_string(), "JavaScript".to_string()], &mut warnings);
         assert!(result.contains(&RuleFileType::Python));
         assert!(result.contains(&RuleFileType::JavaScript));
+        assert!(warnings.is_empty());
     }
 
     #[test]
     fn test_parse_file_types_package_files() {
+        let mut warnings = Vec::new();
         let result = parse_file_types(&[
             "package.json".to_string(),
             "cargo.toml".to_string(),
             "pyproject.toml".to_string(),
-        ]);
+        ], &mut warnings);
         assert!(result.contains(&RuleFileType::PackageJson));
         assert!(result.contains(&RuleFileType::CargoToml));
         assert!(result.contains(&RuleFileType::PyProjectToml));
+        assert!(warnings.is_empty());
     }
 
     #[test]
     fn test_parse_file_types_image_formats() {
-        let result = parse_file_types(&["jpeg".to_string(), "png".to_string()]);
+        let mut warnings = Vec::new();
+        let result = parse_file_types(&["jpeg".to_string(), "png".to_string()], &mut warnings);
         assert!(result.contains(&RuleFileType::Jpeg));
         assert!(result.contains(&RuleFileType::Png));
+        assert!(warnings.is_empty());
     }
 
     #[test]
     fn test_parse_file_types_exclusion_only() {
         // When only exclusions are provided, start with all and remove
-        let result = parse_file_types(&["!python".to_string(), "!javascript".to_string()]);
+        let mut warnings = Vec::new();
+        let result = parse_file_types(&["!python".to_string(), "!javascript".to_string()], &mut warnings);
         assert!(!result.contains(&RuleFileType::Python));
         assert!(!result.contains(&RuleFileType::JavaScript));
         assert!(result.contains(&RuleFileType::Shell));
         assert!(result.contains(&RuleFileType::Ruby));
+        assert!(warnings.is_empty());
+    }
+
+    #[test]
+    fn test_parse_file_types_unknown_type() {
+        let mut warnings = Vec::new();
+        let result = parse_file_types(&["python".to_string(), "invalid_type".to_string()], &mut warnings);
+        assert!(result.contains(&RuleFileType::Python));
+        assert_eq!(warnings.len(), 1);
+        assert_eq!(warnings[0], "Unknown file type: 'invalid_type'");
+    }
+
+    #[test]
+    fn test_parse_file_types_multiple_unknown() {
+        let mut warnings = Vec::new();
+        let result = parse_file_types(&["pyton".to_string(), "javascrpt".to_string()], &mut warnings);
+        assert!(result.is_empty());
+        assert_eq!(warnings.len(), 2);
+        assert!(warnings.contains(&"Unknown file type: 'pyton'".to_string()));
+        assert!(warnings.contains(&"Unknown file type: 'javascrpt'".to_string()));
     }
 }

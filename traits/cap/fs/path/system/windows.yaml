@@ -53,6 +53,14 @@ traits:
       type: string
       regex: '[Cc]:\\Windows\\System32\\[\w.]+'
 
+  - id: system32-bin
+    desc: References .bin file in System32
+    crit: suspicious
+    if:
+      type: string
+      regex: '\\SystemRoot\\System32\\[a-zA-Z0-9_]+\.bin'
+      case_insensitive: true
+
 composite_rules:
   - id: windows-appdata
     desc: Windows Application Data paths (user

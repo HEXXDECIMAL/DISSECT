@@ -64,37 +64,94 @@ traits:
     attack: "T1548.004"
 
   # === Multi-Distro Patterns ===
+  - id: multi-distro-apt-get-ref
+    desc: apt-get reference
+    crit: inert
+    conf: 0.6
+    for: [elf, shell]
+    size_max: 1000000
+    if:
+      type: string
+      substr: "apt-get"
+    unless:
+      - type: raw
+        regex: "postgresql|libc|libgcc|libstdc\\+\\+"
+
+  - id: multi-distro-yum-ref
+    desc: yum reference
+    crit: inert
+    conf: 0.6
+    for: [elf, shell]
+    size_max: 1000000
+    if:
+      type: string
+      substr: "yum"
+    unless:
+      - type: raw
+        regex: "postgresql|libc|libgcc|libstdc\\+\\+"
+
+  - id: multi-distro-dnf-ref
+    desc: dnf reference
+    crit: inert
+    conf: 0.6
+    for: [elf, shell]
+    size_max: 1000000
+    if:
+      type: string
+      substr: "dnf"
+    unless:
+      - type: raw
+        regex: "postgresql|libc|libgcc|libstdc\\+\\+"
+
+  - id: conditional-install-which
+    desc: which-based conditional installation
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    if:
+      type: string
+      regex: "which\\s+(apt-get|yum|dnf)\\s+.{0,50}>/dev/null.{0,80}&&\\s*(apt-get|yum|dnf)"
+
+  - id: conditional-install-command
+    desc: command -v conditional installation
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    if:
+      type: string
+      regex: "command\\s+-v\\s+(apt-get|yum|dnf)\\s+.{0,50}>/dev/null.{0,80}&&\\s*(apt-get|yum|dnf)"
+
+  - id: conditional-install-type
+    desc: type-based conditional installation
+    crit: suspicious
+    conf: 0.85
+    for: [elf, shell]
+    if:
+      type: string
+      regex: "type\\s+(apt-get|yum|dnf)\\s+.{0,50}>/dev/null.{0,80}&&\\s*(apt-get|yum|dnf)"
+
+composite_rules:
   - id: multi-distro-detection
     desc: Checks for multiple package managers
     crit: suspicious
     conf: 0.8
     for: [elf, shell]
-    # Sophisticated malware implants are typically small
-    size_max: 1000000
-    if:
-      type: string
-      any:
-        - substr: "apt-get"
-        - substr: "yum"
-        - substr: "dnf"
-      count_min: 2
-    unless:
-      - type: raw
-        regex: "postgresql|libc|libgcc|libstdc\\+\\+"
+    needs: 2
+    any:
+      - id: multi-distro-apt-get-ref
+      - id: multi-distro-yum-ref
+      - id: multi-distro-dnf-ref
 
   - id: conditional-install
     desc: Conditional installation based on availability
     crit: suspicious
     conf: 0.85
     for: [elf, shell]
-    if:
-      type: string
-      any:
-        - regex: "which\\s+(apt-get|yum|dnf)\\s+.{0,50}>/dev/null.{0,80}&&\\s*(apt-get|yum|dnf)"
-        - regex: "command\\s+-v\\s+(apt-get|yum|dnf)\\s+.{0,50}>/dev/null.{0,80}&&\\s*(apt-get|yum|dnf)"
-        - regex: "type\\s+(apt-get|yum|dnf)\\s+.{0,50}>/dev/null.{0,80}&&\\s*(apt-get|yum|dnf)"
+    any:
+      - id: conditional-install-which
+      - id: conditional-install-command
+      - id: conditional-install-type
 
-composite_rules:
   - id: apt-distro-targeting
     desc: apt-based distribution targeting
     any:
