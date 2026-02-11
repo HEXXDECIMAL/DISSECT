@@ -70,7 +70,6 @@ use std::io::BufRead;
 use std::path::Path;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
-use tracing::debug;
 use tracing_subscriber::EnvFilter;
 use yara_engine::YaraEngine;
 
@@ -139,7 +138,8 @@ fn main() -> Result<()> {
     let env_filter = if std::env::var("RUST_LOG").is_ok() {
         EnvFilter::from_default_env()
     } else if args.verbose {
-        EnvFilter::new("dissect=debug")
+        // Use trace level for verbose mode to see all instrumentation
+        EnvFilter::new("dissect=trace")
     } else {
         EnvFilter::new("dissect=info")
     };
@@ -152,7 +152,7 @@ fn main() -> Result<()> {
         .with_writer(std::io::stderr)
         .init();
 
-    debug!("Logging initialized (verbose={})", args.verbose);
+    tracing::trace!("Logging initialized (verbose={})", args.verbose);
 
     // Configure rayon thread pool with larger stack size to handle deeply nested ASTs
     // (e.g., minified JavaScript, malicious files with extreme nesting)
@@ -252,6 +252,7 @@ fn main() -> Result<()> {
                     args.min_hostile_precision,
                     args.min_suspicious_precision,
                     max_memory_file_size,
+                    args.validate,
                 )?
             } else {
                 // Multiple targets or directory - use scan
@@ -269,6 +270,7 @@ fn main() -> Result<()> {
                     args.min_hostile_precision,
                     args.min_suspicious_precision,
                     max_memory_file_size,
+                    args.validate,
                 )?
             }
         }
@@ -289,6 +291,7 @@ fn main() -> Result<()> {
             args.min_hostile_precision,
             args.min_suspicious_precision,
             max_memory_file_size,
+            args.validate,
         )?,
         Some(cli::Command::Diff { old, new }) => diff_analysis(&old, &new, &format)?,
         Some(cli::Command::Strings { target, min_length }) => {
@@ -369,6 +372,7 @@ fn main() -> Result<()> {
                 args.min_hostile_precision,
                 args.min_suspicious_precision,
                 max_memory_file_size,
+                args.validate,
             )?
         }
     };
@@ -400,6 +404,7 @@ fn analyze_file(
     min_hostile_precision: f32,
     min_suspicious_precision: f32,
     max_memory_file_size: u64,
+    enable_full_validation: bool,
 ) -> Result<String> {
     let _start = std::time::Instant::now();
     let path = Path::new(target);
@@ -424,6 +429,7 @@ fn analyze_file(
             min_hostile_precision,
             min_suspicious_precision,
             max_memory_file_size,
+            enable_full_validation,
         );
     }
 
@@ -431,31 +437,40 @@ fn analyze_file(
 
     // Status messages go to stderr
     eprintln!("Analyzing: {}", target);
+    tracing::info!("Starting analysis of {}", target);
 
     // Detect file type first (fast - just reads magic bytes)
+    tracing::debug!("Detecting file type");
     let file_type = detect_file_type(path)?;
     eprintln!("Detected file type: {:?}", file_type);
+    tracing::info!("File type: {:?}", file_type);
 
     // Load capability mapper
     let t1 = std::time::Instant::now();
+    tracing::info!("Loading capability mapper (trait definitions)");
     let capability_mapper = crate::capabilities::CapabilityMapper::new_with_precision_thresholds(
         min_hostile_precision,
         min_suspicious_precision,
+        enable_full_validation,
     )
     .with_platforms(platforms.clone());
+    tracing::info!("Capability mapper loaded");
     if timing {
         eprintln!("[TIMING] CapabilityMapper::new(): {:?}", t1.elapsed());
     }
 
     // Load YARA rules (unless YARA is disabled)
     let mut yara_engine = if disabled.yara {
+        tracing::info!("YARA scanning disabled");
         eprintln!("[INFO] YARA scanning disabled");
         None
     } else {
         let t_yara_start = std::time::Instant::now();
+        tracing::info!("Initializing YARA engine");
         let empty_mapper = crate::capabilities::CapabilityMapper::empty();
         let mut engine = YaraEngine::new_with_mapper(empty_mapper);
         let (builtin_count, third_party_count) = engine.load_all_rules(enable_third_party_yara)?;
+        tracing::info!("YARA engine loaded with {} rules", builtin_count + third_party_count);
         if timing {
             eprintln!("[TIMING] YaraEngine load: {:?}", t_yara_start.elapsed());
         }
@@ -630,6 +645,7 @@ fn scan_paths(
     min_hostile_precision: f32,
     min_suspicious_precision: f32,
     max_memory_file_size: u64,
+    enable_full_validation: bool,
 ) -> Result<String> {
     use walkdir::WalkDir;
 
@@ -638,6 +654,7 @@ fn scan_paths(
         crate::capabilities::CapabilityMapper::new_with_precision_thresholds(
             min_hostile_precision,
             min_suspicious_precision,
+            enable_full_validation,
         )
         .with_platforms(platforms.clone()),
     );
@@ -1795,10 +1812,11 @@ fn test_rules_debug(
     let file_type = detect_file_type(path)?;
     eprintln!("Detected file type: {:?}", file_type);
 
-    // Load capability mapper
+    // Load capability mapper with full validation (test-rules is a developer command)
     let capability_mapper = crate::capabilities::CapabilityMapper::new_with_precision_thresholds(
         min_hostile_precision,
         min_suspicious_precision,
+        true, // Always enable full validation for test-rules
     )
     .with_platforms(platforms.clone());
 
@@ -1939,10 +1957,11 @@ fn test_match_debug(
         detect_file_type(path)?
     };
 
-    // Load capability mapper
+    // Load capability mapper with full validation (test-match is a developer command)
     let capability_mapper = crate::capabilities::CapabilityMapper::new_with_precision_thresholds(
         min_hostile_precision,
         min_suspicious_precision,
+        true, // Always enable full validation for test-match
     )
     .with_platforms(platforms.clone());
 

@@ -456,8 +456,8 @@ pub fn calculate_trait_precision(trait_def: &TraitDefinition) -> f32 {
 /// Do not duplicate this logic elsewhere.
 pub fn calculate_composite_precision(
     rule_id: &str,
-    all_composites: &[CompositeTrait],
-    all_traits: &[TraitDefinition],
+    composite_lookup: &HashMap<&str, &CompositeTrait>,
+    trait_lookup: &HashMap<&str, &TraitDefinition>,
     cache: &mut HashMap<String, f32>,
     visiting: &mut HashSet<String>,
 ) -> f32 {
@@ -475,14 +475,14 @@ pub fn calculate_composite_precision(
 
     // Try to find as composite rule first
     // Support both new format (dir::name) and legacy format (dir/name)
-    let rule = all_composites.iter().find(|r| r.id == rule_id).or_else(|| {
+    let rule = composite_lookup.get(rule_id).copied().or_else(|| {
         if rule_id.contains("::") {
             let legacy_id = rule_id.replace("::", "/");
-            all_composites.iter().find(|r| r.id == legacy_id)
+            composite_lookup.get(legacy_id.as_str()).copied()
         } else if rule_id.contains('/') {
             if let Some(idx) = rule_id.rfind('/') {
                 let new_id = format!("{}::{}", &rule_id[..idx], &rule_id[idx + 1..]);
-                all_composites.iter().find(|r| r.id == new_id)
+                composite_lookup.get(new_id.as_str()).copied()
             } else {
                 None
             }
@@ -514,8 +514,8 @@ pub fn calculate_composite_precision(
                         // Recursively calculate trait/composite precision
                         let score = calculate_composite_precision(
                             id,
-                            all_composites,
-                            all_traits,
+                            composite_lookup,
+                            trait_lookup,
                             cache,
                             visiting,
                         );
@@ -548,8 +548,8 @@ pub fn calculate_composite_precision(
                         Condition::Trait { id } => {
                             let s = calculate_composite_precision(
                                 id,
-                                all_composites,
-                                all_traits,
+                                composite_lookup,
+                                trait_lookup,
                                 cache,
                                 visiting,
                             );
@@ -602,8 +602,8 @@ pub fn calculate_composite_precision(
                 .map(|cond| match cond {
                     Condition::Trait { id } => calculate_composite_precision(
                         id,
-                        all_composites,
-                        all_traits,
+                        composite_lookup,
+                        trait_lookup,
                         cache,
                         visiting,
                     ),
@@ -619,8 +619,8 @@ pub fn calculate_composite_precision(
                 .map(|cond| match cond {
                     Condition::Trait { id } => calculate_composite_precision(
                         id,
-                        all_composites,
-                        all_traits,
+                        composite_lookup,
+                        trait_lookup,
                         cache,
                         visiting,
                     ),
@@ -643,7 +643,7 @@ pub fn calculate_composite_precision(
     if debug {
         eprintln!("  [DEBUG] Looking up trait: '{}'", rule_id);
     }
-    let trait_def = all_traits.iter().find(|t| t.id == rule_id).or_else(|| {
+    let trait_def = trait_lookup.get(rule_id).copied().or_else(|| {
         // Try converting legacy format to new format or vice versa
         if rule_id.contains("::") {
             // Reference uses new format, trait might use legacy
@@ -651,7 +651,7 @@ pub fn calculate_composite_precision(
             if debug {
                 eprintln!("  [DEBUG]   Trying legacy conversion: '{}'", legacy_id);
             }
-            all_traits.iter().find(|t| t.id == legacy_id)
+            trait_lookup.get(legacy_id.as_str()).copied()
         } else if rule_id.contains('/') {
             // Reference uses legacy format, trait might use new format
             // Convert last '/' to '::'
@@ -660,7 +660,7 @@ pub fn calculate_composite_precision(
                 if debug {
                     eprintln!("  [DEBUG]   Trying new format conversion: '{}'", new_id);
                 }
-                all_traits.iter().find(|t| t.id == new_id)
+                trait_lookup.get(new_id.as_str()).copied()
             } else {
                 None
             }
@@ -689,8 +689,8 @@ pub fn calculate_composite_precision(
             BASE_TRAIT_PRECISION
         );
         eprintln!("  [DEBUG]   Available trait IDs (first 20):");
-        for (i, t) in all_traits.iter().take(20).enumerate() {
-            eprintln!("  [DEBUG]     [{}] '{}'", i, t.id);
+        for (i, id) in trait_lookup.keys().take(20).enumerate() {
+            eprintln!("  [DEBUG]     [{}] '{}'", i, id);
         }
     }
     visiting.remove(rule_id);
@@ -713,6 +713,16 @@ pub(crate) fn validate_hostile_composite_precision(
 ) {
     let mut cache: HashMap<String, f32> = HashMap::new();
 
+    // Build O(1) lookup tables to avoid repeated O(n) searches
+    let composite_lookup: HashMap<&str, &CompositeTrait> = composite_rules
+        .iter()
+        .map(|r| (r.id.as_str(), r))
+        .collect();
+    let trait_lookup: HashMap<&str, &TraitDefinition> = trait_definitions
+        .iter()
+        .map(|t| (t.id.as_str(), t))
+        .collect();
+
     // First pass: calculate precision for HOSTILE/SUSPICIOUS rules (immutable borrow)
     let scored_rules: Vec<(String, Criticality, f32)> = composite_rules
         .iter()
@@ -721,8 +731,8 @@ pub(crate) fn validate_hostile_composite_precision(
             let mut visiting = std::collections::HashSet::new();
             let precision = calculate_composite_precision(
                 &rule.id,
-                composite_rules,
-                trait_definitions,
+                &composite_lookup,
+                &trait_lookup,
                 &mut cache,
                 &mut visiting,
             );
@@ -730,9 +740,12 @@ pub(crate) fn validate_hostile_composite_precision(
         })
         .collect();
 
-    // Second pass: downgrade rules that don't meet requirements (mutable borrow)
+    // Second pass: downgrade rules that don't meet requirements and cache precision (mutable borrow)
     for (rule_id, crit, precision) in scored_rules {
         if let Some(rule) = composite_rules.iter_mut().find(|r| r.id == rule_id) {
+            // Cache the precision value for later use
+            rule.cached_precision = Some(precision);
+
             match crit {
                 Criticality::Hostile if precision < min_hostile_precision => {
                     warnings.push(format!(
@@ -1596,6 +1609,7 @@ pub(crate) fn simple_rule_to_composite_rule(
         unless: None,
         not: None,
         downgrade: None,
+        cached_precision: None,
     }
 }
 

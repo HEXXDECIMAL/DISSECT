@@ -155,6 +155,11 @@ pub struct Args {
     #[arg(short, long)]
     pub verbose: bool,
 
+    /// Enable full trait validation (expensive, ~60s+). By default, only fast validations run.
+    /// Use during trait development or CI to catch issues. Can also set DISSECT_VALIDATE=1.
+    #[arg(long)]
+    pub validate: bool,
+
     /// Additional password to try for encrypted zip files (can be specified multiple times)
     #[arg(long = "zip-password", value_name = "PASSWORD")]
     pub zip_passwords: Vec<String>,

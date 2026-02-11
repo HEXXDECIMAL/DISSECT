@@ -132,6 +132,7 @@ pub(crate) fn apply_trait_defaults(
         unless: raw.unless,
         downgrade: raw.downgrade,
         defined_in: path.to_path_buf(),
+        cached_precision: None,
     }
 }
 
@@ -377,6 +378,7 @@ pub(crate) fn apply_composite_defaults(
         unless: raw.unless,
         not: raw.not,
         downgrade: raw.downgrade,
+        cached_precision: None,
     }
 }
 

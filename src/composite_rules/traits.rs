@@ -87,6 +87,9 @@ pub struct TraitDefinition {
     pub downgrade: Option<DowngradeConditions>,
     #[serde(skip)]
     pub defined_in: std::path::PathBuf,
+    /// Cached precision score (calculated during loading, not from YAML)
+    #[serde(skip)]
+    pub cached_precision: Option<f32>,
 }
 
 impl TraitDefinition {
@@ -1059,6 +1062,9 @@ pub struct CompositeTrait {
     /// Only levels LOWER than base `crit` are allowed (validated at load time)
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub downgrade: Option<DowngradeConditions>,
+    /// Cached precision score (calculated during loading, not from YAML)
+    #[serde(skip)]
+    pub cached_precision: Option<f32>,
 }
 
 impl CompositeTrait {

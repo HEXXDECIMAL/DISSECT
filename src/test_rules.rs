@@ -356,10 +356,15 @@ impl<'a> RuleDebugger<'a> {
         // Calculate precision
         let mut cache = HashMap::new();
         let mut visiting = HashSet::new();
+        // Build lookup tables for O(1) access
+        let composite_lookup: HashMap<&str, &CompositeTrait> =
+            self.composites.iter().map(|r| (r.id.as_str(), r)).collect();
+        let trait_lookup: HashMap<&str, &TraitDefinition> =
+            self.traits.iter().map(|t| (t.id.as_str(), t)).collect();
         let precision_value = calculate_composite_precision(
             rule_id,
-            self.composites,
-            self.traits,
+            &composite_lookup,
+            &trait_lookup,
             &mut cache,
             &mut visiting,
         );
@@ -405,16 +410,25 @@ impl<'a> RuleDebugger<'a> {
         matched: bool,
         requirements: &str,
     ) -> RuleDebugResult {
-        // Calculate precision
-        let mut cache = HashMap::new();
-        let mut visiting = HashSet::new();
-        let precision_value = calculate_composite_precision(
-            &composite.id,
-            self.composites,
-            self.traits,
-            &mut cache,
-            &mut visiting,
-        );
+        // Use cached precision if available, otherwise calculate
+        let precision_value = if let Some(cached) = composite.cached_precision {
+            cached
+        } else {
+            let mut cache = HashMap::new();
+            let mut visiting = HashSet::new();
+            // Build lookup tables for O(1) access
+            let composite_lookup: HashMap<&str, &CompositeTrait> =
+                self.composites.iter().map(|r| (r.id.as_str(), r)).collect();
+            let trait_lookup: HashMap<&str, &TraitDefinition> =
+                self.traits.iter().map(|t| (t.id.as_str(), t)).collect();
+            calculate_composite_precision(
+                &composite.id,
+                &composite_lookup,
+                &trait_lookup,
+                &mut cache,
+                &mut visiting,
+            )
+        };
 
         let skipped_reason = eval_debug.skip_reason.map(|r| r.to_string());
 
@@ -570,10 +584,15 @@ impl<'a> RuleDebugger<'a> {
         // Calculate precision
         let mut cache = HashMap::new();
         let mut visiting = HashSet::new();
+        // Build lookup tables for O(1) access
+        let composite_lookup: HashMap<&str, &CompositeTrait> =
+            self.composites.iter().map(|r| (r.id.as_str(), r)).collect();
+        let trait_lookup: HashMap<&str, &TraitDefinition> =
+            self.traits.iter().map(|t| (t.id.as_str(), t)).collect();
         let precision_value = calculate_composite_precision(
             rule_id,
-            self.composites,
-            self.traits,
+            &composite_lookup,
+            &trait_lookup,
             &mut cache,
             &mut visiting,
         );
@@ -648,10 +667,15 @@ impl<'a> RuleDebugger<'a> {
         // Calculate precision
         let mut cache = HashMap::new();
         let mut visiting = HashSet::new();
+        // Build lookup tables for O(1) access
+        let composite_lookup: HashMap<&str, &CompositeTrait> =
+            self.composites.iter().map(|r| (r.id.as_str(), r)).collect();
+        let trait_lookup: HashMap<&str, &TraitDefinition> =
+            self.traits.iter().map(|t| (t.id.as_str(), t)).collect();
         let precision_value = calculate_composite_precision(
             rule_id,
-            self.composites,
-            self.traits,
+            &composite_lookup,
+            &trait_lookup,
             &mut cache,
             &mut visiting,
         );

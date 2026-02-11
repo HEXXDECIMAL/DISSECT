@@ -83,12 +83,14 @@ impl CapabilityMapper {
         Self::new_with_precision_thresholds(
             Self::DEFAULT_MIN_HOSTILE_PRECISION,
             Self::DEFAULT_MIN_SUSPICIOUS_PRECISION,
+            true,
         )
     }
 
     pub fn new_with_precision_thresholds(
         min_hostile_precision: f32,
         min_suspicious_precision: f32,
+        enable_full_validation: bool,
     ) -> Self {
         // Try to load from capabilities directory, fall back to single file
         // YAML parse errors or invalid trait configurations are fatal
@@ -97,6 +99,7 @@ impl CapabilityMapper {
             &traits_dir,
             min_hostile_precision,
             min_suspicious_precision,
+            enable_full_validation,
         ) {
             Ok(mapper) => {
                 return mapper;
@@ -126,6 +129,7 @@ impl CapabilityMapper {
             "capabilities.yaml",
             min_hostile_precision,
             min_suspicious_precision,
+            enable_full_validation,
         ) {
             Ok(mapper) => {
                 return mapper;
@@ -161,6 +165,7 @@ impl CapabilityMapper {
             dir_path,
             Self::DEFAULT_MIN_HOSTILE_PRECISION,
             Self::DEFAULT_MIN_SUSPICIOUS_PRECISION,
+            true,
         )
     }
 
@@ -168,17 +173,29 @@ impl CapabilityMapper {
         dir_path: P,
         min_hostile_precision: f32,
         min_suspicious_precision: f32,
+        enable_full_validation: bool,
     ) -> Result<Self> {
+        let _span = tracing::info_span!("load_capabilities").entered();
         let debug = std::env::var("DISSECT_DEBUG").is_ok();
         let timing = std::env::var("DISSECT_TIMING").is_ok();
         let dir_path = dir_path.as_ref();
         let t_start = std::time::Instant::now();
 
+        // Check for DISSECT_VALIDATE env var or passed flag
+        let enable_full_validation = enable_full_validation || std::env::var("DISSECT_VALIDATE").is_ok();
+
+        tracing::info!("Loading trait definitions from {}", dir_path.display());
+        if enable_full_validation {
+            tracing::info!("Full validation enabled (this may take 60+ seconds)");
+        } else {
+            tracing::info!("Fast validation mode (use --validate for full checks)");
+        }
         if debug {
             eprintln!("🔍 Loading capabilities from: {}", dir_path.display());
         }
 
         // First, collect all YAML file paths
+        tracing::debug!("Scanning directory for YAML files");
         let mut yaml_files: Vec<_> = walkdir::WalkDir::new(dir_path)
             .follow_links(false)
             .into_iter()
@@ -202,6 +219,7 @@ impl CapabilityMapper {
             anyhow::bail!("No YAML files found in {}", dir_path.display());
         }
 
+        tracing::info!("Found {} YAML files to parse", yaml_files.len());
         if timing {
             eprintln!(
                 "[TIMING] Collected {} YAML files: {:?}",
@@ -213,10 +231,12 @@ impl CapabilityMapper {
 
         // Load all YAML files in parallel, preserving path for prefix calculation
         // Use indexed_map to preserve sorted order
+        tracing::debug!("Parsing YAML files in parallel");
         let results: Vec<_> = yaml_files
             .par_iter()
             .enumerate()
             .map(|(idx, path)| {
+                tracing::trace!("Parsing {}", path.display());
                 if debug {
                     eprintln!("   📄 Loading: {}", path.display());
                 }
@@ -244,15 +264,18 @@ impl CapabilityMapper {
             Err(_) => usize::MAX,
         });
 
+        tracing::debug!("Parsing complete");
         if timing {
             eprintln!("[TIMING] Parsed YAML files: {:?}", t_parse.elapsed());
         }
         let t_merge = std::time::Instant::now();
 
         // Merge all results, collecting errors to report all at once
+        tracing::debug!("Merging trait definitions and composite rules");
         let mut symbol_map = HashMap::new();
-        let mut trait_definitions: Vec<TraitDefinition> = Vec::new();
-        let mut composite_rules: Vec<CompositeTrait> = Vec::new();
+        // Use HashMaps during loading for O(1) duplicate detection (will convert to Vec later)
+        let mut trait_definitions_map: HashMap<String, TraitDefinition> = HashMap::new();
+        let mut composite_rules_map: HashMap<String, CompositeTrait> = HashMap::new();
         let mut rule_source_files: HashMap<String, String> = HashMap::new(); // rule_id -> file_path
         let mut files_processed = 0;
         let mut warnings: Vec<String> = Vec::new();
@@ -282,8 +305,8 @@ impl CapabilityMapper {
                 .filter(|s| !s.is_empty());
 
             let before_symbols = symbol_map.len();
-            let before_traits = trait_definitions.len();
-            let before_composites = composite_rules.len();
+            let before_traits = trait_definitions_map.len();
+            let before_composites = composite_rules_map.len();
 
             // Merge symbols
             for mapping in mappings.symbols {
@@ -303,7 +326,7 @@ impl CapabilityMapper {
                 // If rule has platform or file_type constraints, convert to composite rule
                 if !rule.platforms.is_empty() || !rule.file_types.is_empty() {
                     let composite = simple_rule_to_composite_rule(rule, &mut parsing_warnings);
-                    composite_rules.push(composite);
+                    composite_rules_map.insert(composite.id.clone(), composite);
                 } else {
                     // No constraints - add to symbol map for fast lookup
                     symbol_map.insert(
@@ -328,7 +351,6 @@ impl CapabilityMapper {
             }
 
             // Merge trait definitions with auto-prefixed IDs, applying file-level defaults
-            let traits_count = mappings.traits.len();
             let mut parsing_warnings = Vec::new();
             for raw_trait in mappings.traits {
                 // Convert raw trait to final trait, applying file-level defaults
@@ -503,51 +525,30 @@ impl CapabilityMapper {
                 }
 
                 // Check for ID conflicts with previously loaded traits (cross-file duplicates)
-                if trait_definitions.iter().any(|t| t.id == trait_def.id) {
+                if trait_definitions_map.contains_key(&trait_def.id) {
                     warnings.push(format!(
                         "Trait ID '{}' defined in multiple files - last definition wins",
                         trait_def.id
                     ));
-                    // Remove the old one so we add the new one
-                    trait_definitions.retain(|t| t.id != trait_def.id);
+                    // HashMap insert will automatically replace the old one
                 }
 
                 // Check for ID conflicts with composite rules
-                if composite_rules.iter().any(|r| r.id == trait_def.id) {
+                if composite_rules_map.contains_key(&trait_def.id) {
                     warnings.push(format!(
                         "Rule ID '{}' defined as both trait and composite rule - trait will be used",
                         trait_def.id
                     ));
-                    if let Some(comp_file) = rule_source_files
-                        .iter()
-                        .find(|(id, _)| *id == &trait_def.id)
-                        .map(|(_, f)| f)
-                    {
+                    if let Some(comp_file) = rule_source_files.get(&trait_def.id) {
                         warnings.push(format!("  Trait: {}", path.display()));
                         warnings.push(format!("  Composite (will be replaced): {}", comp_file));
                     }
                     // Remove the composite rule
-                    composite_rules.retain(|r| r.id != trait_def.id);
+                    composite_rules_map.remove(&trait_def.id);
                 }
 
-                trait_definitions.push(trait_def);
-            }
-
-            // Add file path to unknown file type warnings, append others as-is
-            let path_str = path.display().to_string();
-            for warning in parsing_warnings {
-                if warning.starts_with("Unknown file type") {
-                    warnings.push(format!("{}: {}", path_str, warning));
-                } else {
-                    warnings.push(warning);
-                }
-            }
-
-            // Extract symbol mappings from trait definitions with symbol conditions
-            for trait_def in
-                &trait_definitions[trait_definitions.len().saturating_sub(traits_count)..]
-            {
-                // Check if this trait has a symbol condition
+                // Extract symbol mappings from trait definitions with symbol conditions
+                // (Do this before inserting to avoid borrowing issues)
                 if let Condition::Symbol {
                     exact,
                     substr: _,
@@ -556,9 +557,6 @@ impl CapabilityMapper {
                     compiled_regex: _,
                 } = &trait_def.r#if
                 {
-                    // Check if there are no platform constraints, or add anyway for lookup
-                    // (platform filtering will happen later during evaluation)
-
                     // If exact is specified, add it directly
                     if let Some(exact_val) = exact {
                         symbol_map
@@ -584,6 +582,18 @@ impl CapabilityMapper {
                         }
                     }
                 }
+
+                trait_definitions_map.insert(trait_def.id.clone(), trait_def);
+            }
+
+            // Add file path to unknown file type warnings, append others as-is
+            let path_str = path.display().to_string();
+            for warning in parsing_warnings {
+                if warning.starts_with("Unknown file type") {
+                    warnings.push(format!("{}: {}", path_str, warning));
+                } else {
+                    warnings.push(warning);
+                }
             }
 
             // Merge composite_rules with auto-prefixed IDs, applying file-level defaults
@@ -607,16 +617,16 @@ impl CapabilityMapper {
                 }
 
                 // Check for duplicate rule ID with other composite rules
-                if let Some(existing) = composite_rules.iter().position(|r| r.id == rule.id) {
+                if composite_rules_map.contains_key(&rule.id) {
                     warnings.push(format!(
                         "Composite rule '{}' defined in multiple files - last definition wins",
                         rule.id
                     ));
-                    composite_rules.remove(existing);
+                    // HashMap insert will automatically replace the old one
                 }
 
                 // Check for ID conflicts with trait definitions
-                if trait_definitions.iter().any(|t| t.id == rule.id) {
+                if trait_definitions_map.contains_key(&rule.id) {
                     warnings.push(format!(
                         "Rule ID '{}' defined as both trait and composite rule - composite will be used",
                         rule.id
@@ -624,12 +634,12 @@ impl CapabilityMapper {
                     warnings.push("  Trait (will be replaced): (already loaded)".to_string());
                     warnings.push(format!("  Composite: {}", path.display()));
                     // Remove the trait definition
-                    trait_definitions.retain(|t| t.id != rule.id);
+                    trait_definitions_map.remove(&rule.id);
                 }
 
                 // Track source file for error reporting
                 rule_source_files.insert(rule.id.clone(), path.display().to_string());
-                composite_rules.push(rule);
+                composite_rules_map.insert(rule.id.clone(), rule);
             }
 
             // Add file path to unknown file type warnings, append others as-is
@@ -646,8 +656,8 @@ impl CapabilityMapper {
                 eprintln!(
                     "      +{} symbols, +{} traits, +{} composite rules",
                     symbol_map.len() - before_symbols,
-                    trait_definitions.len() - before_traits,
-                    composite_rules.len() - before_composites
+                    trait_definitions_map.len() - before_traits,
+                    composite_rules_map.len() - before_composites
                 );
             }
         }
@@ -679,6 +689,13 @@ impl CapabilityMapper {
             eprintln!("[TIMING] Merged results: {:?}", t_merge.elapsed());
         }
         let t_yara = std::time::Instant::now();
+
+        // Convert HashMaps to Vecs now that loading is complete
+        // This was kept as HashMap during loading for O(1) duplicate detection
+        let mut trait_definitions: Vec<TraitDefinition> =
+            trait_definitions_map.into_values().collect();
+        let mut composite_rules: Vec<CompositeTrait> =
+            composite_rules_map.into_values().collect();
 
         // Pre-compile all YARA rules for faster evaluation (parallelized)
         let yara_count_traits = trait_definitions
@@ -712,17 +729,25 @@ impl CapabilityMapper {
 
         // Post-process HOSTILE composite rules to properly calculate precision
         // Now that all rules are loaded, we can recursively calculate true precision
-        validate_hostile_composite_precision(
-            &mut composite_rules,
-            &trait_definitions,
-            &mut warnings,
-            min_hostile_precision,
-            min_suspicious_precision,
-        );
+        // This is EXPENSIVE (~60+ seconds) so only run in full validation mode
+        tracing::debug!("Validating trait definitions and composite rules");
+        if enable_full_validation {
+            tracing::debug!("Step 1/15: Validating hostile composite precision (expensive)");
+            validate_hostile_composite_precision(
+                &mut composite_rules,
+                &trait_definitions,
+                &mut warnings,
+                min_hostile_precision,
+                min_suspicious_precision,
+            );
+        } else {
+            tracing::debug!("Step 1/15: Skipping hostile composite precision validation (use --validate to enable)");
+        }
 
         // Validate trait references in composite rules
         // Cross-directory references must match an existing directory prefix
         // Include both trait definition prefixes AND composite rule prefixes (rules can reference rules)
+        tracing::debug!("Step 2/15: Building known prefixes");
         let mut known_prefixes: std::collections::HashSet<String> = trait_definitions
             .iter()
             .filter_map(|t| {
@@ -752,6 +777,7 @@ impl CapabilityMapper {
         // Check for taxonomy violations: platform/language names as directories
         // According to TAXONOMY.md, languages should be YAML filenames, not directories
         if !allow_violations {
+            tracing::debug!("Step 3/15: Checking for platform-named directories");
             let dir_list: Vec<String> = known_prefixes.iter().cloned().collect();
             let platform_dir_violations = find_platform_named_directories(&dir_list);
             if !platform_dir_violations.is_empty() {
@@ -777,6 +803,7 @@ impl CapabilityMapper {
             }
 
             // Check for banned meaningless directory segments
+            tracing::debug!("Step 4/15: Checking for banned directory segments");
             let banned_segment_violations = find_banned_directory_segments(&dir_list);
             if !banned_segment_violations.is_empty() {
                 eprintln!(
@@ -814,6 +841,7 @@ impl CapabilityMapper {
             // }
 
             // Check for directory names that duplicate their parent
+            tracing::debug!("Step 5/15: Checking for parent duplicate segments");
             let parent_dup_violations = find_parent_duplicate_segments(&dir_list);
             if !parent_dup_violations.is_empty() {
                 eprintln!(
@@ -832,6 +860,7 @@ impl CapabilityMapper {
             }
 
             // Check for depth violations: cap/ and obj/ files must be 3-4 subdirectories deep
+            tracing::debug!("Step 6/15: Checking for depth violations");
             let relative_paths: Vec<String> = yaml_files
                 .iter()
                 .filter_map(|p| {
@@ -876,6 +905,7 @@ impl CapabilityMapper {
             }
 
             // Check for invalid characters in trait/rule IDs
+            tracing::debug!("Step 7/15: Checking for invalid trait IDs");
             let invalid_ids =
                 find_invalid_trait_ids(&trait_definitions, &composite_rules, &rule_source_files);
             if !invalid_ids.is_empty() {
@@ -910,6 +940,7 @@ impl CapabilityMapper {
             }
         }
 
+        tracing::debug!("Step 8/15: Validating trait references in composite rules");
         let mut invalid_refs = Vec::new();
         for rule in &composite_rules {
             let trait_refs = collect_trait_refs_from_rule(rule);
@@ -979,6 +1010,7 @@ impl CapabilityMapper {
         }
 
         // Pre-compile all regexes for performance
+        tracing::debug!("Step 9/15: Pre-compiling regexes");
         for trait_def in &mut trait_definitions {
             if let Err(e) = trait_def.precompile_regexes() {
                 parse_errors.push(format!("Regex compilation error: {:#}", e));
@@ -987,6 +1019,7 @@ impl CapabilityMapper {
 
         // Validate exact trait ID references
         // Build set of all valid trait IDs (both atomic traits and composite rules)
+        tracing::debug!("Step 10/15: Building valid trait IDs set");
         let mut valid_trait_ids: FxHashSet<String> =
             trait_definitions.iter().map(|t| t.id.clone()).collect();
         for rule in &composite_rules {
@@ -1012,6 +1045,7 @@ impl CapabilityMapper {
 
         // Validate that composite rules don't reference meta/internal/ paths
         // Internal paths are for ML usage only and must not be used in composite rules
+        tracing::debug!("Step 11/15: Checking for internal path references");
         let mut internal_refs = Vec::new();
         for rule in &composite_rules {
             let trait_refs = collect_trait_refs_from_rule(rule);
@@ -1056,6 +1090,7 @@ impl CapabilityMapper {
         // Validate that cap/ rules do not reference obj/ rules
         // Cap contains micro-behaviors, obj contains larger behaviors
         // Cap rules should be independent of obj rules
+        tracing::debug!("Step 12/15: Checking for cap/obj violations");
         let cap_obj_violations =
             find_cap_obj_violations(&trait_definitions, &composite_rules, &rule_source_files);
 
@@ -1088,6 +1123,7 @@ impl CapabilityMapper {
 
         // Validate that cap/ rules are never hostile
         // Hostile criticality requires objective-level evidence and belongs in obj/
+        tracing::debug!("Step 13/15: Checking for hostile cap rules");
         let hostile_cap_rules =
             find_hostile_cap_rules(&trait_definitions, &composite_rules, &rule_source_files);
 
@@ -1119,6 +1155,7 @@ impl CapabilityMapper {
 
         // Validate that `any:` clauses don't have 3+ traits from the same external directory
         // Recommend using directory references instead for better maintainability
+        tracing::debug!("Step 14/15: Checking for redundant any refs");
         let mut redundant_any_refs = Vec::new();
         if !allow_violations {
             for rule in &composite_rules {
@@ -1169,6 +1206,7 @@ impl CapabilityMapper {
 
         // Validate that `any:` and `all:` clauses don't have exactly 1 item
         // Single-item clauses are pointless wrappers that add complexity
+        tracing::debug!("Step 15/15: Checking for single-item clauses");
         let mut single_item_clauses = Vec::new();
         if !allow_violations {
             for rule in &composite_rules {
@@ -1805,17 +1843,21 @@ impl CapabilityMapper {
             std::process::exit(1);
         }
 
+        tracing::debug!("Validation complete");
         if timing {
             eprintln!("[TIMING] Validated refs: {:?}", t_validate.elapsed());
             eprintln!("[TIMING] Total from_directory: {:?}", t_start.elapsed());
         }
 
         // Build trait index for fast lookup by file type
+        tracing::debug!("Building trait indexes");
         let trait_index = TraitIndex::build(&trait_definitions);
 
         // Build string match index for batched AC matching
         let t_string_index = std::time::Instant::now();
+        tracing::debug!("Building Aho-Corasick string index");
         let string_match_index = StringMatchIndex::build(&trait_definitions);
+        tracing::debug!("Indexes built successfully");
         if timing {
             eprintln!(
                 "[TIMING] Built string index ({} patterns): {:?}",
@@ -1883,6 +1925,7 @@ impl CapabilityMapper {
             path,
             Self::DEFAULT_MIN_HOSTILE_PRECISION,
             Self::DEFAULT_MIN_SUSPICIOUS_PRECISION,
+            true, // from_yaml always enables full validation (used in tests)
         )
     }
 
@@ -1890,6 +1933,7 @@ impl CapabilityMapper {
         path: P,
         min_hostile_precision: f32,
         min_suspicious_precision: f32,
+        _enable_full_validation: bool,
     ) -> Result<Self> {
         let bytes = fs::read(path.as_ref()).context("Failed to read capabilities YAML file")?;
         let content = String::from_utf8_lossy(&bytes);
