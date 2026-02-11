@@ -107,6 +107,8 @@ impl ElfAnalyzer {
                     attack: Some("T1027".to_string()), // Obfuscated Files or Information
                     evidence: vec![],
                     trait_refs: vec![],
+                
+                    source_file: None,
                 });
 
                 report
@@ -200,6 +202,8 @@ impl ElfAnalyzer {
                                     mbc: yara_match.mbc.clone(),
                                     attack: yara_match.attack.clone(),
                                     evidence,
+                                
+                                    source_file: None,
                                 });
                             }
                         }
@@ -316,6 +320,8 @@ impl ElfAnalyzer {
                             value: "STT_GNU_IFUNC (LOOS)".to_string(),
                             location: Some(format!("{:#x}", dynsym.st_value)),
                         }],
+                    
+                        source_file: None,
                     });
                 }
 
@@ -361,6 +367,8 @@ impl ElfAnalyzer {
                                 value: "STT_GNU_IFUNC (LOOS)".to_string(),
                                 location: Some(format!("{:#x}", sym.st_value)),
                             }],
+                        
+                            source_file: None,
                         });
                     }
                 }

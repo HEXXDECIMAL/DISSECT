@@ -700,6 +700,7 @@ impl YaraEngine {
                     mbc: yara_match.mbc.clone(),
                     attack: yara_match.attack.clone(),
                     evidence,
+                    source_file: None,
                 });
             }
         }

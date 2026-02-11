@@ -133,8 +133,28 @@ traits:
       # Require at least 2 chars before extension to avoid OpenSSL internals like d.encrypted
       regex: '[a-zA-Z0-9_]{2,}\.(crypt|encrypted|locked|enc|crypted|cry)$'
     unless:
-      - type: raw
-        regex: "matplotlib|tex"
+      - type: string
+        regex: "^(matplotlib|tex)$"
+
+  # Babuk-style configuration scanning pattern
+  - id: babuk-config-marker
+    desc: Babuk ransomware configuration memory marker (16x 0xAF)
+    crit: suspicious
+    conf: 0.98
+    for: [elf]
+    if:
+      type: hex
+      pattern: "af af af af af af af af af af af af af af af af"
+
+  # Modern C++ locker configuration field names
+  - id: locker-config-fields
+    desc: Ransomware locker configuration schema fields
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: string
+      regex: "(vecFullEncryptionExtensions|vecSkipFileExtensions|nEncryptionLimitBytes|nEncryptionBlockBytes|nEncryptionSkipBytes|sMasterPublicKey|sEncryptedFileExtension|vecPreRunCommands|vecPostRunCommands)"
+
 
   # Cryptographic symbols for ransomware
   - id: crypto-openssl-encrypt

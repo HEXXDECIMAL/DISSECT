@@ -53,6 +53,8 @@ fn create_test_finding(id: &str) -> Finding {
             location: None,
         }],
     }
+
+    source_file: None,
 }
 
 // =============================================================================

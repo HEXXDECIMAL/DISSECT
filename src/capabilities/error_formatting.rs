@@ -398,11 +398,7 @@ fn provide_error_guidance(
     // Extract the actual field name from the error message if present
     let unknown_field = if error_msg.contains("unknown field") {
         if let Some(field_start) = error_msg.find("`") {
-            if let Some(field_end) = error_msg[field_start + 1..].find("`") {
-                Some(error_msg[field_start + 1..field_start + 1 + field_end].to_string())
-            } else {
-                None
-            }
+            error_msg[field_start + 1..].find("`").map(|field_end| error_msg[field_start + 1..field_start + 1 + field_end].to_string())
         } else {
             None
         }
@@ -437,8 +433,8 @@ fn provide_error_guidance(
     }
 
     // Check for specific invalid fields based on condition type and field name
-    if !found_hallucination && unknown_field.is_some() {
-        let field = unknown_field.unwrap();
+    if !found_hallucination {
+        if let Some(field) = unknown_field {
 
         // Detect condition type from context
         let condition_type = if context.contains("type: raw") {
@@ -535,11 +531,12 @@ fn provide_error_guidance(
                 found_hallucination = true;
             }
         }
+        }
     }
 
     // Check for fields used with wrong condition type (kv doesn't support count/density)
-    if !found_hallucination {
-        if context.contains("type: kv")
+    if !found_hallucination
+        && context.contains("type: kv")
             && (context.contains("count_min:")
                 || context.contains("count_max:")
                 || context.contains("per_kb_min:")
@@ -550,7 +547,6 @@ fn provide_error_guidance(
             guidance.push_str("   💡 KV searches query structured data and return boolean results, not frequency counts.\n");
             found_hallucination = true;
         }
-    }
 
     // If no specific field error detected, check for ConditionDeser error - means invalid condition type
     // But only show this if it's not an "unknown field" error (which we handled above)

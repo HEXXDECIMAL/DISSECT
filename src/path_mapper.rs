@@ -279,6 +279,7 @@ fn detect_platform_from_paths(paths: &[PathInfo]) -> Vec<Finding> {
                     location: None,
                 })
                 .collect(),
+            source_file: None,
         });
     }
 
@@ -311,6 +312,7 @@ fn detect_platform_from_paths(paths: &[PathInfo]) -> Vec<Finding> {
                     location: None,
                 })
                 .collect(),
+            source_file: None,
         });
     }
 
@@ -354,6 +356,7 @@ fn detect_anomalous_paths(paths: &[PathInfo]) -> Vec<Finding> {
                 value: path.path.clone(),
                 location: None,
             }],
+            source_file: None,
         });
     }
 
@@ -401,6 +404,7 @@ fn detect_privilege_requirements(paths: &[PathInfo]) -> Vec<Finding> {
                     location: None,
                 })
                 .collect(),
+            source_file: None,
         });
     }
 
@@ -449,6 +453,7 @@ pub fn generate_traits_from_directories(directories: &[DirectoryAccess]) -> Vec<
                         ),
                         location: None,
                     }],
+                    source_file: None,
                 });
             }
         }
@@ -471,6 +476,7 @@ pub fn generate_traits_from_directories(directories: &[DirectoryAccess]) -> Vec<
                     value: format!("{} log files accessed", dir.file_count),
                     location: Some(dir.directory.clone()),
                 }],
+                source_file: None,
             });
         }
     }

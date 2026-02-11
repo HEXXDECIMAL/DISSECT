@@ -35,7 +35,7 @@ composite_rules:
     all:
       - id: cap/vm/detect/vmware::esxcli-vm-kill
       - id: cap/vm/detect/vmware::vmware-extensions
-      - id: cap/vm/detect/vmware::vmfs-volumes
+      - id: cap/vm/detect/vmware::vmfs-path
     any:
       - id: obj/impact/ransom/encrypt::locker-namespace
       - id: obj/impact/ransom/encrypt::config-note-fields
@@ -52,7 +52,7 @@ composite_rules:
       - id: cap/vm/detect/vmware::esxcli-vm-kill
       - id: cap/vm/detect/vmware::vmware-extensions
       - id: cap/vm/detect/vmware::killing-vms-msg
-      - id: cap/vm/detect/vmware::vmfs-volumes
+      - id: cap/vm/detect/vmware::vmfs-path
     any:
       - id: cap/vm/detect/vmware::vimcmd-snapshot-remove
       - id: cap/vm/detect/vmware::esxi-preparation
@@ -68,7 +68,7 @@ composite_rules:
     all:
       - id: cap/vm/detect/vmware::esxcli-vm-kill
       - id: cap/vm/detect/vmware::vmware-extensions
-      - id: cap/vm/detect/vmware::vmfs-volumes
+      - id: cap/vm/detect/vmware::vmfs-path
       - id: obj/anti-forensics/log-clear/commands::find-exec-rm-log
 
   # ESXi ransomware shell with anti-forensics - complexity 6 (for:1 + all:5)
@@ -80,7 +80,7 @@ composite_rules:
     all:
       - id: cap/vm/detect/vmware::esxcli-vm-kill
       - id: cap/vm/detect/vmware::vmware-extensions
-      - id: cap/vm/detect/vmware::vmfs-volumes
+      - id: cap/vm/detect/vmware::vmfs-path
       - id: obj/anti-forensics/self-delete/cleanup::rm-self-dollar-zero
       - id: obj/anti-forensics/timestomp/modify::touch-reference-multiple
 

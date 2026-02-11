@@ -268,6 +268,8 @@ where
                     value: "parser_crash".to_string(),
                     location: Some("parse".to_string()),
                 }],
+            
+                source_file: None,
             });
 
             Err(Box::new(report))

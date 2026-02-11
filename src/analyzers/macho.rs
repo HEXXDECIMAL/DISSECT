@@ -228,6 +228,8 @@ impl MachOAnalyzer {
                                     mbc: yara_match.mbc.clone(),
                                     attack: yara_match.attack.clone(),
                                     evidence,
+                                
+                                    source_file: None,
                                 });
                             }
                         }
@@ -277,6 +279,8 @@ impl MachOAnalyzer {
                 value: format!("0x{:x}", macho.header.magic),
                 location: None,
             }],
+        
+            source_file: None,
         });
 
         // 2. Architecture trait
@@ -296,6 +300,8 @@ impl MachOAnalyzer {
                 value: format!("cputype=0x{:x}", macho.header.cputype),
                 location: None,
             }],
+        
+            source_file: None,
         });
 
         // 3. Code signature trait - parse detailed signature information
@@ -323,6 +329,8 @@ impl MachOAnalyzer {
                     value: "LC_CODE_SIGNATURE".to_string(),
                     location: None,
                 }],
+            
+                source_file: None,
             });
         }
 
@@ -344,6 +352,8 @@ impl MachOAnalyzer {
                         value: s.value.chars().take(50).collect::<String>() + "...",
                         location: s.offset.map(|o| format!("{:#x}", o)),
                     }],
+                
+                    source_file: None,
                 });
                 break;
             }
@@ -367,6 +377,8 @@ impl MachOAnalyzer {
                     value: "$FreeBSD$".to_string(),
                     location: None,
                 }],
+            
+                source_file: None,
             });
         }
 
@@ -400,6 +412,8 @@ impl MachOAnalyzer {
                             value: lib.clone(),
                             location: None,
                         }],
+                    
+                        source_file: None,
                     });
                 }
             }
@@ -423,6 +437,8 @@ impl MachOAnalyzer {
                         value: format!("{:.2}", section.entropy),
                         location: Some(section.name.clone()),
                     }],
+                
+                    source_file: None,
                 });
                 break; // Only report once
             }
@@ -457,6 +473,8 @@ impl MachOAnalyzer {
                     value: func_names.join(", "),
                     location: None,
                 }],
+            
+                source_file: None,
             });
         }
 
@@ -697,6 +715,8 @@ impl MachOAnalyzer {
                 value: format!("{}::{}", sig_category, signer),
                 location: None,
             }],
+        
+            source_file: None,
         });
 
         // Identifier trait - complete trait ID includes the bundle identifier
@@ -716,6 +736,8 @@ impl MachOAnalyzer {
                     value: identifier.clone(),
                     location: None,
                 }],
+            
+                source_file: None,
             });
         }
 
@@ -738,6 +760,8 @@ impl MachOAnalyzer {
                     value: entitlement_key.clone(),
                     location: None,
                 }],
+            
+                source_file: None,
             });
         }
 
@@ -758,6 +782,8 @@ impl MachOAnalyzer {
                     value: "0x00010000".to_string(),
                     location: None,
                 }],
+            
+                source_file: None,
             });
         }
     }
@@ -839,6 +865,8 @@ impl MachOAnalyzer {
             mbc: Some("C0027".to_string()), // Obfuscated Files or Information
             attack: Some("T1027".to_string()),
             evidence: evidence.clone(),
+        
+            source_file: None,
         });
 
         // Attempt decryption
@@ -927,6 +955,8 @@ impl MachOAnalyzer {
                         mbc: Some("C0027".to_string()),
                         attack: Some("T1027".to_string()),
                         evidence: decrypt_evidence,
+                    
+                        source_file: None,
                     });
                 }
             }

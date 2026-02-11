@@ -159,6 +159,8 @@ impl PEAnalyzer {
                                         value: yara_match.rule.clone(),
                                         location: None,
                                     }],
+                                
+                                    source_file: None,
                                 });
                             }
                         }
@@ -325,6 +327,8 @@ impl PEAnalyzer {
                         value: format!("{:.2}", entropy),
                         location: Some(name.clone()),
                     }],
+                
+                    source_file: None,
                 });
             }
 
@@ -344,6 +348,8 @@ impl PEAnalyzer {
                         value: permissions,
                         location: Some(name),
                     }],
+                
+                    source_file: None,
                 });
             }
         }

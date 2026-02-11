@@ -372,6 +372,7 @@ pub(crate) fn apply_composite_defaults(
     raw: RawCompositeRule,
     defaults: &TraitDefaults,
     warnings: &mut Vec<String>,
+    path: &std::path::Path,
 ) -> CompositeTrait {
     // Parse file_types: use rule-specific if present (unless "none"), else defaults, else [All]
     let file_types = apply_vec_default(raw.file_types, &defaults.r#for)
@@ -428,6 +429,7 @@ pub(crate) fn apply_composite_defaults(
         unless: raw.unless,
         not: raw.not,
         downgrade: raw.downgrade,
+        defined_in: path.to_path_buf(),
         precision: None,
     }
 }

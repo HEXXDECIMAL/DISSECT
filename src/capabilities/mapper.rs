@@ -36,6 +36,21 @@ use super::validation::{
     validate_composite_trait_only, validate_hostile_composite_precision, MAX_TRAITS_PER_DIRECTORY,
 };
 
+/// Extract relative path from full path (relative to traits directory)
+/// Returns None if path conversion fails
+fn get_relative_source_file(path: &std::path::Path) -> Option<String> {
+    // Try to find "traits/" in the path and return everything after it
+    let path_str = path.to_string_lossy();
+    if let Some(pos) = path_str.find("traits/") {
+        let relative = &path_str[pos + 7..]; // Skip "traits/" prefix
+        return Some(relative.to_string());
+    }
+    // Fallback: return the file name only if we can't find "traits/"
+    path.file_name()
+        .and_then(|n| n.to_str())
+        .map(|s| s.to_string())
+}
+
 /// Maps symbols (function names, library calls) to capability IDs
 /// Also supports trait definitions and composite rules that combine traits
 #[derive(Clone)]
@@ -604,7 +619,7 @@ impl CapabilityMapper {
             for raw_rule in mappings.composite_rules {
                 // Convert raw rule to final rule, applying file-level defaults
                 let mut rule =
-                    apply_composite_defaults(raw_rule, &mappings.defaults, &mut parsing_warnings);
+                    apply_composite_defaults(raw_rule, &mappings.defaults, &mut parsing_warnings, &path);
 
                 // Auto-prefix composite rule ID if it doesn't already have the path prefix
                 if let Some(ref prefix) = trait_prefix {
@@ -2019,6 +2034,7 @@ impl CapabilityMapper {
                 raw,
                 &mappings.defaults,
                 &mut warnings,
+                path.as_ref(),
             ));
         }
 
@@ -2113,7 +2129,9 @@ impl CapabilityMapper {
                     value: symbol.to_string(),
                     location: None,
                 }],
-            });
+            
+    source_file: None,
+});
         }
 
         None
@@ -2326,6 +2344,7 @@ impl CapabilityMapper {
                                 evidence: evidence.clone(),
                                 kind: FindingKind::Capability,
                                 trait_refs: vec![],
+                                source_file: get_relative_source_file(&trait_def.defined_in),
                             });
                         }
                     }
@@ -2688,7 +2707,9 @@ impl CapabilityMapper {
                                 value: import.symbol.clone(),
                                 location: import.library.clone(),
                             }],
-                        });
+                        
+    source_file: None,
+});
                     }
                 }
             }
@@ -2736,7 +2757,9 @@ impl CapabilityMapper {
                         value: library,
                         location: Some(format!("{} symbols", symbols.len())),
                     }],
-                });
+                
+    source_file: None,
+});
             }
         } else {
             // For scripts: generate two types of findings:
@@ -2768,7 +2791,9 @@ impl CapabilityMapper {
                                 value: import.symbol.clone(),
                                 location: None,
                             }],
-                        });
+                        
+    source_file: None,
+});
                     }
                 } else {
                     // Actual imports go to meta/import/{lang}/{module} for composite traits
@@ -2804,7 +2829,9 @@ impl CapabilityMapper {
                             value: import.symbol.clone(),
                             location: import.library.clone(),
                         }],
-                    });
+                    
+    source_file: None,
+});
                 }
             }
         }

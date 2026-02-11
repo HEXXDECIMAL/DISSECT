@@ -822,6 +822,8 @@ impl ArchiveAnalyzer {
                         value: format!("timeout:{}s", MAX_FILE_ANALYSIS_TIME_SECS),
                         location: Some(file_path.display().to_string()),
                     }],
+                
+                    source_file: None,
                 });
 
                 Ok(report)

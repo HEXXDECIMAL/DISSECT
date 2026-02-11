@@ -354,6 +354,7 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
                     location: None,
                 })
                 .collect(),
+            source_file: None,
         });
     }
 
@@ -399,6 +400,7 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
                 value: var.name.clone(),
                 location: None,
             }],
+            source_file: None,
         });
     }
 
@@ -427,6 +429,7 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
                     location: None,
                 })
                 .collect(),
+            source_file: None,
         });
     }
 
@@ -455,6 +458,7 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
                     location: None,
                 })
                 .collect(),
+            source_file: None,
         });
     }
 
@@ -483,6 +487,7 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
                     location: None,
                 })
                 .collect(),
+            source_file: None,
         });
     }
 
@@ -511,6 +516,7 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
                     location: None,
                 })
                 .collect(),
+            source_file: None,
         });
     }
 
@@ -542,6 +548,7 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
                     location: None,
                 })
                 .collect(),
+            source_file: None,
         });
     }
 
@@ -570,6 +577,7 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
                     location: None,
                 })
                 .collect(),
+            source_file: None,
         });
     }
 
@@ -611,6 +619,7 @@ pub fn analyze_and_link_env_vars(report: &mut AnalysisReport) {
                     value: api_name,
                     location: None,
                 }],
+                source_file: None,
             });
         }
     }

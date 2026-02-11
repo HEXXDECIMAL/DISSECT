@@ -1056,6 +1056,8 @@ fn analyze_file_with_shared_mapper(
                 value: format!("expected={}, actual={}", expected, actual),
                 location: None,
             }],
+        
+            source_file: None,
         });
     }
 
@@ -1084,6 +1086,8 @@ fn analyze_file_with_shared_mapper(
                 ),
                 location: Some(format!("offset:{}", payload.original_offset)),
             }],
+        
+            source_file: None,
         });
 
         // TODO: Recursively analyze decoded payloads

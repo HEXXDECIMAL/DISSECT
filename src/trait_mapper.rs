@@ -47,6 +47,7 @@ pub fn analyze_function(func: &Function) -> Vec<Finding> {
                     value: "noreturn".to_string(),
                     location: Some(func.name.clone()),
                 }],
+                source_file: None,
             });
         }
     }
@@ -78,6 +79,7 @@ fn analyze_control_flow(cf: &ControlFlowMetrics, func_name: &str) -> Vec<Finding
                 ),
                 location: Some(func_name.to_string()),
             }],
+            source_file: None,
         });
 
         // If very high complexity, could be obfuscation
@@ -97,6 +99,7 @@ fn analyze_control_flow(cf: &ControlFlowMetrics, func_name: &str) -> Vec<Finding
                     value: format!("complexity={}", cf.cyclomatic_complexity),
                     location: Some(func_name.to_string()),
                 }],
+                source_file: None,
             });
         }
     }
@@ -118,6 +121,7 @@ fn analyze_control_flow(cf: &ControlFlowMetrics, func_name: &str) -> Vec<Finding
                 value: format!("loops={}", cf.loop_count),
                 location: Some(func_name.to_string()),
             }],
+            source_file: None,
         });
     }
 
@@ -147,6 +151,7 @@ fn analyze_instructions(instr: &InstructionAnalysis, func_name: &str) -> Vec<Fin
                         value: unusual_inst.clone(),
                         location: Some(func_name.to_string()),
                     }],
+                    source_file: None,
                 });
             }
             "int3" | "int 3" => {
@@ -165,6 +170,7 @@ fn analyze_instructions(instr: &InstructionAnalysis, func_name: &str) -> Vec<Fin
                         value: unusual_inst.clone(),
                         location: Some(func_name.to_string()),
                     }],
+                    source_file: None,
                 });
             }
             "rdtsc" | "rdtscp" => {
@@ -183,6 +189,7 @@ fn analyze_instructions(instr: &InstructionAnalysis, func_name: &str) -> Vec<Fin
                         value: unusual_inst.clone(),
                         location: Some(func_name.to_string()),
                     }],
+                    source_file: None,
                 });
             }
             s if s.contains("cpuid") => {
@@ -201,6 +208,7 @@ fn analyze_instructions(instr: &InstructionAnalysis, func_name: &str) -> Vec<Fin
                         value: unusual_inst.clone(),
                         location: Some(func_name.to_string()),
                     }],
+                    source_file: None,
                 });
             }
             s if s.starts_with("fx") => {
@@ -220,6 +228,7 @@ fn analyze_instructions(instr: &InstructionAnalysis, func_name: &str) -> Vec<Fin
                         value: unusual_inst.clone(),
                         location: Some(func_name.to_string()),
                     }],
+                    source_file: None,
                 });
             }
             _ => {}
@@ -244,6 +253,7 @@ fn analyze_instructions(instr: &InstructionAnalysis, func_name: &str) -> Vec<Fin
                 value: format!("xor_ratio={:.2}", xor_ratio),
                 location: Some(func_name.to_string()),
             }],
+            source_file: None,
         });
     }
 
@@ -264,6 +274,7 @@ fn analyze_instructions(instr: &InstructionAnalysis, func_name: &str) -> Vec<Fin
                 value: format!("crypto_instructions={}", instr.categories.crypto),
                 location: Some(func_name.to_string()),
             }],
+            source_file: None,
         });
     }
 
@@ -284,6 +295,7 @@ fn analyze_instructions(instr: &InstructionAnalysis, func_name: &str) -> Vec<Fin
                 value: format!("string_ops={}", instr.categories.string_ops),
                 location: Some(func_name.to_string()),
             }],
+            source_file: None,
         });
     }
 
@@ -304,6 +316,7 @@ fn analyze_instructions(instr: &InstructionAnalysis, func_name: &str) -> Vec<Fin
                 value: format!("syscalls={}", instr.categories.system),
                 location: Some(func_name.to_string()),
             }],
+            source_file: None,
         });
     }
 
@@ -324,6 +337,7 @@ fn analyze_instructions(instr: &InstructionAnalysis, func_name: &str) -> Vec<Fin
                 value: format!("privileged={}", instr.categories.privileged),
                 location: Some(func_name.to_string()),
             }],
+            source_file: None,
         });
     }
 
@@ -356,6 +370,7 @@ fn analyze_constants(
                             value: decoded.decoded_value.clone(),
                             location: Some(func_name.to_string()),
                         }],
+                        source_file: None,
                     });
                 }
                 "port" => {
@@ -374,6 +389,7 @@ fn analyze_constants(
                             value: decoded.decoded_value.clone(),
                             location: Some(func_name.to_string()),
                         }],
+                        source_file: None,
                     });
                 }
                 _ => {}
@@ -405,6 +421,7 @@ pub fn analyze_binary_properties(props: &BinaryProperties) -> Vec<Finding> {
                 value: "no_canary,no_nx,no_pic".to_string(),
                 location: None,
             }],
+            source_file: None,
         });
     }
 
@@ -425,6 +442,7 @@ pub fn analyze_binary_properties(props: &BinaryProperties) -> Vec<Finding> {
                 value: "stripped".to_string(),
                 location: None,
             }],
+            source_file: None,
         });
     }
 
@@ -445,6 +463,7 @@ pub fn analyze_binary_properties(props: &BinaryProperties) -> Vec<Finding> {
                 value: "static".to_string(),
                 location: None,
             }],
+            source_file: None,
         });
     }
 
@@ -472,6 +491,7 @@ pub fn analyze_binary_properties(props: &BinaryProperties) -> Vec<Finding> {
                 value: anomaly.anomaly_type.clone(),
                 location: None,
             }],
+            source_file: None,
         });
     }
 
@@ -1029,6 +1049,7 @@ mod tests {
             local_vars: 0,
             args: 0,
             is_leaf: false,
+            source_file: None,
         });
 
         let caps = analyze_function(&func);
@@ -1053,6 +1074,7 @@ mod tests {
             branch_density: 0.25,
             in_degree: 1,
             out_degree: 4,
+            source_file: None,
         });
 
         // Add instruction analysis
@@ -1073,6 +1095,7 @@ mod tests {
             },
             top_opcodes: vec![],
             unusual_instructions: vec!["rdtsc".to_string()],
+            source_file: None,
         });
 
         // Add constants

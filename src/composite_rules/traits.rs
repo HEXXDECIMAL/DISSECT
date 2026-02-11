@@ -24,6 +24,21 @@ fn default_confidence() -> f32 {
     1.0
 }
 
+/// Extract relative path from full path (relative to traits directory)
+/// Returns None if path conversion fails
+fn get_relative_source_file(path: &std::path::Path) -> Option<String> {
+    // Try to find "traits/" in the path and return everything after it
+    let path_str = path.to_string_lossy();
+    if let Some(pos) = path_str.find("traits/") {
+        let relative = &path_str[pos + 7..]; // Skip "traits/" prefix
+        return Some(relative.to_string());
+    }
+    // Fallback: return the file name only if we can't find "traits/"
+    path.file_name()
+        .and_then(|n| n.to_str())
+        .map(|s| s.to_string())
+}
+
 /// Wrapper for conditions with common filters applied at trait level.
 /// Uses #[serde(flatten)] to merge filters into the if: block ergonomically.
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -729,6 +744,7 @@ impl TraitDefinition {
                     ),
                     location: None,
                 }],
+                source_file: get_relative_source_file(&self.defined_in),
             };
 
             return Some(timeout_warning);
@@ -886,6 +902,7 @@ impl TraitDefinition {
                 attack: self.attack.clone(),
                 trait_refs: vec![],
                 evidence: result.evidence,
+                source_file: get_relative_source_file(&self.defined_in),
             })
         } else {
             None
@@ -1253,6 +1270,9 @@ pub struct CompositeTrait {
     /// Only levels LOWER than base `crit` are allowed (validated at load time)
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub downgrade: Option<DowngradeConditions>,
+    /// Source file path where this composite rule was defined
+    #[serde(skip)]
+    pub defined_in: std::path::PathBuf,
     /// Precision score (calculated during loading, not from YAML)
     #[serde(skip)]
     pub precision: Option<f32>,
@@ -1642,6 +1662,7 @@ impl CompositeTrait {
                         ),
                         location: None,
                     }],
+                    source_file: get_relative_source_file(&self.defined_in),
                 });
             }
 
@@ -1655,6 +1676,7 @@ impl CompositeTrait {
                 attack: self.attack.clone(),
                 trait_refs: vec![],
                 evidence,
+                source_file: get_relative_source_file(&self.defined_in),
             })
         } else {
             None

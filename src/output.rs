@@ -167,6 +167,7 @@ fn yara_to_findings(yara_matches: &[YaraMatch]) -> Vec<Finding> {
                 attack: None,
                 trait_refs: vec![],
                 evidence,
+                source_file: None,
             }
         })
         .collect()
@@ -918,6 +919,7 @@ mod tests {
                 mbc: None,
                 attack: None,
                 evidence: vec![],
+                source_file: None,
             },
             Finding {
                 kind: FindingKind::Capability,
@@ -929,6 +931,7 @@ mod tests {
                 mbc: None,
                 attack: None,
                 evidence: vec![],
+                source_file: None,
             },
         ];
         let aggregated = aggregate_findings_by_directory(&findings);
@@ -952,6 +955,7 @@ mod tests {
                 mbc: None,
                 attack: None,
                 evidence: vec![],
+                source_file: None,
             },
             Finding {
                 kind: FindingKind::Capability,
@@ -963,6 +967,7 @@ mod tests {
                 mbc: None,
                 attack: None,
                 evidence: vec![],
+                source_file: None,
             },
         ];
         let aggregated = aggregate_findings_by_directory(&findings);
@@ -986,6 +991,7 @@ mod tests {
                 mbc: None,
                 attack: None,
                 evidence: vec![],
+                source_file: None,
             },
             Finding {
                 kind: FindingKind::Capability,
@@ -997,6 +1003,7 @@ mod tests {
                 mbc: None,
                 attack: None,
                 evidence: vec![],
+                source_file: None,
             },
         ];
         let aggregated = aggregate_findings_by_directory(&findings);
@@ -1103,6 +1110,7 @@ mod tests {
             mbc: None,
             attack: None,
             evidence: vec![],
+            source_file: None,
         };
         assert_eq!(format_evidence(&trait_item), "");
     }
@@ -1132,6 +1140,7 @@ mod tests {
                     location: None,
                 },
             ],
+            source_file: None,
         };
         let formatted = format_evidence(&trait_item);
         assert!(formatted.contains("cmd.exe"));
@@ -1157,6 +1166,7 @@ mod tests {
             mbc: None,
             attack: None,
             evidence: vec![],
+            source_file: None,
         }];
         let report = create_test_report(capabilities, vec![]);
         let output = format_terminal(&report).unwrap();
@@ -1182,6 +1192,7 @@ mod tests {
             mbc: None,
             attack: None,
             evidence: vec![],
+            source_file: None,
         }];
         let report = create_test_report(capabilities, vec![]);
         let risk = calculate_overall_risk(&report);

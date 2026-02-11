@@ -292,6 +292,7 @@ fn generate_language_trait(
             ),
             location: Some(format!("{:#x}", offset)),
         }],
+        source_file: None,
     }
 }
 

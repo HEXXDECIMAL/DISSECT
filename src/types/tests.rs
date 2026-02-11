@@ -211,6 +211,8 @@ fn test_finding_constructor() {
         attack: None,
         trait_refs: vec![],
         evidence,
+    
+        source_file: None,
     };
 
     assert_eq!(finding.id, "net/socket");

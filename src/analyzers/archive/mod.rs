@@ -406,6 +406,8 @@ impl ArchiveAnalyzer {
                     value: evidence_value,
                     location: None,
                 }],
+            
+                source_file: None,
             });
         }
 
@@ -567,6 +569,8 @@ impl ArchiveAnalyzer {
                     value: evidence_value,
                     location: None,
                 }],
+            
+                source_file: None,
             });
         }
 

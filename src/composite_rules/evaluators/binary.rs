@@ -355,9 +355,7 @@ pub fn eval_section(
     // Calculate precision matching other evaluators
     let mut precision = if exact.is_some() {
         2.0
-    } else if regex.is_some() {
-        1.5
-    } else if word.is_some() {
+    } else if regex.is_some() || word.is_some() {
         1.5
     } else if substr.is_some() {
         1.0

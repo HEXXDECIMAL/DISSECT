@@ -259,6 +259,7 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
                 value: format!("expected={}, actual={}", expected, actual),
                 location: None,
             }],
+            source_file: None,
         });
     }
 
@@ -288,6 +289,7 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
                 ),
                 location: Some(format!("offset:{}", payload.original_offset)),
             }],
+            source_file: None,
         });
 
         // Analyze the decoded payload

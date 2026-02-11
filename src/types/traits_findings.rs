@@ -133,6 +133,9 @@ pub struct Finding {
     /// Additional evidence (for findings not tied to specific traits)
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub evidence: Vec<Evidence>,
+    /// Source file path (relative to traits directory) where this trait/rule was defined
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub source_file: Option<String>,
 }
 
 impl Finding {
@@ -147,6 +150,7 @@ impl Finding {
             attack: None,
             trait_refs: Vec::new(),
             evidence: Vec::new(),
+            source_file: None,
         }
     }
 
@@ -192,6 +196,11 @@ impl Finding {
 
     pub fn with_evidence(mut self, evidence: Vec<Evidence>) -> Self {
         self.evidence = evidence;
+        self
+    }
+
+    pub fn with_source_file(mut self, source_file: Option<String>) -> Self {
+        self.source_file = source_file;
         self
     }
 }

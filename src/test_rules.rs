@@ -3029,6 +3029,7 @@ mod tests {
             attack: None,
             trait_refs: vec![],
             evidence: vec![],
+            source_file: None,
         }
     }
 

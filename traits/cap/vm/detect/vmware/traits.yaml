@@ -28,13 +28,13 @@ traits:
       type: string
       regex: '\.(vmdk|vmx|vmsd|vmsn|vswp|vmem|nvram|vmxf)($|\b)'
 
-  - id: vmfs-volumes
+  - id: vmfs-path
     desc: Reference to VMware VMFS volumes path
     crit: notable
     conf: 0.9
     if:
       type: string
-      substr: "/vmfs/volumes"
+      substr: "/vmfs/"
 
   - id: vm-world-id
     desc: Reference to ESXi VM World ID

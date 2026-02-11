@@ -1635,6 +1635,7 @@ pub(crate) fn simple_rule_to_composite_rule(
         unless: None,
         not: None,
         downgrade: None,
+        defined_in: std::path::PathBuf::from("converted_simple_rule"),
         precision: None,
     }
 }
