@@ -3,7 +3,7 @@
 # ATT&CK: T1027 (Obfuscated Files or Information)
 
 defaults:
-  for: [elf, macho, pe]
+  for: [elf, macho, pe, python]
   mbc: "B0032"
   attack: "T1027"
 
@@ -123,13 +123,6 @@ traits:
   #     type: string
   #     regex: "\\b[a-zA-Z0-9]{16,32}\\b"
   #     needs: 1
-  - id: xor-key-embedded-homabrews
-    desc: "Known homabrews.org XOR key"
-    crit: suspicious
-    conf: 1.0
-    if:
-      type: raw
-      exact: "fYztZORL5VNS7nCUH1ktn5UoJ8VSgaf"
 
 composite_rules:
   - id: xor-decode-loop
@@ -160,3 +153,12 @@ composite_rules:
     any:
       - id: xor-decode-loop
       - id: table-based-decode
+
+  - id: python-xor-decode
+    desc: "Python XOR decoding script"
+    crit: suspicious
+    conf: 0.8
+    for: [python]
+    all:
+      - id: cap/data/encode/xor::xor-decoding-loop
+      - id: cap/data/encode/hex::hex-decode-int-16

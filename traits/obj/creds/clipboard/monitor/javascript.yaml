@@ -36,13 +36,13 @@ traits:
 composite_rules:
   - id: js-clipboard-exfil
     desc: "JavaScript clipboard capture exfiltration"
-    crit: suspicious
+    crit: hostile
     conf: 0.95
     attack: "T1553"
     mbc: "B0014"
     for: [javascript]
     all:
-      - id: cap/comm/http/lib/axios::js-axios-post
+      - id: obj/exfil/channel/http::node-http-libs
     any:
       - id: js-pbpaste
       - id: js-powershell-clipboard

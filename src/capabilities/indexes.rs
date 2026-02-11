@@ -395,7 +395,7 @@ impl RawContentRegexIndex {
         for (trait_idx, trait_def) in traits.iter().enumerate() {
             // Extract regex patterns from Content traits
             let pattern_opt = match &trait_def.r#if {
-                Condition::Content {
+                Condition::Raw {
                     regex: Some(ref regex_str),
                     case_insensitive,
                     ..
@@ -404,7 +404,7 @@ impl RawContentRegexIndex {
                 } else {
                     regex_str.clone()
                 }),
-                Condition::Content {
+                Condition::Raw {
                     word: Some(ref word_str),
                     case_insensitive,
                     ..

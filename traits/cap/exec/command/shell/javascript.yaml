@@ -8,9 +8,17 @@ traits:
     conf: 1.0
     for: [javascript]
     if:
-      type: ast
-      kind: call
+      type: symbol
       exact: "execSync"
+
+  - id: js-exec
+    desc: Executes shell commands
+    crit: notable
+    conf: 1.0
+    for: [javascript]
+    if:
+      type: symbol
+      exact: "exec"
 
   - id: js-spawn
     desc: Spawns a child process
@@ -21,3 +29,30 @@ traits:
       type: ast
       kind: call
       exact: "spawn"
+
+  - id: js-cmd-start
+    desc: Launches cmd via start
+    crit: suspicious
+    conf: 0.9
+    for: [javascript]
+    if:
+      type: string
+      regex: 'start\s+cmd'
+
+  - id: js-terminal-launch
+    desc: Launches Linux terminal emulator
+    crit: suspicious
+    conf: 0.9
+    for: [javascript]
+    if:
+      type: string
+      regex: 'gnome-terminal|x-terminal-emulator|xfce4-terminal'
+
+  - id: js-bun-exec
+    desc: Executes bun command
+    crit: notable
+    conf: 0.8
+    for: [javascript]
+    if:
+      type: string
+      regex: '(?:^|[^a-zA-Z0-9])bun(?:$|[^a-zA-Z0-9])'

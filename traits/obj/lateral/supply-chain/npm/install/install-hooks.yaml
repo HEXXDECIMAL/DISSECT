@@ -110,8 +110,27 @@ traits:
       path: "scripts"
       regex: "\\b(uname|whoami|hostname|ifconfig|ip\\s+addr)\\b"
 
+  - id: script-network-exfil-vars
+    desc: Network request with command substitution (exfiltration)
+    crit: suspicious
+    conf: 0.95
+    attack: "T1041"
+    if:
+      type: kv
+      path: "scripts"
+      regex: "https?://[^\"'\\s]*\\$\\("
+
 # === Composite Rules ===
 composite_rules:
+  - id: install-script-exfil
+    desc: Install script performs data exfiltration
+    crit: hostile
+    conf: 0.95
+    attack: "T1041"
+    all:
+      - id: script-network-exfil-vars
+      - id: download-tools
+
   # Download tools
   - id: download-tools
     desc: Script uses download tools

@@ -5,7 +5,7 @@
 
 traits:
   - id: ccutil-reset-appleevents
-    desc: ccutil reset AppleEvents (TCC database wipe)
+    desc: tccutil reset AppleEvents (TCC database wipe)
     crit: suspicious
     conf: 0.95
     mbc: "B0047"
@@ -13,7 +13,7 @@ traits:
     platforms: [macos]
     if:
       type: string
-      regex: 'ccutil\s+reset\s+AppleEvents'
+      regex: '(tcc|cc)util\s+reset\s+AppleEvents'
       case_insensitive: true
 
   - id: ccutil-reset-generic

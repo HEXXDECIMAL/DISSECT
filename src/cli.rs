@@ -342,7 +342,7 @@ pub enum Command {
         #[arg(required = true)]
         target: String,
 
-        /// Type of search to perform (string, symbol, content, kv)
+        /// Type of search to perform (string, symbol, raw, kv, hex, encoded)
         #[arg(short, long, value_enum, default_value = "string")]
         r#type: SearchType,
 
@@ -362,11 +362,11 @@ pub enum Command {
         #[arg(short, long, value_enum)]
         file_type: Option<DetectFileType>,
 
-        /// Minimum number of matches required (for string/content searches)
+        /// Minimum number of matches required (for string/raw/encoded searches)
         #[arg(long, default_value = "1")]
         count_min: usize,
 
-        /// Maximum number of matches allowed (for string/content searches)
+        /// Maximum number of matches allowed (for string/raw/encoded searches)
         #[arg(long)]
         count_max: Option<usize>,
 
@@ -401,6 +401,12 @@ pub enum Command {
         /// Section-relative byte range [start,end) (requires --section)
         #[arg(long, value_parser = parse_offset_range)]
         section_offset_range: Option<(i64, Option<i64>)>,
+
+        /// Filter by encoding method(s) for 'encoded' search type
+        /// Examples: "base64", "xor,hex", "xor+base64"
+        /// Use comma for OR, plus for chain sequence
+        #[arg(long)]
+        encoding: Option<String>,
 
         /// Require matches to contain a valid external IP (not private/loopback/reserved)
         #[arg(long)]
@@ -438,15 +444,13 @@ pub enum SearchType {
     /// Search in symbols (imports/exports)
     Symbol,
     /// Search in raw file content
-    Content,
+    Raw,
     /// Search in structured data (JSON/YAML/TOML manifests)
     Kv,
     /// Search for hex byte patterns
     Hex,
-    /// Search in base64-decoded strings
-    Base64,
-    /// Search in XOR-decoded strings (brute-force all single-byte keys)
-    Xor,
+    /// Search in decoded strings (base64, xor, hex, url, etc.) - optionally filter by encoding
+    Encoded,
 }
 
 #[derive(Debug, Clone, clap::ValueEnum, PartialEq)]

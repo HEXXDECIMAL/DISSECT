@@ -101,6 +101,7 @@ composite_rules:
       - id: fread-func
       - id: fwrite-func
 
+
   # File manipulation with seeking
   - id: file-manipulation
     desc: "File content manipulation (read/write/seek)"

@@ -320,6 +320,7 @@ fn main() -> Result<()> {
             section_offset,
             section_offset_range,
             external_ip,
+            encoding,
         }) => test_match_debug(
             &target,
             r#type,
@@ -338,6 +339,7 @@ fn main() -> Result<()> {
             section_offset,
             section_offset_range,
             external_ip,
+            encoding.as_deref(),
             &disabled,
             platforms.clone(),
             args.min_hostile_precision,
@@ -914,6 +916,16 @@ fn analyze_file_with_shared_mapper(
     if timing {
         eprintln!("[TIMING] File type detection: {:?}", t_detect.elapsed());
     }
+
+    // Read file for mismatch check and payload extraction
+    let file_data = std::fs::read(path)?;
+
+    // Check for extension/content mismatch
+    let mismatch = analyzers::check_extension_content_mismatch(path, &file_data);
+
+    // Check for encoded payloads (hex, base64, etc.)
+    let encoded_payloads = extractors::encoded_payload::extract_encoded_payloads(&file_data);
+
     let t_analyze = std::time::Instant::now();
 
     // Route to appropriate analyzer
@@ -1005,6 +1017,61 @@ fn analyze_file_with_shared_mapper(
 
     if timing {
         eprintln!("[TIMING] Analysis: {:?}", t_analyze.elapsed());
+    }
+
+    // Add finding for extension/content mismatch if detected
+    if let Some((expected, actual)) = mismatch {
+        report.findings.push(types::Finding {
+            id: "meta/file-extension-mismatch".to_string(),
+            kind: types::FindingKind::Indicator,
+            desc: format!(
+                "File extension claims {} but content is {}",
+                expected, actual
+            ),
+            conf: 1.0,
+            crit: types::Criticality::Hostile,
+            mbc: None,
+            attack: Some("T1036.005".to_string()), // Masquerading: Match Legitimate Name or Location
+            trait_refs: vec![],
+            evidence: vec![types::Evidence {
+                method: "magic-byte".to_string(),
+                source: "dissect".to_string(),
+                value: format!("expected={}, actual={}", expected, actual),
+                location: None,
+            }],
+        });
+    }
+
+    // Add findings for encoded payloads
+    for payload in encoded_payloads {
+        report.findings.push(types::Finding {
+            id: format!("meta/encoded-payload/{}", payload.encoding_chain.join("-")),
+            kind: types::FindingKind::Structural,
+            desc: format!(
+                "Encoded payload detected: {}",
+                payload.encoding_chain.join(" → ")
+            ),
+            conf: 0.9,
+            crit: types::Criticality::Suspicious,
+            mbc: None,
+            attack: None,
+            trait_refs: vec![],
+            evidence: vec![types::Evidence {
+                method: "pattern".to_string(),
+                source: "dissect".to_string(),
+                value: format!(
+                    "encoding={}, type={:?}, preview={}",
+                    payload.encoding_chain.join(", "),
+                    payload.detected_type,
+                    payload.preview
+                ),
+                location: Some(format!("offset:{}", payload.original_offset)),
+            }],
+        });
+
+        // TODO: Recursively analyze decoded payloads
+        // This is currently only done in lib.rs::analyze_file_with_mapper
+        // Consider refactoring to share this logic between CLI and library paths
     }
 
     // Run YARA universally for file types that didn't handle it internally
@@ -1813,6 +1880,7 @@ fn test_match_debug(
     section_offset: Option<i64>,
     section_offset_range: Option<(i64, Option<i64>)>,
     external_ip: bool,
+    encoding: Option<&str>,
     _disabled: &cli::DisabledComponents,
     platforms: Vec<composite_rules::Platform>,
     min_hostile_precision: f32,
@@ -2219,7 +2287,7 @@ fn test_match_debug(
 
             (matched, matched_symbols.len(), out)
         }
-        cli::SearchType::Content => {
+        cli::SearchType::Raw => {
             // Resolve effective range for content search
             let effective_range = resolve_effective_range(
                 section,
@@ -2710,12 +2778,28 @@ fn test_match_debug(
 
             (result.matched, match_count, out)
         }
-        cli::SearchType::Base64 => {
-            // Search in base64-decoded strings from the analysis report
-            let base64_strings: Vec<&str> = report
+        cli::SearchType::Encoded => {
+            // Search in encoded/decoded strings with optional encoding filter
+            // Parse encoding parameter: single ("base64"), multiple ("base64,hex"), or None (all)
+            let encoding_filter: Option<Vec<String>> =
+                encoding.map(|enc_str| enc_str.split(',').map(|s| s.trim().to_string()).collect());
+
+            // Filter strings by encoding_chain
+            let encoded_strings: Vec<&str> = report
                 .strings
                 .iter()
-                .filter(|s| s.encoding_chain.iter().any(|enc| enc.contains("base64")))
+                .filter(|s| {
+                    if s.encoding_chain.is_empty() {
+                        return false; // Not an encoded string
+                    }
+                    match &encoding_filter {
+                        None => true, // No filter: accept all encoded strings
+                        Some(filters) => {
+                            // Accept if ANY filter matches (OR logic)
+                            filters.iter().any(|enc| s.encoding_chain.contains(enc))
+                        }
+                    }
+                })
                 .map(|s| s.value.as_str())
                 .collect();
 
@@ -2741,7 +2825,7 @@ fn test_match_debug(
             };
 
             let matched_strings = find_matching_strings(
-                &base64_strings,
+                &encoded_strings,
                 &exact,
                 &contains,
                 &regex,
@@ -2774,7 +2858,11 @@ fn test_match_debug(
             let matched = count_min_ok && count_max_ok && per_kb_min_ok && per_kb_max_ok;
 
             let mut out = String::new();
-            out.push_str("Search: base64 (decoded strings)\n");
+            if let Some(ref filters) = encoding_filter {
+                out.push_str(&format!("Search: encoded ({})\n", filters.join(", ")));
+            } else {
+                out.push_str("Search: encoded (all encodings)\n");
+            }
             out.push_str(&format!("  count_min: {}", count_min));
             if let Some(max) = count_max {
                 out.push_str(&format!(", count_max: {}", max));
@@ -2791,9 +2879,9 @@ fn test_match_debug(
             out.push('\n');
             out.push_str(&format!("Pattern: {}\n", pattern));
             out.push_str(&format!(
-                "Context: file_type={:?}, base64_strings={} (from {} total strings)\n",
+                "Context: file_type={:?}, encoded_strings={} (from {} total strings)\n",
                 file_type,
-                base64_strings.len(),
+                encoded_strings.len(),
                 report.strings.len()
             ));
 
@@ -2817,124 +2905,14 @@ fn test_match_debug(
                     "Found {} matches ({:.3}/KB)\n",
                     match_count, density
                 ));
-                if base64_strings.is_empty() {
-                    out.push_str("  No base64-decoded strings found in this file\n");
-                    out.push_str("  💡 Try `--type string` or `--type content` instead\n");
-                }
-            }
-
-            (matched, match_count, out)
-        }
-        cli::SearchType::Xor => {
-            // Search in XOR-decoded strings from the analysis report
-            let xor_strings: Vec<&str> = report
-                .strings
-                .iter()
-                .filter(|s| s.encoding_chain.iter().any(|enc| enc.contains("xor")))
-                .map(|s| s.value.as_str())
-                .collect();
-
-            let exact = if method == cli::MatchMethod::Exact {
-                Some(pattern.to_string())
-            } else {
-                None
-            };
-            let contains = if method == cli::MatchMethod::Contains {
-                Some(pattern.to_string())
-            } else {
-                None
-            };
-            let regex = if method == cli::MatchMethod::Regex {
-                Some(pattern.to_string())
-            } else {
-                None
-            };
-            let word = if method == cli::MatchMethod::Word {
-                Some(pattern.to_string())
-            } else {
-                None
-            };
-
-            let matched_strings = find_matching_strings(
-                &xor_strings,
-                &exact,
-                &contains,
-                &regex,
-                &word,
-                case_insensitive,
-            );
-
-            // Filter by external IP if required
-            let matched_strings: Vec<&str> = if external_ip {
-                matched_strings
-                    .into_iter()
-                    .filter(|s| ip_validator::contains_external_ip(s))
-                    .collect()
-            } else {
-                matched_strings
-            };
-            let match_count = matched_strings.len();
-
-            let file_size_kb = binary_data.len() as f64 / 1024.0;
-            let density = if file_size_kb > 0.0 {
-                match_count as f64 / file_size_kb
-            } else {
-                0.0
-            };
-
-            let count_min_ok = match_count >= count_min;
-            let count_max_ok = count_max.is_none_or(|max| match_count <= max);
-            let per_kb_min_ok = per_kb_min.is_none_or(|min| density >= min);
-            let per_kb_max_ok = per_kb_max.is_none_or(|max| density <= max);
-            let matched = count_min_ok && count_max_ok && per_kb_min_ok && per_kb_max_ok;
-
-            let mut out = String::new();
-            out.push_str("Search: xor (decoded strings)\n");
-            out.push_str(&format!("  count_min: {}", count_min));
-            if let Some(max) = count_max {
-                out.push_str(&format!(", count_max: {}", max));
-            }
-            if let Some(min) = per_kb_min {
-                out.push_str(&format!(", per_kb_min: {:.2}", min));
-            }
-            if let Some(max) = per_kb_max {
-                out.push_str(&format!(", per_kb_max: {:.2}", max));
-            }
-            if external_ip {
-                out.push_str(", external_ip: true");
-            }
-            out.push('\n');
-            out.push_str(&format!("Pattern: {}\n", pattern));
-            out.push_str(&format!(
-                "Context: file_type={:?}, xor_strings={} (from {} total strings)\n",
-                file_type,
-                xor_strings.len(),
-                report.strings.len()
-            ));
-
-            if matched {
-                out.push_str(&format!(
-                    "\n{} ({} matches, {:.3}/KB)\n",
-                    "MATCHED".green().bold(),
-                    match_count,
-                    density
-                ));
-                let display_count = match_count.min(10);
-                for s in matched_strings.iter().take(display_count) {
-                    out.push_str(&format!("  \"{}\"\n", s));
-                }
-                if match_count > display_count {
-                    out.push_str(&format!("  ... and {} more\n", match_count - display_count));
-                }
-            } else {
-                out.push_str(&format!("\n{}\n", "NOT MATCHED".red().bold()));
-                out.push_str(&format!(
-                    "Found {} matches ({:.3}/KB)\n",
-                    match_count, density
-                ));
-                if xor_strings.is_empty() {
-                    out.push_str("  No XOR-decoded strings found in this file\n");
-                    out.push_str("  💡 Try `--type string` or `--type content` instead\n");
+                if encoded_strings.is_empty() {
+                    out.push_str("  No encoded strings found in this file\n");
+                    if encoding_filter.is_some() {
+                        out.push_str(
+                            "  💡 Try removing --encoding to search all encoded strings\n",
+                        );
+                    }
+                    out.push_str("  💡 Try `--type string` or `--type raw` instead\n");
                 }
             }
 
@@ -2989,7 +2967,7 @@ fn test_match_debug(
                     }
                 };
                 if content_matched {
-                    output.push_str("  💡 Found in content - try `--type content`\n");
+                    output.push_str("  💡 Found in content - try `--type raw`\n");
                 }
             }
             cli::SearchType::Symbol => {
@@ -3060,10 +3038,10 @@ fn test_match_debug(
                     }
                 };
                 if content_matched {
-                    output.push_str("  💡 Found in content - try `--type content`\n");
+                    output.push_str("  💡 Found in content - try `--type raw`\n");
                 }
             }
-            cli::SearchType::Content => {
+            cli::SearchType::Raw => {
                 // Check if pattern exists in strings
                 let strings: Vec<&str> = report.strings.iter().map(|s| s.value.as_str()).collect();
                 let exact = if method == cli::MatchMethod::Exact {
@@ -3124,20 +3102,18 @@ fn test_match_debug(
             }
             cli::SearchType::Hex => {
                 // Suggest content search as alternative
-                output.push_str("  💡 Try --type content for string-based search\n");
+                output.push_str("  💡 Try --type raw for string-based search\n");
                 output.push_str("  💡 Ensure hex pattern has correct format: \"7F 45 4C 46\"\n");
                 output
                     .push_str("  💡 Try --offset or --offset-range to target specific locations\n");
             }
-            cli::SearchType::Base64 => {
-                output.push_str("  💡 Base64 search requires base64-decoded strings in analysis\n");
+            cli::SearchType::Encoded => {
+                output.push_str(
+                    "  💡 Encoded search looks for decoded strings (base64, hex, xor, etc.)\n",
+                );
+                output.push_str("  💡 Use --encoding to filter by type: --encoding base64\n");
                 output.push_str("  💡 Try `--type string` for regular strings\n");
-                output.push_str("  💡 Try `--type content` for raw content search\n");
-            }
-            cli::SearchType::Xor => {
-                output.push_str("  💡 XOR search requires XOR-decoded strings in analysis\n");
-                output.push_str("  💡 Try `--type string` for regular strings\n");
-                output.push_str("  💡 Try `--type content` for raw content search\n");
+                output.push_str("  💡 Try `--type raw` for raw content search\n");
             }
         }
 
@@ -3252,7 +3228,7 @@ fn test_match_debug(
                                 find_matching_symbols(&symbols, &exact, &None, &regex, false);
                             !matches.is_empty()
                         }
-                        cli::SearchType::Content => {
+                        cli::SearchType::Raw => {
                             let content = String::from_utf8_lossy(&binary_data);
                             match method {
                                 cli::MatchMethod::Exact => content.contains(pattern),
@@ -3275,7 +3251,7 @@ fn test_match_debug(
                             // hex searches don't benefit from file type changes
                             false
                         }
-                        cli::SearchType::Base64 | cli::SearchType::Xor => {
+                        cli::SearchType::Encoded => {
                             // encoded string searches depend on string extraction
                             false
                         }

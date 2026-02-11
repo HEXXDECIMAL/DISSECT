@@ -25,8 +25,7 @@ traits:
     downgrade:
       any:
         # Check for Apple bundle identifier (indicates system component)
-        - type: string
-          regex: "com\\.apple\\.[a-z][a-z0-9.-]+"
+        - id: meta/apple/system-component
         # Check for Apple project marker (indicates system framework)
         - type: string
           regex: "@\\(#\\)PROGRAM:[a-z]+\\s+PROJECT:[A-Za-z]+-[0-9]+"
@@ -75,8 +74,7 @@ traits:
     downgrade:
       any:
         # Check for Apple bundle identifier (indicates system component)
-        - type: string
-          regex: "com\\.apple\\.[a-z][a-z0-9.-]+"
+        - id: meta/apple/system-component
         # Check for Apple project marker (indicates system framework)
         - type: string
           regex: "@\\(#\\)PROGRAM:[a-z]+\\s+PROJECT:[A-Za-z]+-[0-9]+"
@@ -129,8 +127,7 @@ traits:
     downgrade:
       any:
         # Check for Apple bundle identifier (indicates system component)
-        - type: string
-          regex: "com\\.apple\\.[a-z][a-z0-9.-]+"
+        - id: meta/apple/system-component
         # Check for Apple project marker (indicates system framework)
         - type: string
           regex: "@\\(#\\)PROGRAM:[a-z]+\\s+PROJECT:[A-Za-z]+-[0-9]+"

@@ -1,0 +1,25 @@
+defaults:
+  for: [javascript, typescript]
+
+composite_rules:
+  - id: local-dropper
+    desc: Writes a file and executes it locally
+    crit: suspicious
+    conf: 0.85
+    attack: "T1105"
+    all:
+      - id: cap/fs/write/file::js-file-write
+    any:
+      - id: cap/exec/command/shell::js-exec
+      - id: cap/exec/command/shell::js-execsync
+      - id: cap/exec/command/shell::js-spawn
+
+  - id: obfuscated-local-dropper
+    desc: Obfuscated local dropper (Hostile)
+    crit: hostile
+    conf: 0.95
+    attack: "T1027"
+    mbc: "B0032"
+    all:
+      - id: local-dropper
+      - id: obj/anti-static/obfuscation/strings/encoding::js-double-encoding

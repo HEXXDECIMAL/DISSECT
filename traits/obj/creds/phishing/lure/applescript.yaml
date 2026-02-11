@@ -18,7 +18,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: "(?i)display dialog.{0,50}password"
+      regex: "(?si)display dialog.{0,100}password"
 
   - id: default-answer-password
     desc: "Default answer field for password"
@@ -26,7 +26,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: "(?i)default answer.{0,30}password"
+      regex: "(?si)default answer.{0,100}password"
 
   # ============================================
   # Fake System Dialog
@@ -46,6 +46,14 @@ traits:
     if:
       type: string
       regex: "with icon stop"
+
+  - id: title-system-preferences
+    desc: "Dialog title mimicking System Preferences"
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: 'with title "System Preferences"'
 
   - id: enter-password-prompt
     desc: "Prompts user to enter password"
@@ -97,8 +105,8 @@ composite_rules:
     desc: Password dialog prompt
     crit: suspicious
     conf: 0.8
-    # Only apply to script types - ELF/Macho binaries legitimately prompt for passwords
-    for: [applescript, shell, python, ruby, perl, javascript]
+    # Included macho because binaries using osascript strings for phishing should be caught.
+    for: [applescript, shell, python, ruby, perl, javascript, macho, elf]
     any:
       - id: display-dialog-password
       - id: default-answer-password
@@ -113,6 +121,7 @@ composite_rules:
       - id: hidden-answer
       - id: icon-caution
       - id: icon-stop
+      - id: title-system-preferences
 
   # System credential prompts group
   - id: system-cred-prompt

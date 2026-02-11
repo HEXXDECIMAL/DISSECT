@@ -310,3 +310,15 @@ composite_rules:
       - id: js-hex-encoded-require
       - id: js-buffer-from-hex
       - id: obj/lateral/supply-chain/npm/malicious-patterns::auto-execute
+
+  # Double encoding pattern (Hex -> Base64)
+  - id: js-double-encoding
+    desc: Double encoding usage (Hex and Base64)
+    crit: suspicious
+    conf: 0.95
+    attack: "T1027"
+    mbc: "B0032"
+    for: [javascript]
+    all:
+      - id: js-buffer-from-base64
+      - id: js-buffer-from-hex

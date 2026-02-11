@@ -79,8 +79,9 @@ traits:
 | `content` | Raw file bytes | `exact`, `substr`, `regex`, `word` | count, density, location, `case_insensitive`, `external_ip` |
 | `symbol` | Imports/exports | `exact`, `substr`, `regex` | `platforms` |
 | `hex` | Byte patterns | pattern string | count, density, `offset`, `offset_range`, `extract_wildcards` |
-| `base64` | Base64-decoded | `exact`, `substr`, `regex` | count, density, location, `case_insensitive` |
-| `xor` | XOR-decoded | `exact`, `substr`, `regex` | count, density, location, `key`, `case_insensitive` |
+| `encoded` | **All decoded strings** | `exact`, `substr`, `regex`, `word` | count, density, location, `encoding`, `case_insensitive` |
+| `base64` | Base64-decoded *(deprecated - use `encoded`)* | `exact`, `substr`, `regex` | count, density, location, `case_insensitive` |
+| `xor` | XOR-decoded *(deprecated - use `encoded`)* | `exact`, `substr`, `regex` | count, density, location, `key`, `case_insensitive` |
 | `kv` | Manifest data | `exact`, `substr`, `regex` | `path`, `case_insensitive` |
 | `basename` | Filename | `exact`, `substr`, `regex` | `case_insensitive` |
 
@@ -114,7 +115,7 @@ traits:
 
 ## Count & Density Constraints
 
-Available on `string`, `content`, `hex`, `base64`, `xor`:
+Available on `string`, `content`, `hex`, `encoded`, `base64`, `xor`:
 
 | Field | Description |
 |-------|-------------|
@@ -134,7 +135,7 @@ Available on `string`, `content`, `hex`, `base64`, `xor`:
 
 ## Location Constraints
 
-Available on `string`, `content`, `base64`, `xor`. Hex supports `offset` and `offset_range`.
+Available on `string`, `content`, `encoded`, `base64`, `xor`. Hex supports `offset` and `offset_range`.
 
 | Field | Description |
 |-------|-------------|
@@ -159,6 +160,89 @@ Available on `string`, `content`, `base64`, `xor`. Hex supports `offset` and `of
     pattern: "7F 45 4C 46"
     offset: 0
 ```
+
+## Encoded Strings
+
+The `encoded` type searches decoded/encoded strings with optional encoding filter. It unifies and replaces the deprecated `base64` and `xor` types with additional features:
+
+- **Word boundary matching**: `word` parameter (not available in `base64`/`xor`)
+- **Flexible encoding filter**: Single, multiple (OR), or omit (all)
+- **Supports all encoding types**: base64, hex, xor, url, unicode-escape
+
+### Encoding Filter
+
+| Syntax | Behavior | Example |
+|--------|----------|---------|
+| Omit `encoding:` | Search **all** encoded strings | `type: encoded, substr: "eval"` |
+| Single string | Search single encoding type | `encoding: base64` |
+| Array | Search multiple types (OR) | `encoding: [base64, hex]` |
+
+### Examples
+
+```yaml
+# Search ALL encoded strings for "password"
+- id: encoded-password
+  if:
+    type: encoded
+    word: password    # Word boundary match (NEW!)
+
+# Search only base64 strings
+- id: base64-url
+  if:
+    type: encoded
+    encoding: base64
+    regex: "https?://"
+
+# Search base64 OR hex for suspicious patterns
+- id: multi-encoding-check
+  if:
+    type: encoded
+    encoding: [base64, hex]
+    substr: "cmd.exe"
+    count_min: 2
+
+# Case-insensitive search in XOR-decoded strings
+- id: xor-malware
+  if:
+    type: encoded
+    encoding: xor
+    substr: MALWARE
+    case_insensitive: true
+
+# Density check across all encoded strings
+- id: dense-encoded
+  if:
+    type: encoded
+    substr: eval
+    count_min: 5
+    per_kb_min: 3.0
+```
+
+### Migration from base64/xor
+
+Replace deprecated types:
+
+```yaml
+# OLD (deprecated)
+type: base64
+substr: "secret"
+
+# NEW (recommended)
+type: encoded
+encoding: base64
+substr: "secret"
+
+# OLD (deprecated)
+type: xor
+regex: "malware"
+
+# NEW (recommended)
+type: encoded
+encoding: xor
+regex: "malware"
+```
+
+**Advantage**: Use `encoded` without `encoding:` to search *all* decoded strings regardless of encoding type.
 
 ## Composite Rules
 
@@ -220,9 +304,10 @@ dissect test-match <file> --type string --pattern "eval"  # Test patterns
 
 | Option | Values |
 |--------|--------|
-| `--type` | `string`, `symbol`, `content`, `kv`, `hex` |
+| `--type` | `string`, `symbol`, `content`, `kv`, `hex`, `encoded`, `base64`, `xor` |
 | `--method` | `exact`, `contains`, `regex`, `word` |
 | `--pattern` | Search pattern |
+| `--encoding` | Encoding filter for `encoded` type: `base64`, `base64,hex`, etc. |
 | `--count-min`, `--count-max` | Match count bounds |
 | `--per-kb-min`, `--per-kb-max` | Density bounds |
 | `--section` | Restrict to section |

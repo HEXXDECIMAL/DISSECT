@@ -21,6 +21,17 @@ enum AnyMatcher {
     },
 }
 
+/// Encoding specification for encoded string searches
+/// Can be a single encoding, array of encodings (OR), or chain (sequence)
+#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[serde(untagged)]
+pub enum EncodingSpec {
+    /// Single encoding: "base64"
+    Single(String),
+    /// Multiple encodings (OR): ["base64", "hex"]
+    Multiple(Vec<String>),
+}
+
 fn matcher_to_regex_fragment(
     exact: Option<String>,
     substr: Option<String>,
@@ -346,8 +357,7 @@ enum ConditionTagged {
     /// Search raw file content (for source files or when you need to match
     /// across string boundaries in binaries). Unlike `type: string` which only
     /// searches properly extracted/bounded strings, this searches the raw bytes.
-    #[serde(rename = "raw")]
-    Content {
+    Raw {
         /// Full match (entire content must equal this - rarely useful)
         exact: Option<String>,
         /// Substring match (appears anywhere in content)
@@ -401,69 +411,27 @@ enum ConditionTagged {
         regex: bool,
     },
 
-    /// Match patterns in base64-decoded strings
-    /// Example: { type: base64, regex: "https?://" }
-    /// Example: { type: base64, substr: "eval(" }
-    Base64 {
+    /// Match patterns in encoded/decoded strings (unified replacement for base64/xor)
+    /// Example: { type: encoded, encoding: base64, regex: "https?://" }
+    /// Example: { type: encoded, encoding: [xor, hex], substr: "eval(" }
+    /// Example: { type: encoded, word: "password" } - searches ALL encoded strings
+    Encoded {
+        /// Optional encoding filter - single, multiple, or omit for all
+        /// Examples: "base64", ["xor", "hex"], "xor+base64" (chain)
+        #[serde(default)]
+        encoding: Option<EncodingSpec>,
         /// Full match (entire decoded string must equal this)
-        #[serde(skip_serializing_if = "Option::is_none")]
+        #[serde(default)]
         exact: Option<String>,
         /// Substring match (appears anywhere in decoded string)
-        #[serde(skip_serializing_if = "Option::is_none")]
+        #[serde(default)]
         substr: Option<String>,
         /// Regex pattern to match
-        #[serde(skip_serializing_if = "Option::is_none")]
+        #[serde(default)]
         regex: Option<String>,
+        /// Word boundary match (equivalent to regex "\bword\b")
         #[serde(default)]
-        any: Option<Vec<AnyMatcher>>,
-        /// Case insensitive matching
-        #[serde(default)]
-        case_insensitive: bool,
-        /// Minimum match count
-        #[serde(default = "default_count_min")]
-        count_min: usize,
-        /// Maximum match count - matches fail if exceeded
-        #[serde(default)]
-        count_max: Option<usize>,
-        /// Minimum matches per kilobyte of file size (density threshold)
-        #[serde(default)]
-        per_kb_min: Option<f64>,
-        /// Maximum matches per kilobyte of file size (density ceiling)
-        #[serde(default)]
-        per_kb_max: Option<f64>,
-        /// Section constraint: only match in this section (supports fuzzy names like "text")
-        #[serde(default)]
-        section: Option<String>,
-        /// Absolute file offset: only match at this exact byte position (negative = from end)
-        #[serde(default)]
-        offset: Option<i64>,
-        /// Absolute offset range: [start, end) (negative values resolved from file end)
-        #[serde(default)]
-        offset_range: Option<(i64, Option<i64>)>,
-        /// Section-relative offset: only match at this offset within the section
-        #[serde(default)]
-        section_offset: Option<i64>,
-        /// Section-relative offset range: [start, end) within section bounds
-        #[serde(default)]
-        section_offset_range: Option<(i64, Option<i64>)>,
-    },
-
-    /// Match patterns in XOR-decoded strings
-    /// Example: { type: xor, key: 0x42, substr: "http://" }
-    /// Example: { type: xor, regex: "eval\\(" } - searches all keys if key not specified
-    Xor {
-        /// XOR key (hex byte, e.g. "0x42"). If not specified, searches all keys 0x01-0xFF
-        #[serde(skip_serializing_if = "Option::is_none")]
-        key: Option<String>,
-        /// Full match (entire decoded string must equal this)
-        #[serde(skip_serializing_if = "Option::is_none")]
-        exact: Option<String>,
-        /// Substring match (appears anywhere in decoded string)
-        #[serde(skip_serializing_if = "Option::is_none")]
-        substr: Option<String>,
-        /// Regex pattern to match
-        #[serde(skip_serializing_if = "Option::is_none")]
-        regex: Option<String>,
+        word: Option<String>,
         #[serde(default)]
         any: Option<Vec<AnyMatcher>>,
         /// Case insensitive matching
@@ -724,7 +692,7 @@ impl From<ConditionDeser> for Condition {
                     section_offset,
                     section_offset_range,
                 },
-                ConditionTagged::Content {
+                ConditionTagged::Raw {
                     exact,
                     substr,
                     regex,
@@ -744,7 +712,7 @@ impl From<ConditionDeser> for Condition {
                 } => {
                     let (exact, substr, regex, word) =
                         normalize_any_matchers(exact, substr, regex, word, any, true);
-                    Condition::Content {
+                    Condition::Raw {
                         exact,
                         substr,
                         regex,
@@ -766,10 +734,12 @@ impl From<ConditionDeser> for Condition {
                 ConditionTagged::SectionName { pattern, regex } => {
                     Condition::SectionName { pattern, regex }
                 }
-                ConditionTagged::Base64 {
+                ConditionTagged::Encoded {
+                    encoding,
                     exact,
                     substr,
                     regex,
+                    word,
                     any,
                     case_insensitive,
                     count_min,
@@ -782,12 +752,14 @@ impl From<ConditionDeser> for Condition {
                     section_offset,
                     section_offset_range,
                 } => {
-                    let (exact, substr, regex, _) =
-                        normalize_any_matchers(exact, substr, regex, None, any, false);
-                    Condition::Base64 {
+                    let (exact, substr, regex, word) =
+                        normalize_any_matchers(exact, substr, regex, word, any, false);
+                    Condition::Encoded {
+                        encoding,
                         exact,
                         substr,
                         regex,
+                        word,
                         case_insensitive,
                         count_min,
                         count_max,
@@ -798,42 +770,7 @@ impl From<ConditionDeser> for Condition {
                         offset_range,
                         section_offset,
                         section_offset_range,
-                    }
-                }
-                ConditionTagged::Xor {
-                    key,
-                    exact,
-                    substr,
-                    regex,
-                    any,
-                    case_insensitive,
-                    count_min,
-                    count_max,
-                    per_kb_min,
-                    per_kb_max,
-                    section,
-                    offset,
-                    offset_range,
-                    section_offset,
-                    section_offset_range,
-                } => {
-                    let (exact, substr, regex, _) =
-                        normalize_any_matchers(exact, substr, regex, None, any, false);
-                    Condition::Xor {
-                        key,
-                        exact,
-                        substr,
-                        regex,
-                        case_insensitive,
-                        count_min,
-                        count_max,
-                        per_kb_min,
-                        per_kb_max,
-                        section,
-                        offset,
-                        offset_range,
-                        section_offset,
-                        section_offset_range,
+                        compiled_regex: None,
                     }
                 }
                 ConditionTagged::Basename {
@@ -1178,7 +1115,7 @@ pub enum Condition {
     /// Example: { type: raw, exact: "#!/bin/sh" }  # Entire file must equal this
     /// Example: { type: raw, regex: "\\bpassword\\s*=", case_insensitive: true }
     /// Example: { type: raw, word: "socket" }  # Match "socket" as whole word
-    Content {
+    Raw {
         /// Full file match (entire file content must equal this)
         #[serde(skip_serializing_if = "Option::is_none")]
         exact: Option<String>,
@@ -1240,10 +1177,15 @@ pub enum Condition {
         regex: bool,
     },
 
-    /// Match patterns in base64-decoded strings
-    /// Example: { type: base64, regex: "https?://" }
-    /// Example: { type: base64, substr: "eval(" }
-    Base64 {
+    /// Match patterns in encoded/decoded strings (unified replacement for base64/xor)
+    /// Example: { type: encoded, encoding: base64, regex: "https?://" }
+    /// Example: { type: encoded, encoding: [xor, hex], substr: "eval(" }
+    /// Example: { type: encoded, word: "password" } - searches ALL encoded strings
+    Encoded {
+        /// Optional encoding filter - single, multiple, or omit for all
+        /// Examples: "base64", ["xor", "hex"], "xor+base64" (chain)
+        #[serde(default)]
+        encoding: Option<EncodingSpec>,
         /// Full match (entire decoded string must equal this)
         #[serde(skip_serializing_if = "Option::is_none")]
         exact: Option<String>,
@@ -1253,6 +1195,9 @@ pub enum Condition {
         /// Regex pattern to match
         #[serde(skip_serializing_if = "Option::is_none")]
         regex: Option<String>,
+        /// Word boundary match (equivalent to regex "\bword\b")
+        #[serde(skip_serializing_if = "Option::is_none")]
+        word: Option<String>,
         /// Case insensitive matching
         #[serde(default)]
         case_insensitive: bool,
@@ -1283,53 +1228,9 @@ pub enum Condition {
         /// Section-relative offset range: [start, end) within section bounds
         #[serde(skip_serializing_if = "Option::is_none")]
         section_offset_range: Option<(i64, Option<i64>)>,
-    },
-
-    /// Match patterns in XOR-decoded strings
-    /// Example: { type: xor, key: "0x42", substr: "http://" }
-    Xor {
-        /// XOR key (hex byte, e.g. "0x42"). If not specified, searches all keys 0x01-0xFF
-        #[serde(skip_serializing_if = "Option::is_none")]
-        key: Option<String>,
-        /// Full match (entire decoded string must equal this)
-        #[serde(skip_serializing_if = "Option::is_none")]
-        exact: Option<String>,
-        /// Substring match (appears anywhere in decoded string)
-        #[serde(skip_serializing_if = "Option::is_none")]
-        substr: Option<String>,
-        /// Regex pattern to match
-        #[serde(skip_serializing_if = "Option::is_none")]
-        regex: Option<String>,
-        /// Case insensitive matching
-        #[serde(default)]
-        case_insensitive: bool,
-        /// Minimum match count
-        #[serde(default = "default_count_min")]
-        count_min: usize,
-        /// Maximum match count - matches fail if exceeded
-        #[serde(skip_serializing_if = "Option::is_none")]
-        count_max: Option<usize>,
-        /// Minimum matches per kilobyte of file size (density threshold)
-        #[serde(skip_serializing_if = "Option::is_none")]
-        per_kb_min: Option<f64>,
-        /// Maximum matches per kilobyte of file size (density ceiling)
-        #[serde(skip_serializing_if = "Option::is_none")]
-        per_kb_max: Option<f64>,
-        /// Section constraint: only match in this section (supports fuzzy names like "text")
-        #[serde(skip_serializing_if = "Option::is_none")]
-        section: Option<String>,
-        /// Absolute file offset: only match at this exact byte position (negative = from end)
-        #[serde(skip_serializing_if = "Option::is_none")]
-        offset: Option<i64>,
-        /// Absolute offset range: [start, end) (negative values resolved from file end)
-        #[serde(skip_serializing_if = "Option::is_none")]
-        offset_range: Option<(i64, Option<i64>)>,
-        /// Section-relative offset: only match at this offset within the section
-        #[serde(skip_serializing_if = "Option::is_none")]
-        section_offset: Option<i64>,
-        /// Section-relative offset range: [start, end) within section bounds
-        #[serde(skip_serializing_if = "Option::is_none")]
-        section_offset_range: Option<(i64, Option<i64>)>,
+        /// Pre-compiled regex (populated after deserialization, not serialized)
+        #[serde(skip)]
+        compiled_regex: Option<regex::Regex>,
     },
 
     /// Match the basename (final path component, not the full path)
@@ -1446,10 +1347,9 @@ impl Condition {
             Condition::StringCount { .. } => "string_count",
             Condition::Metrics { .. } => "metrics",
             Condition::Hex { .. } => "hex",
-            Condition::Content { .. } => "raw",
+            Condition::Raw { .. } => "raw",
             Condition::SectionName { .. } => "section_name",
-            Condition::Base64 { .. } => "base64",
-            Condition::Xor { .. } => "xor",
+            Condition::Encoded { .. } => "encoded",
             Condition::Basename { .. } => "basename",
             Condition::Kv { .. } => "kv",
         }
@@ -1563,7 +1463,7 @@ impl Condition {
                 *section_offset_range,
                 "string",
             ),
-            Condition::Content {
+            Condition::Raw {
                 section,
                 offset,
                 offset_range,
@@ -1577,36 +1477,6 @@ impl Condition {
                 *section_offset,
                 *section_offset_range,
                 "content",
-            ),
-            Condition::Base64 {
-                section,
-                offset,
-                offset_range,
-                section_offset,
-                section_offset_range,
-                ..
-            } => validate_location_constraints(
-                section,
-                *offset,
-                *offset_range,
-                *section_offset,
-                *section_offset_range,
-                "base64",
-            ),
-            Condition::Xor {
-                section,
-                offset,
-                offset_range,
-                section_offset,
-                section_offset_range,
-                ..
-            } => validate_location_constraints(
-                section,
-                *offset,
-                *offset_range,
-                *section_offset,
-                *section_offset_range,
-                "xor",
             ),
             Condition::Hex {
                 section,
@@ -1650,11 +1520,9 @@ impl Condition {
     pub fn check_greedy_patterns(&self) -> Option<String> {
         let regex_to_check = match self {
             Condition::String { regex: Some(r), .. } => Some(r.as_str()),
-            Condition::Content { regex: Some(r), .. } => Some(r.as_str()),
+            Condition::Raw { regex: Some(r), .. } => Some(r.as_str()),
             Condition::Symbol { regex: Some(r), .. } => Some(r.as_str()),
             Condition::Ast { regex: Some(r), .. } => Some(r.as_str()),
-            Condition::Base64 { regex: Some(r), .. } => Some(r.as_str()),
-            Condition::Xor { regex: Some(r), .. } => Some(r.as_str()),
             Condition::Basename { regex: Some(r), .. } => Some(r.as_str()),
             Condition::Kv { regex: Some(r), .. } => Some(r.as_str()),
             _ => None,
@@ -1676,7 +1544,7 @@ impl Condition {
     pub fn check_word_boundary_regex(&self) -> Option<String> {
         let regex_to_check = match self {
             Condition::String { regex: Some(r), .. } => Some(r.as_str()),
-            Condition::Content { regex: Some(r), .. } => Some(r.as_str()),
+            Condition::Raw { regex: Some(r), .. } => Some(r.as_str()),
             _ => None,
         };
 
@@ -1760,17 +1628,17 @@ impl Condition {
                 case_insensitive: true,
                 ..
             } => check_pattern(s),
-            Condition::Content {
+            Condition::Raw {
                 exact: Some(s),
                 case_insensitive: true,
                 ..
             } => check_pattern(s),
-            Condition::Content {
+            Condition::Raw {
                 substr: Some(s),
                 case_insensitive: true,
                 ..
             } => check_pattern(s),
-            Condition::Content {
+            Condition::Raw {
                 word: Some(s),
                 case_insensitive: true,
                 ..
@@ -1781,26 +1649,6 @@ impl Condition {
                 ..
             } => check_pattern(s),
             Condition::Ast {
-                substr: Some(s),
-                case_insensitive: true,
-                ..
-            } => check_pattern(s),
-            Condition::Base64 {
-                exact: Some(s),
-                case_insensitive: true,
-                ..
-            } => check_pattern(s),
-            Condition::Base64 {
-                substr: Some(s),
-                case_insensitive: true,
-                ..
-            } => check_pattern(s),
-            Condition::Xor {
-                exact: Some(s),
-                case_insensitive: true,
-                ..
-            } => check_pattern(s),
-            Condition::Xor {
                 substr: Some(s),
                 case_insensitive: true,
                 ..
@@ -1830,17 +1678,7 @@ impl Condition {
                 count_max,
                 ..
             }
-            | Condition::Content {
-                count_min,
-                count_max,
-                ..
-            }
-            | Condition::Base64 {
-                count_min,
-                count_max,
-                ..
-            }
-            | Condition::Xor {
+            | Condition::Raw {
                 count_min,
                 count_max,
                 ..
@@ -1857,18 +1695,17 @@ impl Condition {
     /// Check if per-KB density constraints are valid (per_kb_max >= per_kb_min).
     /// Returns a warning message if invalid, None otherwise.
     pub fn check_density_constraints(&self) -> Option<String> {
-        let check_density =
-            |per_kb_min: Option<f64>, per_kb_max: Option<f64>| -> Option<String> {
-                if let (Some(min), Some(max)) = (per_kb_min, per_kb_max) {
-                    if max < min {
-                        return Some(format!(
-                            "per_kb_max ({}) cannot be less than per_kb_min ({})",
-                            max, min
-                        ));
-                    }
+        let check_density = |per_kb_min: Option<f64>, per_kb_max: Option<f64>| -> Option<String> {
+            if let (Some(min), Some(max)) = (per_kb_min, per_kb_max) {
+                if max < min {
+                    return Some(format!(
+                        "per_kb_max ({}) cannot be less than per_kb_min ({})",
+                        max, min
+                    ));
                 }
-                None
-            };
+            }
+            None
+        };
 
         match self {
             Condition::String {
@@ -1876,17 +1713,7 @@ impl Condition {
                 per_kb_max,
                 ..
             }
-            | Condition::Content {
-                per_kb_min,
-                per_kb_max,
-                ..
-            }
-            | Condition::Base64 {
-                per_kb_min,
-                per_kb_max,
-                ..
-            }
-            | Condition::Xor {
+            | Condition::Raw {
                 per_kb_min,
                 per_kb_max,
                 ..
@@ -1909,35 +1736,23 @@ impl Condition {
         };
 
         match self {
-            Condition::String {
-                exact: Some(s), ..
-            } => check_empty(s, "exact"),
+            Condition::String { exact: Some(s), .. } => check_empty(s, "exact"),
             Condition::String {
                 substr: Some(s), ..
             } => check_empty(s, "substr"),
-            Condition::String {
-                regex: Some(s), ..
-            } => check_empty(s, "regex"),
+            Condition::String { regex: Some(s), .. } => check_empty(s, "regex"),
             Condition::String { word: Some(s), .. } => check_empty(s, "word"),
-            Condition::Content {
-                exact: Some(s), ..
-            } => check_empty(s, "exact"),
-            Condition::Content {
+            Condition::Raw { exact: Some(s), .. } => check_empty(s, "exact"),
+            Condition::Raw {
                 substr: Some(s), ..
             } => check_empty(s, "substr"),
-            Condition::Content {
-                regex: Some(s), ..
-            } => check_empty(s, "regex"),
-            Condition::Content { word: Some(s), .. } => check_empty(s, "word"),
-            Condition::Symbol {
-                exact: Some(s), ..
-            } => check_empty(s, "exact"),
+            Condition::Raw { regex: Some(s), .. } => check_empty(s, "regex"),
+            Condition::Raw { word: Some(s), .. } => check_empty(s, "word"),
+            Condition::Symbol { exact: Some(s), .. } => check_empty(s, "exact"),
             Condition::Symbol {
                 substr: Some(s), ..
             } => check_empty(s, "substr"),
-            Condition::Symbol {
-                regex: Some(s), ..
-            } => check_empty(s, "regex"),
+            Condition::Symbol { regex: Some(s), .. } => check_empty(s, "regex"),
             _ => None,
         }
     }
@@ -1962,9 +1777,7 @@ impl Condition {
                 case_insensitive: false,
                 ..
             }
-            | Condition::Symbol {
-                exact: Some(s), ..
-            } => {
+            | Condition::Symbol { exact: Some(s), .. } => {
                 if s.len() == 1 {
                     return Some(format!(
                         "exact: pattern '{}' is a single character and will rarely be useful - consider if this is intentional",
@@ -2000,22 +1813,27 @@ impl Condition {
             !s.chars().any(|c| {
                 matches!(
                     c,
-                    '.' | '*' | '+' | '?' | '^' | '$' | '(' | ')' | '[' | ']' | '{' | '}' | '|'
+                    '.' | '*'
+                        | '+'
+                        | '?'
+                        | '^'
+                        | '$'
+                        | '('
+                        | ')'
+                        | '['
+                        | ']'
+                        | '{'
+                        | '}'
+                        | '|'
                         | '\\'
                 )
             })
         };
 
         match self {
-            Condition::String {
-                regex: Some(r), ..
-            }
-            | Condition::Content {
-                regex: Some(r), ..
-            }
-            | Condition::Symbol {
-                regex: Some(r), ..
-            } => {
+            Condition::String { regex: Some(r), .. }
+            | Condition::Raw { regex: Some(r), .. }
+            | Condition::Symbol { regex: Some(r), .. } => {
                 if is_literal(r) {
                     return Some(format!(
                         "regex: pattern '{}' is a literal string with no regex metacharacters - use 'substr' instead for better performance",
@@ -2032,7 +1850,7 @@ impl Condition {
     /// Returns a warning message if found, None otherwise.
     pub fn check_word_pattern_validity(&self) -> Option<String> {
         match self {
-            Condition::String { word: Some(w), .. } | Condition::Content { word: Some(w), .. } => {
+            Condition::String { word: Some(w), .. } | Condition::Raw { word: Some(w), .. } => {
                 // Word boundaries only work with alphanumeric characters and underscores
                 let has_word_chars = w.chars().any(|c| c.is_alphanumeric() || c == '_');
                 let has_non_word_chars = w.chars().any(|c| !c.is_alphanumeric() && c != '_');
@@ -2095,10 +1913,8 @@ impl Condition {
     pub fn check_count_min_value(&self) -> Option<String> {
         match self {
             Condition::String { count_min: 0, .. }
-            | Condition::Content { count_min: 0, .. }
-            | Condition::Hex { count_min: 0, .. }
-            | Condition::Base64 { count_min: 0, .. }
-            | Condition::Xor { count_min: 0, .. } => {
+            | Condition::Raw { count_min: 0, .. }
+            | Condition::Hex { count_min: 0, .. } => {
                 return Some(
                     "count_min: 0 means matches are optional - this is almost never useful. Use count_min: 1 or higher.".to_string()
                 );
@@ -2111,21 +1927,30 @@ impl Condition {
     /// Check if mutually exclusive match types are used together.
     /// Returns a warning message if multiple are set, None otherwise.
     pub fn check_match_exclusivity(&self) -> Option<String> {
-        let check_exclusive = |exact: bool, substr: bool, regex: bool, word: bool| -> Option<String> {
-            let count = [exact, substr, regex, word].iter().filter(|&&x| x).count();
-            if count > 1 {
-                let mut types = Vec::new();
-                if exact { types.push("exact"); }
-                if substr { types.push("substr"); }
-                if regex { types.push("regex"); }
-                if word { types.push("word"); }
-                return Some(format!(
-                    "multiple mutually exclusive match types specified: {} - use only one",
-                    types.join(", ")
-                ));
-            }
-            None
-        };
+        let check_exclusive =
+            |exact: bool, substr: bool, regex: bool, word: bool| -> Option<String> {
+                let count = [exact, substr, regex, word].iter().filter(|&&x| x).count();
+                if count > 1 {
+                    let mut types = Vec::new();
+                    if exact {
+                        types.push("exact");
+                    }
+                    if substr {
+                        types.push("substr");
+                    }
+                    if regex {
+                        types.push("regex");
+                    }
+                    if word {
+                        types.push("word");
+                    }
+                    return Some(format!(
+                        "multiple mutually exclusive match types specified: {} - use only one",
+                        types.join(", ")
+                    ));
+                }
+                None
+            };
 
         match self {
             Condition::String {
@@ -2135,7 +1960,7 @@ impl Condition {
                 word,
                 ..
             }
-            | Condition::Content {
+            | Condition::Raw {
                 exact,
                 substr,
                 regex,
@@ -2152,40 +1977,13 @@ impl Condition {
                 substr,
                 regex,
                 ..
-            } => check_exclusive(
-                exact.is_some(),
-                substr.is_some(),
-                regex.is_some(),
-                false,
-            ),
+            } => check_exclusive(exact.is_some(), substr.is_some(), regex.is_some(), false),
             Condition::Ast {
                 exact,
                 substr,
                 regex,
                 ..
-            } => check_exclusive(
-                exact.is_some(),
-                substr.is_some(),
-                regex.is_some(),
-                false,
-            ),
-            Condition::Base64 {
-                exact,
-                substr,
-                regex,
-                ..
-            }
-            | Condition::Xor {
-                exact,
-                substr,
-                regex,
-                ..
-            } => check_exclusive(
-                exact.is_some(),
-                substr.is_some(),
-                regex.is_some(),
-                false,
-            ),
+            } => check_exclusive(exact.is_some(), substr.is_some(), regex.is_some(), false),
             _ => None,
         }
     }
@@ -2201,8 +1999,9 @@ impl Condition {
                 ..
             } => {
                 // Compile symbol regex if present
-                *compiled_regex = Some(regex::Regex::new(regex_pattern)
-                    .map_err(|e| anyhow::anyhow!("Failed to compile symbol regex '{}': {}", regex_pattern, e))?);
+                *compiled_regex = Some(regex::Regex::new(regex_pattern).map_err(|e| {
+                    anyhow::anyhow!("Failed to compile symbol regex '{}': {}", regex_pattern, e)
+                })?);
             }
             Condition::Symbol { regex: None, .. } => {
                 // No regex to compile
@@ -2220,19 +2019,39 @@ impl Condition {
                 if let Some(word_pattern) = word {
                     let regex_pattern = format!(r"\b{}\b", regex::escape(word_pattern));
                     *compiled_regex = Some(if *case_insensitive {
-                        regex::Regex::new(&format!("(?i){}", regex_pattern))
-                            .map_err(|e| anyhow::anyhow!("Failed to compile case-insensitive word pattern '{}': {}", word_pattern, e))?
+                        regex::Regex::new(&format!("(?i){}", regex_pattern)).map_err(|e| {
+                            anyhow::anyhow!(
+                                "Failed to compile case-insensitive word pattern '{}': {}",
+                                word_pattern,
+                                e
+                            )
+                        })?
                     } else {
-                        regex::Regex::new(&regex_pattern)
-                            .map_err(|e| anyhow::anyhow!("Failed to compile word pattern '{}': {}", word_pattern, e))?
+                        regex::Regex::new(&regex_pattern).map_err(|e| {
+                            anyhow::anyhow!(
+                                "Failed to compile word pattern '{}': {}",
+                                word_pattern,
+                                e
+                            )
+                        })?
                     });
                 } else if let Some(regex_pattern) = regex {
                     *compiled_regex = Some(if *case_insensitive {
-                        regex::Regex::new(&format!("(?i){}", regex_pattern))
-                            .map_err(|e| anyhow::anyhow!("Failed to compile case-insensitive string regex '{}': {}", regex_pattern, e))?
+                        regex::Regex::new(&format!("(?i){}", regex_pattern)).map_err(|e| {
+                            anyhow::anyhow!(
+                                "Failed to compile case-insensitive string regex '{}': {}",
+                                regex_pattern,
+                                e
+                            )
+                        })?
                     } else {
-                        regex::Regex::new(regex_pattern)
-                            .map_err(|e| anyhow::anyhow!("Failed to compile string regex '{}': {}", regex_pattern, e))?
+                        regex::Regex::new(regex_pattern).map_err(|e| {
+                            anyhow::anyhow!(
+                                "Failed to compile string regex '{}': {}",
+                                regex_pattern,
+                                e
+                            )
+                        })?
                     });
                 }
 
@@ -2240,13 +2059,19 @@ impl Condition {
                 if let Some(excludes) = exclude_patterns {
                     *compiled_excludes = Vec::new();
                     for (idx, pattern) in excludes.iter().enumerate() {
-                        let compiled = regex::Regex::new(pattern)
-                            .map_err(|e| anyhow::anyhow!("Failed to compile exclude pattern #{} '{}': {}", idx + 1, pattern, e))?;
+                        let compiled = regex::Regex::new(pattern).map_err(|e| {
+                            anyhow::anyhow!(
+                                "Failed to compile exclude pattern #{} '{}': {}",
+                                idx + 1,
+                                pattern,
+                                e
+                            )
+                        })?;
                         compiled_excludes.push(compiled);
                     }
                 }
             }
-            Condition::Content {
+            Condition::Raw {
                 regex,
                 word,
                 case_insensitive,
@@ -2257,19 +2082,39 @@ impl Condition {
                 if let Some(word_pattern) = word {
                     let regex_pattern = format!(r"\b{}\b", regex::escape(word_pattern));
                     *compiled_regex = Some(if *case_insensitive {
-                        regex::Regex::new(&format!("(?i){}", regex_pattern))
-                            .map_err(|e| anyhow::anyhow!("Failed to compile case-insensitive content word pattern '{}': {}", word_pattern, e))?
+                        regex::Regex::new(&format!("(?i){}", regex_pattern)).map_err(|e| {
+                            anyhow::anyhow!(
+                                "Failed to compile case-insensitive content word pattern '{}': {}",
+                                word_pattern,
+                                e
+                            )
+                        })?
                     } else {
-                        regex::Regex::new(&regex_pattern)
-                            .map_err(|e| anyhow::anyhow!("Failed to compile content word pattern '{}': {}", word_pattern, e))?
+                        regex::Regex::new(&regex_pattern).map_err(|e| {
+                            anyhow::anyhow!(
+                                "Failed to compile content word pattern '{}': {}",
+                                word_pattern,
+                                e
+                            )
+                        })?
                     });
                 } else if let Some(regex_pattern) = regex {
                     *compiled_regex = Some(if *case_insensitive {
-                        regex::Regex::new(&format!("(?i){}", regex_pattern))
-                            .map_err(|e| anyhow::anyhow!("Failed to compile case-insensitive content regex '{}': {}", regex_pattern, e))?
+                        regex::Regex::new(&format!("(?i){}", regex_pattern)).map_err(|e| {
+                            anyhow::anyhow!(
+                                "Failed to compile case-insensitive content regex '{}': {}",
+                                regex_pattern,
+                                e
+                            )
+                        })?
                     } else {
-                        regex::Regex::new(regex_pattern)
-                            .map_err(|e| anyhow::anyhow!("Failed to compile content regex '{}': {}", regex_pattern, e))?
+                        regex::Regex::new(regex_pattern).map_err(|e| {
+                            anyhow::anyhow!(
+                                "Failed to compile content regex '{}': {}",
+                                regex_pattern,
+                                e
+                            )
+                        })?
                     });
                 }
             }
@@ -2281,11 +2126,17 @@ impl Condition {
             } => {
                 // Compile regex pattern for kv searches
                 *compiled_regex = Some(if *case_insensitive {
-                    regex::Regex::new(&format!("(?i){}", regex_pattern))
-                        .map_err(|e| anyhow::anyhow!("Failed to compile case-insensitive kv regex '{}': {}", regex_pattern, e))?
+                    regex::Regex::new(&format!("(?i){}", regex_pattern)).map_err(|e| {
+                        anyhow::anyhow!(
+                            "Failed to compile case-insensitive kv regex '{}': {}",
+                            regex_pattern,
+                            e
+                        )
+                    })?
                 } else {
-                    regex::Regex::new(regex_pattern)
-                        .map_err(|e| anyhow::anyhow!("Failed to compile kv regex '{}': {}", regex_pattern, e))?
+                    regex::Regex::new(regex_pattern).map_err(|e| {
+                        anyhow::anyhow!("Failed to compile kv regex '{}': {}", regex_pattern, e)
+                    })?
                 });
             }
             _ => {}
@@ -2606,7 +2457,7 @@ mod location_constraint_tests {
     #[test]
     fn test_condition_validate_content_location() {
         // Valid content condition with section constraint
-        let condition = Condition::Content {
+        let condition = Condition::Raw {
             exact: Some("test".to_string()),
             substr: None,
             regex: None,

@@ -851,7 +851,7 @@ impl<'a> RuleDebugger<'a> {
             } => self.debug_metrics_condition(field, *min, *max),
             Condition::Yara { source, .. } => self.debug_yara_inline_condition(source),
             Condition::Structure { feature, .. } => self.debug_structure_condition(feature),
-            Condition::Content {
+            Condition::Raw {
                 regex,
                 substr,
                 exact,
@@ -2565,7 +2565,7 @@ fn describe_condition(condition: &Condition) -> String {
         }
         Condition::Yara { .. } => "yara[inline]".to_string(),
         Condition::Structure { feature, .. } => format!("structure: {}", feature),
-        Condition::Content {
+        Condition::Raw {
             exact,
             substr,
             regex,
@@ -2594,62 +2594,6 @@ fn describe_condition(condition: &Condition) -> String {
                 format!("content[word]{}", loc)
             } else {
                 format!("content[?]{}", loc)
-            }
-        }
-        Condition::Base64 {
-            exact,
-            substr,
-            regex,
-            section,
-            offset,
-            offset_range,
-            section_offset,
-            section_offset_range,
-            ..
-        } => {
-            let loc = format_location_suffix(
-                section,
-                *offset,
-                *offset_range,
-                *section_offset,
-                *section_offset_range,
-            );
-            if exact.is_some() {
-                format!("base64[exact]{}", loc)
-            } else if substr.is_some() {
-                format!("base64[substr]{}", loc)
-            } else if regex.is_some() {
-                format!("base64[regex]{}", loc)
-            } else {
-                format!("base64[?]{}", loc)
-            }
-        }
-        Condition::Xor {
-            exact,
-            substr,
-            regex,
-            section,
-            offset,
-            offset_range,
-            section_offset,
-            section_offset_range,
-            ..
-        } => {
-            let loc = format_location_suffix(
-                section,
-                *offset,
-                *offset_range,
-                *section_offset,
-                *section_offset_range,
-            );
-            if exact.is_some() {
-                format!("xor[exact]{}", loc)
-            } else if substr.is_some() {
-                format!("xor[substr]{}", loc)
-            } else if regex.is_some() {
-                format!("xor[regex]{}", loc)
-            } else {
-                format!("xor[?]{}", loc)
             }
         }
         Condition::Kv {
@@ -2871,87 +2815,11 @@ fn evaluate_condition_simple(
     ctx: &EvaluationContext,
 ) -> crate::composite_rules::context::ConditionResult {
     use crate::composite_rules::evaluators::{
-        eval_base64, eval_basename, eval_exports_count,
-        eval_section_name, eval_string_count, eval_syscall, eval_xor,
-        ContentLocationParams,
+        eval_basename, eval_exports_count, eval_section_name, eval_string_count, eval_syscall,
     };
 
     // Evaluate conditions that fall through to the _ => case in debug_condition
     match condition {
-        Condition::Base64 {
-            exact,
-            substr,
-            regex,
-            case_insensitive,
-            count_min,
-            count_max,
-            per_kb_min,
-            per_kb_max,
-            section,
-            offset,
-            offset_range,
-            section_offset,
-            section_offset_range,
-            ..
-        } => {
-            let location = ContentLocationParams {
-                section: section.clone(),
-                offset: *offset,
-                offset_range: *offset_range,
-                section_offset: *section_offset,
-                section_offset_range: *section_offset_range,
-            };
-            eval_base64(
-                exact.as_ref(),
-                substr.as_ref(),
-                regex.as_ref(),
-                *case_insensitive,
-                *count_min,
-                *count_max,
-                *per_kb_min,
-                *per_kb_max,
-                &location,
-                ctx,
-            )
-        }
-        Condition::Xor {
-            exact,
-            substr,
-            regex,
-            case_insensitive,
-            key,
-            count_min,
-            count_max,
-            per_kb_min,
-            per_kb_max,
-            section,
-            offset,
-            offset_range,
-            section_offset,
-            section_offset_range,
-            ..
-        } => {
-            let location = ContentLocationParams {
-                section: section.clone(),
-                offset: *offset,
-                offset_range: *offset_range,
-                section_offset: *section_offset,
-                section_offset_range: *section_offset_range,
-            };
-            eval_xor(
-                key.as_ref(),
-                exact.as_ref(),
-                substr.as_ref(),
-                regex.as_ref(),
-                *case_insensitive,
-                *count_min,
-                *count_max,
-                *per_kb_min,
-                *per_kb_max,
-                &location,
-                ctx,
-            )
-        }
         Condition::SectionName { pattern, regex } => eval_section_name(pattern, *regex, ctx),
         Condition::Syscall {
             name,

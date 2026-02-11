@@ -576,6 +576,19 @@ composite_rules:
       - id: get-available-endpoint
       - id: cap/comm/http/post::post
 
+  # Network dropper using eval
+  # Complexity: file_types(+1) + all(+2) = 3 (meets HOSTILE threshold if confident)
+  - id: network-eval-dropper
+    desc: Downloads and executes code (dropper)
+    crit: hostile
+    conf: 0.95
+    mbc: "B0022"
+    attack: "T1105"
+    for: [javascript]
+    all:
+      - id: cap/exec/eval/dynamic::eval-call-js
+      - id: obj/exfil/channel/http::node-http-libs
+
   # === HEADER-TRIGGERED BACKDOOR COMPOSITES ===
 
   # Obfuscated VM code execution (getcookies-style backdoor)

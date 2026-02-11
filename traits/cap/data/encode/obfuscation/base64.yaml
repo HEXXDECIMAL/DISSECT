@@ -1,48 +1,48 @@
-# Base64 String Obfuscation Detection
-# Detects base64-encoded sensitive paths and credentials
+# Encoded String Obfuscation Detection
+# Detects encoded sensitive paths and credentials (base64, xor, hex, etc.)
 # ATT&CK: T1027.001 (Obfuscation: Steganography or Compression)
 # MBC: F0001 (Obfuscation)
 
 traits:
-  # === Base64-Encoded Persistence Paths ===
+  # === Encoded Persistence Paths (any encoding: base64, xor, hex, etc.) ===
   - id: base64-systemd-path
-    desc: "Base64-encoded systemd path"
+    desc: "Encoded systemd path (base64/xor/hex)"
     crit: suspicious
     conf: 0.95
     for: [elf, shell]
     if:
-      type: string
+      type: encoded
       substr: "/usr/lib/systemd/systemd"
     attack: "T1547"
 
   - id: base64-ssh-sftp-path
-    desc: "Base64-encoded SSH SFTP path"
+    desc: "Encoded SSH SFTP path (base64/xor/hex)"
     crit: suspicious
     conf: 0.95
     for: [elf, shell]
     if:
-      type: string
+      type: encoded
       substr: "/usr/libexec/openssh/sftp-server"
     attack: "T1021.004"
 
-  # === Base64-Encoded DVR Targeting Paths ===
+  # === Encoded DVR Targeting Paths (any encoding: base64, xor, hex, etc.) ===
   - id: base64-hikvision-firmware-path
-    desc: "Base64-encoded Hikvision path"
+    desc: "Encoded Hikvision path (base64/xor/hex)"
     crit: suspicious
     conf: 0.95
     for: [elf, shell]
     if:
-      type: string
+      type: encoded
       substr: "usr/dvr_main _8182T_1108"
     attack: "T1046"
 
   - id: base64-anko-dvr-path
-    desc: "Base64-encoded Anko DVR path"
+    desc: "Encoded Anko DVR path (base64/xor/hex)"
     crit: suspicious
     conf: 0.95
     for: [elf, shell]
     if:
-      type: string
+      type: encoded
       substr: "anko-app/ankosample _8182T_1104"
     attack: "T1046"
 
@@ -54,7 +54,8 @@ traits:
     for: [elf, shell]
     size_max: 50000
     if:
-      type: base64
+      type: encoded
+      encoding: base64
       regex: "^/[a-z]{2,}[a-z_/]*$"
       count_min: 3
     attack: "T1027.001"
@@ -94,7 +95,7 @@ traits:
 
 composite_rules:
   - id: base64-encoded-dvr-targeting
-    desc: "Base64-encoded DVR targeting"
+    desc: "Encoded DVR targeting (base64/xor/hex)"
     crit: suspicious
     conf: 0.93
     for: [elf, shell]

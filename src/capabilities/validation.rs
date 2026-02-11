@@ -117,7 +117,7 @@ fn score_condition(condition: &Condition) -> f32 {
                 score *= CASE_INSENSITIVE_MULTIPLIER;
             }
         }
-        Condition::Content {
+        Condition::Raw {
             exact,
             substr,
             regex,
@@ -312,25 +312,11 @@ fn score_condition(condition: &Condition) -> f32 {
                 score += PARAM_UNIT;
             }
         }
-        Condition::Base64 {
+        Condition::Encoded {
             exact,
             substr,
             regex,
-            case_insensitive,
-            count_min,
-            count_max,
-            per_kb_min,
-            per_kb_max,
-            section,
-            offset,
-            offset_range,
-            section_offset,
-            section_offset_range,
-        }
-        | Condition::Xor {
-            exact,
-            substr,
-            regex,
+            word,
             case_insensitive,
             count_min,
             count_max,
@@ -346,6 +332,7 @@ fn score_condition(condition: &Condition) -> f32 {
             score += exact.as_deref().map(score_string_value).unwrap_or(0.0);
             score += substr.as_deref().map(score_string_value).unwrap_or(0.0);
             score += regex.as_deref().map(score_regex_value).unwrap_or(0.0);
+            score += word.as_deref().map(score_word_value).unwrap_or(0.0);
             if *count_min > 1 {
                 score += PARAM_UNIT;
             }
@@ -534,7 +521,10 @@ pub fn calculate_composite_precision(
                         );
                         precision += score;
                         if debug {
-                            eprintln!("  [DEBUG] {} all trait '{}' score: {:.2}", rule_id, id, score);
+                            eprintln!(
+                                "  [DEBUG] {} all trait '{}' score: {:.2}",
+                                rule_id, id, score
+                            );
                         }
                     }
                     _ => {
@@ -564,14 +554,20 @@ pub fn calculate_composite_precision(
                                 visiting,
                             );
                             if debug {
-                                eprintln!("  [DEBUG] {} any[{}] trait '{}' score: {:.2}", rule_id, i, id, s);
+                                eprintln!(
+                                    "  [DEBUG] {} any[{}] trait '{}' score: {:.2}",
+                                    rule_id, i, id, s
+                                );
                             }
                             s
                         }
                         _ => {
                             let s = score_condition(cond);
                             if debug {
-                                eprintln!("  [DEBUG] {} any[{}] condition score: {:.2}", rule_id, i, s);
+                                eprintln!(
+                                    "  [DEBUG] {} any[{}] condition score: {:.2}",
+                                    rule_id, i, s
+                                );
                             }
                             s
                         }
@@ -583,12 +579,17 @@ pub fn calculate_composite_precision(
             if !branch_scores.is_empty() {
                 let required = rule.needs.unwrap_or(1).max(1);
                 if debug {
-                    eprintln!("  [DEBUG] {} any clause: needs={}, scores={:?}",
-                        rule_id, required, branch_scores);
+                    eprintln!(
+                        "  [DEBUG] {} any clause: needs={}, scores={:?}",
+                        rule_id, required, branch_scores
+                    );
                 }
                 let weakest_sum = sum_weakest(branch_scores, required);
                 if debug {
-                    eprintln!("  [DEBUG] {} any clause: sum_weakest={:.2}", rule_id, weakest_sum);
+                    eprintln!(
+                        "  [DEBUG] {} any clause: sum_weakest={:.2}",
+                        rule_id, weakest_sum
+                    );
                 }
                 precision += weakest_sum;
             }
@@ -671,7 +672,10 @@ pub fn calculate_composite_precision(
     if let Some(trait_def) = trait_def {
         let precision = calculate_trait_precision(trait_def);
         if debug {
-            eprintln!("  [DEBUG]   FOUND trait '{}' with stored ID '{}', precision: {:.2}", rule_id, trait_def.id, precision);
+            eprintln!(
+                "  [DEBUG]   FOUND trait '{}' with stored ID '{}', precision: {:.2}",
+                rule_id, trait_def.id, precision
+            );
         }
         visiting.remove(rule_id);
         cache.insert(rule_id.to_string(), precision);
@@ -680,7 +684,10 @@ pub fn calculate_composite_precision(
 
     // Not found - treat as external/unknown trait
     if debug {
-        eprintln!("  [DEBUG]   NOT FOUND - returning BASE_TRAIT_PRECISION: {:.2}", BASE_TRAIT_PRECISION);
+        eprintln!(
+            "  [DEBUG]   NOT FOUND - returning BASE_TRAIT_PRECISION: {:.2}",
+            BASE_TRAIT_PRECISION
+        );
         eprintln!("  [DEBUG]   Available trait IDs (first 20):");
         for (i, t) in all_traits.iter().take(20).enumerate() {
             eprintln!("  [DEBUG]     [{}] '{}'", i, t.id);
@@ -839,11 +846,11 @@ pub(crate) fn validate_hostile_composite_precision(
                 substr: Some(s), ..
             } => Some((s.clone(), "substr".to_string())),
             Condition::String { word: Some(s), .. } => Some((s.clone(), "word".to_string())),
-            Condition::Content { exact: Some(s), .. } => Some((s.clone(), "exact".to_string())),
-            Condition::Content {
+            Condition::Raw { exact: Some(s), .. } => Some((s.clone(), "exact".to_string())),
+            Condition::Raw {
                 substr: Some(s), ..
             } => Some((s.clone(), "substr".to_string())),
-            Condition::Content { word: Some(s), .. } => Some((s.clone(), "word".to_string())),
+            Condition::Raw { word: Some(s), .. } => Some((s.clone(), "word".to_string())),
             _ => None,
         };
 
@@ -854,7 +861,7 @@ pub(crate) fn validate_hostile_composite_precision(
                 text.to_lowercase(),
                 match &t.r#if {
                     Condition::String { .. } => "string",
-                    Condition::Content { .. } => "content",
+                    Condition::Raw { .. } => "content",
                     _ => "other",
                 },
                 t.crit,
@@ -1468,7 +1475,8 @@ pub(crate) fn find_depth_violations(yaml_files: &[String]) -> Vec<(String, usize
 /// Valid characters are: alphanumerics, dashes, and underscores.
 /// Returns None if valid, Some(invalid_char) if invalid.
 fn validate_trait_id_chars(id: &str) -> Option<char> {
-    id.chars().find(|&c| !c.is_ascii_alphanumeric() && c != '-' && c != '_')
+    id.chars()
+        .find(|&c| !c.is_ascii_alphanumeric() && c != '-' && c != '_')
 }
 
 /// Find trait and composite rule IDs that contain invalid characters.
@@ -1647,7 +1655,7 @@ fn extract_match_signature(condition: &Condition) -> Option<(bool, MatchSignatur
                 section_offset_range: *section_offset_range,
             },
         )),
-        Condition::Content {
+        Condition::Raw {
             exact,
             substr,
             regex,
@@ -1808,7 +1816,7 @@ pub(crate) fn find_alternation_merge_candidates(
     for t in trait_definitions {
         let regex_pattern = match &t.r#if {
             Condition::String { regex: Some(r), .. } => Some(r.clone()),
-            Condition::Content { regex: Some(r), .. } => Some(r.clone()),
+            Condition::Raw { regex: Some(r), .. } => Some(r.clone()),
             _ => None,
         };
 
@@ -2124,7 +2132,7 @@ pub(crate) fn find_impossible_count_constraints(
                 count_max,
                 ..
             }
-            | Condition::Content {
+            | Condition::Raw {
                 count_min,
                 count_max,
                 ..
@@ -2134,12 +2142,7 @@ pub(crate) fn find_impossible_count_constraints(
                 count_max,
                 ..
             }
-            | Condition::Base64 {
-                count_min,
-                count_max,
-                ..
-            }
-            | Condition::Xor {
+            | Condition::Encoded {
                 count_min,
                 count_max,
                 ..
@@ -2202,25 +2205,20 @@ pub(crate) fn find_missing_search_patterns(trait_definitions: &[TraitDefinition]
                 word,
                 ..
             }
-            | Condition::Content {
+            | Condition::Raw {
                 exact,
                 substr,
                 regex,
                 word,
                 ..
             } => exact.is_some() || substr.is_some() || regex.is_some() || word.is_some(),
-            Condition::Base64 {
+            Condition::Encoded {
                 exact,
                 substr,
                 regex,
+                word,
                 ..
-            }
-            | Condition::Xor {
-                exact,
-                substr,
-                regex,
-                ..
-            } => exact.is_some() || substr.is_some() || regex.is_some(),
+            } => exact.is_some() || substr.is_some() || regex.is_some() || word.is_some(),
             Condition::Hex { pattern, .. } => !pattern.is_empty(),
             Condition::Symbol {
                 exact,
@@ -2869,7 +2867,7 @@ mod tests {
             r#for: vec![RuleFileType::All],
             size_min: None,
             size_max: None,
-            r#if: Condition::Content {
+            r#if: Condition::Raw {
                 exact: None,
                 substr: Some(substr.to_string()),
                 regex: None,

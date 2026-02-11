@@ -874,7 +874,8 @@ pub fn check_extension_content_mismatch(
         // Audio/Video (less commonly abused, but worth checking)
         "mp3" => {
             // MP3: ID3v2 tag or sync word FF Fx
-            if file_data.starts_with(b"ID3") || (file_data[0] == 0xFF && (file_data[1] & 0xE0) == 0xE0)
+            if file_data.starts_with(b"ID3")
+                || (file_data[0] == 0xFF && (file_data[1] & 0xE0) == 0xE0)
             {
                 None
             } else {
@@ -919,7 +920,10 @@ pub fn check_extension_content_mismatch(
         {
             // Check if it's hex-encoded data (common obfuscation)
             let preview = String::from_utf8_lossy(&file_data[..file_data.len().min(200)]);
-            if preview.chars().all(|c| c.is_ascii_hexdigit() || c.is_ascii_whitespace()) {
+            if preview
+                .chars()
+                .all(|c| c.is_ascii_hexdigit() || c.is_ascii_whitespace())
+            {
                 "hex-encoded data"
             } else {
                 "ASCII text"
@@ -956,7 +960,10 @@ pub fn check_extension_content_mismatch(
         {
             // Check if it's hex-encoded data (common obfuscation)
             let preview = String::from_utf8_lossy(&file_data[..file_data.len().min(200)]);
-            if preview.chars().all(|c| c.is_ascii_hexdigit() || c.is_ascii_whitespace()) {
+            if preview
+                .chars()
+                .all(|c| c.is_ascii_hexdigit() || c.is_ascii_whitespace())
+            {
                 "hex-encoded data"
             } else {
                 "ASCII text"

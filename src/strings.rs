@@ -25,57 +25,17 @@ fn hash_str(s: &str) -> u64 {
     hasher.finish()
 }
 
-/// Detect encoding layers in a string and populate layer metadata
-fn detect_layers(mut info: StringInfo) -> StringInfo {
-    // Stack strings are already tracked via stng_method_to_string(),  so don't add here
-    // Just detect additional encoding layers in the actual string content
-
-    // Detect encoding layers based on string content
-    if is_likely_base64(&info.value) {
-        info.encoding_chain.push("base64".to_string());
-    }
-
-    if is_likely_hex(&info.value) {
-        info.encoding_chain.push("hex".to_string());
-    }
-
-    info
-}
-
-/// Check if a string looks like base64-encoded data
-fn is_likely_base64(s: &str) -> bool {
-    // Base64 strings are alphanumeric + /+ and optional padding
-    // Must be reasonably long (> 16 chars) and have high base64 character ratio
-    if s.len() < 16 {
-        return false;
-    }
-
-    let base64_chars = s
-        .chars()
-        .filter(|c| c.is_ascii_alphanumeric() || *c == '+' || *c == '/' || *c == '=')
-        .count();
-
-    // If >= 80% base64 characters, likely encoded
-    (base64_chars as f32 / s.len() as f32) >= 0.8
-}
-
-/// Check if a string looks like hex-encoded data
-fn is_likely_hex(s: &str) -> bool {
-    // Hex strings are [0-9a-fA-F]+, must be even length and >= 32 chars
-    if s.len() < 32 || !s.len().is_multiple_of(2) {
-        return false;
-    }
-
-    s.chars().all(|c| c.is_ascii_hexdigit())
-}
-
 /// Convert stng StringMethod to a string for encoding_chain tracking
 /// Only tracks actual string construction/encoding methods, not extraction sources
 fn stng_method_to_string(method: StringMethod) -> String {
     match method {
-        // String construction methods - worth tracking
+        // String construction/encoding methods - worth tracking
         StringMethod::StackString => "stack",
         StringMethod::XorDecode => "xor",
+        StringMethod::Base64Decode => "base64",
+        StringMethod::HexDecode => "hex",
+        StringMethod::UrlDecode => "url",
+        StringMethod::UnicodeEscapeDecode => "unicode-escape",
         StringMethod::WideString => "wide",
 
         // Extraction sources - not worth tracking (all strings are equally valid)
@@ -255,6 +215,23 @@ impl StringExtractor {
             || self.extract(data, None),
         );
 
+        tracing::debug!(
+            "stng returned {} strings, basic extractor returned {} strings",
+            lang_strings.len(),
+            basic_strings.len()
+        );
+
+        // Log first few stng strings to see what we got
+        for (i, es) in lang_strings.iter().take(5).enumerate() {
+            tracing::debug!(
+                "  stng[{}]: method={:?}, kind={:?}, value_preview={}",
+                i,
+                es.method,
+                es.kind,
+                &es.value.chars().take(100).collect::<String>()
+            );
+        }
+
         // Pre-size based on expected string count (roughly 1 string per 20 bytes)
         let estimated_count = data.len() / 20;
         // Use hash-based deduplication to avoid cloning strings into the seen set.
@@ -263,19 +240,37 @@ impl StringExtractor {
             FxHashSet::with_capacity_and_hasher(estimated_count, Default::default());
         let mut strings = Vec::with_capacity(estimated_count);
 
+        let mut stng_added = 0;
+        let mut stng_dupes = 0;
         for es in lang_strings {
             let hash = hash_str(&es.value);
             if seen.insert(hash) {
                 strings.push(self.convert_extracted_string(es));
+                stng_added += 1;
+            } else {
+                stng_dupes += 1;
             }
         }
 
+        let mut basic_added = 0;
+        let mut basic_dupes = 0;
         for s in basic_strings {
             let hash = hash_str(&s.value);
             if seen.insert(hash) {
                 strings.push(s);
+                basic_added += 1;
+            } else {
+                basic_dupes += 1;
             }
         }
+
+        tracing::debug!(
+            "Added {} stng strings ({} dupes), {} basic strings ({} dupes)",
+            stng_added,
+            stng_dupes,
+            basic_added,
+            basic_dupes
+        );
 
         strings
     }
@@ -296,7 +291,7 @@ impl StringExtractor {
         // Convert r2 strings to stng format if provided
         let stng_r2 = r2_strings.map(|r2s| r2_to_stng(r2s, self.min_length));
 
-        // Build stng options with garbage filtering, XOR detection, and optional r2 strings
+        // Build stng options with garbage filtering and optional r2 strings
         let mut opts = ExtractOptions::new(self.min_length)
             .with_garbage_filter(true)
             .with_xor(None);
@@ -460,11 +455,22 @@ impl StringExtractor {
 
     /// Convert an ExtractedString from stng to StringInfo
     fn convert_extracted_string(&self, es: ExtractedString) -> StringInfo {
+        // Determine if this is a decoded string (don't classify decoded content as base64/hex)
+        let is_decoded = matches!(
+            es.method,
+            StringMethod::Base64Decode
+                | StringMethod::HexDecode
+                | StringMethod::UrlDecode
+                | StringMethod::UnicodeEscapeDecode
+                | StringMethod::XorDecode
+        );
+
         // Use stng's kind if it's an import/export, otherwise classify ourselves
         let string_type = match es.kind {
             StringKind::Import => StringType::Import,
             StringKind::Export => StringType::Export,
             StringKind::FuncName => StringType::Function,
+            _ if is_decoded => self.classify_decoded_string(&es.value),
             _ => self.classify_string_type(&es.value),
         };
 
@@ -487,14 +493,15 @@ impl StringExtractor {
         };
 
         // Track the stng method as an encoding layer if it's a special string construction
-        // This captures: StackString, InetNtoa, InetAton, etc.
+        // This captures: StackString, decoded encodings, etc.
         let method_str = stng_method_to_string(es.method);
         if !method_str.is_empty() {
             info.encoding_chain.push(method_str);
         }
 
-        // Detect any additional encoding layers (base64, hex, etc.)
-        info = detect_layers(info);
+        // Don't call detect_layers() here - stng already identified the encoding method
+        // and the value is already decoded. Calling detect_layers() would look at the
+        // decoded content and incorrectly try to re-classify it.
         info
     }
 
@@ -522,7 +529,7 @@ impl StringExtractor {
             }
         };
 
-        let mut info = StringInfo {
+        StringInfo {
             value,
             offset: Some(offset as u64),
             encoding: "utf8".to_string(),
@@ -530,11 +537,7 @@ impl StringExtractor {
             section,
             encoding_chain: Vec::new(),
             fragments: None,
-        };
-
-        // Detect any encoding layers
-        info = detect_layers(info);
-        info
+        }
     }
     /// Classify a string's type without creating a StringInfo object
     pub fn classify_string_type(&self, value: &str) -> StringType {
@@ -554,6 +557,28 @@ impl StringExtractor {
         } else if value.len() >= 16 && self.base64_regex.is_match(value) {
             StringType::Base64
         } else {
+            StringType::Plain
+        }
+    }
+
+    /// Classify decoded string content - doesn't check for encoding types like base64/hex
+    /// since this is already decoded content from stng
+    fn classify_decoded_string(&self, value: &str) -> StringType {
+        let normalized = Self::normalize_symbol(value);
+        if let Some((stype, _)) = self.symbol_map.get(&normalized) {
+            return *stype;
+        }
+
+        if self.url_regex.is_match(value) {
+            StringType::Url
+        } else if self.is_real_ip(value) {
+            StringType::Ip
+        } else if self.email_regex.is_match(value) {
+            StringType::Email
+        } else if self.is_path(value) {
+            StringType::Path
+        } else {
+            // Decoded content is just plain text, not base64/hex
             StringType::Plain
         }
     }

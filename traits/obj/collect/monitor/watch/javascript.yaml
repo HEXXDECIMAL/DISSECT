@@ -49,3 +49,17 @@ composite_rules:
     any:
       - id: obj/collect/monitor/watch::js-node-screenshots
       - id: obj/collect/monitor/watch::js-desktop-screenshot
+      - id: cap/hw/display/screen::monitor-get-displays
+
+  - id: js-screenshot-file-write
+    desc: Screen capture saved to file (potential exfil staging)
+    crit: suspicious
+    conf: 0.8
+    mbc: "B0002"
+    attack: "T1113"
+    for: [javascript]
+    all:
+      - id: cap/exec/dropper/loader::file-write
+    any:
+      - id: cap/hw/display/screen::monitor-get-displays
+      - id: cap/hw/display/screen::screenshot-capture-fn

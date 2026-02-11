@@ -341,69 +341,6 @@ pub fn eval_string(
         );
     }
 
-    // Fall back to raw content search ONLY for binaries when no strings were extracted.
-    // Source code files should NOT fall back to raw content - that bypasses AST extraction
-    // which intentionally excludes comments. Use `type: raw` for raw content search.
-    if evidence.is_empty() && ctx.report.strings.is_empty() && !ctx.file_type.is_source_code() {
-        if let Ok(content) = std::str::from_utf8(ctx.binary_data) {
-            let mut matched = false;
-            let mut match_value = String::new();
-
-            if let Some(exact_str) = params.exact {
-                // Exact match against whole file content (rarely matches, but semantically correct)
-                matched = if params.case_insensitive {
-                    content.eq_ignore_ascii_case(exact_str)
-                } else {
-                    content == exact_str
-                };
-                if matched {
-                    match_value = exact_str.clone();
-                }
-            } else if let Some(substr_str) = params.substr {
-                // Substring match in raw content
-                matched = if params.case_insensitive {
-                    content.to_lowercase().contains(&substr_str.to_lowercase())
-                } else {
-                    content.contains(substr_str)
-                };
-                if matched {
-                    match_value = substr_str.clone();
-                }
-            } else if let Some(re) = compiled_regex {
-                if let Some(mat) = re.find(content) {
-                    matched = true;
-                    match_value = mat.as_str().to_string();
-                }
-            } else if let Some(regex_pattern) = params.regex {
-                // Fallback: compile regex on-the-fly if not pre-compiled
-                if let Ok(re) = super::build_regex(regex_pattern, params.case_insensitive) {
-                    if let Some(mat) = re.find(content) {
-                        matched = true;
-                        match_value = mat.as_str().to_string();
-                    }
-                }
-            }
-
-            if matched {
-                let excluded_by_pattern =
-                    compiled_excludes.iter().any(|re| re.is_match(&match_value));
-                let excluded_by_not = trait_not
-                    .map(|exceptions| exceptions.iter().any(|exc| exc.matches(&match_value)))
-                    .unwrap_or(false);
-                let excluded_by_ip = params.external_ip && !contains_external_ip(&match_value);
-
-                if !excluded_by_pattern && !excluded_by_not && !excluded_by_ip {
-                    evidence.push(Evidence {
-                        method: "string".to_string(),
-                        source: "raw_content".to_string(),
-                        value: match_value,
-                        location: Some("file".to_string()),
-                    });
-                }
-            }
-        }
-    }
-
     if let Some(t) = t_start {
         if profile {
             eprintln!("[PROFILE]   eval_string: {}ms", t.elapsed().as_millis());
@@ -717,97 +654,44 @@ pub fn eval_raw(
     }
 }
 
-/// Search base64-decoded strings for patterns.
-/// Decoded strings are extracted once during analysis and stored in the report.
+/// Search encoded/decoded strings for patterns with optional encoding filter.
+/// Unified replacement for eval_base64 and eval_xor with additional features.
+///
+/// # Encoding Filter
+/// - `Some(Single("base64"))` - Only search base64-decoded strings
+/// - `Some(Multiple(vec!["base64", "hex"]))` - Search base64 OR hex decoded strings
+/// - `None` - Search ALL encoded strings (any non-empty encoding_chain)
+///
+/// # Pattern Matching
+/// Supports exact, substr, regex, and word boundary matching
 #[allow(clippy::too_many_arguments)]
-pub fn eval_base64(
+pub fn eval_encoded(
+    encoding: Option<&crate::composite_rules::condition::EncodingSpec>,
     exact: Option<&String>,
     substr: Option<&String>,
     regex: Option<&String>,
+    word: Option<&String>,
     case_insensitive: bool,
     count_min: usize,
     count_max: Option<usize>,
     per_kb_min: Option<f64>,
     per_kb_max: Option<f64>,
+    compiled_regex: Option<&regex::Regex>,
     location: &ContentLocationParams,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
+    use crate::composite_rules::condition::EncodingSpec;
+
     // Resolve effective range for offset filtering
     let effective_range = resolve_effective_range_opt(location, ctx);
 
-    eval_encoded_strings_helper(
-        "base64",
-        exact,
-        substr,
-        regex,
-        case_insensitive,
-        count_min,
-        count_max,
-        per_kb_min,
-        per_kb_max,
-        effective_range,
-        location,
-        ctx,
-    )
-}
-
-/// Search XOR-decoded strings for patterns.
-/// If key is specified, only searches that key. Otherwise searches all xor strings.
-#[allow(clippy::too_many_arguments)]
-pub fn eval_xor(
-    _key: Option<&String>,
-    exact: Option<&String>,
-    substr: Option<&String>,
-    regex: Option<&String>,
-    case_insensitive: bool,
-    count_min: usize,
-    count_max: Option<usize>,
-    per_kb_min: Option<f64>,
-    per_kb_max: Option<f64>,
-    location: &ContentLocationParams,
-    ctx: &EvaluationContext,
-) -> ConditionResult {
-    // Resolve effective range for offset filtering
-    let effective_range = resolve_effective_range_opt(location, ctx);
-
-    // Note: key parameter is deprecated - encoding_chain no longer carries key info
-    eval_encoded_strings_helper(
-        "xor",
-        exact,
-        substr,
-        regex,
-        case_insensitive,
-        count_min,
-        count_max,
-        per_kb_min,
-        per_kb_max,
-        effective_range,
-        location,
-        ctx,
-    )
-}
-
-/// Helper to search encoded strings (with given encoding in chain) for patterns.
-#[allow(clippy::too_many_arguments)]
-fn eval_encoded_strings_helper(
-    encoding_type: &str,
-    exact: Option<&String>,
-    substr: Option<&String>,
-    regex: Option<&String>,
-    case_insensitive: bool,
-    count_min: usize,
-    count_max: Option<usize>,
-    per_kb_min: Option<f64>,
-    per_kb_max: Option<f64>,
-    effective_range: Option<(u64, u64)>,
-    location: &ContentLocationParams,
-    ctx: &EvaluationContext,
-) -> ConditionResult {
     let mut evidence = Vec::new();
     let mut match_count = 0;
 
-    // Build regex if needed
-    let regex_matcher = if let Some(pattern) = regex {
+    // Build regex if needed (prefer compiled_regex if available)
+    let regex_matcher = if let Some(compiled) = compiled_regex {
+        Some(compiled.clone())
+    } else if let Some(pattern) = regex {
         let pattern_with_flags = if case_insensitive {
             format!("(?i){}", pattern)
         } else {
@@ -817,16 +701,44 @@ fn eval_encoded_strings_helper(
             Ok(re) => Some(re),
             Err(_) => return ConditionResult::no_match(),
         }
+    } else if let Some(word_pattern) = word {
+        // Build word boundary regex from word parameter
+        let pattern = format!(r"\b{}\b", regex::escape(word_pattern));
+        let pattern_with_flags = if case_insensitive {
+            format!("(?i){}", pattern)
+        } else {
+            pattern
+        };
+        match regex::Regex::new(&pattern_with_flags) {
+            Ok(re) => Some(re),
+            Err(_) => return ConditionResult::no_match(),
+        }
     } else {
         None
     };
 
-    // Filter strings that have this encoding in their chain
+    // Determine encoding filter function
+    let matches_encoding = |enc_chain: &[String]| -> bool {
+        match encoding {
+            None => {
+                // No filter: match ANY encoded string (non-empty encoding_chain)
+                !enc_chain.is_empty()
+            }
+            Some(EncodingSpec::Single(enc)) => {
+                // Single encoding: must be in the chain
+                enc_chain.contains(enc)
+            }
+            Some(EncodingSpec::Multiple(encodings)) => {
+                // Multiple encodings: match if ANY encoding is in the chain (OR logic)
+                encodings.iter().any(|enc| enc_chain.contains(enc))
+            }
+        }
+    };
+
+    // Filter and match strings
     for string_info in &ctx.report.strings {
-        if !string_info
-            .encoding_chain
-            .contains(&encoding_type.to_string())
-        {
+        // Apply encoding filter
+        if !matches_encoding(&string_info.encoding_chain) {
             continue;
         }
 
@@ -860,7 +772,7 @@ fn eval_encoded_strings_helper(
             }
         }
 
-        // Check regex match
+        // Check regex or word match
         if !matches {
             if let Some(ref re) = regex_matcher {
                 matches = re.is_match(&string_info.value);
@@ -874,21 +786,22 @@ fn eval_encoded_strings_helper(
             } else {
                 string_info.value.clone()
             };
+
             evidence.push(Evidence {
-                method: format!("encoded_{}", encoding_type),
-                source: "string".to_string(),
+                method: "encoded_string".to_string(),
+                source: format!("encoding_chain:{}", string_info.encoding_chain.join("+")),
                 value: value_preview,
                 location: string_info.offset.map(|o| format!("{:#x}", o)),
             });
         }
     }
 
-    // Calculate precision
+    // Calculate precision based on match type and constraints
     let mut precision = 0.0f32;
 
     if exact.is_some() {
         precision = 2.0;
-    } else if regex.is_some() {
+    } else if regex.is_some() || word.is_some() {
         precision = 1.5;
     } else if substr.is_some() {
         precision = 1.0;
@@ -916,7 +829,7 @@ fn eval_encoded_strings_helper(
     }
 
     if count_max.is_some() || per_kb_min.is_some() || per_kb_max.is_some() {
-        precision += 0.5; // Density/max constraints add precision
+        precision += 0.5;
     }
 
     // Check count and density constraints
@@ -937,6 +850,8 @@ fn eval_encoded_strings_helper(
     }
 }
 
+/// Helper to search encoded strings (with given encoding in chain) for patterns.
+#[allow(clippy::too_many_arguments)]
 /// Evaluate string count condition - check if string count is within bounds.
 pub fn eval_string_count(
     min: Option<usize>,

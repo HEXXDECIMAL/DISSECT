@@ -6,10 +6,9 @@
 use super::condition::{Condition, NotException};
 use super::context::{ConditionResult, EvaluationContext, StringParams};
 use super::evaluators::{
-    eval_ast, eval_base64, eval_basename, eval_exports_count, eval_hex,
-    eval_import_combination, eval_metrics, eval_raw,
-    eval_section_entropy, eval_section_name, eval_section_ratio, eval_string, eval_string_count,
-    eval_structure, eval_symbol, eval_syscall, eval_trait, eval_xor,
+    eval_ast, eval_basename, eval_encoded, eval_exports_count, eval_hex, eval_import_combination,
+    eval_metrics, eval_raw, eval_section_entropy, eval_section_name, eval_section_ratio,
+    eval_string, eval_string_count, eval_structure, eval_symbol, eval_syscall, eval_trait,
     eval_yara_inline, ContentLocationParams,
 };
 use super::types::{default_file_types, default_platforms, FileType, Platform};
@@ -94,31 +93,48 @@ impl TraitDefinition {
     /// Pre-compile all regexes in this trait's conditions for performance.
     /// Returns an error if any regex pattern is invalid.
     pub fn precompile_regexes(&mut self) -> anyhow::Result<()> {
-        self.r#if.precompile_regexes()
+        self.r#if
+            .precompile_regexes()
             .with_context(|| format!("in trait '{}' main condition", self.id))?;
         if let Some(ref mut conds) = self.unless {
             for (idx, cond) in conds.iter_mut().enumerate() {
-                cond.precompile_regexes()
-                    .with_context(|| format!("in trait '{}' unless condition #{}", self.id, idx + 1))?;
+                cond.precompile_regexes().with_context(|| {
+                    format!("in trait '{}' unless condition #{}", self.id, idx + 1)
+                })?;
             }
         }
         if let Some(ref mut downgrade) = self.downgrade {
             if let Some(ref mut any) = downgrade.any {
                 for (idx, cond) in any.iter_mut().enumerate() {
-                    cond.precompile_regexes()
-                        .with_context(|| format!("in trait '{}' downgrade.any condition #{}", self.id, idx + 1))?;
+                    cond.precompile_regexes().with_context(|| {
+                        format!(
+                            "in trait '{}' downgrade.any condition #{}",
+                            self.id,
+                            idx + 1
+                        )
+                    })?;
                 }
             }
             if let Some(ref mut all) = downgrade.all {
                 for (idx, cond) in all.iter_mut().enumerate() {
-                    cond.precompile_regexes()
-                        .with_context(|| format!("in trait '{}' downgrade.all condition #{}", self.id, idx + 1))?;
+                    cond.precompile_regexes().with_context(|| {
+                        format!(
+                            "in trait '{}' downgrade.all condition #{}",
+                            self.id,
+                            idx + 1
+                        )
+                    })?;
                 }
             }
             if let Some(ref mut none) = downgrade.none {
                 for (idx, cond) in none.iter_mut().enumerate() {
-                    cond.precompile_regexes()
-                        .with_context(|| format!("in trait '{}' downgrade.none condition #{}", self.id, idx + 1))?;
+                    cond.precompile_regexes().with_context(|| {
+                        format!(
+                            "in trait '{}' downgrade.none condition #{}",
+                            self.id,
+                            idx + 1
+                        )
+                    })?;
                 }
             }
         }
@@ -203,7 +219,8 @@ impl TraitDefinition {
         if let Some(not_exceptions) = &self.not {
             if not_exceptions.is_empty() {
                 return Some(
-                    "not: array is empty - either remove the not: field or add exception patterns".to_string()
+                    "not: array is empty - either remove the not: field or add exception patterns"
+                        .to_string(),
                 );
             }
         }
@@ -335,7 +352,7 @@ impl TraitDefinition {
                 );
             }
             // For Content exact matches, not: doesn't make sense
-            Condition::Content {
+            Condition::Raw {
                 exact: Some(_),
                 regex: None,
                 word: None,
@@ -406,7 +423,7 @@ impl TraitDefinition {
                 }
             }
             // For Content substr matches, not: is unclear - content searches don't extract individual strings
-            Condition::Content {
+            Condition::Raw {
                 substr: Some(_),
                 regex: None,
                 word: None,
@@ -422,13 +439,17 @@ impl TraitDefinition {
                 regex: Some(pattern),
                 ..
             }
-            | Condition::Content {
+            | Condition::Raw {
                 regex: Some(pattern),
                 ..
             } => {
                 for exc in not_exceptions {
                     // Only validate exact matches - substr and regex exceptions can match substrings
-                    if let NotException::Structured { exact: Some(exc_str), .. } = exc {
+                    if let NotException::Structured {
+                        exact: Some(exc_str),
+                        ..
+                    } = exc
+                    {
                         if !pattern_could_match(pattern, exc_str) {
                             return Some(format!(
                                 "not: exception (exact) '{}' does not match the search regex '{}' - it will never be applied",
@@ -856,7 +877,7 @@ impl TraitDefinition {
                 },
                 ctx,
             ),
-            Condition::Content {
+            Condition::Raw {
                 exact,
                 substr,
                 regex,
@@ -900,10 +921,12 @@ impl TraitDefinition {
                 )
             }
             Condition::SectionName { pattern, regex } => eval_section_name(pattern, *regex, ctx),
-            Condition::Base64 {
+            Condition::Encoded {
+                encoding,
                 exact,
                 substr,
                 regex,
+                word,
                 case_insensitive,
                 count_min,
                 count_max,
@@ -914,6 +937,7 @@ impl TraitDefinition {
                 offset_range,
                 section_offset,
                 section_offset_range,
+                compiled_regex,
             } => {
                 use super::evaluators::ContentLocationParams;
                 let location = ContentLocationParams {
@@ -923,53 +947,18 @@ impl TraitDefinition {
                     section_offset: *section_offset,
                     section_offset_range: *section_offset_range,
                 };
-                eval_base64(
+                eval_encoded(
+                    encoding.as_ref(),
                     exact.as_ref(),
                     substr.as_ref(),
                     regex.as_ref(),
+                    word.as_ref(),
                     *case_insensitive,
                     *count_min,
                     *count_max,
                     *per_kb_min,
                     *per_kb_max,
-                    &location,
-                    ctx,
-                )
-            }
-            Condition::Xor {
-                key,
-                exact,
-                substr,
-                regex,
-                case_insensitive,
-                count_min,
-                count_max,
-                per_kb_min,
-                per_kb_max,
-                section,
-                offset,
-                offset_range,
-                section_offset,
-                section_offset_range,
-            } => {
-                use super::evaluators::ContentLocationParams;
-                let location = ContentLocationParams {
-                    section: section.clone(),
-                    offset: *offset,
-                    offset_range: *offset_range,
-                    section_offset: *section_offset,
-                    section_offset_range: *section_offset_range,
-                };
-                eval_xor(
-                    key.as_ref(),
-                    exact.as_ref(),
-                    substr.as_ref(),
-                    regex.as_ref(),
-                    *case_insensitive,
-                    *count_min,
-                    *count_max,
-                    *per_kb_min,
-                    *per_kb_max,
+                    compiled_regex.as_ref(),
                     &location,
                     ctx,
                 )
@@ -1078,45 +1067,72 @@ impl CompositeTrait {
     pub fn precompile_regexes(&mut self) -> anyhow::Result<()> {
         if let Some(ref mut conds) = self.all {
             for (idx, cond) in conds.iter_mut().enumerate() {
-                cond.precompile_regexes()
-                    .with_context(|| format!("in composite rule '{}' all condition #{}", self.id, idx + 1))?;
+                cond.precompile_regexes().with_context(|| {
+                    format!("in composite rule '{}' all condition #{}", self.id, idx + 1)
+                })?;
             }
         }
         if let Some(ref mut conds) = self.any {
             for (idx, cond) in conds.iter_mut().enumerate() {
-                cond.precompile_regexes()
-                    .with_context(|| format!("in composite rule '{}' any condition #{}", self.id, idx + 1))?;
+                cond.precompile_regexes().with_context(|| {
+                    format!("in composite rule '{}' any condition #{}", self.id, idx + 1)
+                })?;
             }
         }
         if let Some(ref mut conds) = self.none {
             for (idx, cond) in conds.iter_mut().enumerate() {
-                cond.precompile_regexes()
-                    .with_context(|| format!("in composite rule '{}' none condition #{}", self.id, idx + 1))?;
+                cond.precompile_regexes().with_context(|| {
+                    format!(
+                        "in composite rule '{}' none condition #{}",
+                        self.id,
+                        idx + 1
+                    )
+                })?;
             }
         }
         if let Some(ref mut conds) = self.unless {
             for (idx, cond) in conds.iter_mut().enumerate() {
-                cond.precompile_regexes()
-                    .with_context(|| format!("in composite rule '{}' unless condition #{}", self.id, idx + 1))?;
+                cond.precompile_regexes().with_context(|| {
+                    format!(
+                        "in composite rule '{}' unless condition #{}",
+                        self.id,
+                        idx + 1
+                    )
+                })?;
             }
         }
         if let Some(ref mut downgrade) = self.downgrade {
             if let Some(ref mut any) = downgrade.any {
                 for (idx, cond) in any.iter_mut().enumerate() {
-                    cond.precompile_regexes()
-                        .with_context(|| format!("in composite rule '{}' downgrade.any condition #{}", self.id, idx + 1))?;
+                    cond.precompile_regexes().with_context(|| {
+                        format!(
+                            "in composite rule '{}' downgrade.any condition #{}",
+                            self.id,
+                            idx + 1
+                        )
+                    })?;
                 }
             }
             if let Some(ref mut all) = downgrade.all {
                 for (idx, cond) in all.iter_mut().enumerate() {
-                    cond.precompile_regexes()
-                        .with_context(|| format!("in composite rule '{}' downgrade.all condition #{}", self.id, idx + 1))?;
+                    cond.precompile_regexes().with_context(|| {
+                        format!(
+                            "in composite rule '{}' downgrade.all condition #{}",
+                            self.id,
+                            idx + 1
+                        )
+                    })?;
                 }
             }
             if let Some(ref mut none) = downgrade.none {
                 for (idx, cond) in none.iter_mut().enumerate() {
-                    cond.precompile_regexes()
-                        .with_context(|| format!("in composite rule '{}' downgrade.none condition #{}", self.id, idx + 1))?;
+                    cond.precompile_regexes().with_context(|| {
+                        format!(
+                            "in composite rule '{}' downgrade.none condition #{}",
+                            self.id,
+                            idx + 1
+                        )
+                    })?;
                 }
             }
         }
@@ -1771,7 +1787,7 @@ impl CompositeTrait {
                 },
                 ctx,
             ),
-            Condition::Content {
+            Condition::Raw {
                 exact,
                 substr,
                 regex,
@@ -1815,10 +1831,12 @@ impl CompositeTrait {
                 )
             }
             Condition::SectionName { pattern, regex } => eval_section_name(pattern, *regex, ctx),
-            Condition::Base64 {
+            Condition::Encoded {
+                encoding,
                 exact,
                 substr,
                 regex,
+                word,
                 case_insensitive,
                 count_min,
                 count_max,
@@ -1829,6 +1847,7 @@ impl CompositeTrait {
                 offset_range,
                 section_offset,
                 section_offset_range,
+                compiled_regex,
             } => {
                 use super::evaluators::ContentLocationParams;
                 let location = ContentLocationParams {
@@ -1838,53 +1857,18 @@ impl CompositeTrait {
                     section_offset: *section_offset,
                     section_offset_range: *section_offset_range,
                 };
-                eval_base64(
+                eval_encoded(
+                    encoding.as_ref(),
                     exact.as_ref(),
                     substr.as_ref(),
                     regex.as_ref(),
+                    word.as_ref(),
                     *case_insensitive,
                     *count_min,
                     *count_max,
                     *per_kb_min,
                     *per_kb_max,
-                    &location,
-                    ctx,
-                )
-            }
-            Condition::Xor {
-                key,
-                exact,
-                substr,
-                regex,
-                case_insensitive,
-                count_min,
-                count_max,
-                per_kb_min,
-                per_kb_max,
-                section,
-                offset,
-                offset_range,
-                section_offset,
-                section_offset_range,
-            } => {
-                use super::evaluators::ContentLocationParams;
-                let location = ContentLocationParams {
-                    section: section.clone(),
-                    offset: *offset,
-                    offset_range: *offset_range,
-                    section_offset: *section_offset,
-                    section_offset_range: *section_offset_range,
-                };
-                eval_xor(
-                    key.as_ref(),
-                    exact.as_ref(),
-                    substr.as_ref(),
-                    regex.as_ref(),
-                    *case_insensitive,
-                    *count_min,
-                    *count_max,
-                    *per_kb_min,
-                    *per_kb_max,
+                    compiled_regex.as_ref(),
                     &location,
                     ctx,
                 )

@@ -1,7 +1,7 @@
 //! Tests for string vs content condition behavior.
 //!
 //! Verifies that `type: string` conditions search AST-extracted strings (excluding comments)
-//! while `type: content` conditions search raw file content (including comments).
+//! while `type: raw` conditions search raw file content (including comments).
 
 use std::fs;
 use tempfile::TempDir;
@@ -10,7 +10,7 @@ use tempfile::TempDir;
 ///
 /// This is a regression test for a bug where `type: string` was falling back to
 /// raw content search for source files, causing it to match patterns in comments
-/// that should only be found by `type: content` conditions.
+/// that should only be found by `type: raw` conditions.
 ///
 /// Bug: In eval_string(), the condition:
 ///   `if evidence.is_empty() && (ctx.report.strings.is_empty() || ctx.file_type.is_source_code())`
@@ -92,7 +92,7 @@ int main() {
     );
 }
 
-/// Test that `type: content` conditions DO match patterns in comments.
+/// Test that `type: raw` conditions DO match patterns in comments.
 #[test]
 fn test_content_condition_matches_comments() {
     let temp_dir = TempDir::new().unwrap();
@@ -107,7 +107,7 @@ echo "This script is safe"
 
     fs::write(&script_path, script_content).unwrap();
 
-    // Create a custom trait file that uses type: content to find wget
+    // Create a custom trait file that uses type: raw to find wget
     let traits_dir = temp_dir.path().join("traits");
     fs::create_dir_all(&traits_dir).unwrap();
 
@@ -117,7 +117,7 @@ echo "This script is safe"
     crit: notable
     conf: 0.8
     if:
-      type: content
+      type: raw
       substr: "wget http://"
 "#;
 
@@ -142,7 +142,7 @@ echo "This script is safe"
     // Content search should find wget even in comment
     assert!(
         stdout.contains("wget-in-comment"),
-        "type: content should match patterns in comments. Output: {}",
+        "type: raw should match patterns in comments. Output: {}",
         stdout
     );
 }
@@ -188,7 +188,7 @@ def connect():
     crit: notable
     conf: 0.8
     if:
-      type: content
+      type: raw
       regex: '\b[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\b'
       external_ip: true
 "#;
@@ -215,7 +215,7 @@ def connect():
     // Content should always match (finds both IPs)
     assert!(
         stdout.contains("content-ip-match"),
-        "type: content should find IPs in both comments and strings. Output: {}",
+        "type: raw should find IPs in both comments and strings. Output: {}",
         stdout
     );
 

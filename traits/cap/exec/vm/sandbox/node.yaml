@@ -185,7 +185,8 @@ traits:
     attack: "T1027"
     for: [javascript, typescript]
     if:
-      type: base64
+      type: encoded
+      encoding: base64
       regex: "https?://"
 
 # === Composite Rules ===

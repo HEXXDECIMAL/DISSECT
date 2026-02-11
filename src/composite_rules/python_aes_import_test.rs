@@ -10,12 +10,12 @@ mod python_aes_import_tests {
         // Test that the regex pattern correctly matches Python AES imports
         let test_cases = vec![
             ("from Crypto.Cipher import AES", true),
-            ("from Crypto.Cipher  import  AES", true),  // Multiple spaces
-            ("from Crypto.Cipher import\tAES", true),   // Tab
+            ("from Crypto.Cipher  import  AES", true), // Multiple spaces
+            ("from Crypto.Cipher import\tAES", true),  // Tab
             ("from Crypto.Cipher import AES, DES", true), // Multiple imports
-            ("from Crypto.Cipher import DES", false),   // Different import
-            ("from Crypto import Cipher", false),        // Wrong import level
-            ("import Crypto.Cipher.AES", false),        // Wrong import style
+            ("from Crypto.Cipher import DES", false),  // Different import
+            ("from Crypto import Cipher", false),      // Wrong import level
+            ("import Crypto.Cipher.AES", false),       // Wrong import style
         ];
 
         let pattern = r"from\s+Crypto\.Cipher\s+import\s+AES";
@@ -24,7 +24,8 @@ mod python_aes_import_tests {
         for (input, should_match) in test_cases {
             let matches = regex.is_match(input);
             assert_eq!(
-                matches, should_match,
+                matches,
+                should_match,
                 "Pattern '{}' should {} match input: '{}'",
                 pattern,
                 if should_match { "" } else { "not" },
@@ -34,10 +35,10 @@ mod python_aes_import_tests {
     }
 
     #[test]
-    fn test_trait_type_is_content_not_string() {
-        // Verify that searching for imports should use content, not string type
+    fn test_trait_type_is_raw_not_string() {
+        // Verify that searching for imports should use raw, not string type
         // String type searches for string literals in the code (e.g., "hello world")
-        // Content type searches for raw bytes in the file (e.g., source code text)
+        // Raw type searches for raw bytes in the file (e.g., source code text)
         // Symbol type searches for identifiers/imports in the symbol table
 
         // For Python source files, import statements are in the file content,
@@ -53,7 +54,7 @@ mod python_aes_import_tests {
             r#for: vec![],
             size_min: None,
             size_max: None,
-            r#if: Condition::Content {
+            r#if: Condition::Raw {
                 exact: None,
                 substr: None,
                 regex: Some(r"from\s+Crypto\.Cipher\s+import\s+AES".to_string()),

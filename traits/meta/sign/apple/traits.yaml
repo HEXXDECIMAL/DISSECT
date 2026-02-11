@@ -9,7 +9,7 @@ traits:
   # These wrap code-generated traits for use in composite rules
   - id: adhoc
     desc: Ad-hoc code signature
-    crit: notable
+    crit: inert
     conf: 1.0
     if:
       type: trait

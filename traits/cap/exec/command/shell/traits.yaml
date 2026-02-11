@@ -1,12 +1,4 @@
 traits:
-  - id: shell-symbols
-    desc: Shell execution symbols
-    crit: notable
-    conf: 0.9
-    if:
-      type: symbol
-      regex: "^(system|popen|execl|execle|execlp|execv|execve|execvp|execvpe)$"
-
   - id: go-shell-strings
     desc: Go shell execution strings
     crit: notable
@@ -16,6 +8,16 @@ traits:
       regex: 'exec\.\(\*Cmd\)\.Run|os/exec\.Command'
 
 composite_rules:
+  - id: shell-symbols
+    desc: Shell execution symbols
+    crit: notable
+    conf: 0.9
+    any:
+      - id: cap/exec/command/shell
+    unless:
+      # Exclude Go-specific strings from general C-style symbols
+      - id: go-shell-strings
+
   - id: go-shell-execution
     desc: Shell command execution (Go)
     crit: notable
@@ -23,3 +25,5 @@ composite_rules:
     any:
       - id: shell-symbols
       - id: go-shell-strings
+
+

@@ -244,20 +244,21 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
         report.findings.push(types::Finding {
             id: "meta/file-extension-mismatch".to_string(),
             kind: types::FindingKind::Indicator,
-            desc: format!("File extension claims {} but content is {}", expected, actual),
+            desc: format!(
+                "File extension claims {} but content is {}",
+                expected, actual
+            ),
             conf: 1.0,
             crit: types::Criticality::Hostile,
             mbc: None,
             attack: Some("T1036.005".to_string()), // Masquerading: Match Legitimate Name or Location
             trait_refs: vec![],
-            evidence: vec![
-                types::Evidence {
-                    method: "magic-byte".to_string(),
-                    source: "dissect".to_string(),
-                    value: format!("expected={}, actual={}", expected, actual),
-                    location: None,
-                },
-            ],
+            evidence: vec![types::Evidence {
+                method: "magic-byte".to_string(),
+                source: "dissect".to_string(),
+                value: format!("expected={}, actual={}", expected, actual),
+                location: None,
+            }],
         });
     }
 
@@ -267,29 +268,38 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
         report.findings.push(types::Finding {
             id: format!("meta/encoded-payload/{}", payload.encoding_chain.join("-")),
             kind: types::FindingKind::Structural,
-            desc: format!("Encoded payload detected: {}", payload.encoding_chain.join(" → ")),
+            desc: format!(
+                "Encoded payload detected: {}",
+                payload.encoding_chain.join(" → ")
+            ),
             conf: 0.9,
             crit: types::Criticality::Suspicious,
             mbc: None,
             attack: None,
             trait_refs: vec![],
-            evidence: vec![
-                types::Evidence {
-                    method: "pattern".to_string(),
-                    source: "dissect".to_string(),
-                    value: format!("encoding={}, type={:?}, preview={}", payload.encoding_chain.join(", "), payload.detected_type, payload.preview),
-                    location: Some(format!("offset:{}", payload.original_offset)),
-                },
-            ],
+            evidence: vec![types::Evidence {
+                method: "pattern".to_string(),
+                source: "dissect".to_string(),
+                value: format!(
+                    "encoding={}, type={:?}, preview={}",
+                    payload.encoding_chain.join(", "),
+                    payload.detected_type,
+                    payload.preview
+                ),
+                location: Some(format!("offset:{}", payload.original_offset)),
+            }],
         });
 
         // Analyze the decoded payload
-        if let Ok(payload_report) = analyze_file_with_mapper(&payload.temp_path, options, capability_mapper) {
+        if let Ok(payload_report) =
+            analyze_file_with_mapper(&payload.temp_path, options, capability_mapper)
+        {
             // Merge traits from payload analysis
             for mut trait_item in payload_report.traits {
                 // Prefix trait offset with encoding chain
                 if let Some(ref offset) = trait_item.offset {
-                    trait_item.offset = Some(format!("{}!{}", payload.encoding_chain.join("+"), offset));
+                    trait_item.offset =
+                        Some(format!("{}!{}", payload.encoding_chain.join("+"), offset));
                 } else {
                     trait_item.offset = Some(format!("{}!", payload.encoding_chain.join("+")));
                 }

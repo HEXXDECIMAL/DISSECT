@@ -1,0 +1,33 @@
+traits:
+  - id: export-iife-injection
+    desc: Immediately Invoked Function Expression on Export
+    crit: suspicious
+    conf: 0.8
+    if:
+      type: raw
+      regex: 'exports\.[a-zA-Z0-9_]+\s*=\s*asyncErrorHandler\(async\s*\(req,\s*res,\s*next\)\s*=>\s*\{[\s\S]*?\}\)\s*\(\)'
+
+  - id: env-atob-decode
+    desc: Usage of atob to decode environment variables
+    crit: notable
+    conf: 1.0
+    if:
+      type: raw
+      substr: "atob(process.env."
+
+  - id: axios-get
+    desc: Axios GET request
+    crit: inert
+    conf: 1.0
+    if:
+      type: raw
+      substr: "axios.get"
+
+composite_rules:
+  - id: suspicious-env-atob-axios
+    desc: Decoding environment variables with atob for network use
+    crit: hostile
+    conf: 0.9
+    all:
+      - id: env-atob-decode
+      - id: axios-get

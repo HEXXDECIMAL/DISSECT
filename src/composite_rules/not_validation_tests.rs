@@ -414,7 +414,7 @@ mod validation_tests {
     #[test]
     fn test_content_substr_with_not_should_error() {
         // content + substr + not should be an error - behavior is unclear
-        let cond = Condition::Content {
+        let cond = Condition::Raw {
             exact: None,
             substr: Some("test".to_string()),
             regex: None,
@@ -445,7 +445,7 @@ mod validation_tests {
     #[test]
     fn test_content_exact_with_not_should_error() {
         // content + exact + not should be an error - doesn't make sense
-        let cond = Condition::Content {
+        let cond = Condition::Raw {
             exact: Some("test".to_string()),
             substr: None,
             regex: None,
@@ -476,7 +476,7 @@ mod validation_tests {
     #[test]
     fn test_content_regex_with_not_is_ok() {
         // content + regex + not should work (no warning)
-        let cond = Condition::Content {
+        let cond = Condition::Raw {
             exact: None,
             substr: None,
             regex: Some("test.*".to_string()),
@@ -1136,7 +1136,10 @@ mod llm_validation_tests {
 
         let warning = cond.check_literal_regex();
         assert!(warning.is_some());
-        assert!(warning.as_ref().unwrap().contains("no regex metacharacters"));
+        assert!(warning
+            .as_ref()
+            .unwrap()
+            .contains("no regex metacharacters"));
     }
 
     #[test]
@@ -1421,7 +1424,10 @@ mod llm_validation_tests {
         };
 
         let warning = trait_def.check_description_quality();
-        assert!(warning.is_none(), "Descriptions mentioning placeholders should be valid");
+        assert!(
+            warning.is_none(),
+            "Descriptions mentioning placeholders should be valid"
+        );
     }
 
     #[test]

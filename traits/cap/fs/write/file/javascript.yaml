@@ -1,0 +1,37 @@
+defaults:
+  for: [javascript, typescript]
+
+traits:
+  - id: write-file-sync
+    desc: Writes to file synchronously
+    crit: inert
+    conf: 0.8
+    if:
+      type: raw
+      regex: '\.writeFileSync\s*\('
+
+  - id: write-file-async
+    desc: Writes to file asynchronously
+    crit: inert
+    conf: 0.8
+    if:
+      type: raw
+      regex: '\.writeFile\s*\('
+
+  - id: create-write-stream
+    desc: Creates a write stream
+    crit: inert
+    conf: 0.8
+    if:
+      type: raw
+      regex: '\.createWriteStream\s*\('
+
+composite_rules:
+  - id: js-file-write
+    desc: JavaScript file write operation
+    crit: inert
+    conf: 0.9
+    any:
+      - id: write-file-sync
+      - id: write-file-async
+      - id: create-write-stream

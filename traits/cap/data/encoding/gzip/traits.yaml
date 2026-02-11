@@ -1,0 +1,16 @@
+traits:
+  - id: gzip-header-string
+    desc: String starting with GZIP header magic (H4sIA)
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      regex: "^H4sIA[A-Za-z0-9+/=]{10,}"
+
+  - id: gzip-header-identifier
+    desc: Identifier containing GZIP header magic (H4sIA)
+    crit: notable
+    conf: 0.8
+    if:
+      type: raw
+      regex: "\\b(var|let|const|function)\\s+H4sIA[A-Za-z0-9+/=]{5,}"

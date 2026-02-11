@@ -701,81 +701,6 @@ fn create_empty_report() -> AnalysisReport {
     AnalysisReport::new(target)
 }
 
-/// Test that raw content fallback works for binaries with no extracted strings
-#[test]
-fn test_eval_string_raw_content_fallback_binary() {
-    // Use empty report - no strings extracted
-    let report = create_empty_report();
-    let data = b"This is some raw content with a password = secret123";
-
-    let mut ctx = create_test_context(&report, data);
-    ctx.file_type = FileType::Elf; // Binary - will try raw content if no strings
-
-    let params = StringParams {
-        exact: None,
-        substr: Some(&"password".to_string()),
-        regex: None,
-        word: None,
-        case_insensitive: false,
-        exclude_patterns: None,
-        count_min: 1,
-        count_max: None,
-        per_kb_min: None,
-        per_kb_max: None,
-        external_ip: false,
-        compiled_regex: None,
-        compiled_excludes: &[],
-        section: None,
-        offset: None,
-        offset_range: None,
-        section_offset: None,
-        section_offset_range: None,
-    };
-
-    let result = eval_string(&params, None, &ctx);
-
-    assert!(result.matched);
-    assert_eq!(result.evidence[0].source, "raw_content");
-}
-
-/// Test that source code files do NOT fall back to raw content
-/// (use type: raw if you want raw content search for source files)
-#[test]
-fn test_eval_string_no_raw_content_fallback_for_source() {
-    // Use empty report - no strings extracted
-    let report = create_empty_report();
-    let data = b"This is some raw content with a password = secret123";
-
-    let mut ctx = create_test_context(&report, data);
-    ctx.file_type = FileType::Python; // Source code - should NOT fall back to raw content
-
-    let params = StringParams {
-        exact: None,
-        substr: Some(&"password".to_string()),
-        regex: None,
-        word: None,
-        case_insensitive: false,
-        exclude_patterns: None,
-        count_min: 1,
-        count_max: None,
-        per_kb_min: None,
-        per_kb_max: None,
-        external_ip: false,
-        compiled_regex: None,
-        compiled_excludes: &[],
-        section: None,
-        offset: None,
-        offset_range: None,
-        section_offset: None,
-        section_offset_range: None,
-    };
-
-    let result = eval_string(&params, None, &ctx);
-
-    // Source code should NOT fall back to raw content - use type: raw for that
-    assert!(!result.matched);
-}
-
 // =============================================================================
 // eval_raw tests
 // =============================================================================
@@ -947,181 +872,6 @@ fn test_eval_raw_invalid_utf8() {
 }
 
 // =============================================================================
-// eval_base64 tests
-// =============================================================================
-
-#[test]
-fn test_eval_base64_exact_match() {
-    let report = create_test_report_with_encoded_strings();
-    let data = vec![];
-    let ctx = create_test_context(&report, &data);
-
-    let location = ContentLocationParams::default();
-    let result = eval_base64(
-        Some(&"secret_password".to_string()),
-        None,
-        None,
-        false,
-        1,
-        None,
-        None,
-        None,
-        &location,
-        &ctx,
-    );
-
-    assert!(result.matched);
-    assert!(result.evidence[0].method.contains("encoded_base64"));
-}
-
-#[test]
-fn test_eval_base64_substr_match() {
-    let report = create_test_report_with_encoded_strings();
-    let data = vec![];
-    let ctx = create_test_context(&report, &data);
-
-    let location = ContentLocationParams::default();
-    let result = eval_base64(
-        None,
-        Some(&"evil.com".to_string()),
-        None,
-        false,
-        1,
-        None,
-        None,
-        None,
-        &location,
-        &ctx,
-    );
-
-    assert!(result.matched);
-}
-
-#[test]
-fn test_eval_base64_regex_match() {
-    let report = create_test_report_with_encoded_strings();
-    let data = vec![];
-    let ctx = create_test_context(&report, &data);
-
-    let location = ContentLocationParams::default();
-    let result = eval_base64(
-        None,
-        None,
-        Some(&r"\d+\.\d+\.\d+\.\d+".to_string()),
-        false,
-        1,
-        None,
-        None,
-        None,
-        &location,
-        &ctx,
-    );
-
-    assert!(result.matched);
-}
-
-#[test]
-fn test_eval_base64_no_match_wrong_method() {
-    let report = create_test_report_with_encoded_strings();
-    let data = vec![];
-    let ctx = create_test_context(&report, &data);
-
-    let location = ContentLocationParams::default();
-    let result = eval_base64(
-        Some(&"secret".to_string()),
-        None,
-        None,
-        false,
-        1,
-        None,
-        None,
-        None,
-        &location,
-        &ctx,
-    );
-
-    assert!(!result.matched);
-}
-
-// =============================================================================
-// eval_xor tests
-// =============================================================================
-
-#[test]
-fn test_eval_xor_match() {
-    let report = create_test_report_with_encoded_strings();
-    let data = vec![];
-    let ctx = create_test_context(&report, &data);
-
-    let location = ContentLocationParams::default();
-    let result = eval_xor(
-        None,
-        None,
-        Some(&"malware".to_string()),
-        None,
-        false,
-        1,
-        None,
-        None,
-        None,
-        &location,
-        &ctx,
-    );
-
-    assert!(result.matched);
-}
-
-#[test]
-fn test_eval_xor_with_key_filter() {
-    let report = create_test_report_with_encoded_strings();
-    let data = vec![];
-    let ctx = create_test_context(&report, &data);
-
-    let location = ContentLocationParams::default();
-    // Only match key 0x42
-    let result = eval_xor(
-        Some(&"0x42".to_string()),
-        None,
-        Some(&"secret".to_string()),
-        None,
-        false,
-        1,
-        None,
-        None,
-        None,
-        &location,
-        &ctx,
-    );
-
-    assert!(result.matched);
-    assert_eq!(result.evidence.len(), 1);
-    assert!(result.evidence[0].value.contains("secret1"));
-}
-
-#[test]
-fn test_eval_xor_case_insensitive() {
-    let report = create_test_report_with_encoded_strings();
-    let data = vec![];
-    let ctx = create_test_context(&report, &data);
-
-    let location = ContentLocationParams::default();
-    let result = eval_xor(
-        None,
-        None,
-        Some(&"malware".to_string()),
-        None,
-        true, // case insensitive
-        1,
-        None,
-        None,
-        None,
-        &location,
-        &ctx,
-    );
-
-    assert!(result.matched);
-}
-
 // =============================================================================
 // eval_string_count tests
 // =============================================================================
@@ -1239,5 +989,468 @@ fn test_eval_string_count_range() {
 
     // Outside range
     let result = eval_string_count(Some(15), Some(20), None, &ctx);
+    assert!(!result.matched);
+}
+
+// ==================== eval_encoded Tests ====================
+
+fn create_test_report_with_multiple_encodings() -> AnalysisReport {
+    let mut report = create_test_report();
+
+    // Base64-encoded strings
+    report.strings.push(StringInfo {
+        value: "password123".to_string(),
+        offset: Some(0x1000),
+        encoding: "utf8".to_string(),
+        string_type: StringType::Plain,
+        section: Some(".data".to_string()),
+        encoding_chain: vec!["base64".to_string()],
+        fragments: None,
+    });
+
+    report.strings.push(StringInfo {
+        value: "https://evil.com/payload".to_string(),
+        offset: Some(0x1100),
+        encoding: "utf8".to_string(),
+        string_type: StringType::Url,
+        section: Some(".data".to_string()),
+        encoding_chain: vec!["base64".to_string()],
+        fragments: None,
+    });
+
+    // Hex-encoded strings
+    report.strings.push(StringInfo {
+        value: "secret_key".to_string(),
+        offset: Some(0x2000),
+        encoding: "utf8".to_string(),
+        string_type: StringType::Plain,
+        section: Some(".text".to_string()),
+        encoding_chain: vec!["hex".to_string()],
+        fragments: None,
+    });
+
+    report.strings.push(StringInfo {
+        value: "admin".to_string(),
+        offset: Some(0x2100),
+        encoding: "utf8".to_string(),
+        string_type: StringType::Plain,
+        section: Some(".text".to_string()),
+        encoding_chain: vec!["hex".to_string()],
+        fragments: None,
+    });
+
+    // XOR-encoded strings
+    report.strings.push(StringInfo {
+        value: "malware".to_string(),
+        offset: Some(0x3000),
+        encoding: "utf8".to_string(),
+        string_type: StringType::Plain,
+        section: Some(".data".to_string()),
+        encoding_chain: vec!["xor".to_string()],
+        fragments: None,
+    });
+
+    // URL-encoded strings
+    report.strings.push(StringInfo {
+        value: "command.exe arg1 arg2".to_string(),
+        offset: Some(0x4000),
+        encoding: "utf8".to_string(),
+        string_type: StringType::Plain,
+        section: Some(".data".to_string()),
+        encoding_chain: vec!["url".to_string()],
+        fragments: None,
+    });
+
+    // Plain string (no encoding)
+    report.strings.push(StringInfo {
+        value: "plain_text".to_string(),
+        offset: Some(0x5000),
+        encoding: "utf8".to_string(),
+        string_type: StringType::Plain,
+        section: Some(".data".to_string()),
+        encoding_chain: vec![],
+        fragments: None,
+    });
+
+    report
+}
+
+#[test]
+fn test_eval_encoded_single_encoding_filter() {
+    use crate::composite_rules::condition::EncodingSpec;
+
+    let report = create_test_report_with_multiple_encodings();
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+    let location = ContentLocationParams::default();
+
+    // Search only base64 strings for "password"
+    let encoding = Some(EncodingSpec::Single("base64".to_string()));
+    let result = eval_encoded(
+        encoding.as_ref(),
+        None,
+        Some(&"password".to_string()),
+        None,
+        None,
+        false,
+        1,
+        None,
+        None,
+        None,
+        None,
+        &location,
+        &ctx,
+    );
+
+    assert!(result.matched);
+    assert_eq!(result.evidence.len(), 1);
+    assert!(result.evidence[0].value.contains("password123"));
+}
+
+#[test]
+fn test_eval_encoded_multiple_encoding_filter() {
+    use crate::composite_rules::condition::EncodingSpec;
+
+    let report = create_test_report_with_multiple_encodings();
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+    let location = ContentLocationParams::default();
+
+    // Search base64 OR hex strings for "secret" or "password"
+    let encoding = Some(EncodingSpec::Multiple(vec![
+        "base64".to_string(),
+        "hex".to_string(),
+    ]));
+    let result = eval_encoded(
+        encoding.as_ref(),
+        None,
+        None,
+        Some(&"secret|password".to_string()),
+        None,
+        false,
+        1,
+        None,
+        None,
+        None,
+        None,
+        &location,
+        &ctx,
+    );
+
+    assert!(result.matched);
+    // Should match "password123" (base64) and "secret_key" (hex)
+    assert!(result.evidence.len() >= 2);
+}
+
+#[test]
+fn test_eval_encoded_no_filter_all_encodings() {
+    let report = create_test_report_with_multiple_encodings();
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+    let location = ContentLocationParams::default();
+
+    // Search ALL encoded strings (no encoding filter)
+    let result = eval_encoded(
+        None,
+        None,
+        Some(&"e".to_string()), // Common letter
+        None,
+        None,
+        false,
+        1,
+        None,
+        None,
+        None,
+        None,
+        &location,
+        &ctx,
+    );
+
+    assert!(result.matched);
+    // Should match multiple encoded strings containing "e"
+    assert!(result.evidence.len() >= 3);
+}
+
+#[test]
+fn test_eval_encoded_exact_match() {
+    use crate::composite_rules::condition::EncodingSpec;
+
+    let report = create_test_report_with_multiple_encodings();
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+    let location = ContentLocationParams::default();
+
+    let encoding = Some(EncodingSpec::Single("hex".to_string()));
+    let result = eval_encoded(
+        encoding.as_ref(),
+        Some(&"admin".to_string()),
+        None,
+        None,
+        None,
+        false,
+        1,
+        None,
+        None,
+        None,
+        None,
+        &location,
+        &ctx,
+    );
+
+    assert!(result.matched);
+    assert_eq!(result.evidence.len(), 1);
+}
+
+#[test]
+fn test_eval_encoded_substr_match() {
+    use crate::composite_rules::condition::EncodingSpec;
+
+    let report = create_test_report_with_multiple_encodings();
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+    let location = ContentLocationParams::default();
+
+    let encoding = Some(EncodingSpec::Single("base64".to_string()));
+    let result = eval_encoded(
+        encoding.as_ref(),
+        None,
+        Some(&"evil.com".to_string()),
+        None,
+        None,
+        false,
+        1,
+        None,
+        None,
+        None,
+        None,
+        &location,
+        &ctx,
+    );
+
+    assert!(result.matched);
+    assert!(result.evidence[0].value.contains("evil.com"));
+}
+
+#[test]
+fn test_eval_encoded_regex_match() {
+    use crate::composite_rules::condition::EncodingSpec;
+
+    let report = create_test_report_with_multiple_encodings();
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+    let location = ContentLocationParams::default();
+
+    let encoding = Some(EncodingSpec::Single("base64".to_string()));
+    let result = eval_encoded(
+        encoding.as_ref(),
+        None,
+        None,
+        Some(&r"https?://.*\.com".to_string()),
+        None,
+        false,
+        1,
+        None,
+        None,
+        None,
+        None,
+        &location,
+        &ctx,
+    );
+
+    assert!(result.matched);
+    assert!(result.evidence[0].value.contains("evil.com"));
+}
+
+#[test]
+fn test_eval_encoded_word_match() {
+    use crate::composite_rules::condition::EncodingSpec;
+
+    let report = create_test_report_with_multiple_encodings();
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+    let location = ContentLocationParams::default();
+
+    let encoding = Some(EncodingSpec::Single("hex".to_string()));
+    let result = eval_encoded(
+        encoding.as_ref(),
+        None,
+        None,
+        None,
+        Some(&"admin".to_string()),
+        false,
+        1,
+        None,
+        None,
+        None,
+        None,
+        &location,
+        &ctx,
+    );
+
+    assert!(result.matched);
+
+    // Now test word match with url-encoded string
+    let encoding2 = Some(EncodingSpec::Single("url".to_string()));
+    let result = eval_encoded(
+        encoding2.as_ref(),
+        None,
+        None,
+        None,
+        Some(&"command".to_string()),
+        false,
+        1,
+        None,
+        None,
+        None,
+        None,
+        &location,
+        &ctx,
+    );
+    assert!(result.matched);
+}
+
+#[test]
+fn test_eval_encoded_case_insensitive() {
+    use crate::composite_rules::condition::EncodingSpec;
+
+    let report = create_test_report_with_multiple_encodings();
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+    let location = ContentLocationParams::default();
+
+    let encoding = Some(EncodingSpec::Single("hex".to_string()));
+    let result = eval_encoded(
+        encoding.as_ref(),
+        None,
+        Some(&"ADMIN".to_string()),
+        None,
+        None,
+        true, // case insensitive
+        1,
+        None,
+        None,
+        None,
+        None,
+        &location,
+        &ctx,
+    );
+
+    assert!(result.matched);
+}
+
+#[test]
+fn test_eval_encoded_count_constraints() {
+    let report = create_test_report_with_multiple_encodings();
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+    let location = ContentLocationParams::default();
+
+    // Search all encoded strings for letter "a" (appears in many)
+    let result = eval_encoded(
+        None,
+        None,
+        Some(&"a".to_string()),
+        None,
+        None,
+        false,
+        3,       // min count: 3
+        Some(6), // max count: 6
+        None,
+        None,
+        None,
+        &location,
+        &ctx,
+    );
+
+    // Should match multiple strings
+    assert!(result.matched);
+    assert!(result.evidence.len() >= 3);
+    assert!(result.evidence.len() <= 6);
+}
+
+#[test]
+fn test_eval_encoded_no_match_wrong_encoding() {
+    use crate::composite_rules::condition::EncodingSpec;
+
+    let report = create_test_report_with_multiple_encodings();
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+    let location = ContentLocationParams::default();
+
+    // Search for "malware" but only in base64 (it's in xor)
+    let encoding = Some(EncodingSpec::Single("base64".to_string()));
+    let result = eval_encoded(
+        encoding.as_ref(),
+        Some(&"malware".to_string()),
+        None,
+        None,
+        None,
+        false,
+        1,
+        None,
+        None,
+        None,
+        None,
+        &location,
+        &ctx,
+    );
+
+    assert!(!result.matched);
+}
+
+#[test]
+fn test_eval_encoded_excludes_plain_strings() {
+    let report = create_test_report_with_multiple_encodings();
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+    let location = ContentLocationParams::default();
+
+    // Search for "plain" which only appears in non-encoded string
+    let result = eval_encoded(
+        None,
+        Some(&"plain_text".to_string()),
+        None,
+        None,
+        None,
+        false,
+        1,
+        None,
+        None,
+        None,
+        None,
+        &location,
+        &ctx,
+    );
+
+    // Should NOT match because plain_text has empty encoding_chain
+    assert!(!result.matched);
+}
+
+#[test]
+fn test_eval_encoded_count_min_not_met() {
+    use crate::composite_rules::condition::EncodingSpec;
+
+    let report = create_test_report_with_multiple_encodings();
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+    let location = ContentLocationParams::default();
+
+    let encoding = Some(EncodingSpec::Single("base64".to_string()));
+    let result = eval_encoded(
+        encoding.as_ref(),
+        None,
+        Some(&"password".to_string()),
+        None,
+        None,
+        false,
+        5, // Require 5 matches but only 1 exists
+        None,
+        None,
+        None,
+        None,
+        &location,
+        &ctx,
+    );
+
     assert!(!result.matched);
 }

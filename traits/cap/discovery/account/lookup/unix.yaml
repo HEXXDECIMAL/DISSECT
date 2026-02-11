@@ -15,7 +15,7 @@ traits:
     conf: 0.8
     if:
       type: symbol
-      regex: "getpwuid|user_from_uid"
+      regex: "getpwuid|getpwnam|user_from_uid"
 
   - id: group-lookup
     desc: Convert group ID to group name
@@ -23,7 +23,7 @@ traits:
     conf: 0.8
     if:
       type: symbol
-      regex: "getgrgid|group_from_gid"
+      regex: "getgrgid|getgrnam|group_from_gid"
 
 composite_rules:
   - id: account-name-resolution

@@ -152,6 +152,15 @@ traits:
       path: "permissions"
       regex: "declarativeNetRequest|declarativeNetRequestWithHostAccess"
 
+  - id: permission-scripting
+    desc: Extension requests scripting permission (MV3)
+    crit: notable
+    conf: 0.9
+    if:
+      type: kv
+      path: "permissions"
+      exact: "scripting"
+
   # === Host Permissions (broad access) ===
   - id: host-all-urls
     desc: Host permission for all URLs
@@ -235,6 +244,15 @@ traits:
       path: "content_scripts[*].matches"
       regex: "binance\\.com|coinbase\\.com|kraken\\.com|bybit\\.com|okx\\.com|kucoin\\.com|mexc\\.com|gate\\.io|crypto\\.com|bitfinex\\.com"
 
+  - id: content-script-api-target
+    desc: Content script targets API/Key management pages
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: kv
+      path: "content_scripts[*].matches"
+      regex: "/(user|account|settings|profile|my)/(openapi|api|keys|tokens|security|auth)"
+
   - id: description-crypto-finance
     desc: Extension description mentions crypto/finance
     crit: inert
@@ -253,6 +271,26 @@ traits:
       type: kv
       path: "name"
       regex: "crypto|wallet|blockchain|defi|token|swap|nft|ethereum|solana|bitcoin"
+      case_insensitive: true
+
+  - id: name-adblocker
+    desc: Extension name mentions ad blocking
+    crit: inert
+    conf: 0.85
+    if:
+      type: kv
+      path: "name"
+      regex: "ad\\s*block|block\\s*ads|remove\\s*ads|no\\s*ads|ads\\s*cleaner|sponsored"
+      case_insensitive: true
+
+  - id: description-adblocker
+    desc: Extension description mentions ad blocking
+    crit: inert
+    conf: 0.85
+    if:
+      type: kv
+      path: "description"
+      regex: "ad\\s*block|block\\s*ads|remove\\s*ads|no\\s*ads|ads\\s*cleaner|sponsored"
       case_insensitive: true
 
   # === Background Scripts ===
@@ -274,6 +312,15 @@ traits:
       path: "background.service_worker"
 
   # === Suspicious Manifest Patterns ===
+  - id: host-amazon-global
+    desc: Targets many Amazon regional domains
+    crit: notable
+    conf: 0.9
+    if:
+      type: raw
+      regex: "amazon\\."
+      count_min: 15
+
   - id: externally-connectable
     desc: Extension allows external connections
     crit: suspicious
@@ -344,6 +391,7 @@ composite_rules:
     any:
       - id: host-shopping-sites
       - id: content-script-shopping
+      - id: host-amazon-global
 
   # Broad host access with content scripts
   - id: broad-content-injection
@@ -405,3 +453,30 @@ composite_rules:
     any:
       - id: name-crypto-finance
       - id: description-crypto-finance
+
+  # Fake Ad Blocker (MV3 without declarativeNetRequest)
+  - id: fake-adblocker-mv3
+    desc: MV3 Ad Blocker using content scripts without declarativeNetRequest
+    crit: suspicious
+    conf: 0.95
+    all:
+      - id: manifest-v3
+      - id: ecommerce-targeting
+    any:
+      - id: name-adblocker
+      - id: description-adblocker
+    none:
+      - id: permission-declarative-net-request
+
+  # Extension targeting crypto API keys (High Risk)
+  - id: crypto-api-theft-target
+    desc: Extension targets crypto exchange API key pages
+    crit: hostile
+    conf: 0.95
+    all:
+      - id: content-script-crypto-exchange
+      - id: content-script-api-target
+    any:
+      - id: permission-scripting
+      - id: permission-active-tab
+      - id: permission-web-request

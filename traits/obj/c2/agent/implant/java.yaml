@@ -151,7 +151,8 @@ traits:
     mbc: "B0032"
     attack: "T1140"
     if:
-      type: base64
+      type: encoded
+      encoding: base64
       regex: "[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}:[0-9]{4,5}"
       count_min: 1
 

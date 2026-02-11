@@ -25,10 +25,10 @@ use super::parsing::{apply_composite_defaults, apply_trait_defaults};
 use super::validation::{
     autoprefix_trait_refs, collect_trait_refs_from_rule, find_alternation_merge_candidates,
     find_banned_directory_segments, find_cap_obj_violations, find_depth_violations,
-    find_empty_condition_clauses, find_for_only_duplicates,
-    find_hostile_cap_rules, find_impossible_count_constraints, find_impossible_needs,
-    find_impossible_size_constraints, find_invalid_trait_ids, find_line_number,
-    find_missing_search_patterns, find_oversized_trait_directories, find_parent_duplicate_segments,
+    find_empty_condition_clauses, find_for_only_duplicates, find_hostile_cap_rules,
+    find_impossible_count_constraints, find_impossible_needs, find_impossible_size_constraints,
+    find_invalid_trait_ids, find_line_number, find_missing_search_patterns,
+    find_oversized_trait_directories, find_parent_duplicate_segments,
     find_platform_named_directories, find_redundant_any_refs, find_redundant_needs_one,
     find_single_item_clauses, find_string_content_collisions, simple_rule_to_composite_rule,
     validate_composite_trait_only, validate_hostile_composite_precision, MAX_TRAITS_PER_DIRECTORY,
@@ -196,9 +196,7 @@ impl CapabilityMapper {
 
         // Sort files deterministically by path string to ensure consistent loading order across OSes
         // Using string comparison instead of PathBuf comparison for true cross-platform consistency
-        yaml_files.sort_by(|a, b| {
-            a.to_string_lossy().cmp(&b.to_string_lossy())
-        });
+        yaml_files.sort_by(|a, b| a.to_string_lossy().cmp(&b.to_string_lossy()));
 
         if yaml_files.is_empty() {
             anyhow::bail!("No YAML files found in {}", dir_path.display());
@@ -229,12 +227,11 @@ impl CapabilityMapper {
                 // Check for meaningless YAML patterns before parsing
                 let yaml_warnings = check_yaml_patterns(&content, path);
 
-                let mappings: TraitMappings = serde_yaml::from_str(&content)
-                    .map_err(|e| {
-                        // Enhance YAML parsing errors with context and suggestions
-                        let enhanced = enhance_yaml_error(&e.into(), path, &content);
-                        anyhow::anyhow!("{}", enhanced)
-                    })?;
+                let mappings: TraitMappings = serde_yaml::from_str(&content).map_err(|e| {
+                    // Enhance YAML parsing errors with context and suggestions
+                    let enhanced = enhance_yaml_error(&e.into(), path, &content);
+                    anyhow::anyhow!("{}", enhanced)
+                })?;
 
                 Ok::<_, anyhow::Error>((idx, path.clone(), mappings, yaml_warnings))
             })
@@ -941,8 +938,14 @@ impl CapabilityMapper {
 
         // Debug: Print sample of valid trait IDs
         if std::env::var("DISSECT_DEBUG").is_ok() {
-            let mut sample_ids: Vec<_> = valid_trait_ids.iter()
-                .filter(|id| id.contains("tiny-elf") || id.contains("small-elf") || id.contains("setup-py") || id.contains("pkginfo"))
+            let mut sample_ids: Vec<_> = valid_trait_ids
+                .iter()
+                .filter(|id| {
+                    id.contains("tiny-elf")
+                        || id.contains("small-elf")
+                        || id.contains("setup-py")
+                        || id.contains("pkginfo")
+                })
                 .collect();
             sample_ids.sort();
             for id in sample_ids {
@@ -1169,9 +1172,7 @@ impl CapabilityMapper {
                 eprintln!(
                     "   When both `type: string` and `type: raw` exist for the same pattern,"
                 );
-                eprintln!(
-                    "   merge to `raw` only (it's broader and includes string matches):\n"
-                );
+                eprintln!("   merge to `raw` only (it's broader and includes string matches):\n");
                 for (string_id, content_id, pattern) in &collisions {
                     let string_source = rule_source_files
                         .get(string_id)
@@ -1190,10 +1191,10 @@ impl CapabilityMapper {
                         );
                     }
                     eprintln!("      Pattern: {}", pattern);
-                    eprintln!("      Action: Delete the string trait, keep the content trait\n");
+                    eprintln!("      Action: Delete the string trait, keep the raw trait\n");
                 }
                 warnings.push(format!(
-                    "{} string/content type collisions (merge to content only)",
+                    "{} string/raw type collisions (merge to raw only)",
                     collisions.len()
                 ));
             }
@@ -1517,8 +1518,16 @@ impl CapabilityMapper {
                     && !valid_trait_ids.contains(&ref_id)
                 {
                     // Debug: Print broken reference details
-                    if std::env::var("DISSECT_DEBUG").is_ok() && (ref_id.contains("tiny-elf") || ref_id.contains("small-elf") || ref_id.contains("setup-py") || ref_id.contains("pkginfo")) {
-                        eprintln!("[DEBUG] Broken reference: '{}' (from rule '{}')", ref_id, rule_id);
+                    if std::env::var("DISSECT_DEBUG").is_ok()
+                        && (ref_id.contains("tiny-elf")
+                            || ref_id.contains("small-elf")
+                            || ref_id.contains("setup-py")
+                            || ref_id.contains("pkginfo"))
+                    {
+                        eprintln!(
+                            "[DEBUG] Broken reference: '{}' (from rule '{}')",
+                            ref_id, rule_id
+                        );
                     }
                     let source_file = rule_source_files
                         .get(&rule_id)
@@ -2224,8 +2233,7 @@ impl CapabilityMapper {
                 // Check if this trait has a content-based regex/word pattern that wasn't matched
                 let has_content_regex = matches!(
                     trait_def.r#if,
-                    Condition::Content { regex: Some(_), .. }
-                        | Condition::Content { word: Some(_), .. }
+                    Condition::Raw { regex: Some(_), .. } | Condition::Raw { word: Some(_), .. }
                 );
 
                 // Skip only when pre-filtering is enabled and this trait is indexed there.
@@ -2911,7 +2919,7 @@ fn check_condition(
 ) {
     use crate::composite_rules::condition::Condition;
 
-    if let Condition::Content { exact: Some(_), .. } = condition {
+    if let Condition::Raw { exact: Some(_), .. } = condition {
         eprintln!(
             "⚠️  WARNING: Trait '{}' in {} uses 'type: raw' with 'exact' match. \
             This requires the entire file content to exactly match the pattern, \

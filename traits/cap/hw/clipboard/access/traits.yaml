@@ -47,3 +47,24 @@ traits:
     if:
       type: symbol
       exact: "EmptyClipboard"
+
+  # === MacOS Clipboard Access ===
+  - id: macos-nspasteboard
+    desc: Accesses macOS NSPasteboard
+    crit: notable
+    conf: 0.8
+    for: [macho]
+    if:
+      type: string
+      any:
+        - substr: "NSPasteboard"
+        - substr: "generalPasteboard"
+
+  - id: macos-pasteboard-items
+    desc: Iterates macOS pasteboard items
+    crit: notable
+    conf: 0.8
+    for: [macho]
+    if:
+      type: string
+      substr: "pasteboardItems"

@@ -229,7 +229,7 @@ fn test_apply_trait_defaults_applies_all_defaults() {
         not: None,
         unless: None,
         downgrade: None,
-        condition: Condition::String {
+        condition: Some(Condition::String {
             external_ip: false,
             exact: Some("test".to_string()),
             regex: None,
@@ -248,7 +248,7 @@ fn test_apply_trait_defaults_applies_all_defaults() {
             section_offset_range: None,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
-        },
+        }),
     };
 
     let result =
@@ -287,7 +287,7 @@ fn test_apply_trait_defaults_trait_overrides_defaults() {
         not: None,
         unless: None,
         downgrade: None,
-        condition: Condition::String {
+        condition: Some(Condition::String {
             external_ip: false,
             exact: Some("test".to_string()),
             regex: None,
@@ -306,7 +306,7 @@ fn test_apply_trait_defaults_trait_overrides_defaults() {
             section_offset_range: None,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
-        },
+        }),
     };
 
     let result =
@@ -346,7 +346,7 @@ fn test_apply_trait_defaults_unset_mbc_with_none() {
         not: None,
         unless: None,
         downgrade: None,
-        condition: Condition::String {
+        condition: Some(Condition::String {
             external_ip: false,
             exact: Some("test".to_string()),
             regex: None,
@@ -365,7 +365,7 @@ fn test_apply_trait_defaults_unset_mbc_with_none() {
             section_offset_range: None,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
-        },
+        }),
     };
 
     let result =
@@ -400,7 +400,7 @@ fn test_apply_trait_defaults_unset_attack_with_none() {
         not: None,
         unless: None,
         downgrade: None,
-        condition: Condition::String {
+        condition: Some(Condition::String {
             external_ip: false,
             exact: Some("test".to_string()),
             regex: None,
@@ -419,7 +419,7 @@ fn test_apply_trait_defaults_unset_attack_with_none() {
             section_offset_range: None,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
-        },
+        }),
     };
 
     let result =
@@ -454,7 +454,7 @@ fn test_apply_trait_defaults_unset_file_types_with_none() {
         not: None,
         unless: None,
         downgrade: None,
-        condition: Condition::String {
+        condition: Some(Condition::String {
             external_ip: false,
             exact: Some("test".to_string()),
             regex: None,
@@ -473,7 +473,7 @@ fn test_apply_trait_defaults_unset_file_types_with_none() {
             section_offset_range: None,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
-        },
+        }),
     };
 
     let result =
@@ -2507,8 +2507,7 @@ fn test_parse_file_types_groups_and_exclusions() {
     assert!(!not_php.contains(&RuleFileType::All)); // Should be expanded
 
     // Test group + exclusion: scripts,!php
-    let scripts_no_php =
-        parsing::parse_file_types(&["scripts".to_string(), "!php".to_string()]);
+    let scripts_no_php = parsing::parse_file_types(&["scripts".to_string(), "!php".to_string()]);
     assert!(scripts_no_php.contains(&RuleFileType::Python));
     assert!(scripts_no_php.contains(&RuleFileType::Shell));
     assert!(!scripts_no_php.contains(&RuleFileType::Php));

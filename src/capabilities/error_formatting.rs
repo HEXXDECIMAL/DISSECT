@@ -55,7 +55,11 @@ fn extract_line_column(error_msg: &str) -> (Option<usize>, Option<usize>) {
 }
 
 /// Extract and format YAML context around the error line
-fn extract_yaml_context(yaml_content: &str, error_line: usize, error_col: Option<usize>) -> Option<String> {
+fn extract_yaml_context(
+    yaml_content: &str,
+    error_line: usize,
+    error_col: Option<usize>,
+) -> Option<String> {
     let lines: Vec<&str> = yaml_content.lines().collect();
 
     if error_line == 0 || error_line > lines.len() {
@@ -128,15 +132,17 @@ fn find_actual_error_line(lines: &[&str], reported_line: usize) -> usize {
 fn clean_error_message(error_msg: &str) -> String {
     // Replace technical jargon with plain language
     let msg = error_msg
-        .replace("data did not match any variant of untagged enum ConditionDeser",
-                "Invalid condition format")
+        .replace(
+            "data did not match any variant of untagged enum ConditionDeser",
+            "Invalid condition format",
+        )
         .replace("unknown variant", "Invalid value")
         .replace("expected", "Expected");
 
     // Extract the most useful part
     if let Some(start) = msg.find("Invalid") {
         if let Some(end) = msg[start..].find(" at line") {
-            return msg[start..start+end].to_string();
+            return msg[start..start + end].to_string();
         }
         return msg[start..].split('\n').next().unwrap_or(&msg).to_string();
     }
@@ -145,7 +151,11 @@ fn clean_error_message(error_msg: &str) -> String {
 }
 
 /// Provide intelligent guidance based on the error type and context
-fn provide_error_guidance(error_msg: &str, yaml_content: &str, error_line: usize) -> Option<String> {
+fn provide_error_guidance(
+    error_msg: &str,
+    yaml_content: &str,
+    error_line: usize,
+) -> Option<String> {
     let lines: Vec<&str> = yaml_content.lines().collect();
     let error_line_idx = error_line.saturating_sub(1);
 
@@ -196,13 +206,18 @@ fn provide_error_guidance(error_msg: &str, yaml_content: &str, error_line: usize
     // Check for invalid field names
     if error_msg.contains("unknown field") {
         if let Some(field_start) = error_msg.find("`") {
-            if let Some(field_end) = error_msg[field_start+1..].find("`") {
-                let field_name = &error_msg[field_start+1..field_start+1+field_end];
-                guidance.push_str(&format!("\n   Unknown field '{}' in condition.\n", field_name));
+            if let Some(field_end) = error_msg[field_start + 1..].find("`") {
+                let field_name = &error_msg[field_start + 1..field_start + 1 + field_end];
+                guidance.push_str(&format!(
+                    "\n   Unknown field '{}' in condition.\n",
+                    field_name
+                ));
 
                 // Suggest corrections
                 match field_name {
-                    "match" => guidance.push_str("   💡 Did you mean 'exact', 'substr', or 'regex'?\n"),
+                    "match" => {
+                        guidance.push_str("   💡 Did you mean 'exact', 'substr', or 'regex'?\n")
+                    }
                     "pattern" => guidance.push_str("   💡 Did you mean 'regex' or 'substr'?\n"),
                     "value" => guidance.push_str("   💡 Did you mean 'exact' or 'word'?\n"),
                     "name" => guidance.push_str("   💡 Did you mean 'id' for trait references?\n"),

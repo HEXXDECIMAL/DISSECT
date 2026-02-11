@@ -249,6 +249,24 @@ traits:
       type: string
       regex: 'base64\s+--decode\s*\|\s*bash'
 
+  - id: base64-capital-d-pipe-sh
+    desc: base64 -D piped to sh
+    crit: inert
+    conf: 0.7
+    attack: "T1027"
+    if:
+      type: raw
+      regex: 'base64\s+-D\s*\|\s*sh\b'
+
+  - id: base64-capital-d-pipe-bash
+    desc: base64 -D piped to bash
+    crit: inert
+    conf: 0.7
+    attack: "T1027"
+    if:
+      type: raw
+      regex: 'base64\s+-D\s*\|\s*bash\b'
+
   # === Process substitution atomic indicators ===
   - id: bash-curl-process-sub
     desc: bash <(curl ...)
@@ -373,6 +391,8 @@ composite_rules:
       - id: base64-d-pipe-bash
       - id: base64-decode-pipe-sh
       - id: base64-decode-pipe-bash
+      - id: base64-capital-d-pipe-sh
+      - id: base64-capital-d-pipe-bash
 
   # Process substitution composite
   - id: process-substitution

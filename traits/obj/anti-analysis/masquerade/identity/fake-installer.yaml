@@ -68,6 +68,14 @@ traits:
       type: raw
       regex: "echo.{0,50}password.{0,50}base64"
 
+  - id: fake-macos-installer-msg
+    desc: "Fake macOS Installer message"
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: string
+      regex: "macOS-Installer:.{0,100}apple\\.com"
+
 composite_rules:
   # Helper: Legitimate Homebrew context markers
   - id: homebrew-context
@@ -90,6 +98,7 @@ composite_rules:
       - id: homabrews-domain
       - id: sudo-refresh-stdin
       - id: base64-password
+      - id: fake-macos-installer-msg
 
   # Main detection rule
   - id: fake-homebrew-installer
@@ -102,3 +111,13 @@ composite_rules:
     all:
       - id: homebrew-context
       - id: fake-installer-behaviors
+
+  # Fake macOS installer with execution
+  - id: fake-macos-installer-exec
+    desc: "Fake macOS installer with hidden execution"
+    crit: hostile
+    conf: 1.0
+    attack: "T1036.005"
+    all:
+      - id: fake-macos-installer-msg
+      - id: cap/exec/shell/methods::base64-decode-exec

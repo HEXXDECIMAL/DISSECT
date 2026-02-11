@@ -25,8 +25,8 @@ traits:
     conf: 0.9
     if:
       type: symbol
-      # Match only the actual popen() function
-      regex: "^popen$"
+      # Match popen() and related symbols
+      regex: "popen"
     platforms: [unix, linux, macos]
     for: [binaries]
 
@@ -39,6 +39,16 @@ traits:
     if:
       type: symbol
       regex: execve
+    platforms: [unix, linux, macos]
+    for: [binaries]
+
+  - id: c-exec-variants
+    desc: C-style exec family functions
+    crit: notable
+    conf: 0.8
+    if:
+      type: symbol
+      regex: "^(execl|execle|execlp|execv|execvp|execvpe)$"
     platforms: [unix, linux, macos]
     for: [binaries]
 

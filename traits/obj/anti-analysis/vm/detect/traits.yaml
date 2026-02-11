@@ -425,3 +425,15 @@ composite_rules:
       - id: cap/os/container/runtime::dockerenv
       - id: file-vmtoolsd
       - id: cap/process/exit
+
+  # VM Profiling and Exfiltration (Hostile)
+  - id: vm-profiling-exfil
+    desc: VM detection with system profiling and exfiltration
+    crit: hostile
+    conf: 0.95
+    attack: "T1497.001"
+    mbc: "B0003"
+    all:
+      - id: hypervisor-vendor
+      - id: obj/exfil/channel/http::node-http-libs
+      - id: obj/discovery/host/system/hardware-fingerprint::js-profiling

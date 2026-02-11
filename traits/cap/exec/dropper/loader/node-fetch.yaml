@@ -26,23 +26,6 @@ traits:
       type: raw
       regex: "fetch\\(.{0,50}\\.then\\(.{0,50}\\.json\\("
 
-  # === File write patterns ===
-  - id: writeFileSync-call
-    desc: fs.writeFileSync call
-    crit: inert
-    conf: 0.6
-    if:
-      type: raw
-      regex: "\\.writeFileSync\\s*\\("
-
-  - id: writeFile-call
-    desc: fs.writeFile call
-    crit: inert
-    conf: 0.6
-    if:
-      type: raw
-      regex: "\\.writeFile\\s*\\("
-
   # === Spawn/exec patterns ===
   - id: spawnSync-call
     desc: spawnSync function call
@@ -143,8 +126,8 @@ composite_rules:
     crit: inert
     conf: 0.7
     any:
-      - id: writeFileSync-call
-      - id: writeFile-call
+      - id: cap/fs/write/file::write-file-sync
+      - id: cap/fs/write/file::write-file-async
 
   # File delete composite
   - id: file-delete

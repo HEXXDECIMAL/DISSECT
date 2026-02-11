@@ -11,7 +11,8 @@ traits:
     attack: "T1110.001"
     mbc: "E1110"
     if:
-      type: base64
+      type: encoded
+      encoding: base64
       regex: "(?i)uses (?:pop3|ftp|hotline|msn|aim/icq2000) protocol to crack passwords"
 
   - id: username-dictionary-file
@@ -22,7 +23,8 @@ traits:
     attack: "T1110.001"
     mbc: "E1110"
     if:
-      type: base64
+      type: encoded
+      encoding: base64
       substr: "username dictionary file"
 
   - id: password-dictionary-file
@@ -33,7 +35,8 @@ traits:
     attack: "T1110.001"
     mbc: "E1110"
     if:
-      type: base64
+      type: encoded
+      encoding: base64
       substr: "password dictionary file"
 
   - id: login-attempts-series
@@ -44,7 +47,8 @@ traits:
     attack: "T1110.001"
     mbc: "E1110"
     if:
-      type: base64
+      type: encoded
+      encoding: base64
       substr: "login attempts per series"
 
   - id: attack-power-string
@@ -90,7 +94,8 @@ traits:
     for: [macho]
     attack: "T1090"
     if:
-      type: base64
+      type: encoded
+      encoding: base64
       regex: "(?i)proxy/sock server"
 
 composite_rules:

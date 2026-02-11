@@ -177,6 +177,7 @@ traits:
     conf: 0.8
     for: [all]
     if:
-      type: base64
+      type: encoded
+      encoding: base64
       regex: "^#!\\s*/[a-z]"
       offset_range: [0, 512]

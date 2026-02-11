@@ -238,9 +238,9 @@ composite_rules:
       - id: project-marker
       - id: any-framework
 
-  # Main composite: Any valid combination
-  - id: system-component
-    desc: Apple system component (legitimate macOS
+  # Valid structure combinations (helper)
+  - id: system-component-indicators
+    desc: Apple system component structure
     crit: inert
     conf: 0.95
     platforms: [macos]
@@ -249,3 +249,14 @@ composite_rules:
       - id: bundle-and-project
       - id: bundle-and-framework
       - id: project-and-framework
+
+  # Main composite: Requires structure AND platform signature
+  - id: system-component
+    desc: Apple system component (legitimate macOS)
+    crit: inert
+    conf: 0.95
+    platforms: [macos]
+    for: [macho]
+    all:
+      - id: meta/sign/apple::platform
+      - id: system-component-indicators

@@ -1,0 +1,8 @@
+composite_rules:
+  - id: r2-string-decryptor
+    desc: "Radare2-based string decryptor script"
+    crit: hostile
+    conf: 0.9
+    all:
+      - id: cap/exec/command/tool::exec-r2
+      - id: cap/data/encode/xor::xor-decoding-loop

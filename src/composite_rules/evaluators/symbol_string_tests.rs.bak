@@ -695,7 +695,7 @@ fn test_eval_string_raw_content_fallback_binary() {
 }
 
 /// Test that source code files do NOT fall back to raw content
-/// (use type: content if you want raw content search for source files)
+/// (use type: raw if you want raw content search for source files)
 #[test]
 fn test_eval_string_no_raw_content_fallback_for_source() {
     // Use empty report - no strings extracted
@@ -728,7 +728,7 @@ fn test_eval_string_no_raw_content_fallback_for_source() {
 
     let result = eval_string(&params, None, &ctx);
 
-    // Source code should NOT fall back to raw content - use type: content for that
+    // Source code should NOT fall back to raw content - use type: raw for that
     assert!(!result.matched);
 }
 

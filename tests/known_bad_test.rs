@@ -165,13 +165,11 @@ fn test_known_bad_integrity() {
     let mut mismatches = Vec::new();
 
     for snapshot_path in &test_files {
-        let snapshot_content = fs::read_to_string(snapshot_path).unwrap_or_else(|_| {
-            panic!("Failed to read {}", snapshot_path.display())
-        });
+        let snapshot_content = fs::read_to_string(snapshot_path)
+            .unwrap_or_else(|_| panic!("Failed to read {}", snapshot_path.display()));
 
-        let mut expected_result: Value = serde_json::from_str(&snapshot_content).unwrap_or_else(|_| {
-            panic!("Failed to parse JSON in {}", snapshot_path.display())
-        });
+        let mut expected_result: Value = serde_json::from_str(&snapshot_content)
+            .unwrap_or_else(|_| panic!("Failed to parse JSON in {}", snapshot_path.display()));
 
         // Extract the original binary path from the snapshot
         let binary_path = expected_result

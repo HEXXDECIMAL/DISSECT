@@ -259,3 +259,16 @@ composite_rules:
       - id: unhexlify-in-bytecode
       - id: obj/anti-static/obfuscation/code-metrics/structure::minified-code
       - id: obj/anti-static/obfuscation/tools::known-obfuscator-detected
+
+  # Execute reversed encoded payload
+  # Matches: exec(b64decode(payload[::-1])) pattern
+  - id: exec-reversed-payload
+    desc: Execute reversed encoded payload
+    crit: hostile
+    conf: 0.98
+    mbc: "B0032"
+    attack: "T1027"
+    for: [python]
+    all:
+      - id: exec-function-call
+      - id: obj/anti-static/obfuscation/strings/encoding::reverse-bytes

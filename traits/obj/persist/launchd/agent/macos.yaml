@@ -220,6 +220,7 @@ traits:
     conf: 0.7
     attack: T1059.004
     platforms: [macos]
+    for: [plist]
     if:
       type: raw
       regex: "/bin/(sh|bash|zsh)"
@@ -266,6 +267,16 @@ traits:
       regex: 'com\.apple\.[A-Z][A-Za-z]+'
     unless:
       - id: meta/sign/anchor-apple
+
+  - id: fake-homebrew-label
+    desc: Fake homebrew identifier (com.homebrew)
+    crit: suspicious
+    conf: 0.9
+    for: [macho, elf, c]
+    platforms: [macos]
+    if:
+      type: string
+      substr: "com.homebrew"
 
   # Masquerading Traits
   - id: label-apple

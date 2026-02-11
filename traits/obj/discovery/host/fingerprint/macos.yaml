@@ -11,7 +11,7 @@ traits:
   # === IOKit Registry micro-traits ===
   - id: ioplatformuuid
     desc: "References macOS hardware UUID (used"
-    crit: notable
+    crit: inert
     conf: 0.85
     for: [macho]
     if:
@@ -20,7 +20,7 @@ traits:
 
   - id: iokit-registry-entry
     desc: "Accesses macOS device driver registry"
-    crit: notable
+    crit: inert
     conf: 0.75
     for: [macho]
     if:
@@ -29,7 +29,7 @@ traits:
 
   - id: iokit-registry-property
     desc: "Reads hardware properties from macOS"
-    crit: notable
+    crit: inert
     conf: 0.75
     for: [macho]
     if:
