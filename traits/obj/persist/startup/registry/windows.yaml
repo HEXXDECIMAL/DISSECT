@@ -5,7 +5,7 @@
 defaults:
   attack: "T1547.001"
   crit: suspicious
-  for: [pe, py, rb, npm, js, ts]
+  for: [pe, py, rb, js, ts]
   platforms: [windows]
 
 traits:

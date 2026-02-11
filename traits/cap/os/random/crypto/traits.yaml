@@ -6,7 +6,7 @@ traits:
     desc: Random seed initialization (srand)
     crit: inert
     conf: 0.4
-    for: [elf, macho, so, dylib, c, objectivec]
+    for: [elf, macho, so, dylib, c, objective-c]
     if:
       type: symbol
       regex: "^srand$"
@@ -15,7 +15,7 @@ traits:
     desc: Random number generation (rand)
     crit: inert
     conf: 0.3
-    for: [elf, macho, so, dylib, c, objectivec]
+    for: [elf, macho, so, dylib, c, objective-c]
     if:
       type: symbol
       regex: "^rand$"
@@ -25,7 +25,7 @@ composite_rules:
     desc: Seeded random number generation
     crit: inert
     conf: 0.5
-    for: [elf, macho, so, dylib, c, objectivec]
+    for: [elf, macho, so, dylib, c, objective-c]
     all:
       - id: srand-symbol
       - id: rand-symbol

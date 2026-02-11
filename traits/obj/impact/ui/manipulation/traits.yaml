@@ -159,7 +159,7 @@ composite_rules:
     crit: hostile
     conf: 0.9
     attack: "T1204.001"
-    for: [macho, objectivec]
+    for: [macho, objective-c]
     all:
       - id: cap/exec/command/shell::open-a-app
       - id: cap/exec/command/shell::shell-symbols

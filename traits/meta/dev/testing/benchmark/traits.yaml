@@ -1,7 +1,6 @@
 # Testing Framework - BENCHMARK
 
 traits:
-
   # === Atomic: Benchmark ===
 
   - id: benchmark-lower
@@ -26,7 +25,7 @@ traits:
     desc: google/benchmark library
     crit: inert
     conf: 0.9
-    for: [cpp]
+    for: [c]
     if:
       type: string
       substr: "google/benchmark"
@@ -58,9 +57,7 @@ traits:
       type: string
       word: "BenchmarkDotNet"
 
-
 composite_rules:
-
   # Benchmark frameworks
   - id: benchmark
     desc: Benchmark test framework

@@ -258,7 +258,10 @@ impl ArchiveAnalyzer {
                     on_file(&result.file_analysis);
 
                     // Update aggregates incrementally (don't accumulate files)
-                    files_analyzed_clone.fetch_add(1 + result.nested_files.len() as u32, std::sync::atomic::Ordering::Relaxed);
+                    files_analyzed_clone.fetch_add(
+                        1 + result.nested_files.len() as u32,
+                        std::sync::atomic::Ordering::Relaxed,
+                    );
                     update_aggregates(&result.file_analysis);
                     for nested in &result.nested_files {
                         update_aggregates(nested);
@@ -270,7 +273,10 @@ impl ArchiveAnalyzer {
                 self.analyze_zip_streaming(file_path, |result: StreamingFileResult| {
                     on_file(&result.file_analysis);
 
-                    files_analyzed_clone.fetch_add(1 + result.nested_files.len() as u32, std::sync::atomic::Ordering::Relaxed);
+                    files_analyzed_clone.fetch_add(
+                        1 + result.nested_files.len() as u32,
+                        std::sync::atomic::Ordering::Relaxed,
+                    );
                     update_aggregates(&result.file_analysis);
                     for nested in &result.nested_files {
                         update_aggregates(nested);
@@ -281,7 +287,10 @@ impl ArchiveAnalyzer {
             "apk" => self.analyze_zip_streaming(file_path, |result: StreamingFileResult| {
                 on_file(&result.file_analysis);
 
-                files_analyzed_clone.fetch_add(1 + result.nested_files.len() as u32, std::sync::atomic::Ordering::Relaxed);
+                files_analyzed_clone.fetch_add(
+                    1 + result.nested_files.len() as u32,
+                    std::sync::atomic::Ordering::Relaxed,
+                );
                 update_aggregates(&result.file_analysis);
                 for nested in &result.nested_files {
                     update_aggregates(nested);
@@ -290,7 +299,10 @@ impl ArchiveAnalyzer {
             "deb" => self.analyze_deb_streaming(file_path, |result: StreamingFileResult| {
                 on_file(&result.file_analysis);
 
-                files_analyzed_clone.fetch_add(1 + result.nested_files.len() as u32, std::sync::atomic::Ordering::Relaxed);
+                files_analyzed_clone.fetch_add(
+                    1 + result.nested_files.len() as u32,
+                    std::sync::atomic::Ordering::Relaxed,
+                );
                 update_aggregates(&result.file_analysis);
                 for nested in &result.nested_files {
                     update_aggregates(nested);
@@ -299,7 +311,10 @@ impl ArchiveAnalyzer {
             "rpm" => self.analyze_rpm_streaming(file_path, |result: StreamingFileResult| {
                 on_file(&result.file_analysis);
 
-                files_analyzed_clone.fetch_add(1 + result.nested_files.len() as u32, std::sync::atomic::Ordering::Relaxed);
+                files_analyzed_clone.fetch_add(
+                    1 + result.nested_files.len() as u32,
+                    std::sync::atomic::Ordering::Relaxed,
+                );
                 update_aggregates(&result.file_analysis);
                 for nested in &result.nested_files {
                     update_aggregates(nested);
@@ -308,7 +323,10 @@ impl ArchiveAnalyzer {
             "7z" => self.analyze_7z_streaming(file_path, |result: StreamingFileResult| {
                 on_file(&result.file_analysis);
 
-                files_analyzed_clone.fetch_add(1 + result.nested_files.len() as u32, std::sync::atomic::Ordering::Relaxed);
+                files_analyzed_clone.fetch_add(
+                    1 + result.nested_files.len() as u32,
+                    std::sync::atomic::Ordering::Relaxed,
+                );
                 update_aggregates(&result.file_analysis);
                 for nested in &result.nested_files {
                     update_aggregates(nested);

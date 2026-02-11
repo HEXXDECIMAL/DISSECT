@@ -274,6 +274,7 @@ fn parse_criticality_level(s: &str) -> crate::types::Criticality {
 }
 
 #[derive(Subcommand, Debug)]
+#[allow(clippy::large_enum_variant)]
 pub enum Command {
     /// Analyze files or directories in detail
     Analyze {

@@ -12,7 +12,7 @@ traits:
     desc: Bash reverse shell via /dev/tcp
     crit: suspicious
     conf: 0.98
-    for: [shell, packagejson, javascript]
+    for: [shell, package.json, javascript]
     if:
       type: string
       regex: "bash\\s+-i\\s+>&\\s*/dev/tcp/[0-9.]+/[0-9]+\\s+0>&1"
@@ -21,7 +21,7 @@ traits:
     desc: Bash reverse shell via /dev/tcp
     crit: suspicious
     conf: 0.95
-    for: [shell, packagejson, javascript]
+    for: [shell, package.json, javascript]
     if:
       type: string
       regex: "bash\\s+-i\\s+>&\\s*/dev/tcp/"
@@ -60,7 +60,7 @@ traits:
     desc: mkfifo command for named pipe
     crit: inert
     conf: 0.5
-    for: [shell, packagejson]
+    for: [shell, package.json]
     if:
       type: string
       word: "mkfifo"
@@ -69,7 +69,7 @@ traits:
     desc: Netcat with pipe
     crit: inert
     conf: 0.5
-    for: [shell, packagejson]
+    for: [shell, package.json]
     if:
       type: string
       regex: '\| {0,2}nc '
@@ -80,7 +80,7 @@ traits:
     crit: suspicious
     conf: 0.95
     attack: "T1059.006"
-    for: [shell, packagejson, python]
+    for: [shell, package.json, python]
     if:
       type: string
       regex: "python[23]?\\s+-c\\s+['\"]import socket.{0,50}subprocess.{0,50}connect"
@@ -91,7 +91,7 @@ traits:
     crit: suspicious
     conf: 0.95
     attack: "T1059"
-    for: [shell, packagejson]
+    for: [shell, package.json]
     if:
       type: string
       regex: "perl\\s+-e\\s+['\"].{0,50}socket.{0,50}connect.{0,50}exec"
@@ -101,7 +101,7 @@ traits:
     desc: nc -e /bin/sh pattern
     crit: suspicious
     conf: 0.9
-    for: [shell, packagejson]
+    for: [shell, package.json]
     if:
       type: string
       regex: 'nc\s+-e\s+/bin/(ba)?sh'
@@ -110,7 +110,7 @@ traits:
     desc: ncat -e /bin/sh pattern
     crit: suspicious
     conf: 0.9
-    for: [shell, packagejson]
+    for: [shell, package.json]
     if:
       type: string
       regex: 'ncat\s+-e\s+/bin/(ba)?sh'
@@ -119,7 +119,7 @@ traits:
     desc: netcat -e /bin/sh pattern
     crit: suspicious
     conf: 0.9
-    for: [shell, packagejson]
+    for: [shell, package.json]
     if:
       type: string
       regex: 'netcat\s+-e\s+/bin/(ba)?sh'
@@ -130,7 +130,7 @@ traits:
     crit: suspicious
     conf: 0.95
     attack: "T1059"
-    for: [shell, packagejson, ruby]
+    for: [shell, package.json, ruby]
     if:
       type: string
       regex: "ruby\\s+-rsocket\\s+-e|TCPSocket\\.open.{0,50}exec"
@@ -141,7 +141,7 @@ traits:
     crit: suspicious
     conf: 0.95
     attack: "T1059"
-    for: [shell, packagejson, php]
+    for: [shell, package.json, php]
     if:
       type: string
       regex: "php\\s+-r\\s+['\"].{0,50}fsockopen.{0,50}shell_exec|\\$sock\\s*=\\s*fsockopen"
@@ -152,7 +152,7 @@ composite_rules:
     desc: Reverse shell using mkfifo and
     crit: hostile
     conf: 0.95
-    for: [shell, packagejson]
+    for: [shell, package.json]
     all:
       - id: mkfifo-cmd
       - id: cap/exec/command/shell::sh-interactive
@@ -163,7 +163,7 @@ composite_rules:
     desc: Netcat reverse shell pattern
     crit: suspicious
     conf: 0.9
-    for: [shell, packagejson]
+    for: [shell, package.json]
     any:
       - id: nc-exec-sh
       - id: ncat-exec-sh

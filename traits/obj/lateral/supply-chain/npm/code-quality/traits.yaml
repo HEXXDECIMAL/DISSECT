@@ -20,7 +20,7 @@ composite_rules:
     desc: Package has multiple entry points
     crit: inert
     conf: 0.85
-    for: [packagejson]
+    for: [package.json]
     needs: 2
     any:
       - { id: obj/lateral/supply-chain/npm-quality/pkg-meta::pkg-main-field }

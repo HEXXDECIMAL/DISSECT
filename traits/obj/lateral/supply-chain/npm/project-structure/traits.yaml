@@ -6,7 +6,7 @@ traits:
     desc: Package has build output directory
     crit: inert
     conf: 0.85
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       regex: '"main":\\s*"(?:dist/|lib/|build/|out/)'
@@ -16,7 +16,7 @@ traits:
     desc: Package has src directory structure
     crit: inert
     conf: 0.8
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       regex: '"[^"]*src/|"files":[^]]*"src"'
@@ -26,7 +26,7 @@ traits:
     desc: Package has examples directory
     crit: inert
     conf: 0.85
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       regex: '"examples"|"example"|"demo"|"demos"'

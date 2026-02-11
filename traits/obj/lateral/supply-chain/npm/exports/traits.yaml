@@ -1,7 +1,6 @@
 # Module Export/Import Patterns
 # CommonJS, ES modules, package.json module fields
 
-
 traits:
   - id: has-cjs-export
     desc: Code exports functionality via CommonJS
@@ -53,7 +52,7 @@ traits:
     desc: Package has ESM module entry
     crit: inert
     conf: 0.85
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       regex: '"module":\s*"'
@@ -62,7 +61,7 @@ traits:
     desc: '"module": field in package.json'
     crit: inert
     conf: 0.6
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       substr: '"module":'
@@ -71,7 +70,7 @@ traits:
     desc: '"exports": field in package.json'
     crit: inert
     conf: 0.6
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       substr: '"exports":'
@@ -80,7 +79,7 @@ traits:
     desc: Package has modern exports field
     crit: inert
     conf: 0.85
-    for: [packagejson]
+    for: [package.json]
     if:
       type: kv
       path: "exports"
@@ -102,7 +101,6 @@ traits:
     if:
       type: string
       regex: "exports\\.[a-zA-Z]+ ="
-
 
 composite_rules:
   - id: has-multiple-exports

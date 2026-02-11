@@ -794,96 +794,96 @@ fn scan_paths(
 
             // Process archive (wrapped to ensure token is returned)
             let result = (|| -> Result<(), ()> {
-            // Check if another thread already triggered --error-if
-            if error_if_triggered.load(Ordering::Relaxed) {
-                return Err(());
-            }
+                // Check if another thread already triggered --error-if
+                if error_if_triggered.load(Ordering::Relaxed) {
+                    return Err(());
+                }
 
-            // For JSONL format, use true streaming analysis for archives
-            if matches!(format, cli::OutputFormat::Jsonl) {
-                match analyze_archive_streaming_jsonl(
+                // For JSONL format, use true streaming analysis for archives
+                if matches!(format, cli::OutputFormat::Jsonl) {
+                    match analyze_archive_streaming_jsonl(
+                        path_str,
+                        &capability_mapper,
+                        shared_yara_engine.as_ref(),
+                        zip_passwords,
+                        sample_extraction,
+                        max_memory_file_size,
+                    ) {
+                        Ok(()) => {
+                            // Files were already streamed via callback
+                        }
+                        Err(e) => {
+                            eprintln!("✗ {}: {}", path_str, e);
+                        }
+                    }
+                    return Ok(());
+                }
+
+                match analyze_file_with_shared_mapper(
                     path_str,
                     &capability_mapper,
                     shared_yara_engine.as_ref(),
                     zip_passwords,
+                    disabled,
+                    error_if_levels,
+                    verbose,
                     sample_extraction,
                     max_memory_file_size,
                 ) {
-                    Ok(()) => {
-                        // Files were already streamed via callback
-                    }
-                    Err(e) => {
-                        eprintln!("✗ {}: {}", path_str, e);
-                    }
-                }
-                return Ok(());
-            }
-
-            match analyze_file_with_shared_mapper(
-                path_str,
-                &capability_mapper,
-                shared_yara_engine.as_ref(),
-                zip_passwords,
-                disabled,
-                error_if_levels,
-                verbose,
-                sample_extraction,
-                max_memory_file_size,
-            ) {
-                Ok(json) => {
-                    match format {
-                        cli::OutputFormat::Terminal => {
-                            // For terminal format, show immediate output above progress bar
-                            match output::parse_jsonl(&json) {
-                                Ok(report) => match output::format_terminal(&report) {
-                                    Ok(formatted) => {
-                                        print!("{}", formatted);
-                                    }
+                    Ok(json) => {
+                        match format {
+                            cli::OutputFormat::Terminal => {
+                                // For terminal format, show immediate output above progress bar
+                                match output::parse_jsonl(&json) {
+                                    Ok(report) => match output::format_terminal(&report) {
+                                        Ok(formatted) => {
+                                            print!("{}", formatted);
+                                        }
+                                        Err(e) => {
+                                            eprintln!(
+                                                "Error formatting report for {}: {}",
+                                                path_str, e
+                                            );
+                                        }
+                                    },
                                     Err(e) => {
+                                        eprintln!("DEBUG: JSON parse error: {}", e);
                                         eprintln!(
-                                            "Error formatting report for {}: {}",
-                                            path_str, e
+                                            "DEBUG: JSON preview: {}",
+                                            &json[..json.len().min(500)]
                                         );
+                                        eprintln!("Error parsing JSON for {}: {}", path_str, e);
                                     }
-                                },
-                                Err(e) => {
-                                    eprintln!("DEBUG: JSON parse error: {}", e);
-                                    eprintln!(
-                                        "DEBUG: JSON preview: {}",
-                                        &json[..json.len().min(500)]
-                                    );
-                                    eprintln!("Error parsing JSON for {}: {}", path_str, e);
                                 }
                             }
-                        }
-                        cli::OutputFormat::Jsonl => {
-                            // Should not reach here - JSONL uses streaming path above
-                            unreachable!("JSONL should use streaming path");
+                            cli::OutputFormat::Jsonl => {
+                                // Should not reach here - JSONL uses streaming path above
+                                unreachable!("JSONL should use streaming path");
+                            }
                         }
                     }
-                }
-                Err(e) => {
-                    let err_str = e.to_string();
-                    // Check if this is an --error-if failure - stop processing
-                    if err_str.contains("--error-if") {
-                        error_if_triggered.store(true, Ordering::Relaxed);
+                    Err(e) => {
+                        let err_str = e.to_string();
+                        // Check if this is an --error-if failure - stop processing
+                        if err_str.contains("--error-if") {
+                            error_if_triggered.store(true, Ordering::Relaxed);
+                            eprintln!("✗ {}: {}", path_str, e);
+                            let mut msg = error_if_message.lock().unwrap();
+                            if msg.is_none() {
+                                *msg = Some(err_str);
+                            }
+                            return Err(()); // Short-circuit parallel iteration
+                        }
+
                         eprintln!("✗ {}: {}", path_str, e);
-                        let mut msg = error_if_message.lock().unwrap();
-                        if msg.is_none() {
-                            *msg = Some(err_str);
-                        }
-                        return Err(()); // Short-circuit parallel iteration
                     }
-
-                    eprintln!("✗ {}: {}", path_str, e);
                 }
-            }
 
-            Ok(())
+                Ok(())
             })();
 
             // Return token to semaphore
-            drop(_token);
+            let _ = _token;
             archive_sem_tx.send(()).ok();
 
             result

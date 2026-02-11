@@ -3,7 +3,7 @@
 # These patterns often indicate malicious or typosquatting packages
 
 defaults:
-  for: [packagejson]
+  for: [package.json]
 
 traits:
   # === VSCode Extension Detection ===

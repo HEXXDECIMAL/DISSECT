@@ -137,10 +137,7 @@ pub(crate) fn apply_trait_defaults(
 
 /// Parse file type strings into FileType enum
 /// Collects warnings about unknown file types into the provided vector.
-pub(crate) fn parse_file_types(
-    types: &[String],
-    warnings: &mut Vec<String>,
-) -> Vec<RuleFileType> {
+pub(crate) fn parse_file_types(types: &[String], warnings: &mut Vec<String>) -> Vec<RuleFileType> {
     let mut inclusions = HashSet::new();
     let mut exclusions = HashSet::new();
     let mut has_explicit_inclusion = false;
@@ -166,7 +163,8 @@ pub(crate) fn parse_file_types(
                         vec![RuleFileType::All]
                     }
                 }
-                "binaries" | "binary" => vec![
+                // Groups
+                "binaries" => vec![
                     RuleFileType::Elf,
                     RuleFileType::Macho,
                     RuleFileType::Pe,
@@ -175,7 +173,7 @@ pub(crate) fn parse_file_types(
                     RuleFileType::Dll,
                     RuleFileType::Class,
                 ],
-                "scripts" | "scripting" | "script" => vec![
+                "scripts" => vec![
                     RuleFileType::Shell,
                     RuleFileType::Batch,
                     RuleFileType::Python,
@@ -188,49 +186,63 @@ pub(crate) fn parse_file_types(
                     RuleFileType::PowerShell,
                     RuleFileType::AppleScript,
                 ],
+                // Binary formats
                 "elf" => vec![RuleFileType::Elf],
                 "macho" => vec![RuleFileType::Macho],
                 "pe" => vec![RuleFileType::Pe],
                 "dylib" => vec![RuleFileType::Dylib],
                 "so" => vec![RuleFileType::So],
                 "dll" => vec![RuleFileType::Dll],
-                "shell" | "shellscript" => vec![RuleFileType::Shell],
+                // Scripting languages (fullname + extension)
+                "shell" | "sh" => vec![RuleFileType::Shell],
                 "batch" | "bat" | "cmd" => vec![RuleFileType::Batch],
                 "python" | "py" => vec![RuleFileType::Python],
                 "javascript" | "js" => vec![RuleFileType::JavaScript],
                 "typescript" | "ts" => vec![RuleFileType::TypeScript],
+                "ruby" | "rb" => vec![RuleFileType::Ruby],
+                "php" => vec![RuleFileType::Php],
+                "perl" | "pl" => vec![RuleFileType::Perl],
+                "powershell" | "ps1" => vec![RuleFileType::PowerShell],
+                "lua" => vec![RuleFileType::Lua],
+                "applescript" | "scpt" => vec![RuleFileType::AppleScript],
+                "vbs" => vec![RuleFileType::Vbs],
+                "html" | "htm" => vec![RuleFileType::Html],
+                // Compiled languages (fullname + extension)
                 "java" => vec![RuleFileType::Java],
                 "class" => vec![RuleFileType::Class],
                 "c" => vec![RuleFileType::C],
+                "cpp" | "c++" | "cc" | "cxx" => vec![RuleFileType::Cpp],
                 "rust" => vec![RuleFileType::Rust],
                 "go" => vec![RuleFileType::Go],
-                "ruby" | "rb" => vec![RuleFileType::Ruby],
-                "php" => vec![RuleFileType::Php],
                 "csharp" | "cs" => vec![RuleFileType::CSharp],
-                "lua" => vec![RuleFileType::Lua],
-                "perl" | "pl" => vec![RuleFileType::Perl],
-                "powershell" | "ps1" => vec![RuleFileType::PowerShell],
                 "swift" => vec![RuleFileType::Swift],
-                "objectivec" | "objc" => vec![RuleFileType::ObjectiveC],
+                "objective-c" | "objc" => vec![RuleFileType::ObjectiveC],
                 "groovy" => vec![RuleFileType::Groovy],
                 "scala" => vec![RuleFileType::Scala],
                 "zig" => vec![RuleFileType::Zig],
                 "elixir" => vec![RuleFileType::Elixir],
-                "applescript" | "scpt" => vec![RuleFileType::AppleScript],
-                "packagejson" | "package.json" => vec![RuleFileType::PackageJson],
-                "chrome-manifest" | "chromemanifest" => vec![RuleFileType::ChromeManifest],
-                "cargo-toml" | "cargotoml" | "cargo.toml" => vec![RuleFileType::CargoToml],
-                "pyproject-toml" | "pyprojecttoml" | "pyproject.toml" => {
-                    vec![RuleFileType::PyProjectToml]
-                }
-                "github-actions" | "githubactions" => vec![RuleFileType::GithubActions],
-                "composer-json" | "composerjson" | "composer.json" => {
-                    vec![RuleFileType::ComposerJson]
-                }
+                // Specific filenames
+                "package.json" => vec![RuleFileType::PackageJson],
+                "cargo.toml" => vec![RuleFileType::CargoToml],
+                "pyproject.toml" => vec![RuleFileType::PyProjectToml],
+                "composer.json" => vec![RuleFileType::ComposerJson],
+                // Logical types with hyphens
+                "chrome-manifest" => vec![RuleFileType::ChromeManifest],
+                "manifest.json" => vec![RuleFileType::ChromeManifest], // Chrome extension manifest
+                "github-actions" => vec![RuleFileType::GithubActions],
+                // Archive/installer formats
+                "ipa" => vec![RuleFileType::Ipa],
+                // Generic formats
+                "text" | "txt" => vec![RuleFileType::Text],
+                // Image formats
                 "jpeg" | "jpg" => vec![RuleFileType::Jpeg],
                 "png" => vec![RuleFileType::Png],
+                // Other formats
+                "plist" => vec![RuleFileType::Plist],
+                "pkginfo" => vec![RuleFileType::PkgInfo],
+                "rtf" => vec![RuleFileType::Rtf],
                 _ => {
-                    // Unknown file type - add warning
+                    // Unknown file type - add warning (file path will be added by caller)
                     warnings.push(format!("Unknown file type: '{}'", name));
                     vec![]
                 }
@@ -558,7 +570,10 @@ mod tests {
     #[test]
     fn test_parse_file_types_specific() {
         let mut warnings = Vec::new();
-        let result = parse_file_types(&["python".to_string(), "javascript".to_string()], &mut warnings);
+        let result = parse_file_types(
+            &["python".to_string(), "javascript".to_string()],
+            &mut warnings,
+        );
         assert!(result.contains(&RuleFileType::Python));
         assert!(result.contains(&RuleFileType::JavaScript));
         assert!(warnings.is_empty());
@@ -567,12 +582,15 @@ mod tests {
     #[test]
     fn test_parse_file_types_aliases() {
         let mut warnings = Vec::new();
-        let result = parse_file_types(&[
-            "py".to_string(),
-            "js".to_string(),
-            "ts".to_string(),
-            "rb".to_string(),
-        ], &mut warnings);
+        let result = parse_file_types(
+            &[
+                "py".to_string(),
+                "js".to_string(),
+                "ts".to_string(),
+                "rb".to_string(),
+            ],
+            &mut warnings,
+        );
         assert!(result.contains(&RuleFileType::Python));
         assert!(result.contains(&RuleFileType::JavaScript));
         assert!(result.contains(&RuleFileType::TypeScript));
@@ -623,7 +641,10 @@ mod tests {
     #[test]
     fn test_parse_file_types_case_insensitive() {
         let mut warnings = Vec::new();
-        let result = parse_file_types(&["PYTHON".to_string(), "JavaScript".to_string()], &mut warnings);
+        let result = parse_file_types(
+            &["PYTHON".to_string(), "JavaScript".to_string()],
+            &mut warnings,
+        );
         assert!(result.contains(&RuleFileType::Python));
         assert!(result.contains(&RuleFileType::JavaScript));
         assert!(warnings.is_empty());
@@ -632,11 +653,14 @@ mod tests {
     #[test]
     fn test_parse_file_types_package_files() {
         let mut warnings = Vec::new();
-        let result = parse_file_types(&[
-            "package.json".to_string(),
-            "cargo.toml".to_string(),
-            "pyproject.toml".to_string(),
-        ], &mut warnings);
+        let result = parse_file_types(
+            &[
+                "package.json".to_string(),
+                "cargo.toml".to_string(),
+                "pyproject.toml".to_string(),
+            ],
+            &mut warnings,
+        );
         assert!(result.contains(&RuleFileType::PackageJson));
         assert!(result.contains(&RuleFileType::CargoToml));
         assert!(result.contains(&RuleFileType::PyProjectToml));
@@ -656,7 +680,10 @@ mod tests {
     fn test_parse_file_types_exclusion_only() {
         // When only exclusions are provided, start with all and remove
         let mut warnings = Vec::new();
-        let result = parse_file_types(&["!python".to_string(), "!javascript".to_string()], &mut warnings);
+        let result = parse_file_types(
+            &["!python".to_string(), "!javascript".to_string()],
+            &mut warnings,
+        );
         assert!(!result.contains(&RuleFileType::Python));
         assert!(!result.contains(&RuleFileType::JavaScript));
         assert!(result.contains(&RuleFileType::Shell));
@@ -667,7 +694,10 @@ mod tests {
     #[test]
     fn test_parse_file_types_unknown_type() {
         let mut warnings = Vec::new();
-        let result = parse_file_types(&["python".to_string(), "invalid_type".to_string()], &mut warnings);
+        let result = parse_file_types(
+            &["python".to_string(), "invalid_type".to_string()],
+            &mut warnings,
+        );
         assert!(result.contains(&RuleFileType::Python));
         assert_eq!(warnings.len(), 1);
         assert_eq!(warnings[0], "Unknown file type: 'invalid_type'");
@@ -676,10 +706,21 @@ mod tests {
     #[test]
     fn test_parse_file_types_multiple_unknown() {
         let mut warnings = Vec::new();
-        let result = parse_file_types(&["pyton".to_string(), "javascrpt".to_string()], &mut warnings);
+        let result = parse_file_types(
+            &["pyton".to_string(), "javascrpt".to_string()],
+            &mut warnings,
+        );
         assert!(result.is_empty());
         assert_eq!(warnings.len(), 2);
         assert!(warnings.contains(&"Unknown file type: 'pyton'".to_string()));
         assert!(warnings.contains(&"Unknown file type: 'javascrpt'".to_string()));
     }
 }
+
+    #[test]
+    fn test_parse_file_types_ipa() {
+        let mut warnings = Vec::new();
+        let result = parse_file_types(&["ipa".to_string()], &mut warnings);
+        assert!(result.contains(&RuleFileType::Ipa));
+        assert!(warnings.is_empty());
+    }

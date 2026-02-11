@@ -62,7 +62,7 @@ traits:
     desc: Package references test directory
     crit: inert
     conf: 0.85
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       regex: '"test"|"tests"|"__tests__"|"spec"|"__mocks__"'
@@ -72,7 +72,7 @@ traits:
     desc: Package has Jest configuration
     crit: inert
     conf: 0.9
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       regex: 'jest\\.config|"jest"'
@@ -82,7 +82,7 @@ traits:
     desc: '"test": script in package.json'
     crit: inert
     conf: 0.6
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       substr: '"test":'
@@ -91,7 +91,7 @@ traits:
     desc: Package has test script (legitimate
     crit: inert
     conf: 0.9
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       regex: '"test":\\s*"[^"]*(?:jest|mocha|ava|tap|vitest|node --test|npm test)'
@@ -101,7 +101,7 @@ traits:
     desc: Package uses established testing framework
     crit: inert
     conf: 0.9
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       regex: '"jest"|"mocha"|"ava"|"vitest"|"@testing-library|"chai"|"sinon"|"tap"'
@@ -431,7 +431,9 @@ composite_rules:
     conf: 0.95
     for: [javascript, typescript]
     any:
-      - { id: obj/lateral/supply-chain/npm/browser-automation::testing-library-imports }
+      - {
+          id: obj/lateral/supply-chain/npm/browser-automation::testing-library-imports,
+        }
       - { id: testing-library-methods }
 
   # Test configuration files
@@ -455,5 +457,7 @@ composite_rules:
     conf: 0.95
     for: [javascript, typescript]
     any:
-      - { id: obj/lateral/supply-chain/npm/language-features::promise-test-call }
+      - {
+          id: obj/lateral/supply-chain/npm/language-features::promise-test-call,
+        }
       - { id: obj/lateral/supply-chain/npm/language-features::async-test-call }

@@ -3,7 +3,7 @@
 # Generic JS behaviors should be in their objective directories
 
 defaults:
-  for: [packagejson]
+  for: [package.json]
 
 traits:
   # === Export detection micro-traits ===
@@ -133,7 +133,7 @@ traits:
       regex: "(?:readFile|readFileSync)\\s*\\([^)]*\\.npmrc"
 
   # Package writes to package.json (persistence)
-  - id: package-json-write
+  - id: package.json-write
     desc: Writes to package.json file
     crit: suspicious
     conf: 0.9
@@ -195,7 +195,7 @@ traits:
     desc: Bug bounty or security research
     crit: notable
     conf: 0.9
-    for: [javascript, packagejson]
+    for: [javascript, package.json]
     if:
       type: string
       regex: "bug\\s*bounty|hackerone|bugcrowd|security\\s*research|proof\\s*of\\s*concept|PoC|benign\\s*test"
@@ -215,7 +215,7 @@ traits:
     desc: Tiny package.json (metadata only)
     crit: inert
     conf: 0.7
-    for: [packagejson]
+    for: [package.json]
     size_max: 2048
 
   # === OOB exfil domain micro-traits ===
@@ -223,7 +223,7 @@ traits:
     desc: oast.fun exfil domain
     crit: suspicious
     conf: 0.9
-    for: [javascript, typescript, packagejson]
+    for: [javascript, typescript, package.json]
     if:
       type: string
       substr: "oast.fun"
@@ -232,7 +232,7 @@ traits:
     desc: oastify.com exfil domain
     crit: suspicious
     conf: 0.9
-    for: [javascript, typescript, packagejson]
+    for: [javascript, typescript, package.json]
     if:
       type: string
       substr: "oastify.com"
@@ -241,7 +241,7 @@ traits:
     desc: oast.me exfil domain
     crit: suspicious
     conf: 0.9
-    for: [javascript, typescript, packagejson]
+    for: [javascript, typescript, package.json]
     if:
       type: string
       substr: "oast.me"
@@ -250,7 +250,7 @@ traits:
     desc: pipedream.net exfil domain
     crit: suspicious
     conf: 0.9
-    for: [javascript, typescript, packagejson]
+    for: [javascript, typescript, package.json]
     if:
       type: string
       substr: "pipedream.net"
@@ -259,7 +259,7 @@ traits:
     desc: Discord webhook exfil endpoint
     crit: suspicious
     conf: 0.9
-    for: [javascript, typescript, packagejson]
+    for: [javascript, typescript, package.json]
     if:
       type: string
       substr: "discord.com/api/webhooks"
@@ -271,7 +271,7 @@ traits:
     desc: Author field is "Your Name"
     crit: suspicious
     conf: 0.85
-    for: [packagejson]
+    for: [package.json]
     if:
       type: kv
       path: "author"
@@ -281,7 +281,7 @@ traits:
     desc: Author field contains generic placeholder
     crit: notable
     conf: 0.75
-    for: [packagejson]
+    for: [package.json]
     if:
       type: kv
       path: "author"
@@ -295,7 +295,7 @@ traits:
     desc: Very short/empty description
     crit: inert
     conf: 0.7
-    for: [packagejson]
+    for: [package.json]
     if:
       type: kv
       path: "description"
@@ -305,7 +305,7 @@ traits:
     desc: Main uses resp/ directory
     crit: notable
     conf: 0.7
-    for: [packagejson]
+    for: [package.json]
     if:
       type: kv
       path: "main"
@@ -318,7 +318,7 @@ traits:
     desc: CDN-related keywords
     crit: inert
     conf: 0.6
-    for: [packagejson]
+    for: [package.json]
     if:
       type: kv
       path: "keywords"
@@ -328,7 +328,7 @@ traits:
     desc: Template keyword in package
     crit: inert
     conf: 0.5
-    for: [packagejson]
+    for: [package.json]
     if:
       type: kv
       path: "keywords"
@@ -342,7 +342,7 @@ traits:
     desc: Description mentions dependency confusion
     crit: notable
     conf: 0.8
-    for: [packagejson]
+    for: [package.json]
     if:
       type: kv
       path: "description"
@@ -353,7 +353,7 @@ traits:
     desc: Description mentions placeholder package
     crit: notable
     conf: 0.75
-    for: [packagejson]
+    for: [package.json]
     if:
       type: kv
       path: "description"
@@ -364,7 +364,7 @@ traits:
     desc: Description claims to prevent squatting
     crit: notable
     conf: 0.75
-    for: [packagejson]
+    for: [package.json]
     if:
       type: kv
       path: "description"
@@ -488,7 +488,7 @@ composite_rules:
     desc: Multiple OOB exfiltration endpoints
     crit: suspicious
     conf: 0.9
-    for: [javascript, typescript, packagejson]
+    for: [javascript, typescript, package.json]
     needs: 2
     any:
       - id: oast-fun-domain
@@ -505,7 +505,7 @@ composite_rules:
     desc: Package with placeholder author and no repository URL
     crit: suspicious
     conf: 0.85
-    for: [packagejson]
+    for: [package.json]
     all:
       - id: placeholder-author-your-name
     none:
@@ -562,7 +562,7 @@ composite_rules:
     desc: Package claims dependency confusion protection
     crit: notable
     conf: 0.8
-    for: [packagejson]
+    for: [package.json]
     any:
       - id: desc-dependency-confusion
       - id: desc-placeholder-package

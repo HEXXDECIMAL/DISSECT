@@ -698,7 +698,11 @@ composite_rules:
     let mut warnings = Vec::new();
     let mut rules = Vec::new();
     for r in mappings.composite_rules {
-        rules.push(parsing::apply_composite_defaults(r, &mappings.defaults, &mut warnings));
+        rules.push(parsing::apply_composite_defaults(
+            r,
+            &mappings.defaults,
+            &mut warnings,
+        ));
     }
 
     // First rule uses defaults
@@ -2512,7 +2516,8 @@ fn test_parse_file_types_groups_and_exclusions() {
     assert!(!not_php.contains(&RuleFileType::All)); // Should be expanded
 
     // Test group + exclusion: scripts,!php
-    let scripts_no_php = parsing::parse_file_types(&["scripts".to_string(), "!php".to_string()], &mut warnings);
+    let scripts_no_php =
+        parsing::parse_file_types(&["scripts".to_string(), "!php".to_string()], &mut warnings);
     assert!(scripts_no_php.contains(&RuleFileType::Python));
     assert!(scripts_no_php.contains(&RuleFileType::Shell));
     assert!(!scripts_no_php.contains(&RuleFileType::Php));

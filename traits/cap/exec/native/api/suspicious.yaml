@@ -8,7 +8,7 @@ traits:
     desc: Package contains native Node.js addon
     crit: notable
     conf: 0.7
-    for: [javascript, typescript, packagejson]
+    for: [javascript, typescript, package.json]
     if:
       type: yara
       source: |

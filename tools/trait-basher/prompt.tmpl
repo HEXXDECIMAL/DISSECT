@@ -45,7 +45,10 @@ Read `RULES.md`, `TAXONOMY.md`, `PRECISION.md` before editing.
 - This tool will be used against millions of samples across the open-source community, be precise accordingly.
 
 # Success Criteria
-- Run dissect against the file and ensure that it emits no warnings and produces the results you were hoping for. Iterate until it does.
+- Run dissect --format=jsonl against the file and ensure that it emits no warnings and produces the results you were hoping for. Iterate until it does.
+- Ensure that all of the traits that tell the story about what this program does are "notable" rather than "inert"
+- Ensure that all traits that would be very surprising from a security point-of-view in a random program are at least "suspicious"
+- Ensure that any traits that rely on the same evidence are not duplicates that should be merged.
 
 ## Debug Commands
 ```

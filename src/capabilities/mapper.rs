@@ -317,32 +317,27 @@ impl CapabilityMapper {
                 }
             }
 
-            // Check for fatal errors (unknown file types in simple rules)
-            let file_type_errors: Vec<&String> = parsing_warnings
-                .iter()
-                .filter(|w| w.contains("Unknown file type"))
-                .collect();
-            if !file_type_errors.is_empty() {
-                let errors_msg = file_type_errors.iter()
-                    .map(|e| e.as_str())
-                    .collect::<Vec<_>>()
-                    .join("\n  ");
-                return Err(anyhow::anyhow!(
-                    "Invalid file types in {:?}:\n  {}",
-                    path,
-                    errors_msg
-                ));
+            // Add file path to unknown file type warnings, append others as-is
+            let path_str = path.display().to_string();
+            for warning in parsing_warnings {
+                if warning.starts_with("Unknown file type") {
+                    warnings.push(format!("{}: {}", path_str, warning));
+                } else {
+                    warnings.push(warning);
+                }
             }
-            // Merge parsing warnings into main warnings vector
-            warnings.append(&mut parsing_warnings);
 
             // Merge trait definitions with auto-prefixed IDs, applying file-level defaults
             let traits_count = mappings.traits.len();
             let mut parsing_warnings = Vec::new();
             for raw_trait in mappings.traits {
                 // Convert raw trait to final trait, applying file-level defaults
-                let mut trait_def =
-                    apply_trait_defaults(raw_trait, &mappings.defaults, &mut parsing_warnings, &path);
+                let mut trait_def = apply_trait_defaults(
+                    raw_trait,
+                    &mappings.defaults,
+                    &mut parsing_warnings,
+                    &path,
+                );
 
                 // Auto-prefix trait ID if it doesn't already have the path prefix
                 // Uses :: as delimiter between directory path and trait name
@@ -538,24 +533,15 @@ impl CapabilityMapper {
                 trait_definitions.push(trait_def);
             }
 
-            // Check for fatal errors (unknown file types in traits)
-            let file_type_errors: Vec<&String> = parsing_warnings
-                .iter()
-                .filter(|w| w.contains("Unknown file type"))
-                .collect();
-            if !file_type_errors.is_empty() {
-                let errors_msg = file_type_errors.iter()
-                    .map(|e| e.as_str())
-                    .collect::<Vec<_>>()
-                    .join("\n  ");
-                return Err(anyhow::anyhow!(
-                    "Invalid file types in {:?}:\n  {}",
-                    path,
-                    errors_msg
-                ));
+            // Add file path to unknown file type warnings, append others as-is
+            let path_str = path.display().to_string();
+            for warning in parsing_warnings {
+                if warning.starts_with("Unknown file type") {
+                    warnings.push(format!("{}: {}", path_str, warning));
+                } else {
+                    warnings.push(warning);
+                }
             }
-            // Merge parsing warnings into main warnings vector
-            warnings.append(&mut parsing_warnings);
 
             // Extract symbol mappings from trait definitions with symbol conditions
             for trait_def in
@@ -604,7 +590,8 @@ impl CapabilityMapper {
             let mut parsing_warnings = Vec::new();
             for raw_rule in mappings.composite_rules {
                 // Convert raw rule to final rule, applying file-level defaults
-                let mut rule = apply_composite_defaults(raw_rule, &mappings.defaults, &mut parsing_warnings);
+                let mut rule =
+                    apply_composite_defaults(raw_rule, &mappings.defaults, &mut parsing_warnings);
 
                 // Auto-prefix composite rule ID if it doesn't already have the path prefix
                 if let Some(ref prefix) = trait_prefix {
@@ -645,24 +632,15 @@ impl CapabilityMapper {
                 composite_rules.push(rule);
             }
 
-            // Check for fatal errors (unknown file types in composite rules)
-            let file_type_errors: Vec<&String> = parsing_warnings
-                .iter()
-                .filter(|w| w.contains("Unknown file type"))
-                .collect();
-            if !file_type_errors.is_empty() {
-                let errors_msg = file_type_errors.iter()
-                    .map(|e| e.as_str())
-                    .collect::<Vec<_>>()
-                    .join("\n  ");
-                return Err(anyhow::anyhow!(
-                    "Invalid file types in {:?}:\n  {}",
-                    path,
-                    errors_msg
-                ));
+            // Add file path to unknown file type warnings, append others as-is
+            let path_str = path.display().to_string();
+            for warning in parsing_warnings {
+                if warning.starts_with("Unknown file type") {
+                    warnings.push(format!("{}: {}", path_str, warning));
+                } else {
+                    warnings.push(warning);
+                }
             }
-            // Merge parsing warnings into main warnings vector
-            warnings.append(&mut parsing_warnings);
 
             if debug {
                 eprintln!(
@@ -672,6 +650,25 @@ impl CapabilityMapper {
                     composite_rules.len() - before_composites
                 );
             }
+        }
+
+        // Check for unknown file types across all files
+        let file_type_errors: Vec<&String> = warnings
+            .iter()
+            .filter(|w| w.contains("Unknown file type"))
+            .collect();
+        if !file_type_errors.is_empty() {
+            // Sort and display errors (already include file paths)
+            let mut sorted_errors: Vec<&str> = file_type_errors
+                .iter()
+                .map(|e| e.as_str())
+                .collect();
+            sorted_errors.sort();
+
+            return Err(anyhow::anyhow!(
+                "Invalid file types found in trait files:\n  {}\n\nPlease fix these file type names in the YAML files.",
+                sorted_errors.join("\n  ")
+            ));
         }
 
         if debug {
@@ -1944,7 +1941,11 @@ impl CapabilityMapper {
         // Convert raw composite rules to final rules with defaults applied
         let mut composite_rules = Vec::new();
         for raw in mappings.composite_rules {
-            composite_rules.push(apply_composite_defaults(raw, &mappings.defaults, &mut warnings));
+            composite_rules.push(apply_composite_defaults(
+                raw,
+                &mappings.defaults,
+                &mut warnings,
+            ));
         }
 
         // Print any warnings from parsing

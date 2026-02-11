@@ -127,7 +127,7 @@ traits:
     desc: preinstall runs shell command
     crit: suspicious
     conf: 0.85
-    for: [packagejson]
+    for: [package.json]
     if:
       type: kv
       path: "scripts.preinstall"
@@ -137,7 +137,7 @@ traits:
     desc: postinstall runs shell command
     crit: suspicious
     conf: 0.85
-    for: [packagejson]
+    for: [package.json]
     if:
       type: kv
       path: "scripts.postinstall"
@@ -147,7 +147,7 @@ traits:
     desc: preinstall download-execute pipe
     crit: suspicious
     conf: 0.95
-    for: [packagejson]
+    for: [package.json]
     if:
       type: kv
       path: "scripts.preinstall"
@@ -157,7 +157,7 @@ traits:
     desc: postinstall download-execute pipe
     crit: suspicious
     conf: 0.95
-    for: [packagejson]
+    for: [package.json]
     if:
       type: kv
       path: "scripts.postinstall"
@@ -167,7 +167,7 @@ traits:
     desc: preinstall node -e with URL
     crit: suspicious
     conf: 0.95
-    for: [packagejson]
+    for: [package.json]
     if:
       type: kv
       path: "scripts.preinstall"
@@ -177,7 +177,7 @@ traits:
     desc: postinstall node -e with URL
     crit: suspicious
     conf: 0.95
-    for: [packagejson]
+    for: [package.json]
     if:
       type: kv
       path: "scripts.postinstall"
@@ -231,7 +231,7 @@ composite_rules:
     desc: Install hook with command execution
     crit: suspicious
     conf: 0.85
-    for: [packagejson]
+    for: [package.json]
     any:
       - id: scripts-preinstall-shell
       - id: scripts-postinstall-shell
@@ -284,7 +284,7 @@ composite_rules:
     crit: hostile
     conf: 0.95
     mbc: "B0024"
-    for: [packagejson]
+    for: [package.json]
     any:
       - id: scripts-preinstall-pipe
       - id: scripts-postinstall-pipe

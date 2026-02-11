@@ -148,18 +148,23 @@ impl GenericAnalyzer {
         // Merge stng strings into report, avoiding duplicates
         for stng_string in stng_strings {
             // Only add if not already present (stng might find encoded data that AST/regex missed)
-            if !report.strings.iter().any(|s| s.value == stng_string.value && s.offset == stng_string.offset) {
+            if !report
+                .strings
+                .iter()
+                .any(|s| s.value == stng_string.value && s.offset == stng_string.offset)
+            {
                 report.strings.push(stng_string);
             }
         }
 
         // Analyze embedded code in strings
-        let (encoded_layers, plain_findings) = crate::analyzers::embedded_code_detector::process_all_strings(
-            &file_path.display().to_string(),
-            &report.strings,
-            &self.capability_mapper,
-            0,
-        );
+        let (encoded_layers, plain_findings) =
+            crate::analyzers::embedded_code_detector::process_all_strings(
+                &file_path.display().to_string(),
+                &report.strings,
+                &self.capability_mapper,
+                0,
+            );
         report.files.extend(encoded_layers);
         report.findings.extend(plain_findings);
 

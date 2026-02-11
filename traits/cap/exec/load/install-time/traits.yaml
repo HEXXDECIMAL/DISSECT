@@ -3,7 +3,7 @@
 # ATT&CK: T1195.002 (Supply Chain Compromise: Compromise Software Supply Chain)
 
 defaults:
-  for: [shell, text]
+  for: [shell]
   mbc: "B0030"
   attack: "T1195.002"
 

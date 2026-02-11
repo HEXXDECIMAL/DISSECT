@@ -38,6 +38,7 @@ pub enum FileType {
     Java,
     Ruby,
     C,
+    Cpp,
     Go,
     Php,
     CSharp,
@@ -51,6 +52,8 @@ pub enum FileType {
     Zig,
     Elixir,
     AppleScript,
+    Vbs,
+    Html,
     // Manifest/config formats
     PackageJson,    // npm package.json
     ChromeManifest, // Chrome extension manifest.json
@@ -61,6 +64,10 @@ pub enum FileType {
     PkgInfo,        // Python package metadata
     Plist,          // Apple Property List
     Rtf,            // Rich Text Format
+    // Archive/installer formats (not extractable by DISSECT)
+    Ipa,            // iOS App Package
+    // Generic formats
+    Text,           // Plain text files
     // Image formats
     Jpeg,
     Png,
@@ -80,6 +87,7 @@ impl FileType {
                 | FileType::Java
                 | FileType::Ruby
                 | FileType::C
+                | FileType::Cpp
                 | FileType::Go
                 | FileType::CSharp
                 | FileType::Php
@@ -93,6 +101,8 @@ impl FileType {
                 | FileType::Zig
                 | FileType::Elixir
                 | FileType::AppleScript
+                | FileType::Vbs
+                | FileType::Html
         )
     }
 
@@ -117,6 +127,7 @@ impl FileType {
             FileType::Java,
             FileType::Ruby,
             FileType::C,
+            FileType::Cpp,
             FileType::Go,
             FileType::Php,
             FileType::CSharp,
@@ -130,6 +141,8 @@ impl FileType {
             FileType::Zig,
             FileType::Elixir,
             FileType::AppleScript,
+            FileType::Vbs,
+            FileType::Html,
             // Manifest/config formats
             FileType::PackageJson,
             FileType::ChromeManifest,
@@ -140,6 +153,10 @@ impl FileType {
             FileType::PkgInfo,
             FileType::Plist,
             FileType::Rtf,
+            // Archive/installer formats
+            FileType::Ipa,
+            // Generic formats
+            FileType::Text,
             // Image formats
             FileType::Jpeg,
             FileType::Png,

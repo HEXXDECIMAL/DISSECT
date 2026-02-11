@@ -16,7 +16,7 @@ traits:
     desc: Package references README file
     crit: inert
     conf: 0.8
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       regex: '"readme":|README\\.md|readme\\.md'
@@ -26,7 +26,7 @@ traits:
     desc: Package references LICENSE file
     crit: inert
     conf: 0.85
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       regex: "LICENSE|license|LICENCE|licence|COPYING"
@@ -36,7 +36,7 @@ traits:
     desc: Package references CHANGELOG
     crit: inert
     conf: 0.85
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       regex: "CHANGELOG|changelog|HISTORY|history|CHANGES"
@@ -46,7 +46,7 @@ traits:
     desc: Package uses changelog/versioning tooling
     crit: inert
     conf: 0.9
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       regex: "@changesets/|standard-version|semantic-release|conventional-changelog"
@@ -56,7 +56,7 @@ traits:
     desc: Package has license field
     crit: inert
     conf: 0.8
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       regex: '"license":\\s*"(?:MIT|ISC|Apache|BSD|GPL|LGPL|MPL|Unlicense)'

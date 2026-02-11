@@ -260,7 +260,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1543"
-    for: [elf, macho, c, objectivec]
+    for: [elf, macho, c, objective-c]
     all:
       - id: cap/process/fork/clone::fork
       - id: cap/exec/command/shell::sleep-format-exec

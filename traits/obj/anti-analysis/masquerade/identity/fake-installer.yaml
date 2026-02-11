@@ -4,7 +4,7 @@
 # MBC: F0004 (Masquerading)
 
 defaults:
-  for: [shell, bash]
+  for: [shell]
 
 traits:
   # === Legitimate Context (Homebrew) ===

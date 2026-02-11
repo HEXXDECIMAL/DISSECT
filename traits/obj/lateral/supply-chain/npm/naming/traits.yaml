@@ -4,7 +4,7 @@
 # These patterns indicate typosquatting, name confusion, or malicious intent
 
 defaults:
-  for: [packagejson]
+  for: [package.json]
 
 traits:
   # === Package name contains credential theft keywords ===

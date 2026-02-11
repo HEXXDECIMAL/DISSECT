@@ -126,12 +126,13 @@ impl Analyzer for AppleScriptAnalyzer {
         report.strings = self.string_extractor.extract_smart(&data);
 
         // Analyze embedded code in strings
-        let (encoded_layers, plain_findings) = crate::analyzers::embedded_code_detector::process_all_strings(
-            &file_path.display().to_string(),
-            &report.strings,
-            &self.capability_mapper,
-            0,
-        );
+        let (encoded_layers, plain_findings) =
+            crate::analyzers::embedded_code_detector::process_all_strings(
+                &file_path.display().to_string(),
+                &report.strings,
+                &self.capability_mapper,
+                0,
+            );
         report.files.extend(encoded_layers);
         report.findings.extend(plain_findings);
 

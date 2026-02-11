@@ -4,7 +4,7 @@
 # ATT&CK: T1059 (Command Interpreter), T1105 (Ingress Tool Transfer)
 
 defaults:
-  for: [packagejson]
+  for: [package.json]
 
 traits:
   # === Script Content Patterns ===

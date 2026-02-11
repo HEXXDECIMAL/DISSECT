@@ -15,7 +15,7 @@ traits:
     desc: Reference to ESXi CLI tool (esxcli)
     crit: notable
     conf: 0.9
-    for: [elf, binary]
+    for: [elf, binaries]
     if:
       type: string
       substr: "esxcli"

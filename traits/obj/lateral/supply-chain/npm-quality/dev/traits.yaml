@@ -5,7 +5,7 @@ traits:
     desc: '"build": script in package.json'
     crit: inert
     conf: 0.6
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       substr: '"build":'
@@ -14,7 +14,7 @@ traits:
     desc: '"lint": script in package.json'
     crit: inert
     conf: 0.6
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       substr: '"lint":'
@@ -23,7 +23,7 @@ traits:
     desc: '"format": script in package.json'
     crit: inert
     conf: 0.6
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       substr: '"format":'
@@ -32,7 +32,7 @@ traits:
     desc: '"dev": script in package.json'
     crit: inert
     conf: 0.6
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       substr: '"dev":'
@@ -41,7 +41,7 @@ traits:
     desc: '"start": script in package.json'
     crit: inert
     conf: 0.6
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       substr: '"start":'
@@ -50,7 +50,7 @@ traits:
     desc: Package has release management scripts
     crit: inert
     conf: 0.85
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       regex: '"(?:release|publish|version|prepublishOnly|postversion)":'
@@ -59,7 +59,7 @@ traits:
     desc: Package has TypeScript support
     crit: inert
     conf: 0.9
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       regex: '"typescript"|"@types/|"\.d\.ts"|"tsconfig"'
@@ -68,7 +68,7 @@ traits:
     desc: Package has build script (compiled)
     crit: inert
     conf: 0.85
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       regex: '"build":\s*"[^"]*(?:tsc|rollup|webpack|esbuild|babel|vite)'
@@ -77,7 +77,7 @@ traits:
     desc: Package has linting configured
     crit: inert
     conf: 0.9
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       regex: '"lint":\s*"|"eslint"|"prettier"|"biome"'
@@ -86,7 +86,7 @@ traits:
     desc: Package has prepublishOnly script
     crit: inert
     conf: 0.85
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       substr: '"prepublishOnly":'
@@ -95,7 +95,7 @@ traits:
     desc: Scripts reference node_modules binaries
     crit: inert
     conf: 0.8
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       regex: 'node_modules/\.bin/|npx |npm run '
@@ -104,7 +104,7 @@ traits:
     desc: Package uses git hooks tooling
     crit: inert
     conf: 0.9
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       regex: '"husky"|"lint-staged"|"pre-commit"|"simple-git-hooks"'
@@ -114,7 +114,7 @@ composite_rules:
     desc: Package has development workflow scripts
     crit: inert
     conf: 0.85
-    for: [packagejson]
+    for: [package.json]
     needs: 3
     any:
       - id: obj/lateral/supply-chain/npm/testing::pkg-test-script-field

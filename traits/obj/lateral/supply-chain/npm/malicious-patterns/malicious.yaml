@@ -2,7 +2,7 @@
 # ATT&CK: T1195.002 (Supply Chain Compromise)
 # These patterns are specific to npm supply-chain attacks, not generic behaviors
 defaults:
-  for: [packagejson]
+  for: [package.json]
 
 traits:
   # === Lifecycle hook atomic indicators ===

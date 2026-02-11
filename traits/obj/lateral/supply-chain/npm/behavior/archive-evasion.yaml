@@ -12,7 +12,7 @@ traits:
     crit: suspicious
     conf: 0.85
     # Only check in npm packages and archives where nested archives are suspicious
-    for: [tar, npm, javascript]
+    for: [javascript]
     if:
       type: string
       # Require a path-like pattern indicating an actual nested archive

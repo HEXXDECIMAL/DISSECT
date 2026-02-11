@@ -236,7 +236,7 @@ traits:
     desc: socat EXEC shell pattern
     crit: inert
     conf: 0.8
-    for: [shell, packagejson]
+    for: [shell, package.json]
     if:
       type: string
       regex: 'socat\s+.{0,50}EXEC.{0,20}sh'
@@ -245,7 +245,7 @@ traits:
     desc: socat TCP EXEC pattern
     crit: inert
     conf: 0.8
-    for: [shell, packagejson]
+    for: [shell, package.json]
     if:
       type: string
       regex: 'socat\s+.{0,50}TCP.{0,30}EXEC'
@@ -254,7 +254,7 @@ traits:
     desc: socat PTY pattern
     crit: inert
     conf: 0.8
-    for: [shell, packagejson]
+    for: [shell, package.json]
     if:
       type: string
       regex: 'socat\s+.{0,50}PTY'
@@ -264,7 +264,7 @@ traits:
     desc: telnet piped reverse shell pattern
     crit: inert
     conf: 0.8
-    for: [shell, packagejson]
+    for: [shell, package.json]
     if:
       type: string
       regex: 'telnet\s+\S+\s+\d+\s*\|.{0,50}\|\s*telnet'
@@ -273,7 +273,7 @@ traits:
     desc: mknod telnet reverse shell pattern
     crit: inert
     conf: 0.8
-    for: [shell, packagejson]
+    for: [shell, package.json]
     if:
       type: string
       regex: "mknod.{0,30}telnet"
@@ -454,7 +454,7 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     attack: "T1059.004"
-    for: [shell, packagejson]
+    for: [shell, package.json]
     any:
       - id: socat-exec-sh
       - id: socat-tcp-exec
@@ -466,7 +466,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     attack: "T1059.004"
-    for: [shell, packagejson]
+    for: [shell, package.json]
     any:
       - id: telnet-pipe
       - id: mknod-telnet

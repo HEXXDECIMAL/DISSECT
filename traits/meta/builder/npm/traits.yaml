@@ -1,9 +1,8 @@
 # Build System - NPM
 
 traits:
-
   # === npm/yarn micro-traits ===
-  - id: package-json
+  - id: package.json
     desc: package.json file
     crit: benign
     conf: 0.85
@@ -36,14 +35,13 @@ traits:
       substr: "yarn.lock"
 
 composite_rules:
-
   # npm/yarn composite (migrated from YARA)
   - id: npm
     desc: Built with npm/yarn (Node.js)
     crit: benign
     conf: 0.85
     any:
-      - id: package-json
+      - id: package.json
       - id: node-modules
       - id: package-lock-json
       - id: yarn-lock

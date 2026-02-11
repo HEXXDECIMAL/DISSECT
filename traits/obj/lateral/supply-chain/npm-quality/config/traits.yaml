@@ -5,7 +5,7 @@ traits:
     desc: Package has documentation directory
     crit: inert
     conf: 0.85
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       regex: '"docs"|"documentation"|"doc"'
@@ -14,7 +14,7 @@ traits:
     desc: Package references GitHub configuration
     crit: inert
     conf: 0.9
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       regex: '\\.github|workflows|CONTRIBUTING|CODE_OF_CONDUCT|SECURITY\\.md'
@@ -23,7 +23,7 @@ traits:
     desc: Package has TypeScript configuration
     crit: inert
     conf: 0.9
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       regex: 'tsconfig\\.json|tsconfig\\.build\\.json'
@@ -32,7 +32,7 @@ traits:
     desc: Package has ESLint configuration
     crit: inert
     conf: 0.9
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       regex: '\\.eslintrc|eslint\\.config|"eslintConfig":'
@@ -41,7 +41,7 @@ traits:
     desc: Package has Prettier configuration
     crit: inert
     conf: 0.9
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       regex: '\\.prettierrc|prettier\\.config|"prettier":'
@@ -50,7 +50,7 @@ traits:
     desc: Package has Babel configuration
     crit: inert
     conf: 0.85
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       regex: '\\.babelrc|babel\\.config|"babel":'
@@ -59,7 +59,7 @@ traits:
     desc: Package has editor configuration
     crit: inert
     conf: 0.85
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       regex: '\\.editorconfig'
@@ -68,7 +68,7 @@ traits:
     desc: Package has publishing configuration
     crit: inert
     conf: 0.85
-    for: [packagejson]
+    for: [package.json]
     if:
       type: string
       regex: '\\.npmignore|"files"'

@@ -9,7 +9,7 @@ traits:
     crit: suspicious
     conf: 0.85
     attack: "T1195.001"
-    for: [packagejson]
+    for: [package.json]
     if:
       type: yara
       source: |
@@ -150,7 +150,7 @@ traits:
     crit: suspicious
     conf: 0.8
     attack: "T1195.001"
-    for: [javascript, typescript, packagejson]
+    for: [javascript, typescript, package.json]
     if:
       type: yara
       source: |

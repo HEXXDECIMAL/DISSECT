@@ -76,7 +76,7 @@ pub fn decode_hex(content: &[u8]) -> Option<Vec<u8>> {
     let hex_only: String = s.chars().filter(|c| c.is_ascii_hexdigit()).collect();
 
     // Must have even number of hex digits
-    if hex_only.len() % 2 != 0 {
+    if !hex_only.len().is_multiple_of(2) {
         return None;
     }
 
