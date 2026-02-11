@@ -1,11 +1,10 @@
 # Build System - CIRCLECI
 
 traits:
-
   # === CircleCI micro-traits ===
   - id: circleci-env
     desc: CIRCLECI variable
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -13,7 +12,7 @@ traits:
 
   - id: circle-build-num
     desc: CIRCLE_BUILD_NUM variable
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -21,18 +20,17 @@ traits:
 
   - id: circleci-config
     desc: .circleci/config file
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
       substr: ".circleci/config"
 
 composite_rules:
-
   # CircleCI composite (migrated from YARA)
   - id: circleci
     desc: CircleCI artifacts
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - id: circleci-env

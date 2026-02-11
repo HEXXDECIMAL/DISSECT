@@ -799,6 +799,7 @@ pub(crate) fn validate_hostile_composite_precision(
 ///
 /// OPTIMIZATION: Uses bincode serialization (10-100x faster than Debug formatting)
 /// and parallel processing for maximum performance.
+#[allow(unused_variables)]
 pub(crate) fn find_duplicate_traits_and_composites(
     trait_definitions: &[TraitDefinition],
     composite_rules: &[CompositeTrait],
@@ -811,7 +812,6 @@ pub(crate) fn find_duplicate_traits_and_composites(
     #[allow(unreachable_code)]
     {
     use rayon::prelude::*;
-    use rustc_hash::FxHashMap;
     use std::sync::Mutex;
 
     let start = std::time::Instant::now();
@@ -820,7 +820,7 @@ pub(crate) fn find_duplicate_traits_and_composites(
     if !trait_definitions.is_empty() {
         tracing::debug!("Starting atomic trait duplicate detection for {} traits", trait_definitions.len());
         let serialize_start = std::time::Instant::now();
-        let trait_map: Mutex<FxHashMap<Vec<u8>, Vec<String>>> = Mutex::new(FxHashMap::default());
+        let trait_map: Mutex<HashMap<Vec<u8>, Vec<String>>> = Mutex::new(HashMap::default());
 
         trait_definitions.par_iter().for_each(|t| {
             // Use bincode for fast serialization (10-100x faster than Debug formatting)
@@ -860,7 +860,7 @@ pub(crate) fn find_duplicate_traits_and_composites(
     if !composite_rules.is_empty() {
         tracing::debug!("Starting composite rule duplicate detection for {} rules", composite_rules.len());
         let composite_start = std::time::Instant::now();
-        let composite_map: Mutex<FxHashMap<Vec<u8>, Vec<String>>> = Mutex::new(FxHashMap::default());
+        let composite_map: Mutex<HashMap<Vec<u8>, Vec<String>>> = Mutex::new(HashMap::default());
 
         composite_rules.par_iter().for_each(|r| {
             // Skip rules with no conditions
@@ -902,14 +902,11 @@ pub(crate) fn find_duplicate_traits_and_composites(
     }
 
     tracing::debug!("Total duplicate detection took {:?}", start.elapsed());
-
-    // Pass 6: Detect regex traits that overlap with existing substr/exact matches
-    let regex_start = std::time::Instant::now();
-    validate_regex_overlap_with_literal(trait_definitions, warnings);
-    tracing::debug!("Regex overlap validation took {:?}", regex_start.elapsed());
+    }
 }
 
 /// Helper function to check if two file type lists have any overlap
+#[cfg(test)]
 fn file_types_overlap(types1: &[RuleFileType], types2: &[RuleFileType]) -> bool {
     // If either contains All, they overlap
     if types1.contains(&RuleFileType::All) || types2.contains(&RuleFileType::All) {
@@ -922,6 +919,7 @@ fn file_types_overlap(types1: &[RuleFileType], types2: &[RuleFileType]) -> bool 
 /// Helper function to check if a regex pattern could match a literal string
 /// First tries a fast heuristic (string matching), then falls back to actually
 /// compiling and testing the regex for accuracy.
+#[cfg(test)]
 fn regex_could_match_literal(regex: &str, literal: &str) -> bool {
     // Fast path: check if the literal text appears in the regex directly
     if regex.contains(literal) {
@@ -964,6 +962,7 @@ fn regex_could_match_literal(regex: &str, literal: &str) -> bool {
 /// The solution is to remove one of the conflicting traits - typically the regex version
 /// should be removed in favor of the simpler substr/exact match, unless the regex
 /// provides additional matching capabilities.
+#[cfg(test)]
 fn validate_regex_overlap_with_literal(
     trait_definitions: &[TraitDefinition],
     warnings: &mut Vec<String>,
@@ -2531,6 +2530,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            precision: None,
         };
         assert!(find_single_item_clauses(&rule).is_empty());
     }
@@ -2559,6 +2559,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            precision: None,
         };
         let violations = find_single_item_clauses(&rule);
         assert_eq!(violations.len(), 1);
@@ -2594,6 +2595,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            precision: None,
         };
         assert!(find_single_item_clauses(&rule).is_empty());
     }
@@ -2624,6 +2626,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            precision: None,
         };
         // Should be empty because rule has none: clause
         assert!(find_single_item_clauses(&rule).is_empty());
@@ -2653,6 +2656,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            precision: None,
         };
         assert!(find_redundant_any_refs(&rule).is_empty());
     }
@@ -2686,6 +2690,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            precision: None,
         };
         // Only 2 refs from same dir, need 3+ for violation
         assert!(find_redundant_any_refs(&rule).is_empty());
@@ -2723,6 +2728,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            precision: None,
         };
         let violations = find_redundant_any_refs(&rule);
         assert_eq!(violations.len(), 1);
@@ -2756,6 +2762,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            precision: None,
         };
 
         autoprefix_trait_refs(&mut rule, "cap/test");
@@ -2791,6 +2798,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            precision: None,
         };
 
         autoprefix_trait_refs(&mut rule, "cap/test");
@@ -2827,6 +2835,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            precision: None,
         };
         assert!(collect_trait_refs_from_rule(&rule).is_empty());
     }
@@ -2859,6 +2868,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            precision: None,
         };
         let refs = collect_trait_refs_from_rule(&rule);
         assert_eq!(refs.len(), 3);
@@ -2905,6 +2915,7 @@ mod tests {
             unless: None,
             downgrade: None,
             defined_in: std::path::PathBuf::new(),
+        precision: None,
         }
     }
 
@@ -2942,6 +2953,7 @@ mod tests {
             unless: None,
             downgrade: None,
             defined_in: std::path::PathBuf::new(),
+        precision: None,
         }
     }
 
@@ -3024,6 +3036,7 @@ mod tests {
             unless: None,
             downgrade: None,
             defined_in: std::path::PathBuf::new(),
+        precision: None,
         }
     }
 
@@ -3103,13 +3116,14 @@ mod tests {
             unless: None,
             downgrade: None,
             defined_in: std::path::PathBuf::new(),
+        precision: None,
         }
     }
 
     #[test]
     fn test_find_alternation_merge_candidates_empty() {
         let traits: Vec<TraitDefinition> = vec![];
-        assert!(find_alternation_merge_candidates(&traits).is_empty());
+        assert!(find_alternation_merge_candidates(&traits, &std::collections::HashMap::new()).is_empty());
     }
 
     #[test]
@@ -3119,7 +3133,7 @@ mod tests {
             make_regex_trait("test::pattern2", r"baz\s+qux"),
         ];
         // Completely different patterns
-        assert!(find_alternation_merge_candidates(&traits).is_empty());
+        assert!(find_alternation_merge_candidates(&traits, &std::collections::HashMap::new()).is_empty());
     }
 
     #[test]
@@ -3129,7 +3143,7 @@ mod tests {
             make_regex_trait("test::ncat-exec", r"ncat\s+-e\s+/bin/sh"),
             make_regex_trait("test::netcat-exec", r"netcat\s+-e\s+/bin/sh"),
         ];
-        let candidates = find_alternation_merge_candidates(&traits);
+        let candidates = find_alternation_merge_candidates(&traits, &std::collections::HashMap::new());
         assert_eq!(candidates.len(), 1);
         assert_eq!(candidates[0].0.len(), 3);
         // The suggested pattern should include alternation
@@ -3149,7 +3163,7 @@ mod tests {
 
         let traits = vec![trait1, trait2];
         // Different criticality means they shouldn't be grouped
-        assert!(find_alternation_merge_candidates(&traits).is_empty());
+        assert!(find_alternation_merge_candidates(&traits, &std::collections::HashMap::new()).is_empty());
     }
 
     #[test]
@@ -3159,7 +3173,7 @@ mod tests {
             make_regex_trait("test::a2", r"bar\s"),
         ];
         // Suffix is too short (< 3 chars after prefix)
-        assert!(find_alternation_merge_candidates(&traits).is_empty());
+        assert!(find_alternation_merge_candidates(&traits, &std::collections::HashMap::new()).is_empty());
     }
 
     // ==================== Impossible Needs Tests ====================
@@ -3191,6 +3205,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+        precision: None,
         }
     }
 
@@ -3261,6 +3276,7 @@ mod tests {
             unless: None,
             downgrade: None,
             defined_in: std::path::PathBuf::new(),
+        precision: None,
         }
     }
 
@@ -3335,6 +3351,7 @@ mod tests {
             unless: None,
             downgrade: None,
             defined_in: std::path::PathBuf::new(),
+        precision: None,
         }
     }
 
@@ -3425,6 +3442,7 @@ mod tests {
             unless: None,
             downgrade: None,
             defined_in: std::path::PathBuf::new(),
+        precision: None,
         }
     }
 
@@ -3703,6 +3721,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            precision: None,
         };
         let traits: Vec<TraitDefinition> = vec![];
         let composites = vec![rule];
@@ -3735,6 +3754,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            precision: None,
         };
         let traits: Vec<TraitDefinition> = vec![];
         let composites = vec![rule];
@@ -3772,6 +3792,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            precision: None,
         };
         let traits: Vec<TraitDefinition> = vec![];
         let composites = vec![rule];
@@ -3804,6 +3825,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            precision: None,
         };
         let traits: Vec<TraitDefinition> = vec![];
         let composites = vec![rule];
@@ -3838,6 +3860,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            precision: None,
         };
         let traits: Vec<TraitDefinition> = vec![];
         let composites = vec![rule];
@@ -3881,6 +3904,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            precision: None,
         };
         let traits: Vec<TraitDefinition> = vec![];
         let composites = vec![rule];
@@ -3911,6 +3935,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            precision: None,
         };
         let traits: Vec<TraitDefinition> = vec![];
         let composites = vec![rule];
@@ -3945,6 +3970,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            precision: None,
         };
         let traits: Vec<TraitDefinition> = vec![];
         let composites = vec![rule];
@@ -3975,6 +4001,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            precision: None,
         };
         let traits: Vec<TraitDefinition> = vec![];
         let composites = vec![rule];

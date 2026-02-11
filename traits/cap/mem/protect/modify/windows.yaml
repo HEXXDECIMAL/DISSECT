@@ -12,18 +12,3 @@ traits:
     if:
       type: symbol
       regex: "VirtualProtect$"
-
-  - id: virtualprotect-ex
-    desc: Change memory protection in other
-    crit: suspicious
-    conf: 0.85
-    attack: "T1055"
-    platforms: [windows]
-    for: [pe, dll]
-    if:
-      type: symbol
-      regex: "VirtualProtectEx"
-    downgrade:
-      any:
-        - type: string
-          substr: "Valve Corp."

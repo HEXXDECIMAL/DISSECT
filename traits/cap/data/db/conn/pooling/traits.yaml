@@ -4,7 +4,7 @@ traits:
   # === Connection pooling micro-traits ===
   - id: pgxpool
     desc: pgxpool connection pool
-    crit: benign
+    crit: notable
     conf: 0.85
     if:
       type: string
@@ -12,7 +12,7 @@ traits:
 
   - id: pool-pool
     desc: pool.Pool type
-    crit: benign
+    crit: notable
     conf: 0.85
     if:
       type: string
@@ -20,7 +20,7 @@ traits:
 
   - id: max-open-conns
     desc: MaxOpenConns setting
-    crit: benign
+    crit: notable
     conf: 0.85
     if:
       type: string
@@ -28,7 +28,7 @@ traits:
 
   - id: max-idle-conns
     desc: MaxIdleConns setting
-    crit: benign
+    crit: notable
     conf: 0.85
     if:
       type: string
@@ -36,7 +36,7 @@ traits:
 
   - id: connection-pool-string
     desc: connection_pool string
-    crit: benign
+    crit: notable
     conf: 0.85
     if:
       type: string
@@ -44,18 +44,17 @@ traits:
 
   - id: hikaricp
     desc: HikariCP pool
-    crit: benign
+    crit: notable
     conf: 0.85
     if:
       type: string
       substr: "HikariCP"
 
-
 composite_rules:
   # Connection pool composite (migrated from YARA)
   - id: connection-pool
     desc: Database connection pooling
-    crit: benign
+    crit: notable
     conf: 0.85
     any:
       - id: pgxpool

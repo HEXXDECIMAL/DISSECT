@@ -14,7 +14,9 @@ composite_rules:
     any:
       - id: obj/creds/browser/chromium::login-data
       - id: obj/creds/browser/chromium::cookies
-      - id: cap/fs/file/open
+      - id: obj/creds/browser/firefox::cookies
+      - id: obj/creds/browser/safari::cookies-path
+      - id: obj/creds/wallet/desktop
 
   - id: sensitive-file-access
     desc: Python stealer accessing sensitive browser or wallet files

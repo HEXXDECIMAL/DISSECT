@@ -33,22 +33,6 @@ traits:
       type: string
       word: "miner"
 
-  - id: xmrig-str
-    desc: xmrig reference
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      substr: "xmrig"
-
-  - id: monero-str
-    desc: monero reference
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      substr: "monero"
-
   - id: hashrate-str
     desc: hashrate keyword
     crit: inert
@@ -84,14 +68,6 @@ traits:
       substr: "cryptonight"
 
   # === XMRig atomic indicators (legacy) ===
-  - id: xmrig-lower
-    desc: xmrig (lowercase)
-    crit: notable
-    conf: 0.55
-    if:
-      type: string
-      word: "xmrig"
-
   - id: xmrig-pascal
     desc: XMRig (PascalCase)
     crit: notable
@@ -120,8 +96,8 @@ composite_rules:
       - id: stratum-tcp
       - id: pool-url
       - id: miner-word
-      - id: xmrig-str
-      - id: monero-str
+      - id: known/malware/miner::xmrig-lower
+      - id: obj/impact/cryptojacking/miner::monero-lower
       - id: hashrate-str
       - id: wallet-word
       - id: coinhive-str
@@ -133,5 +109,5 @@ composite_rules:
     crit: notable
     conf: 0.66
     any:
-      - id: xmrig-lower
+      - id: known/malware/miner::xmrig-lower
       - id: xmrig-pascal

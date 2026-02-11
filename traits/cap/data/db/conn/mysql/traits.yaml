@@ -4,7 +4,7 @@ traits:
   # === MySQL micro-traits ===
   - id: libmysql
     desc: libmysql library
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -12,7 +12,7 @@ traits:
 
   - id: mysql-url
     desc: mysql:// URL scheme
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -20,7 +20,7 @@ traits:
 
   - id: mysql-real-connect
     desc: mysql_real_connect function
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: symbol
@@ -28,7 +28,7 @@ traits:
 
   - id: mysqlclient
     desc: mysqlclient library
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -36,7 +36,7 @@ traits:
 
   - id: go-sql-mysql
     desc: go-sql-driver/mysql
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -44,18 +44,17 @@ traits:
 
   - id: pymysql
     desc: PyMySQL driver
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
       substr: "PyMySQL"
 
-
 composite_rules:
   # MySQL composite (migrated from YARA)
   - id: mysql
     desc: MySQL/MariaDB database connectivity
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - id: libmysql
@@ -64,4 +63,3 @@ composite_rules:
       - id: mysqlclient
       - id: go-sql-mysql
       - id: pymysql
-

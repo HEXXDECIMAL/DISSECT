@@ -3,7 +3,7 @@
 
 defaults:
   for: [lua]
-  crit: benign
+  crit: notable
 
 traits:
   # === Environment and Context manipulation ===
@@ -13,7 +13,7 @@ traits:
     conf: 0.9
     if:
       type: symbol
-      regex: '_ENV|getfenv'
+      regex: "_ENV|getfenv"
 
   - id: env-modify
     desc: Modifies Lua environment (setfenv)
@@ -21,7 +21,7 @@ traits:
     conf: 0.9
     if:
       type: symbol
-      regex: 'setfenv'
+      regex: "setfenv"
 
   # === Code Loading and Execution ===
   - id: exec-dynamic-load
@@ -30,7 +30,7 @@ traits:
     conf: 0.9
     if:
       type: symbol
-      regex: 'load|loadstring'
+      regex: "load|loadstring"
 
   - id: exec-file-execution
     desc: Executes Lua files (dofile)
@@ -38,15 +38,15 @@ traits:
     conf: 0.9
     if:
       type: symbol
-      regex: 'dofile'
+      regex: "dofile"
 
   - id: module-require
     desc: Loads Lua modules (require)
-    crit: benign
+    crit: notable
     conf: 0.8
     if:
       type: symbol
-      regex: 'require'
+      regex: "require"
 
   # === System and OS Interaction ===
   - id: os-system-execute
@@ -68,11 +68,11 @@ traits:
   # === Metatable and Proxy patterns ===
   - id: meta-metatable-access
     desc: Uses metatables (setmetatable, getmetatable)
-    crit: benign
+    crit: notable
     conf: 0.7
     if:
       type: symbol
-      regex: 'setmetatable|getmetatable'
+      regex: "setmetatable|getmetatable"
 
   - id: meta-proxy-usage
     desc: Uses newproxy for object protection
@@ -80,7 +80,7 @@ traits:
     conf: 0.9
     if:
       type: symbol
-      regex: 'newproxy'
+      regex: "newproxy"
 
   # === Debug and Reflection ===
   - id: debug-access

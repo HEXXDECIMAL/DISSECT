@@ -5,7 +5,7 @@ traits:
   # Container runtime libraries
   - id: runtime
     desc: Container runtime library usage
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: yara
@@ -26,7 +26,7 @@ traits:
   # OCI spec compliance
   - id: oci
     desc: OCI specification compliance
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: yara
@@ -49,7 +49,7 @@ traits:
   # Container networking
   - id: network
     desc: Container networking patterns
-    crit: benign
+    crit: notable
     conf: 0.85
     if:
       type: yara
@@ -72,7 +72,7 @@ traits:
   # Kubernetes client
   - id: kubernetes
     desc: Kubernetes client library
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: yara

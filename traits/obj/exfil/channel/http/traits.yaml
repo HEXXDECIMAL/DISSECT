@@ -1,32 +1,8 @@
-# Network Exfiltration
-# MBC: OB0010 (Exfiltration) → E1041 (Exfiltration Over C2 Channel)
-# ATT&CK: T1041 (Exfiltration Over C2 Channel)
-
-defaults:
-  for: [elf, macho, so, dylib, pe, dll, c]
-
-traits:
-  # NOTE: This trait detects HTTP upload symbols that could indicate data exfiltration.
-  # The patterns need word boundaries to avoid matching substrings in legitimate symbols
-  # like "AMDGPUTargetInfo" which contains "PUT".
-  - id: http-upload
-    desc: HTTP file upload symbol
-    crit: notable
-    mbc: "E1041"
-    attack: "T1041"
-    conf: 0.6
-    if:
-      type: symbol
-      # Match HTTP upload functions, not substrings. Require underscore context or exact match.
-      # "upload" alone is too generic (matches upload_file, file_upload, etc. which are normal)
-      regex: "(?:^|_)http[_-]?upload|curl_easy_upload|http_put(?:$|_)|ftp_upload"
-
-  - id: ftp-upload
-    desc: FTP upload
-    crit: notable
-    mbc: "E1041"
-    attack: "T1048.002"
-    conf: 0.7
-    if:
-      type: symbol
-      regex: ftp_put|STOR
+# HTTP/FTP Upload Symbols - Deleted
+# This was a taxonomy violation - atomic symbol detection belongs in cap/
+# The capabilities already exist at:
+# - cap/comm/http/upload::http-upload-symbol
+# - cap/comm/ftp/upload::ftp-upload-symbol
+#
+# For proper exfiltration objectives, combine upload capabilities with other
+# evidence of malicious intent (sensitive file paths, encoding, etc.)

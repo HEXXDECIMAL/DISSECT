@@ -1,7 +1,6 @@
 # Testing Framework - MOCHA
 
 traits:
-
   # === Atomic: Mocha (JavaScript) ===
 
   - id: mocha-word
@@ -34,7 +33,6 @@ traits:
       substr: "after("
 
 composite_rules:
-
   # Jest BDD functions - use the one defined in jest/traits.yaml
   # (removed duplicate - use meta/dev/testing/jest::js-bdd-functions instead)
 
@@ -55,7 +53,7 @@ composite_rules:
   # Mocha (JavaScript)
   - id: mocha
     desc: Mocha test framework
-    crit: benign
+    crit: notable
     conf: 0.95
     for: [javascript]
     any:

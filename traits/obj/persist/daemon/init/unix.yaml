@@ -84,27 +84,6 @@ traits:
       type: string
       regex: "/proc/self(/|$)"
 
-  # === Signal handling micro-traits (migrated from YARA) ===
-  - id: signal-symbol
-    desc: signal function symbol
-    crit: inert
-    conf: 0.3
-    for: [elf, macho]
-    platforms: [linux, macos, unix]
-    if:
-      type: symbol
-      regex: "\\bsignal\\b"
-
-  - id: sigaction-symbol
-    desc: sigaction function symbol
-    crit: inert
-    conf: 0.3
-    for: [elf, macho]
-    platforms: [linux, macos, unix]
-    if:
-      type: symbol
-      regex: "\\bsigaction\\b"
-
   # NOTE: Signal ignore patterns are common in many legitimate binaries
   # that need robust signal handling (shells, daemons, servers).
   - id: sig-ign-sighup-x64
@@ -172,7 +151,7 @@ composite_rules:
       - id: fork-symbol
       - id: daemon-symbol
 
-  # Signal function composite
+  # Signal function composite - references cap/ instead of duplicating
   - id: signal-function
     desc: Signal handling function
     crit: inert
@@ -180,8 +159,8 @@ composite_rules:
     for: [elf, macho]
     platforms: [linux, macos, unix]
     any:
-      - id: signal-symbol
-      - id: sigaction-symbol
+      - id: cap/os/signal/handler::signal
+      - id: cap/os/signal/handler::sigaction
 
   # NOTE: Signal ignore patterns are common in legitimate binaries.
   - id: sig-ign-pattern

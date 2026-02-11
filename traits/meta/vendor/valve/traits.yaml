@@ -22,7 +22,7 @@ traits:
 composite_rules:
   - id: valve-corp-binary
     desc: Binary from Valve Corporation
-    crit: benign
+    crit: notable
     conf: 0.98
     any:
       - id: meta/vendor/valve::valve-corp-string

@@ -1,7 +1,6 @@
 # Testing Framework - JEST
 
 traits:
-
   # === Atomic: Jest (JavaScript) ===
 
   - id: jest-word
@@ -59,7 +58,6 @@ traits:
       substr: "toEqual("
 
 composite_rules:
-
   # Jest BDD functions helper (shared with Mocha)
   - id: js-bdd-functions
     desc: JavaScript BDD test functions
@@ -77,7 +75,7 @@ composite_rules:
   # Jest (JavaScript)
   - id: jest
     desc: Jest test framework
-    crit: benign
+    crit: notable
     conf: 0.95
     for: [javascript]
     any:

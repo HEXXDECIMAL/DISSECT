@@ -53,7 +53,7 @@ pub struct CapabilityMapper {
 }
 
 impl CapabilityMapper {
-    const DEFAULT_MIN_HOSTILE_PRECISION: f32 = 4.0;
+    const DEFAULT_MIN_HOSTILE_PRECISION: f32 = 3.5;
     const DEFAULT_MIN_SUSPICIOUS_PRECISION: f32 = 2.0;
 
     /// Create an empty capability mapper for testing
@@ -187,7 +187,7 @@ impl CapabilityMapper {
         if enable_full_validation {
             tracing::info!("Full validation enabled (this may take 60+ seconds)");
         } else {
-            tracing::info!("Fast validation mode (use --validate for full checks)");
+            tracing::info!("Fast validation mode (validation disabled via --validate=false)");
         }
         if debug {
             eprintln!("🔍 Loading capabilities from: {}", dir_path.display());
@@ -717,9 +717,12 @@ impl CapabilityMapper {
         // Atomic trait precisions are already calculated during parsing
         tracing::debug!("Validating trait definitions and composite rules");
         if enable_full_validation {
+            let step_start = std::time::Instant::now();
             tracing::debug!("Step 1/15: Pre-calculating composite rule precision");
             precalculate_all_composite_precisions(&mut composite_rules, &trait_definitions);
+            tracing::debug!("Step 1 completed in {:?}", step_start.elapsed());
 
+            let step_start = std::time::Instant::now();
             tracing::debug!("Step 1b/15: Validating hostile composite precision");
             validate_hostile_composite_precision(
                 &mut composite_rules,
@@ -728,9 +731,12 @@ impl CapabilityMapper {
                 min_hostile_precision,
                 min_suspicious_precision,
             );
+            tracing::debug!("Step 1b completed in {:?}", step_start.elapsed());
 
+            let step_start = std::time::Instant::now();
             tracing::debug!("Step 1c/15: Detecting duplicate traits and composites");
             find_duplicate_traits_and_composites(&trait_definitions, &composite_rules, &mut warnings);
+            tracing::debug!("Step 1c completed in {:?}", step_start.elapsed());
         } else {
             tracing::debug!("Step 1/15: Skipping precision validation (use --validate to enable)");
         }

@@ -11,12 +11,31 @@ defaults:
 traits:
   # === Domain detection ===
   - id: hardcoded-domain-com
-    desc: Hardcoded .com/.org/.net domain (excluding known
-    crit: inert
+    desc: Hardcoded .com/.org/.net domain (excluding known vendors)
+    crit: notable
     conf: 0.7
     if:
       type: string
       regex: "\\b[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\\.(com|org|net)\\b"
+    not:
+      - substr: "apple.com"
+      - substr: "microsoft.com"
+      - substr: "google.com"
+      - substr: "amazon.com"
+      - substr: "github.com"
+      - substr: "gitlab.com"
+      - substr: "npmjs.com"
+      - substr: "pypi.org"
+      - substr: "python.org"
+      - substr: "rust-lang.org"
+      - substr: "llvm.org"
+      - substr: "kernel.org"
+      - substr: "gnu.org"
+      - substr: "w3.org"
+      - substr: "mozilla.org"
+      - substr: "nodejs.org"
+      - substr: "sourceforge.net"
+      - substr: "freedesktop.org"
 
   - id: hardcoded-domain-suspicious-pattern
     desc: "Hardcoded suspicious TLD domain pattern"

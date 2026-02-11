@@ -14,5 +14,5 @@ composite_rules:
     for: [elf]
     all:
       - id: cap/data/embedded/payload::lzma-magic
-      - id: cap/data/obfuscation/payload::xixa-marker
+      - id: obj/anti-static/obfuscation/payload::xixa-marker
       - id: cap/exec/load/library::system-lib-marker

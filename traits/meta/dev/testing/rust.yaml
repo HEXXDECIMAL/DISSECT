@@ -1,7 +1,6 @@
 # Testing Framework - RUST
 
 traits:
-
   # === Atomic: Rust testing ===
 
   - id: rust-test-attr
@@ -50,11 +49,10 @@ traits:
       substr: "cargo test"
 
 composite_rules:
-
   # Rust testing
   - id: rust-test
     desc: Rust test framework
-    crit: benign
+    crit: notable
     conf: 0.95
     for: [rust]
     any:

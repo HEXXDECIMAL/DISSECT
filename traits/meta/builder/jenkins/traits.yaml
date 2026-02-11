@@ -1,11 +1,10 @@
 # Build System - JENKINS
 
 traits:
-
   # === Jenkins micro-traits ===
   - id: jenkins-url
     desc: JENKINS_URL variable
-    crit: benign
+    crit: notable
     conf: 0.85
     if:
       type: string
@@ -13,7 +12,7 @@ traits:
 
   - id: build-number
     desc: BUILD_NUMBER variable
-    crit: benign
+    crit: notable
     conf: 0.85
     if:
       type: string
@@ -21,7 +20,7 @@ traits:
 
   - id: job-name
     desc: JOB_NAME variable
-    crit: benign
+    crit: notable
     conf: 0.85
     if:
       type: string
@@ -29,18 +28,17 @@ traits:
 
   - id: jenkinsfile
     desc: Jenkinsfile
-    crit: benign
+    crit: notable
     conf: 0.85
     if:
       type: string
       substr: "Jenkinsfile"
 
 composite_rules:
-
   # Jenkins composite (migrated from YARA)
   - id: jenkins
     desc: Jenkins CI artifacts
-    crit: benign
+    crit: notable
     conf: 0.85
     needs: 2
     any:

@@ -1,6 +1,20 @@
 # HTTP Upload Patterns
 
+defaults:
+  for: [elf, macho, so, dylib, pe, dll, c]
+
 traits:
+  # === HTTP Upload Symbols ===
+  - id: http-upload-symbol
+    desc: HTTP file upload symbol
+    crit: notable
+    conf: 0.6
+    if:
+      type: symbol
+      # Match HTTP upload functions, not substrings. Require underscore context or exact match.
+      regex: "(?:^|_)http[_-]?upload|curl_easy_upload|http_put(?:$|_)"
+
+  # === HTTP Upload String Patterns ===
   # === ZIP upload atomic ===
   - id: curl-zip
     desc: curl with .zip

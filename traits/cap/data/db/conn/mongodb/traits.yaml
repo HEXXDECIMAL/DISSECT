@@ -4,7 +4,7 @@ traits:
   # === MongoDB micro-traits ===
   - id: mongodb-url
     desc: mongodb:// URL scheme
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -12,7 +12,7 @@ traits:
 
   - id: mongodb-srv-url
     desc: mongodb+srv:// URL scheme
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -20,7 +20,7 @@ traits:
 
   - id: go-mongodb
     desc: go.mongodb.org driver
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -28,7 +28,7 @@ traits:
 
   - id: pymongo
     desc: pymongo Python driver
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -36,18 +36,17 @@ traits:
 
   - id: mongoose
     desc: mongoose ODM
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
       substr: "mongoose"
 
-
 composite_rules:
   # MongoDB composite (migrated from YARA)
   - id: mongodb
     desc: MongoDB database connectivity
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - id: mongodb-url
@@ -55,4 +54,3 @@ composite_rules:
       - id: go-mongodb
       - id: pymongo
       - id: mongoose
-

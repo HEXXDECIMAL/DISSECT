@@ -8,7 +8,7 @@ traits:
   # Detect Vue version string
   - id: version-string
     desc: Vue version string
-    crit: benign
+    crit: notable
     conf: 0.95
     if:
       type: string
@@ -17,7 +17,7 @@ traits:
   # Detect Vue copyright
   - id: copyright
     desc: Vue copyright notice
-    crit: benign
+    crit: notable
     conf: 0.95
     if:
       type: string
@@ -26,7 +26,7 @@ traits:
   # Vue global object
   - id: vue-global
     desc: Vue global object signature
-    crit: benign
+    crit: notable
     conf: 0.90
     if:
       type: string
@@ -35,7 +35,7 @@ traits:
   # Vue component system
   - id: vue-component
     desc: Vue component registration
-    crit: benign
+    crit: notable
     conf: 0.85
     if:
       type: string
@@ -44,7 +44,7 @@ traits:
   # Vue instance creation
   - id: vue-instance
     desc: Vue instance constructor
-    crit: benign
+    crit: notable
     conf: 0.85
     if:
       type: string
@@ -53,7 +53,7 @@ traits:
   # Vue reactivity system
   - id: vue-reactivity
     desc: Vue reactivity signature
-    crit: benign
+    crit: notable
     conf: 0.80
     if:
       type: string
@@ -63,7 +63,7 @@ composite_rules:
   # Detect if file is Vue (neutral, benign detection)
   - id: library
     desc: "File contains Vue.js library"
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - { id: version-string }

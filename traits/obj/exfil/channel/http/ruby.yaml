@@ -1,15 +1,7 @@
----
-# Ruby HTTP exfiltration patterns
-# NOTE: Basic HTTP communication traits moved to comm/http/request/ruby.yaml
-# This file is for data exfiltration-specific patterns
-
-traits:
-  - id: ruby-http-post
-    desc: HTTP POST request (potential exfiltration)
-    crit: notable
-    conf: 0.93
-    platforms: [all]
-    for: [ruby]
-    if:
-      type: string
-      regex: 'Net::HTTP\.post'
+# Ruby HTTP Operations - Deleted
+# This was a taxonomy violation - atomic HTTP method detection belongs in cap/
+# The capability now exists at:
+# - cap/comm/http/request/ruby::net-http-post
+#
+# For proper exfiltration objectives, combine HTTP capabilities with other
+# evidence of malicious intent (sensitive data collection, encoding, etc.)

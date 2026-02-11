@@ -1,11 +1,10 @@
 # Build System - GITLAB CI
 
 traits:
-
   # === GitLab CI micro-traits ===
   - id: ci-pipeline-id
     desc: CI_PIPELINE_ID variable
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -13,7 +12,7 @@ traits:
 
   - id: ci-job-id
     desc: CI_JOB_ID variable
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -21,7 +20,7 @@ traits:
 
   - id: gitlab-ci-env
     desc: GITLAB_CI variable
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -29,18 +28,17 @@ traits:
 
   - id: gitlab-ci-yml
     desc: .gitlab-ci.yml file
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
       substr: ".gitlab-ci.yml"
 
 composite_rules:
-
   # GitLab CI composite (migrated from YARA)
   - id: gitlab-ci
     desc: GitLab CI artifacts
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - id: ci-pipeline-id

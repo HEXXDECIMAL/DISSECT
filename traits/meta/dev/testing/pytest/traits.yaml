@@ -1,7 +1,6 @@
 # Testing Framework - PYTEST
 
 traits:
-
   # === Atomic: pytest (Python) ===
 
   - id: pytest-word
@@ -50,7 +49,6 @@ traits:
       substr: "assert "
 
 composite_rules:
-
   # pytest (Python) - helper for pytest markers
   - id: pytest-markers
     desc: pytest-specific markers
@@ -76,7 +74,7 @@ composite_rules:
   # pytest (Python) - main composite
   - id: pytest
     desc: pytest test framework
-    crit: benign
+    crit: notable
     conf: 0.95
     for: [python]
     any:

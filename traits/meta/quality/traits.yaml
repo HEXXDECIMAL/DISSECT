@@ -41,7 +41,7 @@ composite_rules:
   # Error handling patterns (combines all)
   - id: error-handling
     desc: Proper error handling patterns
-    crit: benign
+    crit: notable
     conf: 0.8
     any:
       - { id: go-error-handling }
@@ -51,7 +51,7 @@ composite_rules:
   # Logging presence
   - id: has-logging
     desc: Application has logging infrastructure
-    crit: benign
+    crit: notable
     conf: 0.85
     needs: 2
     any:
@@ -70,7 +70,7 @@ composite_rules:
   # Configuration management
   - id: config-management
     desc: External configuration management
-    crit: benign
+    crit: notable
     conf: 0.85
     any:
       - { id: meta/quality/config::config-yaml-file }
@@ -84,7 +84,7 @@ composite_rules:
   # Version information
   - id: versioned
     desc: Contains version information
-    crit: benign
+    crit: notable
     conf: 0.85
     any:
       - { id: meta/quality/versioning::version-word-lower }
@@ -98,7 +98,7 @@ composite_rules:
   # Help/usage information
   - id: has-help
     desc: Contains help or usage information
-    crit: benign
+    crit: notable
     conf: 0.85
     needs: 2
     any:
@@ -112,7 +112,7 @@ composite_rules:
   # License information
   - id: licensed
     desc: Contains license information
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - { id: meta/quality/license::mit-license-text }
@@ -126,7 +126,7 @@ composite_rules:
   # Documentation strings
   - id: documented
     desc: Contains documentation strings
-    crit: benign
+    crit: notable
     conf: 0.8
     any:
       - { id: meta/quality/documentation::python-docstring-triple-double }
@@ -157,7 +157,7 @@ composite_rules:
   # Metrics/telemetry
   - id: has-metrics
     desc: Application has metrics/telemetry
-    crit: benign
+    crit: notable
     conf: 0.85
     any:
       - { id: meta/quality/metrics::prometheus-word }

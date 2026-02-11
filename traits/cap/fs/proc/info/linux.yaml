@@ -160,6 +160,3 @@ composite_rules:
     any:
       - id: python-proc-path-join
       - id: process-pid-mem-maps-helper
-    downgrade:
-      any:
-        - id: obj/discovery/process/psutil-enum

@@ -799,6 +799,7 @@ fn test_composite_referencing_atomic_trait() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        precision: None,
     };
 
     let report = test_report_with_findings(vec![test_finding("test/atomic-trait")]);
@@ -836,6 +837,7 @@ fn test_composite_of_composites_two_levels() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        precision: None,
     };
 
     let composite_b = CompositeTrait {
@@ -861,6 +863,7 @@ fn test_composite_of_composites_two_levels() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        precision: None,
     };
 
     let report = test_report_with_findings(vec![test_finding("test/atomic-trait")]);
@@ -903,6 +906,7 @@ fn test_composite_three_level_chain() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        precision: None,
     };
 
     let report = test_report_with_findings(vec![test_finding("level/zero")]);
@@ -952,6 +956,7 @@ fn test_composite_circular_dependency_handled() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        precision: None,
     };
 
     let composite_b = CompositeTrait {
@@ -977,6 +982,7 @@ fn test_composite_circular_dependency_handled() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        precision: None,
     };
 
     let report = test_report_with_findings(vec![]);
@@ -1018,6 +1024,7 @@ fn test_composite_prefix_matching_in_chain() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        precision: None,
     };
 
     // Report has specific trait under discovery/system/
@@ -1062,6 +1069,7 @@ fn test_composite_requires_count_in_chain() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        precision: None,
     };
 
     let report = test_report_with_findings(vec![test_finding("feat/a"), test_finding("feat/c")]);
@@ -1163,6 +1171,7 @@ fn test_precision_direct_conditions() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        precision: None,
     };
 
     let mut cache = HashMap::new();
@@ -1250,6 +1259,7 @@ fn test_precision_file_type_filter() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        precision: None,
     };
 
     let mut cache = HashMap::new();
@@ -1310,6 +1320,7 @@ fn test_precision_recursive_expansion() {
         unless: None,
         downgrade: None,
         defined_in: std::path::PathBuf::from("test.yaml"),
+        precision: None,
     };
 
     // Composite A: has 2 direct conditions (precision 2)
@@ -1375,6 +1386,7 @@ fn test_precision_recursive_expansion() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        precision: None,
     };
 
     // Composite B: references composite A and atomic trait
@@ -1406,6 +1418,7 @@ fn test_precision_recursive_expansion() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        precision: None,
     };
 
     let mut cache = HashMap::new();
@@ -1454,6 +1467,7 @@ fn test_precision_cycle_detection() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        precision: None,
     };
 
     // Composite B references A (cycle!)
@@ -1480,6 +1494,7 @@ fn test_precision_cycle_detection() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        precision: None,
     };
 
     let mut cache = HashMap::new();
@@ -1567,6 +1582,7 @@ fn test_precision_caching() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        precision: None,
     };
 
     let mut cache = HashMap::new();
@@ -1685,9 +1701,10 @@ fn test_precision_threshold_validation() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        precision: None,
     };
 
-    // Rule with precision >= 4.0 (meets threshold)
+    // Rule with precision >= 3.5 (meets threshold)
     // With the new granular scoring: 25-char strings = 5 buckets * 0.3 = 1.5 each
     // 3 strings = 4.5 precision, which meets the 4.0 threshold
     let rule_high = CompositeTrait {
@@ -1752,6 +1769,7 @@ fn test_precision_threshold_validation() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        precision: None,
     };
 
     let mut composites = vec![rule_low, rule_high];
@@ -1823,6 +1841,7 @@ fn test_suspicious_precision_threshold_validation() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        precision: None,
     };
 
     // Rule with precision >= 2.0 (meets suspicious threshold)
@@ -1889,6 +1908,7 @@ fn test_suspicious_precision_threshold_validation() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        precision: None,
     };
 
     let mut composites = vec![rule_low, rule_ok];
@@ -2022,6 +2042,7 @@ fn test_precision_mixed_conditions() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        precision: None,
     };
 
     let mut cache = HashMap::new();
@@ -2108,6 +2129,7 @@ fn test_precision_deep_nesting() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        precision: None,
     };
 
     // Level 2: references level1 + 1 direct condition
@@ -2156,6 +2178,7 @@ fn test_precision_deep_nesting() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        precision: None,
     };
 
     // Level 3: references level2 + 1 direct condition
@@ -2204,6 +2227,7 @@ fn test_precision_deep_nesting() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        precision: None,
     };
 
     let mut cache = HashMap::new();
@@ -2286,6 +2310,7 @@ fn test_precision_correct_algorithm() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        precision: None,
     };
 
     let mut cache = HashMap::new();
@@ -2350,6 +2375,7 @@ fn test_precision_traits_with_size_restrictions() {
         unless: None,
         downgrade: None,
         defined_in: std::path::PathBuf::from("test.yaml"),
+        precision: None,
     };
 
     // Trait 2: string pattern + size restriction
@@ -2388,6 +2414,7 @@ fn test_precision_traits_with_size_restrictions() {
         not: None,
         downgrade: None,
         defined_in: std::path::PathBuf::from("test.yaml"),
+        precision: None,
     };
 
     // Composite rule referencing both traits
@@ -2418,6 +2445,7 @@ fn test_precision_traits_with_size_restrictions() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        precision: None,
     };
 
     let mut cache = HashMap::new();
@@ -3074,6 +3102,7 @@ fn test_collect_trait_refs_finds_internal_paths() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        precision: None,
     };
 
     let refs = validation::collect_trait_refs_from_rule(&composite);
@@ -3125,6 +3154,7 @@ fn test_meta_internal_paths_forbidden_in_composite_rules() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        precision: None,
     };
 
     let refs = validation::collect_trait_refs_from_rule(&composite);

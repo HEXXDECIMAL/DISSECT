@@ -48,6 +48,6 @@ composite_rules:
     conf: 0.85
     all:
       - id: meta/format/elf::ifunc
-      - id: cap/process/info/query::getpid
+      - id: cap/process/identity/query::get-pid
     none:
       - id: cap/exec/load/library::system-lib-marker

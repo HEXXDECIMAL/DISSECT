@@ -1,7 +1,6 @@
 # Testing Framework - JUNIT
 
 traits:
-
   # === Atomic: JUnit (Java) ===
 
   - id: junit-package
@@ -50,11 +49,10 @@ traits:
       word: "assertNotNull"
 
 composite_rules:
-
   # JUnit (Java)
   - id: junit
     desc: JUnit test framework
-    crit: benign
+    crit: notable
     conf: 0.95
     for: [java]
     any:

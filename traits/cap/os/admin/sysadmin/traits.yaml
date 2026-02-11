@@ -15,7 +15,7 @@ traits:
   # Package management
   - id: package-mgmt
     desc: Package management utilities
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: yara
@@ -41,7 +41,7 @@ traits:
   # System configuration
   - id: config
     desc: System configuration utilities
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: yara

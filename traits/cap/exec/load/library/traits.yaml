@@ -97,14 +97,6 @@ traits:
       # C++ ABI functions found in standard library implementations
       regex: "^(__cxa_|__gxx_|_ZN[A-Z]|_ZSt|_ZNSt|_ZNK[A-Z])"
 
-  - id: systemd-ref
-    desc: systemd reference
-    crit: inert
-    conf: 0.3
-    if:
-      type: string
-      substr: "systemd"
-
   - id: system-debug-lib
     desc: System debug library
     crit: inert
@@ -383,7 +375,6 @@ composite_rules:
     any:
       - id: gnu-coreutils-ref
       - id: glibc-ref
-      - id: systemd-ref
       - id: libc-characteristic-symbols
       - id: libc-version-string
       - id: libc-internal-functions

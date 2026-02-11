@@ -208,7 +208,7 @@ composite_rules:
   # PAM client usage
   - id: client
     desc: PAM client library usage
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - id: pam-libraries
@@ -260,7 +260,7 @@ composite_rules:
   # PAM module implementation
   - id: module
     desc: PAM module implementation
-    crit: benign
+    crit: notable
     conf: 0.85
     any:
       - id: pam-module-api
@@ -317,7 +317,7 @@ composite_rules:
   # PAM configuration
   - id: config
     desc: PAM configuration patterns
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - id: pam-config-paths

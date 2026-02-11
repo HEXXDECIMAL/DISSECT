@@ -1,76 +1,9 @@
-# Process Discovery Traits - Symbol-based Detection
-# MBC: OB0007 (Discovery) → E1057 (Process Discovery)
-# ATT&CK: T1057 (Process Discovery)
-
-defaults:
-  for: [elf, macho, so, dylib, c]
-
-traits:
-  # User ID functions
-  - id: getuid
-    desc: Get real user ID of
-    crit: inert
-    mbc: "E1057"
-    attack: "T1057"
-    conf: 0.5
-    if:
-      type: symbol
-      regex: getuid
-    platforms: [unix, linux, macos]
-
-  - id: geteuid
-    desc: Get effective user ID of
-    crit: inert
-    mbc: "E1057"
-    attack: "T1057"
-    conf: 0.5
-    if:
-      type: symbol
-      regex: geteuid
-    platforms: [unix, linux, macos]
-
-  - id: getgid
-    desc: Get real group ID of
-    crit: inert
-    mbc: "E1057"
-    attack: "T1057"
-    conf: 0.5
-    if:
-      type: symbol
-      regex: getgid
-    platforms: [unix, linux, macos]
-
-  - id: getegid
-    desc: Get effective group ID of
-    crit: inert
-    mbc: "E1057"
-    attack: "T1057"
-    conf: 0.5
-    if:
-      type: symbol
-      regex: getegid
-    platforms: [unix, linux, macos]
-
-  # Process ID functions
-  - id: getpid
-    desc: Get process ID of calling
-    crit: inert
-    mbc: "E1057"
-    attack: "T1057"
-    conf: 0.5
-    if:
-      type: symbol
-      regex: getpid
-    platforms: [unix, linux, macos]
-
-  - id: getppid
-    desc: Get parent process ID
-    crit: inert
-    mbc: "E1057"
-    attack: "T1057"
-    conf: 0.5
-    if:
-      type: symbol
-      regex: getppid
-    platforms: [unix, linux, macos]
+# Process Discovery Traits - Deleted
+# These simple symbol-based detections were taxonomy violations
+# They belong in cap/ as simple capabilities, not obj/ as objectives
+# Capabilities already exist:
+# - cap/process/identity/query::get-pid
+# - cap/process/identity/query::get-uid
+# - cap/process/identity/query::get-gid
+# See python.yaml and rust.yaml for proper objective-level process discovery
 

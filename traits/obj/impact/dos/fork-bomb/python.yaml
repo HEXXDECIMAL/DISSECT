@@ -78,22 +78,6 @@ traits:
       type: raw
       regex: 'for\s+\w+\s+in\s+range\(\d{4,}\):'
 
-  # While loops with True or 1
-  - id: while-true-or-1
-    desc: Infinite while True loop
-    crit: inert
-    conf: 0.6
-    if:
-      type: raw
-      substr: "while True:"
-
-  - id: while-1-loop
-    desc: Infinite while 1 loop
-    crit: inert
-    conf: 0.6
-    if:
-      type: raw
-      substr: "while 1:"
 
   # Exclusions (legitimate patterns)
   - id: time-sleep
@@ -206,8 +190,8 @@ composite_rules:
   - id: tight-loops
     desc: Tight loop patterns
     any:
-      - id: while-true-or-1
-      - id: while-1-loop
+      - id: while-true
+      - id: while-1
       - id: large-range-loop
 
   # Helper: Fork with large range or while loop
@@ -233,8 +217,8 @@ composite_rules:
   - id: infinite-while
     desc: Infinite while loop
     any:
-      - id: while-true-or-1
-      - id: while-1-loop
+      - id: while-true
+      - id: while-1
 
   # Direct fork bomb detection: infinite loop + os.fork
   - id: fork-bomb

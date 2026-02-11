@@ -1,11 +1,10 @@
 # Build System - GITHUB ACTIONS
 
 traits:
-
   # === GitHub Actions micro-traits ===
   - id: github-actions-env
     desc: GITHUB_ACTIONS environment variable
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -13,7 +12,7 @@ traits:
 
   - id: github-run-id
     desc: GITHUB_RUN_ID environment variable
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -21,7 +20,7 @@ traits:
 
   - id: github-sha
     desc: GITHUB_SHA environment variable
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -29,7 +28,7 @@ traits:
 
   - id: actions-checkout
     desc: actions/checkout action
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -37,7 +36,7 @@ traits:
 
   - id: github-workflows
     desc: .github/workflows directory
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -60,11 +59,10 @@ traits:
       substr: "Runner.Listener"
 
 composite_rules:
-
   # GitHub Actions composite (migrated from YARA)
   - id: github-actions
     desc: GitHub Actions CI artifacts
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - id: github-actions-env

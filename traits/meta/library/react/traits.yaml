@@ -8,7 +8,7 @@ traits:
   # Detect React version banner (appears in development builds)
   - id: version-banner
     desc: React version banner
-    crit: benign
+    crit: notable
     conf: 0.95
     if:
       type: string
@@ -17,7 +17,7 @@ traits:
   # Detect React copyright notice
   - id: copyright
     desc: React copyright notice
-    crit: benign
+    crit: notable
     conf: 0.95
     if:
       type: string
@@ -26,7 +26,7 @@ traits:
   # Detect React package name
   - id: package-name
     desc: React package identifier
-    crit: benign
+    crit: notable
     conf: 0.90
     if:
       type: string
@@ -35,7 +35,7 @@ traits:
   # React object signature
   - id: react-object
     desc: React object initialization
-    crit: benign
+    crit: notable
     conf: 0.85
     if:
       type: string
@@ -44,7 +44,7 @@ traits:
   # ReactDOM signature
   - id: react-dom
     desc: ReactDOM object reference
-    crit: benign
+    crit: notable
     conf: 0.85
     if:
       type: string
@@ -53,7 +53,7 @@ traits:
   # React JSX pragma
   - id: jsx-pragma
     desc: React JSX transformation signature
-    crit: benign
+    crit: notable
     conf: 0.80
     if:
       type: string
@@ -63,7 +63,7 @@ composite_rules:
   # Detect if file is React (neutral, benign detection)
   - id: library
     desc: "File contains React library"
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - { id: version-banner }

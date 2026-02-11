@@ -97,16 +97,6 @@ traits:
 
   # NOTE: Go runtime and standard library use getuid/getpwuid legitimately
   # for user information. Downgraded to inert for atomic indicators.
-  - id: getuid
-    desc: Get user ID
-    crit: inert
-    conf: 0.4
-    attack: "T1033"
-    for: [elf, macho]
-    if:
-      type: string
-      substr: "getuid"
-
   - id: getpwuid
     desc: Get password entry by UID
     crit: inert
@@ -240,7 +230,7 @@ composite_rules:
     for: [elf, macho]
     any:
       - id: getpwnam
-      - id: getuid
+      - id: cap/process/identity/query::get-uid
       - id: getpwuid
 
   # User enumeration detected (active commands + context)

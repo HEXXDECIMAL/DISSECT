@@ -1,7 +1,6 @@
 # Testing Framework - GO
 
 traits:
-
   # === Atomic: Go testing ===
 
   - id: go-testing-t
@@ -59,11 +58,10 @@ traits:
       substr: "t.Fatal"
 
 composite_rules:
-
   # Go testing
   - id: go-test
     desc: Go testing package
-    crit: benign
+    crit: notable
     conf: 0.95
     for: [go]
     needs: 2

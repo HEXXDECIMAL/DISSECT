@@ -61,7 +61,7 @@ composite_rules:
   # Google Test (C++)
   - id: gtest
     desc: Google Test framework
-    crit: benign
+    crit: notable
     conf: 0.95
     for: [c]
     needs: 2

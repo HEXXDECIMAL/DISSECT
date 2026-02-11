@@ -1,7 +1,6 @@
 # eBPF Programs - SSL/TLS Sniffer Programs
 # Capabilities for BPF/eBPF program detection
 
-
 traits:
   - id: ssl-ctx-map
     desc: SSL context tracking map
@@ -173,7 +172,6 @@ traits:
       type: string
       regex: "\\bSSL_(?:read|write|set_fd|connect|accept)\\b"
 
-
 composite_rules:
   - id: bpf-attachment
     desc: BPF filter attachment
@@ -270,7 +268,7 @@ composite_rules:
   # Tracing frameworks helper
   - id: tracing-frameworks
     desc: eBPF tracing frameworks
-    crit: benign
+    crit: notable
     conf: 0.85
     any:
       - id: cap/os/bpf/trace-frameworks
@@ -278,7 +276,7 @@ composite_rules:
   # Tracing functions helper
   - id: tracing-functions
     desc: eBPF tracing functions
-    crit: benign
+    crit: notable
     conf: 0.8
     any:
       - id: cap/os/bpf/trace-functions
@@ -286,7 +284,7 @@ composite_rules:
   # Observability tools helper
   - id: observability-tools
     desc: eBPF observability tools
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - id: cap/os/bpf/trace-tools
@@ -294,7 +292,7 @@ composite_rules:
   # Legitimate eBPF tracing (migrated from YARA)
   - id: tracing
     desc: Legitimate eBPF tracing/observability
-    crit: benign
+    crit: notable
     conf: 0.85
     any:
       - id: tracing-frameworks

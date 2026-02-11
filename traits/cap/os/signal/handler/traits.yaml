@@ -1,9 +1,5 @@
 # Signal Handling
-# C runtime signal handlers
-
-defaults:
-  for: ["pe", "dll"]
-  platforms: ["windows"]
+# C runtime signal handlers (Windows and Unix)
 
 traits:
   # === Signal Management ===
@@ -11,14 +7,26 @@ traits:
     desc: Install signal handler
     crit: inert
     conf: 0.90
+    for: ["pe", "dll", "elf", "macho"]
     if:
       type: symbol
       exact: "signal"
+
+  - id: sigaction
+    desc: Install signal handler (POSIX sigaction)
+    crit: inert
+    conf: 0.90
+    for: ["elf", "macho"]
+    platforms: ["unix", "linux", "macos"]
+    if:
+      type: symbol
+      exact: "sigaction"
 
   - id: raise
     desc: Send signal to self
     crit: inert
     conf: 0.85
+    for: ["pe", "dll", "elf", "macho"]
     if:
       type: symbol
       exact: "raise"
@@ -27,6 +35,7 @@ traits:
     desc: Abort program execution
     crit: inert
     conf: 0.90
+    for: ["pe", "dll", "elf", "macho"]
     if:
       type: symbol
       exact: "abort"

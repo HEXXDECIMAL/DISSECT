@@ -5,7 +5,7 @@ traits:
   # Prometheus ecosystem
   - id: prometheus
     desc: Prometheus monitoring stack
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: yara
@@ -31,7 +31,7 @@ traits:
   # Grafana
   - id: grafana
     desc: Grafana visualization
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: yara
@@ -50,7 +50,7 @@ traits:
   # OpenTelemetry
   - id: opentelemetry
     desc: OpenTelemetry instrumentation
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: yara
@@ -70,7 +70,7 @@ traits:
   # Elastic/ELK stack
   - id: elastic
     desc: Elastic/ELK monitoring stack
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: yara
@@ -95,7 +95,7 @@ traits:
   # Datadog
   - id: datadog
     desc: Datadog monitoring agent
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: yara
@@ -114,7 +114,7 @@ traits:
   # Fluentd/Fluent Bit
   - id: fluentd
     desc: Fluentd/Fluent Bit log collector
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: yara

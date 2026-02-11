@@ -5,7 +5,7 @@ traits:
   # === GCC micro-traits ===
   - id: gcc-comment
     desc: "GCC: comment string"
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -13,7 +13,7 @@ traits:
 
   - id: gcc-prefix
     desc: gcc- prefix
-    crit: benign
+    crit: notable
     conf: 0.8
     if:
       type: string
@@ -21,7 +21,7 @@ traits:
 
   - id: gnu-c
     desc: GNU C string
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -29,7 +29,7 @@ traits:
 
   - id: gnuc-macro
     desc: __GNUC__ macro
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -37,7 +37,7 @@ traits:
 
   - id: libgcc
     desc: libgcc library
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -46,7 +46,7 @@ traits:
   # === Clang micro-traits ===
   - id: clang-string
     desc: clang string
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -54,7 +54,7 @@ traits:
 
   - id: llvm-string
     desc: LLVM string
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -62,7 +62,7 @@ traits:
 
   - id: clang-macro
     desc: __clang__ macro
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -70,7 +70,7 @@ traits:
 
   - id: libllvm
     desc: libLLVM library
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -79,7 +79,7 @@ traits:
   # === MSVC micro-traits ===
   - id: msvc-string
     desc: MSVC string
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -87,7 +87,7 @@ traits:
 
   - id: msc-ver
     desc: _MSC_VER macro
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -95,7 +95,7 @@ traits:
 
   - id: vcruntime
     desc: vcruntime library
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -103,7 +103,7 @@ traits:
 
   - id: ms-visual
     desc: Microsoft Visual string
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -112,7 +112,7 @@ traits:
   # === Intel micro-traits ===
   - id: intel-r
     desc: Intel(R) string
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -120,7 +120,7 @@ traits:
 
   - id: intel-compiler
     desc: __INTEL_COMPILER macro
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -128,7 +128,7 @@ traits:
 
   - id: icc-string
     desc: icc compiler string
-    crit: benign
+    crit: notable
     conf: 0.8
     if:
       type: string
@@ -136,7 +136,7 @@ traits:
 
   - id: libiomp
     desc: libiomp OpenMP library
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -145,7 +145,7 @@ traits:
   # === musl micro-traits ===
   - id: musl-libc
     desc: musl libc string
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -153,7 +153,7 @@ traits:
 
   - id: musl-prefix
     desc: musl- prefix
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -161,7 +161,7 @@ traits:
 
   - id: musl-macro
     desc: __musl__ macro
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -220,7 +220,7 @@ composite_rules:
   # GCC composite
   - id: gcc
     desc: Compiled with GCC
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - id: gcc-comment
@@ -232,7 +232,7 @@ composite_rules:
   # Clang composite
   - id: clang
     desc: Compiled with Clang/LLVM
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - id: clang-string
@@ -243,7 +243,7 @@ composite_rules:
   # MSVC composite
   - id: msvc
     desc: Compiled with Microsoft Visual C++
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - id: msvc-string
@@ -254,7 +254,7 @@ composite_rules:
   # Intel composite
   - id: intel
     desc: Compiled with Intel compiler
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - id: intel-r
@@ -265,7 +265,7 @@ composite_rules:
   # musl composite
   - id: musl
     desc: Linked with musl libc
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - id: musl-libc

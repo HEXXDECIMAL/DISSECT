@@ -4,7 +4,7 @@ traits:
   # === DynamoDB micro-traits ===
   - id: dynamodb-string
     desc: dynamodb string
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -12,20 +12,18 @@ traits:
 
   - id: aws-sdk
     desc: aws-sdk package
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
       substr: "aws-sdk"
 
-
 composite_rules:
   # DynamoDB composite (migrated from YARA)
   - id: dynamodb
     desc: AWS DynamoDB connectivity
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - id: dynamodb-string
       - id: aws-sdk
-

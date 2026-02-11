@@ -1,7 +1,6 @@
 # Testing Framework - RSPEC
 
 traits:
-
   # === Atomic: RSpec (Ruby) ===
 
   - id: rspec-lower
@@ -50,7 +49,6 @@ traits:
       substr: "expect("
 
 composite_rules:
-
   # RSpec BDD patterns helper
   - id: rspec-bdd-patterns
     desc: RSpec BDD patterns
@@ -66,7 +64,7 @@ composite_rules:
   # RSpec (Ruby)
   - id: rspec
     desc: RSpec test framework
-    crit: benign
+    crit: notable
     conf: 0.95
     for: [ruby]
     any:

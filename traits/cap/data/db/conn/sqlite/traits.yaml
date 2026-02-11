@@ -4,7 +4,7 @@ traits:
   # === SQLite micro-traits ===
   - id: sqlite3-string
     desc: sqlite3 string
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -12,7 +12,7 @@ traits:
 
   - id: sqlite3-open
     desc: sqlite3_open function
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: symbol
@@ -20,7 +20,7 @@ traits:
 
   - id: go-sqlite3
     desc: mattn/go-sqlite3 driver
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -28,7 +28,7 @@ traits:
 
   - id: rusqlite
     desc: rusqlite Rust driver
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -36,18 +36,17 @@ traits:
 
   - id: sqlite-format
     desc: SQLite format header
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
       substr: "SQLite format"
 
-
 composite_rules:
   # SQLite composite (migrated from YARA)
   - id: sqlite
     desc: SQLite database
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - id: sqlite3-string
@@ -55,4 +54,3 @@ composite_rules:
       - id: go-sqlite3
       - id: rusqlite
       - id: sqlite-format
-

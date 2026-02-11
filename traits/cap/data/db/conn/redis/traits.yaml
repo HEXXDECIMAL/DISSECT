@@ -4,7 +4,7 @@ traits:
   # === Redis micro-traits ===
   - id: redis-url
     desc: redis:// URL scheme
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -12,7 +12,7 @@ traits:
 
   - id: rediss-url
     desc: rediss:// URL scheme
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -20,7 +20,7 @@ traits:
 
   - id: go-redis
     desc: go-redis driver
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -28,7 +28,7 @@ traits:
 
   - id: redis-py
     desc: redis-py driver
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -36,7 +36,7 @@ traits:
 
   - id: hiredis
     desc: hiredis library
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -44,18 +44,17 @@ traits:
 
   - id: ioredis
     desc: ioredis driver
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
       substr: "ioredis"
 
-
 composite_rules:
   # Redis composite (migrated from YARA)
   - id: redis
     desc: Redis database connectivity
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - id: redis-url
@@ -64,4 +63,3 @@ composite_rules:
       - id: redis-py
       - id: hiredis
       - id: ioredis
-

@@ -1,11 +1,10 @@
 # Build System - REPRODUCIBLE
 
 traits:
-
   # === Reproducible build micro-traits ===
   - id: source-date-epoch
     desc: SOURCE_DATE_EPOCH variable
-    crit: benign
+    crit: notable
     conf: 0.85
     if:
       type: string
@@ -13,7 +12,7 @@ traits:
 
   - id: reproducible-string
     desc: REPRODUCIBLE string
-    crit: benign
+    crit: notable
     conf: 0.85
     if:
       type: string
@@ -21,7 +20,7 @@ traits:
 
   - id: build-id-string
     desc: build-id string
-    crit: benign
+    crit: notable
     conf: 0.85
     if:
       type: string
@@ -29,19 +28,17 @@ traits:
 
   - id: debuglink-string
     desc: debuglink string
-    crit: benign
+    crit: notable
     conf: 0.85
     if:
       type: string
       substr: "debuglink"
 
-
 composite_rules:
-
   # Reproducible build composite (migrated from YARA)
   - id: reproducible
     desc: Reproducible build markers
-    crit: benign
+    crit: notable
     conf: 0.85
     any:
       - id: source-date-epoch

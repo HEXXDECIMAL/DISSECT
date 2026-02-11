@@ -106,6 +106,18 @@ traits:
       type: string
       regex: "eval\\s*\\([^)]*decode\\s*\\("
 
+  # Base64 decode and execute
+  - id: b64decode-exec-pattern
+    desc: Base64 decode followed by exec
+    crit: suspicious
+    conf: 0.85
+    attack: "T1140"
+    mbc: "B0032"
+    for: [python]
+    if:
+      type: string
+      regex: "b64decode.{0,64}exec"
+
   # compile() with exec pattern
   - id: compile-exec-pattern
     desc: compile() with exec (dynamic code

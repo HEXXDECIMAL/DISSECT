@@ -2,7 +2,7 @@
 # Legitimate eBPF tracing and probing functions
 
 defaults:
-  crit: benign
+  crit: notable
   conf: 0.8
 
 traits:

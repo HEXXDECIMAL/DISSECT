@@ -738,7 +738,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 }
 
 func runDissect(ctx context.Context, filePath string, reqLogger *slog.Logger) (string, error) {
-	args := []string{"analyze", filePath}
+	args := []string{"analyze", "--validate=false", filePath}
 
 	// Resolve dissect path
 	resolvedDissectPath, lookupErr := exec.LookPath(dissectPath)

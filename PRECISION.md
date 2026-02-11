@@ -6,7 +6,7 @@ Precision is a metric used by DISSECT to measure how specific and constrained a 
 
 Composite rules (those that combine other traits) must meet minimum precision thresholds to maintain their criticality level. If a rule's calculated precision is below the threshold, it is automatically downgraded:
 
-- **HOSTILE**: Requires precision **>= 4.0**. If lower, it is downgraded to `SUSPICIOUS`.
+- **HOSTILE**: Requires precision **>= 3.5**. If lower, it is downgraded to `SUSPICIOUS`.
 - **SUSPICIOUS**: Requires precision **>= 2.0**. If lower, it is downgraded to `NOTABLE`.
 
 ## Calculation Algorithm

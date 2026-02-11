@@ -4,7 +4,7 @@ traits:
   # === PostgreSQL micro-traits ===
   - id: libpq
     desc: libpq library
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -12,7 +12,7 @@ traits:
 
   - id: pqconnect
     desc: PQconnect function
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: symbol
@@ -20,7 +20,7 @@ traits:
 
   - id: postgres-url
     desc: postgres:// URL scheme
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -28,7 +28,7 @@ traits:
 
   - id: postgresql-url
     desc: postgresql:// URL scheme
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -36,7 +36,7 @@ traits:
 
   - id: pq-dot
     desc: pq. Go driver
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -44,7 +44,7 @@ traits:
 
   - id: psycopg2
     desc: psycopg2 Python driver
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -52,18 +52,17 @@ traits:
 
   - id: pg8000
     desc: pg8000 Python driver
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
       substr: "pg8000"
 
-
 composite_rules:
   # PostgreSQL composite (migrated from YARA)
   - id: postgresql
     desc: PostgreSQL database connectivity
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - id: libpq
@@ -73,4 +72,3 @@ composite_rules:
       - id: pq-dot
       - id: psycopg2
       - id: pg8000
-

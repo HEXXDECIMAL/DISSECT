@@ -1,220 +1,28 @@
 # Node.js HTTP Exfiltration Patterns
 # ATT&CK: T1041 (Exfiltration Over C2 Channel), T1071 (Application Layer Protocol)
+#
+# NOTE: Atomic HTTP request capabilities moved to cap/comm/http/request/javascript.yaml
+# This file contains only objective-level composites that infer exfiltration intent.
 
-traits:
-  # === HTTP method specification ===
-  - id: method-field
-    desc: method field in HTTP config
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "method:"
-
-  - id: post-method-single
-    desc: POST method (single quotes)
-    crit: inert
-    conf: 0.65
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "'POST'"
-
-  - id: post-method-double
-    desc: POST method (double quotes)
-    crit: inert
-    conf: 0.65
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: '"POST"'
-
-  - id: application-json-content-type
-    desc: application/json content type
-    crit: inert
-    conf: 0.65
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "application/json"
-
-  # HTTP GET with query params (data in URL)
-  - id: node-get-params
-    desc: HTTP GET with data in
-    crit: notable
-    conf: 0.8
-    attack: "T1041"
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "path:\\s*[`\"'][^`\"']*\\$\\{"
-
-  # axios POST
-  - id: node-axios-post
-    desc: Sends data via axios POST
-    crit: notable
-    conf: 0.8
-    attack: "T1041"
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "axios\\.post\\("
-
-  # axios with data
-  - id: node-axios-data
-    desc: axios request with data payload
-    crit: notable
-    conf: 0.75
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "axios\\(\\{[^}]*data:"
-
-  # fetch POST
-  - id: node-fetch-post
-    desc: Sends data via fetch POST
-    crit: notable
-    conf: 0.8
-    attack: "T1041"
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "fetch\\([^)]+\\{[^}]*method:\\s*['\"]POST['\"]"
-
-  # http.request
-  - id: node-http-request
-    desc: Makes HTTP request using http
-    crit: notable
-    conf: 0.7
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "http\\.request\\("
-
-  # https.request
-  - id: node-https-request
-    desc: Makes HTTPS request using https
-    crit: notable
-    conf: 0.7
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "https\\.request\\("
-
-  # https.get
-  - id: node-https-get
-    desc: Makes HTTPS GET request
-    crit: inert
-    conf: 0.7
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "https\\.get\\("
-
-  # Request write (sending body)
-  - id: node-req-write
-    desc: Writes data to HTTP request
-    crit: notable
-    conf: 0.8
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "req\\.write\\("
-
-  # Silent error handling (hiding exfil failures)
-  - id: node-silent-error
-    desc: Silent error handling (hides network
-    crit: notable
-    conf: 0.7
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "\\.on\\(['\"]error['\"],\\s*\\(\\)\\s*=>\\s*\\{\\s*\\}\\)"
-
-  # Timeout handling
-  - id: node-request-timeout
-    desc: HTTP request with timeout handling
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "\\.setTimeout\\(\\d+,"
-
-  # === HTTP method atomic indicators ===
-  - id: axios-post-call
-    desc: axios.post() call
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "axios.post"
-
-  # === HTTP library atomic indicators ===
 composite_rules:
-  # Helper composites
-  - id: post-method-variants
-    desc: POST method in quotes
-    for: [javascript, typescript]
-    any:
-      - { id: post-method-single }
-      - { id: post-method-double }
-
-  # Migrated from YARA
-  - id: node-post-json
-    desc: HTTP POST request with JSON
-    crit: notable
-    conf: 0.75
-    attack: "T1041"
-    for: [javascript, typescript]
-    all:
-      - { id: method-field }
-      - { id: post-method-variants }
-      - { id: application-json-content-type }
-
-  # HTTP request methods composite
-  - id: node-http-methods
-    desc: Node.js HTTP request methods
-    crit: notable
-    conf: 0.7
-    for: [javascript, typescript]
-    any:
-      - id: axios-post-call
-      - id: node-https-request
-      - id: node-http-request
-      - id: cap/comm/http/request::fetch-string
-
-  # HTTP libraries composite
-  - id: node-http-libs
-    desc: Node.js HTTP request libraries
-    crit: notable
-    conf: 0.7
-    for: [javascript, typescript]
-    any:
-      - id: cap/comm/http/request::axios
-      - id: node-https-request
-      - id: node-http-request
-      - id: cap/comm/http/request::fetch-string
-
-  # Collect and exfil pattern
+  # Collect and exfil pattern - combines discovery with HTTP requests
   - id: node-collect-exfil
-    desc: Collects system info and exfiltrates
+    desc: Collects system info and exfiltrates via HTTP
     crit: suspicious
     conf: 0.95
     attack: "T1041"
     for: [javascript, typescript]
     all:
       - id: obj/discovery/host/system/
-      - id: node-http-methods
+      - id: cap/comm/http/request::http-method-calls
 
-  # Stealthy exfil (silent errors)
+  # Stealthy exfil (silent errors) - suppresses network failures to hide activity
   - id: node-stealthy-exfil
-    desc: Stealthy exfiltration with silent error
+    desc: Stealthy exfiltration with silent error handling
     crit: suspicious
     conf: 0.85
     attack: "T1041"
+    for: [javascript, typescript]
     all:
-      - id: node-silent-error
-      - id: node-http-libs
+      - id: cap/comm/http/request::silent-error-handler
+      - id: cap/comm/http/request::http-client-usage

@@ -52,7 +52,7 @@ composite_rules:
   # Catch2 (C++)
   - id: catch2
     desc: Catch2 test framework
-    crit: benign
+    crit: notable
     conf: 0.95
     for: [c]
     needs: 2

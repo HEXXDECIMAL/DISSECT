@@ -1,55 +1,10 @@
-# Collection - Browser Data Access
-# ATT&CK: T1005 (Data from Local System), T1185 (Browser Session Hijacking)
-
-traits:
-  # === Atomic: LocalStorage ===
-
-  - id: localstorage-get
-    desc: Browser localStorage access
-    crit: notable
-    conf: 0.7
-    attack: "T1005"
-    platforms: [all]
-    for: [javascript]
-    if:
-      type: ast
-      kind: call
-      exact: "localStorage.get"
-
-  - id: localstorage-set
-    desc: Browser localStorage write
-    crit: notable
-    conf: 0.6
-    attack: "T1005"
-    platforms: [all]
-    for: [javascript]
-    if:
-      type: ast
-      kind: call
-      exact: "localStorage.set"
-
-  # === Atomic: IndexedDB ===
-
-  - id: indexeddb
-    desc: Browser IndexedDB access
-    crit: notable
-    conf: 0.6
-    attack: "T1005"
-    platforms: [all]
-    for: [javascript]
-    if:
-      type: ast
-      kind: call
-      exact: "indexedDB"
-
-  # === Atomic: Analytics ===
-
-  - id: google-analytics-id
-    desc: Hardcoded Google Analytics ID
-    crit: notable
-    conf: 0.8
-    attack: "T1005"
-    platforms: [all]
-    if:
-      type: string
-      regex: "UA-\\d{5,9}-\\d{1,3}"
+# Browser Storage APIs - Deleted
+# This was a taxonomy violation - atomic browser API detection belongs in cap/
+# The capabilities now exist at:
+# - cap/data/browser/storage::localstorage-get
+# - cap/data/browser/storage::localstorage-set
+# - cap/data/browser/storage::indexeddb
+# - cap/data/browser/analytics::google-analytics-id
+#
+# For proper collection objectives, combine storage APIs with other
+# evidence of malicious intent (exfiltration, sensitive data patterns, etc.)

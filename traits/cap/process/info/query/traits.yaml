@@ -6,13 +6,7 @@ defaults:
   platforms: [linux, unix, macos]
 
 traits:
-  - id: getpid
-    desc: Get current process identifier
-    crit: inert
-    conf: 0.5
-    if:
-      type: symbol
-      regex: getpid
+  # NOTE: getpid moved to cap/process/identity/query::get-pid (canonical location - includes getppid)
 
   - id: get-process-for-pid
     desc: Lookup process by PID (Carbon)

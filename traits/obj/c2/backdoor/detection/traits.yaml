@@ -18,7 +18,7 @@ traits:
   # === Known false positive exclusions ===
   - id: vcpu-backdoor
     desc: VCPU backdoor (VMware legitimate)
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -26,7 +26,7 @@ traits:
 
   - id: guest-backdoor-ops
     desc: Guest backdoor ops (VMware legitimate)
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -34,7 +34,7 @@ traits:
 
   - id: backdoor-comment
     desc: Backdoor comment (documentation)
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string

@@ -155,9 +155,9 @@ pub struct Args {
     #[arg(short, long)]
     pub verbose: bool,
 
-    /// Enable full trait validation (expensive, ~60s+). By default, only fast validations run.
-    /// Use during trait development or CI to catch issues. Can also set DISSECT_VALIDATE=1.
-    #[arg(long)]
+    /// Enable full trait validation (expensive, ~60s+). Enabled by default.
+    /// Use --validate=false to disable. Can also set DISSECT_VALIDATE=0 to disable.
+    #[arg(long, default_value_t = true)]
     pub validate: bool,
 
     /// Additional password to try for encrypted zip files (can be specified multiple times)
@@ -211,7 +211,7 @@ pub struct Args {
 
     /// Minimum recursive precision required for HOSTILE composite traits.
     /// Rules below this threshold are downgraded to SUSPICIOUS.
-    #[arg(long, default_value_t = 4.0)]
+    #[arg(long, default_value_t = 3.5)]
     pub min_hostile_precision: f32,
 
     /// Minimum recursive precision required for SUSPICIOUS composite traits.

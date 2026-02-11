@@ -67,14 +67,6 @@ traits:
       substr: "HostRequest"
 
   # === HTTP request forwarding indicators ===
-  - id: http-post-forward
-    desc: HTTP POST request forwarding
-    crit: notable
-    conf: 0.75
-    if:
-      type: string
-      substr: "POST"
-
   - id: http-response-handler
     desc: HTTP response handling
     crit: inert
@@ -116,4 +108,4 @@ composite_rules:
     any:
       - id: web3-request-dto
       - id: web3-response-dto
-      - id: http-post-forward
+      - id: cap/comm/http/post::post-method

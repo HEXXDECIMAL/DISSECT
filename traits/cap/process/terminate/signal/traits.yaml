@@ -29,28 +29,7 @@ traits:
       exact: killpg
     platforms: [unix, linux, macos]
 
-  # Signal handling
-  - id: signal
-    desc: Install signal handler
-    crit: notable
-    mbc: "F0004"
-    attack: "T1562.001"
-    conf: 0.6
-    if:
-      type: symbol
-      exact: signal
-    platforms: [unix, linux, macos]
-
-  - id: sigaction
-    desc: Examine or change signal action
-    crit: notable
-    mbc: "F0004"
-    attack: "T1562.001"
-    conf: 0.6
-    if:
-      type: symbol
-      exact: sigaction
-    platforms: [unix, linux, macos]
+  # NOTE: signal and sigaction moved to cap/os/signal/handler (canonical location)
 
   - id: sigprocmask
     desc: Examine or change blocked signals
@@ -64,16 +43,7 @@ traits:
     platforms: [unix, linux, macos]
 
   # Process termination
-  - id: abort
-    desc: Cause abnormal process termination
-    crit: inert
-    mbc: "E1562"
-    attack: "T1562"
-    conf: 0.4
-    if:
-      type: symbol
-      exact: abort
-    platforms: [unix, linux, macos, windows]
+  # NOTE: abort moved to cap/os/signal/handler (canonical location)
 
   - id: exit
     desc: Terminate process with status code

@@ -61,7 +61,7 @@ composite_rules:
   # Fuzzing frameworks
   - id: fuzzing
     desc: Fuzzing test framework
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - { id: libfuzzer-word }

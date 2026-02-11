@@ -264,6 +264,88 @@ traits:
       type: string
       regex: '(?:import|require).{0,50}[''"]request[''"]'
 
+  # === HTTP configuration patterns ===
+  - id: post-method-string
+    desc: POST method string literal
+    crit: inert
+    conf: 0.65
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "['\"]POST['\"]"
+
+  - id: method-field
+    desc: method field in HTTP config
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "method:"
+
+  - id: application-json
+    desc: application/json content type
+    crit: inert
+    conf: 0.65
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "application/json"
+
+  - id: get-with-params
+    desc: HTTP GET with query parameters
+    crit: notable
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "path:\\s*[`\"'][^`\"']*\\$\\{"
+
+  - id: axios-with-data
+    desc: axios request with data payload
+    crit: notable
+    conf: 0.75
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "axios\\(\\{[^}]*data:"
+
+  - id: fetch-post-pattern
+    desc: fetch API with POST method
+    crit: notable
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "fetch\\([^)]+\\{[^}]*method:\\s*['\"]POST['\"]"
+
+  - id: req-write
+    desc: Write data to HTTP request stream
+    crit: notable
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "req\\.write\\("
+
+  - id: request-timeout
+    desc: HTTP request with timeout
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "\\.setTimeout\\(\\d+,"
+
+  - id: silent-error-handler
+    desc: Empty error handler (silences failures)
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "\\.on\\(['\"]error['\"],\\s*\\(\\)\\s*=>\\s*\\{\\s*\\}\\)"
+
 composite_rules:
   # Helper composites
   - id: axios-import-or-require
@@ -327,3 +409,27 @@ composite_rules:
       - { id: superagent-import }
       - { id: needle-import }
       - { id: request-import }
+
+  - id: http-post-json
+    desc: HTTP POST request with JSON content
+    crit: notable
+    conf: 0.75
+    for: [javascript, typescript]
+    all:
+      - { id: method-field }
+      - { id: post-method-string }
+      - { id: application-json }
+
+  - id: http-method-calls
+    desc: HTTP request method calls
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
+    any:
+      - { id: axios-post-call }
+      - { id: https-request }
+      - { id: http-request }
+      - { id: fetch-string }
+      - { id: axios-with-data }
+      - { id: fetch-post-pattern }
+      - { id: get-with-params }

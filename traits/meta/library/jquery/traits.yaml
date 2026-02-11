@@ -8,7 +8,7 @@ traits:
   # Detect jQuery version string (appears in all jQuery distributions)
   - id: version-string
     desc: jQuery version string
-    crit: benign
+    crit: notable
     conf: 0.95
     if:
       type: string
@@ -17,7 +17,7 @@ traits:
   # Detect jquery.org domain (in comments, not string literals)
   - id: domain
     desc: jquery.org domain reference
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: raw
@@ -26,7 +26,7 @@ traits:
   # jQuery copyright (in comments, not string literals)
   - id: copyright
     desc: jQuery copyright notice
-    crit: benign
+    crit: notable
     conf: 0.95
     if:
       type: raw
@@ -35,7 +35,7 @@ traits:
   # jQuery function signatures
   - id: fn-extend
     desc: jQuery.fn.extend signature
-    crit: benign
+    crit: notable
     conf: 0.85
     if:
       type: raw
@@ -45,7 +45,7 @@ composite_rules:
   # Detect if file is jQuery (neutral, benign detection)
   - id: library
     desc: "File contains jQuery library"
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - { id: version-string }

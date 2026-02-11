@@ -201,15 +201,6 @@ traits:
       exact: "CDLL"
 
   # === Python local path loading atomic indicators ===
-  - id: cdll-keyword
-    desc: CDLL keyword
-    crit: inert
-    conf: 0.6
-    for: [python]
-    if:
-      type: string
-      word: "CDLL"
-
   - id: loadlibrary-keyword
     desc: LoadLibrary keyword
     crit: inert
@@ -315,7 +306,7 @@ composite_rules:
     desc: Library loading functions (CDLL or
     for: [python]
     any:
-      - { id: cdll-keyword }
+      - { id: cap/exec/fileless/memory::ctypes-cdll }
       - { id: loadlibrary-keyword }
 
   - id: path-manipulation

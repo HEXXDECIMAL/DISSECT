@@ -4,7 +4,7 @@ traits:
   # === ORM micro-traits ===
   - id: gorm-io
     desc: gorm.io ORM
-    crit: benign
+    crit: notable
     conf: 0.85
     if:
       type: string
@@ -12,7 +12,7 @@ traits:
 
   - id: sqlalchemy
     desc: SQLAlchemy ORM
-    crit: benign
+    crit: notable
     conf: 0.85
     if:
       type: string
@@ -20,7 +20,7 @@ traits:
 
   - id: hibernate
     desc: Hibernate ORM
-    crit: benign
+    crit: notable
     conf: 0.85
     if:
       type: string
@@ -28,7 +28,7 @@ traits:
 
   - id: django-db
     desc: django.db ORM
-    crit: benign
+    crit: notable
     conf: 0.85
     if:
       type: string
@@ -36,7 +36,7 @@ traits:
 
   - id: sequelize
     desc: Sequelize ORM
-    crit: benign
+    crit: notable
     conf: 0.85
     if:
       type: string
@@ -44,7 +44,7 @@ traits:
 
   - id: prisma
     desc: Prisma ORM
-    crit: benign
+    crit: notable
     conf: 0.85
     if:
       type: string
@@ -52,18 +52,17 @@ traits:
 
   - id: typeorm
     desc: TypeORM ORM
-    crit: benign
+    crit: notable
     conf: 0.85
     if:
       type: string
       substr: "typeorm"
 
-
 composite_rules:
   # ORM composite (migrated from YARA)
   - id: orm
     desc: ORM framework usage
-    crit: benign
+    crit: notable
     conf: 0.85
     any:
       - id: gorm-io
@@ -73,4 +72,3 @@ composite_rules:
       - id: sequelize
       - id: prisma
       - id: typeorm
-

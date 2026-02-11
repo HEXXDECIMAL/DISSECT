@@ -7,14 +7,6 @@ defaults:
   attack: "T1027"
 
 traits:
-  - id: xixa-marker
-    desc: Xixa obfuscation marker string
-    conf: 0.95
-    for: [elf]
-    if:
-      type: string
-      substr: "Xixa"
-
   - id: eval-function-call
     desc: eval function call pattern
     crit: notable

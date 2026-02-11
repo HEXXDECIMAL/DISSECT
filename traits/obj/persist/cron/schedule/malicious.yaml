@@ -81,15 +81,6 @@ traits:
       type: string
       substr: "/dev/shm/."
 
-  # Additional cron keywords
-  - id: crontab-keyword
-    desc: crontab keyword
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      substr: "crontab"
-
 composite_rules:
   # Helper: Cron paths
   - id: cron-paths
@@ -127,7 +118,7 @@ composite_rules:
   - id: cron-keywords
     desc: Cron-related keywords
     any:
-      - id: crontab-keyword
+      - id: obj/persist/cron/job::crontab-command
       - id: obj/persist/cron/job::etc-cron-path
 
 

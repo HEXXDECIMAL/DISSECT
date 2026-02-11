@@ -5,7 +5,7 @@ traits:
   # === LZMA/XZ micro-traits ===
   - id: liblzma
     desc: liblzma library
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -13,7 +13,7 @@ traits:
 
   - id: lzma-prefix
     desc: lzma_ function prefix
-    crit: benign
+    crit: notable
     conf: 0.8
     if:
       type: string
@@ -21,7 +21,7 @@ traits:
 
   - id: xz-prefix
     desc: xz_ function prefix
-    crit: benign
+    crit: notable
     conf: 0.8
     if:
       type: string
@@ -29,7 +29,7 @@ traits:
 
   - id: lzmaenc
     desc: LzmaEnc SDK function
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -37,7 +37,7 @@ traits:
 
   - id: lzmadec
     desc: LzmaDec SDK function
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -45,7 +45,7 @@ traits:
 
   - id: lzma-ok
     desc: LZMA_OK status
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -54,7 +54,7 @@ traits:
   # === Zlib micro-traits ===
   - id: deflate
     desc: deflate function
-    crit: benign
+    crit: notable
     conf: 0.8
     if:
       type: symbol
@@ -62,7 +62,7 @@ traits:
 
   - id: inflate
     desc: inflate function
-    crit: benign
+    crit: notable
     conf: 0.8
     if:
       type: symbol
@@ -70,7 +70,7 @@ traits:
 
   - id: z-stream
     desc: z_stream type
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -78,7 +78,7 @@ traits:
 
   - id: libz-so
     desc: libz.so library
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -86,7 +86,7 @@ traits:
 
   - id: zlib-string
     desc: zlib string
-    crit: benign
+    crit: notable
     conf: 0.8
     if:
       type: string
@@ -94,7 +94,7 @@ traits:
 
   - id: zlib-decompress-symbol
     desc: zlib.decompress symbol
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: symbol
@@ -102,7 +102,7 @@ traits:
 
   - id: zlib-decompress-dynamic
     desc: zlib.decompress dynamic import
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: symbol
@@ -111,7 +111,7 @@ traits:
   # === Bzip2 micro-traits ===
   - id: bz2-compress
     desc: BZ2_bzCompress function
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: symbol
@@ -119,7 +119,7 @@ traits:
 
   - id: bz2-decompress
     desc: BZ2_bzDecompress function
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: symbol
@@ -127,7 +127,7 @@ traits:
 
   - id: libbz2
     desc: libbz2 library
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -135,7 +135,7 @@ traits:
 
   - id: bzip2-string
     desc: bzip2 string
-    crit: benign
+    crit: notable
     conf: 0.8
     if:
       type: string
@@ -144,7 +144,7 @@ traits:
   # === Zstd micro-traits ===
   - id: zstd-compress
     desc: ZSTD_compress function
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: symbol
@@ -152,7 +152,7 @@ traits:
 
   - id: zstd-decompress
     desc: ZSTD_decompress function
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: symbol
@@ -160,7 +160,7 @@ traits:
 
   - id: zstd-cctx
     desc: ZSTD_CCtx type
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -168,7 +168,7 @@ traits:
 
   - id: libzstd
     desc: libzstd library
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -177,7 +177,7 @@ traits:
   # === LZ4 micro-traits ===
   - id: lz4-compress
     desc: LZ4_compress function
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: symbol
@@ -185,7 +185,7 @@ traits:
 
   - id: lz4-decompress
     desc: LZ4_decompress function
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: symbol
@@ -193,7 +193,7 @@ traits:
 
   - id: liblz4
     desc: liblz4 library
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -203,7 +203,7 @@ composite_rules:
   # LZMA composite (migrated from YARA)
   - id: lzma
     desc: LZMA/XZ compression library
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - id: liblzma
@@ -216,7 +216,7 @@ composite_rules:
   # Zlib composite (migrated from YARA)
   - id: zlib
     desc: Zlib compression library
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - id: zlib-deflate-inflate
@@ -227,7 +227,7 @@ composite_rules:
   # Helper: deflate + inflate
   - id: zlib-deflate-inflate
     desc: Zlib deflate and inflate
-    crit: benign
+    crit: notable
     conf: 0.9
     all:
       - id: deflate
@@ -236,7 +236,7 @@ composite_rules:
   # Helper: zlib.decompress call
   - id: zlib-decompress
     desc: zlib.decompress call
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - id: zlib-decompress-symbol
@@ -245,7 +245,7 @@ composite_rules:
   # Bzip2 composite (migrated from YARA)
   - id: bzip2
     desc: Bzip2 compression library
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - id: bz2-compress
@@ -256,7 +256,7 @@ composite_rules:
   # Zstd composite (migrated from YARA)
   - id: zstd
     desc: Zstandard compression library
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - id: zstd-compress
@@ -267,7 +267,7 @@ composite_rules:
   # LZ4 composite (migrated from YARA)
   - id: lz4
     desc: LZ4 compression library
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - id: lz4-compress

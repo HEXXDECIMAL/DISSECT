@@ -3,7 +3,7 @@
 # Used for context in supply chain attack detection (e.g., XZ backdoor)
 
 defaults:
-  crit: benign
+  crit: notable
   conf: 0.8
   for: [elf, macho, pe]
 
@@ -45,7 +45,7 @@ traits:
 composite_rules:
   - id: compression-lib
     desc: "File is a compression library"
-    crit: benign
+    crit: notable
     conf: 0.85
     any:
       - id: lzma-marker

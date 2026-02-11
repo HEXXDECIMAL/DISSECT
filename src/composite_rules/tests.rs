@@ -87,6 +87,7 @@ fn test_symbol_condition() {
         needs: None,
         near_lines: None,
         near_bytes: None,
+        precision: None,
     };
 
     let result = rule.evaluate(&ctx);
@@ -161,6 +162,7 @@ fn test_all() {
         needs: None,
         near_lines: None,
         near_bytes: None,
+        precision: None,
     };
 
     let result = rule.evaluate(&ctx);
@@ -224,6 +226,7 @@ fn test_count() {
         needs: None,
         near_lines: None,
         near_bytes: None,
+        precision: None,
     };
 
     let result = rule.evaluate(&ctx);
@@ -285,6 +288,7 @@ fn test_string_exact_condition() {
         needs: None,
         near_lines: None,
         near_bytes: None,
+        precision: None,
     };
 
     let result = rule.evaluate(&ctx);
@@ -342,6 +346,7 @@ fn test_any() {
         needs: None,
         near_lines: None,
         near_bytes: None,
+        precision: None,
     };
 
     let result = rule.evaluate(&ctx);
@@ -423,6 +428,7 @@ fn test_not_directive_shorthand() {
         unless: None,
         downgrade: None,
         defined_in: std::path::PathBuf::from("test.yaml"),
+        precision: None,
     };
 
     let result = trait_def.evaluate(&ctx);
@@ -508,6 +514,7 @@ fn test_not_directive_exact() {
         unless: None,
         downgrade: None,
         defined_in: std::path::PathBuf::from("test.yaml"),
+        precision: None,
     };
 
     let result = trait_def.evaluate(&ctx);
@@ -593,6 +600,7 @@ fn test_not_directive_regex() {
         unless: None,
         downgrade: None,
         defined_in: std::path::PathBuf::from("test.yaml"),
+        precision: None,
     };
 
     let result = trait_def.evaluate(&ctx);
@@ -657,6 +665,7 @@ fn test_unless_directive_skips_trait() {
         }]),
         downgrade: None,
         defined_in: std::path::PathBuf::from("test.yaml"),
+        precision: None,
     };
 
     // Should return None because unless condition matches
@@ -704,6 +713,7 @@ fn test_unless_directive_allows_trait() {
         }]),
         downgrade: None,
         defined_in: std::path::PathBuf::from("test.yaml"),
+        precision: None,
     };
 
     // Should return Some because unless condition doesn't match
@@ -782,6 +792,7 @@ fn test_downgrade_to_notable() {
             needs: None,
         }),
         defined_in: std::path::PathBuf::from("test.yaml"),
+        precision: None,
     };
 
     let result = trait_def.evaluate(&ctx);
@@ -849,6 +860,7 @@ fn test_downgrade_one_level() {
             needs: None,
         }),
         defined_in: std::path::PathBuf::from("test.yaml"),
+        precision: None,
     };
 
     let result = trait_def.evaluate(&ctx);
@@ -904,6 +916,7 @@ fn test_downgrade_no_match_keeps_original() {
             needs: None,
         }),
         defined_in: std::path::PathBuf::from("test.yaml"),
+        precision: None,
     };
 
     let result = trait_def.evaluate(&ctx);
@@ -972,6 +985,7 @@ fn test_downgrade_from_hostile() {
             needs: None,
         }),
         defined_in: std::path::PathBuf::from("test.yaml"),
+        precision: None,
     };
 
     let result = trait_def.evaluate(&ctx);
@@ -1073,6 +1087,7 @@ fn test_all_three_directives_combined() {
             needs: None,
         }),
         defined_in: std::path::PathBuf::from("test.yaml"),
+        precision: None,
     };
 
     let result = trait_def.evaluate(&ctx);
@@ -1160,6 +1175,7 @@ fn test_string_exact_match_requires_full_equality() {
         unless: None,
         downgrade: None,
         defined_in: std::path::PathBuf::from("test.yaml"),
+        precision: None,
     };
 
     let result = trait_def.evaluate(&ctx);
@@ -1242,6 +1258,7 @@ fn test_string_substr_matches_substrings() {
         unless: None,
         downgrade: None,
         defined_in: std::path::PathBuf::from("test.yaml"),
+        precision: None,
     };
 
     let result = trait_def.evaluate(&ctx);
@@ -1302,6 +1319,7 @@ fn test_symbol_exact_vs_substr() {
         unless: None,
         downgrade: None,
         defined_in: std::path::PathBuf::from("test.yaml"),
+        precision: None,
     };
 
     let result = trait_exact.evaluate(&ctx);
@@ -1333,6 +1351,7 @@ fn test_symbol_exact_vs_substr() {
         unless: None,
         downgrade: None,
         defined_in: std::path::PathBuf::from("test.yaml"),
+        precision: None,
     };
 
     let result = trait_substr.evaluate(&ctx);
@@ -1403,6 +1422,7 @@ fn test_string_case_insensitive_exact() {
         unless: None,
         downgrade: None,
         defined_in: std::path::PathBuf::from("test.yaml"),
+        precision: None,
     };
 
     let result = trait_def.evaluate(&ctx);
@@ -1480,6 +1500,7 @@ fn test_string_word_boundary_match() {
         unless: None,
         downgrade: None,
         defined_in: std::path::PathBuf::from("test.yaml"),
+        precision: None,
     };
 
     let result = trait_def.evaluate(&ctx);
@@ -1570,6 +1591,7 @@ fn test_string_regex_match() {
         unless: None,
         downgrade: None,
         defined_in: std::path::PathBuf::from("test.yaml"),
+        precision: None,
     };
 
     let result = trait_def.evaluate(&ctx);
@@ -1808,6 +1830,7 @@ fn test_basename_in_trait_definition() {
         unless: None,
         downgrade: None,
         defined_in: std::path::PathBuf::from("test.yaml"),
+        precision: None,
     };
 
     let result = trait_def.evaluate(&ctx);
@@ -1857,6 +1880,7 @@ fn test_basename_in_composite_rule() {
         needs: None,
         near_lines: None,
         near_bytes: None,
+        precision: None,
     };
 
     let result = rule.evaluate(&ctx);
@@ -1925,6 +1949,7 @@ fn test_composite_unless_skips_rule() {
         needs: None,
         near_lines: None,
         near_bytes: None,
+        precision: None,
     };
 
     // Should return None because unless condition matches
@@ -1979,6 +2004,7 @@ fn test_composite_unless_allows_rule() {
         needs: None,
         near_lines: None,
         near_bytes: None,
+        precision: None,
     };
 
     // Should return Some because unless condition doesn't match
@@ -2038,6 +2064,7 @@ fn test_composite_unless_with_basename() {
         needs: None,
         near_lines: None,
         near_bytes: None,
+        precision: None,
     };
 
     // Should return None because the basename matches libX11.so
@@ -2129,6 +2156,7 @@ fn test_composite_unless_multiple_conditions_any_matches() {
         needs: None,
         near_lines: None,
         near_bytes: None,
+        precision: None,
     };
 
     // Should return None because the second unless condition (string regex) matches

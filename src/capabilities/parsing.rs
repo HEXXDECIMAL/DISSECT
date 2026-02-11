@@ -71,12 +71,23 @@ pub(crate) fn apply_trait_defaults(
     // Parse criticality: "none" means Inert
     let mut criticality = match &raw.crit {
         Some(v) if v.eq_ignore_ascii_case("none") => Criticality::Inert,
-        Some(v) => parse_criticality(v),
-        None => defaults
-            .crit
-            .as_deref()
-            .map(parse_criticality)
-            .unwrap_or(Criticality::Inert),
+        Some(v) => match parse_criticality(v) {
+            Ok(crit) => crit,
+            Err(e) => {
+                warnings.push(format!("Trait '{}': {}", raw.id, e));
+                Criticality::Inert
+            }
+        },
+        None => match defaults.crit.as_deref() {
+            Some(v) => match parse_criticality(v) {
+                Ok(crit) => crit,
+                Err(e) => {
+                    warnings.push(format!("Default criticality: {}", e));
+                    Criticality::Inert
+                }
+            },
+            None => Criticality::Inert,
+        },
     };
 
     // Stricter validation for HOSTILE traits: atomic traits cannot be HOSTILE
@@ -326,13 +337,17 @@ pub(crate) fn parse_platforms(platforms: &[String]) -> Vec<Platform> {
 }
 
 /// Parse criticality string into Criticality enum
-pub(crate) fn parse_criticality(s: &str) -> Criticality {
+/// Returns an error for invalid criticality values instead of silently defaulting
+pub(crate) fn parse_criticality(s: &str) -> Result<Criticality, String> {
     match s.to_lowercase().as_str() {
-        "inert" => Criticality::Inert,
-        "notable" => Criticality::Notable,
-        "suspicious" => Criticality::Suspicious,
-        "hostile" | "malicious" => Criticality::Hostile,
-        _ => Criticality::Inert,
+        "inert" => Ok(Criticality::Inert),
+        "notable" => Ok(Criticality::Notable),
+        "suspicious" => Ok(Criticality::Suspicious),
+        "hostile" | "malicious" => Ok(Criticality::Hostile),
+        unknown => Err(format!(
+            "Invalid criticality '{}'. Valid values: inert, notable, suspicious, hostile, malicious",
+            unknown
+        )),
     }
 }
 
@@ -356,12 +371,23 @@ pub(crate) fn apply_composite_defaults(
     // Parse criticality: "none" means Inert
     let criticality = match &raw.crit {
         Some(v) if v.eq_ignore_ascii_case("none") => Criticality::Inert,
-        Some(v) => parse_criticality(v),
-        None => defaults
-            .crit
-            .as_deref()
-            .map(parse_criticality)
-            .unwrap_or(Criticality::Inert),
+        Some(v) => match parse_criticality(v) {
+            Ok(crit) => crit,
+            Err(e) => {
+                warnings.push(format!("Composite rule '{}': {}", raw.id, e));
+                Criticality::Inert
+            }
+        },
+        None => match defaults.crit.as_deref() {
+            Some(v) => match parse_criticality(v) {
+                Ok(crit) => crit,
+                Err(e) => {
+                    warnings.push(format!("Default criticality: {}", e));
+                    Criticality::Inert
+                }
+            },
+            None => Criticality::Inert,
+        },
     };
 
     // Handle single condition by converting to requires_all
@@ -545,33 +571,42 @@ mod tests {
 
     #[test]
     fn test_parse_criticality_inert() {
-        assert_eq!(parse_criticality("inert"), Criticality::Inert);
-        assert_eq!(parse_criticality("INERT"), Criticality::Inert);
+        assert_eq!(parse_criticality("inert").unwrap(), Criticality::Inert);
+        assert_eq!(parse_criticality("INERT").unwrap(), Criticality::Inert);
     }
 
     #[test]
     fn test_parse_criticality_notable() {
-        assert_eq!(parse_criticality("notable"), Criticality::Notable);
-        assert_eq!(parse_criticality("NOTABLE"), Criticality::Notable);
+        assert_eq!(parse_criticality("notable").unwrap(), Criticality::Notable);
+        assert_eq!(parse_criticality("NOTABLE").unwrap(), Criticality::Notable);
     }
 
     #[test]
     fn test_parse_criticality_suspicious() {
-        assert_eq!(parse_criticality("suspicious"), Criticality::Suspicious);
-        assert_eq!(parse_criticality("SUSPICIOUS"), Criticality::Suspicious);
+        assert_eq!(parse_criticality("suspicious").unwrap(), Criticality::Suspicious);
+        assert_eq!(parse_criticality("SUSPICIOUS").unwrap(), Criticality::Suspicious);
     }
 
     #[test]
     fn test_parse_criticality_hostile() {
-        assert_eq!(parse_criticality("hostile"), Criticality::Hostile);
-        assert_eq!(parse_criticality("HOSTILE"), Criticality::Hostile);
-        assert_eq!(parse_criticality("malicious"), Criticality::Hostile);
+        assert_eq!(parse_criticality("hostile").unwrap(), Criticality::Hostile);
+        assert_eq!(parse_criticality("HOSTILE").unwrap(), Criticality::Hostile);
+        assert_eq!(parse_criticality("malicious").unwrap(), Criticality::Hostile);
     }
 
     #[test]
-    fn test_parse_criticality_unknown_defaults_to_inert() {
-        assert_eq!(parse_criticality("unknown"), Criticality::Inert);
-        assert_eq!(parse_criticality(""), Criticality::Inert);
+    fn test_parse_criticality_unknown_returns_error() {
+        assert!(parse_criticality("unknown").is_err());
+        assert!(parse_criticality("").is_err());
+        assert!(parse_criticality("high").is_err());
+        assert!(parse_criticality("critical").is_err());
+        assert!(parse_criticality("dangerous").is_err());
+
+        // Check error message
+        let err = parse_criticality("dangerous").unwrap_err();
+        assert!(err.contains("dangerous"));
+        assert!(err.contains("inert"));
+        assert!(err.contains("hostile"));
     }
 
     // ==================== parse_platforms Tests ====================

@@ -1,11 +1,10 @@
 # Build System - CARGO
 
 traits:
-
   # === Cargo micro-traits ===
   - id: cargo-toml
     desc: Cargo.toml file
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -13,7 +12,7 @@ traits:
 
   - id: cargo-namespace
     desc: "cargo:: namespace"
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -21,7 +20,7 @@ traits:
 
   - id: registry-src
     desc: /registry/src/ path
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -29,18 +28,17 @@ traits:
 
   - id: dot-cargo
     desc: .cargo/ directory
-    crit: benign
+    crit: notable
     conf: 0.9
     if:
       type: string
       substr: ".cargo/"
 
 composite_rules:
-
   # Cargo composite (migrated from YARA)
   - id: cargo
     desc: Built with Cargo (Rust)
-    crit: benign
+    crit: notable
     conf: 0.9
     any:
       - id: cargo-toml

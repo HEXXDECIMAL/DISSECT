@@ -5,7 +5,7 @@
 defaults:
   crit: suspicious
   attack: "T1562.001"
-  for: [shell]
+  for: [shell, elf, python, ruby]
 
 traits:
   # === SELinux Manipulation ===
@@ -50,7 +50,7 @@ composite_rules:
   - id: selinux-disabled
     desc: SELinux disabled
     crit: suspicious
-    conf: 0.9
+    conf: 0.95
     any:
       - id: selinux-setenforce
       - id: selinux-disable
@@ -60,7 +60,7 @@ composite_rules:
   - id: apparmor-disabled
     desc: AppArmor disabled
     crit: suspicious
-    conf: 0.9
+    conf: 0.95
     any:
       - id: apparmor-disable
       - id: apparmor-stop
@@ -69,7 +69,7 @@ composite_rules:
   - id: mac-disabled
     desc: Multiple MAC systems disabled
     crit: hostile
-    conf: 0.95
+    conf: 0.98
     all:
       - id: selinux-disabled
       - id: apparmor-disabled
@@ -78,10 +78,10 @@ composite_rules:
   - id: full-security-disable
     desc: Complete security stack disable (MAC + Firewall)
     crit: hostile
-    conf: 0.95
+    conf: 0.98
     attack: "T1562"
-    needs: 2
+    all:
+      - id: obj/impact/degrade/firewall
     any:
       - id: selinux-disabled
       - id: apparmor-disabled
-      - id: obj/impact/degrade/firewall
