@@ -20,14 +20,14 @@ traits:
     if:
       type: raw
       regex: "(curl|wget).{0,50}(HOME|~/|\\$HOME)"
-      exclude_patterns:
-        - "(?i)netbsd\\.org"
-        - "(?i)freebsd\\.org"
-        - "(?i)openbsd\\.org"
-        - "(?i)dragonflybsd\\.org"
-        - "(?i)kernel\\.org"
-        - "(?i)github\\.com"
-        - "(?i)google\\.com"
+    not:
+      - regex: "(?i)netbsd\\.org"
+      - regex: "(?i)freebsd\\.org"
+      - regex: "(?i)openbsd\\.org"
+      - regex: "(?i)dragonflybsd\\.org"
+      - regex: "(?i)kernel\\.org"
+      - regex: "(?i)github\\.com"
+      - regex: "(?i)google\\.com"
 
   - id: curl-silent-output
     desc: Silent curl with output

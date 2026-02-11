@@ -59,7 +59,7 @@ impl MachOAnalyzer {
     }
 
     fn analyze_single(&self, file_path: &Path, data: &[u8]) -> Result<AnalysisReport> {
-        let start = std::time::Instant::now();        // Parse with goblin
+        let start = std::time::Instant::now(); // Parse with goblin
         let macho = match goblin::mach::Mach::parse(data)? {
             Mach::Binary(m) => m,
             Mach::Fat(_) => {

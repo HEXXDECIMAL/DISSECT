@@ -466,7 +466,10 @@ fn analyze_file(
         let empty_mapper = crate::capabilities::CapabilityMapper::empty();
         let mut engine = YaraEngine::new_with_mapper(empty_mapper);
         let (builtin_count, third_party_count) = engine.load_all_rules(enable_third_party_yara)?;
-        tracing::info!("YARA engine loaded with {} rules", builtin_count + third_party_count);
+        tracing::info!(
+            "YARA engine loaded with {} rules",
+            builtin_count + third_party_count
+        );
         engine.set_capability_mapper(capability_mapper.clone());
         if builtin_count + third_party_count > 0 {
             Some(engine)
@@ -600,7 +603,6 @@ fn analyze_file(
         }
     }
 
-
     // Check if report's criticality matches --error-if criteria
     check_criticality_error(&report, error_if_levels)?;
 
@@ -609,7 +611,6 @@ fn analyze_file(
 
     // Format output based on requested format
     let _t4 = std::time::Instant::now();
-    
 
     match format {
         cli::OutputFormat::Jsonl => output::format_jsonl(&report),
@@ -937,7 +938,6 @@ fn analyze_file_with_shared_mapper(
     // Detect file type
     let file_type = detect_file_type(path)?;
 
-
     // Read file for mismatch check and payload extraction
     let file_data = std::fs::read(path)?;
 
@@ -1036,7 +1036,6 @@ fn analyze_file_with_shared_mapper(
         }
     };
 
-
     // Add finding for extension/content mismatch if detected
     if let Some((expected, actual)) = mismatch {
         report.findings.push(types::Finding {
@@ -1126,7 +1125,6 @@ fn analyze_file_with_shared_mapper(
             }
         }
     }
-
 
     // Check if report's criticality matches --error-if criteria
     check_criticality_error(&report, error_if_levels)?;
@@ -3380,4 +3378,3 @@ fn find_rules_in_directory(
     rules.dedup();
     rules
 }
-

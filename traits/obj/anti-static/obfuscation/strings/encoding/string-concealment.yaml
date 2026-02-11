@@ -17,7 +17,6 @@ traits:
     if:
       type: section_ratio
       section: "(__TEXT\\.__cstring|^\\.rodata\\.|^\\.rdata)"
-      regex: true
       compare_to: "total"
       max_ratio: 0.002  # Less than 0.2% of binary is strings
     unless:

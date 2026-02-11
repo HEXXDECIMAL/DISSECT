@@ -108,6 +108,12 @@ pub enum AnalysisWarning {
     NestingTooDeep { max_depth: u32 },
     /// Archive nesting depth limit hit
     ArchiveTooDeep { max_depth: usize },
+    /// Rule evaluation timeout - potentially malicious input causing slowdown
+    RuleTimeout {
+        rule_id: String,
+        duration_ms: u64,
+        timeout_ms: u64,
+    },
 }
 
 /// Result of evaluating a condition

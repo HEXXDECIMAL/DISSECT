@@ -34,5 +34,5 @@ traits:
     if:
       type: string
       regex: "/bin/su($|\\s)"
-      not:
-        regex: suexec
+    not:
+      - regex: suexec

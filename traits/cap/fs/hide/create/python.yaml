@@ -18,8 +18,8 @@ traits:
       type: string
       # Matches: os.path.join(..., ".xyz") or join(foo, ".bar")
       regex: "os\\.path\\.join\\([^)]*[,]\\s*[\"']\\.[a-zA-Z][a-zA-Z0-9_-]*[\"']"
-      not:
-        - regex: "[\"']\\.(tox|cache|git|venv|env|pytest_cache|mypy_cache|build|dist)[\"']"
+    not:
+      - regex: "[\"']\\.(tox|cache|git|venv|env|pytest_cache|mypy_cache|build|dist)[\"']"
 
   # Pathlib hidden directory: Path(...) / ".hidden"
   - id: python-pathlib-hidden
@@ -30,8 +30,8 @@ traits:
       type: string
       # Matches: Path(...) / ".xyz" or path / ".bar"
       regex: "/\\s*[\"']\\.[a-zA-Z][a-zA-Z0-9_-]*[\"']"
-      not:
-        - regex: "[\"']\\.(tox|cache|git|venv|env|pytest_cache|mypy_cache|build|dist)[\"']"
+    not:
+      - regex: "[\"']\\.(tox|cache|git|venv|env|pytest_cache|mypy_cache|build|dist)[\"']"
 
   # String literal hidden path: "/.hidden" or "~/.config"
   - id: python-string-hidden-path
@@ -51,8 +51,8 @@ traits:
     if:
       type: string
       regex: "os\\.makedirs\\([^)]*\\.[a-zA-Z][a-zA-Z0-9_-]*"
-      not:
-        - regex: "[\"']\\.(tox|cache|git|venv|env|pytest_cache|mypy_cache|build|dist)[\"']"
+    not:
+      - regex: "[\"']\\.(tox|cache|git|venv|env|pytest_cache|mypy_cache|build|dist)[\"']"
 
   # mkdir with hidden directory (pathlib)
   - id: python-mkdir-hidden
@@ -114,7 +114,7 @@ traits:
       # Match hidden dir pattern in os.path.join, Path /operator, or makedirs context
       # Explicitly exclude file extensions (.py, .js, .go, etc.) by matching directory patterns
       regex: "(os\\.path\\.join|/\\s*[\"']\\.|makedirs|mkdir)\\([^)]*[\"']\\.[a-z][a-z0-9]?[\"']"
-      not:
+    not:
         # Exclude common file extensions
         - regex: "[\"']\\.(py|js|ts|go|rs|rb|md|sh|c|h|pyc|pt|so|git|ssh|aws|npm)[\"']"
 

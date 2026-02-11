@@ -19,7 +19,7 @@ traits:
       type: ast
       kind: call
       exact: "\\.clone\\("
-      needs: 2
+      count_min: 2
 
   # === AST Pattern: GitPython Clone ===
   - id: ast-gitpython-clone

@@ -650,7 +650,7 @@ fn test_eval_syscall_by_name() {
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
-    let result = eval_syscall(Some(&vec!["execve".to_string()]), None, None, None, &ctx);
+    let result = eval_syscall(Some(&vec!["execve".to_string()]), None, None, 1, None, None, None, &ctx);
     assert!(result.matched);
     assert!(result.evidence[0].value.contains("execve"));
 }
@@ -668,7 +668,7 @@ fn test_eval_syscall_by_number() {
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
-    let result = eval_syscall(None, Some(&vec![41]), None, None, &ctx);
+    let result = eval_syscall(None, Some(&vec![41]), None, 1, None, None, None, &ctx);
     assert!(result.matched);
 }
 
@@ -696,6 +696,9 @@ fn test_eval_syscall_by_arch() {
         Some(&vec!["exit".to_string()]),
         None,
         Some(&vec!["x86_64".to_string()]),
+        1,
+        None,
+        None,
         None,
         &ctx,
     );
@@ -727,7 +730,10 @@ fn test_eval_syscall_min_count() {
         Some(&vec!["read".to_string()]),
         None,
         None,
-        Some(2), // Require 2 occurrences
+        2, // Require 2 occurrences
+        None,
+        None,
+        None,
         &ctx,
     );
     assert!(result.matched);
@@ -736,7 +742,10 @@ fn test_eval_syscall_min_count() {
         Some(&vec!["read".to_string()]),
         None,
         None,
-        Some(5), // Require 5 occurrences
+        5, // Require 5 occurrences
+        None,
+        None,
+        None,
         &ctx,
     );
     assert!(!result.matched);
@@ -755,7 +764,7 @@ fn test_eval_syscall_no_match() {
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
-    let result = eval_syscall(Some(&vec!["ptrace".to_string()]), None, None, None, &ctx);
+    let result = eval_syscall(Some(&vec!["ptrace".to_string()]), None, None, 1, None, None, None, &ctx);
     assert!(!result.matched);
 }
 
@@ -784,6 +793,9 @@ fn test_eval_syscall_combined_filters() {
         Some(&vec!["socket".to_string()]),
         Some(&vec![41]),
         Some(&vec!["x86_64".to_string()]),
+        1,
+        None,
+        None,
         None,
         &ctx,
     );

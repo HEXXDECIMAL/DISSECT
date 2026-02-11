@@ -38,6 +38,7 @@ pub fn eval_symbol(
     substr: Option<&String>,
     pattern: Option<&String>,
     platforms: Option<&Vec<Platform>>,
+    count_constraints: &CountConstraints,
     compiled_regex: Option<&regex::Regex>,
     not: Option<&Vec<NotException>>,
     ctx: &EvaluationContext,
@@ -130,8 +131,22 @@ pub fn eval_symbol(
         precision = 1.0; // Substring match
     }
 
+    // Add precision for count/density constraints
+    if count_constraints.count_min > 1 {
+        precision += 0.5;
+    }
+    if count_constraints.count_max.is_some()
+        || count_constraints.per_kb_min.is_some()
+        || count_constraints.per_kb_max.is_some()
+    {
+        precision += 0.5;
+    }
+
+    // Check count and density constraints
+    let matched = check_count_constraints(evidence.len(), ctx.binary_data.len(), count_constraints);
+
     ConditionResult {
-        matched: !evidence.is_empty(),
+        matched,
         evidence,
         traits: Vec::new(),
         warnings: Vec::new(),

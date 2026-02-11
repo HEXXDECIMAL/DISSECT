@@ -50,7 +50,8 @@ impl YaraEngine {
     /// Load all YARA rules (built-in from traits/ + optionally third-party from third_party/yara)
     /// Uses cache if available and valid
     pub fn load_all_rules(&mut self, enable_third_party: bool) -> Result<(usize, usize)> {
-        let _span = tracing::info_span!("load_yara_rules").entered();        tracing::info!("Loading YARA rules");
+        let _span = tracing::info_span!("load_yara_rules").entered();
+        tracing::info!("Loading YARA rules");
         // Try to load from cache
         if let Ok(cache_path) = crate::cache::yara_cache_path(enable_third_party) {
             if cache_path.exists() {
@@ -58,7 +59,11 @@ impl YaraEngine {
                 let _t_cache = std::time::Instant::now();
                 match self.load_from_cache(&cache_path) {
                     Ok((builtin, third_party)) => {
-                        tracing::info!("Loaded {} built-in + {} third-party YARA rules from cache", builtin, third_party);
+                        tracing::info!(
+                            "Loaded {} built-in + {} third-party YARA rules from cache",
+                            builtin,
+                            third_party
+                        );
                         eprintln!(
                             "✅ Loaded {} built-in + {} third-party YARA rules from cache",
                             builtin, third_party
@@ -163,7 +168,8 @@ impl YaraEngine {
         compiler: &mut yara_x::Compiler,
         dir: &Path,
         namespace_prefix: &str,
-    ) -> Result<usize> {        // First, collect all YARA rule file paths
+    ) -> Result<usize> {
+        // First, collect all YARA rule file paths
         tracing::trace!("Scanning {} for YARA rule files", dir.display());
         let rule_files: Vec<PathBuf> = WalkDir::new(dir)
             .follow_links(false)
@@ -732,7 +738,8 @@ impl YaraEngine {
     }
 
     /// Load compiled YARA rules from cache
-    fn load_from_cache(&mut self, cache_path: &Path) -> Result<(usize, usize)> {        let _t_read = std::time::Instant::now();
+    fn load_from_cache(&mut self, cache_path: &Path) -> Result<(usize, usize)> {
+        let _t_read = std::time::Instant::now();
         let data = fs::read(cache_path).context("Failed to read cache file")?;
 
         let _t_bincode = std::time::Instant::now();

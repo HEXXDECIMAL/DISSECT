@@ -22,7 +22,7 @@ mod validation_tests {
             unless: None,
             downgrade: None,
             defined_in: std::path::PathBuf::new(),
-        precision: None,
+            precision: None,
         }
     }
 

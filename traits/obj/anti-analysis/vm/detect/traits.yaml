@@ -431,5 +431,5 @@ composite_rules:
     mbc: "B0003"
     all:
       - id: hypervisor-vendor
-      - id: obj/exfil/channel/http::node-http-libs
+      - id: cap/comm/http/request::http-client-usage
       - id: obj/discovery/host/system/hardware-fingerprint::js-profiling

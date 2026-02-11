@@ -77,7 +77,7 @@ enum ConditionDeser {
 
 /// Internal tagged enum for deserializing conditions with explicit `type` field
 #[derive(Debug, Clone, Deserialize)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[serde(tag = "type", rename_all = "snake_case", deny_unknown_fields)]
 enum ConditionTagged {
     Symbol {
         /// Full symbol name match (entire symbol must equal this)
@@ -90,6 +90,18 @@ enum ConditionTagged {
         #[serde(default)]
         regex: Option<String>,
         platforms: Option<Vec<Platform>>,
+        /// Minimum match count
+        #[serde(default = "default_count_min")]
+        count_min: usize,
+        /// Maximum match count - matches fail if exceeded
+        #[serde(default)]
+        count_max: Option<usize>,
+        /// Minimum matches per kilobyte of file size (density threshold)
+        #[serde(default)]
+        per_kb_min: Option<f64>,
+        /// Maximum matches per kilobyte of file size (density ceiling)
+        #[serde(default)]
+        per_kb_max: Option<f64>,
     },
     String {
         /// Full string match (entire string must equal this)
@@ -179,6 +191,18 @@ enum ConditionTagged {
         /// Case-insensitive matching (default: false)
         #[serde(default)]
         case_insensitive: bool,
+        /// Minimum match count
+        #[serde(default = "default_count_min")]
+        count_min: usize,
+        /// Maximum match count - matches fail if exceeded
+        #[serde(default)]
+        count_max: Option<usize>,
+        /// Minimum matches per kilobyte of file size (density threshold)
+        #[serde(default)]
+        per_kb_min: Option<f64>,
+        /// Maximum matches per kilobyte of file size (density ceiling)
+        #[serde(default)]
+        per_kb_max: Option<f64>,
     },
     Yara {
         source: String,
@@ -187,7 +211,18 @@ enum ConditionTagged {
         name: Option<Vec<String>>,
         number: Option<Vec<u32>>,
         arch: Option<Vec<String>>,
-        min_count: Option<usize>,
+        /// Minimum match count
+        #[serde(default = "default_count_min")]
+        count_min: usize,
+        /// Maximum match count - matches fail if exceeded
+        #[serde(default)]
+        count_max: Option<usize>,
+        /// Minimum matches per kilobyte of file size (density threshold)
+        #[serde(default)]
+        per_kb_min: Option<f64>,
+        /// Maximum matches per kilobyte of file size (density ceiling)
+        #[serde(default)]
+        per_kb_max: Option<f64>,
     },
     SectionRatio {
         section: String,
@@ -198,8 +233,8 @@ enum ConditionTagged {
     },
     SectionEntropy {
         section: String,
-        min_entropy: Option<f64>,
-        max_entropy: Option<f64>,
+        min: Option<f64>,
+        max: Option<f64>,
     },
     ImportCombination {
         required: Option<Vec<String>>,
@@ -411,11 +446,19 @@ impl From<ConditionDeser> for Condition {
                     substr,
                     regex,
                     platforms,
+                    count_min,
+                    count_max,
+                    per_kb_min,
+                    per_kb_max,
                 } => Condition::Symbol {
                     exact,
                     substr,
                     regex,
                     platforms,
+                    count_min,
+                    count_max,
+                    per_kb_min,
+                    per_kb_max,
                     compiled_regex: None,
                 },
                 ConditionTagged::String {
@@ -491,12 +534,18 @@ impl From<ConditionDeser> for Condition {
                     name,
                     number,
                     arch,
-                    min_count,
+                    count_min,
+                    count_max,
+                    per_kb_min,
+                    per_kb_max,
                 } => Condition::Syscall {
                     name,
                     number,
                     arch,
-                    min_count,
+                    count_min,
+                    count_max,
+                    per_kb_min,
+                    per_kb_max,
                 },
                 ConditionTagged::SectionRatio {
                     section,
@@ -511,12 +560,12 @@ impl From<ConditionDeser> for Condition {
                 },
                 ConditionTagged::SectionEntropy {
                     section,
-                    min_entropy,
-                    max_entropy,
+                    min,
+                    max,
                 } => Condition::SectionEntropy {
                     section,
-                    min_entropy,
-                    max_entropy,
+                    min,
+                    max,
                 },
                 ConditionTagged::ImportCombination {
                     required,
@@ -698,6 +747,18 @@ pub enum Condition {
         regex: Option<String>,
         #[serde(skip_serializing_if = "Option::is_none")]
         platforms: Option<Vec<Platform>>,
+        /// Minimum match count
+        #[serde(default = "default_count_min")]
+        count_min: usize,
+        /// Maximum match count - matches fail if exceeded
+        #[serde(skip_serializing_if = "Option::is_none")]
+        count_max: Option<usize>,
+        /// Minimum matches per kilobyte of file size (density threshold)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        per_kb_min: Option<f64>,
+        /// Maximum matches per kilobyte of file size (density ceiling)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        per_kb_max: Option<f64>,
         /// Pre-compiled regex (populated after deserialization, not serialized)
         #[serde(skip)]
         compiled_regex: Option<regex::Regex>,
@@ -855,9 +916,18 @@ pub enum Condition {
         /// Architecture filter (e.g., "mips", "x86_64", "arm")
         #[serde(skip_serializing_if = "Option::is_none")]
         arch: Option<Vec<String>>,
-        /// Minimum number of matching syscalls required
-        #[serde(skip_serializing_if = "Option::is_none")]
-        min_count: Option<usize>,
+        /// Minimum match count
+        #[serde(default = "default_count_min")]
+        count_min: usize,
+        /// Maximum match count - matches fail if exceeded
+        #[serde(default)]
+        count_max: Option<usize>,
+        /// Minimum matches per kilobyte of file size (density threshold)
+        #[serde(default)]
+        per_kb_min: Option<f64>,
+        /// Maximum matches per kilobyte of file size (density ceiling)
+        #[serde(default)]
+        per_kb_max: Option<f64>,
     },
 
     /// Check section size ratio (e.g., __const is 80%+ of binary)
@@ -883,10 +953,10 @@ pub enum Condition {
         section: String,
         /// Minimum entropy threshold
         #[serde(skip_serializing_if = "Option::is_none")]
-        min_entropy: Option<f64>,
+        min: Option<f64>,
         /// Maximum entropy threshold
         #[serde(skip_serializing_if = "Option::is_none")]
-        max_entropy: Option<f64>,
+        max: Option<f64>,
     },
 
     /// Check import patterns (required + suspicious combination)

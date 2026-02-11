@@ -9,12 +9,16 @@ use super::evaluators::{
     eval_ast, eval_basename, eval_encoded, eval_exports_count, eval_hex, eval_import_combination,
     eval_metrics, eval_raw, eval_section_entropy, eval_section_name, eval_section_ratio,
     eval_string, eval_string_count, eval_structure, eval_symbol, eval_syscall, eval_trait,
-    eval_yara_inline, ContentLocationParams,
+    eval_yara_inline, ContentLocationParams, CountConstraints,
 };
 use super::types::{default_file_types, default_platforms, FileType, Platform};
 use crate::types::{Criticality, Evidence, Finding, FindingKind};
 use anyhow::Context;
 use serde::{Deserialize, Serialize};
+use std::time::{Duration, Instant};
+
+/// Maximum time allowed for a single rule evaluation (2 seconds)
+const MAX_RULE_EVAL_DURATION: Duration = Duration::from_secs(2);
 
 fn default_confidence() -> f32 {
     1.0
@@ -578,8 +582,51 @@ impl TraitDefinition {
             }
         }
 
-        // Evaluate the condition (traits only have one atomic condition)
+        // Evaluate the condition (traits only have one atomic condition) with timeout protection
+        let start = Instant::now();
         let result = self.eval_condition(&self.r#if, ctx);
+        let duration = start.elapsed();
+
+        // Check for timeout violations (potential anti-analysis technique)
+        if duration > MAX_RULE_EVAL_DURATION {
+            eprintln!(
+                "WARN: Rule {} exceeded timeout: {}ms > {}ms",
+                self.id,
+                duration.as_millis(),
+                MAX_RULE_EVAL_DURATION.as_millis()
+            );
+
+            // Return a timeout warning finding instead of the actual result
+            // This flags the file as suspicious for causing analysis slowdown
+            let timeout_warning = Finding {
+                id: "obj/anti-analysis/analysis-bomb/rule-timeout".to_string(),
+                desc: format!(
+                    "Rule evaluation timeout: {} took {}ms (limit: {}ms)",
+                    self.id,
+                    duration.as_millis(),
+                    MAX_RULE_EVAL_DURATION.as_millis()
+                ),
+                crit: Criticality::Suspicious,
+                kind: FindingKind::Indicator,
+                conf: 0.9,
+                mbc: Some("B0003.005".to_string()), // Obfuscated Files or Information: Analysis Evasion
+                attack: None,
+                trait_refs: vec![],
+                evidence: vec![crate::types::Evidence {
+                    method: "timeout-detection".to_string(),
+                    source: "dissect-evaluator".to_string(),
+                    value: format!(
+                        "Rule '{}' exceeded {}ms timeout, took {}ms",
+                        self.id,
+                        MAX_RULE_EVAL_DURATION.as_millis(),
+                        duration.as_millis()
+                    ),
+                    location: None,
+                }],
+            };
+
+            return Some(timeout_warning);
+        }
 
         // Record condition result if debug collector is present
         if let Some(collector) = &ctx.debug_collector {
@@ -725,16 +772,25 @@ impl TraitDefinition {
                 substr,
                 regex,
                 platforms,
+                count_min,
+                count_max,
+                per_kb_min,
+                per_kb_max,
                 compiled_regex,
-            } => eval_symbol(
-                exact.as_ref(),
-                substr.as_ref(),
-                regex.as_ref(),
-                platforms.as_ref(),
-                compiled_regex.as_ref(),
-                self.not.as_ref(),
-                ctx,
-            ),
+            } => {
+                let count_constraints =
+                    CountConstraints::new(*count_min, *count_max, *per_kb_min, *per_kb_max);
+                eval_symbol(
+                    exact.as_ref(),
+                    substr.as_ref(),
+                    regex.as_ref(),
+                    platforms.as_ref(),
+                    &count_constraints,
+                    compiled_regex.as_ref(),
+                    self.not.as_ref(),
+                    ctx,
+                )
+            }
             Condition::String {
                 exact,
                 substr,
@@ -809,12 +865,18 @@ impl TraitDefinition {
                 name,
                 number,
                 arch,
-                min_count,
+                count_min,
+                count_max,
+                per_kb_min,
+                per_kb_max,
             } => eval_syscall(
                 name.as_ref(),
                 number.as_ref(),
                 arch.as_ref(),
-                *min_count,
+                *count_min,
+                *count_max,
+                *per_kb_min,
+                *per_kb_max,
                 ctx,
             ),
             Condition::SectionRatio {
@@ -825,9 +887,9 @@ impl TraitDefinition {
             } => eval_section_ratio(section, compare_to, *min_ratio, *max_ratio, ctx),
             Condition::SectionEntropy {
                 section,
-                min_entropy,
-                max_entropy,
-            } => eval_section_entropy(section, *min_entropy, *max_entropy, ctx),
+                min,
+                max,
+            } => eval_section_entropy(section, *min, *max, ctx),
             Condition::ImportCombination {
                 required,
                 suspicious,
@@ -1254,6 +1316,9 @@ impl CompositeTrait {
             }
         }
 
+        // Start timing for timeout detection
+        let start = Instant::now();
+
         // Evaluate positive conditions based on the boolean operator(s)
         let has_positive = self.all.is_some() || self.any.is_some();
 
@@ -1412,6 +1477,44 @@ impl CompositeTrait {
             }
 
             let boosted_conf = (self.conf + precision_boost).min(1.0);
+
+            // Check for timeout violations before returning
+            let duration = start.elapsed();
+            if duration > MAX_RULE_EVAL_DURATION {
+                eprintln!(
+                    "WARN: Composite rule {} exceeded timeout: {}ms > {}ms",
+                    self.id,
+                    duration.as_millis(),
+                    MAX_RULE_EVAL_DURATION.as_millis()
+                );
+
+                return Some(Finding {
+                    id: "obj/anti-analysis/analysis-bomb/rule-timeout".to_string(),
+                    desc: format!(
+                        "Composite rule evaluation timeout: {} took {}ms (limit: {}ms)",
+                        self.id,
+                        duration.as_millis(),
+                        MAX_RULE_EVAL_DURATION.as_millis()
+                    ),
+                    crit: Criticality::Suspicious,
+                    kind: FindingKind::Indicator,
+                    conf: 0.9,
+                    mbc: Some("B0003.005".to_string()), // Obfuscated Files or Information: Analysis Evasion
+                    attack: None,
+                    trait_refs: vec![],
+                    evidence: vec![crate::types::Evidence {
+                        method: "timeout-detection".to_string(),
+                        source: "dissect-evaluator".to_string(),
+                        value: format!(
+                            "Composite rule '{}' exceeded {}ms timeout, took {}ms",
+                            self.id,
+                            MAX_RULE_EVAL_DURATION.as_millis(),
+                            duration.as_millis()
+                        ),
+                        location: None,
+                    }],
+                });
+            }
 
             Some(Finding {
                 id: self.id.clone(),
@@ -1639,15 +1742,24 @@ impl CompositeTrait {
                 substr,
                 regex,
                 platforms,
+                count_min,
+                count_max,
+                per_kb_min,
+                per_kb_max,
                 compiled_regex,
-            } => self.eval_symbol(
-                exact.as_ref(),
-                substr.as_ref(),
-                regex.as_ref(),
-                platforms.as_ref(),
-                compiled_regex.as_ref(),
-                ctx,
-            ),
+            } => {
+                let count_constraints =
+                    CountConstraints::new(*count_min, *count_max, *per_kb_min, *per_kb_max);
+                self.eval_symbol(
+                    exact.as_ref(),
+                    substr.as_ref(),
+                    regex.as_ref(),
+                    platforms.as_ref(),
+                    &count_constraints,
+                    compiled_regex.as_ref(),
+                    ctx,
+                )
+            }
             Condition::String {
                 exact,
                 substr,
@@ -1722,12 +1834,18 @@ impl CompositeTrait {
                 name,
                 number,
                 arch,
-                min_count,
+                count_min,
+                count_max,
+                per_kb_min,
+                per_kb_max,
             } => eval_syscall(
                 name.as_ref(),
                 number.as_ref(),
                 arch.as_ref(),
-                *min_count,
+                *count_min,
+                *count_max,
+                *per_kb_min,
+                *per_kb_max,
                 ctx,
             ),
             Condition::SectionRatio {
@@ -1738,9 +1856,9 @@ impl CompositeTrait {
             } => eval_section_ratio(section, compare_to, *min_ratio, *max_ratio, ctx),
             Condition::SectionEntropy {
                 section,
-                min_entropy,
-                max_entropy,
-            } => eval_section_entropy(section, *min_entropy, *max_entropy, ctx),
+                min,
+                max,
+            } => eval_section_entropy(section, *min, *max, ctx),
             Condition::ImportCombination {
                 required,
                 suspicious,
@@ -1912,6 +2030,7 @@ impl CompositeTrait {
         substr: Option<&String>,
         pattern: Option<&String>,
         platforms: Option<&Vec<Platform>>,
+        count_constraints: &CountConstraints,
         compiled_regex: Option<&regex::Regex>,
         ctx: &EvaluationContext,
     ) -> ConditionResult {
@@ -1933,7 +2052,16 @@ impl CompositeTrait {
             }
         }
 
-        eval_symbol(exact, substr, pattern, None, compiled_regex, None, ctx)
+        eval_symbol(
+            exact,
+            substr,
+            pattern,
+            None,
+            count_constraints,
+            compiled_regex,
+            None,
+            ctx,
+        )
     }
 
     /// Evaluate structure condition

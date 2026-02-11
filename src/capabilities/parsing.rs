@@ -118,14 +118,14 @@ pub(crate) fn apply_trait_defaults(
 
     // For size-only traits without a condition, create a synthetic "always-true" condition
     // This uses a basename regex that matches everything
-    let mut condition = raw
-        .condition
-        .unwrap_or_else(|| crate::composite_rules::Condition::Basename {
-            exact: None,
-            substr: None,
-            regex: Some(".".to_string()),
-            case_insensitive: false,
-        });
+    let mut condition =
+        raw.condition
+            .unwrap_or_else(|| crate::composite_rules::Condition::Basename {
+                exact: None,
+                substr: None,
+                regex: Some(".".to_string()),
+                case_insensitive: false,
+            });
 
     // Auto-fix: Convert literal regex patterns to substr for better performance
     // If a regex pattern contains only alphanumeric chars and underscores, it's a literal
@@ -427,14 +427,32 @@ fn fix_literal_regex_patterns(condition: &mut crate::composite_rules::Condition)
     // Regex metacharacters: . * + ? ^ $ ( ) [ ] { } | \
     let is_literal = |pattern: &str| -> bool {
         !pattern.is_empty()
-            && !pattern.chars().any(|c| matches!(
-                c,
-                '.' | '*' | '+' | '?' | '^' | '$' | '(' | ')' | '[' | ']' | '{' | '}' | '|' | '\\'
-            ))
+            && !pattern.chars().any(|c| {
+                matches!(
+                    c,
+                    '.' | '*'
+                        | '+'
+                        | '?'
+                        | '^'
+                        | '$'
+                        | '('
+                        | ')'
+                        | '['
+                        | ']'
+                        | '{'
+                        | '}'
+                        | '|'
+                        | '\\'
+                )
+            })
     };
 
     match condition {
-        Condition::String { regex: regex_opt, substr, .. } if substr.is_none() => {
+        Condition::String {
+            regex: regex_opt,
+            substr,
+            ..
+        } if substr.is_none() => {
             if let Some(pattern) = regex_opt {
                 if is_literal(pattern) {
                     // Convert regex to substr
@@ -443,7 +461,11 @@ fn fix_literal_regex_patterns(condition: &mut crate::composite_rules::Condition)
                 }
             }
         }
-        Condition::Raw { regex: regex_opt, substr, .. } if substr.is_none() => {
+        Condition::Raw {
+            regex: regex_opt,
+            substr,
+            ..
+        } if substr.is_none() => {
             if let Some(pattern) = regex_opt {
                 if is_literal(pattern) {
                     // Convert regex to substr
@@ -452,7 +474,11 @@ fn fix_literal_regex_patterns(condition: &mut crate::composite_rules::Condition)
                 }
             }
         }
-        Condition::Symbol { regex: regex_opt, substr, .. } if substr.is_none() => {
+        Condition::Symbol {
+            regex: regex_opt,
+            substr,
+            ..
+        } if substr.is_none() => {
             if let Some(pattern) = regex_opt {
                 if is_literal(pattern) {
                     // Convert regex to substr
@@ -461,7 +487,11 @@ fn fix_literal_regex_patterns(condition: &mut crate::composite_rules::Condition)
                 }
             }
         }
-        Condition::Basename { regex: regex_opt, substr, .. } if substr.is_none() => {
+        Condition::Basename {
+            regex: regex_opt,
+            substr,
+            ..
+        } if substr.is_none() => {
             if let Some(pattern) = regex_opt {
                 if is_literal(pattern) {
                     // Convert regex to substr
@@ -583,15 +613,24 @@ mod tests {
 
     #[test]
     fn test_parse_criticality_suspicious() {
-        assert_eq!(parse_criticality("suspicious").unwrap(), Criticality::Suspicious);
-        assert_eq!(parse_criticality("SUSPICIOUS").unwrap(), Criticality::Suspicious);
+        assert_eq!(
+            parse_criticality("suspicious").unwrap(),
+            Criticality::Suspicious
+        );
+        assert_eq!(
+            parse_criticality("SUSPICIOUS").unwrap(),
+            Criticality::Suspicious
+        );
     }
 
     #[test]
     fn test_parse_criticality_hostile() {
         assert_eq!(parse_criticality("hostile").unwrap(), Criticality::Hostile);
         assert_eq!(parse_criticality("HOSTILE").unwrap(), Criticality::Hostile);
-        assert_eq!(parse_criticality("malicious").unwrap(), Criticality::Hostile);
+        assert_eq!(
+            parse_criticality("malicious").unwrap(),
+            Criticality::Hostile
+        );
     }
 
     #[test]
@@ -820,10 +859,10 @@ mod tests {
     }
 }
 
-    #[test]
-    fn test_parse_file_types_ipa() {
-        let mut warnings = Vec::new();
-        let result = parse_file_types(&["ipa".to_string()], &mut warnings);
-        assert!(result.contains(&RuleFileType::Ipa));
-        assert!(warnings.is_empty());
-    }
+#[test]
+fn test_parse_file_types_ipa() {
+    let mut warnings = Vec::new();
+    let result = parse_file_types(&["ipa".to_string()], &mut warnings);
+    assert!(result.contains(&RuleFileType::Ipa));
+    assert!(warnings.is_empty());
+}

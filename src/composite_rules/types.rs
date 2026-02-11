@@ -65,9 +65,9 @@ pub enum FileType {
     Plist,          // Apple Property List
     Rtf,            // Rich Text Format
     // Archive/installer formats (not extractable by DISSECT)
-    Ipa,            // iOS App Package
+    Ipa, // iOS App Package
     // Generic formats
-    Text,           // Plain text files
+    Text, // Plain text files
     // Image formats
     Jpeg,
     Png,

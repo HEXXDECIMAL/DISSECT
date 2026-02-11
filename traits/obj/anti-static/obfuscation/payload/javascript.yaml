@@ -19,6 +19,15 @@ traits:
       type: raw
       regex: "module\\.exports\\s*=\\s*function"
 
+  # Base64 decode and execute
+  - id: decode-exec-js
+    desc: Base64 decode followed by eval/Function
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      regex: "atob.{0,64}(eval|Function)"
+
 composite_rules:
   # Standalone decryption utility with hardcoded key material
   # Pattern: require('crypto') + createDecipheriv + hardcoded hex key/IV

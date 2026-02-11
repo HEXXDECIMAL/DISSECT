@@ -34,7 +34,7 @@ composite_rules:
     all:
       - {id: meta/library/react::library}
       - {id: meta/library/react::version-banner}
-      - {id: obj/anti-static/base64/decode::decode-exec-js}
+      - {id: obj/anti-static/obfuscation/payload::decode-exec-js}
   # React + Credential Access = HOSTILE
   - id: trojanized-credential-access
     desc: "React library with credential access"

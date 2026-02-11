@@ -949,9 +949,9 @@ impl<'a> RuleDebugger<'a> {
             } => self.debug_section_ratio_condition(section, compare_to, *min_ratio, *max_ratio),
             Condition::SectionEntropy {
                 section,
-                min_entropy,
-                max_entropy,
-            } => self.debug_section_entropy_condition(section, *min_entropy, *max_entropy),
+                min,
+                max,
+            } => self.debug_section_entropy_condition(section, *min, *max),
             Condition::ImportCombination {
                 required,
                 suspicious,
@@ -2672,14 +2672,14 @@ fn describe_condition(condition: &Condition) -> String {
         }
         Condition::SectionEntropy {
             section,
-            min_entropy,
-            max_entropy,
+            min,
+            max,
         } => {
             format!(
                 "section_entropy: {} [{:?}-{:?}]",
                 section,
-                min_entropy.unwrap_or(0.0),
-                max_entropy.unwrap_or(8.0)
+                min.unwrap_or(0.0),
+                max.unwrap_or(8.0)
             )
         }
         Condition::ImportCombination {
@@ -2849,12 +2849,18 @@ fn evaluate_condition_simple(
             name,
             number,
             arch,
-            min_count,
+            count_min,
+            count_max,
+            per_kb_min,
+            per_kb_max,
         } => eval_syscall(
             name.as_ref(),
             number.as_ref(),
             arch.as_ref(),
-            *min_count,
+            *count_min,
+            *count_max,
+            *per_kb_min,
+            *per_kb_max,
             ctx,
         ),
         Condition::ExportsCount { min, max } => eval_exports_count(*min, *max, ctx),

@@ -36,7 +36,7 @@ composite_rules:
     all:
       - { id: meta/library/jquery::library }
       - { id: meta/library/jquery::version-string }
-      - { id: obj/anti-static/base64/decode::decode-exec-js }
+      - { id: obj/anti-static/obfuscation/payload::decode-exec-js }
 
   # jQuery + Credential Access = HOSTILE
   - id: trojanized-credential-access

@@ -16,7 +16,7 @@ composite_rules:
           id: obj/anti-static/obfuscation/code-metrics/functions::single-char-function-names,
         }
     not:
-      - { id: obj/anti-static/base64/decode::decode-exec-js }
+      - { id: obj/anti-static/obfuscation/payload::decode-exec-js }
 
   # Hostile obfuscation (malicious encoding)
   - id: hostile-obfuscation
@@ -24,7 +24,7 @@ composite_rules:
     crit: suspicious
     conf: 0.90
     any:
-      - { id: obj/anti-static/base64/decode::decode-exec-js }
+      - { id: obj/anti-static/obfuscation/payload::decode-exec-js }
       - { id: obj/anti-static/obfuscation/encoding::xor-string }
 
   # Minified library with hostile capabilities (trojanized)

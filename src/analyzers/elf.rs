@@ -60,7 +60,8 @@ impl ElfAnalyzer {
     }
 
     fn analyze_elf(&self, file_path: &Path, data: &[u8]) -> Result<AnalysisReport> {
-        let start = std::time::Instant::now();        let _t_sha = std::time::Instant::now();
+        let start = std::time::Instant::now();
+        let _t_sha = std::time::Instant::now();
         let sha256 = crate::analyzers::utils::calculate_sha256(data);
 
         // Create target info with default/empty values for fields that require parsing

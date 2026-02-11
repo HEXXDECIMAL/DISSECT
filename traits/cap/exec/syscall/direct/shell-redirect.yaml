@@ -19,7 +19,7 @@ traits:
     if:
       type: syscall
       name: ["dup2", "dup3"]
-      needs: 2
+      count_min: 2
 
   # macOS syscall traits
   - id: syscall-execve-macos
@@ -41,7 +41,7 @@ traits:
     if:
       type: syscall
       name: ["dup2"]
-      needs: 2
+      count_min: 2
 
 composite_rules:
   - id: shell-redirect

@@ -10,7 +10,7 @@ composite_rules:
       mbc: "B0015"
       for: [javascript]
       all:
-        - id: obj/exfil/channel/http::axios-post-call
+        - id: cap/comm/http/request::axios-post-call
       any:
         - id: cap/hw/input/keyboard::node-keyboard-listener
         - id: cap/hw/input/keyboard::global-keyboard-listener

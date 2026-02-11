@@ -83,7 +83,7 @@ traits:
     if:
       type: section_entropy
       section: "__const"
-      min_entropy: 7.5
+      min: 7.5
 
   # NOTE: High entropy in data sections is common in legitimate software:
   # - Games (compressed assets, lookup tables)
@@ -100,7 +100,7 @@ traits:
     if:
       type: section_entropy
       section: "\\.(data|rdata|rodata)"
-      min_entropy: 7.5
+      min: 7.5
     # System libraries commonly have high-entropy lookup tables
     downgrade:
       any:
@@ -115,7 +115,7 @@ traits:
     if:
       type: section_entropy
       section: "(__text|\\.text)"
-      min_entropy: 7.0
+      min: 7.0
 
   # === String Concealment ===
 

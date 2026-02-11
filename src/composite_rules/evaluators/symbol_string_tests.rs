@@ -196,7 +196,19 @@ fn test_eval_symbol_regex_match() {
 
     let pattern = "connect|accept".to_string();
     let re = regex::Regex::new(&pattern).unwrap();
-    let result = eval_symbol(None, None, Some(&pattern), None, Some(&re), None, &ctx);
+    let result = eval_symbol(
+        None,
+        None,
+        Some(&pattern),
+        None,
+        1,
+        None,
+        None,
+        None,
+        Some(&re),
+        None,
+        &ctx,
+    );
 
     assert!(result.matched);
     assert_eq!(result.evidence.len(), 2);

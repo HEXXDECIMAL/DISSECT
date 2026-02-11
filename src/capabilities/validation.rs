@@ -199,7 +199,10 @@ fn score_condition(condition: &Condition) -> f32 {
             name,
             number,
             arch,
-            min_count,
+            count_min,
+            count_max,
+            per_kb_min,
+            per_kb_max,
         } => {
             if let Some(names) = name {
                 for value in names {
@@ -214,7 +217,12 @@ fn score_condition(condition: &Condition) -> f32 {
                     score += score_string_value(value);
                 }
             }
-            score += score_presence(min_count.as_ref());
+            if *count_min > 1 {
+                score += PARAM_UNIT;
+            }
+            score += score_presence(count_max.as_ref());
+            score += score_presence(per_kb_min.as_ref());
+            score += score_presence(per_kb_max.as_ref());
         }
         Condition::SectionRatio {
             section,
@@ -229,12 +237,12 @@ fn score_condition(condition: &Condition) -> f32 {
         }
         Condition::SectionEntropy {
             section,
-            min_entropy,
-            max_entropy,
+            min,
+            max,
         } => {
             score += score_regex_value(section);
-            score += score_presence(min_entropy.as_ref());
-            score += score_presence(max_entropy.as_ref());
+            score += score_presence(min.as_ref());
+            score += score_presence(max.as_ref());
         }
         Condition::ImportCombination {
             required,
@@ -715,10 +723,8 @@ pub(crate) fn precalculate_all_composite_precisions(
     }
 
     // Build lookup tables (immutable borrow)
-    let composite_lookup: HashMap<&str, &CompositeTrait> = composite_rules
-        .iter()
-        .map(|r| (r.id.as_str(), r))
-        .collect();
+    let composite_lookup: HashMap<&str, &CompositeTrait> =
+        composite_rules.iter().map(|r| (r.id.as_str(), r)).collect();
     let trait_lookup: HashMap<&str, &TraitDefinition> = trait_definitions
         .iter()
         .map(|t| (t.id.as_str(), t))
@@ -771,7 +777,10 @@ pub(crate) fn validate_hostile_composite_precision(
 
         // Precision should already be calculated - if not, that's a bug
         let precision = rule.precision.unwrap_or_else(|| {
-            eprintln!("WARNING: Composite rule '{}' has no precision calculated!", rule.id);
+            eprintln!(
+                "WARNING: Composite rule '{}' has no precision calculated!",
+                rule.id
+            );
             0.0
         });
 
@@ -811,97 +820,126 @@ pub(crate) fn find_duplicate_traits_and_composites(
 
     #[allow(unreachable_code)]
     {
-    use rayon::prelude::*;
-    use std::sync::Mutex;
+        use rayon::prelude::*;
+        use std::sync::Mutex;
 
-    let start = std::time::Instant::now();
+        let start = std::time::Instant::now();
 
-    // Pass 1: Detect duplicate atomic traits using bincode serialization
-    if !trait_definitions.is_empty() {
-        tracing::debug!("Starting atomic trait duplicate detection for {} traits", trait_definitions.len());
-        let serialize_start = std::time::Instant::now();
-        let trait_map: Mutex<HashMap<Vec<u8>, Vec<String>>> = Mutex::new(HashMap::default());
+        // Pass 1: Detect duplicate atomic traits using bincode serialization
+        if !trait_definitions.is_empty() {
+            tracing::debug!(
+                "Starting atomic trait duplicate detection for {} traits",
+                trait_definitions.len()
+            );
+            let serialize_start = std::time::Instant::now();
+            let trait_map: Mutex<HashMap<Vec<u8>, Vec<String>>> = Mutex::new(HashMap::default());
 
-        trait_definitions.par_iter().for_each(|t| {
-            // Use bincode for fast serialization (10-100x faster than Debug formatting)
-            // Automatically skips #[serde(skip)] fields (like compiled_regex)
-            if let Ok(key) = bincode::serialize(&(
-                &t.r#if,
-                &t.platforms,
-                &t.r#for,
-                &t.size_min,
-                &t.size_max,
-                &t.not,
-                &t.unless,
-            )) {
-                trait_map.lock().unwrap()
-                    .entry(key)
-                    .or_default()
-                    .push(t.id.clone());
+            trait_definitions.par_iter().for_each(|t| {
+                // Use bincode for fast serialization (10-100x faster than Debug formatting)
+                // Automatically skips #[serde(skip)] fields (like compiled_regex)
+                if let Ok(key) = bincode::serialize(&(
+                    &t.r#if,
+                    &t.platforms,
+                    &t.r#for,
+                    &t.size_min,
+                    &t.size_max,
+                    &t.not,
+                    &t.unless,
+                )) {
+                    trait_map
+                        .lock()
+                        .unwrap()
+                        .entry(key)
+                        .or_default()
+                        .push(t.id.clone());
+                }
+            });
+
+            tracing::debug!(
+                "Atomic trait serialization took {:?}",
+                serialize_start.elapsed()
+            );
+
+            let check_start = std::time::Instant::now();
+            for (_sig, ids) in trait_map.into_inner().unwrap() {
+                if ids.len() > 1 {
+                    warnings.push(format!(
+                        "Duplicate atomic traits detected (same search parameters): {}",
+                        ids.join(", ")
+                    ));
+                }
             }
-        });
-
-        tracing::debug!("Atomic trait serialization took {:?}", serialize_start.elapsed());
-
-        let check_start = std::time::Instant::now();
-        for (_sig, ids) in trait_map.into_inner().unwrap() {
-            if ids.len() > 1 {
-                warnings.push(format!(
-                    "Duplicate atomic traits detected (same search parameters): {}",
-                    ids.join(", ")
-                ));
-            }
+            tracing::debug!(
+                "Atomic trait duplicate check took {:?}",
+                check_start.elapsed()
+            );
+            tracing::debug!(
+                "Total atomic trait processing took {:?}",
+                serialize_start.elapsed()
+            );
         }
-        tracing::debug!("Atomic trait duplicate check took {:?}", check_start.elapsed());
-        tracing::debug!("Total atomic trait processing took {:?}", serialize_start.elapsed());
-    }
 
-    // Pass 2: Detect duplicate composite rules using bincode + parallel processing
-    if !composite_rules.is_empty() {
-        tracing::debug!("Starting composite rule duplicate detection for {} rules", composite_rules.len());
-        let composite_start = std::time::Instant::now();
-        let composite_map: Mutex<HashMap<Vec<u8>, Vec<String>>> = Mutex::new(HashMap::default());
+        // Pass 2: Detect duplicate composite rules using bincode + parallel processing
+        if !composite_rules.is_empty() {
+            tracing::debug!(
+                "Starting composite rule duplicate detection for {} rules",
+                composite_rules.len()
+            );
+            let composite_start = std::time::Instant::now();
+            let composite_map: Mutex<HashMap<Vec<u8>, Vec<String>>> =
+                Mutex::new(HashMap::default());
 
-        composite_rules.par_iter().for_each(|r| {
-            // Skip rules with no conditions
-            if r.all.is_none() && r.any.is_none() && r.none.is_none() && r.unless.is_none() {
-                return;
+            composite_rules.par_iter().for_each(|r| {
+                // Skip rules with no conditions
+                if r.all.is_none() && r.any.is_none() && r.none.is_none() && r.unless.is_none() {
+                    return;
+                }
+
+                // Use bincode for fast serialization
+                if let Ok(key) = bincode::serialize(&(
+                    &r.all,
+                    &r.any,
+                    &r.none,
+                    &r.unless,
+                    &r.needs,
+                    &r.r#for,
+                    &r.platforms,
+                    &r.size_min,
+                    &r.size_max,
+                )) {
+                    composite_map
+                        .lock()
+                        .unwrap()
+                        .entry(key)
+                        .or_default()
+                        .push(r.id.clone());
+                }
+            });
+
+            tracing::debug!(
+                "Composite rule serialization took {:?}",
+                composite_start.elapsed()
+            );
+            let composite_check_start = std::time::Instant::now();
+            for (_sig, ids) in composite_map.into_inner().unwrap() {
+                if ids.len() > 1 {
+                    warnings.push(format!(
+                        "Duplicate composite rules detected (same conditions): {}",
+                        ids.join(", ")
+                    ));
+                }
             }
-
-            // Use bincode for fast serialization
-            if let Ok(key) = bincode::serialize(&(
-                &r.all,
-                &r.any,
-                &r.none,
-                &r.unless,
-                &r.needs,
-                &r.r#for,
-                &r.platforms,
-                &r.size_min,
-                &r.size_max,
-            )) {
-                composite_map.lock().unwrap()
-                    .entry(key)
-                    .or_default()
-                    .push(r.id.clone());
-            }
-        });
-
-        tracing::debug!("Composite rule serialization took {:?}", composite_start.elapsed());
-        let composite_check_start = std::time::Instant::now();
-        for (_sig, ids) in composite_map.into_inner().unwrap() {
-            if ids.len() > 1 {
-                warnings.push(format!(
-                    "Duplicate composite rules detected (same conditions): {}",
-                    ids.join(", ")
-                ));
-            }
+            tracing::debug!(
+                "Composite rule duplicate check took {:?}",
+                composite_check_start.elapsed()
+            );
+            tracing::debug!(
+                "Total composite rule processing took {:?}",
+                composite_start.elapsed()
+            );
         }
-        tracing::debug!("Composite rule duplicate check took {:?}", composite_check_start.elapsed());
-        tracing::debug!("Total composite rule processing took {:?}", composite_start.elapsed());
-    }
 
-    tracing::debug!("Total duplicate detection took {:?}", start.elapsed());
+        tracing::debug!("Total duplicate detection took {:?}", start.elapsed());
     }
 }
 
@@ -1597,6 +1635,10 @@ pub(crate) fn simple_rule_to_composite_rule(
             substr: None,
             regex: Some(rule.symbol),
             platforms: None,
+            count_min: 1,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
             compiled_regex: None,
         }]),
         any: None,
@@ -1845,11 +1887,7 @@ pub(crate) fn find_alternation_merge_candidates(
             // Get the directory of the source file for this trait
             let directory = source_files
                 .get(&t.id)
-                .and_then(|path| {
-                    std::path::Path::new(path)
-                        .parent()
-                        .and_then(|p| p.to_str())
-                })
+                .and_then(|path| std::path::Path::new(path).parent().and_then(|p| p.to_str()))
                 .unwrap_or("");
 
             // Create key including directory so we only group traits from the same directory
@@ -2915,7 +2953,7 @@ mod tests {
             unless: None,
             downgrade: None,
             defined_in: std::path::PathBuf::new(),
-        precision: None,
+            precision: None,
         }
     }
 
@@ -2953,7 +2991,7 @@ mod tests {
             unless: None,
             downgrade: None,
             defined_in: std::path::PathBuf::new(),
-        precision: None,
+            precision: None,
         }
     }
 
@@ -3036,7 +3074,7 @@ mod tests {
             unless: None,
             downgrade: None,
             defined_in: std::path::PathBuf::new(),
-        precision: None,
+            precision: None,
         }
     }
 
@@ -3116,14 +3154,17 @@ mod tests {
             unless: None,
             downgrade: None,
             defined_in: std::path::PathBuf::new(),
-        precision: None,
+            precision: None,
         }
     }
 
     #[test]
     fn test_find_alternation_merge_candidates_empty() {
         let traits: Vec<TraitDefinition> = vec![];
-        assert!(find_alternation_merge_candidates(&traits, &std::collections::HashMap::new()).is_empty());
+        assert!(
+            find_alternation_merge_candidates(&traits, &std::collections::HashMap::new())
+                .is_empty()
+        );
     }
 
     #[test]
@@ -3133,7 +3174,10 @@ mod tests {
             make_regex_trait("test::pattern2", r"baz\s+qux"),
         ];
         // Completely different patterns
-        assert!(find_alternation_merge_candidates(&traits, &std::collections::HashMap::new()).is_empty());
+        assert!(
+            find_alternation_merge_candidates(&traits, &std::collections::HashMap::new())
+                .is_empty()
+        );
     }
 
     #[test]
@@ -3143,7 +3187,8 @@ mod tests {
             make_regex_trait("test::ncat-exec", r"ncat\s+-e\s+/bin/sh"),
             make_regex_trait("test::netcat-exec", r"netcat\s+-e\s+/bin/sh"),
         ];
-        let candidates = find_alternation_merge_candidates(&traits, &std::collections::HashMap::new());
+        let candidates =
+            find_alternation_merge_candidates(&traits, &std::collections::HashMap::new());
         assert_eq!(candidates.len(), 1);
         assert_eq!(candidates[0].0.len(), 3);
         // The suggested pattern should include alternation
@@ -3163,7 +3208,10 @@ mod tests {
 
         let traits = vec![trait1, trait2];
         // Different criticality means they shouldn't be grouped
-        assert!(find_alternation_merge_candidates(&traits, &std::collections::HashMap::new()).is_empty());
+        assert!(
+            find_alternation_merge_candidates(&traits, &std::collections::HashMap::new())
+                .is_empty()
+        );
     }
 
     #[test]
@@ -3173,7 +3221,10 @@ mod tests {
             make_regex_trait("test::a2", r"bar\s"),
         ];
         // Suffix is too short (< 3 chars after prefix)
-        assert!(find_alternation_merge_candidates(&traits, &std::collections::HashMap::new()).is_empty());
+        assert!(
+            find_alternation_merge_candidates(&traits, &std::collections::HashMap::new())
+                .is_empty()
+        );
     }
 
     // ==================== Impossible Needs Tests ====================
@@ -3205,7 +3256,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
-        precision: None,
+            precision: None,
         }
     }
 
@@ -3276,7 +3327,7 @@ mod tests {
             unless: None,
             downgrade: None,
             defined_in: std::path::PathBuf::new(),
-        precision: None,
+            precision: None,
         }
     }
 
@@ -3351,7 +3402,7 @@ mod tests {
             unless: None,
             downgrade: None,
             defined_in: std::path::PathBuf::new(),
-        precision: None,
+            precision: None,
         }
     }
 
@@ -3442,7 +3493,7 @@ mod tests {
             unless: None,
             downgrade: None,
             defined_in: std::path::PathBuf::new(),
-        precision: None,
+            precision: None,
         }
     }
 
@@ -4281,6 +4332,10 @@ mod tests {
             substr: Some("connect".to_string()),
             regex: None,
             platforms: None,
+            count_min: 1,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
             compiled_regex: None,
         };
 
@@ -4291,6 +4346,10 @@ mod tests {
             substr: None,
             regex: Some("connect.*".to_string()),
             platforms: None,
+            count_min: 1,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
             compiled_regex: None,
         };
 

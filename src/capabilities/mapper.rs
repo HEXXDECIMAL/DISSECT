@@ -30,9 +30,9 @@ use super::validation::{
     find_impossible_size_constraints, find_invalid_trait_ids, find_line_number,
     find_missing_search_patterns, find_oversized_trait_directories, find_parent_duplicate_segments,
     find_platform_named_directories, find_redundant_any_refs, find_redundant_needs_one,
-    find_single_item_clauses, find_string_content_collisions, precalculate_all_composite_precisions,
-    simple_rule_to_composite_rule, validate_composite_trait_only,
-    validate_hostile_composite_precision, MAX_TRAITS_PER_DIRECTORY,
+    find_single_item_clauses, find_string_content_collisions,
+    precalculate_all_composite_precisions, simple_rule_to_composite_rule,
+    validate_composite_trait_only, validate_hostile_composite_precision, MAX_TRAITS_PER_DIRECTORY,
 };
 
 /// Maps symbols (function names, library calls) to capability IDs
@@ -177,11 +177,13 @@ impl CapabilityMapper {
         enable_full_validation: bool,
     ) -> Result<Self> {
         let _span = tracing::info_span!("load_capabilities").entered();
-        let debug = std::env::var("DISSECT_DEBUG").is_ok();        let dir_path = dir_path.as_ref();
+        let debug = std::env::var("DISSECT_DEBUG").is_ok();
+        let dir_path = dir_path.as_ref();
         let _t_start = std::time::Instant::now();
 
         // Check for DISSECT_VALIDATE env var or passed flag
-        let enable_full_validation = enable_full_validation || std::env::var("DISSECT_VALIDATE").is_ok();
+        let enable_full_validation =
+            enable_full_validation || std::env::var("DISSECT_VALIDATE").is_ok();
 
         tracing::info!("Loading trait definitions from {}", dir_path.display());
         if enable_full_validation {
@@ -545,6 +547,7 @@ impl CapabilityMapper {
                     regex,
                     platforms: _,
                     compiled_regex: _,
+                    ..
                 } = &trait_def.r#if
                 {
                     // If exact is specified, add it directly
@@ -661,10 +664,8 @@ impl CapabilityMapper {
             .collect();
         if !file_type_errors.is_empty() {
             // Sort and display errors (already include file paths)
-            let mut sorted_errors: Vec<&str> = file_type_errors
-                .iter()
-                .map(|e| e.as_str())
-                .collect();
+            let mut sorted_errors: Vec<&str> =
+                file_type_errors.iter().map(|e| e.as_str()).collect();
             sorted_errors.sort();
 
             return Err(anyhow::anyhow!(
@@ -683,8 +684,7 @@ impl CapabilityMapper {
         // This was kept as HashMap during loading for O(1) duplicate detection
         let mut trait_definitions: Vec<TraitDefinition> =
             trait_definitions_map.into_values().collect();
-        let mut composite_rules: Vec<CompositeTrait> =
-            composite_rules_map.into_values().collect();
+        let mut composite_rules: Vec<CompositeTrait> = composite_rules_map.into_values().collect();
 
         // Pre-compile all YARA rules for faster evaluation (parallelized)
         let yara_count_traits = trait_definitions
@@ -735,7 +735,11 @@ impl CapabilityMapper {
 
             let step_start = std::time::Instant::now();
             tracing::debug!("Step 1c/15: Detecting duplicate traits and composites");
-            find_duplicate_traits_and_composites(&trait_definitions, &composite_rules, &mut warnings);
+            find_duplicate_traits_and_composites(
+                &trait_definitions,
+                &composite_rules,
+                &mut warnings,
+            );
             tracing::debug!("Step 1c completed in {:?}", step_start.elapsed());
         } else {
             tracing::debug!("Step 1/15: Skipping precision validation (use --validate to enable)");
@@ -778,8 +782,11 @@ impl CapabilityMapper {
                 prefix_hierarchy.insert(parts[..i].join("/"));
             }
         }
-        tracing::debug!("Built prefix hierarchy with {} entries from {} base prefixes",
-            prefix_hierarchy.len(), known_prefixes.len());
+        tracing::debug!(
+            "Built prefix hierarchy with {} entries from {} base prefixes",
+            prefix_hierarchy.len(),
+            known_prefixes.len()
+        );
 
         // Set DISSECT_ALLOW_VIOLATIONS=1 to bypass validation checks during migration
         let allow_violations = std::env::var("DISSECT_ALLOW_VIOLATIONS").is_ok();
@@ -1027,7 +1034,8 @@ impl CapabilityMapper {
         let regex_errors: Vec<String> = trait_definitions
             .par_iter_mut()
             .filter_map(|trait_def| {
-                trait_def.precompile_regexes()
+                trait_def
+                    .precompile_regexes()
                     .err()
                     .map(|e| format!("Regex compilation error: {:#}", e))
             })
@@ -1349,7 +1357,8 @@ impl CapabilityMapper {
         // Validate: regex patterns that could be merged with alternation (case-only differences)
         // e.g., `nc\s+-e` and `NC\s+-e` -> `(nc|NC)\s+-e`
         if !allow_violations {
-            let alternation_candidates = find_alternation_merge_candidates(&trait_definitions, &trait_source_files);
+            let alternation_candidates =
+                find_alternation_merge_candidates(&trait_definitions, &trait_source_files);
             if !alternation_candidates.is_empty() {
                 eprintln!(
                     "\n❌ FATAL: {} trait groups have regex patterns that should use alternation",
@@ -2158,7 +2167,8 @@ impl CapabilityMapper {
         report: &AnalysisReport,
         binary_data: &[u8],
         cached_ast: Option<&tree_sitter::Tree>,
-    ) -> Vec<Finding> {        // Determine file type from report (platform comes from self.platform)
+    ) -> Vec<Finding> {
+        // Determine file type from report (platform comes from self.platform)
         let file_type = self.detect_file_type(&report.target.file_type);
 
         // Build section map for location-constrained matching
@@ -2226,7 +2236,6 @@ impl CapabilityMapper {
         // Also find regex candidates based on literal prefix matching
         let regex_candidates = self.string_match_index.find_regex_candidates(&all_strings);
 
-
         // Pre-filter using batched regex matching for Content conditions
         // Only run if any applicable traits have content regex patterns
         let _t_raw_regex = std::time::Instant::now();
@@ -2241,7 +2250,6 @@ impl CapabilityMapper {
             FxHashSet::default()
         };
 
-
         // Evaluate only applicable traits in parallel
         // For exact string traits with cached evidence, use that directly instead of re-evaluating
         let _t_eval = std::time::Instant::now();
@@ -2254,7 +2262,6 @@ impl CapabilityMapper {
         if !has_any_matches && all_strings.is_empty() && binary_data.len() < 100 {
             return vec![];
         }
-
 
         let eval_count = std::sync::atomic::AtomicUsize::new(0);
         let skip_count = std::sync::atomic::AtomicUsize::new(0);
@@ -2342,7 +2349,6 @@ impl CapabilityMapper {
                 trait_def.evaluate(&ctx)
             })
             .collect();
-
 
         // Deduplicate findings (keep first occurrence of each ID)
         let mut seen = std::collections::HashSet::new();

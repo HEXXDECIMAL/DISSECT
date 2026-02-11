@@ -187,8 +187,8 @@ traits:
     if:
       type: string
       regex: "SearchProvider|SearchEngine|DefaultSearch|searchProvider|searchEngine|defaultSearch"
-      not:
-        - "SearchProviderSearchGuide"
+    not:
+      - "SearchProviderSearchGuide"
 
   # === Opera/Brave specific ===
   - id: opera-stable

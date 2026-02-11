@@ -450,7 +450,10 @@ pub fn eval_syscall(
     name: Option<&Vec<String>>,
     number: Option<&Vec<u32>>,
     arch: Option<&Vec<String>>,
-    min_count: Option<usize>,
+    count_min: usize,
+    count_max: Option<usize>,
+    per_kb_min: Option<f64>,
+    per_kb_max: Option<f64>,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
     let mut evidence = Vec::new();
@@ -479,10 +482,27 @@ pub fn eval_syscall(
         }
     }
 
-    let min_required = min_count.unwrap_or(1);
-    let matched = match_count >= min_required;
+    // Check count constraints
+    let mut matched = match_count >= count_min;
+    if let Some(max) = count_max {
+        matched = matched && match_count <= max;
+    }
 
-    // Calculate precision: base 2.0 + 0.5 for name/number/arch/min_count
+    // Check density constraints (matches per KB)
+    if matched && (per_kb_min.is_some() || per_kb_max.is_some()) {
+        let file_size_kb = ctx.report.target.size_bytes as f64 / 1024.0;
+        if file_size_kb > 0.0 {
+            let density = match_count as f64 / file_size_kb;
+            if let Some(min_density) = per_kb_min {
+                matched = matched && density >= min_density;
+            }
+            if let Some(max_density) = per_kb_max {
+                matched = matched && density <= max_density;
+            }
+        }
+    }
+
+    // Calculate precision: base 2.0 + 0.5 for name/number/arch + count constraints
     let mut precision = 2.0f32;
     if name.is_some() {
         precision += 0.5;
@@ -493,7 +513,13 @@ pub fn eval_syscall(
     if arch.is_some() {
         precision += 0.5;
     }
-    if min_count.is_some() {
+    if count_min > 1 {
+        precision += 0.5;
+    }
+    if count_max.is_some() {
+        precision += 0.5;
+    }
+    if per_kb_min.is_some() || per_kb_max.is_some() {
         precision += 0.5;
     }
 

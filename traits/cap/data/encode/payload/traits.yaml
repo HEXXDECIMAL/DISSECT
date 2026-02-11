@@ -54,7 +54,7 @@ traits:
     if:
       type: section_entropy
       section: "^\\.rdata"
-      min_entropy: 6.5
+      min: 6.5
 
 composite_rules:
   - id: embedded-obfuscated-payload

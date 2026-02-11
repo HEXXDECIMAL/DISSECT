@@ -23,7 +23,7 @@ traits:
     if:
       type: string
       regex: "Mozilla/5\\.0"
-      needs: 10
+      count_min: 10
   # === DDoS Terminology ===
   - id: attack-metrics
     desc: Performance metrics typical of DDoS

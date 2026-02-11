@@ -50,22 +50,22 @@ traits:
     if:
       type: string
       regex: "[^a-zA-Z0-9\\s\\.,\\-_/\\\\:@]{8,}"
-      not:
-        # Shell metacharacter definitions used by build tools, shells, interpreters
-        # Includes sequences like !\"#$%&'())**++
-        - regex: "^[#;\"'*?\\[\\]&|<>(){}$`^~!+]+$"
-        # Common padding or separator strings in legitimate binaries
-        - regex: "^!+$"
-        - regex: "^=+$"
-        - "========"
-        # ASCII symbol ranges
-        - regex: "^!\"#\\$%&'\\(\\)\\*\\+$"
-        # ISO-8859-1 upper character range (often used in character sets/tables)
-        - regex: "^[\\xA0-\\xFF]{8,}$"
-        # Sequential byte patterns
-        - "0123456789"
-        - "abcdefghijklmnopqrstuvwxyz"
-        - "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    not:
+      # Shell metacharacter definitions used by build tools, shells, interpreters
+      # Includes sequences like !\"#$%&'())**++
+      - regex: "^[#;\"'*?\\[\\]&|<>(){}$`^~!+]+$"
+      # Common padding or separator strings in legitimate binaries
+      - regex: "^!+$"
+      - regex: "^=+$"
+      - substr: "========"
+      # ASCII symbol ranges
+      - regex: "^!\"#\\$%&'\\(\\)\\*\\+$"
+      # ISO-8859-1 upper character range (often used in character sets/tables)
+      - regex: "^[\\xA0-\\xFF]{8,}$"
+      # Sequential byte patterns
+      - substr: "0123456789"
+      - substr: "abcdefghijklmnopqrstuvwxyz"
+      - substr: "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     attack: "T1027"
     unless:
       - id: cap/exec/load/library::system-lib-marker
@@ -122,17 +122,17 @@ traits:
     conf: 0.85
     for: [elf]
     size_max: 500000
+    attack: "T1027"
     if:
       type: string
       regex: "[^a-zA-Z0-9\\s\\.,\\-_/\\\\:@]{8,}"
       count_min: 5
       per_kb_min: 1.0
-      not:
-        - regex: "^[#;\"'*?\\[\\]&|<>(){}$`^~!+]+$"
-        - regex: "^!+$"
-        - regex: "^=+$"
-        - regex: "^[\\xA0-\\xFF]{8,}$"
-    attack: "T1027"
+    not:
+      - regex: "^[#;\"'*?\\[\\]&|<>(){}$`^~!+]+$"
+      - regex: "^!+$"
+      - regex: "^=+$"
+      - regex: "^[\\xA0-\\xFF]{8,}$"
     unless:
       - id: cap/exec/load/library::system-lib-marker
       - id: cap/data/compression/zstd
