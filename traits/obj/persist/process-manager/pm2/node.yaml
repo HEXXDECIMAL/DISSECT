@@ -10,7 +10,7 @@ traits:
   # PM2 process manager
   - id: pm2-keyword
     desc: PM2 process manager keyword
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -18,7 +18,7 @@ traits:
 
   - id: detached-option
     desc: Detached process option
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string

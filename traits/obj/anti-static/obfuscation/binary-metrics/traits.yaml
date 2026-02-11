@@ -54,7 +54,7 @@ traits:
   # Requires min: 0.01 to avoid triggering when metrics are unavailable.
   - id: entropy-variance-low
     desc: "Low entropy variance (uniform packing)"
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: metrics
@@ -160,7 +160,7 @@ traits:
   # triggering when metrics are not available (0 indicates missing data).
   - id: no-strings
     desc: "No readable strings (potentially encrypted/packed)"
-    crit: inert
+    crit: notable
     conf: 0.4
     attack: "T1045"
     if:
@@ -205,7 +205,7 @@ traits:
 
   - id: few-functions
     desc: "Very few functions detected"
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: metrics
@@ -225,7 +225,7 @@ traits:
   # generated code, and runtime helpers. Raised threshold significantly.
   - id: many-tiny-functions
     desc: "Many tiny functions (<16 bytes)"
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: metrics
@@ -236,7 +236,7 @@ traits:
   # Small utilities legitimately have small functions.
   - id: small-avg-function
     desc: "Very small average function size"
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: metrics
@@ -320,7 +320,7 @@ traits:
   # Small utilities legitimately have few basic blocks.
   - id: few-basic-blocks
     desc: "Very few basic blocks (obfuscated"
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: metrics
@@ -359,7 +359,7 @@ traits:
   # Small utilities legitimately have few leaf functions.
   - id: few-leaf-functions
     desc: "Very few leaf functions (deep"
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: metrics

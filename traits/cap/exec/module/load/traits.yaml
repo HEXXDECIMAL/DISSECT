@@ -40,21 +40,7 @@ traits:
       exact: "GetModuleFileNameA"
 
   # === Dynamic Loading ===
-  - id: load-library-ex
-    desc: Load library with flags
-    crit: notable
-    conf: 0.75
-    if:
-      type: symbol
-      exact: "LoadLibraryExW"
-
-  - id: load-library
-    desc: Load dynamic library
-    crit: notable
-    conf: 0.75
-    if:
-      type: symbol
-      exact: "LoadLibraryW"
+  # NOTE: LoadLibraryW and LoadLibraryExW moved to cap/exec/native/api
 
   - id: free-library
     desc: Unload dynamic library

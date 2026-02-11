@@ -58,7 +58,7 @@ traits:
   # === mkfifo netcat atomic indicators ===
   - id: mkfifo-cmd
     desc: mkfifo command for named pipe
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [shell, package.json]
     if:
@@ -67,7 +67,7 @@ traits:
 
   - id: nc-pipe
     desc: Netcat with pipe
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [shell, package.json]
     if:

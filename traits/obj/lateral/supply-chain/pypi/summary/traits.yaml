@@ -47,7 +47,7 @@ traits:
 
   - id: pkginfo-security-claim
     desc: PKG-INFO summary claims security functionality
-    crit: inert
+    crit: notable
     conf: 0.50
     if:
       type: kv

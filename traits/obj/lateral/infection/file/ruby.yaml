@@ -39,7 +39,7 @@ traits:
   # === File Collection ===
   - id: file-array-append
     desc: File path collection in array
-    crit: inert
+    crit: notable
     conf: 0.75
     attack: "T1083"
     if:
@@ -48,7 +48,7 @@ traits:
 
   - id: directory-array-append
     desc: Directory path collection in array
-    crit: inert
+    crit: notable
     conf: 0.75
     attack: "T1083"
     if:

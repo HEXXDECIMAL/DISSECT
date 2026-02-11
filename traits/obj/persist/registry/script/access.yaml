@@ -40,7 +40,7 @@ traits:
   mbc: E1006
 - id: hkey-local-machine
   desc: HKEY_LOCAL_MACHINE
-  crit: inert
+  crit: notable
   conf: 0.5
   platforms:
   - windows
@@ -52,7 +52,7 @@ traits:
   attack: T1012
 - id: hkey-current-user
   desc: HKEY_CURRENT_USER
-  crit: inert
+  crit: notable
   conf: 0.5
   platforms:
   - windows

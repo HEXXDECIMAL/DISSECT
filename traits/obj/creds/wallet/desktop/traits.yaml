@@ -14,7 +14,7 @@ traits:
   - id: electrum-wallets-dir
     desc: .electrum/wallets directory
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       regex: "\\.electrum/wallets?"
@@ -22,7 +22,7 @@ traits:
   - id: electrum-wallet-file
     desc: .electrum wallet file
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       regex: "\\.electrum.{0,30}wallet"
@@ -30,7 +30,7 @@ traits:
   - id: electrum-default
     desc: electrum default_wallet
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: "default_wallet"
@@ -39,7 +39,7 @@ traits:
   - id: coinomi-wallets-dir
     desc: Coinomi/wallets directory
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       regex: "Coinomi/wallets?"
@@ -47,7 +47,7 @@ traits:
   - id: coinomi-wallet-dat
     desc: Coinomi wallet.dat
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       regex: "Coinomi.{0,30}wallet\\.dat"
@@ -55,7 +55,7 @@ traits:
   - id: coinomi-bundle
     desc: com.coinomi bundle
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: "com.coinomi"
@@ -64,7 +64,7 @@ traits:
   - id: exodus-wallet-dir
     desc: Exodus/exodus.wallet
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: "Exodus/exodus.wallet"
@@ -72,7 +72,7 @@ traits:
   - id: exodus-passphrase
     desc: exodus passphrase
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       regex: "exodus.{0,30}passphrase"
@@ -80,7 +80,7 @@ traits:
   - id: exodus-bundle
     desc: com.exodus bundle
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: "com.exodus"
@@ -89,7 +89,7 @@ traits:
   - id: atomic-local-storage
     desc: atomic/Local Storage
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: "atomic/Local Storage"
@@ -97,7 +97,7 @@ traits:
   - id: atomic-wallet-name
     desc: Atomic Wallet name
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: "Atomic Wallet"
@@ -105,7 +105,7 @@ traits:
   - id: atomic-bundle
     desc: com.atomicwallet bundle
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: "com.atomicwallet"
@@ -114,7 +114,7 @@ traits:
   - id: walletwasabi-lower
     desc: .walletwasabi directory
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: ".walletwasabi"
@@ -122,7 +122,7 @@ traits:
   - id: walletwasabi-upper
     desc: .WalletWasabi directory
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: ".WalletWasabi"
@@ -130,7 +130,7 @@ traits:
   - id: wasabiwallet-name
     desc: WasabiWallet name
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: "WasabiWallet"
@@ -139,7 +139,7 @@ traits:
   - id: binance-app-store
     desc: Binance/app-store.json
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: "Binance/app-store.json"
@@ -147,7 +147,7 @@ traits:
   - id: binance-aspect
     desc: "@aspect-binance package"
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: "@aspect-binance"
@@ -155,7 +155,7 @@ traits:
   - id: binance-bundle
     desc: com.binance bundle
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: "com.binance"
@@ -164,7 +164,7 @@ traits:
   - id: tonkeeper-desktop
     desc: "@tonkeeper/desktop package"
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: "@tonkeeper/desktop"
@@ -172,7 +172,7 @@ traits:
   - id: tonkeeper-config
     desc: tonkeeper config.json
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       regex: "tonkeeper.{0,30}config\\.json"
@@ -180,7 +180,7 @@ traits:
   - id: tonkeeper-bundle
     desc: com.ton-keeper bundle
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: "com.ton-keeper"
@@ -189,7 +189,7 @@ traits:
   - id: ledger-live-dir
     desc: Ledger Live/ directory
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: "Ledger Live/"
@@ -197,7 +197,7 @@ traits:
   - id: ledgerhq-package
     desc: "@ledgerhq package"
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: "@ledgerhq"
@@ -205,7 +205,7 @@ traits:
   - id: ledger-accounts
     desc: ledger accounts
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       regex: "ledger.{0,30}accounts"
@@ -214,7 +214,7 @@ traits:
   - id: trezor-desktop
     desc: "@trezor/suite-desktop package"
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: "@trezor/suite-desktop"
@@ -222,7 +222,7 @@ traits:
   - id: trezor-suite
     desc: trezor suite
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       regex: "trezor.{0,30}suite"
@@ -231,7 +231,7 @@ traits:
   - id: guarda-local-storage
     desc: Guarda/Local Storage
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: "Guarda/Local Storage"
@@ -239,7 +239,7 @@ traits:
   - id: guarda-bundle
     desc: com.guarda bundle
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: "com.guarda"
@@ -248,7 +248,7 @@ traits:
   - id: bitcoin-wallet-dat
     desc: .bitcoin/wallet.dat
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: ".bitcoin/wallet.dat"
@@ -256,7 +256,7 @@ traits:
   - id: bitcoin-wallets-dir
     desc: .bitcoin/wallets directory
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: ".bitcoin/wallets"
@@ -264,7 +264,7 @@ traits:
   - id: bitcoin-app-wallets
     desc: Bitcoin/wallets directory
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: "Bitcoin/wallets"
@@ -273,7 +273,7 @@ traits:
   - id: ethereum-keystore
     desc: Ethereum/keystore
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: "Ethereum/keystore"
@@ -281,7 +281,7 @@ traits:
   - id: mist-keystore
     desc: Mist/keystore
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: "Mist/keystore"
@@ -289,7 +289,7 @@ traits:
   - id: doteth-keystore
     desc: .ethereum/keystore
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: ".ethereum/keystore"
@@ -298,7 +298,7 @@ traits:
   - id: monero-wallets
     desc: Monero/wallets
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: "Monero/wallets"
@@ -306,7 +306,7 @@ traits:
   - id: bitmonero-wallets
     desc: .bitmonero/wallets
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: ".bitmonero/wallets"
@@ -315,7 +315,7 @@ traits:
   - id: litecoin-wallet-dat
     desc: .litecoin/wallet.dat
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: ".litecoin/wallet.dat"
@@ -323,7 +323,7 @@ traits:
   - id: litecoin-wallets
     desc: Litecoin/wallets
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: "Litecoin/wallets"
@@ -332,7 +332,7 @@ traits:
   - id: dashcore-wallets
     desc: DashCore/wallets
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: "DashCore/wallets"
@@ -340,7 +340,7 @@ traits:
   - id: dash-wallet-dat
     desc: .dashcore/wallet.dat
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: ".dashcore/wallet.dat"
@@ -367,7 +367,7 @@ traits:
   - id: dogecoin-wallets
     desc: Dogecoin/wallets
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: "Dogecoin/wallets"
@@ -375,7 +375,7 @@ traits:
   - id: dogecoin-wallet-dat
     desc: .dogecoin/wallet.dat
     conf: 0.7
-    crit: inert
+    crit: notable
     if:
       type: string
       substr: ".dogecoin/wallet.dat"

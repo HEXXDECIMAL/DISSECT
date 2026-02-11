@@ -4,7 +4,7 @@
 traits:
   - id: has-class
     desc: Code defines classes
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript]
     if:
@@ -14,7 +14,7 @@ traits:
   # Has JSDoc comments
   - id: has-async-await
     desc: Code uses async/await patterns
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript]
     if:
@@ -24,7 +24,7 @@ traits:
   # Has Promise usage
   - id: has-promise
     desc: Code uses Promises
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript]
     if:
@@ -34,7 +34,7 @@ traits:
   # Has named function definitions
   - id: has-decorators
     desc: Code uses TypeScript/ES decorators
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [javascript, typescript]
     if:
@@ -44,7 +44,7 @@ traits:
   # Has dependency injection
   - id: has-error-class
     desc: Code defines custom error classes
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [javascript, typescript]
     if:
@@ -54,7 +54,7 @@ traits:
   # Has getter/setter
   - id: has-accessors
     desc: Code uses getters/setters
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript]
     if:
@@ -64,7 +64,7 @@ traits:
   # Has symbol usage
   - id: has-symbols
     desc: Code uses Symbol for private
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [javascript, typescript]
     if:
@@ -74,7 +74,7 @@ traits:
   # Has WeakMap/WeakSet (private data pattern)
   - id: has-weak-collections
     desc: Code uses WeakMap/WeakSet patterns
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [javascript, typescript]
     if:
@@ -84,7 +84,7 @@ traits:
   # Has Proxy usage
   - id: has-proxy
     desc: Code uses Proxy for metaprogramming
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript]
     if:
@@ -94,7 +94,7 @@ traits:
   # Has generator functions
   - id: has-generators
     desc: Code uses generator functions
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [javascript, typescript]
     if:
@@ -104,7 +104,7 @@ traits:
   # Multiple export patterns
   - id: promise-test-call
     desc: promise_test() WPT call
-    crit: inert
+    crit: notable
     conf: 0.95
     for: [javascript, typescript]
     if:
@@ -113,7 +113,7 @@ traits:
 
   - id: async-test-call
     desc: async_test() WPT call
-    crit: inert
+    crit: notable
     conf: 0.95
     for: [javascript, typescript]
     if:

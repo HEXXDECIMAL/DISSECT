@@ -50,7 +50,7 @@ traits:
   # === C2 Beacon Pattern ===
   - id: while-true-loop
     desc: Infinite loop (C2 beacon pattern)
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string

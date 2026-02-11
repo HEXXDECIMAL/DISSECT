@@ -17,7 +17,7 @@ traits:
 
   - id: axios-get
     desc: Axios GET request
-    crit: inert
+    crit: notable
     conf: 1.0
     if:
       type: raw

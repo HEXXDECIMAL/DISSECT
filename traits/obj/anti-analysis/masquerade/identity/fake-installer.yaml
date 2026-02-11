@@ -10,7 +10,7 @@ traits:
   # === Legitimate Context (Homebrew) ===
   - id: homebrew-prefix
     desc: "Homebrew prefix variable"
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -18,7 +18,7 @@ traits:
 
   - id: brew-no-install
     desc: "Homebrew no-install marker"
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -26,7 +26,7 @@ traits:
 
   - id: homebrew-repo
     desc: "Homebrew repository URL"
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -80,7 +80,7 @@ composite_rules:
   # Helper: Legitimate Homebrew context markers
   - id: homebrew-context
     desc: "Homebrew context markers"
-    crit: inert
+    crit: notable
     conf: 0.6
     needs: 2
     any:

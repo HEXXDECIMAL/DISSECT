@@ -7,8 +7,7 @@
 //! - String count analysis
 
 use super::{
-    resolve_effective_range, resolve_effective_range_opt, symbol_matches,
-    ContentLocationParams,
+    resolve_effective_range, resolve_effective_range_opt, symbol_matches, ContentLocationParams,
 };
 use crate::composite_rules::condition::NotException;
 use crate::composite_rules::context::{ConditionResult, EvaluationContext, StringParams};

@@ -29,7 +29,7 @@ traits:
 
   - id: contact-us
     desc: "contact us"
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string

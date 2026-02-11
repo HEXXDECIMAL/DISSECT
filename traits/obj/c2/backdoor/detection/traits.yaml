@@ -9,7 +9,7 @@ traits:
   # === Backdoor base term ===
   - id: backdoor-ref
     desc: Backdoor keyword reference
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -43,7 +43,7 @@ traits:
   # === Backdoor shell variants ===
   - id: backdoor-shell-ref
     desc: Backdoor shell keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -52,7 +52,7 @@ traits:
   # === Leet speak variants ===
   - id: backdoor-leet
     desc: Backdoor leet speak (backd00r)
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -61,7 +61,7 @@ traits:
   # === Context-specific backdoor references ===
   - id: hidden-backdoor
     desc: Hidden backdoor keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -70,7 +70,7 @@ traits:
 
   - id: hide-backdoor
     desc: Hide backdoor keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -79,7 +79,7 @@ traits:
 
   - id: icmp-backdoor
     desc: ICMP backdoor keyword
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -88,7 +88,7 @@ traits:
 
   - id: pam-backdoor
     desc: PAM backdoor keyword
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -97,7 +97,7 @@ traits:
 
   - id: ssh-backdoor
     desc: SSH backdoor keyword
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -106,7 +106,7 @@ traits:
 
   - id: sshd-backdoor
     desc: SSHD backdoor keyword
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -115,7 +115,7 @@ traits:
 
   - id: backdoor-task
     desc: Backdoor task keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -124,7 +124,7 @@ traits:
 
   - id: backdoor-process
     desc: Backdoor process keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -133,7 +133,7 @@ traits:
 
   - id: backdoor-shell-ctx
     desc: Backdoor shell context keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -142,7 +142,7 @@ traits:
 
   - id: backdoor-login
     desc: Backdoor login keyword
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -151,7 +151,7 @@ traits:
 
   - id: backdoor-pass
     desc: Backdoor password keyword
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string

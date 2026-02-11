@@ -3,7 +3,7 @@
 traits:
   - id: pkg-build-script-field
     desc: '"build": script in package.json'
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [package.json]
     if:
@@ -12,7 +12,7 @@ traits:
 
   - id: pkg-lint-script-field
     desc: '"lint": script in package.json'
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [package.json]
     if:
@@ -21,7 +21,7 @@ traits:
 
   - id: pkg-format-script-field
     desc: '"format": script in package.json'
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [package.json]
     if:
@@ -30,7 +30,7 @@ traits:
 
   - id: pkg-dev-script-field
     desc: '"dev": script in package.json'
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [package.json]
     if:
@@ -39,7 +39,7 @@ traits:
 
   - id: pkg-start-script-field
     desc: '"start": script in package.json'
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [package.json]
     if:
@@ -48,7 +48,7 @@ traits:
 
   - id: has-release-scripts
     desc: Package has release management scripts
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [package.json]
     if:
@@ -57,7 +57,7 @@ traits:
 
   - id: has-typescript
     desc: Package has TypeScript support
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [package.json]
     if:
@@ -66,7 +66,7 @@ traits:
 
   - id: has-build-script
     desc: Package has build script (compiled)
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [package.json]
     if:
@@ -75,7 +75,7 @@ traits:
 
   - id: has-lint-script
     desc: Package has linting configured
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [package.json]
     if:
@@ -84,7 +84,7 @@ traits:
 
   - id: has-prepublish-only
     desc: Package has prepublishOnly script
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [package.json]
     if:
@@ -93,7 +93,7 @@ traits:
 
   - id: uses-bin-scripts
     desc: Scripts reference node_modules binaries
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [package.json]
     if:
@@ -102,7 +102,7 @@ traits:
 
   - id: has-git-hooks
     desc: Package uses git hooks tooling
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [package.json]
     if:
@@ -112,7 +112,7 @@ traits:
 composite_rules:
   - id: has-dev-workflow
     desc: Package has development workflow scripts
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [package.json]
     needs: 3

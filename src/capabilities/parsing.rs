@@ -118,22 +118,22 @@ pub(crate) fn apply_trait_defaults(
 
     // For size-only traits without a condition, create a synthetic "always-true" condition
     // This uses a basename regex that matches everything
-    let mut condition_with_filters = raw.condition.unwrap_or_else(|| {
-        crate::composite_rules::ConditionWithFilters {
-            condition: crate::composite_rules::Condition::Basename {
-                exact: None,
-                substr: None,
-                regex: Some(".".to_string()),
-                case_insensitive: false,
-            },
-            size_min: None,
-            size_max: None,
-            count_min: None,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
-        }
-    });
+    let mut condition_with_filters =
+        raw.condition
+            .unwrap_or_else(|| crate::composite_rules::ConditionWithFilters {
+                condition: crate::composite_rules::Condition::Basename {
+                    exact: None,
+                    substr: None,
+                    regex: Some(".".to_string()),
+                    case_insensitive: false,
+                },
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            });
 
     // Auto-fix: Convert literal regex patterns to substr for better performance
     // If a regex pattern contains only alphanumeric chars and underscores, it's a literal

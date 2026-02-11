@@ -5,7 +5,7 @@ traits:
   # === HOME environment atomic indicators ===
   - id: getenv-home
     desc: getenv HOME lookup
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1033"
     for: [all]
@@ -15,7 +15,7 @@ traits:
 
   - id: env-dot-home
     desc: env.HOME lookup
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1033"
     for: [all]
@@ -25,7 +25,7 @@ traits:
 
   - id: dollar-home
     desc: $HOME variable reference
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1033"
     for: [all]
@@ -87,7 +87,7 @@ traits:
 
   - id: logname-var
     desc: LOGNAME environment variable
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1033"
     for: [all]
@@ -99,7 +99,7 @@ traits:
   # for user information. Downgraded to inert for atomic indicators.
   - id: getpwuid
     desc: Get password entry by UID
-    crit: inert
+    crit: notable
     conf: 0.4
     attack: "T1033"
     for: [elf, macho]
@@ -109,7 +109,7 @@ traits:
 
   - id: getpwnam
     desc: Get password entry by name
-    crit: inert
+    crit: notable
     conf: 0.4
     attack: "T1033"
     for: [elf, macho]
@@ -224,7 +224,7 @@ composite_rules:
   # NOTE: Go runtime uses these legitimately - downgraded to inert
   - id: passive-user-lookup
     desc: POSIX user lookup functions
-    crit: inert
+    crit: notable
     conf: 0.4
     attack: "T1033"
     for: [elf, macho]

@@ -4,7 +4,7 @@
 traits:
   - id: use-strict-quote
     desc: '"use strict" directive'
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript]
     if:
@@ -13,7 +13,7 @@ traits:
 
   - id: void-zero
     desc: "void 0 pattern (minifier output)"
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript]
     if:
@@ -22,7 +22,7 @@ traits:
 
   - id: esmodule-export
     desc: __esModule property
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript]
     if:
@@ -31,7 +31,7 @@ traits:
 
   - id: object-define-property
     desc: Object.defineProperty call
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript]
     if:

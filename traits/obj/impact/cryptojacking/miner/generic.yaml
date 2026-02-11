@@ -27,7 +27,7 @@ traits:
 
   - id: miner-word
     desc: miner keyword
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string
@@ -35,7 +35,7 @@ traits:
 
   - id: hashrate-str
     desc: hashrate keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -43,7 +43,7 @@ traits:
 
   - id: wallet-word
     desc: wallet keyword
-    crit: inert
+    crit: notable
     conf: 0.4
     # Restrict to languages where miners typically appear, exclude Swift/macOS contexts
     for: [python, shell, javascript, go]

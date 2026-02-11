@@ -3,7 +3,7 @@
 traits:
   - id: has-index-entry
     desc: Package has standard index entry
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [package.json]
     if:
@@ -12,7 +12,7 @@ traits:
 
   - id: has-types-entry
     desc: Package has TypeScript types entry
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [package.json]
     if:
@@ -21,7 +21,7 @@ traits:
 
   - id: has-side-effects
     desc: Package declares sideEffects
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [package.json]
     if:
@@ -30,7 +30,7 @@ traits:
 
   - id: has-browserslist
     desc: Package has browser target configuration
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [package.json]
     if:
@@ -39,7 +39,7 @@ traits:
 
   - id: pkg-main-field
     desc: '"main": field in package.json'
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [package.json]
     if:
@@ -48,7 +48,7 @@ traits:
 
   - id: pkg-types-field
     desc: '"types": field in package.json'
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [package.json]
     if:
@@ -57,7 +57,7 @@ traits:
 
   - id: has-author-email
     desc: Package has author with email
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [package.json]
     if:
@@ -66,7 +66,7 @@ traits:
 
   - id: has-keywords
     desc: Package has keywords array
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [package.json]
     if:
@@ -75,7 +75,7 @@ traits:
 
   - id: has-engines
     desc: Package specifies Node.js engine version
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [package.json]
     if:
@@ -84,7 +84,7 @@ traits:
 
   - id: has-funding
     desc: Package has funding information
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [package.json]
     if:
@@ -93,7 +93,7 @@ traits:
 
   - id: has-bugs-url-field
     desc: Package has bugs/issues URL
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [package.json]
     if:
@@ -102,7 +102,7 @@ traits:
 
   - id: has-homepage-field
     desc: Package has homepage URL
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [package.json]
     if:
@@ -111,7 +111,7 @@ traits:
 
   - id: has-contributors
     desc: Package has contributors list
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [package.json]
     if:
@@ -120,7 +120,7 @@ traits:
 
   - id: has-workspaces
     desc: Package uses workspaces (monorepo pattern)
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [package.json]
     if:
@@ -129,7 +129,7 @@ traits:
 
   - id: is-private
     desc: Package marked as private
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [package.json]
     if:
@@ -138,7 +138,7 @@ traits:
 
   - id: conventional-version
     desc: Uses conventional version format
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [package.json]
     if:
@@ -147,7 +147,7 @@ traits:
 
   - id: mature-version
     desc: Package has mature version number
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [package.json]
     if:
@@ -156,7 +156,7 @@ traits:
 
   - id: has-description
     desc: Package has meaningful description
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [package.json]
     if:
@@ -165,7 +165,7 @@ traits:
 
   - id: has-bin-field
     desc: Package provides CLI binary
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [package.json]
     if:
@@ -174,7 +174,7 @@ traits:
 
   - id: peer-range
     desc: Uses version ranges for peer dependencies
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [package.json]
     if:
@@ -183,7 +183,7 @@ traits:
 
   - id: has-optional-deps
     desc: Package has optional dependencies
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [package.json]
     if:
@@ -192,7 +192,7 @@ traits:
 
   - id: has-platform-restrictions
     desc: Package specifies platform restrictions
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [package.json]
     if:
@@ -201,7 +201,7 @@ traits:
 
   - id: scoped-known-org
     desc: Package from known organization scope
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [package.json]
     if:
@@ -210,7 +210,7 @@ traits:
 
   - id: has-peer-deps
     desc: Package has peerDependencies (framework plugin)
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [package.json]
     if:
@@ -219,7 +219,7 @@ traits:
 
   - id: has-dev-deps
     desc: Package has devDependencies
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [package.json]
     if:
@@ -228,7 +228,7 @@ traits:
 
   - id: has-files-field
     desc: Package explicitly lists published files
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [package.json]
     if:
@@ -237,7 +237,7 @@ traits:
 
   - id: semver-deps
     desc: Uses semantic versioning for dependencies
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [package.json]
     if:
@@ -246,7 +246,7 @@ traits:
 
   - id: has-publish-config
     desc: Has publish configuration
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [package.json]
     if:
@@ -255,7 +255,7 @@ traits:
 
   - id: ci-badge-reference
     desc: References CI service (professional project)
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [package.json]
     if:

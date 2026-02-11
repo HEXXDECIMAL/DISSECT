@@ -5,7 +5,7 @@
 traits:
   - id: upx-marker
     desc: UPX packer marker string
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: string
@@ -13,7 +13,7 @@ traits:
 
   - id: aspack-marker
     desc: ASPack packer marker
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: string
@@ -21,7 +21,7 @@ traits:
 
   - id: petite-marker
     desc: Petite packer marker
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: string
@@ -29,7 +29,7 @@ traits:
 
   - id: themida-marker
     desc: Themida packer marker
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: string
@@ -37,7 +37,7 @@ traits:
 
   - id: vmprotect-marker
     desc: VMProtect packer marker
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: string

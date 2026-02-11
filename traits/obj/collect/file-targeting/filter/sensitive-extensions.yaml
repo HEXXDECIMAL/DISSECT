@@ -20,7 +20,7 @@ traits:
 
   - id: pem-extension
     desc: PEM certificate/key (.pem) extension
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1552.004"
     if:
@@ -75,7 +75,7 @@ traits:
 
   - id: key-extension
     desc: "Generic key extension"
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1552.004"
     if:
@@ -84,7 +84,7 @@ traits:
 
   - id: dat-extension
     desc: "Generic data extension"
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string
@@ -93,7 +93,7 @@ traits:
   # === Database and config extensions ===
   - id: sql-extension
     desc: "SQL database extension"
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1005"
     if:
@@ -102,7 +102,7 @@ traits:
 
   - id: conf-extension
     desc: "Config file extension"
-    crit: inert
+    crit: notable
     conf: 0.4
     attack: "T1552.001"
     if:
@@ -111,7 +111,7 @@ traits:
 
   - id: json-extension
     desc: "JSON file extension"
-    crit: inert
+    crit: notable
     conf: 0.3
     if:
       type: string

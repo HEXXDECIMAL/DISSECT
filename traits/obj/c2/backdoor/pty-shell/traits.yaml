@@ -30,7 +30,7 @@ traits:
   # Terminal attribute control - for PTY configuration
   - id: termios-symbols
     desc: Terminal attribute control symbols
-    crit: inert
+    crit: notable
     conf: 0.9
     if:
       type: symbol
@@ -39,7 +39,7 @@ traits:
   # File descriptor duplication - for redirecting I/O to socket
   - id: dup2-symbol
     desc: dup2 file descriptor symbol
-    crit: inert
+    crit: notable
     conf: 0.9
     if:
       type: symbol
@@ -66,7 +66,7 @@ traits:
   # Terminal type strings (vt100, xterm, ansi, linux) - for PTY negotiation
   - id: terminal-type-string
     desc: Terminal type identifier string
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: string

@@ -45,6 +45,7 @@ Read `RULES.md`, `TAXONOMY.md`, `PRECISION.md` before editing.
 - This tool will be used against millions of samples across the open-source community, be precise accordingly.
 - Be very careful to not duplicate traits by searching for them using a keyword or looking for other traits that match the same evidence - prefer improving existing traits rather than creating new ones unless there is a semantic difference.
 - New atomic traits should be created in a location as per TAXONOMY.md, not alongside the composite traits that will use them.
+- If a behavior would be surprising if included in a random nodejs app that you downloaded - it should be notable or suspicious.
 
 # Success Criteria
 - Run dissect --format=jsonl against the file and ensure that it emits no warnings and produces the results you were hoping for. Iterate until it does.

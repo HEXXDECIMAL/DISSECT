@@ -48,7 +48,7 @@ traits:
 
   - id: file-store-variable
     desc: Store data to file variable
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [python]
     if:
@@ -58,7 +58,7 @@ traits:
   # === Exfiltration endpoint pattern ===
   - id: http-post-endpoint
     desc: HTTP POST method handler
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [python]
     if:

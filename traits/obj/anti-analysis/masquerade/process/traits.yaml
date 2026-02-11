@@ -10,7 +10,7 @@ traits:
   # === prctl PR_SET_NAME micro-traits ===
   - id: prctl-symbol
     desc: prctl function reference
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: symbol
@@ -44,7 +44,7 @@ traits:
 
   - id: fake-abrtd-name
     desc: Contains abrtd daemon name
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -97,7 +97,7 @@ traits:
 
   - id: fake-systemd-path
     desc: Contains systemd path (potential masquerade)
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -105,7 +105,7 @@ traits:
 
   - id: fake-udevd-path
     desc: Contains udevd path (potential masquerade)
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -113,7 +113,7 @@ traits:
 
   - id: fake-rsyslogd-path
     desc: Contains rsyslogd path (potential masquerade)
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -121,7 +121,7 @@ traits:
 
   - id: fake-crond-path
     desc: Contains crond path (potential masquerade)
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -129,7 +129,7 @@ traits:
 
   - id: fake-atd-path
     desc: Contains atd path (potential masquerade)
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string

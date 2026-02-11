@@ -2,7 +2,7 @@
 traits:
   - id: secret
     desc: Secret marker string
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string

@@ -31,6 +31,14 @@ traits:
       exact: "IsProcessorFeaturePresent"
 
   # === Dynamic Library Loading ===
+  - id: load-library
+    desc: Dynamic library loading via LoadLibrary
+    crit: notable
+    conf: 0.95
+    if:
+      type: symbol
+      exact: "LoadLibrary"
+
   - id: load-library-a
     desc: Dynamic library loading via LoadLibraryA
     crit: notable
@@ -39,6 +47,14 @@ traits:
       type: symbol
       exact: "LoadLibraryA"
 
+  - id: load-library-w
+    desc: Dynamic library loading via LoadLibraryW
+    crit: notable
+    conf: 0.95
+    if:
+      type: symbol
+      exact: "LoadLibraryW"
+
   - id: load-library-ex
     desc: Extended dynamic library loading
     crit: notable
@@ -46,6 +62,22 @@ traits:
     if:
       type: symbol
       exact: "LoadLibraryEx"
+
+  - id: load-library-ex-a
+    desc: Extended dynamic library loading (ANSI)
+    crit: notable
+    conf: 0.95
+    if:
+      type: symbol
+      exact: "LoadLibraryExA"
+
+  - id: load-library-ex-w
+    desc: Extended dynamic library loading (Unicode)
+    crit: notable
+    conf: 0.95
+    if:
+      type: symbol
+      exact: "LoadLibraryExW"
 
   - id: get-proc-address
     desc: Runtime function resolution

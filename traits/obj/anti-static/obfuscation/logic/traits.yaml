@@ -8,7 +8,7 @@ traits:
   # Pattern: C6 45 XX YY (mov byte ptr [rbp-XX], YY)
   - id: stack-string-construction
     desc: Stack string construction pattern (5+
-    crit: inert
+    crit: notable
     conf: 0.4
     attack: "T1027"
     for: [elf, macho, pe]

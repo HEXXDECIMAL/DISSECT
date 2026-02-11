@@ -9,7 +9,7 @@ traits:
   # === Export detection micro-traits ===
   - id: module-exports-pattern
     desc: CommonJS module.exports pattern
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript]
     if:
@@ -19,7 +19,7 @@ traits:
 
   - id: exports-dot-pattern
     desc: CommonJS exports.{0,50} pattern
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript]
     if:
@@ -29,7 +29,7 @@ traits:
 
   - id: esm-export-pattern
     desc: ESM export statement
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript]
     if:
@@ -40,7 +40,7 @@ traits:
   # === Node.js require micro-traits ===
   - id: require-os
     desc: require('os') import
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript]
     if:
@@ -68,7 +68,7 @@ traits:
 
   - id: require-https
     desc: require('https') import
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript]
     if:
@@ -82,7 +82,7 @@ traits:
 
   - id: require-fs
     desc: require('fs') import
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript]
     if:
@@ -97,7 +97,7 @@ traits:
   # === package.json micro-traits ===
   - id: pkg-dependencies
     desc: Package has dependencies field
-    crit: inert
+    crit: notable
     conf: 0.9
     if:
       type: kv
@@ -105,7 +105,7 @@ traits:
 
   - id: pkg-version-001
     desc: Package version 0.0.1 (brand new)
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: kv
@@ -174,7 +174,7 @@ traits:
   # === Silent process execution micro-traits ===
   - id: stdio-ignore-string
     desc: "stdio: 'ignore' pattern"
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript]
     if:
@@ -183,7 +183,7 @@ traits:
 
   - id: stdio-ignore-array
     desc: "stdio: [...ignore...] pattern"
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript]
     if:
@@ -204,7 +204,7 @@ traits:
   # === Filesize micro-traits ===
   - id: small-file-5k
     desc: Small file under 5KB
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript]
     size_max: 5120
@@ -213,7 +213,7 @@ traits:
   # Name squatters and impersonation packages often ship only package.json
   - id: pkg-skeleton-small
     desc: Tiny package.json (metadata only)
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [package.json]
     size_max: 2048
@@ -293,7 +293,7 @@ traits:
 
   - id: pkg-no-description-short
     desc: Very short/empty description
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [package.json]
     if:
@@ -316,7 +316,7 @@ traits:
 
   - id: cdn-keyword-facade
     desc: CDN-related keywords
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [package.json]
     if:
@@ -326,7 +326,7 @@ traits:
 
   - id: template-keyword
     desc: Template keyword in package
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [package.json]
     if:
@@ -392,7 +392,7 @@ composite_rules:
   # Has exports composite
   - id: has-exports
     desc: Module has exports
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript]
     any:

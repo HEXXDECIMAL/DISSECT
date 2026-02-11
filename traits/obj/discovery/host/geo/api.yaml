@@ -7,7 +7,7 @@ traits:
 
   - id: api-db-ip
     desc: api.db-ip.com endpoint
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1016"
     if:
@@ -16,7 +16,7 @@ traits:
 
   - id: db-ip-v2
     desc: db-ip.com/v2 endpoint
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1016"
     if:
@@ -43,7 +43,7 @@ traits:
 
   - id: api-ipify
     desc: api.ipify.org endpoint
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1016"
     if:
@@ -61,7 +61,7 @@ traits:
 
   - id: geoip-maxmind
     desc: geoip.maxmind.com endpoint
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1016"
     if:
@@ -70,7 +70,7 @@ traits:
 
   - id: maxmind-geoip
     desc: maxmind.com/geoip endpoint
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1016"
     if:
@@ -79,7 +79,7 @@ traits:
 
   - id: freegeoip-app
     desc: freegeoip.app domain
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1016"
     if:
@@ -88,7 +88,7 @@ traits:
 
   - id: freegeoip-net
     desc: freegeoip.net domain
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1016"
     if:
@@ -97,7 +97,7 @@ traits:
 
   - id: freegeoip-io
     desc: freegeoip.io domain
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1016"
     if:
@@ -112,7 +112,7 @@ traits:
 
   - id: country-code-camel
     desc: countryCode field (camelCase)
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1016"
     if:
@@ -121,7 +121,7 @@ traits:
 
   - id: country-code-snake
     desc: country_code field (snake_case)
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1016"
     if:
@@ -130,7 +130,7 @@ traits:
 
   - id: country-name
     desc: country_name field (geo profiling)
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1016"
     if:
@@ -139,7 +139,7 @@ traits:
 
   - id: ip-address-camel
     desc: ipAddress field (camelCase)
-    crit: inert
+    crit: notable
     conf: 0.4
     attack: "T1016"
     if:
@@ -148,7 +148,7 @@ traits:
 
   - id: ip-address-snake
     desc: ip_address field (snake_case)
-    crit: inert
+    crit: notable
     conf: 0.4
     attack: "T1016"
     if:
@@ -157,7 +157,7 @@ traits:
 
   - id: ip-json-field
     desc: '"ip" JSON field'
-    crit: inert
+    crit: notable
     conf: 0.4
     attack: "T1016"
     if:

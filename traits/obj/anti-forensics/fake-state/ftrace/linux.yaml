@@ -5,7 +5,7 @@ traits:
   # === Rootkit Keywords (case variants) ===
   - id: singularity-lower
     desc: singularity keyword (lowercase)
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [c, elf]
     if:
@@ -14,7 +14,7 @@ traits:
 
   - id: singularity-title
     desc: Singularity keyword (title case)
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [c, elf]
     if:
@@ -23,7 +23,7 @@ traits:
 
   - id: singularity-upper
     desc: SINGULARITY keyword (uppercase)
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [c, elf]
     if:
@@ -32,7 +32,7 @@ traits:
 
   - id: ftrace-lower
     desc: ftrace keyword (lowercase)
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [c, elf]
     if:
@@ -41,7 +41,7 @@ traits:
 
   - id: ftrace-title
     desc: Ftrace keyword (title case)
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [c, elf]
     if:
@@ -50,7 +50,7 @@ traits:
 
   - id: ftrace-upper
     desc: FTRACE keyword (uppercase)
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [c, elf]
     if:
@@ -59,7 +59,7 @@ traits:
 
   - id: taint-lower
     desc: taint keyword (lowercase)
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [c, elf]
     if:
@@ -68,7 +68,7 @@ traits:
 
   - id: taint-title
     desc: Taint keyword (title case)
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [c, elf]
     if:
@@ -77,7 +77,7 @@ traits:
 
   - id: taint-upper
     desc: TAINT keyword (uppercase)
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [c, elf]
     if:
@@ -87,7 +87,7 @@ traits:
   # === Fake State Variables ===
   - id: ftrace-enabled
     desc: ftrace_enabled kernel variable
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [c, elf]
     if:
@@ -96,7 +96,7 @@ traits:
 
   - id: tracing-on
     desc: tracing_on kernel variable
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [c, elf]
     if:
@@ -105,7 +105,7 @@ traits:
 
   - id: saved-ftrace-value
     desc: saved_ftrace_value variable (fake state storage)
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [c, elf]
     if:
@@ -114,7 +114,7 @@ traits:
 
   - id: ftrace-write-intercepted
     desc: ftrace_write_intercepted flag (deception indicator)
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [c, elf]
     if:
@@ -150,7 +150,7 @@ composite_rules:
 
   - id: ftrace-keyword
     desc: Ftrace keyword (case variants)
-    crit: inert
+    crit: notable
     for: [c, elf]
     any:
       - { id: ftrace-lower }
@@ -175,7 +175,7 @@ composite_rules:
 
   - id: rootkit-keywords
     desc: Rootkit-related keywords
-    crit: inert
+    crit: notable
     for: [c, elf]
     any:
       - { id: singularity-keyword }

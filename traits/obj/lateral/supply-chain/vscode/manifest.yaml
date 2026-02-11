@@ -5,7 +5,7 @@ traits:
   # === Identity atomic indicators ===
   - id: identity-tag
     desc: Identity XML tag
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [all]
     if:
@@ -59,7 +59,7 @@ traits:
   # === Localization anomalies ===
   - id: language-en-us
     desc: Language set to en-US
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [all]
     if:
@@ -68,7 +68,7 @@ traits:
 
   - id: description-contains-chinese
     desc: Description contains Chinese characters
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [all]
     if:

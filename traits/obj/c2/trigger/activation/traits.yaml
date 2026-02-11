@@ -5,7 +5,7 @@ traits:
   # ICMP structure references
   - id: icmp-hdr-struct
     desc: ICMP header structure (C)
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [c]
     if:
@@ -14,7 +14,7 @@ traits:
 
   - id: icmp-rcv
     desc: ICMP receive handler
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -26,7 +26,7 @@ traits:
   # a more specific context suggesting a magic value check.
   - id: magic-1337
     desc: Magic value 1337 (common trigger)
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -35,7 +35,7 @@ traits:
 
   - id: magic-0x539
     desc: Magic value 0x539 (1337)
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -56,7 +56,7 @@ traits:
   # only the composite rules should use them in combination with other signals.
   - id: trigger-keyword-lower
     desc: trigger keyword (lowercase)
-    crit: inert
+    crit: notable
     conf: 0.3
     if:
       type: string
@@ -65,7 +65,7 @@ traits:
 
   - id: trigger-keyword-upper
     desc: TRIGGER keyword (uppercase)
-    crit: inert
+    crit: notable
     conf: 0.3
     if:
       type: string
@@ -73,7 +73,7 @@ traits:
 
   - id: trigger-keyword-title
     desc: Trigger keyword (titlecase)
-    crit: inert
+    crit: notable
     conf: 0.3
     if:
       type: string
@@ -82,7 +82,7 @@ traits:
 
   - id: activate-keyword-lower
     desc: activate keyword (lowercase)
-    crit: inert
+    crit: notable
     conf: 0.3
     if:
       type: string
@@ -91,7 +91,7 @@ traits:
 
   - id: activate-keyword-upper
     desc: ACTIVATE keyword (uppercase)
-    crit: inert
+    crit: notable
     conf: 0.3
     if:
       type: string
@@ -99,7 +99,7 @@ traits:
 
   - id: activate-keyword-title
     desc: Activate keyword (titlecase)
-    crit: inert
+    crit: notable
     conf: 0.3
     if:
       type: string
@@ -107,7 +107,7 @@ traits:
 
   - id: revshell-keyword-lower
     desc: revshell keyword (lowercase)
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -115,7 +115,7 @@ traits:
 
   - id: revshell-keyword-upper
     desc: REVSHELL keyword (uppercase)
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -123,7 +123,7 @@ traits:
 
   - id: revshell-keyword-title
     desc: Revshell keyword (titlecase)
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -132,7 +132,7 @@ traits:
   # ICMP protocol constant
   - id: icmp-echo-const
     desc: ICMP_ECHO constant
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string

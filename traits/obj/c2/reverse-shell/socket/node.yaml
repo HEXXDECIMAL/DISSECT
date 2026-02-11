@@ -94,7 +94,7 @@ traits:
 
   - id: pipe-string
     desc: pipe string reference
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -104,7 +104,7 @@ traits:
   # === Data event micro-traits ===
   - id: on-data-event-single
     desc: .on('data' event handler
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -113,7 +113,7 @@ traits:
 
   - id: on-data-event-double
     desc: .on("data" event handler
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -123,7 +123,7 @@ traits:
   # === Lock file micro-traits ===
   - id: dot-lock-string
     desc: .lock file extension
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -132,7 +132,7 @@ traits:
 
   - id: lockfile-string
     desc: lockfile string
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -141,7 +141,7 @@ traits:
 
   - id: existsSync-call
     desc: existsSync function call
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -151,7 +151,7 @@ traits:
 
   - id: writeFileSync-call
     desc: writeFileSync function call
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -227,7 +227,7 @@ traits:
   # === HTTP exclusion patterns (to avoid FPs) ===
   - id: res-on-data
     desc: res.on('data' HTTP response pattern
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -236,7 +236,7 @@ traits:
 
   - id: response-on-data
     desc: response.on('data' HTTP response pattern
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -245,7 +245,7 @@ traits:
 
   - id: https-get-call
     desc: https.get call
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -255,7 +255,7 @@ traits:
 
   - id: http-get-call
     desc: http.get call
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -291,7 +291,7 @@ composite_rules:
   # Data event composite
   - id: on-data-event
     desc: Data event handler
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     any:
@@ -301,7 +301,7 @@ composite_rules:
   # Lock file composite
   - id: lock-pattern
     desc: Lock file pattern
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     any:
@@ -311,7 +311,7 @@ composite_rules:
   # HTTP response pattern composite (exclusion)
   - id: http-response-pattern
     desc: HTTP response data handling (not
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     any:

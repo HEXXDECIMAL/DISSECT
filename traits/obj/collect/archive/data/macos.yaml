@@ -113,7 +113,7 @@ traits:
   # === /tmp staging atomic indicators ===
   - id: tmp-tar-file
     desc: .tar file in /tmp
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1074.001"
     if:
@@ -122,7 +122,7 @@ traits:
 
   - id: tmp-gz-file
     desc: .gz file in /tmp
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1074.001"
     if:
@@ -131,7 +131,7 @@ traits:
 
   - id: tmp-dmg-file
     desc: .dmg file in /tmp
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1074.001"
     if:
@@ -140,7 +140,7 @@ traits:
 
   - id: tmp-out-file
     desc: /tmp/out. output file
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1074.001"
     if:

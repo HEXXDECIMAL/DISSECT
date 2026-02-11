@@ -37,7 +37,7 @@ traits:
   # === Profiles path atomic indicators ===
   - id: firefox-profiles
     desc: Firefox/Profiles path
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1555.003"
     if:
@@ -46,7 +46,7 @@ traits:
 
   - id: waterfox-profiles
     desc: Waterfox/Profiles path
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1555.003"
     if:
@@ -55,7 +55,7 @@ traits:
 
   - id: palemoon-profiles
     desc: Pale Moon/Profiles path
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1555.003"
     if:

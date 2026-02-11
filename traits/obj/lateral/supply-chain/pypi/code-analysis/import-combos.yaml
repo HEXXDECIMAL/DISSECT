@@ -10,7 +10,7 @@ traits:
   # === Browser data path strings ===
   - id: chrome-windows-path
     desc: Chrome Windows data path
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: string
@@ -18,7 +18,7 @@ traits:
 
   - id: edge-windows-path
     desc: Edge Windows data path
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: string
@@ -26,7 +26,7 @@ traits:
 
   - id: firefox-unix-path
     desc: Firefox Unix data path
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: string
@@ -34,7 +34,7 @@ traits:
 
   - id: chrome-macos-path
     desc: Chrome macOS data path
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: string
@@ -52,7 +52,7 @@ traits:
   # === Clipboard patterns ===
   - id: clipboard-string
     desc: Clipboard reference
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -64,7 +64,7 @@ composite_rules:
   # Network client package pattern
   - id: network-client-imports
     desc: Network client import pattern
-    crit: inert
+    crit: notable
     conf: 0.6
     any:
       - id: meta/import/python/requests
@@ -130,7 +130,7 @@ composite_rules:
   # Browser data paths
   - id: browser-paths
     desc: Browser data directory paths
-    crit: inert
+    crit: notable
     conf: 0.8
     any:
       - id: chrome-windows-path

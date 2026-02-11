@@ -26,7 +26,6 @@ composite_rules:
       - id: cap/comm/socket/listen::accept-sym
       - id: cap/exec/command/shell::c-popen
       - id: cap/exec/command/shell::c-system
-      - id: cap/exec/command/direct::popen-call
     # Exclude system network libraries
     none:
       - id: cap/exec/load/library::network-lib-marker
@@ -74,7 +73,7 @@ composite_rules:
       - id: cap/os/linker/env::ld-preload
     any:
       - id: cap/exec/command/shell
-      - id: cap/exec/command/direct::popen-call
+      - id: cap/exec/command/shell::c-popen
       - id: cap/exec/dylib/load::dlsym
 
   # Full supply chain backdoor pattern

@@ -5,7 +5,7 @@ traits:
   # === Openpty atomic indicators ===
   - id: openpty-call
     desc: openpty() call
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1059"
     for: [elf, macho, python]
@@ -15,7 +15,7 @@ traits:
 
   - id: pty-open-call
     desc: pty.Open call
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1059"
     for: [elf, macho, python]
@@ -59,7 +59,7 @@ traits:
   # === Ptsname atomic indicators ===
   - id: ptsname-symbol
     desc: ptsname symbol
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1059"
     for: [elf, macho]
@@ -69,7 +69,7 @@ traits:
 
   - id: ptsname-r-symbol
     desc: ptsname_r symbol
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1059"
     for: [elf, macho]
@@ -77,20 +77,10 @@ traits:
       type: symbol
       regex: ptsname_r
 
-  - id: isatty
-    desc: Check if terminal
-    crit: notable
-    conf: 0.7
-    attack: "T1059"
-    for: [elf, macho]
-    if:
-      type: symbol
-      regex: isatty
-
   # === Ttyname atomic indicators ===
   - id: ttyname-symbol
     desc: ttyname symbol
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1059"
     for: [elf, macho]
@@ -100,7 +90,7 @@ traits:
 
   - id: ttyname-r-symbol
     desc: ttyname_r symbol
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1059"
     for: [elf, macho]
@@ -140,11 +130,10 @@ traits:
 
   # NOTE: getpass is a standard libc function used by legitimate programs
   # (shells, sudo, passwd, etc.) to read passwords from terminal without echo.
-  # It's inert as a single indicator - only suspicious when combined with
-  # network exfiltration or keylogging patterns.
+  # It's notable as a capability - password prompting is not expected in web apps.
   - id: getpass
     desc: Terminal password prompt
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1056"
     for: [elf, macho]
@@ -165,7 +154,7 @@ traits:
   # === Python PTY atomic indicators ===
   - id: import-pty
     desc: import pty statement
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1059"
     for: [python]
@@ -175,7 +164,7 @@ traits:
 
   - id: from-pty-import
     desc: from pty import statement
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1059"
     for: [python]

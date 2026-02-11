@@ -5,7 +5,7 @@ traits:
   # Cloudflare Turnstile patterns
   - id: verify-human-text
     desc: Text prompting user to verify
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript, html]
     if:
@@ -15,7 +15,7 @@ traits:
 
   - id: completing-action-text
     desc: Text about completing action below
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [javascript, typescript, html]
     if:
@@ -24,7 +24,7 @@ traits:
 
   - id: cloudflare-turnstile-url
     desc: Reference to Cloudflare Turnstile product
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript, html]
     if:
@@ -33,7 +33,7 @@ traits:
 
   - id: success-text
     desc: Success message text
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [javascript, typescript, html]
     if:
@@ -42,7 +42,7 @@ traits:
 
   - id: verifying-text
     desc: Verifying progress text
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [javascript, typescript, html]
     if:
@@ -51,7 +51,7 @@ traits:
 
   - id: spinner-i-element
     desc: Spinner UI element identifier
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [javascript, typescript, html]
     if:
@@ -60,7 +60,7 @@ traits:
 
   - id: vfclick-element
     desc: Verification click element identifier
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript, html]
     if:
@@ -70,7 +70,7 @@ traits:
   # reCAPTCHA patterns
   - id: not-a-robot-text
     desc: reCAPTCHA "I'm not a robot"
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript, html]
     if:
@@ -80,7 +80,7 @@ traits:
 
   - id: recaptcha-checkbox-element
     desc: reCAPTCHA checkbox element identifier
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript, html]
     if:
@@ -89,7 +89,7 @@ traits:
 
   - id: google-recaptcha-url
     desc: Reference to Google reCAPTCHA URL
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript, html]
     if:
@@ -101,7 +101,7 @@ composite_rules:
   # Cloudflare Turnstile UI elements
   - id: turnstile-ui-elements
     desc: Cloudflare Turnstile UI elements present
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript, html]
     any:

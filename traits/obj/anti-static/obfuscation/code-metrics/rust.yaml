@@ -19,8 +19,8 @@ traits:
       min: 0.35
       min_size: 4096
     unless:
-      - type: basename
-        regex: '^[a-z]+\d+\.rs$|^(avx|sse|neon|simd|intrinsic|vpclmul|pclmul|aes|vaes).*\.rs$|.*adapter\.rs$'
+      # TODO: basename type not yet supported in unless clauses
+      # Excluded patterns: SIMD files (avx*, sse*, neon*, etc.), benchmark files, adapter files
       # SIMD intrinsic headers often contain architectural feature names that trigger high entropy
       - type: raw
         substr: "relaxed_simd"

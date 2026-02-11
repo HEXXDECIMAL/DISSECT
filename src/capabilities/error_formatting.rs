@@ -128,18 +128,97 @@ fn detect_invalid_field_in_context(context: &str) -> Option<String> {
 
     // Define valid fields for each condition type
     let valid_fields: &[&str] = match condition_type {
-        "symbol" => &["type", "exact", "substr", "regex", "platforms", "count_min", "count_max", "per_kb_min", "per_kb_max"],
-        "string" => &["type", "exact", "substr", "regex", "word", "case_insensitive", "exclude_patterns",
-                      "count_min", "count_max", "per_kb_min", "per_kb_max", "external_ip",
-                      "section", "offset", "offset_range", "section_offset", "section_offset_range"],
-        "raw" => &["type", "exact", "substr", "regex", "word", "case_insensitive",
-                   "count_min", "count_max", "per_kb_min", "per_kb_max", "external_ip",
-                   "section", "offset", "offset_range", "section_offset", "section_offset_range"],
-        "hex" => &["type", "pattern", "count_min", "count_max", "per_kb_min", "per_kb_max",
-                   "section", "offset", "offset_range", "section_offset", "section_offset_range"],
-        "encoded" => &["type", "exact", "substr", "regex", "word", "case_insensitive", "encoding"],
-        "syscall" => &["type", "name", "number", "arch", "count_min", "count_max", "per_kb_min", "per_kb_max"],
-        "ast" => &["type", "kind", "node", "exact", "substr", "regex", "query", "language", "case_insensitive"],
+        "symbol" => &[
+            "type",
+            "exact",
+            "substr",
+            "regex",
+            "platforms",
+            "count_min",
+            "count_max",
+            "per_kb_min",
+            "per_kb_max",
+        ],
+        "string" => &[
+            "type",
+            "exact",
+            "substr",
+            "regex",
+            "word",
+            "case_insensitive",
+            "exclude_patterns",
+            "count_min",
+            "count_max",
+            "per_kb_min",
+            "per_kb_max",
+            "external_ip",
+            "section",
+            "offset",
+            "offset_range",
+            "section_offset",
+            "section_offset_range",
+        ],
+        "raw" => &[
+            "type",
+            "exact",
+            "substr",
+            "regex",
+            "word",
+            "case_insensitive",
+            "count_min",
+            "count_max",
+            "per_kb_min",
+            "per_kb_max",
+            "external_ip",
+            "section",
+            "offset",
+            "offset_range",
+            "section_offset",
+            "section_offset_range",
+        ],
+        "hex" => &[
+            "type",
+            "pattern",
+            "count_min",
+            "count_max",
+            "per_kb_min",
+            "per_kb_max",
+            "section",
+            "offset",
+            "offset_range",
+            "section_offset",
+            "section_offset_range",
+        ],
+        "encoded" => &[
+            "type",
+            "exact",
+            "substr",
+            "regex",
+            "word",
+            "case_insensitive",
+            "encoding",
+        ],
+        "syscall" => &[
+            "type",
+            "name",
+            "number",
+            "arch",
+            "count_min",
+            "count_max",
+            "per_kb_min",
+            "per_kb_max",
+        ],
+        "ast" => &[
+            "type",
+            "kind",
+            "node",
+            "exact",
+            "substr",
+            "regex",
+            "query",
+            "language",
+            "case_insensitive",
+        ],
         "section_entropy" => &["type", "section", "min", "max"],
         "section_ratio" => &["type", "section", "compare_to", "min", "max"],
         "kv" => &["type", "key", "value", "operator"],
@@ -153,22 +232,36 @@ fn detect_invalid_field_in_context(context: &str) -> Option<String> {
             let field_name = trimmed[..colon_pos].trim();
 
             // Skip common non-field keys
-            if field_name == "if" || field_name == "id" || field_name == "desc" || field_name == "crit"
-                || field_name == "conf" || field_name == "platforms" || field_name == "for"
-                || field_name.is_empty() {
+            if field_name == "if"
+                || field_name == "id"
+                || field_name == "desc"
+                || field_name == "crit"
+                || field_name == "conf"
+                || field_name == "platforms"
+                || field_name == "for"
+                || field_name.is_empty()
+            {
                 continue;
             }
 
             // Check if this field is invalid for the condition type
             if !valid_fields.contains(&field_name) {
                 return Some(match field_name {
-                    "exclude_patterns" if condition_type != "string" => "exclude_patterns".to_string(),
-                    "min_entropy" if condition_type == "section_entropy" => "min_entropy".to_string(),
-                    "max_entropy" if condition_type == "section_entropy" => "max_entropy".to_string(),
+                    "exclude_patterns" if condition_type != "string" => {
+                        "exclude_patterns".to_string()
+                    }
+                    "min_entropy" if condition_type == "section_entropy" => {
+                        "min_entropy".to_string()
+                    }
+                    "max_entropy" if condition_type == "section_entropy" => {
+                        "max_entropy".to_string()
+                    }
                     "min_ratio" if condition_type == "section_ratio" => "min_ratio".to_string(),
                     "max_ratio" if condition_type == "section_ratio" => "max_ratio".to_string(),
                     "needs" => "needs".to_string(),
-                    "pattern" if condition_type != "hex" && condition_type != "ast" => "pattern".to_string(),
+                    "pattern" if condition_type != "hex" && condition_type != "ast" => {
+                        "pattern".to_string()
+                    }
                     "match" => "match".to_string(),
                     "value" if condition_type != "kv" => "value".to_string(),
                     "search" => "search".to_string(),
@@ -176,7 +269,10 @@ fn detect_invalid_field_in_context(context: &str) -> Option<String> {
                     "match_type" => "match_type".to_string(),
                     other => {
                         // Return the field name if it's clearly not a valid field
-                        if other.ends_with("_min") || other.ends_with("_max") || other.ends_with("_count") {
+                        if other.ends_with("_min")
+                            || other.ends_with("_max")
+                            || other.ends_with("_count")
+                        {
                             return Some(other.to_string());
                         }
                         continue;
@@ -366,42 +462,76 @@ fn provide_error_guidance(
         // Provide specific guidance based on field and condition type
         match (field.as_str(), condition_type) {
             ("exclude_patterns", Some("raw")) => {
-                guidance.push_str(&format!("\n   Field '{}' is not valid for 'type: raw'.\n", field));
-                guidance.push_str("   💡 The 'exclude_patterns' field only works with 'type: string'.\n");
+                guidance.push_str(&format!(
+                    "\n   Field '{}' is not valid for 'type: raw'.\n",
+                    field
+                ));
+                guidance.push_str(
+                    "   💡 The 'exclude_patterns' field only works with 'type: string'.\n",
+                );
                 guidance.push_str("   💡 Use 'type: string' instead of 'type: raw' if you need to exclude patterns.\n");
                 found_hallucination = true;
             }
             ("min_entropy" | "max_entropy", Some("section_entropy")) => {
-                guidance.push_str(&format!("\n   Field '{}' is not valid for 'type: section_entropy'.\n", field));
-                guidance.push_str("   💡 Use 'min' and 'max' instead of 'min_entropy' and 'max_entropy'.\n");
+                guidance.push_str(&format!(
+                    "\n   Field '{}' is not valid for 'type: section_entropy'.\n",
+                    field
+                ));
+                guidance.push_str(
+                    "   💡 Use 'min' and 'max' instead of 'min_entropy' and 'max_entropy'.\n",
+                );
                 guidance.push_str("   💡 The field names are consistent with other conditions like 'exports_count'.\n");
                 found_hallucination = true;
             }
             ("min_ratio" | "max_ratio", Some("section_ratio")) => {
-                guidance.push_str(&format!("\n   Field '{}' is not valid for 'type: section_ratio'.\n", field));
-                guidance.push_str("   💡 Use 'min' and 'max' instead of 'min_ratio' and 'max_ratio'.\n");
+                guidance.push_str(&format!(
+                    "\n   Field '{}' is not valid for 'type: section_ratio'.\n",
+                    field
+                ));
+                guidance.push_str(
+                    "   💡 Use 'min' and 'max' instead of 'min_ratio' and 'max_ratio'.\n",
+                );
                 guidance.push_str("   💡 The field names are consistent with other conditions like 'exports_count'.\n");
                 found_hallucination = true;
             }
             ("count_min" | "count_max" | "per_kb_min" | "per_kb_max", Some("ast")) => {
-                guidance.push_str(&format!("\n   Field '{}' is not valid for 'type: ast'.\n", field));
+                guidance.push_str(&format!(
+                    "\n   Field '{}' is not valid for 'type: ast'.\n",
+                    field
+                ));
                 guidance.push_str("   💡 AST conditions don't support count/density fields.\n");
-                guidance.push_str("   💡 AST patterns match structural code patterns, not occurrences.\n");
+                guidance.push_str(
+                    "   💡 AST patterns match structural code patterns, not occurrences.\n",
+                );
                 found_hallucination = true;
             }
             ("needs", _) => {
-                guidance.push_str(&format!("\n   Field '{}' is not valid in atomic trait conditions.\n", field));
+                guidance.push_str(&format!(
+                    "\n   Field '{}' is not valid in atomic trait conditions.\n",
+                    field
+                ));
                 guidance.push_str("   💡 The 'needs' field only works in composite rules (with 'any:' clauses).\n");
-                guidance.push_str("   💡 For atomic traits, use 'count_min' to require multiple matches.\n");
+                guidance.push_str(
+                    "   💡 For atomic traits, use 'count_min' to require multiple matches.\n",
+                );
                 found_hallucination = true;
             }
             (field_name, Some(cond_type)) => {
-                guidance.push_str(&format!("\n   Field '{}' is not valid for 'type: {}'.\n", field_name, cond_type));
-                guidance.push_str(&format!("   💡 Check the valid fields for 'type: {}' conditions.\n", cond_type));
+                guidance.push_str(&format!(
+                    "\n   Field '{}' is not valid for 'type: {}'.\n",
+                    field_name, cond_type
+                ));
+                guidance.push_str(&format!(
+                    "   💡 Check the valid fields for 'type: {}' conditions.\n",
+                    cond_type
+                ));
                 found_hallucination = true;
             }
             (field_name, None) => {
-                guidance.push_str(&format!("\n   Unknown field '{}' in condition.\n", field_name));
+                guidance.push_str(&format!(
+                    "\n   Unknown field '{}' in condition.\n",
+                    field_name
+                ));
                 found_hallucination = true;
             }
         }

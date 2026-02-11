@@ -23,7 +23,7 @@ traits:
 
   - id: few-strings
     desc: "Very few string literals (string"
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [python, javascript, typescript, shell, php, ruby, perl, go, rust, java, lua, csharp, powershell]
     if:

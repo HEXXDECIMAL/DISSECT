@@ -73,18 +73,10 @@ impl std::fmt::Display for SkipReason {
                 write!(f, "Skipped by 'unless' condition: {}", condition_desc)
             }
             SkipReason::CountBelowMinimum { actual, min } => {
-                write!(
-                    f,
-                    "Match count too low (actual: {}, min: {})",
-                    actual, min
-                )
+                write!(f, "Match count too low (actual: {}, min: {})", actual, min)
             }
             SkipReason::CountAboveMaximum { actual, max } => {
-                write!(
-                    f,
-                    "Match count too high (actual: {}, max: {})",
-                    actual, max
-                )
+                write!(f, "Match count too high (actual: {}, max: {})", actual, max)
             }
             SkipReason::DensityBelowMinimum { actual, min } => {
                 write!(

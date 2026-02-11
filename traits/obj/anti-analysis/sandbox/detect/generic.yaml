@@ -10,7 +10,7 @@ traits:
   # === Sandbox product names ===
   - id: cuckoo
     desc: Cuckoo sandbox reference
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [elf, macho, pe, shell, python]
     if:
@@ -20,7 +20,7 @@ traits:
 
   - id: joe-sandbox
     desc: Joe Sandbox reference
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [elf, macho, pe, shell, python]
     if:
@@ -30,7 +30,7 @@ traits:
 
   - id: any-run
     desc: Any.run sandbox reference
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [elf, macho, pe, shell, python]
     if:
@@ -39,7 +39,7 @@ traits:
 
   - id: hybrid-analysis
     desc: Hybrid Analysis sandbox reference
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [elf, macho, pe, shell, python]
     if:
@@ -49,7 +49,7 @@ traits:
 
   - id: virustotal
     desc: VirusTotal reference
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [elf, macho, pe, shell, python]
     if:
@@ -60,7 +60,7 @@ traits:
   # === Analysis tools ===
   - id: wireshark
     desc: Wireshark network analyzer
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [elf, macho, pe, shell, python]
     if:
@@ -70,7 +70,7 @@ traits:
 
   - id: fiddler
     desc: Fiddler proxy tool
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [elf, macho, pe, shell, python]
     if:
@@ -80,7 +80,7 @@ traits:
 
   - id: procmon
     desc: Process Monitor tool
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [elf, macho, pe, shell, python]
     if:
@@ -90,7 +90,7 @@ traits:
 
   - id: process-hacker
     desc: Process Hacker tool
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [elf, macho, pe, shell, python]
     if:
@@ -100,7 +100,7 @@ traits:
 
   - id: x64dbg
     desc: x64dbg debugger
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [elf, macho, pe, shell, python]
     if:
@@ -110,7 +110,7 @@ traits:
 
   - id: ollydbg
     desc: OllyDbg debugger
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [elf, macho, pe, shell, python]
     if:
@@ -131,7 +131,7 @@ traits:
   # JavaScript/Node.js sandbox detection (atomic)
   - id: js-atomic-sleep
     desc: atomic-sleep module
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -140,7 +140,7 @@ traits:
 
   - id: js-date-now-timeout
     desc: Date.now with setTimeout
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -149,7 +149,7 @@ traits:
 
   - id: js-performance-now-timeout
     desc: performance.now with setTimeout
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -159,7 +159,7 @@ traits:
   # === JS debugger detection atomic indicators ===
   - id: js-debugger-stmt
     desc: JavaScript debugger statement
-    crit: inert
+    crit: notable
     conf: 0.4
     mbc: "B0001"
     attack: "T1622"
@@ -170,7 +170,7 @@ traits:
 
   - id: js-func-tostring
     desc: Function.toString check
-    crit: inert
+    crit: notable
     conf: 0.5
     mbc: "B0001"
     attack: "T1622"
@@ -181,7 +181,7 @@ traits:
 
   - id: js-console-log-tostring
     desc: console.log.toString check
-    crit: inert
+    crit: notable
     conf: 0.5
     mbc: "B0001"
     attack: "T1622"
@@ -192,7 +192,7 @@ traits:
 
   - id: js-console-warn-tostring
     desc: console.warn.toString check
-    crit: inert
+    crit: notable
     conf: 0.5
     mbc: "B0001"
     attack: "T1622"
@@ -203,7 +203,7 @@ traits:
 
   - id: js-console-error-tostring
     desc: console.error.toString check
-    crit: inert
+    crit: notable
     conf: 0.5
     mbc: "B0001"
     attack: "T1622"
@@ -214,7 +214,7 @@ traits:
 
   - id: js-react-devtools
     desc: React DevTools detection
-    crit: inert
+    crit: notable
     conf: 0.5
     mbc: "B0001"
     attack: "T1622"
@@ -225,7 +225,7 @@ traits:
 
   - id: js-vue-devtools
     desc: Vue DevTools detection
-    crit: inert
+    crit: notable
     conf: 0.5
     mbc: "B0001"
     attack: "T1622"
@@ -237,7 +237,7 @@ traits:
   # Headless browser detection (atomic)
   - id: js-navigator-webdriver
     desc: navigator.webdriver check
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -246,7 +246,7 @@ traits:
 
   - id: js-plugins-length-zero
     desc: navigator.plugins.length zero check
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -255,7 +255,7 @@ traits:
 
   - id: js-outerwidth-zero
     desc: window.outerWidth zero check
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:

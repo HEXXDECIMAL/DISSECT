@@ -4,7 +4,7 @@
 traits:
   - id: describe-with-string
     desc: "describe() test block with string"
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -13,7 +13,7 @@ traits:
 
   - id: it-with-string
     desc: "it() test block with string"
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -22,7 +22,7 @@ traits:
 
   - id: test-with-string
     desc: "test() block with string"
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -31,7 +31,7 @@ traits:
 
   - id: assert-method
     desc: assert. method call
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -40,7 +40,7 @@ traits:
 
   - id: should-assertion
     desc: .should. assertion pattern
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -50,7 +50,7 @@ traits:
   # Has assertion library usage
   - id: has-assertions
     desc: Code uses assertion patterns
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript, typescript]
     if:
@@ -60,7 +60,7 @@ traits:
   # Uses popular web framework
   - id: has-test-directory
     desc: Package references test directory
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [package.json]
     if:
@@ -70,7 +70,7 @@ traits:
   # Has examples directory
   - id: has-jest-config
     desc: Package has Jest configuration
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [package.json]
     if:
@@ -80,7 +80,7 @@ traits:
   # Has Babel config
   - id: pkg-test-script-field
     desc: '"test": script in package.json'
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [package.json]
     if:
@@ -89,7 +89,7 @@ traits:
 
   - id: has-test-script
     desc: Package has test script (legitimate
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [package.json]
     if:
@@ -99,7 +99,7 @@ traits:
   # Has TypeScript configuration
   - id: uses-test-framework
     desc: Package uses established testing framework
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [package.json]
     if:
@@ -109,7 +109,7 @@ traits:
   # Has files field (explicit inclusion)
   - id: test-call
     desc: test() function call
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -118,7 +118,7 @@ traits:
 
   - id: jest-word
     desc: jest keyword
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -127,7 +127,7 @@ traits:
 
   - id: jest-mock-call
     desc: jest.mock call
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -136,7 +136,7 @@ traits:
 
   - id: assert-word
     desc: assert keyword
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -145,7 +145,7 @@ traits:
 
   - id: should-word
     desc: should keyword
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -155,7 +155,7 @@ traits:
   # Vitest test file
   - id: vitest-test-file
     desc: Vitest test file markers
-    crit: inert
+    crit: notable
     conf: 0.95
     for: [javascript, typescript]
     if:
@@ -165,7 +165,7 @@ traits:
   # Test file naming patterns
   - id: dot-test-filename
     desc: .test. in filename
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -174,7 +174,7 @@ traits:
 
   - id: underscore-test-filename
     desc: _test. in filename
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -183,7 +183,7 @@ traits:
 
   - id: tests-directory
     desc: /__tests__/ directory
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -192,7 +192,7 @@ traits:
 
   - id: fixtures-word
     desc: fixtures keyword
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -201,7 +201,7 @@ traits:
 
   - id: testdata-word
     desc: testdata keyword
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -210,7 +210,7 @@ traits:
 
   - id: jest-fn-call
     desc: jest.fn() mock function
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -219,7 +219,7 @@ traits:
 
   - id: snapshot-test
     desc: Snapshot testing patterns
-    crit: inert
+    crit: notable
     conf: 0.95
     for: [javascript, typescript]
     if:
@@ -229,7 +229,7 @@ traits:
   # E2E test framework imports
   - id: testing-library-from
     desc: from '@testing-library
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -238,7 +238,7 @@ traits:
 
   - id: render-call-test
     desc: render() call
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -247,7 +247,7 @@ traits:
 
   - id: jest-config-ref
     desc: jest.config reference
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -256,7 +256,7 @@ traits:
 
   - id: jest-setup-files
     desc: setupFilesAfterEnv Jest option
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -265,7 +265,7 @@ traits:
 
   - id: jest-test-environment
     desc: testEnvironment Jest option
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -274,7 +274,7 @@ traits:
 
   - id: mocharc-ref
     desc: mocharc config file
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -283,7 +283,7 @@ traits:
 
   - id: vitest-config-ref
     desc: vitest.config reference
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -293,7 +293,7 @@ traits:
   # Coverage markers
   - id: test-function-wpt
     desc: test() WPT function
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -321,7 +321,7 @@ composite_rules:
 
   - id: has-test-blocks
     desc: Code contains test definitions
-    crit: inert
+    crit: notable
     conf: 0.95
     for: [javascript, typescript]
     all:
@@ -349,7 +349,7 @@ composite_rules:
 
   - id: jest-test-file
     desc: Jest test file markers
-    crit: inert
+    crit: notable
     conf: 0.95
     for: [javascript, typescript]
     all:
@@ -374,7 +374,7 @@ composite_rules:
 
   - id: mocha-test-file
     desc: Mocha test file markers
-    crit: inert
+    crit: notable
     conf: 0.95
     for: [javascript, typescript]
     all:
@@ -384,7 +384,7 @@ composite_rules:
   # Test filename pattern
   - id: test-filename-pattern
     desc: File follows test naming convention
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript, typescript]
     any:
@@ -398,7 +398,7 @@ composite_rules:
   # Test fixtures
   - id: test-fixtures
     desc: Test fixture or mock data
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript, typescript]
     any:
@@ -410,7 +410,7 @@ composite_rules:
   # E2E test frameworks
   - id: e2e-test
     desc: E2E test framework markers
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript, typescript]
     any:
@@ -427,7 +427,7 @@ composite_rules:
 
   - id: testing-library
     desc: Testing Library patterns
-    crit: inert
+    crit: notable
     conf: 0.95
     for: [javascript, typescript]
     any:
@@ -439,7 +439,7 @@ composite_rules:
   # Test configuration files
   - id: test-config
     desc: Test configuration file
-    crit: inert
+    crit: notable
     conf: 0.95
     for: [javascript, typescript]
     any:
@@ -453,7 +453,7 @@ composite_rules:
   # WPT test file
   - id: wpt-test-file
     desc: Web Platform Test file markers
-    crit: inert
+    crit: notable
     conf: 0.95
     for: [javascript, typescript]
     any:

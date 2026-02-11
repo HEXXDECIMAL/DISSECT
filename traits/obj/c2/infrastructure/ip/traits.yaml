@@ -68,7 +68,7 @@ traits:
   # === Port number atomic indicators ===
   - id: port-23
     desc: "Port 23 (telnet)"
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -76,7 +76,7 @@ traits:
 
   - id: port-80
     desc: "Port 80 (HTTP)"
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string
@@ -84,7 +84,7 @@ traits:
 
   - id: port-443
     desc: "Port 443 (HTTPS)"
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string
@@ -92,7 +92,7 @@ traits:
 
   - id: port-8080
     desc: "Port 8080 (HTTP alt)"
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -100,7 +100,7 @@ traits:
 
   - id: port-4444
     desc: "Port 4444 (Metasploit default)"
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -108,7 +108,7 @@ traits:
 
   - id: port-1337
     desc: "Port 1337 (leet)"
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -116,7 +116,7 @@ traits:
 
   - id: port-31337
     desc: "Port 31337 (eleet)"
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -125,7 +125,7 @@ traits:
 composite_rules:
   - id: port-number-constant
     desc: "Common C2 port number (23,"
-    crit: inert
+    crit: notable
     conf: 0.6
     mbc: none
     attack: none

@@ -29,7 +29,7 @@ traits:
 
   - id: binascii-import
     desc: binascii module import
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [python]
     if:

@@ -39,7 +39,7 @@ traits:
   # Environment variable locale checks
   - id: lang-env-check
     desc: LANG environment variable access
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -48,7 +48,7 @@ traits:
 
   - id: lc-all-env-check
     desc: LC_ALL environment variable access
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -57,7 +57,7 @@ traits:
 
   - id: language-env-check
     desc: LANGUAGE environment variable access
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -67,7 +67,7 @@ traits:
   # Timezone offset check (JavaScript)
   - id: timezone-offset-js
     desc: getTimezoneOffset() call
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -78,7 +78,7 @@ traits:
   # Intl timezone resolution
   - id: intl-timezone-js
     desc: Intl.DateTimeFormat timezone resolution
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -92,7 +92,7 @@ traits:
   # Require context (quoted/array context, comparison, or "countries" variable) to reduce false positives.
   - id: cis-country-codes
     desc: CIS country code check
-    crit: inert
+    crit: notable
     conf: 0.3
     if:
       type: string

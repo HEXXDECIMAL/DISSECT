@@ -85,7 +85,7 @@ traits:
 
   - id: process-id-collection
     desc: Process ID collection
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: symbol

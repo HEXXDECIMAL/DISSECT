@@ -42,69 +42,7 @@ traits:
       type: symbol
       exact: "dlerror"
 
-  # === LoadLibrary (Windows) atomic indicators ===
-  - id: loadlibrary-symbol
-    desc: LoadLibrary symbol
-    crit: inert
-    conf: 0.75
-    for: [pe]
-    if:
-      type: symbol
-      exact: "LoadLibrary"
-
-  - id: loadlibrarya-symbol
-    desc: LoadLibraryA symbol
-    crit: inert
-    conf: 0.75
-    for: [pe]
-    if:
-      type: symbol
-      exact: "LoadLibraryA"
-
-  - id: loadlibraryw-symbol
-    desc: LoadLibraryW symbol
-    crit: inert
-    conf: 0.75
-    for: [pe]
-    if:
-      type: symbol
-      exact: "LoadLibraryW"
-
-  - id: loadlibraryex-symbol
-    desc: LoadLibraryEx symbol
-    crit: inert
-    conf: 0.75
-    for: [pe]
-    if:
-      type: symbol
-      exact: "LoadLibraryEx"
-
-  - id: loadlibraryexa-symbol
-    desc: LoadLibraryExA symbol
-    crit: inert
-    conf: 0.75
-    for: [pe]
-    if:
-      type: symbol
-      exact: "LoadLibraryExA"
-
-  - id: loadlibraryexw-symbol
-    desc: LoadLibraryExW symbol
-    crit: inert
-    conf: 0.75
-    for: [pe]
-    if:
-      type: symbol
-      exact: "LoadLibraryExW"
-
-  - id: getprocaddress-symbol
-    desc: GetProcAddress symbol
-    crit: inert
-    conf: 0.75
-    for: [pe]
-    if:
-      type: symbol
-      exact: "GetProcAddress"
+  # NOTE: Windows LoadLibrary* and GetProcAddress symbols moved to cap/exec/native/api
 
   - id: nsbundle
     desc: macOS NSBundle loading
@@ -295,12 +233,12 @@ composite_rules:
     desc: LoadLibrary function variants
     for: [pe]
     any:
-      - { id: loadlibrary-symbol }
-      - { id: loadlibrarya-symbol }
-      - { id: loadlibraryw-symbol }
-      - { id: loadlibraryex-symbol }
-      - { id: loadlibraryexa-symbol }
-      - { id: loadlibraryexw-symbol }
+      - { id: cap/exec/native/api::load-library }
+      - { id: cap/exec/native/api::load-library-a }
+      - { id: cap/exec/native/api::load-library-w }
+      - { id: cap/exec/native/api::load-library-ex }
+      - { id: cap/exec/native/api::load-library-ex-a }
+      - { id: cap/exec/native/api::load-library-ex-w }
 
   - id: library-loaders
     desc: Library loading functions (CDLL or
@@ -326,7 +264,7 @@ composite_rules:
     for: [pe]
     any:
       - { id: loadlibrary-variants }
-      - { id: getprocaddress-symbol }
+      - { id: cap/exec/native/api::get-proc-address }
 
   - id: local-load
     desc: Loading dynamic library from local

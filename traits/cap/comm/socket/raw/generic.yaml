@@ -9,7 +9,7 @@ defaults:
 traits:
   - id: raw-socket-ref
     desc: Raw socket terminology
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string

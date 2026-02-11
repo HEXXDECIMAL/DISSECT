@@ -8,7 +8,7 @@ traits:
   # === System info label strings (common in malware) ===
   - id: lanip-label
     desc: "LanIP: label string"
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -16,7 +16,7 @@ traits:
 
   - id: gateway-label
     desc: "GateWay: label string"
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -24,7 +24,7 @@ traits:
 
   - id: osinfo-label
     desc: "OSInfo: label string"
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -32,7 +32,7 @@ traits:
 
   - id: machinename-label
     desc: "MachineName: label string"
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -40,7 +40,7 @@ traits:
 
   - id: domainname-label
     desc: "DomainName: label string"
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -48,7 +48,7 @@ traits:
 
   - id: userame-label-typo
     desc: "Userame: label string (typo variant)"
-    crit: inert
+    crit: notable
     conf: 0.75
     if:
       type: string
@@ -56,7 +56,7 @@ traits:
 
   - id: osbits-label
     desc: "OSBits: label string"
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -64,7 +64,7 @@ traits:
 
   - id: processbits-label
     desc: "Process Bits: label string"
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string

@@ -58,7 +58,7 @@ traits:
   # === Database service termination (atomic) ===
   - id: kill-mysql-kill
     desc: MySQL kill command
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -66,7 +66,7 @@ traits:
 
   - id: kill-mysql-stop
     desc: MySQL stop command
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -74,7 +74,7 @@ traits:
 
   - id: kill-postgres-kill
     desc: PostgreSQL kill command
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -82,7 +82,7 @@ traits:
 
   - id: kill-postgres-stop
     desc: PostgreSQL stop command
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -90,7 +90,7 @@ traits:
 
   - id: kill-oracle-kill
     desc: Oracle kill command
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -98,7 +98,7 @@ traits:
 
   - id: kill-oracle-stop
     desc: Oracle stop command
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -106,7 +106,7 @@ traits:
 
   - id: kill-mssql-kill
     desc: MSSQL kill command
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -114,7 +114,7 @@ traits:
 
   - id: kill-mssql-stop
     desc: MSSQL stop command
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -122,7 +122,7 @@ traits:
 
   - id: kill-mongodb-kill
     desc: MongoDB kill command
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -130,7 +130,7 @@ traits:
 
   - id: kill-mongodb-stop
     desc: MongoDB stop command
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -139,7 +139,7 @@ traits:
   # === ESXi ransomware atomic indicators ===
   - id: onion-domain
     desc: .onion domain reference
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -147,7 +147,7 @@ traits:
 
   - id: word-encrypted
     desc: Encrypted keyword
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string
@@ -156,7 +156,7 @@ traits:
 
   - id: word-ransom
     desc: Ransom keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -189,7 +189,7 @@ traits:
 
   - id: word-bitcoin
     desc: Bitcoin keyword
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string
@@ -198,7 +198,7 @@ traits:
 
   - id: word-victim
     desc: Victim keyword
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string
@@ -207,7 +207,7 @@ traits:
 
   - id: word-company
     desc: Company keyword
-    crit: inert
+    crit: notable
     conf: 0.3
     if:
       type: string
@@ -215,7 +215,7 @@ traits:
 
   - id: phrase-your-data
     desc: Your data phrase
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string

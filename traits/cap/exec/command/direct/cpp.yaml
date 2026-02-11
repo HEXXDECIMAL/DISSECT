@@ -18,9 +18,4 @@ traits:
       type: symbol
       regex: "std::__1::basic_string.{0,50}(append|push_back|operator\\+=)"
 
-  - id: popen-call
-    desc: "Executes command via popen"
-    crit: notable
-    if:
-      type: symbol
-      regex: "popen"
+  # NOTE: popen symbol moved to cap/exec/command/shell::c-popen

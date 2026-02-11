@@ -9,7 +9,7 @@ traits:
   # === Manifest Version Detection ===
   - id: manifest-v3
     desc: Chrome extension using Manifest V3
-    crit: inert
+    crit: notable
     conf: 0.95
     if:
       type: kv
@@ -255,7 +255,7 @@ traits:
 
   - id: description-crypto-finance
     desc: Extension description mentions crypto/finance
-    crit: inert
+    crit: notable
     conf: 0.85
     if:
       type: kv
@@ -265,7 +265,7 @@ traits:
 
   - id: name-crypto-finance
     desc: Extension name mentions crypto/finance
-    crit: inert
+    crit: notable
     conf: 0.85
     if:
       type: kv
@@ -275,7 +275,7 @@ traits:
 
   - id: name-adblocker
     desc: Extension name mentions ad blocking
-    crit: inert
+    crit: notable
     conf: 0.85
     if:
       type: kv
@@ -285,7 +285,7 @@ traits:
 
   - id: description-adblocker
     desc: Extension description mentions ad blocking
-    crit: inert
+    crit: notable
     conf: 0.85
     if:
       type: kv
@@ -305,7 +305,7 @@ traits:
 
   - id: background-service-worker
     desc: Extension uses service worker (MV3)
-    crit: inert
+    crit: notable
     conf: 0.9
     if:
       type: kv
@@ -331,7 +331,7 @@ traits:
 
   - id: update-url-present
     desc: Has update_url field
-    crit: inert
+    crit: notable
     conf: 0.9
     if:
       type: kv
@@ -339,7 +339,7 @@ traits:
 
   - id: update-url-google
     desc: Uses Google update URL
-    crit: inert
+    crit: notable
     conf: 0.95
     if:
       type: kv
@@ -357,7 +357,7 @@ traits:
   # === Chrome Extension Marker ===
   - id: is-chrome-manifest
     desc: Chrome extension manifest file
-    crit: inert
+    crit: notable
     conf: 0.95
     if:
       type: kv

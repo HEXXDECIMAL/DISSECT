@@ -29,7 +29,7 @@ traits:
 
   - id: file-close-api
     desc: File search termination (FindClose)
-    crit: inert
+    crit: notable
     conf: 0.6
     platforms: [windows]
     for: [pe]

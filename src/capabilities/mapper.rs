@@ -6,6 +6,7 @@
 //! - Evaluates trait definitions and composite rules against analysis reports
 //! - Provides platform and file type detection
 
+use crate::capabilities::validation::find_duplicate_words_in_path;
 use crate::composite_rules::{
     CompositeTrait, Condition, EvaluationContext, FileType as RuleFileType, Platform, SectionMap,
     TraitDefinition,
@@ -364,12 +365,16 @@ impl CapabilityMapper {
                     }
                 }
                 // Validate YARA/AST conditions at load time
-                trait_def.r#if.validate(&trait_def.id).map_err(|e| anyhow::anyhow!("{}", e)).with_context(|| {
-                    format!(
-                        "invalid condition in trait '{}' from {:?}",
-                        trait_def.id, path
-                    )
-                })?;
+                trait_def
+                    .r#if
+                    .validate(&trait_def.id)
+                    .map_err(|e| anyhow::anyhow!("{}", e))
+                    .with_context(|| {
+                        format!(
+                            "invalid condition in trait '{}' from {:?}",
+                            trait_def.id, path
+                        )
+                    })?;
                 // Check for greedy regex patterns
                 if let Some(warning) = trait_def.r#if.check_greedy_patterns(&trait_def.id) {
                     warnings.push(format!(
@@ -477,7 +482,10 @@ impl CapabilityMapper {
                 }
 
                 // Check for useless case_insensitive
-                if let Some(warning) = trait_def.r#if.check_case_insensitive_on_non_alpha(&trait_def.id) {
+                if let Some(warning) = trait_def
+                    .r#if
+                    .check_case_insensitive_on_non_alpha(&trait_def.id)
+                {
                     warnings.push(format!(
                         "trait '{}' in {:?}: {}",
                         trait_def.id, path, warning
@@ -838,24 +846,24 @@ impl CapabilityMapper {
                 ));
             }
 
-            // Check for duplicate words in path - DISABLED
-            // This check has too many false positives (e.g., httpx library name)
-            // let duplicate_word_violations = find_duplicate_words_in_path(&dir_list);
-            // if !duplicate_word_violations.is_empty() {
-            //     eprintln!(
-            //         "\n❌ FATAL: {} directories have redundant/duplicate words in path",
-            //         duplicate_word_violations.len()
-            //     );
-            //     eprintln!("   Duplicate words add noise without semantic value:\n");
-            //     for (dir_path, word) in &duplicate_word_violations {
-            //         eprintln!("   {}: duplicate word '{}'", dir_path, word);
-            //     }
-            //     eprintln!();
-            //     warnings.push(format!(
-            //         "{} directories have duplicate words in path",
-            //         duplicate_word_violations.len()
-            //     ));
-            // }
+            // Check for duplicate words in path
+            tracing::debug!("Step 4a/15: Checking for duplicate words in directory paths");
+            let duplicate_word_violations = find_duplicate_words_in_path(&dir_list);
+            if !duplicate_word_violations.is_empty() {
+                eprintln!(
+                    "\n❌ FATAL: {} directories have redundant/duplicate words in path",
+                    duplicate_word_violations.len()
+                );
+                eprintln!("   Duplicate words add noise without semantic value:\n");
+                for (dir_path, word) in &duplicate_word_violations {
+                    eprintln!("   {}: duplicate word '{}'", dir_path, word);
+                }
+                eprintln!();
+                warnings.push(format!(
+                    "{} directories have duplicate words in path",
+                    duplicate_word_violations.len()
+                ));
+            }
 
             // Check for directory names that duplicate their parent
             tracing::debug!("Step 5/15: Checking for parent duplicate segments");
@@ -1177,6 +1185,38 @@ impl CapabilityMapper {
                 hostile_cap_rules.len()
             ));
         }
+
+        // TODO: Re-enable once find_inert_obj_rules is restored
+        // Validate that obj/known/ rules are never inert
+        // Inert traits are neutral capabilities and belong in cap/
+        // tracing::debug!("Step 13b/15: Checking for inert obj/known rules");
+        // let inert_obj_rules =
+        //     find_inert_obj_rules(&trait_definitions, &composite_rules, &rule_source_files);
+        //
+        // if !inert_obj_rules.is_empty() {
+        //     eprintln!(
+        //         "\n❌ FATAL: {} obj/known rules have inert criticality",
+        //         inert_obj_rules.len()
+        //     );
+        //     eprintln!("   Obj/known contain behaviors with malicious or suspicious intent.");
+        //     eprintln!("   Inert traits are neutral capabilities and should be in cap/:\n");
+        //     for (rule_id, source_file) in &inert_obj_rules {
+        //         let line_hint = find_line_number(source_file, "crit: inert");
+        //         if let Some(line) = line_hint {
+        //             eprintln!("   {}:{}: Rule '{}'", source_file, line, rule_id);
+        //         } else {
+        //             eprintln!("   {}: Rule '{}'", source_file, rule_id);
+        //         }
+        //     }
+        //     eprintln!("\n   To fix:");
+        //     eprintln!("   - If it's a neutral observation, migrate to cap/");
+        //     eprintln!("   - If it could be interpreted as slightly interesting or suspicious, upgrade to notable");
+        //     eprintln!("   - See TAXONOMY.md for guidance on trait classification");
+        //     warnings.push(format!(
+        //         "{} obj/known rules have inert criticality (should be in cap/)",
+        //         inert_obj_rules.len()
+        //     ));
+        // }
 
         // Validate that `any:` clauses don't have 3+ traits from the same external directory
         // Recommend using directory references instead for better maintainability
@@ -2309,8 +2349,10 @@ impl CapabilityMapper {
                 }
 
                 // Check if this trait has an exact string pattern that wasn't matched
-                let has_exact_string =
-                    matches!(trait_def.r#if.condition, Condition::String { exact: Some(_), .. });
+                let has_exact_string = matches!(
+                    trait_def.r#if.condition,
+                    Condition::String { exact: Some(_), .. }
+                );
 
                 // If trait has an exact string pattern and it wasn't matched, skip it
                 if has_exact_string && !string_matched_traits.contains(&idx) {

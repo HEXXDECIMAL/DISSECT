@@ -17,7 +17,7 @@ traits:
 
   - id: exec-cmd-start
     desc: exec.(*Cmd).Start reference
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string
@@ -25,7 +25,7 @@ traits:
 
   - id: exec-cmd-run
     desc: exec.(*Cmd).Run reference
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string
@@ -42,7 +42,7 @@ traits:
 
   - id: stdout-pipe
     desc: StdoutPipe reference
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string
@@ -50,7 +50,7 @@ traits:
 
   - id: stderr-pipe
     desc: StderrPipe reference
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string

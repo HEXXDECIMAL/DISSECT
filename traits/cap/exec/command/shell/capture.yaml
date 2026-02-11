@@ -4,7 +4,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     all:
-      - id: cap/exec/command/direct::popen-call
+      - id: cap/exec/command/shell::c-popen
     any:
       - id: cap/exec/command/direct::fgets-loop
       - id: cap/exec/command/direct::cpp-exception

@@ -102,7 +102,7 @@ traits:
   # === MAC address discovery (atomic) ===
   - id: getmac-module
     desc: getmac module for MAC address
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -110,7 +110,7 @@ traits:
 
   - id: uuid-getnode
     desc: uuid.getnode() for MAC address
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string

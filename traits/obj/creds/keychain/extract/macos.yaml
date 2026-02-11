@@ -79,7 +79,7 @@ traits:
   # === security CLI atomic indicators ===
   - id: security-find
     desc: security find- commands
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1555.001"
     platforms: [macos]
@@ -90,7 +90,7 @@ traits:
 
   - id: security-dump
     desc: security dump- commands
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1555.001"
     platforms: [macos]
@@ -101,7 +101,7 @@ traits:
 
   - id: security-delete
     desc: security delete- commands
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1555.001"
     platforms: [macos]
@@ -112,7 +112,7 @@ traits:
 
   - id: security-add
     desc: security add- commands
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1555.001"
     platforms: [macos]
@@ -123,7 +123,7 @@ traits:
 
   - id: security-export
     desc: security export command
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1555.001"
     platforms: [macos]
@@ -134,7 +134,7 @@ traits:
 
   - id: security-import
     desc: security import command
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1555.001"
     platforms: [macos]
@@ -145,7 +145,7 @@ traits:
 
   - id: security-unlock
     desc: security unlock command
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1555.001"
     platforms: [macos]

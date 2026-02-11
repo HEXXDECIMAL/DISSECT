@@ -35,7 +35,7 @@ traits:
 
   - id: node-platform
     desc: Collects operating system platform
-    crit: inert
+    crit: notable
     conf: 0.9
     attack: "T1082"
     for: [javascript, typescript]
@@ -45,7 +45,7 @@ traits:
 
   - id: node-arch
     desc: Collects CPU architecture
-    crit: inert
+    crit: notable
     conf: 0.9
     attack: "T1082"
     for: [javascript, typescript]
@@ -55,7 +55,7 @@ traits:
 
   - id: node-release
     desc: Collects OS release/version
-    crit: inert
+    crit: notable
     conf: 0.9
     attack: "T1082"
     for: [javascript, typescript]
@@ -75,7 +75,7 @@ traits:
 
   - id: node-dirname
     desc: Collects script directory path
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [javascript, typescript]
     if:

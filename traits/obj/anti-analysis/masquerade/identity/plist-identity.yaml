@@ -20,7 +20,7 @@ traits:
 
   - id: appl-package-type
     desc: Application package type declaration
-    crit: inert
+    crit: notable
     conf: 0.9
     if:
       type: kv

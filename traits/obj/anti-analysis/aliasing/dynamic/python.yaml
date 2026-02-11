@@ -5,7 +5,7 @@ traits:
   # === Python aliasing atomic indicators ===
   - id: alias-os
     desc: os import aliased
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [python]
     if:
@@ -14,7 +14,7 @@ traits:
 
   - id: alias-subprocess
     desc: subprocess import aliased
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [python]
     if:
@@ -23,7 +23,7 @@ traits:
 
   - id: alias-platform
     desc: platform import aliased
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [python]
     if:
@@ -32,7 +32,7 @@ traits:
 
   - id: alias-getpass
     desc: getpass import aliased
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [python]
     if:
@@ -41,7 +41,7 @@ traits:
 
   - id: alias-base64
     desc: base64 import aliased
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [python]
     if:
@@ -50,7 +50,7 @@ traits:
 
   - id: alias-urllib
     desc: urllib import aliased
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [python]
     if:

@@ -12,7 +12,7 @@ traits:
   # === WebSocket connection indicators ===
   - id: websocket-connection
     desc: WebSocket connection reference
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [macho, dylib]
     if:
@@ -69,7 +69,7 @@ traits:
   # === HTTP request forwarding indicators ===
   - id: http-response-handler
     desc: HTTP response handling
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [macho, dylib]
     if:

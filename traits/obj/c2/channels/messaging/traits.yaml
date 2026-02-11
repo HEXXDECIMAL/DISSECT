@@ -19,7 +19,7 @@ traits:
   # HTTP C2
   - id: http-post
     desc: HTTP POST requests (potential C2)
-    crit: inert
+    crit: notable
     mbc: "B0030"
     attack: "T1071.001"
     conf: 0.5
@@ -40,7 +40,7 @@ traits:
   # DNS C2
   - id: dns-query
     desc: DNS queries (potential C2 channel)
-    crit: inert
+    crit: notable
     mbc: "B0030"
     attack: "T1071.004"
     conf: 0.4

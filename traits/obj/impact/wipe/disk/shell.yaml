@@ -41,7 +41,7 @@ traits:
   # grep symbol - used for filtering
   - id: grep-cmd
     desc: grep command usage
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [shell]
     if:

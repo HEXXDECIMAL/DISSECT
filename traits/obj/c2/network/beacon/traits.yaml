@@ -6,7 +6,7 @@ traits:
   # === HTTP template atomic indicators ===
   - id: post-template
     desc: POST HTTP template with format specifier
-    crit: inert
+    crit: notable
     conf: 0.6
     mbc: "B0030"
     attack: "T1071.001"
@@ -16,7 +16,7 @@ traits:
 
   - id: get-template
     desc: GET HTTP template with format specifier
-    crit: inert
+    crit: notable
     conf: 0.6
     mbc: "B0030"
     attack: "T1071.001"
@@ -117,7 +117,7 @@ traits:
 
   - id: user-agent-header-multiple
     desc: Multiple User-Agent header entries
-    crit: inert
+    crit: notable
     conf: 0.70
     if:
       type: string
@@ -144,7 +144,7 @@ traits:
   # === Bot User-Agent atomic indicators ===
   - id: googlebot-ua
     desc: Googlebot User-Agent
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -152,7 +152,7 @@ traits:
 
   - id: bingbot-ua
     desc: bingbot User-Agent
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -160,7 +160,7 @@ traits:
 
   - id: baiduspider-ua
     desc: Baiduspider User-Agent
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -168,7 +168,7 @@ traits:
 
   - id: yandexbot-ua
     desc: YandexBot User-Agent
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -176,7 +176,7 @@ traits:
 
   - id: duckduckbot-ua
     desc: DuckDuckBot User-Agent
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string

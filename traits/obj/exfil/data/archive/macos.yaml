@@ -29,7 +29,7 @@ traits:
   # === zip create atomic indicators ===
   - id: zip-recursive-quiet
     desc: zip -r or -q flag
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -37,7 +37,7 @@ traits:
 
   - id: zip-output-file
     desc: zip with .zip output
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -46,7 +46,7 @@ traits:
   # === tmp archive atomic indicators ===
   - id: tmp-zip-path
     desc: zip file in /tmp
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -54,7 +54,7 @@ traits:
 
   - id: tmp-out-zip
     desc: /tmp/out.zip file
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -62,7 +62,7 @@ traits:
 
   - id: var-tmp-zip
     desc: zip file in /var/tmp
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string

@@ -49,7 +49,7 @@ traits:
 
   - id: pkginfo-dev-version
     desc: PKG-INFO with development version string
-    crit: inert
+    crit: notable
     conf: 0.80
     for: [all]
     if:

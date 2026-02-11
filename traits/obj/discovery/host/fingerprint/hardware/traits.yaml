@@ -36,7 +36,7 @@ composite_rules:
   # DMI fields helper
   - id: dmi-fields
     desc: DMI/SMBIOS fields
-    crit: inert
+    crit: notable
     conf: 0.5
     needs: 2
     any:
@@ -59,7 +59,7 @@ composite_rules:
   # CPU info helper
   - id: cpu-fields
     desc: CPU info fields
-    crit: inert
+    crit: notable
     conf: 0.4
     any:
       - id: cap/os/sysinfo/hardware::cpu-model-name
@@ -69,7 +69,7 @@ composite_rules:
   # CPU info composite
   - id: cpu-info
     desc: CPU information fingerprinting
-    crit: inert
+    crit: notable
     conf: 0.4
     any:
       - id: cpu-proc-cpuinfo
@@ -78,7 +78,7 @@ composite_rules:
   # Helper: /proc/cpuinfo + fields
   - id: cpu-proc-cpuinfo
     desc: /proc/cpuinfo with fields
-    crit: inert
+    crit: notable
     conf: 0.4
     all:
       - id: cap/fs/proc/system::system-cpuinfo

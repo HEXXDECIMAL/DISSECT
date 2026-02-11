@@ -15,7 +15,7 @@ traits:
 
   - id: ipproto-tcp
     desc: IPPROTO_TCP constant
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [elf, macho, pe, so, dylib]
     if:
@@ -44,7 +44,7 @@ traits:
 
   - id: sock-dgram
     desc: SOCK_DGRAM socket type
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [elf, macho, pe, so, dylib]
     if:
@@ -53,7 +53,7 @@ traits:
 
   - id: sendto-func
     desc: sendto function
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [elf, macho, pe, so, dylib]
     if:
@@ -73,7 +73,7 @@ traits:
 
   - id: port-53
     desc: Port 53 reference
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [elf, macho, pe, so, dylib]
     if:
@@ -86,7 +86,7 @@ traits:
   # but only match DNS in attack-related contexts.
   - id: dns-string
     desc: DNS protocol in attack context
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [elf, macho, pe, so, dylib]
     if:

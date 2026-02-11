@@ -18,7 +18,7 @@ traits:
   # === VirtualBox atomic indicators ===
   - id: virtualbox-word
     desc: VirtualBox string detection
-    crit: inert
+    crit: notable
     mbc: "B0009"
     attack: "T1497.001"
     conf: 0.5
@@ -28,7 +28,7 @@ traits:
 
   - id: vbox-string
     desc: VBOX string detection
-    crit: inert
+    crit: notable
     mbc: "B0032"
     attack: "T1497.001"
     conf: 0.5
@@ -40,7 +40,7 @@ traits:
   # === QEMU atomic indicators ===
   - id: qemu-upper
     desc: QEMU uppercase string
-    crit: inert
+    crit: notable
     mbc: "B0009"
     attack: "T1497.001"
     conf: 0.5
@@ -50,7 +50,7 @@ traits:
 
   - id: qemu-lower
     desc: qemu lowercase string
-    crit: inert
+    crit: notable
     mbc: "B0009"
     attack: "T1497.001"
     conf: 0.5
@@ -61,7 +61,7 @@ traits:
   # === VM hardware atomic indicators ===
   - id: vmxh-string
     desc: VMXH hardware string
-    crit: inert
+    crit: notable
     mbc: "B0009"
     attack: "T1497.001"
     conf: 0.5
@@ -71,7 +71,7 @@ traits:
 
   - id: virtio-string
     desc: virtio hardware string
-    crit: inert
+    crit: notable
     mbc: "B0009"
     attack: "T1497.001"
     conf: 0.5
@@ -81,7 +81,7 @@ traits:
 
   - id: vmmouse-string
     desc: vmmouse hardware string
-    crit: inert
+    crit: notable
     mbc: "B0009"
     attack: "T1497.001"
     conf: 0.5
@@ -92,7 +92,7 @@ traits:
   # === CPU vendor atomic indicators ===
   - id: genuineintel
     desc: GenuineIntel CPU vendor string
-    crit: inert
+    crit: notable
     mbc: "B0009"
     conf: 0.4
     if:
@@ -101,7 +101,7 @@ traits:
 
   - id: authenticamd
     desc: AuthenticAMD CPU vendor string
-    crit: inert
+    crit: notable
     mbc: "B0009"
     conf: 0.4
     if:
@@ -126,7 +126,7 @@ composite_rules:
   # VM environments. Actual VM detection requires multiple vendor checks (see combos.yaml).
   - id: qemu-string
     desc: QEMU vendor string detection
-    crit: inert
+    crit: notable
     mbc: "B0009"
     attack: "T1497.001"
     conf: 0.5

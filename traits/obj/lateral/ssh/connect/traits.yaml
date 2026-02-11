@@ -105,7 +105,7 @@ traits:
   # === Bash history SSH atomic indicators ===
   - id: ssh-bash-history
     desc: ssh with bash_history
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1021.004"
     platforms: [linux, macos, unix]
@@ -115,7 +115,7 @@ traits:
 
   - id: scp-bash-history
     desc: scp with bash_history
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1021.004"
     platforms: [linux, macos, unix]

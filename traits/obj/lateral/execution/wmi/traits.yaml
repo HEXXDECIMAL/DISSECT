@@ -40,7 +40,7 @@ traits:
   mbc: E1043
 - id: wmi-get-object
   desc: GetObject WMI retrieval
-  crit: inert
+  crit: notable
   conf: 0.6
   platforms:
   - windows

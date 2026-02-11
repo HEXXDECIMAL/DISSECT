@@ -52,7 +52,7 @@ traits:
   # === Pipe to shell micro-traits ===
   - id: curl-cmd
     desc: "curl command"
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [elf]
     platforms: [linux]
@@ -62,7 +62,7 @@ traits:
 
   - id: wget-cmd
     desc: "wget command"
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [elf]
     platforms: [linux]
@@ -117,7 +117,7 @@ traits:
 
   - id: send-func
     desc: "send function"
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [elf]
     platforms: [linux]
@@ -127,7 +127,7 @@ traits:
 
   - id: sendto-func
     desc: "sendto function"
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [elf]
     platforms: [linux]
@@ -137,7 +137,7 @@ traits:
 
   - id: sendfile-func
     desc: "sendfile function"
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [elf]
     platforms: [linux]
@@ -147,7 +147,7 @@ traits:
 
   - id: tftp-string
     desc: "tftp command invocation"
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [elf]
     platforms: [linux]
@@ -172,7 +172,7 @@ composite_rules:
   # Helper: curl or wget download command
   - id: download-cmd
     desc: "curl or wget download command"
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [elf]
     platforms: [linux]
@@ -220,7 +220,7 @@ composite_rules:
   # Helper: send functions or download tools
   - id: send-or-download
     desc: "Send functions or download tools"
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [elf]
     platforms: [linux]
@@ -242,7 +242,7 @@ composite_rules:
     for: [elf]
     platforms: [linux]
     all:
-      - id: cap/os/proc/filesystem::proc-self-exe
+      - id: cap/fs/proc/info::process-self-exe
       - id: send-or-download
 
   - id: mirai-variant
@@ -283,6 +283,6 @@ composite_rules:
     for: [elf]
     platforms: [linux]
     all:
-      - id: cap/os/proc/filesystem::proc-self-exe
+      - id: cap/fs/proc/info::process-self-exe
       - id: cap/mem/protect/modify::rwx-prot-bytes
       - id: known/tools/offensive/stagers::x64-jmp-register

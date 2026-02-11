@@ -69,7 +69,7 @@ traits:
 
   - id: contract-keyword
     desc: contract keyword
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [javascript, typescript]
     if:
@@ -78,7 +78,7 @@ traits:
 
   - id: eth-address
     desc: Ethereum address pattern
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [javascript, typescript]
     if:
@@ -110,7 +110,7 @@ traits:
   # === Arweave atomic indicators ===
   - id: arweave-net
     desc: Arweave.net gateway
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1102"
     for: [javascript, typescript]
@@ -120,7 +120,7 @@ traits:
 
   - id: ar-io-net
     desc: AR-IO.net gateway
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1102"
     for: [javascript, typescript]
@@ -164,7 +164,7 @@ composite_rules:
   # Helper: contract keyword or address
   - id: contract-or-address
     desc: Contract keyword or Ethereum address
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [javascript, typescript]
     any:

@@ -207,7 +207,7 @@ traits:
   # nanopb framework marker - legitimately used for protobuf
   - id: nanopb-framework
     desc: nanopb protobuf framework
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [macho, dylib]
     if:
@@ -217,7 +217,7 @@ traits:
   # Binary framework marker - detect Protobuf framework
   - id: framework-binary-marker
     desc: Protobuf framework binary detected
-    crit: inert
+    crit: notable
     conf: 0.95
     for: [macho, dylib]
     if:

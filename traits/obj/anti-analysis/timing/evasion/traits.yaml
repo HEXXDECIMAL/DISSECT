@@ -10,7 +10,7 @@ defaults:
 traits:
   - id: rdtsc
     desc: RDTSC instruction (hardware timestamp)
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: hex
@@ -18,7 +18,7 @@ traits:
 
   - id: sys-clock-gettime
     desc: clock_gettime function (syscall)
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string
@@ -26,7 +26,7 @@ traits:
 
   - id: sys-gettimeofday
     desc: gettimeofday function (syscall)
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string
@@ -36,7 +36,7 @@ traits:
   # Changed to more specific pattern
   - id: time-func
     desc: time function
-    crit: inert
+    crit: notable
     conf: 0.2
     if:
       type: string
@@ -47,7 +47,7 @@ composite_rules:
   # and performance. Downgraded to inert to avoid false positives.
   - id: primitive
     desc: "Hardware timing primitive (potential anti-analysis)"
-    crit: inert
+    crit: notable
     conf: 0.4
     all:
       - id: rdtsc

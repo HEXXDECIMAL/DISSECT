@@ -134,7 +134,7 @@ composite_rules:
   # Download tools
   - id: download-tools
     desc: Script uses download tools
-    crit: inert
+    crit: notable
     conf: 0.6
     any:
       - id: script-curl

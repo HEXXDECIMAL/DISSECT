@@ -19,7 +19,7 @@ traits:
 
   - id: password-variable
     desc: Password variable reference
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string
@@ -27,7 +27,7 @@ traits:
 
   - id: base64-encode
     desc: base64 encoding command
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: raw

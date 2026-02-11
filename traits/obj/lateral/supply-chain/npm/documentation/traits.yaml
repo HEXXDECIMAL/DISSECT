@@ -4,7 +4,7 @@
 traits:
   - id: has-jsdoc
     desc: Code has JSDoc documentation
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [javascript, typescript]
     if:
@@ -14,7 +14,7 @@ traits:
   # Has proper error handling
   - id: references-readme
     desc: Package references README file
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [package.json]
     if:
@@ -24,7 +24,7 @@ traits:
   # References LICENSE file
   - id: references-license
     desc: Package references LICENSE file
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [package.json]
     if:
@@ -34,7 +34,7 @@ traits:
   # References CHANGELOG
   - id: references-changelog
     desc: Package references CHANGELOG
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [package.json]
     if:
@@ -44,7 +44,7 @@ traits:
   # Has dist/lib output directory
   - id: has-changelog-tooling
     desc: Package uses changelog/versioning tooling
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [package.json]
     if:
@@ -54,7 +54,7 @@ traits:
   # Has peer dependency range (well-designed library)
   - id: has-license
     desc: Package has license field
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [package.json]
     if:

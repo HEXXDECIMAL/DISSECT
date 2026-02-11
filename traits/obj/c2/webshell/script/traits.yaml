@@ -10,7 +10,7 @@ traits:
   # === PHP webshell atomic indicators ===
   - id: php-tag
     desc: PHP opening tag
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [php]
     if:
@@ -47,7 +47,7 @@ traits:
 
   - id: php-get
     desc: PHP $_GET parameter access
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [php]
     if:
@@ -56,7 +56,7 @@ traits:
 
   - id: php-post
     desc: PHP $_POST parameter access
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [php]
     if:
@@ -65,7 +65,7 @@ traits:
 
   - id: php-request
     desc: PHP $_REQUEST parameter access
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [php]
     if:
@@ -93,7 +93,7 @@ traits:
 
   - id: jsp-get-param
     desc: JSP request.getParameter call
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [java]
     if:

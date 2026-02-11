@@ -209,7 +209,7 @@ traits:
   # === Malicious file hosting domains (atomic) ===
   - id: bullethost-cloud
     desc: Bullethost.cloud file hosting
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1105"
     if:
@@ -218,7 +218,7 @@ traits:
 
   - id: anonfiles-com
     desc: Anonfiles.com file hosting
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1105"
     if:
@@ -227,7 +227,7 @@ traits:
 
   - id: gofile-io
     desc: Gofile.io file hosting
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1105"
     if:
@@ -236,7 +236,7 @@ traits:
 
   - id: transfer-sh
     desc: Transfer.sh file hosting
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1105"
     if:
@@ -245,7 +245,7 @@ traits:
 
   - id: tmpfiles-org
     desc: Tmpfiles.org file hosting
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1105"
     if:
@@ -254,7 +254,7 @@ traits:
 
   - id: catbox-moe
     desc: Catbox.moe file hosting
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1105"
     if:
@@ -263,7 +263,7 @@ traits:
 
   - id: uguu-se
     desc: Uguu.se file hosting
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1105"
     if:
@@ -272,7 +272,7 @@ traits:
 
   - id: pomf-cat
     desc: Pomf.cat file hosting
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1105"
     if:
@@ -281,7 +281,7 @@ traits:
 
   - id: 0x0-st
     desc: 0x0.st file hosting
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1105"
     if:
@@ -290,7 +290,7 @@ traits:
 
   - id: file-io
     desc: File.io file hosting
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1105"
     if:
@@ -299,7 +299,7 @@ traits:
 
   - id: filedropper-com
     desc: Filedropper.com file hosting
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1105"
     if:
@@ -418,7 +418,7 @@ traits:
   # === Serverless function URLs (atomic) ===
   - id: aws-api-gateway
     desc: AWS API Gateway endpoint
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1071"
     if:
@@ -427,7 +427,7 @@ traits:
 
   - id: azure-websites
     desc: Azure Websites endpoint
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1071"
     if:
@@ -436,7 +436,7 @@ traits:
 
   - id: google-cloud-functions
     desc: Google Cloud Functions endpoint
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1071"
     if:
@@ -445,7 +445,7 @@ traits:
 
   - id: vercel-app
     desc: Vercel app endpoint
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1071"
     if:
@@ -454,7 +454,7 @@ traits:
 
   - id: netlify-app
     desc: Netlify app endpoint
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1071"
     if:
@@ -464,7 +464,7 @@ traits:
   # === Ngrok tunnels (atomic) ===
   - id: ngrok-io
     desc: Ngrok.io tunnel endpoint
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1071"
     if:
@@ -473,7 +473,7 @@ traits:
 
   - id: ngrok-free-app
     desc: Ngrok-free.app tunnel endpoint
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1071"
     if:
@@ -483,7 +483,7 @@ traits:
   # === Pastebin-like services (atomic) ===
   - id: pastebin-com
     desc: Pastebin.com with path
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1102"
     if:
@@ -492,7 +492,7 @@ traits:
 
   - id: hastebin-com
     desc: Hastebin.com with path
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1102"
     if:
@@ -501,7 +501,7 @@ traits:
 
   - id: ghostbin-com
     desc: Ghostbin.com with path
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1102"
     if:
@@ -510,7 +510,7 @@ traits:
 
   - id: paste-ee
     desc: Paste.ee with path
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1102"
     if:
@@ -519,7 +519,7 @@ traits:
 
   - id: dpaste-com
     desc: Dpaste.com with path
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1102"
     if:
@@ -528,7 +528,7 @@ traits:
 
   - id: privatebin-net
     desc: Privatebin.net with path
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1102"
     if:
@@ -537,7 +537,7 @@ traits:
 
   - id: rentry-co
     desc: Rentry.co with path
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1102"
     if:
@@ -557,7 +557,7 @@ traits:
   # === Replit-hosted (atomic) ===
   - id: replit-dev
     desc: Replit.dev endpoint
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1071"
     if:
@@ -566,7 +566,7 @@ traits:
 
   - id: repl-co
     desc: Repl.co endpoint
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1071"
     if:
@@ -656,7 +656,7 @@ traits:
   # === Chisel tunnel (atomic) ===
   - id: chisel-client
     desc: Chisel client command
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1572"
     if:
@@ -665,7 +665,7 @@ traits:
 
   - id: chisel-server
     desc: Chisel server command
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1572"
     if:

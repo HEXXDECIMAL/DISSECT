@@ -9,7 +9,7 @@ traits:
   # === Earthworm (EW) atomic indicators ===
   - id: ew-ssocksd
     desc: Earthworm ssocksd component
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -17,7 +17,7 @@ traits:
 
   - id: ew-rcsocks
     desc: Earthworm rcsocks component
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -25,7 +25,7 @@ traits:
 
   - id: ew-rssocks
     desc: Earthworm rssocks component
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -33,7 +33,7 @@ traits:
 
   - id: ew-lcx-listen
     desc: Earthworm lcx_listen function
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: string
@@ -41,7 +41,7 @@ traits:
 
   - id: ew-lcx-tran
     desc: Earthworm lcx_tran function
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: string
@@ -49,7 +49,7 @@ traits:
 
   - id: ew-lcx-slave
     desc: Earthworm lcx_slave function
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: string
@@ -69,7 +69,7 @@ traits:
   # Only match when combined with LCX-specific function names.
   - id: lcx-tran-func
     desc: LCX lcx_tran with -tran flag
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -78,7 +78,7 @@ traits:
 
   - id: lcx-slave-func
     desc: LCX lcx_slave with -slave flag
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -86,7 +86,7 @@ traits:
 
   - id: lcx-listen-func
     desc: LCX lcx_listen with -listen flag
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -94,7 +94,7 @@ traits:
 
   - id: listen-port
     desc: Port forwarding listenport config
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -103,7 +103,7 @@ traits:
 
   - id: conn-port
     desc: Port forwarding connport config
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -112,7 +112,7 @@ traits:
 
   - id: local-port
     desc: Port forwarding localport config
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -121,7 +121,7 @@ traits:
 
   - id: remote-host
     desc: Port forwarding remotehost config
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -174,7 +174,7 @@ traits:
 
   - id: chisel-client
     desc: Chisel client mode
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -182,7 +182,7 @@ traits:
 
   - id: chisel-server
     desc: Chisel server mode
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -191,7 +191,7 @@ traits:
   # === Ngrok atomic indicators ===
   - id: ngrok-name
     desc: Ngrok tool name
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -216,7 +216,7 @@ traits:
 
   - id: socks-default-port
     desc: SOCKS default port 1080
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string

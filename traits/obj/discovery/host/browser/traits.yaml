@@ -6,7 +6,7 @@ traits:
   # === Browser name atomic indicators ===
   - id: chrome-name
     desc: Chrome browser name
-    crit: inert
+    crit: notable
     conf: 0.4
     attack: "T1217"
     for: [all]
@@ -16,7 +16,7 @@ traits:
 
   - id: firefox-name
     desc: Firefox browser name
-    crit: inert
+    crit: notable
     conf: 0.4
     attack: "T1217"
     for: [all]
@@ -26,7 +26,7 @@ traits:
 
   - id: safari-name
     desc: Safari browser name
-    crit: inert
+    crit: notable
     conf: 0.4
     attack: "T1217"
     for: [all]
@@ -36,7 +36,7 @@ traits:
 
   - id: edge-name
     desc: Edge browser name
-    crit: inert
+    crit: notable
     conf: 0.4
     attack: "T1217"
     for: [all]
@@ -48,7 +48,7 @@ traits:
 
   - id: opera-name
     desc: Opera browser name
-    crit: inert
+    crit: notable
     conf: 0.4
     attack: "T1217"
     for: [all]
@@ -60,7 +60,7 @@ traits:
 
   - id: brave-name
     desc: Brave browser name
-    crit: inert
+    crit: notable
     conf: 0.4
     attack: "T1217"
     for: [all]
@@ -71,7 +71,7 @@ traits:
   # === Browser data file atomic indicators ===
   - id: history-file
     desc: History file reference
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1217"
     for: [all]
@@ -83,7 +83,7 @@ traits:
 
   - id: cookies-file
     desc: Cookies file reference
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1217"
     for: [all]
@@ -96,7 +96,7 @@ traits:
   # === Firefox-specific files ===
   - id: places-sqlite
     desc: Firefox places.sqlite
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1217"
     for: [all]
@@ -107,7 +107,7 @@ traits:
   # === Bookmarks ===
   - id: bookmarks-word
     desc: bookmarks keyword
-    crit: inert
+    crit: notable
     conf: 0.4
     attack: "T1217"
     for: [all]
@@ -118,7 +118,7 @@ traits:
 
   - id: bookmarks-plist
     desc: Bookmarks.plist file
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1217"
     for: [all]
@@ -130,7 +130,7 @@ traits:
   # === Extensions ===
   - id: chrome-extension-url
     desc: chrome-extension:// URL
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1217"
     for: [all]
@@ -140,7 +140,7 @@ traits:
 
   - id: extensions-hash-path
     desc: Extensions path with hash
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1217"
     for: [all]
@@ -150,7 +150,7 @@ traits:
 
   - id: chrome-extensions-path
     desc: Chrome Extensions path
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1217"
     for: [all]
@@ -160,7 +160,7 @@ traits:
 
   - id: browser-support-extensions
     desc: BrowserSupport Extensions path
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1217"
     for: [all]
@@ -193,7 +193,7 @@ traits:
   # === Opera/Brave specific ===
   - id: opera-stable
     desc: Opera Stable
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1217"
     for: [all]
@@ -203,7 +203,7 @@ traits:
 
   - id: brave-software
     desc: Brave Software path
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1217"
     for: [all]
@@ -215,7 +215,7 @@ composite_rules:
   # Browser names composite
   - id: browser-names
     desc: Browser name references
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1217"
     for: [all]

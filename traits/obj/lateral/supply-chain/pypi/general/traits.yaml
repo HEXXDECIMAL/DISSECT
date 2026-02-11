@@ -10,7 +10,7 @@ defaults:
 traits:
   - id: empty-classifiers
     desc: Empty classifiers list
-    crit: inert
+    crit: notable
     conf: 0.50
     for: [python]
     if:
@@ -37,7 +37,7 @@ traits:
 
   - id: is-pkginfo-file
     desc: Python PKG-INFO metadata file
-    crit: inert
+    crit: notable
     conf: 1.0
     if:
       type: kv
@@ -45,7 +45,7 @@ traits:
 
   - id: setup-py-file
     desc: Python setup.py file
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [python]
     if:

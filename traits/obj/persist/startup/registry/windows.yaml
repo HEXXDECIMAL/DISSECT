@@ -12,7 +12,7 @@ traits:
   # === Startup folder atomic indicators ===
   - id: start-menu-startup
     desc: Start Menu Programs Startup path
-    crit: inert
+    crit: notable
     conf: 0.7
     platforms: [windows]
     if:
@@ -21,7 +21,7 @@ traits:
 
   - id: appdata-startup
     desc: AppData Roaming Startup path
-    crit: inert
+    crit: notable
     conf: 0.7
     platforms: [windows]
     if:
@@ -30,7 +30,7 @@ traits:
 
   - id: shell-startup
     desc: shell:startup special folder
-    crit: inert
+    crit: notable
     conf: 0.7
     platforms: [windows]
     if:
@@ -40,7 +40,7 @@ traits:
   # === Registry Run key atomic indicators ===
   - id: software-run-key
     desc: SOFTWARE CurrentVersion Run path
-    crit: inert
+    crit: notable
     conf: 0.7
     platforms: [windows]
     if:
@@ -49,7 +49,7 @@ traits:
 
   - id: hkcu-run
     desc: HKCU Run key reference
-    crit: inert
+    crit: notable
     conf: 0.6
     platforms: [windows]
     if:
@@ -58,7 +58,7 @@ traits:
 
   - id: hklm-run
     desc: HKLM Run key reference
-    crit: inert
+    crit: notable
     conf: 0.6
     platforms: [windows]
     if:
@@ -67,7 +67,7 @@ traits:
 
   - id: currentversion-run
     desc: CurrentVersion Run path
-    crit: inert
+    crit: notable
     conf: 0.7
     platforms: [windows]
     if:
@@ -77,7 +77,7 @@ traits:
   # === RunOnce atomic indicators ===
   - id: currentversion-runonce
     desc: CurrentVersion RunOnce path
-    crit: inert
+    crit: notable
     conf: 0.7
     platforms: [windows]
     if:
@@ -86,7 +86,7 @@ traits:
 
   - id: runonce-word
     desc: RunOnce keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     platforms: [windows]
     if:
@@ -96,7 +96,7 @@ traits:
   # === Python winreg atomic indicators ===
   - id: import-winreg
     desc: import winreg statement
-    crit: inert
+    crit: notable
     conf: 0.5
     platforms: [windows]
     for: [python]
@@ -106,7 +106,7 @@ traits:
 
   - id: from-winreg
     desc: from winreg import
-    crit: inert
+    crit: notable
     conf: 0.5
     platforms: [windows]
     for: [python]
@@ -116,7 +116,7 @@ traits:
 
   - id: underscore-winreg
     desc: _winreg module (Python 2)
-    crit: inert
+    crit: notable
     conf: 0.5
     platforms: [windows]
     for: [python]
@@ -126,7 +126,7 @@ traits:
 
   - id: openkey-hkey
     desc: OpenKey HKEY call
-    crit: inert
+    crit: notable
     conf: 0.6
     platforms: [windows]
     for: [python]
@@ -136,7 +136,7 @@ traits:
 
   - id: setvalueex
     desc: SetValueEx call
-    crit: inert
+    crit: notable
     conf: 0.6
     platforms: [windows]
     for: [python]
@@ -146,7 +146,7 @@ traits:
 
   - id: createkey
     desc: CreateKey call
-    crit: inert
+    crit: notable
     conf: 0.6
     platforms: [windows]
     for: [python]
@@ -157,7 +157,7 @@ traits:
   # === Scheduled tasks atomic indicators ===
   - id: schtasks-create-cmd
     desc: schtasks /create command
-    crit: inert
+    crit: notable
     conf: 0.7
     platforms: [windows]
     if:
@@ -166,7 +166,7 @@ traits:
 
   - id: schtasks-exe-create
     desc: schtasks.exe create
-    crit: inert
+    crit: notable
     conf: 0.7
     platforms: [windows]
     if:
@@ -175,7 +175,7 @@ traits:
 
   - id: itaskscheduler-iface
     desc: ITaskScheduler interface
-    crit: inert
+    crit: notable
     conf: 0.7
     platforms: [windows]
     if:
@@ -184,7 +184,7 @@ traits:
 
   - id: taskscheduler-word
     desc: TaskScheduler keyword
-    crit: inert
+    crit: notable
     conf: 0.6
     platforms: [windows]
     if:
@@ -194,7 +194,7 @@ traits:
   # === Service installation atomic indicators ===
   - id: sc-create-cmd
     desc: sc create command
-    crit: inert
+    crit: notable
     conf: 0.7
     platforms: [windows]
     if:
@@ -203,7 +203,7 @@ traits:
 
   - id: createservice-api
     desc: CreateService API
-    crit: inert
+    crit: notable
     conf: 0.7
     platforms: [windows]
     if:
@@ -212,7 +212,7 @@ traits:
 
   - id: installservice-fn
     desc: InstallService function
-    crit: inert
+    crit: notable
     conf: 0.7
     platforms: [windows]
     if:
@@ -221,7 +221,7 @@ traits:
 
   - id: win32serviceutil-mod
     desc: win32serviceutil module
-    crit: inert
+    crit: notable
     conf: 0.7
     platforms: [windows]
     if:
@@ -231,7 +231,7 @@ traits:
   # === PowerShell registry atomic indicators ===
   - id: set-itemproperty-run
     desc: Set-ItemProperty Run
-    crit: inert
+    crit: notable
     conf: 0.7
     platforms: [windows]
     if:
@@ -240,7 +240,7 @@ traits:
 
   - id: new-itemproperty-run
     desc: New-ItemProperty Run
-    crit: inert
+    crit: notable
     conf: 0.7
     platforms: [windows]
     if:
@@ -249,7 +249,7 @@ traits:
 
   - id: reg-add-run
     desc: reg add Run
-    crit: inert
+    crit: notable
     conf: 0.7
     platforms: [windows]
     if:
@@ -259,7 +259,7 @@ traits:
   # === WMI persistence atomic indicators ===
   - id: wmi-eventfilter
     desc: __EventFilter class
-    crit: inert
+    crit: notable
     conf: 0.7
     platforms: [windows]
     if:
@@ -268,7 +268,7 @@ traits:
 
   - id: wmi-filtertoconsumer
     desc: __FilterToConsumerBinding class
-    crit: inert
+    crit: notable
     conf: 0.7
     platforms: [windows]
     if:
@@ -277,7 +277,7 @@ traits:
 
   - id: wmi-commandlineconsumer
     desc: CommandLineEventConsumer class
-    crit: inert
+    crit: notable
     conf: 0.7
     platforms: [windows]
     if:
@@ -286,7 +286,7 @@ traits:
 
   - id: wmi-activescriptconsumer
     desc: ActiveScriptEventConsumer class
-    crit: inert
+    crit: notable
     conf: 0.7
     platforms: [windows]
     if:
@@ -305,7 +305,7 @@ traits:
 
   - id: endswith-filter-content
     desc: Python endswith file extension filter
-    crit: inert
+    crit: notable
     conf: 0.65
     for: [python]
     if:
@@ -342,7 +342,7 @@ traits:
 
   - id: shortcut-save
     desc: Shortcut Save method call
-    crit: inert
+    crit: notable
     conf: 0.65
     platforms: [windows]
     if:
@@ -352,7 +352,7 @@ traits:
   # === Executable payload atomic indicators ===
   - id: exe-extension
     desc: .exe file extension
-    crit: inert
+    crit: notable
     conf: 0.4
     platforms: [windows]
     if:
@@ -361,7 +361,7 @@ traits:
 
   - id: bat-extension
     desc: .bat file extension
-    crit: inert
+    crit: notable
     conf: 0.4
     platforms: [windows]
     if:
@@ -370,7 +370,7 @@ traits:
 
   - id: ps1-extension
     desc: .ps1 file extension
-    crit: inert
+    crit: notable
     conf: 0.5
     platforms: [windows]
     if:
@@ -379,7 +379,7 @@ traits:
 
   - id: vbs-extension
     desc: .vbs file extension
-    crit: inert
+    crit: notable
     conf: 0.5
     platforms: [windows]
     if:
@@ -388,7 +388,7 @@ traits:
 
   - id: powershell-word
     desc: powershell keyword
-    crit: inert
+    crit: notable
     conf: 0.4
     platforms: [windows]
     if:
@@ -397,7 +397,7 @@ traits:
 
   - id: cmd-exe
     desc: cmd.exe reference
-    crit: inert
+    crit: notable
     conf: 0.4
     platforms: [windows]
     if:

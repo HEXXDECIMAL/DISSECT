@@ -148,7 +148,7 @@ traits:
   # === AppleScript Keystroke Capture ===
   - id: osascript-lower
     desc: osascript command (lowercase)
-    crit: inert
+    crit: notable
     conf: 0.6
     # Restrict to scripts/interpreted languages where osascript would be invoked
     # Binary programs may contain "osascript" for syntax highlighting (shebang patterns)
@@ -159,7 +159,7 @@ traits:
 
   - id: osascript-title
     desc: Osascript command (title case)
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [all]
     if:
@@ -168,7 +168,7 @@ traits:
 
   - id: osascript-upper
     desc: OSASCRIPT command (uppercase)
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [all]
     if:
@@ -177,7 +177,7 @@ traits:
 
   - id: keystroke-lower
     desc: keystroke keyword (lowercase)
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [all]
     if:
@@ -186,7 +186,7 @@ traits:
 
   - id: keystroke-title
     desc: Keystroke keyword (title case)
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [all]
     if:
@@ -195,7 +195,7 @@ traits:
 
   - id: keystroke-upper
     desc: KEYSTROKE keyword (uppercase)
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [all]
     if:
@@ -204,7 +204,7 @@ traits:
 
   - id: key-code-lower
     desc: key code phrase (lowercase)
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [all]
     if:
@@ -213,7 +213,7 @@ traits:
 
   - id: key-code-title
     desc: Key Code phrase (title case)
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [all]
     if:
@@ -222,7 +222,7 @@ traits:
 
   - id: key-code-upper
     desc: KEY CODE phrase (uppercase)
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [all]
     if:
@@ -231,7 +231,7 @@ traits:
 
   - id: key-down-lower
     desc: key down phrase (lowercase)
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [all]
     if:
@@ -240,7 +240,7 @@ traits:
 
   - id: key-down-title
     desc: Key Down phrase (title case)
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [all]
     if:
@@ -249,7 +249,7 @@ traits:
 
   - id: key-down-upper
     desc: KEY DOWN phrase (uppercase)
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [all]
     if:
@@ -258,7 +258,7 @@ traits:
 
   - id: system-events-lower
     desc: system events phrase (lowercase)
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [all]
     if:
@@ -267,7 +267,7 @@ traits:
 
   - id: system-events-title
     desc: System Events phrase (title case)
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [all]
     if:
@@ -276,7 +276,7 @@ traits:
 
   - id: system-events-upper
     desc: SYSTEM EVENTS phrase (uppercase)
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [all]
     if:
@@ -286,7 +286,7 @@ traits:
   # === JXA (JavaScript for Automation) ===
   - id: application-call
     desc: Application( constructor call
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript]
     if:
@@ -295,7 +295,7 @@ traits:
 
   - id: keycode-camel
     desc: keyCode property
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript]
     if:
@@ -305,7 +305,7 @@ traits:
   # === Node.js AppleScript Libraries ===
   - id: require-applescript-single
     desc: require('applescript') import
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript]
     if:
@@ -314,7 +314,7 @@ traits:
 
   - id: require-applescript-double
     desc: 'require("applescript") import'
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript]
     if:
@@ -323,7 +323,7 @@ traits:
 
   - id: node-osascript
     desc: node-osascript library
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript]
     if:
@@ -332,7 +332,7 @@ traits:
 
   - id: run-applescript
     desc: run-applescript function
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript]
     if:
@@ -341,7 +341,7 @@ traits:
 
   - id: exec-sync
     desc: execSync function
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:

@@ -77,7 +77,7 @@ traits:
 
   - id: fingerprint-string
     desc: fingerprint string
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string

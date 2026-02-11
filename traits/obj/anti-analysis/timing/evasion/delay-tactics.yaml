@@ -5,13 +5,13 @@
 defaults:
   attack: "T1497.003"
   mbc: "B0003.005"
-  crit: inert
+  crit: notable
 
 traits:
   # === Sleep functions ===
   - id: sleep-func
     desc: "Sleep function (delays execution)"
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [elf, macho, pe]
     if:
@@ -20,7 +20,7 @@ traits:
 
   - id: usleep-func
     desc: "Microsecond sleep (precise timing delays)"
-    crit: inert
+    crit: notable
     conf: 0.4
     platforms: [linux, macos, unix]
     for: [elf, macho]
@@ -30,7 +30,7 @@ traits:
 
   - id: nanosleep-func
     desc: "Nanosecond sleep (high-precision delays)"
-    crit: inert
+    crit: notable
     conf: 0.4
     platforms: [linux, macos, unix]
     for: [elf, macho]
@@ -41,7 +41,7 @@ traits:
   # === Clock/timing functions ===
   - id: clock-gettime
     desc: "Reads current time (timing measurements)"
-    crit: inert
+    crit: notable
     conf: 0.4
     platforms: [linux, macos, unix]
     for: [elf, macho]
@@ -51,7 +51,7 @@ traits:
 
   - id: gettimeofday
     desc: "Gets current time of day"
-    crit: inert
+    crit: notable
     conf: 0.3
     platforms: [linux, macos, unix]
     for: [elf, macho]
@@ -63,7 +63,7 @@ composite_rules:
   # Basic delay capability
   - id: delay-capability
     desc: "Program can delay execution (sleep/timing)"
-    crit: inert
+    crit: notable
     conf: 0.5
     any:
       - id: sleep-func
@@ -95,7 +95,7 @@ composite_rules:
   # This pattern alone is NOT suspicious - nearly all network tools use this.
   - id: delay-with-network
     desc: "Network communication with delays (C2"
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1497.003"
     all:
@@ -110,7 +110,7 @@ composite_rules:
   # Only suspicious when combined with actual anti-analysis indicators.
   - id: timing-evasion
     desc: "Timing measurement with delays (sandbox/VM"
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1497.003"
     mbc: "B0003.005"

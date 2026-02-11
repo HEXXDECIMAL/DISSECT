@@ -67,15 +67,15 @@ impl ConditionWithFilters {
         self.condition.can_match_file_type(file_type)
     }
 
-    pub fn validate(&self, trait_id: &str) -> Result<(), String> {
+    pub fn validate(&self, _trait_id: &str) -> Result<(), String> {
         self.condition.validate().map_err(|e| e.to_string())
     }
 
-    pub fn check_greedy_patterns(&self, trait_id: &str) -> Option<String> {
+    pub fn check_greedy_patterns(&self, _trait_id: &str) -> Option<String> {
         self.condition.check_greedy_patterns()
     }
 
-    pub fn check_word_boundary_regex(&self, trait_id: &str) -> Option<String> {
+    pub fn check_word_boundary_regex(&self, _trait_id: &str) -> Option<String> {
         self.condition.check_word_boundary_regex()
     }
 
@@ -83,35 +83,35 @@ impl ConditionWithFilters {
         self.condition.check_short_case_insensitive(file_type_count)
     }
 
-    pub fn check_count_constraints(&self, trait_id: &str) -> Option<String> {
+    pub fn check_count_constraints(&self, _trait_id: &str) -> Option<String> {
         self.condition.check_count_constraints()
     }
 
-    pub fn check_density_constraints(&self, trait_id: &str) -> Option<String> {
+    pub fn check_density_constraints(&self, _trait_id: &str) -> Option<String> {
         self.condition.check_density_constraints()
     }
 
-    pub fn check_match_exclusivity(&self, trait_id: &str) -> Option<String> {
+    pub fn check_match_exclusivity(&self, _trait_id: &str) -> Option<String> {
         self.condition.check_match_exclusivity()
     }
 
-    pub fn check_empty_patterns(&self, trait_id: &str) -> Option<String> {
+    pub fn check_empty_patterns(&self, _trait_id: &str) -> Option<String> {
         self.condition.check_empty_patterns()
     }
 
-    pub fn check_short_patterns(&self, trait_id: &str) -> Option<String> {
+    pub fn check_short_patterns(&self, _trait_id: &str) -> Option<String> {
         self.condition.check_short_patterns()
     }
 
-    pub fn check_literal_regex(&self, trait_id: &str) -> Option<String> {
+    pub fn check_literal_regex(&self, _trait_id: &str) -> Option<String> {
         self.condition.check_literal_regex()
     }
 
-    pub fn check_case_insensitive_on_non_alpha(&self, trait_id: &str) -> Option<String> {
+    pub fn check_case_insensitive_on_non_alpha(&self, _trait_id: &str) -> Option<String> {
         self.condition.check_case_insensitive_on_non_alpha()
     }
 
-    pub fn check_count_min_value(&self, trait_id: &str) -> Option<String> {
+    pub fn check_count_min_value(&self, _trait_id: &str) -> Option<String> {
         self.condition.check_count_min_value()
     }
 }
@@ -413,21 +413,32 @@ impl TraitDefinition {
                 regex: Some(pattern),
                 ..
             } => {
-                // For symbol regex, only validate exact exceptions match the pattern
-                // substr and regex exceptions can't be reliably validated without generating all possible matches
+                // For symbol regex, validate that exceptions could potentially match
                 for exc in not_exceptions {
-                    let exc_str = match exc {
-                        NotException::Structured { exact: Some(s), .. } => Some(s.as_str()),
-                        _ => None,
-                    };
-
-                    if let Some(exc_str) = exc_str {
-                        if !pattern_could_match(pattern, exc_str) {
-                            return Some(format!(
-                                "not: exception (exact) '{}' does not match the search regex '{}' - it will never be applied",
-                                exc_str, pattern
-                            ));
+                    match exc {
+                        // Validate shorthand (substr) exceptions - check if the substr matches the regex
+                        NotException::Shorthand(exc_str) => {
+                            if !pattern_could_match(pattern, exc_str) {
+                                return Some(format!(
+                                    "not: exception '{}' does not match the search regex '{}' - symbols matching the regex won't contain this exception, so it will never be applied",
+                                    exc_str, pattern
+                                ));
+                            }
                         }
+                        // Validate exact exceptions - check if the exact string matches the regex
+                        NotException::Structured {
+                            exact: Some(exc_str),
+                            ..
+                        } => {
+                            if !pattern_could_match(pattern, exc_str) {
+                                return Some(format!(
+                                    "not: exception (exact) '{}' does not match the search regex '{}' - it will never be applied",
+                                    exc_str, pattern
+                                ));
+                            }
+                        }
+                        // For substr and regex exceptions, validation is complex - allow them
+                        _ => {}
                     }
                 }
             }
@@ -524,8 +535,7 @@ impl TraitDefinition {
                     "not: field used with content/substr match - behavior is unclear because content searches on binary data don't extract individual strings for filtering. Use regex instead, or use 'string' type with substr.".to_string()
                 );
             }
-            // For regex matches, only validate exact exceptions could actually match
-            // substr and regex exceptions can't be reliably validated without generating all possible matches
+            // For regex matches, validate that exceptions could potentially match
             Condition::String {
                 regex: Some(pattern),
                 ..
@@ -535,18 +545,30 @@ impl TraitDefinition {
                 ..
             } => {
                 for exc in not_exceptions {
-                    // Only validate exact matches - substr and regex exceptions can match substrings
-                    if let NotException::Structured {
-                        exact: Some(exc_str),
-                        ..
-                    } = exc
-                    {
-                        if !pattern_could_match(pattern, exc_str) {
-                            return Some(format!(
-                                "not: exception (exact) '{}' does not match the search regex '{}' - it will never be applied",
-                                exc_str, pattern
-                            ));
+                    match exc {
+                        // Validate shorthand (substr) exceptions - check if the substr matches the regex
+                        NotException::Shorthand(exc_str) => {
+                            if !pattern_could_match(pattern, exc_str) {
+                                return Some(format!(
+                                    "not: exception '{}' does not match the search regex '{}' - strings matching the regex won't contain this exception, so it will never be applied",
+                                    exc_str, pattern
+                                ));
+                            }
                         }
+                        // Validate exact exceptions - check if the exact string matches the regex
+                        NotException::Structured {
+                            exact: Some(exc_str),
+                            ..
+                        } => {
+                            if !pattern_could_match(pattern, exc_str) {
+                                return Some(format!(
+                                    "not: exception (exact) '{}' does not match the search regex '{}' - it will never be applied",
+                                    exc_str, pattern
+                                ));
+                            }
+                        }
+                        // For substr and regex exceptions, validation is complex - allow them
+                        _ => {}
                     }
                 }
             }
@@ -927,17 +949,15 @@ impl TraitDefinition {
                 regex,
                 platforms,
                 compiled_regex,
-            } => {
-                eval_symbol(
-                    exact.as_ref(),
-                    substr.as_ref(),
-                    regex.as_ref(),
-                    platforms.as_ref(),
-                    compiled_regex.as_ref(),
-                    self.not.as_ref(),
-                    ctx,
-                )
-            }
+            } => eval_symbol(
+                exact.as_ref(),
+                substr.as_ref(),
+                regex.as_ref(),
+                platforms.as_ref(),
+                compiled_regex.as_ref(),
+                self.not.as_ref(),
+                ctx,
+            ),
             Condition::String {
                 exact,
                 substr,
@@ -1000,27 +1020,18 @@ impl TraitDefinition {
             Condition::Yara { source, compiled } => {
                 eval_yara_inline(source, compiled.as_ref(), ctx)
             }
-            Condition::Syscall {
-                name,
-                number,
-                arch,
-            } => eval_syscall(
-                name.as_ref(),
-                number.as_ref(),
-                arch.as_ref(),
-                ctx,
-            ),
+            Condition::Syscall { name, number, arch } => {
+                eval_syscall(name.as_ref(), number.as_ref(), arch.as_ref(), ctx)
+            }
             Condition::SectionRatio {
                 section,
                 compare_to,
                 min,
                 max,
             } => eval_section_ratio(section, compare_to, *min, *max, ctx),
-            Condition::SectionEntropy {
-                section,
-                min,
-                max,
-            } => eval_section_entropy(section, *min, *max, ctx),
+            Condition::SectionEntropy { section, min, max } => {
+                eval_section_entropy(section, *min, *max, ctx)
+            }
             Condition::ImportCombination {
                 required,
                 suspicious,
@@ -1861,16 +1872,14 @@ impl CompositeTrait {
                 regex,
                 platforms,
                 compiled_regex,
-            } => {
-                self.eval_symbol(
-                    exact.as_ref(),
-                    substr.as_ref(),
-                    regex.as_ref(),
-                    platforms.as_ref(),
-                    compiled_regex.as_ref(),
-                    ctx,
-                )
-            }
+            } => self.eval_symbol(
+                exact.as_ref(),
+                substr.as_ref(),
+                regex.as_ref(),
+                platforms.as_ref(),
+                compiled_regex.as_ref(),
+                ctx,
+            ),
             Condition::String {
                 exact,
                 substr,
@@ -1933,27 +1942,18 @@ impl CompositeTrait {
             Condition::Yara { source, compiled } => {
                 eval_yara_inline(source, compiled.as_ref(), ctx)
             }
-            Condition::Syscall {
-                name,
-                number,
-                arch,
-            } => eval_syscall(
-                name.as_ref(),
-                number.as_ref(),
-                arch.as_ref(),
-                ctx,
-            ),
+            Condition::Syscall { name, number, arch } => {
+                eval_syscall(name.as_ref(), number.as_ref(), arch.as_ref(), ctx)
+            }
             Condition::SectionRatio {
                 section,
                 compare_to,
                 min,
                 max,
             } => eval_section_ratio(section, compare_to, *min, *max, ctx),
-            Condition::SectionEntropy {
-                section,
-                min,
-                max,
-            } => eval_section_entropy(section, *min, *max, ctx),
+            Condition::SectionEntropy { section, min, max } => {
+                eval_section_entropy(section, *min, *max, ctx)
+            }
             Condition::ImportCombination {
                 required,
                 suspicious,
@@ -2133,15 +2133,7 @@ impl CompositeTrait {
             }
         }
 
-        eval_symbol(
-            exact,
-            substr,
-            pattern,
-            None,
-            compiled_regex,
-            None,
-            ctx,
-        )
+        eval_symbol(exact, substr, pattern, None, compiled_regex, None, ctx)
     }
 
     /// Evaluate structure condition

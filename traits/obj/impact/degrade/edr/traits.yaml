@@ -26,7 +26,7 @@ traits:
   # === EDR/AV process termination verbs (atomic) ===
   - id: kill-keyword
     desc: kill keyword
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [elf, pe]
     if:
@@ -38,7 +38,7 @@ traits:
   # process termination contexts.
   - id: terminate-keyword
     desc: terminate in process context
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [elf, pe]
     if:
@@ -49,7 +49,7 @@ traits:
   # === EDR/AV product names (atomic) ===
   - id: defender-name
     desc: Windows Defender reference
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [pe, elf]
     if:
@@ -59,7 +59,7 @@ traits:
 
   - id: malwarebytes-name
     desc: Malwarebytes reference
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [pe, elf]
     if:
@@ -69,7 +69,7 @@ traits:
 
   - id: kaspersky-name
     desc: Kaspersky reference
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [pe, elf]
     if:
@@ -79,7 +79,7 @@ traits:
 
   - id: bitdefender-name
     desc: Bitdefender reference
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [pe, elf]
     if:
@@ -90,7 +90,7 @@ traits:
   # Avast AV detection - must be specific to avoid nautical term "avast" (meaning "stop")
   - id: avast-service
     desc: Avast service reference
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [pe, elf]
     if:
@@ -99,7 +99,7 @@ traits:
 
   - id: avast-path
     desc: Avast installation path
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [pe, elf]
     if:
@@ -108,7 +108,7 @@ traits:
 
   - id: norton-name
     desc: Norton reference
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [pe, elf]
     if:
@@ -118,7 +118,7 @@ traits:
 
   - id: mcafee-name
     desc: McAfee reference
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [pe, elf]
     if:
@@ -128,7 +128,7 @@ traits:
 
   - id: sophos-name
     desc: Sophos reference
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [pe, elf]
     if:
@@ -138,7 +138,7 @@ traits:
 
   - id: eset-lower
     desc: eset reference (lowercase)
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [pe, elf]
     if:
@@ -147,7 +147,7 @@ traits:
 
   - id: eset-upper
     desc: ESET reference (uppercase brand name)
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [pe, elf]
     if:
@@ -177,7 +177,7 @@ composite_rules:
   # EDR termination verbs composite
   - id: termination-verbs
     desc: Process termination verbs
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [elf, pe]
     any:

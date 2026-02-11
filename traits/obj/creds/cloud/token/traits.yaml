@@ -69,7 +69,7 @@ traits:
   # .env file is common in development - only suspicious when reading/fetching it
   - id: dotenv-file
     desc: .env file reference
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [javascript, typescript, python, shell]
     if:
@@ -79,7 +79,7 @@ traits:
   # === AWS IMDS (atomic) ===
   - id: aws-imds-ip
     desc: AWS metadata service IP
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1552.005"
     for: [javascript, typescript, python, shell, elf, go]
@@ -89,7 +89,7 @@ traits:
 
   - id: aws-imds-path
     desc: AWS instance metadata path
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1552.005"
     for: [javascript, typescript, python, shell]
@@ -99,7 +99,7 @@ traits:
 
   - id: aws-iam-creds-path
     desc: AWS IAM security credentials path
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1552.005"
     for: [javascript, typescript, python, shell]
@@ -110,7 +110,7 @@ traits:
   # === GCP metadata (atomic) ===
   - id: gcp-metadata-host
     desc: GCP metadata internal hostname
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1552.005"
     for: [javascript, typescript, python, shell]
@@ -120,7 +120,7 @@ traits:
 
   - id: gcp-compute-metadata
     desc: GCP compute metadata path
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1552.005"
     for: [javascript, typescript, python, shell]
@@ -131,7 +131,7 @@ traits:
   # === Azure IMDS (atomic) ===
   - id: azure-metadata-identity
     desc: Azure metadata identity path
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1552.005"
     for: [javascript, typescript, python, shell]
@@ -141,7 +141,7 @@ traits:
 
   - id: azure-metadata-header
     desc: Azure Metadata header
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1552.005"
     for: [javascript, typescript, python, shell]

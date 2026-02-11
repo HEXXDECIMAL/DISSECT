@@ -98,7 +98,7 @@ composite_rules:
   # GitHub token indicators (OR)
   - id: github-token-indicators
     desc: GitHub token variable indicators
-    crit: inert  # Just the string, not actual access
+    crit: notable  # String reference to GitHub token env var
     conf: 0.7
     attack: "T1552.001"
     any:

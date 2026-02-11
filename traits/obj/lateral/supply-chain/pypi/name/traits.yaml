@@ -31,7 +31,7 @@ traits:
 
   - id: pkginfo-name-contains-requests
     desc: Package name contains requests library name
-    crit: inert
+    crit: notable
     conf: 0.70
     attack: "T1036.005"
     if:

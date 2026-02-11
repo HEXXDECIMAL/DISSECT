@@ -42,7 +42,7 @@ traits:
   # === Extension Activation atomic indicators ===
   - id: function-activate
     desc: function activate definition
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript, typescript]
     if:
@@ -51,7 +51,7 @@ traits:
 
   - id: async-function-activate
     desc: async function activate definition
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript, typescript]
     if:
@@ -60,7 +60,7 @@ traits:
 
   - id: export-activate
     desc: export activate pattern
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript, typescript]
     if:
@@ -70,7 +70,7 @@ traits:
   # === Extension Deactivation atomic indicators ===
   - id: function-deactivate
     desc: function deactivate definition
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript, typescript]
     if:
@@ -79,7 +79,7 @@ traits:
 
   - id: export-deactivate
     desc: export deactivate pattern
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript, typescript]
     if:
@@ -89,7 +89,7 @@ traits:
   # === VSCode context atomic indicators ===
   - id: vscode-commands
     desc: vscode.commands reference
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript, typescript]
     if:
@@ -98,7 +98,7 @@ traits:
 
   - id: vscode-window
     desc: vscode.window reference
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript, typescript]
     if:
@@ -107,7 +107,7 @@ traits:
 
   - id: vscode-workspace
     desc: vscode.workspace reference
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript, typescript]
     if:
@@ -116,7 +116,7 @@ traits:
 
   - id: vscode-extensions
     desc: vscode.extensions reference
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript, typescript]
     if:
@@ -193,7 +193,7 @@ composite_rules:
   # Activate composite
   - id: activate
     desc: VSCode extension activate function
-    crit: inert
+    crit: notable
     conf: 1.0
     for: [javascript, typescript]
     any:
@@ -204,7 +204,7 @@ composite_rules:
   # Deactivate composite
   - id: deactivate
     desc: VSCode extension deactivate function
-    crit: inert
+    crit: notable
     conf: 1.0
     for: [javascript, typescript]
     any:

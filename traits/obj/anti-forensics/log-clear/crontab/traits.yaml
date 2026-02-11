@@ -78,7 +78,7 @@ traits:
   attack: T1070.004
 - id: crontab-command
   desc: Direct crontab command usage
-  crit: inert
+  crit: notable
   conf: 0.7
   for:
   - elf
@@ -93,7 +93,7 @@ traits:
     word: crontab
 - id: cron-file-test
   desc: Test for cron file existence
-  crit: inert
+  crit: notable
   conf: 0.8
   for:
   - elf

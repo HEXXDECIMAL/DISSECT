@@ -1,7 +1,7 @@
 traits:
 - id: sshd-config-path
   desc: SSH daemon configuration file
-  crit: inert
+  crit: notable
   conf: 0.6
   for:
   - elf
@@ -76,7 +76,7 @@ traits:
   attack: T1021.004
 - id: ssh-port-config
   desc: SSH port configuration
-  crit: inert
+  crit: notable
   conf: 0.6
   for:
   - elf

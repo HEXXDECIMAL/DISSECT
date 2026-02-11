@@ -21,7 +21,7 @@ traits:
   # === target IP atomic ===
   - id: target-ip
     desc: Target IP (case variants)
-    crit: inert
+    crit: notable
     conf: 0.5
     platforms: [all]
     if:
@@ -30,7 +30,7 @@ traits:
 
   - id: target-ip-camel
     desc: targetIP camelCase
-    crit: inert
+    crit: notable
     conf: 0.5
     platforms: [all]
     if:
@@ -40,7 +40,7 @@ traits:
   # === random target atomic ===
   - id: random-target-word
     desc: Random target (case variants)
-    crit: inert
+    crit: notable
     conf: 0.6
     platforms: [all]
     if:
@@ -49,7 +49,7 @@ traits:
 
   - id: random-ip
     desc: Random IP (case variants)
-    crit: inert
+    crit: notable
     conf: 0.6
     platforms: [all]
     if:
@@ -58,7 +58,7 @@ traits:
 
   - id: getrandip
     desc: getrandip function
-    crit: inert
+    crit: notable
     conf: 0.6
     platforms: [all]
     if:
@@ -68,7 +68,7 @@ traits:
   # === port scanning atomic ===
   - id: portscan-word
     desc: PortScan keyword
-    crit: inert
+    crit: notable
     conf: 0.4
     platforms: [all]
     if:
@@ -77,7 +77,7 @@ traits:
 
   - id: scan-port
     desc: scan port keyword
-    crit: inert
+    crit: notable
     conf: 0.4
     platforms: [all]
     if:
@@ -86,7 +86,7 @@ traits:
 
   - id: port-scan
     desc: port scan keyword
-    crit: inert
+    crit: notable
     conf: 0.4
     platforms: [all]
     if:
@@ -96,7 +96,7 @@ traits:
   # === probing atomic ===
   - id: probe-word
     desc: Probe keyword
-    crit: inert
+    crit: notable
     conf: 0.4
     platforms: [all]
     if:
@@ -106,7 +106,7 @@ traits:
 
   - id: banner-grab
     desc: Banner grab keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     platforms: [all]
     if:
@@ -116,7 +116,7 @@ traits:
   # === target context atomic ===
   - id: target-host
     desc: target host keyword
-    crit: inert
+    crit: notable
     conf: 0.4
     platforms: [all]
     if:
@@ -126,7 +126,7 @@ traits:
 
   - id: target-port
     desc: target port keyword
-    crit: inert
+    crit: notable
     conf: 0.4
     platforms: [all]
     if:
@@ -136,7 +136,7 @@ traits:
 
   - id: target-range
     desc: target range keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     platforms: [all]
     if:
@@ -146,7 +146,7 @@ traits:
 
   - id: target-list
     desc: target list keyword
-    crit: inert
+    crit: notable
     conf: 0.4
     platforms: [all]
     if:
@@ -156,7 +156,7 @@ traits:
 
   - id: target-addr
     desc: target addr keyword
-    crit: inert
+    crit: notable
     conf: 0.4
     platforms: [all]
     if:
@@ -166,7 +166,7 @@ traits:
 
   - id: scan-target
     desc: scan target keyword
-    crit: inert
+    crit: notable
     conf: 0.4
     platforms: [all]
     if:
@@ -203,7 +203,7 @@ traits:
 
   - id: weak-pass-admin123-upper
     desc: Weak password Admin123
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1110.001"
     platforms: [all]
@@ -213,7 +213,7 @@ traits:
 
   - id: weak-pass-admin123-lower
     desc: Weak password admin123
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1110.001"
     platforms: [all]
@@ -233,7 +233,7 @@ traits:
 
   - id: weak-pass-qwerty123
     desc: Weak password qwerty123
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1110.001"
     platforms: [all]
@@ -243,7 +243,7 @@ traits:
 
   - id: weak-pass-qwerty
     desc: Weak password qwerty
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1110.001"
     platforms: [all]
@@ -255,7 +255,7 @@ traits:
 
   - id: root-the-phrase
     desc: Root the phrase (hacker slang)
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1068"
     platforms: [all]
@@ -265,7 +265,7 @@ traits:
 
   - id: r00t-leet
     desc: r00t leetspeak
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1068"
     platforms: [all]
@@ -277,7 +277,7 @@ traits:
 
   - id: sym-gethostbyname
     desc: gethostbyname function symbol
-    crit: inert
+    crit: notable
     conf: 0.4
     platforms: [all]
     if:
@@ -286,7 +286,7 @@ traits:
 
   - id: sym-getaddrinfo
     desc: getaddrinfo function symbol
-    crit: inert
+    crit: notable
     conf: 0.4
     platforms: [all]
     if:
@@ -295,7 +295,7 @@ traits:
 
   - id: sym-socket
     desc: socket function symbol
-    crit: inert
+    crit: notable
     conf: 0.4
     platforms: [all]
     if:
@@ -304,7 +304,7 @@ traits:
 
   - id: sym-connect
     desc: connect function symbol
-    crit: inert
+    crit: notable
     conf: 0.4
     platforms: [all]
     if:
@@ -324,7 +324,7 @@ traits:
 
   - id: port-number-ftp
     desc: FTP port number (21)
-    crit: inert
+    crit: notable
     conf: 0.6
     platforms: [all]
     for: [scripts]
@@ -334,7 +334,7 @@ traits:
 
   - id: port-number-ssh
     desc: SSH port number (22)
-    crit: inert
+    crit: notable
     conf: 0.6
     platforms: [all]
     for: [scripts]
@@ -344,7 +344,7 @@ traits:
 
   - id: port-number-http
     desc: HTTP port number (80)
-    crit: inert
+    crit: notable
     conf: 0.6
     platforms: [all]
     for: [scripts]
@@ -354,7 +354,7 @@ traits:
 
   - id: port-number-https
     desc: HTTPS port number (443)
-    crit: inert
+    crit: notable
     conf: 0.6
     platforms: [all]
     for: [scripts]
@@ -366,7 +366,7 @@ traits:
 
   - id: cidr-range
     desc: CIDR network range notation
-    crit: inert
+    crit: notable
     conf: 0.6
     platforms: [all]
     if:
@@ -485,7 +485,7 @@ composite_rules:
   # They are inert on their own - only suspicious in combination with scanning patterns
   - id: sym-hostname-resolve
     desc: Hostname resolution function symbols
-    crit: inert
+    crit: notable
     conf: 0.6
     platforms: [all]
     any:
@@ -497,7 +497,7 @@ composite_rules:
   # program. On their own they indicate network capability (inert), not scanning intent.
   - id: sym-socket-connect
     desc: Socket connection function symbols
-    crit: inert
+    crit: notable
     conf: 0.6
     platforms: [all]
     any:
@@ -507,7 +507,7 @@ composite_rules:
   # Service port detection
   - id: service-port
     desc: Common service port numbers
-    crit: inert
+    crit: notable
     conf: 0.6
     platforms: [all]
     any:

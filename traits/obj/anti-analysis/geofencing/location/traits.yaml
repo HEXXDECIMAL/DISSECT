@@ -29,7 +29,7 @@ traits:
 
   - id: locale-russian-word
     desc: Russian language string
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript, python, shell, ruby, php]
     if:
@@ -113,7 +113,7 @@ traits:
   # === JavaScript-specific timezone APIs ===
   - id: js-intl-datetime-options
     desc: Intl.DateTimeFormat timezone access
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -122,7 +122,7 @@ traits:
 
   - id: js-gettimezoneoffset
     desc: getTimezoneOffset() call
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [javascript, typescript]
     if:
@@ -141,7 +141,7 @@ traits:
   # === Locale environment variable access (scripting) ===
   - id: env-lang-check
     desc: LANG environment variable access
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [javascript, typescript, python, shell, ruby, php]
     if:
@@ -150,7 +150,7 @@ traits:
 
   - id: env-lc-all-check
     desc: LC_ALL environment variable access
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript, python, shell, ruby, php]
     if:
@@ -159,7 +159,7 @@ traits:
 
   - id: env-lc-messages-check
     desc: LC_MESSAGES environment variable access
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript, python, shell, ruby, php]
     if:
@@ -168,7 +168,7 @@ traits:
 
   - id: env-language-check
     desc: LANGUAGE environment variable access
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [javascript, typescript, python, shell, ruby, php]
     if:

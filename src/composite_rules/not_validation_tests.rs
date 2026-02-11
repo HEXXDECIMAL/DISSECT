@@ -2,10 +2,15 @@
 
 #[cfg(test)]
 mod validation_tests {
-    use crate::composite_rules::{condition::NotException, Condition, TraitDefinition};
+    use crate::composite_rules::{
+        condition::NotException, Condition, ConditionWithFilters, TraitDefinition,
+    };
     use crate::types::Criticality;
 
-    fn create_test_trait(condition: Condition, not: Option<Vec<NotException>>) -> TraitDefinition {
+    fn create_test_trait(
+        condition: ConditionWithFilters,
+        not: Option<Vec<NotException>>,
+    ) -> TraitDefinition {
         TraitDefinition {
             id: "test".to_string(),
             desc: "Test trait".to_string(),
@@ -15,8 +20,6 @@ mod validation_tests {
             attack: None,
             platforms: vec![],
             r#for: vec![],
-            size_min: None,
-            size_max: None,
             r#if: condition,
             not,
             unless: None,
@@ -35,10 +38,6 @@ mod validation_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -50,7 +49,18 @@ mod validation_tests {
         };
 
         let not = vec![NotException::Shorthand("test".to_string())];
-        let trait_def = create_test_trait(cond, Some(not));
+        let trait_def = create_test_trait(
+            ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
+            Some(not),
+        );
 
         let warning = trait_def.check_not_field_usage();
         assert!(warning.is_some());
@@ -70,10 +80,6 @@ mod validation_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -85,7 +91,18 @@ mod validation_tests {
         };
 
         let not = vec![NotException::Shorthand("testing".to_string())];
-        let trait_def = create_test_trait(cond, Some(not));
+        let trait_def = create_test_trait(
+            ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
+            Some(not),
+        );
 
         let warning = trait_def.check_not_field_usage();
         assert!(
@@ -104,10 +121,6 @@ mod validation_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -119,7 +132,18 @@ mod validation_tests {
         };
 
         let not = vec![NotException::Shorthand("hurl".to_string())];
-        let trait_def = create_test_trait(cond, Some(not));
+        let trait_def = create_test_trait(
+            ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
+            Some(not),
+        );
 
         let warning = trait_def.check_not_field_usage();
         assert!(warning.is_some());
@@ -142,10 +166,6 @@ mod validation_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -161,7 +181,18 @@ mod validation_tests {
             substr: None,
             regex: None,
         }];
-        let trait_def = create_test_trait(cond, Some(not));
+        let trait_def = create_test_trait(
+            ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
+            Some(not),
+        );
 
         let warning = trait_def.check_not_field_usage();
         assert!(warning.is_none());
@@ -178,10 +209,6 @@ mod validation_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -197,7 +224,18 @@ mod validation_tests {
             substr: None,
             regex: None,
         }];
-        let trait_def = create_test_trait(cond, Some(not));
+        let trait_def = create_test_trait(
+            ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
+            Some(not),
+        );
 
         let warning = trait_def.check_not_field_usage();
         assert!(warning.is_some());
@@ -216,10 +254,6 @@ mod validation_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -235,7 +269,18 @@ mod validation_tests {
             substr: Some("testing".to_string()),
             regex: None,
         }];
-        let trait_def = create_test_trait(cond, Some(not));
+        let trait_def = create_test_trait(
+            ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
+            Some(not),
+        );
 
         let warning = trait_def.check_not_field_usage();
         assert!(warning.is_none());
@@ -252,10 +297,6 @@ mod validation_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -271,7 +312,18 @@ mod validation_tests {
             substr: Some("hurl".to_string()),
             regex: None,
         }];
-        let trait_def = create_test_trait(cond, Some(not));
+        let trait_def = create_test_trait(
+            ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
+            Some(not),
+        );
 
         let warning = trait_def.check_not_field_usage();
         assert!(warning.is_some());
@@ -289,10 +341,6 @@ mod validation_tests {
             word: None,
             case_insensitive: true,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -304,7 +352,18 @@ mod validation_tests {
         };
 
         let not = vec![NotException::Shorthand("TESTING".to_string())];
-        let trait_def = create_test_trait(cond, Some(not));
+        let trait_def = create_test_trait(
+            ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
+            Some(not),
+        );
 
         let warning = trait_def.check_not_field_usage();
         assert!(warning.is_none());
@@ -321,10 +380,6 @@ mod validation_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -336,7 +391,18 @@ mod validation_tests {
         };
 
         let not = vec![NotException::Shorthand("curl".to_string())];
-        let trait_def = create_test_trait(cond, Some(not));
+        let trait_def = create_test_trait(
+            ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
+            Some(not),
+        );
 
         let warning = trait_def.check_not_field_usage();
         assert!(warning.is_none());
@@ -353,10 +419,6 @@ mod validation_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -368,7 +430,18 @@ mod validation_tests {
         };
 
         let not = vec![NotException::Shorthand("hurl".to_string())];
-        let trait_def = create_test_trait(cond, Some(not));
+        let trait_def = create_test_trait(
+            ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
+            Some(not),
+        );
 
         let warning = trait_def.check_not_field_usage();
         assert!(warning.is_some());
@@ -388,10 +461,6 @@ mod validation_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -403,7 +472,18 @@ mod validation_tests {
         };
 
         let not = vec![NotException::Shorthand("testing".to_string())];
-        let trait_def = create_test_trait(cond, Some(not));
+        let trait_def = create_test_trait(
+            ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
+            Some(not),
+        );
 
         let warning = trait_def.check_not_field_usage();
         assert!(warning.is_some());
@@ -421,10 +501,6 @@ mod validation_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -435,7 +511,18 @@ mod validation_tests {
         };
 
         let not = vec![NotException::Shorthand("testing".to_string())];
-        let trait_def = create_test_trait(cond, Some(not));
+        let trait_def = create_test_trait(
+            ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
+            Some(not),
+        );
 
         let warning = trait_def.check_not_field_usage();
         assert!(warning.is_some());
@@ -452,10 +539,6 @@ mod validation_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -466,7 +549,18 @@ mod validation_tests {
         };
 
         let not = vec![NotException::Shorthand("test".to_string())];
-        let trait_def = create_test_trait(cond, Some(not));
+        let trait_def = create_test_trait(
+            ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
+            Some(not),
+        );
 
         let warning = trait_def.check_not_field_usage();
         assert!(warning.is_some());
@@ -483,10 +577,6 @@ mod validation_tests {
             regex: Some("test.*".to_string()),
             word: None,
             case_insensitive: false,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -497,7 +587,18 @@ mod validation_tests {
         };
 
         let not = vec![NotException::Shorthand("testing".to_string())];
-        let trait_def = create_test_trait(cond, Some(not));
+        let trait_def = create_test_trait(
+            ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
+            Some(not),
+        );
 
         let warning = trait_def.check_not_field_usage();
         assert!(warning.is_none());
@@ -515,7 +616,18 @@ mod validation_tests {
         };
 
         let not = vec![NotException::Shorthand("test".to_string())];
-        let trait_def = create_test_trait(cond, Some(not));
+        let trait_def = create_test_trait(
+            ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
+            Some(not),
+        );
 
         let warning = trait_def.check_not_field_usage();
         assert!(warning.is_some());
@@ -535,7 +647,18 @@ mod validation_tests {
         };
 
         let not = vec![NotException::Shorthand("testing".to_string())];
-        let trait_def = create_test_trait(cond, Some(not));
+        let trait_def = create_test_trait(
+            ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
+            Some(not),
+        );
 
         let warning = trait_def.check_not_field_usage();
         assert!(warning.is_none());
@@ -553,7 +676,18 @@ mod validation_tests {
         };
 
         let not = vec![NotException::Shorthand("hurl".to_string())];
-        let trait_def = create_test_trait(cond, Some(not));
+        let trait_def = create_test_trait(
+            ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
+            Some(not),
+        );
 
         let warning = trait_def.check_not_field_usage();
         assert!(warning.is_some());
@@ -574,7 +708,18 @@ mod validation_tests {
         };
 
         let not = vec![NotException::Shorthand("curl".to_string())];
-        let trait_def = create_test_trait(cond, Some(not));
+        let trait_def = create_test_trait(
+            ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
+            Some(not),
+        );
 
         let warning = trait_def.check_not_field_usage();
         assert!(warning.is_none());
@@ -592,7 +737,18 @@ mod validation_tests {
         };
 
         let not = vec![NotException::Shorthand("hurl".to_string())];
-        let trait_def = create_test_trait(cond, Some(not));
+        let trait_def = create_test_trait(
+            ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
+            Some(not),
+        );
 
         let warning = trait_def.check_not_field_usage();
         assert!(warning.is_some());
@@ -604,7 +760,7 @@ mod validation_tests {
 
 #[cfg(test)]
 mod criticality_tests {
-    use crate::composite_rules::{Condition, TraitDefinition};
+    use crate::composite_rules::{Condition, ConditionWithFilters, TraitDefinition};
     use crate::types::Criticality;
 
     #[test]
@@ -617,10 +773,6 @@ mod criticality_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -640,9 +792,15 @@ mod criticality_tests {
             attack: None,
             platforms: vec![],
             r#for: vec![],
-            size_min: None,
-            size_max: None,
-            r#if: cond,
+            r#if: ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
             not: None,
             unless: None,
             downgrade: None,
@@ -676,10 +834,6 @@ mod criticality_tests {
                 word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
-                count_min: 1,
-                count_max: None,
-                per_kb_min: None,
-                per_kb_max: None,
                 external_ip: false,
                 section: None,
                 offset: None,
@@ -699,9 +853,15 @@ mod criticality_tests {
                 attack: None,
                 platforms: vec![],
                 r#for: vec![],
-                size_min: None,
-                size_max: None,
-                r#if: cond,
+                r#if: ConditionWithFilters {
+                    condition: cond,
+                    size_min: None,
+                    size_max: None,
+                    count_min: None,
+                    count_max: None,
+                    per_kb_min: None,
+                    per_kb_max: None,
+                },
                 not: None,
                 unless: None,
                 downgrade: None,
@@ -717,7 +877,7 @@ mod criticality_tests {
 
 #[cfg(test)]
 mod constraint_tests {
-    use crate::composite_rules::{Condition, TraitDefinition};
+    use crate::composite_rules::{Condition, ConditionWithFilters, TraitDefinition};
     use crate::types::Criticality;
 
     #[test]
@@ -729,10 +889,6 @@ mod constraint_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -752,9 +908,15 @@ mod constraint_tests {
             attack: None,
             platforms: vec![],
             r#for: vec![],
-            size_min: None,
-            size_max: None,
-            r#if: cond,
+            r#if: ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
             not: None,
             unless: None,
             downgrade: None,
@@ -776,10 +938,6 @@ mod constraint_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -799,9 +957,15 @@ mod constraint_tests {
             attack: None,
             platforms: vec![],
             r#for: vec![],
-            size_min: None,
-            size_max: None,
-            r#if: cond,
+            r#if: ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
             not: None,
             unless: None,
             downgrade: None,
@@ -823,10 +987,6 @@ mod constraint_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -846,9 +1006,15 @@ mod constraint_tests {
             attack: None,
             platforms: vec![],
             r#for: vec![],
-            size_min: Some(1000),
-            size_max: Some(500),
-            r#if: cond,
+            r#if: ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
             not: None,
             unless: None,
             downgrade: None,
@@ -871,10 +1037,6 @@ mod constraint_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 10,
-            count_max: Some(5),
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -900,10 +1062,6 @@ mod constraint_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: Some(5.0),
-            per_kb_max: Some(2.0),
             external_ip: false,
             section: None,
             offset: None,
@@ -929,10 +1087,6 @@ mod constraint_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -959,10 +1113,6 @@ mod constraint_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: Some(10),
-            per_kb_min: Some(0.5),
-            per_kb_max: Some(5.0),
             external_ip: false,
             section: None,
             offset: None,
@@ -986,9 +1136,15 @@ mod constraint_tests {
             attack: None,
             platforms: vec![],
             r#for: vec![],
-            size_min: Some(100),
-            size_max: Some(1000),
-            r#if: cond,
+            r#if: ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
             not: None,
             unless: None,
             downgrade: None,
@@ -1003,7 +1159,7 @@ mod constraint_tests {
 
 #[cfg(test)]
 mod llm_validation_tests {
-    use crate::composite_rules::{Condition, TraitDefinition};
+    use crate::composite_rules::{Condition, ConditionWithFilters, TraitDefinition};
     use crate::types::Criticality;
 
     #[test]
@@ -1015,10 +1171,6 @@ mod llm_validation_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1043,10 +1195,6 @@ mod llm_validation_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1071,10 +1219,6 @@ mod llm_validation_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1099,10 +1243,6 @@ mod llm_validation_tests {
             word: Some("x".to_string()),
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1127,10 +1267,6 @@ mod llm_validation_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1158,10 +1294,6 @@ mod llm_validation_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1185,10 +1317,6 @@ mod llm_validation_tests {
             word: Some("test-pattern".to_string()),
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1213,10 +1341,6 @@ mod llm_validation_tests {
             word: Some("testpattern".to_string()),
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1240,10 +1364,6 @@ mod llm_validation_tests {
             word: None,
             case_insensitive: true,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1268,10 +1388,6 @@ mod llm_validation_tests {
             word: None,
             case_insensitive: true,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1295,10 +1411,6 @@ mod llm_validation_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 0,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1323,10 +1435,6 @@ mod llm_validation_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1350,10 +1458,6 @@ mod llm_validation_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1373,9 +1477,15 @@ mod llm_validation_tests {
             attack: None,
             platforms: vec![],
             r#for: vec![],
-            size_min: None,
-            size_max: None,
-            r#if: cond,
+            r#if: ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
             not: None,
             unless: None,
             downgrade: None,
@@ -1399,10 +1509,6 @@ mod llm_validation_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1422,9 +1528,15 @@ mod llm_validation_tests {
             attack: None,
             platforms: vec![],
             r#for: vec![],
-            size_min: None,
-            size_max: None,
-            r#if: cond,
+            r#if: ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
             not: None,
             unless: None,
             downgrade: None,
@@ -1448,10 +1560,6 @@ mod llm_validation_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1471,9 +1579,15 @@ mod llm_validation_tests {
             attack: None,
             platforms: vec![],
             r#for: vec![],
-            size_min: None,
-            size_max: None,
-            r#if: cond,
+            r#if: ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
             not: None,
             unless: None,
             downgrade: None,
@@ -1495,10 +1609,6 @@ mod llm_validation_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1518,9 +1628,15 @@ mod llm_validation_tests {
             attack: None,
             platforms: vec![],
             r#for: vec![],
-            size_min: None,
-            size_max: None,
-            r#if: cond,
+            r#if: ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
             not: None,
             unless: None,
             downgrade: None,
@@ -1541,10 +1657,6 @@ mod llm_validation_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1564,9 +1676,15 @@ mod llm_validation_tests {
             attack: None,
             platforms: vec![],
             r#for: vec![],
-            size_min: None,
-            size_max: None,
-            r#if: cond,
+            r#if: ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
             not: Some(vec![]),
             unless: None,
             downgrade: None,
@@ -1588,10 +1706,6 @@ mod llm_validation_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1611,9 +1725,15 @@ mod llm_validation_tests {
             attack: None,
             platforms: vec![],
             r#for: vec![],
-            size_min: None,
-            size_max: None,
-            r#if: cond,
+            r#if: ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
             not: None,
             unless: Some(vec![]),
             downgrade: None,

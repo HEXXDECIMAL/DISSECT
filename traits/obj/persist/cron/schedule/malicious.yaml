@@ -8,7 +8,7 @@ traits:
   # Cron paths
   - id: crontab-dash
     desc: crontab command with dash
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -17,7 +17,7 @@ traits:
   # Download cradles
   - id: curl-silent
     desc: curl -s (silent mode)
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -25,7 +25,7 @@ traits:
 
   - id: wget-quiet
     desc: wget -q (quiet mode)
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -33,7 +33,7 @@ traits:
 
   - id: wget-stdout
     desc: wget -O - (output to
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -42,7 +42,7 @@ traits:
   # Base64 decode
   - id: base64-d
     desc: base64 -d decode
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -50,7 +50,7 @@ traits:
 
   - id: base64-decode-flag
     desc: base64 --decode long form
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -59,7 +59,7 @@ traits:
   # Hidden file paths
   - id: tmp-hidden
     desc: Hidden file in /tmp
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -67,7 +67,7 @@ traits:
 
   - id: var-tmp-hidden
     desc: Hidden file in /var/tmp
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -75,7 +75,7 @@ traits:
 
   - id: dev-shm-hidden
     desc: Hidden file in /dev/shm
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string

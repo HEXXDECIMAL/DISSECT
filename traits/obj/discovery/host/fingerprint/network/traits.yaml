@@ -1,18 +1,11 @@
 # Network Interface Fingerprinting (MAC addresses)
 # ATT&CK: T1082 (System Information Discovery)
+# NOTE: Neutral /sys/class/net path moved to cap/os/network/interface/
 
 defaults:
   attack: "T1082"
 
 traits:
-  # === Network interface micro-traits ===
-  - id: sys-class-net
-    desc: /sys/class/net/ path
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      substr: "/sys/class/net/"
 
   - id: hwaddr
     desc: HWaddr MAC prefix
@@ -54,7 +47,7 @@ composite_rules:
     crit: notable
     conf: 0.75
     any:
-      - id: sys-class-net
+      - id: cap/os/network/interface::sys-class-net
       - id: hwaddr
       - id: ether-prefix
       - id: getifaddrs-func

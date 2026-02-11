@@ -177,11 +177,7 @@ fn score_condition(condition: &Condition) -> f32 {
         Condition::Yara { source, .. } => {
             score += score_regex_value(source);
         }
-        Condition::Syscall {
-            name,
-            number,
-            arch,
-        } => {
+        Condition::Syscall { name, number, arch } => {
             if let Some(names) = name {
                 for value in names {
                     score += score_string_value(value);
@@ -208,11 +204,7 @@ fn score_condition(condition: &Condition) -> f32 {
             score += score_presence(min.as_ref());
             score += score_presence(max.as_ref());
         }
-        Condition::SectionEntropy {
-            section,
-            min,
-            max,
-        } => {
+        Condition::SectionEntropy { section, min, max } => {
             score += score_regex_value(section);
             score += score_presence(min.as_ref());
             score += score_presence(max.as_ref());
@@ -774,133 +766,125 @@ pub(crate) fn find_duplicate_traits_and_composites(
     composite_rules: &[CompositeTrait],
     warnings: &mut Vec<String>,
 ) {
-    // TEMPORARY: Disable duplicate detection to test if this is the bottleneck
-    tracing::warn!("Duplicate detection temporarily disabled for performance testing");
-    return;
+    use rayon::prelude::*;
+    use std::sync::Mutex;
 
-    #[allow(unreachable_code)]
-    {
-        use rayon::prelude::*;
-        use std::sync::Mutex;
+    let start = std::time::Instant::now();
 
-        let start = std::time::Instant::now();
+    // Pass 1: Detect duplicate atomic traits using bincode serialization
+    if !trait_definitions.is_empty() {
+        tracing::debug!(
+            "Starting atomic trait duplicate detection for {} traits",
+            trait_definitions.len()
+        );
+        let serialize_start = std::time::Instant::now();
+        let trait_map: Mutex<HashMap<Vec<u8>, Vec<String>>> = Mutex::new(HashMap::default());
 
-        // Pass 1: Detect duplicate atomic traits using bincode serialization
-        if !trait_definitions.is_empty() {
-            tracing::debug!(
-                "Starting atomic trait duplicate detection for {} traits",
-                trait_definitions.len()
-            );
-            let serialize_start = std::time::Instant::now();
-            let trait_map: Mutex<HashMap<Vec<u8>, Vec<String>>> = Mutex::new(HashMap::default());
-
-            trait_definitions.par_iter().for_each(|t| {
-                // Use bincode for fast serialization (10-100x faster than Debug formatting)
-                // Automatically skips #[serde(skip)] fields (like compiled_regex)
-                if let Ok(key) = bincode::serialize(&(
-                    &t.r#if,
-                    &t.platforms,
-                    &t.r#for,
-                    &t.r#if.size_min,
-                    &t.r#if.size_max,
-                    &t.not,
-                    &t.unless,
-                )) {
-                    trait_map
-                        .lock()
-                        .unwrap()
-                        .entry(key)
-                        .or_default()
-                        .push(t.id.clone());
-                }
-            });
-
-            tracing::debug!(
-                "Atomic trait serialization took {:?}",
-                serialize_start.elapsed()
-            );
-
-            let check_start = std::time::Instant::now();
-            for (_sig, ids) in trait_map.into_inner().unwrap() {
-                if ids.len() > 1 {
-                    warnings.push(format!(
-                        "Duplicate atomic traits detected (same search parameters): {}",
-                        ids.join(", ")
-                    ));
-                }
+        trait_definitions.par_iter().for_each(|t| {
+            // Use bincode for fast serialization (10-100x faster than Debug formatting)
+            // Automatically skips #[serde(skip)] fields (like compiled_regex)
+            if let Ok(key) = bincode::serialize(&(
+                &t.r#if,
+                &t.platforms,
+                &t.r#for,
+                &t.r#if.size_min,
+                &t.r#if.size_max,
+                &t.not,
+                &t.unless,
+            )) {
+                trait_map
+                    .lock()
+                    .unwrap()
+                    .entry(key)
+                    .or_default()
+                    .push(t.id.clone());
             }
-            tracing::debug!(
-                "Atomic trait duplicate check took {:?}",
-                check_start.elapsed()
-            );
-            tracing::debug!(
-                "Total atomic trait processing took {:?}",
-                serialize_start.elapsed()
-            );
-        }
+        });
 
-        // Pass 2: Detect duplicate composite rules using bincode + parallel processing
-        if !composite_rules.is_empty() {
-            tracing::debug!(
-                "Starting composite rule duplicate detection for {} rules",
-                composite_rules.len()
-            );
-            let composite_start = std::time::Instant::now();
-            let composite_map: Mutex<HashMap<Vec<u8>, Vec<String>>> =
-                Mutex::new(HashMap::default());
+        tracing::debug!(
+            "Atomic trait serialization took {:?}",
+            serialize_start.elapsed()
+        );
 
-            composite_rules.par_iter().for_each(|r| {
-                // Skip rules with no conditions
-                if r.all.is_none() && r.any.is_none() && r.none.is_none() && r.unless.is_none() {
-                    return;
-                }
-
-                // Use bincode for fast serialization
-                if let Ok(key) = bincode::serialize(&(
-                    &r.all,
-                    &r.any,
-                    &r.none,
-                    &r.unless,
-                    &r.needs,
-                    &r.r#for,
-                    &r.platforms,
-                    &r.size_min,
-                    &r.size_max,
-                )) {
-                    composite_map
-                        .lock()
-                        .unwrap()
-                        .entry(key)
-                        .or_default()
-                        .push(r.id.clone());
-                }
-            });
-
-            tracing::debug!(
-                "Composite rule serialization took {:?}",
-                composite_start.elapsed()
-            );
-            let composite_check_start = std::time::Instant::now();
-            for (_sig, ids) in composite_map.into_inner().unwrap() {
-                if ids.len() > 1 {
-                    warnings.push(format!(
-                        "Duplicate composite rules detected (same conditions): {}",
-                        ids.join(", ")
-                    ));
-                }
+        let check_start = std::time::Instant::now();
+        for (_sig, ids) in trait_map.into_inner().unwrap() {
+            if ids.len() > 1 {
+                warnings.push(format!(
+                    "Duplicate atomic traits detected (same search parameters): {}",
+                    ids.join(", ")
+                ));
             }
-            tracing::debug!(
-                "Composite rule duplicate check took {:?}",
-                composite_check_start.elapsed()
-            );
-            tracing::debug!(
-                "Total composite rule processing took {:?}",
-                composite_start.elapsed()
-            );
         }
-
-        tracing::debug!("Total duplicate detection took {:?}", start.elapsed());
+        tracing::debug!(
+            "Atomic trait duplicate check took {:?}",
+            check_start.elapsed()
+        );
+        tracing::debug!(
+            "Total atomic trait processing took {:?}",
+            serialize_start.elapsed()
+        );
     }
+
+    // Pass 2: Detect duplicate composite rules using bincode + parallel processing
+    if !composite_rules.is_empty() {
+        tracing::debug!(
+            "Starting composite rule duplicate detection for {} rules",
+            composite_rules.len()
+        );
+        let composite_start = std::time::Instant::now();
+        let composite_map: Mutex<HashMap<Vec<u8>, Vec<String>>> = Mutex::new(HashMap::default());
+
+        composite_rules.par_iter().for_each(|r| {
+            // Skip rules with no conditions
+            if r.all.is_none() && r.any.is_none() && r.none.is_none() && r.unless.is_none() {
+                return;
+            }
+
+            // Use bincode for fast serialization
+            if let Ok(key) = bincode::serialize(&(
+                &r.all,
+                &r.any,
+                &r.none,
+                &r.unless,
+                &r.needs,
+                &r.r#for,
+                &r.platforms,
+                &r.size_min,
+                &r.size_max,
+            )) {
+                composite_map
+                    .lock()
+                    .unwrap()
+                    .entry(key)
+                    .or_default()
+                    .push(r.id.clone());
+            }
+        });
+
+        tracing::debug!(
+            "Composite rule serialization took {:?}",
+            composite_start.elapsed()
+        );
+        let composite_check_start = std::time::Instant::now();
+        for (_sig, ids) in composite_map.into_inner().unwrap() {
+            if ids.len() > 1 {
+                warnings.push(format!(
+                    "Duplicate composite rules detected (same conditions): {}",
+                    ids.join(", ")
+                ));
+            }
+        }
+        tracing::debug!(
+            "Composite rule duplicate check took {:?}",
+            composite_check_start.elapsed()
+        );
+        tracing::debug!(
+            "Total composite rule processing took {:?}",
+            composite_start.elapsed()
+        );
+    }
+
+    tracing::debug!("Total duplicate detection took {:?}", start.elapsed());
 }
 
 /// Helper function to check if two file type lists have any overlap
@@ -1830,7 +1814,14 @@ pub(crate) fn find_alternation_merge_candidates(
             // Create key including directory so we only group traits from the same directory
             let key = format!(
                 "{}:{:?}:{:?}:{:?}:{:?}:{:?}:{:?}:{:?}",
-                directory, t.crit, t.r#for, t.platforms, t.r#if.size_min, t.r#if.size_max, t.not, t.unless
+                directory,
+                t.crit,
+                t.r#for,
+                t.platforms,
+                t.r#if.size_min,
+                t.r#if.size_max,
+                t.not,
+                t.unless
             );
             groups.entry(key).or_default().push((t.id.clone(), regex));
         }

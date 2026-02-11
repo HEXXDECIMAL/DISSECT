@@ -31,7 +31,7 @@ traits:
   # === JSON Parse ===
   - id: json-parse
     desc: JSON parsing
-    crit: inert
+    crit: notable
     conf: 0.80
     attack: "T1190"
     if:
@@ -41,7 +41,7 @@ traits:
   # === Timestamp Validation ===
   - id: timestamp-validation
     desc: Timestamp validation check
-    crit: inert
+    crit: notable
     conf: 0.75
     attack: "T1070"
     if:
@@ -61,7 +61,7 @@ traits:
   # === Thread Background Execution ===
   - id: thread-background
     desc: Background thread execution
-    crit: inert
+    crit: notable
     conf: 0.80
     attack: "T1059"
     if:
@@ -72,7 +72,7 @@ traits:
   # Note: Uses AST to match Ruby sleep calls specifically, not binary symbols
   - id: sleep-timer
     desc: Sleep/delay timer
-    crit: inert
+    crit: notable
     conf: 0.65
     attack: "T1029"
     if:

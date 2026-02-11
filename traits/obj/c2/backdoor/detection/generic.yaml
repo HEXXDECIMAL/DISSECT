@@ -77,7 +77,7 @@ traits:
 
   - id: reverse-keyword
     desc: Reverse keyword reference
-    crit: inert
+    crit: notable
     conf: 0.3
     platforms: [all]
     if:

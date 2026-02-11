@@ -5,7 +5,7 @@ traits:
   # === OOB domain atomic indicators ===
   - id: interactsh-domain
     desc: Interactsh OOB domain
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1048"
     for: [all]
@@ -15,7 +15,7 @@ traits:
 
   - id: burpcollaborator-domain
     desc: Burp Collaborator OOB domain
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1048"
     for: [all]
@@ -25,7 +25,7 @@ traits:
 
   - id: oastify-domain
     desc: Oastify OOB domain
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1048"
     for: [all]
@@ -35,7 +35,7 @@ traits:
 
   - id: oast-fun-domain
     desc: OAST.fun OOB domain
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1048"
     for: [all]
@@ -45,7 +45,7 @@ traits:
 
   - id: pipedream-domain
     desc: Pipedream OOB domain
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1048"
     for: [all]
@@ -56,7 +56,7 @@ traits:
   # === Ngrok atomic indicators ===
   - id: ngrok-tcp
     desc: Ngrok TCP tunnel
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1572"
     for: [all]
@@ -66,7 +66,7 @@ traits:
 
   - id: ngrok-http
     desc: Ngrok HTTP tunnel
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1572"
     for: [all]
@@ -76,7 +76,7 @@ traits:
 
   - id: ngrok-https
     desc: Ngrok HTTPS tunnel
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1572"
     for: [all]
@@ -107,7 +107,7 @@ traits:
   # === Requestbin atomic indicators ===
   - id: requestbin-com
     desc: RequestBin.com OOB endpoint
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1048"
     for: [all]
@@ -117,7 +117,7 @@ traits:
 
   - id: requestbin-net
     desc: RequestBin.net OOB endpoint
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1048"
     for: [all]
@@ -220,7 +220,7 @@ traits:
   # === NPM preinstall atomic indicators ===
   - id: npm-preinstall-script
     desc: NPM preinstall script entry in
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript]
     if:

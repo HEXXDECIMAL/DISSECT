@@ -100,7 +100,7 @@ traits:
   # === Password dialog atomic indicators ===
   - id: dialog-password
     desc: display dialog with password
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1056.002"
     if:
@@ -109,7 +109,7 @@ traits:
 
   - id: default-answer-password
     desc: default answer password prompt
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1056.002"
     if:
@@ -118,7 +118,7 @@ traits:
 
   - id: icon-caution-button
     desc: icon caution with button
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1056.002"
     if:
@@ -127,7 +127,7 @@ traits:
 
   - id: icon-stop-button
     desc: icon stop with button
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1056.002"
     if:
@@ -136,7 +136,7 @@ traits:
 
   - id: icon-note-button
     desc: icon note with button
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1056.002"
     if:
@@ -145,7 +145,7 @@ traits:
 
   - id: dialog-enter-password
     desc: display dialog enter password
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1056.002"
     if:

@@ -56,7 +56,7 @@ traits:
   # NOT conditions in composite rules yet.
   - id: setup-py-exec-yara-core
     desc: "setup.py exec/network markers (YARA)"
-    crit: inert
+    crit: notable
     conf: 0.95
     if:
       type: yara
@@ -112,7 +112,7 @@ traits:
   # patterns (pypi.org, readthedocs, github.com, setup tools, etc.)
   - id: init-py-exec-yara-core
     desc: "__init__.py with immediate code execution (YARA core)"
-    crit: inert
+    crit: notable
     conf: 0.9
     mbc: "B0030"
     if:

@@ -27,7 +27,7 @@ traits:
   # === ifconfig/ip atomic indicators ===
   - id: exec-ifconfig
     desc: execSync ifconfig command
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1016"
     for: [javascript, typescript]
@@ -37,7 +37,7 @@ traits:
 
   - id: exec-ip-addr
     desc: execSync ip addr command
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1016"
     for: [javascript, typescript]
@@ -47,7 +47,7 @@ traits:
 
   - id: exec-ip-a
     desc: execSync ip a command
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1016"
     for: [javascript, typescript]
@@ -77,7 +77,7 @@ traits:
 
   - id: pwd
     desc: Shell pwd command execution
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1083"
     for: [javascript, typescript]

@@ -9,7 +9,7 @@ traits:
   # === Memory protection (atomic) ===
   - id: mprotect-unix
     desc: Unix mprotect system call
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -17,7 +17,7 @@ traits:
 
   - id: virtualprotect-win
     desc: Windows VirtualProtect API
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -25,7 +25,7 @@ traits:
 
   - id: virtualprotectex-win
     desc: Windows VirtualProtectEx API
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -33,7 +33,7 @@ traits:
 
   - id: prot-write
     desc: PROT_WRITE memory protection constant
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -41,7 +41,7 @@ traits:
 
   - id: prot-exec
     desc: PROT_EXEC memory protection constant
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -66,7 +66,7 @@ traits:
 
   - id: proc-self-maps
     desc: /proc/self/maps memory map access
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -148,7 +148,7 @@ traits:
   # NOTE: Go runtime uses trampolines legitimately for function calls
   - id: trampoline-ref
     desc: Trampoline hook terminology
-    crit: inert
+    crit: notable
     conf: 0.3
     if:
       type: string
@@ -174,7 +174,7 @@ traits:
   # === IAT/GOT hooking (atomic) ===
   - id: import-descriptor
     desc: PE IMAGE_IMPORT_DESCRIPTOR structure
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -182,7 +182,7 @@ traits:
 
   - id: import-address-table
     desc: Import Address Table reference
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -190,7 +190,7 @@ traits:
 
   - id: iat-ref
     desc: IAT abbreviation reference
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string
@@ -198,7 +198,7 @@ traits:
 
   - id: got-plt-section
     desc: ELF .got.plt section reference
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -206,7 +206,7 @@ traits:
 
   - id: got-ref
     desc: GOT abbreviation reference
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string
@@ -220,7 +220,7 @@ traits:
   # Only flag as suspicious in malware-specific context
   - id: polymorphic-ref
     desc: Polymorphic code terminology
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [binaries, javascript, typescript]
     if:
@@ -251,7 +251,7 @@ traits:
   # indicators in the polymorphic composite.
   - id: xor-loop-pattern
     desc: XOR decryption loop byte pattern
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: hex

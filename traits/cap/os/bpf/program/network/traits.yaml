@@ -82,19 +82,11 @@ traits:
       regex: "\\b(knock|port|packet)[_-]?sequence\\b"
       case_insensitive: true
 
-  # NOTE: dup2 and execve are defined in their canonical locations:
+  # NOTE: dup2, execve, and protocol constants are defined in their canonical locations:
   # - cap/process/fd/dup::dup2
   # - cap/exec/command/shell/c-execve
+  # - cap/comm/ip/services::ipproto-icmp
   # Composite rules below reference them using full paths.
-
-  - id: ipproto-icmp
-    desc: IPPROTO_ICMP protocol
-    crit: notable
-    conf: 0.6
-    for: [elf, c]
-    if:
-      type: string
-      substr: "IPPROTO_ICMP"
 
   - id: ipproto-udp
     desc: IPPROTO_UDP protocol

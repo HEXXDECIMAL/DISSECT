@@ -1,7 +1,7 @@
 traits:
 - id: getenv-api
   desc: Environment variable access
-  crit: inert
+  crit: notable
   conf: 0.5
   platforms:
   - windows
@@ -29,7 +29,7 @@ traits:
   mbc: B0001
 - id: write-console-api
   desc: Console output capability
-  crit: inert
+  crit: notable
   conf: 0.5
   platforms:
   - windows

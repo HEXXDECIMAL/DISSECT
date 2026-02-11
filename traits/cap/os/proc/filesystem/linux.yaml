@@ -1,44 +1,6 @@
 # Process Information Discovery (Linux)
 # MBC: E1083 (File and Directory Discovery)
 # ATT&CK: T1083
+# NOTE: /proc/self/* traits moved to cap/fs/proc/info/linux
 
 traits:
-  - id: proc-self-exe
-    desc: Reference to /proc/self/exe (own executable)
-    crit: notable
-    conf: 0.5
-    for: [elf]
-    platforms: [linux]
-    if:
-      type: string
-      substr: "/proc/self/exe"
-
-  - id: proc-self-maps
-    desc: Reference to /proc/self/maps (memory layout)
-    crit: notable
-    conf: 0.5
-    for: [elf]
-    platforms: [linux]
-    if:
-      type: string
-      substr: "/proc/self/maps"
-
-  - id: proc-self-mem
-    desc: Reference to /proc/self/mem (process memory)
-    crit: notable
-    conf: 0.5
-    for: [elf]
-    platforms: [linux]
-    if:
-      type: string
-      substr: "/proc/self/mem"
-
-  - id: proc-self-cmdline
-    desc: Reference to /proc/self/cmdline
-    crit: notable
-    conf: 0.5
-    for: [elf]
-    platforms: [linux]
-    if:
-      type: string
-      substr: "/proc/self/cmdline"

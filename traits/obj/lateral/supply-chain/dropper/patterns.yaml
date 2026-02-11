@@ -6,7 +6,7 @@ traits:
   # === Temp directory atomics ===
   - id: process-env-temp
     desc: process.env.TEMP reference
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -15,7 +15,7 @@ traits:
 
   - id: process-env-tmp
     desc: process.env.TMP reference
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -24,7 +24,7 @@ traits:
 
   - id: os-tmpdir
     desc: os.tmpdir() call
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -33,7 +33,7 @@ traits:
 
   - id: tmp-slash
     desc: /tmp/ path
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [javascript, typescript]
     if:
@@ -43,7 +43,7 @@ traits:
   # === Spawn/exec atomics ===
   - id: spawn-paren
     desc: spawn() call
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -52,7 +52,7 @@ traits:
 
   - id: execfile-paren
     desc: execFile() call
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -62,7 +62,7 @@ traits:
   # === Python exec atomic indicators ===
   - id: py-os-system
     desc: os.system() call
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1059"
     for: [python]
@@ -72,7 +72,7 @@ traits:
 
   - id: py-subprocess
     desc: subprocess module
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1059"
     for: [python]
@@ -220,7 +220,7 @@ traits:
   # === Base64 buffer atomic indicators ===
   - id: buffer-from-base64
     desc: Buffer.from with base64
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -229,7 +229,7 @@ traits:
 
   - id: atob-call
     desc: atob() call
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -238,7 +238,7 @@ traits:
 
   - id: btoa-call
     desc: btoa() call
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -338,7 +338,7 @@ traits:
   # === WScript/XMLHTTP atomic indicators ===
   - id: msxml2-xmlhttp
     desc: MSXML2.XMLHTTP object
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript]
     if:
@@ -347,7 +347,7 @@ traits:
 
   - id: microsoft-xmlhttp
     desc: Microsoft.XMLHTTP object
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript]
     if:
@@ -394,7 +394,7 @@ traits:
   # === MSXml2 Base64 atomic indicators ===
   - id: msxml2-base64
     desc: MSXml2 Base64 reference
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -402,7 +402,7 @@ traits:
 
   - id: bin-base64
     desc: bin.base64 reference
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -429,7 +429,7 @@ traits:
   # === Appdata atomic indicators ===
   - id: appdata-single
     desc: "%appdata% reference"
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -437,7 +437,7 @@ traits:
 
   - id: appdata-double
     desc: "%%appdata%% reference"
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string

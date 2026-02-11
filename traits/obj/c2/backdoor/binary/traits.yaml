@@ -59,7 +59,7 @@ traits:
 
   - id: lzma-crc64-table
     desc: lzma_crc64_table reference
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string
@@ -67,7 +67,7 @@ traits:
 
   - id: lzma-crc64
     desc: lzma_crc64 reference
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string
@@ -98,7 +98,7 @@ traits:
   # === SSH/Auth hooking patterns ===
   - id: libsystemd-ref
     desc: libsystemd reference
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string
@@ -191,7 +191,7 @@ composite_rules:
   # is not suspicious - it needs additional context like XZ-specific patterns.
   - id: xz-ifunc-pattern
     desc: IFUNC resolver pattern (potential function
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [elf]
     all:

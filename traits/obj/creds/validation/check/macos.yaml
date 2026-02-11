@@ -32,7 +32,7 @@ traits:
   # === dscl read atomic indicators ===
   - id: dscl-dot-read
     desc: dscl . read command
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1087.001"
     if:
@@ -41,7 +41,7 @@ traits:
 
   - id: dscl-flag-read
     desc: dscl -read flag
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1087.001"
     if:
@@ -51,7 +51,7 @@ traits:
   # === dscl list atomic indicators ===
   - id: dscl-dot-list
     desc: dscl . list command
-    crit: inert
+    crit: notable
     conf: 0.55
     attack: "T1087.001"
     if:
@@ -60,7 +60,7 @@ traits:
 
   - id: dscl-flag-list
     desc: dscl . -list command
-    crit: inert
+    crit: notable
     conf: 0.55
     attack: "T1087.001"
     if:
@@ -72,7 +72,7 @@ traits:
   # === Shadow password atomic indicators ===
   - id: dslocal-db
     desc: /var/db/dslocal directory
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1003.008"
     if:
@@ -81,7 +81,7 @@ traits:
 
   - id: shadow-hash-data
     desc: ShadowHashData reference
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1003.008"
     if:

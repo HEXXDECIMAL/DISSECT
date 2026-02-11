@@ -9,7 +9,7 @@ traits:
   # Environment variables
   - id: env-bracket-access
     desc: ENV bracket access
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -17,7 +17,7 @@ traits:
 
   - id: env-fetch
     desc: ENV.fetch method
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: symbol
@@ -26,7 +26,7 @@ traits:
   # Process info
   - id: process-pid
     desc: Process.pid method
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: symbol
@@ -34,7 +34,7 @@ traits:
 
   - id: process-ppid
     desc: Process.ppid method
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: symbol
@@ -42,7 +42,7 @@ traits:
 
   - id: process-uid
     desc: Process.uid method
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: symbol
@@ -50,7 +50,7 @@ traits:
 
   - id: process-gid
     desc: Process.gid method
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: symbol

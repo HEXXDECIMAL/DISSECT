@@ -147,7 +147,7 @@ traits:
   # === Python interpreter atomic indicators ===
   - id: python-c-flag
     desc: python -c flag
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -155,7 +155,7 @@ traits:
 
   - id: python-stdin-flag
     desc: python stdin flag
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -164,7 +164,7 @@ traits:
   # === Node interpreter atomic indicators ===
   - id: node-e-flag
     desc: node -e flag
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -172,7 +172,7 @@ traits:
 
   - id: node-eval-flag
     desc: node --eval flag
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -183,7 +183,7 @@ traits:
   # exec call
   - id: exec-call
     desc: Process exec call
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -400,7 +400,7 @@ traits:
 
   - id: express-dep
     desc: express dependency
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript, all]
     if:

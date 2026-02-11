@@ -34,7 +34,7 @@ traits:
   # === XDP Packet Structures ===
   - id: xdp-md-struct
     desc: struct xdp_md packet context
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [c, elf]
     if:
@@ -43,7 +43,7 @@ traits:
 
   - id: xdp-data-end
     desc: XDP data_end pointer
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [c, elf]
     if:
@@ -52,7 +52,7 @@ traits:
 
   - id: xdp-iph
     desc: IP header struct reference
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [c, elf]
     if:
@@ -61,7 +61,7 @@ traits:
 
   - id: xdp-tcph
     desc: TCP header struct reference
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [c, elf]
     if:
@@ -72,7 +72,7 @@ traits:
   # Only meaningful in XDP/eBPF context with other XDP indicators.
   - id: xdp-payload
     desc: Packet payload reference
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [c]
     if:
@@ -150,7 +150,7 @@ traits:
 
   - id: hide-string
     desc: Hide string reference
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -159,7 +159,7 @@ traits:
 
   - id: bypass-string
     desc: Bypass string reference
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -170,7 +170,7 @@ traits:
   # The composite rules that need this should reference feat/intent/patch-code
   # - id: patch-string
   #   desc: Patch string reference
-  #   crit: inert
+  #   crit: notable
   #   conf: 0.5
   #   for: [c, elf, go]
   #   if:
@@ -203,7 +203,7 @@ traits:
 
   - id: d-reclen
     desc: d_reclen dirent field
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [c, elf]
     if:
@@ -222,7 +222,7 @@ traits:
 
   - id: password-string
     desc: Password string reference
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [c, elf]
     if:
@@ -265,7 +265,7 @@ traits:
   # Restricted to C source files where it indicates eBPF program development.
   - id: http-string
     desc: HTTP packet manipulation marker
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [c]
     if:
@@ -317,7 +317,7 @@ composite_rules:
   # Helper: any eBPF-related indicator
   - id: ebpf-indicator
     desc: eBPF-related markers
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [c, elf]
     any:

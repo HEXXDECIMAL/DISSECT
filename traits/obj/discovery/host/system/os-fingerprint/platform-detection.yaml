@@ -38,7 +38,7 @@ traits:
   # === OS String Checks ===
   - id: os-check-windows
     desc: Windows OS detection string
-    crit: inert
+    crit: notable
     conf: 0.60
     if:
       type: string
@@ -46,7 +46,7 @@ traits:
 
   - id: os-check-linux
     desc: Linux OS detection string
-    crit: inert
+    crit: notable
     conf: 0.60
     if:
       type: string
@@ -54,7 +54,7 @@ traits:
 
   - id: os-check-darwin
     desc: Darwin/macOS detection string
-    crit: inert
+    crit: notable
     conf: 0.60
     if:
       type: string
@@ -80,7 +80,7 @@ traits:
   # === OS-Specific Tool Detection ===
   - id: windows-ipconfig
     desc: Windows ipconfig command
-    crit: inert
+    crit: notable
     conf: 0.50
     if:
       type: string
@@ -88,7 +88,7 @@ traits:
 
   - id: unix-ifconfig
     desc: Unix ifconfig command
-    crit: inert
+    crit: notable
     conf: 0.50
     if:
       type: string

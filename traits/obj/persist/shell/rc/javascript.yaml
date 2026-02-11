@@ -5,7 +5,7 @@ traits:
   # === Shell profile source atomic indicators ===
   - id: source-bashrc
     desc: source .bashrc
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript]
     if:
@@ -14,7 +14,7 @@ traits:
 
   - id: source-bash-profile
     desc: source .bash_profile
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript]
     if:
@@ -23,7 +23,7 @@ traits:
 
   - id: source-profile
     desc: source .profile
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript]
     if:
@@ -32,7 +32,7 @@ traits:
 
   - id: source-zshrc
     desc: source .zshrc
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript]
     if:

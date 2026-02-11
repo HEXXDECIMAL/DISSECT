@@ -9,7 +9,7 @@ traits:
   # === Extended attribute manipulation ===
   - id: security-selinux-xattr
     desc: security.selinux extended attribute
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [c, elf, shell]
     if:
@@ -18,7 +18,7 @@ traits:
 
   - id: setxattr-symbol
     desc: setxattr function
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [elf]
     if:
@@ -27,7 +27,7 @@ traits:
 
   - id: fsetxattr-symbol
     desc: fsetxattr function
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [elf]
     if:
@@ -36,7 +36,7 @@ traits:
 
   - id: lsetxattr-symbol
     desc: lsetxattr function
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [elf]
     if:
@@ -45,7 +45,7 @@ traits:
 
   - id: setxattr-command
     desc: setxattr command reference
-    crit: inert
+    crit: notable
     conf: 0.65
     for: [shell, c]
     if:
@@ -55,7 +55,7 @@ traits:
   # === Unconfined context labels ===
   - id: unconfined-u-label
     desc: unconfined_u SELinux user
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [shell, c, elf]
     if:
@@ -64,7 +64,7 @@ traits:
 
   - id: unconfined-r-label
     desc: unconfined_r SELinux role
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [shell, c, elf]
     if:
@@ -73,7 +73,7 @@ traits:
 
   - id: unconfined-t-label
     desc: unconfined_t SELinux type
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [shell, c, elf]
     if:
@@ -82,7 +82,7 @@ traits:
 
   - id: object-r-label
     desc: object_r SELinux role
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [shell, c, elf]
     if:
@@ -92,7 +92,7 @@ traits:
   # === Enforcement mode commands ===
   - id: setenforce-command
     desc: setenforce command
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [shell]
     if:
@@ -101,7 +101,7 @@ traits:
 
   - id: getenforce-command
     desc: getenforce command
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [shell]
     if:
@@ -110,7 +110,7 @@ traits:
 
   - id: selinux-enforce-sysfs
     desc: /sys/fs/selinux/enforce path
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [shell, c, elf]
     if:
@@ -119,7 +119,7 @@ traits:
 
   - id: selinux-enforce-legacy
     desc: /selinux/enforce legacy path
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [shell, c, elf]
     if:
@@ -128,7 +128,7 @@ traits:
 
   - id: permissive-keyword
     desc: Permissive mode keyword
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [shell, c, elf]
     if:
@@ -138,7 +138,7 @@ traits:
   # === Policy manipulation commands ===
   - id: load-policy-command
     desc: load_policy command
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [shell]
     if:
@@ -147,7 +147,7 @@ traits:
 
   - id: semodule-command
     desc: semodule command
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [shell]
     if:
@@ -156,7 +156,7 @@ traits:
 
   - id: selinux-config-dir
     desc: /etc/selinux directory
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [shell, c, elf]
     if:
@@ -167,7 +167,7 @@ traits:
   # Must avoid matching generic "policy" words in C++ std::locale, exception handlers, etc.
   - id: policy-file-pattern
     desc: SELinux policy binary file
-    crit: inert
+    crit: notable
     conf: 0.65
     for: [shell, c, elf]
     if:
@@ -177,7 +177,7 @@ traits:
 
   - id: chcon-command
     desc: chcon command
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [shell]
     if:
@@ -186,7 +186,7 @@ traits:
 
   - id: restorecon-command
     desc: restorecon command
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [shell]
     if:
@@ -196,7 +196,7 @@ traits:
   # === Kernel parameters ===
   - id: selinux-equals-zero
     desc: selinux=0 kernel parameter
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [shell]
     if:
@@ -205,7 +205,7 @@ traits:
 
   - id: enforcing-equals-zero
     desc: enforcing=0 kernel parameter
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [shell]
     if:
@@ -214,7 +214,7 @@ traits:
 
   - id: selinux-disabled-config
     desc: SELINUX=disabled config
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [shell]
     if:
@@ -223,7 +223,7 @@ traits:
 
   - id: selinux-permissive-config
     desc: SELINUX=permissive config
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [shell]
     if:
@@ -233,7 +233,7 @@ traits:
   # === Runtime kernel patching ===
   - id: selinux-state-symbol
     desc: selinux_state kernel structure
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [c, elf]
     if:
@@ -242,7 +242,7 @@ traits:
 
   - id: enforcing-keyword
     desc: enforcing keyword
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [c, elf, shell]
     if:
@@ -251,7 +251,7 @@ traits:
 
   - id: fake-enforce-identifier
     desc: fake_enforce identifier
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [c, elf]
     if:
@@ -260,7 +260,7 @@ traits:
 
   - id: sel-read-enforce-symbol
     desc: sel_read_enforce function
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [c, elf]
     if:
@@ -269,7 +269,7 @@ traits:
 
   - id: sel-write-enforce-symbol
     desc: sel_write_enforce function
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [c, elf]
     if:

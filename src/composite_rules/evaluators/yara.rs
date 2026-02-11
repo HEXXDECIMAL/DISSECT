@@ -478,14 +478,15 @@ pub fn eval_hex(
                 .take(5)
                 .map(|pos| {
                     // Always extract wildcard bytes (consistent with regex behavior)
-                    let value = if let Some(extracted) = extract_wildcard_bytes(data, *pos, &segments) {
-                        // Format extracted bytes as hex string
-                        let hex_str: Vec<String> =
-                            extracted.iter().map(|b| format!("{:02x}", b)).collect();
-                        format!("extracted: {}", hex_str.join(" "))
-                    } else {
-                        pattern.to_string()
-                    };
+                    let value =
+                        if let Some(extracted) = extract_wildcard_bytes(data, *pos, &segments) {
+                            // Format extracted bytes as hex string
+                            let hex_str: Vec<String> =
+                                extracted.iter().map(|b| format!("{:02x}", b)).collect();
+                            format!("extracted: {}", hex_str.join(" "))
+                        } else {
+                            pattern.to_string()
+                        };
 
                     Evidence {
                         method: "hex".to_string(),

@@ -6,7 +6,7 @@ traits:
   # === daemon-fork atomic indicators ===
   - id: fork-symbol
     desc: fork syscall symbol
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [elf, macho]
     platforms: [linux, macos]
@@ -16,7 +16,7 @@ traits:
 
   - id: daemon-symbol
     desc: daemon function symbol
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [elf, macho]
     platforms: [linux, macos]
@@ -28,7 +28,7 @@ traits:
   # terminal multiplexers. Alone it's just process group management.
   - id: daemon-setsid
     desc: "Session creation (setsid) for daemon"
-    crit: inert
+    crit: notable
     conf: 0.4
     attack: "T1543"
     for: [elf, macho]
@@ -39,7 +39,7 @@ traits:
 
   - id: daemon-umask
     desc: "umask syscall (daemon initialization)"
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [elf, macho]
     platforms: [linux, macos]
@@ -52,7 +52,7 @@ traits:
   # be notable on its own.
   - id: daemon-dev-null
     desc: "Redirects I/O to /dev/null (daemon"
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [elf, macho]
     platforms: [linux, macos]
@@ -64,7 +64,7 @@ traits:
   # Too common to be notable.
   - id: daemon-chdir-root
     desc: "Change directory to root (daemon"
-    crit: inert
+    crit: notable
     conf: 0.2
     for: [elf, macho]
     platforms: [linux, macos]
@@ -76,7 +76,7 @@ traits:
   # and process introspection. Downgraded to inert.
   - id: daemon-proc-self
     desc: "Reads /proc/self (process introspection)"
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [elf]
     platforms: [linux]
@@ -88,7 +88,7 @@ traits:
   # that need robust signal handling (shells, daemons, servers).
   - id: sig-ign-sighup-x64
     desc: SIGHUP signal ignore pattern (x86_64)
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [elf, macho]
     platforms: [linux, macos, unix]
@@ -98,7 +98,7 @@ traits:
 
   - id: sig-ign-sigpipe-x64
     desc: SIGPIPE signal ignore pattern (x86_64)
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [elf, macho]
     platforms: [linux, macos, unix]
@@ -109,7 +109,7 @@ traits:
   # === sigchld-handler atomic indicators ===
   - id: sigchild-underscore
     desc: _sigchild string
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [elf, macho]
     platforms: [linux, macos, unix]
@@ -119,7 +119,7 @@ traits:
 
   - id: sigchld-handler-string
     desc: sigchld_handler string
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [elf, macho]
     platforms: [linux, macos, unix]
@@ -129,7 +129,7 @@ traits:
 
   - id: handle-sigchld-string
     desc: handle_sigchld string
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [elf, macho]
     platforms: [linux, macos, unix]
@@ -142,7 +142,7 @@ composite_rules:
   # system tools, servers, and build utilities. Downgraded to inert.
   - id: daemon-fork
     desc: "Process forking for daemon behavior"
-    crit: inert
+    crit: notable
     conf: 0.3
     attack: "T1543"
     for: [elf, macho]
@@ -154,7 +154,7 @@ composite_rules:
   # Signal function composite - references cap/ instead of duplicating
   - id: signal-function
     desc: Signal handling function
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [elf, macho]
     platforms: [linux, macos, unix]
@@ -165,7 +165,7 @@ composite_rules:
   # NOTE: Signal ignore patterns are common in legitimate binaries.
   - id: sig-ign-pattern
     desc: Signal ignore byte pattern (x86_64)
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [elf, macho]
     platforms: [linux, macos, unix]
@@ -176,7 +176,7 @@ composite_rules:
   # Signal ignore for daemon (migrated from YARA)
   - id: signal-ignore-pattern
     desc: "Signal handler setup (daemon persistence"
-    crit: inert
+    crit: notable
     conf: 0.3
     attack: "T1543"
     for: [elf, macho]
@@ -204,7 +204,7 @@ composite_rules:
   # or other hostile indicators in a separate composite.
   - id: full-daemon
     desc: "Full daemon behavior (fork +"
-    crit: inert
+    crit: notable
     conf: 0.3
     attack: "T1543"
     mbc: "F0006"

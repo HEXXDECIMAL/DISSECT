@@ -1,45 +1,10 @@
 # File System Read/Write Traits
 # MBC: OB0009 (File System) → E1083 (File and Directory Discovery)
 # ATT&CK: T1083 (File and Directory Discovery), T1005 (Data from Local System)
+# NOTE: stat and access functions moved to cap/fs/file/stat/unix
 
 traits:
-  # File metadata operations
-  - id: stat
-    desc: Read file status and metadata
-    crit: notable
-    mbc: "E1083"
-    attack: "T1083"
-    conf: 0.8
-    for: [elf, macho, so, dylib, c]
-    if:
-      type: symbol
-      regex: "^_?(stat|lstat|fstat|fstatat|stat64|lstat64|fstat64)$"
-    platforms: [unix, linux, macos]
-
-  - id: access
-    desc: Check file accessibility and permissions
-    crit: inert
-    mbc: "E1083"
-    attack: "T1083"
-    conf: 0.5
-    for: [elf, macho, so, dylib, c]
-    if:
-      type: symbol
-      regex: "^_?(access|faccessat)$"
-    platforms: [unix, linux, macos]
-
-  # File locking
-  - id: flock
-    desc: Apply or remove advisory lock
-    crit: inert
-    mbc: "E1083"
-    attack: "T1083"
-    conf: 0.4
-    for: [elf, macho, so, dylib, c]
-    if:
-      type: symbol
-      regex: "^_?flock$"
-    platforms: [unix, linux, macos]
+  # NOTE: flock moved to cap/fs/lock/flock/unix
 
   - id: fcntl
     desc: File descriptor manipulation and control

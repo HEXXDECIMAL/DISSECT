@@ -8,7 +8,7 @@ traits:
   # === PAM library (strings - library names) ===
   - id: libpam-so
     desc: libpam.so library
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [c, cpp, elf, so]
     if:
@@ -17,7 +17,7 @@ traits:
 
   - id: libpam-so-versioned
     desc: libpam.so.0 versioned library
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [c, cpp, elf, so]
     if:
@@ -27,7 +27,7 @@ traits:
   # === Token access functions (symbols) ===
   - id: pam-get-item
     desc: pam_get_item function
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [elf, so]
     if:
@@ -36,7 +36,7 @@ traits:
 
   - id: pam-get-item-string
     desc: pam_get_item function reference (string)
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [elf, so]
     if:
@@ -45,7 +45,7 @@ traits:
 
   - id: pam-set-item
     desc: pam_set_item function
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [elf, so]
     if:
@@ -54,7 +54,7 @@ traits:
 
   - id: pam-get-authtok
     desc: pam_get_authtok function
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [elf, so]
     if:
@@ -63,7 +63,7 @@ traits:
 
   - id: pam-authtok-constant
     desc: PAM_AUTHTOK constant
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [c, cpp, elf, so]
     if:
@@ -73,7 +73,7 @@ traits:
   # === Authentication functions (symbols) ===
   - id: pam-authenticate-string
     desc: pam_authenticate function reference (string)
-    crit: inert
+    crit: notable
     conf: 0.65
     for: [elf, so]
     if:
@@ -82,7 +82,7 @@ traits:
 
   - id: pam-open-session
     desc: pam_open_session function
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [elf, so]
     if:
@@ -91,7 +91,7 @@ traits:
 
   - id: pam-acct-mgmt
     desc: pam_acct_mgmt function
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [elf, so]
     if:
@@ -100,7 +100,7 @@ traits:
 
   - id: pam-acct-mgmt-string
     desc: pam_acct_mgmt function reference (string)
-    crit: inert
+    crit: notable
     conf: 0.65
     for: [elf, so]
     if:
@@ -109,7 +109,7 @@ traits:
 
   - id: pam-setcred
     desc: pam_setcred function
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [elf, so]
     if:

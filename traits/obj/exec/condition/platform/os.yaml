@@ -6,7 +6,7 @@
 composite_rules:
   - id: has-os-check
     desc: Checks for OS platform
-    crit: inert
+    crit: notable
     conf: 0.6
     any:
       - id: obj/discovery/host/system/hardware-fingerprint::process-platform-content
@@ -15,7 +15,7 @@ composite_rules:
 
   - id: has-execution-capability
     desc: Has code execution capability
-    crit: inert
+    crit: notable
     conf: 0.6
     any:
       - id: cap/exec/command/shell

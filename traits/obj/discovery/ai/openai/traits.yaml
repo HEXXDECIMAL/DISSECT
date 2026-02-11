@@ -2,7 +2,7 @@ traits:
   # === OpenAI atomic indicators ===
   - id: azure-ai-openai
     desc: Azure.AI.OpenAI library reference
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [binaries, python, javascript]
     if:
@@ -11,7 +11,7 @@ traits:
 
   - id: openai-ref
     desc: OpenAI reference
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [binaries, python, javascript]
     if:

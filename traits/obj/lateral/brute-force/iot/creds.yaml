@@ -57,7 +57,7 @@ traits:
   # === Shell execution in static binaries ===
   - id: bin-sh-string
     desc: Shell path string /bin/sh
-    crit: inert
+    crit: notable
     conf: 0.95
     for: [elf, macho, python, go]
     if:

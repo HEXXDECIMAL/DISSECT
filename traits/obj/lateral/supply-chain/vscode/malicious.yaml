@@ -7,7 +7,7 @@ traits:
   # DISSECT doesn't support, plus regex patterns for require/import
   - id: api-usage
     desc: Uses VSCode API (extension marker)
-    crit: inert
+    crit: notable
     conf: 1.0
     for: [javascript, typescript]
     if:
@@ -26,7 +26,7 @@ traits:
   # === Atomic indicators for post-install-exec ===
   - id: activate-word
     desc: activate keyword
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript]
     if:
@@ -35,7 +35,7 @@ traits:
 
   - id: postInstall-word
     desc: postInstall keyword
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript]
     if:
@@ -44,7 +44,7 @@ traits:
 
   - id: exec-pattern
     desc: exec function pattern
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript]
     if:
@@ -81,7 +81,7 @@ traits:
 
   - id: readFile-pattern
     desc: readFile function pattern
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -91,7 +91,7 @@ traits:
   # VSCode namespace usage pattern
   - id: vscode-namespace
     desc: Uses VSCode namespace
-    crit: inert
+    crit: notable
     conf: 1.0
     for: [javascript, typescript]
     if:
@@ -111,7 +111,7 @@ traits:
   # File write operations
   - id: file-write-ops
     desc: File write or copy operations
-    crit: inert
+    crit: notable
     conf: 1.0
     for: [javascript, typescript]
     if:

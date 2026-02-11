@@ -11,7 +11,7 @@ traits:
   # === libcurl reference ===
   - id: libcurl-string
     desc: libcurl library reference
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -36,7 +36,7 @@ traits:
 
   - id: log-extension
     desc: Log file extension
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string

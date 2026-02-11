@@ -4,7 +4,7 @@
 traits:
   - id: react-production
     desc: React production build markers
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript]
     if:
@@ -14,7 +14,7 @@ traits:
   # Vue production build
   - id: vue-production
     desc: Vue production build markers
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript]
     if:
@@ -24,7 +24,7 @@ traits:
   # Angular production build
   - id: angular-production
     desc: Angular production build markers
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript]
     if:

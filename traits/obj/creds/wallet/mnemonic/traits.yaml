@@ -86,7 +86,7 @@ traits:
   # === Mnemonic/seed phrase term atomic indicators ===
   - id: mnemonic-word
     desc: mnemonic term
-    crit: inert
+    crit: notable
     conf: 0.5
     # Restrict to high-level languages where wallet code typically appears
     # Exclude assembly scripts and system-level code where "mnemonic" refers to processor instructions
@@ -97,7 +97,7 @@ traits:
 
   - id: seed-phrase-underscore
     desc: seed_phrase term
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -105,7 +105,7 @@ traits:
 
   - id: seedphrase-word
     desc: seedphrase term
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -113,7 +113,7 @@ traits:
 
   - id: recovery-phrase-word
     desc: recovery_phrase term
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -121,7 +121,7 @@ traits:
 
   - id: secret-words-word
     desc: secret_words term
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -130,7 +130,7 @@ traits:
   # === Wallet/crypto context atomic indicators ===
   - id: wallet-word
     desc: wallet term
-    crit: inert
+    crit: notable
     conf: 0.5
     # Restrict to high-level languages where wallet code appears, exclude system libraries
     for: [python, javascript, csharp, java, go, ruby, php]
@@ -140,7 +140,7 @@ traits:
 
   - id: crypto-word
     desc: crypto term
-    crit: inert
+    crit: notable
     conf: 0.5
     # Restrict to languages where wallet code appears, exclude system headers (C/C++)
     for: [python, javascript, csharp, java, go, ruby, php]
@@ -150,7 +150,7 @@ traits:
 
   - id: metamask-word
     desc: MetaMask reference
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -158,7 +158,7 @@ traits:
 
   - id: phantom-word
     desc: Phantom wallet reference
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -166,7 +166,7 @@ traits:
 
   - id: browser-word
     desc: browser wallet context
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string

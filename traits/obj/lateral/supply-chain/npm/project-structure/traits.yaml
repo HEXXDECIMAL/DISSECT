@@ -4,7 +4,7 @@
 traits:
   - id: has-build-output
     desc: Package has build output directory
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [package.json]
     if:
@@ -14,7 +14,7 @@ traits:
   # Has src directory structure
   - id: has-src-directory
     desc: Package has src directory structure
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [package.json]
     if:
@@ -24,7 +24,7 @@ traits:
   # Has test directory
   - id: has-examples
     desc: Package has examples directory
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [package.json]
     if:
@@ -34,7 +34,7 @@ traits:
   # Has docs directory
   - id: mocks-directory
     desc: /__mocks__/ directory
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:

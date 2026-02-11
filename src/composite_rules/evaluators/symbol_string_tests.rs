@@ -196,15 +196,7 @@ fn test_eval_symbol_regex_match() {
 
     let pattern = "connect|accept".to_string();
     let re = regex::Regex::new(&pattern).unwrap();
-    let result = eval_symbol(
-        None,
-        None,
-        Some(&pattern),
-        None,
-        Some(&re),
-        None,
-        &ctx,
-    );
+    let result = eval_symbol(None, None, Some(&pattern), None, Some(&re), None, &ctx);
 
     assert!(result.matched);
     assert_eq!(result.evidence.len(), 2);
@@ -385,10 +377,6 @@ fn test_eval_string_exact_match() {
         word: None,
         case_insensitive: false,
         exclude_patterns: None,
-        count_min: 1,
-        count_max: None,
-        per_kb_min: None,
-        per_kb_max: None,
         external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[],
@@ -427,10 +415,6 @@ fn test_eval_string_substr_match() {
         word: None,
         case_insensitive: false,
         exclude_patterns: None,
-        count_min: 1,
-        count_max: None,
-        per_kb_min: None,
-        per_kb_max: None,
         external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[],
@@ -470,10 +454,6 @@ fn test_eval_string_regex_match() {
         word: None,
         case_insensitive: false,
         exclude_patterns: None,
-        count_min: 1,
-        count_max: None,
-        per_kb_min: None,
-        per_kb_max: None,
         external_ip: false,
         compiled_regex: Some(&re),
         compiled_excludes: &[],
@@ -511,10 +491,6 @@ fn test_eval_string_case_insensitive() {
         word: None,
         case_insensitive: true,
         exclude_patterns: None,
-        count_min: 1,
-        count_max: None,
-        per_kb_min: None,
-        per_kb_max: None,
         external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[],
@@ -553,10 +529,6 @@ fn test_eval_string_exclude_patterns() {
         word: None,
         case_insensitive: false,
         exclude_patterns: None,
-        count_min: 1,
-        count_max: None,
-        per_kb_min: None,
-        per_kb_max: None,
         external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[exclude_re],
@@ -596,10 +568,6 @@ fn test_eval_string_min_count() {
         word: None,
         case_insensitive: false,
         exclude_patterns: None,
-        count_min: 2,
-        count_max: None,
-        per_kb_min: None,
-        per_kb_max: None,
         external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[],
@@ -639,10 +607,6 @@ fn test_eval_string_not_exception() {
         word: None,
         case_insensitive: false,
         exclude_patterns: None,
-        count_min: 1,
-        count_max: None,
-        per_kb_min: None,
-        per_kb_max: None,
         external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[],
@@ -677,10 +641,6 @@ fn test_eval_string_in_imports() {
         word: None,
         case_insensitive: false,
         exclude_patterns: None,
-        count_min: 1,
-        count_max: None,
-        per_kb_min: None,
-        per_kb_max: None,
         external_ip: false,
         compiled_regex: None,
         compiled_excludes: &[],
@@ -773,10 +733,6 @@ fn test_eval_raw_substr_count_insufficient() {
         None,
         None,
         false,
-        5, // Require 5 occurrences
-        None,
-        None,
-        None,
         false,
         None,
         None,
@@ -803,10 +759,6 @@ fn test_eval_raw_regex() {
         Some(&pattern),
         None,
         false,
-        2, // Require 2 matches
-        None,
-        None,
-        None,
         false,
         Some(&re),
         None,
@@ -1286,10 +1238,6 @@ fn test_eval_encoded_case_insensitive() {
         None,
         None,
         true, // case insensitive
-        1,
-        None,
-        None,
-        None,
         None,
         &location,
         &ctx,
@@ -1313,10 +1261,6 @@ fn test_eval_encoded_count_constraints() {
         None,
         None,
         false,
-        3,       // min count: 3
-        Some(6), // max count: 6
-        None,
-        None,
         None,
         &location,
         &ctx,
@@ -1324,8 +1268,6 @@ fn test_eval_encoded_count_constraints() {
 
     // Should match multiple strings
     assert!(result.matched);
-    assert!(result.evidence.len() >= 3);
-    assert!(result.evidence.len() <= 6);
 }
 
 #[test]
@@ -1395,10 +1337,6 @@ fn test_eval_encoded_count_min_not_met() {
         None,
         None,
         false,
-        5, // Require 5 matches but only 1 exists
-        None,
-        None,
-        None,
         None,
         &location,
         &ctx,

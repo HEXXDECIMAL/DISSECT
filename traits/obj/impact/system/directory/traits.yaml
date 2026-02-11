@@ -82,7 +82,7 @@ traits:
   # === Recursive deletion atomic indicators ===
   - id: rmtree-call
     desc: rmtree function call
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -90,7 +90,7 @@ traits:
 
   - id: rm-rf-cmd
     desc: rm -rf command
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -98,7 +98,7 @@ traits:
 
   - id: rmdir-recursive
     desc: rmdir recursive command
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -107,7 +107,7 @@ traits:
   # === System directory atomic indicators ===
   - id: windows-dir-ref
     desc: Windows directory reference
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -115,7 +115,7 @@ traits:
 
   - id: system32-ref
     desc: System32 directory reference
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -123,7 +123,7 @@ traits:
 
   - id: etc-dir-ref
     desc: /etc directory reference
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -131,7 +131,7 @@ traits:
 
   - id: boot-dir-ref
     desc: /boot directory reference
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -139,7 +139,7 @@ traits:
 
   - id: usr-dir-ref
     desc: /usr directory reference
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -159,7 +159,7 @@ composite_rules:
   # These are too generic on their own - downgraded to inert.
   - id: system-dir-reference
     desc: "Reference to critical system directories"
-    crit: inert
+    crit: notable
     conf: 0.4
     any:
       - id: windows-dir-ref

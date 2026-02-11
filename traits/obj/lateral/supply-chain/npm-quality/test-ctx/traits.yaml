@@ -4,7 +4,7 @@ traits:
   # Jest test file markers (atomic traits)
   - id: it-call
     desc: it() function call
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -13,7 +13,7 @@ traits:
 
   - id: before-each-call
     desc: beforeEach hook
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -22,7 +22,7 @@ traits:
 
   - id: after-each-call
     desc: afterEach hook
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -32,7 +32,7 @@ traits:
   # Mocha test file markers
   - id: before-call
     desc: before() hook
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -41,7 +41,7 @@ traits:
 
   - id: after-call
     desc: after() hook
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -50,7 +50,7 @@ traits:
 
   - id: chai-word
     desc: chai keyword
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -59,7 +59,7 @@ traits:
 
   - id: dot-spec-filename
     desc: .spec. in filename
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -68,7 +68,7 @@ traits:
 
   - id: underscore-spec-filename
     desc: _spec. in filename
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -77,7 +77,7 @@ traits:
 
   - id: mock-data-ref
     desc: mockData reference
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -86,7 +86,7 @@ traits:
 
   - id: mocks-ref
     desc: __mocks__ reference
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -95,7 +95,7 @@ traits:
 
   - id: sinon-stub-call
     desc: sinon.stub call
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -104,7 +104,7 @@ traits:
 
   - id: faker-word
     desc: faker keyword
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -114,7 +114,7 @@ traits:
   # Testing library patterns
   - id: cypress-cy-command
     desc: cy. Cypress command
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -123,7 +123,7 @@ traits:
 
   - id: screen-get-by
     desc: screen.getBy query
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -132,7 +132,7 @@ traits:
 
   - id: screen-find-by
     desc: screen.findBy query
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -141,7 +141,7 @@ traits:
 
   - id: screen-query-by
     desc: screen.queryBy query
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -150,7 +150,7 @@ traits:
 
   - id: screen-get-all-by
     desc: screen.getAllBy query
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -159,7 +159,7 @@ traits:
 
   - id: fire-event-method
     desc: fireEvent. method
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -168,7 +168,7 @@ traits:
 
   - id: user-event-method
     desc: userEvent. method
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -177,7 +177,7 @@ traits:
 
   - id: wait-for-call
     desc: waitFor() call
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -187,7 +187,7 @@ traits:
   # Test configuration
   - id: karma-conf-ref
     desc: karma.conf config file
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -196,7 +196,7 @@ traits:
 
   - id: coverage-markers
     desc: Code coverage markers
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript, typescript]
     if:

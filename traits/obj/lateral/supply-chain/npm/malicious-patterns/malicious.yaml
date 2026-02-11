@@ -8,7 +8,7 @@ traits:
   # === Lifecycle hook atomic indicators ===
   - id: npm-malicious-preinstall-hook
     desc: preinstall lifecycle hook
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: raw
@@ -18,7 +18,7 @@ composite_rules:
   # Lifecycle hook helpers
   - id: lifecycle-hook
     desc: NPM lifecycle hook
-    crit: inert
+    crit: notable
     conf: 0.6
     any:
       - id: npm-malicious-preinstall-hook

@@ -20,7 +20,7 @@ traits:
   # multiprocessing.Process - legitimate parallel processing
   - id: multiprocessing
     desc: Multiprocessing module
-    crit: inert
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -29,7 +29,7 @@ traits:
   # Import os
   - id: import-os
     desc: Import os module
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -38,7 +38,7 @@ traits:
   # Infinite loop patterns
   - id: while-true
     desc: Infinite loop with while True
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: raw
@@ -46,7 +46,7 @@ traits:
 
   - id: while-1
     desc: Infinite loop with while 1
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: raw
@@ -54,7 +54,7 @@ traits:
 
   - id: for-iter-int
     desc: iter(int,1) infinite loop
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: raw
@@ -63,7 +63,7 @@ traits:
   # Fork call string
   - id: os-fork-string
     desc: os.fork() call
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: raw
@@ -72,7 +72,7 @@ traits:
   # Large range loops (4+ digits)
   - id: large-range-loop
     desc: Large range loop
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: raw
@@ -82,7 +82,7 @@ traits:
   # Exclusions (legitimate patterns)
   - id: time-sleep
     desc: time.sleep() rate limiting
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -90,7 +90,7 @@ traits:
 
   - id: worker-keyword-lower
     desc: worker keyword (lowercase)
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -98,7 +98,7 @@ traits:
 
   - id: worker-keyword-upper
     desc: WORKER keyword (uppercase)
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -106,7 +106,7 @@ traits:
 
   - id: worker-keyword-title
     desc: Worker keyword (titlecase)
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -114,7 +114,7 @@ traits:
 
   - id: pool-keyword
     desc: Pool keyword
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -122,7 +122,7 @@ traits:
 
   - id: daemon-keyword-lower
     desc: daemon keyword (lowercase)
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -130,7 +130,7 @@ traits:
 
   - id: daemon-keyword-upper
     desc: DAEMON keyword (uppercase)
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -138,7 +138,7 @@ traits:
 
   - id: daemon-keyword-title
     desc: Daemon keyword (titlecase)
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string

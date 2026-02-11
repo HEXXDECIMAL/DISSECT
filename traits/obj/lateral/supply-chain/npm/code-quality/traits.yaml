@@ -9,7 +9,7 @@ composite_rules:
 
   - id: terser-output
     desc: Terser/UglifyJS minified output markers
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [javascript]
     all:
@@ -18,7 +18,7 @@ composite_rules:
 
   - id: has-multiple-entries
     desc: Package has multiple entry points
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [package.json]
     needs: 2

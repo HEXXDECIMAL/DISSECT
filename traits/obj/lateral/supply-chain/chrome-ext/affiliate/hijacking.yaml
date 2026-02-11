@@ -33,7 +33,7 @@ traits:
 
   - id: new-url-constructor
     desc: Creates URL object for manipulation
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript, typescript]
     if:
@@ -43,7 +43,7 @@ traits:
 
   - id: url-tostring
     desc: Converts URL object to string
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript]
     if:

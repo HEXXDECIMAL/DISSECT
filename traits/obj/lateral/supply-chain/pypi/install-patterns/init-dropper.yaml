@@ -13,7 +13,7 @@ traits:
   # Platform detection in module init (suspicious when combined with other indicators)
   - id: platform-system-call
     desc: platform.system() OS detection
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: ast
@@ -22,7 +22,7 @@ traits:
 
   - id: platform-machine-call
     desc: platform.machine() architecture detection
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: ast
@@ -41,7 +41,7 @@ traits:
   # OS string checks (match extracted string literals)
   - id: linux-string-check
     desc: Linux OS string in condition
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -49,7 +49,7 @@ traits:
 
   - id: darwin-string-check
     desc: Darwin/macOS string in condition
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -57,7 +57,7 @@ traits:
 
   - id: arch-string-check
     desc: Architecture string checks
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: raw
@@ -130,7 +130,7 @@ traits:
   # Linux platform conditional
   - id: linux-in-platform
     desc: Linux in platform.system() check
-    crit: inert
+    crit: notable
     conf: 0.6
     mbc: "B0012"
     attack: "T1082"

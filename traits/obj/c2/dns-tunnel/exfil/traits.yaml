@@ -10,7 +10,7 @@ traits:
   # === dnscat2 atomic indicators ===
   - id: dnscat-secret
     desc: dnscat2 secret environment variable
-    crit: inert
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -18,7 +18,7 @@ traits:
 
   - id: dnscat-name
     desc: dnscat2 tool name reference
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -27,7 +27,7 @@ traits:
 
   - id: dnscat-session
     desc: dnscat2 session state constant
-    crit: inert
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -35,7 +35,7 @@ traits:
 
   - id: dnscat-packet
     desc: dnscat2 packet debug message
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: string
@@ -44,7 +44,7 @@ traits:
   # === iodine atomic indicators ===
   - id: iodine-name
     desc: iodine tool name reference
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -52,7 +52,7 @@ traits:
 
   - id: tun-device
     desc: TUN device access for tunneling
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -96,7 +96,7 @@ traits:
 
   - id: txt-record
     desc: TXT record reference (DNS exfil)
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -114,7 +114,7 @@ traits:
   # === DoH C2 indicators ===
   - id: doh-cloudflare
     desc: Cloudflare DoH endpoint
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -122,7 +122,7 @@ traits:
 
   - id: doh-google
     desc: Google DoH endpoint
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -130,7 +130,7 @@ traits:
 
   - id: doh-quad9
     desc: Quad9 DoH endpoint
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -138,7 +138,7 @@ traits:
 
   - id: doh-json-content
     desc: DoH JSON content type
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -147,7 +147,7 @@ traits:
 composite_rules:
   - id: doh-endpoint
     desc: Known DoH endpoint reference
-    crit: inert
+    crit: notable
     conf: 0.7
     any:
       - id: doh-cloudflare
@@ -156,7 +156,7 @@ composite_rules:
 
   - id: doh-content
     desc: DoH content-type indicator
-    crit: inert
+    crit: notable
     conf: 0.6
     any:
       - id: cap/comm/dns/doh::doh-content-type

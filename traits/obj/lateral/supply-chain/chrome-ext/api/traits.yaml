@@ -5,7 +5,7 @@ traits:
   # === Chrome Extension API Markers ===
   - id: chrome-runtime
     desc: chrome.runtime API usage
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript]
     if:
@@ -14,7 +14,7 @@ traits:
 
   - id: chrome-tabs
     desc: chrome.tabs API usage
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript]
     if:
@@ -23,7 +23,7 @@ traits:
 
   - id: chrome-storage
     desc: chrome.storage API usage
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript]
     if:
@@ -50,7 +50,7 @@ traits:
 
   - id: onInstalled
     desc: chrome.runtime.onInstalled listener
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript]
     if:
@@ -60,7 +60,7 @@ traits:
   # === Extension Message Passing ===
   - id: sendMessage
     desc: chrome.runtime.sendMessage
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript]
     if:
@@ -69,7 +69,7 @@ traits:
 
   - id: onMessage
     desc: chrome.runtime.onMessage listener
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript]
     if:
@@ -88,7 +88,7 @@ traits:
 
   - id: insertCSS
     desc: chrome.scripting.insertCSS call
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [javascript]
     if:
@@ -99,7 +99,7 @@ composite_rules:
   # Chrome extension context marker
   - id: chrome-extension-context
     desc: Chrome extension API context
-    crit: inert
+    crit: notable
     conf: 0.95
     for: [javascript]
     any:

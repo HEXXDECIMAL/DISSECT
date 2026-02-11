@@ -438,15 +438,9 @@ impl From<ConditionDeser> for Condition {
                     source,
                     compiled: None,
                 },
-                ConditionTagged::Syscall {
-                    name,
-                    number,
-                    arch,
-                } => Condition::Syscall {
-                    name,
-                    number,
-                    arch,
-                },
+                ConditionTagged::Syscall { name, number, arch } => {
+                    Condition::Syscall { name, number, arch }
+                }
                 ConditionTagged::SectionRatio {
                     section,
                     compare_to,
@@ -458,15 +452,9 @@ impl From<ConditionDeser> for Condition {
                     min,
                     max,
                 },
-                ConditionTagged::SectionEntropy {
-                    section,
-                    min,
-                    max,
-                } => Condition::SectionEntropy {
-                    section,
-                    min,
-                    max,
-                },
+                ConditionTagged::SectionEntropy { section, min, max } => {
+                    Condition::SectionEntropy { section, min, max }
+                }
                 ConditionTagged::ImportCombination {
                     required,
                     suspicious,
@@ -1425,18 +1413,6 @@ impl Condition {
     /// Check if count constraints are valid (count_max >= count_min).
     /// Returns a warning message if invalid, None otherwise.
     pub fn check_count_constraints(&self) -> Option<String> {
-        let check_counts = |count_min: usize, count_max: Option<usize>| -> Option<String> {
-            if let Some(max) = count_max {
-                if max < count_min {
-                    return Some(format!(
-                        "count_max ({}) cannot be less than count_min ({})",
-                        max, count_min
-                    ));
-                }
-            }
-            None
-        };
-
         // Count constraints are now at trait level (ConditionWithFilters), not per-condition
         None
     }

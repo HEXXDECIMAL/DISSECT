@@ -63,7 +63,7 @@ traits:
   # === Infinite Loop Indicators ===
   - id: infinite-while-true
     desc: Infinite while True loop
-    crit: inert
+    crit: notable
     conf: 0.50
     if:
       type: string
@@ -71,7 +71,7 @@ traits:
 
   - id: infinite-while-one
     desc: Infinite while 1 loop
-    crit: inert
+    crit: notable
     conf: 0.50
     if:
       type: string

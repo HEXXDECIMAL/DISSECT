@@ -4,7 +4,7 @@
 traits:
   - id: mprotect
     desc: Change memory protection (mprotect)
-    crit: inert
+    crit: notable
     conf: 1.0
     attack: "T1055"
     platforms: [linux, macos, unix]
@@ -26,7 +26,7 @@ traits:
 
   - id: rwx-prot-bytes
     desc: RWX protection bytes (PROT_READ|WRITE|EXEC =
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1055"
     platforms: [linux, macos, unix]

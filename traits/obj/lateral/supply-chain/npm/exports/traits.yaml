@@ -4,7 +4,7 @@
 traits:
   - id: has-cjs-export
     desc: Code exports functionality via CommonJS
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [javascript]
     if:
@@ -13,7 +13,7 @@ traits:
 
   - id: has-esm-export
     desc: Code exports functionality via ES
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [javascript, typescript]
     if:
@@ -22,7 +22,7 @@ traits:
 
   - id: imports-dependencies
     desc: Code imports from external packages
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript]
     if:
@@ -31,7 +31,7 @@ traits:
 
   - id: has-default-export
     desc: Code has default export
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript]
     if:
@@ -40,7 +40,7 @@ traits:
 
   - id: module-exports-object
     desc: "module.exports = {} object pattern"
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -50,7 +50,7 @@ traits:
   # Package.json module fields
   - id: has-module-entry
     desc: Package has ESM module entry
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [package.json]
     if:
@@ -59,7 +59,7 @@ traits:
 
   - id: pkg-module-field
     desc: '"module": field in package.json'
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [package.json]
     if:
@@ -68,7 +68,7 @@ traits:
 
   - id: pkg-exports-field-entry
     desc: '"exports": field in package.json'
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [package.json]
     if:
@@ -77,7 +77,7 @@ traits:
 
   - id: has-exports-field
     desc: Package has modern exports field
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [package.json]
     if:
@@ -86,7 +86,7 @@ traits:
 
   - id: esm-export-pattern
     desc: ES module export keyword pattern
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -95,7 +95,7 @@ traits:
 
   - id: cjs-exports-pattern
     desc: CommonJS exports.property pattern
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -105,7 +105,7 @@ traits:
 composite_rules:
   - id: has-multiple-exports
     desc: Code has multiple named exports
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [javascript, typescript]
     any:

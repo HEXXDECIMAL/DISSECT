@@ -94,7 +94,7 @@ traits:
   # === Internal Indicators (Inert) ===
   - id: install-network-core
     desc: Network activity triggered by package (YARA core)
-    crit: inert
+    crit: notable
     conf: 0.85
     # Limit size to exclude large legitimate libraries
     size_max: 40000

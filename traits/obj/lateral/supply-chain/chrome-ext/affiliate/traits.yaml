@@ -5,7 +5,7 @@ traits:
   # === Affiliate Link Hijacking Patterns ===
   - id: amazon-product-url-pattern
     desc: Amazon product URL pattern
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript]
     if:
@@ -14,7 +14,7 @@ traits:
 
   - id: url-searchparams-api
     desc: URL searchParams API usage
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript]
     if:
@@ -23,7 +23,7 @@ traits:
 
   - id: url-params-set
     desc: URL params modification
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript]
     if:
@@ -32,7 +32,7 @@ traits:
 
   - id: href-assignment
     desc: Link href modification
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [javascript]
     if:
@@ -50,7 +50,7 @@ traits:
 
   - id: tag-param-literal
     desc: Tag parameter string literal
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript]
     if:
@@ -59,7 +59,7 @@ traits:
 
   - id: ext-mutation-observer
     desc: MutationObserver DOM monitoring
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript]
     if:
@@ -68,7 +68,7 @@ traits:
 
   - id: amazon-hostname-check
     desc: Amazon hostname detection
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [javascript]
     if:
@@ -78,7 +78,7 @@ traits:
 
   - id: queryselector-link-targeting
     desc: Link element selection
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript]
     if:

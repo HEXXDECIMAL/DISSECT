@@ -67,7 +67,7 @@ traits:
   # === Proxy port atomic indicators ===
   - id: port-30000
     desc: Port 30000
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -75,7 +75,7 @@ traits:
 
   - id: port-31337-php
     desc: Port 31337 (leet)
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -83,7 +83,7 @@ traits:
 
   - id: port-4444-php
     desc: Port 4444 (Metasploit)
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -91,7 +91,7 @@ traits:
 
   - id: port-5555
     desc: Port 5555
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -99,7 +99,7 @@ traits:
 
   - id: port-6666
     desc: Port 6666
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -107,7 +107,7 @@ traits:
 
   - id: port-8080-php
     desc: Port 8080 (HTTP alt)
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -115,7 +115,7 @@ traits:
 
   - id: port-9999
     desc: Port 9999
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -191,7 +191,7 @@ traits:
 
   - id: wp-plugin-path
     desc: WordPress plugin directory reference
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: raw

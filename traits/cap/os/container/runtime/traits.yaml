@@ -1,14 +1,8 @@
 # Container Detection - Generic
 # Generic container detection paths
+# NOTE: /proc/1/cgroup and /proc/self/cgroup moved to cap/fs/proc/container/linux
 
 defaults:
   for: [python, shell, javascript]
 
 traits:
-  - id: cgroup-check
-    desc: Process cgroup check
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      substr: /proc/1/cgroup

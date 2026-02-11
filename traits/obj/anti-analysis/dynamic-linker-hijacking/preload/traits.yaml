@@ -55,7 +55,7 @@ traits:
   attack: T1547.015
 - id: dlopen-call
   desc: dlopen dynamic loading call
-  crit: inert
+  crit: notable
   conf: 0.5
   for:
   - elf
@@ -66,7 +66,7 @@ traits:
   attack: T1574.006
 - id: dlsym-call
   desc: dlsym symbol lookup call
-  crit: inert
+  crit: notable
   conf: 0.5
   for:
   - elf

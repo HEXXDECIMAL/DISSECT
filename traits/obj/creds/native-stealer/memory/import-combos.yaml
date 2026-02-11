@@ -10,7 +10,7 @@ traits:
   # === Library strings ===
   - id: libsqlite3-string
     desc: libsqlite3 library reference
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -18,7 +18,7 @@ traits:
 
   - id: libcrypto-string
     desc: Crypto library reference
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -26,7 +26,7 @@ traits:
 
   - id: libcurl-string
     desc: libcurl library reference
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -34,7 +34,7 @@ traits:
 
   - id: security-framework
     desc: macOS Security.framework
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [macho]
     if:
@@ -43,7 +43,7 @@ traits:
 
   - id: libsecret-string
     desc: libsecret library reference
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [elf]
     if:
@@ -53,7 +53,7 @@ traits:
   # === X11/input strings ===
   - id: libx11-string
     desc: libX11 library reference
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [elf]
     if:
@@ -62,7 +62,7 @@ traits:
 
   - id: libxcb-string
     desc: libxcb library reference
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [elf]
     if:
@@ -150,7 +150,7 @@ composite_rules:
 
   - id: sqlite-imports
     desc: SQLite database library
-    crit: inert
+    crit: notable
     conf: 0.5
     any:
       - id: meta/import/sqlite3_open
@@ -159,7 +159,7 @@ composite_rules:
 
   - id: crypto-imports
     desc: Cryptographic library imports
-    crit: inert
+    crit: notable
     conf: 0.5
     any:
       - id: libcrypto-string
@@ -169,7 +169,7 @@ composite_rules:
 
   - id: network-imports
     desc: Network client library imports
-    crit: inert
+    crit: notable
     conf: 0.5
     any:
       - id: libcurl-string

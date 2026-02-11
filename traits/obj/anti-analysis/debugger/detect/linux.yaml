@@ -19,7 +19,7 @@ traits:
 
   - id: gdb-ref
     desc: GDB debugger reference
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -27,7 +27,7 @@ traits:
 
   - id: lldb-ref
     desc: LLDB debugger reference
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -38,7 +38,7 @@ composite_rules:
   # Only suspicious in combination with other anti-debug techniques
   - id: debugger-gdb
     desc: References gdb/lldb debugger
-    crit: inert
+    crit: notable
     conf: 0.4
     any:
       - id: gdb-ref

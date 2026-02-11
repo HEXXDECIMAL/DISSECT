@@ -9,7 +9,7 @@ defaults:
 traits:
   - id: high-entropy-function-names
     desc: "Functions with random-looking names"
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [python, javascript, typescript, php, ruby, perl, go, rust, java, lua, csharp, powershell]
     if:

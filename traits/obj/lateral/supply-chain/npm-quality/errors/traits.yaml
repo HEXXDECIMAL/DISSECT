@@ -3,7 +3,7 @@
 traits:
   - id: has-try-catch
     desc: Code has try-catch error handling
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [javascript, typescript]
     if:
@@ -12,7 +12,7 @@ traits:
 
   - id: has-named-functions
     desc: Code has named function definitions
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript]
     if:
@@ -21,7 +21,7 @@ traits:
 
   - id: has-typescript-types
     desc: Code has TypeScript type annotations
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [typescript]
     if:
@@ -30,7 +30,7 @@ traits:
 
   - id: has-type-definitions
     desc: Code defines TypeScript interfaces
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [typescript]
     if:
@@ -39,7 +39,7 @@ traits:
 
   - id: has-buffer-encoding
     desc: Code uses Buffer with explicit encoding
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript]
     if:
@@ -48,7 +48,7 @@ traits:
 
   - id: has-callback-pattern
     desc: Code uses Node.js callback pattern
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript]
     if:
@@ -57,7 +57,7 @@ traits:
 
   - id: has-config-object
     desc: Code uses configuration objects
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [javascript, typescript]
     if:
@@ -66,7 +66,7 @@ traits:
 
   - id: use-strict
     desc: Code uses strict mode
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [javascript]
     if:
@@ -75,7 +75,7 @@ traits:
 
   - id: has-logging
     desc: Code uses logging library
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript]
     if:
@@ -84,7 +84,7 @@ traits:
 
   - id: has-validation
     desc: Code uses schema validation
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [javascript, typescript]
     if:
@@ -93,7 +93,7 @@ traits:
 
   - id: has-database
     desc: Code interacts with database
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript]
     if:
@@ -102,7 +102,7 @@ traits:
 
   - id: has-cli-args
     desc: Code parses CLI arguments
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript]
     if:

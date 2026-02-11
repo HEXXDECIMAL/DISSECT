@@ -9,7 +9,7 @@ traits:
   # === Config file access atomic indicators ===
   - id: dotenv-file
     desc: .env file reference
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -17,7 +17,7 @@ traits:
 
   - id: ssh-id-rsa
     desc: SSH private key path
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -25,7 +25,7 @@ traits:
 
   - id: aws-credentials-file
     desc: AWS credentials file path
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -33,7 +33,7 @@ traits:
 
   - id: kube-config-file
     desc: Kubernetes config path
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -42,7 +42,7 @@ traits:
   # === AWS env atomic indicators ===
   - id: env-aws-access-key
     desc: AWS_ACCESS_KEY env access
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -50,7 +50,7 @@ traits:
 
   - id: env-aws-secret
     desc: AWS_SECRET env access
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -58,7 +58,7 @@ traits:
 
   - id: env-aws-session-token
     desc: AWS_SESSION_TOKEN env access
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -67,7 +67,7 @@ traits:
   # === Git token atomic indicators ===
   - id: env-github-token
     desc: GITHUB_TOKEN env access
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -75,7 +75,7 @@ traits:
 
   - id: env-gitlab-token
     desc: GITLAB_TOKEN env access
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -83,7 +83,7 @@ traits:
 
   - id: env-gh-token
     desc: GH_TOKEN env access
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -91,7 +91,7 @@ traits:
 
   - id: env-bitbucket-token
     desc: BITBUCKET_TOKEN env access
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -100,7 +100,7 @@ traits:
   # === NPM token atomic indicators ===
   - id: env-npm-token
     desc: NPM_TOKEN env access
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -108,7 +108,7 @@ traits:
 
   - id: env-npm-auth-token
     desc: NPM_AUTH_TOKEN env access
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -116,7 +116,7 @@ traits:
 
   - id: env-node-auth-token
     desc: NODE_AUTH_TOKEN env access
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -125,7 +125,7 @@ traits:
   # === Discord token atomic indicators ===
   - id: env-discord-token
     desc: DISCORD_TOKEN env access
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -133,7 +133,7 @@ traits:
 
   - id: env-discord-bot-token
     desc: DISCORD_BOT_TOKEN env access
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -141,7 +141,7 @@ traits:
 
   - id: env-discord-client-secret
     desc: DISCORD_CLIENT_SECRET env access
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -150,7 +150,7 @@ traits:
   # === Slack token atomic indicators ===
   - id: env-slack-token
     desc: SLACK_TOKEN env access
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -158,7 +158,7 @@ traits:
 
   - id: env-slack-bot-token
     desc: SLACK_BOT_TOKEN env access
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -166,7 +166,7 @@ traits:
 
   - id: env-slack-webhook
     desc: SLACK_WEBHOOK env access
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -175,7 +175,7 @@ traits:
   # === Database atomic indicators ===
   - id: env-database-url
     desc: DATABASE_URL env access
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -183,7 +183,7 @@ traits:
 
   - id: env-mongodb-uri
     desc: MONGODB_URI env access
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -191,7 +191,7 @@ traits:
 
   - id: env-postgres-prefix
     desc: POSTGRES_ env prefix access
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -199,7 +199,7 @@ traits:
 
   - id: env-mysql-prefix
     desc: MYSQL_ env prefix access
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -207,7 +207,7 @@ traits:
 
   - id: env-redis-url
     desc: REDIS_URL env access
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -216,7 +216,7 @@ traits:
   # === Crypto/wallet atomic indicators ===
   - id: env-wallet-prefix
     desc: WALLET_ env prefix access
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -224,7 +224,7 @@ traits:
 
   - id: env-mnemonic
     desc: MNEMONIC env access
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -232,7 +232,7 @@ traits:
 
   - id: env-seed-phrase
     desc: SEED_PHRASE env access
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -240,7 +240,7 @@ traits:
 
   - id: env-private-key
     desc: PRIVATE_KEY env access
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -248,7 +248,7 @@ traits:
 
   - id: env-eth-private
     desc: ETH_PRIVATE env access
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -257,7 +257,7 @@ traits:
   # === CI/CD atomic indicators ===
   - id: env-ci-token
     desc: CI_TOKEN env access
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -265,7 +265,7 @@ traits:
 
   - id: env-circle-token
     desc: CIRCLE_TOKEN env access
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -273,7 +273,7 @@ traits:
 
   - id: env-travis-token
     desc: TRAVIS_TOKEN env access
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -281,7 +281,7 @@ traits:
 
   - id: env-jenkins-prefix
     desc: JENKINS_ env prefix access
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -289,7 +289,7 @@ traits:
 
   - id: env-buildkite-prefix
     desc: BUILDKITE_ env prefix access
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -298,7 +298,7 @@ traits:
   # === Cloud provider atomic indicators ===
   - id: env-google-prefix
     desc: GOOGLE_ env prefix access
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -306,7 +306,7 @@ traits:
 
   - id: env-gcp-prefix
     desc: GCP_ env prefix access
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -314,7 +314,7 @@ traits:
 
   - id: env-azure-prefix
     desc: AZURE_ env prefix access
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -322,7 +322,7 @@ traits:
 
   - id: env-digitalocean-prefix
     desc: DIGITALOCEAN_ env prefix access
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -330,7 +330,7 @@ traits:
 
   - id: env-heroku-api
     desc: HEROKU_API env access
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -339,7 +339,7 @@ traits:
   # === Env dump atomic indicators ===
   - id: json-stringify-env
     desc: JSON.stringify(process.env)
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -347,7 +347,7 @@ traits:
 
   - id: object-keys-env
     desc: Object.keys(process.env)
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -355,7 +355,7 @@ traits:
 
   - id: object-entries-env
     desc: Object.entries(process.env)
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string

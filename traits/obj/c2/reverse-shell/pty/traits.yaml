@@ -6,7 +6,7 @@ traits:
   # === Python PTY micro-traits ===
   - id: python-socket
     desc: socket module reference
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [python]
     if:
@@ -43,7 +43,7 @@ traits:
 
   - id: py-stdout-pipe
     desc: stdout= pipe argument (Python)
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [python]
     if:
@@ -52,7 +52,7 @@ traits:
 
   - id: py-stderr-pipe
     desc: stderr= pipe argument (Python)
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [python]
     if:
@@ -92,7 +92,7 @@ traits:
 
   - id: net-socket-node
     desc: net.Socket reference
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [javascript, typescript]
     if:
@@ -110,7 +110,7 @@ traits:
 
   - id: websocket-ref
     desc: WebSocket reference
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [javascript, typescript]
     if:
@@ -120,7 +120,7 @@ traits:
   # === STDIO piping micro-traits ===
   - id: stdin-string
     desc: stdin string reference
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [python, javascript, typescript]
     if:
@@ -129,7 +129,7 @@ traits:
 
   - id: stdout-string
     desc: stdout string reference
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [python, javascript, typescript]
     if:
@@ -138,7 +138,7 @@ traits:
 
   - id: stderr-string
     desc: stderr string reference
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [python, javascript, typescript]
     if:
@@ -147,7 +147,7 @@ traits:
 
   - id: dot-pipe
     desc: .pipe( method call
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [python, javascript, typescript]
     if:
@@ -156,7 +156,7 @@ traits:
 
   - id: pipe-constant
     desc: PIPE constant reference
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [python]
     if:
@@ -166,7 +166,7 @@ traits:
   # === Interactive shell micro-traits ===
   - id: isatty-call
     desc: isatty function call
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [python, javascript, shell]
     if:
@@ -193,7 +193,7 @@ traits:
 
   - id: term-env
     desc: TERM= environment setting
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [python, javascript, shell]
     if:
@@ -202,7 +202,7 @@ traits:
 
   - id: xterm-ref
     desc: xterm terminal reference
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [python, javascript, shell]
     if:
@@ -211,7 +211,7 @@ traits:
 
   - id: stty-cmd
     desc: stty command reference
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [python, javascript, shell]
     # NOTE: stty alone is legitimate (reading user input in installers)
@@ -222,7 +222,7 @@ traits:
 
   - id: raw-mode
     desc: raw mode reference
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [python, javascript, shell]
     if:
@@ -234,7 +234,7 @@ traits:
   # === Socat atomic indicators ===
   - id: socat-exec-sh
     desc: socat EXEC shell pattern
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [shell, package.json]
     if:
@@ -243,7 +243,7 @@ traits:
 
   - id: socat-tcp-exec
     desc: socat TCP EXEC pattern
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [shell, package.json]
     if:
@@ -252,7 +252,7 @@ traits:
 
   - id: socat-pty
     desc: socat PTY pattern
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [shell, package.json]
     if:
@@ -262,7 +262,7 @@ traits:
   # === Telnet atomic indicators ===
   - id: telnet-pipe
     desc: telnet piped reverse shell pattern
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [shell, package.json]
     if:
@@ -271,7 +271,7 @@ traits:
 
   - id: mknod-telnet
     desc: mknod telnet reverse shell pattern
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [shell, package.json]
     if:
@@ -371,7 +371,7 @@ composite_rules:
   # STDIO strings composite
   - id: stdio-refs
     desc: Standard I/O references
-    crit: inert
+    crit: notable
     conf: 0.4
     needs: 2
     any:
@@ -382,7 +382,7 @@ composite_rules:
   # Pipe methods composite
   - id: pipe-methods
     desc: Pipe methods
-    crit: inert
+    crit: notable
     conf: 0.5
     any:
       - id: dot-pipe
@@ -422,7 +422,7 @@ composite_rules:
   # Terminal setup composite
   - id: terminal-setup
     desc: Terminal setup markers
-    crit: inert
+    crit: notable
     conf: 0.4
     any:
       - id: term-env

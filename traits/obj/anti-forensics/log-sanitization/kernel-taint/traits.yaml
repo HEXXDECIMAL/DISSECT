@@ -5,7 +5,7 @@ traits:
   # === Kernel Taint Erasure ===
   - id: tainted-mask
     desc: tainted_mask kernel variable
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [c, elf]
     if:
@@ -14,7 +14,7 @@ traits:
 
   - id: taint-mask
     desc: taint_mask kernel variable
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [c, elf]
     if:
@@ -36,7 +36,7 @@ traits:
   # === Log Sanitization Functions ===
   - id: filter-kmsg
     desc: filter_kmsg function
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [c, elf]
     if:
@@ -45,7 +45,7 @@ traits:
 
   - id: filter-taint
     desc: filter_taint function
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [c, elf]
     if:
@@ -54,7 +54,7 @@ traits:
 
   - id: sanitize-log
     desc: sanitize_log function
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [c, elf]
     if:
@@ -64,7 +64,7 @@ traits:
   # === Kernel Log Paths ===
   - id: dev-kmsg-path
     desc: /dev/kmsg kernel message device
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [c, elf, shell]
     if:
@@ -73,7 +73,7 @@ traits:
 
   - id: do-syslog-symbol
     desc: do_syslog kernel function
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [c, elf]
     if:
@@ -83,7 +83,7 @@ traits:
   # === TaskStats API ===
   - id: taskstats-user-cmd
     desc: taskstats_user_cmd kernel function
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [c, elf]
     if:
@@ -92,7 +92,7 @@ traits:
 
   - id: taskstats-cmd-attr-pid
     desc: TASKSTATS_CMD_ATTR_PID constant
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [c, elf]
     if:
@@ -101,7 +101,7 @@ traits:
 
   - id: esrch-constant
     desc: ESRCH error constant (No such
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [c, elf]
     if:

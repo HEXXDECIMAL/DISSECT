@@ -5,7 +5,7 @@ traits:
   # === Audit System Functions ===
   - id: audit-log-start
     desc: audit_log_start kernel function
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [c, elf]
     if:
@@ -14,7 +14,7 @@ traits:
 
   - id: netlink-unicast
     desc: netlink_unicast kernel function
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [c, elf]
     if:
@@ -23,7 +23,7 @@ traits:
 
   - id: netlink-audit-constant
     desc: NETLINK_AUDIT constant
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [c, elf]
     if:
@@ -33,7 +33,7 @@ traits:
   # === Audit Log Field Patterns ===
   - id: pid-equals
     desc: "pid= audit log field"
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [c, elf]
     if:
@@ -42,7 +42,7 @@ traits:
 
   - id: ino-equals
     desc: "ino= audit log field"
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [c, elf]
     if:

@@ -603,7 +603,10 @@ impl<'a> RuleDebugger<'a> {
             description: trait_def.desc.clone(),
             matched: false,
             skipped_reason: None,
-            requirements: format!("Condition: {:?}", describe_condition(&trait_def.r#if.condition)),
+            requirements: format!(
+                "Condition: {:?}",
+                describe_condition(&trait_def.r#if.condition)
+            ),
             condition_results: Vec::new(),
             context_info: self.context_info(),
             precision: Some(precision_value),
@@ -937,11 +940,9 @@ impl<'a> RuleDebugger<'a> {
                 min,
                 max,
             } => self.debug_section_ratio_condition(section, compare_to, *min, *max),
-            Condition::SectionEntropy {
-                section,
-                min,
-                max,
-            } => self.debug_section_entropy_condition(section, *min, *max),
+            Condition::SectionEntropy { section, min, max } => {
+                self.debug_section_entropy_condition(section, *min, *max)
+            }
             Condition::ImportCombination {
                 required,
                 suspicious,
@@ -2642,11 +2643,7 @@ fn describe_condition(condition: &Condition) -> String {
                 max.unwrap_or(1.0)
             )
         }
-        Condition::SectionEntropy {
-            section,
-            min,
-            max,
-        } => {
+        Condition::SectionEntropy { section, min, max } => {
             format!(
                 "section_entropy: {} [{:?}-{:?}]",
                 section,
@@ -2830,16 +2827,9 @@ fn evaluate_condition_simple(
             *case_insensitive,
             ctx,
         ),
-        Condition::Syscall {
-            name,
-            number,
-            arch,
-        } => eval_syscall(
-            name.as_ref(),
-            number.as_ref(),
-            arch.as_ref(),
-            ctx,
-        ),
+        Condition::Syscall { name, number, arch } => {
+            eval_syscall(name.as_ref(), number.as_ref(), arch.as_ref(), ctx)
+        }
         Condition::ExportsCount { min, max } => eval_exports_count(*min, *max, ctx),
         Condition::StringCount {
             min,

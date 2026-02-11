@@ -23,7 +23,7 @@ traits:
 
   - id: http-methods
     desc: HTTP methods (GET, POST, HEAD)
-    crit: inert
+    crit: notable
     conf: 0.60
     if:
       type: string
@@ -31,7 +31,7 @@ traits:
 
   - id: http-headers-general
     desc: HTTP header keywords
-    crit: inert
+    crit: notable
     conf: 0.65
     if:
       type: string

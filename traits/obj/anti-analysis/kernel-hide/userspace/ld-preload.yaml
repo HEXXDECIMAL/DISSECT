@@ -14,7 +14,7 @@ traits:
 
   - id: ld-library-path-env
     desc: References LD_LIBRARY_PATH environment variable
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -80,7 +80,7 @@ traits:
   # Changed to match more specific context patterns.
   - id: static-string
     desc: Static hook indicator
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [elf]
     if:
@@ -137,7 +137,7 @@ traits:
   # === /proc hiding micro-traits ===
   - id: proc-self-string
     desc: /proc/self path reference
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [elf, c]
     if:
@@ -146,7 +146,7 @@ traits:
 
   - id: proc-pid-pattern
     desc: /proc/[pid] path pattern
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [elf, c]
     if:
@@ -155,7 +155,7 @@ traits:
 
   - id: proc-net-string
     desc: /proc/net path reference
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [elf, c]
     if:
@@ -362,7 +362,7 @@ composite_rules:
   # /proc paths composite
   - id: proc-paths
     desc: Multiple /proc path references
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [elf, c]
     needs: 3

@@ -38,7 +38,7 @@ traits:
 
   - id: wscript-scriptfullname
     desc: WScript.ScriptFullName
-    crit: inert
+    crit: notable
     conf: 0.5
     platforms: [windows]
     for: [javascript]
@@ -48,7 +48,7 @@ traits:
 
   - id: wscript-sleep
     desc: WScript.Sleep timing
-    crit: inert
+    crit: notable
     conf: 0.5
     platforms: [windows]
     for: [javascript]

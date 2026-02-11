@@ -50,7 +50,7 @@ traits:
 
   - id: electron-dist-path
     desc: Electron dist directory
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -60,7 +60,7 @@ traits:
 
   - id: fs-copyfile
     desc: File copy operation
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: raw

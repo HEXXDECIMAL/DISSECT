@@ -79,7 +79,7 @@ traits:
 
   - id: sleep-accel
     desc: Sleep acceleration detection (sandbox evasion)
-    crit: inert
+    crit: notable
     mbc: "B0007"
     attack: "T1497.003"
     conf: 0.5

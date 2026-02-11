@@ -10,7 +10,7 @@ traits:
   # Migrated from YARA: RC4 S-box initialization pattern
   - id: rc4-sbox-init
     desc: "RC4 S-box initialization pattern (256-byte"
-    crit: inert
+    crit: notable
     conf: 0.4
     mbc: "C0027.001"
     if:
@@ -41,7 +41,7 @@ traits:
   # NOTE: Hex charset is extremely common in any binary - downgraded to inert
   - id: hardcoded-hex-charset
     desc: "Hardcoded hex encoding charset (encoding/decoding)"
-    crit: inert
+    crit: notable
     conf: 0.2
     mbc: "C0026"
     if:
@@ -51,7 +51,7 @@ traits:
   # NOTE: Base64 charset is common in any binary that encodes data - downgraded to inert
   - id: hardcoded-base64-charset
     desc: "Hardcoded Base64 charset"
-    crit: inert
+    crit: notable
     conf: 0.2
     mbc: "C0026"
     if:

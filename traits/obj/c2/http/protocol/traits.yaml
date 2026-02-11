@@ -10,7 +10,7 @@ defaults:
 traits:
   - id: http-method-get
     desc: Hardcoded GET method string
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -26,7 +26,7 @@ traits:
 
   - id: http-delimiter
     desc: HTTP header delimiter (CRLF CRLF)
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: raw
@@ -34,7 +34,7 @@ traits:
 
   - id: http-user-agent
     desc: User-Agent header string
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -42,7 +42,7 @@ traits:
 
   - id: http-content-type
     desc: Content-Type header string
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string

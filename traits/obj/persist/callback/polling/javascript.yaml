@@ -6,7 +6,7 @@ traits:
   # === setInterval HTTP atomic indicators ===
   - id: setInterval-http-call
     desc: setInterval with http
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript]
     if:
@@ -15,7 +15,7 @@ traits:
 
   - id: setInterval-axios
     desc: setInterval with axios
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript]
     if:
@@ -24,7 +24,7 @@ traits:
 
   - id: setInterval-fetch
     desc: setInterval with fetch
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript]
     if:
@@ -33,7 +33,7 @@ traits:
 
   - id: setInterval-function
     desc: setInterval with function callback
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript]
     if:

@@ -92,7 +92,7 @@ traits:
 
   - id: stdout-path
     desc: StandardOutPath key (log redirection)
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: kv
@@ -100,7 +100,7 @@ traits:
 
   - id: stderr-path
     desc: StandardErrorPath key (log redirection)
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: kv
@@ -108,7 +108,7 @@ traits:
 
   - id: env-vars
     desc: EnvironmentVariables key
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: kv
@@ -116,7 +116,7 @@ traits:
 
   - id: mach-services
     desc: MachServices key (XPC service registration)
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: kv
@@ -132,7 +132,7 @@ traits:
 
   - id: service-ipc
     desc: ServiceIPC key
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: kv
@@ -140,7 +140,7 @@ traits:
 
   - id: process-type
     desc: ProcessType key (Background, App, etc.)
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: kv
@@ -148,7 +148,7 @@ traits:
 
   - id: associated-bundles
     desc: AssociatedBundleIdentifiers key
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: kv
@@ -156,7 +156,7 @@ traits:
 
   - id: working-directory
     desc: WorkingDirectory key
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: kv
@@ -164,7 +164,7 @@ traits:
 
   - id: launch-events
     desc: LaunchEvents key (event-based activation)
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: kv
@@ -172,7 +172,7 @@ traits:
 
   - id: spawn-type
     desc: POSIXSpawnType key
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: kv
@@ -180,7 +180,7 @@ traits:
 
   - id: soft-resource-limits
     desc: SoftResourceLimits key
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: kv
@@ -188,7 +188,7 @@ traits:
 
   - id: hard-resource-limits
     desc: HardResourceLimits key
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: kv
@@ -281,7 +281,7 @@ traits:
   # Masquerading Traits
   - id: label-apple
     desc: Launchd Label starting with com.apple
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [plist]
     if:
@@ -291,7 +291,7 @@ traits:
 
   - id: label-zoom
     desc: Launchd Label starting with com.zoom
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [plist]
     if:
@@ -301,7 +301,7 @@ traits:
 
   - id: label-google
     desc: Launchd Label starting with com.google
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [plist]
     if:
@@ -311,7 +311,7 @@ traits:
 
   - id: label-microsoft
     desc: Launchd Label starting with com.microsoft
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [plist]
     if:
@@ -321,7 +321,7 @@ traits:
 
   - id: label-adobe
     desc: Launchd Label starting with com.adobe
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [plist]
     if:
@@ -331,7 +331,7 @@ traits:
 
   - id: label-oracle
     desc: Launchd Label starting with com.oracle
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [plist]
     if:

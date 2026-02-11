@@ -10,7 +10,7 @@ traits:
   # === File detection ===
   - id: gemspec-file
     desc: Ruby gemspec file
-    crit: inert
+    crit: notable
     conf: 1.0
     if:
       type: basename
@@ -18,7 +18,7 @@ traits:
 
   - id: extconf-file
     desc: Ruby native extension config
-    crit: inert
+    crit: notable
     conf: 1.0
     if:
       type: basename
@@ -27,7 +27,7 @@ traits:
   # === Require patterns ===
   - id: require-net-http
     desc: Requires net/http
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -96,7 +96,7 @@ traits:
   # === Base64 patterns ===
   - id: base64-decode
     desc: Base64 decode call
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -223,7 +223,7 @@ traits:
   # === File operations ===
   - id: file-read-write
     desc: File read/write operations
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -234,7 +234,7 @@ composite_rules:
 
   - id: http-client-imports
     desc: HTTP client imports
-    crit: inert
+    crit: notable
     conf: 0.5
     any:
       - id: meta/import/ruby/net/http
@@ -245,7 +245,7 @@ composite_rules:
 
   - id: file-imports
     desc: File operation imports
-    crit: inert
+    crit: notable
     conf: 0.5
     any:
       - id: meta/import/ruby/fileutils
@@ -276,7 +276,7 @@ composite_rules:
 
   - id: base64-imports
     desc: Base64 encoding operations
-    crit: inert
+    crit: notable
     conf: 0.5
     any:
       - id: meta/import/ruby/base64

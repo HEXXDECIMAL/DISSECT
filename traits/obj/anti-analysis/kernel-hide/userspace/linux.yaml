@@ -51,7 +51,7 @@ traits:
   # the binary has exports (most normal binaries like fd have 0 exports).
   - id: readdir-symbol
     desc: readdir function symbol
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [so]
     if:
@@ -60,7 +60,7 @@ traits:
 
   - id: getdents-symbol
     desc: getdents function symbol
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [so]
     if:
@@ -69,7 +69,7 @@ traits:
 
   - id: has-exports
     desc: Binary exports symbols
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [so]
     if:

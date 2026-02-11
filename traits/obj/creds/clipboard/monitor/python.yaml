@@ -12,7 +12,7 @@ traits:
   # === win32clipboard atomic indicators ===
   - id: import-win32clipboard
     desc: import win32clipboard
-    crit: inert
+    crit: notable
     conf: 0.6
     platforms: [windows]
     if:
@@ -21,7 +21,7 @@ traits:
 
   - id: win32-get-clipboard
     desc: win32clipboard.GetClipboardData
-    crit: inert
+    crit: notable
     conf: 0.7
     platforms: [windows]
     if:
@@ -30,7 +30,7 @@ traits:
 
   - id: win32-set-clipboard
     desc: win32clipboard.SetClipboardData
-    crit: inert
+    crit: notable
     conf: 0.6
     platforms: [windows]
     if:
@@ -39,7 +39,7 @@ traits:
 
   - id: win32-open-clipboard
     desc: win32clipboard.OpenClipboard
-    crit: inert
+    crit: notable
     conf: 0.6
     platforms: [windows]
     if:
@@ -49,7 +49,7 @@ traits:
   # === pyperclip atomic indicators ===
   - id: import-pyperclip
     desc: import pyperclip
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -57,7 +57,7 @@ traits:
 
   - id: pyperclip-paste
     desc: pyperclip.paste
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -65,7 +65,7 @@ traits:
 
   - id: pyperclip-copy
     desc: pyperclip.copy
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -74,7 +74,7 @@ traits:
   # === wxPython clipboard atomic indicators ===
   - id: wx-clipboard
     desc: wx.Clipboard
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -82,7 +82,7 @@ traits:
 
   - id: clipboard-getdata
     desc: clipboard.GetData
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -90,7 +90,7 @@ traits:
 
   - id: wx-theclipboard
     desc: wx.TheClipboard
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -99,7 +99,7 @@ traits:
   # === tkinter clipboard atomic indicators ===
   - id: clipboard-get-method
     desc: .clipboard_get() method
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -107,7 +107,7 @@ traits:
 
   - id: clipboard-clear-method
     desc: .clipboard_clear() method
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -116,7 +116,7 @@ traits:
   # === Windows clipboard chain atomic ===
   - id: set-clipboard-viewer
     desc: SetClipboardViewer function
-    crit: inert
+    crit: notable
     conf: 0.8
     platforms: [windows]
     if:
@@ -125,7 +125,7 @@ traits:
 
   - id: wm-drawclipboard
     desc: WM_DRAWCLIPBOARD message
-    crit: inert
+    crit: notable
     conf: 0.8
     platforms: [windows]
     if:
@@ -134,7 +134,7 @@ traits:
 
   - id: wm-changecbchain
     desc: WM_CHANGECBCHAIN message
-    crit: inert
+    crit: notable
     conf: 0.7
     platforms: [windows]
     if:
@@ -144,7 +144,7 @@ traits:
   # === pynput clipboard atomic ===
   - id: pynput-import-clipboard
     desc: from pynput import clipboard
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -152,7 +152,7 @@ traits:
 
   - id: pynput-clipboard-mod
     desc: pynput.clipboard module
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -161,7 +161,7 @@ traits:
   # === Network exfil atomic (require clipboard context) ===
   - id: requests-post-clip
     desc: requests.post with clipboard
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: raw
@@ -169,7 +169,7 @@ traits:
 
   - id: requests-get-clip
     desc: requests.get with clipboard
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: raw
@@ -177,7 +177,7 @@ traits:
 
   - id: urllib-clip
     desc: urllib with clipboard
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: raw
@@ -185,7 +185,7 @@ traits:
 
   - id: socket-clip
     desc: socket with clipboard
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: raw
@@ -194,7 +194,7 @@ traits:
   # === Loop/persistence atomic (require clipboard context) ===
   - id: while-clipboard-loop
     desc: while loop with clipboard
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: raw
@@ -202,7 +202,7 @@ traits:
 
   - id: schedule-clipboard
     desc: schedule with clipboard
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: raw
@@ -210,7 +210,7 @@ traits:
 
   - id: time-sleep-clipboard
     desc: time.sleep with clipboard
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: raw
@@ -219,7 +219,7 @@ traits:
   # === Message loop atomic ===
   - id: wndproc-keyword
     desc: WndProc keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     platforms: [windows]
     if:
@@ -228,7 +228,7 @@ traits:
 
   - id: message-loop-str
     desc: '"message loop" string'
-    crit: inert
+    crit: notable
     conf: 0.5
     platforms: [windows]
     if:
@@ -237,7 +237,7 @@ traits:
 
   - id: getclipboarddata-fn
     desc: GetClipboardData function
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string

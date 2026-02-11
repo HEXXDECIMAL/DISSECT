@@ -2,7 +2,7 @@
 # Patterns that suggest PKG-INFO body is cloned from legitimate libraries
 
 defaults:
-  crit: inert
+  crit: notable
   conf: 0.70
   for: [all]
 
@@ -31,7 +31,7 @@ traits:
 composite_rules:
   - id: has-cloned-body-indicators
     desc: Has cloned README body indicators
-    crit: inert
+    crit: notable
     conf: 0.70
     for: [all]
     needs: 2

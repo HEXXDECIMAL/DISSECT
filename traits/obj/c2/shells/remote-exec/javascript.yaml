@@ -7,7 +7,7 @@ composite_rules:
   # Output/command variable composite - references generic terms
   - id: js-output-command-var
     desc: Variable names suggesting command output
-    crit: inert
+    crit: notable
     conf: 0.3
     any:
       - id: cap/data/text/keywords::output

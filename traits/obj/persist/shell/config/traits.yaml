@@ -164,7 +164,7 @@ traits:
   # Exclusion patterns
   - id: posixly-correct
     desc: POSIXLY_CORRECT environment variable (legitimate bash
-    crit: inert
+    crit: notable
     conf: 1.0
     if:
       type: string
@@ -172,7 +172,7 @@ traits:
 
   - id: cshrc-file
     desc: .cshrc file (C shell, not
-    crit: inert
+    crit: notable
     conf: 1.0
     if:
       type: string
@@ -180,7 +180,7 @@ traits:
 
   - id: tcsh-keyword
     desc: tcsh keyword (shell name)
-    crit: inert
+    crit: notable
     conf: 1.0
     if:
       type: string

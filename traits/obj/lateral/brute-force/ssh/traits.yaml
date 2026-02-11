@@ -6,7 +6,7 @@ traits:
   # Authentication methods
   - id: password-auth
     desc: SSH password authentication
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -16,7 +16,7 @@ traits:
   # Authentication error strings
   - id: too-many-auth-failures
     desc: Too many authentication failures error
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -25,7 +25,7 @@ traits:
   # Default IoT credentials (15 common pairs)
   - id: admin-admin-cred
     desc: Default credential admin:admin
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -33,7 +33,7 @@ traits:
 
   - id: root-root-cred
     desc: Default credential root:root
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -41,7 +41,7 @@ traits:
 
   - id: admin-1234-cred
     desc: Default credential admin:1234
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -49,7 +49,7 @@ traits:
 
   - id: ubnt-ubnt-cred
     desc: Default Ubiquiti credential ubnt:ubnt
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -57,7 +57,7 @@ traits:
 
   - id: pi-raspberry-cred
     desc: Default Raspberry Pi credential pi:raspberry
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -65,7 +65,7 @@ traits:
 
   - id: admin-password-cred
     desc: Default credential admin:password
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -73,7 +73,7 @@ traits:
 
   - id: guest-guest-cred
     desc: Default credential guest:guest
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -81,7 +81,7 @@ traits:
 
   - id: support-support-cred
     desc: Default credential support:support
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -89,7 +89,7 @@ traits:
 
   - id: root-vizxv-cred
     desc: Telnet default credential root:vizxv
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -97,7 +97,7 @@ traits:
 
   - id: root-xc3511-cred
     desc: Telnet default credential root:xc3511
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -105,7 +105,7 @@ traits:
 
   - id: root-888888-cred
     desc: Telnet default credential root:888888
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -113,7 +113,7 @@ traits:
 
   - id: root-juantech-cred
     desc: Telnet default credential root:juantech
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -121,7 +121,7 @@ traits:
 
   - id: admin-admin1234-cred
     desc: Camera default credential admin:admin1234
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -129,7 +129,7 @@ traits:
 
   - id: admin-smcadmin-cred
     desc: SMC default credential admin:smcadmin
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -137,7 +137,7 @@ traits:
 
   - id: user-user-cred
     desc: Default credential user:user
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -146,7 +146,7 @@ traits:
   # SSH port references - require more context than just ":22"
   - id: ssh-port-colon
     desc: SSH port :22
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -156,7 +156,7 @@ traits:
 
   - id: ssh-port-string-lower
     desc: SSH port string (lowercase)
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -164,7 +164,7 @@ traits:
 
   - id: ssh-port-string-upper
     desc: SSH port string (uppercase)
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -172,7 +172,7 @@ traits:
 
   - id: ssh-port-string-title
     desc: SSH port string (titlecase)
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -181,7 +181,7 @@ traits:
   # Scanner keywords - require network scanning context
   - id: scanner-keyword
     desc: scanner keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -190,7 +190,7 @@ traits:
 
   - id: scanning-keyword
     desc: scanning keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string

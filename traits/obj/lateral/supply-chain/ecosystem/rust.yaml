@@ -95,7 +95,7 @@ traits:
   # === Dummy key/value atomic indicators ===
   - id: dummy-key-word
     desc: dummy_key reference
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [rust]
     if:
@@ -104,7 +104,7 @@ traits:
 
   - id: dummy-value-word
     desc: dummy_value reference
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [rust]
     if:
@@ -114,7 +114,7 @@ traits:
   # === Library pattern atomic indicators ===
   - id: pub-struct
     desc: pub struct declaration
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [rust]
     if:
@@ -123,7 +123,7 @@ traits:
 
   - id: pub-enum
     desc: pub enum declaration
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [rust]
     if:
@@ -132,7 +132,7 @@ traits:
 
   - id: impl-keyword
     desc: impl keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [rust]
     if:
@@ -141,7 +141,7 @@ traits:
 
   - id: pub-trait
     desc: pub trait declaration
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [rust]
     if:
@@ -178,7 +178,7 @@ composite_rules:
   # Library pattern composite (requires 2 of them)
   - id: internal-lib-pattern
     desc: Generic indicator of legitimate library
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [rust]
     needs: 2

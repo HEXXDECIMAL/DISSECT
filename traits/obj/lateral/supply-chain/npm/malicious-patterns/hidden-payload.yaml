@@ -14,7 +14,7 @@ traits:
 
   - id: license-file-reference
     desc: LICENSE file path reference
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -23,7 +23,7 @@ traits:
 
   - id: readme-file-reference
     desc: README file path reference
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -32,7 +32,7 @@ traits:
 
   - id: changelog-file-reference
     desc: CHANGELOG file path reference
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -41,7 +41,7 @@ traits:
 
   - id: txt-file-reference
     desc: .txt file path reference
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -50,7 +50,7 @@ traits:
 
   - id: dat-file-reference
     desc: .dat file path reference
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -94,7 +94,7 @@ traits:
 
   - id: local-lib-require
     desc: Local lib module require
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript]
     if:
@@ -105,7 +105,7 @@ traits:
 
   - id: fs-readfile-call
     desc: fs.readFile call
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -114,7 +114,7 @@ traits:
 
   - id: fs-readfilesync-call
     desc: fs.readFileSync call
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -126,7 +126,7 @@ composite_rules:
 
   - id: non-code-file-reference
     desc: Reference to non-code file
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     any:
@@ -149,7 +149,7 @@ composite_rules:
 
   - id: file-read-operation
     desc: File read operation
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     any:

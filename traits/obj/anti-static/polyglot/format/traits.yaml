@@ -111,7 +111,7 @@ traits:
   # PDF trailer at actual end (benign)
   - id: pdf-trailer-eof-at-end
     desc: PDF EOF marker at file end
-    crit: inert
+    crit: notable
     conf: 0.95
     for: [all]
     if:

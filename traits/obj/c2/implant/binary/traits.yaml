@@ -9,7 +9,7 @@ traits:
   # === Implant-related terminology ===
   - id: malware-implant
     desc: Malware implant keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -18,7 +18,7 @@ traits:
 
   - id: c2-implant
     desc: C2 implant keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -27,7 +27,7 @@ traits:
 
   - id: rat-implant
     desc: RAT implant keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -36,7 +36,7 @@ traits:
 
   - id: backdoor-implant
     desc: Backdoor implant keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -46,7 +46,7 @@ traits:
   # === Dropper terminology ===
   - id: malware-dropper
     desc: Malware dropper keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -55,7 +55,7 @@ traits:
 
   - id: c2-dropper
     desc: C2 dropper keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -64,7 +64,7 @@ traits:
 
   - id: rat-dropper
     desc: RAT dropper keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -73,7 +73,7 @@ traits:
 
   - id: backdoor-dropper
     desc: Backdoor dropper keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -83,7 +83,7 @@ traits:
   # === Stager terminology ===
   - id: malware-stager
     desc: Malware stager keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -92,7 +92,7 @@ traits:
 
   - id: c2-stager
     desc: C2 stager keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -101,7 +101,7 @@ traits:
 
   - id: rat-stager
     desc: RAT stager keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -110,7 +110,7 @@ traits:
 
   - id: backdoor-stager
     desc: Backdoor stager keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -120,7 +120,7 @@ traits:
   # === Payload terminology ===
   - id: implant-payload
     desc: Implant payload keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -129,7 +129,7 @@ traits:
 
   - id: dropper-payload
     desc: Dropper payload keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -138,7 +138,7 @@ traits:
 
   - id: stager-payload
     desc: Stager payload keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -147,7 +147,7 @@ traits:
 
   - id: beacon-payload
     desc: Beacon payload keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -156,7 +156,7 @@ traits:
 
   - id: malware-payload
     desc: Malware payload keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -165,7 +165,7 @@ traits:
 
   - id: shell-payload
     desc: Shell payload keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -175,7 +175,7 @@ traits:
   # === Config terminology ===
   - id: implant-config
     desc: Implant config keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -184,7 +184,7 @@ traits:
 
   - id: dropper-config
     desc: Dropper config keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -193,7 +193,7 @@ traits:
 
   - id: stager-config
     desc: Stager config keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -203,7 +203,7 @@ traits:
   # === Beacon terminology ===
   - id: implant-beacon
     desc: Implant beacon keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -212,7 +212,7 @@ traits:
 
   - id: dropper-beacon
     desc: Dropper beacon keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -221,7 +221,7 @@ traits:
 
   - id: stager-beacon
     desc: Stager beacon keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -231,7 +231,7 @@ traits:
   # === Trojan terminology ===
   - id: trojan-horse
     desc: Trojan horse keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -240,7 +240,7 @@ traits:
 
   - id: trojan-malware
     desc: Trojan malware keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -249,7 +249,7 @@ traits:
 
   - id: trojan-payload
     desc: Trojan payload keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -258,7 +258,7 @@ traits:
 
   - id: trojan-downloader
     desc: Trojan downloader keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -267,7 +267,7 @@ traits:
 
   - id: trojan-surrounded
     desc: Trojan in context
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string

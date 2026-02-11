@@ -39,7 +39,7 @@ traits:
   # === Crypto Trading Terminology ===
   - id: defi-protocol-ref
     desc: DeFi protocol references
-    crit: inert
+    crit: notable
     conf: 0.50
     if:
       type: string
@@ -47,7 +47,7 @@ traits:
 
   - id: token-swap-pattern
     desc: Token swap operation patterns
-    crit: inert
+    crit: notable
     conf: 0.50
     if:
       type: string
@@ -55,7 +55,7 @@ traits:
 
   - id: arbitrage-terms
     desc: Arbitrage trading terms
-    crit: inert
+    crit: notable
     conf: 0.50
     if:
       type: string
@@ -63,7 +63,7 @@ traits:
 
   - id: web3-provider
     desc: Web3 provider usage
-    crit: inert
+    crit: notable
     conf: 0.50
     if:
       type: string
@@ -71,7 +71,7 @@ traits:
 
   - id: meme-token-keywords
     desc: Meme token related keywords
-    crit: inert
+    crit: notable
     conf: 0.50
     if:
       type: string

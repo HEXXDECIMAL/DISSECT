@@ -5,7 +5,7 @@
 traits:
   - id: cypress-require
     desc: require('cypress')
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -14,7 +14,7 @@ traits:
 
   - id: cypress-import
     desc: from 'cypress'
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -23,7 +23,7 @@ traits:
 
   - id: playwright-require
     desc: require('playwright')
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -32,7 +32,7 @@ traits:
 
   - id: playwright-import
     desc: from 'playwright'
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -41,7 +41,7 @@ traits:
 
   - id: playwright-scoped-import
     desc: from '@playwright
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -50,7 +50,7 @@ traits:
 
   - id: puppeteer-require
     desc: require('puppeteer')
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -59,7 +59,7 @@ traits:
 
   - id: puppeteer-import
     desc: from 'puppeteer'
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -68,7 +68,7 @@ traits:
 
   - id: selenium-require
     desc: require('selenium import
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -77,7 +77,7 @@ traits:
 
   - id: selenium-import
     desc: from 'selenium import
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -86,7 +86,7 @@ traits:
 
   - id: webdriver-require
     desc: require('webdriver import
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -95,7 +95,7 @@ traits:
 
   - id: webdriver-import
     desc: from 'webdriver import
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -104,7 +104,7 @@ traits:
 
   - id: nightwatch-require
     desc: require('nightwatch')
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -113,7 +113,7 @@ traits:
 
   - id: nightwatch-import
     desc: from 'nightwatch'
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -122,7 +122,7 @@ traits:
 
   - id: testing-library-import
     desc: "@testing-library import"
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -131,7 +131,7 @@ traits:
 
   - id: testing-library-require
     desc: require('@testing-library
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:

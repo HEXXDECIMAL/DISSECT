@@ -168,7 +168,7 @@ traits:
 
   - id: sys-getpriority
     desc: sys_getpriority syscall
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [elf, c]
     if:
@@ -195,7 +195,7 @@ traits:
 
   - id: sys-kill
     desc: sys_kill syscall
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [elf, c]
     if:
@@ -235,7 +235,7 @@ traits:
   # === Kernel Module Markers ===
   - id: init-module
     desc: init_module entry point
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: symbol
@@ -243,7 +243,7 @@ traits:
 
   - id: cleanup-module
     desc: cleanup_module exit point
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: symbol
@@ -251,7 +251,7 @@ traits:
 
   - id: this-module
     desc: __this_module reference
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -259,7 +259,7 @@ traits:
 
   - id: vermagic
     desc: vermagic= kernel version magic
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -267,7 +267,7 @@ traits:
 
   - id: modinfo-section
     desc: .modinfo section
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -275,7 +275,7 @@ traits:
 
   - id: gnu-linkonce
     desc: .gnu.linkonce section
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -318,7 +318,7 @@ traits:
 
   - id: nf-accept
     desc: NF_ACCEPT verdict
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -326,7 +326,7 @@ traits:
 
   - id: nf-drop
     desc: NF_DROP verdict
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -335,7 +335,7 @@ traits:
   # === VFS Layer Functions ===
   - id: vfs-read
     desc: vfs_read function
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [elf, c]
     if:
@@ -344,7 +344,7 @@ traits:
 
   - id: vfs-write
     desc: vfs_write function
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [elf, c]
     if:
@@ -740,7 +740,7 @@ composite_rules:
   # Module format markers helper
   - id: module-markers
     desc: Kernel module format markers
-    crit: inert
+    crit: notable
     conf: 0.5
     needs: 3
     any:
@@ -766,7 +766,7 @@ composite_rules:
   # Netfilter verdicts helper
   - id: nf-verdicts
     desc: Netfilter verdict values
-    crit: inert
+    crit: notable
     conf: 0.5
     any:
       - id: nf-accept

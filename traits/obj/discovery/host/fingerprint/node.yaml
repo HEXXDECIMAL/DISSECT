@@ -96,7 +96,7 @@ traits:
   # === MAC address extraction patterns ===
   - id: mac-keyword-lower
     desc: mac keyword (lowercase)
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -105,7 +105,7 @@ traits:
 
   - id: mac-keyword-upper
     desc: MAC keyword (uppercase)
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -114,7 +114,7 @@ traits:
 
   - id: mac-address-regex
     desc: MAC address regex pattern
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript]
     if:
@@ -123,7 +123,7 @@ traits:
 
   - id: internal-filter-keyword
     desc: internal filter keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -133,7 +133,7 @@ traits:
   # === Hashing for machine ID ===
   - id: createhash-call
     desc: crypto.createHash call
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -142,7 +142,7 @@ traits:
 
   - id: sha256-keyword
     desc: sha256 hash algorithm
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -151,7 +151,7 @@ traits:
 
   - id: md5-keyword
     desc: md5 hash algorithm
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -160,7 +160,7 @@ traits:
 
   - id: hostname-keyword
     desc: hostname keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -169,7 +169,7 @@ traits:
 
   - id: userinfo-keyword
     desc: userInfo keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -178,7 +178,7 @@ traits:
 
   - id: networkinterfaces-keyword
     desc: networkInterfaces keyword
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -188,7 +188,7 @@ traits:
   # === Object serialization ===
   - id: json-stringify-call
     desc: JSON.stringify call
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -197,7 +197,7 @@ traits:
 
   - id: object-keys-call
     desc: Object.keys call
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -206,7 +206,7 @@ traits:
 
   - id: object-entries-call
     desc: Object.entries call
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -215,7 +215,7 @@ traits:
 
   - id: process-env-access
     desc: process.env access
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -224,7 +224,7 @@ traits:
 
   - id: process-env-serialization
     desc: process.env serialization call
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [javascript, typescript]
     if:
@@ -234,7 +234,7 @@ traits:
   # === Process list atomic indicators ===
   - id: tasklist-cmd
     desc: Windows tasklist command
-    crit: inert
+    crit: notable
     conf: 0.7
     mbc: "E1592"
     attack: "T1057"
@@ -245,7 +245,7 @@ traits:
 
   - id: ps-aux-cmd
     desc: ps aux command
-    crit: inert
+    crit: notable
     conf: 0.7
     mbc: "E1592"
     attack: "T1057"
@@ -256,7 +256,7 @@ traits:
 
   - id: ps-ef-cmd
     desc: ps -ef command
-    crit: inert
+    crit: notable
     conf: 0.7
     mbc: "E1592"
     attack: "T1057"
@@ -267,7 +267,7 @@ traits:
 
   - id: get-process-cmd
     desc: PowerShell Get-Process
-    crit: inert
+    crit: notable
     conf: 0.7
     mbc: "E1592"
     attack: "T1057"

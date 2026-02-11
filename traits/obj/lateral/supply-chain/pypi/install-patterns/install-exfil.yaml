@@ -59,7 +59,7 @@ traits:
 
   - id: py-basename
     desc: Python file extension
-    crit: inert
+    crit: notable
     conf: 1.0
     for: [all]
     if:
@@ -68,7 +68,7 @@ traits:
 
   - id: empty-file
     desc: Empty file (0 bytes)
-    crit: inert
+    crit: notable
     conf: 1.0
     for: [all]
     size_max: 0
@@ -84,7 +84,7 @@ traits:
 
   - id: init-py-file
     desc: __init__.py file
-    crit: inert
+    crit: notable
     conf: 1.0
     for: [all]
     if:
@@ -93,7 +93,7 @@ traits:
 
   - id: setup-py-file
     desc: setup.py file
-    crit: inert
+    crit: notable
     conf: 1.0
     for: [all]
     if:
@@ -102,7 +102,7 @@ traits:
 
   - id: setuptools-setup-call
     desc: setuptools setup() call
-    crit: inert
+    crit: notable
     conf: 0.8
     if:
       type: symbol
@@ -152,7 +152,7 @@ traits:
   # install command's lifetime, evading install-time sandboxes.
   - id: atexit-register-callback
     desc: atexit.register deferred execution callback
-    crit: inert
+    crit: notable
     conf: 0.85
     size_max: 10000
     if:

@@ -86,7 +86,7 @@ traits:
   # Go directory listing (recon)
   - id: go-dir-enum
     desc: Go directory enumeration
-    crit: inert
+    crit: notable
     conf: 0.8
     attack: "T1083"
     if:

@@ -20,7 +20,7 @@ traits:
 
   - id: localized-folder
     desc: ".localized folder marker"
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -38,7 +38,7 @@ traits:
 
   - id: library-dir
     desc: "~/Library directory reference"
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -46,7 +46,7 @@ traits:
 
   - id: downloads-dir
     desc: "~/Downloads directory reference"
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -54,7 +54,7 @@ traits:
 
   - id: documents-dir
     desc: "~/Documents directory reference"
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -63,7 +63,7 @@ traits:
   # === Environment variable access ===
   - id: home-env
     desc: "HOME environment variable"
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1083"
     if:

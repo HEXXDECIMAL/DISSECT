@@ -52,7 +52,7 @@ traits:
   # === Single-byte XOR key atomic indicators ===
   - id: xor-key-0x37
     desc: XOR key 0x37 repeated
-    crit: inert
+    crit: notable
     conf: 0.55
     for: [elf]
     if:
@@ -62,7 +62,7 @@ traits:
   # === Table-based decode atomic indicators ===
   - id: decode-table-symbol
     desc: decode_table symbol
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: symbol
@@ -70,7 +70,7 @@ traits:
 
   - id: table-decode-symbol
     desc: table_decode symbol
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: symbol
@@ -78,7 +78,7 @@ traits:
 
   - id: lookup-decode-symbol
     desc: lookup_decode symbol
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: symbol
@@ -90,7 +90,7 @@ traits:
   # Removed from standalone matching; only used in composite rules with needs: 2
   - id: char-map-symbol
     desc: char_map symbol
-    crit: inert
+    crit: notable
     conf: 0.3
     if:
       type: symbol
@@ -106,7 +106,7 @@ traits:
   #
   # - id: xor-key-multibyte-31
   #   desc: 31-byte alphanumeric XOR key pattern
-  #   crit: inert
+  #   crit: notable
   #   conf: 0.5
   #   for: [elf, macho, pe]
   #   if:
@@ -116,7 +116,7 @@ traits:
   #
   # - id: xor-key-multibyte-16-32
   #   desc: 16-32 byte random-looking key in
-  #   crit: inert
+  #   crit: notable
   #   conf: 0.5
   #   for: [elf, macho, pe]
   #   if:

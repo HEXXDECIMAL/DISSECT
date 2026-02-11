@@ -6,7 +6,7 @@ traits:
   # === Shell eval atomic indicators ===
   - id: eval-call-shell
     desc: eval() call (shell/js)
-    crit: inert
+    crit: notable
     conf: 0.5
     mbc: "E1059"
     attack: "T1059"
@@ -17,7 +17,7 @@ traits:
 
   - id: exec-call-shell
     desc: exec() call (shell/js)
-    crit: inert
+    crit: notable
     conf: 0.5
     mbc: "E1059"
     attack: "T1059"
@@ -29,7 +29,7 @@ traits:
   # === Python eval atomic indicators ===
   - id: eval-call-python
     desc: eval() call (Python)
-    crit: inert
+    crit: notable
     conf: 0.4
     mbc: "E1059"
     attack: "T1059"
@@ -40,7 +40,7 @@ traits:
 
   - id: exec-call-python
     desc: exec() call (Python)
-    crit: inert
+    crit: notable
     conf: 0.4
     mbc: "E1059"
     attack: "T1059"
@@ -51,7 +51,7 @@ traits:
 
   - id: compile-call-python
     desc: compile() call (Python)
-    crit: inert
+    crit: notable
     conf: 0.4
     mbc: "E1059"
     attack: "T1059"

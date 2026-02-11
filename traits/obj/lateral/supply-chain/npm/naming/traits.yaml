@@ -56,7 +56,7 @@ traits:
 
   - id: name-token-keyword
     desc: Package name contains "token" keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: raw
@@ -65,7 +65,7 @@ traits:
 
   - id: name-logger-keyword
     desc: Package name contains "logger" keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: raw
@@ -85,7 +85,7 @@ traits:
 
   - id: name-discord-target
     desc: Package name contains "discord"
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: raw
@@ -94,7 +94,7 @@ traits:
 
   - id: name-telegram-target
     desc: Package name contains "telegram"
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: raw
@@ -103,7 +103,7 @@ traits:
 
   - id: name-slack-target
     desc: Package name contains "slack"
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: raw
@@ -112,7 +112,7 @@ traits:
 
   - id: name-wallet-target
     desc: Package name contains "wallet"
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: raw
@@ -121,7 +121,7 @@ traits:
 
   - id: name-crypto-target
     desc: Package name contains crypto
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: raw
@@ -130,7 +130,7 @@ traits:
 
   - id: name-metamask-target
     desc: Package name contains "metamask"
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: raw
@@ -139,7 +139,7 @@ traits:
 
   - id: name-browser-target
     desc: Package name contains "browser"
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: raw
@@ -148,7 +148,7 @@ traits:
 
   - id: name-password-target
     desc: Package name contains "password"
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: raw
@@ -159,7 +159,7 @@ traits:
 
   - id: name-mysql-prefix
     desc: Package name prefixes "mysql"
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: raw
@@ -168,7 +168,7 @@ traits:
 
   - id: name-express-prefix
     desc: Package name prefixes "express"
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: raw
@@ -177,7 +177,7 @@ traits:
 
   - id: name-react-prefix
     desc: Package name prefixes "react"
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: raw
@@ -186,7 +186,7 @@ traits:
 
   - id: name-vue-prefix
     desc: Package name prefixes "vue"
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: raw
@@ -195,7 +195,7 @@ traits:
 
   - id: name-node-prefix
     desc: Package name prefixes "node"
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: raw
@@ -235,7 +235,7 @@ traits:
 
   - id: keyword-token
     desc: Keywords contain "token"
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: raw
@@ -244,7 +244,7 @@ traits:
 
   - id: keyword-discord
     desc: Keywords contain "discord"
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: raw
@@ -270,7 +270,7 @@ composite_rules:
 
   - id: name-has-target-app
     desc: Package name contains target application
-    crit: inert
+    crit: notable
     conf: 0.5
     any:
       - id: name-discord-target
@@ -304,7 +304,7 @@ composite_rules:
 
   - id: keyword-target-patterns
     desc: Keywords contain target app terms
-    crit: inert
+    crit: notable
     conf: 0.5
     any:
       - id: keyword-discord

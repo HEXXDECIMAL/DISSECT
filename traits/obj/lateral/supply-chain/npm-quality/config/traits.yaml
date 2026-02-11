@@ -3,7 +3,7 @@
 traits:
   - id: has-docs
     desc: Package has documentation directory
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [package.json]
     if:
@@ -12,7 +12,7 @@ traits:
 
   - id: has-github-config
     desc: Package references GitHub configuration
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [package.json]
     if:
@@ -21,7 +21,7 @@ traits:
 
   - id: has-tsconfig
     desc: Package has TypeScript configuration
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [package.json]
     if:
@@ -30,7 +30,7 @@ traits:
 
   - id: has-eslint-config
     desc: Package has ESLint configuration
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [package.json]
     if:
@@ -39,7 +39,7 @@ traits:
 
   - id: has-prettier-config
     desc: Package has Prettier configuration
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [package.json]
     if:
@@ -48,7 +48,7 @@ traits:
 
   - id: has-babel-config
     desc: Package has Babel configuration
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [package.json]
     if:
@@ -57,7 +57,7 @@ traits:
 
   - id: has-editorconfig
     desc: Package has editor configuration
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [package.json]
     if:
@@ -66,7 +66,7 @@ traits:
 
   - id: has-npmignore-or-files
     desc: Package has publishing configuration
-    crit: inert
+    crit: notable
     conf: 0.85
     for: [package.json]
     if:

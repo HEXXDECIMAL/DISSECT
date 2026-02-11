@@ -3,7 +3,7 @@
 #[cfg(test)]
 #[allow(clippy::module_inception)]
 mod description_validation_tests {
-    use crate::composite_rules::{Condition, TraitDefinition};
+    use crate::composite_rules::{Condition, ConditionWithFilters, TraitDefinition};
     use crate::types::Criticality;
 
     fn create_test_trait_with_desc(desc: &str) -> TraitDefinition {
@@ -16,27 +16,29 @@ mod description_validation_tests {
             attack: None,
             platforms: vec![],
             r#for: vec![],
-            size_min: None,
-            size_max: None,
-            r#if: Condition::String {
-                exact: Some("test".to_string()),
-                substr: None,
-                regex: None,
-                word: None,
-                case_insensitive: false,
-                exclude_patterns: None,
-                count_min: 1,
+            r#if: ConditionWithFilters {
+                condition: Condition::String {
+                    exact: Some("test".to_string()),
+                    substr: None,
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    external_ip: false,
+                    section: None,
+                    offset: None,
+                    offset_range: None,
+                    section_offset: None,
+                    section_offset_range: None,
+                    compiled_regex: None,
+                    compiled_excludes: vec![],
+                },
+                size_min: None,
+                size_max: None,
+                count_min: None,
                 count_max: None,
                 per_kb_min: None,
                 per_kb_max: None,
-                external_ip: false,
-                section: None,
-                offset: None,
-                offset_range: None,
-                section_offset: None,
-                section_offset_range: None,
-                compiled_regex: None,
-                compiled_excludes: vec![],
             },
             not: None,
             unless: None,

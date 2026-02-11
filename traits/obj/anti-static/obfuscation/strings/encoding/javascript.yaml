@@ -42,7 +42,7 @@ traits:
   # Buffer.from with encoding (atomic)
   - id: js-buffer-from-base64
     desc: Buffer.from base64
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -51,7 +51,7 @@ traits:
 
   - id: js-buffer-from-hex
     desc: Buffer.from hex
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -108,7 +108,7 @@ traits:
   # Custom string shuffling/decoding loop pattern
   - id: js-charat-loop
     desc: charAt in loop pattern
-    crit: inert
+    crit: notable
     conf: 0.7
     mbc: "B0032"
     attack: "T1027"
@@ -131,7 +131,7 @@ traits:
   # String split to array
   - id: js-string-split
     desc: Split to empty-delimiter char array
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript]
     if:
@@ -143,7 +143,7 @@ traits:
 
   - id: js-function-call
     desc: Function() constructor
-    crit: inert
+    crit: notable
     conf: 0.5
     mbc: "B0032"
     attack: "T1027"
@@ -154,7 +154,7 @@ traits:
 
   - id: js-new-function
     desc: new Function constructor
-    crit: inert
+    crit: notable
     conf: 0.5
     mbc: "B0032"
     attack: "T1027"
@@ -165,7 +165,7 @@ traits:
 
   - id: js-array-join-symbol
     desc: Join using empty string delimiter
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript]
     if:

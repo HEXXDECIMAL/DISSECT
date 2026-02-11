@@ -17,7 +17,7 @@ traits:
 
   - id: base64-encode
     desc: Base64 encoding
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [php]
     if:

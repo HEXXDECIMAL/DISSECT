@@ -26,7 +26,7 @@ traits:
 
   - id: os-platform-call
     desc: os.platform() call
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript]
     if:
@@ -35,7 +35,7 @@ traits:
 
   - id: os-arch-call
     desc: os.arch() call
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript]
     if:
@@ -44,7 +44,7 @@ traits:
 
   - id: os-release-call
     desc: os.release() call
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript]
     if:
@@ -53,7 +53,7 @@ traits:
 
   - id: os-type-call
     desc: os.type() call
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript]
     if:
@@ -62,7 +62,7 @@ traits:
 
   - id: os-cpus-call
     desc: os.cpus() call
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript]
     if:
@@ -71,7 +71,7 @@ traits:
 
   - id: os-totalmem-call
     desc: os.totalmem() call
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript]
     if:
@@ -98,7 +98,7 @@ traits:
 
   - id: os-tmpdir-call
     desc: os.tmpdir() call
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -117,7 +117,7 @@ traits:
 
   - id: process-env-access
     desc: process.env access
-    crit: inert
+    crit: notable
     conf: 0.65
     for: [javascript, typescript]
     if:
@@ -126,7 +126,7 @@ traits:
 
   - id: process-platform-access
     desc: process.platform access
-    crit: inert
+    crit: notable
     conf: 0.65
     for: [javascript, typescript]
     if:
@@ -135,7 +135,7 @@ traits:
 
   - id: process-arch-access
     desc: process.arch access
-    crit: inert
+    crit: notable
     conf: 0.65
     for: [javascript, typescript]
     if:
@@ -144,7 +144,7 @@ traits:
 
   - id: process-version-access
     desc: process.version access
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -155,7 +155,7 @@ traits:
   # These catch process.* usage in object literals (common in malware payloads)
   - id: process-platform-content
     desc: process.platform in content
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript]
     if:
@@ -164,7 +164,7 @@ traits:
 
   - id: process-arch-content
     desc: process.arch in content
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript]
     if:
@@ -173,7 +173,7 @@ traits:
 
   - id: process-versions-content
     desc: process.versions in content
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript]
     if:
@@ -182,7 +182,7 @@ traits:
 
   - id: process-argv-content
     desc: process.argv in content
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -248,7 +248,7 @@ composite_rules:
   # Helper: any process fingerprinting property
   - id: process-fingerprint-any
     desc: Process object fingerprint property
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript]
     any:

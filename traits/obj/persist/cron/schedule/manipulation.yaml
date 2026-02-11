@@ -8,7 +8,7 @@ traits:
   # Crontab commands
   - id: crontab-list-flag
     desc: crontab -l list command
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -16,7 +16,7 @@ traits:
 
   - id: pipe-crontab
     desc: Pipe to crontab stdin
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -24,7 +24,7 @@ traits:
 
   - id: echo-command
     desc: echo command
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -32,7 +32,7 @@ traits:
 
   - id: grep-v
     desc: grep -v (inverse match/filter)
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string

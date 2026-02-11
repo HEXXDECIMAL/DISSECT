@@ -15,7 +15,7 @@ traits:
 
   - id: runtime-on-installed
     desc: Listens for extension install event
-    crit: inert
+    crit: notable
     conf: 0.95
     for: [javascript, typescript]
     if:
@@ -25,7 +25,7 @@ traits:
 
   - id: runtime-get-url
     desc: Gets extension resource URL
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript, typescript]
     if:
@@ -35,7 +35,7 @@ traits:
 
   - id: runtime-send-message
     desc: Sends message between extension contexts
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript, typescript]
     if:
@@ -87,7 +87,7 @@ traits:
   # === chrome.storage APIs ===
   - id: storage-local
     desc: Accesses local extension storage
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript, typescript]
     if:
@@ -97,7 +97,7 @@ traits:
 
   - id: storage-sync
     desc: Accesses synced extension storage
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript, typescript]
     if:
@@ -202,7 +202,7 @@ traits:
   # === Content script patterns ===
   - id: mutation-observer
     desc: Observes DOM mutations
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript, typescript]
     if:
@@ -222,7 +222,7 @@ traits:
   # === Extension markers ===
   - id: chrome-namespace
     desc: Uses chrome.* namespace
-    crit: inert
+    crit: notable
     conf: 0.95
     for: [javascript, typescript]
     if:
@@ -231,7 +231,7 @@ traits:
 
   - id: browser-namespace
     desc: Uses browser.* namespace (Firefox/WebExtension)
-    crit: inert
+    crit: notable
     conf: 0.95
     for: [javascript, typescript]
     if:
@@ -251,7 +251,7 @@ composite_rules:
   # Chrome extension marker
   - id: is-extension
     desc: File is part of a browser extension
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript, typescript]
     any:

@@ -25,7 +25,7 @@ traits:
 
   - id: npm-profile-url
     desc: NPM user profile URL pattern
-    crit: inert
+    crit: notable
     for: [javascript, typescript]
     if:
       type: string

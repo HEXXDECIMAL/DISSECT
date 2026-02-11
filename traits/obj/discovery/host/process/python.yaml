@@ -16,7 +16,7 @@ traits:
   # === Shell process enumeration (atomic) ===
   - id: tasklist-cmd
     desc: Windows tasklist command
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [python, javascript, shell]
     if:
@@ -25,7 +25,7 @@ traits:
 
   - id: pgrep-cmd
     desc: pgrep command for process grep
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -33,7 +33,7 @@ traits:
 
   - id: ps-ef-cmd
     desc: ps -ef command for process
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [python, javascript, shell]
     if:
@@ -43,7 +43,7 @@ traits:
   # === Analysis tool process names (atomic) ===
   - id: wireshark-proc
     desc: Wireshark process name
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -51,7 +51,7 @@ traits:
 
   - id: vbox-proc
     desc: VirtualBox process name
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -59,7 +59,7 @@ traits:
 
   - id: vmware-proc
     desc: VMware process name
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -67,7 +67,7 @@ traits:
 
   - id: charles-proc
     desc: Charles proxy process name
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -75,7 +75,7 @@ traits:
 
   - id: fiddler-proc
     desc: Fiddler proxy process name
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string

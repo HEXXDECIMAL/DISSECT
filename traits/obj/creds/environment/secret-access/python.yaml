@@ -1,32 +1,12 @@
 # Secret/Credential Environment Variable Access - Python
 # Detects access to sensitive environment variables via os.environ or os.getenv
+# NOTE: Neutral env access functions moved to cap/os/env/access/python
 
 traits:
-  # === os.getenv patterns ===
-  # Note: We detect getenv symbol + TOKEN/KEY/etc string patterns
-  - id: os-getenv-symbol
-    desc: os.getenv method
-    crit: inert
-    conf: 0.6
-    for: [python]
-    if:
-      type: symbol
-      exact: "getenv"
-
-  # === os.environ patterns ===
-  - id: os-environ-symbol
-    desc: os.environ attribute
-    crit: inert
-    conf: 0.6
-    for: [python]
-    if:
-      type: symbol
-      exact: "os.environ"
-
   # === Common Keywords ===
   - id: keyword-token
     desc: TOKEN keyword in env variable
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [python]
     if:
@@ -35,7 +15,7 @@ traits:
 
   - id: keyword-key
     desc: KEY keyword in env variable
-    crit: inert
+    crit: notable
     conf: 0.65
     for: [python]
     if:
@@ -44,7 +24,7 @@ traits:
 
   - id: keyword-secret
     desc: SECRET keyword in env variable
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [python]
     if:
@@ -53,7 +33,7 @@ traits:
 
   - id: keyword-pass
     desc: PASS keyword in env variable
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [python]
     if:
@@ -62,7 +42,7 @@ traits:
 
   - id: keyword-auth
     desc: AUTH keyword in env variable
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [python]
     if:
@@ -71,7 +51,7 @@ traits:
 
   - id: keyword-pwd
     desc: PWD keyword in env variable
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [python]
     if:
@@ -80,7 +60,7 @@ traits:
 
   - id: keyword-cred
     desc: CRED keyword in env variable
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [python]
     if:
@@ -108,7 +88,7 @@ composite_rules:
     conf: 0.9
     for: [python]
     all:
-      - { id: os-getenv-symbol }
+      - { id: cap/os/env/access::os-getenv-symbol }
       - { id: sensitive-env-keywords }
 
   - id: python-os-environ
@@ -117,7 +97,7 @@ composite_rules:
     conf: 0.9
     for: [python]
     all:
-      - { id: os-environ-symbol }
+      - { id: cap/os/env/access::os-environ-symbol }
       - { id: sensitive-env-keywords }
 
   # Original composite

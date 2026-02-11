@@ -41,7 +41,7 @@ traits:
   # === Directory File Enumeration ===
   - id: dir-file-enum
     desc: Directory file enumeration
-    crit: inert
+    crit: notable
     conf: 0.75
     attack: "T1083"
     if:
@@ -81,7 +81,7 @@ traits:
   # === System Clear Screen ===
   - id: clear-screen
     desc: Clear terminal screen
-    crit: inert
+    crit: notable
     conf: 0.50
     if:
       type: string
@@ -99,7 +99,7 @@ traits:
   # === Recursive Directory Access ===
   - id: recursive-dir-access
     desc: Recursive directory access
-    crit: inert
+    crit: notable
     conf: 0.80
     attack: "T1083"
     if:

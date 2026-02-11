@@ -58,7 +58,7 @@ traits:
   # === Shell Access ===
   - id: bash-shell
     desc: "Bash shell"
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [elf, shell]
     if:
@@ -67,7 +67,7 @@ traits:
 
   - id: system-call
     desc: "System call"
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [elf, shell]
     if:

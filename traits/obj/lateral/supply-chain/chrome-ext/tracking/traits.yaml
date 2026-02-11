@@ -15,7 +15,7 @@ traits:
 
   - id: tracking-utm-params
     desc: UTM tracking parameters
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript]
     if:

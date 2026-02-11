@@ -108,7 +108,7 @@ traits:
   # prctl symbol - can be used to change process name
   - id: prctl-symbol
     desc: prctl system call symbol
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [elf]
     if:
