@@ -59,7 +59,7 @@ pub(crate) struct RawTraitDefinition {
     #[serde(default)]
     pub(crate) size_max: Option<usize>,
     #[serde(default, alias = "if")]
-    pub(crate) condition: Option<crate::composite_rules::Condition>,
+    pub(crate) condition: Option<crate::composite_rules::ConditionWithFilters>,
     #[serde(default)]
     pub(crate) not: Option<Vec<crate::composite_rules::condition::NotException>>,
     #[serde(default)]

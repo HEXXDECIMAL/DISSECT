@@ -78,10 +78,6 @@ fn score_condition(condition: &Condition) -> f32 {
             word,
             case_insensitive,
             exclude_patterns,
-            count_min,
-            count_max,
-            per_kb_min,
-            per_kb_max,
             external_ip,
             section,
             offset,
@@ -99,12 +95,7 @@ fn score_condition(condition: &Condition) -> f32 {
                     score += score_regex_value(exclusion);
                 }
             }
-            if *count_min > 1 {
-                score += PARAM_UNIT;
-            }
-            score += score_presence(count_max.as_ref());
-            score += score_presence(per_kb_min.as_ref());
-            score += score_presence(per_kb_max.as_ref());
+            // count_min, count_max, per_kb_min, per_kb_max now scored at trait level
             if *external_ip {
                 score += PARAM_UNIT;
             }
@@ -123,10 +114,6 @@ fn score_condition(condition: &Condition) -> f32 {
             regex,
             word,
             case_insensitive,
-            count_min,
-            count_max,
-            per_kb_min,
-            per_kb_max,
             external_ip,
             section,
             offset,
@@ -139,12 +126,7 @@ fn score_condition(condition: &Condition) -> f32 {
             score += substr.as_deref().map(score_string_value).unwrap_or(0.0);
             score += regex.as_deref().map(score_regex_value).unwrap_or(0.0);
             score += word.as_deref().map(score_word_value).unwrap_or(0.0);
-            if *count_min > 1 {
-                score += PARAM_UNIT;
-            }
-            score += score_presence(count_max.as_ref());
-            score += score_presence(per_kb_min.as_ref());
-            score += score_presence(per_kb_max.as_ref());
+            // count_min, count_max, per_kb_min, per_kb_max now scored at trait level
             if *external_ip {
                 score += PARAM_UNIT;
             }
@@ -199,10 +181,6 @@ fn score_condition(condition: &Condition) -> f32 {
             name,
             number,
             arch,
-            count_min,
-            count_max,
-            per_kb_min,
-            per_kb_max,
         } => {
             if let Some(names) = name {
                 for value in names {
@@ -217,23 +195,18 @@ fn score_condition(condition: &Condition) -> f32 {
                     score += score_string_value(value);
                 }
             }
-            if *count_min > 1 {
-                score += PARAM_UNIT;
-            }
-            score += score_presence(count_max.as_ref());
-            score += score_presence(per_kb_min.as_ref());
-            score += score_presence(per_kb_max.as_ref());
+            // count_min, count_max, per_kb_min, per_kb_max now scored at trait level
         }
         Condition::SectionRatio {
             section,
             compare_to,
-            min_ratio,
-            max_ratio,
+            min,
+            max,
         } => {
             score += score_regex_value(section);
             score += score_regex_value(compare_to);
-            score += score_presence(min_ratio.as_ref());
-            score += score_presence(max_ratio.as_ref());
+            score += score_presence(min.as_ref());
+            score += score_presence(max.as_ref());
         }
         Condition::SectionEntropy {
             section,
@@ -289,11 +262,6 @@ fn score_condition(condition: &Condition) -> f32 {
             pattern,
             offset,
             offset_range,
-            count_min,
-            count_max,
-            per_kb_min,
-            per_kb_max,
-            extract_wildcards,
             section,
             section_offset,
             section_offset_range,
@@ -301,22 +269,23 @@ fn score_condition(condition: &Condition) -> f32 {
             score += score_string_value(pattern);
             score += score_presence(offset.as_ref());
             score += score_presence(offset_range.as_ref());
-            if *count_min > 1 {
-                score += PARAM_UNIT;
-            }
-            score += score_presence(count_max.as_ref());
-            score += score_presence(per_kb_min.as_ref());
-            score += score_presence(per_kb_max.as_ref());
-            if *extract_wildcards {
-                score += PARAM_UNIT;
-            }
+            // count_min, count_max, per_kb_min, per_kb_max now scored at trait level
             score += section.as_deref().map(score_string_value).unwrap_or(0.0);
             score += score_presence(section_offset.as_ref());
             score += score_presence(section_offset_range.as_ref());
         }
-        Condition::SectionName { pattern, regex } => {
-            score += score_regex_value(pattern);
-            if *regex {
+        Condition::Section {
+            exact,
+            substr,
+            regex,
+            word,
+            case_insensitive,
+        } => {
+            score += exact.as_deref().map(score_string_value).unwrap_or(0.0);
+            score += substr.as_deref().map(score_string_value).unwrap_or(0.0);
+            score += regex.as_deref().map(score_regex_value).unwrap_or(0.0);
+            score += word.as_deref().map(score_word_value).unwrap_or(0.0);
+            if *case_insensitive {
                 score += PARAM_UNIT;
             }
         }
@@ -326,10 +295,6 @@ fn score_condition(condition: &Condition) -> f32 {
             regex,
             word,
             case_insensitive,
-            count_min,
-            count_max,
-            per_kb_min,
-            per_kb_max,
             section,
             offset,
             offset_range,
@@ -341,12 +306,7 @@ fn score_condition(condition: &Condition) -> f32 {
             score += substr.as_deref().map(score_string_value).unwrap_or(0.0);
             score += regex.as_deref().map(score_regex_value).unwrap_or(0.0);
             score += word.as_deref().map(score_word_value).unwrap_or(0.0);
-            if *count_min > 1 {
-                score += PARAM_UNIT;
-            }
-            score += score_presence(count_max.as_ref());
-            score += score_presence(per_kb_min.as_ref());
-            score += score_presence(per_kb_max.as_ref());
+            // count_min, count_max, per_kb_min, per_kb_max now scored at trait level
             score += section.as_deref().map(score_string_value).unwrap_or(0.0);
             score += score_presence(offset.as_ref());
             score += score_presence(offset_range.as_ref());
@@ -418,8 +378,8 @@ fn sum_weakest(mut values: Vec<f32>, count: usize) -> f32 {
 pub fn calculate_trait_precision(trait_def: &TraitDefinition) -> f32 {
     let mut precision = BASE_TRAIT_PRECISION;
 
-    precision += score_presence(trait_def.size_min.as_ref());
-    precision += score_presence(trait_def.size_max.as_ref());
+    precision += score_presence(trait_def.r#if.size_min.as_ref());
+    precision += score_presence(trait_def.r#if.size_max.as_ref());
 
     for platform in trait_def.platforms.iter().filter(|p| **p != Platform::All) {
         precision += score_string_value(&format!("{:?}", platform).to_lowercase());
@@ -433,7 +393,7 @@ pub fn calculate_trait_precision(trait_def: &TraitDefinition) -> f32 {
         precision += score_string_value(&format!("{:?}", file_type).to_lowercase());
     }
 
-    precision += score_condition(&trait_def.r#if);
+    precision += score_condition(&trait_def.r#if.condition);
 
     if let Some(exceptions) = trait_def.not.as_ref() {
         precision += PARAM_UNIT;
@@ -841,8 +801,8 @@ pub(crate) fn find_duplicate_traits_and_composites(
                     &t.r#if,
                     &t.platforms,
                     &t.r#for,
-                    &t.size_min,
-                    &t.size_max,
+                    &t.r#if.size_min,
+                    &t.r#if.size_max,
                     &t.not,
                     &t.unless,
                 )) {
@@ -1010,7 +970,7 @@ fn validate_regex_overlap_with_literal(
         Vec::new();
 
     for t in trait_definitions {
-        match &t.r#if {
+        match &t.r#if.condition {
             Condition::String { exact: Some(s), .. } => {
                 literal_patterns.push((
                     s.clone(),
@@ -1057,7 +1017,7 @@ fn validate_regex_overlap_with_literal(
 
     // Check regex patterns against literal patterns
     for t in trait_definitions {
-        let regex_pattern = match &t.r#if {
+        let regex_pattern = match &t.r#if.condition {
             Condition::String { regex: Some(r), .. } => Some(r),
             Condition::Symbol { regex: Some(r), .. } => Some(r),
             _ => None,
@@ -1373,7 +1333,7 @@ pub(crate) fn find_cap_obj_violations(
             }
 
             // Check if the trait condition references other traits
-            if let Condition::Trait { id: ref_id } = &trait_def.r#if {
+            if let Condition::Trait { id: ref_id } = &trait_def.r#if.condition {
                 if let Some(ref_tier) = extract_tier(ref_id) {
                     if ref_tier == "obj" {
                         let source = rule_source_files
@@ -1635,10 +1595,6 @@ pub(crate) fn simple_rule_to_composite_rule(
             substr: None,
             regex: Some(rule.symbol),
             platforms: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             compiled_regex: None,
         }]),
         any: None,
@@ -1654,6 +1610,7 @@ pub(crate) fn simple_rule_to_composite_rule(
 }
 
 /// Signature for string/content matching conditions (for collision detection)
+/// Note: count/density fields excluded - they're at trait level now and don't affect matching logic
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 struct MatchSignature {
     exact: Option<String>,
@@ -1661,10 +1618,6 @@ struct MatchSignature {
     regex: Option<String>,
     word: Option<String>,
     case_insensitive: bool,
-    count_min: usize,
-    count_max: Option<usize>,
-    per_kb_min: Option<String>, // f64 as string for hashing
-    per_kb_max: Option<String>,
     external_ip: bool,
     section: Option<String>,
     offset: Option<i64>,
@@ -1682,10 +1635,6 @@ fn extract_match_signature(condition: &Condition) -> Option<(bool, MatchSignatur
             regex,
             word,
             case_insensitive,
-            count_min,
-            count_max,
-            per_kb_min,
-            per_kb_max,
             external_ip,
             section,
             offset,
@@ -1701,10 +1650,6 @@ fn extract_match_signature(condition: &Condition) -> Option<(bool, MatchSignatur
                 regex: regex.clone(),
                 word: word.clone(),
                 case_insensitive: *case_insensitive,
-                count_min: *count_min,
-                count_max: *count_max,
-                per_kb_min: per_kb_min.map(|v| format!("{:.6}", v)),
-                per_kb_max: per_kb_max.map(|v| format!("{:.6}", v)),
                 external_ip: *external_ip,
                 section: section.clone(),
                 offset: *offset,
@@ -1719,10 +1664,6 @@ fn extract_match_signature(condition: &Condition) -> Option<(bool, MatchSignatur
             regex,
             word,
             case_insensitive,
-            count_min,
-            count_max,
-            per_kb_min,
-            per_kb_max,
             external_ip,
             section,
             offset,
@@ -1738,10 +1679,6 @@ fn extract_match_signature(condition: &Condition) -> Option<(bool, MatchSignatur
                 regex: regex.clone(),
                 word: word.clone(),
                 case_insensitive: *case_insensitive,
-                count_min: *count_min,
-                count_max: *count_max,
-                per_kb_min: per_kb_min.map(|v| format!("{:.6}", v)),
-                per_kb_max: per_kb_max.map(|v| format!("{:.6}", v)),
                 external_ip: *external_ip,
                 section: section.clone(),
                 offset: *offset,
@@ -1768,7 +1705,7 @@ pub(crate) fn find_string_content_collisions(
     let mut groups: SignatureGroup = HashMap::new();
 
     for t in trait_definitions {
-        if let Some((is_string, sig)) = extract_match_signature(&t.r#if) {
+        if let Some((is_string, sig)) = extract_match_signature(&t.r#if.condition) {
             // Create a key that includes criticality, for, and platforms
             let crit_key = format!("{:?}", t.crit);
             let for_key = format!("{:?}", t.r#for);
@@ -1827,7 +1764,7 @@ pub(crate) fn find_for_only_duplicates(
     for t in trait_definitions {
         let signature = format!(
             "{:?}:{:?}:{:.2}:{:?}:{:?}:{:?}:{:?}:{:?}",
-            t.r#if, t.crit, t.conf, t.platforms, t.size_min, t.size_max, t.not, t.unless
+            t.r#if, t.crit, t.conf, t.platforms, t.r#if.size_min, t.r#if.size_max, t.not, t.unless
         );
         groups
             .entry(signature)
@@ -1877,7 +1814,7 @@ pub(crate) fn find_alternation_merge_candidates(
     let mut groups: HashMap<String, Vec<(String, String)>> = HashMap::new(); // key -> [(trait_id, regex)]
 
     for t in trait_definitions {
-        let regex_pattern = match &t.r#if {
+        let regex_pattern = match &t.r#if.condition {
             Condition::String { regex: Some(r), .. } => Some(r.clone()),
             Condition::Raw { regex: Some(r), .. } => Some(r.clone()),
             _ => None,
@@ -1893,7 +1830,7 @@ pub(crate) fn find_alternation_merge_candidates(
             // Create key including directory so we only group traits from the same directory
             let key = format!(
                 "{}:{:?}:{:?}:{:?}:{:?}:{:?}:{:?}:{:?}",
-                directory, t.crit, t.r#for, t.platforms, t.size_min, t.size_max, t.not, t.unless
+                directory, t.crit, t.r#for, t.platforms, t.r#if.size_min, t.r#if.size_max, t.not, t.unless
             );
             groups.entry(key).or_default().push((t.id.clone(), regex));
         }
@@ -2190,7 +2127,7 @@ pub(crate) fn find_impossible_size_constraints(
     let mut violations = Vec::new();
 
     for t in trait_definitions {
-        if let (Some(min), Some(max)) = (t.size_min, t.size_max) {
+        if let (Some(min), Some(max)) = (t.r#if.size_min, t.r#if.size_max) {
             if min > max {
                 violations.push((t.id.clone(), min, max, false));
             }
@@ -2216,33 +2153,10 @@ pub(crate) fn find_impossible_count_constraints(
     let mut violations = Vec::new();
 
     for t in trait_definitions {
-        let (count_min, count_max) = match &t.r#if {
-            Condition::String {
-                count_min,
-                count_max,
-                ..
-            }
-            | Condition::Raw {
-                count_min,
-                count_max,
-                ..
-            }
-            | Condition::Hex {
-                count_min,
-                count_max,
-                ..
-            }
-            | Condition::Encoded {
-                count_min,
-                count_max,
-                ..
-            } => (*count_min, *count_max),
-            _ => continue,
-        };
-
-        if let Some(max) = count_max {
-            if count_min > max {
-                violations.push((t.id.clone(), count_min, max));
+        // count_min and count_max are now at trait level in ConditionWithFilters
+        if let (Some(min), Some(max)) = (t.r#if.count_min, t.r#if.count_max) {
+            if min > max {
+                violations.push((t.id.clone(), min, max));
             }
         }
     }
@@ -2287,7 +2201,7 @@ pub(crate) fn find_missing_search_patterns(trait_definitions: &[TraitDefinition]
     let mut violations = Vec::new();
 
     for t in trait_definitions {
-        let has_pattern = match &t.r#if {
+        let has_pattern = match &t.r#if.condition {
             Condition::String {
                 exact,
                 substr,
@@ -2927,27 +2841,29 @@ mod tests {
             attack: None,
             platforms: vec![Platform::All],
             r#for: vec![RuleFileType::All],
-            size_min: None,
-            size_max: None,
-            r#if: Condition::String {
-                exact: None,
-                substr: Some(substr.to_string()),
-                regex: None,
-                word: None,
-                case_insensitive: false,
-                exclude_patterns: None,
-                count_min: 1,
+            r#if: crate::composite_rules::ConditionWithFilters {
+                condition: Condition::String {
+                    exact: None,
+                    substr: Some(substr.to_string()),
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    external_ip: false,
+                    section: None,
+                    offset: None,
+                    offset_range: None,
+                    section_offset: None,
+                    section_offset_range: None,
+                    compiled_regex: None,
+                    compiled_excludes: Vec::new(),
+                },
+                size_min: None,
+                size_max: None,
+                count_min: Some(1),
                 count_max: None,
                 per_kb_min: None,
                 per_kb_max: None,
-                external_ip: false,
-                section: None,
-                offset: None,
-                offset_range: None,
-                section_offset: None,
-                section_offset_range: None,
-                compiled_regex: None,
-                compiled_excludes: Vec::new(),
             },
             not: None,
             unless: None,
@@ -2967,25 +2883,27 @@ mod tests {
             attack: None,
             platforms: vec![Platform::All],
             r#for: vec![RuleFileType::All],
-            size_min: None,
-            size_max: None,
-            r#if: Condition::Raw {
-                exact: None,
-                substr: Some(substr.to_string()),
-                regex: None,
-                word: None,
-                case_insensitive: false,
-                count_min: 1,
+            r#if: crate::composite_rules::ConditionWithFilters {
+                condition: Condition::Raw {
+                    exact: None,
+                    substr: Some(substr.to_string()),
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    external_ip: false,
+                    section: None,
+                    offset: None,
+                    offset_range: None,
+                    section_offset: None,
+                    section_offset_range: None,
+                    compiled_regex: None,
+                },
+                size_min: None,
+                size_max: None,
+                count_min: Some(1),
                 count_max: None,
                 per_kb_min: None,
                 per_kb_max: None,
-                external_ip: false,
-                section: None,
-                offset: None,
-                offset_range: None,
-                section_offset: None,
-                section_offset_range: None,
-                compiled_regex: None,
             },
             not: None,
             unless: None,
@@ -3048,27 +2966,29 @@ mod tests {
             attack: None,
             platforms: vec![Platform::All],
             r#for: file_types,
-            size_min: None,
-            size_max: None,
-            r#if: Condition::String {
-                exact: None,
-                substr: Some(substr.to_string()),
-                regex: None,
-                word: None,
-                case_insensitive: false,
-                exclude_patterns: None,
-                count_min: 1,
+            r#if: crate::composite_rules::ConditionWithFilters {
+                condition: Condition::String {
+                    exact: None,
+                    substr: Some(substr.to_string()),
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    external_ip: false,
+                    section: None,
+                    offset: None,
+                    offset_range: None,
+                    section_offset: None,
+                    section_offset_range: None,
+                    compiled_regex: None,
+                    compiled_excludes: Vec::new(),
+                },
+                size_min: None,
+                size_max: None,
+                count_min: Some(1),
                 count_max: None,
                 per_kb_min: None,
                 per_kb_max: None,
-                external_ip: false,
-                section: None,
-                offset: None,
-                offset_range: None,
-                section_offset: None,
-                section_offset_range: None,
-                compiled_regex: None,
-                compiled_excludes: Vec::new(),
             },
             not: None,
             unless: None,
@@ -3128,27 +3048,29 @@ mod tests {
             attack: None,
             platforms: vec![Platform::All],
             r#for: vec![RuleFileType::Shell],
-            size_min: None,
-            size_max: None,
-            r#if: Condition::String {
-                exact: None,
-                substr: None,
-                regex: Some(regex.to_string()),
-                word: None,
-                case_insensitive: false,
-                exclude_patterns: None,
-                count_min: 1,
+            r#if: crate::composite_rules::ConditionWithFilters {
+                condition: Condition::String {
+                    exact: None,
+                    substr: None,
+                    regex: Some(regex.to_string()),
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    external_ip: false,
+                    section: None,
+                    offset: None,
+                    offset_range: None,
+                    section_offset: None,
+                    section_offset_range: None,
+                    compiled_regex: None,
+                    compiled_excludes: Vec::new(),
+                },
+                size_min: None,
+                size_max: None,
+                count_min: Some(1),
                 count_max: None,
                 per_kb_min: None,
                 per_kb_max: None,
-                external_ip: false,
-                section: None,
-                offset: None,
-                offset_range: None,
-                section_offset: None,
-                section_offset_range: None,
-                compiled_regex: None,
-                compiled_excludes: Vec::new(),
             },
             not: None,
             unless: None,
@@ -3301,27 +3223,29 @@ mod tests {
             attack: None,
             platforms: vec![Platform::All],
             r#for: vec![RuleFileType::All],
-            size_min,
-            size_max,
-            r#if: Condition::String {
-                exact: Some("test".to_string()),
-                substr: None,
-                regex: None,
-                word: None,
-                case_insensitive: false,
-                exclude_patterns: None,
-                count_min: 1,
+            r#if: crate::composite_rules::ConditionWithFilters {
+                condition: Condition::String {
+                    exact: Some("test".to_string()),
+                    substr: None,
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    external_ip: false,
+                    section: None,
+                    offset: None,
+                    offset_range: None,
+                    section_offset: None,
+                    section_offset_range: None,
+                    compiled_regex: None,
+                    compiled_excludes: Vec::new(),
+                },
+                size_min,
+                size_max,
+                count_min: Some(1),
                 count_max: None,
                 per_kb_min: None,
                 per_kb_max: None,
-                external_ip: false,
-                section: None,
-                offset: None,
-                offset_range: None,
-                section_offset: None,
-                section_offset_range: None,
-                compiled_regex: None,
-                compiled_excludes: Vec::new(),
             },
             not: None,
             unless: None,
@@ -3376,27 +3300,29 @@ mod tests {
             attack: None,
             platforms: vec![Platform::All],
             r#for: vec![RuleFileType::All],
-            size_min: None,
-            size_max: None,
-            r#if: Condition::String {
-                exact: None,
-                substr: Some("test".to_string()),
-                regex: None,
-                word: None,
-                case_insensitive: false,
-                exclude_patterns: None,
-                count_min,
+            r#if: crate::composite_rules::ConditionWithFilters {
+                condition: Condition::String {
+                    exact: None,
+                    substr: Some("test".to_string()),
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    external_ip: false,
+                    section: None,
+                    offset: None,
+                    offset_range: None,
+                    section_offset: None,
+                    section_offset_range: None,
+                    compiled_regex: None,
+                    compiled_excludes: Vec::new(),
+                },
+                size_min: None,
+                size_max: None,
+                count_min: Some(count_min),
                 count_max,
                 per_kb_min: None,
                 per_kb_max: None,
-                external_ip: false,
-                section: None,
-                offset: None,
-                offset_range: None,
-                section_offset: None,
-                section_offset_range: None,
-                compiled_regex: None,
-                compiled_excludes: Vec::new(),
             },
             not: None,
             unless: None,
@@ -3467,27 +3393,29 @@ mod tests {
             attack: None,
             platforms: vec![Platform::All],
             r#for: vec![RuleFileType::All],
-            size_min: None,
-            size_max: None,
-            r#if: Condition::String {
-                exact: None,
-                substr: None,
-                regex: None,
-                word: None,
-                case_insensitive: false,
-                exclude_patterns: None,
-                count_min: 1,
+            r#if: crate::composite_rules::ConditionWithFilters {
+                condition: Condition::String {
+                    exact: None,
+                    substr: None,
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    external_ip: false,
+                    section: None,
+                    offset: None,
+                    offset_range: None,
+                    section_offset: None,
+                    section_offset_range: None,
+                    compiled_regex: None,
+                    compiled_excludes: Vec::new(),
+                },
+                size_min: None,
+                size_max: None,
+                count_min: Some(1),
                 count_max: None,
                 per_kb_min: None,
                 per_kb_max: None,
-                external_ip: false,
-                section: None,
-                offset: None,
-                offset_range: None,
-                section_offset: None,
-                section_offset_range: None,
-                compiled_regex: None,
-                compiled_excludes: Vec::new(),
             },
             not: None,
             unless: None,
@@ -4162,25 +4090,29 @@ mod tests {
 
         // Create a regex trait that contains "eval"
         let mut trait2 = make_string_trait("test::regex_eval", "", Criticality::Hostile);
-        trait2.r#if = Condition::String {
-            exact: None,
-            substr: None,
-            regex: Some("eval\\(".to_string()),
-            word: None,
-            case_insensitive: false,
-            exclude_patterns: None,
-            count_min: 1,
+        trait2.r#if = crate::composite_rules::ConditionWithFilters {
+            condition: Condition::String {
+                exact: None,
+                substr: None,
+                regex: Some("eval\\(".to_string()),
+                word: None,
+                case_insensitive: false,
+                exclude_patterns: None,
+                external_ip: false,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
+            },
+            size_min: None,
+            size_max: None,
+            count_min: Some(1),
             count_max: None,
             per_kb_min: None,
             per_kb_max: None,
-            external_ip: false,
-            section: None,
-            offset: None,
-            offset_range: None,
-            section_offset: None,
-            section_offset_range: None,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
         };
 
         let traits = vec![trait1, trait2];
@@ -4200,25 +4132,29 @@ mod tests {
 
         // Create a regex trait with Suspicious criticality (different)
         let mut trait2 = make_string_trait("test::regex_eval", "", Criticality::Suspicious);
-        trait2.r#if = Condition::String {
-            exact: None,
-            substr: None,
-            regex: Some("eval\\(".to_string()),
-            word: None,
-            case_insensitive: false,
-            exclude_patterns: None,
-            count_min: 1,
+        trait2.r#if = crate::composite_rules::ConditionWithFilters {
+            condition: Condition::String {
+                exact: None,
+                substr: None,
+                regex: Some("eval\\(".to_string()),
+                word: None,
+                case_insensitive: false,
+                exclude_patterns: None,
+                external_ip: false,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
+            },
+            size_min: None,
+            size_max: None,
+            count_min: Some(1),
             count_max: None,
             per_kb_min: None,
             per_kb_max: None,
-            external_ip: false,
-            section: None,
-            offset: None,
-            offset_range: None,
-            section_offset: None,
-            section_offset_range: None,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
         };
 
         let traits = vec![trait1, trait2];
@@ -4238,25 +4174,29 @@ mod tests {
         // Create a regex trait for JavaScript (different file type)
         let mut trait2 = make_string_trait("test::regex_eval", "", Criticality::Hostile);
         trait2.r#for = vec![RuleFileType::JavaScript];
-        trait2.r#if = Condition::String {
-            exact: None,
-            substr: None,
-            regex: Some("eval\\(".to_string()),
-            word: None,
-            case_insensitive: false,
-            exclude_patterns: None,
-            count_min: 1,
+        trait2.r#if = crate::composite_rules::ConditionWithFilters {
+            condition: Condition::String {
+                exact: None,
+                substr: None,
+                regex: Some("eval\\(".to_string()),
+                word: None,
+                case_insensitive: false,
+                exclude_patterns: None,
+                external_ip: false,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
+            },
+            size_min: None,
+            size_max: None,
+            count_min: Some(1),
             count_max: None,
             per_kb_min: None,
             per_kb_max: None,
-            external_ip: false,
-            section: None,
-            offset: None,
-            offset_range: None,
-            section_offset: None,
-            section_offset_range: None,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
         };
 
         let traits = vec![trait1, trait2];
@@ -4271,48 +4211,56 @@ mod tests {
     fn test_validate_regex_overlap_with_exact_match() {
         // Create an exact match trait
         let mut trait1 = make_string_trait("test::exact_socket", "", Criticality::Hostile);
-        trait1.r#if = Condition::String {
-            exact: Some("socket".to_string()),
-            substr: None,
-            regex: None,
-            word: None,
-            case_insensitive: false,
-            exclude_patterns: None,
-            count_min: 1,
+        trait1.r#if = crate::composite_rules::ConditionWithFilters {
+            condition: Condition::String {
+                exact: Some("socket".to_string()),
+                substr: None,
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                exclude_patterns: None,
+                external_ip: false,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
+            },
+            size_min: None,
+            size_max: None,
+            count_min: Some(1),
             count_max: None,
             per_kb_min: None,
             per_kb_max: None,
-            external_ip: false,
-            section: None,
-            offset: None,
-            offset_range: None,
-            section_offset: None,
-            section_offset_range: None,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
         };
 
         // Create a regex trait that contains "socket"
         let mut trait2 = make_string_trait("test::regex_socket", "", Criticality::Hostile);
-        trait2.r#if = Condition::String {
-            exact: None,
-            substr: None,
-            regex: Some("^socket$".to_string()),
-            word: None,
-            case_insensitive: false,
-            exclude_patterns: None,
-            count_min: 1,
+        trait2.r#if = crate::composite_rules::ConditionWithFilters {
+            condition: Condition::String {
+                exact: None,
+                substr: None,
+                regex: Some("^socket$".to_string()),
+                word: None,
+                case_insensitive: false,
+                exclude_patterns: None,
+                external_ip: false,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
+            },
+            size_min: None,
+            size_max: None,
+            count_min: Some(1),
             count_max: None,
             per_kb_min: None,
             per_kb_max: None,
-            external_ip: false,
-            section: None,
-            offset: None,
-            offset_range: None,
-            section_offset: None,
-            section_offset_range: None,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
         };
 
         let traits = vec![trait1, trait2];
@@ -4327,30 +4275,38 @@ mod tests {
     fn test_validate_regex_overlap_symbol_conditions() {
         // Create a substr Symbol trait
         let mut trait1 = make_string_trait("test::substr_connect", "", Criticality::Hostile);
-        trait1.r#if = Condition::Symbol {
-            exact: None,
-            substr: Some("connect".to_string()),
-            regex: None,
-            platforms: None,
-            count_min: 1,
+        trait1.r#if = crate::composite_rules::ConditionWithFilters {
+            condition: Condition::Symbol {
+                exact: None,
+                substr: Some("connect".to_string()),
+                regex: None,
+                platforms: None,
+                compiled_regex: None,
+            },
+            size_min: None,
+            size_max: None,
+            count_min: Some(1),
             count_max: None,
             per_kb_min: None,
             per_kb_max: None,
-            compiled_regex: None,
         };
 
         // Create a regex Symbol trait
         let mut trait2 = make_string_trait("test::regex_connect", "", Criticality::Hostile);
-        trait2.r#if = Condition::Symbol {
-            exact: None,
-            substr: None,
-            regex: Some("connect.*".to_string()),
-            platforms: None,
-            count_min: 1,
+        trait2.r#if = crate::composite_rules::ConditionWithFilters {
+            condition: Condition::Symbol {
+                exact: None,
+                substr: None,
+                regex: Some("connect.*".to_string()),
+                platforms: None,
+                compiled_regex: None,
+            },
+            size_min: None,
+            size_max: None,
+            count_min: Some(1),
             count_max: None,
             per_kb_min: None,
             per_kb_max: None,
-            compiled_regex: None,
         };
 
         let traits = vec![trait1, trait2];
@@ -4369,25 +4325,29 @@ mod tests {
 
         // Create a regex trait with Inert criticality that overlaps
         let mut trait2 = make_string_trait("test::regex_buffer", "", Criticality::Inert);
-        trait2.r#if = Condition::String {
-            exact: None,
-            substr: None,
-            regex: Some("Buffer\\.from\\(".to_string()),
-            word: None,
-            case_insensitive: false,
-            exclude_patterns: None,
-            count_min: 1,
+        trait2.r#if = crate::composite_rules::ConditionWithFilters {
+            condition: Condition::String {
+                exact: None,
+                substr: None,
+                regex: Some("Buffer\\.from\\(".to_string()),
+                word: None,
+                case_insensitive: false,
+                exclude_patterns: None,
+                external_ip: false,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
+            },
+            size_min: None,
+            size_max: None,
+            count_min: Some(1),
             count_max: None,
             per_kb_min: None,
             per_kb_max: None,
-            external_ip: false,
-            section: None,
-            offset: None,
-            offset_range: None,
-            section_offset: None,
-            section_offset_range: None,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
         };
 
         let traits = vec![trait1, trait2];
@@ -4408,25 +4368,29 @@ mod tests {
 
         // Create a regex trait with Notable criticality that overlaps
         let mut trait2 = make_string_trait("test::regex_chmod", "", Criticality::Notable);
-        trait2.r#if = Condition::String {
-            exact: None,
-            substr: None,
-            regex: Some("chmod\\s+\\d{3,4}".to_string()),
-            word: None,
-            case_insensitive: false,
-            exclude_patterns: None,
-            count_min: 1,
+        trait2.r#if = crate::composite_rules::ConditionWithFilters {
+            condition: Condition::String {
+                exact: None,
+                substr: None,
+                regex: Some("chmod\\s+\\d{3,4}".to_string()),
+                word: None,
+                case_insensitive: false,
+                exclude_patterns: None,
+                external_ip: false,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
+            },
+            size_min: None,
+            size_max: None,
+            count_min: Some(1),
             count_max: None,
             per_kb_min: None,
             per_kb_max: None,
-            external_ip: false,
-            section: None,
-            offset: None,
-            offset_range: None,
-            section_offset: None,
-            section_offset_range: None,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
         };
 
         let traits = vec![trait1, trait2];
@@ -4444,48 +4408,56 @@ mod tests {
     fn test_validate_regex_overlap_exact_vs_optional_regex() {
         // Create an exact match trait for "chmod"
         let mut trait1 = make_string_trait("test::exact_chmod", "", Criticality::Notable);
-        trait1.r#if = Condition::String {
-            exact: Some("chmod".to_string()),
-            substr: None,
-            regex: None,
-            word: None,
-            case_insensitive: false,
-            exclude_patterns: None,
-            count_min: 1,
+        trait1.r#if = crate::composite_rules::ConditionWithFilters {
+            condition: Condition::String {
+                exact: Some("chmod".to_string()),
+                substr: None,
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                exclude_patterns: None,
+                external_ip: false,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
+            },
+            size_min: None,
+            size_max: None,
+            count_min: Some(1),
             count_max: None,
             per_kb_min: None,
             per_kb_max: None,
-            external_ip: false,
-            section: None,
-            offset: None,
-            offset_range: None,
-            section_offset: None,
-            section_offset_range: None,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
         };
 
         // Create a regex trait with optional character pattern "c?mod" that matches "chmod"
         let mut trait2 = make_string_trait("test::regex_optional_chmod", "", Criticality::Notable);
-        trait2.r#if = Condition::String {
-            exact: None,
-            substr: None,
-            regex: Some("c?mod".to_string()),
-            word: None,
-            case_insensitive: false,
-            exclude_patterns: None,
-            count_min: 1,
+        trait2.r#if = crate::composite_rules::ConditionWithFilters {
+            condition: Condition::String {
+                exact: None,
+                substr: None,
+                regex: Some("c?mod".to_string()),
+                word: None,
+                case_insensitive: false,
+                exclude_patterns: None,
+                external_ip: false,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
+            },
+            size_min: None,
+            size_max: None,
+            count_min: Some(1),
             count_max: None,
             per_kb_min: None,
             per_kb_max: None,
-            external_ip: false,
-            section: None,
-            offset: None,
-            offset_range: None,
-            section_offset: None,
-            section_offset_range: None,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
         };
 
         let traits = vec![trait1, trait2];

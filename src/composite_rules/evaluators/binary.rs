@@ -290,28 +290,61 @@ pub fn eval_section_entropy(
     }
 }
 
-/// Evaluate section name condition - match section names in binary files
+/// Evaluate section condition - match section names in binary files
 /// Replaces YARA patterns like: `for any section in pe.sections : (section.name matches /^UPX/)`
-pub fn eval_section_name(
-    pattern: &str,
-    use_regex: bool,
+pub fn eval_section(
+    exact: Option<&String>,
+    substr: Option<&String>,
+    regex: Option<&String>,
+    word: Option<&String>,
+    case_insensitive: bool,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
     let mut evidence = Vec::new();
 
     for section in &ctx.report.sections {
-        let matched = if use_regex {
-            match build_regex(pattern, false) {
+        // Apply case sensitivity transformation
+        let (compare_name, compare_exact, compare_substr) = if case_insensitive {
+            (
+                section.name.to_lowercase(),
+                exact.map(|s| s.to_lowercase()),
+                substr.map(|s| s.to_lowercase()),
+            )
+        } else {
+            (section.name.clone(), exact.cloned(), substr.cloned())
+        };
+
+        let matched = if let Some(exact_str) = &compare_exact {
+            compare_name == *exact_str
+        } else if let Some(substr_str) = &compare_substr {
+            compare_name.contains(substr_str.as_str())
+        } else if let Some(regex_str) = regex {
+            let pattern = if case_insensitive {
+                format!("(?i){}", regex_str)
+            } else {
+                regex_str.clone()
+            };
+            match build_regex(&pattern, false) {
+                Ok(re) => re.is_match(&section.name),
+                Err(_) => false,
+            }
+        } else if let Some(word_str) = word {
+            let pattern = if case_insensitive {
+                format!(r"(?i)\b{}\b", regex::escape(word_str))
+            } else {
+                format!(r"\b{}\b", regex::escape(word_str))
+            };
+            match build_regex(&pattern, false) {
                 Ok(re) => re.is_match(&section.name),
                 Err(_) => false,
             }
         } else {
-            section.name.contains(pattern)
+            false
         };
 
         if matched {
             evidence.push(Evidence {
-                method: "section_name".to_string(),
+                method: "section".to_string(),
                 source: "binary".to_string(),
                 value: section.name.clone(),
                 location: None,
@@ -319,8 +352,22 @@ pub fn eval_section_name(
         }
     }
 
-    // Calculate precision: base 1.0 + 1.0 for pattern (regex or substring)
-    let precision = if use_regex { 1.5 } else { 1.0 };
+    // Calculate precision matching other evaluators
+    let mut precision = if exact.is_some() {
+        2.0
+    } else if regex.is_some() {
+        1.5
+    } else if word.is_some() {
+        1.5
+    } else if substr.is_some() {
+        1.0
+    } else {
+        0.0
+    };
+
+    if case_insensitive {
+        precision *= 0.5;
+    }
 
     ConditionResult {
         matched: !evidence.is_empty(),
@@ -450,10 +497,6 @@ pub fn eval_syscall(
     name: Option<&Vec<String>>,
     number: Option<&Vec<u32>>,
     arch: Option<&Vec<String>>,
-    count_min: usize,
-    count_max: Option<usize>,
-    per_kb_min: Option<f64>,
-    per_kb_max: Option<f64>,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
     let mut evidence = Vec::new();
@@ -482,27 +525,10 @@ pub fn eval_syscall(
         }
     }
 
-    // Check count constraints
-    let mut matched = match_count >= count_min;
-    if let Some(max) = count_max {
-        matched = matched && match_count <= max;
-    }
+    // count/density constraints are now checked at trait level
+    let matched = match_count > 0;
 
-    // Check density constraints (matches per KB)
-    if matched && (per_kb_min.is_some() || per_kb_max.is_some()) {
-        let file_size_kb = ctx.report.target.size_bytes as f64 / 1024.0;
-        if file_size_kb > 0.0 {
-            let density = match_count as f64 / file_size_kb;
-            if let Some(min_density) = per_kb_min {
-                matched = matched && density >= min_density;
-            }
-            if let Some(max_density) = per_kb_max {
-                matched = matched && density <= max_density;
-            }
-        }
-    }
-
-    // Calculate precision: base 2.0 + 0.5 for name/number/arch + count constraints
+    // Calculate precision: base 2.0 + 0.5 for name/number/arch
     let mut precision = 2.0f32;
     if name.is_some() {
         precision += 0.5;
@@ -511,15 +537,6 @@ pub fn eval_syscall(
         precision += 0.5;
     }
     if arch.is_some() {
-        precision += 0.5;
-    }
-    if count_min > 1 {
-        precision += 0.5;
-    }
-    if count_max.is_some() {
-        precision += 0.5;
-    }
-    if per_kb_min.is_some() || per_kb_max.is_some() {
         precision += 0.5;
     }
 

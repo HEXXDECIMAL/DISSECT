@@ -43,6 +43,8 @@ Read `RULES.md`, `TAXONOMY.md`, `PRECISION.md` before editing.
 - Notable criticality is for anything that describes the purpose of a program. If it opens files, runs commands, or makes connections over the internet, that's notable.
 - Inert criticality is for traits that almost every program has, or traits that don't help you understand what a program does.
 - This tool will be used against millions of samples across the open-source community, be precise accordingly.
+- Be very careful to not duplicate traits by searching for them using a keyword or looking for other traits that match the same evidence - prefer improving existing traits rather than creating new ones unless there is a semantic difference.
+- New atomic traits should be created in a location as per TAXONOMY.md, not alongside the composite traits that will use them.
 
 # Success Criteria
 - Run dissect --format=jsonl against the file and ensure that it emits no warnings and produces the results you were hoping for. Iterate until it does.

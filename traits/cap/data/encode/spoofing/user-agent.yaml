@@ -1,4 +1,17 @@
 traits:
+- id: user-agent-msie8
+  desc: Internet Explorer 8 User-Agent
+  crit: suspicious
+  conf: 0.9
+  for:
+  - elf
+  - macho
+  - shell
+  if:
+    type: string
+    substr: "mozilla/4.0 (compatible; msie 8.0; windows nt 5.1; trident/4.0)"
+  attack: T1036.005
+
 - id: user-agent-windows10-chrome-xor
   desc: Windows 10 Chrome User-Agent
   crit: suspicious
@@ -77,6 +90,20 @@ traits:
     regex: (Windows NT 6\.1|Windows NT 6\.3|Windows NT 10\.0|Macintosh; Intel Mac OS X)
   attack: T1036.005
 composite_rules:
+- id: user-agent-old-browser
+  desc: Outdated browser user-agent (MSIE8 or old Chrome)
+  crit: suspicious
+  conf: 0.9
+  for:
+  - elf
+  - macho
+  - shell
+  attack: T1036.005
+  any:
+  - id: user-agent-msie8
+  - id: user-agent-windows7-chrome-xor
+  - id: user-agent-windows81-chrome-xor
+
 - id: xor-user-agent-spoofing
   desc: XOR User-Agent spoofing
   crit: suspicious

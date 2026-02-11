@@ -436,11 +436,11 @@ fn test_eval_section_entropy_evidence() {
 }
 
 // =============================================================================
-// eval_section_name tests
+// eval_section tests
 // =============================================================================
 
 #[test]
-fn test_eval_section_name_regex() {
+fn test_eval_section_regex() {
     let mut report = create_test_report();
     report.sections.push(Section {
         name: "UPX0".to_string(),
@@ -451,13 +451,14 @@ fn test_eval_section_name_regex() {
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
-    let result = eval_section_name(r"^UPX", true, &ctx);
+    let regex = r"^UPX".to_string();
+    let result = eval_section(None, None, Some(&regex), None, false, &ctx);
     assert!(result.matched);
     assert_eq!(result.evidence[0].value, "UPX0");
 }
 
 #[test]
-fn test_eval_section_name_contains() {
+fn test_eval_section_contains() {
     let mut report = create_test_report();
     report.sections.push(Section {
         name: ".packed_data".to_string(),
@@ -468,12 +469,13 @@ fn test_eval_section_name_contains() {
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
-    let result = eval_section_name("packed", false, &ctx);
+    let substr = "packed".to_string();
+    let result = eval_section(None, Some(&substr), None, None, false, &ctx);
     assert!(result.matched);
 }
 
 #[test]
-fn test_eval_section_name_no_match() {
+fn test_eval_section_no_match() {
     let mut report = create_test_report();
     report.sections.push(Section {
         name: ".text".to_string(),
@@ -484,12 +486,13 @@ fn test_eval_section_name_no_match() {
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
-    let result = eval_section_name("UPX", false, &ctx);
+    let substr = "UPX".to_string();
+    let result = eval_section(None, Some(&substr), None, None, false, &ctx);
     assert!(!result.matched);
 }
 
 #[test]
-fn test_eval_section_name_multiple_matches() {
+fn test_eval_section_multiple_matches() {
     let mut report = create_test_report();
     report.sections.push(Section {
         name: ".text".to_string(),
@@ -506,9 +509,52 @@ fn test_eval_section_name_multiple_matches() {
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
-    let result = eval_section_name(".text", false, &ctx);
+    let substr = ".text".to_string();
+    let result = eval_section(None, Some(&substr), None, None, false, &ctx);
     assert!(result.matched);
     assert_eq!(result.evidence.len(), 2);
+}
+
+#[test]
+fn test_eval_section_exact() {
+    let mut report = create_test_report();
+    report.sections.push(Section {
+        name: ".text".to_string(),
+        size: 500,
+        entropy: 6.5,
+        permissions: None,
+    });
+    report.sections.push(Section {
+        name: ".text.plt".to_string(),
+        size: 100,
+        entropy: 6.0,
+        permissions: None,
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    let exact = ".text".to_string();
+    let result = eval_section(Some(&exact), None, None, None, false, &ctx);
+    assert!(result.matched);
+    assert_eq!(result.evidence.len(), 1); // Only exact match, not .text.plt
+}
+
+#[test]
+fn test_eval_section_case_insensitive() {
+    let mut report = create_test_report();
+    report.sections.push(Section {
+        name: ".TEXT".to_string(),
+        size: 500,
+        entropy: 6.5,
+        permissions: None,
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    let substr = ".text".to_string();
+    let result = eval_section(None, Some(&substr), None, None, true, &ctx);
+    assert!(result.matched);
+    assert_eq!(result.evidence[0].value, ".TEXT");
 }
 
 // =============================================================================
@@ -650,7 +696,7 @@ fn test_eval_syscall_by_name() {
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
-    let result = eval_syscall(Some(&vec!["execve".to_string()]), None, None, 1, None, None, None, &ctx);
+    let result = eval_syscall(Some(&vec!["execve".to_string()]), None, None, &ctx);
     assert!(result.matched);
     assert!(result.evidence[0].value.contains("execve"));
 }
@@ -668,7 +714,7 @@ fn test_eval_syscall_by_number() {
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
-    let result = eval_syscall(None, Some(&vec![41]), None, 1, None, None, None, &ctx);
+    let result = eval_syscall(None, Some(&vec![41]), None, &ctx);
     assert!(result.matched);
 }
 
@@ -696,10 +742,6 @@ fn test_eval_syscall_by_arch() {
         Some(&vec!["exit".to_string()]),
         None,
         Some(&vec!["x86_64".to_string()]),
-        1,
-        None,
-        None,
-        None,
         &ctx,
     );
     assert!(result.matched);
@@ -730,20 +772,12 @@ fn test_eval_syscall_min_count() {
         Some(&vec!["read".to_string()]),
         None,
         None,
-        2, // Require 2 occurrences
-        None,
-        None,
-        None,
         &ctx,
     );
     assert!(result.matched);
 
     let result = eval_syscall(
         Some(&vec!["read".to_string()]),
-        None,
-        None,
-        5, // Require 5 occurrences
-        None,
         None,
         None,
         &ctx,
@@ -764,7 +798,7 @@ fn test_eval_syscall_no_match() {
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
-    let result = eval_syscall(Some(&vec!["ptrace".to_string()]), None, None, 1, None, None, None, &ctx);
+    let result = eval_syscall(Some(&vec!["ptrace".to_string()]), None, None, &ctx);
     assert!(!result.matched);
 }
 
@@ -793,10 +827,6 @@ fn test_eval_syscall_combined_filters() {
         Some(&vec!["socket".to_string()]),
         Some(&vec![41]),
         Some(&vec!["x86_64".to_string()]),
-        1,
-        None,
-        None,
-        None,
         &ctx,
     );
     assert!(result.matched);

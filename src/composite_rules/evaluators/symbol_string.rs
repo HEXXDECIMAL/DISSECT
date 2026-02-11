@@ -7,8 +7,8 @@
 //! - String count analysis
 
 use super::{
-    check_count_constraints, resolve_effective_range, resolve_effective_range_opt, symbol_matches,
-    ContentLocationParams, CountConstraints,
+    resolve_effective_range, resolve_effective_range_opt, symbol_matches,
+    ContentLocationParams,
 };
 use crate::composite_rules::condition::NotException;
 use crate::composite_rules::context::{ConditionResult, EvaluationContext, StringParams};
@@ -38,7 +38,6 @@ pub fn eval_symbol(
     substr: Option<&String>,
     pattern: Option<&String>,
     platforms: Option<&Vec<Platform>>,
-    count_constraints: &CountConstraints,
     compiled_regex: Option<&regex::Regex>,
     not: Option<&Vec<NotException>>,
     ctx: &EvaluationContext,
@@ -131,19 +130,8 @@ pub fn eval_symbol(
         precision = 1.0; // Substring match
     }
 
-    // Add precision for count/density constraints
-    if count_constraints.count_min > 1 {
-        precision += 0.5;
-    }
-    if count_constraints.count_max.is_some()
-        || count_constraints.per_kb_min.is_some()
-        || count_constraints.per_kb_max.is_some()
-    {
-        precision += 0.5;
-    }
-
-    // Check count and density constraints
-    let matched = check_count_constraints(evidence.len(), ctx.binary_data.len(), count_constraints);
+    // count/density constraints are now checked at trait level
+    let matched = !evidence.is_empty();
 
     ConditionResult {
         matched,
@@ -378,12 +366,7 @@ pub fn eval_string(
     if !params.exclude_patterns.unwrap_or(&Vec::new()).is_empty() {
         precision += 0.5; // Exclusion patterns add precision
     }
-    if params.count_min > 1 {
-        precision += 0.5; // Count constraint adds precision
-    }
-    if params.count_max.is_some() || params.per_kb_min.is_some() || params.per_kb_max.is_some() {
-        precision += 0.5; // Density/max constraints add precision
-    }
+    // count/density constraints are now scored at trait level
     // Location constraints add precision (section/offset filtering is very specific)
     if params.section.is_some() {
         precision += 1.0; // Section constraint
@@ -402,19 +385,8 @@ pub fn eval_string(
         precision *= 0.5;
     }
 
-    // Check count and density constraints
-    // Use effective range size for density calculations when location constraints are specified
-    let constraints = CountConstraints::new(
-        params.count_min,
-        params.count_max,
-        params.per_kb_min,
-        params.per_kb_max,
-    );
-    let effective_size = match effective_range {
-        Some((start, end)) => (end - start) as usize,
-        None => ctx.binary_data.len(),
-    };
-    let matched = check_count_constraints(evidence.len(), effective_size, &constraints);
+    // count/density constraints are now checked at trait level
+    let matched = !evidence.is_empty();
 
     ConditionResult {
         matched,
@@ -436,10 +408,6 @@ pub fn eval_raw(
     _regex: Option<&String>,
     _word: Option<&String>,
     case_insensitive: bool,
-    count_min: usize,
-    count_max: Option<usize>,
-    per_kb_min: Option<f64>,
-    per_kb_max: Option<f64>,
     external_ip: bool,
     compiled_regex: Option<&regex::Regex>,
     not: Option<&Vec<NotException>>,
@@ -629,13 +597,7 @@ pub fn eval_raw(
         precision *= 0.5;
     }
 
-    if count_min > 1 {
-        precision += 0.5;
-    }
-
-    if count_max.is_some() || per_kb_min.is_some() || per_kb_max.is_some() {
-        precision += 0.5; // Density/max constraints add precision
-    }
+    // count/density constraints are now scored at trait level
 
     if external_ip {
         precision += 0.5; // Higher precision when requiring external IP
@@ -654,11 +616,8 @@ pub fn eval_raw(
         precision += 1.0;
     }
 
-    // Check count and density constraints
-    // Use effective range size for density calculations
-    let constraints = CountConstraints::new(count_min, count_max, per_kb_min, per_kb_max);
-    let effective_size = search_end - search_start;
-    let matched = check_count_constraints(match_count, effective_size, &constraints);
+    // count/density constraints are now checked at trait level
+    let matched = match_count > 0;
 
     ConditionResult {
         matched,
@@ -687,10 +646,6 @@ pub fn eval_encoded(
     regex: Option<&String>,
     word: Option<&String>,
     case_insensitive: bool,
-    count_min: usize,
-    count_max: Option<usize>,
-    per_kb_min: Option<f64>,
-    per_kb_max: Option<f64>,
     compiled_regex: Option<&regex::Regex>,
     location: &ContentLocationParams,
     ctx: &EvaluationContext,
@@ -839,22 +794,8 @@ pub fn eval_encoded(
         precision += 1.0;
     }
 
-    if count_min > 1 {
-        precision += 0.5;
-    }
-
-    if count_max.is_some() || per_kb_min.is_some() || per_kb_max.is_some() {
-        precision += 0.5;
-    }
-
-    // Check count and density constraints
-    // Use effective range size for density calculations when location constraints specified
-    let constraints = CountConstraints::new(count_min, count_max, per_kb_min, per_kb_max);
-    let effective_size = match effective_range {
-        Some((start, end)) => (end - start) as usize,
-        None => ctx.binary_data.len(),
-    };
-    let matched = check_count_constraints(match_count, effective_size, &constraints);
+    // count/density constraints are now scored and checked at trait level
+    let matched = match_count > 0;
 
     ConditionResult {
         matched,

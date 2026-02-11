@@ -182,14 +182,6 @@ pub struct StringParams<'a> {
     pub word: Option<&'a String>,
     pub case_insensitive: bool,
     pub exclude_patterns: Option<&'a Vec<String>>,
-    /// Minimum match count required
-    pub count_min: usize,
-    /// Maximum match count allowed (None = unlimited)
-    pub count_max: Option<usize>,
-    /// Minimum matches per kilobyte of file size
-    pub per_kb_min: Option<f64>,
-    /// Maximum matches per kilobyte of file size
-    pub per_kb_max: Option<f64>,
     pub compiled_regex: Option<&'a regex::Regex>,
     pub compiled_excludes: &'a [regex::Regex],
     /// When true, require matched string to contain a valid external IP address

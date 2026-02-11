@@ -1,11 +1,15 @@
 # Machine ID Collection
 # ATT&CK: T1082 (System Information Discovery)
+# NOTE: Neutral machine-id strings moved to cap/os/machine-id/
+# NOTE: Kept here: specific file paths (fp-dbus-machine-id, fp-etc-machine-id, product-uuid-path) have notable suspicion for device tracking
+# NOTE: MachineGuid kept here - Windows registry key for device tracking
 
 defaults:
   attack: "T1082"
 
 traits:
   # === Machine ID micro-traits ===
+  # NOTE: Specific paths kept here - used for device tracking
   - id: fp-dbus-machine-id
     desc: dbus machine-id path
     crit: notable
@@ -22,14 +26,6 @@ traits:
       type: string
       substr: "/etc/machine-id"
 
-  - id: machine-id-string
-    desc: machine-id string
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      substr: "machine-id"
-
   - id: machineguid
     desc: MachineGuid registry key
     crit: notable
@@ -38,14 +34,6 @@ traits:
       type: string
       substr: "MachineGuid"
 
-  - id: machineid-camel
-    desc: MachineId string
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      substr: "MachineId"
-
   - id: product-uuid-path
     desc: DMI product_uuid path
     crit: notable
@@ -53,14 +41,6 @@ traits:
     if:
       type: string
       substr: "/sys/class/dmi/id/product_uuid"
-
-  - id: product-uuid-string
-    desc: product_uuid string
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      substr: "product_uuid"
 
   # === Hardware UUID micro-traits ===
   - id: generate-hwid
@@ -103,38 +83,6 @@ traits:
       type: string
       regex: '(?i)(hardware|device|machine|system|host)[\s_-]?fingerprint|fingerprint[\s_-]?(id|gen|collect)'
 
-  # === Hostname micro-traits ===
-  - id: gethostname-func
-    desc: gethostname function
-    crit: inert
-    conf: 0.4
-    if:
-      type: symbol
-      regex: "gethostname"
-
-  - id: etc-hostname
-    desc: /etc/hostname path
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      substr: "/etc/hostname"
-
-  - id: hostname-env
-    desc: HOSTNAME env variable
-    crit: inert
-    conf: 0.4
-    if:
-      type: string
-      substr: "HOSTNAME"
-
-  - id: getfqdn-func
-    desc: getfqdn function
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      substr: "getfqdn"
 
 composite_rules:
   # Machine ID composite
@@ -146,11 +94,11 @@ composite_rules:
     any:
       - id: fp-dbus-machine-id
       - id: fp-etc-machine-id
-      - id: machine-id-string
+      - id: cap/os/machine-id::machine-id-string
       - id: machineguid
-      - id: machineid-camel
+      - id: cap/os/machine-id::machineid-camel
       - id: product-uuid-path
-      - id: product-uuid-string
+      - id: cap/os/machine-id::product-uuid-string
 
   # Hardware UUID composite
   - id: hardware-uuid
@@ -171,7 +119,7 @@ composite_rules:
     conf: 0.7
     needs: 2
     any:
-      - id: gethostname-func
-      - id: etc-hostname
-      - id: hostname-env
-      - id: getfqdn-func
+      - id: cap/os/sysinfo/system-info::gethostname
+      - id: cap/os/machine-id::etc-hostname
+      - id: cap/os/machine-id::hostname-env
+      - id: cap/os/sysinfo/system-info::getfqdn

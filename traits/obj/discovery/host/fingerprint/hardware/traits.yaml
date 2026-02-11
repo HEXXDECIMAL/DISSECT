@@ -1,27 +1,13 @@
 # Hardware Information Collection (DMI/SMBIOS, CPU)
 # ATT&CK: T1082 (System Information Discovery)
+# NOTE: Neutral hardware paths/fields (dmi paths, bios_version, cpu fields, lscpu) moved to cap/os/sysinfo/hardware/
 
 defaults:
   attack: "T1082"
 
 traits:
   # === DMI/SMBIOS micro-traits ===
-  - id: dmi-class-path
-    desc: /sys/class/dmi/id/ path
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      substr: "/sys/class/dmi/id/"
-
-  - id: dmi-devices-path
-    desc: /sys/devices/virtual/dmi/id/ path
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      substr: "/sys/devices/virtual/dmi/id/"
-
+  # NOTE: product_serial and board_serial kept here - have suspicion (used for device tracking)
   - id: product-serial
     desc: product_serial DMI field
     crit: notable
@@ -38,14 +24,6 @@ traits:
       type: string
       substr: "board_serial"
 
-  - id: bios-version
-    desc: bios_version DMI field
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      substr: "bios_version"
-
   - id: fp-dmidecode-cmd
     desc: dmidecode command
     crit: notable
@@ -53,39 +31,6 @@ traits:
     if:
       type: string
       substr: "dmidecode"
-
-  # === CPU info micro-traits ===
-  - id: cpu-model-name
-    desc: model name CPU field
-    crit: inert
-    conf: 0.4
-    if:
-      type: string
-      substr: "model name"
-
-  - id: cpu-family
-    desc: cpu family field
-    crit: inert
-    conf: 0.4
-    if:
-      type: string
-      substr: "cpu family"
-
-  - id: cpu-cores
-    desc: cpu cores field
-    crit: inert
-    conf: 0.4
-    if:
-      type: string
-      substr: "cpu cores"
-
-  - id: lscpu-cmd
-    desc: lscpu command
-    crit: inert
-    conf: 0.4
-    if:
-      type: string
-      substr: "lscpu"
 
 composite_rules:
   # DMI fields helper
@@ -95,12 +40,12 @@ composite_rules:
     conf: 0.5
     needs: 2
     any:
-      - id: dmi-class-path
-      - id: dmi-devices-path
+      - id: cap/os/sysinfo/hardware::dmi-class-path
+      - id: cap/os/sysinfo/hardware::dmi-devices-path
       - id: cap/os/sysinfo/dmi::dmi-vendor-product
       - id: product-serial
       - id: board-serial
-      - id: bios-version
+      - id: cap/os/sysinfo/hardware::bios-version
 
   # DMI/SMBIOS composite
   - id: dmi-smbios
@@ -117,9 +62,9 @@ composite_rules:
     crit: inert
     conf: 0.4
     any:
-      - id: cpu-model-name
-      - id: cpu-family
-      - id: cpu-cores
+      - id: cap/os/sysinfo/hardware::cpu-model-name
+      - id: cap/os/sysinfo/hardware::cpu-family
+      - id: cap/os/sysinfo/hardware::cpu-cores
 
   # CPU info composite
   - id: cpu-info
@@ -128,7 +73,7 @@ composite_rules:
     conf: 0.4
     any:
       - id: cpu-proc-cpuinfo
-      - id: lscpu-cmd
+      - id: cap/os/sysinfo/hardware::lscpu-cmd
 
   # Helper: /proc/cpuinfo + fields
   - id: cpu-proc-cpuinfo

@@ -26,7 +26,7 @@ pub use condition::Condition;
 pub use context::EvaluationContext;
 pub use debug::{DebugCollector, EvaluationDebug, RuleType};
 pub use section_map::SectionMap;
-pub use traits::{CompositeTrait, DowngradeConditions, TraitDefinition};
+pub use traits::{CompositeTrait, ConditionWithFilters, DowngradeConditions, TraitDefinition};
 pub use types::{FileType, Platform};
 
 #[cfg(test)]

@@ -299,7 +299,7 @@ impl<'a> RuleDebugger<'a> {
             "trait",
             &trait_def.desc,
             finding.is_some(),
-            &trait_def.r#if,
+            &trait_def.r#if.condition,
         );
 
         // Add warning about trait-level `not` exclusions
@@ -603,7 +603,7 @@ impl<'a> RuleDebugger<'a> {
             description: trait_def.desc.clone(),
             matched: false,
             skipped_reason: None,
-            requirements: format!("Condition: {:?}", describe_condition(&trait_def.r#if)),
+            requirements: format!("Condition: {:?}", describe_condition(&trait_def.r#if.condition)),
             condition_results: Vec::new(),
             context_info: self.context_info(),
             precision: Some(precision_value),
@@ -653,7 +653,7 @@ impl<'a> RuleDebugger<'a> {
         }
 
         // Evaluate the main condition
-        let cond_result = self.debug_condition(&trait_def.r#if);
+        let cond_result = self.debug_condition(&trait_def.r#if.condition);
         result.matched = cond_result.matched;
         result.condition_results.push(cond_result);
 
@@ -842,7 +842,6 @@ impl<'a> RuleDebugger<'a> {
                 regex,
                 word,
                 case_insensitive,
-                count_min,
                 exclude_patterns,
                 section,
                 offset,
@@ -856,7 +855,6 @@ impl<'a> RuleDebugger<'a> {
                 regex,
                 word,
                 *case_insensitive,
-                *count_min,
                 exclude_patterns.as_ref(),
                 section.as_ref(),
                 *offset,
@@ -921,10 +919,6 @@ impl<'a> RuleDebugger<'a> {
                 pattern,
                 offset,
                 offset_range,
-                count_min,
-                count_max,
-                per_kb_min,
-                per_kb_max,
                 section,
                 section_offset,
                 section_offset_range,
@@ -936,17 +930,13 @@ impl<'a> RuleDebugger<'a> {
                 section.clone(),
                 *section_offset,
                 *section_offset_range,
-                *count_min,
-                *count_max,
-                *per_kb_min,
-                *per_kb_max,
             ),
             Condition::SectionRatio {
                 section,
                 compare_to,
-                min_ratio,
-                max_ratio,
-            } => self.debug_section_ratio_condition(section, compare_to, *min_ratio, *max_ratio),
+                min,
+                max,
+            } => self.debug_section_ratio_condition(section, compare_to, *min, *max),
             Condition::SectionEntropy {
                 section,
                 min,
@@ -1136,7 +1126,6 @@ impl<'a> RuleDebugger<'a> {
         regex: &Option<String>,
         word: &Option<String>,
         case_insensitive: bool,
-        count_min: usize,
         exclude_patterns: Option<&Vec<String>>,
         section_constraint: Option<&String>,
         offset: Option<i64>,
@@ -1183,11 +1172,10 @@ impl<'a> RuleDebugger<'a> {
         };
 
         let desc = format!(
-            "string: {} (count_min: {}{}{})",
+            "string: {}{}{}",
             pattern_desc,
-            count_min,
             if case_insensitive {
-                ", case_insensitive"
+                " (case_insensitive)"
             } else {
                 ""
             },
@@ -1239,7 +1227,8 @@ impl<'a> RuleDebugger<'a> {
             case_insensitive,
         );
 
-        let matched = matched_strings.len() >= count_min;
+        // count_min is now checked at trait level, so condition matches if there are any matches
+        let matched = !matched_strings.is_empty();
 
         let mut result = ConditionDebugResult::new(desc, matched);
 
@@ -2177,10 +2166,6 @@ impl<'a> RuleDebugger<'a> {
         section: Option<String>,
         section_offset: Option<i64>,
         section_offset_range: Option<(i64, Option<i64>)>,
-        count_min: usize,
-        count_max: Option<usize>,
-        per_kb_min: Option<f64>,
-        per_kb_max: Option<f64>,
     ) -> ConditionDebugResult {
         use crate::composite_rules::evaluators::{eval_hex, ContentLocationParams};
 
@@ -2212,11 +2197,6 @@ impl<'a> RuleDebugger<'a> {
 
         let eval_result = eval_hex(
             pattern,
-            count_min,
-            count_max,
-            per_kb_min,
-            per_kb_max,
-            false, // extract_wildcards
             &ContentLocationParams {
                 section: section.clone(),
                 offset,
@@ -2232,10 +2212,6 @@ impl<'a> RuleDebugger<'a> {
         result
             .details
             .push(format!("File size: {} bytes", self.binary_data.len()));
-        result.details.push(format!(
-            "Constraints: count_min={}, count_max={:?}, per_kb_min={:?}, per_kb_max={:?}",
-            count_min, count_max, per_kb_min, per_kb_max
-        ));
         result
             .details
             .push(format!("Found {} matches", eval_result.evidence.len()));
@@ -2642,13 +2618,9 @@ fn describe_condition(condition: &Condition) -> String {
             pattern,
             offset,
             offset_range,
-            count_min,
             ..
         } => {
             let mut desc = format!("hex: \"{}\"", truncate_string(pattern, 30));
-            if *count_min > 1 {
-                desc.push_str(&format!(" (min={})", count_min));
-            }
             if let Some(off) = offset {
                 desc.push_str(&format!(" @{:#x}", off));
             } else if let Some((start, _)) = offset_range {
@@ -2659,15 +2631,15 @@ fn describe_condition(condition: &Condition) -> String {
         Condition::SectionRatio {
             section,
             compare_to,
-            min_ratio,
-            max_ratio,
+            min,
+            max,
         } => {
             format!(
                 "section_ratio: {} vs {} [{:?}-{:?}]",
                 section,
                 compare_to,
-                min_ratio.unwrap_or(0.0),
-                max_ratio.unwrap_or(1.0)
+                min.unwrap_or(0.0),
+                max.unwrap_or(1.0)
             )
         }
         Condition::SectionEntropy {
@@ -2839,28 +2811,33 @@ fn evaluate_condition_simple(
     ctx: &EvaluationContext,
 ) -> crate::composite_rules::context::ConditionResult {
     use crate::composite_rules::evaluators::{
-        eval_basename, eval_exports_count, eval_section_name, eval_string_count, eval_syscall,
+        eval_basename, eval_exports_count, eval_section, eval_string_count, eval_syscall,
     };
 
     // Evaluate conditions that fall through to the _ => case in debug_condition
     match condition {
-        Condition::SectionName { pattern, regex } => eval_section_name(pattern, *regex, ctx),
+        Condition::Section {
+            exact,
+            substr,
+            regex,
+            word,
+            case_insensitive,
+        } => eval_section(
+            exact.as_ref(),
+            substr.as_ref(),
+            regex.as_ref(),
+            word.as_ref(),
+            *case_insensitive,
+            ctx,
+        ),
         Condition::Syscall {
             name,
             number,
             arch,
-            count_min,
-            count_max,
-            per_kb_min,
-            per_kb_max,
         } => eval_syscall(
             name.as_ref(),
             number.as_ref(),
             arch.as_ref(),
-            *count_min,
-            *count_max,
-            *per_kb_min,
-            *per_kb_max,
             ctx,
         ),
         Condition::ExportsCount { min, max } => eval_exports_count(*min, *max, ctx),

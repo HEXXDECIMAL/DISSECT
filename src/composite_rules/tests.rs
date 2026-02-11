@@ -1629,42 +1629,12 @@ fn test_content_exact_vs_substr() {
 
     // exact: should match only if entire content equals the pattern (won't match)
     let location = super::evaluators::ContentLocationParams::default();
-    let result = super::evaluators::eval_raw(
-        Some(&"hello".to_string()),
-        None,
-        None,
-        None,
-        false,
-        1,
-        None,
-        None,
-        None,
-        false,
-        None,
-        None,
-        &location,
-        &ctx,
-    );
+    let result = super::evaluators::eval_raw(Some(&"hello".to_string()), None, None, None, false, false, None, None, &location, &ctx,  );
     // Exact match against whole content should fail (content is "hello world..." not "hello")
     assert!(!result.matched);
 
     // substr: should match because "hello" appears in the content
-    let result = super::evaluators::eval_raw(
-        None,
-        Some(&"hello".to_string()),
-        None,
-        None,
-        false,
-        1,
-        None,
-        None,
-        None,
-        false,
-        None,
-        None,
-        &location,
-        &ctx,
-    );
+    let result = super::evaluators::eval_raw(None, Some(&"hello".to_string()), None, None, false, false, None, None, &location, &ctx,  );
     assert!(result.matched);
 }
 

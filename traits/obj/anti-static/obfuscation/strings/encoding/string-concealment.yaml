@@ -18,7 +18,7 @@ traits:
       type: section_ratio
       section: "(__TEXT\\.__cstring|^\\.rodata\\.|^\\.rdata)"
       compare_to: "total"
-      max_ratio: 0.002  # Less than 0.2% of binary is strings
+      max: 0.002  # Less than 0.2% of binary is strings
     unless:
       - id: meta/format/tiny-elf  # Don't flag tiny binaries
 

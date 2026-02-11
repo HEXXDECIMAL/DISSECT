@@ -90,18 +90,6 @@ enum ConditionTagged {
         #[serde(default)]
         regex: Option<String>,
         platforms: Option<Vec<Platform>>,
-        /// Minimum match count
-        #[serde(default = "default_count_min")]
-        count_min: usize,
-        /// Maximum match count - matches fail if exceeded
-        #[serde(default)]
-        count_max: Option<usize>,
-        /// Minimum matches per kilobyte of file size (density threshold)
-        #[serde(default)]
-        per_kb_min: Option<f64>,
-        /// Maximum matches per kilobyte of file size (density ceiling)
-        #[serde(default)]
-        per_kb_max: Option<f64>,
     },
     String {
         /// Full string match (entire string must equal this)
@@ -120,18 +108,6 @@ enum ConditionTagged {
         case_insensitive: bool,
         #[serde(default)]
         exclude_patterns: Option<Vec<String>>,
-        /// Minimum match count
-        #[serde(default = "default_count_min")]
-        count_min: usize,
-        /// Maximum match count - matches fail if exceeded
-        #[serde(default)]
-        count_max: Option<usize>,
-        /// Minimum matches per kilobyte of file size (density threshold)
-        #[serde(default)]
-        per_kb_min: Option<f64>,
-        /// Maximum matches per kilobyte of file size (density ceiling)
-        #[serde(default)]
-        per_kb_max: Option<f64>,
         /// Require match to contain a valid external IP address (not private/loopback/reserved)
         #[serde(default)]
         external_ip: bool,
@@ -191,18 +167,6 @@ enum ConditionTagged {
         /// Case-insensitive matching (default: false)
         #[serde(default)]
         case_insensitive: bool,
-        /// Minimum match count
-        #[serde(default = "default_count_min")]
-        count_min: usize,
-        /// Maximum match count - matches fail if exceeded
-        #[serde(default)]
-        count_max: Option<usize>,
-        /// Minimum matches per kilobyte of file size (density threshold)
-        #[serde(default)]
-        per_kb_min: Option<f64>,
-        /// Maximum matches per kilobyte of file size (density ceiling)
-        #[serde(default)]
-        per_kb_max: Option<f64>,
     },
     Yara {
         source: String,
@@ -211,25 +175,13 @@ enum ConditionTagged {
         name: Option<Vec<String>>,
         number: Option<Vec<u32>>,
         arch: Option<Vec<String>>,
-        /// Minimum match count
-        #[serde(default = "default_count_min")]
-        count_min: usize,
-        /// Maximum match count - matches fail if exceeded
-        #[serde(default)]
-        count_max: Option<usize>,
-        /// Minimum matches per kilobyte of file size (density threshold)
-        #[serde(default)]
-        per_kb_min: Option<f64>,
-        /// Maximum matches per kilobyte of file size (density ceiling)
-        #[serde(default)]
-        per_kb_max: Option<f64>,
     },
     SectionRatio {
         section: String,
         #[serde(default = "default_compare_to")]
         compare_to: String,
-        min_ratio: Option<f64>,
-        max_ratio: Option<f64>,
+        min: Option<f64>,
+        max: Option<f64>,
     },
     SectionEntropy {
         section: String,
@@ -261,21 +213,6 @@ enum ConditionTagged {
         /// Absolute offset range: [start, end) (negative values resolved from file end, null = open-ended)
         #[serde(default)]
         offset_range: Option<(i64, Option<i64>)>,
-        /// Minimum match count
-        #[serde(default = "default_count_min")]
-        count_min: usize,
-        /// Maximum match count - matches fail if exceeded
-        #[serde(default)]
-        count_max: Option<usize>,
-        /// Minimum matches per kilobyte of file size (density threshold)
-        #[serde(default)]
-        per_kb_min: Option<f64>,
-        /// Maximum matches per kilobyte of file size (density ceiling)
-        #[serde(default)]
-        per_kb_max: Option<f64>,
-        /// If true, extracts the bytes matching '??' wildcards and includes them in evidence value
-        #[serde(default)]
-        extract_wildcards: bool,
         /// Section constraint: only match in this section (supports fuzzy names like "text")
         #[serde(default)]
         section: Option<String>,
@@ -299,18 +236,6 @@ enum ConditionTagged {
         word: Option<String>,
         #[serde(default)]
         case_insensitive: bool,
-        /// Minimum match count
-        #[serde(default = "default_count_min")]
-        count_min: usize,
-        /// Maximum match count - matches fail if exceeded
-        #[serde(default)]
-        count_max: Option<usize>,
-        /// Minimum matches per kilobyte of file size (density threshold)
-        #[serde(default)]
-        per_kb_min: Option<f64>,
-        /// Maximum matches per kilobyte of file size (density ceiling)
-        #[serde(default)]
-        per_kb_max: Option<f64>,
         /// Require match to contain a valid external IP address (not private/loopback/reserved)
         #[serde(default)]
         external_ip: bool,
@@ -333,13 +258,24 @@ enum ConditionTagged {
 
     /// Match section names in binary files (PE, ELF, Mach-O)
     /// Replaces YARA patterns like: `for any section in pe.sections : (section.name matches /^UPX/)`
-    /// Example: { type: section_name, pattern: "^UPX", regex: true }
-    SectionName {
-        /// Pattern to match against section names
-        pattern: String,
-        /// Use regex matching (default: false, uses substring match)
+    /// Example: { type: section, regex: "^UPX" }
+    /// Example: { type: section, substr: "upx", case_insensitive: true }
+    Section {
+        /// Full section name match (entire name must equal this)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        exact: Option<String>,
+        /// Substring match (appears anywhere in section name)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        substr: Option<String>,
+        /// Regex pattern to match
+        #[serde(skip_serializing_if = "Option::is_none")]
+        regex: Option<String>,
+        /// Word boundary match (equivalent to regex "\bword\b")
+        #[serde(skip_serializing_if = "Option::is_none")]
+        word: Option<String>,
+        /// Case insensitive matching (default: false)
         #[serde(default)]
-        regex: bool,
+        case_insensitive: bool,
     },
 
     /// Match patterns in encoded/decoded strings (unified replacement for base64/xor)
@@ -366,18 +302,6 @@ enum ConditionTagged {
         /// Case insensitive matching
         #[serde(default)]
         case_insensitive: bool,
-        /// Minimum match count
-        #[serde(default = "default_count_min")]
-        count_min: usize,
-        /// Maximum match count - matches fail if exceeded
-        #[serde(default)]
-        count_max: Option<usize>,
-        /// Minimum matches per kilobyte of file size (density threshold)
-        #[serde(default)]
-        per_kb_min: Option<f64>,
-        /// Maximum matches per kilobyte of file size (density ceiling)
-        #[serde(default)]
-        per_kb_max: Option<f64>,
         /// Section constraint: only match in this section (supports fuzzy names like "text")
         #[serde(default)]
         section: Option<String>,
@@ -446,19 +370,11 @@ impl From<ConditionDeser> for Condition {
                     substr,
                     regex,
                     platforms,
-                    count_min,
-                    count_max,
-                    per_kb_min,
-                    per_kb_max,
                 } => Condition::Symbol {
                     exact,
                     substr,
                     regex,
                     platforms,
-                    count_min,
-                    count_max,
-                    per_kb_min,
-                    per_kb_max,
                     compiled_regex: None,
                 },
                 ConditionTagged::String {
@@ -468,10 +384,6 @@ impl From<ConditionDeser> for Condition {
                     word,
                     case_insensitive,
                     exclude_patterns,
-                    count_min,
-                    count_max,
-                    per_kb_min,
-                    per_kb_max,
                     external_ip,
                     section,
                     offset,
@@ -485,10 +397,6 @@ impl From<ConditionDeser> for Condition {
                     word,
                     case_insensitive,
                     exclude_patterns,
-                    count_min,
-                    count_max,
-                    per_kb_min,
-                    per_kb_max,
                     external_ip,
                     section,
                     offset,
@@ -534,29 +442,21 @@ impl From<ConditionDeser> for Condition {
                     name,
                     number,
                     arch,
-                    count_min,
-                    count_max,
-                    per_kb_min,
-                    per_kb_max,
                 } => Condition::Syscall {
                     name,
                     number,
                     arch,
-                    count_min,
-                    count_max,
-                    per_kb_min,
-                    per_kb_max,
                 },
                 ConditionTagged::SectionRatio {
                     section,
                     compare_to,
-                    min_ratio,
-                    max_ratio,
+                    min,
+                    max,
                 } => Condition::SectionRatio {
                     section,
                     compare_to,
-                    min_ratio,
-                    max_ratio,
+                    min,
+                    max,
                 },
                 ConditionTagged::SectionEntropy {
                     section,
@@ -604,11 +504,6 @@ impl From<ConditionDeser> for Condition {
                     pattern,
                     offset,
                     offset_range,
-                    count_min,
-                    count_max,
-                    per_kb_min,
-                    per_kb_max,
-                    extract_wildcards,
                     section,
                     section_offset,
                     section_offset_range,
@@ -616,11 +511,6 @@ impl From<ConditionDeser> for Condition {
                     pattern,
                     offset,
                     offset_range,
-                    count_min,
-                    count_max,
-                    per_kb_min,
-                    per_kb_max,
-                    extract_wildcards,
                     section,
                     section_offset,
                     section_offset_range,
@@ -631,10 +521,6 @@ impl From<ConditionDeser> for Condition {
                     regex,
                     word,
                     case_insensitive,
-                    count_min,
-                    count_max,
-                    per_kb_min,
-                    per_kb_max,
                     external_ip,
                     section,
                     offset,
@@ -647,10 +533,6 @@ impl From<ConditionDeser> for Condition {
                     regex,
                     word,
                     case_insensitive,
-                    count_min,
-                    count_max,
-                    per_kb_min,
-                    per_kb_max,
                     external_ip,
                     section,
                     offset,
@@ -659,9 +541,19 @@ impl From<ConditionDeser> for Condition {
                     section_offset_range,
                     compiled_regex: None,
                 },
-                ConditionTagged::SectionName { pattern, regex } => {
-                    Condition::SectionName { pattern, regex }
-                }
+                ConditionTagged::Section {
+                    exact,
+                    substr,
+                    regex,
+                    word,
+                    case_insensitive,
+                } => Condition::Section {
+                    exact,
+                    substr,
+                    regex,
+                    word,
+                    case_insensitive,
+                },
                 ConditionTagged::Encoded {
                     encoding,
                     exact,
@@ -669,10 +561,6 @@ impl From<ConditionDeser> for Condition {
                     regex,
                     word,
                     case_insensitive,
-                    count_min,
-                    count_max,
-                    per_kb_min,
-                    per_kb_max,
                     section,
                     offset,
                     offset_range,
@@ -685,10 +573,6 @@ impl From<ConditionDeser> for Condition {
                     regex,
                     word,
                     case_insensitive,
-                    count_min,
-                    count_max,
-                    per_kb_min,
-                    per_kb_max,
                     section,
                     offset,
                     offset_range,
@@ -747,18 +631,6 @@ pub enum Condition {
         regex: Option<String>,
         #[serde(skip_serializing_if = "Option::is_none")]
         platforms: Option<Vec<Platform>>,
-        /// Minimum match count
-        #[serde(default = "default_count_min")]
-        count_min: usize,
-        /// Maximum match count - matches fail if exceeded
-        #[serde(skip_serializing_if = "Option::is_none")]
-        count_max: Option<usize>,
-        /// Minimum matches per kilobyte of file size (density threshold)
-        #[serde(skip_serializing_if = "Option::is_none")]
-        per_kb_min: Option<f64>,
-        /// Maximum matches per kilobyte of file size (density ceiling)
-        #[serde(skip_serializing_if = "Option::is_none")]
-        per_kb_max: Option<f64>,
         /// Pre-compiled regex (populated after deserialization, not serialized)
         #[serde(skip)]
         compiled_regex: Option<regex::Regex>,
@@ -782,18 +654,6 @@ pub enum Condition {
         case_insensitive: bool,
         #[serde(skip_serializing_if = "Option::is_none")]
         exclude_patterns: Option<Vec<String>>,
-        /// Minimum match count
-        #[serde(default = "default_count_min")]
-        count_min: usize,
-        /// Maximum match count - matches fail if exceeded
-        #[serde(skip_serializing_if = "Option::is_none")]
-        count_max: Option<usize>,
-        /// Minimum matches per kilobyte of file size (density threshold)
-        #[serde(skip_serializing_if = "Option::is_none")]
-        per_kb_min: Option<f64>,
-        /// Maximum matches per kilobyte of file size (density ceiling)
-        #[serde(skip_serializing_if = "Option::is_none")]
-        per_kb_max: Option<f64>,
         /// Require match to contain a valid external IP address (not private/loopback/reserved)
         #[serde(default)]
         external_ip: bool,
@@ -916,18 +776,6 @@ pub enum Condition {
         /// Architecture filter (e.g., "mips", "x86_64", "arm")
         #[serde(skip_serializing_if = "Option::is_none")]
         arch: Option<Vec<String>>,
-        /// Minimum match count
-        #[serde(default = "default_count_min")]
-        count_min: usize,
-        /// Maximum match count - matches fail if exceeded
-        #[serde(default)]
-        count_max: Option<usize>,
-        /// Minimum matches per kilobyte of file size (density threshold)
-        #[serde(default)]
-        per_kb_min: Option<f64>,
-        /// Maximum matches per kilobyte of file size (density ceiling)
-        #[serde(default)]
-        per_kb_max: Option<f64>,
     },
 
     /// Check section size ratio (e.g., __const is 80%+ of binary)
@@ -940,10 +788,10 @@ pub enum Condition {
         compare_to: String,
         /// Minimum ratio (0.0-1.0)
         #[serde(skip_serializing_if = "Option::is_none")]
-        min_ratio: Option<f64>,
+        min: Option<f64>,
         /// Maximum ratio (0.0-1.0)
         #[serde(skip_serializing_if = "Option::is_none")]
-        max_ratio: Option<f64>,
+        max: Option<f64>,
     },
 
     /// Check section entropy (0.0-8.0)
@@ -1011,8 +859,9 @@ pub enum Condition {
 
     /// Match hex byte patterns in binary data
     /// Supports wildcards (??) and variable-length gaps ([N] or [N-M])
+    /// Wildcard bytes are always extracted and included in evidence (consistent with regex behavior)
     /// Example: { type: hex, pattern: "7F 45 4C 46" }  # ELF magic
-    /// Example: { type: hex, pattern: "31 ?? 48 83" }  # With wildcards
+    /// Example: { type: hex, pattern: "31 ?? 48 83" }  # With wildcards - ?? bytes will be extracted
     /// Example: { type: hex, pattern: "00 03 [4] 00 04" }  # With 4-byte gap
     Hex {
         /// Hex pattern with optional wildcards (??) and gaps ([N] or [N-M])
@@ -1024,21 +873,6 @@ pub enum Condition {
         /// Absolute offset range: [start, end) (negative values resolved from file end, null = open-ended)
         #[serde(skip_serializing_if = "Option::is_none")]
         offset_range: Option<(i64, Option<i64>)>,
-        /// Minimum match count
-        #[serde(default = "default_count_min")]
-        count_min: usize,
-        /// Maximum match count - matches fail if exceeded
-        #[serde(skip_serializing_if = "Option::is_none")]
-        count_max: Option<usize>,
-        /// Minimum matches per kilobyte of file size (density threshold)
-        #[serde(skip_serializing_if = "Option::is_none")]
-        per_kb_min: Option<f64>,
-        /// Maximum matches per kilobyte of file size (density ceiling)
-        #[serde(skip_serializing_if = "Option::is_none")]
-        per_kb_max: Option<f64>,
-        /// If true, extracts the bytes matching '??' wildcards and includes them in evidence value
-        #[serde(default)]
-        extract_wildcards: bool,
         /// Section constraint: only match in this section (supports fuzzy names like "text")
         #[serde(skip_serializing_if = "Option::is_none")]
         section: Option<String>,
@@ -1075,18 +909,6 @@ pub enum Condition {
         /// Case insensitive matching (default: false)
         #[serde(default)]
         case_insensitive: bool,
-        /// Minimum match count
-        #[serde(default = "default_count_min")]
-        count_min: usize,
-        /// Maximum match count - matches fail if exceeded
-        #[serde(skip_serializing_if = "Option::is_none")]
-        count_max: Option<usize>,
-        /// Minimum matches per kilobyte of file size (density threshold)
-        #[serde(skip_serializing_if = "Option::is_none")]
-        per_kb_min: Option<f64>,
-        /// Maximum matches per kilobyte of file size (density ceiling)
-        #[serde(skip_serializing_if = "Option::is_none")]
-        per_kb_max: Option<f64>,
         /// Require match to contain a valid external IP address (not private/loopback/reserved)
         #[serde(default)]
         external_ip: bool,
@@ -1112,13 +934,24 @@ pub enum Condition {
 
     /// Match section names in binary files (PE, ELF, Mach-O)
     /// Replaces YARA patterns like: `for any section in pe.sections : (section.name matches /^UPX/)`
-    /// Example: { type: section_name, pattern: "^UPX", regex: true }
-    SectionName {
-        /// Pattern to match against section names
-        pattern: String,
-        /// Use regex matching (default: false, uses substring match)
+    /// Example: { type: section, regex: "^UPX" }
+    /// Example: { type: section, substr: "upx", case_insensitive: true }
+    Section {
+        /// Full section name match (entire name must equal this)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        exact: Option<String>,
+        /// Substring match (appears anywhere in section name)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        substr: Option<String>,
+        /// Regex pattern to match
+        #[serde(skip_serializing_if = "Option::is_none")]
+        regex: Option<String>,
+        /// Word boundary match (equivalent to regex "\bword\b")
+        #[serde(skip_serializing_if = "Option::is_none")]
+        word: Option<String>,
+        /// Case insensitive matching (default: false)
         #[serde(default)]
-        regex: bool,
+        case_insensitive: bool,
     },
 
     /// Match patterns in encoded/decoded strings (unified replacement for base64/xor)
@@ -1145,18 +978,6 @@ pub enum Condition {
         /// Case insensitive matching
         #[serde(default)]
         case_insensitive: bool,
-        /// Minimum match count
-        #[serde(default = "default_count_min")]
-        count_min: usize,
-        /// Maximum match count - matches fail if exceeded
-        #[serde(skip_serializing_if = "Option::is_none")]
-        count_max: Option<usize>,
-        /// Minimum matches per kilobyte of file size (density threshold)
-        #[serde(skip_serializing_if = "Option::is_none")]
-        per_kb_min: Option<f64>,
-        /// Maximum matches per kilobyte of file size (density ceiling)
-        #[serde(skip_serializing_if = "Option::is_none")]
-        per_kb_max: Option<f64>,
         /// Section constraint: only match in this section (supports fuzzy names like "text")
         #[serde(skip_serializing_if = "Option::is_none")]
         section: Option<String>,
@@ -1263,7 +1084,7 @@ impl Condition {
             // Section analysis is binary-only
             Condition::SectionRatio { .. }
             | Condition::SectionEntropy { .. }
-            | Condition::SectionName { .. }
+            | Condition::Section { .. }
             | Condition::Structure { .. } => is_binary,
 
             // AST requires source code
@@ -1292,7 +1113,7 @@ impl Condition {
             Condition::Metrics { .. } => "metrics",
             Condition::Hex { .. } => "hex",
             Condition::Raw { .. } => "raw",
-            Condition::SectionName { .. } => "section_name",
+            Condition::Section { .. } => "section",
             Condition::Encoded { .. } => "encoded",
             Condition::Basename { .. } => "basename",
             Condition::Kv { .. } => "kv",
@@ -1616,54 +1437,15 @@ impl Condition {
             None
         };
 
-        match self {
-            Condition::String {
-                count_min,
-                count_max,
-                ..
-            }
-            | Condition::Raw {
-                count_min,
-                count_max,
-                ..
-            } => check_counts(*count_min, *count_max),
-            Condition::Hex {
-                count_min,
-                count_max,
-                ..
-            } => check_counts(*count_min, *count_max),
-            _ => None,
-        }
+        // Count constraints are now at trait level (ConditionWithFilters), not per-condition
+        None
     }
 
     /// Check if per-KB density constraints are valid (per_kb_max >= per_kb_min).
     /// Returns a warning message if invalid, None otherwise.
     pub fn check_density_constraints(&self) -> Option<String> {
-        let check_density = |per_kb_min: Option<f64>, per_kb_max: Option<f64>| -> Option<String> {
-            if let (Some(min), Some(max)) = (per_kb_min, per_kb_max) {
-                if max < min {
-                    return Some(format!(
-                        "per_kb_max ({}) cannot be less than per_kb_min ({})",
-                        max, min
-                    ));
-                }
-            }
-            None
-        };
-
-        match self {
-            Condition::String {
-                per_kb_min,
-                per_kb_max,
-                ..
-            }
-            | Condition::Raw {
-                per_kb_min,
-                per_kb_max,
-                ..
-            } => check_density(*per_kb_min, *per_kb_max),
-            _ => None,
-        }
+        // Density constraints are now at trait level (ConditionWithFilters), not per-condition
+        None
     }
 
     /// Check for empty or whitespace-only pattern strings (common LLM mistake).
@@ -1855,16 +1637,7 @@ impl Condition {
     /// Check for nonsensical count_min values.
     /// Returns a warning message if found, None otherwise.
     pub fn check_count_min_value(&self) -> Option<String> {
-        match self {
-            Condition::String { count_min: 0, .. }
-            | Condition::Raw { count_min: 0, .. }
-            | Condition::Hex { count_min: 0, .. } => {
-                return Some(
-                    "count_min: 0 means matches are optional - this is almost never useful. Use count_min: 1 or higher.".to_string()
-                );
-            }
-            _ => {}
-        }
+        // count_min is now at trait level (ConditionWithFilters), not per-condition
         None
     }
 
@@ -2382,10 +2155,6 @@ mod location_constraint_tests {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: None,
             offset: Some(0x100),
@@ -2407,10 +2176,6 @@ mod location_constraint_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             external_ip: false,
             section: Some(".text".to_string()),
             offset: None,

@@ -6,6 +6,5 @@ traits:
     for: [pe, elf, macho]
     attack: "T1027.002"
     if:
-      type: section_name
-      pattern: "^\\.vmp[0-2]"
-      regex: true
+      type: section
+      regex: "^\\.vmp[0-2]"

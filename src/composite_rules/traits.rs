@@ -7,9 +7,9 @@ use super::condition::{Condition, NotException};
 use super::context::{ConditionResult, EvaluationContext, StringParams};
 use super::evaluators::{
     eval_ast, eval_basename, eval_encoded, eval_exports_count, eval_hex, eval_import_combination,
-    eval_metrics, eval_raw, eval_section_entropy, eval_section_name, eval_section_ratio,
-    eval_string, eval_string_count, eval_structure, eval_symbol, eval_syscall, eval_trait,
-    eval_yara_inline, ContentLocationParams, CountConstraints,
+    eval_metrics, eval_raw, eval_section, eval_section_entropy, eval_section_ratio, eval_string,
+    eval_string_count, eval_structure, eval_symbol, eval_syscall, eval_trait, eval_yara_inline,
+    ContentLocationParams,
 };
 use super::types::{default_file_types, default_platforms, FileType, Platform};
 use crate::types::{Criticality, Evidence, Finding, FindingKind};
@@ -22,6 +22,98 @@ const MAX_RULE_EVAL_DURATION: Duration = Duration::from_secs(2);
 
 fn default_confidence() -> f32 {
     1.0
+}
+
+/// Wrapper for conditions with common filters applied at trait level.
+/// Uses #[serde(flatten)] to merge filters into the if: block ergonomically.
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ConditionWithFilters {
+    /// The actual condition (symbol, string, raw, etc.)
+    #[serde(flatten)]
+    pub condition: Condition,
+
+    /// Minimum file size in bytes - checked before evaluating condition
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub size_min: Option<usize>,
+
+    /// Maximum file size in bytes - checked before evaluating condition
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub size_max: Option<usize>,
+
+    /// Minimum match count - trait matches only if condition matches at least this many times
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub count_min: Option<usize>,
+
+    /// Maximum match count - trait fails if condition matches more than this many times
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub count_max: Option<usize>,
+
+    /// Minimum matches per kilobyte of file size (density threshold)
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub per_kb_min: Option<f64>,
+
+    /// Maximum matches per kilobyte of file size (density ceiling)
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub per_kb_max: Option<f64>,
+}
+
+impl ConditionWithFilters {
+    /// Delegate method calls to the underlying condition
+    pub fn precompile_regexes(&mut self) -> anyhow::Result<()> {
+        self.condition.precompile_regexes()
+    }
+
+    pub fn can_match_file_type(&self, file_type: &FileType) -> bool {
+        self.condition.can_match_file_type(file_type)
+    }
+
+    pub fn validate(&self, trait_id: &str) -> Result<(), String> {
+        self.condition.validate().map_err(|e| e.to_string())
+    }
+
+    pub fn check_greedy_patterns(&self, trait_id: &str) -> Option<String> {
+        self.condition.check_greedy_patterns()
+    }
+
+    pub fn check_word_boundary_regex(&self, trait_id: &str) -> Option<String> {
+        self.condition.check_word_boundary_regex()
+    }
+
+    pub fn check_short_case_insensitive(&self, file_type_count: usize) -> Option<String> {
+        self.condition.check_short_case_insensitive(file_type_count)
+    }
+
+    pub fn check_count_constraints(&self, trait_id: &str) -> Option<String> {
+        self.condition.check_count_constraints()
+    }
+
+    pub fn check_density_constraints(&self, trait_id: &str) -> Option<String> {
+        self.condition.check_density_constraints()
+    }
+
+    pub fn check_match_exclusivity(&self, trait_id: &str) -> Option<String> {
+        self.condition.check_match_exclusivity()
+    }
+
+    pub fn check_empty_patterns(&self, trait_id: &str) -> Option<String> {
+        self.condition.check_empty_patterns()
+    }
+
+    pub fn check_short_patterns(&self, trait_id: &str) -> Option<String> {
+        self.condition.check_short_patterns()
+    }
+
+    pub fn check_literal_regex(&self, trait_id: &str) -> Option<String> {
+        self.condition.check_literal_regex()
+    }
+
+    pub fn check_case_insensitive_on_non_alpha(&self, trait_id: &str) -> Option<String> {
+        self.condition.check_case_insensitive_on_non_alpha()
+    }
+
+    pub fn check_count_min_value(&self, trait_id: &str) -> Option<String> {
+        self.condition.check_count_min_value()
+    }
 }
 
 /// Conditions for a downgrade level (supports composite syntax)
@@ -65,16 +157,8 @@ pub struct TraitDefinition {
     #[serde(default = "default_file_types")]
     pub r#for: Vec<FileType>,
 
-    /// Minimum file size in bytes
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub size_min: Option<usize>,
-
-    /// Maximum file size in bytes
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub size_max: Option<usize>,
-
-    // Detection condition - just one condition per trait (atomic!)
-    pub r#if: Condition,
+    // Detection condition with filters - all matching logic in one place
+    pub r#if: ConditionWithFilters,
 
     /// String-level exceptions - filter matched strings
     #[serde(skip_serializing_if = "Option::is_none", default)]
@@ -150,7 +234,7 @@ impl TraitDefinition {
 
     /// Pre-compile YARA rules in this trait's condition
     pub fn compile_yara(&mut self) {
-        self.r#if.compile_yara();
+        self.r#if.condition.compile_yara();
         if let Some(ref mut conds) = self.unless {
             for cond in conds.iter_mut() {
                 cond.compile_yara();
@@ -188,7 +272,7 @@ impl TraitDefinition {
     /// Check if size constraints are valid.
     /// Returns an error message if invalid, None otherwise.
     pub fn check_size_constraints(&self) -> Option<String> {
-        if let (Some(min), Some(max)) = (self.size_min, self.size_max) {
+        if let (Some(min), Some(max)) = (self.r#if.size_min, self.r#if.size_max) {
             if max < min {
                 return Some(format!(
                     "size_max ({}) cannot be less than size_min ({})",
@@ -270,7 +354,7 @@ impl TraitDefinition {
             }
         }
 
-        match &self.r#if {
+        match &self.r#if.condition {
             // Symbol conditions with not: - validate exceptions match the pattern
             Condition::Symbol {
                 exact: Some(_),
@@ -534,9 +618,9 @@ impl TraitDefinition {
             return None;
         }
 
-        // Check size constraints
+        // Check size constraints (from if: block)
         let file_size = ctx.report.target.size_bytes as usize;
-        if let Some(min) = self.size_min {
+        if let Some(min) = self.r#if.size_min {
             if file_size < min {
                 if let Some(collector) = &ctx.debug_collector {
                     if let Ok(mut debug) = collector.write() {
@@ -549,7 +633,7 @@ impl TraitDefinition {
                 return None;
             }
         }
-        if let Some(max) = self.size_max {
+        if let Some(max) = self.r#if.size_max {
             if file_size > max {
                 if let Some(collector) = &ctx.debug_collector {
                     if let Ok(mut debug) = collector.write() {
@@ -584,7 +668,7 @@ impl TraitDefinition {
 
         // Evaluate the condition (traits only have one atomic condition) with timeout protection
         let start = Instant::now();
-        let result = self.eval_condition(&self.r#if, ctx);
+        let result = self.eval_condition(&self.r#if.condition, ctx);
         let duration = start.elapsed();
 
         // Check for timeout violations (potential anti-analysis technique)
@@ -650,6 +734,76 @@ impl TraitDefinition {
         }
 
         if result.matched {
+            // Apply count and density filters (centralized for all condition types)
+            let match_count = result.evidence.len();
+            let file_kb = (file_size as f64) / 1024.0;
+
+            // Check count_min constraint
+            if let Some(min) = self.r#if.count_min {
+                if match_count < min {
+                    if let Some(collector) = &ctx.debug_collector {
+                        if let Ok(mut debug) = collector.write() {
+                            debug.record_skip(SkipReason::CountBelowMinimum {
+                                actual: match_count,
+                                min,
+                            });
+                        }
+                    }
+                    return None;
+                }
+            }
+
+            // Check count_max constraint
+            if let Some(max) = self.r#if.count_max {
+                if match_count > max {
+                    if let Some(collector) = &ctx.debug_collector {
+                        if let Ok(mut debug) = collector.write() {
+                            debug.record_skip(SkipReason::CountAboveMaximum {
+                                actual: match_count,
+                                max,
+                            });
+                        }
+                    }
+                    return None;
+                }
+            }
+
+            // Check per_kb_min constraint (density threshold)
+            if let Some(min_density) = self.r#if.per_kb_min {
+                if file_kb > 0.0 {
+                    let actual_density = (match_count as f64) / file_kb;
+                    if actual_density < min_density {
+                        if let Some(collector) = &ctx.debug_collector {
+                            if let Ok(mut debug) = collector.write() {
+                                debug.record_skip(SkipReason::DensityBelowMinimum {
+                                    actual: actual_density,
+                                    min: min_density,
+                                });
+                            }
+                        }
+                        return None;
+                    }
+                }
+            }
+
+            // Check per_kb_max constraint (density ceiling)
+            if let Some(max_density) = self.r#if.per_kb_max {
+                if file_kb > 0.0 {
+                    let actual_density = (match_count as f64) / file_kb;
+                    if actual_density > max_density {
+                        if let Some(collector) = &ctx.debug_collector {
+                            if let Ok(mut debug) = collector.write() {
+                                debug.record_skip(SkipReason::DensityAboveMaximum {
+                                    actual: actual_density,
+                                    max: max_density,
+                                });
+                            }
+                        }
+                        return None;
+                    }
+                }
+            }
+
             let mut final_crit = self.crit;
 
             // Check downgrade conditions
@@ -772,20 +926,13 @@ impl TraitDefinition {
                 substr,
                 regex,
                 platforms,
-                count_min,
-                count_max,
-                per_kb_min,
-                per_kb_max,
                 compiled_regex,
             } => {
-                let count_constraints =
-                    CountConstraints::new(*count_min, *count_max, *per_kb_min, *per_kb_max);
                 eval_symbol(
                     exact.as_ref(),
                     substr.as_ref(),
                     regex.as_ref(),
                     platforms.as_ref(),
-                    &count_constraints,
                     compiled_regex.as_ref(),
                     self.not.as_ref(),
                     ctx,
@@ -798,10 +945,6 @@ impl TraitDefinition {
                 word,
                 case_insensitive,
                 exclude_patterns,
-                count_min,
-                count_max,
-                per_kb_min,
-                per_kb_max,
                 external_ip,
                 section,
                 offset,
@@ -818,10 +961,6 @@ impl TraitDefinition {
                     word: word.as_ref(),
                     case_insensitive: *case_insensitive,
                     exclude_patterns: exclude_patterns.as_ref(),
-                    count_min: *count_min,
-                    count_max: *count_max,
-                    per_kb_min: *per_kb_min,
-                    per_kb_max: *per_kb_max,
                     external_ip: *external_ip,
                     compiled_regex: compiled_regex.as_ref(),
                     compiled_excludes,
@@ -865,26 +1004,18 @@ impl TraitDefinition {
                 name,
                 number,
                 arch,
-                count_min,
-                count_max,
-                per_kb_min,
-                per_kb_max,
             } => eval_syscall(
                 name.as_ref(),
                 number.as_ref(),
                 arch.as_ref(),
-                *count_min,
-                *count_max,
-                *per_kb_min,
-                *per_kb_max,
                 ctx,
             ),
             Condition::SectionRatio {
                 section,
                 compare_to,
-                min_ratio,
-                max_ratio,
-            } => eval_section_ratio(section, compare_to, *min_ratio, *max_ratio, ctx),
+                min,
+                max,
+            } => eval_section_ratio(section, compare_to, *min, *max, ctx),
             Condition::SectionEntropy {
                 section,
                 min,
@@ -918,21 +1049,11 @@ impl TraitDefinition {
                 pattern,
                 offset,
                 offset_range,
-                count_min,
-                count_max,
-                per_kb_min,
-                per_kb_max,
-                extract_wildcards,
                 section,
                 section_offset,
                 section_offset_range,
             } => eval_hex(
                 pattern,
-                *count_min,
-                *count_max,
-                *per_kb_min,
-                *per_kb_max,
-                *extract_wildcards,
                 &ContentLocationParams {
                     section: section.clone(),
                     offset: *offset,
@@ -948,10 +1069,6 @@ impl TraitDefinition {
                 regex,
                 word,
                 case_insensitive,
-                count_min,
-                count_max,
-                per_kb_min,
-                per_kb_max,
                 external_ip,
                 section,
                 offset,
@@ -974,10 +1091,6 @@ impl TraitDefinition {
                     regex.as_ref(),
                     word.as_ref(),
                     *case_insensitive,
-                    *count_min,
-                    *count_max,
-                    *per_kb_min,
-                    *per_kb_max,
                     *external_ip,
                     compiled_regex.as_ref(),
                     self.not.as_ref(),
@@ -985,7 +1098,20 @@ impl TraitDefinition {
                     ctx,
                 )
             }
-            Condition::SectionName { pattern, regex } => eval_section_name(pattern, *regex, ctx),
+            Condition::Section {
+                exact,
+                substr,
+                regex,
+                word,
+                case_insensitive,
+            } => eval_section(
+                exact.as_ref(),
+                substr.as_ref(),
+                regex.as_ref(),
+                word.as_ref(),
+                *case_insensitive,
+                ctx,
+            ),
             Condition::Encoded {
                 encoding,
                 exact,
@@ -993,10 +1119,6 @@ impl TraitDefinition {
                 regex,
                 word,
                 case_insensitive,
-                count_min,
-                count_max,
-                per_kb_min,
-                per_kb_max,
                 section,
                 offset,
                 offset_range,
@@ -1019,10 +1141,6 @@ impl TraitDefinition {
                     regex.as_ref(),
                     word.as_ref(),
                     *case_insensitive,
-                    *count_min,
-                    *count_max,
-                    *per_kb_min,
-                    *per_kb_max,
                     compiled_regex.as_ref(),
                     &location,
                     ctx,
@@ -1742,20 +1860,13 @@ impl CompositeTrait {
                 substr,
                 regex,
                 platforms,
-                count_min,
-                count_max,
-                per_kb_min,
-                per_kb_max,
                 compiled_regex,
             } => {
-                let count_constraints =
-                    CountConstraints::new(*count_min, *count_max, *per_kb_min, *per_kb_max);
                 self.eval_symbol(
                     exact.as_ref(),
                     substr.as_ref(),
                     regex.as_ref(),
                     platforms.as_ref(),
-                    &count_constraints,
                     compiled_regex.as_ref(),
                     ctx,
                 )
@@ -1767,10 +1878,6 @@ impl CompositeTrait {
                 word,
                 case_insensitive,
                 exclude_patterns,
-                count_min,
-                count_max,
-                per_kb_min,
-                per_kb_max,
                 external_ip,
                 section,
                 offset,
@@ -1787,10 +1894,6 @@ impl CompositeTrait {
                     word: word.as_ref(),
                     case_insensitive: *case_insensitive,
                     exclude_patterns: exclude_patterns.as_ref(),
-                    count_min: *count_min,
-                    count_max: *count_max,
-                    per_kb_min: *per_kb_min,
-                    per_kb_max: *per_kb_max,
                     external_ip: *external_ip,
                     compiled_regex: compiled_regex.as_ref(),
                     compiled_excludes,
@@ -1834,26 +1937,18 @@ impl CompositeTrait {
                 name,
                 number,
                 arch,
-                count_min,
-                count_max,
-                per_kb_min,
-                per_kb_max,
             } => eval_syscall(
                 name.as_ref(),
                 number.as_ref(),
                 arch.as_ref(),
-                *count_min,
-                *count_max,
-                *per_kb_min,
-                *per_kb_max,
                 ctx,
             ),
             Condition::SectionRatio {
                 section,
                 compare_to,
-                min_ratio,
-                max_ratio,
-            } => eval_section_ratio(section, compare_to, *min_ratio, *max_ratio, ctx),
+                min,
+                max,
+            } => eval_section_ratio(section, compare_to, *min, *max, ctx),
             Condition::SectionEntropy {
                 section,
                 min,
@@ -1887,21 +1982,11 @@ impl CompositeTrait {
                 pattern,
                 offset,
                 offset_range,
-                count_min,
-                count_max,
-                per_kb_min,
-                per_kb_max,
-                extract_wildcards,
                 section,
                 section_offset,
                 section_offset_range,
             } => eval_hex(
                 pattern,
-                *count_min,
-                *count_max,
-                *per_kb_min,
-                *per_kb_max,
-                *extract_wildcards,
                 &ContentLocationParams {
                     section: section.clone(),
                     offset: *offset,
@@ -1917,10 +2002,6 @@ impl CompositeTrait {
                 regex,
                 word,
                 case_insensitive,
-                count_min,
-                count_max,
-                per_kb_min,
-                per_kb_max,
                 external_ip,
                 section,
                 offset,
@@ -1943,10 +2024,6 @@ impl CompositeTrait {
                     regex.as_ref(),
                     word.as_ref(),
                     *case_insensitive,
-                    *count_min,
-                    *count_max,
-                    *per_kb_min,
-                    *per_kb_max,
                     *external_ip,
                     compiled_regex.as_ref(),
                     self.not.as_ref(),
@@ -1954,7 +2031,20 @@ impl CompositeTrait {
                     ctx,
                 )
             }
-            Condition::SectionName { pattern, regex } => eval_section_name(pattern, *regex, ctx),
+            Condition::Section {
+                exact,
+                substr,
+                regex,
+                word,
+                case_insensitive,
+            } => eval_section(
+                exact.as_ref(),
+                substr.as_ref(),
+                regex.as_ref(),
+                word.as_ref(),
+                *case_insensitive,
+                ctx,
+            ),
             Condition::Encoded {
                 encoding,
                 exact,
@@ -1962,10 +2052,6 @@ impl CompositeTrait {
                 regex,
                 word,
                 case_insensitive,
-                count_min,
-                count_max,
-                per_kb_min,
-                per_kb_max,
                 section,
                 offset,
                 offset_range,
@@ -1988,10 +2074,6 @@ impl CompositeTrait {
                     regex.as_ref(),
                     word.as_ref(),
                     *case_insensitive,
-                    *count_min,
-                    *count_max,
-                    *per_kb_min,
-                    *per_kb_max,
                     compiled_regex.as_ref(),
                     &location,
                     ctx,
@@ -2030,7 +2112,6 @@ impl CompositeTrait {
         substr: Option<&String>,
         pattern: Option<&String>,
         platforms: Option<&Vec<Platform>>,
-        count_constraints: &CountConstraints,
         compiled_regex: Option<&regex::Regex>,
         ctx: &EvaluationContext,
     ) -> ConditionResult {
@@ -2057,7 +2138,6 @@ impl CompositeTrait {
             substr,
             pattern,
             None,
-            count_constraints,
             compiled_regex,
             None,
             ctx,

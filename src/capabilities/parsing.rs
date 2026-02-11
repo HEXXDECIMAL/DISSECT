@@ -118,18 +118,35 @@ pub(crate) fn apply_trait_defaults(
 
     // For size-only traits without a condition, create a synthetic "always-true" condition
     // This uses a basename regex that matches everything
-    let mut condition =
-        raw.condition
-            .unwrap_or_else(|| crate::composite_rules::Condition::Basename {
+    let mut condition_with_filters = raw.condition.unwrap_or_else(|| {
+        crate::composite_rules::ConditionWithFilters {
+            condition: crate::composite_rules::Condition::Basename {
                 exact: None,
                 substr: None,
                 regex: Some(".".to_string()),
                 case_insensitive: false,
-            });
+            },
+            size_min: None,
+            size_max: None,
+            count_min: None,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
+        }
+    });
 
     // Auto-fix: Convert literal regex patterns to substr for better performance
     // If a regex pattern contains only alphanumeric chars and underscores, it's a literal
-    fix_literal_regex_patterns(&mut condition);
+    fix_literal_regex_patterns(&mut condition_with_filters.condition);
+
+    // Support backwards compatibility: if size_min/size_max are at trait level,
+    // copy them to the condition wrapper (unless already set in the if: block)
+    if condition_with_filters.size_min.is_none() {
+        condition_with_filters.size_min = raw.size_min;
+    }
+    if condition_with_filters.size_max.is_none() {
+        condition_with_filters.size_max = raw.size_max;
+    }
 
     let mut trait_def = TraitDefinition {
         id: raw.id,
@@ -140,9 +157,7 @@ pub(crate) fn apply_trait_defaults(
         attack: apply_string_default(raw.attack, &defaults.attack),
         platforms,
         r#for: file_types,
-        size_min: raw.size_min,
-        size_max: raw.size_max,
-        r#if: condition,
+        r#if: condition_with_filters,
         not: raw.not,
         unless: raw.unless,
         downgrade: raw.downgrade,

@@ -51,9 +51,8 @@ traits:
     mbc: "F0001.008"
     for: [binaries]
     if:
-      type: section_name
-      pattern: "^(UPX\\d*|\\.UPX\\d*)$"
-      regex: true
+      type: section
+      regex: "^(UPX\\d*|\\.UPX\\d*)$"
 
   - id: vmprotect-section
     desc: VMProtect packed binary section name
@@ -62,9 +61,8 @@ traits:
     mbc: "F0001"
     for: [binaries]
     if:
-      type: section_name
-      pattern: "^\\.vmp[0-9]+$"
-      regex: true
+      type: section
+      regex: "^\\.vmp[0-9]+$"
 
 composite_rules:
   - id: detect

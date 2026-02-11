@@ -364,21 +364,21 @@ impl CapabilityMapper {
                     }
                 }
                 // Validate YARA/AST conditions at load time
-                trait_def.r#if.validate().with_context(|| {
+                trait_def.r#if.validate(&trait_def.id).map_err(|e| anyhow::anyhow!("{}", e)).with_context(|| {
                     format!(
                         "invalid condition in trait '{}' from {:?}",
                         trait_def.id, path
                     )
                 })?;
                 // Check for greedy regex patterns
-                if let Some(warning) = trait_def.r#if.check_greedy_patterns() {
+                if let Some(warning) = trait_def.r#if.check_greedy_patterns(&trait_def.id) {
                     warnings.push(format!(
                         "trait '{}' in {:?}: {}",
                         trait_def.id, path, warning
                     ));
                 }
                 // Check for word boundary regex patterns that should use type: word
-                if let Some(warning) = trait_def.r#if.check_word_boundary_regex() {
+                if let Some(warning) = trait_def.r#if.check_word_boundary_regex(&trait_def.id) {
                     warnings.push(format!(
                         "trait '{}' in {:?}: {}",
                         trait_def.id, path, warning
@@ -429,7 +429,7 @@ impl CapabilityMapper {
                 }
 
                 // Check for invalid count constraints in condition
-                if let Some(warning) = trait_def.r#if.check_count_constraints() {
+                if let Some(warning) = trait_def.r#if.check_count_constraints(&trait_def.id) {
                     warnings.push(format!(
                         "trait '{}' in {:?}: {}",
                         trait_def.id, path, warning
@@ -437,7 +437,7 @@ impl CapabilityMapper {
                 }
 
                 // Check for invalid density constraints in condition
-                if let Some(warning) = trait_def.r#if.check_density_constraints() {
+                if let Some(warning) = trait_def.r#if.check_density_constraints(&trait_def.id) {
                     warnings.push(format!(
                         "trait '{}' in {:?}: {}",
                         trait_def.id, path, warning
@@ -445,7 +445,7 @@ impl CapabilityMapper {
                 }
 
                 // Check for mutually exclusive match types in condition
-                if let Some(warning) = trait_def.r#if.check_match_exclusivity() {
+                if let Some(warning) = trait_def.r#if.check_match_exclusivity(&trait_def.id) {
                     warnings.push(format!(
                         "trait '{}' in {:?}: {}",
                         trait_def.id, path, warning
@@ -453,7 +453,7 @@ impl CapabilityMapper {
                 }
 
                 // Check for empty patterns
-                if let Some(warning) = trait_def.r#if.check_empty_patterns() {
+                if let Some(warning) = trait_def.r#if.check_empty_patterns(&trait_def.id) {
                     warnings.push(format!(
                         "trait '{}' in {:?}: {}",
                         trait_def.id, path, warning
@@ -461,7 +461,7 @@ impl CapabilityMapper {
                 }
 
                 // Check for overly short patterns
-                if let Some(warning) = trait_def.r#if.check_short_patterns() {
+                if let Some(warning) = trait_def.r#if.check_short_patterns(&trait_def.id) {
                     warnings.push(format!(
                         "trait '{}' in {:?}: {}",
                         trait_def.id, path, warning
@@ -469,7 +469,7 @@ impl CapabilityMapper {
                 }
 
                 // Check for literal strings used as regex
-                if let Some(warning) = trait_def.r#if.check_literal_regex() {
+                if let Some(warning) = trait_def.r#if.check_literal_regex(&trait_def.id) {
                     warnings.push(format!(
                         "trait '{}' in {:?}: {}",
                         trait_def.id, path, warning
@@ -477,7 +477,7 @@ impl CapabilityMapper {
                 }
 
                 // Check for useless case_insensitive
-                if let Some(warning) = trait_def.r#if.check_case_insensitive_on_non_alpha() {
+                if let Some(warning) = trait_def.r#if.check_case_insensitive_on_non_alpha(&trait_def.id) {
                     warnings.push(format!(
                         "trait '{}' in {:?}: {}",
                         trait_def.id, path, warning
@@ -485,7 +485,7 @@ impl CapabilityMapper {
                 }
 
                 // Check for count_min: 0
-                if let Some(warning) = trait_def.r#if.check_count_min_value() {
+                if let Some(warning) = trait_def.r#if.check_count_min_value(&trait_def.id) {
                     warnings.push(format!(
                         "trait '{}' in {:?}: {}",
                         trait_def.id, path, warning
@@ -548,7 +548,7 @@ impl CapabilityMapper {
                     platforms: _,
                     compiled_regex: _,
                     ..
-                } = &trait_def.r#if
+                } = &trait_def.r#if.condition
                 {
                     // If exact is specified, add it directly
                     if let Some(exact_val) = exact {
@@ -689,12 +689,12 @@ impl CapabilityMapper {
         // Pre-compile all YARA rules for faster evaluation (parallelized)
         let yara_count_traits = trait_definitions
             .iter()
-            .filter(|t| matches!(t.r#if, Condition::Yara { .. }))
+            .filter(|t| matches!(t.r#if.condition, Condition::Yara { .. }))
             .count();
 
         // Use rayon's par_iter_mut for parallel YARA compilation
         trait_definitions.par_iter_mut().for_each(|t| {
-            if matches!(t.r#if, Condition::Yara { .. }) {
+            if matches!(t.r#if.condition, Condition::Yara { .. }) {
                 t.compile_yara();
             }
         });
@@ -2276,14 +2276,17 @@ impl CapabilityMapper {
                 // NOTE: Cannot use fast path for traits with downgrade rules - they need full evaluation
                 let is_simple_exact_string = trait_def.downgrade.is_none()
                     && matches!(
-                        &trait_def.r#if,
+                        &trait_def.r#if.condition,
                         Condition::String {
                             exact: Some(_),
                             exclude_patterns: None,
-                            count_min: 1,
                             ..
                         }
-                    );
+                    )
+                    && trait_def.r#if.count_min.unwrap_or(1) == 1
+                    && trait_def.r#if.count_max.is_none()
+                    && trait_def.r#if.per_kb_min.is_none()
+                    && trait_def.r#if.per_kb_max.is_none();
 
                 if is_simple_exact_string {
                     // Use cached evidence directly - skip full evaluation
@@ -2307,7 +2310,7 @@ impl CapabilityMapper {
 
                 // Check if this trait has an exact string pattern that wasn't matched
                 let has_exact_string =
-                    matches!(trait_def.r#if, Condition::String { exact: Some(_), .. });
+                    matches!(trait_def.r#if.condition, Condition::String { exact: Some(_), .. });
 
                 // If trait has an exact string pattern and it wasn't matched, skip it
                 if has_exact_string && !string_matched_traits.contains(&idx) {
@@ -2323,7 +2326,7 @@ impl CapabilityMapper {
 
                 // Check if this trait has a content-based regex/word pattern that wasn't matched
                 let has_content_regex = matches!(
-                    trait_def.r#if,
+                    trait_def.r#if.condition,
                     Condition::Raw { regex: Some(_), .. } | Condition::Raw { word: Some(_), .. }
                 );
 
@@ -2931,7 +2934,7 @@ fn validate_conditions(
 ) {
     // Check trait definitions
     for trait_def in trait_definitions {
-        check_condition(&trait_def.r#if, &trait_def.id, path);
+        check_condition(&trait_def.r#if.condition, &trait_def.id, path);
     }
 
     // Check composite rules

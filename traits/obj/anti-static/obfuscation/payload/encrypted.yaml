@@ -31,7 +31,7 @@ traits:
       type: section_ratio
       section: "__const"
       compare_to: "total"
-      min_ratio: 0.80
+      min: 0.80
 
   - id: large-data-section
     desc: "Large .data section (>70% of"
@@ -45,7 +45,7 @@ traits:
       type: section_ratio
       section: "\\.data"
       compare_to: "total"
-      min_ratio: 0.70
+      min: 0.70
 
   - id: tiny-cstring
     desc: "Tiny __cstring section (<0.1% of"
@@ -56,7 +56,7 @@ traits:
       type: section_ratio
       section: "__cstring"
       compare_to: "total"
-      max_ratio: 0.001
+      max: 0.001
 
   - id: minimal-text
     desc: "Small code section (<5% of"
@@ -67,7 +67,7 @@ traits:
       type: section_ratio
       section: "__text"
       compare_to: "total"
-      max_ratio: 0.05
+      max: 0.05
 
   # === Entropy Indicators ===
 

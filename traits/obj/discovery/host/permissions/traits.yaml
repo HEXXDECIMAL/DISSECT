@@ -1,6 +1,8 @@
 # Permissions Discovery
 # ATT&CK: T1069 (Permission Groups Discovery)
 # NOTE: Config file paths moved to cap/fs/path/config/{accounts,groups,privesc}/
+# NOTE: Neutral ID query functions (getgid, getegid, geteuid, getuid) moved to cap/process/privilege/
+# NOTE: Neutral capability query functions (cap_get_file, cap_set_file) moved to cap/os/capabilities/
 
 traits:
   - id: capsh
@@ -23,58 +25,9 @@ traits:
       type: string
       substr: "getgroups"
 
-  # NOTE: getgid/getegid/geteuid are extremely common POSIX functions.
-  # Mark as inert unless combined with other permission discovery indicators.
-  - id: getgid
-    desc: Get group ID
-    crit: inert
-    conf: 0.5
-    attack: "T1069"
-    for: [elf, macho]
-    if:
-      type: symbol
-      exact: "getgid"
-
-  - id: getegid
-    desc: Get effective group ID
-    crit: inert
-    conf: 0.5
-    attack: "T1069"
-    for: [elf, macho]
-    if:
-      type: symbol
-      exact: "getegid"
-
-  - id: geteuid
-    desc: Get effective user ID
-    crit: inert
-    conf: 0.5
-    attack: "T1033"
-    for: [elf, macho]
-    if:
-      type: symbol
-      exact: "geteuid"
-
   # === Linux capability API ===
-  - id: cap-get-file
-    desc: cap_get_file function
-    crit: inert
-    conf: 0.6
-    attack: "T1069"
-    for: [elf]
-    if:
-      type: string
-      substr: "cap_get_file"
-
-  - id: cap-set-file
-    desc: cap_set_file function
-    crit: inert
-    conf: 0.6
-    attack: "T1069"
-    for: [elf]
-    if:
-      type: string
-      substr: "cap_set_file"
+  # NOTE: cap_get_file and cap_set_file moved to cap/os/capabilities/ (neutral file capability queries)
+  # Kept here: cap_get_proc and cap_set_proc have more suspicion (runtime manipulation)
 
   - id: cap-get-proc
     desc: Get process capabilities
@@ -117,8 +70,8 @@ composite_rules:
     any:
       - id: cap-get-proc
       - id: cap-set-proc
-      - id: cap-get-file
-      - id: cap-set-file
+      - id: cap/os/capabilities::cap-get-file
+      - id: cap/os/capabilities::cap-set-file
 
   # Linux capabilities via capsh + /proc/self/status
   - id: linux-caps-via-capsh
@@ -162,9 +115,9 @@ composite_rules:
     for: [elf, macho]
     needs: 3
     any:
-      - id: getgid
-      - id: getegid
-      - id: geteuid
+      - id: cap/process/privilege::getgid
+      - id: cap/process/privilege::getegid
+      - id: cap/process/privilege::geteuid
       - id: getgroups
     downgrade:
       any:

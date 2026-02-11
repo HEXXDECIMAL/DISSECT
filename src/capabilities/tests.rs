@@ -230,25 +230,29 @@ fn test_apply_trait_defaults_applies_all_defaults() {
         not: None,
         unless: None,
         downgrade: None,
-        condition: Some(Condition::String {
-            external_ip: false,
-            exact: Some("test".to_string()),
-            regex: None,
-            word: None,
-            case_insensitive: false,
-            exclude_patterns: None,
-            count_min: 1,
+        condition: Some(crate::composite_rules::ConditionWithFilters {
+            condition: Condition::String {
+                external_ip: false,
+                exact: Some("test".to_string()),
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                exclude_patterns: None,
+                substr: None,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
+            },
+            size_min: None,
+            size_max: None,
+            count_min: Some(1),
             count_max: None,
             per_kb_min: None,
             per_kb_max: None,
-            substr: None,
-            section: None,
-            offset: None,
-            offset_range: None,
-            section_offset: None,
-            section_offset_range: None,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
         }),
     };
 
@@ -288,25 +292,29 @@ fn test_apply_trait_defaults_trait_overrides_defaults() {
         not: None,
         unless: None,
         downgrade: None,
-        condition: Some(Condition::String {
-            external_ip: false,
-            exact: Some("test".to_string()),
-            regex: None,
-            word: None,
-            case_insensitive: false,
-            exclude_patterns: None,
-            count_min: 1,
+        condition: Some(crate::composite_rules::ConditionWithFilters {
+            condition: Condition::String {
+                external_ip: false,
+                exact: Some("test".to_string()),
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                exclude_patterns: None,
+                substr: None,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
+            },
+            size_min: None,
+            size_max: None,
+            count_min: Some(1),
             count_max: None,
             per_kb_min: None,
             per_kb_max: None,
-            substr: None,
-            section: None,
-            offset: None,
-            offset_range: None,
-            section_offset: None,
-            section_offset_range: None,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
         }),
     };
 
@@ -347,25 +355,29 @@ fn test_apply_trait_defaults_unset_mbc_with_none() {
         not: None,
         unless: None,
         downgrade: None,
-        condition: Some(Condition::String {
-            external_ip: false,
-            exact: Some("test".to_string()),
-            regex: None,
-            word: None,
-            case_insensitive: false,
-            exclude_patterns: None,
-            count_min: 1,
+        condition: Some(crate::composite_rules::ConditionWithFilters {
+            condition: Condition::String {
+                external_ip: false,
+                exact: Some("test".to_string()),
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                exclude_patterns: None,
+                substr: None,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
+            },
+            size_min: None,
+            size_max: None,
+            count_min: Some(1),
             count_max: None,
             per_kb_min: None,
             per_kb_max: None,
-            substr: None,
-            section: None,
-            offset: None,
-            offset_range: None,
-            section_offset: None,
-            section_offset_range: None,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
         }),
     };
 
@@ -401,25 +413,29 @@ fn test_apply_trait_defaults_unset_attack_with_none() {
         not: None,
         unless: None,
         downgrade: None,
-        condition: Some(Condition::String {
-            external_ip: false,
-            exact: Some("test".to_string()),
-            regex: None,
-            word: None,
-            case_insensitive: false,
-            exclude_patterns: None,
-            count_min: 1,
+        condition: Some(crate::composite_rules::ConditionWithFilters {
+            condition: Condition::String {
+                external_ip: false,
+                exact: Some("test".to_string()),
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                exclude_patterns: None,
+                substr: None,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
+            },
+            size_min: None,
+            size_max: None,
+            count_min: Some(1),
             count_max: None,
             per_kb_min: None,
             per_kb_max: None,
-            substr: None,
-            section: None,
-            offset: None,
-            offset_range: None,
-            section_offset: None,
-            section_offset_range: None,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
         }),
     };
 
@@ -455,25 +471,29 @@ fn test_apply_trait_defaults_unset_file_types_with_none() {
         not: None,
         unless: None,
         downgrade: None,
-        condition: Some(Condition::String {
-            external_ip: false,
-            exact: Some("test".to_string()),
-            regex: None,
-            word: None,
-            case_insensitive: false,
-            exclude_patterns: None,
-            count_min: 1,
+        condition: Some(crate::composite_rules::ConditionWithFilters {
+            condition: Condition::String {
+                external_ip: false,
+                exact: Some("test".to_string()),
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                exclude_patterns: None,
+                substr: None,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
+            },
+            size_min: None,
+            size_max: None,
+            count_min: Some(1),
             count_max: None,
             per_kb_min: None,
             per_kb_max: None,
-            substr: None,
-            section: None,
-            offset: None,
-            offset_range: None,
-            section_offset: None,
-            section_offset_range: None,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
         }),
     };
 
@@ -522,10 +542,6 @@ fn test_apply_composite_defaults_applies_all_defaults() {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             substr: None,
             section: None,
             offset: None,
@@ -586,10 +602,6 @@ fn test_apply_composite_defaults_unset_with_none() {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             substr: None,
             section: None,
             offset: None,
@@ -1106,10 +1118,6 @@ fn test_precision_direct_conditions() {
                 word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
-                count_min: 1,
-                count_max: None,
-                per_kb_min: None,
-                per_kb_max: None,
                 substr: None,
                 section: None,
                 offset: None,
@@ -1126,10 +1134,6 @@ fn test_precision_direct_conditions() {
                 word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
-                count_min: 1,
-                count_max: None,
-                per_kb_min: None,
-                per_kb_max: None,
                 substr: None,
                 section: None,
                 offset: None,
@@ -1146,10 +1150,6 @@ fn test_precision_direct_conditions() {
                 word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
-                count_min: 1,
-                count_max: None,
-                per_kb_min: None,
-                per_kb_max: None,
                 substr: None,
                 section: None,
                 offset: None,
@@ -1177,12 +1177,15 @@ fn test_precision_direct_conditions() {
     let mut cache = HashMap::new();
     let mut visiting = HashSet::new();
     let composites = vec![rule.clone()];
-    let traits = vec![];
+
+    let composite_lookup: HashMap<&str, &CompositeTrait> =
+        composites.iter().map(|c| (c.id.as_str(), c)).collect();
+    let trait_lookup: HashMap<&str, &TraitDefinition> = HashMap::new();
 
     let precision = validation::calculate_composite_precision(
         "test/three-strings",
-        &composites,
-        &traits,
+        &composite_lookup,
+        &trait_lookup,
         &mut cache,
         &mut visiting,
     );
@@ -1214,10 +1217,6 @@ fn test_precision_file_type_filter() {
                 word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
-                count_min: 1,
-                count_max: None,
-                per_kb_min: None,
-                per_kb_max: None,
                 substr: None,
                 section: None,
                 offset: None,
@@ -1234,10 +1233,6 @@ fn test_precision_file_type_filter() {
                 word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
-                count_min: 1,
-                count_max: None,
-                per_kb_min: None,
-                per_kb_max: None,
                 substr: None,
                 section: None,
                 offset: None,
@@ -1265,12 +1260,15 @@ fn test_precision_file_type_filter() {
     let mut cache = HashMap::new();
     let mut visiting = HashSet::new();
     let composites = vec![rule.clone()];
-    let traits = vec![];
+
+    let composite_lookup: HashMap<&str, &CompositeTrait> =
+        composites.iter().map(|c| (c.id.as_str(), c)).collect();
+    let trait_lookup: HashMap<&str, &TraitDefinition> = HashMap::new();
 
     let precision = validation::calculate_composite_precision(
         "test/with-filetype",
-        &composites,
-        &traits,
+        &composite_lookup,
+        &trait_lookup,
         &mut cache,
         &mut visiting,
     );
@@ -1294,28 +1292,30 @@ fn test_precision_recursive_expansion() {
         attack: None,
         platforms: vec![Platform::All],
         r#for: vec![RuleFileType::All],
-        r#if: Condition::String {
-            external_ip: false,
-            exact: Some("atomic".to_string()),
-            regex: None,
-            word: None,
-            case_insensitive: false,
-            exclude_patterns: None,
-            count_min: 1,
+        r#if: crate::composite_rules::ConditionWithFilters {
+            condition: Condition::String {
+                external_ip: false,
+                exact: Some("atomic".to_string()),
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                exclude_patterns: None,
+                substr: None,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
+            },
+            size_min: None,
+            size_max: None,
+            count_min: Some(1),
             count_max: None,
             per_kb_min: None,
             per_kb_max: None,
-            substr: None,
-            section: None,
-            offset: None,
-            offset_range: None,
-            section_offset: None,
-            section_offset_range: None,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
         },
-        size_min: None,
-        size_max: None,
         not: None,
         unless: None,
         downgrade: None,
@@ -1341,10 +1341,6 @@ fn test_precision_recursive_expansion() {
                 word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
-                count_min: 1,
-                count_max: None,
-                per_kb_min: None,
-                per_kb_max: None,
                 substr: None,
                 section: None,
                 offset: None,
@@ -1361,10 +1357,6 @@ fn test_precision_recursive_expansion() {
                 word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
-                count_min: 1,
-                count_max: None,
-                per_kb_min: None,
-                per_kb_max: None,
                 substr: None,
                 section: None,
                 offset: None,
@@ -1426,10 +1418,15 @@ fn test_precision_recursive_expansion() {
     let composites = vec![composite_a, composite_b.clone()];
     let traits = vec![trait_def];
 
+    let composite_lookup: HashMap<&str, &CompositeTrait> =
+        composites.iter().map(|c| (c.id.as_str(), c)).collect();
+    let trait_lookup: HashMap<&str, &TraitDefinition> =
+        traits.iter().map(|t| (t.id.as_str(), t)).collect();
+
     let precision = validation::calculate_composite_precision(
         "test/composite-b",
-        &composites,
-        &traits,
+        &composite_lookup,
+        &trait_lookup,
         &mut cache,
         &mut visiting,
     );
@@ -1500,12 +1497,15 @@ fn test_precision_cycle_detection() {
     let mut cache = HashMap::new();
     let mut visiting = HashSet::new();
     let composites = vec![composite_a.clone(), composite_b];
-    let traits = vec![];
+
+    let composite_lookup: HashMap<&str, &CompositeTrait> =
+        composites.iter().map(|c| (c.id.as_str(), c)).collect();
+    let trait_lookup: HashMap<&str, &TraitDefinition> = HashMap::new();
 
     let precision = validation::calculate_composite_precision(
         "test/circular-a",
-        &composites,
-        &traits,
+        &composite_lookup,
+        &trait_lookup,
         &mut cache,
         &mut visiting,
     );
@@ -1537,10 +1537,6 @@ fn test_precision_caching() {
                 word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
-                count_min: 1,
-                count_max: None,
-                per_kb_min: None,
-                per_kb_max: None,
                 substr: None,
                 section: None,
                 offset: None,
@@ -1557,10 +1553,6 @@ fn test_precision_caching() {
                 word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
-                count_min: 1,
-                count_max: None,
-                per_kb_min: None,
-                per_kb_max: None,
                 substr: None,
                 section: None,
                 offset: None,
@@ -1588,13 +1580,16 @@ fn test_precision_caching() {
     let mut cache = HashMap::new();
     let mut visiting = HashSet::new();
     let composites = vec![rule.clone()];
-    let traits = vec![];
+
+    let composite_lookup: HashMap<&str, &CompositeTrait> =
+        composites.iter().map(|c| (c.id.as_str(), c)).collect();
+    let trait_lookup: HashMap<&str, &TraitDefinition> = HashMap::new();
 
     // First call - should calculate and cache
     let precision1 = validation::calculate_composite_precision(
         "test/cacheable",
-        &composites,
-        &traits,
+        &composite_lookup,
+        &trait_lookup,
         &mut cache,
         &mut visiting,
     );
@@ -1605,8 +1600,8 @@ fn test_precision_caching() {
     // Second call - should use cache
     let precision2 = validation::calculate_composite_precision(
         "test/cacheable",
-        &composites,
-        &traits,
+        &composite_lookup,
+        &trait_lookup,
         &mut cache,
         &mut visiting,
     );
@@ -1636,10 +1631,6 @@ fn test_precision_threshold_validation() {
                 word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
-                count_min: 1,
-                count_max: None,
-                per_kb_min: None,
-                per_kb_max: None,
                 substr: None,
                 section: None,
                 offset: None,
@@ -1656,10 +1647,6 @@ fn test_precision_threshold_validation() {
                 word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
-                count_min: 1,
-                count_max: None,
-                per_kb_min: None,
-                per_kb_max: None,
                 substr: None,
                 section: None,
                 offset: None,
@@ -1676,10 +1663,6 @@ fn test_precision_threshold_validation() {
                 word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
-                count_min: 1,
-                count_max: None,
-                per_kb_min: None,
-                per_kb_max: None,
                 substr: None,
                 section: None,
                 offset: None,
@@ -1724,10 +1707,6 @@ fn test_precision_threshold_validation() {
                 word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
-                count_min: 1,
-                count_max: None,
-                per_kb_min: None,
-                per_kb_max: None,
                 substr: None,
                 section: None,
                 offset: None,
@@ -1744,10 +1723,6 @@ fn test_precision_threshold_validation() {
                 word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
-                count_min: 1,
-                count_max: None,
-                per_kb_min: None,
-                per_kb_max: None,
                 substr: None,
                 section: None,
                 offset: None,
@@ -1773,7 +1748,7 @@ fn test_precision_threshold_validation() {
     };
 
     let mut composites = vec![rule_low, rule_high];
-    let traits = vec![];
+    let traits: Vec<TraitDefinition> = vec![];
 
     // Run validation
     validation::validate_hostile_composite_precision(
@@ -1818,10 +1793,6 @@ fn test_suspicious_precision_threshold_validation() {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             substr: None,
             section: None,
             offset: None,
@@ -1864,10 +1835,6 @@ fn test_suspicious_precision_threshold_validation() {
                 word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
-                count_min: 1,
-                count_max: None,
-                per_kb_min: None,
-                per_kb_max: None,
                 substr: None,
                 section: None,
                 offset: None,
@@ -1884,10 +1851,6 @@ fn test_suspicious_precision_threshold_validation() {
                 word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
-                count_min: 1,
-                count_max: None,
-                per_kb_min: None,
-                per_kb_max: None,
                 substr: None,
                 section: None,
                 offset: None,
@@ -1912,7 +1875,7 @@ fn test_suspicious_precision_threshold_validation() {
     };
 
     let mut composites = vec![rule_low, rule_ok];
-    let traits = vec![];
+    let traits: Vec<TraitDefinition> = vec![];
 
     // Run validation
     validation::validate_hostile_composite_precision(
@@ -1959,10 +1922,6 @@ fn test_precision_mixed_conditions() {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             substr: None,
             section: None,
             offset: None,
@@ -1980,10 +1939,6 @@ fn test_precision_mixed_conditions() {
                 word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
-                count_min: 1,
-                count_max: None,
-                per_kb_min: None,
-                per_kb_max: None,
                 substr: None,
                 section: None,
                 offset: None,
@@ -2000,10 +1955,6 @@ fn test_precision_mixed_conditions() {
                 word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
-                count_min: 1,
-                count_max: None,
-                per_kb_min: None,
-                per_kb_max: None,
                 substr: None,
                 section: None,
                 offset: None,
@@ -2024,10 +1975,6 @@ fn test_precision_mixed_conditions() {
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
-            count_min: 1,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
             substr: None,
             section: None,
             offset: None,
@@ -2048,12 +1995,16 @@ fn test_precision_mixed_conditions() {
     let mut cache = HashMap::new();
     let mut visiting = HashSet::new();
     let composites = vec![rule.clone()];
-    let traits = vec![];
+    let traits: Vec<TraitDefinition> = vec![];
+
+    let composite_lookup: HashMap<&str, &CompositeTrait> =
+        composites.iter().map(|c| (c.id.as_str(), c)).collect();
+    let trait_lookup: HashMap<&str, &TraitDefinition> = HashMap::new();
 
     let precision = validation::calculate_composite_precision(
         "test/mixed",
-        &composites,
-        &traits,
+        &composite_lookup,
+        &trait_lookup,
         &mut cache,
         &mut visiting,
     );
@@ -2084,10 +2035,6 @@ fn test_precision_deep_nesting() {
                 word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
-                count_min: 1,
-                count_max: None,
-                per_kb_min: None,
-                per_kb_max: None,
                 substr: None,
                 section: None,
                 offset: None,
@@ -2104,10 +2051,6 @@ fn test_precision_deep_nesting() {
                 word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
-                count_min: 1,
-                count_max: None,
-                per_kb_min: None,
-                per_kb_max: None,
                 substr: None,
                 section: None,
                 offset: None,
@@ -2153,10 +2096,6 @@ fn test_precision_deep_nesting() {
                 word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
-                count_min: 1,
-                count_max: None,
-                per_kb_min: None,
-                per_kb_max: None,
                 substr: None,
                 section: None,
                 offset: None,
@@ -2202,10 +2141,6 @@ fn test_precision_deep_nesting() {
                 word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
-                count_min: 1,
-                count_max: None,
-                per_kb_min: None,
-                per_kb_max: None,
                 substr: None,
                 section: None,
                 offset: None,
@@ -2233,12 +2168,16 @@ fn test_precision_deep_nesting() {
     let mut cache = HashMap::new();
     let mut visiting = HashSet::new();
     let composites = vec![level1, level2, level3];
-    let traits = vec![];
+    let traits: Vec<TraitDefinition> = vec![];
+
+    let composite_lookup: HashMap<&str, &CompositeTrait> =
+        composites.iter().map(|c| (c.id.as_str(), c)).collect();
+    let trait_lookup: HashMap<&str, &TraitDefinition> = HashMap::new();
 
     let precision = validation::calculate_composite_precision(
         "test/level3",
-        &composites,
-        &traits,
+        &composite_lookup,
+        &trait_lookup,
         &mut cache,
         &mut visiting,
     );
@@ -2316,12 +2255,16 @@ fn test_precision_correct_algorithm() {
     let mut cache = HashMap::new();
     let mut visiting = HashSet::new();
     let composites = vec![rule];
-    let traits = vec![];
+    let traits: Vec<TraitDefinition> = vec![];
+
+    let composite_lookup: HashMap<&str, &CompositeTrait> =
+        composites.iter().map(|c| (c.id.as_str(), c)).collect();
+    let trait_lookup: HashMap<&str, &TraitDefinition> = HashMap::new();
 
     let precision = validation::calculate_composite_precision(
         "test/correct-precision",
-        &composites,
-        &traits,
+        &composite_lookup,
+        &trait_lookup,
         &mut cache,
         &mut visiting,
     );
@@ -2349,28 +2292,30 @@ fn test_precision_traits_with_size_restrictions() {
         attack: None,
         platforms: vec![Platform::All],
         r#for: vec![RuleFileType::All],
-        r#if: Condition::String {
-            external_ip: false,
-            exact: Some("pattern1".to_string()),
-            regex: None,
-            word: None,
-            case_insensitive: false,
-            exclude_patterns: None,
-            count_min: 1,
+        r#if: crate::composite_rules::ConditionWithFilters {
+            condition: Condition::String {
+                external_ip: false,
+                exact: Some("pattern1".to_string()),
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                exclude_patterns: None,
+                substr: None,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
+            },
+            size_min: Some(1024),    // Has size restriction
+            size_max: Some(1048576), // Has size restriction
+            count_min: None,
             count_max: None,
             per_kb_min: None,
             per_kb_max: None,
-            substr: None,
-            section: None,
-            offset: None,
-            offset_range: None,
-            section_offset: None,
-            section_offset_range: None,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
         },
-        size_min: Some(1024),    // Has size restriction
-        size_max: Some(1048576), // Has size restriction
         not: None,
         unless: None,
         downgrade: None,
@@ -2388,28 +2333,30 @@ fn test_precision_traits_with_size_restrictions() {
         attack: None,
         platforms: vec![Platform::All],
         r#for: vec![RuleFileType::All],
-        r#if: Condition::String {
-            external_ip: false,
-            exact: Some("pattern2".to_string()),
-            regex: None,
-            word: None,
-            case_insensitive: false,
-            exclude_patterns: None,
-            count_min: 1,
+        r#if: crate::composite_rules::ConditionWithFilters {
+            condition: Condition::String {
+                external_ip: false,
+                exact: Some("pattern2".to_string()),
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                exclude_patterns: None,
+                substr: None,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
+            },
+            size_min: Some(2048),    // Has size restriction
+            size_max: Some(2097152), // Has size restriction
+            count_min: None,
             count_max: None,
             per_kb_min: None,
             per_kb_max: None,
-            substr: None,
-            section: None,
-            offset: None,
-            offset_range: None,
-            section_offset: None,
-            section_offset_range: None,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
         },
-        size_min: Some(2048),    // Has size restriction
-        size_max: Some(2097152), // Has size restriction
         unless: None,
         not: None,
         downgrade: None,
@@ -2453,10 +2400,14 @@ fn test_precision_traits_with_size_restrictions() {
     let composites = vec![composite];
     let traits = vec![trait1, trait2];
 
+    let composite_lookup: HashMap<&str, &CompositeTrait> =
+        composites.iter().map(|c| (c.id.as_str(), c)).collect();
+    let trait_lookup: HashMap<&str, &TraitDefinition> = HashMap::new();
+
     let precision = validation::calculate_composite_precision(
         "test/composite-with-sized-traits",
-        &composites,
-        &traits,
+        &composite_lookup,
+        &trait_lookup,
         &mut cache,
         &mut visiting,
     );

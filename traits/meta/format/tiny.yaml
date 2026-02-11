@@ -20,4 +20,4 @@ traits:
     if:
       type: section_ratio
       section: "\\.text"
-      min_ratio: 0.75
+      min: 0.75

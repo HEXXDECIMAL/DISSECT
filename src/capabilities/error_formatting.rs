@@ -136,11 +136,12 @@ fn detect_invalid_field_in_context(context: &str) -> Option<String> {
                    "count_min", "count_max", "per_kb_min", "per_kb_max", "external_ip",
                    "section", "offset", "offset_range", "section_offset", "section_offset_range"],
         "hex" => &["type", "pattern", "count_min", "count_max", "per_kb_min", "per_kb_max",
-                   "extract_wildcards", "section", "section_offset", "section_offset_range"],
+                   "section", "offset", "offset_range", "section_offset", "section_offset_range"],
         "encoded" => &["type", "exact", "substr", "regex", "word", "case_insensitive", "encoding"],
         "syscall" => &["type", "name", "number", "arch", "count_min", "count_max", "per_kb_min", "per_kb_max"],
         "ast" => &["type", "kind", "node", "exact", "substr", "regex", "query", "language", "case_insensitive"],
         "section_entropy" => &["type", "section", "min", "max"],
+        "section_ratio" => &["type", "section", "compare_to", "min", "max"],
         "kv" => &["type", "key", "value", "operator"],
         _ => return None,
     };
@@ -164,6 +165,8 @@ fn detect_invalid_field_in_context(context: &str) -> Option<String> {
                     "exclude_patterns" if condition_type != "string" => "exclude_patterns".to_string(),
                     "min_entropy" if condition_type == "section_entropy" => "min_entropy".to_string(),
                     "max_entropy" if condition_type == "section_entropy" => "max_entropy".to_string(),
+                    "min_ratio" if condition_type == "section_ratio" => "min_ratio".to_string(),
+                    "max_ratio" if condition_type == "section_ratio" => "max_ratio".to_string(),
                     "needs" => "needs".to_string(),
                     "pattern" if condition_type != "hex" && condition_type != "ast" => "pattern".to_string(),
                     "match" => "match".to_string(),
@@ -374,6 +377,12 @@ fn provide_error_guidance(
                 guidance.push_str("   💡 The field names are consistent with other conditions like 'exports_count'.\n");
                 found_hallucination = true;
             }
+            ("min_ratio" | "max_ratio", Some("section_ratio")) => {
+                guidance.push_str(&format!("\n   Field '{}' is not valid for 'type: section_ratio'.\n", field));
+                guidance.push_str("   💡 Use 'min' and 'max' instead of 'min_ratio' and 'max_ratio'.\n");
+                guidance.push_str("   💡 The field names are consistent with other conditions like 'exports_count'.\n");
+                found_hallucination = true;
+            }
             ("count_min" | "count_max" | "per_kb_min" | "per_kb_max", Some("ast")) => {
                 guidance.push_str(&format!("\n   Field '{}' is not valid for 'type: ast'.\n", field));
                 guidance.push_str("   💡 AST conditions don't support count/density fields.\n");
@@ -431,7 +440,7 @@ fn provide_error_guidance(
         guidance.push_str("   • syscall    - Match system calls\n");
         guidance.push_str("   • structure  - Match structural features\n");
         guidance.push_str("   • exports_count, string_count - Count checks\n");
-        guidance.push_str("   • section_ratio, section_entropy, section_name - Section analysis\n");
+        guidance.push_str("   • section_ratio, section_entropy, section - Section analysis\n");
         guidance.push_str("   • import_combination, metrics, basename, kv\n");
 
         // Check for common mistakes in context

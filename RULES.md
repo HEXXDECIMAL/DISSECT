@@ -78,7 +78,7 @@ traits:
 | `string` | Extracted strings | `exact`, `substr`, `regex`, `word` | count, density, location, `case_insensitive`, `exclude_patterns`, `external_ip` |
 | `content` | Raw file bytes | `exact`, `substr`, `regex`, `word` | count, density, location, `case_insensitive`, `external_ip` |
 | `symbol` | Imports/exports | `exact`, `substr`, `regex` | `platforms` |
-| `hex` | Byte patterns | pattern string | count, density, `offset`, `offset_range`, `extract_wildcards` |
+| `hex` | Byte patterns (wildcards always extracted) | pattern string | count, density, `offset`, `offset_range` |
 | `encoded` | **All decoded strings** | `exact`, `substr`, `regex`, `word` | count, density, location, `encoding`, `case_insensitive` |
 | `base64` | Base64-decoded *(deprecated - use `encoded`)* | `exact`, `substr`, `regex` | count, density, location, `case_insensitive` |
 | `xor` | XOR-decoded *(deprecated - use `encoded`)* | `exact`, `substr`, `regex` | count, density, location, `key`, `case_insensitive` |
@@ -90,10 +90,10 @@ traits:
 | Type | Purpose | Fields |
 |------|---------|--------|
 | `ast` | Parse source | `kind`/`node`, `exact`/`substr`/`regex`/`query` |
-| `syscall` | Direct syscalls | `name`, `number`, `arch`, `min_count` |
-| `section_name` | Binary sections | `pattern`, `regex` |
-| `section_entropy` | Section entropy | `section`, `min_entropy`, `max_entropy` |
-| `section_ratio` | Section size ratio | `section`, `compare_to`, `min_ratio`, `max_ratio` |
+| `syscall` | Direct syscalls | `name`, `number`, `arch`, `count_min`, `count_max`, `per_kb_min`, `per_kb_max` |
+| `section` | Binary sections | `exact`, `substr`, `regex`, `word`, `case_insensitive` |
+| `section_entropy` | Section entropy | `section`, `min`, `max` |
+| `section_ratio` | Section size ratio | `section`, `compare_to`, `min`, `max` |
 | `import_combination` | Import patterns | `required`, `suspicious`, `min_suspicious` |
 | `metrics` | Code metrics | `field`, `min`, `max`, `min_size` |
 | `trait_glob` | Match traits | `pattern`, `match` (any/all/N) |

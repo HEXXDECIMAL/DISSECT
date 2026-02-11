@@ -163,7 +163,7 @@ impl StringMatchIndex {
         let mut regex_trait_indices: FxHashSet<usize> = FxHashSet::default();
 
         for (trait_idx, trait_def) in traits.iter().enumerate() {
-            match &trait_def.r#if {
+            match &trait_def.r#if.condition {
                 // Exact string patterns
                 Condition::String {
                     exact: Some(ref exact_str),
@@ -394,7 +394,7 @@ impl RawContentRegexIndex {
 
         for (trait_idx, trait_def) in traits.iter().enumerate() {
             // Extract regex patterns from Content traits
-            let pattern_opt = match &trait_def.r#if {
+            let pattern_opt = match &trait_def.r#if.condition {
                 Condition::Raw {
                     regex: Some(ref regex_str),
                     case_insensitive,

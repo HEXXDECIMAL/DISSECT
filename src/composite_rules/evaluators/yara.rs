@@ -6,7 +6,7 @@
 //! - Hex pattern matching with wildcards and gaps
 //! - Atom extraction for efficient pattern searching
 
-use super::{check_count_constraints, get_or_create_scanner, truncate_evidence, CountConstraints};
+use super::{get_or_create_scanner, truncate_evidence};
 use crate::composite_rules::context::{ConditionResult, EvaluationContext};
 use crate::types::Evidence;
 use std::sync::Arc;
@@ -341,11 +341,6 @@ fn extract_wildcard_bytes(data: &[u8], pos: usize, segments: &[HexSegment]) -> O
 #[allow(clippy::too_many_arguments)]
 pub fn eval_hex(
     pattern: &str,
-    count_min: usize,
-    count_max: Option<usize>,
-    per_kb_min: Option<f64>,
-    per_kb_max: Option<f64>,
-    extract_wildcards: bool,
     location: &super::ContentLocationParams,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
@@ -382,19 +377,9 @@ pub fn eval_hex(
 
     let mut matches: Vec<usize> = Vec::new();
 
-    // Determine if we can use early exit optimization.
-    // If count_max or density constraints are set, we may need to find more matches
-    // to properly evaluate the constraints.
-    let has_advanced_constraints =
-        count_max.is_some() || per_kb_min.is_some() || per_kb_max.is_some();
-    // For count_max, we need at least count_max + 1 matches to know if we exceed it.
-    // For density constraints, we need all matches to calculate accurate density.
-    // Use a practical limit to avoid scanning forever on pathological patterns.
-    let early_exit_threshold = if has_advanced_constraints {
-        count_max.map(|m| m + 1).unwrap_or(10000)
-    } else {
-        count_min
-    };
+    // count/density constraints are now handled at trait level
+    // No early exit threshold - collect all matches
+    let early_exit_threshold = usize::MAX;
 
     // Resolve effective range from location constraints
     let (search_start, search_end) = super::resolve_effective_range(location, ctx);
@@ -473,21 +458,13 @@ pub fn eval_hex(
         }
     }
 
-    // Check count and density constraints
-    let constraints = CountConstraints::new(count_min, count_max, per_kb_min, per_kb_max);
-    let effective_size = search_end - search_start;
-    let matched = check_count_constraints(matches.len(), effective_size, &constraints);
+    // count/density constraints are now checked at trait level
+    let matched = !matches.is_empty();
 
     // Calculate precision: base 2.0 (hex patterns are specific) + modifiers
     let mut precision = 2.0f32;
     if location.offset.is_some() || location.offset_range.is_some() {
         precision += 0.5;
-    }
-    if count_min > 1 {
-        precision += 0.5;
-    }
-    if count_max.is_some() || per_kb_min.is_some() || per_kb_max.is_some() {
-        precision += 0.5; // Density/max constraints add precision
     }
     if location.section.is_some() {
         precision += 1.0;
@@ -500,15 +477,12 @@ pub fn eval_hex(
                 .iter()
                 .take(5)
                 .map(|pos| {
-                    let value = if extract_wildcards {
-                        if let Some(extracted) = extract_wildcard_bytes(data, *pos, &segments) {
-                            // Format extracted bytes as hex string
-                            let hex_str: Vec<String> =
-                                extracted.iter().map(|b| format!("{:02x}", b)).collect();
-                            format!("extracted: {}", hex_str.join(" "))
-                        } else {
-                            pattern.to_string()
-                        }
+                    // Always extract wildcard bytes (consistent with regex behavior)
+                    let value = if let Some(extracted) = extract_wildcard_bytes(data, *pos, &segments) {
+                        // Format extracted bytes as hex string
+                        let hex_str: Vec<String> =
+                            extracted.iter().map(|b| format!("{:02x}", b)).collect();
+                        format!("extracted: {}", hex_str.join(" "))
                     } else {
                         pattern.to_string()
                     };

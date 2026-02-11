@@ -91,7 +91,7 @@ traits:
     if:
       type: section_ratio
       section: ".bss"
-      min_ratio: 0.3
+      min: 0.3
 
   # Writable code sections (self-modifying code)
   - id: strings-in-got
@@ -146,7 +146,7 @@ traits:
     if:
       type: section_ratio
       section: ".init_array"
-      min_ratio: 0.0001
+      min: 0.0001
 
   - id: fini-array-hooks
     desc: Content in finalization array
@@ -156,7 +156,7 @@ traits:
     if:
       type: section_ratio
       section: ".fini_array"
-      min_ratio: 0.0001
+      min: 0.0001
 
   # Dynamic section analysis
   - id: rpath-in-dynamic

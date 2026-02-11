@@ -1,22 +1,12 @@
-# Resource Limits and Configuration
-# MBC: OB0007 (Discovery) → E1082 (System Information Discovery)
-# ATT&CK: T1082 (System Information Discovery)
+# Resource Limit Modification
+# MBC: F0004 (Defense Evasion)
+# ATT&CK: T1562.001 (Impair Defenses: Disable or Modify Tools)
+# NOTE: getrlimit moved to cap/process/resources/limits/ (pure query, no suspicion)
 
 defaults:
   for: [elf, macho, so, dylib, c]
 
 traits:
-  - id: getrlimit
-    desc: Query resource limits for process
-    crit: notable
-    mbc: "E1082"
-    attack: "T1082"
-    conf: 0.4
-    if:
-      type: symbol
-      regex: getrlimit
-    platforms: [unix, linux, macos]
-
   - id: setrlimit
     desc: Set resource limits for process
     crit: notable

@@ -2680,11 +2680,6 @@ fn test_match_debug(
             // Evaluate hex pattern with resolved location constraints
             let result = eval_hex(
                 pattern,
-                count_min,
-                count_max,
-                per_kb_min,
-                per_kb_max,
-                false, // extract_wildcards
                 &composite_rules::evaluators::ContentLocationParams {
                     section: section.map(|s| s.to_string()),
                     offset,
@@ -2706,17 +2701,6 @@ fn test_match_debug(
 
             let mut out = String::new();
             out.push_str("Search: hex\n");
-            out.push_str(&format!("  count_min: {}", count_min));
-            if let Some(max) = count_max {
-                out.push_str(&format!(", count_max: {}", max));
-            }
-            if let Some(min) = per_kb_min {
-                out.push_str(&format!(", per_kb_min: {:.2}", min));
-            }
-            if let Some(max) = per_kb_max {
-                out.push_str(&format!(", per_kb_max: {:.2}", max));
-            }
-            out.push('\n');
             out.push_str(&format!("Pattern: {}\n", pattern));
 
             // Show location constraints
