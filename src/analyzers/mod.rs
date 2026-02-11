@@ -42,6 +42,9 @@ pub mod unified;
 // Fallback for languages without tree-sitter support
 pub mod generic;
 
+// Embedded code detector (analyzes code found in strings)
+pub mod embedded_code_detector;
+
 use crate::capabilities::CapabilityMapper;
 use crate::types::{AnalysisReport, Criticality, Evidence, Finding, FindingKind, TargetInfo};
 use anyhow::Result;

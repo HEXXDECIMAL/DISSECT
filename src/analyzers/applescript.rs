@@ -125,6 +125,16 @@ impl Analyzer for AppleScriptAnalyzer {
         // Use intelligent string extraction
         report.strings = self.string_extractor.extract_smart(&data);
 
+        // Analyze embedded code in strings
+        let (encoded_layers, plain_findings) = crate::analyzers::embedded_code_detector::process_all_strings(
+            &file_path.display().to_string(),
+            &report.strings,
+            &self.capability_mapper,
+            0,
+        );
+        report.files.extend(encoded_layers);
+        report.findings.extend(plain_findings);
+
         // Evaluate all rules (atomic + composite) and merge into report
         self.capability_mapper
             .evaluate_and_merge_findings(&mut report, &data, None);

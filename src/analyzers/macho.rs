@@ -187,6 +187,16 @@ impl MachOAnalyzer {
             .extract_smart_with_r2(data, r2_strings);
         tools_used.push("stng".to_string());
 
+        // Analyze embedded code in strings
+        let (encoded_layers, plain_findings) = crate::analyzers::embedded_code_detector::process_all_strings(
+            &file_path.display().to_string(),
+            &report.strings,
+            &self.capability_mapper,
+            0,
+        );
+        report.files.extend(encoded_layers);
+        report.findings.extend(plain_findings);
+
         // Run YARA scan if engine is loaded
         if let Some(yara_engine) = &self.yara_engine {
             if yara_engine.is_loaded() {

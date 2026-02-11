@@ -48,7 +48,7 @@ Read `RULES.md`, `TAXONOMY.md`, `PRECISION.md` before editing.
 
 ## Debug Commands
 ```
-{{.DissectBin}} {{.Path}} --format jsonl
+{{.DissectBin}} {{.Path}} --format jsonl   # shows full list of traits, including inert
 {{.DissectBin}} strings {{.Path}}
 {{.DissectBin}} test-rules {{.Path}} --rules "rule-id"
 {{.DissectBin}} test-match {{.Path}} --type string --pattern "X"
