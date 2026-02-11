@@ -233,12 +233,7 @@ composite_rules:
     desc: LoadLibrary function variants
     for: [pe]
     any:
-      - { id: cap/exec/native/api::load-library }
-      - { id: cap/exec/native/api::load-library-a }
-      - { id: cap/exec/native/api::load-library-w }
-      - { id: cap/exec/native/api::load-library-ex }
-      - { id: cap/exec/native/api::load-library-ex-a }
-      - { id: cap/exec/native/api::load-library-ex-w }
+      - id: cap/exec/native/api
 
   - id: library-loaders
     desc: Library loading functions (CDLL or

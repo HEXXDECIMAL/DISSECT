@@ -12,15 +12,13 @@ traits:
     crit: notable
     conf: 0.9
     # Small binaries with high entropy identifiers are more suspicious
+    size_min: 4096
     size_max: 500000
     if:
       type: metrics
       field: identifiers.high_entropy_ratio
       min: 0.35
-      min_size: 4096
     unless:
-      # TODO: basename type not yet supported in unless clauses
-      # Excluded patterns: SIMD files (avx*, sse*, neon*, etc.), benchmark files, adapter files
       # SIMD intrinsic headers often contain architectural feature names that trigger high entropy
       - type: raw
         substr: "relaxed_simd"
@@ -28,14 +26,11 @@ traits:
       # identifiers (bench_*, iterator combinator chains) without obfuscation intent.
       - type: raw
         regex: '(?m)^\s*#\[bench\]'
-        count_min: 6
       # Runtime CPU feature detection tests include many short architecture
       # feature identifiers (e.g., avx512*, sve2-*) that inflate entropy.
       - type: raw
         regex: 'is_(x86|aarch64|arm|powerpc|powerpc64)_feature_detected!\s*\('
-        count_min: 8
       # Generated FFI/binding tables often contain thousands of long ALL_CAPS
       # constants and are not identifier obfuscation.
       - type: raw
         regex: '(?m)^pub const [A-Z0-9_]{20,}:'
-        count_min: 200

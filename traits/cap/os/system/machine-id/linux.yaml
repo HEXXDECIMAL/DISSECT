@@ -1,0 +1,61 @@
+# Machine ID Strings and Hostname Paths (Linux)
+# Generic machine ID strings and hostname-related paths
+# MBC: E1082 (System Information Discovery)
+# ATT&CK: T1082 (System Information Discovery)
+
+defaults:
+  for: [elf, macho, so, dylib, c]
+  crit: inert
+  mbc: "E1082"
+  attack: "T1082"
+
+traits:
+  # === Machine ID strings (generic) ===
+  - id: machine-id-string
+    desc: machine-id string
+    conf: 0.5
+    platforms: [linux]
+    if:
+      type: string
+      substr: "machine-id"
+
+  - id: machineid-camel
+    desc: MachineId string
+    conf: 0.5
+    platforms: [windows, linux, macos]
+    if:
+      type: string
+      substr: "MachineId"
+
+  - id: product-uuid-string
+    desc: product_uuid string
+    conf: 0.5
+    platforms: [linux]
+    if:
+      type: string
+      substr: "product_uuid"
+
+  - id: fingerprint-string
+    desc: hardware/device fingerprint string
+    conf: 0.4
+    platforms: [linux, windows, macos]
+    if:
+      type: string
+      regex: '(?i)(hardware|device|machine|system|host)[\s_-]?fingerprint|fingerprint[\s_-]?(id|gen|collect)'
+
+  # === Hostname paths and env ===
+  - id: etc-hostname
+    desc: /etc/hostname path
+    conf: 0.5
+    platforms: [linux, unix]
+    if:
+      type: string
+      substr: "/etc/hostname"
+
+  - id: hostname-env
+    desc: HOSTNAME env variable
+    conf: 0.4
+    platforms: [linux, unix, windows, macos]
+    if:
+      type: string
+      substr: "HOSTNAME"

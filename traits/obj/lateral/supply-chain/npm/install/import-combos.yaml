@@ -114,13 +114,6 @@ traits:
       type: string
       regex: "Login Data|cookies\\.sqlite|logins\\.json"
 
-  - id: leveldb-reference
-    desc: LevelDB reference (browser storage)
-    crit: notable
-    conf: 0.7
-    if:
-      type: string
-      substr: "leveldb"
 
   # === Install hook patterns (package.json) ===
   - id: scripts-preinstall-shell
@@ -305,4 +298,4 @@ composite_rules:
       - id: http-client-imports
     any:
       - id: login-data-file
-      - id: leveldb-reference
+      - id: obj/creds/discord/token::leveldb-ref

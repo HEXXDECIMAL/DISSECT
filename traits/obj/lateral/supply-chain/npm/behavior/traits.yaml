@@ -172,14 +172,6 @@ traits:
       regex: "spawn\\([^)]+\\)\\.unref\\(\\)"
 
   # === Silent process execution micro-traits ===
-  - id: stdio-ignore-string
-    desc: "stdio: 'ignore' pattern"
-    crit: notable
-    conf: 0.7
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "stdio:\\s*['\"]ignore['\"]"
 
   - id: stdio-ignore-array
     desc: "stdio: [...ignore...] pattern"
@@ -480,7 +472,7 @@ composite_rules:
     conf: 0.8
     for: [javascript, typescript]
     any:
-      - id: stdio-ignore-string
+      - id: obj/c2/dropper/stealth-spawn::stdio-ignore-string
       - id: stdio-ignore-array
 
   # Multiple OOB exfil domains - migrated from YARA

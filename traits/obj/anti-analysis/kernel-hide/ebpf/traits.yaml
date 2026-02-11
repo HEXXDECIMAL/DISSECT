@@ -201,15 +201,6 @@ traits:
       type: string
       substr: "tp/syscalls/sys_exit_getdents64"
 
-  - id: d-reclen
-    desc: d_reclen dirent field
-    crit: notable
-    conf: 0.5
-    for: [c, elf]
-    if:
-      type: string
-      substr: "d_reclen"
-
   # === Uprobe Hooking ===
   - id: crypt-verify
     desc: crypt_verify function reference
@@ -430,7 +421,7 @@ composite_rules:
     for: [c, elf]
     all:
       - id: getdents64-tracepoint
-      - id: d-reclen
+      - id: cap/os/syscall/invoke::d-reclen-field
       - id: bpf-probe-write-user
 
   # Uprobe hooking (migrated from YARA)

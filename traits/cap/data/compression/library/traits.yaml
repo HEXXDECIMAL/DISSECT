@@ -84,13 +84,6 @@ traits:
       type: string
       substr: "libz.so"
 
-  - id: zlib-string
-    desc: zlib string
-    crit: notable
-    conf: 0.8
-    if:
-      type: string
-      exact: "zlib"
 
   - id: zlib-decompress-symbol
     desc: zlib.decompress symbol
@@ -222,7 +215,7 @@ composite_rules:
       - id: zlib-deflate-inflate
       - id: z-stream
       - id: libz-so
-      - id: zlib-string
+      - id: cap/data/encode/compression::zlib-signature
 
   # Helper: deflate + inflate
   - id: zlib-deflate-inflate

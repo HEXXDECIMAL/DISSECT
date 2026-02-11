@@ -68,6 +68,7 @@ traits:
     desc: /proc/self/maps memory map access
     crit: notable
     conf: 0.5
+    for: [elf, shell]
     if:
       type: string
       substr: /proc/self/maps

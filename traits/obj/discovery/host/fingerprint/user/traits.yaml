@@ -15,10 +15,7 @@ composite_rules:
     conf: 0.7
     needs: 2
     any:
-      - id: cap/process/user::getlogin
-      - id: cap/process/user::getpwuid
-      - id: cap/process/env::getenv-user
-      - id: cap/process/env::getenv-home
-      - id: cap/process/user::whoami-cmd
-      - id: cap/process/user::id-u-cmd
+      - id: cap/process/user/query
+      - id: cap/process/env/access::getenv-user
+      - id: cap/process/env/access::getenv-home
       - id: cap/fs/path/config/accounts::etc-passwd

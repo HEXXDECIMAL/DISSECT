@@ -121,12 +121,8 @@ composite_rules:
     desc: Architecture detection strings
     crit: notable
     conf: 0.5
-    needs: 2
     any:
-      - id: cap/os/platform/architecture::arch-x86-64
-      - id: cap/os/platform/architecture::arch-aarch64
-      - id: cap/os/platform/architecture::arch-i386
-      - id: cap/os/platform/architecture::arch-arm
+      - id: cap/os/platform/architecture
 
   # SSL/TLS library search targets
   - id: ssl-lib-targets
@@ -134,10 +130,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     any:
-      - id: cap/exec/load/library::libssl-so
-      - id: cap/exec/load/library::libcrypto-so
-      - id: cap/exec/load/library::libgnutls-so
-      - id: cap/exec/load/library::libnss-so
+      - id: cap/exec/load/library
 
   # Library resolver functionality
   - id: lib-resolver-fn

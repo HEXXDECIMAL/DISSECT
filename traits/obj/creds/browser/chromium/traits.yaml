@@ -106,10 +106,6 @@ traits:
     if:
       type: raw
       regex: "['\"/\\\\]Cookies\\b"
-    not:
-      - "entitlement"
-      - "plist"
-      - "com.apple"
 
   # === Encryption/Decryption Keys ===
 

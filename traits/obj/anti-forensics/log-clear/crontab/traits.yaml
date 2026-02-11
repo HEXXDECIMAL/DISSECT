@@ -76,21 +76,6 @@ traits:
     type: string
     substr: rm -f /var/spool/cron
   attack: T1070.004
-- id: crontab-command
-  desc: Direct crontab command usage
-  crit: notable
-  conf: 0.7
-  for:
-  - elf
-  - macho
-  - pe
-  - so
-  - dylib
-  - dll
-  - shell
-  if:
-    type: string
-    word: crontab
 - id: cron-file-test
   desc: Test for cron file existence
   crit: notable

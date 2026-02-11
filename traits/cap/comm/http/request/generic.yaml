@@ -106,7 +106,7 @@ composite_rules:
     any:
       - id: requests-post
       - id: requests-get
-      - id: urllib-word
+      - id: cap/comm/http/lib/urllib::urllib-word
       - id: socket-dot
       - id: fetch-call
       - id: xmlhttprequest-word

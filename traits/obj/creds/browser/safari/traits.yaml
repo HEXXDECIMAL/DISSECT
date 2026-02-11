@@ -15,10 +15,6 @@ traits:
     if:
       type: string
       substr: "/Library/Cookies"
-    not:
-      - "entitlement"
-      - "plist"
-      - "com.apple"
 
   - id: binarycookies
     desc: macOS binary cookies file

@@ -95,6 +95,7 @@ traits:
     desc: LevelDB storage reference
     crit: notable
     conf: 0.7
+    for: [javascript, typescript, python, elf, pe, macho]
     if:
       type: string
       substr: "leveldb"

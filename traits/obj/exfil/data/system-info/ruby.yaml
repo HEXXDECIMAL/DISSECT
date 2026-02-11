@@ -46,4 +46,4 @@ composite_rules:
       - id: cap/os/sysinfo
       - id: cap/comm/http/lib/netlib::hardcoded-ip-url
       - id: base64-json-encode
-      - id: obj/discovery/host/fingerprint/user::getenv-user
+      - id: cap/process/env/access::getenv-user

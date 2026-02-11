@@ -70,8 +70,8 @@ composite_rules:
     any:
       - id: cap-get-proc
       - id: cap-set-proc
-      - id: cap/os/capabilities::cap-get-file
-      - id: cap/os/capabilities::cap-set-file
+      - id: cap/os/security/capabilities::cap-get-file
+      - id: cap/os/security/capabilities::cap-set-file
 
   # Linux capabilities via capsh + /proc/self/status
   - id: linux-caps-via-capsh
@@ -115,9 +115,9 @@ composite_rules:
     for: [elf, macho]
     needs: 3
     any:
-      - id: cap/process/privilege::getgid
-      - id: cap/process/privilege::getegid
-      - id: cap/process/privilege::geteuid
+      - id: cap/process/privilege/query::getgid
+      - id: cap/process/privilege/query::getegid
+      - id: cap/process/privilege/query::geteuid
       - id: getgroups
     downgrade:
       any:

@@ -6,7 +6,7 @@
 //! - Evaluates trait definitions and composite rules against analysis reports
 //! - Provides platform and file type detection
 
-use crate::capabilities::validation::find_duplicate_words_in_path;
+// Removed: find_duplicate_words_in_path (disabled due to false positives)
 use crate::composite_rules::{
     CompositeTrait, Condition, EvaluationContext, FileType as RuleFileType, Platform, SectionMap,
     TraitDefinition,
@@ -846,24 +846,8 @@ impl CapabilityMapper {
                 ));
             }
 
-            // Check for duplicate words in path
-            tracing::debug!("Step 4a/15: Checking for duplicate words in directory paths");
-            let duplicate_word_violations = find_duplicate_words_in_path(&dir_list);
-            if !duplicate_word_violations.is_empty() {
-                eprintln!(
-                    "\n❌ FATAL: {} directories have redundant/duplicate words in path",
-                    duplicate_word_violations.len()
-                );
-                eprintln!("   Duplicate words add noise without semantic value:\n");
-                for (dir_path, word) in &duplicate_word_violations {
-                    eprintln!("   {}: duplicate word '{}'", dir_path, word);
-                }
-                eprintln!();
-                warnings.push(format!(
-                    "{} directories have duplicate words in path",
-                    duplicate_word_violations.len()
-                ));
-            }
+            // Check for duplicate words in path - REMOVED
+            // This check had too many false positives (e.g., httpx library name)
 
             // Check for directory names that duplicate their parent
             tracing::debug!("Step 5/15: Checking for parent duplicate segments");

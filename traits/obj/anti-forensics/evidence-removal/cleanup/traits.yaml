@@ -28,10 +28,11 @@ traits:
   for:
   - elf
   - shell
+  attack: T1070.003
   if:
     type: string
     regex: (sed -i|sed -i '/|sed\s+-i\s+'[/\|])
-  attack: T1070.003
+
 - id: deleted-process-cleanup
   desc: Cleanup deleted process references
   crit: suspicious
@@ -39,21 +40,10 @@ traits:
   for:
   - elf
   - shell
+  attack: T1070.003
   if:
     type: string
     regex: (\(deleted\)|grep deleted|\(deleted\))
-  attack: T1070.003
-- id: proc-self-maps
-  desc: /proc/self/maps inspection for anti-forensics
-  crit: notable
-  conf: 0.5
-  for:
-  - elf
-  - shell
-  if:
-    type: string
-    substr: /proc/self/maps
-  attack: T1070
 - id: pkill-signal-9
   desc: pkill with kill -9 signal
   crit: suspicious

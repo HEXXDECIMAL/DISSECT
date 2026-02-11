@@ -94,11 +94,11 @@ composite_rules:
     any:
       - id: fp-dbus-machine-id
       - id: fp-etc-machine-id
-      - id: cap/os/machine-id::machine-id-string
+      - id: cap/os/system/machine-id::machine-id-string
       - id: machineguid
-      - id: cap/os/machine-id::machineid-camel
+      - id: cap/os/system/machine-id::machineid-camel
       - id: product-uuid-path
-      - id: cap/os/machine-id::product-uuid-string
+      - id: cap/os/system/machine-id::product-uuid-string
 
   # Hardware UUID composite
   - id: hardware-uuid
@@ -120,6 +120,6 @@ composite_rules:
     needs: 2
     any:
       - id: cap/os/sysinfo/system-info::gethostname
-      - id: cap/os/machine-id::etc-hostname
-      - id: cap/os/machine-id::hostname-env
+      - id: cap/os/system/machine-id::etc-hostname
+      - id: cap/os/system/machine-id::hostname-env
       - id: cap/os/sysinfo/system-info::getfqdn

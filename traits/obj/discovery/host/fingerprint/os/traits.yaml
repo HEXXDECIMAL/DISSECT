@@ -13,13 +13,5 @@ composite_rules:
     desc: Operating system fingerprinting
     crit: notable
     conf: 0.7
-    needs: 2
     any:
-      - id: cap/fs/path/os::os-release-path
-      - id: cap/fs/path/os::lsb-release
-      - id: cap/fs/path/os::redhat-release
-      - id: cap/fs/path/os::debian-version
-      - id: cap/fs/path/os::centos-release
-      - id: cap/fs/path/os::proc-version
-      - id: cap/fs/path/os::uname-a-cmd
-      - id: cap/fs/path/os::hostnamectl-cmd
+      - id: cap/fs/path/os

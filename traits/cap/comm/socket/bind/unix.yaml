@@ -11,5 +11,3 @@ traits:
     if:
       type: symbol
       regex: "^bind$|\\bbind\\(|\\bbind\\s"
-    not:
-      - exact: "dyld_stub_binder"

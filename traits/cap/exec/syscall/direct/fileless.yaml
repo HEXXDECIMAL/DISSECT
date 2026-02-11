@@ -34,7 +34,7 @@ composite_rules:
   - id: fileless-macos-hostile
     desc: Fileless execution with hidden tmp file on macOS
     conf: 0.95
-    crit: hostile
+    crit: suspicious
     platforms: [macos]
     for: [macho]
     all:

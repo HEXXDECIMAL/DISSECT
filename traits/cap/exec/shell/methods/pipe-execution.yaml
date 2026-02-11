@@ -278,7 +278,7 @@ traits:
       regex: 'bash\s+<\(curl'
 
   - id: sh-curl-process-sub
-    desc: sh <(curl ...)
+    desc: Remote script execution via process substitution
     crit: suspicious
     conf: 0.7
     attack: "T1059.004"
