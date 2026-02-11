@@ -105,7 +105,7 @@ traits:
       - id: cap/exec/load/systemd-ref
       - id: cap/exec/load/libc-characteristic-symbols
       - id: cap/exec/load/library::llvm-project-ref
-      - id: cap/exec/load/library::llvm-lib-ref
+      - id: meta/lang/compiler::libllvm
       - id: cap/exec/load/library::gcc-project-ref
       - id: cap/exec/load/gdb-debugger-ref
       - id: cap/exec/load/lldb-debugger-ref
@@ -128,7 +128,7 @@ traits:
       - id: cap/exec/load/systemd-ref
       - id: cap/exec/load/libc-characteristic-symbols
       - id: cap/exec/load/library::llvm-project-ref
-      - id: cap/exec/load/library::llvm-lib-ref
+      - id: meta/lang/compiler::libllvm
       - id: cap/exec/load/library::gcc-project-ref
       - id: cap/exec/load/gdb-debugger-ref
       - id: cap/exec/load/lldb-debugger-ref

@@ -25,13 +25,14 @@ use super::parsing::{apply_composite_defaults, apply_trait_defaults};
 use super::validation::{
     autoprefix_trait_refs, collect_trait_refs_from_rule, find_alternation_merge_candidates,
     find_banned_directory_segments, find_cap_obj_violations, find_depth_violations,
-    find_empty_condition_clauses, find_for_only_duplicates, find_hostile_cap_rules,
-    find_impossible_count_constraints, find_impossible_needs, find_impossible_size_constraints,
-    find_invalid_trait_ids, find_line_number, find_missing_search_patterns,
-    find_oversized_trait_directories, find_parent_duplicate_segments,
+    find_duplicate_traits_and_composites, find_empty_condition_clauses, find_for_only_duplicates,
+    find_hostile_cap_rules, find_impossible_count_constraints, find_impossible_needs,
+    find_impossible_size_constraints, find_invalid_trait_ids, find_line_number,
+    find_missing_search_patterns, find_oversized_trait_directories, find_parent_duplicate_segments,
     find_platform_named_directories, find_redundant_any_refs, find_redundant_needs_one,
-    find_single_item_clauses, find_string_content_collisions, simple_rule_to_composite_rule,
-    validate_composite_trait_only, validate_hostile_composite_precision, MAX_TRAITS_PER_DIRECTORY,
+    find_single_item_clauses, find_string_content_collisions, precalculate_all_composite_precisions,
+    simple_rule_to_composite_rule, validate_composite_trait_only,
+    validate_hostile_composite_precision, MAX_TRAITS_PER_DIRECTORY,
 };
 
 /// Maps symbols (function names, library calls) to capability IDs
@@ -176,10 +177,8 @@ impl CapabilityMapper {
         enable_full_validation: bool,
     ) -> Result<Self> {
         let _span = tracing::info_span!("load_capabilities").entered();
-        let debug = std::env::var("DISSECT_DEBUG").is_ok();
-        let timing = std::env::var("DISSECT_TIMING").is_ok();
-        let dir_path = dir_path.as_ref();
-        let t_start = std::time::Instant::now();
+        let debug = std::env::var("DISSECT_DEBUG").is_ok();        let dir_path = dir_path.as_ref();
+        let _t_start = std::time::Instant::now();
 
         // Check for DISSECT_VALIDATE env var or passed flag
         let enable_full_validation = enable_full_validation || std::env::var("DISSECT_VALIDATE").is_ok();
@@ -220,14 +219,7 @@ impl CapabilityMapper {
         }
 
         tracing::info!("Found {} YAML files to parse", yaml_files.len());
-        if timing {
-            eprintln!(
-                "[TIMING] Collected {} YAML files: {:?}",
-                yaml_files.len(),
-                t_start.elapsed()
-            );
-        }
-        let t_parse = std::time::Instant::now();
+        let _t_parse = std::time::Instant::now();
 
         // Load all YAML files in parallel, preserving path for prefix calculation
         // Use indexed_map to preserve sorted order
@@ -265,10 +257,7 @@ impl CapabilityMapper {
         });
 
         tracing::debug!("Parsing complete");
-        if timing {
-            eprintln!("[TIMING] Parsed YAML files: {:?}", t_parse.elapsed());
-        }
-        let t_merge = std::time::Instant::now();
+        let _t_merge = std::time::Instant::now();
 
         // Merge all results, collecting errors to report all at once
         tracing::debug!("Merging trait definitions and composite rules");
@@ -276,6 +265,7 @@ impl CapabilityMapper {
         // Use HashMaps during loading for O(1) duplicate detection (will convert to Vec later)
         let mut trait_definitions_map: HashMap<String, TraitDefinition> = HashMap::new();
         let mut composite_rules_map: HashMap<String, CompositeTrait> = HashMap::new();
+        let mut trait_source_files: HashMap<String, String> = HashMap::new(); // trait_id -> file_path
         let mut rule_source_files: HashMap<String, String> = HashMap::new(); // rule_id -> file_path
         let mut files_processed = 0;
         let mut warnings: Vec<String> = Vec::new();
@@ -583,6 +573,8 @@ impl CapabilityMapper {
                     }
                 }
 
+                // Track source file for error reporting
+                trait_source_files.insert(trait_def.id.clone(), path.display().to_string());
                 trait_definitions_map.insert(trait_def.id.clone(), trait_def);
             }
 
@@ -685,10 +677,7 @@ impl CapabilityMapper {
             eprintln!("   ✅ Processed {} YAML files", files_processed);
         }
 
-        if timing {
-            eprintln!("[TIMING] Merged results: {:?}", t_merge.elapsed());
-        }
-        let t_yara = std::time::Instant::now();
+        let _t_yara = std::time::Instant::now();
 
         // Convert HashMaps to Vecs now that loading is complete
         // This was kept as HashMap during loading for O(1) duplicate detection
@@ -722,17 +711,16 @@ impl CapabilityMapper {
             );
         }
 
-        if timing {
-            eprintln!("[TIMING] Pre-compiled YARA: {:?}", t_yara.elapsed());
-        }
-        let t_validate = std::time::Instant::now();
+        let _t_validate = std::time::Instant::now();
 
-        // Post-process HOSTILE composite rules to properly calculate precision
-        // Now that all rules are loaded, we can recursively calculate true precision
-        // This is EXPENSIVE (~60+ seconds) so only run in full validation mode
+        // Pre-calculate precision for ALL composite rules once
+        // Atomic trait precisions are already calculated during parsing
         tracing::debug!("Validating trait definitions and composite rules");
         if enable_full_validation {
-            tracing::debug!("Step 1/15: Validating hostile composite precision (expensive)");
+            tracing::debug!("Step 1/15: Pre-calculating composite rule precision");
+            precalculate_all_composite_precisions(&mut composite_rules, &trait_definitions);
+
+            tracing::debug!("Step 1b/15: Validating hostile composite precision");
             validate_hostile_composite_precision(
                 &mut composite_rules,
                 &trait_definitions,
@@ -740,8 +728,11 @@ impl CapabilityMapper {
                 min_hostile_precision,
                 min_suspicious_precision,
             );
+
+            tracing::debug!("Step 1c/15: Detecting duplicate traits and composites");
+            find_duplicate_traits_and_composites(&trait_definitions, &composite_rules, &mut warnings);
         } else {
-            tracing::debug!("Step 1/15: Skipping hostile composite precision validation (use --validate to enable)");
+            tracing::debug!("Step 1/15: Skipping precision validation (use --validate to enable)");
         }
 
         // Validate trait references in composite rules
@@ -770,6 +761,19 @@ impl CapabilityMapper {
                 known_prefixes.insert(rule.id[..idx].to_string());
             }
         }
+
+        // Pre-compute all parent paths for O(1) prefix matching
+        // This avoids O(n) iteration for every trait reference check
+        let mut prefix_hierarchy = known_prefixes.clone();
+        for prefix in &known_prefixes {
+            // Add all parent paths: "cap/fs/write" -> ["cap", "cap/fs", "cap/fs/write"]
+            let parts: Vec<&str> = prefix.split('/').collect();
+            for i in 1..parts.len() {
+                prefix_hierarchy.insert(parts[..i].join("/"));
+            }
+        }
+        tracing::debug!("Built prefix hierarchy with {} entries from {} base prefixes",
+            prefix_hierarchy.len(), known_prefixes.len());
 
         // Set DISSECT_ALLOW_VIOLATIONS=1 to bypass validation checks during migration
         let allow_violations = std::env::var("DISSECT_ALLOW_VIOLATIONS").is_ok();
@@ -966,10 +970,13 @@ impl CapabilityMapper {
                         &ref_id[..]
                     };
 
-                    // Check if this matches any known prefix
-                    let matches_prefix = known_prefixes.iter().any(|prefix| {
-                        prefix.starts_with(dir_part) || dir_part.starts_with(prefix.as_str())
-                    });
+                    // Check if this matches any known prefix (O(1) lookup instead of O(n) iteration)
+                    // Check exact match or any parent path exists in hierarchy
+                    let matches_prefix = prefix_hierarchy.contains(dir_part)
+                        || dir_part.split('/').enumerate().skip(1).any(|(i, _)| {
+                            let parent = dir_part.split('/').take(i).collect::<Vec<_>>().join("/");
+                            prefix_hierarchy.contains(&parent)
+                        });
                     if !matches_prefix {
                         let source_file = rule_source_files
                             .get(&rule_id)
@@ -1009,13 +1016,17 @@ impl CapabilityMapper {
             }
         }
 
-        // Pre-compile all regexes for performance
-        tracing::debug!("Step 9/15: Pre-compiling regexes");
-        for trait_def in &mut trait_definitions {
-            if let Err(e) = trait_def.precompile_regexes() {
-                parse_errors.push(format!("Regex compilation error: {:#}", e));
-            }
-        }
+        // Pre-compile all regexes for performance (parallelized)
+        tracing::debug!("Step 9/15: Pre-compiling regexes in parallel");
+        let regex_errors: Vec<String> = trait_definitions
+            .par_iter_mut()
+            .filter_map(|trait_def| {
+                trait_def.precompile_regexes()
+                    .err()
+                    .map(|e| format!("Regex compilation error: {:#}", e))
+            })
+            .collect();
+        parse_errors.extend(regex_errors);
 
         // Validate exact trait ID references
         // Build set of all valid trait IDs (both atomic traits and composite rules)
@@ -1329,16 +1340,16 @@ impl CapabilityMapper {
             }
         }
 
-        // Validate: regex patterns that could be merged with alternation
-        // e.g., `nc\s+-e`, `ncat\s+-e`, `netcat\s+-e` -> `(nc|ncat|netcat)\s+-e`
+        // Validate: regex patterns that could be merged with alternation (case-only differences)
+        // e.g., `nc\s+-e` and `NC\s+-e` -> `(nc|NC)\s+-e`
         if !allow_violations {
-            let alternation_candidates = find_alternation_merge_candidates(&trait_definitions);
+            let alternation_candidates = find_alternation_merge_candidates(&trait_definitions, &trait_source_files);
             if !alternation_candidates.is_empty() {
                 eprintln!(
                     "\n❌ FATAL: {} trait groups have regex patterns that should use alternation",
                     alternation_candidates.len()
                 );
-                eprintln!("   These traits have identical criticality and regex patterns that differ only in the first token.");
+                eprintln!("   These traits have identical criticality and regex patterns where the first token differs only in case.");
                 eprintln!("   Merge them into a single trait using alternation syntax:\n");
                 for (trait_ids, _suffix, suggested) in &alternation_candidates {
                     let first_id = &trait_ids[0];
@@ -1589,11 +1600,9 @@ impl CapabilityMapper {
                 // e.g., "discovery/system" matches any trait in that directory
                 // Also allow parent directory refs like "cap/fs/write/" when traits exist in subdirs
                 let ref_without_slash = ref_id.trim_end_matches('/');
-                let is_directory_ref = known_prefixes.contains(&ref_id)
-                    || known_prefixes.contains(ref_without_slash)
-                    || known_prefixes.iter().any(|p| {
-                        p.starts_with(ref_without_slash) && p.len() > ref_without_slash.len()
-                    });
+                // O(1) prefix hierarchy lookup instead of O(n) iteration
+                let is_directory_ref = prefix_hierarchy.contains(&ref_id)
+                    || prefix_hierarchy.contains(ref_without_slash);
 
                 // Skip validation for dynamically generated meta/* references
                 // - meta/import/ and meta/dylib/ are generated from binary imports
@@ -1844,43 +1853,25 @@ impl CapabilityMapper {
         }
 
         tracing::debug!("Validation complete");
-        if timing {
-            eprintln!("[TIMING] Validated refs: {:?}", t_validate.elapsed());
-            eprintln!("[TIMING] Total from_directory: {:?}", t_start.elapsed());
-        }
 
         // Build trait index for fast lookup by file type
         tracing::debug!("Building trait indexes");
         let trait_index = TraitIndex::build(&trait_definitions);
 
         // Build string match index for batched AC matching
-        let t_string_index = std::time::Instant::now();
+        let _t_string_index = std::time::Instant::now();
         tracing::debug!("Building Aho-Corasick string index");
         let string_match_index = StringMatchIndex::build(&trait_definitions);
         tracing::debug!("Indexes built successfully");
-        if timing {
-            eprintln!(
-                "[TIMING] Built string index ({} patterns): {:?}",
-                string_match_index.total_patterns,
-                t_string_index.elapsed()
-            );
-        }
 
         // Build raw content regex index for batched regex matching
-        let t_raw_regex_index = std::time::Instant::now();
+        let _t_raw_regex_index = std::time::Instant::now();
         let raw_content_regex_index = match RawContentRegexIndex::build(&trait_definitions) {
             Ok(index) => index,
             Err(errors) => {
                 return Err(anyhow::anyhow!(errors.join("\n")));
             }
         };
-        if timing {
-            eprintln!(
-                "[TIMING] Built raw content regex index ({} patterns): {:?}",
-                raw_content_regex_index.total_patterns,
-                t_raw_regex_index.elapsed()
-            );
-        }
 
         // Parse errors are fatal - print all and exit if any exist
         if !parse_errors.is_empty() {
@@ -2004,6 +1995,9 @@ impl CapabilityMapper {
             }
         }
 
+        // Pre-calculate precision for all composite rules
+        precalculate_all_composite_precisions(&mut composite_rules, &trait_definitions);
+
         // Validate HOSTILE composite precision
         validate_hostile_composite_precision(
             &mut composite_rules,
@@ -2012,6 +2006,9 @@ impl CapabilityMapper {
             min_hostile_precision,
             min_suspicious_precision,
         );
+
+        // Detect duplicate traits and composites
+        find_duplicate_traits_and_composites(&trait_definitions, &composite_rules, &mut warnings);
 
         // Validate trait and composite conditions and warn about problematic patterns
         validate_conditions(&trait_definitions, &composite_rules, path.as_ref());
@@ -2155,10 +2152,7 @@ impl CapabilityMapper {
         report: &AnalysisReport,
         binary_data: &[u8],
         cached_ast: Option<&tree_sitter::Tree>,
-    ) -> Vec<Finding> {
-        let timing = std::env::var("DISSECT_TIMING").is_ok();
-
-        // Determine file type from report (platform comes from self.platform)
+    ) -> Vec<Finding> {        // Determine file type from report (platform comes from self.platform)
         let file_type = self.detect_file_type(&report.target.file_type);
 
         // Build section map for location-constrained matching
@@ -2180,7 +2174,7 @@ impl CapabilityMapper {
 
         // Pre-filter using batched Aho-Corasick string matching WITH evidence caching
         // This identifies which traits match AND caches the evidence to avoid re-iteration
-        let t_prematch = std::time::Instant::now();
+        let _t_prematch = std::time::Instant::now();
 
         // Combine strings and symbols for pre-filtering
         let mut all_strings = report.strings.clone();
@@ -2226,18 +2220,10 @@ impl CapabilityMapper {
         // Also find regex candidates based on literal prefix matching
         let regex_candidates = self.string_match_index.find_regex_candidates(&all_strings);
 
-        if timing {
-            eprintln!(
-                "[TIMING] String pre-match: {:?} ({} exact, {} regex candidates)",
-                t_prematch.elapsed(),
-                string_matched_traits.len(),
-                regex_candidates.len()
-            );
-        }
 
         // Pre-filter using batched regex matching for Content conditions
         // Only run if any applicable traits have content regex patterns
-        let t_raw_regex = std::time::Instant::now();
+        let _t_raw_regex = std::time::Instant::now();
         let raw_regex_prefilter_enabled = self.raw_content_regex_index.has_patterns()
             && self
                 .raw_content_regex_index
@@ -2249,17 +2235,10 @@ impl CapabilityMapper {
             FxHashSet::default()
         };
 
-        if timing {
-            eprintln!(
-                "[TIMING] Raw content regex pre-match: {:?} ({} traits matched)",
-                t_raw_regex.elapsed(),
-                raw_regex_matched_traits.len()
-            );
-        }
 
         // Evaluate only applicable traits in parallel
         // For exact string traits with cached evidence, use that directly instead of re-evaluating
-        let t_eval = std::time::Instant::now();
+        let _t_eval = std::time::Instant::now();
 
         // Early termination: if no strings and no pre-matched traits, skip evaluation
         let has_any_matches = !string_matched_traits.is_empty()
@@ -2267,19 +2246,9 @@ impl CapabilityMapper {
             || !regex_candidates.is_empty();
 
         if !has_any_matches && all_strings.is_empty() && binary_data.len() < 100 {
-            if timing {
-                eprintln!("[TIMING] Early termination: no strings or matches in small file");
-            }
             return vec![];
         }
 
-        if timing {
-            eprintln!(
-                "[TIMING] Applicable traits: {} (out of {})",
-                applicable_indices.len(),
-                self.trait_definitions.len()
-            );
-        }
 
         let eval_count = std::sync::atomic::AtomicUsize::new(0);
         let skip_count = std::sync::atomic::AtomicUsize::new(0);
@@ -2368,14 +2337,6 @@ impl CapabilityMapper {
             })
             .collect();
 
-        if timing {
-            eprintln!(
-                "[TIMING] Trait evaluation: {:?} (evaluated: {}, skipped: {})",
-                t_eval.elapsed(),
-                eval_count.load(std::sync::atomic::Ordering::Relaxed),
-                skip_count.load(std::sync::atomic::Ordering::Relaxed)
-            );
-        }
 
         // Deduplicate findings (keep first occurrence of each ID)
         let mut seen = std::collections::HashSet::new();

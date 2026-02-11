@@ -1,9 +1,9 @@
 //! Core types for composite rules: Platform and FileType enums.
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// Platform specifier for trait targeting
-#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq, Hash)]
 #[serde(rename_all = "lowercase")]
 pub enum Platform {
     All,
@@ -16,7 +16,7 @@ pub enum Platform {
 }
 
 /// File type specifier for rule targeting
-#[derive(Debug, Clone, Copy, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[serde(rename_all = "lowercase")]
 pub enum FileType {
     All,

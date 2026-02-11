@@ -19,23 +19,14 @@ traits:
       substr: "%d.%d.%d.%d"
 
   # === target IP atomic ===
-  - id: target-ip-upper
-    desc: Target IP (uppercase T)
+  - id: target-ip
+    desc: Target IP (case variants)
     crit: inert
     conf: 0.5
     platforms: [all]
     if:
       type: string
-      regex: 'Target[_\s]?[Ii][Pp]'
-
-  - id: target-ip-lower
-    desc: Target IP (lowercase)
-    crit: inert
-    conf: 0.5
-    platforms: [all]
-    if:
-      type: string
-      regex: 'target[_\s]?[Ii][Pp]'
+      regex: '(Target|target)[_\s]?[Ii][Pp]'
 
   - id: target-ip-camel
     desc: targetIP camelCase
@@ -47,41 +38,23 @@ traits:
       substr: "targetIP"
 
   # === random target atomic ===
-  - id: random-target-upper
-    desc: Random Target (uppercase R)
+  - id: random-target-word
+    desc: Random target (case variants)
     crit: inert
     conf: 0.6
     platforms: [all]
     if:
       type: string
-      regex: 'Random[_\s]?[Tt]arget'
+      regex: '(Random|random)[_\s]?[Tt]arget'
 
-  - id: random-target-lower
-    desc: random target (lowercase)
+  - id: random-ip
+    desc: Random IP (case variants)
     crit: inert
     conf: 0.6
     platforms: [all]
     if:
       type: string
-      regex: 'random[_\s]?[Tt]arget'
-
-  - id: random-ip-upper
-    desc: Random IP (uppercase R)
-    crit: inert
-    conf: 0.6
-    platforms: [all]
-    if:
-      type: string
-      regex: 'Random[_\s]?IP'
-
-  - id: random-ip-lower
-    desc: random IP (lowercase)
-    crit: inert
-    conf: 0.6
-    platforms: [all]
-    if:
-      type: string
-      regex: 'random[_\s]?IP'
+      regex: '(Random|random)[_\s]?IP'
 
   - id: getrandip
     desc: getrandip function
@@ -419,8 +392,7 @@ composite_rules:
     conf: 0.75
     platforms: [all]
     any:
-      - id: target-ip-upper
-      - id: target-ip-lower
+      - id: target-ip
       - id: target-ip-camel
 
   # Random target generation
@@ -430,10 +402,8 @@ composite_rules:
     conf: 0.8
     platforms: [all]
     any:
-      - id: random-target-upper
-      - id: random-target-lower
-      - id: random-ip-upper
-      - id: random-ip-lower
+      - id: random-target-word
+      - id: random-ip
       - id: getrandip
 
   # Port scanning terminology

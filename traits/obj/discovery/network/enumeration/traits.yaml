@@ -1,187 +1,165 @@
-# Lateral Movement Preparation Patterns
-# Detects reconnaissance and scanning for network-based lateral movement
-# Indicators of multi-host compromise planning
-
 traits:
-  # === Network Interface Enumeration ===
-  - id: ifconfig-command
-    desc: ifconfig network interface listing
-    crit: notable
-    conf: 0.75
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - substr: "ifconfig"
-        - substr: "ifconfig -a"
-    attack: "T1016"
-
-  - id: ip-addr-show
-    desc: ip addr show interface enumeration
-    crit: notable
-    conf: 0.8
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - substr: "ip addr show"
-        - substr: "ip addr list"
-        - substr: "ip -4 addr"
-    attack: "T1016"
-
-  - id: ip-route-show
-    desc: ip route network discovery
-    crit: notable
-    conf: 0.75
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - substr: "ip route show"
-        - substr: "ip route list"
-        - substr: "/sbin/ip route"
-    attack: "T1016"
-
-  - id: arp-discovery
-    desc: arp ARP table enumeration
-    crit: suspicious
-    conf: 0.85
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - substr: "arp -a"
-        - substr: "arp -n"
-        - regex: "arp\\s+(-[ane]|$)"
-    attack: "T1018"
-
-  - id: ip-neigh-show
-    desc: ip neigh show ARP discovery
-    crit: suspicious
-    conf: 0.85
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - substr: "ip neigh show"
-        - substr: "ip neigh list"
-    attack: "T1018"
-
-  # === Port Scanning ===
-  - id: netcat-port-scan
-    desc: netcat port scanning
-    crit: suspicious
-    conf: 0.85
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - substr: "nc -zv"
-        - substr: "nc -z"
-        - regex: "nc\\s+.{0,80}-z"
-    attack: "T1046"
-
-  - id: nmap-scanning
-    desc: nmap network scanning
-    crit: suspicious
-    conf: 0.9
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - substr: "nmap -p"
-        - substr: "nmap -sS"
-        - substr: "nmap -sT"
-        - regex: "nmap\\s+.{0,80}-[psST]"
-    attack: "T1046"
-
-  - id: bash-port-scanner
-    desc: bash port scanning loop
-    crit: suspicious
-    conf: 0.8
-    for: [elf, shell]
-    if:
-      type: string
-      regex: "(for|while).{0,50}\\{.{0,50}nc.{0,20}-z"
-    attack: "T1046"
-
-  # === SSH Scanning ===
-  # Note: Removed :22 (too generic, matches any port 22 reference)
-  # Kept patterns that specifically indicate SSH port scanning
-  - id: ssh-port-check
-    desc: SSH port availability check
-    crit: suspicious
-    conf: 0.8
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - substr: "-p 22"
-        - substr: "nc -z"
-        - substr: "nmap -p"
-        - substr: "nmap -sS"
-        - substr: "nmap -sT"
-    attack: "T1046"
-
-  - id: ssh-key-reuse
-    desc: stolen SSH key usage detected
-    crit: suspicious
-    conf: 0.8
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - substr: "ssh -i"
-        - substr: "-i /root/.ssh"
-        - regex: "ssh\\s+.{0,50}-i\\s+"
-    attack: "T1021.004"
-
+- id: ifconfig-command
+  desc: ifconfig network interface listing
+  crit: notable
+  conf: 0.75
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (ifconfig|ifconfig -a)
+  attack: T1016
+- id: ip-addr-show
+  desc: ip addr show interface enumeration
+  crit: notable
+  conf: 0.8
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (ip addr show|ip addr list|ip -4 addr)
+  attack: T1016
+- id: ip-route-show
+  desc: ip route network discovery
+  crit: notable
+  conf: 0.75
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (ip route show|ip route list|/sbin/ip route)
+  attack: T1016
+- id: arp-discovery
+  desc: arp ARP table enumeration
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (arp -a|arp -n|arp\s+(-[ane]|$))
+  attack: T1018
+- id: ip-neigh-show
+  desc: ip neigh show ARP discovery
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (ip neigh show|ip neigh list)
+  attack: T1018
+- id: netcat-port-scan
+  desc: netcat port scanning
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (nc -zv|nc -z|nc\s+.{0,80}-z)
+  attack: T1046
+- id: nmap-scanning
+  desc: nmap network scanning
+  crit: suspicious
+  conf: 0.9
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (nmap -p|nmap -sS|nmap -sT|nmap\s+.{0,80}-[psST])
+  attack: T1046
+- id: bash-port-scanner
+  desc: bash port scanning loop
+  crit: suspicious
+  conf: 0.8
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (for|while).{0,50}\{.{0,50}nc.{0,20}-z
+  attack: T1046
+- id: ssh-port-check
+  desc: SSH port availability check
+  crit: suspicious
+  conf: 0.8
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (-p 22|nc -z|nmap -p|nmap -sS|nmap -sT)
+  attack: T1046
+- id: ssh-key-reuse
+  desc: stolen SSH key usage detected
+  crit: suspicious
+  conf: 0.8
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (ssh -i|-i /root/\.ssh|ssh\s+.{0,50}-i\s+)
+  attack: T1021.004
 composite_rules:
+- id: network-enumeration
+  desc: Local network enumeration
+  crit: suspicious
+  conf: 0.88
+  for:
+  - elf
+  - shell
+  attack: T1016
+  needs: 2
+  any:
+  - id: ifconfig-command
+  - id: ip-addr-show
+  - id: ip-route-show
+  - id: arp-discovery
+  - id: ip-neigh-show
+- id: port-scanning
+  desc: Active port scanning
+  crit: suspicious
+  conf: 0.9
+  for:
+  - elf
+  - shell
+  attack: T1046
+  any:
+  - id: netcat-port-scan
+  - id: nmap-scanning
+  - id: bash-port-scanner
+- id: lateral-movement-preparation
+  desc: Network enumeration with port scanning
+  crit: hostile
+  conf: 0.92
+  for:
+  - elf
+  - shell
+  attack: T1046
+  mbc: E1103
+  all:
   - id: network-enumeration
-    desc: Local network enumeration
-    crit: suspicious
-    conf: 0.88
-    for: [elf, shell]
-    attack: "T1016"
-    needs: 2
-    any:
-      - id: ifconfig-command
-      - id: ip-addr-show
-      - id: ip-route-show
-      - id: arp-discovery
-      - id: ip-neigh-show
-
   - id: port-scanning
-    desc: Active port scanning
-    crit: suspicious
-    conf: 0.9
-    for: [elf, shell]
-    attack: "T1046"
-    any:
-      - id: netcat-port-scan
-      - id: nmap-scanning
-      - id: bash-port-scanner
-
-  - id: lateral-movement-preparation
-    desc: Network enumeration with port scanning
-    crit: hostile
-    conf: 0.92
-    for: [elf, shell]
-    attack: "T1046"
-    mbc: "E1103"
-    all:
-      - id: network-enumeration
-      - id: port-scanning
-      - id: ssh-port-check
-
-  - id: credential-plus-scanning
-    desc: Credential access with network scanning
-    crit: hostile
-    conf: 0.90
-    for: [elf, shell]
-    attack: "T1021.004"
-    mbc: "E1103"
-    all:
-      - id: network-enumeration
-      - id: port-scanning
-      - id: ssh-key-reuse
+  - id: ssh-port-check
+- id: credential-plus-scanning
+  desc: Credential access with network scanning
+  crit: hostile
+  conf: 0.9
+  for:
+  - elf
+  - shell
+  attack: T1021.004
+  mbc: E1103
+  all:
+  - id: network-enumeration
+  - id: port-scanning
+  - id: ssh-key-reuse

@@ -107,7 +107,7 @@ pub(crate) fn apply_trait_defaults(
 
     // For size-only traits without a condition, create a synthetic "always-true" condition
     // This uses a basename regex that matches everything
-    let condition = raw
+    let mut condition = raw
         .condition
         .unwrap_or_else(|| crate::composite_rules::Condition::Basename {
             exact: None,
@@ -116,7 +116,11 @@ pub(crate) fn apply_trait_defaults(
             case_insensitive: false,
         });
 
-    TraitDefinition {
+    // Auto-fix: Convert literal regex patterns to substr for better performance
+    // If a regex pattern contains only alphanumeric chars and underscores, it's a literal
+    fix_literal_regex_patterns(&mut condition);
+
+    let mut trait_def = TraitDefinition {
         id: raw.id,
         desc: raw.desc,
         conf: raw.conf.or(defaults.conf).unwrap_or(1.0),
@@ -132,8 +136,13 @@ pub(crate) fn apply_trait_defaults(
         unless: raw.unless,
         downgrade: raw.downgrade,
         defined_in: path.to_path_buf(),
-        cached_precision: None,
-    }
+        precision: None,
+    };
+
+    // Calculate and store precision immediately
+    trait_def.precision = Some(super::validation::calculate_trait_precision(&trait_def));
+
+    trait_def
 }
 
 /// Parse file type strings into FileType enum
@@ -378,7 +387,64 @@ pub(crate) fn apply_composite_defaults(
         unless: raw.unless,
         not: raw.not,
         downgrade: raw.downgrade,
-        cached_precision: None,
+        precision: None,
+    }
+}
+
+/// Auto-fix literal regex patterns by converting them to substr.
+/// A pattern is considered literal if it contains only alphanumeric chars and underscores.
+/// This provides better performance than regex matching for simple string searches.
+fn fix_literal_regex_patterns(condition: &mut crate::composite_rules::Condition) {
+    use crate::composite_rules::Condition;
+
+    // Helper to check if a pattern is a literal (no regex metacharacters)
+    // Regex metacharacters: . * + ? ^ $ ( ) [ ] { } | \
+    let is_literal = |pattern: &str| -> bool {
+        !pattern.is_empty()
+            && !pattern.chars().any(|c| matches!(
+                c,
+                '.' | '*' | '+' | '?' | '^' | '$' | '(' | ')' | '[' | ']' | '{' | '}' | '|' | '\\'
+            ))
+    };
+
+    match condition {
+        Condition::String { regex: regex_opt, substr, .. } if substr.is_none() => {
+            if let Some(pattern) = regex_opt {
+                if is_literal(pattern) {
+                    // Convert regex to substr
+                    *substr = Some(pattern.clone());
+                    *regex_opt = None;
+                }
+            }
+        }
+        Condition::Raw { regex: regex_opt, substr, .. } if substr.is_none() => {
+            if let Some(pattern) = regex_opt {
+                if is_literal(pattern) {
+                    // Convert regex to substr
+                    *substr = Some(pattern.clone());
+                    *regex_opt = None;
+                }
+            }
+        }
+        Condition::Symbol { regex: regex_opt, substr, .. } if substr.is_none() => {
+            if let Some(pattern) = regex_opt {
+                if is_literal(pattern) {
+                    // Convert regex to substr
+                    *substr = Some(pattern.clone());
+                    *regex_opt = None;
+                }
+            }
+        }
+        Condition::Basename { regex: regex_opt, substr, .. } if substr.is_none() => {
+            if let Some(pattern) = regex_opt {
+                if is_literal(pattern) {
+                    // Convert regex to substr
+                    *substr = Some(pattern.clone());
+                    *regex_opt = None;
+                }
+            }
+        }
+        _ => {}
     }
 }
 

@@ -547,10 +547,7 @@ impl Radare2Analyzer {
     /// This significantly reduces overhead compared to calling each method separately.
     /// Results are cached by SHA256 with zstd compression.
     pub fn extract_batched(&self, file_path: &Path) -> Result<BatchedAnalysis> {
-        use tracing::{debug, trace, warn};
-
-        let timing = std::env::var("DISSECT_TIMING").is_ok();
-        let t_start = std::time::Instant::now();
+        use tracing::{debug, trace, warn};        let _t_start = std::time::Instant::now();
 
         debug!("Running radare2 batched analysis on {:?}", file_path);
 
@@ -561,9 +558,6 @@ impl Radare2Analyzer {
         if let Some(ref hash) = sha256 {
             if let Some(cached) = Self::load_from_cache(hash) {
                 debug!("radare2 cache hit for {}", hash);
-                if timing {
-                    eprintln!("[TIMING] radare2 cache hit: {:?}", t_start.elapsed());
-                }
                 return Ok(cached);
             } else {
                 trace!("radare2 cache miss for {}", hash);
@@ -671,18 +665,6 @@ impl Radare2Analyzer {
             Self::save_to_cache(hash, &result);
         }
 
-        if timing {
-            let mode = if skip_function_analysis {
-                "sections+strings"
-            } else {
-                "full"
-            };
-            eprintln!(
-                "[TIMING] radare2 batched ({}): {:?}",
-                mode,
-                t_start.elapsed()
-            );
-        }
 
         Ok(result)
     }

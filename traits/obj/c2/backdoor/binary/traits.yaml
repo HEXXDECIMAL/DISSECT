@@ -283,7 +283,7 @@ composite_rules:
       - id: cap/exec/load/library::system-lib-marker
       # Compiler tools legitimately spawn processes for compilation
       - id: cap/exec/load/library::llvm-project-ref
-      - id: cap/exec/load/library::llvm-lib-ref
+      - id: meta/lang/compiler::libllvm
       - id: cap/exec/load/library::gcc-project-ref
       - id: cap/exec/load/library::cmake-build-ref
       # Debuggers legitimately use process control for debugging

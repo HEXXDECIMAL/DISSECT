@@ -410,8 +410,8 @@ impl<'a> RuleDebugger<'a> {
         matched: bool,
         requirements: &str,
     ) -> RuleDebugResult {
-        // Use cached precision if available, otherwise calculate
-        let precision_value = if let Some(cached) = composite.cached_precision {
+        // Use stored precision if available, otherwise calculate
+        let precision_value = if let Some(cached) = composite.precision {
             cached
         } else {
             let mut cache = HashMap::new();

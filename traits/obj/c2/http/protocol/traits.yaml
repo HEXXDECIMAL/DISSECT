@@ -25,12 +25,12 @@ traits:
       substr: "POST "
 
   - id: http-delimiter
-    desc: HTTP header delimiter
+    desc: HTTP header delimiter (CRLF CRLF)
     crit: inert
     conf: 0.5
     if:
-      type: string
-      substr: "\r\n\r\n"
+      type: raw
+      regex: '\r\n\r\n'
 
   - id: http-user-agent
     desc: User-Agent header string

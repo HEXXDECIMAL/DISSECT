@@ -59,10 +59,7 @@ impl MachOAnalyzer {
     }
 
     fn analyze_single(&self, file_path: &Path, data: &[u8]) -> Result<AnalysisReport> {
-        let start = std::time::Instant::now();
-        let timing = std::env::var("DISSECT_TIMING").is_ok();
-
-        // Parse with goblin
+        let start = std::time::Instant::now();        // Parse with goblin
         let macho = match goblin::mach::Mach::parse(data)? {
             Mach::Binary(m) => m,
             Mach::Fat(_) => {
@@ -123,7 +120,7 @@ impl MachOAnalyzer {
         self.analyze_amos_cipher(data, &mut report, &mut tools_used);
 
         // Use radare2 for deep analysis if available - SINGLE r2 spawn for all data
-        let t_r2 = std::time::Instant::now();
+        let _t_r2 = std::time::Instant::now();
         let r2_strings = if Radare2Analyzer::is_available() {
             tools_used.push("radare2".to_string());
 
@@ -166,14 +163,8 @@ impl MachOAnalyzer {
                 report.functions = batched.functions.into_iter().map(Function::from).collect();
 
                 // Use strings from batched data (no extra r2 spawn)
-                if timing {
-                    eprintln!("[TIMING] radare2 batched analysis: {:?}", t_r2.elapsed());
-                }
                 Some(batched.strings)
             } else {
-                if timing {
-                    eprintln!("[TIMING] radare2 batched analysis: {:?}", t_r2.elapsed());
-                }
                 None
             }
         } else {
@@ -252,15 +243,9 @@ impl MachOAnalyzer {
         }
 
         // Evaluate all rules (atomic + composite) and merge into report
-        let t_eval = std::time::Instant::now();
+        let _t_eval = std::time::Instant::now();
         self.capability_mapper
             .evaluate_and_merge_findings(&mut report, data, None);
-        if timing {
-            eprintln!(
-                "[TIMING] evaluate_and_merge_findings: {:?}",
-                t_eval.elapsed()
-            );
-        }
 
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
         report.metadata.tools_used = tools_used;

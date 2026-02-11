@@ -14,14 +14,14 @@ use super::evaluators::{
 use super::types::{default_file_types, default_platforms, FileType, Platform};
 use crate::types::{Criticality, Evidence, Finding, FindingKind};
 use anyhow::Context;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 fn default_confidence() -> f32 {
     1.0
 }
 
 /// Conditions for a downgrade level (supports composite syntax)
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct DowngradeConditions {
     #[serde(skip_serializing_if = "Option::is_none", default)]
@@ -87,9 +87,9 @@ pub struct TraitDefinition {
     pub downgrade: Option<DowngradeConditions>,
     #[serde(skip)]
     pub defined_in: std::path::PathBuf,
-    /// Cached precision score (calculated during loading, not from YAML)
+    /// Precision score (calculated during loading, not from YAML)
     #[serde(skip)]
-    pub cached_precision: Option<f32>,
+    pub precision: Option<f32>,
 }
 
 impl TraitDefinition {
@@ -1062,9 +1062,9 @@ pub struct CompositeTrait {
     /// Only levels LOWER than base `crit` are allowed (validated at load time)
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub downgrade: Option<DowngradeConditions>,
-    /// Cached precision score (calculated during loading, not from YAML)
+    /// Precision score (calculated during loading, not from YAML)
     #[serde(skip)]
-    pub cached_precision: Option<f32>,
+    pub precision: Option<f32>,
 }
 
 impl CompositeTrait {

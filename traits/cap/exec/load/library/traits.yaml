@@ -281,14 +281,6 @@ traits:
       type: string
       regex: "(?i)\\b(llvm|clang)\\s+(version|compiler|project|IR)"
 
-  - id: llvm-lib-ref
-    desc: libLLVM library reference
-    crit: inert
-    conf: 0.9
-    if:
-      type: string
-      regex: "libLLVM"
-
   - id: gcc-project-ref
     desc: GCC project reference
     crit: inert
@@ -423,7 +415,7 @@ composite_rules:
     conf: 0.8
     any:
       - id: llvm-project-ref
-      - id: llvm-lib-ref
+      - id: meta/lang/compiler::libllvm
       - id: gcc-project-ref
       - id: cmake-build-ref
 

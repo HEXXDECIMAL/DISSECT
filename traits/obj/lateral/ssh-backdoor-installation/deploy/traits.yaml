@@ -1,136 +1,124 @@
-# SSH Backdoor Installation Patterns
-# Detects techniques for establishing persistent SSH access
-# Generic indicator for backdoor installation and C2 access
-
 traits:
-  - id: sshd-config-path
-    desc: SSH daemon configuration file
-    crit: inert
-    conf: 0.6
-    for: [elf, shell]
-    if:
-      type: string
-      substr: "/etc/ssh/sshd_config"
-
-  - id: authorized-keys-path
-    desc: SSH authorized_keys credential file
-    crit: notable
-    conf: 0.7
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - substr: "authorized_keys"
-        - substr: ".ssh/authorized_keys"
-    attack: "T1098.004"
-
-  - id: ssh-key-generation
-    desc: SSH key generation pattern
-    crit: notable
-    conf: 0.75
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - substr: "ssh-keygen"
-        - substr: "id_rsa"
-        - substr: "id_dsa"
-        - substr: "id_ecdsa"
-    attack: "T1098.004"
-
-  - id: sshd-restart
-    desc: SSH daemon restart or reload
-    crit: suspicious
-    conf: 0.8
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - substr: "systemctl restart sshd"
-        - substr: "service sshd restart"
-        - substr: "sshd -t"
-        - regex: "sshd\\s+-t"
-    attack: "T1547.002"
-
-  - id: sshd-config-backup
-    desc: SSH config backup pattern
-    crit: notable
-    conf: 0.7
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - substr: "sshd_config.bak"
-        - substr: "sshd_config.backup"
-        - regex: "sshd_config\\.bak\\.[0-9]"
-
-  - id: ssh-permit-root
-    desc: PermitRootLogin configuration
-    crit: suspicious
-    conf: 0.8
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - substr: "PermitRootLogin"
-        - substr: "PermitRootLogin yes"
-    attack: "T1021.004"
-
-  - id: ssh-password-auth
-    desc: SSH password authentication
-    crit: suspicious
-    conf: 0.75
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - substr: "PasswordAuthentication yes"
-        - substr: "PubkeyAuthentication no"
-    attack: "T1021.004"
-
-  - id: ssh-port-config
-    desc: SSH port configuration
-    crit: inert
-    conf: 0.6
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - regex: "Port\\s+[0-9]+"
-        - substr: "Port 22"
-
+- id: sshd-config-path
+  desc: SSH daemon configuration file
+  crit: inert
+  conf: 0.6
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    substr: /etc/ssh/sshd_config
+- id: authorized-keys-path
+  desc: SSH authorized_keys credential file
+  crit: notable
+  conf: 0.7
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (authorized_keys|\.ssh/authorized_keys)
+  attack: T1098.004
+- id: ssh-key-generation
+  desc: SSH key generation pattern
+  crit: notable
+  conf: 0.75
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (ssh-keygen|id_rsa|id_dsa|id_ecdsa)
+  attack: T1098.004
+- id: sshd-restart
+  desc: SSH daemon restart or reload
+  crit: suspicious
+  conf: 0.8
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (systemctl restart sshd|service sshd restart|sshd -t|sshd\s+-t)
+  attack: T1547.002
+- id: sshd-config-backup
+  desc: SSH config backup pattern
+  crit: notable
+  conf: 0.7
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (sshd_config\.bak|sshd_config\.backup|sshd_config\.bak\.[0-9])
+- id: ssh-permit-root
+  desc: PermitRootLogin configuration
+  crit: suspicious
+  conf: 0.8
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (PermitRootLogin|PermitRootLogin yes)
+  attack: T1021.004
+- id: ssh-password-auth
+  desc: SSH password authentication
+  crit: suspicious
+  conf: 0.75
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (PasswordAuthentication yes|PubkeyAuthentication no)
+  attack: T1021.004
+- id: ssh-port-config
+  desc: SSH port configuration
+  crit: inert
+  conf: 0.6
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (Port\s+[0-9]+|Port 22)
 composite_rules:
+- id: ssh-config-modification
+  desc: SSH daemon configuration modification
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - shell
+  attack: T1021.004
+  needs: 2
+  any:
+  - id: sshd-config-path
+  - id: sshd-restart
+  - id: ssh-permit-root
+  - id: ssh-password-auth
+- id: ssh-backdoor-installation
+  desc: SSH backdoor installation
+  crit: hostile
+  conf: 0.9
+  for:
+  - elf
+  - shell
+  attack: T1098.004
+  mbc: C0027
+  all:
   - id: ssh-config-modification
-    desc: SSH daemon configuration modification
-    crit: suspicious
-    conf: 0.85
-    for: [elf, shell]
-    attack: "T1021.004"
-    needs: 2
-    any:
-      - id: sshd-config-path
-      - id: sshd-restart
-      - id: ssh-permit-root
-      - id: ssh-password-auth
-
-  - id: ssh-backdoor-installation
-    desc: SSH backdoor installation
-    crit: hostile
-    conf: 0.9
-    for: [elf, shell]
-    attack: "T1098.004"
-    mbc: "C0027"
-    all:
-      - id: ssh-config-modification
-      - id: authorized-keys-path
-
-  - id: ssh-key-theft
-    desc: SSH credential harvesting
-    crit: suspicious
-    conf: 0.85
-    for: [elf, shell]
-    attack: "T1555.003"
-    all:
-      - id: authorized-keys-path
-      - id: ssh-key-generation
-
+  - id: authorized-keys-path
+- id: ssh-key-theft
+  desc: SSH credential harvesting
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - shell
+  attack: T1555.003
+  all:
+  - id: authorized-keys-path
+  - id: ssh-key-generation

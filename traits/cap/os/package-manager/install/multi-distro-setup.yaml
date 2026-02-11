@@ -4,33 +4,6 @@
 # ATT&CK: T1195.001 (Supply Chain Compromise), T1072 (Software Deployment Tools)
 
 traits:
-  # === Package Manager Detection ===
-  - id: apt-get-available
-    desc: Check for apt-get availability
-    crit: inert
-    conf: 0.7
-    for: [elf, shell]
-    if:
-      type: string
-      substr: "which apt-get"
-
-  - id: yum-available
-    desc: Check for yum availability
-    crit: inert
-    conf: 0.7
-    for: [elf, shell]
-    if:
-      type: string
-      substr: "which yum"
-
-  - id: dnf-available
-    desc: Check for dnf availability
-    crit: inert
-    conf: 0.7
-    for: [elf, shell]
-    if:
-      type: string
-      substr: "which dnf"
 
   # === Sudo Installation Patterns ===
   - id: apt-install-sudo
@@ -155,19 +128,19 @@ composite_rules:
   - id: apt-distro-targeting
     desc: apt-based distribution targeting
     any:
-      - id: apt-get-available
+      - id: cap/os/package-manager/install::which-apt-get
       - id: apt-install-sudo
 
   - id: yum-distro-targeting
     desc: yum-based distribution targeting
     any:
-      - id: yum-available
+      - id: cap/os/package-manager/install::which-yum
       - id: yum-install-sudo
 
   - id: dnf-distro-targeting
     desc: dnf-based distribution targeting
     any:
-      - id: dnf-available
+      - id: cap/os/package-manager/install::which-dnf
       - id: dnf-install-sudo
 
   - id: all-distros-targeted

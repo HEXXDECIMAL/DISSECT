@@ -1,119 +1,119 @@
-# Registry Access via Script
-# Detects JavaScript/VBScript registry manipulation
-# Generic indicator for persistence and configuration modification
-
 traits:
-  - id: script-regwrite
-    desc: Script registry write
-    crit: notable
-    conf: 0.75
-    platforms: [windows]
-    for: [javascript]
-    if:
-      type: string
-      substr: "RegWrite"
-    attack: "T1547.001"
-    mbc: "F0006"
-
-  - id: script-regread
-    desc: Script registry read
-    crit: notable
-    conf: 0.7
-    platforms: [windows]
-    for: [javascript]
-    if:
-      type: string
-      substr: "RegRead"
-    attack: "T1012"
-    mbc: "E1563"
-
-  - id: script-regdelete
-    desc: Script registry delete
-    crit: suspicious
-    conf: 0.85
-    platforms: [windows]
-    for: [javascript]
-    if:
-      type: string
-      substr: "RegDelete"
-    attack: "T1562.004"
-    mbc: "E1006"
-
-  - id: hkey-local-machine
-    desc: HKEY_LOCAL_MACHINE
-    crit: inert
-    conf: 0.5
-    platforms: [windows]
-    for: [javascript]
-    if:
-      type: string
-      any:
-        - substr: "HKEY_LOCAL_MACHINE"
-        - substr: "HKLM"
-    attack: "T1012"
-
-  - id: hkey-current-user
-    desc: HKEY_CURRENT_USER
-    crit: inert
-    conf: 0.5
-    platforms: [windows]
-    for: [javascript]
-    if:
-      type: string
-      any:
-        - substr: "HKEY_CURRENT_USER"
-        - substr: "HKCU"
-    attack: "T1012"
-
-  - id: run-key-reference
-    desc: Registry Run key
-    crit: notable
-    conf: 0.8
-    platforms: [windows]
-    for: [javascript]
-    if:
-      type: string
-      any:
-        - substr: "\\Run"
-        - substr: "\\RunOnce"
-    attack: "T1547.001"
-    mbc: "F0006"
-
+- id: script-regwrite
+  desc: Script registry write
+  crit: notable
+  conf: 0.75
+  platforms:
+  - windows
+  for:
+  - javascript
+  if:
+    type: string
+    substr: RegWrite
+  attack: T1547.001
+  mbc: F0006
+- id: script-regread
+  desc: Script registry read
+  crit: notable
+  conf: 0.7
+  platforms:
+  - windows
+  for:
+  - javascript
+  if:
+    type: string
+    substr: RegRead
+  attack: T1012
+  mbc: E1563
+- id: script-regdelete
+  desc: Script registry delete
+  crit: suspicious
+  conf: 0.85
+  platforms:
+  - windows
+  for:
+  - javascript
+  if:
+    type: string
+    substr: RegDelete
+  attack: T1562.004
+  mbc: E1006
+- id: hkey-local-machine
+  desc: HKEY_LOCAL_MACHINE
+  crit: inert
+  conf: 0.5
+  platforms:
+  - windows
+  for:
+  - javascript
+  if:
+    type: string
+    regex: (HKEY_LOCAL_MACHINE|HKLM)
+  attack: T1012
+- id: hkey-current-user
+  desc: HKEY_CURRENT_USER
+  crit: inert
+  conf: 0.5
+  platforms:
+  - windows
+  for:
+  - javascript
+  if:
+    type: string
+    regex: (HKEY_CURRENT_USER|HKCU)
+  attack: T1012
+- id: run-key-reference
+  desc: Registry Run key
+  crit: notable
+  conf: 0.8
+  platforms:
+  - windows
+  for:
+  - javascript
+  if:
+    type: string
+    regex: (\\Run|\\RunOnce)
+  attack: T1547.001
+  mbc: F0006
 composite_rules:
-  - id: script-registry-operations
-    desc: Script registry manipulation
-    crit: suspicious
-    conf: 0.8
-    platforms: [windows]
-    for: [javascript]
-    attack: "T1012"
-    mbc: "E1563"
-    needs: 2
-    any:
-      - id: script-regwrite
-      - id: script-regread
-      - id: script-regdelete
-
-  - id: script-registry-persistence
-    desc: Script registry persistence
-    crit: suspicious
-    conf: 0.85
-    platforms: [windows]
-    for: [javascript]
-    attack: "T1547.001"
-    mbc: "F0006"
-    all:
-      - id: script-regwrite
-      - id: run-key-reference
-
-  - id: script-registry-cleanup
-    desc: Script registry cleanup
-    crit: suspicious
-    conf: 0.85
-    platforms: [windows]
-    for: [javascript]
-    attack: "T1562.004"
-    mbc: "E1006"
-    all:
-      - id: script-regdelete
-      - id: obj/anti-forensics
+- id: script-registry-operations
+  desc: Script registry manipulation
+  crit: suspicious
+  conf: 0.8
+  platforms:
+  - windows
+  for:
+  - javascript
+  attack: T1012
+  mbc: E1563
+  needs: 2
+  any:
+  - id: script-regwrite
+  - id: script-regread
+  - id: script-regdelete
+- id: script-registry-persistence
+  desc: Script registry persistence
+  crit: suspicious
+  conf: 0.85
+  platforms:
+  - windows
+  for:
+  - javascript
+  attack: T1547.001
+  mbc: F0006
+  all:
+  - id: script-regwrite
+  - id: run-key-reference
+- id: script-registry-cleanup
+  desc: Script registry cleanup
+  crit: suspicious
+  conf: 0.85
+  platforms:
+  - windows
+  for:
+  - javascript
+  attack: T1562.004
+  mbc: E1006
+  all:
+  - id: script-regdelete
+  - id: obj/anti-forensics

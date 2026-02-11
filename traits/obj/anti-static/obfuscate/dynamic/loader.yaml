@@ -27,7 +27,8 @@ composite_rules:
   - id: suspicious-env-atob-axios
     desc: Decoding environment variables with atob for network use
     crit: hostile
-    conf: 0.9
+    conf: 0.95
     all:
       - id: env-atob-decode
       - id: axios-get
+      - id: obj/anti-static/obfuscation/payload::exec-function-call

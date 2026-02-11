@@ -82,8 +82,6 @@ composite_rules:
     attack: "T1562"
     needs: 2
     any:
-      - id: selinux-setenforce
-      - id: selinux-disable
-      - id: apparmor-disable
-      - id: apparmor-stop
+      - id: selinux-disabled
+      - id: apparmor-disabled
       - id: obj/impact/degrade/firewall

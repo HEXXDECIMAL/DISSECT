@@ -1,162 +1,161 @@
-# Dynamic Linker Hijacking Patterns
-# Detects techniques for hijacking the dynamic linker for code injection
-# Generic indicator for privilege escalation and malware implantation
-
 traits:
-  - id: ld-preload-env
-    desc: LD_PRELOAD environment variable
-    crit: suspicious
-    conf: 0.85
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - substr: "LD_PRELOAD"
-        - substr: "LD_PRELOAD="
-    attack: "T1547.015"
-
-  - id: ld-audit-env
-    desc: LD_AUDIT environment variable
-    crit: suspicious
-    conf: 0.85
-    for: [elf, shell]
-    if:
-      type: string
-      substr: "LD_AUDIT"
-    attack: "T1547.015"
-
-  - id: ld-debug-env
-    desc: LD_DEBUG environment variable
-    crit: suspicious
-    conf: 0.8
-    for: [elf, shell]
-    if:
-      type: string
-      substr: "LD_DEBUG"
-    attack: "T1070"
-
-  - id: dlfcn-hook-symbol
-    desc: _dlfcn_hook dynamic linker hook
-    crit: suspicious
-    conf: 0.9
-    for: [elf]
-    if:
-      type: symbol
-      any:
-        - exact: "_dlfcn_hook"
-        - substr: "_dlfcn_hook"
-    attack: "T1547.015"
-
-  - id: rtld-next-symbol
-    desc: RTLD_NEXT runtime linker symbol
-    crit: suspicious
-    conf: 0.85
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - substr: "RTLD_NEXT"
-        - substr: "dlsym(RTLD_NEXT"
-    attack: "T1547.015"
-
-  - id: dlopen-call
-    desc: dlopen dynamic loading call
-    crit: inert
-    conf: 0.5
-    for: [elf, shell]
-    if:
-      type: string
-      substr: "dlopen"
-    attack: "T1574.006"
-
-  - id: dlsym-call
-    desc: dlsym symbol lookup call
-    crit: inert
-    conf: 0.5
-    for: [elf, shell]
-    if:
-      type: string
-      substr: "dlsym"
-    attack: "T1574.006"
-
-  - id: libc-preload
-    desc: Preload libc library
-    crit: suspicious
-    conf: 0.8
-    for: [elf, shell]
-    if:
-      type: string
-      regex: "(?:LD_PRELOAD\\s*=\\s*[^\\s]*libc(?:\\.so|-)|ld\\.so\\.preload[^\\n]{0,80}libc(?:\\.so|-))"
-
-  - id: glibc-tunables
-    desc: GLIBC_TUNABLES environment variable
-    crit: suspicious
-    conf: 0.85
-    for: [elf, shell]
-    if:
-      type: string
-      substr: "GLIBC_TUNABLES"
-    attack: "T1547.015"
-
-  # Note: dlsym is legitimate for dynamic loading (Node.js native addons, plugins)
-  # Only suspicious when combined with RTLD_NEXT or LD_PRELOAD context
-  - id: function-interception
-    desc: Function interception markers
-    crit: notable
-    conf: 0.6
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - substr: "dlsym(RTLD_NEXT"
-        - substr: "__libc_dlsym"
-        - substr: "__libc_dlopen_mode"
-    attack: "T1547.015"
-
+- id: ld-preload-env
+  desc: LD_PRELOAD environment variable
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (LD_PRELOAD|LD_PRELOAD=)
+  attack: T1547.015
+- id: ld-audit-env
+  desc: LD_AUDIT environment variable
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    substr: LD_AUDIT
+  attack: T1547.015
+- id: ld-debug-env
+  desc: LD_DEBUG environment variable
+  crit: suspicious
+  conf: 0.8
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    substr: LD_DEBUG
+  attack: T1070
+- id: dlfcn-hook-symbol
+  desc: _dlfcn_hook dynamic linker hook
+  crit: suspicious
+  conf: 0.9
+  for:
+  - elf
+  if:
+    type: symbol
+    regex: (^_dlfcn_hook$|_dlfcn_hook)
+  attack: T1547.015
+- id: rtld-next-symbol
+  desc: RTLD_NEXT runtime linker symbol
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (RTLD_NEXT|dlsym\(RTLD_NEXT)
+  attack: T1547.015
+- id: dlopen-call
+  desc: dlopen dynamic loading call
+  crit: inert
+  conf: 0.5
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    substr: dlopen
+  attack: T1574.006
+- id: dlsym-call
+  desc: dlsym symbol lookup call
+  crit: inert
+  conf: 0.5
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    substr: dlsym
+  attack: T1574.006
+- id: libc-preload
+  desc: Preload libc library
+  crit: suspicious
+  conf: 0.8
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (?:LD_PRELOAD\s*=\s*[^\s]*libc(?:\.so|-)|ld\.so\.preload[^\n]{0,80}libc(?:\.so|-))
+- id: glibc-tunables
+  desc: GLIBC_TUNABLES environment variable
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    substr: GLIBC_TUNABLES
+  attack: T1547.015
+- id: function-interception
+  desc: Function interception markers
+  crit: notable
+  conf: 0.6
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (dlsym\(RTLD_NEXT|__libc_dlsym|__libc_dlopen_mode)
+  attack: T1547.015
 composite_rules:
+- id: dlopen-dlsym-pattern
+  desc: dlopen+dlsym dynamic loading pair
+  crit: notable
+  conf: 0.7
+  for:
+  - elf
+  - shell
+  attack: T1574.006
+  all:
+  - id: dlopen-call
+  - id: dlsym-call
+- id: ld-environment-hijacking
+  desc: LD environment variable hijacking
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - shell
+  attack: T1547.015
+  needs: 2
+  any:
+  - id: ld-preload-env
+  - id: ld-audit-env
+  - id: ld-debug-env
+- id: dynamic-function-interception
+  desc: Dynamic function interception
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - shell
+  attack: T1547.015
+  needs: 2
+  any:
+  - id: rtld-next-symbol
   - id: dlopen-dlsym-pattern
-    desc: dlopen+dlsym dynamic loading pair
-    crit: notable
-    conf: 0.7
-    for: [elf, shell]
-    attack: "T1574.006"
-    all:
-      - id: dlopen-call
-      - id: dlsym-call
-
+  - id: function-interception
+- id: dynamic-linker-hijacking
+  desc: Complete dynamic linker hijacking
+  crit: suspicious
+  conf: 0.9
+  for:
+  - elf
+  - shell
+  attack: T1547.015
+  mbc: E1104
+  needs: 2
+  any:
+  - id: dlfcn-hook-symbol
   - id: ld-environment-hijacking
-    desc: LD environment variable hijacking
-    crit: suspicious
-    conf: 0.85
-    for: [elf, shell]
-    attack: "T1547.015"
-    needs: 2
-    any:
-      - id: ld-preload-env
-      - id: ld-audit-env
-      - id: ld-debug-env
-
   - id: dynamic-function-interception
-    desc: Dynamic function interception
-    crit: suspicious
-    conf: 0.85
-    for: [elf, shell]
-    attack: "T1547.015"
-    needs: 2
-    any:
-      - id: rtld-next-symbol
-      - id: dlopen-dlsym-pattern
-      - id: function-interception
-
-  - id: dynamic-linker-hijacking
-    desc: Complete dynamic linker hijacking
-    crit: suspicious
-    conf: 0.9
-    for: [elf, shell]
-    attack: "T1547.015"
-    mbc: "E1104"
-    needs: 2
-    any:
-      - id: dlfcn-hook-symbol
-      - id: ld-environment-hijacking
-      - id: dynamic-function-interception

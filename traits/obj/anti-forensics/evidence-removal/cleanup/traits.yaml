@@ -1,217 +1,190 @@
-# Anti-Forensics Evidence Removal Patterns
-# Detects techniques for removing traces of malicious activity
-# Generic indicator for cover-up and forensics evasion
-
 traits:
-  - id: history-clear-bash
-    desc: Clear bash history
-    crit: suspicious
-    conf: 0.8
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - substr: "rm -f ~/.bash_history"
-        - substr: "rm ~/.bash_history"
-        - substr: "cat /dev/null > ~/.bash_history"
-        - substr: "> ~/.bash_history"
-        - substr: "history -c"
-    attack: "T1070.003"
-
-  - id: history-clear-shell
-    desc: Clear shell history files
-    crit: suspicious
-    conf: 0.8
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - substr: ".zsh_history"
-        - substr: ".ksh_history"
-        - substr: "history -c"
-        - substr: "HISTFILE=/dev/null"
-    attack: "T1070.003"
-
-  - id: sed-deletion-pattern
-    desc: sed command for pattern deletion
-    crit: suspicious
-    conf: 0.8
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - substr: "sed -i"
-        - substr: "sed -i '/"
-        - regex: "sed\\s+-i\\s+'[/\\|]"
-    attack: "T1070.003"
-
-  - id: deleted-process-cleanup
-    desc: Cleanup deleted process references
-    crit: suspicious
-    conf: 0.85
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - substr: "(deleted)"
-        - substr: "grep deleted"
-        - regex: "\\(deleted\\)"
-    attack: "T1070.003"
-
-  # Note: /proc/self/maps is commonly used by legitimate software:
-  # - Go/Rust runtimes for stack traces and panic handling
-  # - Memory allocators (jemalloc, tcmalloc) for debugging
-  # - Profiling tools (perf, valgrind)
-  # - Crash reporters and debuggers
-  # Only suspicious when combined with other anti-analysis or debugger detection.
-  - id: proc-self-maps
-    desc: /proc/self/maps inspection for anti-forensics
-    crit: notable
-    conf: 0.5
-    for: [elf, shell]
-    if:
-      type: string
-      substr: "/proc/self/maps"
-    attack: "T1070"
-
-  - id: pkill-signal-9
-    desc: pkill with kill -9 signal
-    crit: suspicious
-    conf: 0.8
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - substr: "pkill -9"
-        - substr: "killall -9"
-        - regex: "kill\\s+-9"
-    attack: "T1070.003"
-
-  - id: find-delete-pattern
-    desc: find with delete operation
-    crit: suspicious
-    conf: 0.8
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - regex: "(?:^|\\s)find\\s+.{0,50}-exec\\s+rm"
-        - regex: "(?:^|\\s)find\\s+.{0,50}-delete\\b"
-    unless:
-      - type: raw
-        regex: "gcc|gcov"
-    attack: "T1070.003"
-
-  - id: cron-removal
-    desc: Cron job removal
-    crit: suspicious
-    conf: 0.85
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - substr: "rm -f /etc/cron"
-        - substr: "crontab -r"
-        - substr: "rm -f /var/spool/cron"
-        - regex: "rm.{0,80}cron"
-    attack: "T1070.003"
-
-  - id: systemd-cleanup
-    desc: Systemd service removal
-    crit: suspicious
-    conf: 0.85
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - substr: "rm -f /etc/systemd/system/"
-        - substr: "systemctl disable"
-        - substr: "systemctl stop"
-    attack: "T1070.003"
-
-  - id: syslog-truncate
-    desc: System log truncation
-    crit: suspicious
-    conf: 0.8
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - substr: "> /var/log/"
-        - substr: "cat /dev/null > /var/log/"
-        - substr: "truncate -s 0"
-        - regex: ">/var/log/[a-z]+\\.log"
-    attack: "T1070.003"
-
-  - id: wtmp-utmp-clear
-    desc: wtmp/utmp login log clearing
-    crit: suspicious
-    conf: 0.85
-    for: [elf, shell]
-    if:
-      type: string
-      any:
-        - substr: "/var/log/wtmp"
-        - substr: "/var/log/utmp"
-        - substr: "/var/run/utmp"
-    attack: "T1070.003"
-
+- id: history-clear-bash
+  desc: Clear bash history
+  crit: suspicious
+  conf: 0.8
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (rm -f ~/\.bash_history|rm ~/\.bash_history|cat /dev/null > ~/\.bash_history|> ~/\.bash_history|history -c)
+  attack: T1070.003
+- id: history-clear-shell
+  desc: Clear shell history files
+  crit: suspicious
+  conf: 0.8
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (\.zsh_history|\.ksh_history|history -c|HISTFILE=/dev/null)
+  attack: T1070.003
+- id: sed-deletion-pattern
+  desc: sed command for pattern deletion
+  crit: suspicious
+  conf: 0.8
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (sed -i|sed -i '/|sed\s+-i\s+'[/\|])
+  attack: T1070.003
+- id: deleted-process-cleanup
+  desc: Cleanup deleted process references
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (\(deleted\)|grep deleted|\(deleted\))
+  attack: T1070.003
+- id: proc-self-maps
+  desc: /proc/self/maps inspection for anti-forensics
+  crit: notable
+  conf: 0.5
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    substr: /proc/self/maps
+  attack: T1070
+- id: pkill-signal-9
+  desc: pkill with kill -9 signal
+  crit: suspicious
+  conf: 0.8
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (pkill -9|killall -9|kill\s+-9)
+  attack: T1070.003
+- id: find-delete-pattern
+  desc: find with delete operation
+  crit: suspicious
+  conf: 0.8
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: ((?:^|\s)find\s+.{0,50}-exec\s+rm|(?:^|\s)find\s+.{0,50}-delete\b)
+  unless:
+  - type: raw
+    regex: gcc|gcov
+  attack: T1070.003
+- id: cron-removal
+  desc: Cron job removal
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (rm -f /etc/cron|crontab -r|rm -f /var/spool/cron|rm.{0,80}cron)
+  attack: T1070.003
+- id: systemd-cleanup
+  desc: Systemd service removal
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (rm -f /etc/systemd/system/|systemctl disable|systemctl stop)
+  attack: T1070.003
+- id: syslog-truncate
+  desc: System log truncation
+  crit: suspicious
+  conf: 0.8
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (> /var/log/|cat /dev/null > /var/log/|truncate -s 0|>/var/log/[a-z]+\.log)
+  attack: T1070.003
+- id: wtmp-utmp-clear
+  desc: wtmp/utmp login log clearing
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (/var/log/wtmp|/var/log/utmp|/var/run/utmp)
+  attack: T1070.003
 composite_rules:
+- id: history-cleanup
+  desc: Shell history cleanup
+  crit: suspicious
+  conf: 0.8
+  for:
+  - elf
+  - shell
+  attack: T1070.003
+  needs: 2
+  any:
+  - id: history-clear-bash
+  - id: history-clear-shell
+- id: process-cleanup
+  desc: Process trace cleanup
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - shell
+  attack: T1070.003
+  needs: 2
+  any:
+  - id: deleted-process-cleanup
+  - id: pkill-signal-9
+  - id: find-delete-pattern
+- id: persistence-cleanup
+  desc: Persistence mechanism cleanup
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - shell
+  attack: T1070.003
+  needs: 2
+  any:
+  - id: cron-removal
+  - id: systemd-cleanup
+- id: log-cleanup
+  desc: System log cleanup
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - shell
+  attack: T1070.003
+  needs: 2
+  any:
+  - id: syslog-truncate
+  - id: wtmp-utmp-clear
+- id: comprehensive-evidence-removal
+  desc: Comprehensive evidence removal pattern
+  crit: hostile
+  conf: 0.9
+  for:
+  - elf
+  - shell
+  attack: T1070.003
+  mbc: E1006
+  needs: 3
+  any:
   - id: history-cleanup
-    desc: Shell history cleanup
-    crit: suspicious
-    conf: 0.8
-    for: [elf, shell]
-    attack: "T1070.003"
-    needs: 2
-    any:
-      - id: history-clear-bash
-      - id: history-clear-shell
-
   - id: process-cleanup
-    desc: Process trace cleanup
-    crit: suspicious
-    conf: 0.85
-    for: [elf, shell]
-    attack: "T1070.003"
-    needs: 2
-    any:
-      - id: deleted-process-cleanup
-      - id: pkill-signal-9
-      - id: find-delete-pattern
-
   - id: persistence-cleanup
-    desc: Persistence mechanism cleanup
-    crit: suspicious
-    conf: 0.85
-    for: [elf, shell]
-    attack: "T1070.003"
-    needs: 2
-    any:
-      - id: cron-removal
-      - id: systemd-cleanup
-
   - id: log-cleanup
-    desc: System log cleanup
-    crit: suspicious
-    conf: 0.85
-    for: [elf, shell]
-    attack: "T1070.003"
-    needs: 2
-    any:
-      - id: syslog-truncate
-      - id: wtmp-utmp-clear
-
-  - id: comprehensive-evidence-removal
-    desc: Comprehensive evidence removal pattern
-    crit: hostile
-    conf: 0.9
-    for: [elf, shell]
-    attack: "T1070.003"
-    mbc: "E1006"
-    needs: 3
-    any:
-      - id: history-cleanup
-      - id: process-cleanup
-      - id: persistence-cleanup
-      - id: log-cleanup

@@ -23,5 +23,5 @@ composite_rules:
       - id: cap/data/serialization/unsafe::marshal-loads
       - id: cap/data/compression/library::zlib-decompress
     any:
-      - id: cap/data/encode/base64::b85decode-call
+      - id: cap/data/encode/base85::b85decode-call
       - id: cap/data/encode/base64::b64decode-call

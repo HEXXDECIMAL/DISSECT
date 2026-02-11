@@ -71,21 +71,13 @@ traits:
       type: string
       substr: "syncookie"
 
-  - id: syn-cookie-lower
-    desc: syn_cookie or syncookie
+  - id: syn-cookie
+    desc: SYN cookie or syn cookie (case variants)
     crit: inert
     conf: 0.5
     if:
       type: string
-      regex: "syn.?cookie"
-
-  - id: syn-cookie-upper
-    desc: SYN_cookie or SYNcookie
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      regex: "SYN.?cookie"
+      regex: "(SYN|syn).?cookie"
 
 composite_rules:
   # Migrated from YARA
@@ -106,5 +98,4 @@ composite_rules:
     conf: 0.66
     any:
       - { id: syncookie-word }
-      - { id: syn-cookie-lower }
-      - { id: syn-cookie-upper }
+      - { id: syn-cookie }

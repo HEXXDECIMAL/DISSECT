@@ -59,7 +59,6 @@ traits:
     if:
       type: string
       exact: "pwd"
-      case_insensitive: true
 
   - id: credential
     desc: credential keyword

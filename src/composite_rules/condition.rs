@@ -2,12 +2,12 @@
 
 use super::types::Platform;
 use anyhow::Result;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
 /// Encoding specification for encoded string searches
 /// Can be a single encoding, array of encodings (OR), or chain (sequence)
-#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 #[serde(untagged)]
 pub enum EncodingSpec {
     /// Single encoding: "base64"
@@ -17,7 +17,7 @@ pub enum EncodingSpec {
 }
 
 /// String exception specification for `not:` directive
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(untagged)]
 pub enum NotException {
     /// Shorthand: bare string defaults to substr match
@@ -682,7 +682,7 @@ impl From<ConditionDeser> for Condition {
 /// Supports two YAML formats:
 /// 1. Tagged: `{ type: string, exact: "foo" }` - explicit type field
 /// 2. Shorthand: `{ id: my-trait }` - defaults to Trait when only `id` is present
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(from = "ConditionDeser")]
 pub enum Condition {
     /// Match a symbol (import/export)

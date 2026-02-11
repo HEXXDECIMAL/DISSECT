@@ -124,7 +124,7 @@ traits:
     attack: "T1562.004"
 
   - id: ufw-allow-22
-    desc: ufw allow 22
+    desc: ufw allow port 22 firewall rule
     crit: suspicious
     conf: 0.85
     for: [elf, shell]
@@ -134,7 +134,7 @@ traits:
     attack: "T1562.004"
 
   - id: ufw-allow-ssh-name
-    desc: ufw allow ssh
+    desc: ufw allow SSH service by name
     crit: suspicious
     conf: 0.85
     for: [elf, shell]
@@ -164,7 +164,7 @@ traits:
     attack: "T1562.004"
 
   - id: ufw-enable-basic
-    desc: ufw enable
+    desc: ufw firewall enable command
     crit: suspicious
     conf: 0.8
     for: [elf, shell]
@@ -249,16 +249,6 @@ traits:
       substr: "systemctl start firewalld"
     attack: "T1562.004"
 
-  - id: firewalld-restart-service
-    desc: systemctl restart firewalld
-    crit: suspicious
-    conf: 0.8
-    for: [elf, shell]
-    if:
-      type: string
-      substr: "systemctl restart firewalld"
-    attack: "T1562.004"
-
   - id: port-22-ssh-add-port
     desc: --add-port=22 flag
     crit: suspicious
@@ -270,7 +260,7 @@ traits:
     attack: "T1562.004"
 
   - id: port-22-ssh-allow-22
-    desc: allow 22 rule
+    desc: firewall allow port 22 rule
     crit: suspicious
     conf: 0.8
     for: [elf, shell]
@@ -280,7 +270,7 @@ traits:
     attack: "T1562.004"
 
   - id: port-22-ssh-allow-ssh
-    desc: allow ssh rule
+    desc: firewall allow SSH service rule
     crit: suspicious
     conf: 0.8
     for: [elf, shell]
@@ -376,7 +366,7 @@ composite_rules:
     any:
       - id: firewalld-enable
       - id: firewalld-start
-      - id: firewalld-restart-service
+      - id: firewalld-restart
 
   - id: port-22-ssh-rule
     desc: SSH port 22 firewall rule

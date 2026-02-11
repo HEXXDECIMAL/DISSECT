@@ -20,14 +20,6 @@ traits:
       type: string
       substr: "Set-Cookie:"
 
-  - id: cookiejar-ref
-    desc: cookiejar reference
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      substr: "cookiejar"
-
   - id: http-cookiejar
     desc: http.cookiejar module
     crit: inert
@@ -44,5 +36,4 @@ composite_rules:
     any:
       - id: cookie-header
       - id: set-cookie-header
-      - id: cookiejar-ref
       - id: http-cookiejar

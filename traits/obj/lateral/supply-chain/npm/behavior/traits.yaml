@@ -133,7 +133,7 @@ traits:
       regex: "(?:readFile|readFileSync)\\s*\\([^)]*\\.npmrc"
 
   # Package writes to package.json (persistence)
-  - id: package.json-write
+  - id: package-json-write
     desc: Writes to package.json file
     crit: suspicious
     conf: 0.9

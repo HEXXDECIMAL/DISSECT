@@ -60,18 +60,8 @@ impl ElfAnalyzer {
     }
 
     fn analyze_elf(&self, file_path: &Path, data: &[u8]) -> Result<AnalysisReport> {
-        let start = std::time::Instant::now();
-        let timing = std::env::var("DISSECT_TIMING").is_ok();
-
-        let t_sha = std::time::Instant::now();
+        let start = std::time::Instant::now();        let _t_sha = std::time::Instant::now();
         let sha256 = crate::analyzers::utils::calculate_sha256(data);
-        if timing {
-            eprintln!(
-                "[TIMING] ELF SHA256 ({} MB): {:?}",
-                data.len() / 1024 / 1024,
-                t_sha.elapsed()
-            );
-        }
 
         // Create target info with default/empty values for fields that require parsing
         let target = TargetInfo {
@@ -156,17 +146,10 @@ impl ElfAnalyzer {
         };
 
         // Extract strings using language-aware extraction (Go/Rust) with pre-parsed ELF if available
-        let t_stng = std::time::Instant::now();
+        let _t_stng = std::time::Instant::now();
         report.strings = self
             .string_extractor
             .extract_smart_with_r2(data, r2_strings);
-        if timing {
-            eprintln!(
-                "[TIMING] ELF stng extraction ({} strings): {:?}",
-                report.strings.len(),
-                t_stng.elapsed()
-            );
-        }
         tools_used.push("stng".to_string());
 
         // Analyze embedded code in strings

@@ -141,7 +141,8 @@ fn main() -> Result<()> {
         // Use trace level for verbose mode to see all instrumentation
         EnvFilter::new("dissect=trace")
     } else {
-        EnvFilter::new("dissect=info")
+        // By default, only show warnings and errors
+        EnvFilter::new("dissect=warn")
     };
 
     tracing_subscriber::fmt()
@@ -433,8 +434,6 @@ fn analyze_file(
         );
     }
 
-    let timing = std::env::var("DISSECT_TIMING").is_ok();
-
     // Status messages go to stderr
     eprintln!("Analyzing: {}", target);
     tracing::info!("Starting analysis of {}", target);
@@ -446,7 +445,7 @@ fn analyze_file(
     tracing::info!("File type: {:?}", file_type);
 
     // Load capability mapper
-    let t1 = std::time::Instant::now();
+    let _t1 = std::time::Instant::now();
     tracing::info!("Loading capability mapper (trait definitions)");
     let capability_mapper = crate::capabilities::CapabilityMapper::new_with_precision_thresholds(
         min_hostile_precision,
@@ -455,9 +454,6 @@ fn analyze_file(
     )
     .with_platforms(platforms.clone());
     tracing::info!("Capability mapper loaded");
-    if timing {
-        eprintln!("[TIMING] CapabilityMapper::new(): {:?}", t1.elapsed());
-    }
 
     // Load YARA rules (unless YARA is disabled)
     let mut yara_engine = if disabled.yara {
@@ -465,15 +461,12 @@ fn analyze_file(
         eprintln!("[INFO] YARA scanning disabled");
         None
     } else {
-        let t_yara_start = std::time::Instant::now();
+        let _t_yara_start = std::time::Instant::now();
         tracing::info!("Initializing YARA engine");
         let empty_mapper = crate::capabilities::CapabilityMapper::empty();
         let mut engine = YaraEngine::new_with_mapper(empty_mapper);
         let (builtin_count, third_party_count) = engine.load_all_rules(enable_third_party_yara)?;
         tracing::info!("YARA engine loaded with {} rules", builtin_count + third_party_count);
-        if timing {
-            eprintln!("[TIMING] YaraEngine load: {:?}", t_yara_start.elapsed());
-        }
         engine.set_capability_mapper(capability_mapper.clone());
         if builtin_count + third_party_count > 0 {
             Some(engine)
@@ -485,7 +478,7 @@ fn analyze_file(
     // Route to appropriate analyzer
     // Binary analyzers (MachO, Elf, Pe, Archive, Jar) handle YARA internally with specialized filtering
     // All other analyzers get YARA scanning applied universally after analysis
-    let t3 = std::time::Instant::now();
+    let _t3 = std::time::Instant::now();
     let mut report = match file_type {
         FileType::MachO => {
             let mut analyzer =
@@ -607,9 +600,6 @@ fn analyze_file(
         }
     }
 
-    if timing {
-        eprintln!("[TIMING] Analysis: {:?}", t3.elapsed());
-    }
 
     // Check if report's criticality matches --error-if criteria
     check_criticality_error(&report, error_if_levels)?;
@@ -618,16 +608,13 @@ fn analyze_file(
     report.convert_to_v2(verbose);
 
     // Format output based on requested format
-    let t4 = std::time::Instant::now();
-    let result = match format {
+    let _t4 = std::time::Instant::now();
+    
+
+    match format {
         cli::OutputFormat::Jsonl => output::format_jsonl(&report),
         cli::OutputFormat::Terminal => output::format_terminal(&report),
-    };
-    if timing {
-        eprintln!("[TIMING] Output format: {:?}", t4.elapsed());
     }
-
-    result
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -939,21 +926,17 @@ fn analyze_file_with_shared_mapper(
     sample_extraction: Option<&types::SampleExtractionConfig>,
     max_memory_file_size: u64,
 ) -> Result<String> {
-    let timing = std::env::var("DISSECT_TIMING").is_ok();
-    let t_start = std::time::Instant::now();
+    let _t_start = std::time::Instant::now();
     let path = Path::new(target);
 
     if !path.exists() {
         anyhow::bail!("File does not exist: {}", target);
     }
-    let t_detect = std::time::Instant::now();
+    let _t_detect = std::time::Instant::now();
 
     // Detect file type
     let file_type = detect_file_type(path)?;
 
-    if timing {
-        eprintln!("[TIMING] File type detection: {:?}", t_detect.elapsed());
-    }
 
     // Read file for mismatch check and payload extraction
     let file_data = std::fs::read(path)?;
@@ -964,7 +947,7 @@ fn analyze_file_with_shared_mapper(
     // Check for encoded payloads (hex, base64, etc.)
     let encoded_payloads = extractors::encoded_payload::extract_encoded_payloads(&file_data);
 
-    let t_analyze = std::time::Instant::now();
+    let _t_analyze = std::time::Instant::now();
 
     // Route to appropriate analyzer
     // Binary analyzers (MachO, Elf, Pe, Archive, Jar) handle YARA internally with specialized filtering
@@ -1053,9 +1036,6 @@ fn analyze_file_with_shared_mapper(
         }
     };
 
-    if timing {
-        eprintln!("[TIMING] Analysis: {:?}", t_analyze.elapsed());
-    }
 
     // Add finding for extension/content mismatch if detected
     if let Some((expected, actual)) = mismatch {
@@ -1147,12 +1127,6 @@ fn analyze_file_with_shared_mapper(
         }
     }
 
-    if timing {
-        eprintln!(
-            "[TIMING] Total analyze_file_with_shared_mapper: {:?}",
-            t_start.elapsed()
-        );
-    }
 
     // Check if report's criticality matches --error-if criteria
     check_criticality_error(&report, error_if_levels)?;
@@ -3406,3 +3380,4 @@ fn find_rules_in_directory(
     rules.dedup();
     rules
 }
+
