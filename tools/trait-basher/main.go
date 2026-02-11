@@ -27,6 +27,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"log/slog"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -519,13 +520,16 @@ type streamState struct {
 	currentRealFile    *RealFileAnalysis
 	currentRealPath    string
 	filesReviewedCount int // Count of files sent to LLM for review
+	logger             *slog.Logger
+	archiveStartTime   time.Time // Track when current archive started processing
 }
 
 // streamAnalyzeAndReview streams dissect output and reviews archives as they complete.
 func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*streamStats, error) {
 	// Build dissect command with --extract-dir for file extraction.
 	// DISSECT extracts all analyzed files to <extract-dir>/<sha256>/<relative-path>.
-	args := []string{"--format", "jsonl", "--extract-dir", cfg.extractDir}
+	// Use --max-file-mem 0 to force all extraction to disk (not RAM) to prevent OOM
+	args := []string{"--format", "jsonl", "--extract-dir", cfg.extractDir, "--max-file-mem", "0"}
 	args = append(args, cfg.dirs...)
 	cmd := exec.CommandContext(ctx, cfg.dissectBin, args...) //nolint:gosec // dissectBin is built from trusted cargo
 	if cfg.useCargo {
@@ -544,11 +548,50 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 		return nil, fmt.Errorf("could not start dissect: %w", err)
 	}
 
+	// Set up disk-based structured logging for archive processing tracking
+	logPath, err := getLogFilePath()
+	if err != nil {
+		return nil, fmt.Errorf("could not determine log path: %w", err)
+	}
+
+	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		return nil, fmt.Errorf("could not create log file: %w", err)
+	}
+	defer logFile.Close()
+
+	// Print log location to stderr so users know where to find it
+	fmt.Fprintf(os.Stderr, "Logging to: %s\n", logPath)
+
+	logger := slog.New(slog.NewJSONHandler(logFile, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	}))
+
+	sessionStart := time.Now()
+	logger.Info("trait-basher session started",
+		"dissect_bin", cfg.dissectBin,
+		"dirs", cfg.dirs,
+		"provider", cfg.provider,
+		"mode", dbMode,
+	)
+
 	state := &streamState{
 		cfg:    cfg,
 		dbMode: dbMode,
 		stats:  &streamStats{},
+		logger: logger,
 	}
+
+	// Log session end with final statistics
+	defer func() {
+		logger.Info("trait-basher session ended",
+			"duration_seconds", time.Since(sessionStart).Seconds(),
+			"total_files", state.stats.totalFiles,
+			"archives_reviewed", state.stats.archivesReviewed,
+			"skipped_cached", state.stats.skippedCached,
+			"skipped_no_review", state.stats.skippedNoReview,
+		)
+	}()
 	scanner := bufio.NewScanner(stdout)
 	scanner.Buffer(make([]byte, 128*1024*1024), 128*1024*1024) // 128MB buffer
 
@@ -709,6 +752,15 @@ func processFileEntry(ctx context.Context, st *streamState, f FileAnalysis, ap s
 			Members:     []FileAnalysis{f},
 		}
 		st.currentArchivePath = ap
+		st.archiveStartTime = time.Now()
+
+		// Log archive processing start
+		if st.logger != nil {
+			st.logger.Info("archive_started",
+				"archive_path", ap,
+				"archive_name", filepath.Base(ap),
+			)
+		}
 
 	default:
 		// Same archive: just add to current archive members
@@ -725,6 +777,22 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 	st.stats.totalFiles += len(a.Members)
 
 	archiveName := filepath.Base(a.ArchivePath)
+	processingDuration := time.Since(st.archiveStartTime)
+
+	// Helper to log completion with common fields
+	logCompletion := func(outcome string, extraFields ...any) {
+		if st.logger != nil {
+			fields := []any{
+				"archive_path", a.ArchivePath,
+				"archive_name", archiveName,
+				"member_count", len(a.Members),
+				"duration_ms", processingDuration.Milliseconds(),
+				"outcome", outcome,
+			}
+			fields = append(fields, extraFields...)
+			st.logger.Info("archive_completed", fields...)
+		}
+	}
 
 	if !archiveNeedsReview(a, st.cfg.knownGood) {
 		mode := "bad"
@@ -735,6 +803,7 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 		}
 		fmt.Fprintf(os.Stderr, "  [skip] %s (--%-4s): %s\n", archiveName, mode, reason)
 		st.stats.skippedNoReview++
+		logCompletion("skipped_no_review", "reason", reason, "mode", mode)
 		return
 	}
 
@@ -742,6 +811,7 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 	if wasAnalyzed(ctx, st.cfg.db, h, st.dbMode) {
 		fmt.Fprintf(os.Stderr, "  [skip] %s: already analyzed (cache hit)\n", archiveName)
 		st.stats.skippedCached++
+		logCompletion("skipped_cached", "cache_hash", h)
 		return
 	}
 
@@ -799,6 +869,12 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 	sid := generateSessionID()
 	if err := invokeAIArchive(ctx, st.cfg, a, sid); err != nil {
 		fmt.Fprintf(os.Stderr, "Warning: %s failed for %s: %v\n", st.cfg.provider, a.ArchivePath, err)
+		logCompletion("review_failed",
+			"error", err.Error(),
+			"provider", st.cfg.provider,
+			"session_id", sid,
+			"files_needing_review", len(prob),
+		)
 	} else {
 		if err := markAnalyzed(ctx, st.cfg.db, h, st.dbMode); err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: could not record analysis for %s: %v\n", a.ArchivePath, err)
@@ -810,6 +886,13 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 		if st.cfg.rescanAfter > 0 && st.filesReviewedCount >= st.cfg.rescanAfter {
 			st.stats.shouldRestart = true
 		}
+
+		logCompletion("reviewed",
+			"provider", st.cfg.provider,
+			"session_id", sid,
+			"files_needing_review", len(prob),
+			"total_archives_reviewed", st.stats.archivesReviewed,
+		)
 	}
 }
 
@@ -1719,6 +1802,56 @@ func formatProvidersForDisplay(providers []string) string {
 		}
 	}
 	return strings.Join(result, " → ")
+}
+
+// getLogFilePath returns the OS-appropriate path for the trait-basher log file.
+//
+// - macOS: ~/Library/Logs/trait-basher/archives.log
+// - Linux: ~/.local/state/trait-basher/archives.log (or ~/.cache/trait-basher/archives.log)
+// - Windows: %LOCALAPPDATA%\trait-basher\logs\archives.log
+func getLogFilePath() (string, error) {
+	var logDir string
+
+	switch runtime.GOOS {
+	case "darwin":
+		// macOS: ~/Library/Logs/trait-basher/
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return "", err
+		}
+		logDir = filepath.Join(home, "Library", "Logs", "trait-basher")
+
+	case "windows":
+		// Windows: %LOCALAPPDATA%\trait-basher\logs\
+		localAppData := os.Getenv("LOCALAPPDATA")
+		if localAppData == "" {
+			home, err := os.UserHomeDir()
+			if err != nil {
+				return "", err
+			}
+			localAppData = filepath.Join(home, "AppData", "Local")
+		}
+		logDir = filepath.Join(localAppData, "trait-basher", "logs")
+
+	default:
+		// Linux/Unix: ~/.local/state/trait-basher/ (XDG Base Directory spec)
+		stateHome := os.Getenv("XDG_STATE_HOME")
+		if stateHome == "" {
+			home, err := os.UserHomeDir()
+			if err != nil {
+				return "", err
+			}
+			stateHome = filepath.Join(home, ".local", "state")
+		}
+		logDir = filepath.Join(stateHome, "trait-basher")
+	}
+
+	// Create directory if it doesn't exist
+	if err := os.MkdirAll(logDir, 0755); err != nil {
+		return "", fmt.Errorf("could not create log directory %s: %w", logDir, err)
+	}
+
+	return filepath.Join(logDir, "archives.log"), nil
 }
 
 func generateSessionID() string {
