@@ -11,7 +11,7 @@ You are helping us improve DISSECT, a tool designed to detect subtle malware int
 
 Study the sample and understand all of it's unique characteristics and capabilities
 
-Read `RULES.md`, `TAXONOMY.md`, `PRECISION.md` before editing. Reverse-engineering tools like r2 (radare2), nm, readelf are also available. You can use the "dissect strings" subcommand
+Reverse-engineering tools like r2 (radare2), nm, readelf are also available. You can use the "dissect strings" subcommand
 to better understand the strings that dissect can see in a program, often hidden ones. There is also the "dissect symbols" subcommand to dump symbols.
 
 **Critical rules** (from TAXONOMY.md):
@@ -68,7 +68,8 @@ to better understand the strings that dissect can see in a program, often hidden
 {{.DissectBin}} test-rules {{.Path}} --rules "rule-id"
 {{.DissectBin}} test-match {{.Path}} --type string --pattern "X"
 
-
+IMPORTANT: Read RULES.md to understand rule systax, and TAXONOMY.md to understand what directories they are placed in.
+It is critical that traits - especially atomics - are placed in the correct directory for what they will match, rather than alongside the composite.
 ```
 
 Use `--format jsonl` to see all traits (including inert) for composite building.

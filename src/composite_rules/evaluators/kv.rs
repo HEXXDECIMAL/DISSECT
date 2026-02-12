@@ -845,6 +845,269 @@ mod tests {
     }
 
     // ==========================================================================
+    // File Rejection Tests
+    // ==========================================================================
+
+    #[test]
+    fn test_reject_random_json_files() {
+        // Random .json files should not be parsed
+        let json_content = br#"{"api_key": "secret123", "endpoint": "https://evil.com"}"#;
+
+        // Random filenames with .json extension are rejected
+        assert_eq!(
+            detect_format(Path::new("config.json"), json_content),
+            StructuredFormat::Unknown
+        );
+        assert_eq!(
+            detect_format(Path::new("data.json"), json_content),
+            StructuredFormat::Unknown
+        );
+        assert_eq!(
+            detect_format(Path::new("settings.json"), json_content),
+            StructuredFormat::Unknown
+        );
+        assert_eq!(
+            detect_format(Path::new("/path/to/random.json"), json_content),
+            StructuredFormat::Unknown
+        );
+
+        // Verify kv evaluation also returns None
+        let cond = Condition::Kv {
+            path: "api_key".to_string(),
+            exact: Some("secret123".to_string()),
+            substr: None,
+            regex: None,
+            case_insensitive: false,
+            compiled_regex: None,
+        };
+
+        assert!(evaluate_kv(&cond, json_content, Path::new("random.json")).is_none());
+        assert!(evaluate_kv(&cond, json_content, Path::new("config.json")).is_none());
+    }
+
+    #[test]
+    fn test_reject_random_yaml_files() {
+        // Random .yaml/.yml files should not be parsed
+        let yaml_content = b"database:\n  host: localhost\n  password: secret";
+
+        // Random YAML files are rejected
+        assert_eq!(
+            detect_format(Path::new("config.yaml"), yaml_content),
+            StructuredFormat::Unknown
+        );
+        assert_eq!(
+            detect_format(Path::new("docker-compose.yml"), yaml_content),
+            StructuredFormat::Unknown
+        );
+        assert_eq!(
+            detect_format(Path::new("settings.yml"), yaml_content),
+            StructuredFormat::Unknown
+        );
+
+        // Verify kv evaluation returns None
+        let cond = Condition::Kv {
+            path: "database.password".to_string(),
+            exact: Some("secret".to_string()),
+            substr: None,
+            regex: None,
+            case_insensitive: false,
+            compiled_regex: None,
+        };
+
+        assert!(evaluate_kv(&cond, yaml_content, Path::new("config.yaml")).is_none());
+    }
+
+    #[test]
+    fn test_reject_random_toml_files() {
+        // Random .toml files should not be parsed
+        let toml_content = b"[database]\nhost = \"localhost\"\npassword = \"secret\"";
+
+        // Random TOML files are rejected
+        assert_eq!(
+            detect_format(Path::new("config.toml"), toml_content),
+            StructuredFormat::Unknown
+        );
+        assert_eq!(
+            detect_format(Path::new("settings.toml"), toml_content),
+            StructuredFormat::Unknown
+        );
+        assert_eq!(
+            detect_format(Path::new("app.toml"), toml_content),
+            StructuredFormat::Unknown
+        );
+
+        // Verify kv evaluation returns None
+        let cond = Condition::Kv {
+            path: "database.password".to_string(),
+            exact: Some("secret".to_string()),
+            substr: None,
+            regex: None,
+            case_insensitive: false,
+            compiled_regex: None,
+        };
+
+        assert!(evaluate_kv(&cond, toml_content, Path::new("config.toml")).is_none());
+    }
+
+    #[test]
+    fn test_accept_known_json_manifests() {
+        // Known JSON manifests should still be parsed
+        let package_json = br#"{"name": "malicious-package", "version": "1.0.0"}"#;
+        let manifest_json = br#"{"manifest_version": 2, "permissions": ["storage"]}"#;
+        let composer_json = br#"{"name": "vendor/package", "require": {}}"#;
+
+        // Verify detection works
+        assert_eq!(
+            detect_format(Path::new("package.json"), package_json),
+            StructuredFormat::Json
+        );
+        assert_eq!(
+            detect_format(Path::new("manifest.json"), manifest_json),
+            StructuredFormat::Json
+        );
+        assert_eq!(
+            detect_format(Path::new("composer.json"), composer_json),
+            StructuredFormat::Json
+        );
+
+        // Verify kv evaluation works
+        let cond = Condition::Kv {
+            path: "name".to_string(),
+            exact: Some("malicious-package".to_string()),
+            substr: None,
+            regex: None,
+            case_insensitive: false,
+            compiled_regex: None,
+        };
+
+        assert!(evaluate_kv(&cond, package_json, Path::new("package.json")).is_some());
+    }
+
+    #[test]
+    fn test_accept_known_toml_manifests() {
+        // Known TOML manifests should still be parsed
+        let cargo_toml = b"[package]\nname = \"malicious-crate\"\nversion = \"0.1.0\"";
+        let pyproject_toml = b"[project]\nname = \"malicious-package\"\nversion = \"1.0.0\"";
+
+        // Verify detection works
+        assert_eq!(
+            detect_format(Path::new("Cargo.toml"), cargo_toml),
+            StructuredFormat::Toml
+        );
+        assert_eq!(
+            detect_format(Path::new("pyproject.toml"), pyproject_toml),
+            StructuredFormat::Toml
+        );
+
+        // Verify kv evaluation works
+        let cond = Condition::Kv {
+            path: "package.name".to_string(),
+            exact: Some("malicious-crate".to_string()),
+            substr: None,
+            regex: None,
+            case_insensitive: false,
+            compiled_regex: None,
+        };
+
+        assert!(evaluate_kv(&cond, cargo_toml, Path::new("Cargo.toml")).is_some());
+    }
+
+    #[test]
+    fn test_accept_github_actions_workflows() {
+        // GitHub Actions workflows should be parsed
+        let workflow = b"name: CI\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest";
+
+        // Both .yml and .yaml in .github/workflows/ should work
+        assert_eq!(
+            detect_format(Path::new(".github/workflows/ci.yml"), workflow),
+            StructuredFormat::Yaml
+        );
+        assert_eq!(
+            detect_format(Path::new(".github/workflows/test.yaml"), workflow),
+            StructuredFormat::Yaml
+        );
+
+        // But not outside .github/workflows/
+        assert_eq!(
+            detect_format(Path::new(".github/ci.yml"), workflow),
+            StructuredFormat::Unknown
+        );
+        assert_eq!(
+            detect_format(Path::new("ci.yml"), workflow),
+            StructuredFormat::Unknown
+        );
+
+        // Verify kv evaluation works for workflows
+        let cond = Condition::Kv {
+            path: "name".to_string(),
+            exact: Some("CI".to_string()),
+            substr: None,
+            regex: None,
+            case_insensitive: false,
+            compiled_regex: None,
+        };
+
+        assert!(evaluate_kv(&cond, workflow, Path::new(".github/workflows/ci.yml")).is_some());
+        assert!(evaluate_kv(&cond, workflow, Path::new("ci.yml")).is_none());
+    }
+
+    #[test]
+    fn test_reject_json_with_valid_content_but_wrong_filename() {
+        // Even if content is valid JSON, reject if filename is unknown
+        let valid_json = br#"{"perfectly": "valid", "json": true}"#;
+
+        assert_eq!(
+            detect_format(Path::new("database.json"), valid_json),
+            StructuredFormat::Unknown
+        );
+        assert_eq!(
+            detect_format(Path::new("api-config.json"), valid_json),
+            StructuredFormat::Unknown
+        );
+
+        // Verify kv evaluation doesn't work
+        let cond = Condition::Kv {
+            path: "perfectly".to_string(),
+            exact: Some("valid".to_string()),
+            substr: None,
+            regex: None,
+            case_insensitive: false,
+            compiled_regex: None,
+        };
+
+        assert!(evaluate_kv(&cond, valid_json, Path::new("database.json")).is_none());
+    }
+
+    #[test]
+    fn test_case_insensitive_filename_matching() {
+        // Filenames should be matched case-insensitively
+        let json_content = br#"{"test": "value"}"#;
+
+        assert_eq!(
+            detect_format(Path::new("Package.json"), json_content),
+            StructuredFormat::Json
+        );
+        assert_eq!(
+            detect_format(Path::new("PACKAGE.JSON"), json_content),
+            StructuredFormat::Json
+        );
+        assert_eq!(
+            detect_format(Path::new("Manifest.JSON"), json_content),
+            StructuredFormat::Json
+        );
+
+        let toml_content = b"[package]\nname = \"test\"";
+        assert_eq!(
+            detect_format(Path::new("cargo.TOML"), toml_content),
+            StructuredFormat::Toml
+        );
+        assert_eq!(
+            detect_format(Path::new("PyProject.toml"), toml_content),
+            StructuredFormat::Toml
+        );
+    }
+
+    // ==========================================================================
     // Integration Tests
     // ==========================================================================
 
