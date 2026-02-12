@@ -143,38 +143,48 @@ fn value_to_string(value: &Value) -> String {
 
 /// Detect the format of a structured data file.
 ///
-/// Checks file extension first, then falls back to content sniffing.
+/// Only recognizes known manifest filenames to avoid processing arbitrary structured data files.
+/// This ensures we only parse files we have explicit support for.
 pub fn detect_format(path: &Path, content: &[u8]) -> StructuredFormat {
-    // Check file extension first
-    if let Some(ext) = path.extension().and_then(|e| e.to_str()) {
-        match ext.to_lowercase().as_str() {
-            "json" => return StructuredFormat::Json,
-            "yaml" | "yml" => return StructuredFormat::Yaml,
-            "toml" => return StructuredFormat::Toml,
-            "plist" => return StructuredFormat::Plist,
-            _ => {}
-        }
-    }
+    let path_str = path.to_string_lossy().to_lowercase();
 
-    // Check filename patterns
+    // Check filename patterns for known manifests
     if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
         let name_lower = name.to_lowercase();
+
+        // Known JSON manifests
         if name_lower == "package.json"
             || name_lower == "manifest.json"
             || name_lower == "composer.json"
         {
             return StructuredFormat::Json;
         }
-        if name_lower.ends_with(".toml") || name_lower == "cargo.toml" {
+
+        // Known TOML manifests
+        if name_lower == "cargo.toml" || name_lower == "pyproject.toml" {
             return StructuredFormat::Toml;
         }
+
+        // Known YAML files - GitHub Actions workflows
+        if (path_str.contains(".github/workflows/") || path_str.contains(".github\\workflows\\"))
+            && (name_lower.ends_with(".yml") || name_lower.ends_with(".yaml"))
+        {
+            return StructuredFormat::Yaml;
+        }
+
         // Python package metadata files (RFC 822 format)
         if name_lower == "pkg-info" || name_lower == "metadata" {
             return StructuredFormat::PkgInfo;
         }
+
+        // Plist files - check by extension since they're commonly used in macOS apps
+        if name_lower.ends_with(".plist") {
+            return StructuredFormat::Plist;
+        }
     }
 
-    // Fall back to content sniffing
+    // Limited content sniffing for special cases only
+    // We don't detect random JSON/YAML/TOML files - only process known filenames
     let content_str = String::from_utf8_lossy(content);
     let trimmed = content_str.trim_start();
 
@@ -199,41 +209,8 @@ pub fn detect_format(path: &Path, content: &[u8]) -> StructuredFormat {
         return StructuredFormat::Plist;
     }
 
-    // Check for TOML table headers like [package] (not followed by comma or colon)
-    // TOML: [section]\nkey = value
-    // JSON: [1, 2, 3] or ["a", "b"]
-    if trimmed.starts_with('[') {
-        // Check if it looks like a TOML section header
-        // TOML sections end with ] followed by newline, then key = value
-        if let Some(bracket_end) = trimmed.find(']') {
-            let after_bracket = &trimmed[bracket_end + 1..];
-            // TOML: after ] comes newline then key = value
-            // JSON: after ] comes , or ] or end
-            if after_bracket.trim_start().starts_with('\n')
-                || after_bracket.trim_start().is_empty()
-                || after_bracket.contains(" = ")
-            {
-                // Check if the bracket content looks like a TOML section name (no commas, quotes at start)
-                let section = &trimmed[1..bracket_end];
-                if !section.starts_with('"') && !section.starts_with('\'') && !section.contains(',')
-                {
-                    return StructuredFormat::Toml;
-                }
-            }
-        }
-        // Otherwise assume JSON array
-        return StructuredFormat::Json;
-    }
-
-    if trimmed.starts_with('{') {
-        StructuredFormat::Json
-    } else if trimmed.contains(" = ") && !trimmed.contains(": ") {
-        StructuredFormat::Toml
-    } else if trimmed.contains(": ") {
-        StructuredFormat::Yaml
-    } else {
-        StructuredFormat::Unknown
-    }
+    // No other content sniffing - only process known filenames
+    StructuredFormat::Unknown
 }
 
 /// Parse a path string into segments.
@@ -786,58 +763,84 @@ mod tests {
     // ==========================================================================
 
     #[test]
-    fn test_detect_json_by_extension() {
+    fn test_detect_known_json_manifests() {
+        // Only known JSON manifest filenames are detected
         assert_eq!(
             detect_format(Path::new("manifest.json"), b""),
             StructuredFormat::Json
         );
-    }
-
-    #[test]
-    fn test_detect_yaml_by_extension() {
         assert_eq!(
-            detect_format(Path::new("config.yaml"), b""),
-            StructuredFormat::Yaml
+            detect_format(Path::new("package.json"), b""),
+            StructuredFormat::Json
         );
         assert_eq!(
-            detect_format(Path::new("config.yml"), b""),
-            StructuredFormat::Yaml
+            detect_format(Path::new("composer.json"), b""),
+            StructuredFormat::Json
         );
     }
 
     #[test]
-    fn test_detect_toml_by_extension() {
+    fn test_detect_github_actions_workflow() {
+        // GitHub Actions workflows in .github/workflows/ are detected
+        assert_eq!(
+            detect_format(Path::new(".github/workflows/ci.yaml"), b""),
+            StructuredFormat::Yaml
+        );
+        assert_eq!(
+            detect_format(Path::new(".github/workflows/test.yml"), b""),
+            StructuredFormat::Yaml
+        );
+    }
+
+    #[test]
+    fn test_detect_known_toml_manifests() {
+        // Known TOML manifests are detected
         assert_eq!(
             detect_format(Path::new("Cargo.toml"), b""),
             StructuredFormat::Toml
         );
+        assert_eq!(
+            detect_format(Path::new("pyproject.toml"), b""),
+            StructuredFormat::Toml
+        );
     }
 
     #[test]
-    fn test_detect_json_by_content() {
+    fn test_no_detection_for_unknown_json() {
+        // Random JSON files without known filenames are not detected
         assert_eq!(
             detect_format(Path::new("unknown"), br#"{"key": "value"}"#),
-            StructuredFormat::Json
+            StructuredFormat::Unknown
         );
         assert_eq!(
-            detect_format(Path::new("unknown"), b"[1, 2, 3]"),
-            StructuredFormat::Json
+            detect_format(Path::new("random.json"), b"[1, 2, 3]"),
+            StructuredFormat::Unknown
         );
     }
 
     #[test]
-    fn test_detect_yaml_by_content() {
+    fn test_no_detection_for_unknown_yaml() {
+        // Random YAML files without known filenames are not detected
         assert_eq!(
             detect_format(Path::new("unknown"), b"key: value\nother: 123"),
-            StructuredFormat::Yaml
+            StructuredFormat::Unknown
+        );
+        assert_eq!(
+            detect_format(Path::new("config.yaml"), b"key: value"),
+            StructuredFormat::Unknown
         );
     }
 
     #[test]
-    fn test_detect_toml_by_content() {
+    fn test_no_detection_for_unknown_toml() {
+        // Random TOML files without known filenames are not detected
         assert_eq!(
             detect_format(Path::new("unknown"), b"[package]\nname = \"foo\""),
-            StructuredFormat::Toml
+            StructuredFormat::Unknown
+        );
+        assert_eq!(
+            detect_format(Path::new("config.toml"), b"key = \"value\""),
+            StructuredFormat::Unknown
         );
     }
 
