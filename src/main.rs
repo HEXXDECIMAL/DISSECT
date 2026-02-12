@@ -289,6 +289,16 @@ fn main() -> Result<()> {
     // Convert max_file_mem from MB to bytes
     let max_memory_file_size = args.max_file_mem * 1024 * 1024;
 
+    // Start periodic memory logging if verbose mode is enabled
+    let _memory_logger = if args.verbose {
+        use dissect::memory_tracker;
+        Some(memory_tracker::start_periodic_logging(
+            std::time::Duration::from_secs(10),
+        ))
+    } else {
+        None
+    };
+
     let result = match args.command {
         Some(cli::Command::Analyze {
             targets,
@@ -453,6 +463,19 @@ fn main() -> Result<()> {
     } else {
         // Results go to stdout
         print!("{}", result);
+    }
+
+    // Log final memory statistics if verbose
+    if args.verbose {
+        use dissect::memory_tracker;
+        memory_tracker::global_tracker().log_stats();
+        let total_files = memory_tracker::global_tracker().files_processed();
+        let peak_rss = memory_tracker::global_tracker().peak_rss();
+        tracing::info!(
+            total_files = total_files,
+            peak_rss_gb = peak_rss / 1024 / 1024 / 1024,
+            "Analysis complete"
+        );
     }
 
     Ok(())
@@ -673,6 +696,9 @@ fn analyze_file(
     // Check if report's criticality matches --error-if criteria
     check_criticality_error(&report, error_if_levels)?;
 
+    // Free excess capacity in all Vec fields to reduce memory footprint
+    report.shrink_to_fit();
+
     // Convert to v2 schema (flat files array) and filter based on verbosity
     report.convert_to_v2(verbose);
 
@@ -726,8 +752,9 @@ fn scan_paths(
     };
 
     // Collect all files from paths (expanding directories recursively)
-    let mut all_files = Vec::new();
-    let mut archives_found = Vec::new();
+    // Pre-allocate with reasonable capacity to reduce reallocations
+    let mut all_files = Vec::with_capacity(1000);
+    let mut archives_found = Vec::with_capacity(100);
 
     for path_str in &paths {
         let path = Path::new(path_str);
@@ -1010,8 +1037,24 @@ fn analyze_file_with_shared_mapper(
     let file_type = detect_file_type(path)?;
     tracing::debug!("Detected file type: {:?} for: {}", file_type, target);
 
+    // Get file size for memory tracking
+    let file_size = std::fs::metadata(path)?.len();
+
+    // Log memory state before processing
+    if verbose {
+        use dissect::memory_tracker;
+        memory_tracker::log_before_file_processing(target, file_size);
+    }
+
     // Read file for mismatch check and payload extraction
-    let file_data = std::fs::read(path)?;
+    let file_data_wrapper = dissect::file_io::read_file_smart(path)?;
+    let file_data = file_data_wrapper.as_slice();
+
+    // Track file read for memory monitoring
+    if verbose {
+        use dissect::memory_tracker;
+        memory_tracker::global_tracker().record_file_read(file_size, target);
+    }
 
     // Check for extension/content mismatch
     let mismatch = analyzers::check_extension_content_mismatch(path, &file_data);
@@ -1205,8 +1248,21 @@ fn analyze_file_with_shared_mapper(
     // Check if report's criticality matches --error-if criteria
     check_criticality_error(&report, error_if_levels)?;
 
+    // Free excess capacity in all Vec fields to reduce memory footprint
+    report.shrink_to_fit();
+
     // Convert to v2 schema (flat files array) and filter based on verbosity
     report.convert_to_v2(verbose);
+
+    // Log memory state after processing
+    if verbose {
+        use dissect::memory_tracker;
+        memory_tracker::log_after_file_processing(
+            target,
+            file_size,
+            _t_start.elapsed(),
+        );
+    }
 
     // Output as JSONL format for parallel scanning
     output::format_jsonl(&report)

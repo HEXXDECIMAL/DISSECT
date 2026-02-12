@@ -23,6 +23,7 @@ mod constant_decoder;
 pub mod decoders;
 mod entropy;
 pub mod extractors;
+pub mod file_io;
 pub mod ip_validator;
 pub mod memory_tracker;
 mod radare2;
@@ -158,8 +159,27 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
     let file_type = detect_file_type(path)?;
     tracing::debug!("Detected file type: {:?} for: {}", file_type, path.display());
 
+    // Get file size for memory tracking
+    let file_size = std::fs::metadata(path)?.len();
+
+    // Log memory state before processing
+    memory_tracker::log_before_file_processing(
+        path.to_str().unwrap_or("unknown"),
+        file_size,
+    );
+
+    let analysis_start = std::time::Instant::now();
+
     // Read file for mismatch check and payload extraction
-    let file_data = std::fs::read(path)?;
+    // Use smart reading (memory-mapping for large files)
+    let file_data_wrapper = file_io::read_file_smart(path)?;
+    let file_data = file_data_wrapper.as_slice();
+
+    // Track file read for memory monitoring
+    memory_tracker::global_tracker().record_file_read(
+        file_size,
+        path.to_str().unwrap_or("unknown"),
+    );
 
     // Check for extension/content mismatch
     let mismatch = analyzers::check_extension_content_mismatch(path, &file_data);
@@ -346,6 +366,13 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
             }
         }
     }
+
+    // Log memory state after processing
+    memory_tracker::log_after_file_processing(
+        path.to_str().unwrap_or("unknown"),
+        file_size,
+        analysis_start.elapsed(),
+    );
 
     Ok(report)
 }

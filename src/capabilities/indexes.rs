@@ -149,16 +149,18 @@ impl StringMatchIndex {
     /// Build the string match index from trait definitions.
     /// Extracts all exact string patterns and builds AC automatons (case-sensitive and case-insensitive).
     pub(crate) fn build(traits: &[TraitDefinition]) -> Self {
-        let mut patterns: Vec<String> = Vec::new();
-        let mut pattern_to_traits: Vec<Vec<usize>> = Vec::new();
+        // Pre-allocate capacity based on trait count to reduce reallocations
+        let estimated_patterns = traits.len() / 2;
+        let mut patterns: Vec<String> = Vec::with_capacity(estimated_patterns);
+        let mut pattern_to_traits: Vec<Vec<usize>> = Vec::with_capacity(estimated_patterns);
         let mut pattern_map: FxHashMap<String, usize> = FxHashMap::default();
 
-        let mut ci_patterns: Vec<String> = Vec::new();
-        let mut ci_pattern_to_traits: Vec<Vec<usize>> = Vec::new();
+        let mut ci_patterns: Vec<String> = Vec::with_capacity(estimated_patterns);
+        let mut ci_pattern_to_traits: Vec<Vec<usize>> = Vec::with_capacity(estimated_patterns);
         let mut ci_pattern_map: FxHashMap<String, usize> = FxHashMap::default();
 
-        let mut regex_literals: Vec<String> = Vec::new();
-        let mut regex_literal_to_traits: Vec<Vec<usize>> = Vec::new();
+        let mut regex_literals: Vec<String> = Vec::with_capacity(estimated_patterns);
+        let mut regex_literal_to_traits: Vec<Vec<usize>> = Vec::with_capacity(estimated_patterns);
         let mut regex_literal_map: FxHashMap<String, usize> = FxHashMap::default();
         let mut regex_trait_indices: FxHashSet<usize> = FxHashSet::default();
 

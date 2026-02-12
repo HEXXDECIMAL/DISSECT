@@ -80,7 +80,8 @@ pub fn decode_hex(content: &[u8]) -> Option<Vec<u8>> {
         return None;
     }
 
-    let mut decoded = Vec::new();
+    // Pre-allocate exact capacity needed (2 hex chars = 1 byte)
+    let mut decoded = Vec::with_capacity(hex_only.len() / 2);
     for i in (0..hex_only.len()).step_by(2) {
         let byte_str = &hex_only[i..i + 2];
         if let Ok(byte) = u8::from_str_radix(byte_str, 16) {
@@ -124,6 +125,9 @@ pub fn is_base64_candidate(s: &str) -> bool {
     true
 }
 
+/// Maximum size for decompressed payloads to prevent decompression bombs
+const MAX_DECOMPRESSED_SIZE: usize = 50 * 1024 * 1024; // 50 MB
+
 /// Decode base64 string, checking for and decompressing zlib or gzip if present
 /// Returns the decoded data and the compression algorithm used (if any)
 pub fn decode_base64(encoded: &str) -> Option<(Vec<u8>, Option<String>)> {
@@ -141,10 +145,18 @@ pub fn decode_base64(encoded: &str) -> Option<(Vec<u8>, Option<String>)> {
         use flate2::read::ZlibDecoder;
         use std::io::Read;
 
-        let mut decoder = ZlibDecoder::new(&decoded[..]);
-        let mut decompressed = Vec::new();
-        if decoder.read_to_end(&mut decompressed).is_ok() {
-            return Some((decompressed, Some("zlib".to_string())));
+        let decoder = ZlibDecoder::new(&decoded[..]);
+        // Pre-allocate with estimated size (typically 3-10x compression)
+        let mut decompressed = Vec::with_capacity(decoded.len() * 4);
+
+        // Read with size limit to prevent decompression bombs
+        match decoder.take(MAX_DECOMPRESSED_SIZE as u64).read_to_end(&mut decompressed) {
+            Ok(_) if decompressed.len() < MAX_DECOMPRESSED_SIZE => {
+                return Some((decompressed, Some("zlib".to_string())));
+            }
+            _ => {
+                // Decompression failed or size exceeded limit
+            }
         }
     }
 
@@ -153,10 +165,18 @@ pub fn decode_base64(encoded: &str) -> Option<(Vec<u8>, Option<String>)> {
         use flate2::read::GzDecoder;
         use std::io::Read;
 
-        let mut decoder = GzDecoder::new(&decoded[..]);
-        let mut decompressed = Vec::new();
-        if decoder.read_to_end(&mut decompressed).is_ok() {
-            return Some((decompressed, Some("gzip".to_string())));
+        let decoder = GzDecoder::new(&decoded[..]);
+        // Pre-allocate with estimated size (typically 3-10x compression)
+        let mut decompressed = Vec::with_capacity(decoded.len() * 4);
+
+        // Read with size limit to prevent decompression bombs
+        match decoder.take(MAX_DECOMPRESSED_SIZE as u64).read_to_end(&mut decompressed) {
+            Ok(_) if decompressed.len() < MAX_DECOMPRESSED_SIZE => {
+                return Some((decompressed, Some("gzip".to_string())));
+            }
+            _ => {
+                // Decompression failed or size exceeded limit
+            }
         }
     }
 

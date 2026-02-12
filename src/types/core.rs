@@ -162,6 +162,26 @@ impl AnalysisReport {
         self.add_finding(finding);
     }
 
+    /// Shrink all Vec fields to fit their contents, freeing excess capacity.
+    /// Call this after analysis is complete to reduce memory footprint.
+    pub fn shrink_to_fit(&mut self) {
+        self.traits.shrink_to_fit();
+        self.findings.shrink_to_fit();
+        self.structure.shrink_to_fit();
+        self.functions.shrink_to_fit();
+        self.strings.shrink_to_fit();
+        self.sections.shrink_to_fit();
+        self.imports.shrink_to_fit();
+        self.exports.shrink_to_fit();
+        self.yara_matches.shrink_to_fit();
+        self.syscalls.shrink_to_fit();
+        self.paths.shrink_to_fit();
+        self.directories.shrink_to_fit();
+        self.env_vars.shrink_to_fit();
+        self.archive_contents.shrink_to_fit();
+        self.files.shrink_to_fit();
+    }
+
     /// Get the highest criticality level from findings in this report (excluding sub-reports)
     /// Returns None if there are no findings
     pub fn highest_criticality(&self) -> Option<Criticality> {

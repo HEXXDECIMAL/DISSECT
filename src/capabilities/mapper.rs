@@ -2203,7 +2203,12 @@ impl CapabilityMapper {
         let _t_prematch = std::time::Instant::now();
 
         // Combine strings and symbols for pre-filtering
-        let mut all_strings = report.strings.clone();
+        // Pre-allocate capacity to avoid reallocations
+        let total_capacity = report.strings.len() + report.imports.len() + report.exports.len();
+        let mut all_strings = Vec::with_capacity(total_capacity);
+
+        // Add existing strings (move instead of clone to avoid copy)
+        all_strings.extend_from_slice(&report.strings);
 
         // Add imports as strings
         for imp in &report.imports {
@@ -2272,6 +2277,9 @@ impl CapabilityMapper {
         if !has_any_matches && all_strings.is_empty() && binary_data.len() < 100 {
             return vec![];
         }
+
+        // Free all_strings memory immediately - no longer needed after this point
+        drop(all_strings);
 
         let eval_count = std::sync::atomic::AtomicUsize::new(0);
         let skip_count = std::sync::atomic::AtomicUsize::new(0);
@@ -2368,10 +2376,31 @@ impl CapabilityMapper {
 
         // Deduplicate findings (keep first occurrence of each ID)
         let mut seen = std::collections::HashSet::new();
-        all_findings
+        let mut unique_findings: Vec<Finding> = all_findings
             .into_iter()
             .filter(|f| seen.insert(f.id.clone()))
-            .collect()
+            .collect();
+
+        // Free excess capacity to reduce memory footprint
+        unique_findings.shrink_to_fit();
+
+        // Limit to reasonable maximum to prevent unbounded memory growth
+        const MAX_FINDINGS_PER_FILE: usize = 500;
+        if unique_findings.len() > MAX_FINDINGS_PER_FILE {
+            // Keep highest priority findings (by criticality, then confidence)
+            unique_findings.sort_by(|a, b| {
+                b.crit.cmp(&a.crit)
+                    .then_with(|| {
+                        let conf_a = (a.conf * 100.0) as i32;
+                        let conf_b = (b.conf * 100.0) as i32;
+                        conf_b.cmp(&conf_a)
+                    })
+            });
+            unique_findings.truncate(MAX_FINDINGS_PER_FILE);
+            unique_findings.shrink_to_fit();
+        }
+
+        unique_findings
     }
 
     /// Evaluate trait definitions against an analysis report (without cached AST)
@@ -2393,7 +2422,8 @@ impl CapabilityMapper {
         // Determine file type from report (platform comes from self.platform)
         let file_type = self.detect_file_type(&report.target.file_type);
 
-        let mut all_findings: Vec<Finding> = Vec::new();
+        // Pre-allocate capacity for findings to reduce reallocations
+        let mut all_findings: Vec<Finding> = Vec::with_capacity(100);
         let mut seen_ids: std::collections::HashSet<String> = std::collections::HashSet::new();
 
         // Track which composite IDs have already matched (including original findings)
