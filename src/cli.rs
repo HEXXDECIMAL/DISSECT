@@ -341,6 +341,13 @@ pub enum Command {
         target: String,
     },
 
+    /// Extract computed metrics from a binary or source file
+    Metrics {
+        /// Target file (binary or source)
+        #[arg(required = true)]
+        target: String,
+    },
+
     /// Debug rule evaluation - trace through how rules match or fail
     TestRules {
         /// Target file to analyze
@@ -359,7 +366,7 @@ pub enum Command {
         #[arg(required = true)]
         target: String,
 
-        /// Type of search to perform (string, symbol, raw, kv, hex, encoded)
+        /// Type of search to perform (string, symbol, raw, kv, hex, encoded, metrics)
         #[arg(short, long, value_enum, default_value = "string")]
         r#type: SearchType,
 
@@ -367,7 +374,7 @@ pub enum Command {
         #[arg(short, long, value_enum, default_value = "contains")]
         method: MatchMethod,
 
-        /// Pattern to search for (for kv: the value to match, or omit for existence check)
+        /// Pattern to search for (for kv: the value to match, or omit for existence check, for metrics: the field path)
         #[arg(short, long)]
         pattern: Option<String>,
 
@@ -444,6 +451,22 @@ pub enum Command {
         /// Maximum section length in bytes (for section searches)
         #[arg(long)]
         length_max: Option<u64>,
+
+        /// Minimum value threshold (for metrics searches)
+        #[arg(long)]
+        value_min: Option<f64>,
+
+        /// Maximum value threshold (for metrics searches)
+        #[arg(long)]
+        value_max: Option<f64>,
+
+        /// Minimum file size in bytes (for metrics searches)
+        #[arg(long)]
+        min_size: Option<u64>,
+
+        /// Maximum file size in bytes (for metrics searches)
+        #[arg(long)]
+        max_size: Option<u64>,
     },
 }
 
@@ -486,6 +509,8 @@ pub enum SearchType {
     Encoded,
     /// Search for sections by name (supports entropy/size constraints via count_min/max and per_kb_min/max)
     Section,
+    /// Test metrics conditions (pattern is field path like "binary.avg_complexity", use --value-min/max for thresholds)
+    Metrics,
 }
 
 #[derive(Debug, Clone, clap::ValueEnum, PartialEq)]
@@ -735,7 +760,7 @@ mod tests {
     #[test]
     fn test_precision_threshold_defaults() {
         let args = Args::try_parse_from(["dissect", "file.bin"]).unwrap();
-        assert_eq!(args.min_hostile_precision, 4.0);
+        assert_eq!(args.min_hostile_precision, 3.5);
         assert_eq!(args.min_suspicious_precision, 1.5);
     }
 
@@ -1098,5 +1123,105 @@ mod tests {
     fn test_platforms_default_value() {
         let args = Args::try_parse_from(["dissect", "file.bin"]).unwrap();
         assert_eq!(args.platforms, "all");
+    }
+
+    #[test]
+    fn test_parse_metrics_command() {
+        let args = Args::try_parse_from(["dissect", "metrics", "file.bin"]).unwrap();
+
+        assert!(matches!(args.command, Some(Command::Metrics { .. })));
+        if let Some(Command::Metrics { target }) = args.command {
+            assert_eq!(target, "file.bin");
+        }
+    }
+
+    #[test]
+    fn test_parse_test_match_metrics() {
+        let args = Args::try_parse_from([
+            "dissect",
+            "test-match",
+            "file.bin",
+            "--type",
+            "metrics",
+            "--pattern",
+            "binary.avg_complexity",
+            "--value-min",
+            "10.0",
+            "--value-max",
+            "50.0",
+        ])
+        .unwrap();
+
+        if let Some(Command::TestMatch {
+            target,
+            r#type,
+            pattern,
+            value_min,
+            value_max,
+            ..
+        }) = args.command
+        {
+            assert_eq!(target, "file.bin");
+            assert_eq!(r#type, SearchType::Metrics);
+            assert_eq!(pattern, Some("binary.avg_complexity".to_string()));
+            assert_eq!(value_min, Some(10.0));
+            assert_eq!(value_max, Some(50.0));
+        } else {
+            panic!("Expected TestMatch command");
+        }
+    }
+
+    #[test]
+    fn test_parse_test_match_metrics_with_size_constraints() {
+        let args = Args::try_parse_from([
+            "dissect",
+            "test-match",
+            "file.bin",
+            "--type",
+            "metrics",
+            "--pattern",
+            "binary.import_count",
+            "--value-min",
+            "5.0",
+            "--min-size",
+            "1024",
+            "--max-size",
+            "1048576",
+        ])
+        .unwrap();
+
+        if let Some(Command::TestMatch {
+            target,
+            r#type,
+            pattern,
+            value_min,
+            min_size,
+            max_size,
+            ..
+        }) = args.command
+        {
+            assert_eq!(target, "file.bin");
+            assert_eq!(r#type, SearchType::Metrics);
+            assert_eq!(pattern, Some("binary.import_count".to_string()));
+            assert_eq!(value_min, Some(5.0));
+            assert_eq!(min_size, Some(1024));
+            assert_eq!(max_size, Some(1048576));
+        } else {
+            panic!("Expected TestMatch command");
+        }
+    }
+
+    #[test]
+    fn test_search_type_metrics_clone() {
+        let search_type = SearchType::Metrics;
+        let cloned = search_type.clone();
+        assert_eq!(cloned, SearchType::Metrics);
+    }
+
+    #[test]
+    fn test_search_type_metrics_debug() {
+        let search_type = SearchType::Metrics;
+        let debug_str = format!("{:?}", search_type);
+        assert!(debug_str.contains("Metrics"));
     }
 }

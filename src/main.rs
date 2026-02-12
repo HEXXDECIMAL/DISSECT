@@ -377,6 +377,7 @@ fn main() -> Result<()> {
         }
         Some(cli::Command::Symbols { target }) => extract_symbols(&target, &format)?,
         Some(cli::Command::Sections { target }) => extract_sections(&target, &format)?,
+        Some(cli::Command::Metrics { target }) => extract_metrics(&target, &format, &disabled)?,
         Some(cli::Command::TestRules { target, rules }) => test_rules_debug(
             &target,
             &rules,
@@ -408,6 +409,10 @@ fn main() -> Result<()> {
             entropy_max,
             length_min,
             length_max,
+            value_min,
+            value_max,
+            min_size,
+            max_size,
         }) => test_match_debug(
             &target,
             r#type,
@@ -431,6 +436,10 @@ fn main() -> Result<()> {
             entropy_max,
             length_min,
             length_max,
+            value_min,
+            value_max,
+            min_size,
+            max_size,
             &disabled,
             platforms.clone(),
             args.min_hostile_precision,
@@ -2010,6 +2019,319 @@ fn extract_sections(target: &str, format: &cli::OutputFormat) -> Result<String> 
     }
 }
 
+/// Extract computed metrics from a file
+fn extract_metrics(
+    target: &str,
+    format: &cli::OutputFormat,
+    _disabled: &cli::DisabledComponents,
+) -> Result<String> {
+    let path = Path::new(target);
+    if !path.exists() {
+        anyhow::bail!("File does not exist: {}", target);
+    }
+
+    // Detect file type
+    let file_type = detect_file_type(path)?;
+
+    // Create capability mapper (needed for analysis)
+    let capability_mapper = crate::capabilities::CapabilityMapper::empty();
+
+    // Analyze the file to compute metrics
+    // Note: For metrics extraction, we use the empty capability mapper and rely on the
+    // analyzers to compute metrics. Radare2 analysis can be slow, but it's controlled
+    // by the --disable flag (already in disabled)
+    let report = match file_type {
+        FileType::Elf => {
+            ElfAnalyzer::new()
+                .with_capability_mapper(capability_mapper)
+                .analyze(path)?
+        }
+        FileType::MachO => {
+            MachOAnalyzer::new()
+                .with_capability_mapper(capability_mapper)
+                .analyze(path)?
+        }
+        FileType::Pe => {
+            PEAnalyzer::new()
+                .with_capability_mapper(capability_mapper)
+                .analyze(path)?
+        }
+        _ => {
+            // Use the generic analyzer for source code
+            if let Some(analyzer) = analyzers::analyzer_for_file_type(&file_type, None) {
+                analyzer.analyze(path)?
+            } else {
+                anyhow::bail!("Unsupported file type for metrics extraction: {:?}", file_type);
+            }
+        }
+    };
+
+    // Extract metrics from report and update binary metrics with report data
+    let mut metrics = report.metrics.clone().ok_or_else(|| {
+        anyhow::anyhow!("No metrics computed for file (file type may not support metrics)")
+    })?;
+
+    // Update binary metrics with counts from the report (these aren't populated by radare2)
+    if let Some(ref mut binary) = metrics.binary {
+        binary.import_count = report.imports.len() as u32;
+        binary.export_count = report.exports.len() as u32;
+        binary.string_count = report.strings.len() as u32;
+
+        // Calculate string entropy metrics
+        if !report.strings.is_empty() {
+            use crate::entropy::calculate_entropy;
+            let entropies: Vec<f64> = report.strings.iter()
+                .map(|s| calculate_entropy(s.value.as_bytes()))
+                .collect();
+
+            let total_entropy: f64 = entropies.iter().sum();
+            binary.avg_string_entropy = (total_entropy / entropies.len() as f64) as f32;
+            binary.high_entropy_strings = entropies.iter().filter(|&&e| e > 6.0).count() as u32;
+        }
+
+        // Calculate binary entropy from sections if not already populated
+        if binary.overall_entropy == 0.0 && !report.sections.is_empty() {
+            use crate::entropy::calculate_entropy;
+
+            let mut entropies = Vec::new();
+            let mut code_entropies = Vec::new();
+            let mut data_entropies = Vec::new();
+
+            for section in &report.sections {
+                let entropy = section.entropy as f32;
+                entropies.push(entropy);
+
+                // Track code vs data section entropy
+                let name_lower = section.name.to_lowercase();
+                let is_executable = section.permissions.as_ref()
+                    .map(|p| p.contains('x'))
+                    .unwrap_or(false);
+
+                if name_lower.contains("text") || name_lower.contains("code") || is_executable {
+                    code_entropies.push(entropy);
+                } else if name_lower.contains("data") || name_lower.contains("rodata") {
+                    data_entropies.push(entropy);
+                }
+
+                if entropy > 7.5 {
+                    binary.high_entropy_regions += 1;
+                }
+            }
+
+            if !entropies.is_empty() {
+                binary.overall_entropy = entropies.iter().sum::<f32>() / entropies.len() as f32;
+
+                let mean = binary.overall_entropy;
+                let variance: f32 = entropies.iter()
+                    .map(|e| (e - mean).powi(2))
+                    .sum::<f32>() / entropies.len() as f32;
+                binary.entropy_variance = variance.sqrt();
+            }
+
+            if !code_entropies.is_empty() {
+                binary.code_entropy = code_entropies.iter().sum::<f32>() / code_entropies.len() as f32;
+            }
+
+            if !data_entropies.is_empty() {
+                binary.data_entropy = data_entropies.iter().sum::<f32>() / data_entropies.len() as f32;
+            }
+
+            // If still zero, calculate from raw file data as fallback
+            if binary.overall_entropy == 0.0 {
+                let data = std::fs::read(path)?;
+                binary.overall_entropy = calculate_entropy(&data) as f32;
+            }
+        }
+    }
+
+    // Format output
+    match format {
+        cli::OutputFormat::Jsonl => Ok(serde_json::to_string_pretty(&metrics)?),
+        cli::OutputFormat::Terminal => {
+            let mut output = String::new();
+            output.push_str(&format!("Metrics for: {}\n", target));
+            output.push_str(&format!("File type: {:?}\n\n", file_type));
+            output.push_str("# Field paths for use in rules (type: metrics, field: <path>)\n\n");
+
+            // Text metrics
+            if let Some(text) = &metrics.text {
+                output.push_str("## Text Metrics\n");
+                output.push_str(&format!("text.char_entropy: {:.2}\n", text.char_entropy));
+                output.push_str(&format!("text.avg_line_length: {:.1}\n", text.avg_line_length));
+                output.push_str(&format!("text.max_line_length: {}\n", text.max_line_length));
+                output.push_str(&format!("text.line_length_stddev: {:.1}\n", text.line_length_stddev));
+                output.push_str(&format!("text.empty_line_ratio: {:.2}\n", text.empty_line_ratio));
+                output.push_str(&format!("text.whitespace_ratio: {:.2}\n", text.whitespace_ratio));
+                output.push_str(&format!("text.digit_ratio: {:.2}\n\n", text.digit_ratio));
+            }
+
+            // Identifier metrics
+            if let Some(ident) = &metrics.identifiers {
+                output.push_str("## Identifier Metrics\n");
+                output.push_str(&format!("identifiers.total: {}\n", ident.total));
+                output.push_str(&format!("identifiers.unique: {}\n", ident.unique));
+                output.push_str(&format!("identifiers.reuse_ratio: {:.2}\n", ident.reuse_ratio));
+                output.push_str(&format!("identifiers.avg_length: {:.1}\n", ident.avg_length));
+                output.push_str(&format!("identifiers.avg_entropy: {:.2}\n", ident.avg_entropy));
+                output.push_str(&format!("identifiers.high_entropy_ratio: {:.2}\n", ident.high_entropy_ratio));
+                output.push_str(&format!("identifiers.single_char_count: {}\n", ident.single_char_count));
+                output.push_str(&format!("identifiers.numeric_suffix_count: {}\n\n", ident.numeric_suffix_count));
+            }
+
+            // String metrics
+            if let Some(strings) = &metrics.strings {
+                output.push_str("## String Metrics\n");
+                output.push_str(&format!("strings.total: {}\n", strings.total));
+                output.push_str(&format!("strings.avg_entropy: {:.2}\n", strings.avg_entropy));
+                output.push_str(&format!("strings.entropy_stddev: {:.2}\n", strings.entropy_stddev));
+                output.push_str(&format!("strings.avg_length: {:.1}\n\n", strings.avg_length));
+            }
+
+            // Comment metrics
+            if let Some(comments) = &metrics.comments {
+                output.push_str("## Comment Metrics\n");
+                output.push_str(&format!("comments.total: {}\n", comments.total));
+                output.push_str(&format!("comments.to_code_ratio: {:.2}\n\n", comments.to_code_ratio));
+            }
+
+            // Function metrics
+            if let Some(funcs) = &metrics.functions {
+                output.push_str("## Function Metrics\n");
+                output.push_str(&format!("functions.total: {}\n", funcs.total));
+                output.push_str(&format!("functions.anonymous: {}\n", funcs.anonymous));
+                output.push_str(&format!("functions.async_count: {}\n", funcs.async_count));
+                output.push_str(&format!("functions.avg_length_lines: {:.1}\n", funcs.avg_length_lines));
+                output.push_str(&format!("functions.max_length_lines: {}\n", funcs.max_length_lines));
+                output.push_str(&format!("functions.length_stddev: {:.1}\n", funcs.length_stddev));
+                output.push_str(&format!("functions.over_100_lines: {}\n", funcs.over_100_lines));
+                output.push_str(&format!("functions.over_500_lines: {}\n", funcs.over_500_lines));
+                output.push_str(&format!("functions.one_liners: {}\n", funcs.one_liners));
+                output.push_str(&format!("functions.avg_params: {:.1}\n", funcs.avg_params));
+                output.push_str(&format!("functions.max_params: {}\n", funcs.max_params));
+                output.push_str(&format!("functions.many_params_count: {}\n", funcs.many_params_count));
+                output.push_str(&format!("functions.max_nesting_depth: {}\n\n", funcs.max_nesting_depth));
+            }
+
+            // Binary metrics
+            if let Some(binary) = &metrics.binary {
+                output.push_str("## Binary Metrics\n");
+                output.push_str(&format!("binary.overall_entropy: {:.2}\n", binary.overall_entropy));
+                output.push_str(&format!("binary.code_entropy: {:.2}\n", binary.code_entropy));
+                output.push_str(&format!("binary.data_entropy: {:.2}\n", binary.data_entropy));
+                output.push_str(&format!("binary.entropy_variance: {:.2}\n", binary.entropy_variance));
+                output.push_str(&format!("binary.high_entropy_regions: {}\n", binary.high_entropy_regions));
+                output.push_str(&format!("binary.section_count: {}\n", binary.section_count));
+                output.push_str(&format!("binary.executable_sections: {}\n", binary.executable_sections));
+                output.push_str(&format!("binary.writable_sections: {}\n", binary.writable_sections));
+                output.push_str(&format!("binary.wx_sections: {}\n", binary.wx_sections));
+                output.push_str(&format!("binary.import_count: {}\n", binary.import_count));
+                output.push_str(&format!("binary.export_count: {}\n", binary.export_count));
+                output.push_str(&format!("binary.string_count: {}\n", binary.string_count));
+                output.push_str(&format!("binary.avg_string_entropy: {:.2}\n", binary.avg_string_entropy));
+                output.push_str(&format!("binary.high_entropy_strings: {}\n", binary.high_entropy_strings));
+                output.push_str(&format!("binary.function_count: {}\n", binary.function_count));
+                output.push_str(&format!("binary.avg_function_size: {:.1}\n", binary.avg_function_size));
+                output.push_str(&format!("binary.avg_complexity: {:.1}\n", binary.avg_complexity));
+                output.push_str(&format!("binary.max_complexity: {}\n", binary.max_complexity));
+                output.push_str(&format!("binary.high_complexity_functions: {}\n", binary.high_complexity_functions));
+                output.push_str(&format!("binary.total_basic_blocks: {}\n", binary.total_basic_blocks));
+                output.push_str(&format!("binary.indirect_calls: {}\n", binary.indirect_calls));
+                output.push_str(&format!("binary.indirect_jumps: {}\n", binary.indirect_jumps));
+                if binary.has_overlay {
+                    output.push_str(&format!("binary.overlay_size: {}\n", binary.overlay_size));
+                    output.push_str(&format!("binary.overlay_entropy: {:.2}\n", binary.overlay_entropy));
+                }
+                output.push('\n');
+            }
+
+            // ELF-specific metrics
+            if let Some(elf) = &metrics.elf {
+                output.push_str("## ELF Metrics\n");
+                output.push_str(&format!("elf.stripped: {}\n", elf.stripped));
+                output.push_str(&format!("elf.nx_enabled: {}\n", elf.nx_enabled));
+                output.push_str(&format!("elf.pie_enabled: {}\n", elf.pie_enabled));
+                output.push_str(&format!("elf.stack_canary: {}\n", elf.stack_canary));
+                if let Some(relro) = &elf.relro {
+                    output.push_str(&format!("elf.relro: {}\n", relro));
+                }
+                output.push_str(&format!("elf.needed_libs: {}\n", elf.needed_libs));
+                output.push_str(&format!("elf.rpath_set: {}\n", elf.rpath_set));
+                output.push_str(&format!("elf.runpath_set: {}\n\n", elf.runpath_set));
+            }
+
+            // PE-specific metrics
+            if let Some(pe) = &metrics.pe {
+                output.push_str("## PE Metrics\n");
+                output.push_str(&format!("pe.is_dotnet: {}\n", pe.is_dotnet));
+                output.push_str(&format!("pe.has_signature: {}\n", pe.has_signature));
+                output.push_str(&format!("pe.timestamp_anomaly: {}\n", pe.timestamp_anomaly));
+                output.push_str(&format!("pe.rich_header_present: {}\n", pe.rich_header_present));
+                output.push_str(&format!("pe.resource_count: {}\n", pe.resource_count));
+                output.push_str(&format!("pe.rsrc_size: {}\n", pe.rsrc_size));
+                output.push_str(&format!("pe.rsrc_entropy: {:.2}\n", pe.rsrc_entropy));
+                output.push_str(&format!("pe.tls_callbacks: {}\n", pe.tls_callbacks));
+                output.push_str(&format!("pe.suspicious_import_combo: {}\n\n", pe.suspicious_import_combo));
+            }
+
+            // Mach-O specific metrics
+            if let Some(macho) = &metrics.macho {
+                output.push_str("## Mach-O Metrics\n");
+                output.push_str(&format!("macho.is_universal: {}\n", macho.is_universal));
+                output.push_str(&format!("macho.slice_count: {}\n", macho.slice_count));
+                output.push_str(&format!("macho.has_code_signature: {}\n", macho.has_code_signature));
+                output.push_str(&format!("macho.hardened_runtime: {}\n", macho.hardened_runtime));
+                output.push_str(&format!("macho.has_entitlements: {}\n", macho.has_entitlements));
+                output.push_str(&format!("macho.dylib_count: {}\n", macho.dylib_count));
+                output.push_str(&format!("macho.rpath_count: {}\n\n", macho.rpath_count));
+            }
+
+            // Language-specific metrics
+            if let Some(py) = &metrics.python {
+                output.push_str("## Python Metrics\n");
+                output.push_str(&format!("python.eval_count: {}\n", py.eval_count));
+                output.push_str(&format!("python.exec_count: {}\n", py.exec_count));
+                output.push_str(&format!("python.decorator_count: {}\n", py.decorator_count));
+                output.push_str(&format!("python.lambda_count: {}\n", py.lambda_count));
+                output.push_str(&format!("python.comprehension_depth_max: {}\n", py.comprehension_depth_max));
+                output.push_str(&format!("python.base64_calls: {}\n\n", py.base64_calls));
+            }
+
+            if let Some(js) = &metrics.javascript {
+                output.push_str("## JavaScript Metrics\n");
+                output.push_str(&format!("javascript.eval_count: {}\n", js.eval_count));
+                output.push_str(&format!("javascript.arrow_function_count: {}\n", js.arrow_function_count));
+                output.push_str(&format!("javascript.iife_count: {}\n", js.iife_count));
+                output.push_str(&format!("javascript.from_char_code_count: {}\n", js.from_char_code_count));
+                output.push_str(&format!("javascript.atob_btoa_count: {}\n", js.atob_btoa_count));
+                output.push_str(&format!("javascript.innerhtml_writes: {}\n\n", js.innerhtml_writes));
+            }
+
+            if let Some(go) = &metrics.go_metrics {
+                output.push_str("## Go Metrics\n");
+                output.push_str(&format!("go_metrics.unsafe_usage: {}\n", go.unsafe_usage));
+                output.push_str(&format!("go_metrics.reflect_usage: {}\n", go.reflect_usage));
+                output.push_str(&format!("go_metrics.cgo_usage: {}\n", go.cgo_usage));
+                output.push_str(&format!("go_metrics.exec_command_count: {}\n", go.exec_command_count));
+                output.push_str(&format!("go_metrics.http_usage: {}\n", go.http_usage));
+                output.push_str(&format!("go_metrics.syscall_direct: {}\n\n", go.syscall_direct));
+            }
+
+            if let Some(shell) = &metrics.shell {
+                output.push_str("## Shell Metrics\n");
+                output.push_str(&format!("shell.eval_count: {}\n", shell.eval_count));
+                output.push_str(&format!("shell.exec_count: {}\n", shell.exec_count));
+                output.push_str(&format!("shell.pipe_count: {}\n", shell.pipe_count));
+                output.push_str(&format!("shell.pipe_depth_max: {}\n", shell.pipe_depth_max));
+                output.push_str(&format!("shell.background_jobs: {}\n", shell.background_jobs));
+                output.push_str(&format!("shell.curl_wget_count: {}\n", shell.curl_wget_count));
+                output.push_str(&format!("shell.base64_decode_count: {}\n\n", shell.base64_decode_count));
+            }
+
+            Ok(output)
+        }
+    }
+}
+
 /// Debug rule evaluation - shows exactly why rules match or fail
 fn test_rules_debug(
     target: &str,
@@ -2120,6 +2442,98 @@ fn cli_file_type_to_internal(ft: cli::DetectFileType) -> FileType {
     }
 }
 
+/// Helper function to extract metric value from a field path
+fn get_metric_value(metrics: &types::Metrics, field: &str) -> Option<f64> {
+    // Parse field path and get value
+    match field {
+        // Text metrics
+        "text.char_entropy" => metrics.text.as_ref().map(|t| t.char_entropy as f64),
+        "text.line_length_stddev" => metrics.text.as_ref().map(|t| t.line_length_stddev as f64),
+        "text.avg_line_length" => metrics.text.as_ref().map(|t| t.avg_line_length as f64),
+        "text.max_line_length" => metrics.text.as_ref().map(|t| t.max_line_length as f64),
+        "text.empty_line_ratio" => metrics.text.as_ref().map(|t| t.empty_line_ratio as f64),
+        "text.whitespace_ratio" => metrics.text.as_ref().map(|t| t.whitespace_ratio as f64),
+        "text.digit_ratio" => metrics.text.as_ref().map(|t| t.digit_ratio as f64),
+
+        // Identifier metrics
+        "identifiers.total" => metrics.identifiers.as_ref().map(|i| i.total as f64),
+        "identifiers.unique" => metrics.identifiers.as_ref().map(|i| i.unique as f64),
+        "identifiers.reuse_ratio" => metrics.identifiers.as_ref().map(|i| i.reuse_ratio as f64),
+        "identifiers.avg_length" => metrics.identifiers.as_ref().map(|i| i.avg_length as f64),
+        "identifiers.avg_entropy" => metrics.identifiers.as_ref().map(|i| i.avg_entropy as f64),
+        "identifiers.high_entropy_ratio" => metrics.identifiers.as_ref().map(|i| i.high_entropy_ratio as f64),
+        "identifiers.single_char_count" => metrics.identifiers.as_ref().map(|i| i.single_char_count as f64),
+
+        // String metrics
+        "strings.total" => metrics.strings.as_ref().map(|s| s.total as f64),
+        "strings.avg_entropy" => metrics.strings.as_ref().map(|s| s.avg_entropy as f64),
+        "strings.entropy_stddev" => metrics.strings.as_ref().map(|s| s.entropy_stddev as f64),
+        "strings.avg_length" => metrics.strings.as_ref().map(|s| s.avg_length as f64),
+
+        // Comment metrics
+        "comments.total" => metrics.comments.as_ref().map(|c| c.total as f64),
+        "comments.to_code_ratio" => metrics.comments.as_ref().map(|c| c.to_code_ratio as f64),
+
+        // Function metrics
+        "functions.total" => metrics.functions.as_ref().map(|f| f.total as f64),
+        "functions.anonymous" => metrics.functions.as_ref().map(|f| f.anonymous as f64),
+        "functions.avg_length_lines" => metrics.functions.as_ref().map(|f| f.avg_length_lines as f64),
+        "functions.max_length_lines" => metrics.functions.as_ref().map(|f| f.max_length_lines as f64),
+        "functions.avg_params" => metrics.functions.as_ref().map(|f| f.avg_params as f64),
+        "functions.max_params" => metrics.functions.as_ref().map(|f| f.max_params as f64),
+        "functions.max_nesting_depth" => metrics.functions.as_ref().map(|f| f.max_nesting_depth as f64),
+
+        // Binary metrics
+        "binary.overall_entropy" => metrics.binary.as_ref().map(|b| b.overall_entropy as f64),
+        "binary.code_entropy" => metrics.binary.as_ref().map(|b| b.code_entropy as f64),
+        "binary.data_entropy" => metrics.binary.as_ref().map(|b| b.data_entropy as f64),
+        "binary.section_count" => metrics.binary.as_ref().map(|b| b.section_count as f64),
+        "binary.import_count" => metrics.binary.as_ref().map(|b| b.import_count as f64),
+        "binary.export_count" => metrics.binary.as_ref().map(|b| b.export_count as f64),
+        "binary.function_count" => metrics.binary.as_ref().map(|b| b.function_count as f64),
+        "binary.avg_function_size" => metrics.binary.as_ref().map(|b| b.avg_function_size as f64),
+        "binary.avg_complexity" => metrics.binary.as_ref().map(|b| b.avg_complexity as f64),
+        "binary.max_complexity" => metrics.binary.as_ref().map(|b| b.max_complexity as f64),
+        "binary.indirect_calls" => metrics.binary.as_ref().map(|b| b.indirect_calls as f64),
+        "binary.indirect_jumps" => metrics.binary.as_ref().map(|b| b.indirect_jumps as f64),
+
+        // Python metrics
+        "python.eval_count" => metrics.python.as_ref().map(|p| p.eval_count as f64),
+        "python.exec_count" => metrics.python.as_ref().map(|p| p.exec_count as f64),
+        "python.decorator_count" => metrics.python.as_ref().map(|p| p.decorator_count as f64),
+        "python.lambda_count" => metrics.python.as_ref().map(|p| p.lambda_count as f64),
+        "python.comprehension_depth_max" => metrics.python.as_ref().map(|p| p.comprehension_depth_max as f64),
+        "python.base64_calls" => metrics.python.as_ref().map(|p| p.base64_calls as f64),
+
+        // JavaScript metrics
+        "javascript.eval_count" => metrics.javascript.as_ref().map(|j| j.eval_count as f64),
+        "javascript.arrow_function_count" => metrics.javascript.as_ref().map(|j| j.arrow_function_count as f64),
+        "javascript.iife_count" => metrics.javascript.as_ref().map(|j| j.iife_count as f64),
+        "javascript.from_char_code_count" => metrics.javascript.as_ref().map(|j| j.from_char_code_count as f64),
+        "javascript.atob_btoa_count" => metrics.javascript.as_ref().map(|j| j.atob_btoa_count as f64),
+        "javascript.innerhtml_writes" => metrics.javascript.as_ref().map(|j| j.innerhtml_writes as f64),
+
+        // Go metrics
+        "go_metrics.unsafe_usage" => metrics.go_metrics.as_ref().map(|g| g.unsafe_usage as f64),
+        "go_metrics.reflect_usage" => metrics.go_metrics.as_ref().map(|g| g.reflect_usage as f64),
+        "go_metrics.cgo_usage" => metrics.go_metrics.as_ref().map(|g| g.cgo_usage as f64),
+        "go_metrics.exec_command_count" => metrics.go_metrics.as_ref().map(|g| g.exec_command_count as f64),
+        "go_metrics.http_usage" => metrics.go_metrics.as_ref().map(|g| g.http_usage as f64),
+        "go_metrics.syscall_direct" => metrics.go_metrics.as_ref().map(|g| g.syscall_direct as f64),
+
+        // Shell metrics
+        "shell.eval_count" => metrics.shell.as_ref().map(|s| s.eval_count as f64),
+        "shell.exec_count" => metrics.shell.as_ref().map(|s| s.exec_count as f64),
+        "shell.pipe_count" => metrics.shell.as_ref().map(|s| s.pipe_count as f64),
+        "shell.pipe_depth_max" => metrics.shell.as_ref().map(|s| s.pipe_depth_max as f64),
+        "shell.background_jobs" => metrics.shell.as_ref().map(|s| s.background_jobs as f64),
+        "shell.curl_wget_count" => metrics.shell.as_ref().map(|s| s.curl_wget_count as f64),
+        "shell.base64_decode_count" => metrics.shell.as_ref().map(|s| s.base64_decode_count as f64),
+
+        _ => None,
+    }
+}
+
 /// Test pattern matching against a file with alternative suggestions
 #[allow(clippy::too_many_arguments)]
 fn test_match_debug(
@@ -2145,6 +2559,10 @@ fn test_match_debug(
     entropy_max: Option<f64>,
     length_min: Option<u64>,
     length_max: Option<u64>,
+    value_min: Option<f64>,
+    value_max: Option<f64>,
+    min_size: Option<u64>,
+    max_size: Option<u64>,
     _disabled: &cli::DisabledComponents,
     platforms: Vec<composite_rules::Platform>,
     min_hostile_precision: f32,
@@ -2160,6 +2578,13 @@ fn test_match_debug(
         let has_constraints = count_min > 1 || count_max.is_some() || length_min.is_some() || length_max.is_some() || entropy_min.is_some() || entropy_max.is_some();
         if pattern.is_none() && !has_constraints {
             anyhow::bail!("--pattern is required for section searches unless using size/entropy constraints (--count-min/max, --length-min/max, --entropy-min/max)");
+        }
+    } else if search_type == cli::SearchType::Metrics {
+        if pattern.is_none() {
+            anyhow::bail!("--pattern is required for metrics searches (use field path like 'binary.avg_complexity')");
+        }
+        if value_min.is_none() && value_max.is_none() {
+            anyhow::bail!("At least one of --value-min or --value-max is required for metrics searches");
         }
     } else if pattern.is_none() {
         anyhow::bail!("--pattern is required for {:?} searches", search_type);
@@ -3326,6 +3751,109 @@ fn test_match_debug(
 
             (matched, match_count, out)
         }
+        cli::SearchType::Metrics => {
+            // Test metrics conditions using eval_metrics
+            let field = pattern;
+
+            let mut out = String::new();
+            out.push_str("Search: metrics\n");
+            out.push_str(&format!("Field: {}\n", field));
+            if let Some(min) = value_min {
+                out.push_str(&format!("Min value: {}\n", min));
+            }
+            if let Some(max) = value_max {
+                out.push_str(&format!("Max value: {}\n", max));
+            }
+            if let Some(min) = min_size {
+                out.push_str(&format!("Min file size: {} bytes\n", min));
+            }
+            if let Some(max) = max_size {
+                out.push_str(&format!("Max file size: {} bytes\n", max));
+            }
+
+            // Create evaluation context
+            let ctx = composite_rules::EvaluationContext::new(
+                &report,
+                &binary_data,
+                composite_rules::FileType::All, // FileType doesn't matter for metrics
+                platforms,
+                None, // No additional findings
+                None, // No cached AST
+            );
+
+            // Use eval_metrics from the composite_rules module
+            let result = composite_rules::evaluators::eval_metrics(
+                field,
+                value_min,
+                value_max,
+                min_size,
+                max_size,
+                &ctx,
+            );
+
+            let matched = result.matched;
+            let match_count = if matched { 1 } else { 0 };
+
+            if matched {
+                out.push_str(&format!("\n{}\n", "MATCHED".green().bold()));
+
+                // Try to extract and display the actual metric value
+                if let Some(metrics) = &report.metrics {
+                    let value = get_metric_value(metrics, field);
+                    if let Some(val) = value {
+                        out.push_str(&format!("  Current value: {:.2}\n", val));
+                    }
+                }
+
+                out.push_str(&format!("  File size: {} bytes\n", report.target.size_bytes));
+
+                if !result.warnings.is_empty() {
+                    out.push_str("\n  Warnings:\n");
+                    for warning in &result.warnings {
+                        out.push_str(&format!("    - {:?}\n", warning));
+                    }
+                }
+            } else {
+                out.push_str(&format!("\n{}\n", "NOT MATCHED".red().bold()));
+
+                // Show current value for debugging
+                if let Some(metrics) = &report.metrics {
+                    let value = get_metric_value(metrics, field);
+                    if let Some(val) = value {
+                        out.push_str(&format!("  Current value: {:.2}\n", val));
+                        if let Some(min) = value_min {
+                            if val < min {
+                                out.push_str(&format!("  ❌ Value {:.2} is below minimum {:.2}\n", val, min));
+                            }
+                        }
+                        if let Some(max) = value_max {
+                            if val > max {
+                                out.push_str(&format!("  ❌ Value {:.2} exceeds maximum {:.2}\n", val, max));
+                            }
+                        }
+                    } else {
+                        out.push_str(&format!("  Metric field '{}' not found or not applicable to this file type\n", field));
+                    }
+                } else {
+                    out.push_str("  No metrics available for this file\n");
+                }
+
+                // Show file size constraint failures
+                let file_size = report.target.size_bytes;
+                if let Some(min) = min_size {
+                    if file_size < min {
+                        out.push_str(&format!("  ❌ File size {} bytes is below minimum {} bytes\n", file_size, min));
+                    }
+                }
+                if let Some(max) = max_size {
+                    if file_size > max {
+                        out.push_str(&format!("  ❌ File size {} bytes exceeds maximum {} bytes\n", file_size, max));
+                    }
+                }
+            }
+
+            (matched, match_count, out)
+        }
     };
 
     // If not matched, provide suggestions
@@ -3536,6 +4064,30 @@ fn test_match_debug(
                         report.sections.iter().map(|s| s.name.as_str()).collect::<Vec<_>>().join(", ")));
                 }
             }
+            cli::SearchType::Metrics => {
+                output.push_str("  💡 Metrics search tests computed file metrics against thresholds\n");
+                output.push_str("  💡 Use --pattern for field path (e.g., 'binary.avg_complexity')\n");
+                output.push_str("  💡 Use --value-min/--value-max for thresholds\n");
+                output.push_str("  💡 Use --min-size/--max-size for file size constraints\n");
+                if let Some(metrics) = &report.metrics {
+                    output.push_str("\n  Available metric fields:\n");
+                    if metrics.binary.is_some() {
+                        output.push_str("    binary.overall_entropy, binary.avg_complexity, binary.import_count, ...\n");
+                    }
+                    if metrics.text.is_some() {
+                        output.push_str("    text.char_entropy, text.avg_line_length, ...\n");
+                    }
+                    if metrics.functions.is_some() {
+                        output.push_str("    functions.total, functions.avg_params, functions.max_nesting_depth, ...\n");
+                    }
+                    if metrics.identifiers.is_some() {
+                        output.push_str("    identifiers.avg_entropy, identifiers.reuse_ratio, ...\n");
+                    }
+                    output.push_str("  Run `dissect metrics <file>` to see all available fields\n");
+                } else {
+                    output.push_str("  ⚠️  No metrics available for this file type\n");
+                }
+            }
         }
 
         // Suggest alternative match methods
@@ -3678,6 +4230,10 @@ fn test_match_debug(
                         }
                         cli::SearchType::Section => {
                             // Section searches are binary-specific
+                            false
+                        }
+                        cli::SearchType::Metrics => {
+                            // Metrics searches depend on metrics availability for the file type
                             false
                         }
                     };

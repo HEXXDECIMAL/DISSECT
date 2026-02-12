@@ -249,10 +249,84 @@ impl MachOAnalyzer {
         self.capability_mapper
             .evaluate_and_merge_findings(&mut report, data, None);
 
+        // Update binary metrics with data from report (import/export/string counts and entropy)
+        Self::update_binary_metrics(&mut report);
+
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
         report.metadata.tools_used = tools_used;
 
         Ok(report)
+    }
+
+    /// Update binary metrics with counts from the report
+    /// This fixes missing import/export/string counts and recalculates entropy from sections
+    fn update_binary_metrics(report: &mut AnalysisReport) {
+        if let Some(ref mut metrics) = report.metrics {
+            if let Some(ref mut binary) = metrics.binary {
+                // Update counts that aren't populated by radare2
+                binary.import_count = report.imports.len() as u32;
+                binary.export_count = report.exports.len() as u32;
+                binary.string_count = report.strings.len() as u32;
+
+                // Calculate string entropy metrics
+                if !report.strings.is_empty() {
+                    use crate::entropy::calculate_entropy;
+                    let entropies: Vec<f64> = report.strings.iter()
+                        .map(|s| calculate_entropy(s.value.as_bytes()))
+                        .collect();
+
+                    let total_entropy: f64 = entropies.iter().sum();
+                    binary.avg_string_entropy = (total_entropy / entropies.len() as f64) as f32;
+                    binary.high_entropy_strings = entropies.iter().filter(|&&e| e > 6.0).count() as u32;
+                }
+
+                // Calculate binary entropy from sections if not already populated
+                if binary.overall_entropy == 0.0 && !report.sections.is_empty() {
+                    let mut entropies = Vec::new();
+                    let mut code_entropies = Vec::new();
+                    let mut data_entropies = Vec::new();
+
+                    for section in &report.sections {
+                        let entropy = section.entropy as f32;
+                        entropies.push(entropy);
+
+                        // Track code vs data section entropy
+                        let name_lower = section.name.to_lowercase();
+                        let is_executable = section.permissions.as_ref()
+                            .map(|p| p.contains('x'))
+                            .unwrap_or(false);
+
+                        if name_lower.contains("text") || name_lower.contains("code") || is_executable {
+                            code_entropies.push(entropy);
+                        } else if name_lower.contains("data") || name_lower.contains("rodata") {
+                            data_entropies.push(entropy);
+                        }
+
+                        if entropy > 7.5 {
+                            binary.high_entropy_regions += 1;
+                        }
+                    }
+
+                    if !entropies.is_empty() {
+                        binary.overall_entropy = entropies.iter().sum::<f32>() / entropies.len() as f32;
+
+                        let mean = binary.overall_entropy;
+                        let variance: f32 = entropies.iter()
+                            .map(|e| (e - mean).powi(2))
+                            .sum::<f32>() / entropies.len() as f32;
+                        binary.entropy_variance = variance.sqrt();
+                    }
+
+                    if !code_entropies.is_empty() {
+                        binary.code_entropy = code_entropies.iter().sum::<f32>() / code_entropies.len() as f32;
+                    }
+
+                    if !data_entropies.is_empty() {
+                        binary.data_entropy = data_entropies.iter().sum::<f32>() / data_entropies.len() as f32;
+                    }
+                }
+            }
+        }
     }
 
     /// Generate structural traits (file format, architecture, signing, etc.)
