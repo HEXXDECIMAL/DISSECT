@@ -24,6 +24,7 @@ pub mod decoders;
 mod entropy;
 pub mod extractors;
 pub mod ip_validator;
+pub mod memory_tracker;
 mod radare2;
 mod strings;
 mod syscall_names;

@@ -209,16 +209,13 @@ impl StringExtractor {
             .with_garbage_filter(true)
             .with_xor(None);
 
-        // Run both extractions in parallel
-        let (lang_strings, basic_strings) = rayon::join(
-            || stng::extract_strings_with_options(data, &opts),
-            || self.extract(data, None),
-        );
+        // Use stng for all string extraction - it handles both language-aware
+        // and raw scanning with garbage filtering enabled
+        let lang_strings = stng::extract_strings_with_options(data, &opts);
 
         tracing::debug!(
-            "stng returned {} strings, basic extractor returned {} strings",
-            lang_strings.len(),
-            basic_strings.len()
+            "stng returned {} strings",
+            lang_strings.len()
         );
 
         // Log first few stng strings to see what we got
@@ -232,45 +229,13 @@ impl StringExtractor {
             );
         }
 
-        // Pre-size based on expected string count (roughly 1 string per 20 bytes)
-        let estimated_count = data.len() / 20;
-        // Use hash-based deduplication to avoid cloning strings into the seen set.
-        // Store only the u64 hash, not the full string - saves memory and avoids double-clone.
-        let mut seen: FxHashSet<u64> =
-            FxHashSet::with_capacity_and_hasher(estimated_count, Default::default());
-        let mut strings = Vec::with_capacity(estimated_count);
-
-        let mut stng_added = 0;
-        let mut stng_dupes = 0;
+        // stng already deduplicates internally, so we can convert directly
+        let mut strings = Vec::with_capacity(lang_strings.len());
         for es in lang_strings {
-            let hash = hash_str(&es.value);
-            if seen.insert(hash) {
-                strings.push(self.convert_extracted_string(es));
-                stng_added += 1;
-            } else {
-                stng_dupes += 1;
-            }
+            strings.push(self.convert_extracted_string(es));
         }
 
-        let mut basic_added = 0;
-        let mut basic_dupes = 0;
-        for s in basic_strings {
-            let hash = hash_str(&s.value);
-            if seen.insert(hash) {
-                strings.push(s);
-                basic_added += 1;
-            } else {
-                basic_dupes += 1;
-            }
-        }
-
-        tracing::debug!(
-            "Added {} stng strings ({} dupes), {} basic strings ({} dupes)",
-            stng_added,
-            stng_dupes,
-            basic_added,
-            basic_dupes
-        );
+        tracing::debug!("Converted {} strings from stng", strings.len());
 
         strings
     }
@@ -299,31 +264,13 @@ impl StringExtractor {
             opts = opts.with_r2_strings(r2);
         }
 
-        // Run both extractions in parallel
-        let (lang_strings, basic_strings) = rayon::join(
-            || stng::extract_strings_with_options(data, &opts),
-            || self.extract(data, None),
-        );
+        // Use stng for all string extraction - it handles raw scanning with garbage filtering
+        let lang_strings = stng::extract_strings_with_options(data, &opts);
 
-        // Pre-size based on expected string count
-        let estimated_count = data.len() / 20;
-        // Use hash-based deduplication to avoid cloning strings into the seen set.
-        let mut seen: FxHashSet<u64> =
-            FxHashSet::with_capacity_and_hasher(estimated_count, Default::default());
-        let mut strings = Vec::with_capacity(estimated_count);
-
+        // stng already deduplicates internally, so we can convert directly
+        let mut strings = Vec::with_capacity(lang_strings.len());
         for es in lang_strings {
-            let hash = hash_str(&es.value);
-            if seen.insert(hash) {
-                strings.push(self.convert_extracted_string(es));
-            }
-        }
-
-        for s in basic_strings {
-            let hash = hash_str(&s.value);
-            if seen.insert(hash) {
-                strings.push(s);
-            }
+            strings.push(self.convert_extracted_string(es));
         }
 
         strings
@@ -356,12 +303,16 @@ impl StringExtractor {
             opts = opts.with_r2_strings(r2);
         }
 
-        let (lang_strings, basic_strings) = rayon::join(
-            || stng::extract_from_macho(macho, data, &opts),
-            || self.extract(data, None),
-        );
+        // Use stng for all string extraction - it handles raw scanning with garbage filtering
+        let lang_strings = stng::extract_from_macho(macho, data, &opts);
 
-        self.merge_strings(lang_strings, basic_strings, data.len())
+        // Convert directly
+        let mut strings = Vec::with_capacity(lang_strings.len());
+        for es in lang_strings {
+            strings.push(self.convert_extracted_string(es));
+        }
+
+        strings
     }
 
     /// Extract strings from a pre-parsed ELF binary with optional r2 strings.

@@ -41,7 +41,7 @@ to better understand the strings that dissect can see in a program, often hidden
 - For source code, consider AST-based treesitter queries as they have the highest precision.
 - Pattern-matching precision in descending order: `ast`, `symbol`, `kv`, `string`, `base64`, `xor`, `content`, `hex`
 - Tighten queries using techniques like `size_min`, `not`, `near_min', `count_min`', `per_kb_min`, `section`, `near_bytes`, `near_lines`, before using `unless:`/`downgrade:` (see PRECISION.md)
-- If the finding is accurate but not a concern for a particular case, use 'downgrade' instead of 'unless'.
+- If the finding is technically accurate but not a concern for this particular file, use 'downgrade:' instead of 'unless:' so that the trait still shows but as a notable criticality.
 - Validate taxonomy placement (wrong tier = likely broken refactor)
 - Adjust criticality if behavior is correct but severity wrong - many traits have an incorrect criticality
 - It's OK for a known-good sample to have 1 suspicious trait - sometimes system tool do suspicious things!
@@ -68,7 +68,7 @@ to better understand the strings that dissect can see in a program, often hidden
 {{.DissectBin}} test-rules {{.Path}} --rules "rule-id"
 {{.DissectBin}} test-match {{.Path}} --type string --pattern "X"
 
-IMPORTANT: Read RULES.md to understand rule systax, and TAXONOMY.md to understand what directories they are placed in.
+IMPORTANT: Read RULES.md to understand the bizarre rule syntax, and TAXONOMY.md to understand what directories they are placed in.
 It is critical that traits - especially atomics - are placed in the correct directory for what they will match, rather than alongside the composite.
 ```
 

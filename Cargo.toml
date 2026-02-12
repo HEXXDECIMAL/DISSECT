@@ -98,6 +98,7 @@ tempfile = "3.13"
 strsim = "0.11"
 dirs = "5.0"
 atty = "0.2.14"
+parking_lot = "0.12"  # For efficient mutexes in memory tracking
 
 # Logging (tracing is the modern standard, more powerful than log+env_logger)
 tracing = "0.1"
