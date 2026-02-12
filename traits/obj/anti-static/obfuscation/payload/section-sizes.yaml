@@ -21,7 +21,7 @@ traits:
     if:
       type: section
       regex: "^__TEXT\\.__cstring$"
-      size_max: 100     # Section ≤100 bytes
+      length_max: 100     # Section ≤100 bytes
 
   # Large __data section (absolute size, not ratio)
   # 8KB+ suggests encoded payload storage
@@ -33,7 +33,7 @@ traits:
     if:
       type: section
       regex: "^__DATA\\.__data$"
-      size_min: 8192  # Section ≥8KB
+      length_min: 8192  # Section ≥8KB
 
   # === ELF Section Sizes ===
 
@@ -47,7 +47,7 @@ traits:
     if:
       type: section
       regex: "^\\.rodata$"
-      size_max: 100  # Section ≤100 bytes
+      length_max: 100  # Section ≤100 bytes
 
   # Large .data section (absolute)
   - id: large-data-absolute-elf
@@ -58,7 +58,7 @@ traits:
     if:
       type: section
       regex: "^\\.data$"
-      size_min: 16384  # Section ≥16KB
+      length_min: 16384  # Section ≥16KB
 
 composite_rules:
   # Small strings + large data = obfuscated payload
