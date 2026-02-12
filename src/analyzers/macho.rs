@@ -302,7 +302,9 @@ impl MachOAnalyzer {
                             data_entropies.push(entropy);
                         }
 
-                        if entropy > 7.5 {
+                        // High entropy threshold: 6.5+ is suspicious for code sections
+                        // Normal code is typically 5.0-6.0, data can be higher
+                        if entropy > 6.5 {
                             binary.high_entropy_regions += 1;
                         }
                     }
@@ -323,6 +325,48 @@ impl MachOAnalyzer {
 
                     if !data_entropies.is_empty() {
                         binary.data_entropy = data_entropies.iter().sum::<f32>() / data_entropies.len() as f32;
+                    }
+                }
+
+                // Calculate function-related metrics from report data
+                if !report.functions.is_empty() {
+                    let total_size: u64 = report.functions.iter()
+                        .map(|f| f.size.unwrap_or(0))
+                        .sum();
+                    if total_size > 0 {
+                        binary.avg_function_size = total_size as f32 / report.functions.len() as f32;
+                    }
+
+                    // Count high complexity functions (threshold: 15+)
+                    // Cyclomatic complexity > 15 is considered high complexity
+                    if binary.max_complexity > 0 {
+                        binary.high_complexity_functions = report.functions.iter()
+                            .filter(|f| f.complexity.unwrap_or(0) > 15)
+                            .count() as u32;
+                    }
+
+                    // Note: total_basic_blocks would require summing from control_flow metrics
+                    // which aren't always populated. We leave it at the radare2-calculated value.
+                }
+            }
+
+            // Update Mach-O specific metrics
+            if let Some(ref mut macho_metrics) = metrics.macho {
+                // Count dylibs from imports
+                let mut dylibs = std::collections::HashSet::new();
+                for import in &report.imports {
+                    if let Some(lib) = &import.library {
+                        dylibs.insert(lib.clone());
+                    }
+                }
+                macho_metrics.dylib_count = dylibs.len() as u32;
+
+                // Check if this is a universal binary by looking at architectures
+                // Universal binaries have multiple architecture slices
+                if let Some(ref archs) = report.target.architectures {
+                    if archs.len() > 1 {
+                        macho_metrics.is_universal = true;
+                        macho_metrics.slice_count = archs.len() as u32;
                     }
                 }
             }
