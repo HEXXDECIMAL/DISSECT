@@ -20,8 +20,9 @@ Read `RULES.md`, `TAXONOMY.md`, `PRECISION.md` before editing.
 **Taxonomy** (from TAXONOMY.md):
 - `cap/*` = atomic observable capability (inert→notable→suspicious max)
 - `obj/*` = composed attacker objective (notable→suspicious→hostile)
-- `known/*` = specific malware/tool signature (family-unique only)
+- `known/*` = specific malware/tool signature for noteworthy well-known malware (family-unique only)
 - Traits get 3-4 subdirectories under the top-level; each directory should have semantic meaning for ML analysis - no generic directory names allowed.
+- Atomic traits need to be in the ideally named directory for each trait - not beside the composite you are creating.
 
 **Precision** (from PRECISION.md):
 - Hostile composites require precision ≥ 4.0 (else downgraded to suspicious)
@@ -35,6 +36,7 @@ Read `RULES.md`, `TAXONOMY.md`, `PRECISION.md` before editing.
 - For source code, consider AST-based treesitter queries as they have the highest precision.
 - Pattern-matching precision in descending order: `ast`, `symbol`, `kv`, `string`, `base64`, `xor`, `content`, `hex`
 - Tighten queries using techniques like `size_min`, `not`, `near_min', `count_min`', `per_kb_min`, `section`, `near_bytes`, `near_lines`, before using `unless:`/`downgrade:` (see PRECISION.md)
+- If the finding is accurate but not a concern for a particular case, use 'downgrade' instead of 'unless'.
 - Validate taxonomy placement (wrong tier = likely broken refactor)
 - Adjust criticality if behavior is correct but severity wrong - many traits have an incorrect criticality
 - It's OK for a known-good sample to have 1 suspicious trait - sometimes system tool do suspicious things!

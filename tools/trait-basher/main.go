@@ -510,6 +510,66 @@ type streamStats struct {
 	shouldRestart      bool // Set to true when rescan limit reached
 }
 
+// flushingWriter wraps an io.Writer and flushes after every write to ensure logs survive OOM kills
+type flushingWriter struct {
+	w interface {
+		io.Writer
+		Sync() error
+	}
+}
+
+func (f *flushingWriter) Write(p []byte) (n int, err error) {
+	n, err = f.w.Write(p)
+	if err != nil {
+		return n, err
+	}
+	// Flush to disk after every write (performance cost but critical for crash debugging)
+	// Use Sync() instead of Flush() to ensure data is committed to storage
+	if err := f.w.Sync(); err != nil {
+		return n, err
+	}
+	return n, nil
+}
+
+// multiHandler writes to multiple slog.Handler instances (for dual console+file logging)
+type multiHandler struct {
+	handlers []slog.Handler
+}
+
+func (m *multiHandler) Enabled(ctx context.Context, level slog.Level) bool {
+	for _, h := range m.handlers {
+		if h.Enabled(ctx, level) {
+			return true
+		}
+	}
+	return false
+}
+
+func (m *multiHandler) Handle(ctx context.Context, record slog.Record) error {
+	for _, h := range m.handlers {
+		if err := h.Handle(ctx, record.Clone()); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (m *multiHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+	newHandlers := make([]slog.Handler, len(m.handlers))
+	for i, h := range m.handlers {
+		newHandlers[i] = h.WithAttrs(attrs)
+	}
+	return &multiHandler{handlers: newHandlers}
+}
+
+func (m *multiHandler) WithGroup(name string) slog.Handler {
+	newHandlers := make([]slog.Handler, len(m.handlers))
+	for i, h := range m.handlers {
+		newHandlers[i] = h.WithGroup(name)
+	}
+	return &multiHandler{handlers: newHandlers}
+}
+
 // streamState tracks the current processing state as we stream files.
 type streamState struct {
 	cfg                *config
@@ -526,10 +586,23 @@ type streamState struct {
 
 // streamAnalyzeAndReview streams dissect output and reviews archives as they complete.
 func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*streamStats, error) {
+	// Determine log file path for dissect's own logs
+	dissectLogPath, err := getDissectLogFilePath()
+	if err != nil {
+		return nil, fmt.Errorf("could not determine dissect log path: %w", err)
+	}
+
 	// Build dissect command with --extract-dir for file extraction.
 	// DISSECT extracts all analyzed files to <extract-dir>/<sha256>/<relative-path>.
 	// Use --max-file-mem 0 to force all extraction to disk (not RAM) to prevent OOM
-	args := []string{"--format", "jsonl", "--extract-dir", cfg.extractDir, "--max-file-mem", "0"}
+	// Use --verbose and --log-file to capture comprehensive logs for debugging OOM issues
+	args := []string{
+		"--format", "jsonl",
+		"--extract-dir", cfg.extractDir,
+		"--max-file-mem", "0",
+		"--verbose",
+		"--log-file", dissectLogPath,
+	}
 	args = append(args, cfg.dirs...)
 	cmd := exec.CommandContext(ctx, cfg.dissectBin, args...) //nolint:gosec // dissectBin is built from trusted cargo
 	if cfg.useCargo {
@@ -541,14 +614,26 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 		return nil, fmt.Errorf("could not create stdout pipe: %w", err)
 	}
 
-	var stderrBuf bytes.Buffer
-	cmd.Stderr = &stderrBuf
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		return nil, fmt.Errorf("could not create stderr pipe: %w", err)
+	}
+
+	// Stream dissect stderr to our own stderr in background
+	go func() {
+		scanner := bufio.NewScanner(stderr)
+		for scanner.Scan() {
+			fmt.Fprintf(os.Stderr, "[dissect] %s\n", scanner.Text())
+		}
+	}()
 
 	if err := cmd.Start(); err != nil {
 		return nil, fmt.Errorf("could not start dissect: %w", err)
 	}
 
-	// Set up disk-based structured logging for archive processing tracking
+	fmt.Fprintf(os.Stderr, "DISSECT logs: %s\n", dissectLogPath)
+
+	// Set up dual-output logging: structured JSON to disk, human-readable to console
 	logPath, err := getLogFilePath()
 	if err != nil {
 		return nil, fmt.Errorf("could not determine log path: %w", err)
@@ -563,16 +648,31 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 	// Print log location to stderr so users know where to find it
 	fmt.Fprintf(os.Stderr, "Logging to: %s\n", logPath)
 
-	logger := slog.New(slog.NewJSONHandler(logFile, &slog.HandlerOptions{
-		Level: slog.LevelInfo,
-	}))
+	// Wrap log file with flushing writer to ensure logs survive OOM kills
+	flushingFile := &flushingWriter{w: logFile}
+
+	// Create dual writer: JSON to file, text to stderr
+	fileHandler := slog.NewJSONHandler(flushingFile, &slog.HandlerOptions{Level: slog.LevelInfo})
+	consoleHandler := slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelInfo})
+
+	// Multi-handler that writes to both
+	logger := slog.New(&multiHandler{handlers: []slog.Handler{fileHandler, consoleHandler}})
+
+	// Build full command line for logging
+	dissectArgs := []string{"--format", "jsonl", "--extract-dir", cfg.extractDir, "--max-file-mem", "0"}
+	dissectArgs = append(dissectArgs, cfg.dirs...)
+	fullCmd := append([]string{cfg.dissectBin}, dissectArgs...)
 
 	sessionStart := time.Now()
 	logger.Info("trait-basher session started",
 		"dissect_bin", cfg.dissectBin,
+		"dissect_args", strings.Join(dissectArgs, " "),
+		"full_command", strings.Join(fullCmd, " "),
 		"dirs", cfg.dirs,
 		"provider", cfg.provider,
 		"mode", dbMode,
+		"repo_root", cfg.repoRoot,
+		"use_cargo", cfg.useCargo,
 	)
 
 	state := &streamState{
@@ -658,10 +758,7 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 	}
 
 	if err := cmd.Wait(); err != nil {
-		if msg := strings.TrimSpace(stderrBuf.String()); msg != "" {
-			return state.stats, fmt.Errorf("dissect error: %s", msg)
-		}
-		return state.stats, fmt.Errorf("dissect failed: %w", err)
+		return state.stats, fmt.Errorf("dissect failed: %w (check dissect logs for details)", err)
 	}
 
 	fmt.Fprintf(os.Stderr, "\r  Scanned %d files total                    \n", n)
@@ -735,6 +832,14 @@ func processFileEntry(ctx context.Context, st *streamState, f FileAnalysis, ap s
 		st.currentRealFile = rf
 		st.currentRealPath = rp
 
+		// Log file processing start
+		if st.logger != nil {
+			st.logger.Info("file_started",
+				"file_path", rp,
+				"file_name", filepath.Base(rp),
+			)
+		}
+
 	case ap != st.currentArchivePath:
 		// Different archive: process everything pending
 		if st.currentArchive != nil {
@@ -765,6 +870,16 @@ func processFileEntry(ctx context.Context, st *streamState, f FileAnalysis, ap s
 	default:
 		// Same archive: just add to current archive members
 		st.currentArchive.Members = append(st.currentArchive.Members, f)
+
+		// Log archive member processing
+		if st.logger != nil {
+			st.logger.Debug("archive_member",
+				"archive_path", ap,
+				"member_path", f.Path,
+				"member_name", filepath.Base(f.Path),
+				"member_count", len(st.currentArchive.Members),
+			)
+		}
 	}
 }
 
@@ -1852,6 +1967,52 @@ func getLogFilePath() (string, error) {
 	}
 
 	return filepath.Join(logDir, "archives.log"), nil
+}
+
+// getDissectLogFilePath returns the path for dissect's own verbose logs
+func getDissectLogFilePath() (string, error) {
+	var logDir string
+
+	switch runtime.GOOS {
+	case "darwin":
+		// macOS: ~/Library/Logs/trait-basher/
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return "", err
+		}
+		logDir = filepath.Join(home, "Library", "Logs", "trait-basher")
+
+	case "windows":
+		// Windows: %LOCALAPPDATA%\trait-basher\logs\
+		localAppData := os.Getenv("LOCALAPPDATA")
+		if localAppData == "" {
+			home, err := os.UserHomeDir()
+			if err != nil {
+				return "", err
+			}
+			localAppData = filepath.Join(home, "AppData", "Local")
+		}
+		logDir = filepath.Join(localAppData, "trait-basher", "logs")
+
+	default:
+		// Linux/Unix: ~/.local/state/trait-basher/ (XDG Base Directory spec)
+		stateHome := os.Getenv("XDG_STATE_HOME")
+		if stateHome == "" {
+			home, err := os.UserHomeDir()
+			if err != nil {
+				return "", err
+			}
+			stateHome = filepath.Join(home, ".local", "state")
+		}
+		logDir = filepath.Join(stateHome, "trait-basher")
+	}
+
+	// Create directory if it doesn't exist
+	if err := os.MkdirAll(logDir, 0755); err != nil {
+		return "", fmt.Errorf("could not create log directory %s: %w", logDir, err)
+	}
+
+	return filepath.Join(logDir, "dissect.log"), nil
 }
 
 func generateSessionID() string {

@@ -155,6 +155,10 @@ pub struct Args {
     #[arg(short, long)]
     pub verbose: bool,
 
+    /// Write logs to file (in addition to stderr)
+    #[arg(long, value_name = "FILE")]
+    pub log_file: Option<String>,
+
     /// Enable full trait validation (expensive, ~60s+). Enabled by default.
     /// Use --validate=false to disable. Can also set DISSECT_VALIDATE=0 to disable.
     #[arg(long, default_value_t = true)]

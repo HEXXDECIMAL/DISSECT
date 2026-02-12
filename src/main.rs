@@ -145,14 +145,81 @@ fn main() -> Result<()> {
         EnvFilter::new("dissect=warn")
     };
 
-    tracing_subscriber::fmt()
-        .with_env_filter(env_filter)
-        .with_target(true)
-        .with_thread_ids(false)
-        .with_line_number(true)
-        .with_writer(std::io::stderr)
-        .init();
+    // Set up logging with optional file output
+    if let Some(ref log_file) = args.log_file {
+        use tracing_subscriber::layer::SubscriberExt;
+        use tracing_subscriber::util::SubscriberInitExt;
+        use std::fs::OpenOptions;
+        use std::sync::{Arc, Mutex};
 
+        // Create or append to log file
+        let file = Arc::new(Mutex::new(
+            OpenOptions::new()
+                .create(true)
+                .append(true)
+                .open(log_file)
+                .unwrap_or_else(|e| {
+                    eprintln!("Failed to open log file {}: {}", log_file, e);
+                    std::process::exit(1);
+                })
+        ));
+
+        eprintln!("Logging to: {}", log_file);
+
+        // Create a MakeWriter implementation for our file
+        use tracing_subscriber::fmt::MakeWriter;
+        struct LogFile(Arc<Mutex<std::fs::File>>);
+        impl<'a> MakeWriter<'a> for LogFile {
+            type Writer = LogFileWriter;
+            fn make_writer(&'a self) -> Self::Writer {
+                LogFileWriter(self.0.clone())
+            }
+        }
+        struct LogFileWriter(Arc<Mutex<std::fs::File>>);
+        impl std::io::Write for LogFileWriter {
+            fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+                let mut file = self.0.lock().unwrap();
+                let result = file.write(buf);
+                // Flush after every write to ensure logs survive OOM kills
+                // This has a performance cost but is critical for debugging crashes
+                let _ = file.flush();
+                result
+            }
+            fn flush(&mut self) -> std::io::Result<()> {
+                self.0.lock().unwrap().flush()
+            }
+        }
+
+        // Create layers for both stderr and file
+        let stderr_layer = tracing_subscriber::fmt::layer()
+            .with_target(true)
+            .with_line_number(true)
+            .with_writer(std::io::stderr);
+
+        let file_layer = tracing_subscriber::fmt::layer()
+            .with_target(true)
+            .with_line_number(true)
+            .with_ansi(false) // No color codes in file
+            .with_writer(LogFile(file));
+
+        tracing_subscriber::registry()
+            .with(env_filter)
+            .with(stderr_layer)
+            .with(file_layer)
+            .init();
+    } else {
+        // No log file, just stderr
+        tracing_subscriber::fmt()
+            .with_env_filter(env_filter)
+            .with_target(true)
+            .with_thread_ids(false)
+            .with_line_number(true)
+            .with_writer(std::io::stderr)
+            .init();
+    }
+
+    // Log command line and initialization
+    tracing::info!("dissect started: {}", std::env::args().collect::<Vec<_>>().join(" "));
     tracing::trace!("Logging initialized (verbose={})", args.verbose);
 
     // Configure rayon thread pool with larger stack size to handle deeply nested ASTs
@@ -927,6 +994,9 @@ fn analyze_file_with_shared_mapper(
     sample_extraction: Option<&types::SampleExtractionConfig>,
     max_memory_file_size: u64,
 ) -> Result<String> {
+    // Log BEFORE processing to ensure we capture what file causes OOM crashes
+    tracing::info!("Starting analysis of file: {}", target);
+
     let _t_start = std::time::Instant::now();
     let path = Path::new(target);
 
@@ -936,7 +1006,9 @@ fn analyze_file_with_shared_mapper(
     let _t_detect = std::time::Instant::now();
 
     // Detect file type
+    tracing::debug!("Detecting file type for: {}", target);
     let file_type = detect_file_type(path)?;
+    tracing::debug!("Detected file type: {:?} for: {}", file_type, target);
 
     // Read file for mismatch check and payload extraction
     let file_data = std::fs::read(path)?;

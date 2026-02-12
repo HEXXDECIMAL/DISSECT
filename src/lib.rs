@@ -130,6 +130,9 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
 ) -> Result<AnalysisReport> {
     let path = path.as_ref();
 
+    // Log BEFORE processing to ensure we capture what file causes OOM crashes
+    tracing::info!("Starting analysis of file: {}", path.display());
+
     if !path.exists() {
         anyhow::bail!("Path does not exist: {}", path.display());
     }
@@ -150,7 +153,9 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
     }
 
     // Detect file type
+    tracing::debug!("Detecting file type for: {}", path.display());
     let file_type = detect_file_type(path)?;
+    tracing::debug!("Detected file type: {:?} for: {}", file_type, path.display());
 
     // Read file for mismatch check and payload extraction
     let file_data = std::fs::read(path)?;
