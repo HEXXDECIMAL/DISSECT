@@ -324,37 +324,42 @@ exec(data)
 
     #[test]
     fn test_is_hex_encoded() {
-        // Valid hex-encoded content
-        let hex = b"636F6E7374205F307831633130303030";
+        // Valid hex-encoded content (MIN_HEX_LENGTH = 100, so need at least 100 chars)
+        // "const _0x1c1000 = function() { return 'malware'; };" repeated to meet length requirement
+        let hex = b"636F6E7374205F3078316331303030203D2066756E6374696F6E28292\
+                    07B2072657475726E20276D616C77617265273B207D3B636F6E73742\
+                    05F3078316331303030203D2066756E6374696F6E28293B";
         assert!(is_hex_encoded(hex), "Should detect hex encoding");
 
-        // Hex with whitespace
-        let hex_ws = b"636F 6E73 7420 5F30 7831 6331 3030 3030";
+        // Hex with whitespace (sparse whitespace to maintain >95% hex ratio)
+        let hex_ws = b"636F6E7374205F3078316331303030203D2066756E6374696F6E2829207B207265747\
+                       5726E20276D616C77617265273B207D3B 636F6E7374205F30783163313030302032\
+                       03D2066756E6374696F6E28293B20636F6E7374207920203D20313B";
         assert!(is_hex_encoded(hex_ws), "Should detect hex with whitespace");
 
         // Not hex-encoded
-        let not_hex = b"const _0x1c1000 = function() {};";
+        let not_hex = b"const _0x1c1000 = function() { return 'data'; }; const x = 42; const y = 100; const z = 200;";
         assert!(!is_hex_encoded(not_hex), "Should reject non-hex");
 
-        // Too short
-        let too_short = b"636F6E73";
+        // Too short (less than MIN_HEX_LENGTH)
+        let too_short = b"636F6E7374205F3078316331303030";
         assert!(!is_hex_encoded(too_short), "Should reject short strings");
 
-        // Mixed content
-        let mixed = b"636F6E7374 = value;";
+        // Mixed content (hex mixed with non-hex)
+        let mixed = b"636F6E7374205F3078316331303030 = value; this is not all hex but is long enough to pass length check yes";
         assert!(!is_hex_encoded(mixed), "Should reject mixed content");
     }
 
     #[test]
     fn test_decode_hex() {
-        // Decode "const _0x1c1000"
-        let hex = b"636F6E7374205F307831633130303030";
+        // Decode "const _0x1c1000" (correct hex encoding: 636F6E7374205F3078316331303030)
+        let hex = b"636F6E7374205F3078316331303030";
         let decoded = decode_hex(hex).expect("Should decode hex");
         let decoded_str = String::from_utf8(decoded).unwrap();
         assert_eq!(decoded_str, "const _0x1c1000", "Should decode to original");
 
         // Decode with whitespace
-        let hex_ws = b"636F 6E73 7420 5F30 7831 6331 3030 3030";
+        let hex_ws = b"636F 6E73 7420 5F30 7831 6331 3030 30";
         let decoded = decode_hex(hex_ws).expect("Should decode hex with whitespace");
         let decoded_str = String::from_utf8(decoded).unwrap();
         assert_eq!(decoded_str, "const _0x1c1000", "Should handle whitespace");

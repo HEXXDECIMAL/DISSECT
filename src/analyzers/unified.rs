@@ -14,7 +14,9 @@
 use crate::analyzers::comment_metrics::{self, CommentStyle};
 use crate::analyzers::function_metrics::{self, FunctionInfo};
 use crate::analyzers::symbol_extraction;
-use crate::analyzers::{identifier_metrics, string_metrics, text_metrics, Analyzer, FileType};
+use crate::analyzers::{
+    identifier_metrics, import_metrics, string_metrics, text_metrics, Analyzer, FileType,
+};
 use crate::capabilities::CapabilityMapper;
 use crate::types::*;
 use anyhow::{Context, Result};
@@ -587,7 +589,27 @@ impl UnifiedSourceAnalyzer {
         crate::env_mapper::analyze_and_link_env_vars(&mut report);
 
         // Compute metrics
-        report.metrics = Some(self.compute_metrics(&root, content));
+        let mut metrics = self.compute_metrics(&root, content);
+
+        // Compute import metrics from already-extracted imports
+        if !report.imports.is_empty() {
+            let file_type_str = match self.file_type {
+                crate::analyzers::FileType::Python => "python",
+                crate::analyzers::FileType::JavaScript => "javascript",
+                crate::analyzers::FileType::TypeScript => "typescript",
+                crate::analyzers::FileType::Go => "go",
+                crate::analyzers::FileType::Ruby => "ruby",
+                crate::analyzers::FileType::Perl => "perl",
+                crate::analyzers::FileType::Lua => "lua",
+                _ => "unknown",
+            };
+            metrics.imports = Some(import_metrics::analyze_imports(&report.imports, file_type_str));
+        }
+
+        // Compute ratio metrics from already-populated counters
+        Self::compute_text_ratio_metrics(&mut metrics);
+
+        report.metrics = Some(metrics);
 
         // Evaluate all rules (atomic + composite) and merge into report
         self.capability_mapper.evaluate_and_merge_findings(
@@ -913,6 +935,128 @@ impl UnifiedSourceAnalyzer {
                 if cursor.goto_next_sibling() {
                     break;
                 }
+            }
+        }
+    }
+
+    /// Compute ratio and normalized metrics from already-populated AST metrics.
+    /// Call this after all base counters are populated (including imports).
+    /// All metrics are just division operations - zero parsing overhead.
+    fn compute_text_ratio_metrics(metrics: &mut Metrics) {
+        // Get references to all metric components
+        let text = metrics.text.as_mut();
+        let identifiers = metrics.identifiers.as_ref();
+        let strings = metrics.strings.as_ref();
+        let comments = metrics.comments.as_ref();
+        let functions = metrics.functions.as_ref();
+        let _statements = metrics.statements.as_ref();
+        let imports = metrics.imports.as_ref();
+
+        // Only proceed if we have text metrics (required for ratios)
+        let text = match text {
+            Some(t) => t,
+            None => return,
+        };
+
+        // Cross-component ratios (per function)
+        if let Some(funcs) = functions {
+            if funcs.total > 0 {
+                if let Some(strs) = strings {
+                    text.strings_to_functions_ratio = strs.total as f32 / funcs.total as f32;
+                }
+                if let Some(idents) = identifiers {
+                    text.identifiers_to_functions_ratio =
+                        idents.unique_count as f32 / funcs.total as f32;
+                }
+                if let Some(imps) = imports {
+                    text.imports_to_functions_ratio = imps.total as f32 / funcs.total as f32;
+                }
+            }
+        }
+
+        // Per-line density ratios
+        if text.total_lines > 0 {
+            if let Some(idents) = identifiers {
+                text.identifier_density = idents.total as f32 / text.total_lines as f32;
+            }
+            if let Some(strs) = strings {
+                text.string_density = strs.total as f32 / text.total_lines as f32;
+            }
+            if let Some(imps) = imports {
+                text.import_density = (imps.total as f32 * 100.0) / text.total_lines as f32;
+            }
+
+            // Size-independent normalized metrics
+            let lines_sqrt = (text.total_lines as f32).sqrt();
+            if lines_sqrt > 0.0 {
+                if let Some(funcs) = functions {
+                    text.normalized_function_count = funcs.total as f32 / lines_sqrt;
+                }
+                if let Some(imps) = imports {
+                    text.normalized_import_count = imps.total as f32 / lines_sqrt;
+                }
+                if let Some(strs) = strings {
+                    text.normalized_string_count = strs.total as f32 / lines_sqrt;
+                }
+            }
+
+            let lines_log = (text.total_lines as f32).log2();
+            if lines_log > 0.0 {
+                if let Some(idents) = identifiers {
+                    text.normalized_unique_identifiers =
+                        idents.unique_count as f32 / lines_log;
+                }
+            }
+        }
+
+        // Obfuscation indicator ratios
+        if let Some(idents) = identifiers {
+            if idents.unique_count > 0 {
+                let suspicious = idents.hex_like_names
+                    + idents.base64_like_names
+                    + idents.sequential_names
+                    + idents.keyboard_pattern_names
+                    + idents.repeated_char_names;
+                text.suspicious_identifier_ratio =
+                    suspicious as f32 / idents.unique_count as f32;
+            }
+        }
+
+        if let Some(strs) = strings {
+            if strs.total > 0 {
+                let encoded =
+                    strs.base64_candidates + strs.hex_strings + strs.url_encoded_strings;
+                text.encoded_string_ratio = encoded as f32 / strs.total as f32;
+
+                let suspicious = strs.embedded_code_candidates
+                    + strs.shell_command_strings
+                    + strs.sql_strings;
+                text.suspicious_string_ratio = suspicious as f32 / strs.total as f32;
+
+                let dynamic = strs.concat_operations
+                    + strs.char_construction
+                    + strs.array_join_construction;
+                text.dynamic_string_ratio = dynamic as f32 / strs.total as f32;
+            }
+        }
+
+        if let Some(cmts) = comments {
+            if cmts.total > 0 {
+                let suspicious = cmts.high_entropy_comments + cmts.base64_in_comments;
+                text.suspicious_comment_ratio = suspicious as f32 / cmts.total as f32;
+            }
+        }
+
+        if let Some(imps) = imports {
+            if imps.total > 0 {
+                let dynamic = imps.dynamic_imports + imps.conditional_imports;
+                text.dynamic_import_ratio = dynamic as f32 / imps.total as f32;
+            }
+        }
+
+        if let Some(funcs) = functions {
+            if funcs.total > 0 {
+                text.anonymous_function_ratio = funcs.anonymous as f32 / funcs.total as f32;
             }
         }
     }

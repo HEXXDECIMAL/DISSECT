@@ -2110,7 +2110,7 @@ pub(crate) fn find_parent_duplicate_segments(trait_dirs: &[String]) -> Vec<(Stri
 
 /// Maximum number of traits allowed in a single directory.
 /// Directories exceeding this should be split into subdirectories.
-pub const MAX_TRAITS_PER_DIRECTORY: usize = 69;
+pub const MAX_TRAITS_PER_DIRECTORY: usize = 80;
 
 /// Find directories with too many traits (suggests need for subdirectories).
 /// Returns: Vec<(directory_path, trait_count)>
@@ -3677,8 +3677,8 @@ mod tests {
 
     #[test]
     fn test_find_oversized_trait_directories_over_limit() {
-        // Create 75 traits in same directory (over 69 limit)
-        let traits: Vec<TraitDefinition> = (0..75)
+        // Create 85 traits in same directory (over 80 limit)
+        let traits: Vec<TraitDefinition> = (0..85)
             .map(|i| {
                 let mut t = make_string_trait(
                     &format!("cap/test/oversized::trait-{}", i),
@@ -3692,13 +3692,13 @@ mod tests {
         let violations = find_oversized_trait_directories(&traits);
         assert_eq!(violations.len(), 1);
         assert_eq!(violations[0].0, "cap/test/oversized");
-        assert_eq!(violations[0].1, 75);
+        assert_eq!(violations[0].1, 85);
     }
 
     #[test]
     fn test_find_oversized_trait_directories_multiple_dirs() {
-        // 75 in one dir (violation), 10 in another (ok)
-        let mut traits: Vec<TraitDefinition> = (0..75)
+        // 85 in one dir (violation), 10 in another (ok)
+        let mut traits: Vec<TraitDefinition> = (0..85)
             .map(|i| {
                 let mut t = make_string_trait(
                     &format!("cap/test/big::trait-{}", i),

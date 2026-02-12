@@ -1008,8 +1008,8 @@ mod constraint_tests {
             r#for: vec![],
             r#if: ConditionWithFilters {
                 condition: cond,
-                size_min: None,
-                size_max: None,
+                size_min: Some(1000),
+                size_max: Some(500), // max < min
                 count_min: None,
                 count_max: None,
                 per_kb_min: None,
@@ -1471,9 +1471,19 @@ mod llm_validation_tests {
             compiled_excludes: vec![],
         };
 
-        let warning = cond.check_count_min_value();
+        let cond_with_filters = ConditionWithFilters {
+            condition: cond,
+            size_min: None,
+            size_max: None,
+            count_min: Some(0), // Invalid: count_min should not be 0
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
+        };
+
+        let warning = cond_with_filters.check_count_min_value("test-trait");
         assert!(warning.is_some());
-        assert!(warning.as_ref().unwrap().contains("count_min: 0"));
+        assert!(warning.as_ref().unwrap().contains("count_min: 0") || warning.as_ref().unwrap().contains("count_min of 0"));
     }
 
     #[test]

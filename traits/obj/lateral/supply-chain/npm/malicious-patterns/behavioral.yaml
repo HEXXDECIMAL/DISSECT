@@ -326,7 +326,7 @@ traits:
 
   - id: buffer-write-loop
     desc: Staged buffer payload assembly
-    crit: suspicious
+    crit: notable
     conf: 0.85
     mbc: "B0032"
     attack: "T1027"

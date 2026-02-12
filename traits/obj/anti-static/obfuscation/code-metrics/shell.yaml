@@ -63,7 +63,7 @@ traits:
 
   - id: sh-long-lines
     desc: "Very long shell lines (compressed/obfuscated)"
-    crit: suspicious
+    crit: notable
     conf: 0.8
     if:
       type: metrics
@@ -158,6 +158,8 @@ composite_rules:
       - id: obj/anti-static/obfuscation/code-metrics/structure::no-comments
     any:
       - id: obj/anti-static/obfuscation/code-metrics::sh-long-lines
+    unless:
+      - id: meta/format/json::valid
 
   - id: sh-compact-malware
     desc: "Compacted shell malware pattern"
@@ -169,3 +171,6 @@ composite_rules:
       - id: obj/anti-static/obfuscation/code-metrics::sh-long-lines
       - id: obj/anti-static/obfuscation/code-metrics/structure::no-comments
       - id: obj/anti-static/obfuscation/code-metrics::sh-no-functions
+    unless:
+      - id: meta/format/json::valid
+      - id: meta/lang::ps-valid

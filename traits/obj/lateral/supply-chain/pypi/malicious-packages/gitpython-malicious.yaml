@@ -51,7 +51,7 @@ traits:
     conf: 0.70
     if:
       type: string
-      regex: "(not|no|anti|un|dis)[-_a-z0-9]{0,12}(grabber|logger|stealer|malware|virus)|^[a-z]{8,15}[0-9]{3,5}$"
+      regex: "(not|no|un|dis)[-_a-z0-9]{0,12}(grabber|logger|stealer|malware|virus)|anti[-_a-z0-9]{0,12}(grabber|logger|stealer)|^[a-z]{8,15}[0-9]{3,5}$"
 
   # === Post-Install Execution ===
   - id: cmdclass-custom-install

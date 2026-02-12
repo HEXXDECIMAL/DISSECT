@@ -158,11 +158,14 @@ traits:
 
   - id: phantom-word
     desc: Phantom wallet reference
-    crit: notable
+    crit: inert
     conf: 0.5
     if:
       type: string
       word: "phantom"
+    not:
+      - "PhantomJS"
+      - "phantomjs"
 
   - id: browser-word
     desc: browser wallet context

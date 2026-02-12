@@ -1429,6 +1429,28 @@ impl<'a> RuleDebugger<'a> {
                 .push(format!("Metric '{}' not found in report", field));
             if let Some(metrics) = &self.report.metrics {
                 result.details.push("Available metrics:".to_string());
+                if let Some(binary) = &metrics.binary {
+                    result.details.push(format!(
+                        "  binary.code_to_data_ratio: {:.2}",
+                        binary.code_to_data_ratio
+                    ));
+                    result.details.push(format!(
+                        "  binary.string_count: {}",
+                        binary.string_count
+                    ));
+                    result.details.push(format!(
+                        "  binary.function_count: {}",
+                        binary.function_count
+                    ));
+                    result.details.push(format!(
+                        "  binary.avg_complexity: {:.2}",
+                        binary.avg_complexity
+                    ));
+                    result.details.push(format!(
+                        "  binary.file_size: {}",
+                        binary.file_size
+                    ));
+                }
                 if let Some(text) = &metrics.text {
                     result
                         .details
@@ -1452,7 +1474,7 @@ impl<'a> RuleDebugger<'a> {
                         .push(format!("  identifiers.total: {}", ids.total));
                     result
                         .details
-                        .push(format!("  identifiers.unique: {}", ids.unique));
+                        .push(format!("  identifiers.unique: {}", ids.unique_count));
                 }
             }
         }
@@ -2480,7 +2502,7 @@ fn get_metric_value(report: &AnalysisReport, field: &str) -> Option<f64> {
             .map(|i| i.single_char_ratio as f64),
         "identifiers.avg_length" => metrics.identifiers.as_ref().map(|i| i.avg_length as f64),
         "identifiers.total" => metrics.identifiers.as_ref().map(|i| i.total as f64),
-        "identifiers.unique" => metrics.identifiers.as_ref().map(|i| i.unique as f64),
+        "identifiers.unique" => metrics.identifiers.as_ref().map(|i| i.unique_count as f64),
         "identifiers.single_char_count" => metrics
             .identifiers
             .as_ref()

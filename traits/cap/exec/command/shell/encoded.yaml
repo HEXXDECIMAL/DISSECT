@@ -19,16 +19,6 @@ traits:
       regex: "\\b(bash|sh|cmd|powershell|popen|system|exec)\\b"
       case_insensitive: true
 
-  - id: xor-shell-operators
-    desc: "XOR-encoded shell operators"
-    crit: suspicious
-    conf: 0.85
-    attack: "T1027"
-    if:
-      type: encoded
-      encoding: xor
-      regex: "\\$\\(|`|\\|\\||&&|;|\\|"
-
   # Base64-encoded shell commands
   - id: base64-shell-command
     desc: "Base64-encoded shell command"
@@ -49,7 +39,7 @@ traits:
     attack: "T1027"
     if:
       type: encoded
-      regex: "\\b(popen|system|exec|/bin/sh|/bin/bash)\\b"
+      regex: "\\b(popen|/bin/sh|/bin/bash)\\b"
       case_insensitive: true
 
   # Multiple encoded shell strings = deliberate obfuscation

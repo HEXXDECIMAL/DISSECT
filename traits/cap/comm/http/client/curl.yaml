@@ -21,7 +21,7 @@ traits:
     conf: 0.3
     if:
       type: string
-      word: "wget"
+      regex: "(?:^|[\\s/])wget(?:\\s+-|\\s+http|\\s+--)"
 
   # === curl POST operations ===
   - id: curl-post-x

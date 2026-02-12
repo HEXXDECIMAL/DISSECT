@@ -21,7 +21,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      word: "system"
+      regex: "system\\s*[(\"']"
 
   - id: system-fn
     desc: system() function call

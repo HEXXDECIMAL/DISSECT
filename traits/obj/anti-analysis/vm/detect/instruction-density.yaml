@@ -7,27 +7,43 @@ defaults:
   attack: "T1497.001"
 
 traits:
-  # CPUID density check (multiple CPUID calls in a small range)
-  - id: high-cpuid-density
-    desc: High density of CPUID instructions
-    crit: suspicious
-    conf: 0.85
+  # CPUID occurrence check
+  - id: multiple-cpuid-instr
+    desc: Multiple CPUID instructions detected
+    crit: notable
+    conf: 0.7
     if:
       type: hex
       pattern: "0F A2"
       count_min: 3
-      per_kb_min: 0.1
 
-  # RDTSC density check (timing loops)
-  - id: high-rdtsc-density
-    desc: High density of RDTSC instructions (timing loop)
-    crit: suspicious
-    conf: 0.85
+  # RDTSC occurrence check
+  - id: multiple-rdtsc-instr
+    desc: Multiple RDTSC instructions (timing primitives)
+    crit: notable
+    conf: 0.7
     if:
       type: hex
       pattern: "0F 31"
       count_min: 3
-      per_kb_min: 0.1
+
+  - id: sparse-logic-density
+    desc: "Extremely low logic density (function sparsity)"
+    crit: suspicious
+    conf: 0.8
+    if:
+      type: metrics
+      field: binary.complexity_per_kb
+      max: 0.05
+
+  - id: import-sparsity
+    desc: "Abnormally low import density"
+    crit: notable
+    conf: 0.7
+    if:
+      type: metrics
+      field: binary.import_density
+      max: 0.2
 
 composite_rules:
   - id: instruction-based-evasion
@@ -35,5 +51,16 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     any:
-      - id: high-cpuid-density
-      - id: high-rdtsc-density
+      - id: multiple-cpuid-instr
+      - id: multiple-rdtsc-instr
+
+  - id: sparse-execution-anomaly
+    desc: "Sparse execution structural anomaly (possible packer)"
+    crit: suspicious
+    conf: 0.9
+    all:
+      - id: sparse-logic-density
+      - id: import-sparsity
+    any:
+      - id: obj/anti-static/obfuscation/binary-metrics::dominant-section
+      - id: meta/binary/structure::minimal-string-count

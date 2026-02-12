@@ -81,6 +81,12 @@ traits:
       type: string
       substr: "command"
 
+  - id: pipe
+    desc: pipe keyword
+    if:
+      type: string
+      exact: "pipe"
+
   - id: output
     desc: output keyword
     if:

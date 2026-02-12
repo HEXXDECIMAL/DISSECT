@@ -82,6 +82,14 @@ traits:
       type: string
       substr: "XMLHttpRequest"
 
+  - id: http-config-fields
+    desc: HTTP configuration fields (method/body/headers)
+    crit: inert
+    conf: 0.5
+    if:
+      type: raw
+      regex: '("method"|"body"|"headers")'
+
 composite_rules:
   # HTTP request composite (migrated from YARA)
   - id: request

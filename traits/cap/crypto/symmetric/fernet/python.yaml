@@ -14,7 +14,7 @@ traits:
     crit: inert
     conf: 0.8
     if:
-      type: string
+      type: raw
       regex: "\\bimport\\s+fernet\\b"
 
   - id: from-cryptography-fernet
@@ -22,7 +22,7 @@ traits:
     crit: inert
     conf: 0.8
     if:
-      type: string
+      type: raw
       regex: "\\bfrom\\s+cryptography\\.fernet\\s+import"
 
   # Fernet class usage
@@ -31,7 +31,7 @@ traits:
     crit: notable
     conf: 0.85
     if:
-      type: string
+      type: raw
       regex: "Fernet\\s*\\("
 
   # Fernet decrypt operation
@@ -40,7 +40,7 @@ traits:
     crit: notable
     conf: 0.9
     if:
-      type: string
+      type: raw
       regex: "\\.decrypt\\s*\\("
 
   # Fernet key generation
@@ -49,7 +49,7 @@ traits:
     crit: notable
     conf: 0.85
     if:
-      type: string
+      type: raw
       regex: "Fernet\\.generate_key\\s*\\("
 
   # Fernet encrypt operation
@@ -58,7 +58,7 @@ traits:
     crit: notable
     conf: 0.9
     if:
-      type: string
+      type: raw
       regex: "\\.encrypt\\s*\\("
 
   # === Runtime installation patterns ===
@@ -99,7 +99,7 @@ traits:
     crit: inert
     conf: 0.5
     if:
-      type: string
+      type: raw
       regex: "except\\s+(ImportError|InvalidToken|Exception)"
 
   - id: importerror-keyword
@@ -107,7 +107,7 @@ traits:
     crit: inert
     conf: 0.6
     if:
-      type: string
+      type: raw
       word: "ImportError"
 
   # === Hardcoded key patterns ===
@@ -116,7 +116,7 @@ traits:
     crit: inert
     conf: 0.6
     if:
-      type: string
+      type: raw
       word: "Fernet"
 
   - id: fernet-base64-key

@@ -1,5 +1,6 @@
 //! Language-specific metrics for source code analysis
 
+use dissect_macros::ValidFieldPaths;
 use serde::{Deserialize, Serialize};
 
 use super::{is_false, is_zero_u32, is_zero_u64};
@@ -9,7 +10,7 @@ use super::{is_false, is_zero_u32, is_zero_u64};
 // =============================================================================
 
 /// Python-specific metrics for obfuscation/malware detection
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, ValidFieldPaths)]
 pub struct PythonMetrics {
     // === Dynamic Execution ===
     /// eval() calls
@@ -163,7 +164,7 @@ pub struct PythonMetrics {
 }
 
 /// JavaScript/TypeScript metrics
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, ValidFieldPaths)]
 pub struct JavaScriptMetrics {
     // === Dynamic Execution ===
     /// eval() calls
@@ -271,7 +272,7 @@ pub struct JavaScriptMetrics {
 }
 
 /// Shell script metrics (bash/sh/zsh)
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, ValidFieldPaths)]
 pub struct ShellMetrics {
     // === Command Execution ===
     /// eval usage
@@ -399,7 +400,7 @@ pub struct ShellMetrics {
 }
 
 /// PowerShell metrics
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, ValidFieldPaths)]
 pub struct PowerShellMetrics {
     // === Execution ===
     /// Invoke-Expression (IEX) count
@@ -508,7 +509,7 @@ pub struct PowerShellMetrics {
 }
 
 /// PHP metrics
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, ValidFieldPaths)]
 pub struct PhpMetrics {
     // === Dangerous Functions ===
     /// eval() usage
@@ -617,7 +618,7 @@ pub struct PhpMetrics {
 }
 
 /// Ruby metrics
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, ValidFieldPaths)]
 pub struct RubyMetrics {
     // === Dynamic Execution ===
     /// eval usage
@@ -682,7 +683,7 @@ pub struct RubyMetrics {
 }
 
 /// Perl metrics
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, ValidFieldPaths)]
 pub struct PerlMetrics {
     // === Dynamic Execution ===
     /// eval STRING usage
@@ -739,7 +740,7 @@ pub struct PerlMetrics {
 }
 
 /// Go-specific metrics
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, ValidFieldPaths)]
 pub struct GoMetrics {
     // === Dangerous Packages ===
     /// unsafe package usage
@@ -806,7 +807,7 @@ pub struct GoMetrics {
 }
 
 /// Rust-specific metrics
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, ValidFieldPaths)]
 pub struct RustMetrics {
     // === Unsafe ===
     /// unsafe blocks
@@ -865,7 +866,7 @@ pub struct RustMetrics {
 }
 
 /// C/C++ metrics
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, ValidFieldPaths)]
 pub struct CMetrics {
     // === Dangerous Constructs ===
     /// Inline assembly
@@ -929,7 +930,7 @@ pub struct CMetrics {
 }
 
 /// Java source metrics
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, ValidFieldPaths)]
 pub struct JavaSourceMetrics {
     // === Reflection ===
     /// Class.forName usage
@@ -987,7 +988,7 @@ pub struct JavaSourceMetrics {
 }
 
 /// Lua metrics
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, ValidFieldPaths)]
 pub struct LuaMetrics {
     /// loadstring/load usage
     #[serde(default, skip_serializing_if = "is_zero_u32")]
@@ -1019,7 +1020,7 @@ pub struct LuaMetrics {
 }
 
 /// C# metrics
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, ValidFieldPaths)]
 pub struct CSharpMetrics {
     // === P/Invoke ===
     /// DllImport declarations
@@ -1419,3 +1420,10 @@ mod tests {
         assert_eq!(metrics.dllimport_count, 10);
     }
 }
+
+// =============================================================================
+// VALID FIELD PATHS FOR YAML VALIDATION
+// =============================================================================
+
+
+// Stub implementations - return empty for now, can be filled with actual fields if needed

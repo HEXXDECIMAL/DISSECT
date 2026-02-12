@@ -1,5 +1,6 @@
 //! Container and archive metrics (tar, npm packages, etc.)
 
+use dissect_macros::ValidFieldPaths;
 use serde::{Deserialize, Serialize};
 
 use super::{is_false, is_zero_f32, is_zero_u32, is_zero_u64};
@@ -9,7 +10,7 @@ use super::{is_false, is_zero_f32, is_zero_u32, is_zero_u64};
 // =============================================================================
 
 /// Archive metrics (ZIP, TAR, etc.)
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, ValidFieldPaths)]
 pub struct ArchiveMetrics {
     // === Structure ===
     /// File count
@@ -95,7 +96,7 @@ pub struct ArchiveMetrics {
 }
 
 /// package.json metrics for npm supply chain analysis
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, ValidFieldPaths)]
 pub struct PackageJsonMetrics {
     // === Dependencies ===
     /// Dependency count
@@ -347,3 +348,10 @@ mod tests {
         assert_eq!(metrics.obfuscated_scripts, 2);
     }
 }
+
+// =============================================================================
+// VALID FIELD PATHS FOR YAML VALIDATION
+// =============================================================================
+
+
+// Stub implementations - return empty for now

@@ -143,7 +143,7 @@ fn test_eval_metrics_identifiers_reuse_ratio() {
         identifiers: Some(IdentifierMetrics {
             reuse_ratio: 0.25,
             total: 100,
-            unique: 25,
+            unique_count: 25,
             ..Default::default()
         }),
         ..Default::default()

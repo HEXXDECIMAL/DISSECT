@@ -116,8 +116,45 @@ impl MachOAnalyzer {
             rpath_count,
             ..Default::default()
         };
+
+        // Always compute basic binary metrics (even if radare2 fails)
+        let binary_metrics = crate::types::BinaryMetrics {
+            file_size: data.len() as u64,
+            segment_count: macho.load_commands.iter()
+                .filter(|lc| matches!(
+                    lc.command,
+                    goblin::mach::load_command::CommandVariant::Segment32(_)
+                        | goblin::mach::load_command::CommandVariant::Segment64(_)
+                ))
+                .count() as u32,
+            is_stripped: macho.symbols().count() == 0,
+            has_debug_info: macho.load_commands.iter().any(|lc| {
+                match &lc.command {
+                    goblin::mach::load_command::CommandVariant::Segment32(seg) => {
+                        seg.segname.iter()
+                            .take_while(|&&b| b != 0)
+                            .map(|&b| b as char)
+                            .collect::<String>()
+                            .contains("DWARF")
+                    }
+                    goblin::mach::load_command::CommandVariant::Segment64(seg) => {
+                        seg.segname.iter()
+                            .take_while(|&&b| b != 0)
+                            .map(|&b| b as char)
+                            .collect::<String>()
+                            .contains("DWARF")
+                    }
+                    _ => false,
+                }
+            }),
+            is_pie: (macho.header.flags & 0x200000) != 0,
+            string_count: 0, // Will be updated after string extraction
+            ..Default::default()
+        };
+
         report.metrics = Some(Metrics {
             macho: Some(macho_metrics),
+            binary: Some(binary_metrics.clone()),
             ..Default::default()
         });
 
@@ -131,54 +168,42 @@ impl MachOAnalyzer {
 
             // Use batched extraction - single r2 session for functions, sections, strings, imports
             if let Ok(batched) = self.radare2.extract_batched(file_path) {
-                // Compute metrics from batched data
-                let binary_metrics = self.radare2.compute_metrics_from_batched(&batched);
+                // Compute metrics from batched data (radare2-specific metrics)
+                let r2_binary_metrics = self.radare2.compute_metrics_from_batched(&batched);
 
-                // Update metrics with radare2 data
+                // Enhance existing binary metrics with radare2 data
                 if let Some(ref mut metrics) = report.metrics {
-                    let mut binary_metrics = binary_metrics;
-
-                    // Populate binary-level metrics from Mach-O data
-                    binary_metrics.file_size = data.len() as u64;
-
-                    // Count segments (load commands of type Segment32/Segment64)
-                    binary_metrics.segment_count = macho.load_commands.iter()
-                        .filter(|lc| matches!(
-                            lc.command,
-                            goblin::mach::load_command::CommandVariant::Segment32(_)
-                                | goblin::mach::load_command::CommandVariant::Segment64(_)
-                        ))
-                        .count() as u32;
-
-                    // Check if binary is stripped (no symbol table or minimal symbols)
-                    binary_metrics.is_stripped = macho.symbols().count() == 0;
-
-                    // Check for debug info (has __DWARF segment or .dSYM sections)
-                    binary_metrics.has_debug_info = macho.load_commands.iter().any(|lc| {
-                        match &lc.command {
-                            goblin::mach::load_command::CommandVariant::Segment32(seg) => {
-                                seg.segname.iter()
-                                    .take_while(|&&b| b != 0)
-                                    .map(|&b| b as char)
-                                    .collect::<String>()
-                                    .contains("DWARF")
-                            }
-                            goblin::mach::load_command::CommandVariant::Segment64(seg) => {
-                                seg.segname.iter()
-                                    .take_while(|&&b| b != 0)
-                                    .map(|&b| b as char)
-                                    .collect::<String>()
-                                    .contains("DWARF")
-                            }
-                            _ => false,
+                    if let Some(ref mut binary_metrics) = metrics.binary {
+                        // Merge radare2 metrics into existing basic metrics (only if non-zero)
+                        if r2_binary_metrics.function_count > 0 {
+                            binary_metrics.function_count = r2_binary_metrics.function_count;
+                            binary_metrics.avg_function_size = r2_binary_metrics.avg_function_size;
+                            binary_metrics.avg_complexity = r2_binary_metrics.avg_complexity;
                         }
-                    });
-
-                    // Check if PIE (position independent executable)
-                    // MH_PIE flag in header.flags
-                    binary_metrics.is_pie = (macho.header.flags & 0x200000) != 0;
-
-                    metrics.binary = Some(binary_metrics);
+                        if r2_binary_metrics.code_to_data_ratio > 0.0 {
+                            binary_metrics.code_to_data_ratio = r2_binary_metrics.code_to_data_ratio;
+                        }
+                        // Also merge section-level metrics from radare2
+                        if r2_binary_metrics.section_count > 0 {
+                            binary_metrics.executable_sections = r2_binary_metrics.executable_sections;
+                            binary_metrics.writable_sections = r2_binary_metrics.writable_sections;
+                            binary_metrics.wx_sections = r2_binary_metrics.wx_sections;
+                        }
+                    } else {
+                        // Fallback: set full radare2 metrics if binary metrics somehow missing
+                        let mut full_metrics = r2_binary_metrics;
+                        full_metrics.file_size = data.len() as u64;
+                        full_metrics.segment_count = macho.load_commands.iter()
+                            .filter(|lc| matches!(
+                                lc.command,
+                                goblin::mach::load_command::CommandVariant::Segment32(_)
+                                    | goblin::mach::load_command::CommandVariant::Segment64(_)
+                            ))
+                            .count() as u32;
+                        full_metrics.is_stripped = macho.symbols().count() == 0;
+                        full_metrics.is_pie = (macho.header.flags & 0x200000) != 0;
+                        metrics.binary = Some(full_metrics);
+                    }
 
                     if let Some(ref mut macho_metrics) = metrics.macho {
                         macho_metrics.has_code_signature = codesig_data.is_some();
@@ -225,6 +250,13 @@ impl MachOAnalyzer {
             .string_extractor
             .extract_smart_with_r2(data, r2_strings);
         tools_used.push("stng".to_string());
+
+        // Update binary metrics with string count
+        if let Some(ref mut metrics) = report.metrics {
+            if let Some(ref mut binary_metrics) = metrics.binary {
+                binary_metrics.string_count = report.strings.len() as u32;
+            }
+        }
 
         // Analyze embedded code in strings
         let (encoded_layers, plain_findings) =
@@ -452,6 +484,11 @@ impl MachOAnalyzer {
                         macho_metrics.slice_count = archs.len() as u32;
                     }
                 }
+            }
+
+            // Compute ratio metrics after all base counters are populated
+            if let Some(ref mut binary) = metrics.binary {
+                crate::radare2::Radare2Analyzer::compute_ratio_metrics(binary);
             }
         }
     }

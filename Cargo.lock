@@ -995,6 +995,7 @@ dependencies = [
  "dashmap",
  "dhat",
  "dirs",
+ "dissect-macros",
  "flate2",
  "goblin",
  "hex",
@@ -1051,6 +1052,15 @@ dependencies = [
  "yara-x",
  "zip",
  "zstd",
+]
+
+[[package]]
+name = "dissect-macros"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -3044,13 +3054,14 @@ checksum = "6ce2be8dc25455e1f91df71bfa12ad37d7af1092ae736f3a6cd0e37bc7810596"
 [[package]]
 name = "stng"
 version = "0.1.0"
-source = "git+https://github.com/HEXXDECIMAL/stng.git#5ec373973874555a3095d2be105d06d9998b906a"
+source = "git+https://github.com/HEXXDECIMAL/stng.git#e1f53e3c51960e19a2ee700f257ffe692a2e3496"
 dependencies = [
  "aho-corasick",
  "anyhow",
  "base64",
  "clap",
  "data-encoding",
+ "dirs",
  "goblin",
  "hex",
  "memchr",

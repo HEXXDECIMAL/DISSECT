@@ -89,7 +89,7 @@ fn read_paths_from_stdin() -> Vec<String> {
 }
 
 /// Expand paths, replacing "-" with paths read from stdin.
-fn expand_paths(paths: Vec<String>) -> Vec<String> {
+fn expand_paths(paths: Vec<String>, format: &cli::OutputFormat) -> Vec<String> {
     let mut expanded = Vec::new();
     let mut stdin_read = false;
 
@@ -97,7 +97,9 @@ fn expand_paths(paths: Vec<String>) -> Vec<String> {
         if path == "-" {
             if !stdin_read {
                 let stdin_paths = read_paths_from_stdin();
-                eprintln!("Read {} paths from stdin", stdin_paths.len());
+                if *format == cli::OutputFormat::Terminal {
+                    eprintln!("Read {} paths from stdin", stdin_paths.len());
+                }
                 expanded.extend(stdin_paths);
                 stdin_read = true;
             }
@@ -134,6 +136,9 @@ fn main() -> Result<()> {
     // Parse args early to get verbose flag for logging initialization
     let args = cli::Args::parse();
 
+    // Determine output format early so we can use it for conditional status messages
+    let format = args.format();
+
     // Initialize tracing/logging
     // Use RUST_LOG env var if set, otherwise use verbose flag
     // Examples: RUST_LOG=debug, RUST_LOG=dissect=trace, RUST_LOG=dissect::analyzers::archive=trace
@@ -166,7 +171,9 @@ fn main() -> Result<()> {
                 })
         ));
 
-        eprintln!("Logging to: {}", log_file);
+        if format == cli::OutputFormat::Terminal {
+            eprintln!("Logging to: {}", log_file);
+        }
 
         // Create a MakeWriter implementation for our file
         use tracing_subscriber::fmt::MakeWriter;
@@ -248,13 +255,13 @@ fn main() -> Result<()> {
         upx::disable_upx();
     }
 
-    // Print banner to stderr (status info never goes to stdout)
-    eprintln!(
-        "DISSECT v{} • Deep static analysis tool\n",
-        env!("CARGO_PKG_VERSION")
-    );
-
-    let format = args.format();
+    // Print banner to stderr (status info never goes to stdout) - only in terminal mode
+    if format == cli::OutputFormat::Terminal {
+        eprintln!(
+            "DISSECT v{} • Deep static analysis tool\n",
+            env!("CARGO_PKG_VERSION")
+        );
+    }
 
     // Collect zip passwords (default + custom, unless disabled)
     let zip_passwords: Vec<String> = if args.no_zip_passwords {
@@ -308,7 +315,7 @@ fn main() -> Result<()> {
         }) => {
             let enable_third_party =
                 (enable_third_party_global || cmd_third_party) && !disabled.third_party;
-            let expanded = expand_paths(targets);
+            let expanded = expand_paths(targets, &format);
             if expanded.is_empty() {
                 anyhow::bail!("No valid paths found (stdin was empty or contained only comments)");
             }
@@ -358,7 +365,7 @@ fn main() -> Result<()> {
             paths,
             third_party_yara: cmd_third_party,
         }) => scan_paths(
-            expand_paths(paths),
+            expand_paths(paths, &format),
             (enable_third_party_global || cmd_third_party) && !disabled.third_party,
             &format,
             &zip_passwords,
@@ -452,7 +459,7 @@ fn main() -> Result<()> {
             if args.paths.is_empty() {
                 anyhow::bail!("No paths specified. Usage: dissect <path>... or dissect <command>");
             }
-            let expanded = expand_paths(args.paths);
+            let expanded = expand_paths(args.paths, &format);
             if expanded.is_empty() {
                 anyhow::bail!("No valid paths found (stdin was empty or contained only comments)");
             }
@@ -479,7 +486,9 @@ fn main() -> Result<()> {
     if let Some(output_path) = args.output {
         fs::write(&output_path, &result)
             .context(format!("Failed to write output to {}", output_path))?;
-        eprintln!("Results written to: {}", output_path);
+        if format == cli::OutputFormat::Terminal {
+            eprintln!("Results written to: {}", output_path);
+        }
     } else {
         // Results go to stdout
         print!("{}", result);
@@ -544,14 +553,18 @@ fn analyze_file(
         );
     }
 
-    // Status messages go to stderr
-    eprintln!("Analyzing: {}", target);
+    // Status messages go to stderr (only in terminal mode)
+    if *format == cli::OutputFormat::Terminal {
+        eprintln!("Analyzing: {}", target);
+    }
     tracing::info!("Starting analysis of {}", target);
 
     // Detect file type first (fast - just reads magic bytes)
     tracing::debug!("Detecting file type");
     let file_type = detect_file_type(path)?;
-    eprintln!("Detected file type: {:?}", file_type);
+    if *format == cli::OutputFormat::Terminal {
+        eprintln!("Detected file type: {:?}", file_type);
+    }
     tracing::info!("File type: {:?}", file_type);
 
     // Load capability mapper
@@ -2022,6 +2035,35 @@ fn extract_sections(target: &str, format: &cli::OutputFormat) -> Result<String> 
 }
 
 /// Extract computed metrics from a file
+/// Recursively flatten a JSON value into "path.field" entries
+fn flatten_json_to_metrics(
+    value: &serde_json::Value,
+    prefix: &str,
+    result: &mut Vec<(String, serde_json::Value)>,
+) {
+    match value {
+        serde_json::Value::Object(map) => {
+            for (key, val) in map {
+                let new_prefix = if prefix.is_empty() {
+                    key.clone()
+                } else {
+                    format!("{}.{}", prefix, key)
+                };
+                flatten_json_to_metrics(val, &new_prefix, result);
+            }
+        }
+        serde_json::Value::Null => {
+            // Skip null values
+        }
+        _ => {
+            // Leaf value - add to result
+            if !prefix.is_empty() {
+                result.push((prefix.to_string(), value.clone()));
+            }
+        }
+    }
+}
+
 fn extract_metrics(
     target: &str,
     format: &cli::OutputFormat,
@@ -2203,221 +2245,48 @@ fn extract_metrics(
 
     // Format output
     match format {
-        cli::OutputFormat::Jsonl => Ok(serde_json::to_string_pretty(&metrics)?),
+        cli::OutputFormat::Jsonl => {
+            // JSON output - just serialize the metrics
+            Ok(serde_json::to_string_pretty(&metrics)?)
+        }
         cli::OutputFormat::Terminal => {
+            // Convert metrics to JSON value, then flatten to get all field paths
+            let json_value = serde_json::to_value(&metrics)?;
+            let mut flattened = Vec::new();
+            flatten_json_to_metrics(&json_value, "", &mut flattened);
+
+            // Sort by field path
+            flattened.sort_by(|a, b| a.0.cmp(&b.0));
+
             let mut output = String::new();
             output.push_str(&format!("Metrics for: {}\n", target));
             output.push_str(&format!("File type: {:?}\n\n", file_type));
             output.push_str("# Field paths for use in rules (type: metrics, field: <path>)\n\n");
 
-            // Text metrics
-            if let Some(text) = &metrics.text {
-                output.push_str("## Text Metrics\n");
-                output.push_str(&format!("text.char_entropy: {:.2}\n", text.char_entropy));
-                output.push_str(&format!("text.avg_line_length: {:.1}\n", text.avg_line_length));
-                output.push_str(&format!("text.max_line_length: {}\n", text.max_line_length));
-                output.push_str(&format!("text.line_length_stddev: {:.1}\n", text.line_length_stddev));
-                output.push_str(&format!("text.empty_line_ratio: {:.2}\n", text.empty_line_ratio));
-                output.push_str(&format!("text.whitespace_ratio: {:.2}\n", text.whitespace_ratio));
-                output.push_str(&format!("text.digit_ratio: {:.2}\n\n", text.digit_ratio));
-            }
+            // Print all metrics in sorted order
+            for (path, value) in flattened {
+                // Format value based on type
+                let formatted_value = match value {
+                    serde_json::Value::Number(n) => {
+                        if let Some(f) = n.as_f64() {
+                            // Format floats with appropriate precision
+                            if f.fract() == 0.0 {
+                                format!("{}", f as i64)
+                            } else if f.abs() < 100.0 {
+                                format!("{:.2}", f)
+                            } else {
+                                format!("{:.1}", f)
+                            }
+                        } else {
+                            n.to_string()
+                        }
+                    }
+                    serde_json::Value::String(s) => s.clone(),
+                    serde_json::Value::Bool(b) => b.to_string(),
+                    _ => value.to_string(),
+                };
 
-            // Identifier metrics
-            if let Some(ident) = &metrics.identifiers {
-                output.push_str("## Identifier Metrics\n");
-                output.push_str(&format!("identifiers.total: {}\n", ident.total));
-                output.push_str(&format!("identifiers.unique: {}\n", ident.unique));
-                output.push_str(&format!("identifiers.reuse_ratio: {:.2}\n", ident.reuse_ratio));
-                output.push_str(&format!("identifiers.avg_length: {:.1}\n", ident.avg_length));
-                output.push_str(&format!("identifiers.avg_entropy: {:.2}\n", ident.avg_entropy));
-                output.push_str(&format!("identifiers.high_entropy_ratio: {:.2}\n", ident.high_entropy_ratio));
-                output.push_str(&format!("identifiers.single_char_count: {}\n", ident.single_char_count));
-                output.push_str(&format!("identifiers.numeric_suffix_count: {}\n\n", ident.numeric_suffix_count));
-            }
-
-            // String metrics
-            if let Some(strings) = &metrics.strings {
-                output.push_str("## String Metrics\n");
-                output.push_str(&format!("strings.total: {}\n", strings.total));
-                output.push_str(&format!("strings.avg_entropy: {:.2}\n", strings.avg_entropy));
-                output.push_str(&format!("strings.entropy_stddev: {:.2}\n", strings.entropy_stddev));
-                output.push_str(&format!("strings.avg_length: {:.1}\n\n", strings.avg_length));
-            }
-
-            // Comment metrics
-            if let Some(comments) = &metrics.comments {
-                output.push_str("## Comment Metrics\n");
-                output.push_str(&format!("comments.total: {}\n", comments.total));
-                output.push_str(&format!("comments.to_code_ratio: {:.2}\n\n", comments.to_code_ratio));
-            }
-
-            // Function metrics
-            if let Some(funcs) = &metrics.functions {
-                output.push_str("## Function Metrics\n");
-                output.push_str(&format!("functions.total: {}\n", funcs.total));
-                output.push_str(&format!("functions.anonymous: {}\n", funcs.anonymous));
-                output.push_str(&format!("functions.async_count: {}\n", funcs.async_count));
-                output.push_str(&format!("functions.avg_length_lines: {:.1}\n", funcs.avg_length_lines));
-                output.push_str(&format!("functions.max_length_lines: {}\n", funcs.max_length_lines));
-                output.push_str(&format!("functions.length_stddev: {:.1}\n", funcs.length_stddev));
-                output.push_str(&format!("functions.over_100_lines: {}\n", funcs.over_100_lines));
-                output.push_str(&format!("functions.over_500_lines: {}\n", funcs.over_500_lines));
-                output.push_str(&format!("functions.one_liners: {}\n", funcs.one_liners));
-                output.push_str(&format!("functions.avg_params: {:.1}\n", funcs.avg_params));
-                output.push_str(&format!("functions.max_params: {}\n", funcs.max_params));
-                output.push_str(&format!("functions.many_params_count: {}\n", funcs.many_params_count));
-                output.push_str(&format!("functions.max_nesting_depth: {}\n\n", funcs.max_nesting_depth));
-            }
-
-            // Binary metrics
-            if let Some(binary) = &metrics.binary {
-                output.push_str("## Binary Metrics\n");
-                output.push_str(&format!("binary.overall_entropy: {:.2}\n", binary.overall_entropy));
-                output.push_str(&format!("binary.code_entropy: {:.2}\n", binary.code_entropy));
-                output.push_str(&format!("binary.data_entropy: {:.2}\n", binary.data_entropy));
-                output.push_str(&format!("binary.entropy_variance: {:.2}\n", binary.entropy_variance));
-                output.push_str(&format!("binary.high_entropy_regions: {}\n", binary.high_entropy_regions));
-                if binary.file_size > 0 {
-                    output.push_str(&format!("binary.file_size: {}\n", binary.file_size));
-                }
-                if binary.code_size > 0 {
-                    output.push_str(&format!("binary.code_size: {}\n", binary.code_size));
-                }
-                if binary.code_to_data_ratio > 0.0 {
-                    output.push_str(&format!("binary.code_to_data_ratio: {:.2}\n", binary.code_to_data_ratio));
-                }
-                if binary.has_debug_info {
-                    output.push_str(&format!("binary.has_debug_info: {}\n", binary.has_debug_info));
-                }
-                if binary.is_stripped {
-                    output.push_str(&format!("binary.is_stripped: {}\n", binary.is_stripped));
-                }
-                if binary.is_pie {
-                    output.push_str(&format!("binary.is_pie: {}\n", binary.is_pie));
-                }
-                if binary.relocation_count > 0 {
-                    output.push_str(&format!("binary.relocation_count: {}\n", binary.relocation_count));
-                }
-                output.push_str(&format!("binary.section_count: {}\n", binary.section_count));
-                if binary.segment_count > 0 {
-                    output.push_str(&format!("binary.segment_count: {}\n", binary.segment_count));
-                }
-                if binary.avg_section_size > 0.0 {
-                    output.push_str(&format!("binary.avg_section_size: {:.1}\n", binary.avg_section_size));
-                }
-                output.push_str(&format!("binary.executable_sections: {}\n", binary.executable_sections));
-                output.push_str(&format!("binary.writable_sections: {}\n", binary.writable_sections));
-                output.push_str(&format!("binary.wx_sections: {}\n", binary.wx_sections));
-                output.push_str(&format!("binary.import_count: {}\n", binary.import_count));
-                output.push_str(&format!("binary.export_count: {}\n", binary.export_count));
-                output.push_str(&format!("binary.string_count: {}\n", binary.string_count));
-                if binary.wide_string_count > 0 {
-                    output.push_str(&format!("binary.wide_string_count: {}\n", binary.wide_string_count));
-                }
-                if binary.avg_string_length > 0.0 {
-                    output.push_str(&format!("binary.avg_string_length: {:.1}\n", binary.avg_string_length));
-                }
-                if binary.max_string_length > 0 {
-                    output.push_str(&format!("binary.max_string_length: {}\n", binary.max_string_length));
-                }
-                output.push_str(&format!("binary.avg_string_entropy: {:.2}\n", binary.avg_string_entropy));
-                output.push_str(&format!("binary.high_entropy_strings: {}\n", binary.high_entropy_strings));
-                output.push_str(&format!("binary.function_count: {}\n", binary.function_count));
-                output.push_str(&format!("binary.avg_function_size: {:.1}\n", binary.avg_function_size));
-                output.push_str(&format!("binary.avg_complexity: {:.1}\n", binary.avg_complexity));
-                output.push_str(&format!("binary.max_complexity: {}\n", binary.max_complexity));
-                output.push_str(&format!("binary.high_complexity_functions: {}\n", binary.high_complexity_functions));
-                output.push_str(&format!("binary.total_basic_blocks: {}\n", binary.total_basic_blocks));
-                output.push_str(&format!("binary.indirect_calls: {}\n", binary.indirect_calls));
-                output.push_str(&format!("binary.indirect_jumps: {}\n", binary.indirect_jumps));
-                if binary.has_overlay {
-                    output.push_str(&format!("binary.overlay_size: {}\n", binary.overlay_size));
-                    output.push_str(&format!("binary.overlay_entropy: {:.2}\n", binary.overlay_entropy));
-                }
-                output.push('\n');
-            }
-
-            // ELF-specific metrics
-            if let Some(elf) = &metrics.elf {
-                output.push_str("## ELF Metrics\n");
-                output.push_str(&format!("elf.stripped: {}\n", elf.stripped));
-                output.push_str(&format!("elf.nx_enabled: {}\n", elf.nx_enabled));
-                output.push_str(&format!("elf.pie_enabled: {}\n", elf.pie_enabled));
-                output.push_str(&format!("elf.stack_canary: {}\n", elf.stack_canary));
-                if let Some(relro) = &elf.relro {
-                    output.push_str(&format!("elf.relro: {}\n", relro));
-                }
-                output.push_str(&format!("elf.needed_libs: {}\n", elf.needed_libs));
-                output.push_str(&format!("elf.rpath_set: {}\n", elf.rpath_set));
-                output.push_str(&format!("elf.runpath_set: {}\n\n", elf.runpath_set));
-            }
-
-            // PE-specific metrics
-            if let Some(pe) = &metrics.pe {
-                output.push_str("## PE Metrics\n");
-                output.push_str(&format!("pe.is_dotnet: {}\n", pe.is_dotnet));
-                output.push_str(&format!("pe.has_signature: {}\n", pe.has_signature));
-                output.push_str(&format!("pe.timestamp_anomaly: {}\n", pe.timestamp_anomaly));
-                output.push_str(&format!("pe.rich_header_present: {}\n", pe.rich_header_present));
-                output.push_str(&format!("pe.resource_count: {}\n", pe.resource_count));
-                output.push_str(&format!("pe.rsrc_size: {}\n", pe.rsrc_size));
-                output.push_str(&format!("pe.rsrc_entropy: {:.2}\n", pe.rsrc_entropy));
-                output.push_str(&format!("pe.tls_callbacks: {}\n", pe.tls_callbacks));
-                output.push_str(&format!("pe.suspicious_import_combo: {}\n\n", pe.suspicious_import_combo));
-            }
-
-            // Mach-O specific metrics
-            if let Some(macho) = &metrics.macho {
-                output.push_str("## Mach-O Metrics\n");
-                output.push_str(&format!("macho.is_universal: {}\n", macho.is_universal));
-                output.push_str(&format!("macho.slice_count: {}\n", macho.slice_count));
-                output.push_str(&format!("macho.has_code_signature: {}\n", macho.has_code_signature));
-                output.push_str(&format!("macho.hardened_runtime: {}\n", macho.hardened_runtime));
-                output.push_str(&format!("macho.has_entitlements: {}\n", macho.has_entitlements));
-                output.push_str(&format!("macho.dylib_count: {}\n", macho.dylib_count));
-                output.push_str(&format!("macho.rpath_count: {}\n\n", macho.rpath_count));
-            }
-
-            // Language-specific metrics
-            if let Some(py) = &metrics.python {
-                output.push_str("## Python Metrics\n");
-                output.push_str(&format!("python.eval_count: {}\n", py.eval_count));
-                output.push_str(&format!("python.exec_count: {}\n", py.exec_count));
-                output.push_str(&format!("python.decorator_count: {}\n", py.decorator_count));
-                output.push_str(&format!("python.lambda_count: {}\n", py.lambda_count));
-                output.push_str(&format!("python.comprehension_depth_max: {}\n", py.comprehension_depth_max));
-                output.push_str(&format!("python.base64_calls: {}\n\n", py.base64_calls));
-            }
-
-            if let Some(js) = &metrics.javascript {
-                output.push_str("## JavaScript Metrics\n");
-                output.push_str(&format!("javascript.eval_count: {}\n", js.eval_count));
-                output.push_str(&format!("javascript.arrow_function_count: {}\n", js.arrow_function_count));
-                output.push_str(&format!("javascript.iife_count: {}\n", js.iife_count));
-                output.push_str(&format!("javascript.from_char_code_count: {}\n", js.from_char_code_count));
-                output.push_str(&format!("javascript.atob_btoa_count: {}\n", js.atob_btoa_count));
-                output.push_str(&format!("javascript.innerhtml_writes: {}\n\n", js.innerhtml_writes));
-            }
-
-            if let Some(go) = &metrics.go_metrics {
-                output.push_str("## Go Metrics\n");
-                output.push_str(&format!("go_metrics.unsafe_usage: {}\n", go.unsafe_usage));
-                output.push_str(&format!("go_metrics.reflect_usage: {}\n", go.reflect_usage));
-                output.push_str(&format!("go_metrics.cgo_usage: {}\n", go.cgo_usage));
-                output.push_str(&format!("go_metrics.exec_command_count: {}\n", go.exec_command_count));
-                output.push_str(&format!("go_metrics.http_usage: {}\n", go.http_usage));
-                output.push_str(&format!("go_metrics.syscall_direct: {}\n\n", go.syscall_direct));
-            }
-
-            if let Some(shell) = &metrics.shell {
-                output.push_str("## Shell Metrics\n");
-                output.push_str(&format!("shell.eval_count: {}\n", shell.eval_count));
-                output.push_str(&format!("shell.exec_count: {}\n", shell.exec_count));
-                output.push_str(&format!("shell.pipe_count: {}\n", shell.pipe_count));
-                output.push_str(&format!("shell.pipe_depth_max: {}\n", shell.pipe_depth_max));
-                output.push_str(&format!("shell.background_jobs: {}\n", shell.background_jobs));
-                output.push_str(&format!("shell.curl_wget_count: {}\n", shell.curl_wget_count));
-                output.push_str(&format!("shell.base64_decode_count: {}\n\n", shell.base64_decode_count));
+                output.push_str(&format!("{}: {}\n", path, formatted_value));
             }
 
             Ok(output)
@@ -2550,7 +2419,7 @@ fn get_metric_value(metrics: &types::Metrics, field: &str) -> Option<f64> {
 
         // Identifier metrics
         "identifiers.total" => metrics.identifiers.as_ref().map(|i| i.total as f64),
-        "identifiers.unique" => metrics.identifiers.as_ref().map(|i| i.unique as f64),
+        "identifiers.unique" => metrics.identifiers.as_ref().map(|i| i.unique_count as f64),
         "identifiers.reuse_ratio" => metrics.identifiers.as_ref().map(|i| i.reuse_ratio as f64),
         "identifiers.avg_length" => metrics.identifiers.as_ref().map(|i| i.avg_length as f64),
         "identifiers.avg_entropy" => metrics.identifiers.as_ref().map(|i| i.avg_entropy as f64),

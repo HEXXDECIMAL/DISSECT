@@ -70,7 +70,7 @@ traits:
 
   - id: http-url-binary
     desc: "Network URL with domain name (binary)"
-    crit: suspicious
+    crit: notable
     conf: 0.7
     for: [binaries]
     # Small binaries with hardcoded domains are more suspicious

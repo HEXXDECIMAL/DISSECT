@@ -62,6 +62,9 @@ impl PEAnalyzer {
         // Parse with goblin
         let pe = PE::parse(data)?;
 
+        // Compute PE-specific metrics early
+        let pe_metrics = self.compute_pe_metrics(&pe, data);
+
         // Create target info
         let target = TargetInfo {
             path: file_path.display().to_string(),
@@ -96,6 +99,7 @@ impl PEAnalyzer {
                 let binary_metrics = self.radare2.compute_metrics_from_batched(&batched);
                 report.metrics = Some(Metrics {
                     binary: Some(binary_metrics),
+                    pe: Some(pe_metrics),
                     ..Default::default()
                 });
 
@@ -175,6 +179,19 @@ impl PEAnalyzer {
         // Evaluate all rules (atomic + composite) and merge into report
         self.capability_mapper
             .evaluate_and_merge_findings(&mut report, data, None);
+
+        // Update binary metrics with final counts and compute ratios
+        if let Some(ref mut metrics) = report.metrics {
+            if let Some(ref mut binary) = metrics.binary {
+                binary.import_count = report.imports.len() as u32;
+                binary.export_count = report.exports.len() as u32;
+                binary.string_count = report.strings.len() as u32;
+                binary.file_size = data.len() as u64;
+
+                // Compute ratio metrics
+                crate::radare2::Radare2Analyzer::compute_ratio_metrics(binary);
+            }
+        }
 
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
         report.metadata.tools_used = tools_used;
@@ -368,6 +385,113 @@ impl PEAnalyzer {
             0xaa64 => "ARM64".to_string(),
             _ => format!("unknown-{:#x}", pe.header.coff_header.machine),
         }
+    }
+
+    /// Compute PE-specific metrics from parsed PE binary
+    fn compute_pe_metrics(&self, pe: &PE, data: &[u8]) -> crate::types::binary_metrics::PeMetrics {
+        use crate::types::binary_metrics::PeMetrics;
+
+        let mut metrics = PeMetrics::default();
+
+        // Timestamp anomaly check
+        let timestamp = pe.header.coff_header.time_date_stamp;
+        if timestamp < 631152000 {
+            // Before 1990
+            metrics.timestamp_anomaly = true;
+        } else if timestamp > chrono::Utc::now().timestamp() as u32 + 31536000 {
+            // More than 1 year in future
+            metrics.timestamp_anomaly = true;
+        }
+
+        // Check for Rich header (between DOS and PE signature)
+        let dos_header = pe.header.dos_header;
+        let pe_offset = dos_header.pe_pointer as usize;
+        if pe_offset > 0x80 {
+            // Rich header typically found here
+            for i in (0x80..pe_offset.min(0x200)).step_by(4) {
+                if i + 4 <= data.len() {
+                    if &data[i..i + 4] == b"Rich" {
+                        metrics.rich_header_present = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Check for .NET by looking for .NET-specific sections
+        for section in &pe.sections {
+            if let Ok(name) = section.name() {
+                if name == ".text" && section.virtual_size > 0 {
+                    // Check for .NET by looking for mscoree.dll import
+                    for import in &pe.imports {
+                        if import.dll.to_lowercase().contains("mscoree") {
+                            metrics.is_dotnet = true;
+                            break;
+                        }
+                    }
+                }
+
+                // Check resource section
+                if name == ".rsrc" {
+                    metrics.rsrc_size = section.size_of_raw_data as u64;
+                    // Compute entropy from section data
+                    let section_start = section.pointer_to_raw_data as usize;
+                    let section_end = section_start + section.size_of_raw_data as usize;
+                    if section_end <= data.len() {
+                        let section_data = &data[section_start..section_end];
+                        metrics.rsrc_entropy = crate::entropy::calculate_entropy(section_data) as f32;
+                    }
+                }
+            }
+        }
+
+        // Check for signature in certificate table (present if overlay data contains signature)
+        // This is approximate - real validation would parse the certificate directory
+        if let Some(opt_header) = &pe.header.optional_header {
+            let image_size = opt_header.windows_fields.size_of_image as u64;
+            if (data.len() as u64) > image_size {
+                // Overlay data present - often contains signature
+                // Check if overlay looks like PKCS7 (starts with 0x30)
+                if data.len() > image_size as usize && data[image_size as usize] == 0x30 {
+                    metrics.has_signature = true;
+                }
+            }
+        }
+
+        // Ordinal-only imports
+        for import in &pe.imports {
+            if import.name.is_empty() {
+                metrics.ordinal_imports += 1;
+            }
+        }
+
+        // Export forwarders (exports with "." in name indicating forwarding)
+        for export in &pe.exports {
+            if let Some(name) = export.name {
+                if name.contains('.') {
+                    metrics.export_forwarders += 1;
+                }
+            }
+        }
+
+        // Section alignment check
+        if let Some(opt_header) = &pe.header.optional_header {
+            let file_alignment = opt_header.windows_fields.file_alignment;
+            let section_alignment = opt_header.windows_fields.section_alignment;
+
+            // Typical alignments: 0x200 (512) for file, 0x1000 (4096) for section
+            // Unusual if they're equal, very small, or very large
+            if file_alignment == section_alignment
+                || file_alignment < 0x200
+                || file_alignment > 0x10000
+                || section_alignment < 0x1000
+                || section_alignment > 0x100000
+            {
+                metrics.unusual_alignment = true;
+            }
+        }
+
+        metrics
     }
 }
 

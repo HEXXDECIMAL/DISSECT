@@ -213,9 +213,9 @@ composite_rules:
 
   # init.d composite
   - id: linux-init-script
-    desc: "init.d script persistence"
+    desc: "init.d script interaction or persistence"
     conf: 0.85
-    crit: suspicious
+    crit: notable
     attack: "T1037.004"
     for: [shell, elf, macho, python]
     platforms: [all]

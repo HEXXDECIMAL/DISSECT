@@ -140,8 +140,8 @@ traits:
 
   - id: logins-table
     desc: Chromium logins table reference
-    crit: suspicious
-    conf: 0.8
+    crit: notable
+    conf: 0.6
     attack: "T1555.003"
     if:
       type: string

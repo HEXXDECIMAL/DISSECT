@@ -265,7 +265,7 @@ composite_rules:
 
   - id: kill-database
     desc: Database service termination
-    crit: suspicious
+    crit: notable
     conf: 0.9
     any:
       - id: kill-mysql

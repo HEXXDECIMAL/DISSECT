@@ -14,7 +14,7 @@ traits:
     conf: 0.50
     attack: "T1083"
     if:
-      type: string
+      type: raw
       regex: 'File\.read|puts File\.read'
 
   - id: ruby-file-read-open
@@ -23,5 +23,5 @@ traits:
     conf: 0.50
     attack: "T1083"
     if:
-      type: string
+      type: raw
       regex: 'File\.open.{0,50}read'

@@ -114,6 +114,69 @@ pub struct TextMetrics {
     /// Visible ASCII art or banner patterns
     #[serde(default, skip_serializing_if = "is_zero_u32")]
     pub ascii_art_lines: u32,
+
+    // === Ratio Metrics (ML-oriented, zero-cost from existing counters) ===
+
+    // Cross-component ratios
+    /// String literals per function (malware: >20, normal: 2-10)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub strings_to_functions_ratio: f32,
+    /// Unique identifiers per function (obfuscated: <3 or >50, normal: 5-20)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub identifiers_to_functions_ratio: f32,
+    /// Imports per function (thin wrapper: >2, normal: 0.1-0.5)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub imports_to_functions_ratio: f32,
+
+    // Per-line density
+    /// Identifiers per line (minified: >15, normal: 3-8)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub identifier_density: f32,
+    /// String literals per line (payload-heavy: >2, normal: 0.1-0.5)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub string_density: f32,
+    /// Imports per 100 lines (normal: 0.5-5)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub import_density: f32,
+
+    // Obfuscation indicators
+    /// Ratio of suspicious identifier patterns (obfuscated: >0.3, normal: <0.05)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub suspicious_identifier_ratio: f32,
+    /// Ratio of encoded strings (malware: >0.3, normal: <0.1)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub encoded_string_ratio: f32,
+    /// Ratio of code/commands in strings (malicious: >0.2, normal: <0.05)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub suspicious_string_ratio: f32,
+    /// Ratio of high-entropy/base64 in comments (malware: >0.1, normal: ~0)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub suspicious_comment_ratio: f32,
+
+    // Normalized (size-independent)
+    /// Functions / sqrt(lines) - structural complexity independent of size
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub normalized_function_count: f32,
+    /// Imports / sqrt(lines) - dependency complexity independent of size
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub normalized_import_count: f32,
+    /// Strings / sqrt(lines) - literal usage independent of size
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub normalized_string_count: f32,
+    /// Unique identifiers / log2(lines) - vocabulary richness independent of size
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub normalized_unique_identifiers: f32,
+
+    // Construction patterns
+    /// Ratio of dynamically constructed strings (obfuscated: >0.5, normal: <0.2)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub dynamic_string_ratio: f32,
+    /// Ratio of dynamic/conditional imports (evasive: >0.3, normal: <0.1)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub dynamic_import_ratio: f32,
+    /// Ratio of anonymous functions (minified: >0.7, normal: 0.1-0.4)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub anonymous_function_ratio: f32,
 }
 
 /// Identifier/naming metrics from AST analysis
@@ -123,9 +186,9 @@ pub struct IdentifierMetrics {
     /// Total identifier occurrences
     #[serde(default, skip_serializing_if = "is_zero_u32")]
     pub total: u32,
-    /// Unique identifiers
+    /// Unique identifier count
     #[serde(default, skip_serializing_if = "is_zero_u32")]
-    pub unique: u32,
+    pub unique_count: u32,
     /// Reuse ratio (unique/total, low = repetitive)
     #[serde(default, skip_serializing_if = "is_zero_f32")]
     pub reuse_ratio: f32,
@@ -438,9 +501,323 @@ pub struct FunctionMetrics {
     pub code_in_functions_ratio: f32,
 }
 
+/// Statement-level metrics from AST analysis
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct StatementMetrics {
+    // === Counts ===
+    /// Total statements in file
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub total: u32,
+    /// Expression statements
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub expression_statements: u32,
+    /// Assignment statements
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub assignment_statements: u32,
+    /// Return statements
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub return_statements: u32,
+    /// Control flow statements (if/while/for/switch)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub control_flow_statements: u32,
+    /// Try/catch/exception handling statements
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub exception_statements: u32,
+
+    // === Density ===
+    /// Average statements per function
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub per_function: f32,
+    /// Average statements per line (>1.5 = minified/obfuscated)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub per_line: f32,
+    /// Maximum statements on one line (>5 = red flag)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub max_per_line: u32,
+
+    // === Ratios ===
+    /// Ratio of assignments to total statements
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub assignment_ratio: f32,
+    /// Ratio of control flow to total statements
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub control_flow_ratio: f32,
+    /// Ratio of return statements to total statements
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub return_ratio: f32,
+}
+
+/// Import/dependency metrics from AST analysis
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct ImportMetrics {
+    // === Counts ===
+    /// Total import statements
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub total: u32,
+    /// Unique modules imported
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub unique_modules: u32,
+    /// Standard library imports
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub stdlib_count: u32,
+    /// Third-party/external imports
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub third_party_count: u32,
+    /// Local/relative imports (., .., relative paths)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub relative_imports: u32,
+
+    // === Suspicious Patterns ===
+    /// Wildcard imports (from x import *)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub wildcard_imports: u32,
+    /// Dynamic imports (__import__, importlib, require with variables)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub dynamic_imports: u32,
+    /// Aliased imports (import x as y)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub aliased_imports: u32,
+    /// Conditional imports (inside if/try blocks)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub conditional_imports: u32,
+
+    // === Ratios ===
+    /// Ratio of stdlib to total imports
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub stdlib_ratio: f32,
+    /// Ratio of third-party to total imports
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub third_party_ratio: f32,
+    /// Ratio of relative to total imports
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub relative_ratio: f32,
+}
+
 // =============================================================================
 // LANGUAGE-SPECIFIC METRICS
 // =============================================================================
+
+// =============================================================================
+// VALID FIELD PATHS FOR YAML VALIDATION
+// =============================================================================
+
+use super::field_paths::ValidFieldPaths;
+
+impl ValidFieldPaths for TextMetrics {
+    fn valid_field_paths() -> Vec<&'static str> {
+        vec![
+            // Character Distribution
+            "char_entropy",
+            "unique_chars",
+            "most_common_char",
+            "most_common_ratio",
+            // Byte-Level Analysis
+            "non_ascii_ratio",
+            "non_printable_ratio",
+            "null_byte_count",
+            "high_byte_ratio",
+            // Line Statistics
+            "total_lines",
+            "avg_line_length",
+            "max_line_length",
+            "line_length_stddev",
+            "lines_over_200",
+            "lines_over_500",
+            "lines_over_1000",
+            "empty_line_ratio",
+            // Whitespace Forensics
+            "whitespace_ratio",
+            "tab_count",
+            "space_count",
+            "mixed_indent",
+            "trailing_whitespace_lines",
+            "unusual_whitespace",
+            // Escape Sequences
+            "hex_escape_count",
+            "unicode_escape_count",
+            "octal_escape_count",
+            "escape_density",
+            // Suspicious Text Patterns
+            "long_token_count",
+            "repeated_char_sequences",
+            "digit_ratio",
+            "ascii_art_lines",
+            // Ratio Metrics
+            "strings_to_functions_ratio",
+            "identifiers_to_functions_ratio",
+            "imports_to_functions_ratio",
+            "identifier_density",
+            "string_density",
+            "import_density",
+            "suspicious_identifier_ratio",
+            "encoded_string_ratio",
+            "suspicious_string_ratio",
+            "suspicious_comment_ratio",
+            "normalized_function_count",
+            "normalized_import_count",
+            "normalized_string_count",
+            "normalized_unique_identifiers",
+            "dynamic_string_ratio",
+            "dynamic_import_ratio",
+            "anonymous_function_ratio",
+        ]
+    }
+}
+
+impl ValidFieldPaths for IdentifierMetrics {
+    fn valid_field_paths() -> Vec<&'static str> {
+        vec![
+            "total",
+            "unique_count",
+            "reuse_ratio",
+            "avg_length",
+            "min_length",
+            "max_length",
+            "length_stddev",
+            "single_char_count",
+            "single_char_ratio",
+            "avg_entropy",
+            "high_entropy_count",
+            "high_entropy_ratio",
+            "all_lowercase_ratio",
+            "all_uppercase_ratio",
+            "has_digit_ratio",
+            "underscore_prefix_count",
+            "double_underscore_count",
+            "numeric_suffix_count",
+            "hex_like_names",
+            "base64_like_names",
+            "sequential_names",
+            "keyboard_pattern_names",
+            "repeated_char_names",
+        ]
+    }
+}
+
+impl ValidFieldPaths for StringMetrics {
+    fn valid_field_paths() -> Vec<&'static str> {
+        vec![
+            "total",
+            "total_bytes",
+            "avg_length",
+            "max_length",
+            "empty_count",
+            "avg_entropy",
+            "entropy_stddev",
+            "high_entropy_count",
+            "very_high_entropy_count",
+            "base64_candidates",
+            "hex_strings",
+            "url_encoded_strings",
+            "unicode_heavy_strings",
+            "url_count",
+            "path_count",
+            "ip_count",
+            "email_count",
+            "domain_count",
+            "concat_operations",
+            "format_strings",
+            "char_construction",
+            "array_join_construction",
+            "very_long_strings",
+            "embedded_code_candidates",
+            "shell_command_strings",
+            "sql_strings",
+        ]
+    }
+}
+
+impl ValidFieldPaths for CommentMetrics {
+    fn valid_field_paths() -> Vec<&'static str> {
+        vec![
+            "total",
+            "lines",
+            "chars",
+            "to_code_ratio",
+            "todo_count",
+            "fixme_count",
+            "hack_count",
+            "xxx_count",
+            "empty_comments",
+            "high_entropy_comments",
+            "code_in_comments",
+            "url_in_comments",
+            "base64_in_comments",
+        ]
+    }
+}
+
+impl ValidFieldPaths for FunctionMetrics {
+    fn valid_field_paths() -> Vec<&'static str> {
+        vec![
+            "total",
+            "anonymous",
+            "async_count",
+            "generator_count",
+            "avg_length_lines",
+            "max_length_lines",
+            "min_length_lines",
+            "length_stddev",
+            "over_100_lines",
+            "over_500_lines",
+            "one_liners",
+            "avg_params",
+            "max_params",
+            "no_params_count",
+            "many_params_count",
+            "avg_param_name_length",
+            "single_char_params",
+            "avg_name_length",
+            "single_char_names",
+            "high_entropy_names",
+            "numeric_suffix_names",
+            "max_nesting_depth",
+            "avg_nesting_depth",
+            "nested_functions",
+            "recursive_count",
+            "density_per_100_lines",
+            "code_in_functions_ratio",
+        ]
+    }
+}
+
+impl ValidFieldPaths for StatementMetrics {
+    fn valid_field_paths() -> Vec<&'static str> {
+        vec![
+            "total",
+            "expression_statements",
+            "assignment_statements",
+            "return_statements",
+            "control_flow_statements",
+            "exception_statements",
+            "per_function",
+            "per_line",
+            "max_per_line",
+            "assignment_ratio",
+            "control_flow_ratio",
+            "return_ratio",
+        ]
+    }
+}
+
+impl ValidFieldPaths for ImportMetrics {
+    fn valid_field_paths() -> Vec<&'static str> {
+        vec![
+            "total",
+            "unique_modules",
+            "stdlib_count",
+            "third_party_count",
+            "relative_imports",
+            "wildcard_imports",
+            "dynamic_imports",
+            "aliased_imports",
+            "conditional_imports",
+            "stdlib_ratio",
+            "third_party_ratio",
+            "relative_ratio",
+        ]
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -516,7 +893,7 @@ mod tests {
     fn test_identifier_metrics_default() {
         let metrics = IdentifierMetrics::default();
         assert_eq!(metrics.total, 0);
-        assert_eq!(metrics.unique, 0);
+        assert_eq!(metrics.unique_count, 0);
         assert_eq!(metrics.avg_length, 0.0);
     }
 
@@ -524,7 +901,7 @@ mod tests {
     fn test_identifier_metrics_creation() {
         let metrics = IdentifierMetrics {
             total: 500,
-            unique: 150,
+            unique_count: 150,
             reuse_ratio: 0.3,
             avg_length: 8.5,
             min_length: 1,
@@ -532,7 +909,7 @@ mod tests {
             ..Default::default()
         };
         assert_eq!(metrics.total, 500);
-        assert_eq!(metrics.unique, 150);
+        assert_eq!(metrics.unique_count, 150);
     }
 
     #[test]

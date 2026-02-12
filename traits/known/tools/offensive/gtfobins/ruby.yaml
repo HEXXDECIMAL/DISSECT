@@ -96,3 +96,15 @@ composite_rules:
     any:
       - id: gtfobins-ruby-marker
       - id: cap/exec/command/shell/lang::ruby-shell-exec
+
+  # === GTFOBins Downloader ===
+  - id: gtfobins-ruby-downloader
+    desc: GTFOBins file download and write via Ruby
+    crit: suspicious
+    conf: 0.95
+    attack: "T1105"
+    needs: 3
+    all:
+      - id: gtfobins-ruby-marker
+      - id: cap/comm/http/lib/netlib::open-uri
+      - id: cap/fs/write/file::io-copy-stream

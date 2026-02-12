@@ -10,34 +10,13 @@ use std::sync::RwLock;
 
 /// Helper to create a minimal report for testing
 fn create_test_report(file_size: usize) -> AnalysisReport {
-    AnalysisReport {
-        schema_version: "1.0".to_string(),
-        analysis_timestamp: chrono::Utc::now(),
-        target: TargetInfo {
-            path: "/test/file".into(),
-            size_bytes: file_size as u64,
-            sha256: "0".repeat(64),
-            sha1: "0".repeat(40),
-            md5: "0".repeat(32),
-            mime_type: None,
-        },
-        traits: Vec::new(),
-        findings: Vec::new(),
-        structure: Vec::new(),
-        functions: Vec::new(),
-        strings: Vec::new(),
-        symbols: Vec::new(),
-        sections: Vec::new(),
-        imports: Vec::new(),
-        exports: Vec::new(),
-        capabilities: Vec::new(),
-        techniques: Vec::new(),
-        networks: Vec::new(),
-        crypto: Vec::new(),
-        external_refs: Vec::new(),
-        metadata: HashMap::new(),
-        metrics: None,
-    }
+    AnalysisReport::new(TargetInfo {
+        path: "/test/file".into(),
+        file_type: "test".into(),
+        size_bytes: file_size as u64,
+        sha256: "0".repeat(64),
+        architectures: None,
+    })
 }
 
 #[test]
@@ -131,8 +110,8 @@ fn test_count_min_filter_matches_debug_and_eval() {
     );
     let skip_reason = debug_info.skip_reason.unwrap().to_string();
     assert!(
-        skip_reason.contains("Count below minimum"),
-        "Skip reason should mention count constraint, got: {}",
+        skip_reason.to_lowercase().contains("count") && skip_reason.contains("2") && skip_reason.contains("3"),
+        "Skip reason should mention count constraint (expected 2 < 3), got: {}",
         skip_reason
     );
 }
@@ -272,6 +251,7 @@ fn test_size_min_filter_matches_debug_and_eval() {
                 section: None,
                 section_offset: None,
                 section_offset_range: None,
+                compiled_regex: None,
             },
             size_min: Some(1024), // Require at least 1 KB
             size_max: None,
@@ -371,6 +351,7 @@ fn test_composite_size_constraints_match_debug_and_eval() {
             section: None,
             section_offset: None,
             section_offset_range: None,
+            compiled_regex: None,
         }]),
         none: None,
         needs: None,

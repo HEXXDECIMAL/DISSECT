@@ -14,12 +14,13 @@ traits:
       source: |
         rule node_addon {
           strings:
-            $ext1 = ".node" ascii
+            $ext1 = ".node\"" ascii
+            $ext2 = ".node'" ascii
             $req1 = "require(" ascii
             $bin1 = "binding(" ascii
             $gyp1 = "node-gyp" ascii
           condition:
-            $ext1 or ($req1 and $bin1) or $gyp1
+            any of ($ext*) or ($req1 and $bin1) or $gyp1
         }
 
   # Native module with network capability

@@ -31,12 +31,12 @@ traits:
 
   - id: php-single-long-line
     desc: "Single very long line (webshell"
-    crit: suspicious
+    crit: notable
     conf: 0.9
     if:
       type: metrics
       field: text.max_line_length
-      min: 1000
+      min: 5000
 
   - id: php-many-short-functions
     desc: "Many short functions (deobfuscation layers)"
@@ -58,7 +58,7 @@ traits:
 
   - id: php-non-ascii-variable
     desc: "Variable with non-ASCII name (obfuscation)"
-    crit: suspicious
+    crit: notable
     conf: 0.98
     if:
       type: ast
@@ -67,7 +67,7 @@ traits:
 
   - id: php-non-ascii-name
     desc: "Identifier with non-ASCII characters (obfuscation)"
-    crit: suspicious
+    crit: notable
     conf: 0.98
     if:
       type: ast
@@ -76,7 +76,7 @@ traits:
 
   - id: php-non-ascii-subscript
     desc: "Subscript with non-ASCII characters (obfuscation)"
-    crit: suspicious
+    crit: notable
     conf: 0.98
     if:
       type: ast
@@ -93,7 +93,6 @@ composite_rules:
       - id: obj/anti-static/obfuscation/code-metrics::php-encoded-strings
       - id: obj/anti-static/obfuscation/code-metrics::php-single-long-line
       - id: obj/anti-static/obfuscation/code-metrics::php-obfuscated-vars
-      - id: obj/anti-static/obfuscation/code-metrics/structure::no-comments
 
   - id: php-encoded-payload
     desc: "PHP with encoded payload"

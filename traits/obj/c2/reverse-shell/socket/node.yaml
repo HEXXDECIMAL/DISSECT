@@ -92,15 +92,6 @@ traits:
       kind: call
       exact: "spawnSync"
 
-  - id: pipe-string
-    desc: pipe string reference
-    crit: notable
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "pipe"
-
   # === Data event micro-traits ===
   - id: on-data-event-single
     desc: .on('data' event handler
@@ -330,7 +321,7 @@ composite_rules:
       - id: net-socket
       - id: cap/exec/command/shell/lang::child-process-require
       - id: exec-function
-      - id: pipe-string
+      - id: cap/data/text/keywords::pipe
 
   # Socket with exec (migrated from YARA)
   - id: socket-with-exec

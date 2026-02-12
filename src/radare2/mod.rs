@@ -610,12 +610,13 @@ impl Radare2Analyzer {
             .context("Failed to execute radare2")?;
 
         if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
             warn!(
                 "radare2 exited with status {}: {}",
                 output.status,
-                String::from_utf8_lossy(&output.stderr)
+                stderr
             );
-            return Ok(BatchedAnalysis::default());
+            anyhow::bail!("radare2 failed with status {}: {}", output.status, stderr);
         }
 
         debug!("radare2 completed successfully");
@@ -810,7 +811,52 @@ impl Radare2Analyzer {
         // Note: edge_counts collected but not used (no avg_cfg_edges field in BinaryMetrics)
         let _ = edge_counts;
 
+        // Compute ratio metrics (these depend on multiple fields)
+        Self::compute_ratio_metrics(&mut metrics);
+
         metrics
+    }
+
+    /// Compute ratio and normalized metrics from already-populated base metrics
+    /// This should be called after all base counters are set
+    pub fn compute_ratio_metrics(metrics: &mut BinaryMetrics) {
+        let code_kb = metrics.code_size as f32 / 1024.0;
+
+        // Density ratios (per KB of code)
+        if code_kb > 0.0 {
+            metrics.import_density = metrics.import_count as f32 / code_kb;
+            metrics.string_density = metrics.string_count as f32 / code_kb;
+            metrics.function_density = metrics.function_count as f32 / code_kb;
+            metrics.relocation_density = metrics.relocation_count as f32 / code_kb;
+            metrics.complexity_per_kb = metrics.avg_complexity * 1024.0 / metrics.code_size as f32;
+        }
+
+        // Export to import ratio
+        if metrics.import_count > 0 {
+            metrics.export_to_import_ratio = metrics.export_count as f32 / metrics.import_count as f32;
+        }
+
+        // Normalized metrics (size-independent)
+        if metrics.file_size > 0 {
+            let file_size_sqrt = (metrics.file_size as f32).sqrt();
+            metrics.normalized_import_count = metrics.import_count as f32 / file_size_sqrt;
+            metrics.normalized_export_count = metrics.export_count as f32 / file_size_sqrt;
+
+            let file_size_log = (metrics.file_size as f32).log2();
+            if file_size_log > 0.0 {
+                metrics.normalized_section_count = metrics.section_count as f32 / file_size_log;
+            }
+        }
+
+        if metrics.code_size > 0 {
+            let code_size_sqrt = (metrics.code_size as f32).sqrt();
+            metrics.normalized_string_count = metrics.string_count as f32 / code_size_sqrt;
+        }
+
+        // Code section ratio
+        if metrics.section_count > 0 {
+            metrics.code_section_ratio = metrics.executable_sections as f32 / metrics.section_count as f32;
+        }
     }
 
     /// Compute binary metrics by running fresh radare2 analysis

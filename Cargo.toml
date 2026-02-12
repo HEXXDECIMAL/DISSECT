@@ -7,9 +7,12 @@ description = "Deep static analysis tool for extracting features from binaries a
 license = "Apache-2.0"
 
 [workspace]
-members = [".", "crates/scpt"]
+members = [".", "crates/scpt", "dissect-macros"]
 
 [dependencies]
+# Procedural macros
+dissect-macros = { path = "dissect-macros" }
+
 # Binary parsing
 goblin = "0.8"
 

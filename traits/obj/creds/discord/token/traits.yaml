@@ -258,7 +258,7 @@ traits:
   # getTokens function - common in token stealers
   - id: get-tokens-fn
     desc: Token getter function
-    crit: suspicious
+    crit: notable
     conf: 0.85
     if:
       type: raw

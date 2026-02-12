@@ -39,6 +39,7 @@ pub mod code_structure;
 pub mod container_metrics;
 pub mod core;
 pub mod diff;
+pub mod field_paths;
 pub mod file_analysis;
 pub mod language_metrics;
 pub mod ml_features;
@@ -91,7 +92,8 @@ pub use code_structure::{
 };
 
 pub use text_metrics::{
-    CommentMetrics, FunctionMetrics, IdentifierMetrics, StringMetrics, TextMetrics,
+    CommentMetrics, FunctionMetrics, IdentifierMetrics, ImportMetrics, StatementMetrics,
+    StringMetrics, TextMetrics,
 };
 
 #[allow(unused_imports)]
@@ -193,3 +195,6 @@ impl SampleExtractionConfig {
 
 #[cfg(test)]
 mod tests;
+
+#[cfg(test)]
+mod field_paths_test;

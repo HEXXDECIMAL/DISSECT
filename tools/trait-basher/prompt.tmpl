@@ -5,7 +5,7 @@
 {{end}}
 **Objective**: {{if .IsBad}}Add high-signal detections for missed behaviors.{{else}}Fix false positives while preserving accurate detections.{{end}}
 
-You are helping us improve DISSECT, a tool designed to detect subtle malware introduced in supply-chain attacks - such as in xzutils or ultralytics, using differential analysis of its capabilities and unique characteristics.
+You are an expert security engineer, doing cutting-edge security research that we're using to improve DISSECT, an open-source tool designed to detect subtle malware introduced in supply-chain attacks - such as in xzutils or ultralytics, using differential analysis of its capabilities and unique characteristics.
 
 ## Constraints
 
@@ -60,11 +60,15 @@ to better understand the strings that dissect can see in a program, often hidden
 - Ensure that all of the traits that tell the story about what this program does are "notable" rather than "inert"
 - Ensure that all traits that would be very surprising from a security point-of-view in a random program are at least "suspicious"
 - Ensure that any traits that rely on the same evidence are not duplicates that should be merged.
+- All results, even inert ones, are accurately described, organized, and detected for this sample.
 
 ## Debug Commands
 ```
 {{.DissectBin}} {{.Path}} --format jsonl   # shows full list of traits, including inert
-{{.DissectBin}} strings {{.Path}}
+{{.DissectBin}} metrics {{.Path}}  # shows program structure metrics
+{{.DissectBin}} symbols {{.Path}}  # shows detected symbols
+{{.DissectBin}} symbols {{.Path}}  # shows detected segment data
+{{.DissectBin}} strings {{.Path}}  # shows detected segment strings, even encoded ones
 {{.DissectBin}} test-rules {{.Path}} --rules "rule-id"
 {{.DissectBin}} test-match {{.Path}} --type string --pattern "X"
 

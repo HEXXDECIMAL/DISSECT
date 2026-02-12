@@ -23,9 +23,9 @@ pub fn analyze_identifiers(identifiers: &[&str]) -> IdentifierMetrics {
     // === Basic Counts ===
     metrics.total = identifiers.len() as u32;
     let unique: HashSet<&str> = identifiers.iter().copied().collect();
-    metrics.unique = unique.len() as u32;
+    metrics.unique_count = unique.len() as u32;
     metrics.reuse_ratio = if metrics.total > 0 {
-        metrics.unique as f32 / metrics.total as f32
+        metrics.unique_count as f32 / metrics.total as f32
     } else {
         0.0
     };
@@ -442,7 +442,7 @@ mod tests {
     fn test_empty_identifiers() {
         let metrics = analyze_identifiers(&[]);
         assert_eq!(metrics.total, 0);
-        assert_eq!(metrics.unique, 0);
+        assert_eq!(metrics.unique_count, 0);
     }
 
     #[test]
@@ -450,7 +450,7 @@ mod tests {
         let idents = vec!["foo", "bar", "baz", "foo"];
         let metrics = analyze_identifiers(&idents);
         assert_eq!(metrics.total, 4);
-        assert_eq!(metrics.unique, 3);
+        assert_eq!(metrics.unique_count, 3);
     }
 
     #[test]

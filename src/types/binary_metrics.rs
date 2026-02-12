@@ -1,5 +1,6 @@
 //! Binary format-specific metrics (ELF, PE, Mach-O, Java class files)
 
+use dissect_macros::ValidFieldPaths;
 use serde::{Deserialize, Serialize};
 
 use super::{is_false, is_zero_f32, is_zero_u32, is_zero_u64};
@@ -8,7 +9,7 @@ use super::{is_false, is_zero_f32, is_zero_u32, is_zero_u64};
 // BINARY-SPECIFIC METRICS
 // =============================================================================
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, ValidFieldPaths)]
 pub struct BinaryMetrics {
     // === Entropy ===
     /// Overall file entropy
@@ -199,10 +200,47 @@ pub struct BinaryMetrics {
     /// Overlay entropy
     #[serde(default, skip_serializing_if = "is_zero_f32")]
     pub overlay_entropy: f32,
+
+    // === Density Ratios (ML-oriented) ===
+    /// Import density: imports per KB of code
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub import_density: f32,
+    /// String density: strings per KB of code
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub string_density: f32,
+    /// Function density: functions per KB of code
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub function_density: f32,
+    /// Export to import ratio (DLLs=high, EXEs=low)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub export_to_import_ratio: f32,
+    /// Relocation density: relocations per KB
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub relocation_density: f32,
+
+    // === Normalized Metrics (Size-independent) ===
+    /// Normalized import count: imports / sqrt(file_size)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub normalized_import_count: f32,
+    /// Normalized export count: exports / sqrt(file_size)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub normalized_export_count: f32,
+    /// Normalized section count: sections / log2(file_size)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub normalized_section_count: f32,
+    /// Normalized string count: strings / sqrt(code_size)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub normalized_string_count: f32,
+    /// Code section ratio: executable_sections / total_sections
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub code_section_ratio: f32,
+    /// Complexity per KB: avg_complexity * 1024 / code_size
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub complexity_per_kb: f32,
 }
 
 /// ELF-specific metrics
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, ValidFieldPaths)]
 pub struct ElfMetrics {
     // === Header ===
     /// ELF file type (header.e_type)
@@ -233,9 +271,6 @@ pub struct ElfMetrics {
     pub fini_array_count: u32,
 
     // === Symbols ===
-    /// Stripped (no symbols)
-    #[serde(default, skip_serializing_if = "is_false")]
-    pub stripped: bool,
     /// Hidden visibility symbols
     #[serde(default, skip_serializing_if = "is_zero_u32")]
     pub hidden_symbols: u32,
@@ -256,9 +291,6 @@ pub struct ElfMetrics {
     /// NX (non-executable stack)
     #[serde(default, skip_serializing_if = "is_false")]
     pub nx_enabled: bool,
-    /// PIE enabled
-    #[serde(default, skip_serializing_if = "is_false")]
-    pub pie_enabled: bool,
 
     // === Special Sections ===
     /// Has .plt
@@ -276,7 +308,7 @@ pub struct ElfMetrics {
 }
 
 /// PE-specific metrics
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, ValidFieldPaths)]
 pub struct PeMetrics {
     // === Header Anomalies ===
     /// Timestamp anomaly (future or ancient)
@@ -365,7 +397,7 @@ pub struct PeMetrics {
 }
 
 /// Mach-O specific metrics
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, ValidFieldPaths)]
 pub struct MachoMetrics {
     // === Structure ===
     /// Mach-O file type (header.filetype)
@@ -390,9 +422,6 @@ pub struct MachoMetrics {
     pub signature_valid: Option<bool>,
 
     // === Segments ===
-    /// Segment count
-    #[serde(default, skip_serializing_if = "is_zero_u32")]
-    pub segment_count: u32,
     /// __LINKEDIT size
     #[serde(default, skip_serializing_if = "is_zero_u64")]
     pub linkedit_size: u64,
@@ -407,9 +436,6 @@ pub struct MachoMetrics {
     /// Indirect symbol count
     #[serde(default, skip_serializing_if = "is_zero_u32")]
     pub indirect_symbol_count: u32,
-    /// Stripped
-    #[serde(default, skip_serializing_if = "is_false")]
-    pub stripped: bool,
 
     // === Code Signing ===
     /// Signature type (adhoc, developer-id, platform, app-store)
@@ -448,7 +474,7 @@ pub struct MachoMetrics {
 }
 
 /// Java class file metrics
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, ValidFieldPaths)]
 pub struct JavaClassMetrics {
     // === Version ===
     /// Major version number
@@ -611,7 +637,6 @@ mod tests {
         let metrics = ElfMetrics::default();
         assert_eq!(metrics.e_type, 0);
         assert!(!metrics.entry_not_in_text);
-        assert!(!metrics.stripped);
         assert!(metrics.entry_section.is_none());
     }
 
@@ -620,13 +645,10 @@ mod tests {
         let metrics = ElfMetrics {
             e_type: 2, // ET_EXEC
             needed_libs: 15,
-            stripped: true,
             nx_enabled: true,
-            pie_enabled: true,
             ..Default::default()
         };
         assert_eq!(metrics.e_type, 2);
-        assert!(metrics.stripped);
         assert!(metrics.nx_enabled);
     }
 
@@ -636,7 +658,6 @@ mod tests {
             relro: Some("full".to_string()),
             stack_canary: true,
             nx_enabled: true,
-            pie_enabled: true,
             ..Default::default()
         };
         assert_eq!(metrics.relro, Some("full".to_string()));
@@ -758,7 +779,6 @@ mod tests {
         let metrics = MachoMetrics {
             file_type: 2, // MH_EXECUTE
             load_command_count: 25,
-            segment_count: 4,
             dylib_count: 15,
             ..Default::default()
         };

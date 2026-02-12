@@ -348,6 +348,26 @@ traits:
       regex: "(?:admin|root|elevated|sudo).{0,15}(?:permission|privilege|right).{0,15}(?:install|run|solv)"
       case_insensitive: true
 
+  # === pip install command string ===
+  # Atomic trait for pip install commands in strings (e.g., inside os.system)
+  - id: pip-install-string
+    desc: pip install command string
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      regex: "pip.{0,20}install"
+
+  # === pip module string ===
+  # Atomic trait for pip module reference (e.g. -m pip)
+  - id: pip-module-string
+    desc: pip module reference string
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      regex: "-m\\s+pip"
+
 composite_rules:
   # === Command Execution Composite ===
   - id: python-command-exec
@@ -358,6 +378,25 @@ composite_rules:
       - id: cap/exec/command/shell::python-os-system
       - id: os-system-string
       - id: cap/exec/command/subprocess::methods
+
+  # === HOSTILE: PyPI Auto-Install Dropper ===
+  # setup.py that executes pip install via shell command (os.system/subprocess).
+  # Often used to install malicious dependencies or payloads that evade static analysis.
+  # Complexity: for(+1) + all(+4) = 5 (meets HOSTILE threshold)
+  - id: pypi-install-autoinstall-dropper
+    desc: PyPI setup.py executes pip install command
+    crit: hostile
+    conf: 0.95
+    mbc: "B0024"
+    attack: "T1195.002"
+    all:
+      - id: obj/lateral/supply-chain/pypi/install-patterns::setup-py-file
+      - id: python-command-exec
+    any:
+      - id: pip-install-string
+      - id: pip-module-string
+      - id: cap/exec/autoinstall/pip::pip-install-pattern
+
 
   # === Windows Command Execution ===
   # Complexity: for(+1) + all(+2) = 3 (SUSPICIOUS)
@@ -405,7 +444,7 @@ composite_rules:
     mbc: "E1204"
     attack: "T1204.002"
     all:
-      - id: obj/lateral/supply-chain/pypi/general::setup-py-file
+      - id: obj/lateral/supply-chain/pypi/install-patterns::setup-py-file
       - id: cap/comm/http/request::request-python
       - id: binary-file-write
       - id: python-command-exec
@@ -435,7 +474,7 @@ composite_rules:
     mbc: "E1204"
     attack: "T1204.002"
     all:
-      - id: obj/lateral/supply-chain/pypi/general::setup-py-file
+      - id: obj/lateral/supply-chain/pypi/install-patterns::setup-py-file
       - id: obj/c2/infrastructure/ip::http-raw-ip-url
       - id: binary-file-write
       - id: cap/exec/command/subprocess::methods
@@ -464,7 +503,7 @@ composite_rules:
     mbc: "E1204"
     attack: "T1176"
     all:
-      - id: obj/lateral/supply-chain/pypi/general::setup-py-file
+      - id: obj/lateral/supply-chain/pypi/install-patterns::setup-py-file
       - id: cap/exec/autoinstall/pip::main-call-content
       - id: obj/persist/startup/registry::windows-shortcut-argument-injection
       - id: obj/anti-static/obfuscation/code::advanced-python-obfuscation
@@ -480,7 +519,7 @@ composite_rules:
     mbc: "E1204"
     attack: "T1176"
     all:
-      - id: obj/lateral/supply-chain/pypi/general::setup-py-file
+      - id: obj/lateral/supply-chain/pypi/install-patterns::setup-py-file
       - id: cap/exec/autoinstall/pip::main-call-content
       - id: obj/persist/startup/registry::windows-shortcut-walk-modify
       - id: cap/fs/directory/mkdir::mkdir-python
@@ -529,7 +568,7 @@ composite_rules:
     mbc: "B0024"
     attack: "T1195.002"
     all:
-      - id: obj/lateral/supply-chain/pypi/general::setup-py-file
+      - id: obj/lateral/supply-chain/pypi/install-patterns::setup-py-file
       - id: cap/os/info/system::sys-platform-check
       - id: cap/os/info/system::sys-argv-access
       - id: cap/exec/autoinstall/pip::main-call-content
@@ -549,7 +588,7 @@ composite_rules:
     mbc: "E1204"
     attack: "T1195.002"
     all:
-      - id: obj/lateral/supply-chain/pypi/general::setup-py-file
+      - id: obj/lateral/supply-chain/pypi/install-patterns::setup-py-file
       - id: obj/anti-static/obfuscation/code::advanced-python-obfuscation
       - id: setup-py-file-write
       - id: cap/fs/directory/mkdir::mkdir-python
@@ -565,7 +604,7 @@ composite_rules:
     mbc: "E1204"
     attack: "T1059.001"
     all:
-      - id: obj/lateral/supply-chain/pypi/general::setup-py-file
+      - id: obj/lateral/supply-chain/pypi/install-patterns::setup-py-file
       - id: cap/exec/dropper/stealth::subprocess-popen
       - id: powershell-download-in-string
       - id: cap/exec/background/daemon::powershell-hidden
@@ -581,7 +620,7 @@ composite_rules:
     mbc: "E1204"
     attack: "T1059.001"
     all:
-      - id: obj/lateral/supply-chain/pypi/general::setup-py-file
+      - id: obj/lateral/supply-chain/pypi/install-patterns::setup-py-file
       - id: cap/exec/dropper/stealth::subprocess-popen
       - id: powershell-encoded-command-in-string
       - id: cap/exec/background/daemon::powershell-hidden
@@ -597,7 +636,7 @@ composite_rules:
     mbc: "B0024"
     attack: "T1195.002"
     all:
-      - id: obj/lateral/supply-chain/pypi/general::setup-py-file
+      - id: obj/lateral/supply-chain/pypi/install-patterns::setup-py-file
       - id: powershell-download-in-string
       - id: powershell-expand-archive
       - id: cap/exec/vbscript/interpreter::vbs-powershell-launch

@@ -46,6 +46,9 @@ traits:
     if:
       type: string
       word: "Linux"
+    unless:
+      - type: string
+        substr: "on Linux and OS X"
 
   - id: darwin-string-check
     desc: Darwin/macOS string in condition
@@ -75,11 +78,14 @@ traits:
   # Combination: download function with delete=True
   - id: download-with-delete
     desc: Download with delete=True parameter
-    crit: suspicious
+    crit: notable
     conf: 0.85
     if:
       type: raw
       substr: "delete=True"
+    unless:
+      - type: raw
+        regex: "def\\s+[^\\n]+\\bdelete=True"
 
   # Download and run function call pattern
   - id: safe-run-call
@@ -173,7 +179,6 @@ composite_rules:
       - id: safe-run-call
       - id: import-safe-download
       - id: cap/exec/dropper/tmp-run::tmp-path
-      - id: cap/exec/dropper/tmp-run::tmp-path-short
       - id: os-system-call
       - id: platform-os-system-combo
       - id: inline-wget-exec

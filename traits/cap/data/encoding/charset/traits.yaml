@@ -19,6 +19,8 @@ traits:
     if:
       type: string
       substr: ".proto"
+    not:
+      - substr: ".prototype"
 
   - id: protobuf-string
     desc: protobuf string

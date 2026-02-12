@@ -73,6 +73,15 @@ traits:
       type: string
       regex: 'File\.open\(/tmp/'
 
+  # IO.copy_stream
+  - id: io-copy-stream
+    desc: IO.copy_stream call
+    crit: notable
+    conf: 0.85
+    if:
+      type: raw
+      regex: 'IO\.copy_stream'
+
   # File deletion
   - id: file-delete-string
     desc: File.delete string

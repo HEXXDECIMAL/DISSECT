@@ -73,7 +73,7 @@ pub fn eval_metrics(
 
         // Identifier metrics
         "identifiers.total" => metrics.identifiers.as_ref().map(|i| i.total as f64),
-        "identifiers.unique" => metrics.identifiers.as_ref().map(|i| i.unique as f64),
+        "identifiers.unique" => metrics.identifiers.as_ref().map(|i| i.unique_count as f64),
         "identifiers.reuse_ratio" => metrics.identifiers.as_ref().map(|i| i.reuse_ratio as f64),
         "identifiers.avg_length" => metrics.identifiers.as_ref().map(|i| i.avg_length as f64),
         "identifiers.avg_entropy" => metrics.identifiers.as_ref().map(|i| i.avg_entropy as f64),
@@ -229,6 +229,14 @@ pub fn eval_metrics(
         "binary.avg_function_size" => metrics.binary.as_ref().map(|b| b.avg_function_size as f64),
         "binary.tiny_functions" => metrics.binary.as_ref().map(|b| b.tiny_functions as f64),
         "binary.huge_functions" => metrics.binary.as_ref().map(|b| b.huge_functions as f64),
+        "binary.complexity_per_kb" => metrics.binary.as_ref().map(|b| b.complexity_per_kb as f64),
+        "binary.import_density" => metrics.binary.as_ref().map(|b| b.import_density as f64),
+        "binary.function_density" => metrics.binary.as_ref().map(|b| b.function_density as f64),
+        "binary.string_density" => metrics.binary.as_ref().map(|b| b.string_density as f64),
+        "binary.normalized_string_count" => metrics.binary.as_ref().map(|b| b.normalized_string_count as f64),
+        "binary.normalized_import_count" => metrics.binary.as_ref().map(|b| b.normalized_import_count as f64),
+        "binary.normalized_export_count" => metrics.binary.as_ref().map(|b| b.normalized_export_count as f64),
+        "binary.export_to_import_ratio" => metrics.binary.as_ref().map(|b| b.export_to_import_ratio as f64),
         "binary.has_overlay" => metrics
             .binary
             .as_ref()

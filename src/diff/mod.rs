@@ -448,7 +448,7 @@ impl DiffAnalyzer {
                 delta.comment_lines = t.lines as i32 - b.lines as i32;
             }
             if let (Some(b), Some(t)) = (&b_metrics.identifiers, &t_metrics.identifiers) {
-                delta.unique_identifiers = t.unique as i32 - b.unique as i32;
+                delta.unique_identifiers = t.unique_count as i32 - b.unique_count as i32;
                 delta.avg_identifier_length = t.avg_length - b.avg_length;
             }
             if let (Some(b), Some(t)) = (&b_metrics.strings, &t_metrics.strings) {

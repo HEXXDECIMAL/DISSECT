@@ -1,5 +1,6 @@
 //! Composite scoring metrics and unified metrics container
 
+use dissect_macros::ValidFieldPaths;
 use serde::{Deserialize, Serialize};
 
 use super::binary_metrics::{BinaryMetrics, ElfMetrics, JavaClassMetrics, MachoMetrics, PeMetrics};
@@ -11,7 +12,8 @@ use super::language_metrics::{
     ShellMetrics,
 };
 use super::text_metrics::{
-    CommentMetrics, FunctionMetrics, IdentifierMetrics, StringMetrics, TextMetrics,
+    CommentMetrics, FunctionMetrics, IdentifierMetrics, ImportMetrics, StatementMetrics,
+    StringMetrics, TextMetrics,
 };
 
 // =============================================================================
@@ -20,7 +22,7 @@ use super::text_metrics::{
 
 /// Unified metrics container - all measurements in one place
 /// Sections are only present when applicable to the file type
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, ValidFieldPaths)]
 pub struct Metrics {
     // === Universal text metrics (all text files) ===
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -33,6 +35,10 @@ pub struct Metrics {
     pub comments: Option<CommentMetrics>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub functions: Option<FunctionMetrics>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub statements: Option<StatementMetrics>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub imports: Option<ImportMetrics>,
 
     // === Language-specific metrics (mutually exclusive) ===
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -94,7 +100,7 @@ pub struct Metrics {
 // =============================================================================
 
 /// Composite obfuscation score for source code
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, ValidFieldPaths)]
 pub struct ObfuscationScore {
     /// Overall obfuscation score (0.0-1.0)
     #[serde(default, skip_serializing_if = "is_zero_f32")]
@@ -126,7 +132,7 @@ pub struct ObfuscationScore {
 }
 
 /// Composite packing score for binaries
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, ValidFieldPaths)]
 pub struct PackingScore {
     /// Overall packing score (0.0-1.0)
     #[serde(default, skip_serializing_if = "is_zero_f32")]
@@ -158,7 +164,7 @@ pub struct PackingScore {
 }
 
 /// Supply chain risk score for packages/archives
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, ValidFieldPaths)]
 pub struct SupplyChainScore {
     /// Overall risk score (0.0-1.0)
     #[serde(default, skip_serializing_if = "is_zero_f32")]
@@ -359,3 +365,10 @@ mod tests {
         assert_eq!(score.signals.len(), 3);
     }
 }
+
+// =============================================================================
+// VALID FIELD PATHS FOR YAML VALIDATION
+// =============================================================================
+
+
+// Stub implementations - return empty for now

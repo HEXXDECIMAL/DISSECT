@@ -77,14 +77,16 @@ impl ElfAnalyzer {
         let mut tools_used = vec![];
 
         // Attempt to parse with goblin
-        let mut elf_type = 0u32;
+        let mut elf_metrics_opt = None;
         match Elf::parse(data) {
             Ok(elf) => {
                 tools_used.push("goblin".to_string());
-                elf_type = elf.header.e_type as u32;
 
                 // Update architecture now that we have parsed the header
                 report.target.architectures = Some(vec![self.arch_name(&elf)]);
+
+                // Compute ELF-specific metrics
+                elf_metrics_opt = Some(self.compute_elf_metrics(&elf));
 
                 // Analyze header and structure
                 self.analyze_structure(&elf, &mut report)?;
@@ -126,10 +128,10 @@ impl ElfAnalyzer {
             if let Ok(batched) = self.radare2.extract_batched(file_path) {
                 // Compute metrics from batched data
                 let binary_metrics = self.radare2.compute_metrics_from_batched(&batched);
-                let elf_metrics = ElfMetrics {
-                    e_type: elf_type,
-                    ..Default::default()
-                };
+
+                // Use ELF metrics computed from goblin (or default if parsing failed)
+                let elf_metrics = elf_metrics_opt.unwrap_or_default();
+
                 report.metrics = Some(Metrics {
                     binary: Some(binary_metrics),
                     elf: Some(elf_metrics),
@@ -491,6 +493,140 @@ impl ElfAnalyzer {
             }
         }
     }
+
+    /// Compute ELF-specific metrics from parsed ELF binary
+    fn compute_elf_metrics(&self, elf: &Elf) -> ElfMetrics {
+        use goblin::elf::dynamic::*;
+        use goblin::elf::program_header::*;
+        use goblin::elf::sym::STB_LOCAL;
+
+        let mut metrics = ElfMetrics {
+            e_type: elf.header.e_type as u32,
+            ..Default::default()
+        };
+
+        // Entry point analysis
+        let entry = elf.entry;
+        if entry > 0 {
+            // Find section containing entry point
+            let mut found_in_text = false;
+            for sh in &elf.section_headers {
+                if entry >= sh.sh_addr && entry < sh.sh_addr + sh.sh_size {
+                    if let Some(name) = elf.shdr_strtab.get_at(sh.sh_name) {
+                        metrics.entry_section = Some(name.to_string());
+                        if name == ".text" {
+                            found_in_text = true;
+                        }
+                    }
+                    break;
+                }
+            }
+            metrics.entry_not_in_text = !found_in_text && metrics.entry_section.is_some();
+        }
+
+        // Dynamic section analysis
+        if let Some(dynamic) = &elf.dynamic {
+            metrics.needed_libs = dynamic.info.needed_count as u32;
+
+            // Count init/fini array sizes from dynamic entries
+            let mut init_arraysz = 0u64;
+            let mut fini_arraysz = 0u64;
+
+            // Check for various dynamic tags
+            for dyn_entry in &dynamic.dyns {
+                match dyn_entry.d_tag {
+                    DT_RPATH => metrics.rpath_set = true,
+                    DT_RUNPATH => metrics.runpath_set = true,
+                    DT_TEXTREL => metrics.textrel_present = true,
+                    DT_GNU_HASH => metrics.gnu_hash_present = true,
+                    DT_BIND_NOW => {
+                        // DT_BIND_NOW + GNU_RELRO = Full RELRO
+                        if metrics.relro.is_some() {
+                            metrics.relro = Some("full".to_string());
+                        }
+                    }
+                    DT_INIT_ARRAYSZ => init_arraysz = dyn_entry.d_val,
+                    DT_FINI_ARRAYSZ => fini_arraysz = dyn_entry.d_val,
+                    _ => {}
+                }
+            }
+
+            // Compute array counts (each entry is pointer size: 8 bytes for 64-bit, 4 for 32-bit)
+            let ptr_size = if elf.is_64 { 8 } else { 4 };
+            if init_arraysz > 0 {
+                metrics.init_array_count = (init_arraysz / ptr_size) as u32;
+            }
+            if fini_arraysz > 0 {
+                metrics.fini_array_count = (fini_arraysz / ptr_size) as u32;
+            }
+        }
+
+        // Program header analysis (security features)
+        for ph in &elf.program_headers {
+            match ph.p_type {
+                PT_GNU_RELRO => {
+                    // GNU_RELRO present (partial unless DT_BIND_NOW also set)
+                    if metrics.relro.is_none() {
+                        metrics.relro = Some("partial".to_string());
+                    }
+                }
+                PT_GNU_STACK => {
+                    // Check if stack is executable
+                    metrics.nx_enabled = (ph.p_flags & PF_X) == 0;
+                }
+                _ => {}
+            }
+        }
+
+        // Symbol analysis
+        let mut hidden_count = 0;
+        let mut has_stack_chk = false;
+
+        for sym in elf.syms.iter() {
+            // Count hidden visibility symbols
+            if sym.st_bind() == STB_LOCAL && sym.st_visibility() == goblin::elf::sym::STV_HIDDEN {
+                hidden_count += 1;
+            }
+
+            // Check for stack canary symbol
+            if let Some(name) = elf.strtab.get_at(sym.st_name) {
+                if name == "__stack_chk_fail" || name == "__stack_chk_guard" {
+                    has_stack_chk = true;
+                }
+            }
+        }
+
+        // Also check dynamic symbols
+        for sym in elf.dynsyms.iter() {
+            if sym.st_bind() == STB_LOCAL && sym.st_visibility() == goblin::elf::sym::STV_HIDDEN {
+                hidden_count += 1;
+            }
+
+            if let Some(name) = elf.dynstrtab.get_at(sym.st_name) {
+                if name == "__stack_chk_fail" || name == "__stack_chk_guard" {
+                    has_stack_chk = true;
+                }
+            }
+        }
+
+        metrics.hidden_symbols = hidden_count;
+        metrics.stack_canary = has_stack_chk;
+
+        // Section analysis
+        for sh in &elf.section_headers {
+            if let Some(name) = elf.shdr_strtab.get_at(sh.sh_name) {
+                match name {
+                    ".plt" => metrics.has_plt = true,
+                    ".got" | ".got.plt" => metrics.has_got = true,
+                    ".eh_frame" => metrics.has_eh_frame = true,
+                    n if n.starts_with(".note") => metrics.has_note = true,
+                    _ => {}
+                }
+            }
+        }
+
+        metrics
+    }
 }
 
 impl Default for ElfAnalyzer {
@@ -566,6 +702,19 @@ impl Analyzer for ElfAnalyzer {
                     )
                     .with_criticality(Criticality::Suspicious),
                 );
+            }
+        }
+
+        // Update binary metrics with final counts and compute ratios
+        if let Some(ref mut metrics) = report.metrics {
+            if let Some(ref mut binary) = metrics.binary {
+                binary.import_count = report.imports.len() as u32;
+                binary.export_count = report.exports.len() as u32;
+                binary.string_count = report.strings.len() as u32;
+                binary.file_size = data.len() as u64;
+
+                // Compute ratio metrics
+                crate::radare2::Radare2Analyzer::compute_ratio_metrics(binary);
             }
         }
 

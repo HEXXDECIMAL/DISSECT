@@ -1702,6 +1702,68 @@ impl CapabilityMapper {
             eprintln!();
         }
 
+        // Validate metric field references
+        let valid_metric_fields = get_valid_metric_fields();
+        let mut invalid_metric_refs = Vec::new();
+
+        for trait_def in &trait_definitions {
+            let metric_fields = collect_metric_refs_from_trait(trait_def);
+            for field in metric_fields {
+                if !valid_metric_fields.contains(&field) {
+                    let source_file = trait_source_files
+                        .get(&trait_def.id)
+                        .map(|s| s.as_str())
+                        .unwrap_or("unknown");
+                    invalid_metric_refs.push((trait_def.id.clone(), field, source_file.to_string()));
+                }
+            }
+        }
+
+        if !invalid_metric_refs.is_empty() {
+            eprintln!(
+                "\n⚠️  WARNING: {} unknown metric field references found in traits",
+                invalid_metric_refs.len()
+            );
+            eprintln!("   Traits reference metric fields that don't exist:\n");
+            for (trait_id, field, source_file) in &invalid_metric_refs {
+                let line_hint = find_line_number(source_file, field);
+                let suggestion = suggest_metric_field(&valid_metric_fields, field);
+                if let Some(line) = line_hint {
+                    if let Some(suggested) = suggestion {
+                        eprintln!(
+                            "   {}:{}: Trait '{}' references unknown metric '{}' (did you mean '{}'?)",
+                            source_file, line, trait_id, field, suggested
+                        );
+                    } else {
+                        eprintln!(
+                            "   {}:{}: Trait '{}' references unknown metric '{}'",
+                            source_file, line, trait_id, field
+                        );
+                    }
+                } else if let Some(suggested) = suggestion {
+                    eprintln!(
+                        "   {}: Trait '{}' references unknown metric '{}' (did you mean '{}'?)",
+                        source_file, trait_id, field, suggested
+                    );
+                } else {
+                    eprintln!(
+                        "   {}: Trait '{}' references unknown metric '{}'",
+                        source_file, trait_id, field
+                    );
+                }
+            }
+            eprintln!("\n   Valid metric fields:");
+            let mut sorted_fields: Vec<&String> = valid_metric_fields.iter().collect();
+            sorted_fields.sort();
+            for field in sorted_fields.iter().take(10) {
+                eprintln!("     - {}", field);
+            }
+            if sorted_fields.len() > 10 {
+                eprintln!("     ... and {} more", sorted_fields.len() - 10);
+            }
+            eprintln!();
+        }
+
         // Validate that composite rules only contain trait references (not inline primitives)
         // Strict mode is the default - composite rules must only reference traits
         let mut inline_errors = Vec::new();
@@ -3082,6 +3144,53 @@ fn check_condition(
             path.display()
         );
     }
+}
+
+/// Collect all metric field references from a trait definition
+fn collect_metric_refs_from_trait(trait_def: &TraitDefinition) -> Vec<String> {
+    let mut fields = Vec::new();
+    collect_metric_refs_from_condition(&trait_def.r#if.condition, &mut fields);
+    fields
+}
+
+/// Recursively collect metric field references from a condition
+fn collect_metric_refs_from_condition(condition: &Condition, fields: &mut Vec<String>) {
+    match condition {
+        Condition::Metrics { field, .. } => {
+            fields.push(field.clone());
+        }
+        _ => {}
+    }
+}
+
+/// Get all valid metric field paths
+/// Dynamically extracts all field paths from metrics struct definitions
+fn get_valid_metric_fields() -> FxHashSet<String> {
+    // Use the auto-generated field paths from the ValidFieldPaths derive macro
+    // This ensures the validation always stays in sync with actual struct definitions
+    crate::types::field_paths::all_valid_metric_paths()
+        .into_iter()
+        .collect()
+}
+
+/// Suggest a similar metric field for typos (simple Levenshtein distance)
+fn suggest_metric_field(valid_fields: &FxHashSet<String>, typo: &str) -> Option<String> {
+    let mut best_match: Option<(String, usize)> = None;
+
+    for valid_field in valid_fields {
+        let distance = strsim::levenshtein(typo, valid_field);
+        if distance <= 3 {  // Only suggest if within 3 edits
+            if let Some((_, best_dist)) = best_match {
+                if distance < best_dist {
+                    best_match = Some((valid_field.clone(), distance));
+                }
+            } else {
+                best_match = Some((valid_field.clone(), distance));
+            }
+        }
+    }
+
+    best_match.map(|(field, _)| field)
 }
 
 impl Default for CapabilityMapper {

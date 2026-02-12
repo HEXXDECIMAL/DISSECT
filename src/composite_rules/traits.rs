@@ -147,6 +147,11 @@ impl ConditionWithFilters {
     }
 
     pub fn check_count_min_value(&self, _trait_id: &str) -> Option<String> {
+        // Check count_min on ConditionWithFilters
+        if let Some(0) = self.count_min {
+            return Some("count_min: 0 is meaningless (default is 1)".to_string());
+        }
+        // Also check condition-level validation
         self.condition.check_count_min_value()
     }
 }

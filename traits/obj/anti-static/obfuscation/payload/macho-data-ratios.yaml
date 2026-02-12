@@ -8,35 +8,27 @@ defaults:
   mbc: "B0032"
 
 traits:
-  - id: const-larger-than-text
-    desc: "__const section much larger than __text"
-    crit: notable
-    conf: 0.8
+  - id: low-code-to-data-ratio
+    desc: "Very low code-to-data ratio (large payload)"
+    crit: suspicious
+    conf: 0.9
     if:
-      type: section_ratio
-      section: "__const"
-      compare_to: "__text"
-      min: 50.0
-
-  - id: data-larger-than-text
-    desc: "__data section much larger than __text"
-    crit: notable
-    conf: 0.8
-    if:
-      type: section_ratio
-      section: "__data"
-      compare_to: "__text"
-      min: 50.0
+      type: metrics
+      field: binary.code_to_data_ratio
+      max: 0.1  # Code is less than 10% of data size
 
 composite_rules:
   - id: macho-extreme-data-to-code-ratio
     desc: "Mach-O extreme data-to-code ratio (possible encrypted payload)"
     crit: suspicious
     conf: 0.9
-    # High-confidence: Data sections are 50x larger than code section
+    # High-confidence: Low code ratio PLUS other packing/obfuscation markers
+    all:
+      - id: low-code-to-data-ratio
     any:
-      - id: const-larger-than-text
-      - id: data-larger-than-text
+      - id: obj/anti-static/obfuscation/binary-metrics::dominant-section
+      - id: meta/binary/structure::minimal-string-count
+      - id: obj/anti-static/obfuscation/payload::high-entropy-const
 
   - id: macho-high-entropy-data-dropper
     desc: "Mach-O high-entropy data payload dropper"

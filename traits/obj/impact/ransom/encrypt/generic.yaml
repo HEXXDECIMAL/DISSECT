@@ -28,15 +28,20 @@ traits:
             $ext_locked = ".locked" ascii
             $ext_encrypted = ".encrypted" ascii
             $ext_crypto = ".crypto" ascii
+            
+            // False Positive Reduction
+            $fp_et = "doc.emergingthreats.net" nocase
+            $fp_elastic = "securitySolution" nocase
+            $fp_signatures = "signatures" nocase fullword
           condition:
             filesize < 25MB and (
-              any of ($ransom2, $ransom3) or
+              (any of ($ransom2, $ransom3) or
               ($ransom4 and ($ransom1 or $tor or $onion or any of ($btc*) or $btc_pay)) or
               ($ransom1 and ($tor or $onion or any of ($btc*) or any of ($ext_*))) or
               ($tor and $btc_pay) or
               (any of ($ext_*) and $btc_pay) or
-              ($onion and any of ($btc*))
-            )
+              ($onion and any of ($btc*)))
+            ) and not any of ($fp_*)
         }
 
   - id: encrypt-decryptor
