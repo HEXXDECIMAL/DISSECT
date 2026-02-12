@@ -1,0 +1,15 @@
+# JSON Data Format
+# Detects JSON structure to help exclude data files from code analysis
+
+defaults:
+  for: [all]
+
+traits:
+  - id: valid
+    desc: JSON data format
+    crit: inert
+    conf: 0.6
+    if:
+      type: raw
+      regex: '^\s*[\{\[]'
+      offset: 0

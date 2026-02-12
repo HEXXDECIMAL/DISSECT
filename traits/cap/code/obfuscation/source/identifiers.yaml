@@ -1,0 +1,10 @@
+traits:
+  - id: math-alphanum-identifiers
+    desc: "Uses Mathematical Alphanumeric Symbols in identifiers"
+    crit: notable
+    conf: 1.0
+    for: [python, javascript, typescript, go, rust, c, cpp, java]
+    if:
+      type: raw
+      regex: '[\u{1D400}-\u{1D7FF}]'
+      per_kb_min: 0.1

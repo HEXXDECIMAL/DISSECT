@@ -1,0 +1,20 @@
+traits:
+  - id: is-security-solution-chunk
+    desc: Helper trait for securitySolution.chunk.22.js file
+    crit: inert
+    conf: 1.0
+    if:
+      type: basename
+      exact: securitySolution.chunk.22.js
+
+  - id: downgrade-base64-in-security-solution
+    desc: Downgrade base64 findings in securitySolution files
+    crit: notable
+    conf: 1.0
+    if:
+      type: trait
+      # Was: type: trait_glob, regex: "meta/encoded-payload/base64"
+      # Fixed to a valid trait ID as trait_glob is not supported
+      id: "cap/data/encode/base64/javascript::buffer-from-base64"
+    unless:
+      - id: is-security-solution-chunk
