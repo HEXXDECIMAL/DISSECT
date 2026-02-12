@@ -37,10 +37,10 @@ composite_rules:
     desc: "C++ exception-based control flow (potential anti-analysis)"
     crit: notable
     conf: 0.6
-    all:
+    needs: 2
+    any:
       - id: cpp-exception-throw
       - id: cpp-exception-catch
-    any:
       - id: cpp-personality
 
   - id: suspicious-cpp-exception-exec

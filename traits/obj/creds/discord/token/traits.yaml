@@ -90,25 +90,6 @@ traits:
       type: string
       regex: "users/@me/channels"
 
-  # LevelDB storage reference
-  - id: leveldb-ref
-    desc: LevelDB storage reference
-    crit: notable
-    conf: 0.7
-    for: [javascript, typescript, python, elf, pe, macho]
-    if:
-      type: string
-      substr: "leveldb"
-
-  # Local Storage reference
-  - id: local-storage-ref
-    desc: Local Storage directory reference
-    crit: notable
-    conf: 0.7
-    if:
-      type: string
-      substr: "Local Storage"
-
   # Discord application path
   - id: discord-path
     desc: Discord application path reference
@@ -320,7 +301,7 @@ composite_rules:
     for: [javascript, typescript, python, elf, pe, macho]
     needs: 2
     any:
-      - id: leveldb-ref
+      - id: cap/fs/path/sensitive/browser::leveldb-ref
       - id: discord-path
       - id: regex-standard
       - id: webhook-exfil
@@ -347,8 +328,8 @@ composite_rules:
     mbc: "B0030"
     for: [javascript, typescript]
     all:
-      - id: leveldb-ref
-      - id: local-storage-ref
+      - id: cap/fs/path/sensitive/browser::leveldb-ref
+      - id: cap/fs/path/sensitive/browser::local-storage-ref
       - id: appdata-ref
       - id: obj/discovery/host/system/hardware-fingerprint::os-homedir-call
 

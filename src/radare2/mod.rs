@@ -686,6 +686,8 @@ impl Radare2Analyzer {
         let mut code_size: u64 = 0;
 
         for section in &batched.sections {
+            metrics.section_count += 1;
+
             let entropy = section.entropy as f32;
             entropies.push(entropy);
             total_size += section.size;
@@ -695,7 +697,17 @@ impl Radare2Analyzer {
             }
 
             if let Some(ref perm) = section.perm {
-                if perm.contains('x') {
+                // Workaround for radare2 bug: __const sections are marked as r-x but should not be counted as code
+                // Extract just the section name (after the last dot)
+                let section_name = section.name.rsplitn(2, '.').next().unwrap_or(&section.name);
+                let is_data_only = section_name == "__const"
+                    || section_name == "__cstring"
+                    || section_name == "__gcc_except_tab"
+                    || section_name == "__unwind_info"
+                    || section_name == "__eh_frame"
+                    || section_name == "__rodata";
+
+                if perm.contains('x') && !is_data_only {
                     metrics.executable_sections += 1;
                     code_size += section.size;
                 }

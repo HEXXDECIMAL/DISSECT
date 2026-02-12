@@ -2404,98 +2404,6 @@ fn cli_file_type_to_internal(ft: cli::DetectFileType) -> FileType {
     }
 }
 
-/// Helper function to extract metric value from a field path
-fn get_metric_value(metrics: &types::Metrics, field: &str) -> Option<f64> {
-    // Parse field path and get value
-    match field {
-        // Text metrics
-        "text.char_entropy" => metrics.text.as_ref().map(|t| t.char_entropy as f64),
-        "text.line_length_stddev" => metrics.text.as_ref().map(|t| t.line_length_stddev as f64),
-        "text.avg_line_length" => metrics.text.as_ref().map(|t| t.avg_line_length as f64),
-        "text.max_line_length" => metrics.text.as_ref().map(|t| t.max_line_length as f64),
-        "text.empty_line_ratio" => metrics.text.as_ref().map(|t| t.empty_line_ratio as f64),
-        "text.whitespace_ratio" => metrics.text.as_ref().map(|t| t.whitespace_ratio as f64),
-        "text.digit_ratio" => metrics.text.as_ref().map(|t| t.digit_ratio as f64),
-
-        // Identifier metrics
-        "identifiers.total" => metrics.identifiers.as_ref().map(|i| i.total as f64),
-        "identifiers.unique" => metrics.identifiers.as_ref().map(|i| i.unique_count as f64),
-        "identifiers.reuse_ratio" => metrics.identifiers.as_ref().map(|i| i.reuse_ratio as f64),
-        "identifiers.avg_length" => metrics.identifiers.as_ref().map(|i| i.avg_length as f64),
-        "identifiers.avg_entropy" => metrics.identifiers.as_ref().map(|i| i.avg_entropy as f64),
-        "identifiers.high_entropy_ratio" => metrics.identifiers.as_ref().map(|i| i.high_entropy_ratio as f64),
-        "identifiers.single_char_count" => metrics.identifiers.as_ref().map(|i| i.single_char_count as f64),
-
-        // String metrics
-        "strings.total" => metrics.strings.as_ref().map(|s| s.total as f64),
-        "strings.avg_entropy" => metrics.strings.as_ref().map(|s| s.avg_entropy as f64),
-        "strings.entropy_stddev" => metrics.strings.as_ref().map(|s| s.entropy_stddev as f64),
-        "strings.avg_length" => metrics.strings.as_ref().map(|s| s.avg_length as f64),
-
-        // Comment metrics
-        "comments.total" => metrics.comments.as_ref().map(|c| c.total as f64),
-        "comments.to_code_ratio" => metrics.comments.as_ref().map(|c| c.to_code_ratio as f64),
-
-        // Function metrics
-        "functions.total" => metrics.functions.as_ref().map(|f| f.total as f64),
-        "functions.anonymous" => metrics.functions.as_ref().map(|f| f.anonymous as f64),
-        "functions.avg_length_lines" => metrics.functions.as_ref().map(|f| f.avg_length_lines as f64),
-        "functions.max_length_lines" => metrics.functions.as_ref().map(|f| f.max_length_lines as f64),
-        "functions.avg_params" => metrics.functions.as_ref().map(|f| f.avg_params as f64),
-        "functions.max_params" => metrics.functions.as_ref().map(|f| f.max_params as f64),
-        "functions.max_nesting_depth" => metrics.functions.as_ref().map(|f| f.max_nesting_depth as f64),
-
-        // Binary metrics
-        "binary.overall_entropy" => metrics.binary.as_ref().map(|b| b.overall_entropy as f64),
-        "binary.code_entropy" => metrics.binary.as_ref().map(|b| b.code_entropy as f64),
-        "binary.data_entropy" => metrics.binary.as_ref().map(|b| b.data_entropy as f64),
-        "binary.section_count" => metrics.binary.as_ref().map(|b| b.section_count as f64),
-        "binary.import_count" => metrics.binary.as_ref().map(|b| b.import_count as f64),
-        "binary.export_count" => metrics.binary.as_ref().map(|b| b.export_count as f64),
-        "binary.function_count" => metrics.binary.as_ref().map(|b| b.function_count as f64),
-        "binary.avg_function_size" => metrics.binary.as_ref().map(|b| b.avg_function_size as f64),
-        "binary.avg_complexity" => metrics.binary.as_ref().map(|b| b.avg_complexity as f64),
-        "binary.max_complexity" => metrics.binary.as_ref().map(|b| b.max_complexity as f64),
-        "binary.indirect_calls" => metrics.binary.as_ref().map(|b| b.indirect_calls as f64),
-        "binary.indirect_jumps" => metrics.binary.as_ref().map(|b| b.indirect_jumps as f64),
-
-        // Python metrics
-        "python.eval_count" => metrics.python.as_ref().map(|p| p.eval_count as f64),
-        "python.exec_count" => metrics.python.as_ref().map(|p| p.exec_count as f64),
-        "python.decorator_count" => metrics.python.as_ref().map(|p| p.decorator_count as f64),
-        "python.lambda_count" => metrics.python.as_ref().map(|p| p.lambda_count as f64),
-        "python.comprehension_depth_max" => metrics.python.as_ref().map(|p| p.comprehension_depth_max as f64),
-        "python.base64_calls" => metrics.python.as_ref().map(|p| p.base64_calls as f64),
-
-        // JavaScript metrics
-        "javascript.eval_count" => metrics.javascript.as_ref().map(|j| j.eval_count as f64),
-        "javascript.arrow_function_count" => metrics.javascript.as_ref().map(|j| j.arrow_function_count as f64),
-        "javascript.iife_count" => metrics.javascript.as_ref().map(|j| j.iife_count as f64),
-        "javascript.from_char_code_count" => metrics.javascript.as_ref().map(|j| j.from_char_code_count as f64),
-        "javascript.atob_btoa_count" => metrics.javascript.as_ref().map(|j| j.atob_btoa_count as f64),
-        "javascript.innerhtml_writes" => metrics.javascript.as_ref().map(|j| j.innerhtml_writes as f64),
-
-        // Go metrics
-        "go_metrics.unsafe_usage" => metrics.go_metrics.as_ref().map(|g| g.unsafe_usage as f64),
-        "go_metrics.reflect_usage" => metrics.go_metrics.as_ref().map(|g| g.reflect_usage as f64),
-        "go_metrics.cgo_usage" => metrics.go_metrics.as_ref().map(|g| g.cgo_usage as f64),
-        "go_metrics.exec_command_count" => metrics.go_metrics.as_ref().map(|g| g.exec_command_count as f64),
-        "go_metrics.http_usage" => metrics.go_metrics.as_ref().map(|g| g.http_usage as f64),
-        "go_metrics.syscall_direct" => metrics.go_metrics.as_ref().map(|g| g.syscall_direct as f64),
-
-        // Shell metrics
-        "shell.eval_count" => metrics.shell.as_ref().map(|s| s.eval_count as f64),
-        "shell.exec_count" => metrics.shell.as_ref().map(|s| s.exec_count as f64),
-        "shell.pipe_count" => metrics.shell.as_ref().map(|s| s.pipe_count as f64),
-        "shell.pipe_depth_max" => metrics.shell.as_ref().map(|s| s.pipe_depth_max as f64),
-        "shell.background_jobs" => metrics.shell.as_ref().map(|s| s.background_jobs as f64),
-        "shell.curl_wget_count" => metrics.shell.as_ref().map(|s| s.curl_wget_count as f64),
-        "shell.base64_decode_count" => metrics.shell.as_ref().map(|s| s.base64_decode_count as f64),
-
-        _ => None,
-    }
-}
-
 /// Test pattern matching against a file with alternative suggestions
 #[allow(clippy::too_many_arguments)]
 fn test_match_debug(
@@ -3761,7 +3669,7 @@ fn test_match_debug(
 
                 // Try to extract and display the actual metric value
                 if let Some(metrics) = &report.metrics {
-                    let value = get_metric_value(metrics, field);
+                    let value = types::scores::get_metric_value(metrics, field);
                     if let Some(val) = value {
                         out.push_str(&format!("  Current value: {:.2}\n", val));
                     }
@@ -3780,7 +3688,7 @@ fn test_match_debug(
 
                 // Show current value for debugging
                 if let Some(metrics) = &report.metrics {
-                    let value = get_metric_value(metrics, field);
+                    let value = types::scores::get_metric_value(metrics, field);
                     if let Some(val) = value {
                         out.push_str(&format!("  Current value: {:.2}\n", val));
                         if let Some(min) = value_min {

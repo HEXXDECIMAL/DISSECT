@@ -17,6 +17,15 @@ traits:
       field: binary.code_to_data_ratio
       max: 0.1  # Code is less than 10% of data size
 
+  - id: high-data-dominance
+    desc: "Data section dominates file"
+    crit: notable
+    conf: 0.7
+    if:
+      type: metrics
+      field: binary.largest_section_ratio
+      min: 0.80
+
 composite_rules:
   - id: macho-extreme-data-to-code-ratio
     desc: "Mach-O extreme data-to-code ratio (possible encrypted payload)"
@@ -26,7 +35,7 @@ composite_rules:
     all:
       - id: low-code-to-data-ratio
     any:
-      - id: obj/anti-static/obfuscation/binary-metrics::dominant-section
+      - id: high-data-dominance
       - id: meta/binary/structure::minimal-string-count
       - id: obj/anti-static/obfuscation/payload::high-entropy-const
 
@@ -37,7 +46,6 @@ composite_rules:
     # Combines ratio anomaly with high entropy and execution capability
     all:
       - id: macho-extreme-data-to-code-ratio
-      - id: obj/anti-static/obfuscation/payload::high-entropy-const
       - id: cap/exec/command/shell::system-call-symbol
     none:
       - id: meta/signed/platform::apple

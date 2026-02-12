@@ -180,9 +180,10 @@ impl MachOAnalyzer {
                             binary_metrics.avg_function_size = r2_binary_metrics.avg_function_size;
                             binary_metrics.avg_complexity = r2_binary_metrics.avg_complexity;
                         }
-                        if r2_binary_metrics.code_to_data_ratio > 0.0 {
-                            binary_metrics.code_to_data_ratio = r2_binary_metrics.code_to_data_ratio;
-                        }
+                        // Don't use radare2's code_to_data_ratio - it has a bug where __const sections
+                        // are incorrectly marked as executable. We calculate this correctly from
+                        // goblin-based segment permissions in update_binary_metrics().
+
                         // Also merge section-level metrics from radare2
                         if r2_binary_metrics.section_count > 0 {
                             binary_metrics.executable_sections = r2_binary_metrics.executable_sections;
@@ -332,6 +333,13 @@ impl MachOAnalyzer {
         // Update binary metrics with data from report (import/export/string counts and entropy)
         Self::update_binary_metrics(&mut report);
 
+        // Validate metric ranges to catch calculation bugs
+        if let Some(ref metrics) = report.metrics {
+            if let Some(ref binary) = metrics.binary {
+                binary.validate();
+            }
+        }
+
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
         report.metadata.tools_used = tools_used;
 
@@ -347,6 +355,7 @@ impl MachOAnalyzer {
                 binary.import_count = report.imports.len() as u32;
                 binary.export_count = report.exports.len() as u32;
                 binary.string_count = report.strings.len() as u32;
+                binary.section_count = report.sections.len() as u32;
 
                 // Calculate string metrics
                 if !report.strings.is_empty() {
@@ -381,29 +390,86 @@ impl MachOAnalyzer {
                     binary.wide_string_count = wide_count;
                 }
 
+                // Always calculate code_to_data_ratio from goblin-based section analysis
+                // In Mach-O, sections inherit segment permissions, so we check section names
+                // to determine which sections actually contain executable code
+                if !report.sections.is_empty() {
+                    let mut code_size: u64 = 0;
+                    let mut total_size: u64 = 0;
+
+                    for section in &report.sections {
+                        total_size += section.size;
+
+                        // Extract section name (e.g., "__text" from "__TEXT.____text")
+                        let section_name = section.name.rsplitn(2, '.').next().unwrap_or(&section.name);
+                        let section_name_clean = section_name.trim_start_matches("__");
+
+                        // Only these sections contain executable code in Mach-O binaries
+                        let is_code_section = matches!(
+                            section_name_clean,
+                            "text" | "stubs" | "stub_helper"
+                        );
+
+                        // Must be in executable segment AND be a known code section
+                        let has_exec_perm = section.permissions.as_ref()
+                            .map(|p| p.contains('x'))
+                            .unwrap_or(false);
+
+                        if is_code_section && has_exec_perm {
+                            code_size += section.size;
+                        }
+                    }
+
+                    // Sanity check: code_size should never exceed total section size
+                    if code_size > total_size {
+                        eprintln!("WARNING: code_size ({}) > total_size ({}) - this indicates a bug in section classification", code_size, total_size);
+                        code_size = total_size; // Cap at total_size to prevent invalid ratio
+                    }
+
+                    // Update code_size and ratio
+                    binary.code_size = code_size;
+                    if total_size > 0 {
+                        let data_size = total_size.saturating_sub(code_size);
+                        if data_size > 0 {
+                            binary.code_to_data_ratio = code_size as f32 / data_size as f32;
+
+                            // Sanity check: extremely high ratio likely indicates classification bug
+                            if binary.code_to_data_ratio > 1000.0 {
+                                eprintln!("WARNING: code_to_data_ratio ({:.2}) > 1000 - this may indicate a bug", binary.code_to_data_ratio);
+                            }
+                        }
+                        binary.avg_section_size = total_size as f32 / report.sections.len() as f32;
+                    }
+                }
+
                 // Calculate binary entropy and size metrics from sections if not already populated
                 if binary.overall_entropy == 0.0 && !report.sections.is_empty() {
                     let mut entropies = Vec::new();
                     let mut code_entropies = Vec::new();
                     let mut data_entropies = Vec::new();
-                    let mut code_size: u64 = 0;
-                    let mut total_size: u64 = 0;
 
                     for section in &report.sections {
                         let entropy = section.entropy as f32;
                         entropies.push(entropy);
-                        total_size += section.size;
 
-                        // Track code vs data section entropy
-                        let name_lower = section.name.to_lowercase();
-                        let is_executable = section.permissions.as_ref()
+                        // Extract section name (e.g., "__text" from "__TEXT.____text")
+                        let section_name = section.name.rsplitn(2, '.').next().unwrap_or(&section.name);
+                        let section_name_clean = section_name.trim_start_matches("__");
+
+                        // Only these sections contain executable code in Mach-O binaries
+                        let is_code_section = matches!(
+                            section_name_clean,
+                            "text" | "stubs" | "stub_helper"
+                        );
+
+                        // Must be in executable segment AND be a known code section
+                        let has_exec_perm = section.permissions.as_ref()
                             .map(|p| p.contains('x'))
                             .unwrap_or(false);
 
-                        if name_lower.contains("text") || name_lower.contains("code") || is_executable {
+                        if is_code_section && has_exec_perm {
                             code_entropies.push(entropy);
-                            code_size += section.size;
-                        } else if name_lower.contains("data") || name_lower.contains("rodata") {
+                        } else {
                             data_entropies.push(entropy);
                         }
 
@@ -430,16 +496,6 @@ impl MachOAnalyzer {
 
                     if !data_entropies.is_empty() {
                         binary.data_entropy = data_entropies.iter().sum::<f32>() / data_entropies.len() as f32;
-                    }
-
-                    // Size metrics
-                    binary.code_size = code_size;
-                    if total_size > 0 {
-                        let data_size = total_size.saturating_sub(code_size);
-                        if data_size > 0 {
-                            binary.code_to_data_ratio = code_size as f32 / data_size as f32;
-                        }
-                        binary.avg_section_size = total_size as f32 / report.sections.len() as f32;
                     }
                 }
 
@@ -488,7 +544,71 @@ impl MachOAnalyzer {
 
             // Compute ratio metrics after all base counters are populated
             if let Some(ref mut binary) = metrics.binary {
+                // Set file size if not already set
+                if binary.file_size == 0 {
+                    binary.file_size = report.target.size_bytes;
+                }
+
+                // Compute largest section ratio
+                if binary.file_size > 0 && !report.sections.is_empty() {
+                    let max_section_size = report.sections.iter().map(|s| s.size).max().unwrap_or(0);
+                    binary.largest_section_ratio = max_section_size as f32 / binary.file_size as f32;
+                }
+
+                // Call compute_ratio_metrics to calculate density/normalized metrics
+                // NOTE: This will overwrite code_to_data_ratio with radare2's buggy value,
+                // so we need to recalculate it below using our correct goblin-based sections
                 crate::radare2::Radare2Analyzer::compute_ratio_metrics(binary);
+
+                // Recalculate code_to_data_ratio from goblin-based section analysis
+                // In Mach-O, sections inherit segment permissions, so we need to check section names
+                // to determine which sections actually contain executable code vs read-only data
+                if !report.sections.is_empty() {
+                    let mut code_size: u64 = 0;
+                    let mut total_size: u64 = 0;
+
+                    for section in &report.sections {
+                        total_size += section.size;
+
+                        // Extract section name (e.g., "__text" from "__TEXT.____text")
+                        let section_name = section.name.rsplitn(2, '.').next().unwrap_or(&section.name);
+                        let section_name_clean = section_name.trim_start_matches("__");
+
+                        // Only these sections contain executable code in Mach-O binaries
+                        let is_code_section = matches!(
+                            section_name_clean,
+                            "text" | "stubs" | "stub_helper"
+                        );
+
+                        // Must be in executable segment AND be a known code section
+                        let has_exec_perm = section.permissions.as_ref()
+                            .map(|p| p.contains('x'))
+                            .unwrap_or(false);
+
+                        if is_code_section && has_exec_perm {
+                            code_size += section.size;
+                        }
+                    }
+
+                    // Sanity check: code_size should never exceed total section size
+                    if code_size > total_size {
+                        eprintln!("WARNING: code_size ({}) > total_size ({}) - this indicates a bug in section classification", code_size, total_size);
+                        code_size = total_size; // Cap at total_size to prevent invalid ratio
+                    }
+
+                    binary.code_size = code_size;
+                    if total_size > 0 {
+                        let data_size = total_size.saturating_sub(code_size);
+                        if data_size > 0 {
+                            binary.code_to_data_ratio = code_size as f32 / data_size as f32;
+
+                            // Sanity check: extremely high ratio likely indicates classification bug
+                            if binary.code_to_data_ratio > 1000.0 {
+                                eprintln!("WARNING: code_to_data_ratio ({:.2}) > 1000 - this may indicate a bug", binary.code_to_data_ratio);
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -859,6 +979,17 @@ impl MachOAnalyzer {
         report: &mut AnalysisReport,
     ) -> Result<()> {
         for segment in &macho.segments {
+            // Convert segment init_prot to permission string (r/w/x format)
+            let segment_perm = {
+                let init_prot = segment.initprot;
+                let mut perm = String::new();
+                if init_prot & 0x01 != 0 { perm.push('r'); }  // VM_PROT_READ
+                if init_prot & 0x02 != 0 { perm.push('w'); }  // VM_PROT_WRITE
+                if init_prot & 0x04 != 0 { perm.push('x'); }  // VM_PROT_EXECUTE
+                if perm.is_empty() { perm.push('-'); }
+                perm
+            };
+
             for (section, _) in &segment.sections()? {
                 let section_name = format!(
                     "{}.__{}",
@@ -879,7 +1010,7 @@ impl MachOAnalyzer {
                         address: Some(section.addr),
                         size: section.size,
                         entropy,
-                        permissions: Some(format!("{:?}", section.flags)),
+                        permissions: Some(segment_perm.clone()),  // Use segment permissions
                     });
 
                     // Add entropy-based structural features

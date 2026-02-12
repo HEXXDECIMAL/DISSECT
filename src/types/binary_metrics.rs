@@ -1,4 +1,43 @@
 //! Binary format-specific metrics (ELF, PE, Mach-O, Java class files)
+//!
+//! # Metric Semantics
+//!
+//! ## Code vs Data Classification
+//!
+//! Different binary formats classify sections differently:
+//!
+//! - **Mach-O**: Only sections named `__text`, `__stubs`, and `__stub_helper` are considered code.
+//!   Other sections in the `__TEXT` segment (like `__const`, `__cstring`) are read-only data.
+//!
+//! - **ELF**: Sections with the `SHF_EXECINSTR` flag (0x4) are considered code.
+//!   Typically `.text`, `.plt`, and `.init`/`.fini` sections.
+//!
+//! - **PE**: Sections with the `IMAGE_SCN_MEM_EXECUTE` characteristic (0x20000000) are considered code.
+//!   Typically `.text` sections, but packed/obfuscated binaries may have unusual names.
+//!
+//! ## Key Metrics
+//!
+//! - **code_size**: Total bytes of executable code sections (bytes)
+//! - **code_to_data_ratio**: `code_size / (file_size - code_size)` (dimensionless)
+//!   - Low ratio (< 0.1): Packed binary or data-heavy file (e.g., dropper with embedded payload)
+//!   - Normal ratio (0.2-2.0): Typical executables
+//!   - High ratio (> 10): Code-heavy utility or library
+//!
+//! - **Density metrics** (per KB of code):
+//!   - `import_density = import_count / (code_size / 1024)`
+//!   - `string_density = string_count / (code_size / 1024)`
+//!   - `function_density = function_count / (code_size / 1024)`
+//!   - High density may indicate unpacked/decompressed code or shellcode
+//!
+//! - **Normalized metrics** (size-independent):
+//!   - `normalized_import_count = import_count / sqrt(code_size)`
+//!   - Allows comparison across different file sizes
+//!
+//! - **Entropy** (range 0-8 bits):
+//!   - 0-4: Highly compressible (text, zeros)
+//!   - 5-6: Normal compiled code
+//!   - 7-8: Encrypted or compressed data
+//!
 
 use dissect_macros::ValidFieldPaths;
 use serde::{Deserialize, Serialize};
@@ -12,13 +51,13 @@ use super::{is_false, is_zero_f32, is_zero_u32, is_zero_u64};
 #[derive(Debug, Clone, Serialize, Deserialize, Default, ValidFieldPaths)]
 pub struct BinaryMetrics {
     // === Entropy ===
-    /// Overall file entropy
+    /// Overall file entropy (0-8 bits, higher = more random/compressed)
     #[serde(default, skip_serializing_if = "is_zero_f32")]
     pub overall_entropy: f32,
-    /// Code section entropy
+    /// Code section average entropy (executable sections only)
     #[serde(default, skip_serializing_if = "is_zero_f32")]
     pub code_entropy: f32,
-    /// Data section entropy
+    /// Data section average entropy (non-executable sections only)
     #[serde(default, skip_serializing_if = "is_zero_f32")]
     pub data_entropy: f32,
     /// Entropy variance across sections
@@ -32,10 +71,18 @@ pub struct BinaryMetrics {
     /// Total file size in bytes
     #[serde(default, skip_serializing_if = "is_zero_u64")]
     pub file_size: u64,
-    /// Total executable code size in bytes
+
+    /// Total executable code size in bytes (sum of all executable sections)
+    /// - Mach-O: __text + __stubs + __stub_helper
+    /// - ELF: sections with SHF_EXECINSTR flag
+    /// - PE: sections with IMAGE_SCN_MEM_EXECUTE characteristic
     #[serde(default, skip_serializing_if = "is_zero_u64")]
     pub code_size: u64,
-    /// Ratio of executable to non-executable sections
+
+    /// Ratio of code to data: `code_size / (file_size - code_size)`
+    /// - < 0.1: Packed/dropper (small code, large payload)
+    /// - 0.2-2.0: Normal executable
+    /// - > 10: Code-heavy (utilities, libraries)
     #[serde(default, skip_serializing_if = "is_zero_f32")]
     pub code_to_data_ratio: f32,
 
@@ -237,6 +284,76 @@ pub struct BinaryMetrics {
     /// Complexity per KB: avg_complexity * 1024 / code_size
     #[serde(default, skip_serializing_if = "is_zero_f32")]
     pub complexity_per_kb: f32,
+}
+
+impl BinaryMetrics {
+    /// Validate metric ranges and log warnings for out-of-range values
+    /// This helps catch bugs in metric calculation
+    pub fn validate(&self) {
+        // Entropy checks (valid range: 0-8 bits)
+        if self.overall_entropy > 8.0 || self.overall_entropy < 0.0 {
+            eprintln!("WARNING: overall_entropy ({:.2}) outside valid range [0, 8]", self.overall_entropy);
+        }
+        if self.code_entropy > 8.0 || self.code_entropy < 0.0 {
+            eprintln!("WARNING: code_entropy ({:.2}) outside valid range [0, 8]", self.code_entropy);
+        }
+        if self.data_entropy > 8.0 || self.data_entropy < 0.0 {
+            eprintln!("WARNING: data_entropy ({:.2}) outside valid range [0, 8]", self.data_entropy);
+        }
+        if self.overlay_entropy > 8.0 || self.overlay_entropy < 0.0 {
+            eprintln!("WARNING: overlay_entropy ({:.2}) outside valid range [0, 8]", self.overlay_entropy);
+        }
+
+        // Size checks
+        if self.code_size > self.file_size {
+            eprintln!("WARNING: code_size ({}) > file_size ({}) - invalid state", self.code_size, self.file_size);
+        }
+        if self.overlay_size > self.file_size {
+            eprintln!("WARNING: overlay_size ({}) > file_size ({}) - invalid state", self.overlay_size, self.file_size);
+        }
+
+        // Ratio checks (should be non-negative)
+        if self.code_to_data_ratio < 0.0 {
+            eprintln!("WARNING: code_to_data_ratio ({:.2}) is negative", self.code_to_data_ratio);
+        }
+        if self.export_to_import_ratio < 0.0 {
+            eprintln!("WARNING: export_to_import_ratio ({:.2}) is negative", self.export_to_import_ratio);
+        }
+        if self.code_section_ratio < 0.0 || self.code_section_ratio > 1.0 {
+            eprintln!("WARNING: code_section_ratio ({:.2}) outside valid range [0, 1]", self.code_section_ratio);
+        }
+        if self.largest_section_ratio < 0.0 || self.largest_section_ratio > 1.0 {
+            eprintln!("WARNING: largest_section_ratio ({:.2}) outside valid range [0, 1]", self.largest_section_ratio);
+        }
+        if self.overlay_ratio < 0.0 || self.overlay_ratio > 1.0 {
+            eprintln!("WARNING: overlay_ratio ({:.2}) outside valid range [0, 1]", self.overlay_ratio);
+        }
+
+        // Density checks (should be non-negative, warn if extremely high)
+        if self.import_density < 0.0 {
+            eprintln!("WARNING: import_density ({:.2}) is negative", self.import_density);
+        }
+        if self.string_density < 0.0 {
+            eprintln!("WARNING: string_density ({:.2}) is negative", self.string_density);
+        }
+        if self.function_density < 0.0 {
+            eprintln!("WARNING: function_density ({:.2}) is negative", self.function_density);
+        }
+
+        // Section counts should be consistent
+        if self.executable_sections > self.section_count {
+            eprintln!("WARNING: executable_sections ({}) > section_count ({}) - invalid state",
+                self.executable_sections, self.section_count);
+        }
+        if self.writable_sections > self.section_count {
+            eprintln!("WARNING: writable_sections ({}) > section_count ({}) - invalid state",
+                self.writable_sections, self.section_count);
+        }
+        if self.wx_sections > self.executable_sections {
+            eprintln!("WARNING: wx_sections ({}) > executable_sections ({}) - invalid state",
+                self.wx_sections, self.executable_sections);
+        }
+    }
 }
 
 /// ELF-specific metrics

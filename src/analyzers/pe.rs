@@ -65,6 +65,9 @@ impl PEAnalyzer {
         // Compute PE-specific metrics early
         let pe_metrics = self.compute_pe_metrics(&pe, data);
 
+        // Calculate code_size from goblin section characteristics (more accurate than radare2)
+        let goblin_code_size = self.compute_code_size(&pe);
+
         // Create target info
         let target = TargetInfo {
             path: file_path.display().to_string(),
@@ -96,7 +99,43 @@ impl PEAnalyzer {
             // Use batched extraction - single r2 session for functions, sections, strings, imports
             if let Ok(batched) = self.radare2.extract_batched(file_path) {
                 // Compute metrics from batched data
-                let binary_metrics = self.radare2.compute_metrics_from_batched(&batched);
+                let mut binary_metrics = self.radare2.compute_metrics_from_batched(&batched);
+
+                // Override code_size with goblin-based calculation (more accurate)
+                // In PE, only sections with IMAGE_SCN_MEM_EXECUTE characteristic contain executable code
+                let mut code_size = goblin_code_size;
+
+                // Sanity check: code_size should never exceed file size
+                if code_size > binary_metrics.file_size {
+                    eprintln!("WARNING: code_size ({}) > file_size ({}) - this indicates a bug in section classification", code_size, binary_metrics.file_size);
+                    code_size = binary_metrics.file_size; // Cap at file_size to prevent invalid ratio
+                }
+
+                binary_metrics.code_size = code_size;
+
+                // Recalculate code_to_data_ratio with correct code_size
+                if binary_metrics.file_size > 0 {
+                    let data_size = binary_metrics.file_size.saturating_sub(code_size);
+                    if data_size > 0 {
+                        binary_metrics.code_to_data_ratio = code_size as f32 / data_size as f32;
+
+                        // Sanity check: extremely high ratio likely indicates classification bug
+                        if binary_metrics.code_to_data_ratio > 1000.0 {
+                            eprintln!("WARNING: code_to_data_ratio ({:.2}) > 1000 - this may indicate a bug", binary_metrics.code_to_data_ratio);
+                        }
+                    }
+                }
+
+                // Recalculate density metrics that depend on code_size
+                let code_kb = goblin_code_size as f32 / 1024.0;
+                if code_kb > 0.0 {
+                    binary_metrics.import_density = binary_metrics.import_count as f32 / code_kb;
+                    binary_metrics.string_density = binary_metrics.string_count as f32 / code_kb;
+                    binary_metrics.function_density = binary_metrics.function_count as f32 / code_kb;
+                    binary_metrics.relocation_density = binary_metrics.relocation_count as f32 / code_kb;
+                    binary_metrics.complexity_per_kb = binary_metrics.avg_complexity * 1024.0 / goblin_code_size as f32;
+                }
+
                 report.metrics = Some(Metrics {
                     binary: Some(binary_metrics),
                     pe: Some(pe_metrics),
@@ -188,8 +227,21 @@ impl PEAnalyzer {
                 binary.string_count = report.strings.len() as u32;
                 binary.file_size = data.len() as u64;
 
+                // Compute largest section ratio
+                if binary.file_size > 0 && !report.sections.is_empty() {
+                    let max_section_size = report.sections.iter().map(|s| s.size).max().unwrap_or(0);
+                    binary.largest_section_ratio = max_section_size as f32 / binary.file_size as f32;
+                }
+
                 // Compute ratio metrics
                 crate::radare2::Radare2Analyzer::compute_ratio_metrics(binary);
+            }
+        }
+
+        // Validate metric ranges to catch calculation bugs
+        if let Some(ref metrics) = report.metrics {
+            if let Some(ref binary) = metrics.binary {
+                binary.validate();
             }
         }
 
@@ -492,6 +544,23 @@ impl PEAnalyzer {
         }
 
         metrics
+    }
+
+    /// Calculate code size from PE section headers using IMAGE_SCN_MEM_EXECUTE characteristic
+    /// This is more accurate than radare2's section classification
+    fn compute_code_size(&self, pe: &PE) -> u64 {
+        const IMAGE_SCN_MEM_EXECUTE: u32 = 0x20000000; // Section contains executable code
+
+        let mut code_size: u64 = 0;
+
+        for section in &pe.sections {
+            // Check if section has IMAGE_SCN_MEM_EXECUTE characteristic set
+            if section.characteristics & IMAGE_SCN_MEM_EXECUTE != 0 {
+                code_size += section.size_of_raw_data as u64;
+            }
+        }
+
+        code_size
     }
 }
 

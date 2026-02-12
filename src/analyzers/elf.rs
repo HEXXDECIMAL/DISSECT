@@ -78,6 +78,7 @@ impl ElfAnalyzer {
 
         // Attempt to parse with goblin
         let mut elf_metrics_opt = None;
+        let mut goblin_code_size: Option<u64> = None;
         match Elf::parse(data) {
             Ok(elf) => {
                 tools_used.push("goblin".to_string());
@@ -87,6 +88,9 @@ impl ElfAnalyzer {
 
                 // Compute ELF-specific metrics
                 elf_metrics_opt = Some(self.compute_elf_metrics(&elf));
+
+                // Calculate code_size from goblin section flags (more accurate than radare2)
+                goblin_code_size = Some(self.compute_code_size(&elf));
 
                 // Analyze header and structure
                 self.analyze_structure(&elf, &mut report)?;
@@ -127,7 +131,42 @@ impl ElfAnalyzer {
             // Use batched extraction - single r2 session for functions, sections, strings, imports
             if let Ok(batched) = self.radare2.extract_batched(file_path) {
                 // Compute metrics from batched data
-                let binary_metrics = self.radare2.compute_metrics_from_batched(&batched);
+                let mut binary_metrics = self.radare2.compute_metrics_from_batched(&batched);
+
+                // Override code_size with goblin-based calculation (more accurate)
+                // In ELF, only sections with SHF_EXECINSTR flag contain executable code
+                if let Some(mut code_size) = goblin_code_size {
+                    // Sanity check: code_size should never exceed file size
+                    if code_size > binary_metrics.file_size {
+                        eprintln!("WARNING: code_size ({}) > file_size ({}) - this indicates a bug in section classification", code_size, binary_metrics.file_size);
+                        code_size = binary_metrics.file_size; // Cap at file_size to prevent invalid ratio
+                    }
+
+                    binary_metrics.code_size = code_size;
+
+                    // Recalculate code_to_data_ratio with correct code_size
+                    if binary_metrics.file_size > 0 {
+                        let data_size = binary_metrics.file_size.saturating_sub(code_size);
+                        if data_size > 0 {
+                            binary_metrics.code_to_data_ratio = code_size as f32 / data_size as f32;
+
+                            // Sanity check: extremely high ratio likely indicates classification bug
+                            if binary_metrics.code_to_data_ratio > 1000.0 {
+                                eprintln!("WARNING: code_to_data_ratio ({:.2}) > 1000 - this may indicate a bug", binary_metrics.code_to_data_ratio);
+                            }
+                        }
+                    }
+
+                    // Recalculate density metrics that depend on code_size
+                    let code_kb = code_size as f32 / 1024.0;
+                    if code_kb > 0.0 {
+                        binary_metrics.import_density = binary_metrics.import_count as f32 / code_kb;
+                        binary_metrics.string_density = binary_metrics.string_count as f32 / code_kb;
+                        binary_metrics.function_density = binary_metrics.function_count as f32 / code_kb;
+                        binary_metrics.relocation_density = binary_metrics.relocation_count as f32 / code_kb;
+                        binary_metrics.complexity_per_kb = binary_metrics.avg_complexity * 1024.0 / code_size as f32;
+                    }
+                }
 
                 // Use ELF metrics computed from goblin (or default if parsing failed)
                 let elf_metrics = elf_metrics_opt.unwrap_or_default();
@@ -229,6 +268,13 @@ impl ElfAnalyzer {
 
         // Analyze environment variables and generate env-based traits
         crate::env_mapper::analyze_and_link_env_vars(&mut report);
+
+        // Validate metric ranges to catch calculation bugs
+        if let Some(ref metrics) = report.metrics {
+            if let Some(ref binary) = metrics.binary {
+                binary.validate();
+            }
+        }
 
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
         report.metadata.tools_used = tools_used;
@@ -627,6 +673,23 @@ impl ElfAnalyzer {
 
         metrics
     }
+
+    /// Calculate code size from ELF section headers using SHF_EXECINSTR flag
+    /// This is more accurate than radare2's section classification
+    fn compute_code_size(&self, elf: &Elf) -> u64 {
+        const SHF_EXECINSTR: u64 = 0x4; // Section contains executable code
+
+        let mut code_size: u64 = 0;
+
+        for section in &elf.section_headers {
+            // Check if section has SHF_EXECINSTR flag set
+            if section.sh_flags & SHF_EXECINSTR != 0 {
+                code_size += section.sh_size;
+            }
+        }
+
+        code_size
+    }
 }
 
 impl Default for ElfAnalyzer {
@@ -712,6 +775,12 @@ impl Analyzer for ElfAnalyzer {
                 binary.export_count = report.exports.len() as u32;
                 binary.string_count = report.strings.len() as u32;
                 binary.file_size = data.len() as u64;
+
+                // Compute largest section ratio
+                if binary.file_size > 0 && !report.sections.is_empty() {
+                    let max_section_size = report.sections.iter().map(|s| s.size).max().unwrap_or(0);
+                    binary.largest_section_ratio = max_section_size as f32 / binary.file_size as f32;
+                }
 
                 // Compute ratio metrics
                 crate::radare2::Radare2Analyzer::compute_ratio_metrics(binary);

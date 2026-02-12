@@ -1415,7 +1415,11 @@ impl<'a> RuleDebugger<'a> {
     ) -> ConditionDebugResult {
         let desc = format!("metrics: {} (min: {:?}, max: {:?})", field, min, max);
 
-        let value = get_metric_value(self.report, field);
+        let value = self
+            .report
+            .metrics
+            .as_ref()
+            .and_then(|m| crate::types::scores::get_metric_value(m, field));
         let matched =
             value.is_some_and(|v| min.is_none_or(|m| v >= m) && max.is_none_or(|m| v <= m));
 
@@ -2490,26 +2494,6 @@ pub fn find_matching_symbols<'a>(
         .collect()
 }
 
-fn get_metric_value(report: &AnalysisReport, field: &str) -> Option<f64> {
-    let metrics = report.metrics.as_ref()?;
-
-    match field {
-        "text.total_lines" | "total_lines" => metrics.text.as_ref().map(|t| t.total_lines as f64),
-        "functions.count" | "function_count" => metrics.functions.as_ref().map(|f| f.total as f64),
-        "identifiers.single_char_ratio" => metrics
-            .identifiers
-            .as_ref()
-            .map(|i| i.single_char_ratio as f64),
-        "identifiers.avg_length" => metrics.identifiers.as_ref().map(|i| i.avg_length as f64),
-        "identifiers.total" => metrics.identifiers.as_ref().map(|i| i.total as f64),
-        "identifiers.unique" => metrics.identifiers.as_ref().map(|i| i.unique_count as f64),
-        "identifiers.single_char_count" => metrics
-            .identifiers
-            .as_ref()
-            .map(|i| i.single_char_count as f64),
-        _ => None,
-    }
-}
 
 fn evaluate_condition_simple(
     condition: &Condition,

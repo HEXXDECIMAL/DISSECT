@@ -345,8 +345,8 @@ composite_rules:
     attack: "T1217"
     for: [all]
     any:
-      - id: obj/creds/discord/token::local-storage-ref
-      - id: obj/creds/discord/token::leveldb-ref
+      - id: cap/fs/path/sensitive/browser::local-storage-ref
+      - id: cap/fs/path/sensitive/browser::leveldb-ref
 
   # Extensions composite
   - id: extensions
