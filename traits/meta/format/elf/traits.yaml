@@ -55,6 +55,15 @@ traits:
       type: trait
       id: meta/format/elf::ifunc
 
+  - id: microblaze
+    desc: Xilinx MicroBlaze architecture
+    crit: notable
+    conf: 1.0
+    if:
+      type: hex
+      pattern: "00 BD"
+      offset: 18
+
 composite_rules:
   - id: resolver-markers
     desc: Resolver function markers

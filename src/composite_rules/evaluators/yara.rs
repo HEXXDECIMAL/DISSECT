@@ -475,7 +475,6 @@ pub fn eval_hex(
         evidence: if matched {
             matches
                 .iter()
-                .take(5)
                 .map(|pos| {
                     // Always extract wildcard bytes (consistent with regex behavior)
                     let value =

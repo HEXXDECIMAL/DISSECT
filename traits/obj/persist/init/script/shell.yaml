@@ -17,7 +17,7 @@ traits:
     if:
       type: raw
       regex: "#\\s*chkconfig:\\s*[-0-9]+\\s+[0-9]+\\s+[0-9]+"
-      offset_range: [0, 1024] # Must be in header area
+      
 
   # Aggressive persistence: runs in ALL runlevels (12345 or 2345)
   - id: chkconfig-all-runlevels
@@ -28,7 +28,7 @@ traits:
       type: raw
       # Matches chkconfig with runlevels 12345, 2345, or similar (4+ runlevels)
       regex: "#\\s*chkconfig:\\s*[-]?[0-9]{4,}\\s+[0-9]+\\s+[0-9]+"
-      offset_range: [0, 1024]
+      
 
   # Very early start priority (01-10) - wants to run before most services
   - id: chkconfig-early-start
@@ -39,7 +39,7 @@ traits:
       type: raw
       # Priority 01-10 is unusually early (most legitimate services use 50+)
       regex: "#\\s*chkconfig:\\s*[-0-9]+\\s+0[0-9]\\s+[0-9]+"
-      offset_range: [0, 1024]
+      
 
   - id: source-init-functions
     desc: Sources init.d functions

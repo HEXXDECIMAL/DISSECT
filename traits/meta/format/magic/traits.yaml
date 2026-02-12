@@ -1,7 +1,7 @@
 # File format magic byte detection at file start (offset 0)
 #
 # These traits detect file format signatures at the expected location.
-# Using offset: 0 or offset_range: [0, 16] ensures we identify actual
+# Using offset: 0 or 
 # file formats, not embedded content or coincidental byte patterns.
 
 traits:
@@ -188,7 +188,7 @@ traits:
     if:
       type: raw
       substr: "%PDF-"
-      offset_range: [0, 16]
+      
 
   - id: sqlite3
     desc: SQLite3 database magic
@@ -272,7 +272,7 @@ traits:
     if:
       type: hex
       pattern: "7F 45 4C 46"
-      offset_range: [1024, null] # Not in first 1KB
+      
 
   - id: embedded-pe
     desc: MZ/PE magic found past file header
@@ -282,7 +282,7 @@ traits:
     if:
       type: hex
       pattern: "4D 5A [2-4096] 50 45 00 00"
-      offset_range: [1024, null]
+      
 
   - id: embedded-pe-in-pe
     desc: Embedded PE resource in executable
@@ -292,7 +292,7 @@ traits:
     if:
       type: hex
       pattern: "4D 5A"
-      offset_range: [4096, null] # Further in to avoid section tables
+      
 
   - id: embedded-zip
     desc: ZIP magic found past file header
@@ -302,4 +302,4 @@ traits:
     if:
       type: hex
       pattern: "50 4B 03 04"
-      offset_range: [4096, null]
+      

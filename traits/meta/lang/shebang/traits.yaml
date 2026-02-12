@@ -1,7 +1,7 @@
 # Shebang line detection - always at file offset 0
 #
 # These traits detect interpreter directives at the start of script files.
-# Using offset_range: [0, 256] ensures we only match actual shebangs,
+# Using 
 # not embedded strings or comments mentioning interpreter paths.
 
 traits:
@@ -14,7 +14,7 @@ traits:
     if:
       type: raw
       regex: "^#!\\s*/bin/sh"
-      offset_range: [0, 64]
+      
 
   - id: bash
     desc: Bash shell shebang line
@@ -24,7 +24,7 @@ traits:
     if:
       type: raw
       regex: "^#!\\s*(/usr)?/bin/bash"
-      offset_range: [0, 64]
+      
 
   - id: zsh
     desc: Zsh shell shebang line
@@ -34,7 +34,7 @@ traits:
     if:
       type: raw
       regex: "^#!\\s*(/usr)?/bin/zsh"
-      offset_range: [0, 64]
+      
 
   - id: dash
     desc: Dash shell shebang line
@@ -44,7 +44,7 @@ traits:
     if:
       type: raw
       regex: "^#!\\s*/bin/dash"
-      offset_range: [0, 64]
+      
 
   # Python interpreters
   - id: python
@@ -55,7 +55,7 @@ traits:
     if:
       type: raw
       regex: "^#!\\s*(/usr)?/bin/(env\\s+)?python\\s*$"
-      offset_range: [0, 64]
+      
 
   - id: python2
     desc: Python 2 shebang line
@@ -65,7 +65,7 @@ traits:
     if:
       type: raw
       regex: "^#!\\s*(/usr)?/bin/(env\\s+)?python2"
-      offset_range: [0, 64]
+      
 
   - id: python3
     desc: Python 3 shebang line
@@ -75,7 +75,7 @@ traits:
     if:
       type: raw
       regex: "^#!\\s*(/usr)?/bin/(env\\s+)?python3"
-      offset_range: [0, 64]
+      
 
   # Other scripting languages
   - id: perl
@@ -86,7 +86,7 @@ traits:
     if:
       type: raw
       regex: "^#!\\s*(/usr)?/bin/(env\\s+)?perl"
-      offset_range: [0, 64]
+      
 
   - id: ruby
     desc: Ruby shebang line
@@ -96,7 +96,7 @@ traits:
     if:
       type: raw
       regex: "^#!\\s*(/usr)?/bin/(env\\s+)?ruby"
-      offset_range: [0, 64]
+      
 
   - id: php
     desc: PHP shebang line
@@ -106,7 +106,7 @@ traits:
     if:
       type: raw
       regex: "^#!\\s*(/usr)?/bin/(env\\s+)?php"
-      offset_range: [0, 64]
+      
 
   - id: node
     desc: Node.js shebang line
@@ -116,7 +116,7 @@ traits:
     if:
       type: raw
       regex: "^#!\\s*(/usr)?/bin/(env\\s+)?node"
-      offset_range: [0, 64]
+      
 
   - id: lua
     desc: Lua shebang line
@@ -126,7 +126,7 @@ traits:
     if:
       type: raw
       regex: "^#!\\s*(/usr)?/bin/(env\\s+)?lua"
-      offset_range: [0, 64]
+      
 
   - id: awk
     desc: AWK shebang line
@@ -136,7 +136,7 @@ traits:
     if:
       type: raw
       regex: "^#!\\s*(/usr)?/bin/(env\\s+)?(g|m|n)?awk"
-      offset_range: [0, 64]
+      
 
   - id: osascript
     desc: AppleScript/JXA shebang line
@@ -147,7 +147,7 @@ traits:
     if:
       type: raw
       regex: "^#!\\s*(/usr)?/bin/(env\\s+)?osascript"
-      offset_range: [0, 64]
+      
 
   # Generic env-based shebang
   - id: env-interpreter
@@ -158,7 +158,7 @@ traits:
     if:
       type: raw
       regex: "^#!\\s*/usr/bin/env\\s+\\w+"
-      offset_range: [0, 64]
+      
 
   # Suspicious shebangs
   - id: hidden-interpreter
@@ -169,7 +169,7 @@ traits:
     if:
       type: raw
       regex: "^#!\\s*(/tmp|/var/tmp|/dev/shm|\\.\\./)"
-      offset_range: [0, 128]
+      
 
   - id: base64-encoded-shebang
     desc: Base64-encoded script with shebang after decode
@@ -180,4 +180,4 @@ traits:
       type: encoded
       encoding: base64
       regex: "^#!\\s*/[a-z]"
-      offset_range: [0, 512]
+      
