@@ -586,8 +586,12 @@ type streamState struct {
 
 // streamAnalyzeAndReview streams dissect output and reviews archives as they complete.
 func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*streamStats, error) {
-	// Determine log file path for dissect's own logs
-	dissectLogPath, err := getDissectLogFilePath()
+	// Generate unique session ID early for log file naming and log entries
+	sessionID := generateSessionID()
+	pid := os.Getpid()
+
+	// Determine log file path for dissect's own logs (session-specific)
+	dissectLogPath, err := getDissectLogFilePath(sessionID)
 	if err != nil {
 		return nil, fmt.Errorf("could not determine dissect log path: %w", err)
 	}
@@ -620,10 +624,16 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 	}
 
 	// Stream dissect stderr to our own stderr in background
+	// Include PID prefix for parallel session disambiguation
+	dissectPID := 0 // Will be set after cmd.Start()
 	go func() {
 		scanner := bufio.NewScanner(stderr)
 		for scanner.Scan() {
-			fmt.Fprintf(os.Stderr, "[dissect] %s\n", scanner.Text())
+			if dissectPID > 0 {
+				fmt.Fprintf(os.Stderr, "[dissect:%d] %s\n", dissectPID, scanner.Text())
+			} else {
+				fmt.Fprintf(os.Stderr, "[dissect] %s\n", scanner.Text())
+			}
 		}
 	}()
 
@@ -631,10 +641,12 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 		return nil, fmt.Errorf("could not start dissect: %w", err)
 	}
 
-	fmt.Fprintf(os.Stderr, "DISSECT logs: %s\n", dissectLogPath)
+	dissectPID = cmd.Process.Pid
+	fmt.Fprintf(os.Stderr, "DISSECT logs: %s (PID %d)\n", dissectLogPath, dissectPID)
 
 	// Set up dual-output logging: structured JSON to disk, human-readable to console
-	logPath, err := getLogFilePath()
+	// Use session-specific log file to avoid conflicts with parallel sessions
+	logPath, err := getLogFilePath(sessionID)
 	if err != nil {
 		return nil, fmt.Errorf("could not determine log path: %w", err)
 	}
@@ -656,7 +668,13 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 	consoleHandler := slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelInfo})
 
 	// Multi-handler that writes to both
-	logger := slog.New(&multiHandler{handlers: []slog.Handler{fileHandler, consoleHandler}})
+	baseLogger := slog.New(&multiHandler{handlers: []slog.Handler{fileHandler, consoleHandler}})
+
+	// Add session_id and pid to all log entries by default (for parallel session disambiguation)
+	logger := baseLogger.With(
+		"session_id", sessionID,
+		"pid", pid,
+	)
 
 	// Build full command line for logging
 	dissectArgs := []string{"--format", "jsonl", "--extract-dir", cfg.extractDir, "--max-file-mem", "0"}
@@ -664,6 +682,10 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 	fullCmd := append([]string{cfg.dissectBin}, dissectArgs...)
 
 	sessionStart := time.Now()
+
+	// Print session info to stderr for easy identification
+	fmt.Fprintf(os.Stderr, "\n=== trait-basher session %s (PID %d) ===\n", sessionID, pid)
+
 	logger.Info("trait-basher session started",
 		"dissect_bin", cfg.dissectBin,
 		"dissect_args", strings.Join(dissectArgs, " "),
@@ -1924,7 +1946,7 @@ func formatProvidersForDisplay(providers []string) string {
 // - macOS: ~/Library/Logs/trait-basher/archives.log
 // - Linux: ~/.local/state/trait-basher/archives.log (or ~/.cache/trait-basher/archives.log)
 // - Windows: %LOCALAPPDATA%\trait-basher\logs\archives.log
-func getLogFilePath() (string, error) {
+func getLogFilePath(sessionID string) (string, error) {
 	var logDir string
 
 	switch runtime.GOOS {
@@ -1966,11 +1988,12 @@ func getLogFilePath() (string, error) {
 		return "", fmt.Errorf("could not create log directory %s: %w", logDir, err)
 	}
 
-	return filepath.Join(logDir, "archives.log"), nil
+	// Use session-specific log file for parallel session support
+	return filepath.Join(logDir, fmt.Sprintf("archives-%s.log", sessionID)), nil
 }
 
 // getDissectLogFilePath returns the path for dissect's own verbose logs
-func getDissectLogFilePath() (string, error) {
+func getDissectLogFilePath(sessionID string) (string, error) {
 	var logDir string
 
 	switch runtime.GOOS {
@@ -2012,7 +2035,8 @@ func getDissectLogFilePath() (string, error) {
 		return "", fmt.Errorf("could not create log directory %s: %w", logDir, err)
 	}
 
-	return filepath.Join(logDir, "dissect.log"), nil
+	// Use session-specific log file for parallel session support
+	return filepath.Join(logDir, fmt.Sprintf("dissect-%s.log", sessionID)), nil
 }
 
 func generateSessionID() string {
