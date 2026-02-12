@@ -1,0 +1,210 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/content/custom-scripts/dependencies/create-property-match-map.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "0daa3fcd20f61eb4a0b3270eb0862eed866de4866b379539e76e33094cf3a1ef",
+  "size": 785,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "kind": "capability",
+      "desc": "for loop (AST)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "12:3"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "create-property-match-map.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "kind": "capability",
+      "desc": "Iteration or loop pattern",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "12:3"
+        },
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "meta/internal/imported::safe",
+      "kind": "structural",
+      "desc": "calls safe",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pattern",
+      "kind": "structural",
+      "desc": "calls pattern",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pattern"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::needles",
+      "kind": "structural",
+      "desc": "calls needles",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "needles"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safeself",
+      "kind": "structural",
+      "desc": "calls safeSelf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeSelf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/string_split/call",
+      "kind": "structural",
+      "desc": "calls safe.String_split.call",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.String_split.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::needles/set",
+      "kind": "structural",
+      "desc": "calls needles.set",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "needles.set"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/initpattern",
+      "kind": "structural",
+      "desc": "calls safe.initPattern",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.initPattern"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::options",
+      "kind": "structural",
+      "desc": "calls options",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "options"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::prop",
+      "kind": "structural",
+      "desc": "calls prop",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "prop"
+        }
+      ]
+    }
+  ]
+}

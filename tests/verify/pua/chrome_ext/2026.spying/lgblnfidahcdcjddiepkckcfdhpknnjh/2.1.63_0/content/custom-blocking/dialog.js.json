@@ -1,0 +1,508 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/content/custom-blocking/dialog.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "6e7e2edfd192a5f624a4690dc614192b048d77b4bbd2ea801d4d271441d47060",
+  "size": 2097,
+  "risk": "notable",
+  "counts": {
+    "notable": 3
+  },
+  "findings": [
+    {
+      "id": "cap/data/text/keywords::padding",
+      "kind": "capability",
+      "desc": "padding keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "\n      all: initial;\n      position: fixed;\n      z-index: 2147483647;\n      top: 0px;\n      left: 0px;\n      border: none;\n      padding: 0px;\n      margin: 0px;\n      width: 100%;\n      display: block !important;",
+          "location": "0x112"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "\n      all: initial;\n      position: fixed;\n      z-index: 2147483647;\n      top: 0px;\n      left: 0px;\n      border: none;\n      padding: 0px;\n      margin: 0px;\n      width: 100%;\n      display: block !important;",
+          "location": "0x113"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "kind": "capability",
+      "desc": "for loop (AST)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "36:5"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
+      "kind": "capability",
+      "desc": "No comments in code (stripped",
+      "conf": 0.6,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "cap/exec/dropper/loader::fetch-call",
+      "kind": "capability",
+      "desc": "fetch() API call",
+      "conf": 0.6,
+      "crit": "inert",
+      "mbc": "B0024",
+      "attack": "T1059.007",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 fetch(",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/exec/dropper/loader/node-fetch.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "dialog.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "kind": "capability",
+      "desc": "Iteration or loop pattern",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "36:5"
+        },
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "meta/internal/imported::content/classlist/add",
+      "kind": "structural",
+      "desc": "calls content.classList.add",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "content.classList.add"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::dialog",
+      "kind": "structural",
+      "desc": "calls dialog",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dialog"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::content/classlist/remove",
+      "kind": "structural",
+      "desc": "calls content.classList.remove",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "content.classList.remove"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::button",
+      "kind": "structural",
+      "desc": "calls button",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "button"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::result/text",
+      "kind": "structural",
+      "desc": "calls result.text",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "result.text"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentdocument/getelementbyid",
+      "kind": "structural",
+      "desc": "calls currentDocument.getElementById",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentDocument.getElementById"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getextensionrelativeurl",
+      "kind": "structural",
+      "desc": "calls getExtensionRelativeUrl",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getExtensionRelativeUrl"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::content",
+      "kind": "structural",
+      "desc": "calls content",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "content"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::header",
+      "kind": "structural",
+      "desc": "calls header",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "header"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::header/classlist/remove",
+      "kind": "structural",
+      "desc": "calls header.classList.remove",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "header.classList.remove"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/withresolvers",
+      "kind": "structural",
+      "desc": "calls Promise.withResolvers",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.withResolvers"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentdocument/documentelement/appendchild",
+      "kind": "structural",
+      "desc": "calls currentDocument.documentElement.appendChild",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentDocument.documentElement.appendChild"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::result",
+      "kind": "structural",
+      "desc": "calls result",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "result"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::header/classlist/add",
+      "kind": "structural",
+      "desc": "calls header.classList.add",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "header.classList.add"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::seconds",
+      "kind": "structural",
+      "desc": "calls seconds",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "seconds"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::interval",
+      "kind": "structural",
+      "desc": "calls interval",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "interval"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::setinterval",
+      "kind": "structural",
+      "desc": "calls setInterval",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setInterval"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::button/innerhtml",
+      "kind": "structural",
+      "desc": "calls button.innerHTML",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "button.innerHTML"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::clearinterval",
+      "kind": "structural",
+      "desc": "calls clearInterval",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "clearInterval"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentdocument/queryselector",
+      "kind": "structural",
+      "desc": "calls currentDocument.querySelector",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentDocument.querySelector"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data",
+      "kind": "structural",
+      "desc": "calls data",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::fetch",
+      "kind": "structural",
+      "desc": "calls fetch",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "fetch"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::resolve",
+      "kind": "structural",
+      "desc": "calls resolve",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "resolve"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentdocument/createelement",
+      "kind": "structural",
+      "desc": "calls currentDocument.createElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentDocument.createElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data/replace",
+      "kind": "structural",
+      "desc": "calls data.replace",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data.replace"
+        }
+      ]
+    }
+  ]
+}

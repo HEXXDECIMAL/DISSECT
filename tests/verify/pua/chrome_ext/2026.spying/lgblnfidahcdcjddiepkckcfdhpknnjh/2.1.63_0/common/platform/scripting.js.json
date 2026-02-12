@@ -1,0 +1,86 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/common/platform/scripting.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "e683aac9933fb82bcf5b3525f76af8fc040e934de935b8abd92c8a259cbe383d",
+  "size": 623,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "scripting.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::browser/scripting/unregistercontentscripts",
+      "kind": "structural",
+      "desc": "calls browser.scripting.unregisterContentScripts",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.scripting.unregisterContentScripts"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/scripting/registercontentscripts",
+      "kind": "structural",
+      "desc": "calls browser.scripting.registerContentScripts",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.scripting.registerContentScripts"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/scripting/getregisteredcontentscripts",
+      "kind": "structural",
+      "desc": "calls browser.scripting.getRegisteredContentScripts",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.scripting.getRegisteredContentScripts"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::debug/error",
+      "kind": "structural",
+      "desc": "calls debug.error",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "debug.error"
+        }
+      ]
+    }
+  ]
+}

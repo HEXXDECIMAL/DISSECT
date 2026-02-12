@@ -1,0 +1,58 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/content/custom-scripts/jilliandescribecompany.com.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "d7fe49fbe1249cb9b8f4270ce139b1119669eec5baa08cf850b7174de3bd335b",
+  "size": 151,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "jilliandescribecompany.com.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::defineconstant",
+      "kind": "structural",
+      "desc": "calls defineConstant",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "defineConstant"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::abortcurrentscript",
+      "kind": "structural",
+      "desc": "calls abortCurrentScript",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "abortCurrentScript"
+        }
+      ]
+    }
+  ]
+}

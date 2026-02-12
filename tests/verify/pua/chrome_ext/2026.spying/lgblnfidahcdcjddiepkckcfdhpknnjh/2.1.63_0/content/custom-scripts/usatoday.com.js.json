@@ -1,0 +1,44 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/content/custom-scripts/usatoday.com.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "1aa4f1864fe51a6997f4617a2a326b89a61f6cc28da0c5c5733e258642824549",
+  "size": 123,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "usatoday.com.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::unblockcontentscrollingscript",
+      "kind": "structural",
+      "desc": "calls unblockContentScrollingScript",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "unblockContentScrollingScript"
+        }
+      ]
+    }
+  ]
+}

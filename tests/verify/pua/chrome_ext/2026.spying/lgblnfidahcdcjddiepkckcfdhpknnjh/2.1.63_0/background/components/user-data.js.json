@@ -1,0 +1,296 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/components/user-data.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "07b15d435f815a68588434a1f587be8eca9187e7b13b27dc1b57fa9bf80c76d6",
+  "size": 1602,
+  "risk": "notable",
+  "counts": {
+    "notable": 6
+  },
+  "findings": [
+    {
+      "id": "cap/comm/http/post::post-method",
+      "kind": "capability",
+      "desc": "POST HTTP method",
+      "conf": 0.5,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x442"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x443"
+        }
+      ],
+      "source_file": "cap/comm/http/post/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "user-data.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "cap/comm/http/post::post-method-detection",
+      "kind": "capability",
+      "desc": "Makes HTTP POST requests (method detection)",
+      "conf": 0.75,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x442"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x443"
+        }
+      ],
+      "source_file": "cap/comm/http/post/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/vscode::send-methods",
+      "kind": "capability",
+      "desc": "HTTP send methods",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x442"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x443"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/vscode/malicious.yaml"
+    },
+    {
+      "id": "obj/c2/ddos/attack::http-methods",
+      "kind": "capability",
+      "desc": "HTTP request methods detected",
+      "conf": 1.0,
+      "crit": "inert",
+      "mbc": "B0009",
+      "attack": "T1498",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x442"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x443"
+        }
+      ],
+      "source_file": "obj/c2/ddos/attack/generic.yaml"
+    },
+    {
+      "id": "cap/comm/http/post::post",
+      "kind": "capability",
+      "desc": "HTTP POST request capability",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x442"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x443"
+        }
+      ],
+      "source_file": "cap/comm/http/post/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/malicious-patterns::http-post-exfil",
+      "kind": "capability",
+      "desc": "HTTP POST exfiltration",
+      "conf": 0.75,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x442"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x443"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+    },
+    {
+      "id": "meta/internal/imported::promise/withresolvers",
+      "kind": "structural",
+      "desc": "calls Promise.withResolvers",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.withResolvers"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::serverapi/callurl",
+      "kind": "structural",
+      "desc": "calls serverApi.callUrl",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "serverApi.callUrl"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::result",
+      "kind": "structural",
+      "desc": "calls result",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "result"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::userdata",
+      "kind": "structural",
+      "desc": "calls userData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "userData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::loadanonyid",
+      "kind": "structural",
+      "desc": "calls loadAnonyId",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "loadAnonyId"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::hasconsent",
+      "kind": "structural",
+      "desc": "calls hasConsent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hasConsent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::dataprocessingconsent/getconsent",
+      "kind": "structural",
+      "desc": "calls dataProcessingConsent.getConsent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dataProcessingConsent.getConsent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data",
+      "kind": "structural",
+      "desc": "calls data",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::anonymoususerid",
+      "kind": "structural",
+      "desc": "calls anonymousUserId",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "anonymousUserId"
+        }
+      ]
+    }
+  ]
+}

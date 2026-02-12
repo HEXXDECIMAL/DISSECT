@@ -1,0 +1,156 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bhmmomiinigofkjcapegjjndpbikblnp/5.9.2_0/scripts/background/app/store.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "69eb390ba454d497980aea4998d6f0ca34a7347ea38a8bf4021ff7452ecbae44",
+  "size": 286,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "store.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::initstore",
+      "kind": "structural",
+      "desc": "calls initStore",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "initStore"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::a/push",
+      "kind": "structural",
+      "desc": "calls a.push",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "a.push"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reduxlogger",
+      "kind": "structural",
+      "desc": "calls reduxLogger",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "reduxLogger"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::createwrapstore",
+      "kind": "structural",
+      "desc": "calls createWrapStore",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "createWrapStore"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/getstate",
+      "kind": "structural",
+      "desc": "calls r.getState",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.getState"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::redux/compose",
+      "kind": "structural",
+      "desc": "calls Redux.compose",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Redux.compose"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::alias",
+      "kind": "structural",
+      "desc": "calls alias",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "alias"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::redux/createstore",
+      "kind": "structural",
+      "desc": "calls Redux.createStore",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Redux.createStore"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::laststate",
+      "kind": "structural",
+      "desc": "calls lastState",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "lastState"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/components/message-processor.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "72c86ebf3a2005db4206edf9254065fe437866cc41fb4a423b70bfe94cbf79a9",
+  "size": 1665,
+  "risk": "notable",
+  "counts": {
+    "notable": 3
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "message-processor.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/strings::few-strings",
+      "kind": "capability",
+      "desc": "Very few string literals (string",
+      "conf": 0.4,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "strings.total = 4.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/strings/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.10"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::debug/log",
+      "kind": "structural",
+      "desc": "calls debug.log",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "debug.log"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::messageprocessor",
+      "kind": "structural",
+      "desc": "calls messageProcessor",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "messageProcessor"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::result",
+      "kind": "structural",
+      "desc": "calls result",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "result"
+        }
+      ]
+    }
+  ]
+}

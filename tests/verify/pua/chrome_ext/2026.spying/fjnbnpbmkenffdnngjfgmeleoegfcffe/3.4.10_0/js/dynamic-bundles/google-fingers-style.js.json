@@ -1,0 +1,1498 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/fjnbnpbmkenffdnngjfgmeleoegfcffe/3.4.10_0/js/dynamic-bundles/google-fingers-style.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "cb67b764dc575f938d7bc0d61eb72f8ff7b01d84bd9650d2aeb5e65f6e49ede6",
+  "size": 8528,
+  "risk": "notable",
+  "counts": {
+    "notable": 7
+  },
+  "findings": [
+    {
+      "id": "obj/c2/infrastructure/domain::hardcoded-domain-com",
+      "kind": "capability",
+      "desc": "Hardcoded .com/.org/.net domain (excluding known vendors)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x42f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x430"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x4bc"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x4bd"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x549"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x54a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x5d6"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x5d7"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x662"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x663"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x6ee"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x6ef"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x77a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x77b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x7f5"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x7f6"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x870"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x871"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x8eb"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x8ec"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x966"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x967"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x9e1"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x9e2"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0xa5c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0xa5d"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0xad5"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0xad6"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0xb4e"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0xb4f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0xbc7"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0xbc8"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0xc40"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0xc41"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0xcb9"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0xcba"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0xd32"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0xd33"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0xdae"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0xdaf"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0xe2a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0xe2b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0xea6"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0xea7"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0xf22"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0xf23"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0xf9e"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0xf9f"
+        }
+      ],
+      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
+      "kind": "capability",
+      "desc": "setTimeout with code execution",
+      "conf": 0.75,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2 setTimeout(() => {",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/malicious-patterns::auto-execute",
+      "kind": "capability",
+      "desc": "Code auto-executes on require/import",
+      "conf": 0.8,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "yara",
+          "source": "yara-x",
+          "value": "(()",
+          "location": "offset:0"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+    },
+    {
+      "id": "cap/code/metrics/obfuscation::high-entropy-identifiers",
+      "kind": "capability",
+      "desc": "High entropy identifiers (random variable names)",
+      "conf": 0.85,
+      "crit": "inert",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.avg_entropy = 2.52"
+        }
+      ],
+      "source_file": "cap/code/metrics/obfuscation/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
+      "kind": "capability",
+      "desc": "Many anonymous functions",
+      "conf": 0.75,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.anonymous = 6.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.01"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/c2/infrastructure/domain::http-url-script",
+      "kind": "capability",
+      "desc": "Network URL with domain name (script)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x42f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x430"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x4bc"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x4bd"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x549"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x54a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x5d6"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x5d7"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x662"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x663"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x6ee"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x6ef"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x77a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x77b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x7f5"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x7f6"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x870"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x871"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x8eb"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x8ec"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x966"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x967"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x9e1"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x9e2"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0xa5c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0xa5d"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0xad5"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0xad6"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0xb4e"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0xb4f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0xbc7"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0xbc8"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0xc40"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0xc41"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0xcb9"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0xcba"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0xd32"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0xd33"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0xdae"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0xdaf"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0xe2a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0xe2b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0xea6"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0xea7"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0xf22"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0xf23"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0xf9e"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0xf9f"
+        }
+      ],
+      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::hostname-keyword",
+      "kind": "capability",
+      "desc": "hostname keyword",
+      "conf": 0.5,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "hostname"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::system-id-sources",
+      "kind": "capability",
+      "desc": "System identification sources",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "hostname"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "meta/internal/imported::finger/src",
+      "kind": "structural",
+      "desc": "calls finger.src",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "finger.src"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::finger/style/position",
+      "kind": "structural",
+      "desc": "calls finger.style.position",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "finger.style.position"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::bottom_angle_width",
+      "kind": "structural",
+      "desc": "calls BOTTOM_ANGLE_WIDTH",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "BOTTOM_ANGLE_WIDTH"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/getelementbyid/remove",
+      "kind": "structural",
+      "desc": "calls document.getElementById.remove",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.getElementById.remove"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::elem/id",
+      "kind": "structural",
+      "desc": "calls elem.id",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "elem.id"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::math/random",
+      "kind": "structural",
+      "desc": "calls Math.random",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Math.random"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::styletag/id",
+      "kind": "structural",
+      "desc": "calls styleTag.id",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "styleTag.id"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rand",
+      "kind": "structural",
+      "desc": "calls rand",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rand"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::finger/style/opacity",
+      "kind": "structural",
+      "desc": "calls finger.style.opacity",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "finger.style.opacity"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::imagesdata",
+      "kind": "structural",
+      "desc": "calls imagesData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "imagesData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::finger/style/transition",
+      "kind": "structural",
+      "desc": "calls finger.style.transition",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "finger.style.transition"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::styletag",
+      "kind": "structural",
+      "desc": "calls styleTag",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "styleTag"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::elem",
+      "kind": "structural",
+      "desc": "calls elem",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "elem"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::startx",
+      "kind": "structural",
+      "desc": "calls startX",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "startX"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::math/atan2",
+      "kind": "structural",
+      "desc": "calls Math.atan2",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Math.atan2"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/addeventlistener",
+      "kind": "structural",
+      "desc": "calls window.addEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.addEventListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/body/appendchild",
+      "kind": "structural",
+      "desc": "calls document.body.appendChild",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.body.appendChild"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::finger/style/top",
+      "kind": "structural",
+      "desc": "calls finger.style.top",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "finger.style.top"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::starty",
+      "kind": "structural",
+      "desc": "calls startY",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "startY"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::math/min",
+      "kind": "structural",
+      "desc": "calls Math.min",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Math.min"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::finger/style/transform",
+      "kind": "structural",
+      "desc": "calls finger.style.transform",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "finger.style.transform"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/addeventlistener",
+      "kind": "structural",
+      "desc": "calls document.addEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.addEventListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/location/hostname/indexof",
+      "kind": "structural",
+      "desc": "calls window.location.hostname.indexOf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.location.hostname.indexOf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::createfinger",
+      "kind": "structural",
+      "desc": "calls createFinger",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "createFinger"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getfingerangle",
+      "kind": "structural",
+      "desc": "calls getFingerAngle",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getFingerAngle"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::setfingerdestination",
+      "kind": "structural",
+      "desc": "calls setFingerDestination",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setFingerDestination"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::default_destination_offset",
+      "kind": "structural",
+      "desc": "calls DEFAULT_DESTINATION_OFFSET",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "DEFAULT_DESTINATION_OFFSET"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isgoogle",
+      "kind": "structural",
+      "desc": "calls isGoogle",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isGoogle"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::offset_range",
+      "kind": "structural",
+      "desc": "calls OFFSET_RANGE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "OFFSET_RANGE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::styletag/innerhtml",
+      "kind": "structural",
+      "desc": "calls styleTag.innerHTML",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "styleTag.innerHTML"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::initialpositionoffset",
+      "kind": "structural",
+      "desc": "calls initialPositionOffset",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "initialPositionOffset"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::direction",
+      "kind": "structural",
+      "desc": "calls direction",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "direction"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/createelement",
+      "kind": "structural",
+      "desc": "calls document.createElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.createElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::finger",
+      "kind": "structural",
+      "desc": "calls finger",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "finger"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::finger/style/zindex",
+      "kind": "structural",
+      "desc": "calls finger.style.zIndex",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "finger.style.zIndex"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::calcangle",
+      "kind": "structural",
+      "desc": "calls calcAngle",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "calcAngle"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::angle",
+      "kind": "structural",
+      "desc": "calls angle",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "angle"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::math/max",
+      "kind": "structural",
+      "desc": "calls Math.max",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Math.max"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::body",
+      "kind": "structural",
+      "desc": "calls body",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "body"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::settimeout",
+      "kind": "structural",
+      "desc": "calls setTimeout",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setTimeout"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::elem/classlist/add",
+      "kind": "structural",
+      "desc": "calls elem.classList.add",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "elem.classList.add"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::right_angle_width",
+      "kind": "structural",
+      "desc": "calls RIGHT_ANGLE_WIDTH",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "RIGHT_ANGLE_WIDTH"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::finger/style/left",
+      "kind": "structural",
+      "desc": "calls finger.style.left",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "finger.style.left"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/getelementbyid",
+      "kind": "structural",
+      "desc": "calls document.getElementById",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.getElementById"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::math/floor",
+      "kind": "structural",
+      "desc": "calls Math.floor",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Math.floor"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::randimage",
+      "kind": "structural",
+      "desc": "calls randImage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "randImage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::elem/innerhtml",
+      "kind": "structural",
+      "desc": "calls elem.innerHTML",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "elem.innerHTML"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::imagedata",
+      "kind": "structural",
+      "desc": "calls imageData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "imageData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::calcfingerstartpoint",
+      "kind": "structural",
+      "desc": "calls calcFingerStartPoint",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "calcFingerStartPoint"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::body/removechild",
+      "kind": "structural",
+      "desc": "calls body.removeChild",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "body.removeChild"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isgooglesearch",
+      "kind": "structural",
+      "desc": "calls isGoogleSearch",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isGoogleSearch"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/queryselector",
+      "kind": "structural",
+      "desc": "calls document.querySelector",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.querySelector"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::body/appendchild",
+      "kind": "structural",
+      "desc": "calls body.appendChild",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "body.appendChild"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::angledegrees",
+      "kind": "structural",
+      "desc": "calls angleDegrees",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "angleDegrees"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/location/href/indexof",
+      "kind": "structural",
+      "desc": "calls window.location.href.indexOf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.location.href.indexOf"
+        }
+      ]
+    }
+  ]
+}

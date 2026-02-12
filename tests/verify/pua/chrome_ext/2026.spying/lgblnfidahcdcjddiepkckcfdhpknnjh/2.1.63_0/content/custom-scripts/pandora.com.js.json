@@ -1,0 +1,142 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/content/custom-scripts/pandora.com.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "a1182d06aa3f953ee4c4da713545bf567cf7deeca9373f8fa2a66cee08de99cf",
+  "size": 307,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "pandora.com.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::document/queryselectorall/foreach",
+      "kind": "structural",
+      "desc": "calls document.querySelectorAll.forEach",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.querySelectorAll.forEach"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::styleelement/id",
+      "kind": "structural",
+      "desc": "calls styleElement.id",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "styleElement.id"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::styleelement",
+      "kind": "structural",
+      "desc": "calls styleElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "styleElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/head/prepend",
+      "kind": "structural",
+      "desc": "calls document.head.prepend",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.head.prepend"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::styleelement/textcontent",
+      "kind": "structural",
+      "desc": "calls styleElement.textContent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "styleElement.textContent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::i/remove",
+      "kind": "structural",
+      "desc": "calls i.remove",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "i.remove"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentdocument/createelement",
+      "kind": "structural",
+      "desc": "calls currentDocument.createElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentDocument.createElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/queryselectorall",
+      "kind": "structural",
+      "desc": "calls document.querySelectorAll",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.querySelectorAll"
+        }
+      ]
+    }
+  ]
+}

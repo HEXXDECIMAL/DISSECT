@@ -1,0 +1,228 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/content/custom-scripts/cookie-banners/instagram.com.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "3ed71287acf7654968183cd6a18bdb382510e82c9e79ea12cb8ce8c6e8a5c98c",
+  "size": 1662,
+  "risk": "notable",
+  "counts": {
+    "notable": 7
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::ext-mutation-observer",
+      "kind": "capability",
+      "desc": "MutationObserver DOM monitoring",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 occurrences of MutationObserver",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-long-lines",
+      "kind": "capability",
+      "desc": "Very long lines (>1000 chars)",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 1377.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::mutation-observer",
+      "kind": "capability",
+      "desc": "Observes DOM mutations",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "new MutationObserver(fn).observe(document.documentElement, {\n    childList: true,\n    subtree: true\n...",
+          "location": "10:3"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "instagram.com.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "kind": "capability",
+      "desc": "Webpack/bundler minified output pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 1377.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::high-text-entropy",
+      "kind": "capability",
+      "desc": "High overall text entropy (encoded",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.char_entropy = 6.95"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/strings::few-strings",
+      "kind": "capability",
+      "desc": "Very few string literals (string",
+      "conf": 0.4,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "strings.total = 4.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/strings/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::fn",
+      "kind": "structural",
+      "desc": "calls fn",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "fn"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::btn/textcontent/tolowercase/search",
+      "kind": "structural",
+      "desc": "calls btn.textContent.toLowerCase.search",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "btn.textContent.toLowerCase.search"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::btn/textcontent/tolowercase",
+      "kind": "structural",
+      "desc": "calls btn.textContent.toLowerCase",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "btn.textContent.toLowerCase"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::debounce",
+      "kind": "structural",
+      "desc": "calls debounce",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "debounce"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/queryselector",
+      "kind": "structural",
+      "desc": "calls document.querySelector",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.querySelector"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::btn/click",
+      "kind": "structural",
+      "desc": "calls btn.click",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "btn.click"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::btn",
+      "kind": "structural",
+      "desc": "calls btn",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "btn"
+        }
+      ]
+    }
+  ]
+}

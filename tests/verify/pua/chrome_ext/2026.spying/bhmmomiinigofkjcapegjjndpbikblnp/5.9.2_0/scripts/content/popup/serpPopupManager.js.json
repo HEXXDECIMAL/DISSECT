@@ -1,0 +1,929 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bhmmomiinigofkjcapegjjndpbikblnp/5.9.2_0/scripts/content/popup/serpPopupManager.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "4e525fcf8c901eb729a880c5d58413bd2d67a32ee0b126b7d03cb9769c9b307e",
+  "size": 7307,
+  "risk": "suspicious",
+  "counts": {
+    "suspicious": 1,
+    "notable": 16
+  },
+  "findings": [
+    {
+      "id": "cap/data/text/keywords::runtime",
+      "kind": "capability",
+      "desc": "runtime keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "webextApi.runtime.sendMessage"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "meta/library/react::react-dom",
+      "kind": "capability",
+      "desc": "ReactDOM object reference",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "ReactDOM.render"
+        }
+      ],
+      "source_file": "meta/library/react/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
+      "kind": "capability",
+      "desc": "No comments in code (stripped",
+      "conf": 0.6,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-function-density",
+      "kind": "capability",
+      "desc": "High function density (>20 functions",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.density_per_100_lines = 2700.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-long-lines",
+      "kind": "capability",
+      "desc": "Very long lines (>1000 chars)",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 7307.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "cap/code/metrics/obfuscation::high-entropy-identifiers",
+      "kind": "capability",
+      "desc": "High entropy identifiers (random variable names)",
+      "conf": 0.85,
+      "crit": "inert",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.avg_entropy = 2.53"
+        }
+      ],
+      "source_file": "cap/code/metrics/obfuscation/traits.yaml"
+    },
+    {
+      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "kind": "capability",
+      "desc": "Prototype pollution guard check present",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 constructor",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/exploitation/memory/generic.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "kind": "capability",
+      "desc": "Webpack/bundler minified output pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 7307.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
+      "kind": "capability",
+      "desc": "Many one-liner functions (minified code",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 27.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
+      "kind": "capability",
+      "desc": "Code uses frontend framework patterns",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "React.createElement"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
+      "kind": "capability",
+      "desc": "Functions with random-looking names",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.high_entropy_names = 4.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
+      "kind": "capability",
+      "desc": "Sequential identifiers (a, b, c,",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 9.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.01"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::runtime-send-message",
+      "kind": "capability",
+      "desc": "Sends message between extension contexts",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "webextApi.runtime.sendMessage({name:OPEN_TAB_MESSAGE,url:`${MAIN_PAGE_URL}?${WOT_PRODUCT}=addon`})",
+          "location": "1:6277"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::sendMessage",
+      "kind": "capability",
+      "desc": "chrome.runtime.sendMessage",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 runtime.sendMessage",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::low-identifier-reuse",
+      "kind": "capability",
+      "desc": "Low identifier reuse (each variable",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.reuse_ratio = 0.15"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::identifier-obfuscation",
+      "kind": "capability",
+      "desc": "Identifier obfuscation (random/encoded names)",
+      "conf": 0.9,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.avg_entropy = 2.53"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.high_entropy_names = 4.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.reuse_ratio = 0.15"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "kind": "capability",
+      "desc": "Minified/compressed code (multiple indicators)",
+      "conf": 0.9,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.01"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.density_per_100_lines = 2700.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 27.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 9.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics::js-npm-malware-pattern",
+      "kind": "capability",
+      "desc": "npm malware obfuscation pattern (install",
+      "conf": 0.9,
+      "crit": "suspicious",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.avg_entropy = 2.53"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 7307.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 7307.00"
+        },
+        {
+          "method": "exclusion",
+          "source": "composite_rule",
+          "value": "negative_conditions_not_found"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+    },
+    {
+      "id": "meta/internal/imported::n/bottom",
+      "kind": "structural",
+      "desc": "calls n.bottom",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.bottom"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/addeventlistener",
+      "kind": "structural",
+      "desc": "calls window.addEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.addEventListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::array/from/find",
+      "kind": "structural",
+      "desc": "calls Array.from.find",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Array.from.find"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ga",
+      "kind": "structural",
+      "desc": "calls GA",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "GA"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reactdom/render",
+      "kind": "structural",
+      "desc": "calls ReactDOM.render",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ReactDOM.render"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/postmessage",
+      "kind": "structural",
+      "desc": "calls window.postMessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.postMessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getgrowthbookinstancefromstore",
+      "kind": "structural",
+      "desc": "calls getGrowthbookInstanceFromStore",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getGrowthbookInstanceFromStore"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::array/from",
+      "kind": "structural",
+      "desc": "calls Array.from",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Array.from"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/getstate",
+      "kind": "structural",
+      "desc": "calls e.getState",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.getState"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/queryselector",
+      "kind": "structural",
+      "desc": "calls document.querySelector",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.querySelector"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/zindex",
+      "kind": "structural",
+      "desc": "calls n.zIndex",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.zIndex"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::translate",
+      "kind": "structural",
+      "desc": "calls translate",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "translate"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/getelementbyid",
+      "kind": "structural",
+      "desc": "calls document.getElementById",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.getElementById"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::clearinterval",
+      "kind": "structural",
+      "desc": "calls clearInterval",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "clearInterval"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/queryselector/classlist/add",
+      "kind": "structural",
+      "desc": "calls document.querySelector.classList.add",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.querySelector.classList.add"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/getboundingclientrect",
+      "kind": "structural",
+      "desc": "calls e.getBoundingClientRect",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.getBoundingClientRect"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/queryselector/classlist/contains",
+      "kind": "structural",
+      "desc": "calls document.querySelector.classList.contains",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.querySelector.classList.contains"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/left",
+      "kind": "structural",
+      "desc": "calls n.left",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.left"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::turnonshields",
+      "kind": "structural",
+      "desc": "calls turnOnShields",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "turnOnShields"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/style/opacity",
+      "kind": "structural",
+      "desc": "calls e.style.opacity",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.style.opacity"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::turnonprotection",
+      "kind": "structural",
+      "desc": "calls turnOnProtection",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "turnOnProtection"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/properties/action",
+      "kind": "structural",
+      "desc": "calls t.properties.Action",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.properties.Action"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::setinterval",
+      "kind": "structural",
+      "desc": "calls setInterval",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setInterval"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/queryselectorall",
+      "kind": "structural",
+      "desc": "calls document.querySelectorAll",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.querySelectorAll"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tonextsteponboarding",
+      "kind": "structural",
+      "desc": "calls toNextStepOnboarding",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "toNextStepOnboarding"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::react/createelement",
+      "kind": "structural",
+      "desc": "calls React.createElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "React.createElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/top",
+      "kind": "structural",
+      "desc": "calls n.top",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.top"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/queryselector/classlist/remove",
+      "kind": "structural",
+      "desc": "calls document.querySelector.classList.remove",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.querySelector.classList.remove"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::o/top",
+      "kind": "structural",
+      "desc": "calls o.top",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "o.top"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/position",
+      "kind": "structural",
+      "desc": "calls n.position",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.position"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::incrementpopupcounter",
+      "kind": "structural",
+      "desc": "calls incrementPopUpCounter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "incrementPopUpCounter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/target/classlist/contains",
+      "kind": "structural",
+      "desc": "calls e.target.classList.contains",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.target.classList.contains"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/body/getboundingclientrect",
+      "kind": "structural",
+      "desc": "calls document.body.getBoundingClientRect",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.body.getBoundingClientRect"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getcommentscount",
+      "kind": "structural",
+      "desc": "calls getCommentsCount",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getCommentsCount"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/innerhtml",
+      "kind": "structural",
+      "desc": "calls e.innerHTML",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.innerHTML"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::mobilewidth",
+      "kind": "structural",
+      "desc": "calls mobileWidth",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "mobileWidth"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::webextapi/runtime/sendmessage",
+      "kind": "structural",
+      "desc": "calls webextApi.runtime.sendMessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "webextApi.runtime.sendMessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sendmixpanelevent",
+      "kind": "structural",
+      "desc": "calls sendMixpanelEvent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sendMixpanelEvent"
+        }
+      ]
+    }
+  ]
+}

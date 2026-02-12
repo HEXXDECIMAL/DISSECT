@@ -1,0 +1,415 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bhmmomiinigofkjcapegjjndpbikblnp/5.9.2_0/scripts/content/popup/sliderWrapper.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "000a7b1e470925be852dcdd64d3d0895b3c93448cd451560c7ce15767f965b75",
+  "size": 793,
+  "risk": "notable",
+  "counts": {
+    "notable": 8
+  },
+  "findings": [
+    {
+      "id": "cap/data/text/keywords::runtime",
+      "kind": "capability",
+      "desc": "runtime keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "webextApi.runtime.sendMessage"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "meta/library/react::react-dom",
+      "kind": "capability",
+      "desc": "ReactDOM object reference",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "ReactDOM.render"
+        }
+      ],
+      "source_file": "meta/library/react/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "sliderWrapper.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
+      "kind": "capability",
+      "desc": "Code uses frontend framework patterns",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "React.createElement"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
+      "kind": "capability",
+      "desc": "Sequential identifiers (a, b, c,",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 6.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.01"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::runtime-send-message",
+      "kind": "capability",
+      "desc": "Sends message between extension contexts",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "webextApi.runtime.sendMessage({name:TURN_OFF_PROTECTION})",
+          "location": "1:86"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::sendMessage",
+      "kind": "capability",
+      "desc": "chrome.runtime.sendMessage",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 runtime.sendMessage",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "kind": "capability",
+      "desc": "Minified/compressed code (multiple indicators)",
+      "conf": 0.9,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.01"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 6.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::webextapi/runtime/sendmessage",
+      "kind": "structural",
+      "desc": "calls webextApi.runtime.sendMessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "webextApi.runtime.sendMessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/getelementbyid",
+      "kind": "structural",
+      "desc": "calls document.getElementById",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.getElementById"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reactdom/render",
+      "kind": "structural",
+      "desc": "calls ReactDOM.render",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ReactDOM.render"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/ready/then",
+      "kind": "structural",
+      "desc": "calls e.ready.then",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.ready.then"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::a/get",
+      "kind": "structural",
+      "desc": "calls a.get",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "a.get"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/ready",
+      "kind": "structural",
+      "desc": "calls e.ready",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.ready"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getencodeddomain",
+      "kind": "structural",
+      "desc": "calls getEncodedDomain",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getEncodedDomain"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getcomments",
+      "kind": "structural",
+      "desc": "calls getComments",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getComments"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/wot_trace_id/name",
+      "kind": "structural",
+      "desc": "calls window.WOT_TRACE_ID.name",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.WOT_TRACE_ID.name"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/currenttab",
+      "kind": "structural",
+      "desc": "calls t.currentTab",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.currentTab"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/getstate",
+      "kind": "structural",
+      "desc": "calls e.getState",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.getState"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getcommentandrating",
+      "kind": "structural",
+      "desc": "calls getCommentAndRating",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getCommentAndRating"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::checkratewidgetdate",
+      "kind": "structural",
+      "desc": "calls checkRateWidgetDate",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "checkRateWidgetDate"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/dispatch",
+      "kind": "structural",
+      "desc": "calls e.dispatch",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.dispatch"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::react/createelement",
+      "kind": "structural",
+      "desc": "calls React.createElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "React.createElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/values",
+      "kind": "structural",
+      "desc": "calls Object.values",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.values"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::o/find",
+      "kind": "structural",
+      "desc": "calls o.find",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "o.find"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::countpopupopening",
+      "kind": "structural",
+      "desc": "calls countPopupOpening",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "countPopupOpening"
+        }
+      ]
+    }
+  ]
+}

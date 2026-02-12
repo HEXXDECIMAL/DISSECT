@@ -1,0 +1,212 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/common/constants/resources.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "a563291c6dfe64473a4c008271086c38f1c48396fdc79899b7cc42ac59e10802",
+  "size": 398,
+  "risk": "notable",
+  "counts": {
+    "notable": 3
+  },
+  "findings": [
+    {
+      "id": "obj/c2/infrastructure/domain::hardcoded-domain-com",
+      "kind": "capability",
+      "desc": "Hardcoded .com/.org/.net domain (excluding known vendors)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "standsapp.org",
+          "location": "0x31"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "standsapp.org",
+          "location": "0x32"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "standsapp.org",
+          "location": "0x6a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "standsapp.org",
+          "location": "0x6b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "standsapp.org",
+          "location": "0xb2"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "standsapp.org",
+          "location": "0xb3"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "standsapp.org",
+          "location": "0xe8"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "standsapp.org",
+          "location": "0xe9"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "reddit.com",
+          "location": "0x127"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "reddit.com",
+          "location": "0x128"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "facebook.com",
+          "location": "0x167"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "facebook.com",
+          "location": "0x168"
+        }
+      ],
+      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "resources.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/c2/infrastructure/domain::http-url-script",
+      "kind": "capability",
+      "desc": "Network URL with domain name (script)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://www.standsapp.org/",
+          "location": "0x31"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://www.standsapp.org/",
+          "location": "0x32"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://www.standsapp.org/",
+          "location": "0x6a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://www.standsapp.org/",
+          "location": "0x6b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://prod.standsapp.org/",
+          "location": "0xb2"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://prod.standsapp.org/",
+          "location": "0xb3"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://www.standsapp.org/",
+          "location": "0xe8"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://www.standsapp.org/",
+          "location": "0xe9"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://www.reddit.com/",
+          "location": "0x127"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://www.reddit.com/",
+          "location": "0x128"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://www.facebook.com/",
+          "location": "0x167"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://www.facebook.com/",
+          "location": "0x168"
+        }
+      ],
+      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::resources",
+      "kind": "structural",
+      "desc": "calls RESOURCES",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "RESOURCES"
+        }
+      ]
+    }
+  ]
+}

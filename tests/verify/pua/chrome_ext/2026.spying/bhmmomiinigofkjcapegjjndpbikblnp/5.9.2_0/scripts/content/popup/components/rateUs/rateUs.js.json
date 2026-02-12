@@ -1,0 +1,385 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bhmmomiinigofkjcapegjjndpbikblnp/5.9.2_0/scripts/content/popup/components/rateUs/rateUs.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "a6b1e398f8ee3c0f94ba7d0895fbffd577ed4853610d16be1fd3296276a7c667",
+  "size": 3655,
+  "risk": "notable",
+  "counts": {
+    "notable": 13
+  },
+  "findings": [
+    {
+      "id": "obj/anti-analysis/kernel-hide/ebpf::hide-string",
+      "kind": "capability",
+      "desc": "Hide string reference",
+      "conf": 0.6,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "hide",
+          "location": "0xd20"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "hide",
+          "location": "0xd21"
+        }
+      ],
+      "source_file": "obj/anti-analysis/kernel-hide/ebpf/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
+      "kind": "capability",
+      "desc": "No comments in code (stripped",
+      "conf": 0.6,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-function-density",
+      "kind": "capability",
+      "desc": "High function density (>20 functions",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.density_per_100_lines = 2400.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-long-lines",
+      "kind": "capability",
+      "desc": "Very long lines (>1000 chars)",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 3655.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "kind": "capability",
+      "desc": "Prototype pollution guard check present",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 constructor",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/exploitation/memory/generic.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
+      "kind": "capability",
+      "desc": "Many anonymous functions",
+      "conf": 0.75,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.anonymous = 9.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "rateUs.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "kind": "capability",
+      "desc": "Webpack/bundler minified output pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 3655.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
+      "kind": "capability",
+      "desc": "Many one-liner functions (minified code",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 24.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
+      "kind": "capability",
+      "desc": "Code uses frontend framework patterns",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "React.createElement"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
+      "kind": "capability",
+      "desc": "Sequential identifiers (a, b, c,",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 6.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.01"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "kind": "capability",
+      "desc": "Minified/compressed code (multiple indicators)",
+      "conf": 0.9,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.01"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.density_per_100_lines = 2400.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 24.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 6.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::setreminder",
+      "kind": "structural",
+      "desc": "calls setReminder",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setReminder"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/freeze",
+      "kind": "structural",
+      "desc": "calls Object.freeze",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.freeze"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::removereminder",
+      "kind": "structural",
+      "desc": "calls removeReminder",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "removeReminder"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::translate",
+      "kind": "structural",
+      "desc": "calls translate",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "translate"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ga",
+      "kind": "structural",
+      "desc": "calls GA",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "GA"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::date/now",
+      "kind": "structural",
+      "desc": "calls Date.now",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Date.now"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::react/createelement",
+      "kind": "structural",
+      "desc": "calls React.createElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "React.createElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ratingstate",
+      "kind": "structural",
+      "desc": "calls ratingState",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ratingState"
+        }
+      ]
+    }
+  ]
+}

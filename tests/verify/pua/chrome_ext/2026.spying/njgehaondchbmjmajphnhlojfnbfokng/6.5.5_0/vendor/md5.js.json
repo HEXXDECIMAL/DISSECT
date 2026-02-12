@@ -1,0 +1,1218 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/njgehaondchbmjmajphnhlojfnbfokng/6.5.5_0/vendor/md5.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "d2c40cd5eed7a72ce8c6ac63a84ae95dc278d4027d91ca3e017f2efcf09f30d2",
+  "size": 12295,
+  "risk": "suspicious",
+  "counts": {
+    "suspicious": 1,
+    "notable": 6
+  },
+  "findings": [
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "kind": "capability",
+      "desc": "for loop (AST)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "56:3"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "75:3"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "93:3"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "98:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "117:3"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "131:3"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "135:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "149:3"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "201:3"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "210:3"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "223:3"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "225:3"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "236:3"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "255:3"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/text/keywords::output",
+      "kind": "capability",
+      "desc": "output keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "output"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "output.i"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 14  for(",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/strings/encoding::fromcharcode",
+      "kind": "capability",
+      "desc": "String obfuscation via fromCharCode",
+      "conf": 0.66,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "String.fromCharCode"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
+    },
+    {
+      "id": "cap/data/encode/base64::alphabet-script",
+      "kind": "capability",
+      "desc": "Hardcoded base64 alphabet in script",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032.001",
+      "attack": "T1027.010",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",
+          "location": "0xaa5"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",
+          "location": "0xaa6"
+        }
+      ],
+      "source_file": "cap/data/encode/base64/custom.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/strings/encoding::js-charat-loop",
+      "kind": "capability",
+      "desc": "charAt in loop pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "encoding.charAt",
+          "location": "import"
+        },
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hex_tab.charAt",
+          "location": "import"
+        },
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tab.charAt",
+          "location": "import"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
+      "kind": "capability",
+      "desc": "Sequential identifiers (a, b, c,",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 13.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "cap/exec/vm/sandbox::base64-long-string",
+      "kind": "capability",
+      "desc": "Long base64-like string pattern",
+      "conf": 0.4,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "900150983cd24fb0d6963f7d28e17f72",
+          "location": "0x5c7"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "900150983cd24fb0d6963f7d28e17f72",
+          "location": "0x5c8"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",
+          "location": "0xaa5"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",
+          "location": "0xaa6"
+        }
+      ],
+      "source_file": "cap/exec/vm/sandbox/node.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::low-identifier-reuse",
+      "kind": "capability",
+      "desc": "Low identifier reuse (each variable",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.reuse_ratio = 0.07"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "kind": "capability",
+      "desc": "Iteration or loop pattern",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "56:3"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "75:3"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "93:3"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "98:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "117:3"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "131:3"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "135:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "149:3"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "201:3"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "210:3"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "223:3"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "225:3"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "236:3"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "255:3"
+        },
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 14  for(",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "obj/c2/shells/remote-exec::js-output-command-var",
+      "kind": "capability",
+      "desc": "Variable names suggesting command output",
+      "conf": 0.3,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "output"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "output.i"
+        }
+      ],
+      "source_file": "obj/c2/shells/remote-exec/javascript.yaml"
+    },
+    {
+      "id": "meta/internal/imported::output",
+      "kind": "structural",
+      "desc": "calls output",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "output"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::opad/concat",
+      "kind": "structural",
+      "desc": "calls opad.concat",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "opad.concat"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tab",
+      "kind": "structural",
+      "desc": "calls tab",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tab"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::remainders",
+      "kind": "structural",
+      "desc": "calls remainders",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "remainders"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ipad/i",
+      "kind": "structural",
+      "desc": "calls ipad.i",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ipad.i"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rstr2binl",
+      "kind": "structural",
+      "desc": "calls rstr2binl",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rstr2binl"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::md5_hh",
+      "kind": "structural",
+      "desc": "calls md5_hh",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "md5_hh"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::md5_ff",
+      "kind": "structural",
+      "desc": "calls md5_ff",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "md5_ff"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::olda",
+      "kind": "structural",
+      "desc": "calls olda",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "olda"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::hex_md5/tolowercase",
+      "kind": "structural",
+      "desc": "calls hex_md5.toLowerCase",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hex_md5.toLowerCase"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rstr2hex",
+      "kind": "structural",
+      "desc": "calls rstr2hex",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rstr2hex"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::dividend",
+      "kind": "structural",
+      "desc": "calls dividend",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dividend"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::oldc",
+      "kind": "structural",
+      "desc": "calls oldc",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "oldc"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ipad/concat",
+      "kind": "structural",
+      "desc": "calls ipad.concat",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ipad.concat"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::msw",
+      "kind": "structural",
+      "desc": "calls msw",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "msw"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::hex_tab",
+      "kind": "structural",
+      "desc": "calls hex_tab",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hex_tab"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::hexcase",
+      "kind": "structural",
+      "desc": "calls hexcase",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hexcase"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::dividend/i",
+      "kind": "structural",
+      "desc": "calls dividend.i",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dividend.i"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::output/i",
+      "kind": "structural",
+      "desc": "calls output.i",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "output.i"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::md5_ii",
+      "kind": "structural",
+      "desc": "calls md5_ii",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "md5_ii"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::b64pad",
+      "kind": "structural",
+      "desc": "calls b64pad",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "b64pad"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::str2rstr_utf8",
+      "kind": "structural",
+      "desc": "calls str2rstr_utf8",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "str2rstr_utf8"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::remainders/j",
+      "kind": "structural",
+      "desc": "calls remainders.j",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "remainders.j"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rstr2any",
+      "kind": "structural",
+      "desc": "calls rstr2any",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rstr2any"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::md5_cmn",
+      "kind": "structural",
+      "desc": "calls md5_cmn",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "md5_cmn"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::quotient/quotient/length",
+      "kind": "structural",
+      "desc": "calls quotient.quotient.length",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "quotient.quotient.length"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::lsw",
+      "kind": "structural",
+      "desc": "calls lsw",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "lsw"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ipad",
+      "kind": "structural",
+      "desc": "calls ipad",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ipad"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::len",
+      "kind": "structural",
+      "desc": "calls len",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "len"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::hash",
+      "kind": "structural",
+      "desc": "calls hash",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hash"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::encoding/charat",
+      "kind": "structural",
+      "desc": "calls encoding.charAt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "encoding.charAt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::hex_md5",
+      "kind": "structural",
+      "desc": "calls hex_md5",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hex_md5"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::math/ceil",
+      "kind": "structural",
+      "desc": "calls Math.ceil",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Math.ceil"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::bkey",
+      "kind": "structural",
+      "desc": "calls bkey",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "bkey"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::input/charcodeat",
+      "kind": "structural",
+      "desc": "calls input.charCodeAt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "input.charCodeAt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::array",
+      "kind": "structural",
+      "desc": "calls Array",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Array"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rstr2b64",
+      "kind": "structural",
+      "desc": "calls rstr2b64",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rstr2b64"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::divisor",
+      "kind": "structural",
+      "desc": "calls divisor",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "divisor"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::math/log",
+      "kind": "structural",
+      "desc": "calls Math.log",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Math.log"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::full_length",
+      "kind": "structural",
+      "desc": "calls full_length",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "full_length"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::hex_tab/charat",
+      "kind": "structural",
+      "desc": "calls hex_tab.charAt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hex_tab.charAt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::triplet",
+      "kind": "structural",
+      "desc": "calls triplet",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "triplet"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::binl2rstr",
+      "kind": "structural",
+      "desc": "calls binl2rstr",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "binl2rstr"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe_add",
+      "kind": "structural",
+      "desc": "calls safe_add",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe_add"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::opad/i",
+      "kind": "structural",
+      "desc": "calls opad.i",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "opad.i"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rstr_md5",
+      "kind": "structural",
+      "desc": "calls rstr_md5",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rstr_md5"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::oldb",
+      "kind": "structural",
+      "desc": "calls oldb",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "oldb"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::md5_gg",
+      "kind": "structural",
+      "desc": "calls md5_gg",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "md5_gg"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::oldd",
+      "kind": "structural",
+      "desc": "calls oldd",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "oldd"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tab/charat",
+      "kind": "structural",
+      "desc": "calls tab.charAt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tab.charAt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::bit_rol",
+      "kind": "structural",
+      "desc": "calls bit_rol",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "bit_rol"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::quotient",
+      "kind": "structural",
+      "desc": "calls quotient",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "quotient"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::math/floor",
+      "kind": "structural",
+      "desc": "calls Math.floor",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Math.floor"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::opad",
+      "kind": "structural",
+      "desc": "calls opad",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "opad"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rstr_hmac_md5",
+      "kind": "structural",
+      "desc": "calls rstr_hmac_md5",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rstr_hmac_md5"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::string/fromcharcode",
+      "kind": "structural",
+      "desc": "calls String.fromCharCode",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "String.fromCharCode"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::binl_md5",
+      "kind": "structural",
+      "desc": "calls binl_md5",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "binl_md5"
+        }
+      ]
+    },
+    {
+      "id": "meta/encoded-payload/base64",
+      "kind": "structural",
+      "desc": "Encoded payload detected: base64",
+      "conf": 0.9,
+      "crit": "suspicious",
+      "evidence": [
+        {
+          "method": "pattern",
+          "source": "dissect",
+          "value": "encoding=base64, type=Unknown, preview=<binary data>",
+          "location": "offset:2726"
+        }
+      ]
+    }
+  ]
+}

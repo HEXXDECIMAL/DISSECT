@@ -1,0 +1,51 @@
+# Mach-O Data-to-Code Ratio Anomalies
+# Detects binaries where data significantly dominates logic (dropper pattern)
+# ATT&CK: T1027 (Obfuscated Files or Information)
+
+defaults:
+  platforms: [macos]
+  for: [macho]
+  mbc: "B0032"
+
+traits:
+  - id: const-larger-than-text
+    desc: "__const section much larger than __text"
+    crit: notable
+    conf: 0.8
+    if:
+      type: section_ratio
+      section: "__const"
+      compare_to: "__text"
+      min: 50.0
+
+  - id: data-larger-than-text
+    desc: "__data section much larger than __text"
+    crit: notable
+    conf: 0.8
+    if:
+      type: section_ratio
+      section: "__data"
+      compare_to: "__text"
+      min: 50.0
+
+composite_rules:
+  - id: macho-extreme-data-to-code-ratio
+    desc: "Mach-O extreme data-to-code ratio (possible encrypted payload)"
+    crit: suspicious
+    conf: 0.9
+    # High-confidence: Data sections are 50x larger than code section
+    any:
+      - id: const-larger-than-text
+      - id: data-larger-than-text
+
+  - id: macho-high-entropy-data-dropper
+    desc: "Mach-O high-entropy data payload dropper"
+    crit: hostile
+    conf: 0.95
+    # Combines ratio anomaly with high entropy and execution capability
+    all:
+      - id: macho-extreme-data-to-code-ratio
+      - id: obj/anti-static/obfuscation/payload::high-entropy-const
+      - id: cap/exec/command/shell::system-call-symbol
+    none:
+      - id: meta/signed/platform::apple

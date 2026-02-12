@@ -1,0 +1,170 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bhmmomiinigofkjcapegjjndpbikblnp/5.9.2_0/scripts/shared/scheduler.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "d7cff4974417ae738ae9db6790775725c9eafea971991773ca1e61650c152d24",
+  "size": 797,
+  "risk": "notable",
+  "counts": {
+    "notable": 4
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "scheduler.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
+      "kind": "capability",
+      "desc": "Sequential identifiers (a, b, c,",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 8.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.02"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "kind": "capability",
+      "desc": "Minified/compressed code (multiple indicators)",
+      "conf": 0.9,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.02"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 8.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::configkeytoschedulerkeymap",
+      "kind": "structural",
+      "desc": "calls configKeyToSchedulerKeyMap",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "configKeyToSchedulerKeyMap"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::date/now",
+      "kind": "structural",
+      "desc": "calls Date.now",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Date.now"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/dispatch",
+      "kind": "structural",
+      "desc": "calls t.dispatch",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.dispatch"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::resetcounter",
+      "kind": "structural",
+      "desc": "calls resetCounter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "resetCounter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::resetreminder",
+      "kind": "structural",
+      "desc": "calls resetReminder",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "resetReminder"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::math/round",
+      "kind": "structural",
+      "desc": "calls Math.round",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Math.round"
+        }
+      ]
+    }
+  ]
+}

@@ -27,6 +27,31 @@ pub struct BinaryMetrics {
     #[serde(default, skip_serializing_if = "is_zero_u32")]
     pub high_entropy_regions: u32,
 
+    // === Size ===
+    /// Total file size in bytes
+    #[serde(default, skip_serializing_if = "is_zero_u64")]
+    pub file_size: u64,
+    /// Total executable code size in bytes
+    #[serde(default, skip_serializing_if = "is_zero_u64")]
+    pub code_size: u64,
+    /// Ratio of executable to non-executable sections
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub code_to_data_ratio: f32,
+
+    // === Binary Properties ===
+    /// Has debug information
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub has_debug_info: bool,
+    /// Is stripped (no symbols)
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub is_stripped: bool,
+    /// Position Independent Executable
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub is_pie: bool,
+    /// Relocation count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub relocation_count: u32,
+
     // === Sections ===
     /// Total section count
     #[serde(default, skip_serializing_if = "is_zero_u32")]
@@ -46,6 +71,12 @@ pub struct BinaryMetrics {
     /// Largest section ratio to file size
     #[serde(default, skip_serializing_if = "is_zero_f32")]
     pub largest_section_ratio: f32,
+    /// Segment count (Mach-O) or program headers (ELF)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub segment_count: u32,
+    /// Average section size
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub avg_section_size: f32,
 
     // === Imports/Exports ===
     /// Import count
@@ -71,6 +102,15 @@ pub struct BinaryMetrics {
     /// Strings in code sections (unusual)
     #[serde(default, skip_serializing_if = "is_zero_u32")]
     pub strings_in_code: u32,
+    /// Wide/UTF-16 string count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub wide_string_count: u32,
+    /// Average string length
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub avg_string_length: f32,
+    /// Maximum string length
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub max_string_length: u32,
 
     // === Functions ===
     /// Function count

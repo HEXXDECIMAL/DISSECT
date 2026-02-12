@@ -1,0 +1,100 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/messages/add-custom-css.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "daaa35477ff7a4b824f91c7190c586abf40070a06f862a7a0a70f75c5e58e14b",
+  "size": 293,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "add-custom-css.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::getactivetabid",
+      "kind": "structural",
+      "desc": "calls getActiveTabId",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getActiveTabId"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::customcssrules/add",
+      "kind": "structural",
+      "desc": "calls customCssRules.add",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "customCssRules.add"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pagedatacomponent/refreshbulk",
+      "kind": "structural",
+      "desc": "calls pageDataComponent.refreshBulk",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pageDataComponent.refreshBulk"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::contextmenus/update",
+      "kind": "structural",
+      "desc": "calls contextMenus.update",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "contextMenus.update"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/all",
+      "kind": "structural",
+      "desc": "calls Promise.all",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.all"
+        }
+      ]
+    }
+  ]
+}

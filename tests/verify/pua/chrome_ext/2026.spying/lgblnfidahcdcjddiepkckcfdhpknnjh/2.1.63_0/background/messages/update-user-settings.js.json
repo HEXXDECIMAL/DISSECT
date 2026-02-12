@@ -1,0 +1,44 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/messages/update-user-settings.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "a7232d9e72dad0572f7ae40902e6d70fc2c9f3463dd3ece820be1f91092cc6d9",
+  "size": 143,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "update-user-settings.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::updateusersettings",
+      "kind": "structural",
+      "desc": "calls updateUserSettings",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "updateUserSettings"
+        }
+      ]
+    }
+  ]
+}

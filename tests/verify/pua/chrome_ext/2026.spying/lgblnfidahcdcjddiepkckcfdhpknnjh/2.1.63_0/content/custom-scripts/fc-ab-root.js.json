@@ -1,0 +1,44 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/content/custom-scripts/fc-ab-root.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "ac51028f55338d3216bf5831538b5d84bf22e7db767df28ea5c079a0ab283c86",
+  "size": 60,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "fc-ab-root.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::unblockcontentscrollingscript",
+      "kind": "structural",
+      "desc": "calls unblockContentScrollingScript",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "unblockContentScrollingScript"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,363 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bhmmomiinigofkjcapegjjndpbikblnp/5.9.2_0/scripts/content/popup/components/rateUs/badReview.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "654fafc38796bab32acba10f9c2bf1d045c572ec284dedabcdf86fb55068c83c",
+  "size": 1339,
+  "risk": "notable",
+  "counts": {
+    "notable": 9
+  },
+  "findings": [
+    {
+      "id": "obj/discovery/host/fingerprint::object-keys-call",
+      "kind": "capability",
+      "desc": "Object.keys call",
+      "conf": 0.5,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys.map"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys.filter"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-function-density",
+      "kind": "capability",
+      "desc": "High function density (>20 functions",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.density_per_100_lines = 1100.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-long-lines",
+      "kind": "capability",
+      "desc": "Very long lines (>1000 chars)",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 1339.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "kind": "capability",
+      "desc": "Prototype pollution guard check present",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 constructor",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/exploitation/memory/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "badReview.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "kind": "capability",
+      "desc": "Webpack/bundler minified output pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 1339.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
+      "kind": "capability",
+      "desc": "Many one-liner functions (minified code",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 11.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
+      "kind": "capability",
+      "desc": "Code uses frontend framework patterns",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "React.createElement"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.01"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::object-serialization",
+      "kind": "capability",
+      "desc": "Object serialization methods",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys.map"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys.filter"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "kind": "capability",
+      "desc": "Minified/compressed code (multiple indicators)",
+      "conf": 0.9,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.01"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.density_per_100_lines = 1100.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 11.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::t/e",
+      "kind": "structural",
+      "desc": "calls t.e",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.e"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/keys",
+      "kind": "structural",
+      "desc": "calls Object.keys",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.keys"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/join",
+      "kind": "structural",
+      "desc": "calls e.join",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.join"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::googleformapi/postfeedback",
+      "kind": "structural",
+      "desc": "calls GoogleFormApi.postFeedback",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "GoogleFormApi.postFeedback"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::translate",
+      "kind": "structural",
+      "desc": "calls translate",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "translate"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ga",
+      "kind": "structural",
+      "desc": "calls GA",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "GA"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::react/createelement",
+      "kind": "structural",
+      "desc": "calls React.createElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "React.createElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/keys/map",
+      "kind": "structural",
+      "desc": "calls Object.keys.map",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.keys.map"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/keys/filter",
+      "kind": "structural",
+      "desc": "calls Object.keys.filter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.keys.filter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::field_1",
+      "kind": "structural",
+      "desc": "calls FIELD_1",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "FIELD_1"
+        }
+      ]
+    }
+  ]
+}

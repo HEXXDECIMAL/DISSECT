@@ -1,0 +1,72 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/messages/get-user-settings.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "a45ca445d4583cd4fae8bb2bace6c952de2e56c4f375c01b164e9641c0438d81",
+  "size": 245,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "get-user-settings.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::userdata/getsettings",
+      "kind": "structural",
+      "desc": "calls userData.getSettings",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "userData.getSettings"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sendmessage",
+      "kind": "structural",
+      "desc": "calls sendMessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sendMessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data",
+      "kind": "structural",
+      "desc": "calls data",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data"
+        }
+      ]
+    }
+  ]
+}

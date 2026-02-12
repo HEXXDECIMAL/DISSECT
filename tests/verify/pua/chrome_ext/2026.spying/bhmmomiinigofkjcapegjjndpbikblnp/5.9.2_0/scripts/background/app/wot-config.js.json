@@ -1,0 +1,92 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bhmmomiinigofkjcapegjjndpbikblnp/5.9.2_0/scripts/background/app/wot-config.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "a0c19f361796025516d054e1bf74f06e33dd6267246c8215777dd83bfc8464ad",
+  "size": 85,
+  "risk": "notable",
+  "counts": {
+    "notable": 3
+  },
+  "findings": [
+    {
+      "id": "obj/c2/infrastructure/ip::hardcoded-ipv4-script",
+      "kind": "capability",
+      "desc": "Hardcoded external IPv4 address",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "4.0.13.33",
+          "location": "0x29"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "4.0.13.33",
+          "location": "0x2a"
+        }
+      ],
+      "source_file": "obj/c2/infrastructure/ip/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "wot-config.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/c2/network/beacon::direct-http-c2",
+      "kind": "capability",
+      "desc": "Direct HTTP C2 infrastructure",
+      "conf": 0.95,
+      "crit": "notable",
+      "mbc": "B0030",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "4.0.13.33",
+          "location": "0x29"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "4.0.13.33",
+          "location": "0x2a"
+        }
+      ],
+      "source_file": "obj/c2/network/beacon/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::wot_config",
+      "kind": "structural",
+      "desc": "calls WOT_CONFIG",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "WOT_CONFIG"
+        }
+      ]
+    }
+  ]
+}

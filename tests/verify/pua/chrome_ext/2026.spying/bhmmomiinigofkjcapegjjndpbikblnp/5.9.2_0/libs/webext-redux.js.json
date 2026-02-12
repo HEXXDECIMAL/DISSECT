@@ -1,0 +1,4579 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bhmmomiinigofkjcapegjjndpbikblnp/5.9.2_0/libs/webext-redux.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "b014d2578ed004fef42754a5b38beff9535397ec9eae5123e9eada6bd9fb7767",
+  "size": 50873,
+  "risk": "notable",
+  "counts": {
+    "notable": 21
+  },
+  "findings": [
+    {
+      "id": "cap/data/control-flow/analysis::while-loop",
+      "kind": "capability",
+      "desc": "while loop pattern",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "while",
+          "location": "0x9b34"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "while",
+          "location": "0x9b35"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-symbol",
+      "kind": "capability",
+      "desc": "for loop (symbol)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "iterator.n",
+          "location": "import"
+        },
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "iterator",
+          "location": "import"
+        },
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "iteratee",
+          "location": "import"
+        },
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "iterator.s",
+          "location": "import"
+        },
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "iterator.f",
+          "location": "import"
+        },
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "iterableToArray",
+          "location": "import"
+        },
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "iterator.e",
+          "location": "import"
+        },
+        {
+          "method": "symbol",
+          "source": "tree-sitter-javascript",
+          "value": "_iterableToArray",
+          "location": "0xa73"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "kind": "capability",
+      "desc": "for loop (AST)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "10:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "20:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "103:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "234:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "275:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "438:7"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "800:9"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "811:7"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "882:9"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1175:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1196:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1404:9"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1416:13"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/text/keywords::runtime",
+      "kind": "capability",
+      "desc": "runtime keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "browserAPI$runtime"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "browserAPI.runtime.onMessage.addListener"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "cap/os/admin/sysadmin::config",
+      "kind": "capability",
+      "desc": "System configuration utilities",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "yara",
+          "source": "yara-x",
+          "value": "service ",
+          "location": "offset:44306"
+        }
+      ],
+      "source_file": "cap/os/admin/sysadmin/traits.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 13  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/text/keywords::send",
+      "kind": "capability",
+      "desc": "send keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "send"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::object-keys-call",
+      "kind": "capability",
+      "desc": "Object.keys call",
+      "conf": 0.5,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys.forEach"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/language-features::has-promise",
+      "kind": "capability",
+      "desc": "Code uses Promises",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Promise.resolve"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Promise.resolve"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Promise.resolve"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Promise.reject"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/language-features/traits.yaml"
+    },
+    {
+      "id": "meta/quality/error-handling::catch-keyword",
+      "kind": "capability",
+      "desc": "catch keyword",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "catch",
+          "location": "0xa837"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "catch",
+          "location": "0xa838"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "catch"
+        }
+      ],
+      "source_file": "meta/quality/error-handling/traits.yaml"
+    },
+    {
+      "id": "cap/exec/eval/dynamic::iife-pattern",
+      "kind": "capability",
+      "desc": "Immediately invoked function expression",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 29 (function (global, factory) {",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/exec/eval/dynamic/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/complexity::monster-function",
+      "kind": "capability",
+      "desc": "Extremely large function (>500 lines)",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.over_500_lines = 1.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/complexity/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/bundlers::typescript-compiled",
+      "kind": "capability",
+      "desc": "Code compiled from TypeScript",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0xc692"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0xc693"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/bundlers/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/minifier::esmodule-export",
+      "kind": "capability",
+      "desc": "__esModule property",
+      "conf": 0.6,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0xc692"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0xc693"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/minifier/traits.yaml"
+    },
+    {
+      "id": "cap/code/metrics/obfuscation::high-entropy-identifiers",
+      "kind": "capability",
+      "desc": "High entropy identifiers (random variable names)",
+      "conf": 0.85,
+      "crit": "inert",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.avg_entropy = 2.61"
+        }
+      ],
+      "source_file": "cap/code/metrics/obfuscation/traits.yaml"
+    },
+    {
+      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "kind": "capability",
+      "desc": "Prototype pollution guard check present",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 15 prototype",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/exploitation/memory/generic.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
+      "kind": "capability",
+      "desc": "Many anonymous functions",
+      "conf": 0.75,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.anonymous = 52.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::onMessage",
+      "kind": "capability",
+      "desc": "chrome.runtime.onMessage listener",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "filterActionMessages"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "browserAPI.runtime.onMessage.addListener"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::tabs-query",
+      "kind": "capability",
+      "desc": "Queries browser tabs",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "function (global, factory) {\n  typeof exports === 'object' && typeof module !== 'undefined' ? factor...",
+          "location": "2:2"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "withSerializer(serializer)(function () {\n        var _browserAPI$runtime;\n        for (var _len = ar...",
+          "location": "1402:37"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "browserAPI.tabs.query({}, function (tabs) {\n          var _iterator = _createForOfIteratorHelper(tab...",
+          "location": "1412:16"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::numeric-suffix-identifiers",
+      "kind": "capability",
+      "desc": "Many numeric suffix identifiers (var1,",
+      "conf": 0.75,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.numeric_suffix_count = 11.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
+      "kind": "capability",
+      "desc": "Functions with random-looking names",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.high_entropy_names = 7.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
+      "kind": "capability",
+      "desc": "Sequential identifiers (a, b, c,",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 11.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/minifier::object-define-property",
+      "kind": "capability",
+      "desc": "Object.defineProperty call",
+      "conf": 0.6,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.defineProperty"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/minifier/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/language-features::has-symbols",
+      "kind": "capability",
+      "desc": "Code uses Symbol for private",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Symbol.iterator",
+          "location": "0x76a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Symbol.iterator",
+          "location": "0x79e"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Symbol.iterator",
+          "location": "0xb45"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Symbol.iterator",
+          "location": "0xb78"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/language-features/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::runtime-send-message",
+      "kind": "capability",
+      "desc": "Sends message between extension contexts",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "function (global, factory) {\n  typeof exports === 'object' && typeof module !== 'undefined' ? factor...",
+          "location": "2:2"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "function () {\n    /**\n     * Creates a new Proxy store\n     * @param  {object} options\n     * @param...",
+          "location": "947:28"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "this.browserAPI.runtime.sendMessage({\n        type: FETCH_STATE_TYPE,\n        channelName: channelNa...",
+          "location": "997:7"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::sendMessage",
+      "kind": "capability",
+      "desc": "chrome.runtime.sendMessage",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 4 chrome.runtime.sendMessage",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+    },
+    {
+      "id": "meta/library/jquery::domain",
+      "kind": "capability",
+      "desc": "jquery.org domain reference",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 occurrences of jquery.org",
+          "location": "file"
+        }
+      ],
+      "source_file": "meta/library/jquery/traits.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::object-serialization",
+      "kind": "capability",
+      "desc": "Object serialization methods",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys.forEach"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "kind": "capability",
+      "desc": "Iteration or loop pattern",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "10:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "20:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "103:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "234:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "275:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "438:7"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "800:9"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "811:7"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "882:9"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1175:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1196:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1404:9"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1416:13"
+        },
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 13  for (",
+          "location": "file"
+        },
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "iterator.n",
+          "location": "import"
+        },
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "iterator",
+          "location": "import"
+        },
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "iteratee",
+          "location": "import"
+        },
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "iterator.s",
+          "location": "import"
+        },
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "iterator.f",
+          "location": "import"
+        },
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "iterableToArray",
+          "location": "import"
+        },
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "iterator.e",
+          "location": "import"
+        },
+        {
+          "method": "symbol",
+          "source": "tree-sitter-javascript",
+          "value": "_iterableToArray",
+          "location": "0xa73"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "while",
+          "location": "0x9b34"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "while",
+          "location": "0x9b35"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "meta/library/jquery::library",
+      "kind": "capability",
+      "desc": "File contains jQuery library",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 occurrences of jquery.org",
+          "location": "file"
+        }
+      ],
+      "source_file": "meta/library/jquery/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/code-quality::terser-minifier-helpers",
+      "kind": "capability",
+      "desc": "Minifier helper patterns",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0xc692"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0xc693"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.defineProperty"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/code-quality/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::identifier-obfuscation",
+      "kind": "capability",
+      "desc": "Identifier obfuscation (random/encoded names)",
+      "conf": 0.9,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.avg_entropy = 2.61"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.high_entropy_names = 7.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/testing::test-fixtures",
+      "kind": "capability",
+      "desc": "Test fixture or mock data",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0xc692"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0xc693"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.defineProperty"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/testing::mocha-assertions-or-hooks",
+      "kind": "capability",
+      "desc": "Mocha assertions or hooks",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0xc692"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0xc693"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.defineProperty"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/testing::testing-library-methods",
+      "kind": "capability",
+      "desc": "Testing Library methods",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0xc692"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0xc693"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.defineProperty"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/testing::testing-library",
+      "kind": "capability",
+      "desc": "Testing Library patterns",
+      "conf": 0.95,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0xc692"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0xc693"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.defineProperty"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::object",
+      "kind": "structural",
+      "desc": "calls object",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "object"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/getownpropertydescriptor",
+      "kind": "structural",
+      "desc": "calls Object.getOwnPropertyDescriptor",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.getOwnPropertyDescriptor"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::assignin",
+      "kind": "structural",
+      "desc": "calls assignIn",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "assignIn"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/resolve/then/catch",
+      "kind": "structural",
+      "desc": "calls Promise.resolve.then.catch",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.resolve.then.catch"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::newvalue",
+      "kind": "structural",
+      "desc": "calls newValue",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "newValue"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::fnpromise/then",
+      "kind": "structural",
+      "desc": "calls fnPromise.then",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "fnPromise.then"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::toconsumablearray",
+      "kind": "structural",
+      "desc": "calls toConsumableArray",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "toConsumableArray"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isindex",
+      "kind": "structural",
+      "desc": "calls isIndex",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isIndex"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ctor",
+      "kind": "structural",
+      "desc": "calls Ctor",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Ctor"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::store/subscribe",
+      "kind": "structural",
+      "desc": "calls store.subscribe",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "store.subscribe"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::array",
+      "kind": "structural",
+      "desc": "calls Array",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Array"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::factory",
+      "kind": "structural",
+      "desc": "calls factory",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "factory"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::patch_state_type",
+      "kind": "structural",
+      "desc": "calls PATCH_STATE_TYPE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "PATCH_STATE_TYPE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::len",
+      "kind": "structural",
+      "desc": "calls len",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "len"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::diff_status_updated",
+      "kind": "structural",
+      "desc": "calls DIFF_STATUS_UPDATED",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "DIFF_STATUS_UPDATED"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::iterator/n",
+      "kind": "structural",
+      "desc": "calls iterator.n",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "iterator.n"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/push/apply",
+      "kind": "structural",
+      "desc": "calls t.push.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.push.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/keys/foreach",
+      "kind": "structural",
+      "desc": "calls Object.keys.forEach",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.keys.forEach"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::alias",
+      "kind": "structural",
+      "desc": "calls alias",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "alias"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::argstag",
+      "kind": "structural",
+      "desc": "calls argsTag",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "argsTag"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::b/apply",
+      "kind": "structural",
+      "desc": "calls b.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "b.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ref-patchstrategy",
+      "kind": "structural",
+      "desc": "calls ref$patchStrategy",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ref$patchStrategy"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::assignvalue",
+      "kind": "structural",
+      "desc": "calls assignValue",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "assignValue"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browserapi",
+      "kind": "structural",
+      "desc": "calls browserAPI",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browserAPI"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/return",
+      "kind": "structural",
+      "desc": "calls t.return",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.return"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::state_type",
+      "kind": "structural",
+      "desc": "calls STATE_TYPE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "STATE_TYPE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::next",
+      "kind": "structural",
+      "desc": "calls next",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "next"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::result/index",
+      "kind": "structural",
+      "desc": "calls result.index",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "result.index"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/defineproperty",
+      "kind": "structural",
+      "desc": "calls Object.defineProperty",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.defineProperty"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::hasownproperty/call",
+      "kind": "structural",
+      "desc": "calls hasOwnProperty.call",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hasOwnProperty.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browserapi/tabs/query",
+      "kind": "structural",
+      "desc": "calls browserAPI.tabs.query",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browserAPI.tabs.query"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::default_channel_name",
+      "kind": "structural",
+      "desc": "calls DEFAULT_CHANNEL_NAME",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "DEFAULT_CHANNEL_NAME"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::this",
+      "kind": "structural",
+      "desc": "calls this",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "this"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::difference",
+      "kind": "structural",
+      "desc": "calls difference",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "difference"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::this/patchstate",
+      "kind": "structural",
+      "desc": "calls this.patchState",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "this.patchState"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::type",
+      "kind": "structural",
+      "desc": "calls type",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "type"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::fetch_state_type",
+      "kind": "structural",
+      "desc": "calls FETCH_STATE_TYPE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "FETCH_STATE_TYPE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::array/from",
+      "kind": "structural",
+      "desc": "calls Array.from",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Array.from"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::hasownproperty",
+      "kind": "structural",
+      "desc": "calls hasOwnProperty",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hasOwnProperty"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::propertyisenumerable/call",
+      "kind": "structural",
+      "desc": "calls propertyIsEnumerable.call",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "propertyIsEnumerable.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::createassigner",
+      "kind": "structural",
+      "desc": "calls createAssigner",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "createAssigner"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::middleware",
+      "kind": "structural",
+      "desc": "calls middleware",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "middleware"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isfunction",
+      "kind": "structural",
+      "desc": "calls isFunction",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isFunction"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reflect/deleteproperty",
+      "kind": "structural",
+      "desc": "calls Reflect.deleteProperty",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Reflect.deleteProperty"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::fnpromise",
+      "kind": "structural",
+      "desc": "calls fnPromise",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "fnPromise"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::listener/apply",
+      "kind": "structural",
+      "desc": "calls listener.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "listener.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::withdeserializer",
+      "kind": "structural",
+      "desc": "calls withDeserializer",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "withDeserializer"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::objecttostring/call",
+      "kind": "structural",
+      "desc": "calls objectToString.call",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "objectToString.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::middlewareapi",
+      "kind": "structural",
+      "desc": "calls middlewareAPI",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "middlewareAPI"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::guard",
+      "kind": "structural",
+      "desc": "calls guard",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "guard"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::this/replacestate",
+      "kind": "structural",
+      "desc": "calls this.replaceState",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "this.replaceState"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::source",
+      "kind": "structural",
+      "desc": "calls source",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "source"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::newobj/hasownproperty",
+      "kind": "structural",
+      "desc": "calls newObj.hasOwnProperty",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "newObj.hasOwnProperty"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/getownpropertydescriptors",
+      "kind": "structural",
+      "desc": "calls Object.getOwnPropertyDescriptors",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.getOwnPropertyDescriptors"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::newstate",
+      "kind": "structural",
+      "desc": "calls newState",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "newState"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::fn",
+      "kind": "structural",
+      "desc": "calls fn",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "fn"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isprototype",
+      "kind": "structural",
+      "desc": "calls isPrototype",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isPrototype"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::boolean",
+      "kind": "structural",
+      "desc": "calls Boolean",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Boolean"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::diff",
+      "kind": "structural",
+      "desc": "calls diff",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "diff"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::this-browserapi-runt2",
+      "kind": "structural",
+      "desc": "calls this$browserAPI$runt2",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "this$browserAPI$runt2"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::this2/listeners/filter",
+      "kind": "structural",
+      "desc": "calls this2.listeners.filter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "this2.listeners.filter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::key",
+      "kind": "structural",
+      "desc": "calls key",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "key"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/r",
+      "kind": "structural",
+      "desc": "calls e.r",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.r"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::serializedmessageposter",
+      "kind": "structural",
+      "desc": "calls serializedMessagePoster",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "serializedMessagePoster"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::length",
+      "kind": "structural",
+      "desc": "calls length",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "length"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isobjectlike",
+      "kind": "structural",
+      "desc": "calls isObjectLike",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isObjectLike"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browserapi-tabs",
+      "kind": "structural",
+      "desc": "calls browserAPI$tabs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browserAPI$tabs"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::iterator",
+      "kind": "structural",
+      "desc": "calls iterator",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "iterator"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::api",
+      "kind": "structural",
+      "desc": "calls api",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "api"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::this2/listeners",
+      "kind": "structural",
+      "desc": "calls this2.listeners",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "this2.listeners"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::dispatch_type",
+      "kind": "structural",
+      "desc": "calls DISPATCH_TYPE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "DISPATCH_TYPE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::iteratee",
+      "kind": "structural",
+      "desc": "calls iteratee",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "iteratee"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::objectproto",
+      "kind": "structural",
+      "desc": "calls objectProto",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "objectProto"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::error",
+      "kind": "structural",
+      "desc": "calls error",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "error"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::otherargs",
+      "kind": "structural",
+      "desc": "calls otherArgs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "otherArgs"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::transformpayload",
+      "kind": "structural",
+      "desc": "calls transformPayload",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "transformPayload"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::step",
+      "kind": "structural",
+      "desc": "calls step",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "step"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/call",
+      "kind": "structural",
+      "desc": "calls e.call",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::functag",
+      "kind": "structural",
+      "desc": "calls funcTag",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "funcTag"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isobject",
+      "kind": "structural",
+      "desc": "calls isObject",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isObject"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::deserializelistener",
+      "kind": "structural",
+      "desc": "calls deserializeListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "deserializeListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::patchstrategy",
+      "kind": "structural",
+      "desc": "calls patchStrategy",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "patchStrategy"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::middlewares",
+      "kind": "structural",
+      "desc": "calls middlewares",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "middlewares"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::func/apply",
+      "kind": "structural",
+      "desc": "calls func.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "func.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::eq",
+      "kind": "structural",
+      "desc": "calls eq",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "eq"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::shoulddeserialize/apply",
+      "kind": "structural",
+      "desc": "calls shouldDeserialize.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "shouldDeserialize.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ref-channelname",
+      "kind": "structural",
+      "desc": "calls ref$channelName",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ref$channelName"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::channelname",
+      "kind": "structural",
+      "desc": "calls channelName",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "channelName"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::defaultopts-1",
+      "kind": "structural",
+      "desc": "calls defaultOpts$1",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "defaultOpts$1"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::iterator/s",
+      "kind": "structural",
+      "desc": "calls iterator.s",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "iterator.s"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::arrayliketoarray",
+      "kind": "structural",
+      "desc": "calls arrayLikeToArray",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "arrayLikeToArray"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::this3",
+      "kind": "structural",
+      "desc": "calls this3",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "this3"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/resolve/then",
+      "kind": "structural",
+      "desc": "calls Promise.resolve.then",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.resolve.then"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::newobj/key",
+      "kind": "structural",
+      "desc": "calls newObj.key",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "newObj.key"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::args/concat",
+      "kind": "structural",
+      "desc": "calls args.concat",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "args.concat"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::exports/createwrapstore",
+      "kind": "structural",
+      "desc": "calls exports.createWrapStore",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "exports.createWrapStore"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::funcs/reduce",
+      "kind": "structural",
+      "desc": "calls funcs.reduce",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "funcs.reduce"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::args/_key3",
+      "kind": "structural",
+      "desc": "calls args._key3",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "args._key3"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::noniterablespread",
+      "kind": "structural",
+      "desc": "calls nonIterableSpread",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "nonIterableSpread"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::expected-message-in-position-concat/concat",
+      "kind": "structural",
+      "desc": "calls \"Expected message in position \".concat.concat",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "\"Expected message in position \".concat.concat"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::difference/push",
+      "kind": "structural",
+      "desc": "calls difference.push",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "difference.push"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wrapstore",
+      "kind": "structural",
+      "desc": "calls wrapStore",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "wrapStore"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::keysin",
+      "kind": "structural",
+      "desc": "calls keysIn",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "keysIn"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ref2",
+      "kind": "structural",
+      "desc": "calls ref2",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ref2"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::filter",
+      "kind": "structural",
+      "desc": "calls filter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "filter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tab",
+      "kind": "structural",
+      "desc": "calls tab",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tab"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::bgerr",
+      "kind": "structural",
+      "desc": "calls bgErr",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "bgErr"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::key2",
+      "kind": "structural",
+      "desc": "calls key2",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "key2"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::funcs",
+      "kind": "structural",
+      "desc": "calls funcs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "funcs"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::max_safe_integer",
+      "kind": "structural",
+      "desc": "calls MAX_SAFE_INTEGER",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "MAX_SAFE_INTEGER"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::apply",
+      "kind": "structural",
+      "desc": "calls apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::objectspread2",
+      "kind": "structural",
+      "desc": "calls objectSpread2",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "objectSpread2"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::cb",
+      "kind": "structural",
+      "desc": "calls cb",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "cb"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::dispatchresult",
+      "kind": "structural",
+      "desc": "calls dispatchResult",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dispatchResult"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::define",
+      "kind": "structural",
+      "desc": "calls define",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "define"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::noop",
+      "kind": "structural",
+      "desc": "calls noop",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "noop"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::baserest",
+      "kind": "structural",
+      "desc": "calls baseRest",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "baseRest"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reisuint",
+      "kind": "structural",
+      "desc": "calls reIsUint",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "reIsUint"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isproto",
+      "kind": "structural",
+      "desc": "calls isProto",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isProto"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::funcs/_key",
+      "kind": "structural",
+      "desc": "calls funcs._key",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "funcs._key"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::store/getstate/bind",
+      "kind": "structural",
+      "desc": "calls store.getState.bind",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "store.getState.bind"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::store",
+      "kind": "structural",
+      "desc": "calls Store",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Store"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::createdeferredlistener",
+      "kind": "structural",
+      "desc": "calls createDeferredListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "createDeferredListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::backgrounderrprefix",
+      "kind": "structural",
+      "desc": "calls backgroundErrPrefix",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "backgroundErrPrefix"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::expected-message-in-position-concat",
+      "kind": "structural",
+      "desc": "calls \"Expected message in position \".concat",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "\"Expected message in position \".concat"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::resolve",
+      "kind": "structural",
+      "desc": "calls resolve",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "resolve"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::createclass",
+      "kind": "structural",
+      "desc": "calls createClass",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "createClass"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::basekeysin",
+      "kind": "structural",
+      "desc": "calls baseKeysIn",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "baseKeysIn"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::len3",
+      "kind": "structural",
+      "desc": "calls len3",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "len3"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::result",
+      "kind": "structural",
+      "desc": "calls result",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "result"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isarray",
+      "kind": "structural",
+      "desc": "calls isArray",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isArray"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::nativekeysin",
+      "kind": "structural",
+      "desc": "calls nativeKeysIn",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "nativeKeysIn"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::deserializer",
+      "kind": "structural",
+      "desc": "calls deserializer",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "deserializer"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::defineproperty",
+      "kind": "structural",
+      "desc": "calls defineProperty",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "defineProperty"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::defineproperties",
+      "kind": "structural",
+      "desc": "calls defineProperties",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "defineProperties"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::serializer",
+      "kind": "structural",
+      "desc": "calls serializer",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "serializer"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::listener",
+      "kind": "structural",
+      "desc": "calls listener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "listener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::start",
+      "kind": "structural",
+      "desc": "calls start",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "start"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::shoulddeserialize",
+      "kind": "structural",
+      "desc": "calls shouldDeserialize",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "shouldDeserialize"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::withserializer",
+      "kind": "structural",
+      "desc": "calls withSerializer",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "withSerializer"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ref2-dispatchrespond",
+      "kind": "structural",
+      "desc": "calls ref2$dispatchRespond",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ref2$dispatchRespond"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::toprimitive",
+      "kind": "structural",
+      "desc": "calls toPrimitive",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "toPrimitive"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::this/readyresolve",
+      "kind": "structural",
+      "desc": "calls this.readyResolve",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "this.readyResolve"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::store/getstate",
+      "kind": "structural",
+      "desc": "calls store.getState",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "store.getState"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::skipindexes",
+      "kind": "structural",
+      "desc": "calls skipIndexes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "skipIndexes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::this/readyresolved",
+      "kind": "structural",
+      "desc": "calls this.readyResolved",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "this.readyResolved"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ref2-diffstrategy",
+      "kind": "structural",
+      "desc": "calls ref2$diffStrategy",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ref2$diffStrategy"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promiseresponder",
+      "kind": "structural",
+      "desc": "calls promiseResponder",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "promiseResponder"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ownkeys",
+      "kind": "structural",
+      "desc": "calls ownKeys",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ownKeys"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::classcallcheck",
+      "kind": "structural",
+      "desc": "calls classCallCheck",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "classCallCheck"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::global",
+      "kind": "structural",
+      "desc": "calls global",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "global"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/assign",
+      "kind": "structural",
+      "desc": "calls Object.assign",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.assign"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::this3/serializedmessagesender",
+      "kind": "structural",
+      "desc": "calls this3.serializedMessageSender",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "this3.serializedMessageSender"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::diffstrategy",
+      "kind": "structural",
+      "desc": "calls diffStrategy",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "diffStrategy"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sendmessagefn/apply",
+      "kind": "structural",
+      "desc": "calls sendMessageFn.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sendMessageFn.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::o/writable",
+      "kind": "structural",
+      "desc": "calls o.writable",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "o.writable"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isarraylikeobject",
+      "kind": "structural",
+      "desc": "calls isArrayLikeObject",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isArrayLikeObject"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::nativemax",
+      "kind": "structural",
+      "desc": "calls nativeMax",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "nativeMax"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::stateproviderlistener/setlistener",
+      "kind": "structural",
+      "desc": "calls stateProviderListener.setListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "stateProviderListener.setListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::iterator/f",
+      "kind": "structural",
+      "desc": "calls iterator.f",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "iterator.f"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ownkeys/foreach",
+      "kind": "structural",
+      "desc": "calls ownKeys.forEach",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ownKeys.forEach"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::array/index",
+      "kind": "structural",
+      "desc": "calls array.index",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "array.index"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::assigner",
+      "kind": "structural",
+      "desc": "calls assigner",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "assigner"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isarguments",
+      "kind": "structural",
+      "desc": "calls isArguments",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isArguments"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::len2",
+      "kind": "structural",
+      "desc": "calls len2",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "len2"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::copyobject",
+      "kind": "structural",
+      "desc": "calls copyObject",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "copyObject"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::change",
+      "kind": "structural",
+      "desc": "calls change",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "change"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::send",
+      "kind": "structural",
+      "desc": "calls send",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "send"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::withpayloaddeserializer",
+      "kind": "structural",
+      "desc": "calls withPayloadDeserializer",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "withPayloadDeserializer"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::islength",
+      "kind": "structural",
+      "desc": "calls isLength",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isLength"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/call",
+      "kind": "structural",
+      "desc": "calls t.call",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isarraylike",
+      "kind": "structural",
+      "desc": "calls isArrayLike",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isArrayLike"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::concat/concat",
+      "kind": "structural",
+      "desc": "calls \"\".concat.concat",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "\"\".concat.concat"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::lodash_assignin",
+      "kind": "structural",
+      "desc": "calls lodash_assignin",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "lodash_assignin"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::difference/foreach",
+      "kind": "structural",
+      "desc": "calls difference.forEach",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "difference.forEach"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::defaultopts",
+      "kind": "structural",
+      "desc": "calls defaultOpts",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "defaultOpts"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/resolve",
+      "kind": "structural",
+      "desc": "calls Promise.resolve",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.resolve"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ref2-deserializer",
+      "kind": "structural",
+      "desc": "calls ref2$deserializer",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ref2$deserializer"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::array/isarray",
+      "kind": "structural",
+      "desc": "calls Array.isArray",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Array.isArray"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::messageargindex",
+      "kind": "structural",
+      "desc": "calls messageArgIndex",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "messageArgIndex"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::compose/apply",
+      "kind": "structural",
+      "desc": "calls compose.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "compose.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::o/enumerable",
+      "kind": "structural",
+      "desc": "calls o.enumerable",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "o.enumerable"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::iterabletoarray",
+      "kind": "structural",
+      "desc": "calls iterableToArray",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "iterableToArray"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::actionlistener",
+      "kind": "structural",
+      "desc": "calls actionListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "actionListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::basetimes",
+      "kind": "structural",
+      "desc": "calls baseTimes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "baseTimes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::result/push",
+      "kind": "structural",
+      "desc": "calls result.push",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "result.push"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::proto",
+      "kind": "structural",
+      "desc": "calls proto",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "proto"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::o/configurable",
+      "kind": "structural",
+      "desc": "calls o.configurable",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "o.configurable"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::concat",
+      "kind": "structural",
+      "desc": "calls \"\".concat",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "\"\".concat"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::arraywithoutholes",
+      "kind": "structural",
+      "desc": "calls arrayWithoutHoles",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "arrayWithoutHoles"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sendresponse",
+      "kind": "structural",
+      "desc": "calls sendResponse",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sendResponse"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/key",
+      "kind": "structural",
+      "desc": "calls object.key",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "object.key"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ref",
+      "kind": "structural",
+      "desc": "calls ref",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ref"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::createforofiteratorhelper",
+      "kind": "structural",
+      "desc": "calls createForOfIteratorHelper",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "createForOfIteratorHelper"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ref-deserializer",
+      "kind": "structural",
+      "desc": "calls ref$deserializer",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ref$deserializer"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::patchstate",
+      "kind": "structural",
+      "desc": "calls patchState",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "patchState"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::filterstatemessages",
+      "kind": "structural",
+      "desc": "calls filterStateMessages",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "filterStateMessages"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browserapi-runtime",
+      "kind": "structural",
+      "desc": "calls browserAPI$runtime",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browserAPI$runtime"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tag",
+      "kind": "structural",
+      "desc": "calls tag",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tag"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::topropertykey",
+      "kind": "structural",
+      "desc": "calls toPropertyKey",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "toPropertyKey"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::dispatch",
+      "kind": "structural",
+      "desc": "calls dispatch",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dispatch"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::index",
+      "kind": "structural",
+      "desc": "calls index",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "index"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/e",
+      "kind": "structural",
+      "desc": "calls n.e",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.e"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::dispatchresponse",
+      "kind": "structural",
+      "desc": "calls dispatchResponse",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dispatchResponse"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::customizer",
+      "kind": "structural",
+      "desc": "calls customizer",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "customizer"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isiterateecall",
+      "kind": "structural",
+      "desc": "calls isIterateeCall",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isIterateeCall"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::value",
+      "kind": "structural",
+      "desc": "calls value",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "value"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getbrowserapi",
+      "kind": "structural",
+      "desc": "calls getBrowserAPI",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getBrowserAPI"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/getownpropertysymbols",
+      "kind": "structural",
+      "desc": "calls Object.getOwnPropertySymbols",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.getOwnPropertySymbols"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::objecttostring",
+      "kind": "structural",
+      "desc": "calls objectToString",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "objectToString"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/next",
+      "kind": "structural",
+      "desc": "calls t.next",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.next"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/keys",
+      "kind": "structural",
+      "desc": "calls Object.keys",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.keys"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::global/webextredux",
+      "kind": "structural",
+      "desc": "calls global.WebextRedux",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "global.WebextRedux"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::this-browserapi-runt",
+      "kind": "structural",
+      "desc": "calls this$browserAPI$runt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "this$browserAPI$runt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::o/filter",
+      "kind": "structural",
+      "desc": "calls o.filter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "o.filter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ref-serializer",
+      "kind": "structural",
+      "desc": "calls ref$serializer",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ref$serializer"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::dispatch/apply",
+      "kind": "structural",
+      "desc": "calls dispatch.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dispatch.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::otherargs/start",
+      "kind": "structural",
+      "desc": "calls otherArgs.start",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "otherArgs.start"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::arraylikekeys",
+      "kind": "structural",
+      "desc": "calls arrayLikeKeys",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "arrayLikeKeys"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::transformer",
+      "kind": "structural",
+      "desc": "calls transformer",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "transformer"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::filteractionmessages",
+      "kind": "structural",
+      "desc": "calls filterActionMessages",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "filterActionMessages"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::gentag",
+      "kind": "structural",
+      "desc": "calls genTag",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "genTag"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ref-state",
+      "kind": "structural",
+      "desc": "calls ref$state",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ref$state"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::iterator/e",
+      "kind": "structural",
+      "desc": "calls iterator.e",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "iterator.e"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ref2-serializer",
+      "kind": "structural",
+      "desc": "calls ref2$serializer",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ref2$serializer"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::objvalue",
+      "kind": "structural",
+      "desc": "calls objValue",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "objValue"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::exports/applymiddleware",
+      "kind": "structural",
+      "desc": "calls exports.applyMiddleware",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "exports.applyMiddleware"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::onerrorcallback",
+      "kind": "structural",
+      "desc": "calls onErrorCallback",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "onErrorCallback"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::args",
+      "kind": "structural",
+      "desc": "calls args",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "args"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::args/messageargindex",
+      "kind": "structural",
+      "desc": "calls args.messageArgIndex",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "args.messageArgIndex"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::exports/store",
+      "kind": "structural",
+      "desc": "calls exports.Store",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "exports.Store"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/reject",
+      "kind": "structural",
+      "desc": "calls Promise.reject",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.reject"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::exports/alias",
+      "kind": "structural",
+      "desc": "calls exports.alias",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "exports.alias"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::otherargs/index",
+      "kind": "structural",
+      "desc": "calls otherArgs.index",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "otherArgs.index"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::state",
+      "kind": "structural",
+      "desc": "calls state",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "state"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::console/error",
+      "kind": "structural",
+      "desc": "calls console.error",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "console.error"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::unsupportediterabletoarray",
+      "kind": "structural",
+      "desc": "calls unsupportedIterableToArray",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "unsupportedIterableToArray"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::propertyisenumerable",
+      "kind": "structural",
+      "desc": "calls propertyIsEnumerable",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "propertyIsEnumerable"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::dispatchresponder",
+      "kind": "structural",
+      "desc": "calls dispatchResponder",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dispatchResponder"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::diff_status_removed",
+      "kind": "structural",
+      "desc": "calls DIFF_STATUS_REMOVED",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "DIFF_STATUS_REMOVED"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/store",
+      "kind": "structural",
+      "desc": "calls window.Store",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.Store"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reject",
+      "kind": "structural",
+      "desc": "calls reject",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "reject"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::this2",
+      "kind": "structural",
+      "desc": "calls this2",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "this2"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::args/_key",
+      "kind": "structural",
+      "desc": "calls args._key",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "args._key"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::key3",
+      "kind": "structural",
+      "desc": "calls key3",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "key3"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::newobj",
+      "kind": "structural",
+      "desc": "calls newObj",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "newObj"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reisuint/test",
+      "kind": "structural",
+      "desc": "calls reIsUint.test",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "reIsUint.test"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browserapi/runtime/onmessage/addlistener",
+      "kind": "structural",
+      "desc": "calls browserAPI.runtime.onMessage.addListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browserAPI.runtime.onMessage.addListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentstate",
+      "kind": "structural",
+      "desc": "calls currentState",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentState"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::func/call",
+      "kind": "structural",
+      "desc": "calls func.call",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "func.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::addlistenerfn",
+      "kind": "structural",
+      "desc": "calls addListenerFn",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "addListenerFn"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::store/dispatch",
+      "kind": "structural",
+      "desc": "calls store.dispatch",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "store.dispatch"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::stateproviderlistener",
+      "kind": "structural",
+      "desc": "calls stateProviderListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "stateProviderListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/defineproperties",
+      "kind": "structural",
+      "desc": "calls Object.defineProperties",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.defineProperties"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::action",
+      "kind": "structural",
+      "desc": "calls action",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "action"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,186 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/content/custom-scripts/dependencies/prune-json.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "dddef3c0e13125a6ccb9d77697555d0252954a51afeb943cff9919b3f3ec5421",
+  "size": 527,
+  "risk": "notable",
+  "counts": {
+    "notable": 3
+  },
+  "findings": [
+    {
+      "id": "cap/data/encoding/charset::json-parse-js",
+      "kind": "capability",
+      "desc": "JavaScript JSON.parse",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.parse"
+        }
+      ],
+      "source_file": "cap/data/encoding/charset/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "prune-json.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "cap/data/encoding/charset::json",
+      "kind": "capability",
+      "desc": "JSON serialization libraries",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.parse"
+        }
+      ],
+      "source_file": "cap/data/encoding/charset/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::safe/initpattern",
+      "kind": "structural",
+      "desc": "calls safe.initPattern",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.initPattern"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe",
+      "kind": "structural",
+      "desc": "calls safe",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pruneobject",
+      "kind": "structural",
+      "desc": "calls pruneObject",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pruneObject"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::objafter",
+      "kind": "structural",
+      "desc": "calls objAfter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "objAfter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safeself",
+      "kind": "structural",
+      "desc": "calls safeSelf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeSelf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::objbefore",
+      "kind": "structural",
+      "desc": "calls objBefore",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "objBefore"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reflect/apply",
+      "kind": "structural",
+      "desc": "calls Reflect.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Reflect.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::stackneedledetails",
+      "kind": "structural",
+      "desc": "calls stackNeedleDetails",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "stackNeedleDetails"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::json/parse",
+      "kind": "structural",
+      "desc": "calls JSON.parse",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "JSON.parse"
+        }
+      ]
+    }
+  ]
+}

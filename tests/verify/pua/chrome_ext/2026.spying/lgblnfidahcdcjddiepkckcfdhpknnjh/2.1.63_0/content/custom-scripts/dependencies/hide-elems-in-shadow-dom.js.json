@@ -1,0 +1,448 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/content/custom-scripts/dependencies/hide-elems-in-shadow-dom.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "e8e706b327ec7c68544764974aada0db360d61d8d7a27532ef553e66102bb902",
+  "size": 2008,
+  "risk": "notable",
+  "counts": {
+    "notable": 4
+  },
+  "findings": [
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "kind": "capability",
+      "desc": "for loop (AST)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "9:11"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "20:11"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "30:11"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 3  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
+      "kind": "capability",
+      "desc": "setTimeout with code execution",
+      "conf": 0.75,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 setTimeout(() => {",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::ext-mutation-observer",
+      "kind": "capability",
+      "desc": "MutationObserver DOM monitoring",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2 occurrences of MutationObserver",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::mutation-observer",
+      "kind": "capability",
+      "desc": "Observes DOM mutations",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "setTimeout(() => {\n    hideElems();\n    const shadowNodes = getAllShadowDomNodes();\n    const thatNo...",
+          "location": "42:3"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "new MutationObserver(hideElems).observe(thatNode.shadowRoot, options)",
+          "location": "54:9"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "new MutationObserver(hideElems).observe(thatNode, options)",
+          "location": "56:7"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "hide-elems-in-shadow-dom.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "kind": "capability",
+      "desc": "Iteration or loop pattern",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "9:11"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "20:11"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "30:11"
+        },
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 3  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "meta/internal/imported::node/matches",
+      "kind": "structural",
+      "desc": "calls node.matches",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "node.matches"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::queryelems/foreach",
+      "kind": "structural",
+      "desc": "calls queryElems.forEach",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "queryElems.forEach"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getallshadowdomnodes",
+      "kind": "structural",
+      "desc": "calls getAllShadowDomNodes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getAllShadowDomNodes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::hideelems",
+      "kind": "structural",
+      "desc": "calls hideElems",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hideElems"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::shadownodes/foreach",
+      "kind": "structural",
+      "desc": "calls shadowNodes.forEach",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "shadowNodes.forEach"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::shadownodes",
+      "kind": "structural",
+      "desc": "calls shadowNodes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "shadowNodes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::debounce",
+      "kind": "structural",
+      "desc": "calls debounce",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "debounce"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::csstext",
+      "kind": "structural",
+      "desc": "calls cssText",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "cssText"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::elem/style/csstext",
+      "kind": "structural",
+      "desc": "calls elem.style.cssText",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "elem.style.cssText"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::queryshadowelems",
+      "kind": "structural",
+      "desc": "calls queryShadowElems",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "queryShadowElems"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::thatnode/queryselectorall",
+      "kind": "structural",
+      "desc": "calls thatNode.querySelectorAll",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "thatNode.querySelectorAll"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::thatnode/shadowroot/queryselectorall",
+      "kind": "structural",
+      "desc": "calls thatNode.shadowRoot.querySelectorAll",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "thatNode.shadowRoot.querySelectorAll"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::shadowroot/style/csstext",
+      "kind": "structural",
+      "desc": "calls shadowRoot.style.cssText",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "shadowRoot.style.cssText"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::settimeout",
+      "kind": "structural",
+      "desc": "calls setTimeout",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setTimeout"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::queryshadowelems/foreach",
+      "kind": "structural",
+      "desc": "calls queryShadowElems.forEach",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "queryShadowElems.forEach"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::queryelems",
+      "kind": "structural",
+      "desc": "calls queryElems",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "queryElems"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::shadowroot/matches",
+      "kind": "structural",
+      "desc": "calls shadowRoot.matches",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "shadowRoot.matches"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::options",
+      "kind": "structural",
+      "desc": "calls options",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "options"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::thatnode",
+      "kind": "structural",
+      "desc": "calls thatNode",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "thatNode"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::shadownodes/filter",
+      "kind": "structural",
+      "desc": "calls shadowNodes.filter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "shadowNodes.filter"
+        }
+      ]
+    }
+  ]
+}

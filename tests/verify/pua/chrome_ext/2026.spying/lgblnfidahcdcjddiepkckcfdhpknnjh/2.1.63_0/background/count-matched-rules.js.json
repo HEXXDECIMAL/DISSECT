@@ -1,0 +1,238 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/count-matched-rules.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "de91ed76a3fc892e279b2a17ac33862ff7e003c1d26812d5cd710edc7c1a2227",
+  "size": 1059,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "kind": "capability",
+      "desc": "for loop (AST)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "12:3"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "count-matched-rules.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "kind": "capability",
+      "desc": "Iteration or loop pattern",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "12:3"
+        },
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "meta/internal/imported::rules",
+      "kind": "structural",
+      "desc": "calls rules",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rules"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rules/some",
+      "kind": "structural",
+      "desc": "calls rules.some",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rules.some"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getmatchedrules",
+      "kind": "structural",
+      "desc": "calls getMatchedRules",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getMatchedRules"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/groupby",
+      "kind": "structural",
+      "desc": "calls Object.groupBy",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.groupBy"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::date/now",
+      "kind": "structural",
+      "desc": "calls Date.now",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Date.now"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ads",
+      "kind": "structural",
+      "desc": "calls ads",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ads"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::updateicon",
+      "kind": "structural",
+      "desc": "calls updateIcon",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "updateIcon"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rules/filter",
+      "kind": "structural",
+      "desc": "calls rules.filter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rules.filter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::statistics/incrementblock",
+      "kind": "structural",
+      "desc": "calls statistics.incrementBlock",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "statistics.incrementBlock"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::cookiebanners",
+      "kind": "structural",
+      "desc": "calls cookieBanners",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "cookieBanners"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::groupedbytab",
+      "kind": "structural",
+      "desc": "calls groupedByTab",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "groupedByTab"
+        }
+      ]
+    }
+  ]
+}

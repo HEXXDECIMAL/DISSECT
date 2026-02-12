@@ -1,0 +1,442 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/content/custom-scripts/dependencies/change-style-for-redirect-element.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "7a93052cb936d25d96a16043de466f36f9b458f3ba3ddf883b132868f73c4c15",
+  "size": 1403,
+  "risk": "notable",
+  "counts": {
+    "notable": 3
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
+      "kind": "capability",
+      "desc": "setTimeout with code execution",
+      "conf": 0.75,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2 setTimeout(() => {",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-function-density",
+      "kind": "capability",
+      "desc": "High function density (>20 functions",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.density_per_100_lines = 26.47"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "change-style-for-redirect-element.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "cap/exec/vm/sandbox::base64-long-string",
+      "kind": "capability",
+      "desc": "Long base64-like string pattern",
+      "conf": 0.4,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "changeStyleForRedirectElementScript"
+        }
+      ],
+      "source_file": "cap/exec/vm/sandbox/node.yaml"
+    },
+    {
+      "id": "meta/internal/imported::fulllist",
+      "kind": "structural",
+      "desc": "calls fullList",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "fullList"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::listofids/filter",
+      "kind": "structural",
+      "desc": "calls listOfIds.filter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "listOfIds.filter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentdocument/createelement",
+      "kind": "structural",
+      "desc": "calls currentDocument.createElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentDocument.createElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/head/prepend",
+      "kind": "structural",
+      "desc": "calls document.head.prepend",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.head.prepend"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::stringofids",
+      "kind": "structural",
+      "desc": "calls stringOfIds",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "stringOfIds"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::styleelement/textcontent",
+      "kind": "structural",
+      "desc": "calls styleElement.textContent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "styleElement.textContent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::changestyleforredirectelement",
+      "kind": "structural",
+      "desc": "calls changeStyleForRedirectElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "changeStyleForRedirectElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::settimeout",
+      "kind": "structural",
+      "desc": "calls setTimeout",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setTimeout"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::listofids/push",
+      "kind": "structural",
+      "desc": "calls listOfIds.push",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "listOfIds.push"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::stringofclasses",
+      "kind": "structural",
+      "desc": "calls stringOfClasses",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "stringOfClasses"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::styleelement/id",
+      "kind": "structural",
+      "desc": "calls styleElement.id",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "styleElement.id"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::listofclasses/filter",
+      "kind": "structural",
+      "desc": "calls listOfClasses.filter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "listOfClasses.filter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::addelementtohead",
+      "kind": "structural",
+      "desc": "calls addElementToHead",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "addElementToHead"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::listofclasses/filter/map",
+      "kind": "structural",
+      "desc": "calls listOfClasses.filter.map",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "listOfClasses.filter.map"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::elems/foreach",
+      "kind": "structural",
+      "desc": "calls elems.forEach",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "elems.forEach"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::styleelement",
+      "kind": "structural",
+      "desc": "calls styleElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "styleElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::listofids",
+      "kind": "structural",
+      "desc": "calls listOfIds",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "listOfIds"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::listofclasses/filter/map/join",
+      "kind": "structural",
+      "desc": "calls listOfClasses.filter.map.join",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "listOfClasses.filter.map.join"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::changestyleforredirectelementscript",
+      "kind": "structural",
+      "desc": "calls changeStyleForRedirectElementScript",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "changeStyleForRedirectElementScript"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::listofclasses",
+      "kind": "structural",
+      "desc": "calls listOfClasses",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "listOfClasses"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::elems",
+      "kind": "structural",
+      "desc": "calls elems",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "elems"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::listofids/filter/map/join",
+      "kind": "structural",
+      "desc": "calls listOfIds.filter.map.join",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "listOfIds.filter.map.join"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/settimeout",
+      "kind": "structural",
+      "desc": "calls window.setTimeout",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.setTimeout"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/queryselectorall",
+      "kind": "structural",
+      "desc": "calls document.querySelectorAll",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.querySelectorAll"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::listofids/filter/map",
+      "kind": "structural",
+      "desc": "calls listOfIds.filter.map",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "listOfIds.filter.map"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::listofclasses/push",
+      "kind": "structural",
+      "desc": "calls listOfClasses.push",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "listOfClasses.push"
+        }
+      ]
+    }
+  ]
+}

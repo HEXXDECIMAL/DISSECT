@@ -1,0 +1,209 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/content/custom-blocking/overlay.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "e8f992a5d6bdf4177e7e2ae98d9b89375702f352db21492d527a3460087fd65c",
+  "size": 2683,
+  "risk": "notable",
+  "counts": {
+    "notable": 4
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
+      "kind": "capability",
+      "desc": "setTimeout with code execution",
+      "conf": 0.75,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2 setTimeout(() => {",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
+      "kind": "capability",
+      "desc": "No comments in code (stripped",
+      "conf": 0.6,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "cap/code/metrics/obfuscation::high-entropy-identifiers",
+      "kind": "capability",
+      "desc": "High entropy identifiers (random variable names)",
+      "conf": 0.85,
+      "crit": "inert",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.avg_entropy = 2.84"
+        }
+      ],
+      "source_file": "cap/code/metrics/obfuscation/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "overlay.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::overlay",
+      "kind": "structural",
+      "desc": "calls overlay",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "overlay"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::allowselectelement",
+      "kind": "structural",
+      "desc": "calls allowSelectElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "allowSelectElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::helperrect",
+      "kind": "structural",
+      "desc": "calls helperRect",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "helperRect"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::settimeout",
+      "kind": "structural",
+      "desc": "calls setTimeout",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setTimeout"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::setstyle",
+      "kind": "structural",
+      "desc": "calls setStyle",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setStyle"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentdocument/documentelement/appendchild",
+      "kind": "structural",
+      "desc": "calls currentDocument.documentElement.appendChild",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentDocument.documentElement.appendChild"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::dialog/element/getboundingclientrect",
+      "kind": "structural",
+      "desc": "calls dialog.element.getBoundingClientRect",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dialog.element.getBoundingClientRect"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentdocument/createelement",
+      "kind": "structural",
+      "desc": "calls currentDocument.createElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentDocument.createElement"
+        }
+      ]
+    }
+  ]
+}

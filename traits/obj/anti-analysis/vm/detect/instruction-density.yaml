@@ -1,0 +1,39 @@
+# Instruction Density-Based Evasion
+# Detects anti-analysis and VM evasion via instruction patterns
+# ATT&CK: T1497.001 (Virtualization/Sandbox Evasion: System Checks)
+
+defaults:
+  platforms: [linux, macos, windows]
+  attack: "T1497.001"
+
+traits:
+  # CPUID density check (multiple CPUID calls in a small range)
+  - id: high-cpuid-density
+    desc: High density of CPUID instructions
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: hex
+      pattern: "0F A2"
+      count_min: 3
+      per_kb_min: 0.1
+
+  # RDTSC density check (timing loops)
+  - id: high-rdtsc-density
+    desc: High density of RDTSC instructions (timing loop)
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: hex
+      pattern: "0F 31"
+      count_min: 3
+      per_kb_min: 0.1
+
+composite_rules:
+  - id: instruction-based-evasion
+    desc: Instruction-based anti-analysis/VM detection
+    crit: suspicious
+    conf: 0.9
+    any:
+      - id: high-cpuid-density
+      - id: high-rdtsc-density

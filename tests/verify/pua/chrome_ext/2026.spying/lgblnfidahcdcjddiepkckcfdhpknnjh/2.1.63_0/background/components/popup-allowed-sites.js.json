@@ -1,0 +1,116 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/components/popup-allowed-sites.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "7144ec62a07d61760361afe96155deb1c858bca463a8f4812be7e220d38bed51",
+  "size": 820,
+  "risk": "notable",
+  "counts": {
+    "notable": 2
+  },
+  "findings": [
+    {
+      "id": "obj/discovery/host/fingerprint::object-keys-call",
+      "kind": "capability",
+      "desc": "Object.keys call",
+      "conf": 0.5,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "popup-allowed-sites.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::object-serialization",
+      "kind": "capability",
+      "desc": "Object serialization methods",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "meta/internal/imported::popupallowedsites",
+      "kind": "structural",
+      "desc": "calls popupAllowedSites",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "popupAllowedSites"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data/host",
+      "kind": "structural",
+      "desc": "calls data.host",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data.host"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data",
+      "kind": "structural",
+      "desc": "calls data",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/keys",
+      "kind": "structural",
+      "desc": "calls Object.keys",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.keys"
+        }
+      ]
+    }
+  ]
+}

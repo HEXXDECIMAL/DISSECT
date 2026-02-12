@@ -1,0 +1,377 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bhmmomiinigofkjcapegjjndpbikblnp/5.9.2_0/scripts/optout/index.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "8aab4786862d3f1721da8895fa2c82a48fa67f6f0db9022437b3939373a7f261",
+  "size": 711,
+  "risk": "notable",
+  "counts": {
+    "notable": 7
+  },
+  "findings": [
+    {
+      "id": "meta/library/react::react-dom",
+      "kind": "capability",
+      "desc": "ReactDOM object reference",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "ReactDOM.render"
+        }
+      ],
+      "source_file": "meta/library/react/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "index.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::tabs-query",
+      "kind": "capability",
+      "desc": "Queries browser tabs",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "store.ready().then(()=>{webextApi.tabs.query({active:!0,currentWindow:!0},e=>{if(!e)return;const t=e...",
+          "location": "1:42"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "webextApi.tabs.query({active:!0,currentWindow:!0},e=>{if(!e)return;const t=e[0];t&&store.dispatch(se...",
+          "location": "1:66"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
+      "kind": "capability",
+      "desc": "Many one-liner functions (minified code",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 5.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
+      "kind": "capability",
+      "desc": "Code uses frontend framework patterns",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "React.createElement"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
+    },
+    {
+      "id": "cap/exec/vm/sandbox::base64-long-string",
+      "kind": "capability",
+      "desc": "Long base64-like string pattern",
+      "conf": 0.4,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "getCurrentTabFromPopupQueryString"
+        }
+      ],
+      "source_file": "cap/exec/vm/sandbox/node.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.01"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "kind": "capability",
+      "desc": "Minified/compressed code (multiple indicators)",
+      "conf": 0.9,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.01"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 5.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::header",
+      "kind": "structural",
+      "desc": "calls Header",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Header"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getencodeddomain",
+      "kind": "structural",
+      "desc": "calls getEncodedDomain",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getEncodedDomain"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/getelementbyid",
+      "kind": "structural",
+      "desc": "calls document.getElementById",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.getElementById"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::store/ready",
+      "kind": "structural",
+      "desc": "calls store.ready",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "store.ready"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::setactivetab",
+      "kind": "structural",
+      "desc": "calls setActiveTab",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setActiveTab"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reactdom/render",
+      "kind": "structural",
+      "desc": "calls ReactDOM.render",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ReactDOM.render"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getcurrenttabfrompopupquerystring",
+      "kind": "structural",
+      "desc": "calls getCurrentTabFromPopupQueryString",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getCurrentTabFromPopupQueryString"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::store/ready/then",
+      "kind": "structural",
+      "desc": "calls store.ready.then",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "store.ready.then"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::store",
+      "kind": "structural",
+      "desc": "calls store",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "store"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::react/createelement",
+      "kind": "structural",
+      "desc": "calls React.createElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "React.createElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::store/state/currenttab",
+      "kind": "structural",
+      "desc": "calls store.state.currentTab",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "store.state.currentTab"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::webextapi/tabs/query",
+      "kind": "structural",
+      "desc": "calls webextApi.tabs.query",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "webextApi.tabs.query"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::filter",
+      "kind": "structural",
+      "desc": "calls .filter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": ".filter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::store/dispatch",
+      "kind": "structural",
+      "desc": "calls store.dispatch",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "store.dispatch"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::popup",
+      "kind": "structural",
+      "desc": "calls Popup",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Popup"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::store/getstate",
+      "kind": "structural",
+      "desc": "calls store.getState",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "store.getState"
+        }
+      ]
+    }
+  ]
+}

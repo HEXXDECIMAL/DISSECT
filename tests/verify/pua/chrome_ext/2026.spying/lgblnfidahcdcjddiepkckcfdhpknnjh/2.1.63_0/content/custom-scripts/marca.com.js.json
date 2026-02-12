@@ -1,0 +1,132 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/content/custom-scripts/marca.com.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "e1816ba2b9d36d61011bacd5f9ea8a6a5272a0189e67c4e6acf75176d781d462",
+  "size": 288,
+  "risk": "notable",
+  "counts": {
+    "notable": 3
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::ext-mutation-observer",
+      "kind": "capability",
+      "desc": "MutationObserver DOM monitoring",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 occurrences of MutationObserver",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::mutation-observer",
+      "kind": "capability",
+      "desc": "Observes DOM mutations",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "new MutationObserver(fn).observe(document.documentElement, {\n    childList: true,\n    subtree: true\n...",
+          "location": "8:3"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "marca.com.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::document/queryselector/remove",
+      "kind": "structural",
+      "desc": "calls document.querySelector.remove",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.querySelector.remove"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/queryselector",
+      "kind": "structural",
+      "desc": "calls document.querySelector",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.querySelector"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::fn",
+      "kind": "structural",
+      "desc": "calls fn",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "fn"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::debounce",
+      "kind": "structural",
+      "desc": "calls debounce",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "debounce"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/body/classlist/remove",
+      "kind": "structural",
+      "desc": "calls document.body.classList.remove",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.body.classList.remove"
+        }
+      ]
+    }
+  ]
+}

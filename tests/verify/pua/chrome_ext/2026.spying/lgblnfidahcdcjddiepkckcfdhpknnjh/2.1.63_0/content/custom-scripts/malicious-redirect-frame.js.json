@@ -1,0 +1,44 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/content/custom-scripts/malicious-redirect-frame.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "d1c0583b84c3bdf4f750bf2fafad43f453f93434e7e5aa24040821a27b93a45c",
+  "size": 70,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "malicious-redirect-frame.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::stopmaliciousredirect",
+      "kind": "structural",
+      "desc": "calls stopMaliciousRedirect",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "stopMaliciousRedirect"
+        }
+      ]
+    }
+  ]
+}

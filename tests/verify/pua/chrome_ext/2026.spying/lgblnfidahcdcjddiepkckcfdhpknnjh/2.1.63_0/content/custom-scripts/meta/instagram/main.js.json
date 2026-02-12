@@ -1,0 +1,66 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/content/custom-scripts/meta/instagram/main.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "f8fa24f7cf1fbcf269a57fffe6ea9b44fa9a5bed1b6a03967396c67e5a154b2f",
+  "size": 73,
+  "risk": "notable",
+  "counts": {
+    "notable": 2
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-di-pattern",
+      "kind": "capability",
+      "desc": "Code uses dependency injection",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "inject",
+          "location": "0x19"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "inject",
+          "location": "0x1a"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "main.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::prunejson",
+      "kind": "structural",
+      "desc": "calls pruneJson",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pruneJson"
+        }
+      ]
+    }
+  ]
+}

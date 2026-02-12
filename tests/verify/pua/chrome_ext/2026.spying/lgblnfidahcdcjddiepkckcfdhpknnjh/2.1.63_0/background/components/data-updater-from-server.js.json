@@ -1,0 +1,186 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/components/data-updater-from-server.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "32a814387eb33e310727b23ce064f35cb2981745b2b9b3dd05d33f703fd15785",
+  "size": 982,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "kind": "capability",
+      "desc": "Prototype pollution guard check present",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 constructor",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/exploitation/memory/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "data-updater-from-server.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::key1",
+      "kind": "structural",
+      "desc": "calls key1",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "key1"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::date",
+      "kind": "structural",
+      "desc": "calls date",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "date"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::storageservice/get",
+      "kind": "structural",
+      "desc": "calls storageService.get",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "storageService.get"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::storageservice/set",
+      "kind": "structural",
+      "desc": "calls storageService.set",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "storageService.set"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::loadanonyid",
+      "kind": "structural",
+      "desc": "calls loadAnonyId",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "loadAnonyId"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::serverlogger/logerror",
+      "kind": "structural",
+      "desc": "calls serverLogger.logError",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "serverLogger.logError"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::serverapi/callurl",
+      "kind": "structural",
+      "desc": "calls serverApi.callUrl",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "serverApi.callUrl"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getappversion",
+      "kind": "structural",
+      "desc": "calls getAppVersion",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getAppVersion"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/all",
+      "kind": "structural",
+      "desc": "calls Promise.all",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.all"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::jobrunner/addjob",
+      "kind": "structural",
+      "desc": "calls jobRunner.addJob",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "jobRunner.addJob"
+        }
+      ]
+    }
+  ]
+}

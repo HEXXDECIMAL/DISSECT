@@ -1,0 +1,311 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/components/custom-css-rules.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "97e9602c184da3aa05808c98d5feb5d53dbac10bff63811a9361141476593fb5",
+  "size": 1114,
+  "risk": "notable",
+  "counts": {
+    "notable": 2
+  },
+  "findings": [
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "kind": "capability",
+      "desc": "for loop (AST)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "28:9"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-function-density",
+      "kind": "capability",
+      "desc": "High function density (>20 functions",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.density_per_100_lines = 22.22"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "custom-css-rules.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "kind": "capability",
+      "desc": "Iteration or loop pattern",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "28:9"
+        },
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "meta/internal/imported::geturlhost",
+      "kind": "structural",
+      "desc": "calls getUrlHost",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getUrlHost"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::number",
+      "kind": "structural",
+      "desc": "calls Number",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Number"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getallframes",
+      "kind": "structural",
+      "desc": "calls getAllFrames",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getAllFrames"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data/host/map",
+      "kind": "structural",
+      "desc": "calls data.host.map",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data.host.map"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/all",
+      "kind": "structural",
+      "desc": "calls Promise.all",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.all"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::selectors",
+      "kind": "structural",
+      "desc": "calls selectors",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "selectors"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data/host",
+      "kind": "structural",
+      "desc": "calls data.host",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data.host"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rule/split",
+      "kind": "structural",
+      "desc": "calls rule.split",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rule.split"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::selector/split",
+      "kind": "structural",
+      "desc": "calls selector.split",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "selector.split"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data",
+      "kind": "structural",
+      "desc": "calls data",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::host",
+      "kind": "structural",
+      "desc": "calls host",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "host"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::info/map",
+      "kind": "structural",
+      "desc": "calls info.map",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "info.map"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::selectors/join",
+      "kind": "structural",
+      "desc": "calls selectors.join",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "selectors.join"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::frames/reduce",
+      "kind": "structural",
+      "desc": "calls frames.reduce",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "frames.reduce"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::customcssrules",
+      "kind": "structural",
+      "desc": "calls customCssRules",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "customCssRules"
+        }
+      ]
+    }
+  ]
+}

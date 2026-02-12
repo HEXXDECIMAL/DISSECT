@@ -1,0 +1,1816 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/components/deactivated-sites.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "f9e8166267b11afa3095d522ba45b91fa1216d587f65f67627c53d08add1dd04",
+  "size": 15028,
+  "risk": "notable",
+  "counts": {
+    "notable": 11
+  },
+  "findings": [
+    {
+      "id": "obj/anti-analysis/kernel-hide/ebpf::bypass-string",
+      "kind": "capability",
+      "desc": "Bypass string reference",
+      "conf": 0.6,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bypass",
+          "location": "0xba7"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bypass",
+          "location": "0xba8"
+        }
+      ],
+      "source_file": "obj/anti-analysis/kernel-hide/ebpf/traits.yaml"
+    },
+    {
+      "id": "obj/impact/services/stop::word-company",
+      "kind": "capability",
+      "desc": "Company keyword",
+      "conf": 0.3,
+      "crit": "notable",
+      "attack": "T1489",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "jilliandescribecompany.com",
+          "location": "0x2ba9"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "jilliandescribecompany.com",
+          "location": "0x2baa"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "jilliandescribecompany.com-customer-script",
+          "location": "0x2bff"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "jilliandescribecompany.com-customer-script",
+          "location": "0x2c00"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "content/custom-scripts/jilliandescribecompany.com.js",
+          "location": "0x2dda"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "content/custom-scripts/jilliandescribecompany.com.js",
+          "location": "0x2ddb"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "*://*.jilliandescribecompany.com/*",
+          "location": "0x2e25"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "*://*.jilliandescribecompany.com/*",
+          "location": "0x2e26"
+        }
+      ],
+      "source_file": "obj/impact/services/stop/traits.yaml"
+    },
+    {
+      "id": "cap/data/text/keywords::token",
+      "kind": "capability",
+      "desc": "token keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "token",
+          "location": "0x451"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "token",
+          "location": "0x452"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "token",
+          "location": "0x740"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "token",
+          "location": "0x741"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "token",
+          "location": "0x29d6"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "token",
+          "location": "0x29d7"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "token",
+          "location": "0x2cdd"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "token",
+          "location": "0x2cde"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "obj/anti-analysis/kernel-hide/ebpf::hide-string",
+      "kind": "capability",
+      "desc": "Hide string reference",
+      "conf": 0.6,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "hide",
+          "location": "0xfae"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "hide",
+          "location": "0xfaf"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "hide",
+          "location": "0x1598"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "hide",
+          "location": "0x1599"
+        }
+      ],
+      "source_file": "obj/anti-analysis/kernel-hide/ebpf/traits.yaml"
+    },
+    {
+      "id": "obj/c2/infrastructure/domain::hardcoded-domain-com",
+      "kind": "capability",
+      "desc": "Hardcoded .com/.org/.net domain (excluding known vendors)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "facebook.com",
+          "location": "0x146"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "facebook.com",
+          "location": "0x147"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "facebook.com",
+          "location": "0x21e"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "facebook.com",
+          "location": "0x21f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "instagram.com",
+          "location": "0x277"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "instagram.com",
+          "location": "0x278"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "instagram.com",
+          "location": "0x35b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "instagram.com",
+          "location": "0x35c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "instagram.com",
+          "location": "0x5be"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "instagram.com",
+          "location": "0x5bf"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "youtube.com",
+          "location": "0x62f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "youtube.com",
+          "location": "0x630"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "youtube.com",
+          "location": "0xca1"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "youtube.com",
+          "location": "0xca2"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "youtube.com",
+          "location": "0xda2"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "youtube.com",
+          "location": "0xda3"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bbc.com",
+          "location": "0xe1f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bbc.com",
+          "location": "0xe20"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bbc.com",
+          "location": "0xe62"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bbc.com",
+          "location": "0xe63"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bbc.com",
+          "location": "0xe9f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bbc.com",
+          "location": "0xea0"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bbc.com",
+          "location": "0xed7"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bbc.com",
+          "location": "0xed8"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bing.com",
+          "location": "0xf2b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bing.com",
+          "location": "0xf2c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bing.com",
+          "location": "0xf6f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bing.com",
+          "location": "0xf70"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bing.com",
+          "location": "0xff1"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bing.com",
+          "location": "0xff2"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bing.com",
+          "location": "0x102a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bing.com",
+          "location": "0x102b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "ebay.com",
+          "location": "0x107f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "ebay.com",
+          "location": "0x1080"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "ebay.com",
+          "location": "0x10c3"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "ebay.com",
+          "location": "0x10c4"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "ebay.com",
+          "location": "0x10ec"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "ebay.com",
+          "location": "0x10ed"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "ebay.com",
+          "location": "0x1125"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "ebay.com",
+          "location": "0x1126"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "eltiempo.com",
+          "location": "0x1178"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "eltiempo.com",
+          "location": "0x1179"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "eltiempo.com",
+          "location": "0x11c0"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "eltiempo.com",
+          "location": "0x11c1"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "eltiempo.com",
+          "location": "0x1231"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "eltiempo.com",
+          "location": "0x1232"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "eltiempo.com",
+          "location": "0x126e"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "eltiempo.com",
+          "location": "0x126f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "inquirer.net",
+          "location": "0x140e"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "inquirer.net",
+          "location": "0x140f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "inquirer.net",
+          "location": "0x1456"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "inquirer.net",
+          "location": "0x1457"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "inquirer.net",
+          "location": "0x1483"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "inquirer.net",
+          "location": "0x1484"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "inquirer.net",
+          "location": "0x14c0"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "inquirer.net",
+          "location": "0x14c1"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "msn.com",
+          "location": "0x1517"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "msn.com",
+          "location": "0x1518"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "msn.com",
+          "location": "0x155a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "msn.com",
+          "location": "0x155b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "msn.com",
+          "location": "0x15db"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "msn.com",
+          "location": "0x15dc"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "msn.com",
+          "location": "0x1613"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "msn.com",
+          "location": "0x1614"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "qq.com",
+          "location": "0x195b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "qq.com",
+          "location": "0x195c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "qq.com",
+          "location": "0x1965"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "qq.com",
+          "location": "0x1966"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "qq.com",
+          "location": "0x19ab"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "qq.com",
+          "location": "0x19ac"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "qq.com",
+          "location": "0x1a0a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "qq.com",
+          "location": "0x1a0b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "qq.com",
+          "location": "0x1a41"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "qq.com",
+          "location": "0x1a42"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "qq.com",
+          "location": "0x1a53"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "qq.com",
+          "location": "0x1a54"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "quizlet.com",
+          "location": "0x1aaa"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "quizlet.com",
+          "location": "0x1aab"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "quizlet.com",
+          "location": "0x1af1"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "quizlet.com",
+          "location": "0x1af2"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "quizlet.com",
+          "location": "0x1b1d"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "quizlet.com",
+          "location": "0x1b1e"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "quizlet.com",
+          "location": "0x1b59"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "quizlet.com",
+          "location": "0x1b5a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "sporcle.com",
+          "location": "0x1bb1"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "sporcle.com",
+          "location": "0x1bb2"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "sporcle.com",
+          "location": "0x1bf8"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "sporcle.com",
+          "location": "0x1bf9"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "sporcle.com",
+          "location": "0x1c68"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "sporcle.com",
+          "location": "0x1c69"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "sporcle.com",
+          "location": "0x1ca4"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "sporcle.com",
+          "location": "0x1ca5"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "usatoday.com",
+          "location": "0x1cfa"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "usatoday.com",
+          "location": "0x1cfb"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "usatoday.com",
+          "location": "0x1d42"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "usatoday.com",
+          "location": "0x1d43"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "usatoday.com",
+          "location": "0x1db3"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "usatoday.com",
+          "location": "0x1db4"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "usatoday.com",
+          "location": "0x1df0"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "usatoday.com",
+          "location": "0x1df1"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bolasport.com",
+          "location": "0x1e47"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bolasport.com",
+          "location": "0x1e48"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bolasport.com",
+          "location": "0x1e90"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bolasport.com",
+          "location": "0x1e91"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bolasport.com",
+          "location": "0x1f02"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bolasport.com",
+          "location": "0x1f03"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bolasport.com",
+          "location": "0x1f40"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bolasport.com",
+          "location": "0x1f41"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "deezer.com",
+          "location": "0x1f9a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "deezer.com",
+          "location": "0x1f9b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "deezer.com",
+          "location": "0x1fe0"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "deezer.com",
+          "location": "0x1fe1"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "deezer.com",
+          "location": "0x204f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "deezer.com",
+          "location": "0x2050"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "deezer.com",
+          "location": "0x208a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "deezer.com",
+          "location": "0x208b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "marca.com",
+          "location": "0x20df"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "marca.com",
+          "location": "0x20e0"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "marca.com",
+          "location": "0x2124"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "marca.com",
+          "location": "0x2125"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "marca.com",
+          "location": "0x215b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "marca.com",
+          "location": "0x215c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "marca.com",
+          "location": "0x2195"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "marca.com",
+          "location": "0x2196"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "pandora.com",
+          "location": "0x21eb"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "pandora.com",
+          "location": "0x21ec"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "pandora.com",
+          "location": "0x2232"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "pandora.com",
+          "location": "0x2233"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "pandora.com",
+          "location": "0x225e"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "pandora.com",
+          "location": "0x225f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "pandora.com",
+          "location": "0x229a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "pandora.com",
+          "location": "0x229b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "dorawatch.net",
+          "location": "0x2408"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "dorawatch.net",
+          "location": "0x2409"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "dorawatch.net",
+          "location": "0x2451"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "dorawatch.net",
+          "location": "0x2452"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "dorawatch.net",
+          "location": "0x247f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "dorawatch.net",
+          "location": "0x2480"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "dorawatch.net",
+          "location": "0x24bd"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "dorawatch.net",
+          "location": "0x24be"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "lauradaydo.com",
+          "location": "0x28ba"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "lauradaydo.com",
+          "location": "0x28bb"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "lauradaydo.com",
+          "location": "0x2904"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "lauradaydo.com",
+          "location": "0x2905"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "lauradaydo.com",
+          "location": "0x2ad3"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "lauradaydo.com",
+          "location": "0x2ad4"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "lauradaydo.com",
+          "location": "0x2b12"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "lauradaydo.com",
+          "location": "0x2b13"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "jilliandescribecompany.com",
+          "location": "0x2ba9"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "jilliandescribecompany.com",
+          "location": "0x2baa"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "jilliandescribecompany.com",
+          "location": "0x2bff"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "jilliandescribecompany.com",
+          "location": "0x2c00"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "jilliandescribecompany.com",
+          "location": "0x2dda"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "jilliandescribecompany.com",
+          "location": "0x2ddb"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "jilliandescribecompany.com",
+          "location": "0x2e25"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "jilliandescribecompany.com",
+          "location": "0x2e26"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "jkanime.net",
+          "location": "0x300f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "jkanime.net",
+          "location": "0x3010"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "dorawatch.net",
+          "location": "0x301e"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "dorawatch.net",
+          "location": "0x301f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "canalrcn.com",
+          "location": "0x31e7"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "canalrcn.com",
+          "location": "0x31e8"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "elpais.com",
+          "location": "0x3227"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "elpais.com",
+          "location": "0x3228"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "forocoches.com",
+          "location": "0x3235"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "forocoches.com",
+          "location": "0x3236"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "kompas.com",
+          "location": "0x3247"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "kompas.com",
+          "location": "0x3248"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "marca.com",
+          "location": "0x3255"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "marca.com",
+          "location": "0x3256"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "uol.com",
+          "location": "0x326b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "uol.com",
+          "location": "0x326c"
+        }
+      ],
+      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::object-keys-call",
+      "kind": "capability",
+      "desc": "Object.keys call",
+      "conf": 0.5,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/language-features::has-promise",
+      "kind": "capability",
+      "desc": "Code uses Promises",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Promise.all"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/language-features/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-long-lines",
+      "kind": "capability",
+      "desc": "Very long lines (>1000 chars)",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 1528.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "cap/code/metrics/obfuscation::high-entropy-identifiers",
+      "kind": "capability",
+      "desc": "High entropy identifiers (random variable names)",
+      "conf": 0.85,
+      "crit": "inert",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.avg_entropy = 2.53"
+        }
+      ],
+      "source_file": "cap/code/metrics/obfuscation/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/vscode::activate-word",
+      "kind": "capability",
+      "desc": "activate keyword",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "deactivatedSites",
+          "location": "0x48"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "deactivatedSites",
+          "location": "0x49"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "deactivatedSites"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/vscode/malicious.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "kind": "capability",
+      "desc": "Webpack/bundler minified output pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 1528.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+    },
+    {
+      "id": "cap/exec/vm/sandbox::base64-long-string",
+      "kind": "capability",
+      "desc": "Long base64-like string pattern",
+      "conf": 0.4,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "scripts/dependencies/addEventListener",
+          "location": "0x27a7"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "scripts/dependencies/addEventListener",
+          "location": "0x27a8"
+        }
+      ],
+      "source_file": "cap/exec/vm/sandbox/node.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.01"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/vscode::exec-pattern",
+      "kind": "capability",
+      "desc": "exec function pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "exec",
+          "location": "0xa47"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "exec",
+          "location": "0xa48"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "exec",
+          "location": "0x2734"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "exec",
+          "location": "0x2735"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "exec",
+          "location": "0x2999"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "exec",
+          "location": "0x299a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "exec",
+          "location": "0x2ca0"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "exec",
+          "location": "0x2ca1"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/vscode/malicious.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::object-serialization",
+      "kind": "capability",
+      "desc": "Object serialization methods",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "meta/internal/imported::data/push",
+      "kind": "structural",
+      "desc": "calls data.push",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data.push"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::idstounregister",
+      "kind": "structural",
+      "desc": "calls idsToUnregister",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "idsToUnregister"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data/filter/flatmap/filter/map",
+      "kind": "structural",
+      "desc": "calls data.filter.flatMap.filter.map",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data.filter.flatMap.filter.map"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::registeredscripts/some",
+      "kind": "structural",
+      "desc": "calls registeredScripts.some",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "registeredScripts.some"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::idstounregister/includes",
+      "kind": "structural",
+      "desc": "calls idsToUnregister.includes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "idsToUnregister.includes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::scripts/map",
+      "kind": "structural",
+      "desc": "calls scripts.map",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "scripts.map"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::scriptstoregister",
+      "kind": "structural",
+      "desc": "calls scriptsToRegister",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "scriptsToRegister"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::registeredscripts",
+      "kind": "structural",
+      "desc": "calls registeredScripts",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "registeredScripts"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data/filter/flatmap/filter",
+      "kind": "structural",
+      "desc": "calls data.filter.flatMap.filter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data.filter.flatMap.filter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data/filter/flatmap",
+      "kind": "structural",
+      "desc": "calls data.filter.flatMap",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data.filter.flatMap"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data/filter",
+      "kind": "structural",
+      "desc": "calls data.filter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data.filter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sites",
+      "kind": "structural",
+      "desc": "calls sites",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sites"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data/flatmap",
+      "kind": "structural",
+      "desc": "calls data.flatMap",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data.flatMap"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::hosts/some",
+      "kind": "structural",
+      "desc": "calls hosts.some",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hosts.some"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::scripts/filter",
+      "kind": "structural",
+      "desc": "calls scripts.filter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "scripts.filter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::registercontentscripts",
+      "kind": "structural",
+      "desc": "calls registerContentScripts",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "registerContentScripts"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/keys",
+      "kind": "structural",
+      "desc": "calls Object.keys",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.keys"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data",
+      "kind": "structural",
+      "desc": "calls data",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::updatedynamicrules",
+      "kind": "structural",
+      "desc": "calls updateDynamicRules",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "updateDynamicRules"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data/host",
+      "kind": "structural",
+      "desc": "calls data.host",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data.host"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::hosts",
+      "kind": "structural",
+      "desc": "calls hosts",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hosts"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::addrules",
+      "kind": "structural",
+      "desc": "calls addRules",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "addRules"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getregisteredcontentscripts",
+      "kind": "structural",
+      "desc": "calls getRegisteredContentScripts",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getRegisteredContentScripts"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/all",
+      "kind": "structural",
+      "desc": "calls Promise.all",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.all"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::unregistercontentscripts",
+      "kind": "structural",
+      "desc": "calls unregisterContentScripts",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "unregisterContentScripts"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::deactivatedsites",
+      "kind": "structural",
+      "desc": "calls deactivatedSites",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "deactivatedSites"
+        }
+      ]
+    }
+  ]
+}

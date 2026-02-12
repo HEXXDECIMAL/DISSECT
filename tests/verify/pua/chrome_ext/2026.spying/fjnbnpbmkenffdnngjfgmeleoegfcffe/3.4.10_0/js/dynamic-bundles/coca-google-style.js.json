@@ -1,0 +1,1001 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/fjnbnpbmkenffdnngjfgmeleoegfcffe/3.4.10_0/js/dynamic-bundles/coca-google-style.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "b18ba016f5bae39af3af26ec5ded478df9e58f892d2d64b54746c8b5dd4212d4",
+  "size": 3201,
+  "risk": "notable",
+  "counts": {
+    "notable": 5
+  },
+  "findings": [
+    {
+      "id": "obj/c2/infrastructure/domain::hardcoded-domain-com",
+      "kind": "capability",
+      "desc": "Hardcoded .com/.org/.net domain (excluding known vendors)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x5dd"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x5de"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x757"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x758"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0xa73"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0xa74"
+        }
+      ],
+      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/malicious-patterns::auto-execute",
+      "kind": "capability",
+      "desc": "Code auto-executes on require/import",
+      "conf": 0.8,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "yara",
+          "source": "yara-x",
+          "value": "(()",
+          "location": "offset:0"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+    },
+    {
+      "id": "cap/code/metrics/obfuscation::high-entropy-identifiers",
+      "kind": "capability",
+      "desc": "High entropy identifiers (random variable names)",
+      "conf": 0.85,
+      "crit": "inert",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.avg_entropy = 2.63"
+        }
+      ],
+      "source_file": "cap/code/metrics/obfuscation/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "coca-google-style.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/c2/infrastructure/domain::http-url-script",
+      "kind": "capability",
+      "desc": "Network URL with domain name (script)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x5dd"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x5de"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x757"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x758"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0xa73"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0xa74"
+        }
+      ],
+      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::hostname-keyword",
+      "kind": "capability",
+      "desc": "hostname keyword",
+      "conf": 0.5,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "hostname"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::system-id-sources",
+      "kind": "capability",
+      "desc": "System identification sources",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "hostname"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "meta/internal/imported::elem/classlist/add",
+      "kind": "structural",
+      "desc": "calls elem.classList.add",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "elem.classList.add"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::container",
+      "kind": "structural",
+      "desc": "calls container",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "container"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::container/style/zindex",
+      "kind": "structural",
+      "desc": "calls container.style.zIndex",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "container.style.zIndex"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::style/innerhtml",
+      "kind": "structural",
+      "desc": "calls style.innerHTML",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "style.innerHTML"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::flowersimg/style/objectfit",
+      "kind": "structural",
+      "desc": "calls flowersImg.style.objectFit",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "flowersImg.style.objectFit"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::container/style/top",
+      "kind": "structural",
+      "desc": "calls container.style.top",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "container.style.top"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::colasplashimg/id",
+      "kind": "structural",
+      "desc": "calls colaSplashImg.id",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "colaSplashImg.id"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/getelementbyid/remove",
+      "kind": "structural",
+      "desc": "calls document.getElementById.remove",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.getElementById.remove"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sunimage/style/position",
+      "kind": "structural",
+      "desc": "calls sunImage.style.position",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sunImage.style.position"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isgoogle",
+      "kind": "structural",
+      "desc": "calls isGoogle",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isGoogle"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::flowersimg/style/left",
+      "kind": "structural",
+      "desc": "calls flowersImg.style.left",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "flowersImg.style.left"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::container/style/alignitems",
+      "kind": "structural",
+      "desc": "calls container.style.alignItems",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "container.style.alignItems"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isgooglesearch",
+      "kind": "structural",
+      "desc": "calls isGoogleSearch",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isGoogleSearch"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::flowersimg/style/width",
+      "kind": "structural",
+      "desc": "calls flowersImg.style.width",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "flowersImg.style.width"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::flowersimg",
+      "kind": "structural",
+      "desc": "calls flowersImg",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "flowersImg"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sunimage/style/left",
+      "kind": "structural",
+      "desc": "calls sunImage.style.left",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sunImage.style.left"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::colasplashimg/style/objectfit",
+      "kind": "structural",
+      "desc": "calls colaSplashImg.style.objectFit",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "colaSplashImg.style.objectFit"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sunimage",
+      "kind": "structural",
+      "desc": "calls sunImage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sunImage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::flowersimg/id",
+      "kind": "structural",
+      "desc": "calls flowersImg.id",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "flowersImg.id"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::container/style/position",
+      "kind": "structural",
+      "desc": "calls container.style.position",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "container.style.position"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::container/style/bottom",
+      "kind": "structural",
+      "desc": "calls container.style.bottom",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "container.style.bottom"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sunimage/id",
+      "kind": "structural",
+      "desc": "calls sunImage.id",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sunImage.id"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/head/appendchild",
+      "kind": "structural",
+      "desc": "calls document.head.appendChild",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.head.appendChild"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::container/style/display",
+      "kind": "structural",
+      "desc": "calls container.style.display",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "container.style.display"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::container/appendchild",
+      "kind": "structural",
+      "desc": "calls container.appendChild",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "container.appendChild"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sunimage/style/animation",
+      "kind": "structural",
+      "desc": "calls sunImage.style.animation",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sunImage.style.animation"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::elem/id",
+      "kind": "structural",
+      "desc": "calls elem.id",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "elem.id"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::flowersimg/style/height",
+      "kind": "structural",
+      "desc": "calls flowersImg.style.height",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "flowersImg.style.height"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sunimage/src",
+      "kind": "structural",
+      "desc": "calls sunImage.src",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sunImage.src"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::container/style/right",
+      "kind": "structural",
+      "desc": "calls container.style.right",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "container.style.right"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/getelementbyid",
+      "kind": "structural",
+      "desc": "calls document.getElementById",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.getElementById"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/createelement",
+      "kind": "structural",
+      "desc": "calls document.createElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.createElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::container/style/justifycontent",
+      "kind": "structural",
+      "desc": "calls container.style.justifyContent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "container.style.justifyContent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sunimage/style/zindex",
+      "kind": "structural",
+      "desc": "calls sunImage.style.zIndex",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sunImage.style.zIndex"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::style",
+      "kind": "structural",
+      "desc": "calls style",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "style"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::styletag/id",
+      "kind": "structural",
+      "desc": "calls styleTag.id",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "styleTag.id"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::div/classlist/add",
+      "kind": "structural",
+      "desc": "calls div.classList.add",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "div.classList.add"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/addeventlistener",
+      "kind": "structural",
+      "desc": "calls window.addEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.addEventListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::flowersimg/style/zindex",
+      "kind": "structural",
+      "desc": "calls flowersImg.style.zIndex",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "flowersImg.style.zIndex"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::flowersimg/src",
+      "kind": "structural",
+      "desc": "calls flowersImg.src",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "flowersImg.src"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::flowersimg/style/position",
+      "kind": "structural",
+      "desc": "calls flowersImg.style.position",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "flowersImg.style.position"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::elem",
+      "kind": "structural",
+      "desc": "calls elem",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "elem"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::colasplashimg",
+      "kind": "structural",
+      "desc": "calls colaSplashImg",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "colaSplashImg"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::colasplashimg/style/width",
+      "kind": "structural",
+      "desc": "calls colaSplashImg.style.width",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "colaSplashImg.style.width"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::flowersimg/style/top",
+      "kind": "structural",
+      "desc": "calls flowersImg.style.top",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "flowersImg.style.top"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::styletag/innerhtml",
+      "kind": "structural",
+      "desc": "calls styleTag.innerHTML",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "styleTag.innerHTML"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/location/href/indexof",
+      "kind": "structural",
+      "desc": "calls window.location.href.indexOf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.location.href.indexOf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::div",
+      "kind": "structural",
+      "desc": "calls div",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "div"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/location/hostname/indexof",
+      "kind": "structural",
+      "desc": "calls window.location.hostname.indexOf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.location.hostname.indexOf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::elem/innerhtml",
+      "kind": "structural",
+      "desc": "calls elem.innerHTML",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "elem.innerHTML"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::colasplashimg/src",
+      "kind": "structural",
+      "desc": "calls colaSplashImg.src",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "colaSplashImg.src"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/body/appendchild",
+      "kind": "structural",
+      "desc": "calls document.body.appendChild",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.body.appendChild"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sunimage/style/top",
+      "kind": "structural",
+      "desc": "calls sunImage.style.top",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sunImage.style.top"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::container/style/left",
+      "kind": "structural",
+      "desc": "calls container.style.left",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "container.style.left"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::colasplashimg/style/height",
+      "kind": "structural",
+      "desc": "calls colaSplashImg.style.height",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "colaSplashImg.style.height"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::styletag",
+      "kind": "structural",
+      "desc": "calls styleTag",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "styleTag"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::container/style/flexwrap",
+      "kind": "structural",
+      "desc": "calls container.style.flexWrap",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "container.style.flexWrap"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::div/appendchild",
+      "kind": "structural",
+      "desc": "calls div.appendChild",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "div.appendChild"
+        }
+      ]
+    }
+  ]
+}

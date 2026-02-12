@@ -1,0 +1,128 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/content/custom-scripts/dorawatch.net.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "4ff218915e5824aff3894a8d1d7d64cd44b1ac0bdae5a18e3f3bfe88d890b4d9",
+  "size": 652,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "dorawatch.net.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::document/queryselector/click",
+      "kind": "structural",
+      "desc": "calls document.querySelector.click",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.querySelector.click"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/queryselector/remove",
+      "kind": "structural",
+      "desc": "calls document.querySelector.remove",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.querySelector.remove"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::dorawatchscript",
+      "kind": "structural",
+      "desc": "calls dorawatchScript",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dorawatchScript"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::settimeout",
+      "kind": "structural",
+      "desc": "calls setTimeout",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setTimeout"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/url/includes",
+      "kind": "structural",
+      "desc": "calls document.URL.includes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.URL.includes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::outeriframe",
+      "kind": "structural",
+      "desc": "calls outerIframe",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "outerIframe"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/queryselector",
+      "kind": "structural",
+      "desc": "calls document.querySelector",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.querySelector"
+        }
+      ]
+    }
+  ]
+}

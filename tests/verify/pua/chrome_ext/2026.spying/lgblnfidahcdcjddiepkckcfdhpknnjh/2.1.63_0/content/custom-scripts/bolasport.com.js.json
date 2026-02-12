@@ -1,0 +1,44 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/content/custom-scripts/bolasport.com.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "31556b7d593e7b4188f2155805667a74bab067025cd4ac74187b597c3683c1d1",
+  "size": 54,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "bolasport.com.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::unblockcontentscrolling",
+      "kind": "structural",
+      "desc": "calls unblockContentScrolling",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "unblockContentScrolling"
+        }
+      ]
+    }
+  ]
+}

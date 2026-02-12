@@ -1,0 +1,434 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/messages/send-email.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "0e1d7ea61825555ee594470e1f322e4cc0c98bebf55d9696269b4dd09ce6e26d",
+  "size": 1178,
+  "risk": "notable",
+  "counts": {
+    "notable": 4
+  },
+  "findings": [
+    {
+      "id": "obj/c2/infrastructure/domain::hardcoded-domain-com",
+      "kind": "capability",
+      "desc": "Hardcoded .com/.org/.net domain (excluding known vendors)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "zapier.com",
+          "location": "0x66"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "zapier.com",
+          "location": "0x67"
+        }
+      ],
+      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+    },
+    {
+      "id": "cap/data/text/keywords::payload",
+      "kind": "capability",
+      "desc": "payload keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "\n      Geo: ${geo}\n      Feedback: ${payload.text}\n    ",
+          "location": "0x1cd"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "\n      Geo: ${geo}\n      App Version: ${getAppVersion()}\n      Browser: ${browserInfo.getBrowserName()}\n      Browser Version: ${browserInfo.getBrowserVersion()}\n      Operating System: ${operatingSystem}\n      App Enabled: ${settings.enabled}\n      Url: ${url}\n      Feedback: ${payload.text}\n    ",
+          "location": "0x32c"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "meta/quality/versioning::version-word-title",
+      "kind": "capability",
+      "desc": "Version word (title case)",
+      "conf": 0.4,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Version",
+          "location": "0x32c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Version",
+          "location": "0x33f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Version",
+          "location": "0x394"
+        }
+      ],
+      "source_file": "meta/quality/versioning/traits.yaml"
+    },
+    {
+      "id": "meta/quality/versioning::version-colon",
+      "kind": "capability",
+      "desc": "Version: label",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "\n      Geo: ${geo}\n      App Version: ${getAppVersion()}\n      Browser: ${browserInfo.getBrowserName()}\n      Browser Version: ${browserInfo.getBrowserVersion()}\n      Operating System: ${operatingSystem}\n      App Enabled: ${settings.enabled}\n      Url: ${url}\n      Feedback: ${payload.text}\n    ",
+          "location": "0x32c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "\n      App Version: ",
+          "location": "0x33f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "\n      Browser Version: ",
+          "location": "0x394"
+        }
+      ],
+      "source_file": "meta/quality/versioning/traits.yaml"
+    },
+    {
+      "id": "meta/quality/error-handling::catch-keyword",
+      "kind": "capability",
+      "desc": "catch keyword",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "catch",
+          "location": "0x66"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "catch",
+          "location": "0x67"
+        }
+      ],
+      "source_file": "meta/quality/error-handling/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "send-email.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/c2/infrastructure/domain::http-url-script",
+      "kind": "capability",
+      "desc": "Network URL with domain name (script)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://zapier.com/",
+          "location": "0x66"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://zapier.com/",
+          "location": "0x67"
+        }
+      ],
+      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+    },
+    {
+      "id": "meta/quality::versioned",
+      "kind": "capability",
+      "desc": "Contains version information",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Version",
+          "location": "0x32c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Version",
+          "location": "0x33f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Version",
+          "location": "0x394"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "\n      Geo: ${geo}\n      App Version: ${getAppVersion()}\n      Browser: ${browserInfo.getBrowserName()}\n      Browser Version: ${browserInfo.getBrowserVersion()}\n      Operating System: ${operatingSystem}\n      App Enabled: ${settings.enabled}\n      Url: ${url}\n      Feedback: ${payload.text}\n    ",
+          "location": "0x32c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "\n      App Version: ",
+          "location": "0x33f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "\n      Browser Version: ",
+          "location": "0x394"
+        }
+      ],
+      "source_file": "meta/quality/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::sendemail",
+      "kind": "structural",
+      "desc": "calls sendEmail",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sendEmail"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getactivetab",
+      "kind": "structural",
+      "desc": "calls getActiveTab",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getActiveTab"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::url",
+      "kind": "structural",
+      "desc": "calls url",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "url"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::userdata/getsettings",
+      "kind": "structural",
+      "desc": "calls userData.getSettings",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "userData.getSettings"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browserinfo/getbrowsername",
+      "kind": "structural",
+      "desc": "calls browserInfo.getBrowserName",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browserInfo.getBrowserName"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getoperatingsystem",
+      "kind": "structural",
+      "desc": "calls getOperatingSystem",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getOperatingSystem"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::content",
+      "kind": "structural",
+      "desc": "calls content",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "content"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::encodeuricomponent",
+      "kind": "structural",
+      "desc": "calls encodeURIComponent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "encodeURIComponent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::userdata/getgeo",
+      "kind": "structural",
+      "desc": "calls userData.getGeo",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "userData.getGeo"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::operatingsystem",
+      "kind": "structural",
+      "desc": "calls operatingSystem",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "operatingSystem"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browserinfo/getbrowserversion",
+      "kind": "structural",
+      "desc": "calls browserInfo.getBrowserVersion",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browserInfo.getBrowserVersion"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::serverapi/callurl",
+      "kind": "structural",
+      "desc": "calls serverApi.callUrl",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "serverApi.callUrl"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tab",
+      "kind": "structural",
+      "desc": "calls tab",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tab"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getappversion",
+      "kind": "structural",
+      "desc": "calls getAppVersion",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getAppVersion"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/all",
+      "kind": "structural",
+      "desc": "calls Promise.all",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.all"
+        }
+      ]
+    }
+  ]
+}

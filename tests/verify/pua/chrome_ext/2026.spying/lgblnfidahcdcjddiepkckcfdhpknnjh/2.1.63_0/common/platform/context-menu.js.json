@@ -1,0 +1,145 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/common/platform/context-menu.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "0f5e4a760e10c7d67acab284992eb9323749588e5afb99b1b9e160bffd28c049",
+  "size": 846,
+  "risk": "notable",
+  "counts": {
+    "notable": 2
+  },
+  "findings": [
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
+      "kind": "capability",
+      "desc": "Many anonymous functions",
+      "conf": 0.75,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.anonymous = 6.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "context-menu.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::browser/contextmenus/create",
+      "kind": "structural",
+      "desc": "calls browser.contextMenus.create",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.contextMenus.create"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/contextmenus/removeall/then",
+      "kind": "structural",
+      "desc": "calls browser.contextMenus.removeAll.then",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.contextMenus.removeAll.then"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/contextmenus/update",
+      "kind": "structural",
+      "desc": "calls browser.contextMenus.update",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.contextMenus.update"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::resolve",
+      "kind": "structural",
+      "desc": "calls resolve",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "resolve"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/contextmenus/update/then",
+      "kind": "structural",
+      "desc": "calls browser.contextMenus.update.then",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.contextMenus.update.then"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/contextmenus/removeall",
+      "kind": "structural",
+      "desc": "calls browser.contextMenus.removeAll",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.contextMenus.removeAll"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reject",
+      "kind": "structural",
+      "desc": "calls reject",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "reject"
+        }
+      ]
+    }
+  ]
+}

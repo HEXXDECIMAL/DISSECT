@@ -1,0 +1,233 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bhmmomiinigofkjcapegjjndpbikblnp/5.9.2_0/scripts/crossbrowser.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "766846d5b4c8fd48895b88b528ab27f3473e78fb498fc11fcc3025f0b9e0ba7a",
+  "size": 876,
+  "risk": "notable",
+  "counts": {
+    "notable": 6
+  },
+  "findings": [
+    {
+      "id": "obj/discovery/host/browser::firefox-name",
+      "kind": "capability",
+      "desc": "Firefox browser name",
+      "conf": 0.4,
+      "crit": "notable",
+      "attack": "T1217",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Firefox",
+          "location": "0x271"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Firefox",
+          "location": "0x272"
+        }
+      ],
+      "source_file": "obj/discovery/host/browser/traits.yaml"
+    },
+    {
+      "id": "obj/discovery/host/browser::chrome-name",
+      "kind": "capability",
+      "desc": "Chrome browser name",
+      "conf": 0.4,
+      "crit": "notable",
+      "attack": "T1217",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Chrome",
+          "location": "0x5f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Chrome",
+          "location": "0x60"
+        }
+      ],
+      "source_file": "obj/discovery/host/browser/traits.yaml"
+    },
+    {
+      "id": "obj/discovery/host/browser::safari-name",
+      "kind": "capability",
+      "desc": "Safari browser name",
+      "conf": 0.4,
+      "crit": "notable",
+      "attack": "T1217",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Safari",
+          "location": "0x22f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Safari",
+          "location": "0x230"
+        }
+      ],
+      "source_file": "obj/discovery/host/browser/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "crossbrowser.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.01"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/discovery/host/browser::browser-names",
+      "kind": "capability",
+      "desc": "Browser name references",
+      "conf": 0.5,
+      "crit": "notable",
+      "attack": "T1217",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Chrome",
+          "location": "0x5f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Chrome",
+          "location": "0x60"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Firefox",
+          "location": "0x271"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Firefox",
+          "location": "0x272"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Safari",
+          "location": "0x22f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Safari",
+          "location": "0x230"
+        }
+      ],
+      "source_file": "obj/discovery/host/browser/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::init",
+      "kind": "structural",
+      "desc": "calls init",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "init"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::navigator/useragent/indexof",
+      "kind": "structural",
+      "desc": "calls navigator.userAgent.indexOf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "navigator.userAgent.indexOf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::crossbrowser",
+      "kind": "structural",
+      "desc": "calls crossbrowser",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "crossbrowser"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::determinebrowser",
+      "kind": "structural",
+      "desc": "calls determineBrowser",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "determineBrowser"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::crossbrowsername",
+      "kind": "structural",
+      "desc": "calls crossbrowserName",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "crossbrowserName"
+        }
+      ]
+    }
+  ]
+}

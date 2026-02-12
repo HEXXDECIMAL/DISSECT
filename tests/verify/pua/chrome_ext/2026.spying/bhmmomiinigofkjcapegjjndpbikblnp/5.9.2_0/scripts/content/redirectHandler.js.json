@@ -1,0 +1,175 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bhmmomiinigofkjcapegjjndpbikblnp/5.9.2_0/scripts/content/redirectHandler.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "76efaa52da705e41d64be78760bfda6fc90e6a9c131b2418aa9304a1e24a6739",
+  "size": 440,
+  "risk": "notable",
+  "counts": {
+    "notable": 3
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::href-assignment",
+      "kind": "capability",
+      "desc": "Link href modification",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2 .href=",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/traits.yaml"
+    },
+    {
+      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "kind": "capability",
+      "desc": "Prototype pollution guard check present",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 constructor",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/exploitation/memory/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "redirectHandler.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/persist/env-vars/profile::localappdata-string",
+      "kind": "capability",
+      "desc": "Local AppData reference",
+      "conf": 0.4,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "getLocale"
+        }
+      ],
+      "source_file": "obj/persist/env-vars/profile/javascript.yaml"
+    },
+    {
+      "id": "meta/internal/imported::getversion/replace",
+      "kind": "structural",
+      "desc": "calls getVersion.replace",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getVersion.replace"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getversion",
+      "kind": "structural",
+      "desc": "calls getVersion",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getVersion"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/href",
+      "kind": "structural",
+      "desc": "calls t.href",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.href"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/location/href",
+      "kind": "structural",
+      "desc": "calls window.location.href",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.location.href"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/location/href/match",
+      "kind": "structural",
+      "desc": "calls window.location.href.match",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.location.href.match"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getlocale",
+      "kind": "structural",
+      "desc": "calls getLocale",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getLocale"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/createelement",
+      "kind": "structural",
+      "desc": "calls document.createElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.createElement"
+        }
+      ]
+    }
+  ]
+}

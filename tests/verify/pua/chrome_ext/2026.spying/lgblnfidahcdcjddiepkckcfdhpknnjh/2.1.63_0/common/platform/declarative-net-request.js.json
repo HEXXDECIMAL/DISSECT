@@ -1,0 +1,72 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/common/platform/declarative-net-request.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "af0ab4c5dc69bd800598a94da7c5fa69995e0485f36a36c0222ffe0a73f4f607",
+  "size": 358,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "declarative-net-request.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::chrome/declarativenetrequest/getmatchedrules",
+      "kind": "structural",
+      "desc": "calls chrome.declarativeNetRequest.getMatchedRules",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "chrome.declarativeNetRequest.getMatchedRules"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/declarativenetrequest/updateenabledrulesets",
+      "kind": "structural",
+      "desc": "calls browser.declarativeNetRequest.updateEnabledRulesets",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.declarativeNetRequest.updateEnabledRulesets"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/declarativenetrequest/updatedynamicrules",
+      "kind": "structural",
+      "desc": "calls browser.declarativeNetRequest.updateDynamicRules",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.declarativeNetRequest.updateDynamicRules"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bkkbcggnhapdmkeljlodobbkopceiche/7.9.5_0/firefox/ff-open.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "beb5d78a1fbce3d0777c5c3502530132bafed7d333cd27951eb86d7a9e6fb406",
+  "size": 99,
+  "risk": "notable",
+  "counts": {
+    "notable": 2
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::href-assignment",
+      "kind": "capability",
+      "desc": "Link href modification",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 .href =",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "ff-open.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::decodeuricomponent",
+      "kind": "structural",
+      "desc": "calls decodeURIComponent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "decodeURIComponent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::location/search/substring/split",
+      "kind": "structural",
+      "desc": "calls location.search.substring.split",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "location.search.substring.split"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::location/href",
+      "kind": "structural",
+      "desc": "calls location.href",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "location.href"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::redir",
+      "kind": "structural",
+      "desc": "calls redir",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "redir"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::location/search/substring",
+      "kind": "structural",
+      "desc": "calls location.search.substring",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "location.search.substring"
+        }
+      ]
+    }
+  ]
+}

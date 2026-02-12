@@ -1,0 +1,212 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/content/custom-scripts/dependencies/get-validated-constant.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "cfaf5e613b0ba4529f149794af64529855e5ac180926dd49ae30638785998562",
+  "size": 1814,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "get-validated-constant.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::safeenv",
+      "kind": "structural",
+      "desc": "calls safeEnv",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeEnv"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::constantvalue",
+      "kind": "structural",
+      "desc": "calls constantValue",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "constantValue"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safeself",
+      "kind": "structural",
+      "desc": "calls safeSelf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeSelf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isnan",
+      "kind": "structural",
+      "desc": "calls isNaN",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isNaN"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rawvalue/startswith",
+      "kind": "structural",
+      "desc": "calls rawValue.startsWith",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rawValue.startsWith"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/resolve",
+      "kind": "structural",
+      "desc": "calls Promise.resolve",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.resolve"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::extraargs",
+      "kind": "structural",
+      "desc": "calls extraArgs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "extraArgs"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/reject",
+      "kind": "structural",
+      "desc": "calls Promise.reject",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.reject"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parseint",
+      "kind": "structural",
+      "desc": "calls parseInt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "parseInt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safeenv/getextraargs",
+      "kind": "structural",
+      "desc": "calls safeEnv.getExtraArgs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeEnv.getExtraArgs"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::math/abs",
+      "kind": "structural",
+      "desc": "calls Math.abs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Math.abs"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rawvalue/endswith",
+      "kind": "structural",
+      "desc": "calls rawValue.endsWith",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rawValue.endsWith"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safeenv/json_parse",
+      "kind": "structural",
+      "desc": "calls safeEnv.JSON_parse",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeEnv.JSON_parse"
+        }
+      ]
+    }
+  ]
+}

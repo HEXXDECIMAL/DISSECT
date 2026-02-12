@@ -180,7 +180,25 @@ pub fn eval_metrics(
             .binary
             .as_ref()
             .map(|b| b.high_entropy_regions as f64),
+        "binary.file_size" => metrics.binary.as_ref().map(|b| b.file_size as f64),
+        "binary.code_size" => metrics.binary.as_ref().map(|b| b.code_size as f64),
+        "binary.code_to_data_ratio" => metrics.binary.as_ref().map(|b| b.code_to_data_ratio as f64),
+        "binary.has_debug_info" => metrics
+            .binary
+            .as_ref()
+            .map(|b| if b.has_debug_info { 1.0 } else { 0.0 }),
+        "binary.is_stripped" => metrics
+            .binary
+            .as_ref()
+            .map(|b| if b.is_stripped { 1.0 } else { 0.0 }),
+        "binary.is_pie" => metrics
+            .binary
+            .as_ref()
+            .map(|b| if b.is_pie { 1.0 } else { 0.0 }),
+        "binary.relocation_count" => metrics.binary.as_ref().map(|b| b.relocation_count as f64),
         "binary.section_count" => metrics.binary.as_ref().map(|b| b.section_count as f64),
+        "binary.segment_count" => metrics.binary.as_ref().map(|b| b.segment_count as f64),
+        "binary.avg_section_size" => metrics.binary.as_ref().map(|b| b.avg_section_size as f64),
         "binary.executable_sections" => metrics
             .binary
             .as_ref()
@@ -199,6 +217,9 @@ pub fn eval_metrics(
         "binary.export_count" => metrics.binary.as_ref().map(|b| b.export_count as f64),
         "binary.import_entropy" => metrics.binary.as_ref().map(|b| b.import_entropy as f64),
         "binary.string_count" => metrics.binary.as_ref().map(|b| b.string_count as f64),
+        "binary.wide_string_count" => metrics.binary.as_ref().map(|b| b.wide_string_count as f64),
+        "binary.avg_string_length" => metrics.binary.as_ref().map(|b| b.avg_string_length as f64),
+        "binary.max_string_length" => metrics.binary.as_ref().map(|b| b.max_string_length as f64),
         "binary.avg_string_entropy" => metrics.binary.as_ref().map(|b| b.avg_string_entropy as f64),
         "binary.high_entropy_strings" => metrics
             .binary

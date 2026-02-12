@@ -50,6 +50,8 @@ mod syscall_names;
 // mod radare2_extended;  // Removed: integrated into radare2.rs
 mod strings;
 mod test_rules;
+#[cfg(test)]
+mod test_rules_filters_test;
 mod trait_mapper;
 mod types;
 mod upx;
@@ -2077,7 +2079,7 @@ fn extract_metrics(
         binary.export_count = report.exports.len() as u32;
         binary.string_count = report.strings.len() as u32;
 
-        // Calculate string entropy metrics
+        // Calculate string metrics
         if !report.strings.is_empty() {
             use crate::entropy::calculate_entropy;
             let entropies: Vec<f64> = report.strings.iter()
@@ -2087,6 +2089,27 @@ fn extract_metrics(
             let total_entropy: f64 = entropies.iter().sum();
             binary.avg_string_entropy = (total_entropy / entropies.len() as f64) as f32;
             binary.high_entropy_strings = entropies.iter().filter(|&&e| e > 6.0).count() as u32;
+
+            // Calculate string length metrics
+            let mut total_length: u64 = 0;
+            let mut max_length: u32 = 0;
+            let mut wide_count: u32 = 0;
+
+            for s in &report.strings {
+                let len = s.value.len() as u32;
+                total_length += len as u64;
+                if len > max_length {
+                    max_length = len;
+                }
+                // Check encoding chain for wide strings
+                if s.encoding_chain.iter().any(|e| e == "wide") {
+                    wide_count += 1;
+                }
+            }
+
+            binary.avg_string_length = total_length as f32 / report.strings.len() as f32;
+            binary.max_string_length = max_length;
+            binary.wide_string_count = wide_count;
         }
 
         // Calculate binary entropy from sections if not already populated
@@ -2140,6 +2163,40 @@ fn extract_metrics(
             if binary.overall_entropy == 0.0 {
                 let data = std::fs::read(path)?;
                 binary.overall_entropy = calculate_entropy(&data) as f32;
+            }
+        }
+
+        // Calculate size and section metrics if not already populated
+        if binary.file_size == 0 {
+            if let Ok(metadata) = std::fs::metadata(path) {
+                binary.file_size = metadata.len();
+            }
+        }
+
+        if binary.code_size == 0 && !report.sections.is_empty() {
+            let mut code_size: u64 = 0;
+            let mut total_size: u64 = 0;
+
+            for section in &report.sections {
+                total_size += section.size;
+                if let Some(ref perm) = section.permissions {
+                    if perm.contains('x') {
+                        code_size += section.size;
+                    }
+                }
+            }
+
+            binary.code_size = code_size;
+            if total_size > 0 {
+                let data_size = total_size.saturating_sub(code_size);
+                if data_size > 0 {
+                    binary.code_to_data_ratio = code_size as f32 / data_size as f32;
+                }
+            }
+
+            // Average section size
+            if !report.sections.is_empty() {
+                binary.avg_section_size = total_size as f32 / report.sections.len() as f32;
             }
         }
     }
@@ -2220,13 +2277,49 @@ fn extract_metrics(
                 output.push_str(&format!("binary.data_entropy: {:.2}\n", binary.data_entropy));
                 output.push_str(&format!("binary.entropy_variance: {:.2}\n", binary.entropy_variance));
                 output.push_str(&format!("binary.high_entropy_regions: {}\n", binary.high_entropy_regions));
+                if binary.file_size > 0 {
+                    output.push_str(&format!("binary.file_size: {}\n", binary.file_size));
+                }
+                if binary.code_size > 0 {
+                    output.push_str(&format!("binary.code_size: {}\n", binary.code_size));
+                }
+                if binary.code_to_data_ratio > 0.0 {
+                    output.push_str(&format!("binary.code_to_data_ratio: {:.2}\n", binary.code_to_data_ratio));
+                }
+                if binary.has_debug_info {
+                    output.push_str(&format!("binary.has_debug_info: {}\n", binary.has_debug_info));
+                }
+                if binary.is_stripped {
+                    output.push_str(&format!("binary.is_stripped: {}\n", binary.is_stripped));
+                }
+                if binary.is_pie {
+                    output.push_str(&format!("binary.is_pie: {}\n", binary.is_pie));
+                }
+                if binary.relocation_count > 0 {
+                    output.push_str(&format!("binary.relocation_count: {}\n", binary.relocation_count));
+                }
                 output.push_str(&format!("binary.section_count: {}\n", binary.section_count));
+                if binary.segment_count > 0 {
+                    output.push_str(&format!("binary.segment_count: {}\n", binary.segment_count));
+                }
+                if binary.avg_section_size > 0.0 {
+                    output.push_str(&format!("binary.avg_section_size: {:.1}\n", binary.avg_section_size));
+                }
                 output.push_str(&format!("binary.executable_sections: {}\n", binary.executable_sections));
                 output.push_str(&format!("binary.writable_sections: {}\n", binary.writable_sections));
                 output.push_str(&format!("binary.wx_sections: {}\n", binary.wx_sections));
                 output.push_str(&format!("binary.import_count: {}\n", binary.import_count));
                 output.push_str(&format!("binary.export_count: {}\n", binary.export_count));
                 output.push_str(&format!("binary.string_count: {}\n", binary.string_count));
+                if binary.wide_string_count > 0 {
+                    output.push_str(&format!("binary.wide_string_count: {}\n", binary.wide_string_count));
+                }
+                if binary.avg_string_length > 0.0 {
+                    output.push_str(&format!("binary.avg_string_length: {:.1}\n", binary.avg_string_length));
+                }
+                if binary.max_string_length > 0 {
+                    output.push_str(&format!("binary.max_string_length: {}\n", binary.max_string_length));
+                }
                 output.push_str(&format!("binary.avg_string_entropy: {:.2}\n", binary.avg_string_entropy));
                 output.push_str(&format!("binary.high_entropy_strings: {}\n", binary.high_entropy_strings));
                 output.push_str(&format!("binary.function_count: {}\n", binary.function_count));

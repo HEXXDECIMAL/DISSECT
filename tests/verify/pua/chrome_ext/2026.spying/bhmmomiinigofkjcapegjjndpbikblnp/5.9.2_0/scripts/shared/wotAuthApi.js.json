@@ -1,0 +1,584 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bhmmomiinigofkjcapegjjndpbikblnp/5.9.2_0/scripts/shared/wotAuthApi.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "5528ebc28f103ea6eef4ec7025a54ece4e519acc84f53b24e3cfa32d7e24b7ed",
+  "size": 1874,
+  "risk": "notable",
+  "counts": {
+    "notable": 15
+  },
+  "findings": [
+    {
+      "id": "cap/data/encoding/charset::json-parse-js",
+      "kind": "capability",
+      "desc": "JavaScript JSON.parse",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.parse"
+        }
+      ],
+      "source_file": "cap/data/encoding/charset/traits.yaml"
+    },
+    {
+      "id": "cap/data/text/keywords::token",
+      "kind": "capability",
+      "desc": "token keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "token",
+          "location": "0x2c9"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "token",
+          "location": "0x2ca"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "obj/c2/infrastructure/domain::hardcoded-domain-com",
+      "kind": "capability",
+      "desc": "Hardcoded .com/.org/.net domain (excluding known vendors)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "mywot.com",
+          "location": "0x2a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "mywot.com",
+          "location": "0x2b"
+        }
+      ],
+      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+    },
+    {
+      "id": "cap/comm/http/headers::bearer-token",
+      "kind": "capability",
+      "desc": "Bearer token authentication",
+      "conf": 0.5,
+      "crit": "inert",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Bearer ",
+          "location": "0x7b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Bearer ",
+          "location": "0x7c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Bearer ",
+          "location": "0x405"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Bearer ",
+          "location": "0x406"
+        }
+      ],
+      "source_file": "cap/comm/http/headers/generic.yaml"
+    },
+    {
+      "id": "cap/comm/http/lib/nsurlsession::content-type-json",
+      "kind": "capability",
+      "desc": "Content-Type JSON header",
+      "conf": 0.6,
+      "crit": "inert",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Content-Type",
+          "location": "0x87"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Content-Type",
+          "location": "0x88"
+        }
+      ],
+      "source_file": "cap/comm/http/lib/nsurlsession/traits.yaml"
+    },
+    {
+      "id": "meta/quality/error-handling::catch-keyword",
+      "kind": "capability",
+      "desc": "catch keyword",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "catch"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "catch"
+        }
+      ],
+      "source_file": "meta/quality/error-handling/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-function-density",
+      "kind": "capability",
+      "desc": "High function density (>20 functions",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.density_per_100_lines = 2200.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-long-lines",
+      "kind": "capability",
+      "desc": "Very long lines (>1000 chars)",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 1874.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "kind": "capability",
+      "desc": "Prototype pollution guard check present",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 constructor",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/exploitation/memory/generic.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
+      "kind": "capability",
+      "desc": "Many anonymous functions",
+      "conf": 0.75,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.anonymous = 5.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "wotAuthApi.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "kind": "capability",
+      "desc": "Webpack/bundler minified output pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 1874.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
+      "kind": "capability",
+      "desc": "Many one-liner functions (minified code",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 22.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
+      "kind": "capability",
+      "desc": "Sequential identifiers (a, b, c,",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 7.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.02"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::excessive-single-char-vars",
+      "kind": "capability",
+      "desc": "Excessive single-character variable names (>30%)",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.single_char_ratio = 0.57"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/c2/infrastructure/domain::http-url-script",
+      "kind": "capability",
+      "desc": "Network URL with domain name (script)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://auth.api.mywot.com",
+          "location": "0x2a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://auth.api.mywot.com",
+          "location": "0x2b"
+        }
+      ],
+      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+    },
+    {
+      "id": "cap/comm/http/headers::headers-auth",
+      "kind": "capability",
+      "desc": "HTTP Authorization header",
+      "conf": 0.66,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Bearer ",
+          "location": "0x7b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Bearer ",
+          "location": "0x7c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Bearer ",
+          "location": "0x405"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Bearer ",
+          "location": "0x406"
+        }
+      ],
+      "source_file": "cap/comm/http/headers/generic.yaml"
+    },
+    {
+      "id": "cap/data/encoding/charset::json",
+      "kind": "capability",
+      "desc": "JSON serialization libraries",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.parse"
+        }
+      ],
+      "source_file": "cap/data/encoding/charset/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "kind": "capability",
+      "desc": "Minified/compressed code (multiple indicators)",
+      "conf": 0.9,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.02"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.density_per_100_lines = 2200.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 22.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 7.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::wotnetwork/get/then",
+      "kind": "structural",
+      "desc": "calls WotNetwork.get.then",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "WotNetwork.get.then"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/resolve",
+      "kind": "structural",
+      "desc": "calls Promise.resolve",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.resolve"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wotauthapi",
+      "kind": "structural",
+      "desc": "calls WotAuthApi",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "WotAuthApi"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::merge",
+      "kind": "structural",
+      "desc": "calls .merge",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": ".merge"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wotnetwork/get/then/catch",
+      "kind": "structural",
+      "desc": "calls WotNetwork.get.then.catch",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "WotNetwork.get.then.catch"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::json/parse",
+      "kind": "structural",
+      "desc": "calls JSON.parse",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "JSON.parse"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wotnetwork/postjson",
+      "kind": "structural",
+      "desc": "calls WotNetwork.postJson",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "WotNetwork.postJson"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wotnetwork/get",
+      "kind": "structural",
+      "desc": "calls WotNetwork.get",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "WotNetwork.get"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parsestatus",
+      "kind": "structural",
+      "desc": "calls parseStatus",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "parseStatus"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wotnetwork/postjson/then/catch",
+      "kind": "structural",
+      "desc": "calls WotNetwork.postJson.then.catch",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "WotNetwork.postJson.then.catch"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wotnetwork/postjson/then",
+      "kind": "structural",
+      "desc": "calls WotNetwork.postJson.then",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "WotNetwork.postJson.then"
+        }
+      ]
+    }
+  ]
+}

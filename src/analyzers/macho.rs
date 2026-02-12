@@ -107,8 +107,13 @@ impl MachOAnalyzer {
         self.analyze_sections(&macho, data, &mut report)?;
 
         // Initialize metrics with Mach-O header info
+        let rpath_count = macho.load_commands.iter()
+            .filter(|lc| matches!(lc.command, goblin::mach::load_command::CommandVariant::Rpath(_)))
+            .count() as u32;
+
         let macho_metrics = MachoMetrics {
             file_type: macho.header.filetype,
+            rpath_count,
             ..Default::default()
         };
         report.metrics = Some(Metrics {
@@ -131,9 +136,52 @@ impl MachOAnalyzer {
 
                 // Update metrics with radare2 data
                 if let Some(ref mut metrics) = report.metrics {
+                    let mut binary_metrics = binary_metrics;
+
+                    // Populate binary-level metrics from Mach-O data
+                    binary_metrics.file_size = data.len() as u64;
+
+                    // Count segments (load commands of type Segment32/Segment64)
+                    binary_metrics.segment_count = macho.load_commands.iter()
+                        .filter(|lc| matches!(
+                            lc.command,
+                            goblin::mach::load_command::CommandVariant::Segment32(_)
+                                | goblin::mach::load_command::CommandVariant::Segment64(_)
+                        ))
+                        .count() as u32;
+
+                    // Check if binary is stripped (no symbol table or minimal symbols)
+                    binary_metrics.is_stripped = macho.symbols().count() == 0;
+
+                    // Check for debug info (has __DWARF segment or .dSYM sections)
+                    binary_metrics.has_debug_info = macho.load_commands.iter().any(|lc| {
+                        match &lc.command {
+                            goblin::mach::load_command::CommandVariant::Segment32(seg) => {
+                                seg.segname.iter()
+                                    .take_while(|&&b| b != 0)
+                                    .map(|&b| b as char)
+                                    .collect::<String>()
+                                    .contains("DWARF")
+                            }
+                            goblin::mach::load_command::CommandVariant::Segment64(seg) => {
+                                seg.segname.iter()
+                                    .take_while(|&&b| b != 0)
+                                    .map(|&b| b as char)
+                                    .collect::<String>()
+                                    .contains("DWARF")
+                            }
+                            _ => false,
+                        }
+                    });
+
+                    // Check if PIE (position independent executable)
+                    // MH_PIE flag in header.flags
+                    binary_metrics.is_pie = (macho.header.flags & 0x200000) != 0;
+
                     metrics.binary = Some(binary_metrics);
 
                     if let Some(ref mut macho_metrics) = metrics.macho {
+                        macho_metrics.has_code_signature = codesig_data.is_some();
                         macho_metrics.has_entitlements = !codesig_data
                             .as_ref()
                             .map(|c| c.entitlements.is_empty())
@@ -268,7 +316,7 @@ impl MachOAnalyzer {
                 binary.export_count = report.exports.len() as u32;
                 binary.string_count = report.strings.len() as u32;
 
-                // Calculate string entropy metrics
+                // Calculate string metrics
                 if !report.strings.is_empty() {
                     use crate::entropy::calculate_entropy;
                     let entropies: Vec<f64> = report.strings.iter()
@@ -278,17 +326,41 @@ impl MachOAnalyzer {
                     let total_entropy: f64 = entropies.iter().sum();
                     binary.avg_string_entropy = (total_entropy / entropies.len() as f64) as f32;
                     binary.high_entropy_strings = entropies.iter().filter(|&&e| e > 6.0).count() as u32;
+
+                    // Calculate string length metrics
+                    let mut total_length: u64 = 0;
+                    let mut max_length: u32 = 0;
+                    let mut wide_count: u32 = 0;
+
+                    for s in &report.strings {
+                        let len = s.value.len() as u32;
+                        total_length += len as u64;
+                        if len > max_length {
+                            max_length = len;
+                        }
+                        // Check encoding chain for wide strings
+                        if s.encoding_chain.iter().any(|e| e == "wide") {
+                            wide_count += 1;
+                        }
+                    }
+
+                    binary.avg_string_length = total_length as f32 / report.strings.len() as f32;
+                    binary.max_string_length = max_length;
+                    binary.wide_string_count = wide_count;
                 }
 
-                // Calculate binary entropy from sections if not already populated
+                // Calculate binary entropy and size metrics from sections if not already populated
                 if binary.overall_entropy == 0.0 && !report.sections.is_empty() {
                     let mut entropies = Vec::new();
                     let mut code_entropies = Vec::new();
                     let mut data_entropies = Vec::new();
+                    let mut code_size: u64 = 0;
+                    let mut total_size: u64 = 0;
 
                     for section in &report.sections {
                         let entropy = section.entropy as f32;
                         entropies.push(entropy);
+                        total_size += section.size;
 
                         // Track code vs data section entropy
                         let name_lower = section.name.to_lowercase();
@@ -298,6 +370,7 @@ impl MachOAnalyzer {
 
                         if name_lower.contains("text") || name_lower.contains("code") || is_executable {
                             code_entropies.push(entropy);
+                            code_size += section.size;
                         } else if name_lower.contains("data") || name_lower.contains("rodata") {
                             data_entropies.push(entropy);
                         }
@@ -325,6 +398,16 @@ impl MachOAnalyzer {
 
                     if !data_entropies.is_empty() {
                         binary.data_entropy = data_entropies.iter().sum::<f32>() / data_entropies.len() as f32;
+                    }
+
+                    // Size metrics
+                    binary.code_size = code_size;
+                    if total_size > 0 {
+                        let data_size = total_size.saturating_sub(code_size);
+                        if data_size > 0 {
+                            binary.code_to_data_ratio = code_size as f32 / data_size as f32;
+                        }
+                        binary.avg_section_size = total_size as f32 / report.sections.len() as f32;
                     }
                 }
 
@@ -908,11 +991,15 @@ impl MachOAnalyzer {
     }
 
     fn arch_name(&self, macho: &MachO) -> String {
-        match macho.header.cputype {
+        self.arch_name_from_cputype(macho.header.cputype)
+    }
+
+    fn arch_name_from_cputype(&self, cputype: u32) -> String {
+        match cputype {
             0x01000007 => "x86_64".to_string(),
             0x0100000c => "arm64".to_string(),
             0x0200000c => "arm64e".to_string(),
-            _ => format!("unknown_0x{:x}", macho.header.cputype),
+            _ => format!("unknown_0x{:x}", cputype),
         }
     }
 
@@ -1220,7 +1307,25 @@ impl Analyzer for MachOAnalyzer {
                     let offset = arch.offset as usize;
                     let size = arch.size as usize;
                     let arch_data = &data[offset..offset + size];
-                    self.analyze_single(file_path, arch_data)
+                    let mut report = self.analyze_single(file_path, arch_data)?;
+
+                    // Update report with all architectures from fat binary
+                    let arch_names: Vec<String> = arches.iter()
+                        .map(|a| self.arch_name_from_cputype(a.cputype))
+                        .collect();
+                    report.target.architectures = Some(arch_names.clone());
+
+                    // Update macho metrics for universal binary
+                    if let Some(ref mut metrics) = report.metrics {
+                        if let Some(ref mut macho_metrics) = metrics.macho {
+                            if arch_names.len() > 1 {
+                                macho_metrics.is_universal = true;
+                                macho_metrics.slice_count = arch_names.len() as u32;
+                            }
+                        }
+                    }
+
+                    Ok(report)
                 } else {
                     anyhow::bail!("No architectures found in fat binary");
                 }

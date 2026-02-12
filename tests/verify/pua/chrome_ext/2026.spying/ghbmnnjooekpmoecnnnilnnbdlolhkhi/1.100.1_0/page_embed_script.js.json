@@ -1,0 +1,162 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/ghbmnnjooekpmoecnnnilnnbdlolhkhi/1.100.1_0/page_embed_script.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "b8904f6ed95b5b2e18faf5aee016ba44e68f04386453045de29c11c0cc6abaee",
+  "size": 339,
+  "risk": "notable",
+  "counts": {
+    "notable": 3
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/malicious-patterns::auto-execute",
+      "kind": "capability",
+      "desc": "Code auto-executes on require/import",
+      "conf": 0.8,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "yara",
+          "source": "yara-x",
+          "value": "(function",
+          "location": "offset:0"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+    },
+    {
+      "id": "cap/exec/eval/dynamic::iife-pattern",
+      "kind": "capability",
+      "desc": "Immediately invoked function expression",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 (function(){",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/exec/eval/dynamic/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/strings/encoding::js-string-split",
+      "kind": "capability",
+      "desc": "Split to empty-delimiter char array",
+      "conf": 0.6,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 .split(\" \")",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "page_embed_script.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::window/_docs_chrome_extension_permissions",
+      "kind": "structural",
+      "desc": "calls window._docs_chrome_extension_permissions",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window._docs_chrome_extension_permissions"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/_docs_chrome_extension_version",
+      "kind": "structural",
+      "desc": "calls window._docs_chrome_extension_version",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window._docs_chrome_extension_version"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/_docs_chrome_extension_features_version",
+      "kind": "structural",
+      "desc": "calls window._docs_chrome_extension_features_version",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window._docs_chrome_extension_features_version"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/_docs_chrome_extension_exists",
+      "kind": "structural",
+      "desc": "calls window._docs_chrome_extension_exists",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window._docs_chrome_extension_exists"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::alarms-clipboardread-clipboardwrite-storage-unlimitedstorage-offscreen-split",
+      "kind": "structural",
+      "desc": "calls \"alarms clipboardRead clipboardWrite storage unlimitedStorage offscreen\".split",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "\"alarms clipboardRead clipboardWrite storage unlimitedStorage offscreen\".split"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/_docs_chrome_extension_manifest_version",
+      "kind": "structural",
+      "desc": "calls window._docs_chrome_extension_manifest_version",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window._docs_chrome_extension_manifest_version"
+        }
+      ]
+    }
+  ]
+}

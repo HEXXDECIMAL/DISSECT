@@ -1,0 +1,398 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/toggle-site-in-list.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "462ec0bb265f212b10cb99c9f2ac2b0bb3d87af42bc82cfc600a096cb38bf42b",
+  "size": 1247,
+  "risk": "notable",
+  "counts": {
+    "notable": 2
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/vscode::activate-word",
+      "kind": "capability",
+      "desc": "activate keyword",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "deactivatedSites",
+          "location": "0x18b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "deactivatedSites",
+          "location": "0x18c"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "deactivatedSites.isHostDeactivated"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "deactivatedSites.toggle"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/vscode/malicious.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "toggle-site-in-list.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::geturlhost",
+      "kind": "structural",
+      "desc": "calls getUrlHost",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getUrlHost"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::deactivatedsites/ishostdeactivated",
+      "kind": "structural",
+      "desc": "calls deactivatedSites.isHostDeactivated",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "deactivatedSites.isHostDeactivated"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::updateicon",
+      "kind": "structural",
+      "desc": "calls updateIcon",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "updateIcon"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::cookiebannersallowedsites/toggle",
+      "kind": "structural",
+      "desc": "calls cookieBannersAllowedSites.toggle",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "cookieBannersAllowedSites.toggle"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pagedatacomponent/refreshbulk",
+      "kind": "structural",
+      "desc": "calls pageDataComponent.refreshBulk",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pageDataComponent.refreshBulk"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tabids/foreach",
+      "kind": "structural",
+      "desc": "calls tabIds.forEach",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tabIds.forEach"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tabs",
+      "kind": "structural",
+      "desc": "calls tabs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tabs"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sendmessage",
+      "kind": "structural",
+      "desc": "calls sendMessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sendMessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/all",
+      "kind": "structural",
+      "desc": "calls Promise.all",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.all"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::inlist",
+      "kind": "structural",
+      "desc": "calls inList",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "inList"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::hosts/includes",
+      "kind": "structural",
+      "desc": "calls hosts.includes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hosts.includes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::hosts/map",
+      "kind": "structural",
+      "desc": "calls hosts.map",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hosts.map"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::popupshownotificationlist/removevaluebyhost",
+      "kind": "structural",
+      "desc": "calls popupShowNotificationList.removeValueByHost",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "popupShowNotificationList.removeValueByHost"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tabs/filter",
+      "kind": "structural",
+      "desc": "calls tabs.filter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tabs.filter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::serverlogger/logwhitelistchange",
+      "kind": "structural",
+      "desc": "calls serverLogger.logWhitelistChange",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "serverLogger.logWhitelistChange"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tabids",
+      "kind": "structural",
+      "desc": "calls tabIds",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tabIds"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::querytabs",
+      "kind": "structural",
+      "desc": "calls queryTabs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "queryTabs"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::cookiebannersallowedsites/isallowed",
+      "kind": "structural",
+      "desc": "calls cookieBannersAllowedSites.isAllowed",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "cookieBannersAllowedSites.isAllowed"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::inwhitelist",
+      "kind": "structural",
+      "desc": "calls inWhiteList",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "inWhiteList"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::popupallowedsites/toggle",
+      "kind": "structural",
+      "desc": "calls popupAllowedSites.toggle",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "popupAllowedSites.toggle"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::deactivatedsites/toggle",
+      "kind": "structural",
+      "desc": "calls deactivatedSites.toggle",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "deactivatedSites.toggle"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tabs/filter/map/filter",
+      "kind": "structural",
+      "desc": "calls tabs.filter.map.filter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tabs.filter.map.filter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tabs/filter/map",
+      "kind": "structural",
+      "desc": "calls tabs.filter.map",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tabs.filter.map"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::contextmenus/update",
+      "kind": "structural",
+      "desc": "calls contextMenus.update",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "contextMenus.update"
+        }
+      ]
+    }
+  ]
+}

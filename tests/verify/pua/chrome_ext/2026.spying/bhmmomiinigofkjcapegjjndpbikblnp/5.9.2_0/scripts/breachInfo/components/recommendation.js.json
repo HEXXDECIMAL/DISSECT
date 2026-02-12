@@ -1,0 +1,178 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bhmmomiinigofkjcapegjjndpbikblnp/5.9.2_0/scripts/breachInfo/components/recommendation.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "2d01c328e9ee8d6b5d0421600c65651be9f12717a9b50e9dac1aa903bb13490b",
+  "size": 821,
+  "risk": "notable",
+  "counts": {
+    "notable": 3
+  },
+  "findings": [
+    {
+      "id": "cap/data/text/keywords::password",
+      "kind": "capability",
+      "desc": "password keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "changePassword",
+          "location": "0x84"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "changePassword",
+          "location": "0x85"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "changePasswordText",
+          "location": "0x9b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "changePasswordText",
+          "location": "0x9c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "change-password",
+          "location": "0xb5"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "change-password",
+          "location": "0xb6"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "recommendation.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
+      "kind": "capability",
+      "desc": "Code uses frontend framework patterns",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "React.createElement"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::react/createelement",
+      "kind": "structural",
+      "desc": "calls React.createElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "React.createElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::translate",
+      "kind": "structural",
+      "desc": "calls translate",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "translate"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::recommendation",
+      "kind": "structural",
+      "desc": "calls Recommendation",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Recommendation"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::recommendationsmeta",
+      "kind": "structural",
+      "desc": "calls recommendationsMeta",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "recommendationsMeta"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::recommendationsmeta/map",
+      "kind": "structural",
+      "desc": "calls recommendationsMeta.map",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "recommendationsMeta.map"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,416 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/content/custom-scripts/dependencies/override-json.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "4952a3174c362fc38cac4f8838970425c574bd540917def3d25fcc4b123b32b6",
+  "size": 1072,
+  "risk": "notable",
+  "counts": {
+    "notable": 6
+  },
+  "findings": [
+    {
+      "id": "cap/data/encoding/charset::json-parse-js",
+      "kind": "capability",
+      "desc": "JavaScript JSON.parse",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.parse"
+        }
+      ],
+      "source_file": "cap/data/encoding/charset/traits.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "kind": "capability",
+      "desc": "for loop (AST)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "9:5"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/encoding/charset::proto-extension",
+      "kind": "capability",
+      "desc": ".proto file extension",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Response.prototype.json"
+        }
+      ],
+      "source_file": "cap/data/encoding/charset/traits.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "meta/quality/error-handling::catch-keyword",
+      "kind": "capability",
+      "desc": "catch keyword",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "catch"
+        }
+      ],
+      "source_file": "meta/quality/error-handling/traits.yaml"
+    },
+    {
+      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "kind": "capability",
+      "desc": "Prototype pollution guard check present",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2 prototype",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/exploitation/memory/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "override-json.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/strings::few-strings",
+      "kind": "capability",
+      "desc": "Very few string literals (string",
+      "conf": 0.4,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "strings.total = 4.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/strings/traits.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "kind": "capability",
+      "desc": "Iteration or loop pattern",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "9:5"
+        },
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/encoding/charset::json",
+      "kind": "capability",
+      "desc": "JSON serialization libraries",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.parse"
+        }
+      ],
+      "source_file": "cap/data/encoding/charset/traits.yaml"
+    },
+    {
+      "id": "cap/data/encoding/charset::protobuf",
+      "kind": "capability",
+      "desc": "Google Protocol Buffers",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Response.prototype.json"
+        }
+      ],
+      "source_file": "cap/data/encoding/charset/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::promise/then/catch",
+      "kind": "structural",
+      "desc": "calls promise.then.catch",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "promise.then.catch"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::obj",
+      "kind": "structural",
+      "desc": "calls obj",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "obj"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::json/parse",
+      "kind": "structural",
+      "desc": "calls JSON.parse",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "JSON.parse"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::overridden",
+      "kind": "structural",
+      "desc": "calls overridden",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "overridden"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::nativejsonparse/apply",
+      "kind": "structural",
+      "desc": "calls nativeJSONParse.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "nativeJSONParse.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise",
+      "kind": "structural",
+      "desc": "calls promise",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "promise"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::obj/key",
+      "kind": "structural",
+      "desc": "calls obj.key",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "obj.key"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/then",
+      "kind": "structural",
+      "desc": "calls promise.then",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "promise.then"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reflect/apply",
+      "kind": "structural",
+      "desc": "calls Reflect.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Reflect.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::response/prototype/json",
+      "kind": "structural",
+      "desc": "calls Response.prototype.json",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Response.prototype.json"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::nativeresponsejson",
+      "kind": "structural",
+      "desc": "calls nativeResponseJson",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "nativeResponseJson"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::obj/hasownproperty",
+      "kind": "structural",
+      "desc": "calls obj.hasOwnProperty",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "obj.hasOwnProperty"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::overrideobject",
+      "kind": "structural",
+      "desc": "calls overrideObject",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "overrideObject"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::nativejsonparse",
+      "kind": "structural",
+      "desc": "calls nativeJSONParse",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "nativeJSONParse"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::resolve",
+      "kind": "structural",
+      "desc": "calls resolve",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "resolve"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reject",
+      "kind": "structural",
+      "desc": "calls reject",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "reject"
+        }
+      ]
+    }
+  ]
+}

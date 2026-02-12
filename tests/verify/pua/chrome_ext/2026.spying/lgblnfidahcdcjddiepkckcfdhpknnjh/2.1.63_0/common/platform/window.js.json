@@ -1,0 +1,44 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/common/platform/window.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "3a1ca745097d5cbe0e71e3c8ea42dee8dcf67e8fcd802bf9e7ee550df705ea99",
+  "size": 187,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "window.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::browser/webnavigation/getallframes",
+      "kind": "structural",
+      "desc": "calls browser.webNavigation.getAllFrames",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.webNavigation.getAllFrames"
+        }
+      ]
+    }
+  ]
+}

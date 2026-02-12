@@ -1,0 +1,5205 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/dnclkkkjlabdgfdjngdkaebpaahnohoo/3.22.1_0/document-start.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "c45aa061182b21be4d2b260fa9d5f99161241792f01337fc21eb93e9959ad36d",
+  "size": 26035,
+  "risk": "notable",
+  "counts": {
+    "notable": 43
+  },
+  "findings": [
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-symbol",
+      "kind": "capability",
+      "desc": "for loop (symbol)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "s.Symbol.iterator",
+          "location": "import"
+        },
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.Symbol.iterator",
+          "location": "import"
+        },
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.Symbol.iterator",
+          "location": "import"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/text/keywords::token",
+      "kind": "capability",
+      "desc": "token keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "TOKEN",
+          "location": "0x3e7"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "TOKEN",
+          "location": "0x3e8"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "TOKEN"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "kind": "capability",
+      "desc": "for loop (AST)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:7552"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:7929"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:7986"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:8116"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:8262"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:8622"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:8917"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:9111"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:9152"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:9681"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:10769"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:11808"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:12302"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:12484"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:12574"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:12640"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:12675"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:12789"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:14567"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:25376"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/text/keywords::runtime",
+      "kind": "capability",
+      "desc": "runtime keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "r.default.runtime.onMessage.addListener"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime.sendMessage"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "cap/data/encoding/charset::proto-extension",
+      "kind": "capability",
+      "desc": ".proto file extension",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Array.prototype.slice.call"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "e.prototype"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.prototype.propertyIsEnumerable.call"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.prototype.hasOwnProperty.call"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "t.prototype"
+        }
+      ],
+      "source_file": "cap/data/encoding/charset/traits.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 16 {for(",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/testing::should-word",
+      "kind": "capability",
+      "desc": "should keyword",
+      "conf": 0.6,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "should",
+          "location": "0x3dd1"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "should",
+          "location": "0x3dd2"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
+      "kind": "capability",
+      "desc": "setTimeout with code execution",
+      "conf": 0.75,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 setTimeout(()=>{",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/malicious-patterns::auto-execute",
+      "kind": "capability",
+      "desc": "Code auto-executes on require/import",
+      "conf": 0.8,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "yara",
+          "source": "yara-x",
+          "value": "(()",
+          "location": "offset:0"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::chrome-namespace",
+      "kind": "capability",
+      "desc": "Uses chrome.* namespace",
+      "conf": 0.95,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::object-keys-call",
+      "kind": "capability",
+      "desc": "Object.keys call",
+      "conf": 0.5,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::href-assignment",
+      "kind": "capability",
+      "desc": "Link href modification",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 .href=",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::chrome-runtime",
+      "kind": "capability",
+      "desc": "chrome.runtime API usage",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime.sendMessage"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+    },
+    {
+      "id": "meta/quality/error-handling::catch-keyword",
+      "kind": "capability",
+      "desc": "catch keyword",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "catch"
+        }
+      ],
+      "source_file": "meta/quality/error-handling/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
+      "kind": "capability",
+      "desc": "No comments in code (stripped",
+      "conf": 0.6,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "cap/exec/eval/dynamic::iife-pattern",
+      "kind": "capability",
+      "desc": "Immediately invoked function expression",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 7 (function(r){",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/exec/eval/dynamic/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-function-density",
+      "kind": "capability",
+      "desc": "High function density (>20 functions",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.density_per_100_lines = 16000.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-long-lines",
+      "kind": "capability",
+      "desc": "Very long lines (>1000 chars)",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 26034.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/bundlers::typescript-compiled",
+      "kind": "capability",
+      "desc": "Code compiled from TypeScript",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x41"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x42"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0xf6"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0xf7"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x191b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x191c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x1a08"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x1a09"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x6431"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x6432"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/bundlers/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/minifier::esmodule-export",
+      "kind": "capability",
+      "desc": "__esModule property",
+      "conf": 0.6,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x41"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x42"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0xf6"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0xf7"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x191b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x191c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x1a08"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x1a09"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x6431"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x6432"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/minifier/traits.yaml"
+    },
+    {
+      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "kind": "capability",
+      "desc": "Prototype pollution guard check present",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 21 constructor",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/exploitation/memory/generic.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
+      "kind": "capability",
+      "desc": "Many anonymous functions",
+      "conf": 0.75,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.anonymous = 56.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::onMessage",
+      "kind": "capability",
+      "desc": "chrome.runtime.onMessage listener",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Failed to send onMessage rejected reply",
+          "location": "0x5e64"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Failed to send onMessage rejected reply",
+          "location": "0x5e65"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "r.default.runtime.onMessage.addListener"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "kind": "capability",
+      "desc": "Webpack/bundler minified output pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 26034.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+    },
+    {
+      "id": "cap/exec/eval/dynamic::variable-immediate-call",
+      "kind": "capability",
+      "desc": "Variable called immediately as function",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2 var r=function(t,n){",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/exec/eval/dynamic/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
+      "kind": "capability",
+      "desc": "Many one-liner functions (minified code",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 160.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics::js-deep-callback-nesting",
+      "kind": "capability",
+      "desc": "Deep function nesting (callback hell",
+      "conf": 0.75,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.max_nesting_depth = 7.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+    },
+    {
+      "id": "obj/c2/reverse-shell/pty::raw-mode",
+      "kind": "capability",
+      "desc": "raw mode reference",
+      "conf": 0.4,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "raw",
+          "location": "0x3814"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "raw",
+          "location": "0x3815"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "raw"
+        }
+      ],
+      "source_file": "obj/c2/reverse-shell/pty/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::high-text-entropy",
+      "kind": "capability",
+      "desc": "High overall text entropy (encoded",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.char_entropy = 5.70"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
+      "kind": "capability",
+      "desc": "Sequential identifiers (a, b, c,",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 52.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::single-char-function-names",
+      "kind": "capability",
+      "desc": "Functions with single-character names",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.single_char_names = 89.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.02"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::deep-nesting",
+      "kind": "capability",
+      "desc": "Deeply nested functions (complexity indicator)",
+      "conf": 0.75,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.max_nesting_depth = 7.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/vscode::exec-pattern",
+      "kind": "capability",
+      "desc": "exec function pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "exec",
+          "location": "0x29ed"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "exec",
+          "location": "0x29ee"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/vscode/malicious.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/minifier::object-define-property",
+      "kind": "capability",
+      "desc": "Object.defineProperty call",
+      "conf": 0.6,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.defineProperty"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/minifier/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/language-features::has-symbols",
+      "kind": "capability",
+      "desc": "Code uses Symbol for private",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Symbol.iterator",
+          "location": "0x2f7a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Symbol.iterator",
+          "location": "0x2f7b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Symbol.asyncIterator",
+          "location": "0x330b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Symbol.asyncIterator",
+          "location": "0x330c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Symbol.asyncIterator",
+          "location": "0x362f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Symbol.asyncIterator",
+          "location": "0x3630"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Symbol.iterator"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Symbol.asyncIterator"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Symbol.asyncIterator"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Symbol.iterator"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Symbol.iterator"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/language-features/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::runtime-send-message",
+      "kind": "capability",
+      "desc": "Sends message between extension contexts",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "(()=>{var rr={95887:(g,m)=>{\"use strict\";Object.defineProperty(m,\"__esModule\",{value:!0});function u...",
+          "location": "1:1"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "chrome.runtime.sendMessage({message:P,type:r})",
+          "location": "1:6737"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::sendMessage",
+      "kind": "capability",
+      "desc": "chrome.runtime.sendMessage",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 chrome.runtime.sendMessage",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::excessive-single-char-vars",
+      "kind": "capability",
+      "desc": "Excessive single-character variable names (>30%)",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.single_char_ratio = 0.72"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::low-identifier-reuse",
+      "kind": "capability",
+      "desc": "Low identifier reuse (each variable",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.reuse_ratio = 0.04"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "cap/exec/eval/dynamic::bracket-function-access",
+      "kind": "capability",
+      "desc": "Function access via bracket notation",
+      "conf": 0.65,
+      "crit": "notable",
+      "attack": "T1027.002",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 7 _[R](",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/exec/eval/dynamic/javascript.yaml"
+    },
+    {
+      "id": "obj/c2/reverse-shell/pty::terminal-setup",
+      "kind": "capability",
+      "desc": "Terminal setup markers",
+      "conf": 0.4,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "raw",
+          "location": "0x3814"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "raw",
+          "location": "0x3815"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "raw"
+        }
+      ],
+      "source_file": "obj/c2/reverse-shell/pty/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::is-extension",
+      "kind": "capability",
+      "desc": "File is part of a browser extension",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::object-serialization",
+      "kind": "capability",
+      "desc": "Object serialization methods",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "kind": "capability",
+      "desc": "Iteration or loop pattern",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:7552"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:7929"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:7986"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:8116"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:8262"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:8622"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:8917"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:9111"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:9152"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:9681"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:10769"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:11808"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:12302"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:12484"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:12574"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:12640"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:12675"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:12789"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:14567"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:25376"
+        },
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 16 {for(",
+          "location": "file"
+        },
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "s.Symbol.iterator",
+          "location": "import"
+        },
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.Symbol.iterator",
+          "location": "import"
+        },
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.Symbol.iterator",
+          "location": "import"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::chrome-extension-context",
+      "kind": "capability",
+      "desc": "Chrome extension API context",
+      "conf": 0.95,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime.sendMessage"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/code-quality::terser-minifier-helpers",
+      "kind": "capability",
+      "desc": "Minifier helper patterns",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x41"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x42"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0xf6"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0xf7"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x191b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x191c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x1a08"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x1a09"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x6431"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x6432"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.defineProperty"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/code-quality/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::generated-code",
+      "kind": "capability",
+      "desc": "Machine-generated or transformed code",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 52.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.single_char_ratio = 0.72"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.reuse_ratio = 0.04"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.single_char_names = 89.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/testing::mocha-assertions-or-hooks",
+      "kind": "capability",
+      "desc": "Mocha assertions or hooks",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "should",
+          "location": "0x3dd1"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "should",
+          "location": "0x3dd2"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics::minification-pattern",
+      "kind": "capability",
+      "desc": "Code appears minified by webpack/uglify/terser",
+      "conf": 0.8,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 26034.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.single_char_names = 89.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/minified-vs-obfuscated.yaml"
+    },
+    {
+      "id": "cap/data/encoding/charset::protobuf",
+      "kind": "capability",
+      "desc": "Google Protocol Buffers",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Array.prototype.slice.call"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "e.prototype"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.prototype.propertyIsEnumerable.call"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.prototype.hasOwnProperty.call"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "t.prototype"
+        }
+      ],
+      "source_file": "cap/data/encoding/charset/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "kind": "capability",
+      "desc": "Minified/compressed code (multiple indicators)",
+      "conf": 0.9,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.02"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.density_per_100_lines = 16000.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 160.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 52.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/testing::test-fixtures",
+      "kind": "capability",
+      "desc": "Test fixture or mock data",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x41"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x42"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0xf6"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0xf7"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x191b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x191c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x1a08"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x1a09"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x6431"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x6432"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.defineProperty"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/testing::testing-library-methods",
+      "kind": "capability",
+      "desc": "Testing Library methods",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x41"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x42"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0xf6"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0xf7"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x191b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x191c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x1a08"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x1a09"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x6431"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x6432"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.defineProperty"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/testing::testing-library",
+      "kind": "capability",
+      "desc": "Testing Library patterns",
+      "conf": 0.95,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x41"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x42"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0xf6"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0xf7"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x191b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x191c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x1a08"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x1a09"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x6431"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x6432"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.defineProperty"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::r/get_info_user",
+      "kind": "structural",
+      "desc": "calls r.GET_INFO_USER",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.GET_INFO_USER"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/redirect_to",
+      "kind": "structural",
+      "desc": "calls r.REDIRECT_TO",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.REDIRECT_TO"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/has",
+      "kind": "structural",
+      "desc": "calls n.has",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.has"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::x/o",
+      "kind": "structural",
+      "desc": "calls x.o",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "x.o"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/set_toggle_editorpick_best_deals",
+      "kind": "structural",
+      "desc": "calls r.SET_TOGGLE_EDITORPICK_BEST_DEALS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SET_TOGGLE_EDITORPICK_BEST_DEALS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/end_process_identifier_empty_cart",
+      "kind": "structural",
+      "desc": "calls r.END_PROCESS_IDENTIFIER_EMPTY_CART",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.END_PROCESS_IDENTIFIER_EMPTY_CART"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/price_alert_delete",
+      "kind": "structural",
+      "desc": "calls r.PRICE_ALERT_DELETE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.PRICE_ALERT_DELETE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/set_incognito",
+      "kind": "structural",
+      "desc": "calls r.SET_INCOGNITO",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SET_INCOGNITO"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/attribution_tracker_event",
+      "kind": "structural",
+      "desc": "calls r.ATTRIBUTION_TRACKER_EVENT",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.ATTRIBUTION_TRACKER_EVENT"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reflect/decorate",
+      "kind": "structural",
+      "desc": "calls Reflect.decorate",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Reflect.decorate"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/google_offers",
+      "kind": "structural",
+      "desc": "calls r.GOOGLE_OFFERS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.GOOGLE_OFFERS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/messagetype",
+      "kind": "structural",
+      "desc": "calls m.MessageType",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m.MessageType"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::a/call",
+      "kind": "structural",
+      "desc": "calls A.call",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "A.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::call",
+      "kind": "structural",
+      "desc": "calls .call",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": ".call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/open_full_global_template",
+      "kind": "structural",
+      "desc": "calls r.OPEN_FULL_GLOBAL_TEMPLATE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.OPEN_FULL_GLOBAL_TEMPLATE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/google_paa",
+      "kind": "structural",
+      "desc": "calls r.GOOGLE_PAA",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.GOOGLE_PAA"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/call",
+      "kind": "structural",
+      "desc": "calls n.call",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/get_main_site_cookie",
+      "kind": "structural",
+      "desc": "calls r.GET_MAIN_SITE_COOKIE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.GET_MAIN_SITE_COOKIE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rr/g/call",
+      "kind": "structural",
+      "desc": "calls rr.g.call",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rr.g.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/youtube_items",
+      "kind": "structural",
+      "desc": "calls r.YOUTUBE_ITEMS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.YOUTUBE_ITEMS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::c/call",
+      "kind": "structural",
+      "desc": "calls c.call",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "c.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/get_filtered_best_deails",
+      "kind": "structural",
+      "desc": "calls r.GET_FILTERED_BEST_DEAILS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.GET_FILTERED_BEST_DEAILS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/get_seller_hotlink",
+      "kind": "structural",
+      "desc": "calls r.GET_SELLER_HOTLINK",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.GET_SELLER_HOTLINK"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/concat",
+      "kind": "structural",
+      "desc": "calls t.concat",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.concat"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/tracking_background",
+      "kind": "structural",
+      "desc": "calls r.TRACKING_BACKGROUND",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.TRACKING_BACKGROUND"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/get_all_notifications_user",
+      "kind": "structural",
+      "desc": "calls r.GET_ALL_NOTIFICATIONS_USER",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.GET_ALL_NOTIFICATIONS_USER"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/get_modal_cashback_disabled",
+      "kind": "structural",
+      "desc": "calls r.GET_MODAL_CASHBACK_DISABLED",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.GET_MODAL_CASHBACK_DISABLED"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/_",
+      "kind": "structural",
+      "desc": "calls t._",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t._"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/get_price_history",
+      "kind": "structural",
+      "desc": "calls r.GET_PRICE_HISTORY",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.GET_PRICE_HISTORY"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/show_outseller_nps",
+      "kind": "structural",
+      "desc": "calls r.SHOW_OUTSELLER_NPS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SHOW_OUTSELLER_NPS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/gray_icon_popup",
+      "kind": "structural",
+      "desc": "calls r.GRAY_ICON_POPUP",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.GRAY_ICON_POPUP"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/product_by_moid",
+      "kind": "structural",
+      "desc": "calls r.PRODUCT_BY_MOID",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.PRODUCT_BY_MOID"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/set_filtered_best_deails",
+      "kind": "structural",
+      "desc": "calls r.SET_FILTERED_BEST_DEAILS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SET_FILTERED_BEST_DEAILS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/product_not_found",
+      "kind": "structural",
+      "desc": "calls r.PRODUCT_NOT_FOUND",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.PRODUCT_NOT_FOUND"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/getownpropertydescriptor",
+      "kind": "structural",
+      "desc": "calls Object.getOwnPropertyDescriptor",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.getOwnPropertyDescriptor"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::i/l",
+      "kind": "structural",
+      "desc": "calls i.l",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "i.l"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/action_after_created_alert_page_saveds",
+      "kind": "structural",
+      "desc": "calls r.ACTION_AFTER_CREATED_ALERT_PAGE_SAVEDS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.ACTION_AFTER_CREATED_ALERT_PAGE_SAVEDS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/set_icon_cashback_deactive",
+      "kind": "structural",
+      "desc": "calls r.SET_ICON_CASHBACK_DEACTIVE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SET_ICON_CASHBACK_DEACTIVE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/google_hot_links",
+      "kind": "structural",
+      "desc": "calls r.GOOGLE_HOT_LINKS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.GOOGLE_HOT_LINKS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/set_see_more_filter_order",
+      "kind": "structural",
+      "desc": "calls r.SET_SEE_MORE_FILTER_ORDER",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SET_SEE_MORE_FILTER_ORDER"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/sendmessagebackground",
+      "kind": "structural",
+      "desc": "calls m.sendMessageBackground",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m.sendMessageBackground"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/deactive_cashback_controls",
+      "kind": "structural",
+      "desc": "calls r.DEACTIVE_CASHBACK_CONTROLS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.DEACTIVE_CASHBACK_CONTROLS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/_/e",
+      "kind": "structural",
+      "desc": "calls e._.E",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e._.E"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::s/symbol/iterator",
+      "kind": "structural",
+      "desc": "calls s.Symbol.iterator",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "s.Symbol.iterator"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/value",
+      "kind": "structural",
+      "desc": "calls E.value",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "E.value"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/auth_bearer_token",
+      "kind": "structural",
+      "desc": "calls r.AUTH_BEARER_TOKEN",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.AUTH_BEARER_TOKEN"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/check_user_logged",
+      "kind": "structural",
+      "desc": "calls r.CHECK_USER_LOGGED",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.CHECK_USER_LOGGED"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/user_reded_notification",
+      "kind": "structural",
+      "desc": "calls r.USER_REDED_NOTIFICATION",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.USER_REDED_NOTIFICATION"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/show_modal_cashback_cart_full_background",
+      "kind": "structural",
+      "desc": "calls r.SHOW_MODAL_CASHBACK_CART_FULL_BACKGROUND",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SHOW_MODAL_CASHBACK_CART_FULL_BACKGROUND"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tr",
+      "kind": "structural",
+      "desc": "calls tr",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tr"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/symbol/asynciterator",
+      "kind": "structural",
+      "desc": "calls e.Symbol.asyncIterator",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.Symbol.asyncIterator"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/price_alert_update",
+      "kind": "structural",
+      "desc": "calls r.PRICE_ALERT_UPDATE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.PRICE_ALERT_UPDATE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/get_stamps",
+      "kind": "structural",
+      "desc": "calls r.GET_STAMPS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.GET_STAMPS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/saved_product",
+      "kind": "structural",
+      "desc": "calls r.SAVED_PRODUCT",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SAVED_PRODUCT"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/get_suggestion_alert_by_product_id",
+      "kind": "structural",
+      "desc": "calls r.GET_SUGGESTION_ALERT_BY_PRODUCT_ID",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.GET_SUGGESTION_ALERT_BY_PRODUCT_ID"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/google_show_case",
+      "kind": "structural",
+      "desc": "calls r.GOOGLE_SHOW_CASE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.GOOGLE_SHOW_CASE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::cleartimeout",
+      "kind": "structural",
+      "desc": "calls clearTimeout",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "clearTimeout"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/ops/pop",
+      "kind": "structural",
+      "desc": "calls e.ops.pop",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.ops.pop"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/cashback_activate_url",
+      "kind": "structural",
+      "desc": "calls r.CASHBACK_ACTIVATE_URL",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.CASHBACK_ACTIVATE_URL"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/bind",
+      "kind": "structural",
+      "desc": "calls t.bind",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.bind"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::d/exports",
+      "kind": "structural",
+      "desc": "calls d.exports",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "d.exports"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::array/prototype/slice/call",
+      "kind": "structural",
+      "desc": "calls Array.prototype.slice.call",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Array.prototype.slice.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/click_link_page_you",
+      "kind": "structural",
+      "desc": "calls r.CLICK_LINK_PAGE_YOU",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.CLICK_LINK_PAGE_YOU"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/search_get_suggestions_by_term",
+      "kind": "structural",
+      "desc": "calls r.SEARCH_GET_SUGGESTIONS_BY_TERM",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SEARCH_GET_SUGGESTIONS_BY_TERM"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/page_view_event",
+      "kind": "structural",
+      "desc": "calls r.PAGE_VIEW_EVENT",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.PAGE_VIEW_EVENT"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::o/get",
+      "kind": "structural",
+      "desc": "calls O.get",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "O.get"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/product_page_event",
+      "kind": "structural",
+      "desc": "calls r.PRODUCT_PAGE_EVENT",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.PRODUCT_PAGE_EVENT"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/set_product_by_id",
+      "kind": "structural",
+      "desc": "calls r.SET_PRODUCT_BY_ID",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SET_PRODUCT_BY_ID"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/product_entity",
+      "kind": "structural",
+      "desc": "calls r.PRODUCT_ENTITY",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.PRODUCT_ENTITY"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/click_event",
+      "kind": "structural",
+      "desc": "calls r.CLICK_EVENT",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.CLICK_EVENT"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/saved_product_delete",
+      "kind": "structural",
+      "desc": "calls r.SAVED_PRODUCT_DELETE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SAVED_PRODUCT_DELETE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/get_filter_order",
+      "kind": "structural",
+      "desc": "calls r.GET_FILTER_ORDER",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.GET_FILTER_ORDER"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/search_set_data_response_items_by_term",
+      "kind": "structural",
+      "desc": "calls r.SEARCH_SET_DATA_RESPONSE_ITEMS_BY_TERM",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SEARCH_SET_DATA_RESPONSE_ITEMS_BY_TERM"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/a",
+      "kind": "structural",
+      "desc": "calls t.A",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.A"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/modal_order_popup",
+      "kind": "structural",
+      "desc": "calls r.MODAL_ORDER_POPUP",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.MODAL_ORDER_POPUP"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/default",
+      "kind": "structural",
+      "desc": "calls m.default",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m.default"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::u/apply",
+      "kind": "structural",
+      "desc": "calls u.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "u.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/getprototypeof",
+      "kind": "structural",
+      "desc": "calls Object.getPrototypeOf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.getPrototypeOf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/check_cashback_is_activate",
+      "kind": "structural",
+      "desc": "calls r.CHECK_CASHBACK_IS_ACTIVATE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.CHECK_CASHBACK_IS_ACTIVATE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::next",
+      "kind": "structural",
+      "desc": "calls .next",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": ".next"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/set",
+      "kind": "structural",
+      "desc": "calls n.set",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.set"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::k/sendlink",
+      "kind": "structural",
+      "desc": "calls K.sendLink",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "K.sendLink"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/set_filter_order",
+      "kind": "structural",
+      "desc": "calls r.SET_FILTER_ORDER",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SET_FILTER_ORDER"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/set_badge_coupons",
+      "kind": "structural",
+      "desc": "calls r.SET_BADGE_COUPONS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SET_BADGE_COUPONS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/send_event_purchase",
+      "kind": "structural",
+      "desc": "calls r.SEND_EVENT_PURCHASE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SEND_EVENT_PURCHASE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/getownpropertysymbols",
+      "kind": "structural",
+      "desc": "calls Object.getOwnPropertySymbols",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.getOwnPropertySymbols"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/extension_event",
+      "kind": "structural",
+      "desc": "calls r.EXTENSION_EVENT",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.EXTENSION_EVENT"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/prototype",
+      "kind": "structural",
+      "desc": "calls e.prototype",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.prototype"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::array",
+      "kind": "structural",
+      "desc": "calls Array",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Array"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/set_loading",
+      "kind": "structural",
+      "desc": "calls r.SET_LOADING",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SET_LOADING"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/click_banner_nps",
+      "kind": "structural",
+      "desc": "calls r.CLICK_BANNER_NPS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.CLICK_BANNER_NPS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/send_google_event",
+      "kind": "structural",
+      "desc": "calls r.SEND_GOOGLE_EVENT",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SEND_GOOGLE_EVENT"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::o/fallbacktonocallback",
+      "kind": "structural",
+      "desc": "calls o.fallbackToNoCallback",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "o.fallbackToNoCallback"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::o/addlistener",
+      "kind": "structural",
+      "desc": "calls o.addListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "o.addListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/origin_lead_from_comparator",
+      "kind": "structural",
+      "desc": "calls r.ORIGIN_LEAD_FROM_COMPARATOR",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.ORIGIN_LEAD_FROM_COMPARATOR"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/a",
+      "kind": "structural",
+      "desc": "calls e.A",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.A"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::a/push",
+      "kind": "structural",
+      "desc": "calls A.push",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "A.push"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/prototype/propertyisenumerable/call",
+      "kind": "structural",
+      "desc": "calls Object.prototype.propertyIsEnumerable.call",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.prototype.propertyIsEnumerable.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::throw",
+      "kind": "structural",
+      "desc": "calls .throw",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": ".throw"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/l",
+      "kind": "structural",
+      "desc": "calls T.l",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "T.l"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/symbol/iterator",
+      "kind": "structural",
+      "desc": "calls t.Symbol.iterator",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.Symbol.iterator"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/start_process_identifier_empty_cart",
+      "kind": "structural",
+      "desc": "calls r.START_PROCESS_IDENTIFIER_EMPTY_CART",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.START_PROCESS_IDENTIFIER_EMPTY_CART"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/saved_product_create",
+      "kind": "structural",
+      "desc": "calls r.SAVED_PRODUCT_CREATE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SAVED_PRODUCT_CREATE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::u/addinitializer",
+      "kind": "structural",
+      "desc": "calls U.addInitializer",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "U.addInitializer"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/resolve",
+      "kind": "structural",
+      "desc": "calls Promise.resolve",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.resolve"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::o/removelistener",
+      "kind": "structural",
+      "desc": "calls o.removeListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "o.removeListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/tracking_event",
+      "kind": "structural",
+      "desc": "calls r.TRACKING_EVENT",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.TRACKING_EVENT"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/e",
+      "kind": "structural",
+      "desc": "calls n.E",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.E"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::c/sendmessage",
+      "kind": "structural",
+      "desc": "calls c.sendMessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "c.sendMessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::settimeout",
+      "kind": "structural",
+      "desc": "calls setTimeout",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setTimeout"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::console/error",
+      "kind": "structural",
+      "desc": "calls console.error",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "console.error"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/overlay_behind",
+      "kind": "structural",
+      "desc": "calls r.OVERLAY_BEHIND",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.OVERLAY_BEHIND"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reflect/defineproperty",
+      "kind": "structural",
+      "desc": "calls Reflect.defineProperty",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Reflect.defineProperty"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::q/bind",
+      "kind": "structural",
+      "desc": "calls Q.bind",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Q.bind"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/action_after_create_error_alert_page_saveds",
+      "kind": "structural",
+      "desc": "calls r.ACTION_AFTER_CREATE_ERROR_ALERT_PAGE_SAVEDS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.ACTION_AFTER_CREATE_ERROR_ALERT_PAGE_SAVEDS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/_",
+      "kind": "structural",
+      "desc": "calls e._",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e._"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::i/get",
+      "kind": "structural",
+      "desc": "calls i.get",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "i.get"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/default/runtime/onmessage/addlistener",
+      "kind": "structural",
+      "desc": "calls r.default.runtime.onMessage.addListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.default.runtime.onMessage.addListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/pre_loader_global_template",
+      "kind": "structural",
+      "desc": "calls r.PRE_LOADER_GLOBAL_TEMPLATE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.PRE_LOADER_GLOBAL_TEMPLATE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/order_event",
+      "kind": "structural",
+      "desc": "calls r.ORDER_EVENT",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.ORDER_EVENT"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/set_suggestion_alert",
+      "kind": "structural",
+      "desc": "calls r.SET_SUGGESTION_ALERT",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SET_SUGGESTION_ALERT"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/user_notifications",
+      "kind": "structural",
+      "desc": "calls r.USER_NOTIFICATIONS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.USER_NOTIFICATIONS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/location/href",
+      "kind": "structural",
+      "desc": "calls window.location.href",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.location.href"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/click_icon",
+      "kind": "structural",
+      "desc": "calls r.CLICK_ICON",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.CLICK_ICON"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/startup_extension",
+      "kind": "structural",
+      "desc": "calls r.STARTUP_EXTENSION",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.STARTUP_EXTENSION"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/receive_price_history",
+      "kind": "structural",
+      "desc": "calls r.RECEIVE_PRICE_HISTORY",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.RECEIVE_PRICE_HISTORY"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/defineproperty",
+      "kind": "structural",
+      "desc": "calls Object.defineProperty",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.defineProperty"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::o/nocallback",
+      "kind": "structural",
+      "desc": "calls o.noCallback",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "o.noCallback"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/get_all_alerts_price",
+      "kind": "structural",
+      "desc": "calls r.GET_ALL_ALERTS_PRICE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.GET_ALL_ALERTS_PRICE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/show_modal_cashback_cart_full",
+      "kind": "structural",
+      "desc": "calls r.SHOW_MODAL_CASHBACK_CART_FULL",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SHOW_MODAL_CASHBACK_CART_FULL"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/content_script",
+      "kind": "structural",
+      "desc": "calls r.CONTENT_SCRIPT",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.CONTENT_SCRIPT"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/youtube_page",
+      "kind": "structural",
+      "desc": "calls r.YOUTUBE_PAGE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.YOUTUBE_PAGE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::i/reject",
+      "kind": "structural",
+      "desc": "calls i.reject",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "i.reject"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/then/catch",
+      "kind": "structural",
+      "desc": "calls e.then.catch",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.then.catch"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/set_icon_cashback_active",
+      "kind": "structural",
+      "desc": "calls r.SET_ICON_CASHBACK_ACTIVE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SET_ICON_CASHBACK_ACTIVE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::string",
+      "kind": "structural",
+      "desc": "calls String",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "String"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/prototype/hasownproperty/call",
+      "kind": "structural",
+      "desc": "calls Object.prototype.hasOwnProperty.call",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.prototype.hasOwnProperty.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/document_start",
+      "kind": "structural",
+      "desc": "calls r.DOCUMENT_START",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.DOCUMENT_START"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/alert_icon_animation",
+      "kind": "structural",
+      "desc": "calls r.ALERT_ICON_ANIMATION",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.ALERT_ICON_ANIMATION"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::a/_",
+      "kind": "structural",
+      "desc": "calls A._",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "A._"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::u/v",
+      "kind": "structural",
+      "desc": "calls U.v",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "U.v"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/handle_interaction_popup",
+      "kind": "structural",
+      "desc": "calls r.HANDLE_INTERACTION_POPUP",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.HANDLE_INTERACTION_POPUP"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/__proto__",
+      "kind": "structural",
+      "desc": "calls e.__proto__",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.__proto__"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::g/exports",
+      "kind": "structural",
+      "desc": "calls g.exports",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "g.exports"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/push",
+      "kind": "structural",
+      "desc": "calls T.push",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "T.push"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/filter_out_seller_event",
+      "kind": "structural",
+      "desc": "calls r.FILTER_OUT_SELLER_EVENT",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.FILTER_OUT_SELLER_EVENT"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::concat",
+      "kind": "structural",
+      "desc": "calls \"[\".concat",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "\"[\".concat"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/set_toast",
+      "kind": "structural",
+      "desc": "calls r.SET_TOAST",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SET_TOAST"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/check_cookie_status",
+      "kind": "structural",
+      "desc": "calls r.CHECK_COOKIE_STATUS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.CHECK_COOKIE_STATUS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/set_list_alerts",
+      "kind": "structural",
+      "desc": "calls r.SET_LIST_ALERTS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SET_LIST_ALERTS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/show_modal_cashback_cart_empty",
+      "kind": "structural",
+      "desc": "calls r.SHOW_MODAL_CASHBACK_CART_EMPTY",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SHOW_MODAL_CASHBACK_CART_EMPTY"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/startup_extension_phase_1",
+      "kind": "structural",
+      "desc": "calls r.STARTUP_EXTENSION_PHASE_1",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.STARTUP_EXTENSION_PHASE_1"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/open_popup",
+      "kind": "structural",
+      "desc": "calls r.OPEN_POPUP",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.OPEN_POPUP"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/seller",
+      "kind": "structural",
+      "desc": "calls r.SELLER",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SELLER"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/install_update_event",
+      "kind": "structural",
+      "desc": "calls r.INSTALL_UPDATE_EVENT",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.INSTALL_UPDATE_EVENT"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/global_template_module",
+      "kind": "structural",
+      "desc": "calls r.GLOBAL_TEMPLATE_MODULE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.GLOBAL_TEMPLATE_MODULE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/e",
+      "kind": "structural",
+      "desc": "calls e.E",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.E"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/ops/push",
+      "kind": "structural",
+      "desc": "calls e.ops.push",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.ops.push"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/sellers_cashback",
+      "kind": "structural",
+      "desc": "calls r.SELLERS_CASHBACK",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SELLERS_CASHBACK"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/get_products_sale",
+      "kind": "structural",
+      "desc": "calls r.GET_PRODUCTS_SALE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.GET_PRODUCTS_SALE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/get_modal_price_tip",
+      "kind": "structural",
+      "desc": "calls r.GET_MODAL_PRICE_TIP",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.GET_MODAL_PRICE_TIP"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/show_popup_cashback_active",
+      "kind": "structural",
+      "desc": "calls r.SHOW_POPUP_CASHBACK_ACTIVE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SHOW_POPUP_CASHBACK_ACTIVE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/show_banner_prod",
+      "kind": "structural",
+      "desc": "calls r.SHOW_BANNER_PROD",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SHOW_BANNER_PROD"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/symbol/iterator",
+      "kind": "structural",
+      "desc": "calls n.Symbol.iterator",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.Symbol.iterator"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::z/bind",
+      "kind": "structural",
+      "desc": "calls z.bind",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "z.bind"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::u/d",
+      "kind": "structural",
+      "desc": "calls u.d",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "u.d"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/google_page",
+      "kind": "structural",
+      "desc": "calls r.GOOGLE_PAGE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.GOOGLE_PAGE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/get_user_history_saved_products",
+      "kind": "structural",
+      "desc": "calls r.GET_USER_HISTORY_SAVED_PRODUCTS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.GET_USER_HISTORY_SAVED_PRODUCTS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::o/d",
+      "kind": "structural",
+      "desc": "calls O.D",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "O.D"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/r",
+      "kind": "structural",
+      "desc": "calls E.R",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "E.R"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/create",
+      "kind": "structural",
+      "desc": "calls Object.create",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.create"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/i",
+      "kind": "structural",
+      "desc": "calls T.i",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "T.i"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::function/call/bind",
+      "kind": "structural",
+      "desc": "calls Function.call.bind",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Function.call.bind"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/push",
+      "kind": "structural",
+      "desc": "calls E.push",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "E.push"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/prototype",
+      "kind": "structural",
+      "desc": "calls t.prototype",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.prototype"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/search_set_suggestions_by_term",
+      "kind": "structural",
+      "desc": "calls r.SEARCH_SET_SUGGESTIONS_BY_TERM",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SEARCH_SET_SUGGESTIONS_BY_TERM"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/default",
+      "kind": "structural",
+      "desc": "calls t.default",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.default"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reflect/deleteproperty",
+      "kind": "structural",
+      "desc": "calls Reflect.deleteProperty",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Reflect.deleteProperty"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/check_cookie",
+      "kind": "structural",
+      "desc": "calls r.CHECK_COOKIE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.CHECK_COOKIE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/price_alert_create",
+      "kind": "structural",
+      "desc": "calls r.PRICE_ALERT_CREATE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.PRICE_ALERT_CREATE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/show_global_template",
+      "kind": "structural",
+      "desc": "calls r.SHOW_GLOBAL_TEMPLATE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SHOW_GLOBAL_TEMPLATE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/remove_overlay_behind",
+      "kind": "structural",
+      "desc": "calls r.REMOVE_OVERLAY_BEHIND",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.REMOVE_OVERLAY_BEHIND"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/set_products_sale",
+      "kind": "structural",
+      "desc": "calls r.SET_PRODUCTS_SALE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SET_PRODUCTS_SALE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/keys",
+      "kind": "structural",
+      "desc": "calls Object.keys",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.keys"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::o/haslistener",
+      "kind": "structural",
+      "desc": "calls o.hasListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "o.hasListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/set_user_history_saved_products",
+      "kind": "structural",
+      "desc": "calls r.SET_USER_HISTORY_SAVED_PRODUCTS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SET_USER_HISTORY_SAVED_PRODUCTS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/set_incognito_popup",
+      "kind": "structural",
+      "desc": "calls r.SET_INCOGNITO_POPUP",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SET_INCOGNITO_POPUP"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e",
+      "kind": "structural",
+      "desc": "calls .E",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": ".E"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/price_alert_created",
+      "kind": "structural",
+      "desc": "calls r.PRICE_ALERT_CREATED",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.PRICE_ALERT_CREATED"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::i/resolve",
+      "kind": "structural",
+      "desc": "calls i.resolve",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "i.resolve"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::x/d",
+      "kind": "structural",
+      "desc": "calls x.d",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "x.d"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/configuration",
+      "kind": "structural",
+      "desc": "calls r.CONFIGURATION",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.CONFIGURATION"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/label",
+      "kind": "structural",
+      "desc": "calls e.label",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.label"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/flash_icon_popup",
+      "kind": "structural",
+      "desc": "calls r.FLASH_ICON_POPUP",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.FLASH_ICON_POPUP"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::v/privacy",
+      "kind": "structural",
+      "desc": "calls V.privacy",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "V.privacy"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/set_cashback_order_popup",
+      "kind": "structural",
+      "desc": "calls r.SET_CASHBACK_ORDER_POPUP",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SET_CASHBACK_ORDER_POPUP"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/resolve/then",
+      "kind": "structural",
+      "desc": "calls Promise.resolve.then",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.resolve.then"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/search_white_list",
+      "kind": "structural",
+      "desc": "calls r.SEARCH_WHITE_LIST",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SEARCH_WHITE_LIST"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/get_product_by_id",
+      "kind": "structural",
+      "desc": "calls r.GET_PRODUCT_BY_ID",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.GET_PRODUCT_BY_ID"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/cashback_activated",
+      "kind": "structural",
+      "desc": "calls r.CASHBACK_ACTIVATED",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.CASHBACK_ACTIVATED"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/then",
+      "kind": "structural",
+      "desc": "calls E.then",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "E.then"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/set_value_shopping_cart",
+      "kind": "structural",
+      "desc": "calls r.SET_VALUE_SHOPPING_CART",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SET_VALUE_SHOPPING_CART"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::apply",
+      "kind": "structural",
+      "desc": "calls .apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": ".apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/search_set_white_list",
+      "kind": "structural",
+      "desc": "calls r.SEARCH_SET_WHITE_LIST",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SEARCH_SET_WHITE_LIST"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/price_alert_deleted",
+      "kind": "structural",
+      "desc": "calls r.PRICE_ALERT_DELETED",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.PRICE_ALERT_DELETED"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/g",
+      "kind": "structural",
+      "desc": "calls M.g",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "M.g"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/send_event_ga4",
+      "kind": "structural",
+      "desc": "calls r.SEND_EVENT_GA4",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SEND_EVENT_GA4"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/trys/pop",
+      "kind": "structural",
+      "desc": "calls e.trys.pop",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.trys.pop"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/has",
+      "kind": "structural",
+      "desc": "calls t.has",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.has"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/google_items",
+      "kind": "structural",
+      "desc": "calls r.GOOGLE_ITEMS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.GOOGLE_ITEMS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/send_configuration",
+      "kind": "structural",
+      "desc": "calls r.SEND_CONFIGURATION",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SEND_CONFIGURATION"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/call",
+      "kind": "structural",
+      "desc": "calls E.call",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "E.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::o/set",
+      "kind": "structural",
+      "desc": "calls O.set",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "O.set"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::a/shift",
+      "kind": "structural",
+      "desc": "calls A.shift",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "A.shift"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/get",
+      "kind": "structural",
+      "desc": "calls n.get",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.get"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/raw",
+      "kind": "structural",
+      "desc": "calls t.raw",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.raw"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r",
+      "kind": "structural",
+      "desc": "calls .R",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": ".R"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/reject",
+      "kind": "structural",
+      "desc": "calls Promise.reject",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.reject"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/apply",
+      "kind": "structural",
+      "desc": "calls e.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/send_sellers_cashback",
+      "kind": "structural",
+      "desc": "calls r.SEND_SELLERS_CASHBACK",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SEND_SELLERS_CASHBACK"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/get_value_shopping_cart",
+      "kind": "structural",
+      "desc": "calls r.GET_VALUE_SHOPPING_CART",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.GET_VALUE_SHOPPING_CART"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/set_opened_badge",
+      "kind": "structural",
+      "desc": "calls r.SET_OPENED_BADGE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SET_OPENED_BADGE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/e/call",
+      "kind": "structural",
+      "desc": "calls n.E.call",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.E.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/a",
+      "kind": "structural",
+      "desc": "calls n.A",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.A"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/search_get_items_by_term",
+      "kind": "structural",
+      "desc": "calls r.SEARCH_GET_ITEMS_BY_TERM",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SEARCH_GET_ITEMS_BY_TERM"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/show_youpage_nps",
+      "kind": "structural",
+      "desc": "calls r.SHOW_YOUPAGE_NPS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SHOW_YOUPAGE_NPS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rr",
+      "kind": "structural",
+      "desc": "calls rr",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rr"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/price_alert_updated",
+      "kind": "structural",
+      "desc": "calls r.PRICE_ALERT_UPDATED",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.PRICE_ALERT_UPDATED"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/set_opened_extension",
+      "kind": "structural",
+      "desc": "calls r.SET_OPENED_EXTENSION",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SET_OPENED_EXTENSION"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/receive_main_site_cookie",
+      "kind": "structural",
+      "desc": "calls r.RECEIVE_MAIN_SITE_COOKIE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.RECEIVE_MAIN_SITE_COOKIE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/indexof",
+      "kind": "structural",
+      "desc": "calls n.indexOf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.indexOf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::d/apply",
+      "kind": "structural",
+      "desc": "calls d.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "d.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::console/warn",
+      "kind": "structural",
+      "desc": "calls console.warn",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "console.warn"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/e",
+      "kind": "structural",
+      "desc": "calls t.E",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.E"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/visited_another_comparator",
+      "kind": "structural",
+      "desc": "calls r.VISITED_ANOTHER_COMPARATOR",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.VISITED_ANOTHER_COMPARATOR"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/process_identifier_empty_cart",
+      "kind": "structural",
+      "desc": "calls r.PROCESS_IDENTIFIER_EMPTY_CART",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.PROCESS_IDENTIFIER_EMPTY_CART"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/click_banner_prod",
+      "kind": "structural",
+      "desc": "calls r.CLICK_BANNER_PROD",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.CLICK_BANNER_PROD"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/set_modal_cashback_disabled",
+      "kind": "structural",
+      "desc": "calls r.SET_MODAL_CASHBACK_DISABLED",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SET_MODAL_CASHBACK_DISABLED"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::chrome/runtime/sendmessage",
+      "kind": "structural",
+      "desc": "calls chrome.runtime.sendMessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "chrome.runtime.sendMessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reflect/metadata",
+      "kind": "structural",
+      "desc": "calls Reflect.metadata",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Reflect.metadata"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/set_stamps",
+      "kind": "structural",
+      "desc": "calls r.SET_STAMPS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.SET_STAMPS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/cart_event",
+      "kind": "structural",
+      "desc": "calls r.CART_EVENT",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.CART_EVENT"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/youtube_offers",
+      "kind": "structural",
+      "desc": "calls r.YOUTUBE_OFFERS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.YOUTUBE_OFFERS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::u/r",
+      "kind": "structural",
+      "desc": "calls u.r",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "u.r"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::u/access/v",
+      "kind": "structural",
+      "desc": "calls U.access.v",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "U.access.v"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/content_script_all",
+      "kind": "structural",
+      "desc": "calls r.CONTENT_SCRIPT_ALL",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.CONTENT_SCRIPT_ALL"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/user_logged",
+      "kind": "structural",
+      "desc": "calls r.USER_LOGGED",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.USER_LOGGED"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::x/r",
+      "kind": "structural",
+      "desc": "calls x.r",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "x.r"
+        }
+      ]
+    }
+  ]
+}

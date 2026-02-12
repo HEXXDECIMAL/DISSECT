@@ -1,0 +1,100 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/messages/count-blocked-elements.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "4ed70a78bd1223ec6f31641b3ba000325edb3a3983da42504735df7e91cc3241",
+  "size": 322,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "count-blocked-elements.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::data",
+      "kind": "structural",
+      "desc": "calls data",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sendmessage",
+      "kind": "structural",
+      "desc": "calls sendMessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sendMessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::activetabid",
+      "kind": "structural",
+      "desc": "calls activeTabId",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "activeTabId"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getactivetabid",
+      "kind": "structural",
+      "desc": "calls getActiveTabId",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getActiveTabId"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::customcssrules/countrulesontab",
+      "kind": "structural",
+      "desc": "calls customCssRules.countRulesOnTab",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "customCssRules.countRulesOnTab"
+        }
+      ]
+    }
+  ]
+}

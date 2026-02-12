@@ -635,6 +635,11 @@ fn r2_to_stng(r2_strings: Vec<R2String>, min_length: usize) -> Vec<ExtractedStri
             kind: StringKind::Const,
             library: None,
             fragments: None,
+            architecture: None,
+            function_meta: None,
+            section_executable: None,
+            section_writable: None,
+            section_size: None,
         })
         .collect()
 }

@@ -1,0 +1,559 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/listeners.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "6287803090dacdb09b772da41941193e825d5aaac0a3a27ce040f250f2bf3653",
+  "size": 1305,
+  "risk": "notable",
+  "counts": {
+    "notable": 8
+  },
+  "findings": [
+    {
+      "id": "cap/data/text/keywords::runtime",
+      "kind": "capability",
+      "desc": "runtime keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "browser.runtime.onInstalled.addListener"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "browser.runtime.onMessage.addListener"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::browser-namespace",
+      "kind": "capability",
+      "desc": "Uses browser.* namespace (Firefox/WebExtension)",
+      "conf": 0.95,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "browser.tabs"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "browser.tabs"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "browser.runtime"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "browser.runtime"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "browser.tabs"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/tracking::affiliate-domain-pattern",
+      "kind": "capability",
+      "desc": "Affiliate tracking domain",
+      "conf": 0.75,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Click.bind"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Click.bind"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/tracking/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "listeners.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::onMessage",
+      "kind": "capability",
+      "desc": "chrome.runtime.onMessage listener",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "browser.runtime.onMessage.addListener"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::runtime-on-installed",
+      "kind": "capability",
+      "desc": "Listens for extension install event",
+      "conf": 0.95,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "browser.runtime.onInstalled.addListener(onInstalled)",
+          "location": "6:5"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::onInstalled",
+      "kind": "capability",
+      "desc": "chrome.runtime.onInstalled listener",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "browser.runtime.onInstalled.addListener"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.09"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::is-extension",
+      "kind": "capability",
+      "desc": "File is part of a browser extension",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "browser.tabs"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "browser.tabs"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "browser.runtime"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "browser.runtime"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "browser.tabs"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "browser.runtime.onInstalled.addListener(onInstalled)",
+          "location": "6:5"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "meta/internal/imported::browser/contextmenus/onclicked/addlistener",
+      "kind": "structural",
+      "desc": "calls browser.contextMenus.onClicked.addListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.contextMenus.onClicked.addListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tab/onupdated/bind",
+      "kind": "structural",
+      "desc": "calls tab.onUpdated.bind",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tab.onUpdated.bind"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/webnavigation/oncommitted/addlistener",
+      "kind": "structural",
+      "desc": "calls browser.webNavigation.onCommitted.addListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.webNavigation.onCommitted.addListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/notifications/onclosed/addlistener",
+      "kind": "structural",
+      "desc": "calls browser.notifications.onClosed.addListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.notifications.onClosed.addListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::serverlogger/logerror",
+      "kind": "structural",
+      "desc": "calls serverLogger.logError",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "serverLogger.logError"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/webnavigation/oncreatednavigationtarget/addlistener",
+      "kind": "structural",
+      "desc": "calls browser.webNavigation.onCreatedNavigationTarget.addListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.webNavigation.onCreatedNavigationTarget.addListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/tabs/onactivated/addlistener",
+      "kind": "structural",
+      "desc": "calls browser.tabs.onActivated.addListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.tabs.onActivated.addListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tab/settarget/bind",
+      "kind": "structural",
+      "desc": "calls tab.setTarget.bind",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tab.setTarget.bind"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tab/settransitions/bind",
+      "kind": "structural",
+      "desc": "calls tab.setTransitions.bind",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tab.setTransitions.bind"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::notifications/onclosed/bind",
+      "kind": "structural",
+      "desc": "calls notifications.onClosed.bind",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "notifications.onClosed.bind"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/tabs/onremoved/addlistener",
+      "kind": "structural",
+      "desc": "calls browser.tabs.onRemoved.addListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.tabs.onRemoved.addListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::messageprocessor/sendmessage/bind",
+      "kind": "structural",
+      "desc": "calls messageProcessor.sendMessage.bind",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "messageProcessor.sendMessage.bind"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/runtime/oninstalled/addlistener",
+      "kind": "structural",
+      "desc": "calls browser.runtime.onInstalled.addListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.runtime.onInstalled.addListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/windows/onfocuschanged/addlistener",
+      "kind": "structural",
+      "desc": "calls browser.windows.onFocusChanged.addListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.windows.onFocusChanged.addListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tab/onremoved/bind",
+      "kind": "structural",
+      "desc": "calls tab.onRemoved.bind",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tab.onRemoved.bind"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/notifications/onbuttonclicked/addlistener",
+      "kind": "structural",
+      "desc": "calls browser.notifications.onButtonClicked.addListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.notifications.onButtonClicked.addListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::contextmenus/onclick/bind",
+      "kind": "structural",
+      "desc": "calls contextMenus.onClick.bind",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "contextMenus.onClick.bind"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/notifications/onclicked/addlistener",
+      "kind": "structural",
+      "desc": "calls browser.notifications.onClicked.addListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.notifications.onClicked.addListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/runtime/onmessage/addlistener",
+      "kind": "structural",
+      "desc": "calls browser.runtime.onMessage.addListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.runtime.onMessage.addListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/tabs/onupdated/addlistener",
+      "kind": "structural",
+      "desc": "calls browser.tabs.onUpdated.addListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.tabs.onUpdated.addListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tab/onwindowfocuschanged/bind",
+      "kind": "structural",
+      "desc": "calls tab.onWindowFocusChanged.bind",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tab.onWindowFocusChanged.bind"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/alarms/onalarm/addlistener",
+      "kind": "structural",
+      "desc": "calls browser.alarms.onAlarm.addListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.alarms.onAlarm.addListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::notifications/onclick/bind",
+      "kind": "structural",
+      "desc": "calls notifications.onClick.bind",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "notifications.onClick.bind"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::jobrunner/onalarm/bind",
+      "kind": "structural",
+      "desc": "calls jobRunner.onAlarm.bind",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "jobRunner.onAlarm.bind"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tab/onactivated/bind",
+      "kind": "structural",
+      "desc": "calls tab.onActivated.bind",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tab.onActivated.bind"
+        }
+      ]
+    }
+  ]
+}

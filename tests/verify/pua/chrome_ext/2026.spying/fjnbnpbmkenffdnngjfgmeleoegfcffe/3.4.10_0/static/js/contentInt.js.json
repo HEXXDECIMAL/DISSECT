@@ -1,0 +1,1399 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/fjnbnpbmkenffdnngjfgmeleoegfcffe/3.4.10_0/static/js/contentInt.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "8880a79b5ceb03ea47e9e76192798bcfae603182109b7feb3953b19dd25dd5e4",
+  "size": 5813,
+  "risk": "suspicious",
+  "counts": {
+    "suspicious": 2,
+    "notable": 21
+  },
+  "findings": [
+    {
+      "id": "cap/data/encoding/charset::json-parse-js",
+      "kind": "capability",
+      "desc": "JavaScript JSON.parse",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.parse"
+        }
+      ],
+      "source_file": "cap/data/encoding/charset/traits.yaml"
+    },
+    {
+      "id": "cap/data/encoding/charset::json-stringify-js",
+      "kind": "capability",
+      "desc": "JavaScript JSON.stringify",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.stringify"
+        }
+      ],
+      "source_file": "cap/data/encoding/charset/traits.yaml"
+    },
+    {
+      "id": "cap/data/text/keywords::buffer",
+      "kind": "capability",
+      "desc": "buffer keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "n.buffer"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "kind": "capability",
+      "desc": "for loop (AST)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:2019"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:2393"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:4754"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:5145"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/comm/http/websocket::websocket-class",
+      "kind": "capability",
+      "desc": "WebSocket class reference",
+      "conf": 0.5,
+      "crit": "inert",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "window.WebSocket"
+        }
+      ],
+      "source_file": "cap/comm/http/websocket/generic.yaml"
+    },
+    {
+      "id": "cap/data/text/keywords::payload",
+      "kind": "capability",
+      "desc": "payload keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "intercepted_payload_",
+          "location": "0xb32"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "intercepted_payload_",
+          "location": "0xb33"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "cap/comm/http/lib/nsurlsession::content-type-json",
+      "kind": "capability",
+      "desc": "Content-Type JSON header",
+      "conf": 0.6,
+      "crit": "inert",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Content-Type",
+          "location": "0x4fe"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Content-Type",
+          "location": "0x4ff"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Content-Type",
+          "location": "0x11a0"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Content-Type",
+          "location": "0x11a1"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Content-Type",
+          "location": "0x11be"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Content-Type",
+          "location": "0x11bf"
+        }
+      ],
+      "source_file": "cap/comm/http/lib/nsurlsession/traits.yaml"
+    },
+    {
+      "id": "cap/data/encoding/charset::proto-extension",
+      "kind": "capability",
+      "desc": ".proto file extension",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "a.prototype"
+        }
+      ],
+      "source_file": "cap/data/encoding/charset/traits.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 4 {for(",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
+      "kind": "capability",
+      "desc": "No comments in code (stripped",
+      "conf": 0.6,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "cap/exec/eval/dynamic::iife-pattern",
+      "kind": "capability",
+      "desc": "Immediately invoked function expression",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2 (function(e){",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/exec/eval/dynamic/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-function-density",
+      "kind": "capability",
+      "desc": "High function density (>20 functions",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.density_per_100_lines = 2700.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-long-lines",
+      "kind": "capability",
+      "desc": "Very long lines (>1000 chars)",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 5813.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "kind": "capability",
+      "desc": "Prototype pollution guard check present",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 3 prototype",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/exploitation/memory/generic.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
+      "kind": "capability",
+      "desc": "Many anonymous functions",
+      "conf": 0.75,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.anonymous = 13.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::json-stringify-call",
+      "kind": "capability",
+      "desc": "JSON.stringify call",
+      "conf": 0.5,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.stringify"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "kind": "capability",
+      "desc": "Webpack/bundler minified output pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 5813.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
+      "kind": "capability",
+      "desc": "Many one-liner functions (minified code",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 27.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/c2/reverse-shell/pty::websocket-ref",
+      "kind": "capability",
+      "desc": "WebSocket reference",
+      "conf": 0.4,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "window.WebSocket"
+        }
+      ],
+      "source_file": "obj/c2/reverse-shell/pty/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
+      "kind": "capability",
+      "desc": "Sequential identifiers (a, b, c,",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 13.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "cap/exec/vm/sandbox::base64-long-string",
+      "kind": "capability",
+      "desc": "Long base64-like string pattern",
+      "conf": 0.4,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "qj1c5c26605l149d4g4g12ab7m78465n165b3a802e2h722n145c8c3g1j71",
+          "location": "0x15"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "qj1c5c26605l149d4g4g12ab7m78465n165b3a802e2h722n145c8c3g1j71",
+          "location": "0x16"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "kd1c5f2b528ba81e1e9n366e348ha5391m26ac4b4n5h70926h4n3m9j8d2m",
+          "location": "0x355"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "kd1c5f2b528ba81e1e9n366e348ha5391m26ac4b4n5h70926h4n3m9j8d2m",
+          "location": "0x356"
+        }
+      ],
+      "source_file": "cap/exec/vm/sandbox/node.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.02"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::excessive-single-char-vars",
+      "kind": "capability",
+      "desc": "Excessive single-character variable names (>30%)",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.single_char_ratio = 0.34"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::low-identifier-reuse",
+      "kind": "capability",
+      "desc": "Low identifier reuse (each variable",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.reuse_ratio = 0.08"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::object-serialization",
+      "kind": "capability",
+      "desc": "Object serialization methods",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.stringify"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "kind": "capability",
+      "desc": "Iteration or loop pattern",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:2019"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:2393"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:4754"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:5145"
+        },
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 4 {for(",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/comm/http/websocket::websocket",
+      "kind": "capability",
+      "desc": "WebSocket communication",
+      "conf": 0.66,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "window.WebSocket"
+        }
+      ],
+      "source_file": "cap/comm/http/websocket/generic.yaml"
+    },
+    {
+      "id": "cap/data/encoding/charset::json",
+      "kind": "capability",
+      "desc": "JSON serialization libraries",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.parse"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.stringify"
+        }
+      ],
+      "source_file": "cap/data/encoding/charset/traits.yaml"
+    },
+    {
+      "id": "obj/c2/reverse-shell/pty::node-socket",
+      "kind": "capability",
+      "desc": "Node.js socket connection",
+      "conf": 0.6,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "window.WebSocket"
+        }
+      ],
+      "source_file": "obj/c2/reverse-shell/pty/traits.yaml"
+    },
+    {
+      "id": "cap/data/encoding/charset::protobuf",
+      "kind": "capability",
+      "desc": "Google Protocol Buffers",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "a.prototype"
+        }
+      ],
+      "source_file": "cap/data/encoding/charset/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "kind": "capability",
+      "desc": "Minified/compressed code (multiple indicators)",
+      "conf": 0.9,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.02"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.density_per_100_lines = 2700.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 27.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 13.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::e/_metadata",
+      "kind": "structural",
+      "desc": "calls e._metadata",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e._metadata"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::clearinterval",
+      "kind": "structural",
+      "desc": "calls clearInterval",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "clearInterval"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::a/find",
+      "kind": "structural",
+      "desc": "calls a.find",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "a.find"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/apply",
+      "kind": "structural",
+      "desc": "calls n.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/fetch",
+      "kind": "structural",
+      "desc": "calls window.fetch",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.fetch"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/headers/get",
+      "kind": "structural",
+      "desc": "calls n.headers.get",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.headers.get"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/find",
+      "kind": "structural",
+      "desc": "calls t.find",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.find"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/open",
+      "kind": "structural",
+      "desc": "calls e.open",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.open"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/status",
+      "kind": "structural",
+      "desc": "calls n.status",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.status"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::a/hasownproperty",
+      "kind": "structural",
+      "desc": "calls a.hasOwnProperty",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "a.hasOwnProperty"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::o/addeventlistener",
+      "kind": "structural",
+      "desc": "calls o.addEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "o.addEventListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/decode",
+      "kind": "structural",
+      "desc": "calls t.decode",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.decode"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::settimeout",
+      "kind": "structural",
+      "desc": "calls setTimeout",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setTimeout"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::url/createobjecturl",
+      "kind": "structural",
+      "desc": "calls URL.createObjectURL",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "URL.createObjectURL"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/s",
+      "kind": "structural",
+      "desc": "calls r.s",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.s"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::localstorage/getitem",
+      "kind": "structural",
+      "desc": "calls localStorage.getItem",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "localStorage.getItem"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/apply",
+      "kind": "structural",
+      "desc": "calls e.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/p",
+      "kind": "structural",
+      "desc": "calls r.p",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.p"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::a/list/foreach",
+      "kind": "structural",
+      "desc": "calls a.list.forEach",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "a.list.forEach"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::a/prototype",
+      "kind": "structural",
+      "desc": "calls a.prototype",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "a.prototype"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::setinterval",
+      "kind": "structural",
+      "desc": "calls setInterval",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setInterval"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::o/headers/get",
+      "kind": "structural",
+      "desc": "calls o.headers.get",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "o.headers.get"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/websocket",
+      "kind": "structural",
+      "desc": "calls window.WebSocket",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.WebSocket"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::json/stringify",
+      "kind": "structural",
+      "desc": "calls JSON.stringify",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "JSON.stringify"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::json/parse",
+      "kind": "structural",
+      "desc": "calls JSON.parse",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "JSON.parse"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parseint",
+      "kind": "structural",
+      "desc": "calls parseInt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "parseInt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/read",
+      "kind": "structural",
+      "desc": "calls e.read",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.read"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::i/includes",
+      "kind": "structural",
+      "desc": "calls i.includes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "i.includes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/assign",
+      "kind": "structural",
+      "desc": "calls Object.assign",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.assign"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/match",
+      "kind": "structural",
+      "desc": "calls e.match",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.match"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/send",
+      "kind": "structural",
+      "desc": "calls e.send",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.send"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/buffer",
+      "kind": "structural",
+      "desc": "calls n.buffer",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.buffer"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/apply",
+      "kind": "structural",
+      "desc": "calls t.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/list/foreach",
+      "kind": "structural",
+      "desc": "calls t.list.forEach",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.list.forEach"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::self/addeventlistener",
+      "kind": "structural",
+      "desc": "calls self.addEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "self.addEventListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::date/now",
+      "kind": "structural",
+      "desc": "calls Date.now",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Date.now"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::self/dispatchevent",
+      "kind": "structural",
+      "desc": "calls self.dispatchEvent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "self.dispatchEvent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::o/clone",
+      "kind": "structural",
+      "desc": "calls o.clone",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "o.clone"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::a/push",
+      "kind": "structural",
+      "desc": "calls a.push",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "a.push"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/push",
+      "kind": "structural",
+      "desc": "calls t.push",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.push"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/headers/get",
+      "kind": "structural",
+      "desc": "calls t.headers.get",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.headers.get"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::c/text",
+      "kind": "structural",
+      "desc": "calls c.text",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "c.text"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/test",
+      "kind": "structural",
+      "desc": "calls e.test",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.test"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::f/url",
+      "kind": "structural",
+      "desc": "calls f.url",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "f.url"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::c/body/getreader",
+      "kind": "structural",
+      "desc": "calls c.body.getReader",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "c.body.getReader"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::i/_metadata",
+      "kind": "structural",
+      "desc": "calls i._metadata",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "i._metadata"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::array/isarray",
+      "kind": "structural",
+      "desc": "calls Array.isArray",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Array.isArray"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/body/tee",
+      "kind": "structural",
+      "desc": "calls t.body.tee",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.body.tee"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/body/tee",
+      "kind": "structural",
+      "desc": "calls n.body.tee",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.body.tee"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/readresult",
+      "kind": "structural",
+      "desc": "calls n.readResult",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.readResult"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::f/opts",
+      "kind": "structural",
+      "desc": "calls f.opts",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "f.opts"
+        }
+      ]
+    },
+    {
+      "id": "meta/encoded-payload/base64",
+      "kind": "structural",
+      "desc": "Encoded payload detected: base64",
+      "conf": 0.9,
+      "crit": "suspicious",
+      "evidence": [
+        {
+          "method": "pattern",
+          "source": "dissect",
+          "value": "encoding=base64, type=Unknown, preview=<binary data>",
+          "location": "offset:22"
+        }
+      ]
+    },
+    {
+      "id": "meta/encoded-payload/base64",
+      "kind": "structural",
+      "desc": "Encoded payload detected: base64",
+      "conf": 0.9,
+      "crit": "suspicious",
+      "evidence": [
+        {
+          "method": "pattern",
+          "source": "dissect",
+          "value": "encoding=base64, type=Unknown, preview=<binary data>",
+          "location": "offset:854"
+        }
+      ]
+    }
+  ]
+}

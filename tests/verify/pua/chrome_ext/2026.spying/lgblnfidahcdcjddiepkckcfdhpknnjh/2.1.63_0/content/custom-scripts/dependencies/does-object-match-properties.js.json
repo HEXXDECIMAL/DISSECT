@@ -1,0 +1,276 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/content/custom-scripts/dependencies/does-object-match-properties.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "3774ad1a4dad9d5718facb00fffcea6ce568d57751e78d1ea7a2170f1153c415",
+  "size": 1048,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "kind": "capability",
+      "desc": "for loop (AST)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "7:7"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "19:3"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "25:3"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 3  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "does-object-match-properties.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "kind": "capability",
+      "desc": "Iteration or loop pattern",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "7:7"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "19:3"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "25:3"
+        },
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 3  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "meta/internal/imported::props",
+      "kind": "structural",
+      "desc": "calls props",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "props"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::propneedles/keys",
+      "kind": "structural",
+      "desc": "calls propNeedles.keys",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "propNeedles.keys"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::value",
+      "kind": "structural",
+      "desc": "calls value",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "value"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/json_stringify",
+      "kind": "structural",
+      "desc": "calls safe.JSON_stringify",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.JSON_stringify"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/testpattern",
+      "kind": "structural",
+      "desc": "calls safe.testPattern",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.testPattern"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::self",
+      "kind": "structural",
+      "desc": "calls self",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "self"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe",
+      "kind": "structural",
+      "desc": "calls safe",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/array_from",
+      "kind": "structural",
+      "desc": "calls safe.Array_from",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.Array_from"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::des/p",
+      "kind": "structural",
+      "desc": "calls des.p",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "des.p"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safeself",
+      "kind": "structural",
+      "desc": "calls safeSelf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeSelf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::haystack",
+      "kind": "structural",
+      "desc": "calls haystack",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "haystack"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::self/extractproperties",
+      "kind": "structural",
+      "desc": "calls self.extractProperties",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "self.extractProperties"
+        }
+      ]
+    }
+  ]
+}

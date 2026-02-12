@@ -1,0 +1,491 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bkkbcggnhapdmkeljlodobbkopceiche/7.9.5_0/manifest.json",
+  "depth": 0,
+  "file_type": "chrome-manifest",
+  "sha256": "64f6e5c7aec7fa9bf200690a9e27c5532edcab82f445f01ceb1183b5f6772a7a",
+  "size": 3061,
+  "risk": "suspicious",
+  "counts": {
+    "suspicious": 10,
+    "notable": 17
+  },
+  "findings": [
+    {
+      "id": "supply-chain/chrome-ext/manifest-v3",
+      "kind": "indicator",
+      "desc": "Uses Manifest V3",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "parser",
+          "source": "manifest.json",
+          "value": "manifest_version: 3",
+          "location": "manifest_version"
+        }
+      ]
+    },
+    {
+      "id": "supply-chain/chrome-ext/permission-medium/activeTab",
+      "kind": "indicator",
+      "desc": "Permission 'activeTab': Can access current tab on user action",
+      "conf": 0.95,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "parser",
+          "source": "manifest.json",
+          "value": "activeTab",
+          "location": "permissions"
+        }
+      ]
+    },
+    {
+      "id": "supply-chain/chrome-ext/permission-high/webRequest",
+      "kind": "indicator",
+      "desc": "Permission 'webRequest': Can intercept all web requests",
+      "conf": 0.95,
+      "crit": "suspicious",
+      "evidence": [
+        {
+          "method": "parser",
+          "source": "manifest.json",
+          "value": "webRequest",
+          "location": "permissions"
+        }
+      ]
+    },
+    {
+      "id": "supply-chain/chrome-ext/permission-high/webNavigation",
+      "kind": "indicator",
+      "desc": "Permission 'webNavigation': Can observe navigation events",
+      "conf": 0.95,
+      "crit": "suspicious",
+      "evidence": [
+        {
+          "method": "parser",
+          "source": "manifest.json",
+          "value": "webNavigation",
+          "location": "permissions"
+        }
+      ]
+    },
+    {
+      "id": "supply-chain/chrome-ext/host-all-urls",
+      "kind": "indicator",
+      "desc": "Extension has access to ALL websites",
+      "conf": 0.95,
+      "crit": "suspicious",
+      "attack": "T1185",
+      "evidence": [
+        {
+          "method": "parser",
+          "source": "manifest.json",
+          "value": "<all_urls>",
+          "location": "host_permissions"
+        }
+      ]
+    },
+    {
+      "id": "supply-chain/chrome-ext/content-script-all-frames",
+      "kind": "indicator",
+      "desc": "Content script runs in all frames including iframes",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "parser",
+          "source": "manifest.json",
+          "value": "all_frames: true",
+          "location": "content_scripts[0]"
+        }
+      ]
+    },
+    {
+      "id": "supply-chain/chrome-ext/content-script-early",
+      "kind": "indicator",
+      "desc": "Content script runs at document_start (before page loads)",
+      "conf": 0.8,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "parser",
+          "source": "manifest.json",
+          "value": "run_at: document_start",
+          "location": "content_scripts[0]"
+        }
+      ]
+    },
+    {
+      "id": "supply-chain/chrome-ext/externally-connectable",
+      "kind": "indicator",
+      "desc": "Extension allows external webpage connections",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "parser",
+          "source": "manifest.json",
+          "value": "externally_connectable present",
+          "location": "externally_connectable"
+        }
+      ]
+    },
+    {
+      "id": "supply-chain/chrome-ext/web-accessible-resources",
+      "kind": "indicator",
+      "desc": "Extension exposes 1 resources to web pages",
+      "conf": 0.75,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "parser",
+          "source": "manifest.json",
+          "value": "1 resources",
+          "location": "web_accessible_resources"
+        }
+      ]
+    },
+    {
+      "id": "obj/lateral/supply-chain/pypi/version::pkginfo-inflated-version",
+      "kind": "capability",
+      "desc": "PKG-INFO with inflated version number",
+      "conf": 0.75,
+      "crit": "notable",
+      "mbc": "F0004",
+      "attack": "T1195.002",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bkkbcggnhapdmkeljlodobbkopceiche/7.9.5_0/manifest.json",
+          "value": "7.9.5",
+          "location": "version"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/pypi/version/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::permission-web-request",
+      "kind": "capability",
+      "desc": "Extension requests webRequest permission",
+      "conf": 0.95,
+      "crit": "suspicious",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bkkbcggnhapdmkeljlodobbkopceiche/7.9.5_0/manifest.json",
+          "value": "[storage, activeTab, webRequest, declarativeNetRequest, declarativeNetRequestFeedback, contextMenus, scripting, webNavigation, alarms]",
+          "location": "permissions"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::web-accessible-resources",
+      "kind": "capability",
+      "desc": "Exposes resources to web",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bkkbcggnhapdmkeljlodobbkopceiche/7.9.5_0/manifest.json",
+          "value": "[{\"matches\":[\"<all_urls>\"],\"resources\":[\"images/*\",\"message.html\",\"injectScript.js\",\"injectScriptAdjust.js\",\"youtubeAdBlockInjectScript.js\",\"videoStreamAdBlockInjectScript.js\"]}]",
+          "location": "web_accessible_resources"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::permission-scripting",
+      "kind": "capability",
+      "desc": "Extension requests scripting permission (MV3)",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bkkbcggnhapdmkeljlodobbkopceiche/7.9.5_0/manifest.json",
+          "value": "[storage, activeTab, webRequest, declarativeNetRequest, declarativeNetRequestFeedback, contextMenus, scripting, webNavigation, alarms]",
+          "location": "permissions"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::is-chrome-manifest",
+      "kind": "capability",
+      "desc": "Chrome extension manifest file",
+      "conf": 0.95,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bkkbcggnhapdmkeljlodobbkopceiche/7.9.5_0/manifest.json",
+          "value": "3",
+          "location": "manifest_version"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::host-all-http",
+      "kind": "capability",
+      "desc": "Access to all HTTP sites",
+      "conf": 0.95,
+      "crit": "suspicious",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bkkbcggnhapdmkeljlodobbkopceiche/7.9.5_0/manifest.json",
+          "value": "[*://*/*]",
+          "location": "host_permissions"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::content-script-all-frames",
+      "kind": "capability",
+      "desc": "Content script runs in all frames",
+      "conf": 0.8,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bkkbcggnhapdmkeljlodobbkopceiche/7.9.5_0/manifest.json",
+          "value": "true",
+          "location": "content_scripts[*].all_frames"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::permission-declarative-net-request",
+      "kind": "capability",
+      "desc": "Extension uses declarativeNetRequest",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bkkbcggnhapdmkeljlodobbkopceiche/7.9.5_0/manifest.json",
+          "value": "[storage, activeTab, webRequest, declarativeNetRequest, declarativeNetRequestFeedback, contextMenus, scripting, webNavigation, alarms]",
+          "location": "permissions"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::content-script-run-at-start",
+      "kind": "capability",
+      "desc": "Content script runs at document_start",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bkkbcggnhapdmkeljlodobbkopceiche/7.9.5_0/manifest.json",
+          "value": "document_start",
+          "location": "content_scripts[*].run_at"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::update-url-google",
+      "kind": "capability",
+      "desc": "Uses Google update URL",
+      "conf": 0.95,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bkkbcggnhapdmkeljlodobbkopceiche/7.9.5_0/manifest.json",
+          "value": "https://clients2.google.com/service/update2/crx",
+          "location": "update_url"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::permission-active-tab",
+      "kind": "capability",
+      "desc": "Extension requests activeTab permission",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bkkbcggnhapdmkeljlodobbkopceiche/7.9.5_0/manifest.json",
+          "value": "[storage, activeTab, webRequest, declarativeNetRequest, declarativeNetRequestFeedback, contextMenus, scripting, webNavigation, alarms]",
+          "location": "permissions"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::content-script-all-urls",
+      "kind": "capability",
+      "desc": "Content script on all URLs",
+      "conf": 0.95,
+      "crit": "suspicious",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bkkbcggnhapdmkeljlodobbkopceiche/7.9.5_0/manifest.json",
+          "value": "[<all_urls>]",
+          "location": "content_scripts[*].matches"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::manifest-v3",
+      "kind": "capability",
+      "desc": "Chrome extension using Manifest V3",
+      "conf": 0.95,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bkkbcggnhapdmkeljlodobbkopceiche/7.9.5_0/manifest.json",
+          "value": "3",
+          "location": "manifest_version"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::update-url-present",
+      "kind": "capability",
+      "desc": "Has update_url field",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bkkbcggnhapdmkeljlodobbkopceiche/7.9.5_0/manifest.json",
+          "value": "https://clients2.google.com/service/update2/crx",
+          "location": "update_url"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::content-script-social-media",
+      "kind": "capability",
+      "desc": "Content script targets social media sites",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bkkbcggnhapdmkeljlodobbkopceiche/7.9.5_0/manifest.json",
+          "value": "[*://*.facebook.com/*, *://*.linkedin.com/*, *://*.x.com/*, *://*.instagram.com/*, *://*.reddit.com/*, *://*.pinterest.com/*, *://*.youtube.com/*, *://*.chatgpt.com/*]",
+          "location": "content_scripts[*].matches"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::background-service-worker",
+      "kind": "capability",
+      "desc": "Extension uses service worker (MV3)",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bkkbcggnhapdmkeljlodobbkopceiche/7.9.5_0/manifest.json",
+          "value": "service-worker.js",
+          "location": "background.service_worker"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::externally-connectable",
+      "kind": "capability",
+      "desc": "Extension allows external connections",
+      "conf": 0.9,
+      "crit": "suspicious",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bkkbcggnhapdmkeljlodobbkopceiche/7.9.5_0/manifest.json",
+          "value": "{\"matches\":[\"https://*.pbapi.xyz/*\",\"https://*.poperblocker.com/*\",\"*://localhost/*\"]}",
+          "location": "externally_connectable"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::data-theft-permissions",
+      "kind": "capability",
+      "desc": "Extension has permissions enabling data theft",
+      "conf": 0.95,
+      "crit": "suspicious",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bkkbcggnhapdmkeljlodobbkopceiche/7.9.5_0/manifest.json",
+          "value": "3",
+          "location": "manifest_version"
+        },
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bkkbcggnhapdmkeljlodobbkopceiche/7.9.5_0/manifest.json",
+          "value": "[storage, activeTab, webRequest, declarativeNetRequest, declarativeNetRequestFeedback, contextMenus, scripting, webNavigation, alarms]",
+          "location": "permissions"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::broad-content-injection",
+      "kind": "capability",
+      "desc": "Extension can inject content into many sites",
+      "conf": 0.9,
+      "crit": "suspicious",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bkkbcggnhapdmkeljlodobbkopceiche/7.9.5_0/manifest.json",
+          "value": "3",
+          "location": "manifest_version"
+        },
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bkkbcggnhapdmkeljlodobbkopceiche/7.9.5_0/manifest.json",
+          "value": "[<all_urls>]",
+          "location": "content_scripts[*].matches"
+        },
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bkkbcggnhapdmkeljlodobbkopceiche/7.9.5_0/manifest.json",
+          "value": "[*://*/*]",
+          "location": "host_permissions"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "meta/encoded-payload/base64",
+      "kind": "structural",
+      "desc": "Encoded payload detected: base64",
+      "conf": 0.9,
+      "crit": "suspicious",
+      "evidence": [
+        {
+          "method": "pattern",
+          "source": "dissect",
+          "value": "encoding=base64, type=Unknown, preview=<binary data>",
+          "location": "offset:2126"
+        }
+      ]
+    }
+  ]
+}

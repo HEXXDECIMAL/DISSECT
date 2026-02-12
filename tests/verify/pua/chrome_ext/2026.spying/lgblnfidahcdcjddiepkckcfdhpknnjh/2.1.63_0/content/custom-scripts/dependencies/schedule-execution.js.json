@@ -1,0 +1,252 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/content/custom-scripts/dependencies/schedule-execution.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "4ef04f3beb784bd95d8637d1c809137ee7f5c51d530e87ebc90906980367d641",
+  "size": 1075,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "kind": "capability",
+      "desc": "for loop (AST)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "15:5"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "schedule-execution.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "kind": "capability",
+      "desc": "Iteration or loop pattern",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "15:5"
+        },
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "meta/internal/imported::array/isarray",
+      "kind": "structural",
+      "desc": "calls Array.isArray",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Array.isArray"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safecontext",
+      "kind": "structural",
+      "desc": "calls safeContext",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeContext"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::mapreadystatetovalue",
+      "kind": "structural",
+      "desc": "calls mapReadyStateToValue",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "mapReadyStateToValue"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::handlestatechange",
+      "kind": "structural",
+      "desc": "calls handleStateChange",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "handleStateChange"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::statekey",
+      "kind": "structural",
+      "desc": "calls stateKey",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "stateKey"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::action",
+      "kind": "structural",
+      "desc": "calls action",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "action"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safeself/removeeventlistener",
+      "kind": "structural",
+      "desc": "calls safeSelf.removeEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeSelf.removeEventListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::statemapping",
+      "kind": "structural",
+      "desc": "calls stateMapping",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "stateMapping"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safeself",
+      "kind": "structural",
+      "desc": "calls safeSelf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeSelf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safecontext/addeventlistener",
+      "kind": "structural",
+      "desc": "calls safeContext.addEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeContext.addEventListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::statearray",
+      "kind": "structural",
+      "desc": "calls stateArray",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "stateArray"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::targetreadystatevalue",
+      "kind": "structural",
+      "desc": "calls targetReadyStateValue",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "targetReadyStateValue"
+        }
+      ]
+    }
+  ]
+}

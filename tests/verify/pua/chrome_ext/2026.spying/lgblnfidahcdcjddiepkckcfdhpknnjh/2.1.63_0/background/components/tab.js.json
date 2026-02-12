@@ -1,0 +1,605 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/components/tab.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "b10de32defe7d56aaac29720c745572d70f9177a322130f050bdf1ab75331ce3",
+  "size": 4139,
+  "risk": "notable",
+  "counts": {
+    "notable": 3
+  },
+  "findings": [
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "kind": "capability",
+      "desc": "for loop (AST)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "55:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "60:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "65:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "70:5"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 4  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
+      "kind": "capability",
+      "desc": "No comments in code (stripped",
+      "conf": 0.6,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "cap/code/metrics/obfuscation::high-entropy-identifiers",
+      "kind": "capability",
+      "desc": "High entropy identifiers (random variable names)",
+      "conf": 0.85,
+      "crit": "inert",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.avg_entropy = 2.59"
+        }
+      ],
+      "source_file": "cap/code/metrics/obfuscation/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "tab.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "kind": "capability",
+      "desc": "Iteration or loop pattern",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "55:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "60:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "65:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "70:5"
+        },
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 4  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "meta/internal/imported::tabdata",
+      "kind": "structural",
+      "desc": "calls tabData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tabData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pagedatacomponent/deletedata",
+      "kind": "structural",
+      "desc": "calls pageDataComponent.deleteData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pageDataComponent.deleteData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pagedatacomponent/setalldata",
+      "kind": "structural",
+      "desc": "calls pageDataComponent.setAllData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pageDataComponent.setAllData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tabdata/transitions/details/tabid",
+      "kind": "structural",
+      "desc": "calls tabData.transitions.details.tabId",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tabData.transitions.details.tabId"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::existedtabids/includes",
+      "kind": "structural",
+      "desc": "calls existedTabIds.includes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "existedTabIds.includes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pagedatacomponent/setdata",
+      "kind": "structural",
+      "desc": "calls pageDataComponent.setData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pageDataComponent.setData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::existedtabids",
+      "kind": "structural",
+      "desc": "calls existedTabIds",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "existedTabIds"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isallownexttabcreation",
+      "kind": "structural",
+      "desc": "calls isAllowNextTabCreation",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isAllowNextTabCreation"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tabdata/transitions/details/tabid/details/url",
+      "kind": "structural",
+      "desc": "calls tabData.transitions.details.tabId.details.url",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tabData.transitions.details.tabId.details.url"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data/allownexttabcreation",
+      "kind": "structural",
+      "desc": "calls data.allowNextTabCreation",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data.allowNextTabCreation"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::existingpagedata",
+      "kind": "structural",
+      "desc": "calls existingPageData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "existingPageData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tabs",
+      "kind": "structural",
+      "desc": "calls tabs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tabs"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pagedatacomponent/getdata",
+      "kind": "structural",
+      "desc": "calls pageDataComponent.getData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pageDataComponent.getData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::analysisreporter/addreportsbulk",
+      "kind": "structural",
+      "desc": "calls analysisReporter.addReportsBulk",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "analysisReporter.addReportsBulk"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data",
+      "kind": "structural",
+      "desc": "calls data",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tab",
+      "kind": "structural",
+      "desc": "calls tab",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tab"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::contextmenus/update",
+      "kind": "structural",
+      "desc": "calls contextMenus.update",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "contextMenus.update"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::updateicon",
+      "kind": "structural",
+      "desc": "calls updateIcon",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "updateIcon"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getnonewindowid",
+      "kind": "structural",
+      "desc": "calls getNoneWindowId",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getNoneWindowId"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pagedatacomponent/refreshbulk",
+      "kind": "structural",
+      "desc": "calls pageDataComponent.refreshBulk",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pageDataComponent.refreshBulk"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tabs/map/filter",
+      "kind": "structural",
+      "desc": "calls tabs.map.filter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tabs.map.filter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data/tabopeninitiators/details/tabid",
+      "kind": "structural",
+      "desc": "calls data.tabOpenInitiators.details.tabId",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data.tabOpenInitiators.details.tabId"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pagedatacomponent/getalldata",
+      "kind": "structural",
+      "desc": "calls pageDataComponent.getAllData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pageDataComponent.getAllData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data/openedfrompopuptabs/details/tabid",
+      "kind": "structural",
+      "desc": "calls data.openedFromPopupTabs.details.tabId",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data.openedFromPopupTabs.details.tabId"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::number",
+      "kind": "structural",
+      "desc": "calls Number",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Number"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tabs/map",
+      "kind": "structural",
+      "desc": "calls tabs.map",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tabs.map"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pagedata/previousurl",
+      "kind": "structural",
+      "desc": "calls pageData.previousUrl",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pageData.previousUrl"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/all",
+      "kind": "structural",
+      "desc": "calls Promise.all",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.all"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pagedatacomponent/create",
+      "kind": "structural",
+      "desc": "calls pageDataComponent.create",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pageDataComponent.create"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::settimeout",
+      "kind": "structural",
+      "desc": "calls setTimeout",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setTimeout"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::querytabs",
+      "kind": "structural",
+      "desc": "calls queryTabs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "queryTabs"
+        }
+      ]
+    }
+  ]
+}

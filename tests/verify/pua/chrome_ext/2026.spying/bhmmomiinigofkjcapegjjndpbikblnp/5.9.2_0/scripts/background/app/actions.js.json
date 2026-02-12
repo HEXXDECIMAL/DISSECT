@@ -1,0 +1,2990 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bhmmomiinigofkjcapegjjndpbikblnp/5.9.2_0/scripts/background/app/actions.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "7beaed544285e753b6a0f3c474d478948a406c8ffa84ed7f8eea3d72eb88a8c6",
+  "size": 20032,
+  "risk": "suspicious",
+  "counts": {
+    "suspicious": 1,
+    "notable": 15
+  },
+  "findings": [
+    {
+      "id": "cap/data/text/keywords::token",
+      "kind": "capability",
+      "desc": "token keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "TOKEN",
+          "location": "0x1089"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "TOKEN",
+          "location": "0x108a"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "TOKEN"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "cap/os/admin/observability::datadog",
+      "kind": "capability",
+      "desc": "Datadog monitoring agent",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "yara",
+          "source": "yara-x",
+          "value": "DD_",
+          "location": "offset:190"
+        },
+        {
+          "method": "yara",
+          "source": "yara-x",
+          "value": "DD_",
+          "location": "offset:208"
+        },
+        {
+          "method": "yara",
+          "source": "yara-x",
+          "value": "DD_",
+          "location": "offset:226"
+        },
+        {
+          "method": "yara",
+          "source": "yara-x",
+          "value": "DD_",
+          "location": "offset:243"
+        },
+        {
+          "method": "yara",
+          "source": "yara-x",
+          "value": "DD_",
+          "location": "offset:1322"
+        },
+        {
+          "method": "yara",
+          "source": "yara-x",
+          "value": "DD_",
+          "location": "offset:1342"
+        },
+        {
+          "method": "yara",
+          "source": "yara-x",
+          "value": "DD_",
+          "location": "offset:5696"
+        },
+        {
+          "method": "yara",
+          "source": "yara-x",
+          "value": "DD_",
+          "location": "offset:5720"
+        },
+        {
+          "method": "yara",
+          "source": "yara-x",
+          "value": "DD_",
+          "location": "offset:7627"
+        },
+        {
+          "method": "yara",
+          "source": "yara-x",
+          "value": "DD_",
+          "location": "offset:7788"
+        },
+        {
+          "method": "yara",
+          "source": "yara-x",
+          "value": "DD_",
+          "location": "offset:11032"
+        },
+        {
+          "method": "yara",
+          "source": "yara-x",
+          "value": "DD_",
+          "location": "offset:15983"
+        }
+      ],
+      "source_file": "cap/os/admin/observability/traits.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "kind": "capability",
+      "desc": "for loop (AST)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:53"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/text/keywords::runtime",
+      "kind": "capability",
+      "desc": "runtime keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "webextApi.runtime.sendMessage"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 {for(",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
+      "kind": "capability",
+      "desc": "setTimeout with code execution",
+      "conf": 0.75,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 setTimeout(()=>{",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
+      "kind": "capability",
+      "desc": "No comments in code (stripped",
+      "conf": 0.6,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-function-density",
+      "kind": "capability",
+      "desc": "High function density (>20 functions",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.density_per_100_lines = 15300.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-long-lines",
+      "kind": "capability",
+      "desc": "Very long lines (>1000 chars)",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 20032.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "cap/code/metrics/obfuscation::high-entropy-identifiers",
+      "kind": "capability",
+      "desc": "High entropy identifiers (random variable names)",
+      "conf": 0.85,
+      "crit": "inert",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.avg_entropy = 3.29"
+        }
+      ],
+      "source_file": "cap/code/metrics/obfuscation/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::many-high-entropy-identifiers",
+      "kind": "capability",
+      "desc": "Many high-entropy identifiers (>20% have",
+      "conf": 0.9,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.high_entropy_ratio = 0.33"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "kind": "capability",
+      "desc": "Webpack/bundler minified output pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 20032.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
+      "kind": "capability",
+      "desc": "Many one-liner functions (minified code",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 153.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
+      "kind": "capability",
+      "desc": "Functions with random-looking names",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.high_entropy_names = 55.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.01"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::runtime-send-message",
+      "kind": "capability",
+      "desc": "Sends message between extension contexts",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "webextApi.runtime.sendMessage({name:TURN_ON_PROTECTION})",
+          "location": "1:12257"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "webextApi.runtime.sendMessage({name:TURN_OFF_PROTECTION})",
+          "location": "1:12440"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "webextApi.runtime.sendMessage({name:LEAK_MONITORING_ON})",
+          "location": "1:16848"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "webextApi.runtime.sendMessage({name:LEAK_MONITORING_OFF})",
+          "location": "1:16971"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::sendMessage",
+      "kind": "capability",
+      "desc": "chrome.runtime.sendMessage",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 4 runtime.sendMessage",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "kind": "capability",
+      "desc": "Iteration or loop pattern",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:53"
+        },
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 {for(",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::identifier-obfuscation",
+      "kind": "capability",
+      "desc": "Identifier obfuscation (random/encoded names)",
+      "conf": 0.9,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.avg_entropy = 3.29"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.high_entropy_ratio = 0.33"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.high_entropy_names = 55.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "kind": "capability",
+      "desc": "Minified/compressed code (multiple indicators)",
+      "conf": 0.9,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.01"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.density_per_100_lines = 15300.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 153.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics::js-npm-malware-pattern",
+      "kind": "capability",
+      "desc": "npm malware obfuscation pattern (install",
+      "conf": 0.9,
+      "crit": "suspicious",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.avg_entropy = 3.29"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 20032.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 20032.00"
+        },
+        {
+          "method": "exclusion",
+          "source": "composite_rule",
+          "value": "negative_conditions_not_found"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+    },
+    {
+      "id": "meta/internal/imported::growthbook_experiment_tracked",
+      "kind": "structural",
+      "desc": "calls GROWTHBOOK_EXPERIMENT_TRACKED",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "GROWTHBOOK_EXPERIMENT_TRACKED"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wotapi/getserps",
+      "kind": "structural",
+      "desc": "calls WotApi.getSerps",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "WotApi.getSerps"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::webextapi/runtime/sendmessage",
+      "kind": "structural",
+      "desc": "calls webextApi.runtime.sendMessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "webextApi.runtime.sendMessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::to_next_step_onboarding",
+      "kind": "structural",
+      "desc": "calls TO_NEXT_STEP_ONBOARDING",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "TO_NEXT_STEP_ONBOARDING"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::toggle_block_all_trackers",
+      "kind": "structural",
+      "desc": "calls TOGGLE_BLOCK_ALL_TRACKERS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "TOGGLE_BLOCK_ALL_TRACKERS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::get_leak_data",
+      "kind": "structural",
+      "desc": "calls GET_LEAK_DATA",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "GET_LEAK_DATA"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::edit_review",
+      "kind": "structural",
+      "desc": "calls EDIT_REVIEW",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "EDIT_REVIEW"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::save_first_run_date",
+      "kind": "structural",
+      "desc": "calls SAVE_FIRST_RUN_DATE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SAVE_FIRST_RUN_DATE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::update_ui_config_by_key",
+      "kind": "structural",
+      "desc": "calls UPDATE_UI_CONFIG_BY_KEY",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "UPDATE_UI_CONFIG_BY_KEY"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::add_to_whitelist",
+      "kind": "structural",
+      "desc": "calls ADD_TO_WHITELIST",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ADD_TO_WHITELIST"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::save_tabs",
+      "kind": "structural",
+      "desc": "calls SAVE_TABS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SAVE_TABS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::update_ga_id",
+      "kind": "structural",
+      "desc": "calls UPDATE_GA_ID",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "UPDATE_GA_ID"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::forgot_action",
+      "kind": "structural",
+      "desc": "calls FORGOT_ACTION",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "FORGOT_ACTION"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::save_growthbook_payload",
+      "kind": "structural",
+      "desc": "calls SAVE_GROWTHBOOK_PAYLOAD",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SAVE_GROWTHBOOK_PAYLOAD"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::mobile_rate_count",
+      "kind": "structural",
+      "desc": "calls MOBILE_RATE_COUNT",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "MOBILE_RATE_COUNT"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::set_active_tab",
+      "kind": "structural",
+      "desc": "calls SET_ACTIVE_TAB",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SET_ACTIVE_TAB"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::add_to_templist",
+      "kind": "structural",
+      "desc": "calls ADD_TO_TEMPLIST",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ADD_TO_TEMPLIST"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::save_install",
+      "kind": "structural",
+      "desc": "calls SAVE_INSTALL",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SAVE_INSTALL"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parental_control_extra_icon_on",
+      "kind": "structural",
+      "desc": "calls PARENTAL_CONTROL_EXTRA_ICON_ON",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "PARENTAL_CONTROL_EXTRA_ICON_ON"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::get_user_comment",
+      "kind": "structural",
+      "desc": "calls GET_USER_COMMENT",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "GET_USER_COMMENT"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::save_user_review_from_api",
+      "kind": "structural",
+      "desc": "calls SAVE_USER_REVIEW_FROM_API",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SAVE_USER_REVIEW_FROM_API"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::to_previous_step",
+      "kind": "structural",
+      "desc": "calls TO_PREVIOUS_STEP",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "TO_PREVIOUS_STEP"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::phishing_off",
+      "kind": "structural",
+      "desc": "calls PHISHING_OFF",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "PHISHING_OFF"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reload_trackers_data_on",
+      "kind": "structural",
+      "desc": "calls RELOAD_TRACKERS_DATA_ON",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "RELOAD_TRACKERS_DATA_ON"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::save_serps_conf",
+      "kind": "structural",
+      "desc": "calls SAVE_SERPS_CONF",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SAVE_SERPS_CONF"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::save_is_user_trialing",
+      "kind": "structural",
+      "desc": "calls SAVE_IS_USER_TRIALING",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SAVE_IS_USER_TRIALING"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::is_alive_event_experiments",
+      "kind": "structural",
+      "desc": "calls IS_ALIVE_EVENT_EXPERIMENTS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "IS_ALIVE_EVENT_EXPERIMENTS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::delete_review",
+      "kind": "structural",
+      "desc": "calls DELETE_REVIEW",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "DELETE_REVIEW"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::popup_block_on",
+      "kind": "structural",
+      "desc": "calls POPUP_BLOCK_ON",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "POPUP_BLOCK_ON"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::save_rating",
+      "kind": "structural",
+      "desc": "calls SAVE_RATING",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SAVE_RATING"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::generate_id",
+      "kind": "structural",
+      "desc": "calls GENERATE_ID",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "GENERATE_ID"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::save_review",
+      "kind": "structural",
+      "desc": "calls SAVE_REVIEW",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SAVE_REVIEW"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::set_warnings_level",
+      "kind": "structural",
+      "desc": "calls SET_WARNINGS_LEVEL",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SET_WARNINGS_LEVEL"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::user_logout",
+      "kind": "structural",
+      "desc": "calls USER_LOGOUT",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "USER_LOGOUT"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::queue_mixpanel_event",
+      "kind": "structural",
+      "desc": "calls QUEUE_MIXPANEL_EVENT",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "QUEUE_MIXPANEL_EVENT"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::make_survey_showed",
+      "kind": "structural",
+      "desc": "calls MAKE_SURVEY_SHOWED",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "MAKE_SURVEY_SHOWED"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::set_gdpr_notifications_off",
+      "kind": "structural",
+      "desc": "calls SET_GDPR_NOTIFICATIONS_OFF",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SET_GDPR_NOTIFICATIONS_OFF"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::add_comment_action",
+      "kind": "structural",
+      "desc": "calls ADD_COMMENT_ACTION",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ADD_COMMENT_ACTION"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::delete_mixpanel_queue",
+      "kind": "structural",
+      "desc": "calls DELETE_MIXPANEL_QUEUE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "DELETE_MIXPANEL_QUEUE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::mark_first_offering_date",
+      "kind": "structural",
+      "desc": "calls MARK_FIRST_OFFERING_DATE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "MARK_FIRST_OFFERING_DATE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::leak_monitoring_dismiss_alert",
+      "kind": "structural",
+      "desc": "calls LEAK_MONITORING_DISMISS_ALERT",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "LEAK_MONITORING_DISMISS_ALERT"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::turn_off_popup_onboarding",
+      "kind": "structural",
+      "desc": "calls TURN_OFF_POPUP_ONBOARDING",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "TURN_OFF_POPUP_ONBOARDING"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::off_rate_widget",
+      "kind": "structural",
+      "desc": "calls OFF_RATE_WIDGET",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "OFF_RATE_WIDGET"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::remove_reminder",
+      "kind": "structural",
+      "desc": "calls REMOVE_REMINDER",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "REMOVE_REMINDER"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::get_comment_and_rating",
+      "kind": "structural",
+      "desc": "calls GET_COMMENT_AND_RATING",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "GET_COMMENT_AND_RATING"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::array",
+      "kind": "structural",
+      "desc": "calls Array",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Array"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::over_next_step",
+      "kind": "structural",
+      "desc": "calls OVER_NEXT_STEP",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "OVER_NEXT_STEP"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::update_review_timestamp",
+      "kind": "structural",
+      "desc": "calls UPDATE_REVIEW_TIMESTAMP",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "UPDATE_REVIEW_TIMESTAMP"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::popup_block_off",
+      "kind": "structural",
+      "desc": "calls POPUP_BLOCK_OFF",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "POPUP_BLOCK_OFF"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::popup_block_notification_off",
+      "kind": "structural",
+      "desc": "calls POPUP_BLOCK_NOTIFICATION_OFF",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "POPUP_BLOCK_NOTIFICATION_OFF"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::set_reminder",
+      "kind": "structural",
+      "desc": "calls SET_REMINDER",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SET_REMINDER"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::save_user_plan",
+      "kind": "structural",
+      "desc": "calls SAVE_USER_PLAN",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SAVE_USER_PLAN"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::update_cta_appearance",
+      "kind": "structural",
+      "desc": "calls UPDATE_CTA_APPEARANCE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "UPDATE_CTA_APPEARANCE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::update_fas_config",
+      "kind": "structural",
+      "desc": "calls UPDATE_FAS_CONFIG",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "UPDATE_FAS_CONFIG"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::update_gas_config",
+      "kind": "structural",
+      "desc": "calls UPDATE_GAS_CONFIG",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "UPDATE_GAS_CONFIG"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::upgrade_popup",
+      "kind": "structural",
+      "desc": "calls UPGRADE_POPUP",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "UPGRADE_POPUP"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::serp_send_links_action",
+      "kind": "structural",
+      "desc": "calls SERP_SEND_LINKS_ACTION",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SERP_SEND_LINKS_ACTION"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::set_show_whats_new",
+      "kind": "structural",
+      "desc": "calls SET_SHOW_WHATS_NEW",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SET_SHOW_WHATS_NEW"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::requestserpsconf",
+      "kind": "structural",
+      "desc": "calls requestSerpsConf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "requestSerpsConf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rate_safety",
+      "kind": "structural",
+      "desc": "calls RATE_SAFETY",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "RATE_SAFETY"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::delete_review_action",
+      "kind": "structural",
+      "desc": "calls DELETE_REVIEW_ACTION",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "DELETE_REVIEW_ACTION"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parental_control_on",
+      "kind": "structural",
+      "desc": "calls PARENTAL_CONTROL_ON",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "PARENTAL_CONTROL_ON"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::toconsumablearray",
+      "kind": "structural",
+      "desc": "calls toConsumableArray",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "toConsumableArray"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tracker_detected",
+      "kind": "structural",
+      "desc": "calls TRACKER_DETECTED",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "TRACKER_DETECTED"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::check_rate_widget_date",
+      "kind": "structural",
+      "desc": "calls CHECK_RATE_WIDGET_DATE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "CHECK_RATE_WIDGET_DATE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::dismiss_pin_wot_popup",
+      "kind": "structural",
+      "desc": "calls DISMISS_PIN_WOT_POPUP",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "DISMISS_PIN_WOT_POPUP"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::migrated_user_to_gateway",
+      "kind": "structural",
+      "desc": "calls MIGRATED_USER_TO_GATEWAY",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "MIGRATED_USER_TO_GATEWAY"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::clear_rating",
+      "kind": "structural",
+      "desc": "calls CLEAR_RATING",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "CLEAR_RATING"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::serp_mark_links_pending",
+      "kind": "structural",
+      "desc": "calls SERP_MARK_LINKS_PENDING",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SERP_MARK_LINKS_PENDING"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::clean_new_features",
+      "kind": "structural",
+      "desc": "calls CLEAN_NEW_FEATURES",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "CLEAN_NEW_FEATURES"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::favicon_warning_on",
+      "kind": "structural",
+      "desc": "calls FAVICON_WARNING_ON",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "FAVICON_WARNING_ON"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::get_initial_chat_bots_shields_level",
+      "kind": "structural",
+      "desc": "calls GET_INITIAL_CHAT_BOTS_SHIELDS_LEVEL",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "GET_INITIAL_CHAT_BOTS_SHIELDS_LEVEL"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::popup_block_notification_on",
+      "kind": "structural",
+      "desc": "calls POPUP_BLOCK_NOTIFICATION_ON",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "POPUP_BLOCK_NOTIFICATION_ON"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::dispatcheventwithdata",
+      "kind": "structural",
+      "desc": "calls dispatchEventWithData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dispatchEventWithData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::save_user_data",
+      "kind": "structural",
+      "desc": "calls SAVE_USER_DATA",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SAVE_USER_DATA"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::send_review_action",
+      "kind": "structural",
+      "desc": "calls SEND_REVIEW_ACTION",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SEND_REVIEW_ACTION"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::remove_from_whitelist",
+      "kind": "structural",
+      "desc": "calls REMOVE_FROM_WHITELIST",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "REMOVE_FROM_WHITELIST"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parental_control_off",
+      "kind": "structural",
+      "desc": "calls PARENTAL_CONTROL_OFF",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "PARENTAL_CONTROL_OFF"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/config",
+      "kind": "structural",
+      "desc": "calls t.config",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.config"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::gambling_control_on",
+      "kind": "structural",
+      "desc": "calls GAMBLING_CONTROL_ON",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "GAMBLING_CONTROL_ON"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::error_user_auth",
+      "kind": "structural",
+      "desc": "calls ERROR_USER_AUTH",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ERROR_USER_AUTH"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::clean_user_data",
+      "kind": "structural",
+      "desc": "calls CLEAN_USER_DATA",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "CLEAN_USER_DATA"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::to_next_step",
+      "kind": "structural",
+      "desc": "calls TO_NEXT_STEP",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "TO_NEXT_STEP"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::assistant_set_position",
+      "kind": "structural",
+      "desc": "calls ASSISTANT_SET_POSITION",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ASSISTANT_SET_POSITION"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wotapi/getserps/then",
+      "kind": "structural",
+      "desc": "calls WotApi.getSerps.then",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "WotApi.getSerps.then"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::save_user_source",
+      "kind": "structural",
+      "desc": "calls SAVE_USER_SOURCE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SAVE_USER_SOURCE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::count_popup_opening",
+      "kind": "structural",
+      "desc": "calls COUNT_POPUP_OPENING",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "COUNT_POPUP_OPENING"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::last_sent_is_alive_date",
+      "kind": "structural",
+      "desc": "calls LAST_SENT_IS_ALIVE_DATE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "LAST_SENT_IS_ALIVE_DATE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::save_comments",
+      "kind": "structural",
+      "desc": "calls SAVE_COMMENTS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SAVE_COMMENTS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::leak_monitoring_off",
+      "kind": "structural",
+      "desc": "calls LEAK_MONITORING_OFF",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "LEAK_MONITORING_OFF"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wot_upgrade_event",
+      "kind": "structural",
+      "desc": "calls WOT_UPGRADE_EVENT",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "WOT_UPGRADE_EVENT"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::update_mailchimp_tag",
+      "kind": "structural",
+      "desc": "calls UPDATE_MAILCHIMP_TAG",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "UPDATE_MAILCHIMP_TAG"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::update_review",
+      "kind": "structural",
+      "desc": "calls UPDATE_REVIEW",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "UPDATE_REVIEW"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::all_safe_browsing_off",
+      "kind": "structural",
+      "desc": "calls ALL_SAFE_BROWSING_OFF",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ALL_SAFE_BROWSING_OFF"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::open_add_review_action",
+      "kind": "structural",
+      "desc": "calls OPEN_ADD_REVIEW_ACTION",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "OPEN_ADD_REVIEW_ACTION"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::favicon_warning_off",
+      "kind": "structural",
+      "desc": "calls FAVICON_WARNING_OFF",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "FAVICON_WARNING_OFF"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::assistant_off",
+      "kind": "structural",
+      "desc": "calls ASSISTANT_OFF",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ASSISTANT_OFF"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::save_rt_witness",
+      "kind": "structural",
+      "desc": "calls SAVE_RT_WITNESS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SAVE_RT_WITNESS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::phishing_on",
+      "kind": "structural",
+      "desc": "calls PHISHING_ON",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "PHISHING_ON"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::message_user_auth",
+      "kind": "structural",
+      "desc": "calls MESSAGE_USER_AUTH",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "MESSAGE_USER_AUTH"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::update_ui_config_features",
+      "kind": "structural",
+      "desc": "calls UPDATE_UI_CONFIG_FEATURES",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "UPDATE_UI_CONFIG_FEATURES"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::get_is_user_trialing",
+      "kind": "structural",
+      "desc": "calls GET_IS_USER_TRIALING",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "GET_IS_USER_TRIALING"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::set_comments_count",
+      "kind": "structural",
+      "desc": "calls SET_COMMENTS_COUNT",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SET_COMMENTS_COUNT"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::triple_previous_step",
+      "kind": "structural",
+      "desc": "calls TRIPLE_PREVIOUS_STEP",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "TRIPLE_PREVIOUS_STEP"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reset_leak_monitoring",
+      "kind": "structural",
+      "desc": "calls RESET_LEAK_MONITORING",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "RESET_LEAK_MONITORING"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::loading_comments",
+      "kind": "structural",
+      "desc": "calls LOADING_COMMENTS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "LOADING_COMMENTS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reload_trackers_data_off",
+      "kind": "structural",
+      "desc": "calls RELOAD_TRACKERS_DATA_OFF",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "RELOAD_TRACKERS_DATA_OFF"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::increment_email_ad_views",
+      "kind": "structural",
+      "desc": "calls INCREMENT_EMAIL_AD_VIEWS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "INCREMENT_EMAIL_AD_VIEWS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::fire_is_alive_event",
+      "kind": "structural",
+      "desc": "calls FIRE_IS_ALIVE_EVENT",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "FIRE_IS_ALIVE_EVENT"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::saveserpsconf",
+      "kind": "structural",
+      "desc": "calls saveSerpsConf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "saveSerpsConf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::clear_templist",
+      "kind": "structural",
+      "desc": "calls CLEAR_TEMPLIST",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "CLEAR_TEMPLIST"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::save_retention_days",
+      "kind": "structural",
+      "desc": "calls SAVE_RETENTION_DAYS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SAVE_RETENTION_DAYS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::delete_tracker_history",
+      "kind": "structural",
+      "desc": "calls DELETE_TRACKER_HISTORY",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "DELETE_TRACKER_HISTORY"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::save_user_token",
+      "kind": "structural",
+      "desc": "calls SAVE_USER_TOKEN",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SAVE_USER_TOKEN"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::update_survey_state",
+      "kind": "structural",
+      "desc": "calls UPDATE_SURVEY_STATE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "UPDATE_SURVEY_STATE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::load_trackers_list_completed",
+      "kind": "structural",
+      "desc": "calls LOAD_TRACKERS_LIST_COMPLETED",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "LOAD_TRACKERS_LIST_COMPLETED"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/_",
+      "kind": "structural",
+      "desc": "calls t._",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t._"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::over_previous_step",
+      "kind": "structural",
+      "desc": "calls OVER_PREVIOUS_STEP",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "OVER_PREVIOUS_STEP"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::all_safe_browsing_on",
+      "kind": "structural",
+      "desc": "calls ALL_SAFE_BROWSING_ON",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ALL_SAFE_BROWSING_ON"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::phishing_wl_remove",
+      "kind": "structural",
+      "desc": "calls PHISHING_WL_REMOVE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "PHISHING_WL_REMOVE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::handle_user_data_analytics",
+      "kind": "structural",
+      "desc": "calls HANDLE_USER_DATA_ANALYTICS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "HANDLE_USER_DATA_ANALYTICS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::set_current_version",
+      "kind": "structural",
+      "desc": "calls SET_CURRENT_VERSION",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SET_CURRENT_VERSION"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::subscription_update",
+      "kind": "structural",
+      "desc": "calls SUBSCRIPTION_UPDATE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SUBSCRIPTION_UPDATE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::login_action",
+      "kind": "structural",
+      "desc": "calls LOGIN_ACTION",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "LOGIN_ACTION"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::save_witness",
+      "kind": "structural",
+      "desc": "calls SAVE_WITNESS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SAVE_WITNESS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::array/from",
+      "kind": "structural",
+      "desc": "calls Array.from",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Array.from"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::match_trackers_state",
+      "kind": "structural",
+      "desc": "calls MATCH_TRACKERS_STATE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "MATCH_TRACKERS_STATE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::get_user_plan",
+      "kind": "structural",
+      "desc": "calls GET_USER_PLAN",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "GET_USER_PLAN"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::get_initial_shields_level",
+      "kind": "structural",
+      "desc": "calls GET_INITIAL_SHIELDS_LEVEL",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "GET_INITIAL_SHIELDS_LEVEL"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::assistant_set_expanded",
+      "kind": "structural",
+      "desc": "calls ASSISTANT_SET_EXPANDED",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ASSISTANT_SET_EXPANDED"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::get_comments_action",
+      "kind": "structural",
+      "desc": "calls GET_COMMENTS_ACTION",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "GET_COMMENTS_ACTION"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::mobile_trigger_modal_reset",
+      "kind": "structural",
+      "desc": "calls MOBILE_TRIGGER_MODAL_RESET",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "MOBILE_TRIGGER_MODAL_RESET"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::register_action",
+      "kind": "structural",
+      "desc": "calls REGISTER_ACTION",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "REGISTER_ACTION"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rate_site",
+      "kind": "structural",
+      "desc": "calls RATE_SITE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "RATE_SITE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::leak_monitoring_on",
+      "kind": "structural",
+      "desc": "calls LEAK_MONITORING_ON",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "LEAK_MONITORING_ON"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::leak_monitoring_dismiss",
+      "kind": "structural",
+      "desc": "calls LEAK_MONITORING_DISMISS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "LEAK_MONITORING_DISMISS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::increment_popup_counter",
+      "kind": "structural",
+      "desc": "calls INCREMENT_POPUP_COUNTER",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "INCREMENT_POPUP_COUNTER"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::phishing_wl_add",
+      "kind": "structural",
+      "desc": "calls PHISHING_WL_ADD",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "PHISHING_WL_ADD"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::load_trackers_list",
+      "kind": "structural",
+      "desc": "calls LOAD_TRACKERS_LIST",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "LOAD_TRACKERS_LIST"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::send_query_action",
+      "kind": "structural",
+      "desc": "calls SEND_QUERY_ACTION",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SEND_QUERY_ACTION"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::settimeout",
+      "kind": "structural",
+      "desc": "calls setTimeout",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setTimeout"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::gambling_control_off",
+      "kind": "structural",
+      "desc": "calls GAMBLING_CONTROL_OFF",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "GAMBLING_CONTROL_OFF"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::clear_user_reviews",
+      "kind": "structural",
+      "desc": "calls CLEAR_USER_REVIEWS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "CLEAR_USER_REVIEWS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::assistant_on",
+      "kind": "structural",
+      "desc": "calls ASSISTANT_ON",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ASSISTANT_ON"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::remove_finished_growthbook_experiments",
+      "kind": "structural",
+      "desc": "calls REMOVE_FINISHED_GROWTHBOOK_EXPERIMENTS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "REMOVE_FINISHED_GROWTHBOOK_EXPERIMENTS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::free_user_blocked_website",
+      "kind": "structural",
+      "desc": "calls FREE_USER_BLOCKED_WEBSITE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "FREE_USER_BLOCKED_WEBSITE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::all_popup_controls_on",
+      "kind": "structural",
+      "desc": "calls ALL_POPUP_CONTROLS_ON",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ALL_POPUP_CONTROLS_ON"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rate_child_safety",
+      "kind": "structural",
+      "desc": "calls RATE_CHILD_SAFETY",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "RATE_CHILD_SAFETY"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::set_chat_bot_shields_level",
+      "kind": "structural",
+      "desc": "calls SET_CHAT_BOT_SHIELDS_LEVEL",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SET_CHAT_BOT_SHIELDS_LEVEL"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::set_shields_level",
+      "kind": "structural",
+      "desc": "calls SET_SHIELDS_LEVEL",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SET_SHIELDS_LEVEL"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::increment_counter",
+      "kind": "structural",
+      "desc": "calls INCREMENT_COUNTER",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "INCREMENT_COUNTER"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::all_popup_controls_off",
+      "kind": "structural",
+      "desc": "calls ALL_POPUP_CONTROLS_OFF",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ALL_POPUP_CONTROLS_OFF"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::send_user_review_to_server",
+      "kind": "structural",
+      "desc": "calls SEND_USER_REVIEW_TO_SERVER",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SEND_USER_REVIEW_TO_SERVER"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::mobile_trigger_modal",
+      "kind": "structural",
+      "desc": "calls MOBILE_TRIGGER_MODAL",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "MOBILE_TRIGGER_MODAL"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::protection_on",
+      "kind": "structural",
+      "desc": "calls PROTECTION_ON",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "PROTECTION_ON"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::update_popup_scan_time",
+      "kind": "structural",
+      "desc": "calls UPDATE_POPUP_SCAN_TIME",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "UPDATE_POPUP_SCAN_TIME"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reset_reminder",
+      "kind": "structural",
+      "desc": "calls RESET_REMINDER",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "RESET_REMINDER"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::set_review_in_focus",
+      "kind": "structural",
+      "desc": "calls SET_REVIEW_IN_FOCUS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SET_REVIEW_IN_FOCUS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::save_mixpanel_ext_data",
+      "kind": "structural",
+      "desc": "calls SAVE_MIXPANEL_EXT_DATA",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SAVE_MIXPANEL_EXT_DATA"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parental_control_extra_icon_off",
+      "kind": "structural",
+      "desc": "calls PARENTAL_CONTROL_EXTRA_ICON_OFF",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "PARENTAL_CONTROL_EXTRA_ICON_OFF"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::array/isarray",
+      "kind": "structural",
+      "desc": "calls Array.isArray",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Array.isArray"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::update_tracker_allow_list_by_category",
+      "kind": "structural",
+      "desc": "calls UPDATE_TRACKER_ALLOW_LIST_BY_CATEGORY",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "UPDATE_TRACKER_ALLOW_LIST_BY_CATEGORY"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::logout_action",
+      "kind": "structural",
+      "desc": "calls LOGOUT_ACTION",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "LOGOUT_ACTION"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::experimental_feature",
+      "kind": "structural",
+      "desc": "calls EXPERIMENTAL_FEATURE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "EXPERIMENTAL_FEATURE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::update_cta_status",
+      "kind": "structural",
+      "desc": "calls UPDATE_CTA_STATUS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "UPDATE_CTA_STATUS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::delay",
+      "kind": "structural",
+      "desc": "calls delay",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "delay"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::triple_next_step",
+      "kind": "structural",
+      "desc": "calls TRIPLE_NEXT_STEP",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "TRIPLE_NEXT_STEP"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::popup_type",
+      "kind": "structural",
+      "desc": "calls POPUP_TYPE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "POPUP_TYPE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::clear_comments",
+      "kind": "structural",
+      "desc": "calls CLEAR_COMMENTS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "CLEAR_COMMENTS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::get_comments_count",
+      "kind": "structural",
+      "desc": "calls GET_COMMENTS_COUNT",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "GET_COMMENTS_COUNT"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::protection_off",
+      "kind": "structural",
+      "desc": "calls PROTECTION_OFF",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "PROTECTION_OFF"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::set_gdpr_notifications",
+      "kind": "structural",
+      "desc": "calls SET_GDPR_NOTIFICATIONS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "SET_GDPR_NOTIFICATIONS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::leak_info_completed",
+      "kind": "structural",
+      "desc": "calls LEAK_INFO_COMPLETED",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "LEAK_INFO_COMPLETED"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reset_counter",
+      "kind": "structural",
+      "desc": "calls RESET_COUNTER",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "RESET_COUNTER"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::update_tracker_allow_list",
+      "kind": "structural",
+      "desc": "calls UPDATE_TRACKER_ALLOW_LIST",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "UPDATE_TRACKER_ALLOW_LIST"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::self/dispatchevent",
+      "kind": "structural",
+      "desc": "calls self.dispatchEvent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "self.dispatchEvent"
+        }
+      ]
+    }
+  ]
+}

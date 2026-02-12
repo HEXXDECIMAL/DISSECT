@@ -1,0 +1,771 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/nbmoafcmbajniiapeidgficgifbfmjfo/21.1.9_0/client/gpc.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "d5079fc6f38c92209c2a892839e0954dd86b3ca6d0646d9e797678e210a1501f",
+  "size": 3753,
+  "risk": "suspicious",
+  "counts": {
+    "suspicious": 1,
+    "notable": 11
+  },
+  "findings": [
+    {
+      "id": "cap/data/text/keywords::runtime",
+      "kind": "capability",
+      "desc": "runtime keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime.sendMessage"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime.getURL"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/malicious-patterns::auto-execute",
+      "kind": "capability",
+      "desc": "Code auto-executes on require/import",
+      "conf": 0.8,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "yara",
+          "source": "yara-x",
+          "value": "(()",
+          "location": "offset:0"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::chrome-namespace",
+      "kind": "capability",
+      "desc": "Uses chrome.* namespace",
+      "conf": 0.95,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::chrome-runtime",
+      "kind": "capability",
+      "desc": "chrome.runtime API usage",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime.sendMessage"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime.getURL"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-di-pattern",
+      "kind": "capability",
+      "desc": "Code uses dependency injection",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "inject"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
+    },
+    {
+      "id": "cap/code/metrics/obfuscation::high-entropy-identifiers",
+      "kind": "capability",
+      "desc": "High entropy identifiers (random variable names)",
+      "conf": 0.85,
+      "crit": "inert",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.avg_entropy = 2.55"
+        }
+      ],
+      "source_file": "cap/code/metrics/obfuscation/traits.yaml"
+    },
+    {
+      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "kind": "capability",
+      "desc": "Prototype pollution guard check present",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 6 constructor",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/exploitation/memory/generic.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
+      "kind": "capability",
+      "desc": "Many anonymous functions",
+      "conf": 0.75,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.anonymous = 6.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "gpc.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::runtime-get-url",
+      "kind": "capability",
+      "desc": "Gets extension resource URL",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "(() => {\n  var __async = (__this, __arguments, generator) => {\n    return new Promise((resolve, reje...",
+          "location": "1:1"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "chrome.runtime.getURL(this.path)",
+          "location": "74:14"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "cap/exec/vm/sandbox::base64-long-string",
+      "kind": "capability",
+      "desc": "Long base64-like string pattern",
+      "conf": 0.4,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "ClientScriptContentInjectionError",
+          "location": "0x8e9"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "ClientScriptContentInjectionError",
+          "location": "0x8ea"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "ClientScriptContentInjectionError"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "InjectClientScriptContentCommand"
+        }
+      ],
+      "source_file": "cap/exec/vm/sandbox/node.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::runtime-send-message",
+      "kind": "capability",
+      "desc": "Sends message between extension contexts",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "(() => {\n  var __async = (__this, __arguments, generator) => {\n    return new Promise((resolve, reje...",
+          "location": "1:1"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "__async(this, null, function* () {\n        return chrome.runtime.sendMessage(this.message, this.call...",
+          "location": "61:14"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "chrome.runtime.sendMessage(this.message, this.callback)",
+          "location": "62:16"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::sendMessage",
+      "kind": "capability",
+      "desc": "chrome.runtime.sendMessage",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 chrome.runtime.sendMessage",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::is-extension",
+      "kind": "capability",
+      "desc": "File is part of a browser extension",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "(() => {\n  var __async = (__this, __arguments, generator) => {\n    return new Promise((resolve, reje...",
+          "location": "1:1"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "chrome.runtime.getURL(this.path)",
+          "location": "74:14"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::chrome-extension-context",
+      "kind": "capability",
+      "desc": "Chrome extension API context",
+      "conf": 0.95,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime.sendMessage"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime.getURL"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::chrome/runtime/sendmessage",
+      "kind": "structural",
+      "desc": "calls chrome.runtime.sendMessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "chrome.runtime.sendMessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::clientmessagequery",
+      "kind": "structural",
+      "desc": "calls ClientMessageQuery",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ClientMessageQuery"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::generator/next",
+      "kind": "structural",
+      "desc": "calls generator.next",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "generator.next"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/resolve",
+      "kind": "structural",
+      "desc": "calls Promise.resolve",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.resolve"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reject",
+      "kind": "structural",
+      "desc": "calls reject",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "reject"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::fulfilled",
+      "kind": "structural",
+      "desc": "calls fulfilled",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "fulfilled"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/reject",
+      "kind": "structural",
+      "desc": "calls Promise.reject",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.reject"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::generator/apply",
+      "kind": "structural",
+      "desc": "calls generator.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "generator.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::scriptelement/src",
+      "kind": "structural",
+      "desc": "calls scriptElement.src",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "scriptElement.src"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::async",
+      "kind": "structural",
+      "desc": "calls async",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "async"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::documentelement/removechild",
+      "kind": "structural",
+      "desc": "calls documentElement.removeChild",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "documentElement.removeChild"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rejected",
+      "kind": "structural",
+      "desc": "calls rejected",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rejected"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::resolve",
+      "kind": "structural",
+      "desc": "calls resolve",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "resolve"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/resolve/then",
+      "kind": "structural",
+      "desc": "calls Promise.resolve.then",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.resolve.then"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::gpcenabled",
+      "kind": "structural",
+      "desc": "calls gpcEnabled",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "gpcEnabled"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::messagenotsenterror",
+      "kind": "structural",
+      "desc": "calls MessageNotSentError",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "MessageNotSentError"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::scriptelement",
+      "kind": "structural",
+      "desc": "calls scriptElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "scriptElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::chrome/runtime/geturl",
+      "kind": "structural",
+      "desc": "calls chrome.runtime.getURL",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "chrome.runtime.getURL"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::clientscriptcontentinjectionerror",
+      "kind": "structural",
+      "desc": "calls ClientScriptContentInjectionError",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ClientScriptContentInjectionError"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::step",
+      "kind": "structural",
+      "desc": "calls step",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "step"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::generator/throw",
+      "kind": "structural",
+      "desc": "calls generator.throw",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "generator.throw"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::injectclientscriptcontentcommand",
+      "kind": "structural",
+      "desc": "calls InjectClientScriptContentCommand",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "InjectClientScriptContentCommand"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::generator",
+      "kind": "structural",
+      "desc": "calls generator",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "generator"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/createelement",
+      "kind": "structural",
+      "desc": "calls document.createElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.createElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::documentelement/insertbefore",
+      "kind": "structural",
+      "desc": "calls documentElement.insertBefore",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "documentElement.insertBefore"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::globalprivacycontrolclient",
+      "kind": "structural",
+      "desc": "calls GlobalPrivacyControlClient",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "GlobalPrivacyControlClient"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::globalprivacycontrolclient/injectcontentscript",
+      "kind": "structural",
+      "desc": "calls GlobalPrivacyControlClient.injectContentScript",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "GlobalPrivacyControlClient.injectContentScript"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getassetpathquery",
+      "kind": "structural",
+      "desc": "calls GetAssetPathQuery",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "GetAssetPathQuery"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::documentelement",
+      "kind": "structural",
+      "desc": "calls documentElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "documentElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::messagequerybase",
+      "kind": "structural",
+      "desc": "calls MessageQueryBase",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "MessageQueryBase"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::command",
+      "kind": "structural",
+      "desc": "calls Command",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Command"
+        }
+      ]
+    },
+    {
+      "id": "meta/encoded-payload/base64",
+      "kind": "structural",
+      "desc": "Encoded payload detected: base64",
+      "conf": 0.9,
+      "crit": "suspicious",
+      "evidence": [
+        {
+          "method": "pattern",
+          "source": "dissect",
+          "value": "encoding=base64, type=Unknown, preview=<binary data>",
+          "location": "offset:2092"
+        }
+      ]
+    }
+  ]
+}

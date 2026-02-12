@@ -1,0 +1,168 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/common/helpers.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "a4353c01eba2607308578a6d4e9a5725d589446e5912eafc959f7f027aa294fe",
+  "size": 459,
+  "risk": "notable",
+  "counts": {
+    "notable": 2
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "helpers.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::hostname-keyword",
+      "kind": "capability",
+      "desc": "hostname keyword",
+      "conf": 0.5,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "hostname"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "hostname"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::system-id-sources",
+      "kind": "capability",
+      "desc": "System identification sources",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "hostname"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "hostname"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "meta/internal/imported::window/settimeout",
+      "kind": "structural",
+      "desc": "calls window.setTimeout",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.setTimeout"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::func",
+      "kind": "structural",
+      "desc": "calls func",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "func"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::urldetails",
+      "kind": "structural",
+      "desc": "calls urlDetails",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "urlDetails"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::urldetails/hostname/startswith",
+      "kind": "structural",
+      "desc": "calls urlDetails.hostname.startsWith",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "urlDetails.hostname.startsWith"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::cleartimeout",
+      "kind": "structural",
+      "desc": "calls clearTimeout",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "clearTimeout"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::timeout",
+      "kind": "structural",
+      "desc": "calls timeout",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "timeout"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::urldetails/hostname/substring",
+      "kind": "structural",
+      "desc": "calls urlDetails.hostname.substring",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "urlDetails.hostname.substring"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/update-browser-properties.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "66d649ddce89c08293d69b6716f3498b82156a9ef2429e4ea2bb2ad9141bf4bb",
+  "size": 304,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "update-browser-properties.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::serverapi/callurl",
+      "kind": "structural",
+      "desc": "calls serverApi.callUrl",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "serverApi.callUrl"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::userdata/updatedata",
+      "kind": "structural",
+      "desc": "calls userData.updateData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "userData.updateData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::geo",
+      "kind": "structural",
+      "desc": "calls geo",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "geo"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::result",
+      "kind": "structural",
+      "desc": "calls result",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "result"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::userdata/getgeo",
+      "kind": "structural",
+      "desc": "calls userData.getGeo",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "userData.getGeo"
+        }
+      ]
+    }
+  ]
+}

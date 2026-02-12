@@ -1,0 +1,72 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/common/platform/notifications.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "ead51a0589b828f4859e4935f2a0e9bafe769b1dc330f278e187fac927931f5a",
+  "size": 282,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "notifications.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::opts",
+      "kind": "structural",
+      "desc": "calls opts",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "opts"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/notifications/create",
+      "kind": "structural",
+      "desc": "calls browser.notifications.create",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.notifications.create"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/notifications/clear",
+      "kind": "structural",
+      "desc": "calls browser.notifications.clear",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.notifications.clear"
+        }
+      ]
+    }
+  ]
+}

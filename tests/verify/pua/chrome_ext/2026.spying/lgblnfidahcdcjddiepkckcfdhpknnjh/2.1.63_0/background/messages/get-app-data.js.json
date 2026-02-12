@@ -1,0 +1,171 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/messages/get-app-data.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "c21357689543f34252e7a459e6f3c71c11fa0cb9b488b679129786ed26179a0f",
+  "size": 919,
+  "risk": "notable",
+  "counts": {
+    "notable": 2
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/vscode::activate-word",
+      "kind": "capability",
+      "desc": "activate keyword",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "deactivatedSites.getList"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/vscode/malicious.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "get-app-data.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::getappversion",
+      "kind": "structural",
+      "desc": "calls getAppVersion",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getAppVersion"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sendmessage",
+      "kind": "structural",
+      "desc": "calls sendMessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sendMessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pagedatacomponent/getactivetabdata",
+      "kind": "structural",
+      "desc": "calls pageDataComponent.getActiveTabData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pageDataComponent.getActiveTabData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::popupallowedsites/getlist",
+      "kind": "structural",
+      "desc": "calls popupAllowedSites.getList",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "popupAllowedSites.getList"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::statistics/getsummary",
+      "kind": "structural",
+      "desc": "calls statistics.getSummary",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "statistics.getSummary"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browserinfo/getrateurl",
+      "kind": "structural",
+      "desc": "calls browserInfo.getRateUrl",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browserInfo.getRateUrl"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::cookiebannersallowedsites/getlist",
+      "kind": "structural",
+      "desc": "calls cookieBannersAllowedSites.getList",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "cookieBannersAllowedSites.getList"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::deactivatedsites/getlist",
+      "kind": "structural",
+      "desc": "calls deactivatedSites.getList",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "deactivatedSites.getList"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/all",
+      "kind": "structural",
+      "desc": "calls Promise.all",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.all"
+        }
+      ]
+    }
+  ]
+}

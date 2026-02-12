@@ -1,0 +1,2007 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/fjnbnpbmkenffdnngjfgmeleoegfcffe/3.4.10_0/js/dynamic-bundles/google-style.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "4085283ca15256c75c318f446a3628304ddce101ba351932a8816ca0ae10ff5b",
+  "size": 6252,
+  "risk": "notable",
+  "counts": {
+    "notable": 7
+  },
+  "findings": [
+    {
+      "id": "obj/anti-analysis/kernel-hide/ebpf::hide-string",
+      "kind": "capability",
+      "desc": "Hide string reference",
+      "conf": 0.6,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "hide",
+          "location": "0x8f9"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "hide",
+          "location": "0x8fa"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "hide",
+          "location": "0xd40"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "hide",
+          "location": "0xd41"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "hide",
+          "location": "0xf75"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "hide",
+          "location": "0xf76"
+        }
+      ],
+      "source_file": "obj/anti-analysis/kernel-hide/ebpf/traits.yaml"
+    },
+    {
+      "id": "obj/c2/infrastructure/domain::hardcoded-domain-com",
+      "kind": "capability",
+      "desc": "Hardcoded .com/.org/.net domain (excluding known vendors)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x422"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x423"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x46c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x46d"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x4b7"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x4b8"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x503"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x504"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x54f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x550"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x59b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x59c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x1170"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x1171"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x11ac"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x11ad"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x1289"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x128a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x13a1"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x13a2"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x14be"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x14bf"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x168e"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x168f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x1816"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "imgur.com",
+          "location": "0x1817"
+        }
+      ],
+      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
+      "kind": "capability",
+      "desc": "setTimeout with code execution",
+      "conf": 0.75,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 3 setTimeout(() => {",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/malicious-patterns::auto-execute",
+      "kind": "capability",
+      "desc": "Code auto-executes on require/import",
+      "conf": 0.8,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "yara",
+          "source": "yara-x",
+          "value": "(()",
+          "location": "offset:0"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+    },
+    {
+      "id": "cap/exec/eval/dynamic::iife-pattern",
+      "kind": "capability",
+      "desc": "Immediately invoked function expression",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 (function () {",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/exec/eval/dynamic/javascript.yaml"
+    },
+    {
+      "id": "cap/code/metrics/obfuscation::high-entropy-identifiers",
+      "kind": "capability",
+      "desc": "High entropy identifiers (random variable names)",
+      "conf": 0.85,
+      "crit": "inert",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.avg_entropy = 2.82"
+        }
+      ],
+      "source_file": "cap/code/metrics/obfuscation/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
+      "kind": "capability",
+      "desc": "Many anonymous functions",
+      "conf": 0.75,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.anonymous = 9.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/c2/infrastructure/domain::http-url-script",
+      "kind": "capability",
+      "desc": "Network URL with domain name (script)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x422"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x423"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x46c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x46d"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x4b7"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x4b8"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x503"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x504"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x54f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x550"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x59b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x59c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x1170"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x1171"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x11ac"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x11ad"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x1289"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x128a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x13a1"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x13a2"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x14be"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x14bf"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x168e"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x168f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x1816"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://i.imgur.com/",
+          "location": "0x1817"
+        }
+      ],
+      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::hostname-keyword",
+      "kind": "capability",
+      "desc": "hostname keyword",
+      "conf": 0.5,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "hostname"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::system-id-sources",
+      "kind": "capability",
+      "desc": "System identification sources",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "hostname"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "meta/internal/imported::styletag",
+      "kind": "structural",
+      "desc": "calls styleTag",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "styleTag"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::searchicon/height",
+      "kind": "structural",
+      "desc": "calls searchIcon.height",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "searchIcon.height"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rightarrowimg/style/left",
+      "kind": "structural",
+      "desc": "calls rightArrowImg.style.left",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rightArrowImg.style.left"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::style",
+      "kind": "structural",
+      "desc": "calls style",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "style"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::addimagebytime",
+      "kind": "structural",
+      "desc": "calls addImageByTime",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "addImageByTime"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::func",
+      "kind": "structural",
+      "desc": "calls func",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "func"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::image",
+      "kind": "structural",
+      "desc": "calls image",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "image"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::images",
+      "kind": "structural",
+      "desc": "calls images",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "images"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentitem",
+      "kind": "structural",
+      "desc": "calls currentItem",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentItem"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::callback",
+      "kind": "structural",
+      "desc": "calls callback",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "callback"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::searchicon/width",
+      "kind": "structural",
+      "desc": "calls searchIcon.width",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "searchIcon.width"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::searchiconspan",
+      "kind": "structural",
+      "desc": "calls searchIconSpan",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "searchIconSpan"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::imageurl",
+      "kind": "structural",
+      "desc": "calls imageUrl",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "imageUrl"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::lastdisplayedimage",
+      "kind": "structural",
+      "desc": "calls lastDisplayedImage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "lastDisplayedImage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::voicesearchicon/height",
+      "kind": "structural",
+      "desc": "calls voiceSearchIcon.height",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "voiceSearchIcon.height"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::searchbuttonsdiv",
+      "kind": "structural",
+      "desc": "calls searchButtonsDiv",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "searchButtonsDiv"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rightarrowimg/style/top",
+      "kind": "structural",
+      "desc": "calls rightArrowImg.style.top",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rightArrowImg.style.top"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::styletag/id",
+      "kind": "structural",
+      "desc": "calls styleTag.id",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "styleTag.id"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::runonnexthour",
+      "kind": "structural",
+      "desc": "calls runOnNextHour",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "runOnNextHour"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::searchbuttonsdiv/appendchild",
+      "kind": "structural",
+      "desc": "calls searchButtonsDiv.appendChild",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "searchButtonsDiv.appendChild"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::settimeout",
+      "kind": "structural",
+      "desc": "calls setTimeout",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setTimeout"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::addfadeoutstyle",
+      "kind": "structural",
+      "desc": "calls addFadeOutStyle",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "addFadeOutStyle"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::imagesearchdiv",
+      "kind": "structural",
+      "desc": "calls imageSearchDiv",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "imageSearchDiv"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::now/getdate",
+      "kind": "structural",
+      "desc": "calls now.getDate",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "now.getDate"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::searchiconspan/appendchild",
+      "kind": "structural",
+      "desc": "calls searchIconSpan.appendChild",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "searchIconSpan.appendChild"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/getelementbyid/remove",
+      "kind": "structural",
+      "desc": "calls document.getElementById.remove",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.getElementById.remove"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::image/style/height",
+      "kind": "structural",
+      "desc": "calls image.style.height",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "image.style.height"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::newbackgroundimage/id",
+      "kind": "structural",
+      "desc": "calls newBackgroundImage.id",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "newBackgroundImage.id"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::image/style/zindex",
+      "kind": "structural",
+      "desc": "calls image.style.zIndex",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "image.style.zIndex"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::html/getattribute",
+      "kind": "structural",
+      "desc": "calls html.getAttribute",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "html.getAttribute"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::elem/classlist/add",
+      "kind": "structural",
+      "desc": "calls elem.classList.add",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "elem.classList.add"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::googleimage",
+      "kind": "structural",
+      "desc": "calls googleImage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "googleImage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::now/gethours",
+      "kind": "structural",
+      "desc": "calls now.getHours",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "now.getHours"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::newbackgroundimage",
+      "kind": "structural",
+      "desc": "calls newBackgroundImage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "newBackgroundImage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::html",
+      "kind": "structural",
+      "desc": "calls html",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "html"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/location/hostname/indexof",
+      "kind": "structural",
+      "desc": "calls window.location.hostname.indexOf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.location.hostname.indexOf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::voicesearchdiv/appendchild",
+      "kind": "structural",
+      "desc": "calls voiceSearchDiv.appendChild",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "voiceSearchDiv.appendChild"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rightarrowimg/style/position",
+      "kind": "structural",
+      "desc": "calls rightArrowImg.style.position",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rightArrowImg.style.position"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::leftarrowimg/style/position",
+      "kind": "structural",
+      "desc": "calls leftArrowImg.style.position",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "leftArrowImg.style.position"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::leftarrowimg/style/transform",
+      "kind": "structural",
+      "desc": "calls leftArrowImg.style.transform",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "leftArrowImg.style.transform"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::previousbackgroundimage/classlist/add",
+      "kind": "structural",
+      "desc": "calls previousBackgroundImage.classList.add",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "previousBackgroundImage.classList.add"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rightarrowimg",
+      "kind": "structural",
+      "desc": "calls rightArrowImg",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rightArrowImg"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::image/style/top",
+      "kind": "structural",
+      "desc": "calls image.style.top",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "image.style.top"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rightarrowimg/width",
+      "kind": "structural",
+      "desc": "calls rightArrowImg.width",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rightArrowImg.width"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::leftarrowimg/width",
+      "kind": "structural",
+      "desc": "calls leftArrowImg.width",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "leftArrowImg.width"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::localstorage/setitem",
+      "kind": "structural",
+      "desc": "calls localStorage.setItem",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "localStorage.setItem"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rightarrowimg/src",
+      "kind": "structural",
+      "desc": "calls rightArrowImg.src",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rightArrowImg.src"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::now",
+      "kind": "structural",
+      "desc": "calls now",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "now"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::body/removechild",
+      "kind": "structural",
+      "desc": "calls body.removeChild",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "body.removeChild"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::googleimage/srcset",
+      "kind": "structural",
+      "desc": "calls googleImage.srcset",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "googleImage.srcset"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::imagesearchicon/height",
+      "kind": "structural",
+      "desc": "calls imageSearchIcon.height",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "imageSearchIcon.height"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::voicesearchicon/width",
+      "kind": "structural",
+      "desc": "calls voiceSearchIcon.width",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "voiceSearchIcon.width"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/body/appendchild",
+      "kind": "structural",
+      "desc": "calls document.body.appendChild",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.body.appendChild"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::imagesearchicon/src",
+      "kind": "structural",
+      "desc": "calls imageSearchIcon.src",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "imageSearchIcon.src"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::imagesearchdiv/appendchild",
+      "kind": "structural",
+      "desc": "calls imageSearchDiv.appendChild",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "imageSearchDiv.appendChild"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::leftarrowimg",
+      "kind": "structural",
+      "desc": "calls leftArrowImg",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "leftArrowImg"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::previousitem",
+      "kind": "structural",
+      "desc": "calls previousItem",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "previousItem"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::body",
+      "kind": "structural",
+      "desc": "calls body",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "body"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::leftarrowimg/style/left",
+      "kind": "structural",
+      "desc": "calls leftArrowImg.style.left",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "leftArrowImg.style.left"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::elem/id",
+      "kind": "structural",
+      "desc": "calls elem.id",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "elem.id"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/queryselector",
+      "kind": "structural",
+      "desc": "calls document.querySelector",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.querySelector"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::createnewbackgroundimage",
+      "kind": "structural",
+      "desc": "calls createNewBackgroundImage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "createNewBackgroundImage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::newbackgroundimage/addeventlistener",
+      "kind": "structural",
+      "desc": "calls newBackgroundImage.addEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "newBackgroundImage.addEventListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::voicesearchicon",
+      "kind": "structural",
+      "desc": "calls voiceSearchIcon",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "voiceSearchIcon"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::previousbackgroundimage",
+      "kind": "structural",
+      "desc": "calls previousBackgroundImage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "previousBackgroundImage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::voicesearchdiv",
+      "kind": "structural",
+      "desc": "calls voiceSearchDiv",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "voiceSearchDiv"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::searchicon",
+      "kind": "structural",
+      "desc": "calls searchIcon",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "searchIcon"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::setinterval",
+      "kind": "structural",
+      "desc": "calls setInterval",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setInterval"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::googleimage/src",
+      "kind": "structural",
+      "desc": "calls googleImage.src",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "googleImage.src"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::now/getfullyear",
+      "kind": "structural",
+      "desc": "calls now.getFullYear",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "now.getFullYear"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::zindex",
+      "kind": "structural",
+      "desc": "calls zIndex",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "zIndex"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::voicesearchicon/src",
+      "kind": "structural",
+      "desc": "calls voiceSearchIcon.src",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "voiceSearchIcon.src"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::leftarrowimg/src",
+      "kind": "structural",
+      "desc": "calls leftArrowImg.src",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "leftArrowImg.src"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::image/style/width",
+      "kind": "structural",
+      "desc": "calls image.style.width",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "image.style.width"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::body/style/backgroundsize",
+      "kind": "structural",
+      "desc": "calls body.style.backgroundSize",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "body.style.backgroundSize"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::imagesearchicon/width",
+      "kind": "structural",
+      "desc": "calls imageSearchIcon.width",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "imageSearchIcon.width"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parseint",
+      "kind": "structural",
+      "desc": "calls parseInt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "parseInt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isgooglesearch",
+      "kind": "structural",
+      "desc": "calls isGoogleSearch",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isGoogleSearch"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::image/style/position",
+      "kind": "structural",
+      "desc": "calls image.style.position",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "image.style.position"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rightarrowimg/height",
+      "kind": "structural",
+      "desc": "calls rightArrowImg.height",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rightArrowImg.height"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::leftarrowimg/style/top",
+      "kind": "structural",
+      "desc": "calls leftArrowImg.style.top",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "leftArrowImg.style.top"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currenthour",
+      "kind": "structural",
+      "desc": "calls currentHour",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentHour"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::elem",
+      "kind": "structural",
+      "desc": "calls elem",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "elem"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isgoogle",
+      "kind": "structural",
+      "desc": "calls isGoogle",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isGoogle"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::image/style/objectfit",
+      "kind": "structural",
+      "desc": "calls image.style.objectFit",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "image.style.objectFit"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/location/href/indexof",
+      "kind": "structural",
+      "desc": "calls window.location.href.indexOf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.location.href.indexOf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::elem/innerhtml",
+      "kind": "structural",
+      "desc": "calls elem.innerHTML",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "elem.innerHTML"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::images/find",
+      "kind": "structural",
+      "desc": "calls images.find",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "images.find"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::localstorage/getitem",
+      "kind": "structural",
+      "desc": "calls localStorage.getItem",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "localStorage.getItem"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/getelementbyid",
+      "kind": "structural",
+      "desc": "calls document.getElementById",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.getElementById"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::dir",
+      "kind": "structural",
+      "desc": "calls dir",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dir"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/head/appendchild",
+      "kind": "structural",
+      "desc": "calls document.head.appendChild",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.head.appendChild"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentimage/classlist/add",
+      "kind": "structural",
+      "desc": "calls currentImage.classList.add",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentImage.classList.add"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::searchicon/src",
+      "kind": "structural",
+      "desc": "calls searchIcon.src",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "searchIcon.src"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::timetonexthour",
+      "kind": "structural",
+      "desc": "calls timeToNextHour",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "timeToNextHour"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::leftarrowimg/height",
+      "kind": "structural",
+      "desc": "calls leftArrowImg.height",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "leftArrowImg.height"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::nexthour",
+      "kind": "structural",
+      "desc": "calls nextHour",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "nextHour"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::imagesearchicon",
+      "kind": "structural",
+      "desc": "calls imageSearchIcon",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "imageSearchIcon"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::now/getmonth",
+      "kind": "structural",
+      "desc": "calls now.getMonth",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "now.getMonth"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::image/style/left",
+      "kind": "structural",
+      "desc": "calls image.style.left",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "image.style.left"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::styletag/innerhtml",
+      "kind": "structural",
+      "desc": "calls styleTag.innerHTML",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "styleTag.innerHTML"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::body/appendchild",
+      "kind": "structural",
+      "desc": "calls body.appendChild",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "body.appendChild"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::image/src",
+      "kind": "structural",
+      "desc": "calls image.src",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "image.src"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/createelement",
+      "kind": "structural",
+      "desc": "calls document.createElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.createElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentimage",
+      "kind": "structural",
+      "desc": "calls currentImage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentImage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::style/textcontent",
+      "kind": "structural",
+      "desc": "calls style.textContent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "style.textContent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/addeventlistener",
+      "kind": "structural",
+      "desc": "calls window.addEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.addEventListener"
+        }
+      ]
+    }
+  ]
+}

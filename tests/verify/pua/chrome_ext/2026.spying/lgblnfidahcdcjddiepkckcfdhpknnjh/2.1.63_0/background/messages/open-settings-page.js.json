@@ -1,0 +1,58 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/messages/open-settings-page.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "787903c31d80950b47fa760140ee30775c4387fa1da64f5c069aac92fc69a345",
+  "size": 134,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "open-settings-page.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::opentabwithurl",
+      "kind": "structural",
+      "desc": "calls openTabWithUrl",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "openTabWithUrl"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::actionincaseopensettingspage",
+      "kind": "structural",
+      "desc": "calls actionInCaseOpenSettingsPage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "actionInCaseOpenSettingsPage"
+        }
+      ]
+    }
+  ]
+}

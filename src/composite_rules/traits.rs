@@ -99,10 +99,30 @@ impl ConditionWithFilters {
     }
 
     pub fn check_count_constraints(&self, _trait_id: &str) -> Option<String> {
+        // Check count_min and count_max on ConditionWithFilters
+        if let (Some(min), Some(max)) = (self.count_min, self.count_max) {
+            if max < min {
+                return Some(format!(
+                    "count_max ({}) is less than count_min ({})",
+                    max, min
+                ));
+            }
+        }
+        // Also check condition-level constraints
         self.condition.check_count_constraints()
     }
 
     pub fn check_density_constraints(&self, _trait_id: &str) -> Option<String> {
+        // Check per_kb_min and per_kb_max on ConditionWithFilters
+        if let (Some(min), Some(max)) = (self.per_kb_min, self.per_kb_max) {
+            if max < min {
+                return Some(format!(
+                    "per_kb_max ({}) is less than per_kb_min ({})",
+                    max, min
+                ));
+            }
+        }
+        // Also check condition-level constraints
         self.condition.check_density_constraints()
     }
 

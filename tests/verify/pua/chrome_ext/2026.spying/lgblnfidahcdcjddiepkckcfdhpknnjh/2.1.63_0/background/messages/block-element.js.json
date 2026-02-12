@@ -1,0 +1,72 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/messages/block-element.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "81a9935eb40b87e6619fc4ee523db3c06ba9501d179ac7e590e67d5229a91472",
+  "size": 205,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "block-element.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::getactivetabid",
+      "kind": "structural",
+      "desc": "calls getActiveTabId",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getActiveTabId"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sendmessagetotab",
+      "kind": "structural",
+      "desc": "calls sendMessageToTab",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sendMessageToTab"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tabid",
+      "kind": "structural",
+      "desc": "calls tabId",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tabId"
+        }
+      ]
+    }
+  ]
+}

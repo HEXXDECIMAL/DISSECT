@@ -1,0 +1,117 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/common/platform/browser-actions.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "cb6c2954d7973a37a60eeebd87bc896404bfc7081bb430b613efe3951f080ca8",
+  "size": 736,
+  "risk": "notable",
+  "counts": {
+    "notable": 2
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "browser-actions.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
+      "kind": "capability",
+      "desc": "Functions with random-looking names",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.high_entropy_names = 3.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::browser/action/setbadgetext",
+      "kind": "structural",
+      "desc": "calls browser.action.setBadgeText",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.action.setBadgeText"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/action/seticon",
+      "kind": "structural",
+      "desc": "calls browser.action.setIcon",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.action.setIcon"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::debug/error",
+      "kind": "structural",
+      "desc": "calls debug.error",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "debug.error"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/action/setbadgebackgroundcolor",
+      "kind": "structural",
+      "desc": "calls browser.action.setBadgeBackgroundColor",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.action.setBadgeBackgroundColor"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/action/settitle",
+      "kind": "structural",
+      "desc": "calls browser.action.setTitle",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.action.setTitle"
+        }
+      ]
+    }
+  ]
+}

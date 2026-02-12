@@ -1,0 +1,526 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/notifications.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "ef676a02d255076886878b9fe4ba6d98c1d079459ff17bfe0c4890797683f0b5",
+  "size": 4083,
+  "risk": "notable",
+  "counts": {
+    "notable": 8
+  },
+  "findings": [
+    {
+      "id": "cap/data/encoding/charset::json-parse-js",
+      "kind": "capability",
+      "desc": "JavaScript JSON.parse",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.parse"
+        }
+      ],
+      "source_file": "cap/data/encoding/charset/traits.yaml"
+    },
+    {
+      "id": "cap/data/encoding/charset::json-stringify-js",
+      "kind": "capability",
+      "desc": "JavaScript JSON.stringify",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.stringify"
+        }
+      ],
+      "source_file": "cap/data/encoding/charset/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
+      "kind": "capability",
+      "desc": "No comments in code (stripped",
+      "conf": 0.6,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "cap/code/metrics/obfuscation::high-entropy-identifiers",
+      "kind": "capability",
+      "desc": "High entropy identifiers (random variable names)",
+      "conf": 0.85,
+      "crit": "inert",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.avg_entropy = 2.62"
+        }
+      ],
+      "source_file": "cap/code/metrics/obfuscation/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "notifications.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::json-stringify-call",
+      "kind": "capability",
+      "desc": "JSON.stringify call",
+      "conf": 0.5,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.stringify"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/persist/env-vars/profile::localappdata-string",
+      "kind": "capability",
+      "desc": "Local AppData reference",
+      "conf": 0.4,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "getLocalizedText"
+        }
+      ],
+      "source_file": "obj/persist/env-vars/profile/javascript.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::object-serialization",
+      "kind": "capability",
+      "desc": "Object serialization methods",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.stringify"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "cap/data/encoding/charset::json",
+      "kind": "capability",
+      "desc": "JSON serialization libraries",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.parse"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.stringify"
+        }
+      ],
+      "source_file": "cap/data/encoding/charset/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::notification/lastshown",
+      "kind": "structural",
+      "desc": "calls notification.lastShown",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "notification.lastShown"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentdata",
+      "kind": "structural",
+      "desc": "calls currentData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::string",
+      "kind": "structural",
+      "desc": "calls String",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "String"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getlocalizedtext",
+      "kind": "structural",
+      "desc": "calls getLocalizedText",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getLocalizedText"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data/notifications/type",
+      "kind": "structural",
+      "desc": "calls data.notifications.type",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data.notifications.type"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::json/parse",
+      "kind": "structural",
+      "desc": "calls JSON.parse",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "JSON.parse"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::serverlogger/lognotificationshown",
+      "kind": "structural",
+      "desc": "calls serverLogger.logNotificationShown",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "serverLogger.logNotificationShown"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::serverlogger/lognotificationclosed",
+      "kind": "structural",
+      "desc": "calls serverLogger.logNotificationClosed",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "serverLogger.logNotificationClosed"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::notifications",
+      "kind": "structural",
+      "desc": "calls notifications",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "notifications"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::json/stringify",
+      "kind": "structural",
+      "desc": "calls JSON.stringify",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "JSON.stringify"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::createnotification",
+      "kind": "structural",
+      "desc": "calls createNotification",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "createNotification"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/all",
+      "kind": "structural",
+      "desc": "calls Promise.all",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.all"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browserinfo/getrateurl",
+      "kind": "structural",
+      "desc": "calls browserInfo.getRateUrl",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browserInfo.getRateUrl"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::notification_statuses",
+      "kind": "structural",
+      "desc": "calls NOTIFICATION_STATUSES",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "NOTIFICATION_STATUSES"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::statistics/getsummary",
+      "kind": "structural",
+      "desc": "calls statistics.getSummary",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "statistics.getSummary"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::clearnotification",
+      "kind": "structural",
+      "desc": "calls clearNotification",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "clearNotification"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::notification/status",
+      "kind": "structural",
+      "desc": "calls notification.status",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "notification.status"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::math/random",
+      "kind": "structural",
+      "desc": "calls Math.random",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Math.random"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getextensionrelativeurl",
+      "kind": "structural",
+      "desc": "calls getExtensionRelativeUrl",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getExtensionRelativeUrl"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::date/now",
+      "kind": "structural",
+      "desc": "calls Date.now",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Date.now"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::serverlogger/lognotificationclicked",
+      "kind": "structural",
+      "desc": "calls serverLogger.logNotificationClicked",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "serverLogger.logNotificationClicked"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data",
+      "kind": "structural",
+      "desc": "calls data",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::shouldshownotification",
+      "kind": "structural",
+      "desc": "calls shouldShowNotification",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "shouldShowNotification"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::notification",
+      "kind": "structural",
+      "desc": "calls notification",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "notification"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::opentabwithurl",
+      "kind": "structural",
+      "desc": "calls openTabWithUrl",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "openTabWithUrl"
+        }
+      ]
+    }
+  ]
+}

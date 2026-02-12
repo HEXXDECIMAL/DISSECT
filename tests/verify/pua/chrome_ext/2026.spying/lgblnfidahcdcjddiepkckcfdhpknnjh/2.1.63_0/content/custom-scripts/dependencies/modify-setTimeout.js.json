@@ -1,0 +1,276 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/content/custom-scripts/dependencies/modify-setTimeout.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "c490560d4ce6246bf85674b660cd13f35baa1137e9506a8dd30e043cb7643664",
+  "size": 831,
+  "risk": "notable",
+  "counts": {
+    "notable": 2
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::url-tostring",
+      "kind": "capability",
+      "desc": "Converts URL object to string",
+      "conf": 0.8,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "regexNeedle.test(callbackFunc.toString())",
+          "location": "18:52"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "callbackFunc.toString()",
+          "location": "18:69"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/hijacking.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "modify-setTimeout.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::boost",
+      "kind": "structural",
+      "desc": "calls boost",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "boost"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::regexneedle/test",
+      "kind": "structural",
+      "desc": "calls regexNeedle.test",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "regexNeedle.test"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::callbackfunc/tostring",
+      "kind": "structural",
+      "desc": "calls callbackFunc.toString",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "callbackFunc.toString"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::delay",
+      "kind": "structural",
+      "desc": "calls delay",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "delay"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safeself",
+      "kind": "structural",
+      "desc": "calls safeSelf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeSelf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::self/settimeout",
+      "kind": "structural",
+      "desc": "calls self.setTimeout",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "self.setTimeout"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::math/max",
+      "kind": "structural",
+      "desc": "calls Math.max",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Math.max"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isfinite",
+      "kind": "structural",
+      "desc": "calls isFinite",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isFinite"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::target/apply",
+      "kind": "structural",
+      "desc": "calls target.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "target.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::regexneedle",
+      "kind": "structural",
+      "desc": "calls regexNeedle",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "regexNeedle"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safeenv/patterntoregex",
+      "kind": "structural",
+      "desc": "calls safeEnv.patternToRegex",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeEnv.patternToRegex"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safeenv",
+      "kind": "structural",
+      "desc": "calls safeEnv",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeEnv"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parseint",
+      "kind": "structural",
+      "desc": "calls parseInt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "parseInt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parsefloat",
+      "kind": "structural",
+      "desc": "calls parseFloat",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "parseFloat"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isnan",
+      "kind": "structural",
+      "desc": "calls isNaN",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isNaN"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::math/min",
+      "kind": "structural",
+      "desc": "calls Math.min",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Math.min"
+        }
+      ]
+    }
+  ]
+}

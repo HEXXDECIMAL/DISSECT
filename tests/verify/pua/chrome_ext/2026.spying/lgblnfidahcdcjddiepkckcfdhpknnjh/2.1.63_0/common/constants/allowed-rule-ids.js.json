@@ -1,0 +1,44 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/common/constants/allowed-rule-ids.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "f7270acc54cd7ca32ed7f4ce8f14142f80af02fdd6c2ccfb4436c74e23573882",
+  "size": 77,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "allowed-rule-ids.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::allowed_rules_ids",
+      "kind": "structural",
+      "desc": "calls ALLOWED_RULES_IDS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ALLOWED_RULES_IDS"
+        }
+      ]
+    }
+  ]
+}

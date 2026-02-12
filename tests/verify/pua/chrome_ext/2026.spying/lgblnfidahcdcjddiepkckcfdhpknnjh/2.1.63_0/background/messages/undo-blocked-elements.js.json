@@ -1,0 +1,100 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/messages/undo-blocked-elements.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "89910e8c81918d8c46f646cc76cd455c56339135eeeb1a4f916a80f137499f3c",
+  "size": 403,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "undo-blocked-elements.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::activetabid",
+      "kind": "structural",
+      "desc": "calls activeTabId",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "activeTabId"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getactivetabid",
+      "kind": "structural",
+      "desc": "calls getActiveTabId",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getActiveTabId"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::unblockelementsonpage",
+      "kind": "structural",
+      "desc": "calls unblockElementsOnPage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "unblockElementsOnPage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sendmessagetotab",
+      "kind": "structural",
+      "desc": "calls sendMessageToTab",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sendMessageToTab"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sendmessage",
+      "kind": "structural",
+      "desc": "calls sendMessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sendMessage"
+        }
+      ]
+    }
+  ]
+}

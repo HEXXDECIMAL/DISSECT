@@ -682,6 +682,7 @@ impl Radare2Analyzer {
         let mut total_size: u64 = 0;
         let mut largest_size: u64 = 0;
         let mut section_name_chars: Vec<char> = Vec::new();
+        let mut code_size: u64 = 0;
 
         for section in &batched.sections {
             let entropy = section.entropy as f32;
@@ -695,6 +696,7 @@ impl Radare2Analyzer {
             if let Some(ref perm) = section.perm {
                 if perm.contains('x') {
                     metrics.executable_sections += 1;
+                    code_size += section.size;
                 }
                 if perm.contains('w') {
                     metrics.writable_sections += 1;
@@ -734,6 +736,46 @@ impl Radare2Analyzer {
             metrics.largest_section_ratio = largest_size as f32 / total_size as f32;
         }
 
+        // Size metrics
+        metrics.code_size = code_size;
+        if total_size > 0 {
+            let data_size = total_size.saturating_sub(code_size);
+            if data_size > 0 {
+                metrics.code_to_data_ratio = code_size as f32 / data_size as f32;
+            }
+        }
+
+        // Average section size
+        if !batched.sections.is_empty() {
+            metrics.avg_section_size = total_size as f32 / batched.sections.len() as f32;
+        }
+
+        // String metrics
+        metrics.string_count = batched.strings.len() as u32;
+        if !batched.strings.is_empty() {
+            let mut total_length: u64 = 0;
+            let mut max_length: u32 = 0;
+            let mut wide_count: u32 = 0;
+
+            for s in &batched.strings {
+                let len = s.string.len() as u32;
+                total_length += len as u64;
+                if len > max_length {
+                    max_length = len;
+                }
+                // Check if wide string (type contains "wide" or "utf16")
+                if s.string_type.to_lowercase().contains("wide")
+                    || s.string_type.to_lowercase().contains("utf16")
+                {
+                    wide_count += 1;
+                }
+            }
+
+            metrics.avg_string_length = total_length as f32 / batched.strings.len() as f32;
+            metrics.max_string_length = max_length;
+            metrics.wide_string_count = wide_count;
+        }
+
         // Function metrics
         metrics.function_count = batched.functions.len() as u32;
 
@@ -762,6 +804,7 @@ impl Radare2Analyzer {
         if !bb_counts.is_empty() {
             metrics.avg_basic_blocks =
                 bb_counts.iter().sum::<u32>() as f32 / bb_counts.len() as f32;
+            metrics.total_basic_blocks = bb_counts.iter().sum::<u32>();
         }
 
         // Note: edge_counts collected but not used (no avg_cfg_edges field in BinaryMetrics)

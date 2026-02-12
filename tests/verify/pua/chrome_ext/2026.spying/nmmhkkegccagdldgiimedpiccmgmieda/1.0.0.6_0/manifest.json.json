@@ -1,0 +1,110 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/nmmhkkegccagdldgiimedpiccmgmieda/1.0.0.6_0/manifest.json",
+  "depth": 0,
+  "file_type": "chrome-manifest",
+  "sha256": "5dbdf0ed368be287abaff83d639b760fa5d7dc8a28e92387773b4fd3e1ba4f19",
+  "size": 1295,
+  "risk": "suspicious",
+  "counts": {
+    "suspicious": 1,
+    "notable": 5
+  },
+  "findings": [
+    {
+      "id": "supply-chain/chrome-ext/manifest-v2",
+      "kind": "indicator",
+      "desc": "Uses deprecated Manifest V2 (end of life)",
+      "conf": 0.95,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "parser",
+          "source": "manifest.json",
+          "value": "manifest_version: 2",
+          "location": "manifest_version"
+        }
+      ]
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::manifest-v2",
+      "kind": "capability",
+      "desc": "Uses deprecated Manifest V2",
+      "conf": 0.95,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/nmmhkkegccagdldgiimedpiccmgmieda/1.0.0.6_0/manifest.json",
+          "value": "2",
+          "location": "manifest_version"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::is-chrome-manifest",
+      "kind": "capability",
+      "desc": "Chrome extension manifest file",
+      "conf": 0.95,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/nmmhkkegccagdldgiimedpiccmgmieda/1.0.0.6_0/manifest.json",
+          "value": "2",
+          "location": "manifest_version"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::update-url-google",
+      "kind": "capability",
+      "desc": "Uses Google update URL",
+      "conf": 0.95,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/nmmhkkegccagdldgiimedpiccmgmieda/1.0.0.6_0/manifest.json",
+          "value": "https://clients2.google.com/service/update2/crx",
+          "location": "update_url"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::update-url-present",
+      "kind": "capability",
+      "desc": "Has update_url field",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/nmmhkkegccagdldgiimedpiccmgmieda/1.0.0.6_0/manifest.json",
+          "value": "https://clients2.google.com/service/update2/crx",
+          "location": "update_url"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "meta/encoded-payload/base64",
+      "kind": "structural",
+      "desc": "Encoded payload detected: base64",
+      "conf": 0.9,
+      "crit": "suspicious",
+      "evidence": [
+        {
+          "method": "pattern",
+          "source": "dissect",
+          "value": "encoding=base64, type=Unknown, preview=<binary data>",
+          "location": "offset:337"
+        }
+      ]
+    }
+  ]
+}

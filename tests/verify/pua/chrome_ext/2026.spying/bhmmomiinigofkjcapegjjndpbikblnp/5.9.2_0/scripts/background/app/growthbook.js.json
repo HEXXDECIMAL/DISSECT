@@ -1,0 +1,558 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bhmmomiinigofkjcapegjjndpbikblnp/5.9.2_0/scripts/background/app/growthbook.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "935a1f7d21a13e5cf07141c9bfa07b1b679bc2b46f420fea870914af7aa1a43c",
+  "size": 894,
+  "risk": "notable",
+  "counts": {
+    "notable": 10
+  },
+  "findings": [
+    {
+      "id": "obj/c2/infrastructure/domain::hardcoded-domain-com",
+      "kind": "capability",
+      "desc": "Hardcoded .com/.org/.net domain (excluding known vendors)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "mywot.com",
+          "location": "0x146"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "mywot.com",
+          "location": "0x147"
+        }
+      ],
+      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+    },
+    {
+      "id": "cap/data/text/keywords::payload",
+      "kind": "capability",
+      "desc": "payload keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "../../../resources/local_growthbook_payload.json",
+          "location": "0x1ed"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "../../../resources/local_growthbook_payload.json",
+          "location": "0x1ee"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::object-keys-call",
+      "kind": "capability",
+      "desc": "Object.keys call",
+      "conf": 0.5,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::storage-local",
+      "kind": "capability",
+      "desc": "Accesses local extension storage",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "setPolyfills({localStorage:{getItem:async e=>(await webextApi.storage.local.get(e))[e],setItem:(e,t)...",
+          "location": "1:124"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "webextApi.storage.local.get(e)",
+          "location": "1:176"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "webextApi.storage.local.set({[e]:t})",
+          "location": "1:226"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "cap/exec/dropper/loader::fetch-call",
+      "kind": "capability",
+      "desc": "fetch() API call",
+      "conf": 0.6,
+      "crit": "inert",
+      "mbc": "B0024",
+      "attack": "T1059.007",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 fetch(",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/exec/dropper/loader/node-fetch.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "growthbook.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
+      "kind": "capability",
+      "desc": "Many one-liner functions (minified code",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 5.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/electron::electron-resources-path",
+      "kind": "capability",
+      "desc": "Electron resources directory",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0024",
+      "attack": "T1195.002",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "../../../resources/local_growthbook_payload.json",
+          "location": "0x1ed"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "../../../resources/local_growthbook_payload.json",
+          "location": "0x1ee"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/electron/trojanize.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
+      "kind": "capability",
+      "desc": "Sequential identifiers (a, b, c,",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 6.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.02"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/c2/infrastructure/domain::http-url-script",
+      "kind": "capability",
+      "desc": "Network URL with domain name (script)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://growthbook.mywot.com",
+          "location": "0x146"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://growthbook.mywot.com",
+          "location": "0x147"
+        }
+      ],
+      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::object-serialization",
+      "kind": "capability",
+      "desc": "Object serialization methods",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "kind": "capability",
+      "desc": "Minified/compressed code (multiple indicators)",
+      "conf": 0.9,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.02"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 5.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 6.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::t/getpayload",
+      "kind": "structural",
+      "desc": "calls t.getPayload",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.getPayload"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::this",
+      "kind": "structural",
+      "desc": "calls this",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "this"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::configurecache",
+      "kind": "structural",
+      "desc": "calls configureCache",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "configureCache"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/getstate",
+      "kind": "structural",
+      "desc": "calls e.getState",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.getState"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::initgrowthbook",
+      "kind": "structural",
+      "desc": "calls initGrowthbook",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "initGrowthbook"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::validcachetime",
+      "kind": "structural",
+      "desc": "calls validCacheTime",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "validCacheTime"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::o/filter",
+      "kind": "structural",
+      "desc": "calls o.filter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "o.filter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/keys",
+      "kind": "structural",
+      "desc": "calls Object.keys",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.keys"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::s/includes",
+      "kind": "structural",
+      "desc": "calls s.includes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "s.includes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::removefinishedexperiment",
+      "kind": "structural",
+      "desc": "calls removeFinishedExperiment",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "removeFinishedExperiment"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::fetch",
+      "kind": "structural",
+      "desc": "calls fetch",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "fetch"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::setpolyfills",
+      "kind": "structural",
+      "desc": "calls setPolyfills",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setPolyfills"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/json",
+      "kind": "structural",
+      "desc": "calls e.json",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.json"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::webextapi/storage/local/get",
+      "kind": "structural",
+      "desc": "calls webextApi.storage.local.get",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "webextApi.storage.local.get"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::webextapi/storage/local/set",
+      "kind": "structural",
+      "desc": "calls webextApi.storage.local.set",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "webextApi.storage.local.set"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/dispatch",
+      "kind": "structural",
+      "desc": "calls e.dispatch",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.dispatch"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::savegrowthbookpayload",
+      "kind": "structural",
+      "desc": "calls saveGrowthBookPayload",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "saveGrowthBookPayload"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/init",
+      "kind": "structural",
+      "desc": "calls t.init",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.init"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::cleanfinishedexperiments",
+      "kind": "structural",
+      "desc": "calls cleanFinishedExperiments",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "cleanFinishedExperiments"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::this/store/dispatch",
+      "kind": "structural",
+      "desc": "calls this.store.dispatch",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "this.store.dispatch"
+        }
+      ]
+    }
+  ]
+}

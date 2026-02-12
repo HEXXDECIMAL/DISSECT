@@ -1,0 +1,154 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/content/custom-scripts/bing.com.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "da71a4645a508a383115f2c75080c9811699a1603abe36226e87a40149ff7ba3",
+  "size": 151,
+  "risk": "notable",
+  "counts": {
+    "notable": 6
+  },
+  "findings": [
+    {
+      "id": "cap/exec/command/shell::system-call-word",
+      "kind": "capability",
+      "desc": "system() call (string)",
+      "conf": 0.5,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "system",
+          "location": "0x24"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "system",
+          "location": "0x25"
+        }
+      ],
+      "source_file": "cap/exec/command/shell/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-di-pattern",
+      "kind": "capability",
+      "desc": "Code uses dependency injection",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "provide",
+          "location": "0x24"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "provide",
+          "location": "0x25"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "bing.com.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "cap/exec/command/shell::shell-symbols",
+      "kind": "capability",
+      "desc": "Shell execution symbols",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "system",
+          "location": "0x24"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "system",
+          "location": "0x25"
+        }
+      ],
+      "source_file": "cap/exec/command/shell/traits.yaml"
+    },
+    {
+      "id": "obj/exec/condition/platform::has-execution-capability",
+      "kind": "capability",
+      "desc": "Has code execution capability",
+      "conf": 0.6,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "system",
+          "location": "0x24"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "system",
+          "location": "0x25"
+        }
+      ],
+      "source_file": "obj/exec/condition/platform/os.yaml"
+    },
+    {
+      "id": "cap/exec/command/shell::shell-execution-indicators",
+      "kind": "capability",
+      "desc": "Shell command execution indicators",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "system",
+          "location": "0x24"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "system",
+          "location": "0x25"
+        }
+      ],
+      "source_file": "cap/exec/command/shell/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::hideelemsinshadowdom",
+      "kind": "structural",
+      "desc": "calls hideElemsInShadowDom",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hideElemsInShadowDom"
+        }
+      ]
+    }
+  ]
+}

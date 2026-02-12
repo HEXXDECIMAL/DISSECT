@@ -1,0 +1,345 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/njgehaondchbmjmajphnhlojfnbfokng/6.5.5_0/scripts/third-party/content-1.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "59a218b6a40af2332972e9d768f8be43fbefca8f7c4953639653df41399f2cdb",
+  "size": 1482,
+  "risk": "notable",
+  "counts": {
+    "notable": 8
+  },
+  "findings": [
+    {
+      "id": "cap/data/text/keywords::runtime",
+      "kind": "capability",
+      "desc": "runtime keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime.sendMessage"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime.onMessage.addListener"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::chrome-namespace",
+      "kind": "capability",
+      "desc": "Uses chrome.* namespace",
+      "conf": 0.95,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::chrome-runtime",
+      "kind": "capability",
+      "desc": "chrome.runtime API usage",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime.sendMessage"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime.onMessage.addListener"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "content-1.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::onMessage",
+      "kind": "capability",
+      "desc": "chrome.runtime.onMessage listener",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime.onMessage.addListener"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::runtime-send-message",
+      "kind": "capability",
+      "desc": "Sends message between extension contexts",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "chrome.runtime.sendMessage({\r\n            subject: \"requestVideoPlatformDetect\",\r\n            tabId,...",
+          "location": "15:9"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::sendMessage",
+      "kind": "capability",
+      "desc": "chrome.runtime.sendMessage",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 chrome.runtime.sendMessage",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::is-extension",
+      "kind": "capability",
+      "desc": "File is part of a browser extension",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::chrome-extension-context",
+      "kind": "capability",
+      "desc": "Chrome extension API context",
+      "conf": 0.95,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime.sendMessage"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime.onMessage.addListener"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::container/classlist/remove",
+      "kind": "structural",
+      "desc": "calls container.classList.remove",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "container.classList.remove"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::indicator/classlist/add",
+      "kind": "structural",
+      "desc": "calls indicator.classList.add",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "indicator.classList.add"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::fbdsingledownloader/utils/getactivetab",
+      "kind": "structural",
+      "desc": "calls fbdSingleDownloader.Utils.getActiveTab",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "fbdSingleDownloader.Utils.getActiveTab"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::score",
+      "kind": "structural",
+      "desc": "calls score",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "score"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::chrome/runtime/sendmessage",
+      "kind": "structural",
+      "desc": "calls chrome.runtime.sendMessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "chrome.runtime.sendMessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::indicator/innerhtml",
+      "kind": "structural",
+      "desc": "calls indicator.innerHTML",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "indicator.innerHTML"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::container",
+      "kind": "structural",
+      "desc": "calls container",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "container"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::indicator/classlist/remove",
+      "kind": "structural",
+      "desc": "calls indicator.classList.remove",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "indicator.classList.remove"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::indicator",
+      "kind": "structural",
+      "desc": "calls indicator",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "indicator"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::chrome/runtime/onmessage/addlistener",
+      "kind": "structural",
+      "desc": "calls chrome.runtime.onMessage.addListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "chrome.runtime.onMessage.addListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/getelementbyid",
+      "kind": "structural",
+      "desc": "calls document.getElementById",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.getElementById"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::videoplatformdetect",
+      "kind": "structural",
+      "desc": "calls videoPlatformDetect",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "videoPlatformDetect"
+        }
+      ]
+    }
+  ]
+}

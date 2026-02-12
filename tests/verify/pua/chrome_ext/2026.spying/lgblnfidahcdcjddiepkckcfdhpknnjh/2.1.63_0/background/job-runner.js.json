@@ -1,0 +1,158 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/job-runner.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "547c2224b8eef5b56dcc8ea8d664f7b5a1213ebc5e9f14e2e5c6ae1df5716f85",
+  "size": 676,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "job-runner.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "known/malware/backdoor/melofee::heartbeat-string",
+      "kind": "capability",
+      "desc": "heartbeat C2 string",
+      "conf": 0.7,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "heartbeat",
+          "location": "0x204"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "heartbeat",
+          "location": "0x205"
+        }
+      ],
+      "source_file": "known/malware/backdoor/melofee/traits.yaml"
+    },
+    {
+      "id": "known/malware/backdoor/melofee::c2-protocols",
+      "kind": "capability",
+      "desc": "C2 heartbeat/beacon protocols",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "heartbeat",
+          "location": "0x204"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "heartbeat",
+          "location": "0x205"
+        }
+      ],
+      "source_file": "known/malware/backdoor/melofee/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::jobrunner",
+      "kind": "structural",
+      "desc": "calls jobRunner",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "jobRunner"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::jobrunner/addjob",
+      "kind": "structural",
+      "desc": "calls jobRunner.addJob",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "jobRunner.addJob"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/alarms/get/then",
+      "kind": "structural",
+      "desc": "calls browser.alarms.get.then",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.alarms.get.then"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tab/cleanuptabs/bind",
+      "kind": "structural",
+      "desc": "calls tab.cleanupTabs.bind",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tab.cleanupTabs.bind"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/alarms/get",
+      "kind": "structural",
+      "desc": "calls browser.alarms.get",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.alarms.get"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/alarms/create",
+      "kind": "structural",
+      "desc": "calls browser.alarms.create",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.alarms.create"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/lists.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "b5f40d7afb20121243aa85fc17f8c320b42b88efa73bd57fd533a625b20bbb8c",
+  "size": 269,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "lists.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::csslistdatacomponent/start",
+      "kind": "structural",
+      "desc": "calls cssListDataComponent.start",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "cssListDataComponent.start"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::trackerslistdata",
+      "kind": "structural",
+      "desc": "calls trackersListData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "trackersListData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::trackerslistdata/start",
+      "kind": "structural",
+      "desc": "calls trackersListData.start",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "trackersListData.start"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/allsettled",
+      "kind": "structural",
+      "desc": "calls Promise.allSettled",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.allSettled"
+        }
+      ]
+    }
+  ]
+}

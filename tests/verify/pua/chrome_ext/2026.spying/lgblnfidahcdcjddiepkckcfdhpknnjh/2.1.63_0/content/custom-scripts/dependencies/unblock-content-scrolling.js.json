@@ -1,0 +1,366 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/content/custom-scripts/dependencies/unblock-content-scrolling.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "54dafe030d9af4320784c8ce17013180ef38b438a34bb5d0ad0c136e32f19b04",
+  "size": 1048,
+  "risk": "notable",
+  "counts": {
+    "notable": 2
+  },
+  "findings": [
+    {
+      "id": "cap/data/text/keywords::overflow",
+      "kind": "capability",
+      "desc": "overflow keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "overflow",
+          "location": "0xe0"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "overflow",
+          "location": "0xe1"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "overflow",
+          "location": "0x122"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "overflow",
+          "location": "0x123"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "overflow",
+          "location": "0x176"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "overflow",
+          "location": "0x177"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "overflow",
+          "location": "0x1b7"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "overflow",
+          "location": "0x1b8"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "overflow: auto",
+          "location": "0x28c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "overflow: auto",
+          "location": "0x28d"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "overflow: auto",
+          "location": "0x2c5"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "overflow: auto",
+          "location": "0x2c6"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
+      "kind": "capability",
+      "desc": "setTimeout with code execution",
+      "conf": 0.75,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 setTimeout(() => {",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "unblock-content-scrolling.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::documenthtml/style/setproperty",
+      "kind": "structural",
+      "desc": "calls documentHtml.style.setProperty",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "documentHtml.style.setProperty"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::interval",
+      "kind": "structural",
+      "desc": "calls interval",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "interval"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::clearinterval",
+      "kind": "structural",
+      "desc": "calls clearInterval",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "clearInterval"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/queryselector",
+      "kind": "structural",
+      "desc": "calls document.querySelector",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.querySelector"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::setinterval",
+      "kind": "structural",
+      "desc": "calls setInterval",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setInterval"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::documenthtml",
+      "kind": "structural",
+      "desc": "calls documentHtml",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "documentHtml"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::container",
+      "kind": "structural",
+      "desc": "calls container",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "container"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::counter",
+      "kind": "structural",
+      "desc": "calls counter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "counter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::documenthtml/style/getpropertyvalue",
+      "kind": "structural",
+      "desc": "calls documentHtml.style.getPropertyValue",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "documentHtml.style.getPropertyValue"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/body/style/csstext/includes",
+      "kind": "structural",
+      "desc": "calls document.body.style.cssText.includes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.body.style.cssText.includes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::documenthtml/style/csstext/includes",
+      "kind": "structural",
+      "desc": "calls documentHtml.style.cssText.includes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "documentHtml.style.cssText.includes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::unblockcontentscrolling",
+      "kind": "structural",
+      "desc": "calls unblockContentScrolling",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "unblockContentScrolling"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::settimeout",
+      "kind": "structural",
+      "desc": "calls setTimeout",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setTimeout"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::container/remove",
+      "kind": "structural",
+      "desc": "calls container.remove",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "container.remove"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::unblockcontentscrollingscript",
+      "kind": "structural",
+      "desc": "calls unblockContentScrollingScript",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "unblockContentScrollingScript"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/body/style/getpropertyvalue",
+      "kind": "structural",
+      "desc": "calls document.body.style.getPropertyValue",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.body.style.getPropertyValue"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/body/style/setproperty",
+      "kind": "structural",
+      "desc": "calls document.body.style.setProperty",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.body.style.setProperty"
+        }
+      ]
+    }
+  ]
+}

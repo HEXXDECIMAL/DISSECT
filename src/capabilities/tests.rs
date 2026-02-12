@@ -1769,6 +1769,9 @@ fn test_precision_threshold_validation() {
     let mut composites = vec![rule_low, rule_high];
     let traits: Vec<TraitDefinition> = vec![];
 
+    // Precalculate precision before validation
+    validation::precalculate_all_composite_precisions(&mut composites, &traits);
+
     // Run validation
     validation::validate_hostile_composite_precision(
         &mut composites,
@@ -1897,6 +1900,9 @@ fn test_suspicious_precision_threshold_validation() {
 
     let mut composites = vec![rule_low, rule_ok];
     let traits: Vec<TraitDefinition> = vec![];
+
+    // Precalculate precision before validation
+    validation::precalculate_all_composite_precisions(&mut composites, &traits);
 
     // Run validation
     validation::validate_hostile_composite_precision(

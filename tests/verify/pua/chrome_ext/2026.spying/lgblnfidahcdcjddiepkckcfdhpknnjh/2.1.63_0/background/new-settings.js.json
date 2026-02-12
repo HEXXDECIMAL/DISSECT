@@ -1,0 +1,208 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/new-settings.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "2401ce2a93dec8a2915dfb857d3e90ab5b0c7a35c2c521c380f83d24e5c8e3b1",
+  "size": 802,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "kind": "capability",
+      "desc": "for loop (AST)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "7:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "9:7"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "new-settings.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "kind": "capability",
+      "desc": "Iteration or loop pattern",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "7:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "9:7"
+        },
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "meta/internal/imported::sendmessagetotab",
+      "kind": "structural",
+      "desc": "calls sendMessageToTab",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sendMessageToTab"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::updateicon",
+      "kind": "structural",
+      "desc": "calls updateIcon",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "updateIcon"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::frames",
+      "kind": "structural",
+      "desc": "calls frames",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "frames"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pagedatacomponent/getframepagedata",
+      "kind": "structural",
+      "desc": "calls pageDataComponent.getFramePageData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pageDataComponent.getFramePageData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::debug/error",
+      "kind": "structural",
+      "desc": "calls debug.error",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "debug.error"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getallframes",
+      "kind": "structural",
+      "desc": "calls getAllFrames",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getAllFrames"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::framedata",
+      "kind": "structural",
+      "desc": "calls frameData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "frameData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pagedatacomponent/refreshbulk",
+      "kind": "structural",
+      "desc": "calls pageDataComponent.refreshBulk",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pageDataComponent.refreshBulk"
+        }
+      ]
+    }
+  ]
+}

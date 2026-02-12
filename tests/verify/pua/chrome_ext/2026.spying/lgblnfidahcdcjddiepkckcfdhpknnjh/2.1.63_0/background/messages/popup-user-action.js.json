@@ -1,0 +1,114 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/messages/popup-user-action.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "c85b94e2f02b40bc914d0f02dd56b6192eb1b999a61bafceabc4cd7744886dc1",
+  "size": 894,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "popup-user-action.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::tab/changenexttabcreationallowance",
+      "kind": "structural",
+      "desc": "calls tab.changeNextTabCreationAllowance",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tab.changeNextTabCreationAllowance"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::popupshownotificationlist/setvaluebyhost",
+      "kind": "structural",
+      "desc": "calls popupShowNotificationList.setValueByHost",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "popupShowNotificationList.setValueByHost"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::popup_options",
+      "kind": "structural",
+      "desc": "calls POPUP_OPTIONS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "POPUP_OPTIONS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::applynewsettingsontabs",
+      "kind": "structural",
+      "desc": "calls applyNewSettingsOnTabs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "applyNewSettingsOnTabs"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::popupallowedsites/remove",
+      "kind": "structural",
+      "desc": "calls popupAllowedSites.remove",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "popupAllowedSites.remove"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::popupallowedsites/add",
+      "kind": "structural",
+      "desc": "calls popupAllowedSites.add",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "popupAllowedSites.add"
+        }
+      ]
+    }
+  ]
+}

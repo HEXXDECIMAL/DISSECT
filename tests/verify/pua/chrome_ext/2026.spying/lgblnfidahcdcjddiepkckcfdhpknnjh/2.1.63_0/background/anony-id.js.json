@@ -1,0 +1,147 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/anony-id.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "391058d16c21a0b2b9bd6018dfe66efee067fb8d9fbacf423046fca275b68d37",
+  "size": 324,
+  "risk": "notable",
+  "counts": {
+    "notable": 3
+  },
+  "findings": [
+    {
+      "id": "obj/creds/wallet/mnemonic::crypto-word",
+      "kind": "capability",
+      "desc": "crypto term",
+      "conf": 0.5,
+      "crit": "notable",
+      "mbc": "B0028",
+      "attack": "T1555",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "crypto"
+        }
+      ],
+      "source_file": "obj/creds/wallet/mnemonic/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "anony-id.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/impact/ransomware/behavior::crypto-module",
+      "kind": "capability",
+      "desc": "crypto module",
+      "conf": 0.3,
+      "crit": "notable",
+      "attack": "T1486",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "crypto.randomUUID"
+        }
+      ],
+      "source_file": "obj/impact/ransomware/behavior/patterns.yaml"
+    },
+    {
+      "id": "meta/internal/imported::newvalue",
+      "kind": "structural",
+      "desc": "calls newValue",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "newValue"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::crypto/randomuuid",
+      "kind": "structural",
+      "desc": "calls crypto.randomUUID",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "crypto.randomUUID"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::storageservice/set",
+      "kind": "structural",
+      "desc": "calls storageService.set",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "storageService.set"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::value",
+      "kind": "structural",
+      "desc": "calls value",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "value"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::anonyreportkey",
+      "kind": "structural",
+      "desc": "calls anonyReportKey",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "anonyReportKey"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::storageservice/get",
+      "kind": "structural",
+      "desc": "calls storageService.get",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "storageService.get"
+        }
+      ]
+    }
+  ]
+}

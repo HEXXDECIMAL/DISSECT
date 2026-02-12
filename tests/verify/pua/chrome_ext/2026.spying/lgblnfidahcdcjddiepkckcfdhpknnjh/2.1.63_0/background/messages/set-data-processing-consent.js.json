@@ -1,0 +1,128 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/messages/set-data-processing-consent.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "8d2407b5256b85803953ea3398f59aa347750414b8eeb1c2415fed758e333352",
+  "size": 608,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "set-data-processing-consent.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::sendmessage",
+      "kind": "structural",
+      "desc": "calls sendMessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sendMessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::userdata/getdata/then",
+      "kind": "structural",
+      "desc": "calls userData.getData.then",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "userData.getData.then"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::opentabwithurl",
+      "kind": "structural",
+      "desc": "calls openTabWithUrl",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "openTabWithUrl"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::startapp",
+      "kind": "structural",
+      "desc": "calls startApp",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "startApp"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::userdata/getdata",
+      "kind": "structural",
+      "desc": "calls userData.getData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "userData.getData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::serverlogger/prepareandsend",
+      "kind": "structural",
+      "desc": "calls serverLogger.prepareAndSend",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "serverLogger.prepareAndSend"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::dataprocessingconsent/setconsent",
+      "kind": "structural",
+      "desc": "calls dataProcessingConsent.setConsent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dataProcessingConsent.setConsent"
+        }
+      ]
+    }
+  ]
+}

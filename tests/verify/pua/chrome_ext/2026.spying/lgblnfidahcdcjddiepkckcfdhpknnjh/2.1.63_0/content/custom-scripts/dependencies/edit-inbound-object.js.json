@@ -1,0 +1,352 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/content/custom-scripts/dependencies/edit-inbound-object.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "eac8083a9c94efae8fb9c45e65ae69996bff5a6ac052e649a8ceae8ebd3b37ad",
+  "size": 1522,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "edit-inbound-object.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::isnan",
+      "kind": "structural",
+      "desc": "calls isNaN",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isNaN"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/stndzlog",
+      "kind": "structural",
+      "desc": "calls safe.stndzLog",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.stndzLog"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe",
+      "kind": "structural",
+      "desc": "calls safe",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/json_stringify",
+      "kind": "structural",
+      "desc": "calls safe.JSON_stringify",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.JSON_stringify"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::context/reflect",
+      "kind": "structural",
+      "desc": "calls context.reflect",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "context.reflect"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safeself",
+      "kind": "structural",
+      "desc": "calls safeSelf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeSelf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::jsonpath/create",
+      "kind": "structural",
+      "desc": "calls JSONPath.create",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "JSONPath.create"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/makelogprefix",
+      "kind": "structural",
+      "desc": "calls safe.makeLogPrefix",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.makeLogPrefix"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/json_parse",
+      "kind": "structural",
+      "desc": "calls safe.JSON_parse",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.JSON_parse"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::logprefix",
+      "kind": "structural",
+      "desc": "calls logPrefix",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "logPrefix"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getargpos",
+      "kind": "structural",
+      "desc": "calls getArgPos",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getArgPos"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::proxyapply",
+      "kind": "structural",
+      "desc": "calls proxyApply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "proxyApply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::callargs",
+      "kind": "structural",
+      "desc": "calls callArgs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "callArgs"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::obj",
+      "kind": "structural",
+      "desc": "calls obj",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "obj"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::jsonp",
+      "kind": "structural",
+      "desc": "calls jsonp",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "jsonp"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::array/isarray",
+      "kind": "structural",
+      "desc": "calls Array.isArray",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Array.isArray"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::argpos",
+      "kind": "structural",
+      "desc": "calls argPos",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "argPos"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::clone",
+      "kind": "structural",
+      "desc": "calls clone",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "clone"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::objafter",
+      "kind": "structural",
+      "desc": "calls objAfter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "objAfter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::callargs/i",
+      "kind": "structural",
+      "desc": "calls callArgs.i",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "callArgs.i"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parseint",
+      "kind": "structural",
+      "desc": "calls parseInt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "parseInt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::jsonp/apply",
+      "kind": "structural",
+      "desc": "calls jsonp.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "jsonp.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::editobj",
+      "kind": "structural",
+      "desc": "calls editObj",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "editObj"
+        }
+      ]
+    }
+  ]
+}

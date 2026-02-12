@@ -1,0 +1,1744 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/browser-polyfill.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "6f0cf1ba93c1a1fa2048b17adbb3803f459e2648f0e174c35422af5650ce059a",
+  "size": 38412,
+  "risk": "suspicious",
+  "counts": {
+    "suspicious": 1,
+    "notable": 24
+  },
+  "findings": [
+    {
+      "id": "cap/fs/path/sensitive/browser::cookies",
+      "kind": "capability",
+      "desc": "Reference to browser cookies",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "T1539",
+      "attack": "T1539",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "removeCookies",
+          "location": "0x129a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "removeCookies",
+          "location": "0x129b"
+        }
+      ],
+      "source_file": "cap/fs/path/sensitive/browser/macos.yaml"
+    },
+    {
+      "id": "obj/anti-analysis/kernel-hide/ebpf::hide-string",
+      "kind": "capability",
+      "desc": "Hide string reference",
+      "conf": 0.6,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "hide",
+          "location": "0x2864"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "hide",
+          "location": "0x2865"
+        }
+      ],
+      "source_file": "obj/anti-analysis/kernel-hide/ebpf/traits.yaml"
+    },
+    {
+      "id": "cap/data/text/keywords::runtime",
+      "kind": "capability",
+      "desc": "runtime keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "runtime",
+          "location": "0x2c41"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "runtime",
+          "location": "0x2c42"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "cap/data/text/keywords::execute",
+      "kind": "capability",
+      "desc": "execute keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "executeScript",
+          "location": "0x36f6"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "executeScript",
+          "location": "0x36f7"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "cap/data/text/keywords::password",
+      "kind": "capability",
+      "desc": "password keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "removePasswords",
+          "location": "0x1473"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "removePasswords",
+          "location": "0x1474"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "cap/comm/http/post::formdata-class",
+      "kind": "capability",
+      "desc": "FormData class",
+      "conf": 0.6,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "removeFormData",
+          "location": "0x1356"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "removeFormData",
+          "location": "0x1357"
+        }
+      ],
+      "source_file": "cap/comm/http/post/generic.yaml"
+    },
+    {
+      "id": "cap/data/text/keywords::command",
+      "kind": "capability",
+      "desc": "command keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "commands",
+          "location": "0x1592"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "commands",
+          "location": "0x1593"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "obj/creds/browser/chromium::cookies",
+      "kind": "capability",
+      "desc": "Chromium Cookies database path",
+      "conf": 0.8,
+      "crit": "suspicious",
+      "mbc": "OB0003",
+      "attack": "T1555.003",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "removeCookies",
+          "location": "0x129a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "removeCookies",
+          "location": "0x129b"
+        }
+      ],
+      "source_file": "obj/creds/browser/chromium/paths.yaml"
+    },
+    {
+      "id": "obj/discovery/host/browser::bookmarks-word",
+      "kind": "capability",
+      "desc": "bookmarks keyword",
+      "conf": 0.4,
+      "crit": "notable",
+      "attack": "T1217",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bookmarks",
+          "location": "0x88a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bookmarks",
+          "location": "0x88b"
+        }
+      ],
+      "source_file": "obj/discovery/host/browser/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/testing::should-word",
+      "kind": "capability",
+      "desc": "should keyword",
+      "conf": 0.6,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "should",
+          "location": "0x37c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "should",
+          "location": "0x37d"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::executeScript",
+      "kind": "capability",
+      "desc": "chrome.scripting.executeScript call",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "executeScript",
+          "location": "0x36f6"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "executeScript",
+          "location": "0x36f7"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::object-keys-call",
+      "kind": "capability",
+      "desc": "Object.keys call",
+      "conf": 0.5,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::setUninstallURL",
+      "kind": "capability",
+      "desc": "Extension uninstall URL callback",
+      "conf": 0.95,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "setUninstallURL",
+          "location": "0x2e95"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "setUninstallURL",
+          "location": "0x2e96"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/traits.yaml"
+    },
+    {
+      "id": "meta/quality/error-handling::catch-keyword",
+      "kind": "capability",
+      "desc": "catch keyword",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "catch"
+        }
+      ],
+      "source_file": "meta/quality/error-handling/traits.yaml"
+    },
+    {
+      "id": "cap/exec/eval/dynamic::iife-pattern",
+      "kind": "capability",
+      "desc": "Immediately invoked function expression",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 (function (global, factory) {",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/exec/eval/dynamic/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/complexity::monster-function",
+      "kind": "capability",
+      "desc": "Extremely large function (>500 lines)",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.over_500_lines = 2.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/complexity/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::insertCSS",
+      "kind": "capability",
+      "desc": "chrome.scripting.insertCSS call",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "insertCSS",
+          "location": "0x39be"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "insertCSS",
+          "location": "0x39bf"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+    },
+    {
+      "id": "cap/code/metrics/obfuscation::high-entropy-identifiers",
+      "kind": "capability",
+      "desc": "High entropy identifiers (random variable names)",
+      "conf": 0.85,
+      "crit": "inert",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.avg_entropy = 2.68"
+        }
+      ],
+      "source_file": "cap/code/metrics/obfuscation/traits.yaml"
+    },
+    {
+      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "kind": "capability",
+      "desc": "Prototype pollution guard check present",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 4 prototype",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/exploitation/memory/generic.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
+      "kind": "capability",
+      "desc": "Many anonymous functions",
+      "conf": 0.75,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.anonymous = 12.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::onMessage",
+      "kind": "capability",
+      "desc": "chrome.runtime.onMessage listener",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Failed to send onMessage rejected reply",
+          "location": "0x8811"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Failed to send onMessage rejected reply",
+          "location": "0x8812"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "onMessageWrappers"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::deep-nesting",
+      "kind": "capability",
+      "desc": "Deeply nested functions (complexity indicator)",
+      "conf": 0.75,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.max_nesting_depth = 5.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/vscode::exec-pattern",
+      "kind": "capability",
+      "desc": "exec function pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "exec",
+          "location": "0x36f6"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "exec",
+          "location": "0x36f7"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/vscode/malicious.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/minifier::object-define-property",
+      "kind": "capability",
+      "desc": "Object.defineProperty call",
+      "conf": 0.6,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.defineProperty"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/minifier/traits.yaml"
+    },
+    {
+      "id": "cap/exec/eval/dynamic::bracket-function-access",
+      "kind": "capability",
+      "desc": "Function access via bracket notation",
+      "conf": 0.65,
+      "crit": "notable",
+      "attack": "T1027.002",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 4 target[name](",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/exec/eval/dynamic/javascript.yaml"
+    },
+    {
+      "id": "obj/persist/env-vars/profile::localappdata-string",
+      "kind": "capability",
+      "desc": "Local AppData reference",
+      "conf": 0.4,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "removeLocalStorage",
+          "location": "0x1411"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "removeLocalStorage",
+          "location": "0x1412"
+        }
+      ],
+      "source_file": "obj/persist/env-vars/profile/javascript.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::object-serialization",
+      "kind": "capability",
+      "desc": "Object serialization methods",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/collect/stealer/data::sensitive-paths",
+      "kind": "capability",
+      "desc": "Browser or wallet file paths",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "OB0009",
+      "attack": "T1555.003",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "removeCookies",
+          "location": "0x129a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "removeCookies",
+          "location": "0x129b"
+        }
+      ],
+      "source_file": "obj/collect/stealer/data/browser-wallet.yaml"
+    },
+    {
+      "id": "obj/collect/stealer/behavior::js-browser-target",
+      "kind": "capability",
+      "desc": "Targets browser data paths",
+      "conf": 0.8,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "removeCookies",
+          "location": "0x129a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "removeCookies",
+          "location": "0x129b"
+        }
+      ],
+      "source_file": "obj/collect/stealer/behavior/javascript.yaml"
+    },
+    {
+      "id": "obj/c2/shells/remote-exec::js-output-command-var",
+      "kind": "capability",
+      "desc": "Variable names suggesting command output",
+      "conf": 0.3,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "commands",
+          "location": "0x1592"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "commands",
+          "location": "0x1593"
+        }
+      ],
+      "source_file": "obj/c2/shells/remote-exec/javascript.yaml"
+    },
+    {
+      "id": "cap/comm/http/post::post-form",
+      "kind": "capability",
+      "desc": "HTTP form data upload",
+      "conf": 0.75,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "removeFormData",
+          "location": "0x1356"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "removeFormData",
+          "location": "0x1357"
+        }
+      ],
+      "source_file": "cap/comm/http/post/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/code-quality::terser-minifier-helpers",
+      "kind": "capability",
+      "desc": "Minifier helper patterns",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.defineProperty"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/code-quality/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/testing::mocha-assertions-or-hooks",
+      "kind": "capability",
+      "desc": "Mocha assertions or hooks",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "should",
+          "location": "0x37c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "should",
+          "location": "0x37d"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
+    },
+    {
+      "id": "obj/discovery/host/browser::bookmarks",
+      "kind": "capability",
+      "desc": "Browser bookmarks access",
+      "conf": 0.8,
+      "crit": "notable",
+      "attack": "T1217",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bookmarks",
+          "location": "0x88a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "bookmarks",
+          "location": "0x88b"
+        }
+      ],
+      "source_file": "obj/discovery/host/browser/traits.yaml"
+    },
+    {
+      "id": "obj/c2/ddos/attack::http-methods",
+      "kind": "capability",
+      "desc": "HTTP request methods detected",
+      "conf": 1.0,
+      "crit": "inert",
+      "mbc": "B0009",
+      "attack": "T1498",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "removeFormData",
+          "location": "0x1356"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "removeFormData",
+          "location": "0x1357"
+        }
+      ],
+      "source_file": "obj/c2/ddos/attack/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/testing::test-fixtures",
+      "kind": "capability",
+      "desc": "Test fixture or mock data",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.defineProperty"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/testing::testing-library-methods",
+      "kind": "capability",
+      "desc": "Testing Library methods",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.defineProperty"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/testing::testing-library",
+      "kind": "capability",
+      "desc": "Testing Library patterns",
+      "conf": 0.95,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.defineProperty"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::resolve",
+      "kind": "structural",
+      "desc": "calls resolve",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "resolve"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::metadata/fallbacktonocallback",
+      "kind": "structural",
+      "desc": "calls metadata.fallbackToNoCallback",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "metadata.fallbackToNoCallback"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::message",
+      "kind": "structural",
+      "desc": "calls message",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "message"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/resolve",
+      "kind": "structural",
+      "desc": "calls promise.resolve",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "promise.resolve"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::result",
+      "kind": "structural",
+      "desc": "calls result",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "result"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::value/bind",
+      "kind": "structural",
+      "desc": "calls value.bind",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "value.bind"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::metadata/nocallback",
+      "kind": "structural",
+      "desc": "calls metadata.noCallback",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "metadata.noCallback"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::hasownproperty",
+      "kind": "structural",
+      "desc": "calls hasOwnProperty",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hasOwnProperty"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/reject",
+      "kind": "structural",
+      "desc": "calls Promise.reject",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.reject"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sendresponse",
+      "kind": "structural",
+      "desc": "calls sendResponse",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sendResponse"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wrappedsendmessagecallback",
+      "kind": "structural",
+      "desc": "calls wrappedSendMessageCallback",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "wrappedSendMessageCallback"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reflect/defineproperty",
+      "kind": "structural",
+      "desc": "calls Reflect.defineProperty",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Reflect.defineProperty"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::onrequestfinishedwrappers",
+      "kind": "structural",
+      "desc": "calls onRequestFinishedWrappers",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "onRequestFinishedWrappers"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::console/warn",
+      "kind": "structural",
+      "desc": "calls console.warn",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "console.warn"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::target/addlistener",
+      "kind": "structural",
+      "desc": "calls target.addListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "target.addListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::proxytarget",
+      "kind": "structural",
+      "desc": "calls proxyTarget",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "proxyTarget"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::apinamespaceobj/sendmessage",
+      "kind": "structural",
+      "desc": "calls apiNamespaceObj.sendMessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "apiNamespaceObj.sendMessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wrappermap/get",
+      "kind": "structural",
+      "desc": "calls wrapperMap.get",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "wrapperMap.get"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wrappedreq",
+      "kind": "structural",
+      "desc": "calls wrappedReq",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "wrappedReq"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sendresponsepromise",
+      "kind": "structural",
+      "desc": "calls sendResponsePromise",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sendResponsePromise"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::define",
+      "kind": "structural",
+      "desc": "calls define",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "define"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wrapper",
+      "kind": "structural",
+      "desc": "calls wrapper",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "wrapper"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wrappedcb",
+      "kind": "structural",
+      "desc": "calls wrappedCb",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "wrappedCb"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reject",
+      "kind": "structural",
+      "desc": "calls reject",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "reject"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isthenable",
+      "kind": "structural",
+      "desc": "calls isThenable",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isThenable"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::makecallback",
+      "kind": "structural",
+      "desc": "calls makeCallback",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "makeCallback"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wrapper/call",
+      "kind": "structural",
+      "desc": "calls wrapper.call",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "wrapper.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wrappedsendmessage",
+      "kind": "structural",
+      "desc": "calls wrappedSendMessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "wrappedSendMessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::function/call/bind",
+      "kind": "structural",
+      "desc": "calls Function.call.bind",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Function.call.bind"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wrappedsendresponse",
+      "kind": "structural",
+      "desc": "calls wrappedSendResponse",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "wrappedSendResponse"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wrapobject",
+      "kind": "structural",
+      "desc": "calls wrapObject",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "wrapObject"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::chrome_send_message_callback_no_response_message",
+      "kind": "structural",
+      "desc": "calls CHROME_SEND_MESSAGE_CALLBACK_NO_RESPONSE_MESSAGE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "CHROME_SEND_MESSAGE_CALLBACK_NO_RESPONSE_MESSAGE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::didcallsendresponse",
+      "kind": "structural",
+      "desc": "calls didCallSendResponse",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "didCallSendResponse"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::target/removelistener",
+      "kind": "structural",
+      "desc": "calls target.removeListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "target.removeListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/create",
+      "kind": "structural",
+      "desc": "calls Object.create",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.create"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::listener",
+      "kind": "structural",
+      "desc": "calls listener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "listener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::module/exports",
+      "kind": "structural",
+      "desc": "calls module.exports",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "module.exports"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::args/push",
+      "kind": "structural",
+      "desc": "calls args.push",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "args.push"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/then/catch",
+      "kind": "structural",
+      "desc": "calls promise.then.catch",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "promise.then.catch"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::cache/prop",
+      "kind": "structural",
+      "desc": "calls cache.prop",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "cache.prop"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::value",
+      "kind": "structural",
+      "desc": "calls value",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "value"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::apimetadata/privacy",
+      "kind": "structural",
+      "desc": "calls apiMetadata.privacy",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "apiMetadata.privacy"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::settingmetadata",
+      "kind": "structural",
+      "desc": "calls settingMetadata",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "settingMetadata"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/keys",
+      "kind": "structural",
+      "desc": "calls Object.keys",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.keys"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reflect/deleteproperty",
+      "kind": "structural",
+      "desc": "calls Reflect.deleteProperty",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Reflect.deleteProperty"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wrapevent",
+      "kind": "structural",
+      "desc": "calls wrapEvent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "wrapEvent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wrappedsendmessagecallback/bind",
+      "kind": "structural",
+      "desc": "calls wrappedSendMessageCallback.bind",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "wrappedSendMessageCallback.bind"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::handlers",
+      "kind": "structural",
+      "desc": "calls handlers",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "handlers"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/then",
+      "kind": "structural",
+      "desc": "calls promise.then",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "promise.then"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::mod",
+      "kind": "structural",
+      "desc": "calls mod",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "mod"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::global/browser",
+      "kind": "structural",
+      "desc": "calls global.browser",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "global.browser"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::cache",
+      "kind": "structural",
+      "desc": "calls cache",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "cache"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::apimetadata",
+      "kind": "structural",
+      "desc": "calls apiMetadata",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "apiMetadata"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::target/prop",
+      "kind": "structural",
+      "desc": "calls target.prop",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "target.prop"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pluralizearguments",
+      "kind": "structural",
+      "desc": "calls pluralizeArguments",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pluralizeArguments"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/defineproperty",
+      "kind": "structural",
+      "desc": "calls Object.defineProperty",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.defineProperty"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isresultthenable",
+      "kind": "structural",
+      "desc": "calls isResultThenable",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isResultThenable"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sendpromisedresult",
+      "kind": "structural",
+      "desc": "calls sendPromisedResult",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sendPromisedResult"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::staticwrappers",
+      "kind": "structural",
+      "desc": "calls staticWrappers",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "staticWrappers"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wrapapis",
+      "kind": "structural",
+      "desc": "calls wrapAPIs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "wrapAPIs"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::target/name",
+      "kind": "structural",
+      "desc": "calls target.name",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "target.name"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wrapasyncfunction",
+      "kind": "structural",
+      "desc": "calls wrapAsyncFunction",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "wrapAsyncFunction"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::factory",
+      "kind": "structural",
+      "desc": "calls factory",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "factory"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::onmessagewrappers",
+      "kind": "structural",
+      "desc": "calls onMessageWrappers",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "onMessageWrappers"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/getprototypeof",
+      "kind": "structural",
+      "desc": "calls Object.getPrototypeOf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.getPrototypeOf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::target/haslistener",
+      "kind": "structural",
+      "desc": "calls target.hasListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "target.hasListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::console/error",
+      "kind": "structural",
+      "desc": "calls console.error",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "console.error"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wrappedsendmessage/bind",
+      "kind": "structural",
+      "desc": "calls wrappedSendMessage.bind",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "wrappedSendMessage.bind"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wrapmethod",
+      "kind": "structural",
+      "desc": "calls wrapMethod",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "wrapMethod"
+        }
+      ]
+    }
+  ]
+}

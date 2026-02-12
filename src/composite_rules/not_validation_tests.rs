@@ -1047,7 +1047,32 @@ mod constraint_tests {
             compiled_excludes: vec![],
         };
 
-        let warning = cond.check_count_constraints();
+        let trait_def = TraitDefinition {
+            id: "test".to_string(),
+            desc: "Test trait".to_string(),
+            conf: 0.8,
+            crit: Criticality::Notable,
+            mbc: None,
+            attack: None,
+            platforms: vec![],
+            r#for: vec![],
+            r#if: ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: Some(10),
+                count_max: Some(5), // max < min
+                per_kb_min: None,
+                per_kb_max: None,
+            },
+            not: None,
+            unless: None,
+            downgrade: None,
+            defined_in: std::path::PathBuf::new(),
+            precision: None,
+        };
+
+        let warning = trait_def.r#if.check_count_constraints(&trait_def.id);
         assert!(warning.is_some());
         assert!(warning.as_ref().unwrap().contains("count_max"));
         assert!(warning.as_ref().unwrap().contains("count_min"));
@@ -1072,7 +1097,32 @@ mod constraint_tests {
             compiled_excludes: vec![],
         };
 
-        let warning = cond.check_density_constraints();
+        let trait_def = TraitDefinition {
+            id: "test".to_string(),
+            desc: "Test trait".to_string(),
+            conf: 0.8,
+            crit: Criticality::Notable,
+            mbc: None,
+            attack: None,
+            platforms: vec![],
+            r#for: vec![],
+            r#if: ConditionWithFilters {
+                condition: cond,
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: Some(10.0),
+                per_kb_max: Some(5.0), // max < min
+            },
+            not: None,
+            unless: None,
+            downgrade: None,
+            defined_in: std::path::PathBuf::new(),
+            precision: None,
+        };
+
+        let warning = trait_def.r#if.check_density_constraints(&trait_def.id);
         assert!(warning.is_some());
         assert!(warning.as_ref().unwrap().contains("per_kb_max"));
         assert!(warning.as_ref().unwrap().contains("per_kb_min"));

@@ -676,11 +676,10 @@ fn test_eval_syscall_min_count() {
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
+    // With 2 read syscalls, should match
     let result = eval_syscall(Some(&vec!["read".to_string()]), None, None, &ctx);
     assert!(result.matched);
-
-    let result = eval_syscall(Some(&vec!["read".to_string()]), None, None, &ctx);
-    assert!(!result.matched);
+    assert_eq!(result.evidence.len(), 2); // Both read syscalls matched
 }
 
 #[test]

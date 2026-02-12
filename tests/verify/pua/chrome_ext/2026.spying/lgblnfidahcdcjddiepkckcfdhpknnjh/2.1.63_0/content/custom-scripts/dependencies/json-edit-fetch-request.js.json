@@ -1,0 +1,450 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/content/custom-scripts/dependencies/json-edit-fetch-request.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "58075c4481f3227b9b05d7c29d2e0546ace3672383b180fbb2ab0d716d5b3a15",
+  "size": 1838,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "json-edit-fetch-request.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::objafter",
+      "kind": "structural",
+      "desc": "calls objAfter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "objAfter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/json_parse",
+      "kind": "structural",
+      "desc": "calls safe.JSON_parse",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.JSON_parse"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::collatefetcharguments",
+      "kind": "structural",
+      "desc": "calls collateFetchArguments",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "collateFetchArguments"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::extraargs",
+      "kind": "structural",
+      "desc": "calls extraArgs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "extraArgs"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/json_stringify",
+      "kind": "structural",
+      "desc": "calls safe.JSON_stringify",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.JSON_stringify"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::array/from",
+      "kind": "structural",
+      "desc": "calls Array.from",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Array.from"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::jsonp",
+      "kind": "structural",
+      "desc": "calls jsonp",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "jsonp"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/getextraargs",
+      "kind": "structural",
+      "desc": "calls safe.getExtraArgs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.getExtraArgs"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::matched",
+      "kind": "structural",
+      "desc": "calls matched",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "matched"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data",
+      "kind": "structural",
+      "desc": "calls data",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe",
+      "kind": "structural",
+      "desc": "calls safe",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::proxyapply",
+      "kind": "structural",
+      "desc": "calls proxyApply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "proxyApply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/makelogprefix",
+      "kind": "structural",
+      "desc": "calls safe.makeLogPrefix",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.makeLogPrefix"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::context/reflect",
+      "kind": "structural",
+      "desc": "calls context.reflect",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "context.reflect"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::jsonp/apply",
+      "kind": "structural",
+      "desc": "calls jsonp.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "jsonp.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::callargs",
+      "kind": "structural",
+      "desc": "calls callArgs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "callArgs"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::propneedles",
+      "kind": "structural",
+      "desc": "calls propNeedles",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "propNeedles"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::createpropertymatchmap",
+      "kind": "structural",
+      "desc": "calls createPropertyMatchMap",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "createPropertyMatchMap"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::logprefix",
+      "kind": "structural",
+      "desc": "calls logPrefix",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "logPrefix"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safeself",
+      "kind": "structural",
+      "desc": "calls safeSelf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeSelf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::bodybefore",
+      "kind": "structural",
+      "desc": "calls bodyBefore",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "bodyBefore"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::matchobjectproperties",
+      "kind": "structural",
+      "desc": "calls matchObjectProperties",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "matchObjectProperties"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::matched/join",
+      "kind": "structural",
+      "desc": "calls matched.join",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "matched.join"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::proxyhandler",
+      "kind": "structural",
+      "desc": "calls proxyHandler",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "proxyHandler"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::options/body",
+      "kind": "structural",
+      "desc": "calls options.body",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "options.body"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::bodyafter",
+      "kind": "structural",
+      "desc": "calls bodyAfter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "bodyAfter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::jsonpath/create",
+      "kind": "structural",
+      "desc": "calls JSONPath.create",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "JSONPath.create"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::props",
+      "kind": "structural",
+      "desc": "calls props",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "props"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::filterbody",
+      "kind": "structural",
+      "desc": "calls filterBody",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "filterBody"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/stndzlog",
+      "kind": "structural",
+      "desc": "calls safe.stndzLog",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.stndzLog"
+        }
+      ]
+    }
+  ]
+}

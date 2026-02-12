@@ -1,0 +1,275 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/update-icon.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "102671081a16158d290a724c57cd18e29b2158df9d4df876797838291845e6e1",
+  "size": 1157,
+  "risk": "notable",
+  "counts": {
+    "notable": 3
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::url-tostring",
+      "kind": "capability",
+      "desc": "Converts URL object to string",
+      "conf": 0.8,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "Promise.all([setAppIconBadgeText(amount > 0 ? amount.toString() : ''), setAppIconBadgeTitle(amount >...",
+          "location": "25:11"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "setAppIconBadgeText(amount > 0 ? amount.toString() : '')",
+          "location": "25:24"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "amount.toString()",
+          "location": "25:57"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/hijacking.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "update-icon.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/persist/env-vars/profile::localappdata-string",
+      "kind": "capability",
+      "desc": "Local AppData reference",
+      "conf": 0.4,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "${amount} ${getLocalizedText('blocks_on_this_page')}",
+          "location": "0x368"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "getLocalizedText"
+        }
+      ],
+      "source_file": "obj/persist/env-vars/profile/javascript.yaml"
+    },
+    {
+      "id": "meta/internal/imported::dataprocessingconsent/getconsent",
+      "kind": "structural",
+      "desc": "calls dataProcessingConsent.getConsent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dataProcessingConsent.getConsent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::setappiconbadgetext",
+      "kind": "structural",
+      "desc": "calls setAppIconBadgeText",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setAppIconBadgeText"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/all",
+      "kind": "structural",
+      "desc": "calls Promise.all",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.all"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::setappiconbadgetitle",
+      "kind": "structural",
+      "desc": "calls setAppIconBadgeTitle",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setAppIconBadgeTitle"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::amount",
+      "kind": "structural",
+      "desc": "calls amount",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "amount"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::title",
+      "kind": "structural",
+      "desc": "calls title",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "title"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getlocalizedtext",
+      "kind": "structural",
+      "desc": "calls getLocalizedText",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getLocalizedText"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::amount/tostring",
+      "kind": "structural",
+      "desc": "calls amount.toString",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "amount.toString"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::disabled",
+      "kind": "structural",
+      "desc": "calls disabled",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "disabled"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::debug/error",
+      "kind": "structural",
+      "desc": "calls debug.error",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "debug.error"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pagedata",
+      "kind": "structural",
+      "desc": "calls pageData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pageData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::userdata/getsettings",
+      "kind": "structural",
+      "desc": "calls userData.getSettings",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "userData.getSettings"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pagedatacomponent/getactivetabdata",
+      "kind": "structural",
+      "desc": "calls pageDataComponent.getActiveTabData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pageDataComponent.getActiveTabData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::seticon",
+      "kind": "structural",
+      "desc": "calls setIcon",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setIcon"
+        }
+      ]
+    }
+  ]
+}

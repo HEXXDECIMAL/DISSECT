@@ -1,0 +1,144 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/njgehaondchbmjmajphnhlojfnbfokng/6.5.5_0/main.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "5ca0260c7b2032997faec6e880ed200605352037cde5abb04a22ff8669193457",
+  "size": 226,
+  "risk": "notable",
+  "counts": {
+    "notable": 2
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "main.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::md5-keyword",
+      "kind": "capability",
+      "desc": "md5 hash algorithm",
+      "conf": 0.6,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "md5",
+          "location": "0x64"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "md5",
+          "location": "0x65"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::hash-algorithms",
+      "kind": "capability",
+      "desc": "Hash algorithm keywords",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "md5",
+          "location": "0x64"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "md5",
+          "location": "0x65"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "meta/internal/imported::self/document",
+      "kind": "structural",
+      "desc": "calls self.document",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "self.document"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document",
+      "kind": "structural",
+      "desc": "calls document",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window",
+      "kind": "structural",
+      "desc": "calls window",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::console/error",
+      "kind": "structural",
+      "desc": "calls console.error",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "console.error"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::importscripts",
+      "kind": "structural",
+      "desc": "calls importScripts",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "importScripts"
+        }
+      ]
+    }
+  ]
+}

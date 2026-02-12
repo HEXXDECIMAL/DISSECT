@@ -1,0 +1,196 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/heartbeat.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "a27cdfb4a2af46b7849c38bddb9e0508a967b05b42acf4af449ff7662ebacfa3",
+  "size": 463,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "heartbeat.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "known/malware/backdoor/melofee::heartbeat-string",
+      "kind": "capability",
+      "desc": "heartbeat C2 string",
+      "conf": 0.7,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "heartbeat",
+          "location": "0x13a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "heartbeat",
+          "location": "0x13b"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "heartbeat"
+        }
+      ],
+      "source_file": "known/malware/backdoor/melofee/traits.yaml"
+    },
+    {
+      "id": "known/malware/backdoor/melofee::c2-protocols",
+      "kind": "capability",
+      "desc": "C2 heartbeat/beacon protocols",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "heartbeat",
+          "location": "0x13a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "heartbeat",
+          "location": "0x13b"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "heartbeat"
+        }
+      ],
+      "source_file": "known/malware/backdoor/melofee/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::promise/all",
+      "kind": "structural",
+      "desc": "calls Promise.all",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.all"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::user",
+      "kind": "structural",
+      "desc": "calls user",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "user"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::heartbeat",
+      "kind": "structural",
+      "desc": "calls heartbeat",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "heartbeat"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::serverapi/callurl",
+      "kind": "structural",
+      "desc": "calls serverApi.callUrl",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "serverApi.callUrl"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::userdata/getdata",
+      "kind": "structural",
+      "desc": "calls userData.getData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "userData.getData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::serverlogger/prepareandsend",
+      "kind": "structural",
+      "desc": "calls serverLogger.prepareAndSend",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "serverLogger.prepareAndSend"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::analysisreporter/reportbulk",
+      "kind": "structural",
+      "desc": "calls analysisReporter.reportBulk",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "analysisReporter.reportBulk"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::debug/error",
+      "kind": "structural",
+      "desc": "calls debug.error",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "debug.error"
+        }
+      ]
+    }
+  ]
+}

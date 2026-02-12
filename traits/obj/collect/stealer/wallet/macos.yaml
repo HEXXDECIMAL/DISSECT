@@ -1,0 +1,24 @@
+# macOS Wallet Stealer Behavior
+# Detects cryptocurrency wallet stealers using specific execution patterns
+# ATT&CK: T1555 (Credentials from Password Stores)
+
+defaults:
+  platforms: [macos]
+  for: [macho]
+  mbc: "B0028"
+
+composite_rules:
+  - id: macos-obfuscated-wallet-stealer
+    desc: "Obfuscated macOS wallet stealer behavior"
+    crit: hostile
+    conf: 0.95
+    # High-confidence: Minimal strings (obfuscated) + system() + wallet references
+    all:
+      - id: meta/binary/structure::minimal-string-count
+      - id: cap/exec/command/shell::system-call-symbol
+    any:
+      - id: obj/creds/wallet/desktop::stealer
+      - id: obj/creds/wallet/extension::browser-wallet-extensions
+      - id: cap/fs/file/open::wallet-dat-path
+      - id: obj/creds/wallet/mnemonic::mnemonic-terms
+      - id: obj/creds/wallet/address::multi-crypto-regex

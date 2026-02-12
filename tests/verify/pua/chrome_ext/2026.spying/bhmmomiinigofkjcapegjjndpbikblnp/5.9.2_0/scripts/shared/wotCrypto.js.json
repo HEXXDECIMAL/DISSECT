@@ -1,0 +1,1382 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/bhmmomiinigofkjcapegjjndpbikblnp/5.9.2_0/scripts/shared/wotCrypto.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "88e35d9997b4d5d81657fdd7f1f2592ca25fa0c16ced526b2aaa15a1662185da",
+  "size": 4835,
+  "risk": "notable",
+  "counts": {
+    "notable": 20
+  },
+  "findings": [
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "kind": "capability",
+      "desc": "for loop (AST)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:33"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:124"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:305"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:455"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:646"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:693"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:1217"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:1411"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:1463"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:1677"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:1826"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:1853"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:1981"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:2248"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:2528"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:2610"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:2687"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:4248"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:4442"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:4494"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:4708"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "meta/quality/versioning::version-upper",
+      "kind": "capability",
+      "desc": "VERSION word (uppercase)",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "VERSION",
+          "location": "0xbc9"
+        }
+      ],
+      "source_file": "meta/quality/versioning/traits.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 21 ;for(",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/strings/encoding::fromcharcode",
+      "kind": "capability",
+      "desc": "String obfuscation via fromCharCode",
+      "conf": 0.66,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "String.fromCharCode"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
+    },
+    {
+      "id": "obj/creds/wallet/mnemonic::crypto-word",
+      "kind": "capability",
+      "desc": "crypto term",
+      "conf": 0.5,
+      "crit": "notable",
+      "mbc": "B0028",
+      "attack": "T1555",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "crypto",
+          "location": "0xd92"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "crypto",
+          "location": "0xd93"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "crypto",
+          "location": "0xe72"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "crypto",
+          "location": "0xe73"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "crypto",
+          "location": "0xf22"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "crypto",
+          "location": "0xf23"
+        }
+      ],
+      "source_file": "obj/creds/wallet/mnemonic/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
+      "kind": "capability",
+      "desc": "No comments in code (stripped",
+      "conf": 0.6,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-function-density",
+      "kind": "capability",
+      "desc": "High function density (>20 functions",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.density_per_100_lines = 2700.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-long-lines",
+      "kind": "capability",
+      "desc": "Very long lines (>1000 chars)",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 4835.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "kind": "capability",
+      "desc": "Prototype pollution guard check present",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 constructor",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/exploitation/memory/generic.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
+      "kind": "capability",
+      "desc": "Many anonymous functions",
+      "conf": 0.75,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.anonymous = 9.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "wotCrypto.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/impact/ransomware/behavior::encrypt-fn",
+      "kind": "capability",
+      "desc": "encrypt function",
+      "conf": 0.4,
+      "crit": "notable",
+      "attack": "T1486",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "crypto.encrypt: failed with ${t}\\n",
+          "location": "0xe72"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "crypto.encrypt: failed with ",
+          "location": "0xe73"
+        }
+      ],
+      "source_file": "obj/impact/ransomware/behavior/patterns.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "kind": "capability",
+      "desc": "Webpack/bundler minified output pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 4835.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
+      "kind": "capability",
+      "desc": "Many one-liner functions (minified code",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 27.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/impact/ransomware/behavior::crypto-module",
+      "kind": "capability",
+      "desc": "crypto module",
+      "conf": 0.3,
+      "crit": "notable",
+      "attack": "T1486",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "crypto.decrypt: failed with ${t}\\n",
+          "location": "0xd92"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "crypto.decrypt: failed with ",
+          "location": "0xd93"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "crypto.encrypt: failed with ${t}\\n",
+          "location": "0xe72"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "crypto.encrypt: failed with ",
+          "location": "0xe73"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "crypto.authenticate: failed with ${t}\\n",
+          "location": "0xf22"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "crypto.authenticate: failed with ",
+          "location": "0xf23"
+        }
+      ],
+      "source_file": "obj/impact/ransomware/behavior/patterns.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/strings/encoding::js-charat-loop",
+      "kind": "capability",
+      "desc": "charAt in loop pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.charAt",
+          "location": "import"
+        },
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.charAt",
+          "location": "import"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
+      "kind": "capability",
+      "desc": "Sequential identifiers (a, b, c,",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 17.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "cap/exec/vm/sandbox::base64-long-string",
+      "kind": "capability",
+      "desc": "Long base64-like string pattern",
+      "conf": 0.4,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "abcdefghijklmnopqrstuvwxyz234567",
+          "location": "0x84f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "abcdefghijklmnopqrstuvwxyz234567",
+          "location": "0x850"
+        }
+      ],
+      "source_file": "cap/exec/vm/sandbox/node.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.02"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "known/malware/dropper::decrypt-call",
+      "kind": "capability",
+      "desc": ".decrypt() method call",
+      "conf": 0.65,
+      "crit": "inert",
+      "mbc": "C0025",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "tree-sitter-javascript",
+          "value": "decrypt",
+          "location": "0xc5a"
+        }
+      ],
+      "source_file": "known/malware/dropper/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::excessive-single-char-vars",
+      "kind": "capability",
+      "desc": "Excessive single-character variable names (>30%)",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.single_char_ratio = 0.44"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::low-identifier-reuse",
+      "kind": "capability",
+      "desc": "Low identifier reuse (each variable",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.reuse_ratio = 0.06"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "meta/quality::versioned",
+      "kind": "capability",
+      "desc": "Contains version information",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "VERSION",
+          "location": "0xbc9"
+        }
+      ],
+      "source_file": "meta/quality/traits.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "kind": "capability",
+      "desc": "Iteration or loop pattern",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:33"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:124"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:305"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:455"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:646"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:693"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:1217"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:1411"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:1463"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:1677"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:1826"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:1853"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:1981"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:2248"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:2528"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:2610"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:2687"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:4248"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:4442"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:4494"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:4708"
+        },
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 21 ;for(",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "obj/impact/ransomware/behavior::encryption-functions",
+      "kind": "capability",
+      "desc": "Encryption functions",
+      "conf": 0.5,
+      "crit": "notable",
+      "attack": "T1486",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "crypto.encrypt: failed with ${t}\\n",
+          "location": "0xe72"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "crypto.encrypt: failed with ",
+          "location": "0xe73"
+        }
+      ],
+      "source_file": "obj/impact/ransomware/behavior/patterns.yaml"
+    },
+    {
+      "id": "known/malware/dropper::decryption-methods",
+      "kind": "capability",
+      "desc": "Decryption method calls",
+      "conf": 1.0,
+      "crit": "inert",
+      "mbc": "C0025",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "tree-sitter-javascript",
+          "value": "decrypt",
+          "location": "0xc5a"
+        }
+      ],
+      "source_file": "known/malware/dropper/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "kind": "capability",
+      "desc": "Minified/compressed code (multiple indicators)",
+      "conf": 0.9,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.02"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.density_per_100_lines = 2700.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 27.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 17.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::t/s/t/x",
+      "kind": "structural",
+      "desc": "calls t.s.t.x",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.s.t.x"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sha1",
+      "kind": "structural",
+      "desc": "calls sha1",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sha1"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::arc4",
+      "kind": "structural",
+      "desc": "calls arc4",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "arc4"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/y",
+      "kind": "structural",
+      "desc": "calls t.y",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.y"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::o/concat",
+      "kind": "structural",
+      "desc": "calls o.concat",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "o.concat"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::hextobin",
+      "kind": "structural",
+      "desc": "calls hextobin",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hextobin"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::console/log",
+      "kind": "structural",
+      "desc": "calls console.log",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "console.log"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::escape",
+      "kind": "structural",
+      "desc": "calls escape",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "escape"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::s/n",
+      "kind": "structural",
+      "desc": "calls s.n",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "s.n"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::encodeuricomponent",
+      "kind": "structural",
+      "desc": "calls encodeURIComponent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "encodeURIComponent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::atob",
+      "kind": "structural",
+      "desc": "calls atob",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "atob"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::array",
+      "kind": "structural",
+      "desc": "calls Array",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Array"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::string/fromcharcode",
+      "kind": "structural",
+      "desc": "calls String.fromCharCode",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "String.fromCharCode"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/x",
+      "kind": "structural",
+      "desc": "calls t.x",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.x"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::date/now",
+      "kind": "structural",
+      "desc": "calls Date.now",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Date.now"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wotcrypto",
+      "kind": "structural",
+      "desc": "calls WotCrypto",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "WotCrypto"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::bintohex",
+      "kind": "structural",
+      "desc": "calls bintohex",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "bintohex"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::s/s/e",
+      "kind": "structural",
+      "desc": "calls s.s.e",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "s.s.e"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/t",
+      "kind": "structural",
+      "desc": "calls r.t",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.t"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/s/t/y",
+      "kind": "structural",
+      "desc": "calls t.s.t.y",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.s.t.y"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::a-charcodeat",
+      "kind": "structural",
+      "desc": "calls \"a\".charCodeAt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "\"a\".charCodeAt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/charcodeat",
+      "kind": "structural",
+      "desc": "calls t.charCodeAt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.charCodeAt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::0-charcodeat",
+      "kind": "structural",
+      "desc": "calls \"0\".charCodeAt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "\"0\".charCodeAt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/r",
+      "kind": "structural",
+      "desc": "calls n.r",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.r"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::o/t",
+      "kind": "structural",
+      "desc": "calls o.t",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "o.t"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::strtobin",
+      "kind": "structural",
+      "desc": "calls strtobin",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "strtobin"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/charat",
+      "kind": "structural",
+      "desc": "calls e.charAt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.charAt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::bintostr",
+      "kind": "structural",
+      "desc": "calls bintostr",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "bintostr"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::s/s/r",
+      "kind": "structural",
+      "desc": "calls s.s.r",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "s.s.r"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/concat",
+      "kind": "structural",
+      "desc": "calls r.concat",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.concat"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::unescape",
+      "kind": "structural",
+      "desc": "calls unescape",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "unescape"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::decodeuricomponent",
+      "kind": "structural",
+      "desc": "calls decodeURIComponent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "decodeURIComponent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/n",
+      "kind": "structural",
+      "desc": "calls e.n",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.n"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/charat",
+      "kind": "structural",
+      "desc": "calls t.charAt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.charAt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::base32",
+      "kind": "structural",
+      "desc": "calls base32",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "base32"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::i/t",
+      "kind": "structural",
+      "desc": "calls i.t",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "i.t"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::math/random",
+      "kind": "structural",
+      "desc": "calls Math.random",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Math.random"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::hextostr",
+      "kind": "structural",
+      "desc": "calls hextostr",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hextostr"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::btoa",
+      "kind": "structural",
+      "desc": "calls btoa",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "btoa"
+        }
+      ]
+    }
+  ]
+}

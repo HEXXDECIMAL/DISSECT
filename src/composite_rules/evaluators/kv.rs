@@ -415,14 +415,7 @@ pub fn evaluate_kv(condition: &Condition, content: &[u8], file_path: &Path) -> O
         }
         StructuredFormat::Plist => plist::from_bytes(content).ok()?,
         StructuredFormat::PkgInfo => parse_pkginfo(content)?,
-        StructuredFormat::Unknown => {
-            // Try JSON first, then YAML
-            if let Ok(v) = serde_json::from_slice(content) {
-                v
-            } else {
-                serde_yaml::from_slice(content).ok()?
-            }
-        }
+        StructuredFormat::Unknown => return None, // Don't parse unknown formats
     };
 
     // Navigate path
@@ -1278,7 +1271,7 @@ mod tests {
 name: test
 ";
 
-        let path = Path::new("config.yaml");
+        let path = Path::new(".github/workflows/ci.yml");
 
         let cond = Condition::Kv {
             path: "permissions".to_string(),
@@ -1346,7 +1339,7 @@ openssl = "0.10"
     #[test]
     fn test_empty_array() {
         let json = br#"{"permissions": []}"#;
-        let path = Path::new("test.json");
+        let path = Path::new("package.json");
 
         // Empty array exists
         let cond = Condition::Kv {
@@ -1374,7 +1367,7 @@ openssl = "0.10"
     #[test]
     fn test_null_value() {
         let json = br#"{"value": null}"#;
-        let path = Path::new("test.json");
+        let path = Path::new("package.json");
 
         // Path exists
         let cond = Condition::Kv {
@@ -1402,7 +1395,7 @@ openssl = "0.10"
     #[test]
     fn test_deeply_nested() {
         let json = br#"{"a": {"b": {"c": {"d": {"e": "found"}}}}}"#;
-        let path = Path::new("test.json");
+        let path = Path::new("package.json");
 
         let cond = Condition::Kv {
             path: "a.b.c.d.e".to_string(),
@@ -1418,7 +1411,7 @@ openssl = "0.10"
     #[test]
     fn test_unicode() {
         let json = r#"{"name": "日本語パッケージ"}"#.as_bytes();
-        let path = Path::new("test.json");
+        let path = Path::new("package.json");
 
         let cond = Condition::Kv {
             path: "name".to_string(),
@@ -1434,7 +1427,7 @@ openssl = "0.10"
     #[test]
     fn test_malformed_json() {
         let bad = br#"{"broken": }"#;
-        let path = Path::new("test.json");
+        let path = Path::new("package.json");
 
         let cond = Condition::Kv {
             path: "broken".to_string(),

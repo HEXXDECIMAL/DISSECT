@@ -1056,8 +1056,8 @@ func main() {
             report
                 .findings
                 .iter()
-                .any(|c| c.id == "cap/exec/command::exec-command"),
-            "Expected cap/exec/command::exec-command, found: {:?}",
+                .any(|c| c.id == "cap/exec/command/direct::exec-command"),
+            "Expected cap/exec/command/direct::exec-command, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
     }
@@ -1076,8 +1076,8 @@ func main() {
             report
                 .findings
                 .iter()
-                .any(|c| c.id == "cap/exec/command::syscall-exec"),
-            "Expected cap/exec/command::syscall-exec, found: {:?}",
+                .any(|c| c.id == "cap/exec/command/direct::syscall-exec"),
+            "Expected cap/exec/command/direct::syscall-exec, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
     }
@@ -1098,16 +1098,16 @@ func main() {
             report
                 .findings
                 .iter()
-                .any(|c| c.id == "cap/comm/socket::dial"),
-            "Expected cap/comm/socket::dial, found: {:?}",
+                .any(|c| c.id == "cap/comm/socket/connect::dial"),
+            "Expected cap/comm/socket/connect::dial, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
         assert!(
             report
                 .findings
                 .iter()
-                .any(|c| c.id == "cap/exec/command::exec-command"),
-            "Expected cap/exec/command::exec-command, found: {:?}",
+                .any(|c| c.id == "cap/exec/command/direct::exec-command"),
+            "Expected cap/exec/command/direct::exec-command, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
     }
@@ -1126,8 +1126,8 @@ func main() {
             report
                 .findings
                 .iter()
-                .any(|c| c.id == "cap/comm/socket::listen"),
-            "Expected cap/comm/socket::listen, found: {:?}",
+                .any(|c| c.id == "cap/comm/socket/listen::listen-go"),
+            "Expected cap/comm/socket/listen::listen-go, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
     }
@@ -1146,8 +1146,8 @@ func main() {
             report
                 .findings
                 .iter()
-                .any(|c| c.id == "cap/comm/socket::dial"),
-            "Expected cap/comm/socket::dial, found: {:?}",
+                .any(|c| c.id == "cap/comm/socket/connect::dial"),
+            "Expected cap/comm/socket/connect::dial, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
     }
@@ -1166,8 +1166,8 @@ func main() {
             report
                 .findings
                 .iter()
-                .any(|c| c.id == "cap/comm/socket::http-get"),
-            "Expected cap/comm/socket::http-get, found: {:?}",
+                .any(|c| c.id == "cap/comm/http/get::http-get"),
+            "Expected cap/comm/http/get::http-get, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
     }
@@ -1186,8 +1186,8 @@ func main() {
             report
                 .findings
                 .iter()
-                .any(|c| c.id == "cap/comm/socket::http-listen"),
-            "Expected cap/comm/socket::http-listen, found: {:?}",
+                .any(|c| c.id == "cap/comm/http/server::server-go"),
+            "Expected cap/comm/http/server::server-go, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
     }
@@ -1208,8 +1208,8 @@ func main() {
             report
                 .findings
                 .iter()
-                .any(|c| c.id == "cap/crypto/cipher::aes-new-cipher"),
-            "Expected cap/crypto/cipher::aes-new-cipher, found: {:?}",
+                .any(|c| c.id == "cap/crypto/cipher/library::aes-new-cipher"),
+            "Expected cap/crypto/cipher/library::aes-new-cipher, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
     }
@@ -1228,8 +1228,8 @@ func main() {
             report
                 .findings
                 .iter()
-                .any(|c| c.id == "cap/crypto/cipher::rsa-generate-key"),
-            "Expected cap/crypto/cipher::rsa-generate-key, found: {:?}",
+                .any(|c| c.id == "cap/crypto/cipher/library::rsa-generate-key"),
+            "Expected cap/crypto/cipher/library::rsa-generate-key, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
     }
@@ -1249,8 +1249,8 @@ func main() {
             report
                 .findings
                 .iter()
-                .any(|c| c.id == "cap/fs/file::os-create"),
-            "Expected cap/fs/file::os-create, found: {:?}",
+                .any(|c| c.id == "cap/fs/file/operations::os-create"),
+            "Expected cap/fs/file/operations::os-create, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
     }
@@ -1306,15 +1306,15 @@ func main() {
             report
                 .findings
                 .iter()
-                .any(|c| c.id == "cap/exec/command::exec-command"),
-            "Expected cap/exec/command::exec-command"
+                .any(|c| c.id == "cap/exec/command/direct::exec-command"),
+            "Expected cap/exec/command/direct::exec-command"
         );
         assert!(
             report
                 .findings
                 .iter()
-                .any(|c| c.id == "cap/comm/socket::http-get"),
-            "Expected cap/comm/socket::http-get"
+                .any(|c| c.id == "cap/comm/http/get::http-get"),
+            "Expected cap/comm/http/get::http-get"
         );
     }
 }

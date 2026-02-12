@@ -1,0 +1,44 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/nbmoafcmbajniiapeidgficgifbfmjfo/21.1.9_0/client/gpcWindowSetting.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "98ff4f0826ccf43456f3084061bf9c8b08e099c4e4de85e4f510a6fdef979d62",
+  "size": 45,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "gpcWindowSetting.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::window/navigator/globalprivacycontrol",
+      "kind": "structural",
+      "desc": "calls window.navigator.globalPrivacyControl",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.navigator.globalPrivacyControl"
+        }
+      ]
+    }
+  ]
+}

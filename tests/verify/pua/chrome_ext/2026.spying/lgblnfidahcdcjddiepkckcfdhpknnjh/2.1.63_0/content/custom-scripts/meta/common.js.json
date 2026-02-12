@@ -1,0 +1,750 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/content/custom-scripts/meta/common.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "3421c3763187775cf3e018b85f34439a1ef3559c3e89cbf3c9e875efde539c80",
+  "size": 2305,
+  "risk": "suspicious",
+  "counts": {
+    "suspicious": 1,
+    "notable": 8
+  },
+  "findings": [
+    {
+      "id": "cap/data/text/keywords::command",
+      "kind": "capability",
+      "desc": "command keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "commandité",
+          "location": "0xa6"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "commandité",
+          "location": "0xa7"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
+      "kind": "capability",
+      "desc": "No comments in code (stripped",
+      "conf": 0.6,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-long-lines",
+      "kind": "capability",
+      "desc": "Very long lines (>1000 chars)",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 1515.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "common.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "kind": "capability",
+      "desc": "Webpack/bundler minified output pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 1515.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::high-text-entropy",
+      "kind": "capability",
+      "desc": "High overall text entropy (encoded",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.char_entropy = 5.56"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/unicode::dense-non-ascii",
+      "kind": "capability",
+      "desc": "Dense non-ASCII character payload",
+      "conf": 0.88,
+      "crit": "suspicious",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "հովանավորվող",
+          "location": "0x42"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "հովանավորվող",
+          "location": "0x43"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "χορηγούμενη",
+          "location": "0x15c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "χορηγούμενη",
+          "location": "0x15d"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "পৃষ্ঠপোষকতা",
+          "location": "0x234"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "পৃষ্ঠপোষকতা",
+          "location": "0x235"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "پاڵپشتیکراو",
+          "location": "0x2a5"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "پاڵپشتیکراو",
+          "location": "0x2a6"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "спонсорирано",
+          "location": "0x2dc"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "спонсорирано",
+          "location": "0x2dd"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "спонзорирано",
+          "location": "0x2f8"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "спонзорирано",
+          "location": "0x2f9"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "демеушілік",
+          "location": "0x437"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "демеушілік",
+          "location": "0x438"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "បានឧបត្ថម្ភ",
+          "location": "0x462"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "បានឧបត្ថម្ភ",
+          "location": "0x463"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "демөөрчүлөнгөн",
+          "location": "0x487"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "демөөрчүлөнгөн",
+          "location": "0x488"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "ຜູ້ສະໜັບສະໜູນ",
+          "location": "0x4a7"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "ຜູ້ສະໜັບສະໜູນ",
+          "location": "0x4a8"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "ပံ့ပိုးထားသည်",
+          "location": "0x562"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "ပံ့ပိုးထားသည်",
+          "location": "0x563"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/unicode/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/unicode::international-script-obfuscation",
+      "kind": "capability",
+      "desc": "International script character obfuscation",
+      "conf": 0.75,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "р",
+          "location": "0x5e"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "р",
+          "location": "0x5f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "م",
+          "location": "0x222"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "م",
+          "location": "0x223"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "広",
+          "location": "0x273"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "広",
+          "location": "0x274"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "پ",
+          "location": "0x2a5"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "پ",
+          "location": "0x2a6"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "р",
+          "location": "0x2ca"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "р",
+          "location": "0x2cb"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "с",
+          "location": "0x2dc"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "с",
+          "location": "0x2dd"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "с",
+          "location": "0x2f8"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "с",
+          "location": "0x2f9"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "د",
+          "location": "0x339"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "د",
+          "location": "0x33a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "מ",
+          "location": "0x3be"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "מ",
+          "location": "0x3bf"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "प",
+          "location": "0x3e6"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "प",
+          "location": "0x3e7"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "д",
+          "location": "0x437"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "д",
+          "location": "0x438"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "д",
+          "location": "0x487"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "д",
+          "location": "0x488"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "и",
+          "location": "0x535"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "и",
+          "location": "0x536"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "х",
+          "location": "0x5d2"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "х",
+          "location": "0x5d3"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/unicode/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/c2/shells/remote-exec::js-output-command-var",
+      "kind": "capability",
+      "desc": "Variable names suggesting command output",
+      "conf": 0.3,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "commandité",
+          "location": "0xa6"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "commandité",
+          "location": "0xa7"
+        }
+      ],
+      "source_file": "obj/c2/shells/remote-exec/javascript.yaml"
+    },
+    {
+      "id": "meta/internal/imported::svg/queryselector",
+      "kind": "structural",
+      "desc": "calls svg.querySelector",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "svg.querySelector"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::text/textcontent/tolowercase",
+      "kind": "structural",
+      "desc": "calls text.textContent.toLowerCase",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "text.textContent.toLowerCase"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::setinterval",
+      "kind": "structural",
+      "desc": "calls setInterval",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setInterval"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::state",
+      "kind": "structural",
+      "desc": "calls state",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "state"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::use/closest",
+      "kind": "structural",
+      "desc": "calls use.closest",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "use.closest"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parent",
+      "kind": "structural",
+      "desc": "calls parent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "parent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::use/setattribute",
+      "kind": "structural",
+      "desc": "calls use.setAttribute",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "use.setAttribute"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::use/getattribute",
+      "kind": "structural",
+      "desc": "calls use.getAttribute",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "use.getAttribute"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sponsoredtexts",
+      "kind": "structural",
+      "desc": "calls sponsoredTexts",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sponsoredTexts"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sponsoredtexts/includes",
+      "kind": "structural",
+      "desc": "calls sponsoredTexts.includes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sponsoredTexts.includes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::uses/foreach",
+      "kind": "structural",
+      "desc": "calls uses.forEach",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "uses.forEach"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::svg",
+      "kind": "structural",
+      "desc": "calls svg",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "svg"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::uses",
+      "kind": "structural",
+      "desc": "calls uses",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "uses"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/queryselectorall",
+      "kind": "structural",
+      "desc": "calls document.querySelectorAll",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.querySelectorAll"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::svg/queryselector/getattribute",
+      "kind": "structural",
+      "desc": "calls svg.querySelector.getAttribute",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "svg.querySelector.getAttribute"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::text",
+      "kind": "structural",
+      "desc": "calls text",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "text"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parent/style/display",
+      "kind": "structural",
+      "desc": "calls parent.style.display",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "parent.style.display"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::href",
+      "kind": "structural",
+      "desc": "calls href",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "href"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/queryselector",
+      "kind": "structural",
+      "desc": "calls document.querySelector",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.querySelector"
+        }
+      ]
+    }
+  ]
+}

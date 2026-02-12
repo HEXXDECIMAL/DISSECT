@@ -1,0 +1,335 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/common/constants/api-urls.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "babaa3f8045216d07358bf286d532b6ba44ff93ebd6444a67c4b97e546d61858",
+  "size": 701,
+  "risk": "notable",
+  "counts": {
+    "notable": 4
+  },
+  "findings": [
+    {
+      "id": "obj/c2/infrastructure/domain::hardcoded-domain-com",
+      "kind": "capability",
+      "desc": "Hardcoded .com/.org/.net domain (excluding known vendors)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "standsapp.org",
+          "location": "0x37"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "standsapp.org",
+          "location": "0x38"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "standsapp.org",
+          "location": "0x77"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "standsapp.org",
+          "location": "0x78"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "standsapp.org",
+          "location": "0xab"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "standsapp.org",
+          "location": "0xac"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "standsapp.org",
+          "location": "0xe2"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "standsapp.org",
+          "location": "0xe3"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "standsapp.org",
+          "location": "0x116"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "standsapp.org",
+          "location": "0x117"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "standsapp.org",
+          "location": "0x14b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "standsapp.org",
+          "location": "0x14c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "standsapp.org",
+          "location": "0x18e"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "standsapp.org",
+          "location": "0x18f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "standsapp.org",
+          "location": "0x1da"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "standsapp.org",
+          "location": "0x1db"
+        }
+      ],
+      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "api-urls.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "known/malware/backdoor/melofee::heartbeat-string",
+      "kind": "capability",
+      "desc": "heartbeat C2 string",
+      "conf": 0.7,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "heartbeat",
+          "location": "0xe2"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "heartbeat",
+          "location": "0xe3"
+        }
+      ],
+      "source_file": "known/malware/backdoor/melofee/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.08"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/c2/infrastructure/domain::http-url-script",
+      "kind": "capability",
+      "desc": "Network URL with domain name (script)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://static.standsapp.org",
+          "location": "0x37"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://static.standsapp.org",
+          "location": "0x38"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://prod.standsapp.org/",
+          "location": "0x77"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://prod.standsapp.org/",
+          "location": "0x78"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://prod.standsapp.org/",
+          "location": "0xab"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://prod.standsapp.org/",
+          "location": "0xac"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://prod.standsapp.org/",
+          "location": "0xe2"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://prod.standsapp.org/",
+          "location": "0xe3"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://prod.standsapp.org/",
+          "location": "0x116"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://prod.standsapp.org/",
+          "location": "0x117"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://thepromise-event.standsapp.org/",
+          "location": "0x14b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://thepromise-event.standsapp.org/",
+          "location": "0x14c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://prod.standsapp.org/",
+          "location": "0x18e"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://prod.standsapp.org/",
+          "location": "0x18f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://prod.standsapp.org/",
+          "location": "0x1da"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://prod.standsapp.org/",
+          "location": "0x1db"
+        }
+      ],
+      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+    },
+    {
+      "id": "known/malware/backdoor/melofee::c2-protocols",
+      "kind": "capability",
+      "desc": "C2 heartbeat/beacon protocols",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "heartbeat",
+          "location": "0xe2"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "heartbeat",
+          "location": "0xe3"
+        }
+      ],
+      "source_file": "known/malware/backdoor/melofee/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::api_urls",
+      "kind": "structural",
+      "desc": "calls API_URLS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "API_URLS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::staticbaseurl",
+      "kind": "structural",
+      "desc": "calls staticBaseUrl",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "staticBaseUrl"
+        }
+      ]
+    }
+  ]
+}

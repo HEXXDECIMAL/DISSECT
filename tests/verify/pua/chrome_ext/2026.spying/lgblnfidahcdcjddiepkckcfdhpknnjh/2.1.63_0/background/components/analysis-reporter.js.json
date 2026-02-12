@@ -1,0 +1,471 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/components/analysis-reporter.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "dba7e3f7e17360c6316cd437019cce39d420ba341a8ff6df161e51cbbfd0ec55",
+  "size": 2141,
+  "risk": "notable",
+  "counts": {
+    "notable": 9
+  },
+  "findings": [
+    {
+      "id": "cap/comm/http/post::post-method",
+      "kind": "capability",
+      "desc": "POST HTTP method",
+      "conf": 0.5,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x5a4"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x5a5"
+        }
+      ],
+      "source_file": "cap/comm/http/post/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/language-features::has-promise",
+      "kind": "capability",
+      "desc": "Code uses Promises",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Promise.all"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/language-features/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
+      "kind": "capability",
+      "desc": "No comments in code (stripped",
+      "conf": 0.6,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "analysis-reporter.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "cap/comm/http/post::post-method-detection",
+      "kind": "capability",
+      "desc": "Makes HTTP POST requests (method detection)",
+      "conf": 0.75,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x5a4"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x5a5"
+        }
+      ],
+      "source_file": "cap/comm/http/post/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/vscode::send-methods",
+      "kind": "capability",
+      "desc": "HTTP send methods",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x5a4"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x5a5"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/vscode/malicious.yaml"
+    },
+    {
+      "id": "obj/c2/ddos/attack::http-methods",
+      "kind": "capability",
+      "desc": "HTTP request methods detected",
+      "conf": 1.0,
+      "crit": "inert",
+      "mbc": "B0009",
+      "attack": "T1498",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x5a4"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x5a5"
+        }
+      ],
+      "source_file": "obj/c2/ddos/attack/generic.yaml"
+    },
+    {
+      "id": "cap/comm/http/post::post",
+      "kind": "capability",
+      "desc": "HTTP POST request capability",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x5a4"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x5a5"
+        }
+      ],
+      "source_file": "cap/comm/http/post/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/malicious-patterns::http-post-exfil",
+      "kind": "capability",
+      "desc": "HTTP POST exfiltration",
+      "conf": 0.75,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x5a4"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x5a5"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+    },
+    {
+      "id": "meta/internal/imported::newerroramount",
+      "kind": "structural",
+      "desc": "calls newErrorAmount",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "newErrorAmount"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::encodeuricomponent",
+      "kind": "structural",
+      "desc": "calls encodeURIComponent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "encodeURIComponent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::serverlogger/logerror",
+      "kind": "structural",
+      "desc": "calls serverLogger.logError",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "serverLogger.logError"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::serverapi/callurl",
+      "kind": "structural",
+      "desc": "calls serverApi.callUrl",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "serverApi.callUrl"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reportdata/map",
+      "kind": "structural",
+      "desc": "calls reportData.map",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "reportData.map"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data/bulk/splice",
+      "kind": "structural",
+      "desc": "calls data.bulk.splice",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data.bulk.splice"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getappversion",
+      "kind": "structural",
+      "desc": "calls getAppVersion",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getAppVersion"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::analysisreporter",
+      "kind": "structural",
+      "desc": "calls analysisReporter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "analysisReporter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::loadanonyid",
+      "kind": "structural",
+      "desc": "calls loadAnonyId",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "loadAnonyId"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::dataprocessingconsent/getconsent",
+      "kind": "structural",
+      "desc": "calls dataProcessingConsent.getConsent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dataProcessingConsent.getConsent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getoperatingsystem",
+      "kind": "structural",
+      "desc": "calls getOperatingSystem",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getOperatingSystem"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::userdata/getgeo",
+      "kind": "structural",
+      "desc": "calls userData.getGeo",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "userData.getGeo"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/all",
+      "kind": "structural",
+      "desc": "calls Promise.all",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.all"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::hasconsent",
+      "kind": "structural",
+      "desc": "calls hasConsent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hasConsent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rows",
+      "kind": "structural",
+      "desc": "calls rows",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rows"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/trq/join",
+      "kind": "structural",
+      "desc": "calls r.trq.join",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.trq.join"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data",
+      "kind": "structural",
+      "desc": "calls data",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reports",
+      "kind": "structural",
+      "desc": "calls reports",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "reports"
+        }
+      ]
+    }
+  ]
+}

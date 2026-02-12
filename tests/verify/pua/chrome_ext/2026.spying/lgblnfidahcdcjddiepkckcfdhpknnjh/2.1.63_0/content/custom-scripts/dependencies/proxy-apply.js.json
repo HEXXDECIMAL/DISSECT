@@ -1,0 +1,542 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/content/custom-scripts/dependencies/proxy-apply.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "be95904670fbc5b1de3f12b5344a4052b59f53bdb736c7b04500b8a0ead872dc",
+  "size": 2563,
+  "risk": "notable",
+  "counts": {
+    "notable": 4
+  },
+  "findings": [
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "kind": "capability",
+      "desc": "for loop (AST)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "62:3"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::url-tostring",
+      "kind": "capability",
+      "desc": "Converts URL object to string",
+      "conf": 0.8,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "fn.toString()",
+          "location": "81:17"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/hijacking.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
+      "kind": "capability",
+      "desc": "No comments in code (stripped",
+      "conf": 0.6,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "kind": "capability",
+      "desc": "Prototype pollution guard check present",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 4 constructor",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/exploitation/memory/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "proxy-apply.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "kind": "capability",
+      "desc": "Iteration or loop pattern",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "62:3"
+        },
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "meta/internal/imported::proxyapplystate/applycontexts/pop/init",
+      "kind": "structural",
+      "desc": "calls proxyApplyState.applyContexts.pop.init",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "proxyApplyState.applyContexts.pop.init"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::applycontext/factory",
+      "kind": "structural",
+      "desc": "calls ApplyContext.factory",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ApplyContext.factory"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reflect/construct",
+      "kind": "structural",
+      "desc": "calls Reflect.construct",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Reflect.construct"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::prop/indexof",
+      "kind": "structural",
+      "desc": "calls prop.indexOf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "prop.indexOf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::fnstr",
+      "kind": "structural",
+      "desc": "calls fnStr",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "fnStr"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ctorcontext/factory",
+      "kind": "structural",
+      "desc": "calls CtorContext.factory",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "CtorContext.factory"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::nextcontext",
+      "kind": "structural",
+      "desc": "calls nextContext",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "nextContext"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tostring",
+      "kind": "structural",
+      "desc": "calls toString",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "toString"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::prop/slice",
+      "kind": "structural",
+      "desc": "calls prop.slice",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "prop.slice"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::proxyapplystate/applycontexts/pop",
+      "kind": "structural",
+      "desc": "calls proxyApplyState.applyContexts.pop",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "proxyApplyState.applyContexts.pop"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::handler",
+      "kind": "structural",
+      "desc": "calls handler",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "handler"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::proxyapplystate",
+      "kind": "structural",
+      "desc": "calls proxyApplyState",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "proxyApplyState"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::proxyapplystate/ctorcontexts/pop",
+      "kind": "structural",
+      "desc": "calls proxyApplyState.ctorContexts.pop",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "proxyApplyState.ctorContexts.pop"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::proxyapplystate/ctorcontexts/push",
+      "kind": "structural",
+      "desc": "calls proxyApplyState.ctorContexts.push",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "proxyApplyState.ctorContexts.push"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pos",
+      "kind": "structural",
+      "desc": "calls pos",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pos"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::result",
+      "kind": "structural",
+      "desc": "calls result",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "result"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::proxyapplystate/applycontexts/push",
+      "kind": "structural",
+      "desc": "calls proxyApplyState.applyContexts.push",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "proxyApplyState.applyContexts.push"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::proxydetails/construct",
+      "kind": "structural",
+      "desc": "calls proxyDetails.construct",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "proxyDetails.construct"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::proxyapplystate/ctorcontexts/pop/init",
+      "kind": "structural",
+      "desc": "calls proxyApplyState.ctorContexts.pop.init",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "proxyApplyState.ctorContexts.pop.init"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::prop",
+      "kind": "structural",
+      "desc": "calls prop",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "prop"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::context/prop",
+      "kind": "structural",
+      "desc": "calls context.prop",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "context.prop"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::proxyapplystate/initialized",
+      "kind": "structural",
+      "desc": "calls proxyApplyState.initialized",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "proxyApplyState.initialized"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::proxydetails",
+      "kind": "structural",
+      "desc": "calls proxyDetails",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "proxyDetails"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::context",
+      "kind": "structural",
+      "desc": "calls context",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "context"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::fn",
+      "kind": "structural",
+      "desc": "calls fn",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "fn"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::fn/tostring",
+      "kind": "structural",
+      "desc": "calls fn.toString",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "fn.toString"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reflect/get",
+      "kind": "structural",
+      "desc": "calls Reflect.get",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Reflect.get"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reflect/apply",
+      "kind": "structural",
+      "desc": "calls Reflect.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Reflect.apply"
+        }
+      ]
+    }
+  ]
+}

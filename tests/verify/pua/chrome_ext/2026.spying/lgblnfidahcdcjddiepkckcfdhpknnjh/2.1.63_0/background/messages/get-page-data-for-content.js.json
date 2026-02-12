@@ -1,0 +1,72 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/messages/get-page-data-for-content.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "c0da01ce5d545a41adbd04eaa19c9ccd3d31567f6866958e08a1cb7a70e5f4cb",
+  "size": 496,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "get-page-data-for-content.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::sendmessagetotab",
+      "kind": "structural",
+      "desc": "calls sendMessageToTab",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sendMessageToTab"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pagedata",
+      "kind": "structural",
+      "desc": "calls pageData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pageData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pagedatacomponent/getframepagedata",
+      "kind": "structural",
+      "desc": "calls pageDataComponent.getFramePageData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pageDataComponent.getFramePageData"
+        }
+      ]
+    }
+  ]
+}

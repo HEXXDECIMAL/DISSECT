@@ -1,0 +1,58 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/background/messages/update-statistics.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "19c2595a1cfe9d6d569a1b7c42386c3da1511b3fa3c3d60ab6df22f3bd2698c9",
+  "size": 289,
+  "risk": "notable",
+  "counts": {
+    "notable": 1
+  },
+  "findings": [
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "update-statistics.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::statistics/incrementblock",
+      "kind": "structural",
+      "desc": "calls statistics.incrementBlock",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "statistics.incrementBlock"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::updateicon",
+      "kind": "structural",
+      "desc": "calls updateIcon",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "updateIcon"
+        }
+      ]
+    }
+  ]
+}

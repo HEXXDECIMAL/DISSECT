@@ -1,0 +1,572 @@
+{
+  "type": "file",
+  "id": 0,
+  "path": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/lgblnfidahcdcjddiepkckcfdhpknnjh/2.1.63_0/common/platform/browser-info.js",
+  "depth": 0,
+  "file_type": "javascript",
+  "sha256": "405c54cfdd1791cf4d95e947516353603de454e7c38e8ea71fd2d3d31fbd9b21",
+  "size": 1919,
+  "risk": "notable",
+  "counts": {
+    "notable": 10
+  },
+  "findings": [
+    {
+      "id": "obj/discovery/host/browser::firefox-name",
+      "kind": "capability",
+      "desc": "Firefox browser name",
+      "conf": 0.4,
+      "crit": "notable",
+      "attack": "T1217",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Firefox",
+          "location": "0x29b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Firefox",
+          "location": "0x29c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Firefox",
+          "location": "0x2b6"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Firefox",
+          "location": "0x2b7"
+        }
+      ],
+      "source_file": "obj/discovery/host/browser/traits.yaml"
+    },
+    {
+      "id": "obj/c2/network/beacon::user-agent-rotation-keywords",
+      "kind": "capability",
+      "desc": "User-Agent randomization or rotation terms",
+      "conf": 0.75,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "userAgentData.brand"
+        }
+      ],
+      "source_file": "obj/c2/network/beacon/traits.yaml"
+    },
+    {
+      "id": "obj/creds/browser/chromium::edge-path",
+      "kind": "capability",
+      "desc": "Microsoft Edge browser profile path",
+      "conf": 0.7,
+      "crit": "notable",
+      "attack": "T1555.003",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Microsoft Edge",
+          "location": "0x105"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Microsoft Edge",
+          "location": "0x106"
+        }
+      ],
+      "source_file": "obj/creds/browser/chromium/traits.yaml"
+    },
+    {
+      "id": "obj/discovery/host/browser::brave-name",
+      "kind": "capability",
+      "desc": "Brave browser name",
+      "conf": 0.4,
+      "crit": "notable",
+      "attack": "T1217",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Brave",
+          "location": "0x1aa"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Brave",
+          "location": "0x1ab"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Brave",
+          "location": "0x1c3"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Brave",
+          "location": "0x1c4"
+        }
+      ],
+      "source_file": "obj/discovery/host/browser/traits.yaml"
+    },
+    {
+      "id": "obj/discovery/host/browser::chrome-name",
+      "kind": "capability",
+      "desc": "Chrome browser name",
+      "conf": 0.4,
+      "crit": "notable",
+      "attack": "T1217",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Chrome",
+          "location": "0x1ed"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Chrome",
+          "location": "0x1ee"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Google Chrome",
+          "location": "0x20a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Google Chrome",
+          "location": "0x20b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Chrome",
+          "location": "0x22b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Chrome",
+          "location": "0x22c"
+        }
+      ],
+      "source_file": "obj/discovery/host/browser/traits.yaml"
+    },
+    {
+      "id": "obj/discovery/host/browser::safari-name",
+      "kind": "capability",
+      "desc": "Safari browser name",
+      "conf": 0.4,
+      "crit": "notable",
+      "attack": "T1217",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Safari",
+          "location": "0x256"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Safari",
+          "location": "0x257"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Safari",
+          "location": "0x270"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Safari",
+          "location": "0x271"
+        }
+      ],
+      "source_file": "obj/discovery/host/browser/traits.yaml"
+    },
+    {
+      "id": "obj/discovery/host/browser::edge-name",
+      "kind": "capability",
+      "desc": "Edge browser name",
+      "conf": 0.4,
+      "crit": "notable",
+      "attack": "T1217",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Microsoft Edge",
+          "location": "0x105"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Microsoft Edge",
+          "location": "0x106"
+        }
+      ],
+      "source_file": "obj/discovery/host/browser/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "browser-info.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "cap/exec/vm/sandbox::base64-long-string",
+      "kind": "capability",
+      "desc": "Long base64-like string pattern",
+      "conf": 0.4,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "adblocker/lgblnfidahcdcjddiepkckcfdhpknnjh/reviews",
+          "location": "0x6ed"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "adblocker/lgblnfidahcdcjddiepkckcfdhpknnjh/reviews",
+          "location": "0x6ee"
+        }
+      ],
+      "source_file": "cap/exec/vm/sandbox/node.yaml"
+    },
+    {
+      "id": "obj/collect/stealer/behavior::js-browser-target",
+      "kind": "capability",
+      "desc": "Targets browser data paths",
+      "conf": 0.8,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Microsoft Edge",
+          "location": "0x105"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Microsoft Edge",
+          "location": "0x106"
+        }
+      ],
+      "source_file": "obj/collect/stealer/behavior/javascript.yaml"
+    },
+    {
+      "id": "obj/discovery/host/browser::browser-names",
+      "kind": "capability",
+      "desc": "Browser name references",
+      "conf": 0.5,
+      "crit": "notable",
+      "attack": "T1217",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Chrome",
+          "location": "0x1ed"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Chrome",
+          "location": "0x1ee"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Google Chrome",
+          "location": "0x20a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Google Chrome",
+          "location": "0x20b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Chrome",
+          "location": "0x22b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Chrome",
+          "location": "0x22c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Firefox",
+          "location": "0x29b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Firefox",
+          "location": "0x29c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Firefox",
+          "location": "0x2b6"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Firefox",
+          "location": "0x2b7"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Safari",
+          "location": "0x256"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Safari",
+          "location": "0x257"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Safari",
+          "location": "0x270"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Safari",
+          "location": "0x271"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Microsoft Edge",
+          "location": "0x105"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Microsoft Edge",
+          "location": "0x106"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Brave",
+          "location": "0x1aa"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Brave",
+          "location": "0x1ab"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Brave",
+          "location": "0x1c3"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Brave",
+          "location": "0x1c4"
+        }
+      ],
+      "source_file": "obj/discovery/host/browser/traits.yaml"
+    },
+    {
+      "id": "meta/internal/imported::useragentdata/brands/map",
+      "kind": "structural",
+      "desc": "calls userAgentData.brands.map",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "userAgentData.brands.map"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::matches",
+      "kind": "structural",
+      "desc": "calls matches",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "matches"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::regex",
+      "kind": "structural",
+      "desc": "calls regex",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "regex"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browserversion",
+      "kind": "structural",
+      "desc": "calls browserVersion",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browserVersion"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::brands/includes",
+      "kind": "structural",
+      "desc": "calls brands.includes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "brands.includes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::brands",
+      "kind": "structural",
+      "desc": "calls brands",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "brands"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::regex/exec",
+      "kind": "structural",
+      "desc": "calls regex.exec",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "regex.exec"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::useragent/includes",
+      "kind": "structural",
+      "desc": "calls userAgent.includes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "userAgent.includes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parseint",
+      "kind": "structural",
+      "desc": "calls parseInt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "parseInt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::number/isnan",
+      "kind": "structural",
+      "desc": "calls Number.isNaN",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Number.isNaN"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browserinfo",
+      "kind": "structural",
+      "desc": "calls browserInfo",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browserInfo"
+        }
+      ]
+    }
+  ]
+}
