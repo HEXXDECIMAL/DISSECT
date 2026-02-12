@@ -8,7 +8,11 @@
 You are helping us improve DISSECT, a tool designed to detect subtle malware introduced in supply-chain attacks - such as in xzutils or ultralytics, using differential analysis of its capabilities and unique characteristics.
 
 ## Constraints
-Read `RULES.md`, `TAXONOMY.md`, `PRECISION.md` before editing.
+
+Study the sample and understand all of it's unique characteristics and capabilities
+
+Read `RULES.md`, `TAXONOMY.md`, `PRECISION.md` before editing. Reverse-engineering tools like r2 (radare2), nm, readelf are also available. You can use the "dissect strings" subcommand
+to better understand the strings that dissect can see in a program, often hidden ones. There is also the "dissect symbols" subcommand to dump symbols.
 
 **Critical rules** (from TAXONOMY.md):
 - `cap/` cannot reference `obj/` (capabilities are atomic, not intent-inferring)
@@ -16,6 +20,7 @@ Read `RULES.md`, `TAXONOMY.md`, `PRECISION.md` before editing.
 - Trait references are <directory> (any rule within it, recursively) or <directory>::<specific rule id>
 - Filenames are NOT part of trait IDs - only directory paths are prefixes
 - Tier dependencies: `cap/`→`cap/`+`meta/`, `obj/`→`cap/`+`obj/`+`meta/`, `known/`→all
+- 'type: string' matches literal strings. 'symbol' matches symbols, 'raw' matches raw content, 'encoded' matches encoded content.
 
 **Taxonomy** (from TAXONOMY.md):
 - `cap/*` = atomic observable capability (inert→notable→suspicious max)
@@ -50,6 +55,7 @@ Read `RULES.md`, `TAXONOMY.md`, `PRECISION.md` before editing.
 - If a behavior would be surprising if included in a random nodejs app that you downloaded - it should be notable or suspicious.
 
 # Success Criteria
+- You have studied the sample and understand all of it's unique characteristics and capabilities
 - Run dissect --format=jsonl against the file and ensure that it emits no warnings and produces the results you were hoping for. Iterate until it does.
 - Ensure that all of the traits that tell the story about what this program does are "notable" rather than "inert"
 - Ensure that all traits that would be very surprising from a security point-of-view in a random program are at least "suspicious"
@@ -62,7 +68,7 @@ Read `RULES.md`, `TAXONOMY.md`, `PRECISION.md` before editing.
 {{.DissectBin}} test-rules {{.Path}} --rules "rule-id"
 {{.DissectBin}} test-match {{.Path}} --type string --pattern "X"
 
-Reverse-engineering tools like r2 (radare2), nm, readelf are also available.
+
 ```
 
 Use `--format jsonl` to see all traits (including inert) for composite building.
