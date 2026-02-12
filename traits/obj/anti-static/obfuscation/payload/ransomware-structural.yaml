@@ -1,0 +1,81 @@
+# Ransomware/dropper detection via structural anomalies + minimal imports
+# Combines high entropy sections, dominant sections, and import minimization
+
+composite_rules:
+  # === Hostile: Structural indicators + crypto + minimal imports ===
+
+  - id: ransomware-packed-minimal
+    desc: Ransomware with packing and minimal imports
+    crit: hostile
+    conf: 0.95
+    for: [pe]
+    attack: "T1486"
+    mbc: "C0027"
+    all:
+      # Packing indicator (Rust-generated)
+      - id: anti-analysis/packing
+      # Crypto capability
+      - id: cap/crypto
+    needs: 2
+    any:
+      # Dynamic loading (import obfuscation)
+      - id: cap/exec/native/api::load-library-a
+      - id: cap/exec/native/api::get-proc-address
+      # Execution
+      - id: cap/exec/shell/methods::shell-execute-a
+      - id: cap/exec/shell/methods::shell-execute
+      # Specific crypto APIs
+      - id: cap/crypto/certificate/store::cert-open-store
+
+  - id: dropper-structural-concealment
+    desc: Dropper with structural obfuscation pattern
+    crit: hostile
+    conf: 0.9
+    for: [pe]
+    attack: "T1027"
+    mbc: "B0032"
+    all:
+      # High entropy section
+      - id: anti-analysis/packing
+      # Dominant section (single section is 85%+ of binary)
+      - id: obj/anti-static/obfuscation/binary-metrics::dominant-section
+      # Dynamic loading capability
+      - id: cap/exec/native/api::load-library-a
+      - id: cap/exec/native/api::get-proc-address
+    any:
+      # Additional suspicious capabilities
+      - id: cap/exec/shell/methods::shell-execute-a
+      - id: cap/crypto/certificate/store::cert-open-store
+      - id: cap/mem/protect/modify::virtualprotect
+
+  - id: encrypted-payload-binary
+    desc: Binary with encrypted payload section
+    crit: suspicious
+    conf: 0.85
+    for: [pe, elf, macho]
+    attack: "T1027"
+    mbc: "B0032"
+    all:
+      # High entropy executable section
+      - id: anti-analysis/packing
+      # Tiny string section
+      - id: obj/anti-static/obfuscation/strings/encoding::tiny-cstring-section
+    needs: 2
+    any:
+      # Execution capabilities
+      - id: cap/exec/shell
+      - id: cap/exec/native/api::load-library-a
+      - id: cap/crypto
+
+  - id: minimal-import-high-entropy
+    desc: Minimal imports with high entropy section
+    crit: suspicious
+    conf: 0.85
+    for: [pe]
+    attack: "T1027"
+    all:
+      - id: anti-analysis/packing
+    any:
+      - id: obj/anti-static/obfuscation/payload::shell-exec-minimal-imports
+      - id: obj/anti-static/obfuscation/imports::minimal-imports-suspicious-apis
+      - id: obj/anti-static/obfuscation/imports::concealed-capabilities-pe

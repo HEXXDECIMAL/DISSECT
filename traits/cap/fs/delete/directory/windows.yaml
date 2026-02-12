@@ -1,0 +1,14 @@
+# Directory deletion - Windows
+defaults:
+  for: [pe, dll]
+  platforms: [windows]
+
+traits:
+  - id: remove-directory
+    desc: Delete directory
+    crit: notable
+    conf: 0.9
+    attack: "T1070.004"
+    if:
+      type: symbol
+      regex: "RemoveDirectory[AW]?$"

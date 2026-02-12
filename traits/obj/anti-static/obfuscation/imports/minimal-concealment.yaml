@@ -1,0 +1,121 @@
+# Import minimization detection via individual capability counting
+# Escalates from notable -> suspicious -> hostile based on import count + string concealment
+
+traits:
+  # === Low String Count Indicators ===
+
+  - id: very-low-strings
+    desc: Very few extracted strings
+    crit: notable
+    conf: 0.7
+    for: [pe, elf]
+    if:
+      type: string_count
+      max: 20
+      min_length: 4
+
+  - id: extremely-low-strings
+    desc: Extremely few extracted strings
+    crit: suspicious
+    conf: 0.8
+    for: [pe, elf]
+    if:
+      type: string_count
+      max: 10
+      min_length: 4
+
+composite_rules:
+  # === Notable: Few capabilities but suspicious combination ===
+
+  - id: minimal-imports-suspicious-apis
+    desc: Minimal imports with suspicious API combination
+    crit: notable
+    conf: 0.75
+    for: [pe]
+    attack: "T1027"
+    needs: 3
+    any:
+      # Dynamic loading
+      - id: cap/exec/native/api::load-library-a
+      - id: cap/exec/native/api::get-proc-address
+      # Execution
+      - id: cap/exec/shell/methods::shell-execute-a
+      - id: cap/exec/shell/methods::shell-execute
+      - id: cap/exec/shell/methods::shell-execute-ex
+      # Crypto
+      - id: cap/crypto/certificate/store::cert-open-store
+      # Memory
+      - id: cap/exec/native/api::heap-alloc
+    unless:
+      - type: import_combination
+        min_suspicious: 30  # Has many imports, not minimization
+
+  # === Suspicious: Few imports + few strings ===
+
+  - id: concealed-capabilities-pe
+    desc: Concealed capabilities via import minimization
+    crit: suspicious
+    conf: 0.85
+    for: [pe]
+    attack: "T1027"
+    mbc: "B0032"
+    all:
+      - id: very-low-strings
+    needs: 4
+    any:
+      - id: cap/exec/native/api::load-library-a
+      - id: cap/exec/native/api::get-proc-address
+      - id: cap/exec/shell/methods::shell-execute-a
+      - id: cap/exec/shell/methods::shell-execute
+      - id: cap/crypto/certificate/store::cert-open-store
+      - id: cap/exec/native/api::heap-alloc
+      - id: cap/mem/protect/modify::virtualprotect
+    unless:
+      - type: import_combination
+        min_suspicious: 25
+
+  # === Hostile: Ransomware/dropper pattern ===
+
+  - id: import-concealed-ransomware-pattern
+    desc: Ransomware with concealed import table
+    crit: hostile
+    conf: 0.9
+    for: [pe]
+    attack: "T1486"
+    mbc: "C0027"
+    all:
+      - id: extremely-low-strings
+      - id: cap/crypto/certificate/store::cert-open-store
+    needs: 2
+    any:
+      - id: cap/exec/native/api::load-library-a
+      - id: cap/exec/native/api::get-proc-address
+      - id: cap/exec/shell/methods::shell-execute-a
+      - id: cap/mem/protect/modify::virtualprotect
+      - id: cap/fs
+    unless:
+      - type: import_combination
+        min_suspicious: 20
+
+  - id: import-concealed-dropper-pattern
+    desc: Dropper with heavily minimized imports
+    crit: hostile
+    conf: 0.9
+    for: [pe]
+    attack: "T1027"
+    mbc: "B0032"
+    all:
+      - id: extremely-low-strings
+      # Must have dynamic loading (API resolution concealment)
+      - id: cap/exec/native/api::load-library-a
+      - id: cap/exec/native/api::get-proc-address
+    needs: 2
+    any:
+      - id: cap/exec/shell/methods::shell-execute-a
+      - id: cap/exec/shell/methods::shell-execute
+      - id: cap/crypto/certificate/store::cert-open-store
+      - id: cap/mem/protect/modify::virtualprotect
+      - id: cap/fs
+    unless:
+      - type: import_combination
+        min_suspicious: 20

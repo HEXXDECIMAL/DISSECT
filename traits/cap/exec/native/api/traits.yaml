@@ -138,6 +138,30 @@ traits:
       type: symbol
       exact: "GetProcessHeap"
 
+  - id: local-alloc
+    desc: Local memory allocation
+    crit: inert
+    conf: 0.90
+    if:
+      type: symbol
+      exact: "LocalAlloc"
+
+  - id: local-free
+    desc: Local memory deallocation
+    crit: inert
+    conf: 0.90
+    if:
+      type: symbol
+      exact: "LocalFree"
+
+  - id: local-realloc
+    desc: Local memory reallocation
+    crit: inert
+    conf: 0.90
+    if:
+      type: symbol
+      exact: "LocalReAlloc"
+
   # === Synchronization Primitives ===
   - id: critical-section-enter
     desc: Enter critical section

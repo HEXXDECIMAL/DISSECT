@@ -1,0 +1,62 @@
+# Ransomware file encryption patterns
+# Detects drive enumeration + crypto + file operations characteristic of ransomware
+
+composite_rules:
+  # === Drive encryption targeting ===
+
+  - id: multi-drive-encryption-pattern
+    desc: Drive enumeration with crypto and file operations
+    crit: hostile
+    conf: 0.95
+    for: [pe, dll]
+    platforms: [windows]
+    attack: "T1486"
+    mbc: "C0027"
+    all:
+      - id: cap/fs/enumerate/drives::get-logical-drives
+      - any:
+        - id: cap/crypto/context/capi::crypt-acquire-context
+        - id: cap/crypto/random/generator::crypt-gen-random
+        - id: cap/crypto/certificate/store::cert-open-store
+    needs: 2
+    any:
+      # File operations
+      - id: cap/fs/file/move::move-file-ex
+      - id: cap/fs/file/delete
+      - id: cap/fs/enumerate/directory::find-first-file
+
+  - id: volume-targeting-ransomware
+    desc: Volume enumeration with encryption capability
+    crit: hostile
+    conf: 0.9
+    for: [pe, dll]
+    platforms: [windows]
+    attack: "T1486"
+    all:
+      - any:
+        - id: cap/fs/enumerate/volume::find-first-volume
+        - id: cap/fs/enumerate/volume::get-volume-info
+      - any:
+        - id: cap/crypto/context/capi::crypt-acquire-context
+        - id: cap/crypto/random/generator::crypt-gen-random
+    needs: 2
+    any:
+      - id: cap/fs/file/move::move-file-ex
+      - id: cap/fs/enumerate/directory::find-first-file
+      - id: cap/fs/file/delete::delete-win
+
+  # === File renaming pattern (ransomware appends extension) ===
+
+  - id: mass-file-renaming
+    desc: Bulk file renaming with crypto
+    crit: suspicious
+    conf: 0.85
+    for: [pe, dll]
+    platforms: [windows]
+    attack: "T1486"
+    all:
+      - id: cap/fs/file/move::move-file-ex
+      - id: cap/fs/enumerate/directory::find-first-file
+    any:
+      - id: cap/crypto/context/capi::crypt-acquire-context
+      - id: cap/crypto
