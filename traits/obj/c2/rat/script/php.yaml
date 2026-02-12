@@ -143,6 +143,14 @@ traits:
       type: string
       regex: "udp://[a-zA-Z0-9.-]+:\\d+"
 
+  - id: localhost-socket-uri
+    desc: Localhost socket URI
+    crit: inert
+    conf: 1.0
+    if:
+      type: string
+      regex: "tcp://(127\\.0\\.0\\.1|localhost|0\\.0\\.0\\.0)(:\\d+)?"
+
 composite_rules:
   # PHP reverse shell via socket + shell execution + interactive shell
   - id: reverse-shell-socket
@@ -184,6 +192,9 @@ composite_rules:
     any:
       - id: cap/exec/command/shell
       - id: function-exists-exec
+    none:
+      - id: localhost-socket-uri
+      - id: meta/purpose/test-tool::php-test-runner
 
   # PHP RAT with file operations
   - id: rat-file-operations
@@ -198,6 +209,9 @@ composite_rules:
     any:
       - id: cap/fs/write/file
       - id: obj/anti-static/obfuscation/encoding
+    none:
+      - id: localhost-socket-uri
+      - id: meta/purpose/test-tool::php-test-runner
 
   # Full PHP RAT with all indicators
   - id: rat-full
@@ -254,3 +268,6 @@ composite_rules:
     any:
       - id: tcp-socket-uri
       - id: udp-socket-uri
+    none:
+      - id: localhost-socket-uri
+      - id: meta/purpose/test-tool::php-test-runner

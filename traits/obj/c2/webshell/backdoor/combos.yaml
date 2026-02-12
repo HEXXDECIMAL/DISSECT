@@ -210,8 +210,10 @@ composite_rules:
     mbc: "B0032"
     attack: "T1027"
     for: [php]
-    all:
-      - id: obj/anti-static/obfuscation/code-metrics
+    any:
+      - id: obj/anti-static/obfuscation/code-metrics::php-high-non-ascii-ratio
+      - id: obj/anti-static/obfuscation/code-metrics::php-non-ascii-variable
+      - id: obj/anti-static/obfuscation/code-metrics::php-non-ascii-name
 
   - id: php-shell-functional
     desc: "PHP: functional webshell (exec + user input)"
@@ -222,11 +224,14 @@ composite_rules:
     for: [php]
     all:
       - id: cap/exec/command/shell
-    any:
       - id: cap/data/user-input/request
+    any:
       - id: obj/anti-static/obfuscation/
       - id: cap/fs/read/file
       - id: cap/fs/write/file
+    none:
+      - id: meta/purpose/test-tool::php-test-runner
+      - id: obj/c2/rat/script::localhost-socket-uri
 
   # Functional PHP shell
   - id: php-shell

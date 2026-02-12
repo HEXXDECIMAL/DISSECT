@@ -29,8 +29,8 @@ traits:
     conf: 0.6
     for: [python]
     if:
-      type: string
-      substr: ".connect("
+      type: raw
+      regex: "\\.connect\\s*\\("
 
   - id: py-stdin-pipe
     desc: stdin= pipe argument (Python)
@@ -38,8 +38,8 @@ traits:
     conf: 0.6
     for: [python]
     if:
-      type: string
-      substr: "stdin="
+      type: raw
+      regex: "stdin\\s*="
 
   - id: py-stdout-pipe
     desc: stdout= pipe argument (Python)
@@ -47,8 +47,8 @@ traits:
     conf: 0.4
     for: [python]
     if:
-      type: string
-      substr: "stdout="
+      type: raw
+      regex: "stdout\\s*="
 
   - id: py-stderr-pipe
     desc: stderr= pipe argument (Python)
@@ -56,8 +56,8 @@ traits:
     conf: 0.4
     for: [python]
     if:
-      type: string
-      substr: "stderr="
+      type: raw
+      regex: "stderr\\s*="
 
   # === Node.js PTY micro-traits ===
   - id: pty-node-module-ref
@@ -160,8 +160,8 @@ traits:
     conf: 0.4
     for: [python]
     if:
-      type: string
-      exact: "PIPE"
+      type: raw
+      regex: "\\.PIPE\\b"
 
   # === Interactive shell micro-traits ===
   - id: isatty-call
@@ -470,3 +470,14 @@ composite_rules:
     any:
       - id: telnet-pipe
       - id: mknod-telnet
+
+  # Python reverse shell with hardcoded C2
+  - id: python-reverse-shell-c2
+    desc: Python reverse shell with hardcoded C2 IP
+    crit: hostile
+    conf: 0.99
+    attack: "T1059.006"
+    for: [python]
+    all:
+      - id: python-socket-shell
+      - id: obj/c2/infrastructure/ip::hardcoded-ipv4-script

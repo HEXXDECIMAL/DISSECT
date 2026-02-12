@@ -330,7 +330,7 @@ traits:
     for: [scripts]
     if:
       type: string
-      word: "21"
+      regex: '(?i)(?:ftp|port|connect).{0,20}[:\s]21\b'
 
   - id: port-number-ssh
     desc: SSH port number (22)
@@ -350,7 +350,7 @@ traits:
     for: [scripts]
     if:
       type: string
-      word: "80"
+      regex: '(?i)(?:http|port|web|connect).{0,20}[:\s]80\b'
 
   - id: port-number-https
     desc: HTTPS port number (443)
@@ -360,7 +360,7 @@ traits:
     for: [scripts]
     if:
       type: string
-      word: "443"
+      regex: '(?i)(?:https|port|ssl|tls|connect).{0,20}[:\s]443\b'
 
   # === CIDR Network Range Scanning ===
 

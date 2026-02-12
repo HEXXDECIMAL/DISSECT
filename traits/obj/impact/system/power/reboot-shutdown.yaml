@@ -13,7 +13,7 @@ traits:
     platforms: [unix, macos, linux]
     if:
       type: raw
-      regex: '(?i)(^|[\s"''])(?:sudo\s+)?(?:/sbin/|/usr/sbin/)?reboot(?:\s+-(?:f|n|w|p|i|d|l)\b(?:\s+\S+)*)?(?:\s*(?:;|&&|\|\||["'']\s*[),]|$))'
+      regex: '(?i)(^|[\s"''])(?:sudo\s+)?(?:/sbin/|/usr/sbin/)?reboot(?:\s+-(?:f|n|w|p|i|d|l)\b(?:\s+\S+)*)?(?:\s*(?:;|&&|\|\||["'']\s*[)]|$))'
 
   - id: shutdown-command
     desc: shutdown command (system shutdown)
@@ -41,7 +41,17 @@ traits:
     for: [shell, python, ruby, perl]
     if:
       type: raw
-      regex: '(?im)(^|[;|&]\s*|[(,]\s*|["'']\s*)(?:sudo\s+)?(?:/sbin/|/usr/sbin/)?halt(?:\s+-(?:f|n|p|i|d|w)\b(?:\s+\S+)*)?(?:\s+now\b)?(?:\s*(?:;|&&|\|\||[)"'',]|$))'
+      regex: '(?im)(^|[;|&]\s*|[(,]\s*|["'']\s*)(?:sudo\s+)?(?:/sbin/|/usr/sbin/)?halt(?:\s+-(?:f|n|p|i|d|w)\b(?:\s+\S+)*)?(?:\s+now\b)?(?:\s*(?:;|&&|\|\||[)"'']|$))'
+    downgrade:
+      any:
+        - id: meta/library::faker-library
+        - id: meta/library::faker-js-export-regex
+        - id: meta/library::faker-js-export-str1
+        - id: meta/library::faker-js-export-str2
+        - id: meta/library::faker-js-definition
+        - id: meta/library::faker-js-locale-regex
+        - id: meta/library::faker-js-locale-str
+        - id: meta/library::faker-js-new
 
   - id: poweroff-command
     desc: poweroff command (power down system)

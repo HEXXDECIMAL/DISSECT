@@ -37,23 +37,23 @@ traits:
   # === Array manipulation patterns ===
   - id: push-shift-pattern
     desc: Array push/shift rotation pattern
-    crit: notable
+    crit: inert
     conf: 0.8
     attack: "T1027"
     for: [javascript]
     if:
       type: raw
-      regex: "\\.push\\([^)]+\\).*?\\.shift\\(\\)"
+      regex: "\\.push\\([^)]*?\\.shift\\(\\)\\)"
 
   - id: shift-push-pattern
-    desc: Array shift/push rotation pattern
-    crit: notable
+    desc: Array unshift/pop rotation pattern
+    crit: inert
     conf: 0.8
     attack: "T1027"
     for: [javascript]
     if:
       type: raw
-      regex: "\\.shift\\(\\).*?\\.push\\([^)]+\\)"
+      regex: "\\.unshift\\([^)]*?\\.pop\\(\\)\\)"
 
   # === Array shuffle algorithm patterns ===
   - id: array-shuffle-algorithm
@@ -92,7 +92,7 @@ composite_rules:
   # String array rotation composite
   - id: string-array-rotation
     desc: String array with rotation decoder
-    crit: suspicious
+    crit: notable
     conf: 0.9
     attack: "T1027"
     for: [javascript]

@@ -151,6 +151,16 @@ traits:
       type: raw
       regex: 'var\s+\w+\s*=\s*function\s*\([^)]*\)\s*\{|var\s+\w+\s*=\s*\(\s*\)\s*=>'
 
+  # Eval compiling a function string (common in templating/polyfills)
+  - id: eval-function-definition
+    desc: eval() compiling a function string
+    crit: inert
+    conf: 0.8
+    for: [javascript]
+    if:
+      type: raw
+      regex: 'eval\s*\(\s*["'']\[?function'
+
 composite_rules:
   - id: eval-function-reference
     desc: eval passed as function reference

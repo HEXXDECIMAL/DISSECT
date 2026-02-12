@@ -107,27 +107,3 @@ traits:
     if:
       type: raw
       regex: 'while\s+g\s+do\s+if\s+g\s*<'
-
-composite_rules:
-  - id: lua-obfuscated-script
-    desc: Obfuscated Lua script with dynamic execution
-    crit: suspicious
-    conf: 0.9
-    all:
-      - id: obj/anti-static/obfuscation/encoding::xor-string
-    any:
-      - id: base64-decoder-custom
-      - id: bytecode-interpreter
-      - id: env-access
-      - id: exec-dynamic-load
-
-  - id: lua-hostile-loader
-    desc: Hostile Lua loader/dropper
-    crit: hostile
-    conf: 0.9
-    all:
-      - id: lua-obfuscated-script
-    any:
-      - id: os-system-execute
-      - id: exec-file-execution
-      - id: debug-access

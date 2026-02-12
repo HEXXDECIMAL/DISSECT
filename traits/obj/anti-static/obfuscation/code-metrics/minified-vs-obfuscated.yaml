@@ -25,7 +25,7 @@ composite_rules:
     conf: 0.90
     any:
       - { id: obj/anti-static/obfuscation/payload::decode-exec-js }
-      - { id: obj/anti-static/obfuscation/encoding::xor-string }
+      - { id: obj/anti-static/obfuscation/payload::hardcoded-key-decryptor }
 
   # Minified library with hostile capabilities (trojanized)
   - id: minified-with-hostile-caps

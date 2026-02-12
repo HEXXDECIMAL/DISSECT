@@ -84,7 +84,7 @@ traits:
     for: [php]
     if:
       type: string
-      substr: "SCRIPT_FILENAME"
+      regex: "(\\$_SERVER|\\$HTTP_SERVER_VARS)\\[['\"]SCRIPT_FILENAME['\"]\\]|getenv\\(['\"]SCRIPT_FILENAME['\"]\\)"
 
   - id: http-user-agent
     desc: Access to HTTP User-Agent header
@@ -93,7 +93,7 @@ traits:
     for: [php]
     if:
       type: string
-      substr: "HTTP_USER_AGENT"
+      regex: "(\\$_SERVER|\\$HTTP_SERVER_VARS)\\[['\"]HTTP_USER_AGENT['\"]\\]|getenv\\(['\"]HTTP_USER_AGENT['\"]\\)"
 
   - id: http-referer
     desc: Access to HTTP Referer header
@@ -102,7 +102,7 @@ traits:
     for: [php]
     if:
       type: string
-      substr: "HTTP_REFERER"
+      regex: "(\\$_SERVER|\\$HTTP_SERVER_VARS)\\[['\"]HTTP_REFERER['\"]\\]|getenv\\(['\"]HTTP_REFERER['\"]\\)"
 
   # === extract atomic indicators ===
   - id: extract-get

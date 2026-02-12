@@ -47,15 +47,6 @@ traits:
       field: functions.one_liners
       min: 8
 
-  - id: php-non-ascii-identifiers
-    desc: "Many non-ASCII identifiers (obfuscation)"
-    crit: suspicious
-    conf: 0.9
-    if:
-      type: metrics
-      field: identifiers.avg_entropy
-      min: 0.8
-
   - id: php-high-non-ascii-ratio
     desc: "High non-ASCII byte ratio (packed/obfuscated)"
     crit: suspicious
@@ -64,15 +55,6 @@ traits:
       type: metrics
       field: text.non_ascii_ratio
       min: 0.5
-
-  - id: php-non-ascii-call
-    desc: "Function call with non-ASCII name"
-    crit: suspicious
-    conf: 0.98
-    if:
-      type: ast
-      kind: call
-      regex: "[^\\x00-\\x7F]"
 
   - id: php-non-ascii-variable
     desc: "Variable with non-ASCII name (obfuscation)"

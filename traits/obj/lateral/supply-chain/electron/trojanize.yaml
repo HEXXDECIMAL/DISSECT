@@ -82,7 +82,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      substr: "atomic"
+      regex: "(?i)Atomic\\s*Wallet|atomic-wallet"
 
   - id: exodus-wallet-path
     desc: Exodus wallet path reference

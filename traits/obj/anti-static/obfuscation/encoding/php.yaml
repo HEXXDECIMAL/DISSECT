@@ -72,17 +72,6 @@ traits:
       kind: call
       exact: "str_rot13"
 
-  - id: chr-ord
-    desc: Character code manipulation
-    crit: notable
-    conf: 0.65
-    mbc: "B0032"
-    for: [php]
-    if:
-      type: ast
-      kind: call
-      regex: "chr|ord"
-
   - id: eval
     desc: Dynamic code execution via eval
     crit: suspicious
@@ -130,17 +119,6 @@ traits:
       type: ast
       kind: call
       exact: "assert"
-
-  - id: xor-string
-    desc: XOR string manipulation (obfuscation)
-    crit: suspicious
-    conf: 0.8
-    mbc: "B0032"
-    for: [php]
-    if:
-      type: ast
-      kind: binary_op
-      regex: "\\^"
 
   - id: xor-loop
     desc: Loop performing XOR on user
@@ -243,7 +221,7 @@ traits:
     if:
       type: ast
       kind: call
-      regex: "^(\\$|\\{).{0,50}\\("
+      regex: "^(\\$|\\{)[^>\\-]+\\("
 
   - id: dynamic-variable-call
     desc: Dynamic variable function call (e.g.

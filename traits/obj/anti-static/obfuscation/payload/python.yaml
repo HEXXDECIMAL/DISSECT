@@ -205,8 +205,9 @@ traits:
             $read = "read" ascii
             $exec = "exec" ascii
             $join = "''.join" ascii
+            $setuptools = "setuptools" ascii
           condition:
-            $file and $open and $read and ($exec or $join)
+            $file and $open and $read and ($exec or $join) and not $setuptools
         }
 
 composite_rules:

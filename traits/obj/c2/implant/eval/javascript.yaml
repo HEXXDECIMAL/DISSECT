@@ -25,3 +25,6 @@ composite_rules:
     any:
       - id: cap/code/metrics/obfuscation::high-entropy-identifiers
       - id: cap/code/metrics/obfuscation::high-entropy-strings
+    downgrade:
+      any:
+        - id: cap/exec/eval/dynamic::eval-function-definition

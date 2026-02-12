@@ -213,7 +213,9 @@ traits:
     attack: "T1071.001"
     if:
       type: string
-      regex: "githu[bk]\\.|gi[th]hub\\.|github\\.[a-z]{2,}|githab\\.|githyb\\."
+      # Avoid matching literal 'github.' as a stem to prevent false positives on 'github.com'
+      # that fail the 'not' filter due to partial matching.
+      regex: "githuk\\.|gihub\\.|gthub\\.|githhub\\.|githab\\.|githyb\\.|github\\.[a-z]{2,}"
     not:
       - substr: "github.com"
       - substr: "github.io"
