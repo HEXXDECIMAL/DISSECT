@@ -7,7 +7,7 @@ use super::condition::{Condition, NotException};
 use super::context::{ConditionResult, EvaluationContext, StringParams};
 use super::evaluators::{
     eval_ast, eval_basename, eval_encoded, eval_exports_count, eval_hex, eval_import_combination,
-    eval_metrics, eval_raw, eval_section, eval_section_entropy, eval_section_ratio, eval_string,
+    eval_metrics, eval_raw, eval_section, eval_section_ratio, eval_string,
     eval_string_count, eval_structure, eval_symbol, eval_syscall, eval_trait, eval_yara_inline,
     ContentLocationParams,
 };
@@ -1052,9 +1052,6 @@ impl TraitDefinition {
                 min,
                 max,
             } => eval_section_ratio(section, compare_to, *min, *max, ctx),
-            Condition::SectionEntropy { section, min, max } => {
-                eval_section_entropy(section, *min, *max, ctx)
-            }
             Condition::ImportCombination {
                 required,
                 suspicious,
@@ -1140,6 +1137,8 @@ impl TraitDefinition {
                 case_insensitive,
                 length_min,
                 length_max,
+                entropy_min,
+                entropy_max,
             } => eval_section(
                 exact.as_ref(),
                 substr.as_ref(),
@@ -1148,6 +1147,8 @@ impl TraitDefinition {
                 *case_insensitive,
                 *length_min,
                 *length_max,
+                *entropy_min,
+                *entropy_max,
                 ctx,
             ),
             Condition::Encoded {
@@ -1983,9 +1984,6 @@ impl CompositeTrait {
                 min,
                 max,
             } => eval_section_ratio(section, compare_to, *min, *max, ctx),
-            Condition::SectionEntropy { section, min, max } => {
-                eval_section_entropy(section, *min, *max, ctx)
-            }
             Condition::ImportCombination {
                 required,
                 suspicious,
@@ -2071,6 +2069,8 @@ impl CompositeTrait {
                 case_insensitive,
                 length_min,
                 length_max,
+                entropy_min,
+                entropy_max,
             } => eval_section(
                 exact.as_ref(),
                 substr.as_ref(),
@@ -2079,6 +2079,8 @@ impl CompositeTrait {
                 *case_insensitive,
                 *length_min,
                 *length_max,
+                *entropy_min,
+                *entropy_max,
                 ctx,
             ),
             Condition::Encoded {

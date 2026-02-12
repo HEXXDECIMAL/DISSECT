@@ -638,6 +638,7 @@ impl MachOAnalyzer {
 
                     report.sections.push(Section {
                         name: section_name.clone(),
+                        address: Some(section.addr),
                         size: section.size,
                         entropy,
                         permissions: Some(format!("{:?}", section.flags)),

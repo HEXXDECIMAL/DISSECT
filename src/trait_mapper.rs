@@ -1049,7 +1049,6 @@ mod tests {
             local_vars: 0,
             args: 0,
             is_leaf: false,
-            source_file: None,
         });
 
         let caps = analyze_function(&func);
@@ -1074,7 +1073,6 @@ mod tests {
             branch_density: 0.25,
             in_degree: 1,
             out_degree: 4,
-            source_file: None,
         });
 
         // Add instruction analysis
@@ -1095,7 +1093,6 @@ mod tests {
             },
             top_opcodes: vec![],
             unusual_instructions: vec!["rdtsc".to_string()],
-            source_file: None,
         });
 
         // Add constants

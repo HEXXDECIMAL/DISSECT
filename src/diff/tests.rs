@@ -169,9 +169,8 @@ fn make_test_cap(id: &str) -> Finding {
             value: id.to_string(),
             location: None,
         }],
+        source_file: None,
     }
-
-    source_file: None,
 }
 
 #[test]

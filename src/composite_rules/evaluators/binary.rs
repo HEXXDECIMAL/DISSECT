@@ -232,66 +232,9 @@ pub fn eval_section_ratio(
     }
 }
 
-/// Evaluate section entropy condition - check if section entropy is within bounds
-pub fn eval_section_entropy(
-    section_pattern: &str,
-    min_entropy: Option<f64>,
-    max_entropy: Option<f64>,
-    ctx: &EvaluationContext,
-) -> ConditionResult {
-    let section_re = match Regex::new(section_pattern) {
-        Ok(re) => re,
-        Err(_) => {
-            return ConditionResult {
-                matched: false,
-                evidence: Vec::new(),
-                traits: Vec::new(),
-                warnings: Vec::new(),
-                precision: 0.0,
-            };
-        }
-    };
-
-    let mut evidence = Vec::new();
-    let mut any_matched = false;
-
-    for section in &ctx.report.sections {
-        if section_re.is_match(&section.name) {
-            let min_ok = min_entropy.is_none_or(|min| section.entropy >= min);
-            let max_ok = max_entropy.is_none_or(|max| section.entropy <= max);
-
-            if min_ok && max_ok {
-                any_matched = true;
-                evidence.push(Evidence {
-                    method: "section_entropy".to_string(),
-                    source: "binary".to_string(),
-                    value: format!("{} entropy = {:.2}/8.0", section.name, section.entropy),
-                    location: None,
-                });
-            }
-        }
-    }
-
-    // Calculate precision: base 1.0 + 0.5 each for min/max entropy
-    let mut precision = 1.0f32;
-    if min_entropy.is_some() {
-        precision += 0.5;
-    }
-    if max_entropy.is_some() {
-        precision += 0.5;
-    }
-
-    ConditionResult {
-        matched: any_matched,
-        evidence,
-        traits: Vec::new(),
-        warnings: Vec::new(),
-        precision,
-    }
-}
-
-/// Evaluate section condition - match section names in binary files
+/// Evaluate section condition - match sections by name, size, and entropy
 /// Replaces YARA patterns like: `for any section in pe.sections : (section.name matches /^UPX/)`
+#[allow(clippy::too_many_arguments)]
 pub fn eval_section(
     exact: Option<&String>,
     substr: Option<&String>,
@@ -300,6 +243,8 @@ pub fn eval_section(
     case_insensitive: bool,
     length_min: Option<u64>,
     length_max: Option<u64>,
+    entropy_min: Option<f64>,
+    entropy_max: Option<f64>,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
     let mut evidence = Vec::new();
@@ -356,14 +301,34 @@ pub fn eval_section(
             true
         };
 
-        let matched = name_matched && size_ok;
+        // Check entropy constraints
+        let entropy_ok = if let Some(min) = entropy_min {
+            section.entropy >= min
+        } else {
+            true
+        } && if let Some(max) = entropy_max {
+            section.entropy <= max
+        } else {
+            true
+        };
+
+        let matched = name_matched && size_ok && entropy_ok;
 
         if matched {
-            let value = if length_min.is_some() || length_max.is_some() {
-                format!("{} (size: {} bytes)", section.name, section.size)
-            } else {
+            let mut details = vec![];
+            if length_min.is_some() || length_max.is_some() {
+                details.push(format!("size: {}", section.size));
+            }
+            if entropy_min.is_some() || entropy_max.is_some() {
+                details.push(format!("entropy: {:.2}", section.entropy));
+            }
+
+            let value = if details.is_empty() {
                 section.name.clone()
+            } else {
+                format!("{} ({})", section.name, details.join(", "))
             };
+
             evidence.push(Evidence {
                 method: "section".to_string(),
                 source: "binary".to_string(),
@@ -392,6 +357,14 @@ pub fn eval_section(
         precision += 0.5;
     }
     if length_max.is_some() {
+        precision += 0.5;
+    }
+
+    // Add precision for entropy constraints
+    if entropy_min.is_some() {
+        precision += 0.5;
+    }
+    if entropy_max.is_some() {
         precision += 0.5;
     }
 

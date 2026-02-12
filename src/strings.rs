@@ -416,11 +416,12 @@ impl StringExtractor {
                 | StringMethod::XorDecode
         );
 
-        // Use stng's kind if it's an import/export, otherwise classify ourselves
+        // Use stng's kind if it's an import/export/shellcmd, otherwise classify ourselves
         let string_type = match es.kind {
             StringKind::Import => StringType::Import,
             StringKind::Export => StringType::Export,
             StringKind::FuncName => StringType::Function,
+            StringKind::ShellCmd => StringType::ShellCmd,
             _ if is_decoded => self.classify_decoded_string(&es.value),
             _ => self.classify_string_type(&es.value),
         };

@@ -53,8 +53,8 @@ traits:
     for: [macho]
     attack: "T1027"
     if:
-      type: section_entropy
-      section: "__data"
+      type: section
+      exact: "__data"
       min: 6.5  # Elevated entropy suggests encoding
 
 composite_rules:

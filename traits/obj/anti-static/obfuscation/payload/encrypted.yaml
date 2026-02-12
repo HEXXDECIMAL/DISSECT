@@ -81,10 +81,9 @@ traits:
     mbc: "C0027"
     for: [macho]
     if:
-      type: section_entropy
-      section: "__const"
-      min: 7.5
-
+      type: section
+      exact: "__const"
+      entropy_min: 7.5
   # NOTE: High entropy in data sections is common in legitimate software:
   # - Games (compressed assets, lookup tables)
   # - Multimedia apps (embedded media)
@@ -98,9 +97,9 @@ traits:
     mbc: "C0027"
     for: [elf, pe]
     if:
-      type: section_entropy
-      section: "\\.(data|rdata|rodata)"
-      min: 7.5
+      type: section
+      regex: "\\.(data|rdata|rodata)"
+      entropy_min: 7.5
     # System libraries commonly have high-entropy lookup tables
     downgrade:
       any:
@@ -113,10 +112,9 @@ traits:
     conf: 0.9
     mbc: "B0032.002"
     if:
-      type: section_entropy
-      section: "(__text|\\.text)"
-      min: 7.0
-
+      type: section
+      regex: "(__text|\\.text)"
+      entropy_min: 7.0
   # === String Concealment ===
 
   - id: string-concealment

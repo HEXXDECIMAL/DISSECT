@@ -204,11 +204,6 @@ fn score_condition(condition: &Condition) -> f32 {
             score += score_presence(min.as_ref());
             score += score_presence(max.as_ref());
         }
-        Condition::SectionEntropy { section, min, max } => {
-            score += score_regex_value(section);
-            score += score_presence(min.as_ref());
-            score += score_presence(max.as_ref());
-        }
         Condition::ImportCombination {
             required,
             suspicious,
@@ -274,6 +269,8 @@ fn score_condition(condition: &Condition) -> f32 {
             case_insensitive,
             length_min,
             length_max,
+            entropy_min,
+            entropy_max,
         } => {
             score += exact.as_deref().map(score_string_value).unwrap_or(0.0);
             score += substr.as_deref().map(score_string_value).unwrap_or(0.0);
@@ -286,6 +283,12 @@ fn score_condition(condition: &Condition) -> f32 {
                 score += PARAM_UNIT;
             }
             if length_max.is_some() {
+                score += PARAM_UNIT;
+            }
+            if entropy_min.is_some() {
+                score += PARAM_UNIT;
+            }
+            if entropy_max.is_some() {
                 score += PARAM_UNIT;
             }
         }
@@ -2528,6 +2531,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
             precision: None,
         };
         assert!(find_single_item_clauses(&rule).is_empty());
@@ -2557,6 +2561,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
             precision: None,
         };
         let violations = find_single_item_clauses(&rule);
@@ -2593,6 +2598,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
             precision: None,
         };
         assert!(find_single_item_clauses(&rule).is_empty());
@@ -2624,6 +2630,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
             precision: None,
         };
         // Should be empty because rule has none: clause
@@ -2654,6 +2661,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
             precision: None,
         };
         assert!(find_redundant_any_refs(&rule).is_empty());
@@ -2688,6 +2696,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
             precision: None,
         };
         // Only 2 refs from same dir, need 3+ for violation
@@ -2726,6 +2735,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
             precision: None,
         };
         let violations = find_redundant_any_refs(&rule);
@@ -2760,6 +2770,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
             precision: None,
         };
 
@@ -2796,6 +2807,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
             precision: None,
         };
 
@@ -2833,6 +2845,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
             precision: None,
         };
         assert!(collect_trait_refs_from_rule(&rule).is_empty());
@@ -2866,6 +2879,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
             precision: None,
         };
         let refs = collect_trait_refs_from_rule(&rule);
@@ -3224,6 +3238,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
             precision: None,
         }
     }
@@ -3746,6 +3761,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
             precision: None,
         };
         let traits: Vec<TraitDefinition> = vec![];
@@ -3779,6 +3795,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
             precision: None,
         };
         let traits: Vec<TraitDefinition> = vec![];
@@ -3817,6 +3834,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
             precision: None,
         };
         let traits: Vec<TraitDefinition> = vec![];
@@ -3850,6 +3868,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
             precision: None,
         };
         let traits: Vec<TraitDefinition> = vec![];
@@ -3885,6 +3904,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
             precision: None,
         };
         let traits: Vec<TraitDefinition> = vec![];
@@ -3929,6 +3949,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
             precision: None,
         };
         let traits: Vec<TraitDefinition> = vec![];
@@ -3960,6 +3981,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
             precision: None,
         };
         let traits: Vec<TraitDefinition> = vec![];
@@ -3995,6 +4017,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
             precision: None,
         };
         let traits: Vec<TraitDefinition> = vec![];
@@ -4026,6 +4049,7 @@ mod tests {
             unless: None,
             not: None,
             downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
             precision: None,
         };
         let traits: Vec<TraitDefinition> = vec![];

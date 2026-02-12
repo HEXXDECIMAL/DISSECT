@@ -15,6 +15,9 @@ pub(crate) struct TraitInfo {
     pub(crate) id: String,
     pub(crate) desc: String,
     pub(crate) conf: f32,
+    pub(crate) crit: crate::types::Criticality,
+    pub(crate) mbc: Option<String>,
+    pub(crate) attack: Option<String>,
 }
 
 /// File-level defaults that apply to all traits in a file

@@ -17,6 +17,7 @@ fn create_test_report() -> AnalysisReport {
     AnalysisReport::new(target)
 }
 
+#[allow(dead_code)]
 fn create_test_report_with_encoded_strings() -> AnalysisReport {
     let mut report = create_test_report();
 
@@ -658,6 +659,7 @@ fn test_eval_string_in_imports() {
 }
 
 /// Helper to create an empty report (no strings extracted)
+#[allow(dead_code)]
 fn create_empty_report() -> AnalysisReport {
     let target = TargetInfo {
         path: "/test/binary".to_string(),

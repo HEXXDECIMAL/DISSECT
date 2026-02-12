@@ -91,8 +91,7 @@ traits:
 |------|---------|--------|
 | `ast` | Parse source | `kind`/`node`, `exact`/`substr`/`regex`/`query` |
 | `syscall` | Direct syscalls | `name`, `number`, `arch`, `count_min`, `count_max`, `per_kb_min`, `per_kb_max` |
-| `section` | Binary sections | `exact`, `substr`, `regex`, `word`, `case_insensitive`, `length_min`, `length_max` |
-| `section_entropy` | Section entropy | `section`, `min`, `max` |
+| `section` | Binary sections | `exact`, `substr`, `regex`, `word`, `case_insensitive`, `length_min`, `length_max`, `entropy_min`, `entropy_max` |
 | `section_ratio` | Section size ratio | `section`, `compare_to`, `min`, `max` |
 | `import_combination` | Import patterns | `required`, `suspicious`, `min_suspicious` |
 | `metrics` | Code metrics | `field`, `min`, `max`, `min_size` |

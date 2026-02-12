@@ -554,7 +554,7 @@ fn test_apply_composite_defaults_applies_all_defaults() {
     };
 
     let mut warnings = Vec::new();
-    let result = parsing::apply_composite_defaults(raw, &defaults, &mut warnings);
+    let result = parsing::apply_composite_defaults(raw, &defaults, &mut warnings, std::path::Path::new("test.yaml"));
 
     assert_eq!(result.conf, 0.75);
     assert_eq!(result.crit, Criticality::Notable);
@@ -614,7 +614,7 @@ fn test_apply_composite_defaults_unset_with_none() {
     };
 
     let mut warnings = Vec::new();
-    let result = parsing::apply_composite_defaults(raw, &defaults, &mut warnings);
+    let result = parsing::apply_composite_defaults(raw, &defaults, &mut warnings, std::path::Path::new("test.yaml"));
 
     assert_eq!(result.mbc, None);
     assert_eq!(result.attack, None);
@@ -714,6 +714,7 @@ composite_rules:
             r,
             &mappings.defaults,
             &mut warnings,
+            std::path::Path::new("test.yaml"),
         ));
     }
 
@@ -757,6 +758,7 @@ fn test_finding(id: &str) -> Finding {
         attack: None,
         trait_refs: vec![],
         evidence: vec![],
+        source_file: None,
     }
 }
 
@@ -811,6 +813,7 @@ fn test_composite_referencing_atomic_trait() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
@@ -849,6 +852,7 @@ fn test_composite_of_composites_two_levels() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
@@ -875,6 +879,7 @@ fn test_composite_of_composites_two_levels() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
@@ -918,6 +923,7 @@ fn test_composite_three_level_chain() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
@@ -968,6 +974,7 @@ fn test_composite_circular_dependency_handled() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
@@ -994,6 +1001,7 @@ fn test_composite_circular_dependency_handled() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
@@ -1036,6 +1044,7 @@ fn test_composite_prefix_matching_in_chain() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
@@ -1081,6 +1090,7 @@ fn test_composite_requires_count_in_chain() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
@@ -1171,12 +1181,13 @@ fn test_precision_direct_conditions() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
     let mut cache = HashMap::new();
     let mut visiting = HashSet::new();
-    let composites = vec![rule.clone()];
+    let composites = [rule.clone()];
 
     let composite_lookup: HashMap<&str, &CompositeTrait> =
         composites.iter().map(|c| (c.id.as_str(), c)).collect();
@@ -1254,12 +1265,13 @@ fn test_precision_file_type_filter() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
     let mut cache = HashMap::new();
     let mut visiting = HashSet::new();
-    let composites = vec![rule.clone()];
+    let composites = [rule.clone()];
 
     let composite_lookup: HashMap<&str, &CompositeTrait> =
         composites.iter().map(|c| (c.id.as_str(), c)).collect();
@@ -1378,6 +1390,7 @@ fn test_precision_recursive_expansion() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
@@ -1410,13 +1423,14 @@ fn test_precision_recursive_expansion() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
     let mut cache = HashMap::new();
     let mut visiting = HashSet::new();
-    let composites = vec![composite_a, composite_b.clone()];
-    let traits = vec![trait_def];
+    let composites = [composite_a, composite_b.clone()];
+    let traits = [trait_def];
 
     let composite_lookup: HashMap<&str, &CompositeTrait> =
         composites.iter().map(|c| (c.id.as_str(), c)).collect();
@@ -1464,6 +1478,7 @@ fn test_precision_cycle_detection() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
@@ -1491,12 +1506,13 @@ fn test_precision_cycle_detection() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
     let mut cache = HashMap::new();
     let mut visiting = HashSet::new();
-    let composites = vec![composite_a.clone(), composite_b];
+    let composites = [composite_a.clone(), composite_b];
 
     let composite_lookup: HashMap<&str, &CompositeTrait> =
         composites.iter().map(|c| (c.id.as_str(), c)).collect();
@@ -1574,12 +1590,13 @@ fn test_precision_caching() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
     let mut cache = HashMap::new();
     let mut visiting = HashSet::new();
-    let composites = vec![rule.clone()];
+    let composites = [rule.clone()];
 
     let composite_lookup: HashMap<&str, &CompositeTrait> =
         composites.iter().map(|c| (c.id.as_str(), c)).collect();
@@ -1684,6 +1701,7 @@ fn test_precision_threshold_validation() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
@@ -1744,6 +1762,7 @@ fn test_precision_threshold_validation() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
@@ -1812,6 +1831,7 @@ fn test_suspicious_precision_threshold_validation() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
@@ -1871,6 +1891,7 @@ fn test_suspicious_precision_threshold_validation() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
@@ -1989,13 +2010,14 @@ fn test_precision_mixed_conditions() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
     let mut cache = HashMap::new();
     let mut visiting = HashSet::new();
-    let composites = vec![rule.clone()];
-    let traits: Vec<TraitDefinition> = vec![];
+    let composites = [rule.clone()];
+    let _traits: Vec<TraitDefinition> = vec![];
 
     let composite_lookup: HashMap<&str, &CompositeTrait> =
         composites.iter().map(|c| (c.id.as_str(), c)).collect();
@@ -2072,6 +2094,7 @@ fn test_precision_deep_nesting() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
@@ -2117,6 +2140,7 @@ fn test_precision_deep_nesting() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
@@ -2162,13 +2186,14 @@ fn test_precision_deep_nesting() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
     let mut cache = HashMap::new();
     let mut visiting = HashSet::new();
-    let composites = vec![level1, level2, level3];
-    let traits: Vec<TraitDefinition> = vec![];
+    let composites = [level1, level2, level3];
+    let _traits: Vec<TraitDefinition> = vec![];
 
     let composite_lookup: HashMap<&str, &CompositeTrait> =
         composites.iter().map(|c| (c.id.as_str(), c)).collect();
@@ -2249,13 +2274,14 @@ fn test_precision_correct_algorithm() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
     let mut cache = HashMap::new();
     let mut visiting = HashSet::new();
-    let composites = vec![rule];
-    let traits: Vec<TraitDefinition> = vec![];
+    let composites = [rule];
+    let _traits: Vec<TraitDefinition> = vec![];
 
     let composite_lookup: HashMap<&str, &CompositeTrait> =
         composites.iter().map(|c| (c.id.as_str(), c)).collect();
@@ -2392,13 +2418,14 @@ fn test_precision_traits_with_size_restrictions() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
     let mut cache = HashMap::new();
     let mut visiting = HashSet::new();
-    let composites = vec![composite];
-    let traits = vec![trait1, trait2];
+    let composites = [composite];
+    let _traits = [trait1, trait2];
 
     let composite_lookup: HashMap<&str, &CompositeTrait> =
         composites.iter().map(|c| (c.id.as_str(), c)).collect();
@@ -2892,6 +2919,7 @@ fn test_generate_import_findings_preserves_existing() {
         attack: None,
         trait_refs: vec![],
         evidence: vec![],
+        source_file: None,
     });
 
     report.imports.push(Import {
@@ -2934,6 +2962,7 @@ fn test_generate_import_findings_skips_existing_import_finding() {
         attack: None,
         trait_refs: vec![],
         evidence: vec![],
+        source_file: None,
     });
 
     report.imports.push(Import {
@@ -3053,6 +3082,7 @@ fn test_collect_trait_refs_finds_internal_paths() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
@@ -3105,6 +3135,7 @@ fn test_meta_internal_paths_forbidden_in_composite_rules() {
         downgrade: None,
         size_min: None,
         size_max: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 

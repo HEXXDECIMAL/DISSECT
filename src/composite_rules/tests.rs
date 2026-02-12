@@ -87,6 +87,7 @@ fn test_symbol_condition() {
         needs: None,
         near_lines: None,
         near_bytes: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
@@ -158,6 +159,7 @@ fn test_all() {
         needs: None,
         near_lines: None,
         near_bytes: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
@@ -222,6 +224,7 @@ fn test_count() {
         needs: None,
         near_lines: None,
         near_bytes: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
@@ -280,6 +283,7 @@ fn test_string_exact_condition() {
         needs: None,
         near_lines: None,
         near_bytes: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
@@ -338,6 +342,7 @@ fn test_any() {
         needs: None,
         near_lines: None,
         near_bytes: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
@@ -625,6 +630,7 @@ fn test_unless_directive_skips_trait() {
         attack: None,
         trait_refs: vec![],
         evidence: vec![],
+        source_file: None,
     }];
 
     let ctx = EvaluationContext {
@@ -746,6 +752,7 @@ fn test_downgrade_to_notable() {
         attack: None,
         trait_refs: vec![],
         evidence: vec![],
+        source_file: None,
     }];
 
     let ctx = EvaluationContext {
@@ -829,6 +836,7 @@ fn test_downgrade_one_level() {
         attack: None,
         trait_refs: vec![],
         evidence: vec![],
+        source_file: None,
     }];
 
     let ctx = EvaluationContext {
@@ -966,6 +974,7 @@ fn test_downgrade_from_hostile() {
         attack: None,
         trait_refs: vec![],
         evidence: vec![],
+        source_file: None,
     }];
 
     let ctx = EvaluationContext {
@@ -1061,6 +1070,7 @@ fn test_all_three_directives_combined() {
         attack: None,
         trait_refs: vec![],
         evidence: vec![],
+        source_file: None,
     }];
 
     let ctx = EvaluationContext {
@@ -1932,6 +1942,7 @@ fn test_basename_in_composite_rule() {
         needs: None,
         near_lines: None,
         near_bytes: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
@@ -1958,6 +1969,7 @@ fn test_composite_unless_skips_rule() {
         attack: None,
         trait_refs: vec![],
         evidence: vec![],
+        source_file: None,
     }];
 
     let ctx = EvaluationContext {
@@ -2001,6 +2013,7 @@ fn test_composite_unless_skips_rule() {
         needs: None,
         near_lines: None,
         near_bytes: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
@@ -2056,6 +2069,7 @@ fn test_composite_unless_allows_rule() {
         needs: None,
         near_lines: None,
         near_bytes: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
@@ -2116,6 +2130,7 @@ fn test_composite_unless_with_basename() {
         needs: None,
         near_lines: None,
         near_bytes: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 
@@ -2204,6 +2219,7 @@ fn test_composite_unless_multiple_conditions_any_matches() {
         needs: None,
         near_lines: None,
         near_bytes: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
         precision: None,
     };
 

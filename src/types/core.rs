@@ -531,7 +531,6 @@ mod tests {
             encoding: None,
             section: None,
             source: "strings".to_string(),
-            source_file: None,
         });
         report.strings.push(StringInfo {
             value: "test_string".to_string(),
@@ -541,13 +540,11 @@ mod tests {
             section: None,
             encoding_chain: vec![],
             fragments: None,
-            source_file: None,
         });
         report.imports.push(Import {
             symbol: "malloc".to_string(),
             library: Some("libc".to_string()),
             source: "elf".to_string(),
-            source_file: None,
         });
         report.add_finding(test_finding("test/cap1", Criticality::Notable));
 

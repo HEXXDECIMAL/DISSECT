@@ -14,22 +14,20 @@ traits:
     crit: suspicious
     conf: 0.8
     if:
-      type: section_entropy
-      section: data
-      min: 6.0
-      max: 7.8
-
+      type: section
+      exact: "data"
+      entropy_min: 6.0
+      entropy_max: 7.8
   # Very high entropy = likely encrypted
   - id: encrypted-data-section
     desc: "Encrypted data section (very high)"
     crit: suspicious
     conf: 0.9
     if:
-      type: section_entropy
-      section: data
-      min: 7.5
-      max: 8.0
-
+      type: section
+      exact: "data"
+      entropy_min: 7.5
+      entropy_max: 8.0
   # Large data section relative to text section
   - id: oversized-data-section
     desc: "Oversized data section vs code"
@@ -59,11 +57,10 @@ traits:
     conf: 0.7
     for: [elf, macho]
     if:
-      type: section_entropy
-      section: rodata
-      min: 5.5
-      max: 7.5
-
+      type: section
+      exact: "rodata"
+      entropy_min: 5.5
+      entropy_max: 7.5
 composite_rules:
   # GAP #4: Large encoded data section = configuration/payload storage
   - id: large-encoded-config-section

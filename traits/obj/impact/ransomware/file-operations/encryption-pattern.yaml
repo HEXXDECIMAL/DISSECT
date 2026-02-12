@@ -2,6 +2,41 @@
 # Detects drive enumeration + crypto + file operations characteristic of ransomware
 
 composite_rules:
+  # === Helper rules for crypto capabilities ===
+
+  - id: has-crypto-capability
+    desc: Has cryptographic API capability
+    crit: notable
+    conf: 0.9
+    for: [pe, dll]
+    platforms: [windows]
+    any:
+      - id: cap/crypto/context/capi::crypt-acquire-context
+      - id: cap/crypto/random/generator::crypt-gen-random
+      - id: cap/crypto/certificate/store::cert-open-store
+
+  - id: has-volume-enumeration
+    desc: Has volume enumeration capability
+    crit: notable
+    conf: 0.9
+    for: [pe, dll]
+    platforms: [windows]
+    any:
+      - id: cap/fs/enumerate/volume::find-first-volume
+      - id: cap/fs/enumerate/volume::get-volume-info
+
+  - id: has-file-operations
+    desc: Has file operation capabilities
+    crit: notable
+    conf: 0.8
+    for: [pe, dll]
+    platforms: [windows]
+    any:
+      - id: cap/fs/file/move::move-file-ex
+      - id: cap/fs/file/delete
+      - id: cap/fs/enumerate/directory::find-first-file
+    needs: 2
+
   # === Drive encryption targeting ===
 
   - id: multi-drive-encryption-pattern
@@ -14,16 +49,8 @@ composite_rules:
     mbc: "C0027"
     all:
       - id: cap/fs/enumerate/drives::get-logical-drives
-      - any:
-        - id: cap/crypto/context/capi::crypt-acquire-context
-        - id: cap/crypto/random/generator::crypt-gen-random
-        - id: cap/crypto/certificate/store::cert-open-store
-    needs: 2
-    any:
-      # File operations
-      - id: cap/fs/file/move::move-file-ex
-      - id: cap/fs/file/delete
-      - id: cap/fs/enumerate/directory::find-first-file
+      - id: has-crypto-capability
+      - id: has-file-operations
 
   - id: volume-targeting-ransomware
     desc: Volume enumeration with encryption capability
@@ -33,17 +60,9 @@ composite_rules:
     platforms: [windows]
     attack: "T1486"
     all:
-      - any:
-        - id: cap/fs/enumerate/volume::find-first-volume
-        - id: cap/fs/enumerate/volume::get-volume-info
-      - any:
-        - id: cap/crypto/context/capi::crypt-acquire-context
-        - id: cap/crypto/random/generator::crypt-gen-random
-    needs: 2
-    any:
-      - id: cap/fs/file/move::move-file-ex
-      - id: cap/fs/enumerate/directory::find-first-file
-      - id: cap/fs/file/delete::delete-win
+      - id: has-volume-enumeration
+      - id: has-crypto-capability
+      - id: has-file-operations
 
   # === File renaming pattern (ransomware appends extension) ===
 

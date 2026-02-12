@@ -111,10 +111,9 @@ traits:
     conf: 0.75
     for: [elf, macho, pe]
     if:
-      type: section_entropy
-      section: ".rodata"
-      min: 7.0
-
+      type: section
+      exact: ".rodata"
+      entropy_min: 7.0
   - id: base64-in-rodata
     desc: Base64-encoded data in read-only section
     crit: inert

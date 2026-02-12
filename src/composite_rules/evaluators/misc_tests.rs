@@ -52,9 +52,8 @@ fn create_test_finding(id: &str) -> Finding {
             value: "test evidence".to_string(),
             location: None,
         }],
+        source_file: None,
     }
-
-    source_file: None,
 }
 
 // =============================================================================

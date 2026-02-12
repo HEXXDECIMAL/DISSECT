@@ -183,11 +183,6 @@ enum ConditionTagged {
         min: Option<f64>,
         max: Option<f64>,
     },
-    SectionEntropy {
-        section: String,
-        min: Option<f64>,
-        max: Option<f64>,
-    },
     ImportCombination {
         required: Option<Vec<String>>,
         suspicious: Option<Vec<String>>,
@@ -282,6 +277,12 @@ enum ConditionTagged {
         /// Maximum section length in bytes
         #[serde(skip_serializing_if = "Option::is_none")]
         length_max: Option<u64>,
+        /// Minimum section entropy (0.0-8.0)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        entropy_min: Option<f64>,
+        /// Maximum section entropy (0.0-8.0)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        entropy_max: Option<f64>,
     },
 
     /// Match patterns in encoded/decoded strings (unified replacement for base64/xor)
@@ -458,9 +459,6 @@ impl From<ConditionDeser> for Condition {
                     min,
                     max,
                 },
-                ConditionTagged::SectionEntropy { section, min, max } => {
-                    Condition::SectionEntropy { section, min, max }
-                }
                 ConditionTagged::ImportCombination {
                     required,
                     suspicious,
@@ -543,6 +541,8 @@ impl From<ConditionDeser> for Condition {
                     case_insensitive,
                     length_min,
                     length_max,
+                    entropy_min,
+                    entropy_max,
                 } => Condition::Section {
                     exact,
                     substr,
@@ -551,6 +551,8 @@ impl From<ConditionDeser> for Condition {
                     case_insensitive,
                     length_min,
                     length_max,
+                    entropy_min,
+                    entropy_max,
                 },
                 ConditionTagged::Encoded {
                     encoding,
@@ -792,19 +794,6 @@ pub enum Condition {
         max: Option<f64>,
     },
 
-    /// Check section entropy (0.0-8.0)
-    /// High entropy (>7.0) indicates encryption or compression
-    SectionEntropy {
-        /// Section name pattern (regex)
-        section: String,
-        /// Minimum entropy threshold
-        #[serde(skip_serializing_if = "Option::is_none")]
-        min: Option<f64>,
-        /// Maximum entropy threshold
-        #[serde(skip_serializing_if = "Option::is_none")]
-        max: Option<f64>,
-    },
-
     /// Check import patterns (required + suspicious combination)
     /// For detecting malware import fingerprints
     ImportCombination {
@@ -956,6 +945,12 @@ pub enum Condition {
         /// Maximum section length in bytes
         #[serde(skip_serializing_if = "Option::is_none")]
         length_max: Option<u64>,
+        /// Minimum section entropy (0.0-8.0)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        entropy_min: Option<f64>,
+        /// Maximum section entropy (0.0-8.0)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        entropy_max: Option<f64>,
     },
 
     /// Match patterns in encoded/decoded strings (unified replacement for base64/xor)
@@ -1087,7 +1082,6 @@ impl Condition {
         match self {
             // Section analysis is binary-only
             Condition::SectionRatio { .. }
-            | Condition::SectionEntropy { .. }
             | Condition::Section { .. }
             | Condition::Structure { .. } => is_binary,
 
@@ -1111,7 +1105,6 @@ impl Condition {
             Condition::Yara { .. } => "yara",
             Condition::Syscall { .. } => "syscall",
             Condition::SectionRatio { .. } => "section_ratio",
-            Condition::SectionEntropy { .. } => "section_entropy",
             Condition::ImportCombination { .. } => "import_combination",
             Condition::StringCount { .. } => "string_count",
             Condition::Metrics { .. } => "metrics",

@@ -940,9 +940,6 @@ impl<'a> RuleDebugger<'a> {
                 min,
                 max,
             } => self.debug_section_ratio_condition(section, compare_to, *min, *max),
-            Condition::SectionEntropy { section, min, max } => {
-                self.debug_section_entropy_condition(section, *min, *max)
-            }
             Condition::ImportCombination {
                 required,
                 suspicious,
@@ -2312,64 +2309,6 @@ impl<'a> RuleDebugger<'a> {
         result
     }
 
-    fn debug_section_entropy_condition(
-        &self,
-        section: &str,
-        min_entropy: Option<f64>,
-        max_entropy: Option<f64>,
-    ) -> ConditionDebugResult {
-        let desc = format!(
-            "section_entropy: {} [{:?}, {:?}]",
-            section, min_entropy, max_entropy
-        );
-
-        // Get section data and calculate entropy
-        let (entropy, matched) = if let Some(bounds) = self.section_map.bounds(section) {
-            let start = bounds.0 as usize;
-            let end = (bounds.1 as usize).min(self.binary_data.len());
-            let section_data = &self.binary_data[start..end];
-
-            let e = crate::entropy::calculate_entropy(section_data);
-            let min_ok = min_entropy.is_none_or(|min| e >= min);
-            let max_ok = max_entropy.is_none_or(|max| e <= max);
-            (Some(e), min_ok && max_ok)
-        } else {
-            (None, false)
-        };
-
-        let mut result = ConditionDebugResult::new(desc, matched);
-
-        if self.section_map.has_sections() {
-            result.details.push(format!(
-                "Available sections: {}",
-                self.section_map.section_names().join(", ")
-            ));
-        } else {
-            result
-                .details
-                .push("No sections found in binary".to_string());
-        }
-
-        if let Some(e) = entropy {
-            result.details.push(format!("Entropy: {:.4} bits/byte", e));
-            if e > 7.0 {
-                result
-                    .details
-                    .push("  (High entropy - likely encrypted/compressed)".to_string());
-            } else if e < 4.0 {
-                result
-                    .details
-                    .push("  (Low entropy - likely plain data)".to_string());
-            }
-        } else {
-            result
-                .details
-                .push(format!("Section '{}' not found", section));
-        }
-
-        result
-    }
-
     fn debug_import_combination_condition(
         &self,
         required: Option<&Vec<String>>,
@@ -2643,14 +2582,6 @@ fn describe_condition(condition: &Condition) -> String {
                 max.unwrap_or(1.0)
             )
         }
-        Condition::SectionEntropy { section, min, max } => {
-            format!(
-                "section_entropy: {} [{:?}-{:?}]",
-                section,
-                min.unwrap_or(0.0),
-                max.unwrap_or(8.0)
-            )
-        }
         Condition::ImportCombination {
             required,
             suspicious,
@@ -2821,6 +2752,8 @@ fn evaluate_condition_simple(
             case_insensitive,
             length_min,
             length_max,
+            entropy_min,
+            entropy_max,
         } => eval_section(
             exact.as_ref(),
             substr.as_ref(),
@@ -2829,6 +2762,8 @@ fn evaluate_condition_simple(
             *case_insensitive,
             *length_min,
             *length_max,
+            *entropy_min,
+            *entropy_max,
             ctx,
         ),
         Condition::Syscall { name, number, arch } => {

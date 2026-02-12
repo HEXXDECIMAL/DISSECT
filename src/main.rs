@@ -376,6 +376,7 @@ fn main() -> Result<()> {
             extract_strings(&target, min_length, &format)?
         }
         Some(cli::Command::Symbols { target }) => extract_symbols(&target, &format)?,
+        Some(cli::Command::Sections { target }) => extract_sections(&target, &format)?,
         Some(cli::Command::TestRules { target, rules }) => test_rules_debug(
             &target,
             &rules,
@@ -403,6 +404,10 @@ fn main() -> Result<()> {
             section_offset_range,
             external_ip,
             encoding,
+            entropy_min,
+            entropy_max,
+            length_min,
+            length_max,
         }) => test_match_debug(
             &target,
             r#type,
@@ -422,6 +427,10 @@ fn main() -> Result<()> {
             section_offset_range,
             external_ip,
             encoding.as_deref(),
+            entropy_min,
+            entropy_max,
+            length_min,
+            length_max,
             &disabled,
             platforms.clone(),
             args.min_hostile_precision,
@@ -1057,10 +1066,10 @@ fn analyze_file_with_shared_mapper(
     }
 
     // Check for extension/content mismatch
-    let mismatch = analyzers::check_extension_content_mismatch(path, &file_data);
+    let mismatch = analyzers::check_extension_content_mismatch(path, file_data);
 
     // Check for encoded payloads (hex, base64, etc.)
-    let encoded_payloads = extractors::encoded_payload::extract_encoded_payloads(&file_data);
+    let encoded_payloads = extractors::encoded_payload::extract_encoded_payloads(file_data);
 
     let _t_analyze = std::time::Instant::now();
 
@@ -1571,13 +1580,15 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
                     crate::types::StringType::Email => "email",
                     crate::types::StringType::Path => "path",
                     crate::types::StringType::Base64 => "base64",
+                    crate::types::StringType::ShellCmd => "shell",
                     _ => "-",
                 };
 
+                // Format encoding chain as a separate column
                 let encoding_str = if s.encoding_chain.is_empty() {
-                    String::new()
+                    "-".to_string()
                 } else {
-                    format!(" [{}]", s.encoding_chain.join("+"))
+                    s.encoding_chain.join("+")
                 };
 
                 // Escape control characters for display
@@ -1609,8 +1620,8 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
                 }
 
                 output.push_str(&format!(
-                    "{:>10} {:<12} {}{}\n",
-                    offset, stype_str, val_display, encoding_str
+                    "{:>10} {:<12} {:<10} {}\n",
+                    offset, stype_str, encoding_str, val_display
                 ));
             }
             Ok(output)
@@ -1662,6 +1673,17 @@ fn extract_strings_from_ast(
             Ok(output)
         }
     }
+}
+
+#[derive(Debug, Serialize)]
+struct SectionInfo {
+    name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    address: Option<String>,
+    size: u64,
+    entropy: f64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    permissions: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -1889,6 +1911,105 @@ fn extract_symbols(target: &str, format: &cli::OutputFormat) -> Result<String> {
     }
 }
 
+fn extract_sections(target: &str, format: &cli::OutputFormat) -> Result<String> {
+    let path = Path::new(target);
+    if !path.exists() {
+        anyhow::bail!("File does not exist: {}", target);
+    }
+
+    let mut sections: Vec<SectionInfo> = Vec::new();
+
+    // Detect file type
+    if let Ok(file_type) = detect_file_type(path) {
+        match file_type {
+            FileType::Elf | FileType::MachO | FileType::Pe => {
+                // Binary file - extract sections with addresses
+                let capability_mapper = crate::capabilities::CapabilityMapper::empty();
+                let report = match file_type {
+                    FileType::Elf => ElfAnalyzer::new()
+                        .with_capability_mapper(capability_mapper)
+                        .analyze(path)?,
+                    FileType::MachO => MachOAnalyzer::new()
+                        .with_capability_mapper(capability_mapper)
+                        .analyze(path)?,
+                    FileType::Pe => PEAnalyzer::new()
+                        .with_capability_mapper(capability_mapper)
+                        .analyze(path)?,
+                    _ => unreachable!(),
+                };
+
+                // Convert sections to output format
+                for section in report.sections {
+                    sections.push(SectionInfo {
+                        name: section.name,
+                        address: section.address.map(|addr| format!("0x{:x}", addr)),
+                        size: section.size,
+                        entropy: section.entropy,
+                        permissions: section.permissions,
+                    });
+                }
+            }
+            _ => {
+                anyhow::bail!(
+                    "Unsupported file type for section extraction: {:?}. Only ELF, PE, and Mach-O binaries are supported.",
+                    file_type
+                );
+            }
+        }
+    } else {
+        anyhow::bail!("Unable to detect file type for: {}", target);
+    }
+
+    // Sort sections by address (if available), then by name
+    sections.sort_by(|a, b| {
+        match (&a.address, &b.address) {
+            (Some(addr_a), Some(addr_b)) => {
+                // Parse hex addresses for proper numeric sorting
+                let parse_addr =
+                    |s: &str| -> u64 { s.trim_start_matches("0x").parse::<u64>().unwrap_or(0) };
+                let num_a = parse_addr(addr_a);
+                let num_b = parse_addr(addr_b);
+                num_a.cmp(&num_b)
+            }
+            (Some(_), None) => std::cmp::Ordering::Less,
+            (None, Some(_)) => std::cmp::Ordering::Greater,
+            (None, None) => a.name.cmp(&b.name),
+        }
+    });
+
+    // Format output
+    match format {
+        cli::OutputFormat::Jsonl => Ok(serde_json::to_string_pretty(&sections)?),
+        cli::OutputFormat::Terminal => {
+            let mut output = String::new();
+            output.push_str(&format!(
+                "Extracted {} sections from {}\n\n",
+                sections.len(),
+                target
+            ));
+            output.push_str(&format!(
+                "{:<18} {:<30} {:<12} {:<10} {}\n",
+                "ADDRESS", "NAME", "SIZE", "ENTROPY", "PERMISSIONS"
+            ));
+            output.push_str(&format!(
+                "{:-<18} {:-<30} {:-<12} {:-<10} {:-<15}\n",
+                "", "", "", "", ""
+            ));
+
+            for section in sections {
+                let addr = section.address.unwrap_or_else(|| "-".to_string());
+                let perms = section.permissions.as_deref().unwrap_or("-");
+                output.push_str(&format!(
+                    "{:<18} {:<30} {:<12} {:<10.2} {}\n",
+                    addr, section.name, section.size, section.entropy, perms
+                ));
+            }
+
+            Ok(output)
+        }
+    }
+}
+
 /// Debug rule evaluation - shows exactly why rules match or fail
 fn test_rules_debug(
     target: &str,
@@ -2020,6 +2141,10 @@ fn test_match_debug(
     section_offset_range: Option<(i64, Option<i64>)>,
     external_ip: bool,
     encoding: Option<&str>,
+    entropy_min: Option<f64>,
+    entropy_max: Option<f64>,
+    length_min: Option<u64>,
+    length_max: Option<u64>,
     _disabled: &cli::DisabledComponents,
     platforms: Vec<composite_rules::Platform>,
     min_hostile_precision: f32,
@@ -2029,6 +2154,12 @@ fn test_match_debug(
     if search_type == cli::SearchType::Kv {
         if kv_path.is_none() {
             anyhow::bail!("--kv-path is required for kv searches");
+        }
+    } else if search_type == cli::SearchType::Section {
+        // Section searches don't require pattern (can search by length or entropy alone)
+        let has_constraints = count_min > 1 || count_max.is_some() || length_min.is_some() || length_max.is_some() || entropy_min.is_some() || entropy_max.is_some();
+        if pattern.is_none() && !has_constraints {
+            anyhow::bail!("--pattern is required for section searches unless using size/entropy constraints (--count-min/max, --length-min/max, --entropy-min/max)");
         }
     } else if pattern.is_none() {
         anyhow::bail!("--pattern is required for {:?} searches", search_type);
@@ -3042,6 +3173,159 @@ fn test_match_debug(
 
             (matched, match_count, out)
         }
+        cli::SearchType::Section => {
+            // Search for sections by name, size, and/or entropy
+            // count_min/count_max = number of matching sections
+            // length_min/length_max = size of each section in bytes
+            let sections: Vec<&types::Section> = report.sections.iter().collect();
+
+            // Helper function to check if a section name matches the pattern
+            let name_matches = |section_name: &str| -> bool {
+                if pattern.is_empty() {
+                    return true; // No pattern = match all names
+                }
+
+                let name = if case_insensitive {
+                    section_name.to_lowercase()
+                } else {
+                    section_name.to_string()
+                };
+                let pat = if case_insensitive {
+                    pattern.to_lowercase()
+                } else {
+                    pattern.to_string()
+                };
+
+                match method {
+                    cli::MatchMethod::Exact => name == pat,
+                    cli::MatchMethod::Contains => name.contains(&pat),
+                    cli::MatchMethod::Regex => {
+                        if let Ok(re) = regex::Regex::new(&pat) {
+                            re.is_match(&name)
+                        } else {
+                            false
+                        }
+                    }
+                    cli::MatchMethod::Word => {
+                        // Word boundary match
+                        let word_pattern = format!(r"\b{}\b", regex::escape(&pat));
+                        if let Ok(re) = regex::Regex::new(&word_pattern) {
+                            re.is_match(&name)
+                        } else {
+                            false
+                        }
+                    }
+                }
+            };
+
+            // Filter sections by name pattern, length constraints, and entropy
+            let matched_sections: Vec<&types::Section> = sections
+                .into_iter()
+                .filter(|sec| {
+                    // Check name match
+                    if !name_matches(&sec.name) {
+                        return false;
+                    }
+
+                    // Check length constraints
+                    if let Some(min) = length_min {
+                        if sec.size < min {
+                            return false;
+                        }
+                    }
+                    if let Some(max) = length_max {
+                        if sec.size > max {
+                            return false;
+                        }
+                    }
+
+                    // Check entropy constraints
+                    if let Some(min) = entropy_min {
+                        if sec.entropy < min {
+                            return false;
+                        }
+                    }
+                    if let Some(max) = entropy_max {
+                        if sec.entropy > max {
+                            return false;
+                        }
+                    }
+
+                    true
+                })
+                .collect();
+
+            let match_count = matched_sections.len();
+
+            // Check count constraints (number of matching sections)
+            let count_ok = match_count >= count_min && count_max.is_none_or(|max| match_count <= max);
+            let matched = count_ok;
+
+            let mut out = String::new();
+            out.push_str("Search: sections\n");
+            let mut constraints = Vec::new();
+            if count_min > 1 {
+                constraints.push(format!("count_min: {}", count_min));
+            }
+            if let Some(max) = count_max {
+                constraints.push(format!("count_max: {}", max));
+            }
+            if let Some(min) = length_min {
+                constraints.push(format!("length_min: {}", min));
+            }
+            if let Some(max) = length_max {
+                constraints.push(format!("length_max: {}", max));
+            }
+            if let Some(min) = entropy_min {
+                constraints.push(format!("entropy_min: {:.2}", min));
+            }
+            if let Some(max) = entropy_max {
+                constraints.push(format!("entropy_max: {:.2}", max));
+            }
+            if !constraints.is_empty() {
+                out.push_str(&format!("  {}\n", constraints.join(", ")));
+            }
+            if !pattern.is_empty() {
+                out.push_str(&format!("Pattern: {}\n", pattern));
+            }
+            out.push_str(&format!(
+                "Context: file_type={:?}, total_sections={}\n",
+                file_type,
+                report.sections.len()
+            ));
+
+            if matched {
+                out.push_str(&format!(
+                    "\n{} ({} sections matched)\n",
+                    "MATCHED".green().bold(),
+                    match_count
+                ));
+                for sec in matched_sections.iter().take(10) {
+                    let addr_str = sec.address.map(|a| format!("0x{:x}", a)).unwrap_or_else(|| "-".to_string());
+                    out.push_str(&format!(
+                        "  {} (addr: {}, size: {}, entropy: {:.2})\n",
+                        sec.name, addr_str, sec.size, sec.entropy
+                    ));
+                }
+                if match_count > 10 {
+                    out.push_str(&format!("  ... and {} more\n", match_count - 10));
+                }
+            } else {
+                out.push_str(&format!("\n{}\n", "NOT MATCHED".red().bold()));
+                if report.sections.is_empty() {
+                    out.push_str("  No sections found (not a binary file?)\n");
+                    out.push_str("  💡 Section search only works on ELF, PE, and Mach-O binaries\n");
+                } else {
+                    out.push_str(&format!("Found 0 matching sections (out of {} total)\n", report.sections.len()));
+                    if !pattern.is_empty() {
+                        out.push_str(&format!("  Available sections: {}\n",
+                            report.sections.iter().map(|s| s.name.as_str()).collect::<Vec<_>>().join(", ")));
+                    }
+                }
+            }
+
+            (matched, match_count, out)
+        }
     };
 
     // If not matched, provide suggestions
@@ -3239,6 +3523,19 @@ fn test_match_debug(
                 output.push_str("  💡 Try `--type string` for regular strings\n");
                 output.push_str("  💡 Try `--type raw` for raw content search\n");
             }
+            cli::SearchType::Section => {
+                output.push_str("  💡 Section search matches binary section metadata\n");
+                if pattern.is_empty() && entropy_min.is_none() && entropy_max.is_none() && length_min.is_none() && length_max.is_none() && count_min <= 1 && count_max.is_none() {
+                    output.push_str("  💡 Specify --pattern for name matching\n");
+                    output.push_str("  💡 Use --entropy-min/--entropy-max for entropy constraints\n");
+                    output.push_str("  💡 Use --length-min/--length-max for section size constraints\n");
+                    output.push_str("  💡 Use --count-min/--count-max for number of matching sections\n");
+                }
+                if !report.sections.is_empty() {
+                    output.push_str(&format!("  Available sections: {}\n",
+                        report.sections.iter().map(|s| s.name.as_str()).collect::<Vec<_>>().join(", ")));
+                }
+            }
         }
 
         // Suggest alternative match methods
@@ -3377,6 +3674,10 @@ fn test_match_debug(
                         }
                         cli::SearchType::Encoded => {
                             // encoded string searches depend on string extraction
+                            false
+                        }
+                        cli::SearchType::Section => {
+                            // Section searches are binary-specific
                             false
                         }
                     };

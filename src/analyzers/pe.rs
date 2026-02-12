@@ -267,7 +267,9 @@ impl PEAnalyzer {
 
     fn analyze_sections(&self, pe: &PE, data: &[u8], report: &mut AnalysisReport) -> Result<()> {
         for section in &pe.sections {
-            let name = String::from_utf8_lossy(&section.name).to_string();
+            let name = String::from_utf8_lossy(&section.name)
+                .trim_matches(char::from(0))
+                .to_string();
             let size = section.size_of_raw_data as u64;
             let offset = section.pointer_to_raw_data as u64;
 
@@ -303,6 +305,7 @@ impl PEAnalyzer {
 
             report.sections.push(Section {
                 name: name.clone(),
+                address: Some(section.virtual_address as u64),
                 size,
                 entropy,
                 permissions: Some(permissions.clone()),

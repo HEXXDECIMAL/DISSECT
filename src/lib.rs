@@ -182,10 +182,10 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
     );
 
     // Check for extension/content mismatch
-    let mismatch = analyzers::check_extension_content_mismatch(path, &file_data);
+    let mismatch = analyzers::check_extension_content_mismatch(path, file_data);
 
     // Check for encoded payloads (hex, base64, etc.)
-    let encoded_payloads = extractors::encoded_payload::extract_encoded_payloads(&file_data);
+    let encoded_payloads = extractors::encoded_payload::extract_encoded_payloads(file_data);
 
     // Load YARA rules if not disabled
     let mut yara_engine = if options.disable_yara {

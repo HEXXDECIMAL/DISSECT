@@ -118,8 +118,6 @@ fn detect_invalid_field_in_context(context: &str) -> Option<String> {
         "syscall"
     } else if context.contains("type: ast") {
         "ast"
-    } else if context.contains("type: section_entropy") {
-        "section_entropy"
     } else if context.contains("type: kv") {
         "kv"
     } else {
@@ -219,7 +217,6 @@ fn detect_invalid_field_in_context(context: &str) -> Option<String> {
             "language",
             "case_insensitive",
         ],
-        "section_entropy" => &["type", "section", "min", "max"],
         "section_ratio" => &["type", "section", "compare_to", "min", "max"],
         "kv" => &["type", "key", "value", "operator"],
         _ => return None,
@@ -249,12 +246,6 @@ fn detect_invalid_field_in_context(context: &str) -> Option<String> {
                 return Some(match field_name {
                     "exclude_patterns" if condition_type != "string" => {
                         "exclude_patterns".to_string()
-                    }
-                    "min_entropy" if condition_type == "section_entropy" => {
-                        "min_entropy".to_string()
-                    }
-                    "max_entropy" if condition_type == "section_entropy" => {
-                        "max_entropy".to_string()
                     }
                     "min_ratio" if condition_type == "section_ratio" => "min_ratio".to_string(),
                     "max_ratio" if condition_type == "section_ratio" => "max_ratio".to_string(),
@@ -468,17 +459,6 @@ fn provide_error_guidance(
                 guidance.push_str("   💡 Use 'type: string' instead of 'type: raw' if you need to exclude patterns.\n");
                 found_hallucination = true;
             }
-            ("min_entropy" | "max_entropy", Some("section_entropy")) => {
-                guidance.push_str(&format!(
-                    "\n   Field '{}' is not valid for 'type: section_entropy'.\n",
-                    field
-                ));
-                guidance.push_str(
-                    "   💡 Use 'min' and 'max' instead of 'min_entropy' and 'max_entropy'.\n",
-                );
-                guidance.push_str("   💡 The field names are consistent with other conditions like 'exports_count'.\n");
-                found_hallucination = true;
-            }
             ("min_ratio" | "max_ratio", Some("section_ratio")) => {
                 guidance.push_str(&format!(
                     "\n   Field '{}' is not valid for 'type: section_ratio'.\n",
@@ -566,7 +546,7 @@ fn provide_error_guidance(
         guidance.push_str("   • syscall    - Match system calls\n");
         guidance.push_str("   • structure  - Match structural features\n");
         guidance.push_str("   • exports_count, string_count - Count checks\n");
-        guidance.push_str("   • section_ratio, section_entropy, section - Section analysis\n");
+        guidance.push_str("   • section_ratio, section - Section analysis\n");
         guidance.push_str("   • import_combination, metrics, basename, kv\n");
 
         // Check for common mistakes in context

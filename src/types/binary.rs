@@ -201,11 +201,15 @@ pub enum StringType {
     Docstring,
     /// Stack-constructed string (character-by-character assembly)
     StackString,
+    /// Shell command (pipes, redirects, common commands)
+    ShellCmd,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Section {
     pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub address: Option<u64>,
     pub size: u64,
     pub entropy: f64,
     #[serde(skip_serializing_if = "Option::is_none", default)]
@@ -589,6 +593,7 @@ mod tests {
     fn test_section_creation() {
         let section = Section {
             name: ".text".to_string(),
+            address: None,
             size: 4096,
             entropy: 6.5,
             permissions: Some("r-x".to_string()),
@@ -602,6 +607,7 @@ mod tests {
     fn test_section_without_permissions() {
         let section = Section {
             name: ".data".to_string(),
+            address: None,
             size: 1024,
             entropy: 3.2,
             permissions: None,

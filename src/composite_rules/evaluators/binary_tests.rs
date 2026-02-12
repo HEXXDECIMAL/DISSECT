@@ -211,18 +211,21 @@ fn test_eval_section_ratio_vs_total() {
     let mut report = create_test_report();
     report.sections.push(Section {
         name: ".text".to_string(),
+        address: None,
         size: 500,
         entropy: 6.5,
         permissions: Some("rx".to_string()),
     });
     report.sections.push(Section {
         name: ".data".to_string(),
+        address: None,
         size: 300,
         entropy: 4.0,
         permissions: Some("rw".to_string()),
     });
     report.sections.push(Section {
         name: ".rodata".to_string(),
+        address: None,
         size: 200,
         entropy: 5.0,
         permissions: Some("r".to_string()),
@@ -247,12 +250,14 @@ fn test_eval_section_ratio_vs_another_section() {
     let mut report = create_test_report();
     report.sections.push(Section {
         name: ".text".to_string(),
+        address: None,
         size: 1000,
         entropy: 6.5,
         permissions: Some("rx".to_string()),
     });
     report.sections.push(Section {
         name: ".data".to_string(),
+        address: None,
         size: 500,
         entropy: 4.0,
         permissions: Some("rw".to_string()),
@@ -270,6 +275,7 @@ fn test_eval_section_ratio_no_matching_section() {
     let mut report = create_test_report();
     report.sections.push(Section {
         name: ".text".to_string(),
+        address: None,
         size: 1000,
         entropy: 6.5,
         permissions: None,
@@ -296,18 +302,21 @@ fn test_eval_section_ratio_multiple_matching_sections() {
     let mut report = create_test_report();
     report.sections.push(Section {
         name: ".text".to_string(),
+        address: None,
         size: 400,
         entropy: 6.5,
         permissions: None,
     });
     report.sections.push(Section {
         name: ".text2".to_string(),
+        address: None,
         size: 100,
         entropy: 6.0,
         permissions: None,
     });
     report.sections.push(Section {
         name: ".data".to_string(),
+        address: None,
         size: 500,
         entropy: 4.0,
         permissions: None,
@@ -327,115 +336,6 @@ fn test_eval_section_ratio_multiple_matching_sections() {
 }
 
 // =============================================================================
-// eval_section_entropy tests
-// =============================================================================
-
-#[test]
-fn test_eval_section_entropy_min() {
-    let mut report = create_test_report();
-    report.sections.push(Section {
-        name: ".text".to_string(),
-        size: 1000,
-        entropy: 7.5, // High entropy (compressed/encrypted)
-        permissions: None,
-    });
-    let data = vec![];
-    let ctx = create_test_context(&report, &data);
-
-    let result = eval_section_entropy(
-        r"\.text",
-        Some(7.0), // min entropy
-        None,
-        &ctx,
-    );
-    assert!(result.matched);
-}
-
-#[test]
-fn test_eval_section_entropy_max() {
-    let mut report = create_test_report();
-    report.sections.push(Section {
-        name: ".data".to_string(),
-        size: 1000,
-        entropy: 3.5, // Low entropy
-        permissions: None,
-    });
-    let data = vec![];
-    let ctx = create_test_context(&report, &data);
-
-    let result = eval_section_entropy(
-        r"\.data",
-        None,
-        Some(4.0), // max entropy
-        &ctx,
-    );
-    assert!(result.matched);
-}
-
-#[test]
-fn test_eval_section_entropy_range() {
-    let mut report = create_test_report();
-    report.sections.push(Section {
-        name: ".text".to_string(),
-        size: 1000,
-        entropy: 6.5,
-        permissions: None,
-    });
-    let data = vec![];
-    let ctx = create_test_context(&report, &data);
-
-    // Normal code entropy range
-    let result = eval_section_entropy(r"\.text", Some(5.0), Some(7.0), &ctx);
-    assert!(result.matched);
-
-    // Outside range
-    let result = eval_section_entropy(r"\.text", Some(7.0), Some(8.0), &ctx);
-    assert!(!result.matched);
-}
-
-#[test]
-fn test_eval_section_entropy_multiple_sections() {
-    let mut report = create_test_report();
-    report.sections.push(Section {
-        name: "UPX0".to_string(),
-        size: 1000,
-        entropy: 7.9,
-        permissions: None,
-    });
-    report.sections.push(Section {
-        name: "UPX1".to_string(),
-        size: 500,
-        entropy: 7.8,
-        permissions: None,
-    });
-    let data = vec![];
-    let ctx = create_test_context(&report, &data);
-
-    // Both UPX sections have high entropy
-    let result = eval_section_entropy(r"^UPX", Some(7.5), None, &ctx);
-    assert!(result.matched);
-    assert_eq!(result.evidence.len(), 2);
-}
-
-#[test]
-fn test_eval_section_entropy_evidence() {
-    let mut report = create_test_report();
-    report.sections.push(Section {
-        name: ".text".to_string(),
-        size: 1000,
-        entropy: 6.5,
-        permissions: None,
-    });
-    let data = vec![];
-    let ctx = create_test_context(&report, &data);
-
-    let result = eval_section_entropy(r"\.text", Some(6.0), None, &ctx);
-    assert!(result.matched);
-    assert!(result.evidence[0].value.contains("entropy"));
-    assert!(result.evidence[0].value.contains("6.5"));
-}
-
-// =============================================================================
 // eval_section tests
 // =============================================================================
 
@@ -444,6 +344,7 @@ fn test_eval_section_regex() {
     let mut report = create_test_report();
     report.sections.push(Section {
         name: "UPX0".to_string(),
+        address: None,
         size: 1000,
         entropy: 7.5,
         permissions: None,
@@ -452,7 +353,7 @@ fn test_eval_section_regex() {
     let ctx = create_test_context(&report, &data);
 
     let regex = r"^UPX".to_string();
-    let result = eval_section(None, None, Some(&regex), None, false, &ctx);
+    let result = eval_section(None, None, Some(&regex), None, false, None, None, None, None, &ctx);
     assert!(result.matched);
     assert_eq!(result.evidence[0].value, "UPX0");
 }
@@ -462,6 +363,7 @@ fn test_eval_section_contains() {
     let mut report = create_test_report();
     report.sections.push(Section {
         name: ".packed_data".to_string(),
+        address: None,
         size: 1000,
         entropy: 7.5,
         permissions: None,
@@ -470,7 +372,7 @@ fn test_eval_section_contains() {
     let ctx = create_test_context(&report, &data);
 
     let substr = "packed".to_string();
-    let result = eval_section(None, Some(&substr), None, None, false, &ctx);
+    let result = eval_section(None, Some(&substr), None, None, false, None, None, None, None, &ctx);
     assert!(result.matched);
 }
 
@@ -479,6 +381,7 @@ fn test_eval_section_no_match() {
     let mut report = create_test_report();
     report.sections.push(Section {
         name: ".text".to_string(),
+        address: None,
         size: 1000,
         entropy: 6.5,
         permissions: None,
@@ -487,7 +390,7 @@ fn test_eval_section_no_match() {
     let ctx = create_test_context(&report, &data);
 
     let substr = "UPX".to_string();
-    let result = eval_section(None, Some(&substr), None, None, false, &ctx);
+    let result = eval_section(None, Some(&substr), None, None, false, None, None, None, None, &ctx);
     assert!(!result.matched);
 }
 
@@ -496,12 +399,14 @@ fn test_eval_section_multiple_matches() {
     let mut report = create_test_report();
     report.sections.push(Section {
         name: ".text".to_string(),
+        address: None,
         size: 500,
         entropy: 6.5,
         permissions: None,
     });
     report.sections.push(Section {
         name: ".text.plt".to_string(),
+        address: None,
         size: 100,
         entropy: 6.0,
         permissions: None,
@@ -510,7 +415,7 @@ fn test_eval_section_multiple_matches() {
     let ctx = create_test_context(&report, &data);
 
     let substr = ".text".to_string();
-    let result = eval_section(None, Some(&substr), None, None, false, &ctx);
+    let result = eval_section(None, Some(&substr), None, None, false, None, None, None, None, &ctx);
     assert!(result.matched);
     assert_eq!(result.evidence.len(), 2);
 }
@@ -520,12 +425,14 @@ fn test_eval_section_exact() {
     let mut report = create_test_report();
     report.sections.push(Section {
         name: ".text".to_string(),
+        address: None,
         size: 500,
         entropy: 6.5,
         permissions: None,
     });
     report.sections.push(Section {
         name: ".text.plt".to_string(),
+        address: None,
         size: 100,
         entropy: 6.0,
         permissions: None,
@@ -534,7 +441,7 @@ fn test_eval_section_exact() {
     let ctx = create_test_context(&report, &data);
 
     let exact = ".text".to_string();
-    let result = eval_section(Some(&exact), None, None, None, false, &ctx);
+    let result = eval_section(Some(&exact), None, None, None, false, None, None, None, None, &ctx);
     assert!(result.matched);
     assert_eq!(result.evidence.len(), 1); // Only exact match, not .text.plt
 }
@@ -544,6 +451,7 @@ fn test_eval_section_case_insensitive() {
     let mut report = create_test_report();
     report.sections.push(Section {
         name: ".TEXT".to_string(),
+        address: None,
         size: 500,
         entropy: 6.5,
         permissions: None,
@@ -552,7 +460,7 @@ fn test_eval_section_case_insensitive() {
     let ctx = create_test_context(&report, &data);
 
     let substr = ".text".to_string();
-    let result = eval_section(None, Some(&substr), None, None, true, &ctx);
+    let result = eval_section(None, Some(&substr), None, None, true, None, None, None, None, &ctx);
     assert!(result.matched);
     assert_eq!(result.evidence[0].value, ".TEXT");
 }
@@ -821,4 +729,151 @@ fn test_eval_syscall_combined_filters() {
     );
     assert!(result.matched);
     assert_eq!(result.evidence.len(), 1);
+}
+
+#[test]
+fn test_eval_section_entropy_min() {
+    let mut report = create_test_report();
+    report.sections.push(Section {
+        name: ".text".to_string(),
+        address: Some(0x1000),
+        size: 1000,
+        entropy: 7.5,
+        permissions: None,
+    });
+    report.sections.push(Section {
+        name: ".data".to_string(),
+        address: Some(0x2000),
+        size: 500,
+        entropy: 3.0,
+        permissions: None,
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    // Match sections with entropy >= 7.0
+    let result = eval_section(None, None, None, None, false, None, None, Some(7.0), None, &ctx);
+    assert!(result.matched);
+    assert_eq!(result.evidence.len(), 1);
+    assert!(result.evidence[0].value.contains(".text"));
+    assert!(result.evidence[0].value.contains("entropy: 7.50"));
+}
+
+#[test]
+fn test_eval_section_entropy_max() {
+    let mut report = create_test_report();
+    report.sections.push(Section {
+        name: ".text".to_string(),
+        address: Some(0x1000),
+        size: 1000,
+        entropy: 7.5,
+        permissions: None,
+    });
+    report.sections.push(Section {
+        name: ".data".to_string(),
+        address: Some(0x2000),
+        size: 500,
+        entropy: 3.0,
+        permissions: None,
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    // Match sections with entropy <= 4.0
+    let result = eval_section(None, None, None, None, false, None, None, None, Some(4.0), &ctx);
+    assert!(result.matched);
+    assert_eq!(result.evidence.len(), 1);
+    assert!(result.evidence[0].value.contains(".data"));
+}
+
+#[test]
+fn test_eval_section_combined_constraints() {
+    let mut report = create_test_report();
+    report.sections.push(Section {
+        name: "UPX0".to_string(),
+        address: Some(0x1000),
+        size: 5000,
+        entropy: 7.9,
+        permissions: None,
+    });
+    report.sections.push(Section {
+        name: "UPX1".to_string(),
+        address: Some(0x2000),
+        size: 500,
+        entropy: 7.8,
+        permissions: None,
+    });
+    report.sections.push(Section {
+        name: ".text".to_string(),
+        address: Some(0x3000),
+        size: 10000,
+        entropy: 6.5,
+        permissions: None,
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    // Match UPX sections with high entropy and size > 1000
+    let regex = "^UPX".to_string();
+    let result = eval_section(
+        None,
+        None,
+        Some(&regex),
+        None,
+        false,
+        Some(1000),
+        None,
+        Some(7.5),
+        None,
+        &ctx,
+    );
+    assert!(result.matched);
+    assert_eq!(result.evidence.len(), 1);
+    assert!(result.evidence[0].value.contains("UPX0"));
+    assert!(result.evidence[0].value.contains("size: 5000"));
+    assert!(result.evidence[0].value.contains("entropy: 7.90"));
+}
+
+#[test]
+fn test_eval_section_precision_scoring() {
+    let mut report = create_test_report();
+    report.sections.push(Section {
+        name: ".text".to_string(),
+        address: Some(0x1000),
+        size: 1000,
+        entropy: 6.5,
+        permissions: None,
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    // Exact match should have highest precision
+    let exact = ".text".to_string();
+    let result1 = eval_section(Some(&exact), None, None, None, false, None, None, None, None, &ctx);
+    assert_eq!(result1.precision, 2.0);
+
+    // Regex should have lower precision
+    let regex = r"\.text".to_string();
+    let result2 = eval_section(None, None, Some(&regex), None, false, None, None, None, None, &ctx);
+    assert_eq!(result2.precision, 1.5);
+
+    // Substr should have even lower precision
+    let substr = "text".to_string();
+    let result3 = eval_section(None, Some(&substr), None, None, false, None, None, None, None, &ctx);
+    assert_eq!(result3.precision, 1.0);
+
+    // Adding entropy constraints should increase precision
+    let result4 = eval_section(
+        None,
+        Some(&substr),
+        None,
+        None,
+        false,
+        None,
+        None,
+        Some(6.0),
+        Some(7.0),
+        &ctx,
+    );
+    assert_eq!(result4.precision, 2.0); // 1.0 (substr) + 0.5 (entropy_min) + 0.5 (entropy_max)
 }

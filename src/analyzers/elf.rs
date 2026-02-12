@@ -390,6 +390,7 @@ impl ElfAnalyzer {
 
                     report.sections.push(Section {
                         name: name.to_string(),
+                        address: Some(section.sh_addr),
                         size: section.sh_size,
                         entropy,
                         permissions: Some(format!("{:x}", section.sh_flags)),
@@ -1027,6 +1028,7 @@ mod tests {
 
         packed.sections.push(Section {
             name: ".text".to_string(),
+            address: Some(0x1000),
             size: 1000,
             entropy: 6.5,
             permissions: Some("r-x".to_string()),
@@ -1034,6 +1036,7 @@ mod tests {
 
         unpacked.sections.push(Section {
             name: ".text".to_string(),
+            address: Some(0x1000),
             size: 5000,
             entropy: 5.5,
             permissions: Some("r-x".to_string()),
@@ -1041,6 +1044,7 @@ mod tests {
 
         unpacked.sections.push(Section {
             name: ".data".to_string(),
+            address: Some(0x2000),
             size: 2000,
             entropy: 3.0,
             permissions: Some("rw-".to_string()),

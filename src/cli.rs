@@ -334,6 +334,13 @@ pub enum Command {
         target: String,
     },
 
+    /// Extract section information (name, address, size, entropy) from a binary
+    Sections {
+        /// Target binary file
+        #[arg(required = true)]
+        target: String,
+    },
+
     /// Debug rule evaluation - trace through how rules match or fail
     TestRules {
         /// Target file to analyze
@@ -421,6 +428,22 @@ pub enum Command {
         /// Require matches to contain a valid external IP (not private/loopback/reserved)
         #[arg(long)]
         external_ip: bool,
+
+        /// Minimum entropy for section searches (0.0-8.0)
+        #[arg(long)]
+        entropy_min: Option<f64>,
+
+        /// Maximum entropy for section searches (0.0-8.0)
+        #[arg(long)]
+        entropy_max: Option<f64>,
+
+        /// Minimum section length in bytes (for section searches)
+        #[arg(long)]
+        length_min: Option<u64>,
+
+        /// Maximum section length in bytes (for section searches)
+        #[arg(long)]
+        length_max: Option<u64>,
     },
 }
 
@@ -461,6 +484,8 @@ pub enum SearchType {
     Hex,
     /// Search in decoded strings (base64, xor, hex, url, etc.) - optionally filter by encoding
     Encoded,
+    /// Search for sections by name (supports entropy/size constraints via count_min/max and per_kb_min/max)
+    Section,
 }
 
 #[derive(Debug, Clone, clap::ValueEnum, PartialEq)]

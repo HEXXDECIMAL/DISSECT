@@ -78,7 +78,7 @@ composite_rules:
       - id: max-50-imports
     needs: 2
     any:
-      - id: anti-analysis/packing
+      - id: cap/anti-analysis/packing/entropy::high-entropy-section
       - id: obj/anti-static/obfuscation/binary-metrics::dominant-section
       - id: cap/exec/shell
       - id: cap/crypto

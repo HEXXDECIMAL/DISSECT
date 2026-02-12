@@ -324,6 +324,9 @@ impl CapabilityMapper {
                         id: mapping.capability,
                         desc: mapping.desc,
                         conf: mapping.conf,
+                        crit: Criticality::Inert, // Legacy format defaults to Inert
+                        mbc: None,                // Legacy format has no mbc field
+                        attack: None,             // Legacy format has no attack field
                     },
                 );
             }
@@ -343,6 +346,9 @@ impl CapabilityMapper {
                             id: rule.capability,
                             desc: rule.desc,
                             conf: rule.conf,
+                            crit: Criticality::Inert, // Simple rules default to Inert
+                            mbc: None,                // Simple rules have no mbc field
+                            attack: None,             // Simple rules have no attack field
                         },
                     );
                 }
@@ -581,6 +587,9 @@ impl CapabilityMapper {
                                 id: trait_def.id.clone(),
                                 desc: trait_def.desc.clone(),
                                 conf: trait_def.conf,
+                                crit: trait_def.crit,
+                                mbc: trait_def.mbc.clone(),
+                                attack: trait_def.attack.clone(),
                             });
                     }
 
@@ -594,6 +603,9 @@ impl CapabilityMapper {
                                 id: trait_def.id.clone(),
                                 desc: trait_def.desc.clone(),
                                 conf: trait_def.conf,
+                                crit: trait_def.crit,
+                                mbc: trait_def.mbc.clone(),
+                                attack: trait_def.attack.clone(),
                             });
                         }
                     }
@@ -1964,6 +1976,9 @@ impl CapabilityMapper {
                     id: mapping.capability,
                     desc: mapping.desc,
                     conf: mapping.conf,
+                    crit: Criticality::Inert, // Legacy format defaults to Inert
+                    mbc: None,                // Legacy format has no mbc field
+                    attack: None,             // Legacy format has no attack field
                 },
             );
         }
@@ -1976,6 +1991,9 @@ impl CapabilityMapper {
                     id: rule.capability,
                     desc: rule.desc,
                     conf: rule.conf,
+                    crit: Criticality::Inert, // Simple rules default to Inert
+                    mbc: None,                // Simple rules have no mbc field
+                    attack: None,             // Simple rules have no attack field
                 },
             );
         }
@@ -2087,9 +2105,9 @@ impl CapabilityMapper {
                 kind: FindingKind::Capability,
                 desc: info.desc.clone(),
                 conf: info.conf,
-                crit: Criticality::Inert,
-                mbc: None,
-                attack: None,
+                crit: info.crit,
+                mbc: info.mbc.clone(),
+                attack: info.attack.clone(),
                 trait_refs: vec![],
                 evidence: vec![Evidence {
                     method: "symbol".to_string(),
@@ -2097,7 +2115,7 @@ impl CapabilityMapper {
                     value: symbol.to_string(),
                     location: None,
                 }],
-            
+
     source_file: None,
 });
         }
