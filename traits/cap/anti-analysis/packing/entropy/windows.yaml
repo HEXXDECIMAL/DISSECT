@@ -1,0 +1,16 @@
+# Packing and Entropy-based Detection
+# Detects high entropy and structural indicators of packing
+
+defaults:
+  for: [pe]
+  platforms: [windows]
+
+traits:
+  - id: high-entropy-section
+    desc: High entropy executable section (possible packing)
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: section
+      section: ".DG'"
+      min: 7.8

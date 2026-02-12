@@ -1,0 +1,15 @@
+# macOS-specific Authentication and Validation
+# Detects use of Mach-O APIs for verifying user credentials
+
+defaults:
+  platforms: [macos]
+  for: [macho]
+
+traits:
+  - id: csidentity-auth
+    desc: macOS CSIdentity password authentication
+    crit: notable
+    conf: 0.95
+    if:
+      type: symbol
+      exact: "CSIdentityAuthenticateUsingPassword"

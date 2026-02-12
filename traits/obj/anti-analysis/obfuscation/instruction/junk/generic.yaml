@@ -1,0 +1,16 @@
+# Generic Obfuscation and Packing Detection
+# Detects high entropy and structural indicators of packing without section name bias
+
+defaults:
+  for: [pe]
+  platforms: [windows]
+
+traits:
+  - id: high-entropy-generic
+    desc: High entropy section (any name)
+    crit: suspicious
+    conf: 0.8
+    if:
+      type: section
+      section: "." # Matches any section name via regex
+      min: 7.8
