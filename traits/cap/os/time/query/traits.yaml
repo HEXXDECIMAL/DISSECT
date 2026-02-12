@@ -8,25 +8,25 @@ defaults:
 traits:
   # Time retrieval
   - id: time
-    desc: Get current calendar time (seconds
+    desc: Get current calendar time (seconds)
     crit: inert
     mbc: "T1124"
     attack: "T1124"
     conf: 0.3
     if:
       type: symbol
-      regex: time
+      exact: "time"
     platforms: [unix, linux, macos, windows]
 
   - id: gettimeofday
-    desc: Get current time with microsecond
+    desc: Get current time with microsecond precision
     crit: inert
     mbc: "T1124"
     attack: "T1124"
     conf: 0.3
     if:
       type: symbol
-      regex: gettimeofday
+      exact: "gettimeofday"
     platforms: [unix, linux, macos]
 
   - id: clock_gettime
@@ -37,7 +37,7 @@ traits:
     conf: 0.3
     if:
       type: symbol
-      regex: clock_gettime
+      exact: "clock_gettime"
     platforms: [unix, linux, macos]
 
   # Time formatting and conversion

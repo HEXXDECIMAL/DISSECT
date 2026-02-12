@@ -206,3 +206,20 @@ traits:
             any of ($pool*) or 2 of ($xmr*, $algo, $wallet)
         }
 
+composite_rules:
+  # System callback execution patterns (stealthy shellcode triggers)
+  - id: callback-execution
+    desc: Shellcode execution via system callback
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0001.032"
+    attack: "T1055"
+    for: [pe, dll]
+    any:
+      - id: cap/exec/native/api::enum-ui-languages
+      - id: cap/exec/native/api::enum-resource-types
+      - id: cap/exec/native/api::enum-resource-names
+      - id: cap/exec/native/api::enum-desktop-windows
+      - id: cap/exec/native/api::enum-date-formats
+      - id: cap/exec/native/api::line-dda
+

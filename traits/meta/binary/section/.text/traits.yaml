@@ -6,6 +6,7 @@ traits:
     desc: Code section comprises most binary
     crit: inert
     conf: 0.6
+    for: [elf]
     if:
       type: metrics
       field: binary.largest_section_ratio

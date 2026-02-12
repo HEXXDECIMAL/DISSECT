@@ -88,3 +88,16 @@ composite_rules:
       any:
         - id: cap/exec/load/go-runtime/go-runtime-marker
         - id: meta/vendor/valve/valve-corp-binary
+
+  # === Local / Callback Injection ===
+  - id: hostile-callback-execution
+    desc: Potential self-injecting shellcode via callback
+    crit: hostile
+    conf: 0.95
+    mbc: "B0001.032"
+    attack: "T1055"
+    for: [pe, dll]
+    all:
+      - id: cap/exec/native/api::callback-execution
+      - id: cap/mem/protect/modify::virtual-protect
+      - id: cap/exec/native/api::heap-alloc

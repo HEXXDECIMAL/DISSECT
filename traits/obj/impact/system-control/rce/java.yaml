@@ -14,7 +14,7 @@ traits:
     for: [class]
     if:
       type: string
-      substr: "reboot"
+      substr: "reboot "
 
   - id: shutdown-string
     desc: System shutdown command

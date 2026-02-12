@@ -306,6 +306,24 @@ traits:
       type: string
       substr: "filedropper.com"
 
+  - id: openclaw-c2-ip
+    desc: OpenClaw C2 IP address
+    crit: suspicious
+    conf: 1.0
+    attack: "T1071.001"
+    if:
+      type: string
+      substr: "91.92.242.30"
+
+  - id: openclaw-c2-domain
+    desc: OpenClaw C2 domain
+    crit: suspicious
+    conf: 1.0
+    attack: "T1071.001"
+    if:
+      type: string
+      substr: "setup-service.com"
+
   # Cloud storage abuse for payload hosting
   - id: appwrite-storage
     desc: Appwrite cloud storage (commonly abused

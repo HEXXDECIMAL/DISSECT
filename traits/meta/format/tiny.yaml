@@ -17,6 +17,7 @@ traits:
 
   - id: text-section-ratio-dominant
     desc: ".text section is >75% of"
+    for: [elf]
     if:
       type: section_ratio
       section: "\\.text"

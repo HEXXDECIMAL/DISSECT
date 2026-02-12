@@ -59,13 +59,13 @@ traits:
       regex: "subprocess\\.(Popen|run|call)\\("
 
 composite_rules:
-  # HTTP library composite (unified python-http-lib and python-http-download-call)
+  # HTTP library composite
   - id: python-http-lib
     desc: Python HTTP library usage
     crit: notable
     conf: 0.6
     any:
-      - id: cap/comm/http/request/
+      - id: cap/comm/http/request
 
   # Temp directory composite
   - id: python-tmp-dir
@@ -76,21 +76,13 @@ composite_rules:
       - id: cap/fs/temp/directory::temp-directory
       - id: cap/fs/temp/directory::directory-python
 
-  # Home directory composite
-  - id: python-home-dir
-    desc: Home directory access
-    crit: notable
-    conf: 0.5
-    any:
-      - id: cap/fs/path/user/
-
   # Code or process execution composite
   - id: python-exec-any
     desc: Code or process execution
     crit: notable
     conf: 0.5
     any:
-      - id: cap/exec/command/subprocess/
+      - id: cap/exec/command/subprocess
       - id: cap/exec/command/shell::python-os-system
       - id: cap/exec/eval/invoke::exec-call-python
 
@@ -105,24 +97,22 @@ composite_rules:
 
   # Original rule - tmp directory dropper
   - id: tmp-dropper
-    desc: "HTTP download to temp and"
+    desc: "HTTP download to temp and execute"
     conf: 0.9
-    needs: 3
-    any:
+    all:
       - id: python-http-lib
       - id: python-tmp-dir
       - id: cap/fs/chmod/commands::python-os-chmod
-      - id: cap/exec/command/subprocess/
+      - id: cap/exec/command/subprocess
 
   # Home directory dropper - downloads to hidden dir in home
   - id: home-dropper
     desc: "HTTP download to home directory"
     conf: 0.95
     crit: suspicious
-    needs: 3
-    any:
+    all:
       - id: python-http-lib
-      - id: python-home-dir
+      - id: cap/os/user/lookup::home-dir
       - id: cap/fs/write/file::python-open-write-binary
       - id: python-exec-any
 
@@ -133,15 +123,14 @@ composite_rules:
     all:
       - id: python-http-lib
       - id: cap/fs/write/file::python-open-write-binary
-      - id: cap/exec/command/subprocess/
+      - id: cap/exec/command/subprocess
 
   # Multiple download functions composite
   - id: multi-download-funcs
     desc: Multiple download function definitions
     crit: suspicious
     conf: 0.85
-    needs: 2
-    any:
+    all:
       - id: def-download
       - id: def-fetch
 
@@ -150,9 +139,8 @@ composite_rules:
     desc: "Staged payload dropper"
     conf: 0.9
     crit: suspicious
-    any:
-      - id: multi-download-funcs
     all:
+      - id: multi-download-funcs
       - id: requests-method
       - id: cap/fs/file/write::py-write
       - id: popen-call

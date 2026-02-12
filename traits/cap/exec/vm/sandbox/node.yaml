@@ -146,7 +146,7 @@ traits:
       type: string
       substr: "Buffer.from"
 
-  # Long base64-like string (20+ chars)
+  # Long base64-like string (32+ chars)
   - id: base64-long-string
     desc: Long base64-like string pattern
     crit: inert
@@ -154,7 +154,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: '[a-zA-Z0-9+/=]{20,}'
+      regex: '[a-zA-Z0-9+/=]{32,}'
 
   # HTTP/HTTPS protocol patterns
   - id: http-protocol-string

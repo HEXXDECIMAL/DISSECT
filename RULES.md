@@ -91,7 +91,7 @@ traits:
 |------|---------|--------|
 | `ast` | Parse source | `kind`/`node`, `exact`/`substr`/`regex`/`query` |
 | `syscall` | Direct syscalls | `name`, `number`, `arch`, `count_min`, `count_max`, `per_kb_min`, `per_kb_max` |
-| `section` | Binary sections | `exact`, `substr`, `regex`, `word`, `case_insensitive` |
+| `section` | Binary sections | `exact`, `substr`, `regex`, `word`, `case_insensitive`, `length_min`, `length_max` |
 | `section_entropy` | Section entropy | `section`, `min`, `max` |
 | `section_ratio` | Section size ratio | `section`, `compare_to`, `min`, `max` |
 | `import_combination` | Import patterns | `required`, `suspicious`, `min_suspicious` |
@@ -160,6 +160,52 @@ Available on `string`, `content`, `encoded`, `base64`, `xor`. Hex supports `offs
     pattern: "7F 45 4C 46"
     offset: 0
 ```
+
+## Section Size Constraints
+
+The `section` condition type supports absolute size constraints to detect structural anomalies:
+
+```yaml
+# Detect abnormally small __cstring section (string obfuscation)
+- id: tiny-cstring-absolute
+  desc: Abnormally small __cstring section
+  crit: suspicious
+  conf: 0.85
+  for: [macho]
+  size_min: 100000  # Only check binaries >100KB
+  if:
+    type: section
+    exact: "__TEXT.____cstring"
+    length_max: 100  # Section must be ≤100 bytes
+
+# Detect large __data section (encoded payload storage)
+- id: large-data-payload
+  desc: Large __DATA section (8KB+)
+  crit: notable
+  conf: 0.75
+  for: [macho]
+  if:
+    type: section
+    exact: "__DATA.____data"
+    length_min: 8192  # Section must be ≥8KB
+
+# Detect section in specific size range
+- id: suspicious-section-size
+  desc: Section with suspicious size
+  crit: suspicious
+  conf: 0.8
+  if:
+    type: section
+    substr: ".data"
+    length_min: 8192
+    length_max: 16384  # Between 8KB and 16KB
+```
+
+**Size constraints:**
+- `length_min` - Minimum section length in bytes
+- `length_max` - Maximum section length in bytes
+- Can be used alone or combined with name patterns
+- Evidence includes section size in output
 
 ## Encoded Strings
 

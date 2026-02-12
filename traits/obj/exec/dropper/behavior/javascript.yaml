@@ -10,9 +10,9 @@ composite_rules:
     all:
       - id: cap/fs/write/file::js-file-write
     any:
-      - id: cap/exec/command/shell::js-exec
-      - id: cap/exec/command/shell::js-execsync
-      - id: cap/exec/command/shell::js-spawn
+      - id: cap/exec/command/shell/lang::js-exec
+      - id: cap/exec/command/shell/lang::js-execsync
+      - id: cap/exec/command/shell/lang::js-spawn
 
   - id: obfuscated-local-dropper
     desc: Obfuscated local dropper (Hostile)

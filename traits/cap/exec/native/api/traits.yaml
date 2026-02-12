@@ -204,3 +204,52 @@ traits:
     if:
       type: symbol
       exact: "RaiseException"
+
+  # === System Callback APIs (often used for stealthy execution) ===
+  - id: enum-ui-languages
+    desc: Enumerate UI languages (potential callback trigger)
+    crit: inert
+    conf: 0.95
+    if:
+      type: symbol
+      regex: "^EnumUILanguages[AW]$"
+
+  - id: enum-resource-types
+    desc: Enumerate resource types (potential callback trigger)
+    crit: inert
+    conf: 0.95
+    if:
+      type: symbol
+      regex: "^EnumResourceTypes[AW]$"
+
+  - id: enum-resource-names
+    desc: Enumerate resource names (potential callback trigger)
+    crit: inert
+    conf: 0.95
+    if:
+      type: symbol
+      regex: "^EnumResourceNames[AW]$"
+
+  - id: enum-desktop-windows
+    desc: Enumerate desktop windows (potential callback trigger)
+    crit: inert
+    conf: 0.95
+    if:
+      type: symbol
+      exact: "EnumDesktopWindows"
+
+  - id: enum-date-formats
+    desc: Enumerate date formats (potential callback trigger)
+    crit: inert
+    conf: 0.95
+    if:
+      type: symbol
+      exact: "EnumDateFormatsA"
+
+  - id: line-dda
+    desc: LineDDA callback trigger
+    crit: inert
+    conf: 0.95
+    if:
+      type: symbol
+      exact: "LineDDA"

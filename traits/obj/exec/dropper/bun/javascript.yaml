@@ -22,12 +22,12 @@ traits:
 composite_rules:
   - id: js-bun-dropper
     desc: Bun runtime dropper (downloads and runs bun)
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     attack: "T1105"
     for: [javascript]
     all:
-      - id: cap/exec/command/shell::js-bun-exec
+      - id: cap/exec/command/shell/lang::js-bun-exec
     any:
       - id: bun-install-url
       - id: cap/exec/dropper/script::curl-download

@@ -31,7 +31,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      substr: bcrypt
+      word: bcrypt
       case_insensitive: true
 
   - id: hkdf

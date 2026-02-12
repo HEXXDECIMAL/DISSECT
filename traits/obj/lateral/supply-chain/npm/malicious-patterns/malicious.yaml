@@ -71,4 +71,4 @@ composite_rules:
     attack: "T1195.002"
     all:
       - id: lifecycle-hook
-      - id: cap/exec/command/shell::child-process-require
+      - id: cap/exec/command/shell/lang::child-process-require

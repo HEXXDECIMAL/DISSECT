@@ -1,0 +1,25 @@
+traits:
+  - id: crypto-hmac
+    desc: HMAC-SHA256 algorithm string
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      substr: "HmacSHA256"
+
+  - id: api-fields
+    desc: Common API request fields
+    crit: notable
+    conf: 0.5
+    if:
+      type: raw
+      regex: '("method"|"body"|"headers")'
+
+composite_rules:
+  - id: hmac-signed-request
+    desc: HMAC-signed API request pattern (Spyware/C2)
+    crit: suspicious
+    conf: 0.85
+    all:
+      - id: crypto-hmac
+      - id: api-fields

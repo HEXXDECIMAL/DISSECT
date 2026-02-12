@@ -95,4 +95,4 @@ composite_rules:
     needs: 2
     any:
       - id: gtfobins-ruby-marker
-      - id: cap/exec/command/shell::ruby-shell-exec
+      - id: cap/exec/command/shell/lang::ruby-shell-exec

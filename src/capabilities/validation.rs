@@ -272,12 +272,20 @@ fn score_condition(condition: &Condition) -> f32 {
             regex,
             word,
             case_insensitive,
+            length_min,
+            length_max,
         } => {
             score += exact.as_deref().map(score_string_value).unwrap_or(0.0);
             score += substr.as_deref().map(score_string_value).unwrap_or(0.0);
             score += regex.as_deref().map(score_regex_value).unwrap_or(0.0);
             score += word.as_deref().map(score_word_value).unwrap_or(0.0);
             if *case_insensitive {
+                score += PARAM_UNIT;
+            }
+            if length_min.is_some() {
+                score += PARAM_UNIT;
+            }
+            if length_max.is_some() {
                 score += PARAM_UNIT;
             }
         }

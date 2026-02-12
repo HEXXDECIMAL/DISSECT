@@ -5,11 +5,11 @@
 composite_rules:
   - id: python-home-hidden-staging
     desc: Creates hidden staging directory in user home
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     for: [python]
     mbc: "E1564"
     attack: "T1564.001"
     all:
-      - id: cap/fs/path/user::python-home-hidden-dir
-      - id: cap/exec/command/subprocess
+      - id: obj/persist/implant/system-path::home-hidden-dir-exec
+      - id: cap/exec/dropper/http::popen-call

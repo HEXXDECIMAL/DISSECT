@@ -56,23 +56,6 @@ traits:
     attack: "T1021.004"
 
   # === Shell Access ===
-  - id: bash-shell
-    desc: "Bash shell"
-    crit: notable
-    conf: 0.7
-    for: [elf, shell]
-    if:
-      type: string
-      word: "bash"
-
-  - id: system-call
-    desc: "System call"
-    crit: notable
-    conf: 0.7
-    for: [elf, shell]
-    if:
-      type: string
-      word: "system"
 
 composite_rules:
   - id: telnet-backdoor-setup

@@ -216,8 +216,11 @@ composite_rules:
     crit: notable
     conf: 0.6
     for: [elf, c]
+    needs: 2
     any:
       - id: cap/os/bpf/network-infra
+      - id: cap/os/bpf/program/network
+      - id: cap/os/bpf/program/loader
 
   # Shell activation helper
   # NOTE: dup2 + execve is extremely common in legitimate programs.

@@ -34,8 +34,8 @@ composite_rules:
       - id: cap/os/admin/legitimate/http-tools/ci-cd-pipeline
       - id: cap/os/admin/legitimate/http-tools/backup-script
 
-  - id: nc-exfil
-    desc: Netcat exfiltration
+  - id: shell-tool-exfil
+    desc: Shell tool exfiltration
     crit: suspicious
     conf: 0.85
     attack: "T1048"

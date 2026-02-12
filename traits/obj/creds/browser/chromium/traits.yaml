@@ -67,7 +67,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      substr: "Vivaldi"
+      substr: "User Data/Vivaldi"
 
   # === Arc path atomic indicators ===
   - id: arc-macos-path

@@ -159,7 +159,6 @@ composite_rules:
     any:
       - id: rtld-next-ref
       - id: meta/format/elf::rtld-default-ref
-      - id: meta/format/elf::gnu-version
 
   # === XZ CRC patterns ===
   - id: xz-crc-pattern

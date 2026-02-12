@@ -138,4 +138,4 @@ composite_rules:
       - id: sleep-timer
       - id: remote-code-download
       - id: rails-env-check
-      - id: cap/exec/command/shell::ruby-eval
+      - id: cap/exec/command/shell/lang::ruby-eval

@@ -443,7 +443,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     any:
-      - id: cap/exec/command/shell::spawn-call
+      - id: cap/exec/command/shell/lang::spawn-call
       - id: exec-call
 
   # npm package with interpreter dropper (hostile combination)
@@ -459,7 +459,7 @@ composite_rules:
       - id: node-interpreter-exec
     all:
       - id: spawn-or-exec-call
-      - id: cap/exec/command/shell::child-process-require
+      - id: cap/exec/command/shell/lang::child-process-require
 
   # Supply-chain trojan with obfuscated payload
   - id: obfuscated-trojan

@@ -28,6 +28,16 @@ traits:
       type: string
       substr: "| bash"
 
+  - id: encoded-bash-pipe
+    desc: Base64 encoded bash pipe
+    crit: suspicious
+    conf: 0.9
+    mbc: B0032
+    attack: T1027
+    if:
+      type: string
+      regex: "base64 (-d|-D) \\| bash"
+
   - id: pipe-sh
     desc: Pipe to sh
     crit: inert

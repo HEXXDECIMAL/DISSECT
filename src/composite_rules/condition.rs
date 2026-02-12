@@ -276,6 +276,12 @@ enum ConditionTagged {
         /// Case insensitive matching (default: false)
         #[serde(default)]
         case_insensitive: bool,
+        /// Minimum section length in bytes
+        #[serde(skip_serializing_if = "Option::is_none")]
+        length_min: Option<u64>,
+        /// Maximum section length in bytes
+        #[serde(skip_serializing_if = "Option::is_none")]
+        length_max: Option<u64>,
     },
 
     /// Match patterns in encoded/decoded strings (unified replacement for base64/xor)
@@ -535,12 +541,16 @@ impl From<ConditionDeser> for Condition {
                     regex,
                     word,
                     case_insensitive,
+                    length_min,
+                    length_max,
                 } => Condition::Section {
                     exact,
                     substr,
                     regex,
                     word,
                     case_insensitive,
+                    length_min,
+                    length_max,
                 },
                 ConditionTagged::Encoded {
                     encoding,
@@ -940,6 +950,12 @@ pub enum Condition {
         /// Case insensitive matching (default: false)
         #[serde(default)]
         case_insensitive: bool,
+        /// Minimum section length in bytes
+        #[serde(skip_serializing_if = "Option::is_none")]
+        length_min: Option<u64>,
+        /// Maximum section length in bytes
+        #[serde(skip_serializing_if = "Option::is_none")]
+        length_max: Option<u64>,
     },
 
     /// Match patterns in encoded/decoded strings (unified replacement for base64/xor)

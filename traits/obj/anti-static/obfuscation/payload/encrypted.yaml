@@ -245,7 +245,7 @@ composite_rules:
       - id: obj/persist/daemon/init::daemon-fork
     any:
       - id: cap/exec/command/shell::shell-execution
-      - id: cap/exec/command/shell::go-shell-execution
+      - id: cap/exec/command/shell::shell-execution-indicators
     unless:
       - type: string
         regex: "findutils|libtsan|sanitizer"

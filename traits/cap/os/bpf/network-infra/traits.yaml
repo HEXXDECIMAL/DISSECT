@@ -27,7 +27,7 @@ traits:
     if:
       type: symbol
       # Match actual pcap API functions, not just the prefix
-      regex: "pcap_(?:open_live|compile|setfilter|loop|next|close|findalldevs|lookupdev)"
+      regex: "\\bpcap_(?:open_live|compile|setfilter|loop|next|close|findalldevs|lookupdev)\\b"
 
   - id: recvfrom-fn
     desc: recvfrom function

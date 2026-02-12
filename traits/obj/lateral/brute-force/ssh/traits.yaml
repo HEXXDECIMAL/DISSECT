@@ -231,9 +231,11 @@ composite_rules:
   # Helper: Scanner keywords
   - id: scanner-keywords
     desc: Network scanner keywords
+    needs: 2
     any:
       - id: scanner-keyword
       - id: scanning-keyword
+      - id: ssh-port-refs
       - id: cap/comm/socket/connect::connect
 
   # Helper: Default IoT credentials (all 15)

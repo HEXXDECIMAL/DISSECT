@@ -60,7 +60,7 @@ composite_rules:
       - { id: meta/library/vue::version-string }
     any:
       - { id: cap/exec/command/shell }
-      - { id: cap/exec/command/shell::child-process-exec }
+      - { id: cap/exec/command/shell/lang::child-process-exec }
 
   # Vue + Network Backdoor = HOSTILE
   - id: trojanized-backdoor

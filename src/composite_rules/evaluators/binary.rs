@@ -298,6 +298,8 @@ pub fn eval_section(
     regex: Option<&String>,
     word: Option<&String>,
     case_insensitive: bool,
+    length_min: Option<u64>,
+    length_max: Option<u64>,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
     let mut evidence = Vec::new();
@@ -314,7 +316,7 @@ pub fn eval_section(
             (section.name.clone(), exact.cloned(), substr.cloned())
         };
 
-        let matched = if let Some(exact_str) = &compare_exact {
+        let name_matched = if let Some(exact_str) = &compare_exact {
             compare_name == *exact_str
         } else if let Some(substr_str) = &compare_substr {
             compare_name.contains(substr_str.as_str())
@@ -339,14 +341,33 @@ pub fn eval_section(
                 Err(_) => false,
             }
         } else {
-            false
+            // No name pattern specified - match all sections
+            true
         };
 
+        // Check size constraints
+        let size_ok = if let Some(min) = length_min {
+            section.size >= min
+        } else {
+            true
+        } && if let Some(max) = length_max {
+            section.size <= max
+        } else {
+            true
+        };
+
+        let matched = name_matched && size_ok;
+
         if matched {
+            let value = if length_min.is_some() || length_max.is_some() {
+                format!("{} (size: {} bytes)", section.name, section.size)
+            } else {
+                section.name.clone()
+            };
             evidence.push(Evidence {
                 method: "section".to_string(),
                 source: "binary".to_string(),
-                value: section.name.clone(),
+                value,
                 location: None,
             });
         }
@@ -359,9 +380,20 @@ pub fn eval_section(
         1.5
     } else if substr.is_some() {
         1.0
+    } else if length_min.is_some() || length_max.is_some() {
+        // Size constraints alone (no name pattern)
+        1.0
     } else {
         0.0
     };
+
+    // Add precision for size constraints
+    if length_min.is_some() {
+        precision += 0.5;
+    }
+    if length_max.is_some() {
+        precision += 0.5;
+    }
 
     if case_insensitive {
         precision *= 0.5;

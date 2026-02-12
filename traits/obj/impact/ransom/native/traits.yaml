@@ -182,8 +182,12 @@ traits:
     if:
       type: string
       # Pattern for ransomware-specific extensions like .nuctech-xxx, .locked-xxx
-      # Anchored to lowercase to avoid HTTP headers like Accept-Ranges, Content-Length
-      regex: "\\.[a-z]+-[a-z0-9]{6,}"
+      # Anchored to avoid matching com.apple.xxx or other standard metadata
+      regex: "\\b\\.[a-z]{3,10}-[a-z0-9]{6,}\\b"
+    not:
+      - substr: "application-identifier"
+      - substr: "temporary-exception"
+      - substr: "com.apple"
 
 composite_rules:
   # Ransom note message indicators

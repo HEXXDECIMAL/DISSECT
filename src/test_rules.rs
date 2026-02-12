@@ -2819,12 +2819,16 @@ fn evaluate_condition_simple(
             regex,
             word,
             case_insensitive,
+            length_min,
+            length_max,
         } => eval_section(
             exact.as_ref(),
             substr.as_ref(),
             regex.as_ref(),
             word.as_ref(),
             *case_insensitive,
+            *length_min,
+            *length_max,
             ctx,
         ),
         Condition::Syscall { name, number, arch } => {

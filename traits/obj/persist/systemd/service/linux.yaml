@@ -48,7 +48,7 @@ traits:
     attack: T1543.002
     if:
       type: string
-      substr: ".service"
+      substr: "/.service"
 
   - id: systemctl-enable
     desc: systemctl enable command (persistent service)

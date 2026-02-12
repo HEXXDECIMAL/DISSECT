@@ -811,12 +811,8 @@ impl CapabilityMapper {
             known_prefixes.len()
         );
 
-        // Set DISSECT_ALLOW_VIOLATIONS=1 to bypass validation checks during migration
-        let allow_violations = std::env::var("DISSECT_ALLOW_VIOLATIONS").is_ok();
-
         // Check for taxonomy violations: platform/language names as directories
         // According to TAXONOMY.md, languages should be YAML filenames, not directories
-        if !allow_violations {
             tracing::debug!("Step 3/15: Checking for platform-named directories");
             let dir_list: Vec<String> = known_prefixes.iter().cloned().collect();
             let platform_dir_violations = find_platform_named_directories(&dir_list);
@@ -962,7 +958,6 @@ impl CapabilityMapper {
                     invalid_ids.len()
                 ));
             }
-        }
 
         tracing::debug!("Step 8/15: Validating trait references in composite rules");
         let mut invalid_refs = Vec::new();
@@ -1221,8 +1216,7 @@ impl CapabilityMapper {
         // Recommend using directory references instead for better maintainability
         tracing::debug!("Step 14/15: Checking for redundant any refs");
         let mut redundant_any_refs = Vec::new();
-        if !allow_violations {
-            for rule in &composite_rules {
+        for rule in &composite_rules {
                 let violations = find_redundant_any_refs(rule);
                 for (rule_id, dir, count, trait_ids) in violations {
                     let source_file = rule_source_files
@@ -1238,7 +1232,6 @@ impl CapabilityMapper {
                     ));
                 }
             }
-        }
 
         if !redundant_any_refs.is_empty() {
             eprintln!(
@@ -1272,8 +1265,7 @@ impl CapabilityMapper {
         // Single-item clauses are pointless wrappers that add complexity
         tracing::debug!("Step 15/15: Checking for single-item clauses");
         let mut single_item_clauses = Vec::new();
-        if !allow_violations {
-            for rule in &composite_rules {
+        for rule in &composite_rules {
                 let violations = find_single_item_clauses(rule);
                 for (rule_id, clause_type, trait_id) in violations {
                     let source_file = rule_source_files
@@ -1288,7 +1280,6 @@ impl CapabilityMapper {
                     ));
                 }
             }
-        }
 
         if !single_item_clauses.is_empty() {
             eprintln!(
@@ -1321,8 +1312,7 @@ impl CapabilityMapper {
 
         // Validate: string vs content type collisions (same pattern at same criticality)
         // These should be merged to just `content` (which is broader)
-        if !allow_violations {
-            let collisions = find_string_content_collisions(&trait_definitions);
+        let collisions = find_string_content_collisions(&trait_definitions);
             if !collisions.is_empty() {
                 eprintln!(
                     "\n❌ FATAL: {} trait pairs have string/content type collisions",
@@ -1357,11 +1347,9 @@ impl CapabilityMapper {
                     collisions.len()
                 ));
             }
-        }
 
         // Validate: traits that differ only in `for:` field should be merged
-        if !allow_violations {
-            let for_duplicates = find_for_only_duplicates(&trait_definitions);
+        let for_duplicates = find_for_only_duplicates(&trait_definitions);
             if !for_duplicates.is_empty() {
                 eprintln!(
                     "\n❌ FATAL: {} trait groups differ only in `for:` field",
@@ -1391,13 +1379,11 @@ impl CapabilityMapper {
                     for_duplicates.len()
                 ));
             }
-        }
 
         // Validate: regex patterns that could be merged with alternation (case-only differences)
         // e.g., `nc\s+-e` and `NC\s+-e` -> `(nc|NC)\s+-e`
-        if !allow_violations {
-            let alternation_candidates =
-                find_alternation_merge_candidates(&trait_definitions, &trait_source_files);
+        let alternation_candidates =
+            find_alternation_merge_candidates(&trait_definitions, &trait_source_files);
             if !alternation_candidates.is_empty() {
                 eprintln!(
                     "\n❌ FATAL: {} trait groups have regex patterns that should use alternation",
@@ -1424,11 +1410,9 @@ impl CapabilityMapper {
                     alternation_candidates.len()
                 ));
             }
-        }
 
         // Validate: `needs` value exceeds number of items in `any:` (impossible to satisfy)
-        if !allow_violations {
-            let impossible_needs = find_impossible_needs(&composite_rules);
+        let impossible_needs = find_impossible_needs(&composite_rules);
             if !impossible_needs.is_empty() {
                 eprintln!(
                     "\n❌ FATAL: {} composite rules have impossible `needs` values",
@@ -1459,12 +1443,10 @@ impl CapabilityMapper {
                     impossible_needs.len()
                 ));
             }
-        }
 
         // Validate: size_min > size_max (impossible constraint)
-        if !allow_violations {
-            let impossible_sizes =
-                find_impossible_size_constraints(&trait_definitions, &composite_rules);
+        let impossible_sizes =
+            find_impossible_size_constraints(&trait_definitions, &composite_rules);
             if !impossible_sizes.is_empty() {
                 eprintln!(
                     "\n❌ FATAL: {} rules have impossible size constraints (size_min > size_max)",
@@ -1495,11 +1477,9 @@ impl CapabilityMapper {
                     impossible_sizes.len()
                 ));
             }
-        }
 
         // Validate: count_min > count_max (impossible constraint)
-        if !allow_violations {
-            let impossible_counts = find_impossible_count_constraints(&trait_definitions);
+        let impossible_counts = find_impossible_count_constraints(&trait_definitions);
             if !impossible_counts.is_empty() {
                 eprintln!(
                     "\n❌ FATAL: {} traits have impossible count constraints (count_min > count_max)",
@@ -1529,11 +1509,9 @@ impl CapabilityMapper {
                     impossible_counts.len()
                 ));
             }
-        }
 
         // Validate: empty any:/all: clauses with no other conditions
-        if !allow_violations {
-            let empty_clauses = find_empty_condition_clauses(&composite_rules);
+        let empty_clauses = find_empty_condition_clauses(&composite_rules);
             if !empty_clauses.is_empty() {
                 eprintln!(
                     "\n❌ FATAL: {} composite rules have empty condition clauses",
@@ -1564,11 +1542,9 @@ impl CapabilityMapper {
                     empty_clauses.len()
                 ));
             }
-        }
 
         // Validate: string/content conditions with no search pattern
-        if !allow_violations {
-            let missing_patterns = find_missing_search_patterns(&trait_definitions);
+        let missing_patterns = find_missing_search_patterns(&trait_definitions);
             if !missing_patterns.is_empty() {
                 eprintln!(
                     "\n❌ FATAL: {} traits have no search pattern",
@@ -1593,11 +1569,9 @@ impl CapabilityMapper {
                     missing_patterns.len()
                 ));
             }
-        }
 
         // Validate: redundant `needs: 1` when only `any:` exists
-        if !allow_violations {
-            let redundant_needs = find_redundant_needs_one(&composite_rules);
+        let redundant_needs = find_redundant_needs_one(&composite_rules);
             if !redundant_needs.is_empty() {
                 eprintln!(
                     "\n⚠️  WARNING: {} composite rules have redundant `needs: 1`",
@@ -1622,11 +1596,9 @@ impl CapabilityMapper {
                     redundant_needs.len()
                 ));
             }
-        }
 
         // Validate: directories with too many traits (should be split)
-        if !allow_violations {
-            let oversized_dirs = find_oversized_trait_directories(&trait_definitions);
+        let oversized_dirs = find_oversized_trait_directories(&trait_definitions);
             if !oversized_dirs.is_empty() {
                 eprintln!(
                     "\n⚠️  WARNING: {} directories have more than {} traits",
@@ -1644,7 +1616,6 @@ impl CapabilityMapper {
                     MAX_TRAITS_PER_DIRECTORY
                 ));
             }
-        }
 
         let mut broken_refs = Vec::new();
         for rule in &composite_rules {
@@ -1721,31 +1692,28 @@ impl CapabilityMapper {
 
         // Validate that composite rules only contain trait references (not inline primitives)
         // Strict mode is the default - composite rules must only reference traits
-        if !allow_violations {
-            let mut inline_errors = Vec::new();
-            for rule in &composite_rules {
-                let source = rule_source_files
-                    .get(&rule.id)
-                    .map(|s| s.as_str())
-                    .unwrap_or("unknown");
-                inline_errors.extend(validate_composite_trait_only(rule, source));
-            }
+        let mut inline_errors = Vec::new();
+        for rule in &composite_rules {
+            let source = rule_source_files
+                .get(&rule.id)
+                .map(|s| s.as_str())
+                .unwrap_or("unknown");
+            inline_errors.extend(validate_composite_trait_only(rule, source));
+        }
 
-            if !inline_errors.is_empty() {
-                eprintln!(
-                    "\n❌ FATAL: {} composite rules have inline primitives\n",
-                    inline_errors.len()
-                );
-                for err in &inline_errors {
-                    eprintln!("   {}", err);
-                }
-                eprintln!("\n   Composite rules must only reference traits (type: trait).");
-                eprintln!(
-                    "   Convert inline conditions (string, symbol, yara, etc.) to atomic traits."
-                );
-                eprintln!("   Set DISSECT_ALLOW_VIOLATIONS=1 to temporarily bypass this check.\n");
-                std::process::exit(1);
+        if !inline_errors.is_empty() {
+            eprintln!(
+                "\n❌ FATAL: {} composite rules have inline primitives\n",
+                inline_errors.len()
+            );
+            for err in &inline_errors {
+                eprintln!("   {}", err);
             }
+            eprintln!("\n   Composite rules must only reference traits (type: trait).");
+            eprintln!(
+                "   Convert inline conditions (string, symbol, yara, etc.) to atomic traits.\n"
+            );
+            std::process::exit(1);
         }
 
         // Validate single-rule composites with identical file types
@@ -1949,7 +1917,7 @@ impl CapabilityMapper {
             for warning in &warnings {
                 eprintln!("   ⚠️  {}", warning);
             }
-            eprintln!("\n   Fix these issues in the YAML files, or set DISSECT_ALLOW_VIOLATIONS=1 to bypass.\n");
+            eprintln!("\n   Fix these issues in the YAML files.\n");
             std::process::exit(1);
         }
 
@@ -2077,7 +2045,7 @@ impl CapabilityMapper {
             for warning in &warnings {
                 eprintln!("   ⚠️  {}", warning);
             }
-            eprintln!("\n   Fix these issues in the YAML files, or set DISSECT_ALLOW_VIOLATIONS=1 to bypass.\n");
+            eprintln!("\n   Fix these issues in the YAML files.\n");
             std::process::exit(1);
         }
 

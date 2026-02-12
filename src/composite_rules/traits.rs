@@ -287,6 +287,12 @@ impl TraitDefinition {
     /// Check if size constraints are valid.
     /// Returns an error message if invalid, None otherwise.
     pub fn check_size_constraints(&self) -> Option<String> {
+        // Skip validation for Section conditions - they have their own size_min/size_max
+        // for section sizes, which are separate from file size constraints
+        if matches!(self.r#if.condition, Condition::Section { .. }) {
+            return None;
+        }
+
         if let (Some(min), Some(max)) = (self.r#if.size_min, self.r#if.size_max) {
             if max < min {
                 return Some(format!(
@@ -1132,12 +1138,16 @@ impl TraitDefinition {
                 regex,
                 word,
                 case_insensitive,
+                length_min,
+                length_max,
             } => eval_section(
                 exact.as_ref(),
                 substr.as_ref(),
                 regex.as_ref(),
                 word.as_ref(),
                 *case_insensitive,
+                *length_min,
+                *length_max,
                 ctx,
             ),
             Condition::Encoded {
@@ -2059,12 +2069,16 @@ impl CompositeTrait {
                 regex,
                 word,
                 case_insensitive,
+                length_min,
+                length_max,
             } => eval_section(
                 exact.as_ref(),
                 substr.as_ref(),
                 regex.as_ref(),
                 word.as_ref(),
                 *case_insensitive,
+                *length_min,
+                *length_max,
                 ctx,
             ),
             Condition::Encoded {

@@ -60,7 +60,7 @@ composite_rules:
       - { id: meta/library/jquery::version-string }
     any:
       - { id: cap/exec/command/shell }
-      - { id: cap/exec/command/shell::child-process-exec }
+      - { id: cap/exec/command/shell/lang::child-process-exec }
 
   # jQuery + Network Backdoor = HOSTILE
   - id: trojanized-backdoor

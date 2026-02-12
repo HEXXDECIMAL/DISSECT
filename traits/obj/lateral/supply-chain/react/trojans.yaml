@@ -56,7 +56,7 @@ composite_rules:
       - {id: meta/library/react::version-banner}
     any:
       - {id: cap/exec/command/shell}
-      - {id: cap/exec/command/shell::child-process-exec}
+      - {id: cap/exec/command/shell/lang::child-process-exec}
   # React + Network Backdoor = HOSTILE
   - id: trojanized-backdoor
     desc: "React library with network backdoor"

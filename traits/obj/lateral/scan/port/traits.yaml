@@ -340,7 +340,7 @@ traits:
     for: [scripts]
     if:
       type: string
-      word: "22"
+      regex: '(?i)ssh.{0,20}[:\\s]22\b'
 
   - id: port-number-http
     desc: HTTP port number (80)

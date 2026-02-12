@@ -7,6 +7,30 @@ traits:
       type: string
       regex: 'exec\.\(\*Cmd\)\.Run|os/exec\.Command'
 
+  - id: bash-shell
+    desc: Bash shell reference
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      word: "bash"
+
+  - id: system-call-word
+    desc: system() call (string)
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      word: "system"
+
+  - id: system-fn
+    desc: system() function call
+    crit: notable
+    conf: 0.9
+    if:
+      type: symbol
+      exact: "system"
+
 composite_rules:
   - id: shell-symbols
     desc: Shell execution symbols
@@ -14,12 +38,13 @@ composite_rules:
     conf: 0.9
     any:
       - id: cap/exec/command/shell
+      - id: system-fn
     unless:
       # Exclude Go-specific strings from general C-style symbols
       - id: go-shell-strings
 
-  - id: go-shell-execution
-    desc: Shell command execution (Go)
+  - id: shell-execution-indicators
+    desc: Shell command execution indicators
     crit: notable
     conf: 0.9
     any:

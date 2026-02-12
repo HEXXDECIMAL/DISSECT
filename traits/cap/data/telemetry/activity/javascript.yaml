@@ -1,0 +1,27 @@
+# Generic Telemetry Patterns - JavaScript
+
+traits:
+  - id: telemetry-send
+    desc: Generic telemetry/analytics send message
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: 'analytics\.send|telemetry\.send|track\.event'
+
+  - id: activity-tracker
+    desc: User activity tracking library reference
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: 'ClientFactory|AnalyticsLibrary'
+
+  - id: tracking-identifiers
+    desc: Unique identifiers in telemetry context
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      regex: 'hwid|guid|localAppHWID'

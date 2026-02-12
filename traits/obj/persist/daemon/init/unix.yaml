@@ -29,7 +29,7 @@ traits:
   - id: daemon-setsid
     desc: "Session creation (setsid) for daemon"
     crit: notable
-    conf: 0.4
+    conf: 0.5
     attack: "T1543"
     for: [elf, macho]
     platforms: [linux, macos]
@@ -143,7 +143,7 @@ composite_rules:
   - id: daemon-fork
     desc: "Process forking for daemon behavior"
     crit: notable
-    conf: 0.3
+    conf: 0.4
     attack: "T1543"
     for: [elf, macho]
     platforms: [linux, macos]
@@ -261,3 +261,18 @@ composite_rules:
     any:
       - id: daemon-umask
       - id: daemon-chdir-root
+
+  # GAP #8: Properly link fork + setsid as persistence mechanism
+  # The combination of fork + setsid is the standard Unix daemon pattern
+  # This is persistence, not just process management
+  - id: unix-daemon-persistence
+    desc: "Unix daemon persistence mechanism"
+    crit: suspicious
+    conf: 0.75
+    attack: "T1543"
+    mbc: "F0006"
+    for: [elf, macho]
+    platforms: [linux, macos, unix]
+    all:
+      - id: daemon-fork
+      - id: daemon-setsid

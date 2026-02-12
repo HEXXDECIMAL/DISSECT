@@ -333,6 +333,7 @@ composite_rules:
         - id: cap/exec/load/video-lib-marker
         - id: cap/exec/load/library::graphics-lib-marker
         - id: cap/exec/load/library::shell-interpreter
+        - id: cap/exec/load/library::cxx-stdlib-marker
 
   # ctypes CDLL composite
   - id: ctypes-cdll

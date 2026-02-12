@@ -285,9 +285,11 @@ traits:
     desc: CMake build tool reference
     crit: inert
     conf: 0.7
+    for: [c, cpp, shell, elf, macho, pe]
     if:
       type: string
-      regex: "(?i)\\bcmake\\b"
+      word: "cmake"
+      case_insensitive: true
 
   # === X11 IPC Libraries ===
   - id: x11-ice-ref
