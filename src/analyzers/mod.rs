@@ -646,6 +646,8 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
         || path_str.ends_with(".xpi")
         || path_str.ends_with(".crx")
         || path_str.ends_with(".ipa")
+        || path_str.ends_with(".apk")
+        || path_str.ends_with(".aar")
         || path_str.ends_with(".epub")
         || path_str.ends_with(".7z")
         || path_str.ends_with(".pkg")

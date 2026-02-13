@@ -108,6 +108,7 @@ pub(crate) fn detect_tar_compression(path: &Path) -> Option<String> {
         || path_str.ends_with(".tgz")
         || path_str.ends_with(".gem")
         || path_str.ends_with(".crate")
+        || path_str.ends_with(".apk") // Alpine APK (gzipped tar)
     {
         Some("gzip".to_string())
     } else if path_str.ends_with(".tar.bz2")

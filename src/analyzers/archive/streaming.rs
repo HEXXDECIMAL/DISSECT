@@ -332,8 +332,8 @@ impl ArchiveAnalyzer {
             // Image formats - currently no specific deep analysis beyond YARA/traits
             FileType::Jpeg | FileType::Png => {}
 
-            // Unknown files are skipped before reaching analyze_in_memory
-            FileType::Unknown => unreachable!("Unknown files should be filtered before analysis"),
+            // Unknown files - no specific analyzer, just extract strings/traits
+            FileType::Unknown => {}
         }
 
         // Compute summary
@@ -624,7 +624,7 @@ impl ArchiveAnalyzer {
             let file = std::fs::File::open(&archive_path)?;
 
             let reader: Box<dyn Read + Send> = match compression.as_deref() {
-                Some("gzip") => Box::new(flate2::read::GzDecoder::new(file)),
+                Some("gzip") => Box::new(flate2::read::MultiGzDecoder::new(file)),
                 Some("bzip2") => Box::new(bzip2::read::BzDecoder::new(file)),
                 Some("xz") => Box::new(xz2::read::XzDecoder::new(file)),
                 Some("zstd") => Box::new(
@@ -636,7 +636,8 @@ impl ArchiveAnalyzer {
 
             let mut archive = tar::Archive::new(reader);
 
-            for entry_result in archive.entries()? {
+            let entries = archive.entries()?;
+            for entry_result in entries {
                 // Check file count limit
                 if !guard.check_file_count() {
                     break;
@@ -698,10 +699,7 @@ impl ArchiveAnalyzer {
         let analyzer_ref = &analyzer;
 
         rx.into_iter().par_bridge().for_each(|file| {
-            // Skip unknown file types
-            if matches!(file.file_type(), FileType::Unknown) {
-                return;
-            }
+            // Files will be re-analyzed with proper type detection from content/extension
 
             // Analyze the file
             let result = match &file {
@@ -971,10 +969,7 @@ impl ArchiveAnalyzer {
         let analyzer_ref = &analyzer;
 
         rx.into_iter().par_bridge().for_each(|file| {
-            // Skip unknown file types
-            if matches!(file.file_type(), FileType::Unknown) {
-                return;
-            }
+            // Files will be re-analyzed with proper type detection from content/extension
 
             let result = match &file {
                 ExtractedFile::InMemory {
@@ -1185,10 +1180,7 @@ impl ArchiveAnalyzer {
         let analyzer_ref = &analyzer;
 
         rx.into_iter().par_bridge().for_each(|file| {
-            // Skip unknown file types
-            if matches!(file.file_type(), FileType::Unknown) {
-                return;
-            }
+            // Files will be re-analyzed with proper type detection from content/extension
 
             let result = match &file {
                 ExtractedFile::InMemory {
@@ -1375,10 +1367,7 @@ impl ArchiveAnalyzer {
         let analyzer_ref = &analyzer;
 
         rx.into_iter().par_bridge().for_each(|file| {
-            // Skip unknown file types
-            if matches!(file.file_type(), FileType::Unknown) {
-                return;
-            }
+            // Files will be re-analyzed with proper type detection from content/extension
 
             let result = match &file {
                 ExtractedFile::InMemory {
@@ -1605,10 +1594,7 @@ impl ArchiveAnalyzer {
         let analyzer_ref = &analyzer;
 
         rx.into_iter().par_bridge().for_each(|file| {
-            // Skip unknown file types
-            if matches!(file.file_type(), FileType::Unknown) {
-                return;
-            }
+            // Files will be re-analyzed with proper type detection from content/extension
 
             let result = match &file {
                 ExtractedFile::InMemory {
