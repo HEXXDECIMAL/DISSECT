@@ -41,14 +41,8 @@ traits:
       field: functions.max_nesting_depth
       min: 6
 
-  - id: js-webpack-minified
-    desc: "Webpack/bundler minified output pattern"
-    crit: notable
-    conf: 0.7
-    if:
-      type: metrics
-      field: text.max_line_length
-      min: 1000
+  # NOTE: Webpack minification detection removed - use very-long-lines from structure/traits.yaml instead
+  # Both detected text.max_line_length >= 1000, creating duplicate evidence
 
   - id: js-sphinx-searchindex
     desc: "Sphinx documentation search index"
@@ -81,8 +75,6 @@ composite_rules:
     all:
       - id: cap/code/metrics/obfuscation::high-entropy-identifiers
       - id: obj/anti-static/obfuscation/code-metrics/structure::no-comments
-    any:
-      - id: obj/anti-static/obfuscation/code-metrics::js-webpack-minified
       - id: obj/anti-static/obfuscation/code-metrics/structure::very-long-lines
     none:
       - id: js-sphinx-searchindex

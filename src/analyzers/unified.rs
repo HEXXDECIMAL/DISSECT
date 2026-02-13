@@ -343,6 +343,11 @@ impl UnifiedSourceAnalyzer {
     }
 
     pub fn analyze_source(&self, file_path: &Path, content: &str) -> Result<AnalysisReport> {
+        // For backward compatibility, use UTF-8 bytes
+        self.analyze_source_with_original(file_path, content, content.as_bytes())
+    }
+
+    pub fn analyze_source_with_original(&self, file_path: &Path, content: &str, original_bytes: &[u8]) -> Result<AnalysisReport> {
         let start = std::time::Instant::now();
 
         // Parse the source
@@ -379,6 +384,57 @@ impl UnifiedSourceAnalyzer {
 
         // Extract strings
         self.extract_strings(&root, content.as_bytes(), &mut report);
+
+        // Also run stng extraction to get fuzzy base64 and other decoded content
+        // Use original_bytes (UTF-16 if present) so stng can detect BOM and use fuzzy base64
+        let opts = stng::ExtractOptions::new(4)
+            .with_garbage_filter(true)
+            .with_xor(None);
+        let stng_strings = stng::extract_strings_with_options(original_bytes, &opts);
+
+        // Convert stng strings to StringInfo and add to report
+        for es in stng_strings {
+            // Only add decoded strings (base64, xor, etc.) - skip raw literals already in AST
+            if matches!(
+                es.method,
+                stng::StringMethod::Base64Decode
+                    | stng::StringMethod::Base64ObfuscatedDecode
+                    | stng::StringMethod::XorDecode
+                    | stng::StringMethod::HexDecode
+                    | stng::StringMethod::UrlDecode
+                    | stng::StringMethod::UnicodeEscapeDecode
+            ) {
+                let string_type = match es.kind {
+                    stng::StringKind::ShellCmd => crate::types::StringType::ShellCmd,
+                    stng::StringKind::Url => crate::types::StringType::Url,
+                    _ => crate::types::StringType::Plain,
+                };
+
+                let encoding_method = match es.method {
+                    stng::StringMethod::Base64Decode => "base64",
+                    stng::StringMethod::Base64ObfuscatedDecode => "base64-obf",
+                    stng::StringMethod::XorDecode => "xor",
+                    stng::StringMethod::HexDecode => "hex",
+                    stng::StringMethod::UrlDecode => "url",
+                    stng::StringMethod::UnicodeEscapeDecode => "unicode-escape",
+                    _ => "",
+                };
+
+                report.strings.push(crate::types::StringInfo {
+                    value: es.value,
+                    offset: Some(es.data_offset),
+                    string_type,
+                    encoding: "utf-8".to_string(),
+                    section: Some("decoded".to_string()),
+                    encoding_chain: if !encoding_method.is_empty() {
+                        vec![encoding_method.to_string()]
+                    } else {
+                        Vec::new()
+                    },
+                    fragments: None,
+                });
+            }
+        }
 
         // Extract and analyze base64/zlib encoded payloads (same treatment as archives)
         let extracted_payloads = crate::extractors::extract_encoded_payloads(content.as_bytes());
@@ -1062,9 +1118,25 @@ impl UnifiedSourceAnalyzer {
 
 impl Analyzer for UnifiedSourceAnalyzer {
     fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
-        let bytes = fs::read(file_path).context("Failed to read file")?;
+        // Read file and detect UTF-16 encoding
+        let mut bytes = fs::read(file_path).context("Failed to read file")?;
+        let original_bytes = bytes.clone(); // Keep original for stng
+
+        // Check for UTF-16 LE BOM (FF FE) and convert to UTF-8
+        if bytes.len() >= 2 && bytes[0] == 0xFF && bytes[1] == 0xFE {
+            use encoding_rs::UTF_16LE;
+            let (decoded, _, _) = UTF_16LE.decode(&bytes[2..]); // Skip BOM
+            bytes = decoded.into_owned().into_bytes();
+        }
+        // Check for UTF-16 BE BOM (FE FF) and convert to UTF-8
+        else if bytes.len() >= 2 && bytes[0] == 0xFE && bytes[1] == 0xFF {
+            use encoding_rs::UTF_16BE;
+            let (decoded, _, _) = UTF_16BE.decode(&bytes[2..]); // Skip BOM
+            bytes = decoded.into_owned().into_bytes();
+        }
+
         let content = String::from_utf8_lossy(&bytes);
-        self.analyze_source(file_path, &content)
+        self.analyze_source_with_original(file_path, &content, &original_bytes)
     }
 
     fn can_analyze(&self, _file_path: &Path) -> bool {

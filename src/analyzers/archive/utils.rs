@@ -106,7 +106,6 @@ pub(crate) fn detect_tar_compression(path: &Path) -> Option<String> {
 
     if path_str.ends_with(".tar.gz")
         || path_str.ends_with(".tgz")
-        || path_str.ends_with(".gem")
         || path_str.ends_with(".crate")
         || path_str.ends_with(".apk") // Alpine APK (gzipped tar)
     {
@@ -183,7 +182,9 @@ pub(crate) fn detect_archive_type(path: &Path) -> &'static str {
         "crx"
     } else if path_str.ends_with(".7z") {
         "7z"
-    } else if path_str.ends_with(".gem") || path_str.ends_with(".crate") {
+    } else if path_str.ends_with(".gem") {
+        "tar"
+    } else if path_str.ends_with(".crate") {
         "tar.gz"
     } else if path_str.ends_with(".xz") {
         "xz"
@@ -248,5 +249,77 @@ pub(crate) fn detect_archive_type_with_magic(path: &Path) -> std::io::Result<&'s
             }
         }
         other => Ok(other),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::Path;
+
+    #[test]
+    fn test_detect_tar_compression_gem() {
+        // Ruby .gem files are plain TAR (not gzipped)
+        assert_eq!(detect_tar_compression(Path::new("rails.gem")), None);
+        assert_eq!(detect_tar_compression(Path::new("RAILS.GEM")), None);
+    }
+
+    #[test]
+    fn test_detect_tar_compression_crate() {
+        // Rust .crate files are gzipped TAR
+        assert_eq!(
+            detect_tar_compression(Path::new("serde.crate")),
+            Some("gzip".to_string())
+        );
+        assert_eq!(
+            detect_tar_compression(Path::new("SERDE.CRATE")),
+            Some("gzip".to_string())
+        );
+    }
+
+    #[test]
+    fn test_detect_tar_compression_variants() {
+        // Plain TAR
+        assert_eq!(detect_tar_compression(Path::new("archive.tar")), None);
+
+        // Gzipped TAR
+        assert_eq!(
+            detect_tar_compression(Path::new("archive.tar.gz")),
+            Some("gzip".to_string())
+        );
+        assert_eq!(
+            detect_tar_compression(Path::new("archive.tgz")),
+            Some("gzip".to_string())
+        );
+
+        // Bzip2 TAR
+        assert_eq!(
+            detect_tar_compression(Path::new("archive.tar.bz2")),
+            Some("bzip2".to_string())
+        );
+        assert_eq!(
+            detect_tar_compression(Path::new("archive.tbz2")),
+            Some("bzip2".to_string())
+        );
+
+        // XZ TAR
+        assert_eq!(
+            detect_tar_compression(Path::new("archive.tar.xz")),
+            Some("xz".to_string())
+        );
+        assert_eq!(
+            detect_tar_compression(Path::new("archive.txz")),
+            Some("xz".to_string())
+        );
+
+        // Zstd TAR
+        assert_eq!(
+            detect_tar_compression(Path::new("archive.tar.zst")),
+            Some("zstd".to_string())
+        );
+        assert_eq!(
+            detect_tar_compression(Path::new("archive.tzst")),
+            Some("zstd".to_string())
+        );
     }
 }

@@ -904,7 +904,7 @@ mod tests {
     #[test]
     fn test_detect_archive_type_gem() {
         let _analyzer = ArchiveAnalyzer::new();
-        assert_eq!(detect_archive_type(Path::new("rails.gem")), "tar.gz");
+        assert_eq!(detect_archive_type(Path::new("rails.gem")), "tar");
     }
 
     #[test]

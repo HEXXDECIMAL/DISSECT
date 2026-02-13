@@ -349,60 +349,8 @@ traits:
       type: raw
       substr: ".Save()"
 
-  # === Executable payload atomic indicators ===
-  - id: exe-extension
-    desc: .exe file extension
-    crit: notable
-    conf: 0.4
-    platforms: [windows]
-    if:
-      type: string
-      exact: ".exe"
-
-  - id: bat-extension
-    desc: .bat file extension
-    crit: notable
-    conf: 0.4
-    platforms: [windows]
-    if:
-      type: string
-      exact: ".bat"
-
-  - id: ps1-extension
-    desc: .ps1 file extension
-    crit: notable
-    conf: 0.5
-    platforms: [windows]
-    if:
-      type: string
-      exact: ".ps1"
-
-  - id: vbs-extension
-    desc: .vbs file extension
-    crit: notable
-    conf: 0.5
-    platforms: [windows]
-    if:
-      type: string
-      exact: ".vbs"
-
-  - id: powershell-word
-    desc: powershell keyword
-    crit: notable
-    conf: 0.4
-    platforms: [windows]
-    if:
-      type: string
-      substr: "powershell"
-
-  - id: cmd-exe
-    desc: cmd.exe reference
-    crit: notable
-    conf: 0.4
-    platforms: [windows]
-    if:
-      type: string
-      substr: "cmd.exe"
+  # NOTE: Generic executable indicators moved to cap/exec/script/indicators/windows.yaml
+  # and cap/data/text/keywords/ to avoid misleading categorization as registry persistence
 
 composite_rules:
   # Startup folder composite
@@ -546,19 +494,8 @@ composite_rules:
       - id: wmi-commandlineconsumer
       - id: wmi-activescriptconsumer
 
-  # Executable payload composite
-  - id: windows-executable-payload
-    desc: "References executable file types or"
-    conf: 0.6
-    crit: notable
-    platforms: [windows]
-    any:
-      - id: exe-extension
-      - id: bat-extension
-      - id: ps1-extension
-      - id: vbs-extension
-      - id: powershell-word
-      - id: cmd-exe
+  # NOTE: windows-executable-payload composite moved to cap/exec/script/indicators/windows.yaml
+  # as windows-executable-ref to reflect its nature as a capability, not persistence mechanism
 
   # Python registry persistence pattern
   - id: windows-python-reg-persistence
@@ -639,4 +576,4 @@ composite_rules:
     platforms: [windows]
     all:
       - id: windows-schtasks-create
-      - id: windows-executable-payload
+      - id: cap/exec/script/indicators::windows-executable-ref

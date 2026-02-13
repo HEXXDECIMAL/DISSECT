@@ -33,6 +33,7 @@ fn stng_method_to_string(method: StringMethod) -> String {
         StringMethod::StackString => "stack",
         StringMethod::XorDecode => "xor",
         StringMethod::Base64Decode => "base64",
+        StringMethod::Base64ObfuscatedDecode => "base64-obf",
         StringMethod::HexDecode => "hex",
         StringMethod::UrlDecode => "url",
         StringMethod::UnicodeEscapeDecode => "unicode-escape",
@@ -407,6 +408,7 @@ impl StringExtractor {
         let is_decoded = matches!(
             es.method,
             StringMethod::Base64Decode
+                | StringMethod::Base64ObfuscatedDecode
                 | StringMethod::HexDecode
                 | StringMethod::UrlDecode
                 | StringMethod::UnicodeEscapeDecode

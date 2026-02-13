@@ -81,13 +81,7 @@ traits:
       substr: "Stderr ="
 
   # === Shell path micro-traits ===
-  - id: cmd-exe
-    desc: cmd.exe shell reference
-    crit: notable
-    conf: 0.5
-    if:
-      type: string
-      substr: "cmd.exe"
+  # NOTE: cmd-exe moved to cap/exec/script/indicators/windows.yaml to avoid duplication
 
   - id: cmd-plain
     desc: Windows cmd shell reference
@@ -138,7 +132,7 @@ composite_rules:
     any:
       - id: cap/exec/command/shell::bin-sh
       - id: cap/exec/command/shell::bin-bash
-      - id: cmd-exe
+      - id: cap/exec/script/indicators::cmd-exe
       - id: cmd-plain
 
   # Go reverse shell (migrated from YARA)

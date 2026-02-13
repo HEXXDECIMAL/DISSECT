@@ -144,6 +144,35 @@ traits:
       type: string
       exact: "recv"
 
+  # === Security/Evasion Terms ===
+  - id: bypass
+    desc: bypass keyword
+    if:
+      type: string
+      word: "bypass"
+      case_insensitive: true
+
+  - id: hide
+    desc: hide keyword
+    if:
+      type: string
+      word: "hide"
+      case_insensitive: true
+
+  # === Script Engine Terms ===
+  - id: powershell
+    desc: powershell keyword
+    if:
+      type: string
+      substr: "powershell"
+      case_insensitive: true
+
+  - id: cmd
+    desc: cmd keyword
+    if:
+      type: string
+      exact: "cmd"
+
   # === Misc Generic Terms ===
   - id: runtime
     desc: runtime keyword

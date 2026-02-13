@@ -943,7 +943,7 @@ composite_rules:
     for: [c]
     any:
       - id: macos-kext-getdirentries-hook
-      - id: obj/anti-analysis/kernel-hide/ebpf::hide-string
+      - id: cap/data/text/keywords::hide
 
   # macOS kext rootkit binary
   - id: macos-kext-rootkit-binary

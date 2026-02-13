@@ -139,6 +139,8 @@ traits:
       substr: "LoadPinnedProgram"
 
   # === Offensive Intent ===
+  # NOTE: Generic keywords (hide, bypass) moved to cap/data/text/keywords/
+  # They are referenced in composites below to require eBPF context
   - id: rootkit-string
     desc: Rootkit string reference
     crit: suspicious
@@ -146,24 +148,6 @@ traits:
     if:
       type: string
       word: "rootkit"
-      case_insensitive: true
-
-  - id: hide-string
-    desc: Hide string reference
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      word: "hide"
-      case_insensitive: true
-
-  - id: bypass-string
-    desc: Bypass string reference
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      word: "bypass"
       case_insensitive: true
 
   # NOTE: Moved to feat/intent/ since this is a generic intent marker, not eBPF-specific
@@ -377,9 +361,10 @@ composite_rules:
     for: [go]
     any:
       - id: rootkit-string
-      - id: hide-string
-      - id: bypass-string
-      # NOTE: patch-string removed - too generic, causes FPs on legitimate tools
+      - id: cap/data/text/keywords::hide
+      - id: cap/data/text/keywords::bypass
+      # NOTE: Generic keywords moved to cap/ to avoid misleading categorization
+      # They only become suspicious in eBPF context (required by go-offensive-program)
 
   # Go offensive program (migrated from YARA)
   - id: go-offensive-program

@@ -6,7 +6,7 @@
 //! - Bzip2-compressed TAR (.tar.bz2, .tbz2, .tbz)
 //! - XZ-compressed TAR (.tar.xz, .txz)
 //! - Zstd-compressed TAR (.tar.zst, .tzst)
-//! - Ruby gems (.gem) - TAR.GZ format
+//! - Ruby gems (.gem) - plain TAR format
 //! - Rust crates (.crate) - TAR.GZ format
 //! - Arch Linux packages (.pkg.tar.zst, .pkg.tar.xz)
 //! - Void Linux packages (.xbps) - TAR.ZSTD format

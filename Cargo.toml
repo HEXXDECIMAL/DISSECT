@@ -5,6 +5,7 @@ edition = "2021"
 authors = ["DISSECT Team"]
 description = "Deep static analysis tool for extracting features from binaries and source code"
 license = "Apache-2.0"
+default-run = "dissect"
 
 [workspace]
 members = [".", "crates/scpt", "dissect-macros"]
@@ -17,7 +18,7 @@ dissect-macros = { path = "dissect-macros" }
 goblin = "0.8"
 
 # Language-aware string extraction
-stng = { git = "https://github.com/HEXXDECIMAL/stng.git" }
+stng = { path = "../stng" }
 
 # AppleScript parsing
 scpt = { path = "crates/scpt" }
@@ -104,6 +105,7 @@ atty = "0.2.14"
 parking_lot = "0.12"  # For efficient mutexes in memory tracking
 memmap2 = "0.9"  # Memory-mapped file I/O for large files
 smallvec = "1.13"  # Stack-allocated vectors for small collections
+encoding_rs = "0.8"  # Character encoding detection and conversion
 
 # Logging (tracing is the modern standard, more powerful than log+env_logger)
 tracing = "0.1"
