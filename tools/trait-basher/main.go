@@ -953,51 +953,90 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 	}
 
 	prob := archiveProblematicMembers(a, st.cfg.knownGood)
-	skip := len(a.Members) - len(prob)
-	fmt.Fprintf(os.Stderr, "\n📦 %s\n", archiveName)
-	fmt.Fprintf(os.Stderr, "   Files: %d total, %d need review, %d filtered\n", len(a.Members), len(prob), skip)
 
-	// Log which files were filtered out
-	if skip > 0 && skip <= 5 && st.cfg.knownGood {
-		for _, m := range a.Members {
-			if !needsReview(m, st.cfg.knownGood) {
-				crits := ""
-				for _, f := range m.Findings {
-					crits += f.Crit + " "
-				}
-				if crits == "" {
-					crits = "none"
-				}
-				fmt.Fprintf(os.Stderr, "      - %s (%s): not critical enough\n", filepath.Base(m.Path), strings.TrimSpace(crits))
-			}
-		}
+	// Calculate aggregate findings across all members for display
+	aggHostile, aggSuspicious := 0, 0
+	type fileFindings struct {
+		path     string
+		findings []Finding
 	}
+	var filesWithFindings []fileFindings
 
-	fmt.Fprintf(os.Stderr, "   Files requiring review:\n")
-	for i, m := range prob {
-		if i >= 3 {
-			fmt.Fprintf(os.Stderr, "   ... and %d more\n", len(prob)-3)
-			break
-		}
-		counts := make(map[string]int)
+	for _, m := range a.Members {
+		var concerningFindings []Finding
 		for _, f := range m.Findings {
-			counts[strings.ToLower(f.Crit)]++
-		}
-		var parts []string
-		for _, level := range []string{"hostile", "suspicious", "notable"} {
-			if n := counts[level]; n > 0 {
-				parts = append(parts, fmt.Sprintf("%d %s", n, level))
+			c := strings.ToLower(f.Crit)
+			if c == "hostile" {
+				aggHostile++
+				concerningFindings = append(concerningFindings, f)
+			} else if c == "suspicious" {
+				aggSuspicious++
+				concerningFindings = append(concerningFindings, f)
 			}
 		}
-		// Show extracted path if available, otherwise just filename
-		displayPath := filepath.Base(m.Path)
-		if m.ExtractedPath != "" {
-			displayPath = m.ExtractedPath
+		// Track files with any hostile/suspicious findings
+		if len(concerningFindings) > 0 {
+			filesWithFindings = append(filesWithFindings, fileFindings{
+				path:     m.Path,
+				findings: concerningFindings,
+			})
 		}
-		fmt.Fprintf(os.Stderr, "   - %s (%s)\n", displayPath, strings.Join(parts, ", "))
 	}
 
-	reason := "has suspicious/hostile findings"
+	fmt.Fprintf(os.Stderr, "\n📦 %s\n", archiveName)
+	fmt.Fprintf(os.Stderr, "   Files: %d total, %d with concerning findings\n", len(a.Members), len(filesWithFindings))
+
+	// Show aggregate findings that triggered the review
+	var aggParts []string
+	if aggHostile > 0 {
+		aggParts = append(aggParts, fmt.Sprintf("%d hostile", aggHostile))
+	}
+	if aggSuspicious > 0 {
+		aggParts = append(aggParts, fmt.Sprintf("%d suspicious", aggSuspicious))
+	}
+	if len(aggParts) > 0 {
+		fmt.Fprintf(os.Stderr, "   Archive aggregate: %s across %d files\n",
+			strings.Join(aggParts, ", "), len(filesWithFindings))
+	}
+
+	// List files with hostile/suspicious findings (up to 10)
+	if len(filesWithFindings) > 0 {
+		fmt.Fprintf(os.Stderr, "   Files with concerning findings:\n")
+		for i, ff := range filesWithFindings {
+			if i >= 10 {
+				fmt.Fprintf(os.Stderr, "   ... and %d more files\n", len(filesWithFindings)-10)
+				break
+			}
+			// Count by criticality for summary
+			hostileCount, suspiciousCount := 0, 0
+			for _, f := range ff.findings {
+				if strings.ToLower(f.Crit) == "hostile" {
+					hostileCount++
+				} else {
+					suspiciousCount++
+				}
+			}
+			var summary []string
+			if hostileCount > 0 {
+				summary = append(summary, fmt.Sprintf("%d hostile", hostileCount))
+			}
+			if suspiciousCount > 0 {
+				summary = append(summary, fmt.Sprintf("%d suspicious", suspiciousCount))
+			}
+			fmt.Fprintf(os.Stderr, "   - %s: %s\n", filepath.Base(ff.path), strings.Join(summary, ", "))
+
+			// List individual findings (up to 5 per file)
+			for j, f := range ff.findings {
+				if j >= 5 {
+					fmt.Fprintf(os.Stderr, "       ... and %d more findings\n", len(ff.findings)-5)
+					break
+				}
+				fmt.Fprintf(os.Stderr, "       • %s: %s\n", f.ID, f.Desc)
+			}
+		}
+	}
+
+	reason := "archive has suspicious/hostile findings"
 	if st.cfg.knownBad {
 		reason = "missing detections on known-bad sample"
 	}
@@ -1455,10 +1494,29 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 		fileEntries = fileEntries[:10]
 	}
 
+	// Count files with hostile/suspicious findings for display
+	filesWithConcerns := 0
+	for _, m := range a.Members {
+		for _, f := range m.Findings {
+			c := strings.ToLower(f.Crit)
+			if c == "hostile" || c == "suspicious" {
+				filesWithConcerns++
+				break
+			}
+		}
+	}
+
 	fmt.Fprintf(os.Stderr, ">>> Preparing to invoke %s (session: %s)\n", cfg.provider, sid)
-	fmt.Fprintf(os.Stderr, ">>> Source: %s (%d files, %d problematic)\n", archiveName, len(a.Members), len(prob))
+	fmt.Fprintf(os.Stderr, ">>> Source: %s (%d files, %d with concerns)\n", archiveName, len(a.Members), filesWithConcerns)
 	if extractDir != "" {
-		fmt.Fprintf(os.Stderr, ">>> Extracted to: %s\n", extractDir)
+		// Count extracted files
+		extractedCount := 0
+		for _, m := range a.Members {
+			if m.ExtractedPath != "" {
+				extractedCount++
+			}
+		}
+		fmt.Fprintf(os.Stderr, ">>> Extracted: %s (%d files)\n", extractDir, extractedCount)
 	}
 
 	// Use extracted directory as the path for dissect commands
@@ -1469,10 +1527,10 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 
 	var prompt, task string
 	if cfg.knownGood {
-		prompt = buildPrompt(true, false, dissectPath, archiveName, fileEntries, len(prob), cfg.repoRoot, cfg.dissectBin)
+		prompt = buildPrompt(true, false, dissectPath, archiveName, fileEntries, filesWithConcerns, cfg.repoRoot, cfg.dissectBin)
 		task = "Review files for false positives (known-good collection)"
 	} else {
-		prompt = buildPrompt(true, true, dissectPath, archiveName, fileEntries, len(prob), cfg.repoRoot, cfg.dissectBin)
+		prompt = buildPrompt(true, true, dissectPath, archiveName, fileEntries, filesWithConcerns, cfg.repoRoot, cfg.dissectBin)
 		task = "Find missing detections (known-bad collection)"
 	}
 
@@ -1521,9 +1579,15 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 
 	fmt.Fprintln(os.Stderr, "┌─────────────────────────────────────────────────────────────")
 	fmt.Fprintf(os.Stderr, "│ %s REVIEW: %s\n", strings.ToUpper(cfg.provider), archiveName)
-	fmt.Fprintf(os.Stderr, "│ Files: %d total, %d problematic\n", len(a.Members), len(prob))
+	fmt.Fprintf(os.Stderr, "│ Files: %d total, %d with concerns\n", len(a.Members), filesWithConcerns)
 	if extractDir != "" {
-		fmt.Fprintf(os.Stderr, "│ Extracted: %s\n", extractDir)
+		extractedCount := 0
+		for _, m := range a.Members {
+			if m.ExtractedPath != "" {
+				extractedCount++
+			}
+		}
+		fmt.Fprintf(os.Stderr, "│ Extracted: %s (%d files)\n", extractDir, extractedCount)
 	}
 	fmt.Fprintf(os.Stderr, "│ Findings: %s\n", strings.Join(summary, ", "))
 	fmt.Fprintf(os.Stderr, "│ Task: %s\n", task)
