@@ -103,7 +103,6 @@ traits:
         rule datadog {
           strings:
             $dd1 = "datadog" ascii nocase
-            $dd2 = "DD_" ascii
             $dd3 = "datadoghq.com" ascii
             $dd4 = "dd-agent" ascii
             $dd5 = "dogstatsd" ascii

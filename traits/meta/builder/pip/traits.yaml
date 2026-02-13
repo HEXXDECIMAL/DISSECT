@@ -34,6 +34,14 @@ traits:
       type: string
       substr: "site-packages"
 
+  - id: setuptools-package-index
+    desc: setuptools PackageIndex class
+    crit: inert
+    conf: 1.0
+    if:
+      type: raw
+      substr: "class PackageIndex"
+
 composite_rules:
   # pip/setuptools composite (migrated from YARA)
   - id: pip

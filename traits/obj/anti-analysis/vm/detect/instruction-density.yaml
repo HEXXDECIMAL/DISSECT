@@ -4,6 +4,7 @@
 
 defaults:
   platforms: [linux, macos, windows]
+  for: [pe, macho, elf]
   attack: "T1497.001"
 
 traits:
@@ -44,6 +45,11 @@ composite_rules:
     any:
       - id: multiple-cpuid-instr
       - id: multiple-rdtsc-instr
+    downgrade:
+      any:
+        - id: cap/exec/reflection/invoke::namespace-import
+        - id: cap/exec/reflection/invoke::method-info
+        - id: cap/exec/reflection/invoke::property-info
 
   - id: sparse-execution-anomaly
     desc: "Sparse execution structural anomaly (possible packer)"

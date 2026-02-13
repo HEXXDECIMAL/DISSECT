@@ -29,10 +29,18 @@ traits:
       type: string
       # Pattern: 'start' command followed by executable/path
       # Matches: start notepad.exe, start calc, etc. (not "start with")
-      regex: "\\bstart\\s+['\"]?[a-zA-Z0-9._\\\\/-]+\\.(exe|bat|cmd|ps1|scr|msi|com)"
+      regex: '\bstart\s+[''"]?[a-zA-Z0-9._\\/-]+\.(exe|bat|cmd|ps1|scr|msi|com)'
     unless:
       - type: basename
-        regex: "\\.pyc$"
+        regex: '\.pyc$'
+
+  - id: os-system-start-concat
+    desc: os.system('start ' + ...) pattern
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: raw
+      regex: 'os\.system\s*\(\s*[''"]start\s+[''"]\s*\+'
 
   - id: windows-computername-env
     desc: COMPUTERNAME environment access
@@ -51,20 +59,20 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: "\\.exe\\b"
+      regex: '\.exe\b'
     not:
       - "python.exe"
       - "pip.exe"
-      - regex: "\\bwhich\\b.*\\.exe"
-      - regex: "\\bfind\\b.*\\.exe"
+      - regex: '\bwhich\b.*\.exe'
+      - regex: '\bfind\b.*\.exe'
 
   - id: scr-file-extension
     desc: .scr file extension (screensaver/executable)
-    crit: suspicious
+    crit: notable
     conf: 0.95
     if:
-      type: string
-      regex: "\\.scr\\b"
+      type: raw
+      regex: '\.scr[''"]'
 
   # === Binary File Write Patterns ===
   # Writing binary content to files (dropper behavior)
@@ -84,7 +92,7 @@ traits:
     conf: 0.8
     if:
       type: symbol
-      regex: "open\\(.{0,100}\\)\\.write"
+      regex: 'open\(.{0,100}\)\.write'
 
   # === Suspicious URL Patterns ===
   # Downloads from suspicious domains that look fake/impersonating
@@ -96,7 +104,7 @@ traits:
     if:
       type: string
       # Domains pretending to be official Python downloads
-      regex: "https?://[a-z0-9-]*python[a-z0-9-]*\\.[a-z]+/[^\\s]{0,50}\\.(exe|scr|msi|bat|cmd|ps1)"
+      regex: 'https?://[a-z0-9-]*python[a-z0-9-]*\.[a-z]+/[^\s]{0,50}\.(exe|scr|msi|bat|cmd|ps1)'
 
   - id: executable-download-url
     desc: URL ending in executable extension
@@ -104,7 +112,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: "https?://[^\\s'\"]+\\.(exe|scr|msi|bat|cmd|ps1|dll)(?:[?#][^\\s'\"]*)?$"
+      regex: 'https?://[^\s''"]+\.(exe|scr|msi|bat|cmd|ps1|dll)(?:[?#][^\s''"]*)?$'
 
   # === Install Hook Pattern ===
   # setup.py install command override (post-install execution)
@@ -123,7 +131,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      regex: "cmdclass.{0,50}['\"]install['\"]"
+      regex: 'cmdclass.{0,50}[''"]install[''"]'
 
   # === Suspicious random module import in setup.py ===
   # Legitimate setup.py files don't need the random module.
@@ -196,8 +204,8 @@ traits:
     conf: 0.95
     attack: "T1027"
     if:
-      type: string
-      regex: "powershell.{0,60}-[Ee](ncoded)?[Cc](ommand)?\\s+[A-Za-z0-9+/=]{20,}"
+      type: raw
+      regex: 'powershell.{0,60}-[Ee](ncoded)?[Cc](ommand)?\s+[A-Za-z0-9+/=]{20,}'
 
   # === Cross-Language PowerShell Download Cradle ===
   # Python script invokes PowerShell Invoke-WebRequest to download payloads
@@ -209,7 +217,7 @@ traits:
     attack: "T1059.001"
     if:
       type: string
-      regex: "(?:Invoke-WebRequest|IWR|DownloadFile|DownloadString|Start-BitsTransfer).{0,100}(?:https?://|\\$env:)"
+      regex: '(?:Invoke-WebRequest|IWR|DownloadFile|DownloadString|Start-BitsTransfer).{0,100}(?:https?://|\$env:)'
       case_insensitive: true
 
   # === PowerShell Archive Extraction ===
@@ -233,7 +241,7 @@ traits:
     attack: "T1074.001"
     if:
       type: string
-      regex: "C:[/\\\\]ProgramData[/\\\\]"
+      regex: 'C:[/\\\\]ProgramData[/\\\\]'
       case_insensitive: true
 
   # === Deceptive Install Progress Message ===
@@ -246,7 +254,7 @@ traits:
     attack: "T1204.001"
     if:
       type: string
-      regex: "[Ii]nstalling dependencies.{0,50}(?:please wait|please be patient)"
+      regex: '[Ii]nstalling dependencies.{0,50}(?:please wait|please be patient)'
 
   # === Surveillance/RAT Dependency Installation ===
   # Mass installation of surveillance-capable libraries (screenshots, keylogging,
@@ -258,7 +266,7 @@ traits:
     attack: "T1059.006"
     if:
       type: string
-      regex: "pip install.{0,200}(?:pyscreenshot|pynput|pydirectinput|pyperclip|keyring)"
+      regex: 'pip install.{0,200}(?:pyscreenshot|pynput|pydirectinput|pyperclip|keyring)'
 
   # === Windows cmd /c move (file rename staging) ===
   # Dropper pattern: rename downloaded file to executable extension before execution.
@@ -270,7 +278,7 @@ traits:
     attack: "T1036.005"
     if:
       type: string
-      regex: "cmd /c move\\b"
+      regex: 'cmd /c move\b'
 
   # === Windows cmd /c del (artifact cleanup) ===
   # Post-execution cleanup: delete the dropped payload after running it.
@@ -282,7 +290,7 @@ traits:
     attack: "T1070.004"
     if:
       type: string
-      regex: "cmd /c del\\b"
+      regex: 'cmd /c del\b'
 
   # === Windows admin privilege check via net session ===
   # net session returns "Access is denied" for non-admin users.
@@ -345,7 +353,7 @@ traits:
     attack: "T1204.001"
     if:
       type: string
-      regex: "(?:admin|root|elevated|sudo).{0,15}(?:permission|privilege|right).{0,15}(?:install|run|solv)"
+      regex: '(?:admin|root|elevated|sudo).{0,15}(?:permission|privilege|right).{0,15}(?:install|run|solv)'
       case_insensitive: true
 
   # === pip install command string ===
@@ -356,7 +364,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: "pip.{0,20}install"
+      regex: 'pip.{0,20}install'
 
   # === pip module string ===
   # Atomic trait for pip module reference (e.g. -m pip)
@@ -366,7 +374,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: "-m\\s+pip"
+      regex: '-m\s+pip'
 
 composite_rules:
   # === Command Execution Composite ===
@@ -380,9 +388,6 @@ composite_rules:
       - id: cap/exec/command/subprocess::methods
 
   # === HOSTILE: PyPI Auto-Install Dropper ===
-  # setup.py that executes pip install via shell command (os.system/subprocess).
-  # Often used to install malicious dependencies or payloads that evade static analysis.
-  # Complexity: for(+1) + all(+4) = 5 (meets HOSTILE threshold)
   - id: pypi-install-autoinstall-dropper
     desc: PyPI setup.py executes pip install command
     crit: hostile
@@ -397,9 +402,7 @@ composite_rules:
       - id: pip-module-string
       - id: cap/exec/autoinstall/pip::pip-install-pattern
 
-
   # === Windows Command Execution ===
-  # Complexity: for(+1) + all(+2) = 3 (SUSPICIOUS)
   - id: windows-start-exec
     desc: Windows start command with executable
     crit: suspicious
@@ -410,7 +413,6 @@ composite_rules:
 
   # === Executable Download Pattern ===
   # HTTP request + executable extension
-  # Complexity: for(+1) + all(+2) = 3 (SUSPICIOUS)
   - id: executable-download
     desc: Downloads executable file
     crit: suspicious
@@ -421,7 +423,6 @@ composite_rules:
 
   # === Binary File Drop ===
   # Writing binary content to file system
-  # Complexity: for(+1) + all(+2) = 3 (SUSPICIOUS)
   - id: binary-file-drop
     desc: Binary file write to disk
     crit: suspicious
@@ -432,11 +433,22 @@ composite_rules:
     any:
       - id: python-command-exec
       - id: cap/comm/http/request::request-python
-    needs: 1
+    unless:
+      - id: meta/builder/pip::setuptools-package-index
+
+  # === .scr to .exe Extension Mismatch ===
+  - id: scr-to-exe-mismatch
+    desc: .scr to .exe extension mismatch (dropper pattern)
+    crit: hostile
+    conf: 0.98
+    all:
+      - id: scr-file-extension
+      - id: exe-file-extension
+    any:
+      - id: binary-file-write
+      - id: open-write-content
 
   # === HOSTILE: PyPI Install-Time Dropper ===
-  # Classic dropper: download exe + write to disk + execute
-  # Complexity: for(+1) + all(+4) = 5 (meets HOSTILE threshold)
   - id: pypi-install-dropper
     desc: PyPI install-time dropper
     crit: hostile
@@ -450,8 +462,6 @@ composite_rules:
       - id: python-command-exec
 
   # === HOSTILE: Download-Execute Chain ===
-  # Downloads and executes file without needing setup.py context
-  # Complexity: for(+1) + all(+3) = 4 (meets HOSTILE threshold)
   - id: download-execute-chain
     desc: Downloads and executes file
     crit: hostile
@@ -464,9 +474,6 @@ composite_rules:
       - id: python-command-exec
 
   # === HOSTILE: PyPI Setup.py C2 Dropper ===
-  # Downloads remote payload via HTTP to hardcoded IP, writes to disk,
-  # renames to batch file, executes, then deletes. Full dropper lifecycle.
-  # Complexity: for(+1) + all(+4) = 5 (meets HOSTILE threshold)
   - id: pypi-c2-dropper
     desc: PyPI setup.py downloads and executes C2 payload
     crit: hostile
@@ -480,8 +487,6 @@ composite_rules:
       - id: cap/exec/command/subprocess::methods
 
   # === Windows File Rename-Execute-Delete Dropper ===
-  # Pattern: download → write → rename to .bat → execute → delete
-  # Complexity: for(+1) + all(+3) = 4 (meets HOSTILE threshold)
   - id: windows-rename-execute-delete
     desc: Windows file rename-execute-delete dropper chain
     crit: hostile
@@ -494,8 +499,6 @@ composite_rules:
       - id: cmd-del-cleanup
 
   # === HOSTILE: PyPI Browser Extension Dropper ===
-  # setup.py auto-installs win32com + hijacks browser shortcuts to load malicious extension
-  # Complexity: all(+4) = 4 (meets HOSTILE threshold)
   - id: pypi-browser-extension-dropper
     desc: PyPI package drops browser extension via shortcut hijack
     crit: hostile
@@ -509,9 +512,6 @@ composite_rules:
       - id: obj/anti-static/obfuscation/code::advanced-python-obfuscation
 
   # === HOSTILE: PyPI Shortcut Hijack Dropper ===
-  # setup.py that walks directories for shortcuts and modifies them
-  # Catches variants without requiring obfuscation
-  # Complexity: all(+4) = 4 (meets HOSTILE threshold)
   - id: pypi-shortcut-hijack-dropper
     desc: PyPI package enumerates and hijacks browser shortcuts
     crit: hostile
@@ -525,10 +525,6 @@ composite_rules:
       - id: cap/fs/directory/mkdir::mkdir-python
 
   # === HOSTILE: PyPI COM Automation Extension Dropper ===
-  # setup.py imports COM automation (win32com.client.Dispatch), creates directories,
-  # writes payload files, and accesses environment variables. Catches variants of the
-  # extension dropper family without requiring specific obfuscation patterns.
-  # Complexity: all(+4) = 4 (meets HOSTILE threshold)
   - id: pypi-com-extension-dropper
     desc: PyPI setup.py uses COM automation to drop extension
     crit: hostile
@@ -542,9 +538,6 @@ composite_rules:
       - id: obj/persist/startup/registry::create-shortcut
 
   # === SUSPICIOUS: Browser Shortcut Target Fingerprinting ===
-  # Extracts executable basename from shortcut TargetPath to identify which
-  # browser is running, then selectively injects extensions into specific browsers.
-  # Complexity: all(+2) + any(+1) = 3 (SUSPICIOUS)
   - id: shortcut-target-browser-fingerprint
     desc: Browser fingerprinting via shortcut TargetPath
     crit: suspicious
@@ -558,9 +551,6 @@ composite_rules:
       - id: obj/persist/startup/registry::create-shortcut
 
   # === HOSTILE: Install-Time Gated Execution ===
-  # setup.py that checks sys.platform + sys.argv to only execute during install
-  # Common in supply chain attacks to avoid detection in sandboxes/CI
-  # Precision: all(+4 traits) = 10.9 (meets HOSTILE threshold)
   - id: install-time-gated-execution
     desc: Platform-gated install-time execution in setup.py
     crit: hostile
@@ -577,10 +567,6 @@ composite_rules:
         - id: meta/quality/versioned
 
   # === HOSTILE: Obfuscated Setup.py File Dropper ===
-  # setup.py with heavy obfuscation that writes payload files to disk.
-  # Covers crypto clipper extension droppers and similar families that
-  # embed obfuscated payloads and write them to the filesystem at install time.
-  # Complexity: all(+4) = 4 (meets HOSTILE threshold)
   - id: obfuscated-setup-py-file-dropper
     desc: Obfuscated setup.py writes payload files to disk
     crit: hostile
@@ -594,9 +580,6 @@ composite_rules:
       - id: cap/fs/directory/mkdir::mkdir-python
 
   # === HOSTILE: PyPI PowerShell Dropper ===
-  # setup.py invokes PowerShell via subprocess to download and execute payloads
-  # Pattern: setup.py + subprocess + PowerShell download + hidden execution
-  # Complexity: for(+1) + all(+4) = 5 (meets HOSTILE threshold)
   - id: pypi-powershell-dropper
     desc: PyPI setup.py PowerShell download-execute chain
     crit: hostile
@@ -610,9 +593,6 @@ composite_rules:
       - id: cap/exec/background/daemon::powershell-hidden
 
   # === HOSTILE: PyPI PowerShell Encoded Dropper ===
-  # setup.py invokes PowerShell with -EncodedCommand to hide the actual payload.
-  # The base64 blob contains the download-execute logic, evading string analysis.
-  # Complexity: for(+1) + all(+4) = 5 (meets HOSTILE threshold)
   - id: pypi-powershell-encoded-dropper
     desc: PyPI setup.py with encoded PowerShell payload
     crit: hostile
@@ -626,9 +606,6 @@ composite_rules:
       - id: cap/exec/background/daemon::powershell-hidden
 
   # === HOSTILE: PyPI Setup.py PowerShell Stager ===
-  # setup.py downloads archive via PowerShell, extracts, and runs hidden payload
-  # Covers the full download-extract-execute lifecycle
-  # Complexity: for(+1) + all(+4) = 5 (meets HOSTILE threshold)
   - id: pypi-powershell-stager
     desc: PyPI setup.py downloads and stages hidden payload
     crit: hostile
@@ -642,10 +619,6 @@ composite_rules:
       - id: cap/exec/vbscript/interpreter::vbs-powershell-launch
 
   # === HOSTILE: PyPI Extension Dropper with Admin Gating ===
-  # setup.py reads env vars to locate drop directory, checks admin status,
-  # creates extension directory, and writes payload files.
-  # Covers non-obfuscated variants that use env var + admin + makedirs + write.
-  # Complexity: all(+4) = 4 (meets HOSTILE threshold)
   - id: pypi-extension-dropper-admin-gated
     desc: PyPI setup.py drops extension with admin gating
     crit: hostile
@@ -659,8 +632,6 @@ composite_rules:
       - id: setup-py-file-write
 
   # === HOSTILE: Windows Impersonation Dropper ===
-  # Uses fake Python release URL + Windows execution
-  # Complexity: for(+1) + all(+3) = 4 (meets HOSTILE threshold)
   - id: python-impersonation-dropper
     desc: Fake Python release dropper
     crit: hostile

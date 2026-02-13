@@ -52,6 +52,11 @@ traits:
       type: metrics
       field: functions.high_entropy_names
       min: 10
+    unless:
+      - type: raw
+        regex: 'PROGRAM=libtool|PACKAGE=libtool|# libtool \(GNU libtool\)'
+      - type: raw
+        regex: 'usage\(\)\s*\{|help\(\)\s*\{|logger\(\)\s*\{|_logger'
 
   - id: sh-encoded-payload
     desc: "Shell script with encoded payload"
@@ -79,6 +84,10 @@ traits:
       field: functions.total
       max: 0
       min_size: 2048
+    unless:
+      # Exclude Perl wrapper scripts (polyglots)
+      - type: raw
+        substr: "eval 'exec perl -wSx \"$0\" \"$@\"'"
 
   # === Density-Based String Obfuscation ===
   # Shell scripts use various encoding tricks to hide payloads.

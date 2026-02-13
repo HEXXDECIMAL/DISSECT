@@ -3,22 +3,6 @@
 
 traits:
   # === Network Libraries ===
-  - id: libssl-ref
-    desc: libssl library reference
-    crit: inert
-    conf: 0.3
-    if:
-      type: string
-      substr: "libssl"
-
-  - id: libcrypto-ref
-    desc: libcrypto library reference
-    crit: inert
-    conf: 0.3
-    if:
-      type: string
-      substr: "libcrypto"
-
   - id: libcurl-ref
     desc: libcurl library reference
     crit: inert
@@ -319,6 +303,16 @@ traits:
       # X11 standard authentication mechanism, used by all X11 IPC libraries
       substr: "MIT-MAGIC-COOKIE-1"
 
+  # === Monitoring Libraries ===
+  - id: collectd-plugin-marker
+    desc: Collectd plugin marker
+    crit: inert
+    conf: 0.9
+    for: [elf, so]
+    if:
+      type: symbol
+      regex: "^(plugin_register_|plugin_log|module_register)"
+
 composite_rules:
   # X11 IPC libraries (ICE, SM) - these are network/IPC libraries by design
   - id: x11-ipc-lib-marker
@@ -335,8 +329,8 @@ composite_rules:
     crit: inert
     conf: 0.5
     any:
-      - id: libssl-ref
-      - id: libcrypto-ref
+      - id: cap/exec/load/library/ssl::libssl-ref
+      - id: cap/exec/load/library/ssl::libcrypto-ref
       - id: libcurl-ref
       - id: cap/comm/ssh/client::libssh
       - id: x11-ipc-lib-marker
@@ -383,6 +377,8 @@ composite_rules:
       - id: system-debug-lib
       - id: graphics-lib-marker
       - id: cxx-stdlib-marker
+      - id: collectd-plugin-marker
+      - id: cap/os/pam/auth::libpam-string
 
   - id: compression-lib
     desc: Compression library markers

@@ -62,7 +62,9 @@ composite_rules:
     all:
       - id: cap/data/encode/base64::custom-implementation
     any:
-      - id: obj/discovery/host/fingerprint
+      - id: obj/discovery/host/fingerprint/hardware
+      - id: obj/discovery/host/fingerprint/disk
+      - id: obj/discovery/host/fingerprint/machine-id
 
   # Combination 5: Custom base64 + XOR + network = obfuscated exfil
   - id: obfuscated-exfiltration

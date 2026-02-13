@@ -99,13 +99,13 @@ traits:
 
   - id: cookies-path
     desc: Chromium Cookies file path
-    crit: suspicious
+    crit: notable
     conf: 0.75
     attack: "T1555.003"
     for: [python, javascript, shell, elf, pe]
     if:
       type: raw
-      regex: "['\"/\\\\]Cookies\\b"
+      regex: "[/'\"\\\\]Cookies['\"\\\\]?"
 
   # === Encryption/Decryption Keys ===
 

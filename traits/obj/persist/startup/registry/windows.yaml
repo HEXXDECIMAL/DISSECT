@@ -217,7 +217,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      substr: "InstallService"
+      regex: "InstallService\\s*\\("
 
   - id: win32serviceutil-mod
     desc: win32serviceutil module

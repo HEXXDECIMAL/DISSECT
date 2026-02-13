@@ -62,6 +62,16 @@ traits:
       type: string
       substr: "iplogger.org"
 
+  - id: iplogger-keyword
+    desc: iplogger keyword reference
+    crit: suspicious
+    conf: 0.8
+    attack: "T1016.001"
+    for: [all]
+    if:
+      type: string
+      substr: "iplogger"
+
   - id: ifconfig-io
     desc: ifconfig.io IP lookup service
     crit: notable
@@ -238,6 +248,7 @@ composite_rules:
       - { id: icanhazip }
       - { id: wtfismyip }
       - { id: iplogger }
+      - { id: iplogger-keyword }
       - { id: ifconfig-io }
       - { id: ifconfig-co }
       - { id: ident-me }

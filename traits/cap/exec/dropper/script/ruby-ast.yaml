@@ -79,6 +79,70 @@ traits:
          (#eq? @method "open")
          (#match? @mode "wb|w\\+b|ab|a\\+b"))
 
+  # === File Rename ===
+  - id: ruby-ast-file-rename
+    desc: File rename operation
+    crit: notable
+    conf: 0.95
+    if:
+      type: ast
+      query: |
+        ((call
+          receiver: (constant) @const
+          method: (identifier) @method)
+         (#eq? @const "File")
+         (#eq? @method "rename"))
+
+  # === File Rename Image to Exe ===
+  - id: ruby-ast-rename-img-to-exe
+    desc: Rename image file to executable
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: ast
+      query: |
+        ((call
+          receiver: (constant) @const
+          method: (identifier) @method
+          arguments: (argument_list
+            (string) @source
+            (string) @dest))
+         (#eq? @const "File")
+         (#eq? @method "rename")
+         (#match? @source "\\.(png|jpg|jpeg|gif|bmp|ico|svg|webp)[\"']?$")
+         (#match? @dest "\\.exe[\"']?$"))
+
+  # === Windows OS Check (Regex) ===
+  - id: ruby-ast-check-windows-regex
+    desc: Check for Windows OS via regex
+    crit: notable
+    conf: 0.85
+    if:
+      type: ast
+      query: |
+        ((call
+          method: (identifier) @method
+          arguments: (argument_list (regex) @pattern))
+         (#match? @pattern "mswin|mingw|cygwin|wince")
+         (#eq? @method "match"))
+
+  # === Host OS Configuration Access ===
+  - id: ruby-ast-host-os-access
+    desc: Access host OS configuration
+    crit: notable
+    conf: 0.9
+    if:
+      type: ast
+      query: |
+        ((element_reference
+          object: (constant_resolution
+            scope: (constant) @scope
+            name: (constant) @name)
+          index: (string) @key)
+         (#eq? @scope "RbConfig")
+         (#eq? @name "CONFIG")
+         (#match? @key "host_os"))
+
 composite_rules:
   # === Dropper Behavior via AST ===
   - id: ruby-ast-dropper-behavior

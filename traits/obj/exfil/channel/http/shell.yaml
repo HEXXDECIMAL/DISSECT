@@ -42,5 +42,6 @@ composite_rules:
     all:
       - id: cap/comm/http/client::client
     unless:
-      - id: cap/os/admin/legitimate/http-tools/backup-script
+      - id: cap/os/admin/legitimate::backup-script
+      - id: cap/os/admin/legitimate::health-check
       - id: meta/format/json::valid

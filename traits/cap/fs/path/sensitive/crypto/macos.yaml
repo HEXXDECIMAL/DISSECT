@@ -5,4 +5,4 @@ traits:
     conf: 0.8
     if:
       type: string
-      regex: "(Wallet|wallet|Keychains)"
+      regex: "(Keychains|\\.wallet|wallet\\.dat)"

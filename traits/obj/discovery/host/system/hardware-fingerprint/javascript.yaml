@@ -275,16 +275,17 @@ composite_rules:
       - id: process-arch-access
       - id: process-version-access
 
-  # Process fingerprinting with HTTP POST exfiltration
+  # System fingerprinting with HTTP POST exfiltration
   # Complexity: file_types(+1) + all(+3) = 4 (meets HOSTILE threshold)
-  - id: process-fingerprint-exfil
-    desc: Process fingerprinting with HTTP POST exfil
+  - id: system-fingerprint-exfil
+    desc: System fingerprinting with HTTP POST exfil
     crit: hostile
     conf: 0.95
     mbc: "E1041"
     attack: "T1020"
     for: [javascript]
     all:
+      - id: js-victim-id
       - id: process-fingerprint-multi
       - id: cap/comm/http/post::post
       - id: cap/data/encoding/charset::json

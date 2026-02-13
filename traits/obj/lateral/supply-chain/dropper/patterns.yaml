@@ -609,6 +609,7 @@ composite_rules:
     downgrade:
       any:
         - id: meta/library/jquery::library
+        - id: meta/library/socketio::client
 
   # Base64 buffer composite
   - id: base64-buffer

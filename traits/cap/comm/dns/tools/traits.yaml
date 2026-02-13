@@ -20,6 +20,7 @@ traits:
 
   - id: host
     desc: host DNS command
+    crit: inert
     if:
       type: string
       regex: '\bhost\s+'

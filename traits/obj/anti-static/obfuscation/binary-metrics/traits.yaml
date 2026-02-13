@@ -227,6 +227,10 @@ traits:
       type: metrics
       field: binary.avg_complexity
       min: 55
+    unless:
+      - type: metrics
+        field: binary.function_count
+        max: 10
 
   - id: very-high-avg-complexity
     desc: "Very high average complexity (heavy"
@@ -238,6 +242,10 @@ traits:
       type: metrics
       field: binary.avg_complexity
       min: 75
+    unless:
+      - type: metrics
+        field: binary.function_count
+        max: 10
 
   - id: extreme-max-complexity
     desc: "Extremely high max function complexity"

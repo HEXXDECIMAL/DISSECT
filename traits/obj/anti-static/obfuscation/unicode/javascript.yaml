@@ -83,7 +83,7 @@ traits:
     if:
       type: string
       regex: "[\\x00-\\x7F]{3,}[^\\x00-\\x7F]{3,}[\\x00-\\x7F]{3,}"
-      count_min: 2
+      count_min: 10
 
   # Unusual Unicode characters in variable names
   - id: unicode-variable-names

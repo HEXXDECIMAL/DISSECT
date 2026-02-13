@@ -23,8 +23,8 @@ traits:
     for: [all]
     if:
       type: raw
-      # Matches github.com/ or github.com" without a real path (in XML attribute context)
-      regex: 'github\.com/?["'']'
+      # Matches Value="https://github.com" or Value="https://github.com/" without a real path
+      regex: 'Value\s*=\s*["'']https?://github\.com/?["'']'
 
   # Multiple stub links indicate deliberate deception
   - id: multiple-stub-links
@@ -34,7 +34,7 @@ traits:
     for: [all]
     if:
       type: raw
-      regex: 'github\.com/?["'']'
+      regex: 'Value\s*=\s*["'']https?://github\.com/?["'']'
       count_min: 2
 
   # Links section but no actual repository content

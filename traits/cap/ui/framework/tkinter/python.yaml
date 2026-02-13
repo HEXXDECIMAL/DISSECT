@@ -10,7 +10,7 @@ traits:
     conf: 0.9
     if:
       type: symbol
-      regex: 'tkinter\.Tk|tk\.Tk'
+      regex: '^(tkinter\.|tk\.|)Tk$'
 
   - id: tkinter-mainloop
     desc: Runs Tkinter mainloop
@@ -26,7 +26,7 @@ traits:
     conf: 0.8
     if:
       type: symbol
-      regex: 'tkinter\.Button|tk\.Button'
+      regex: '^(tkinter\.|tk\.|)Button$'
 
   - id: tkinter-label
     desc: Tkinter Label widget
@@ -34,7 +34,7 @@ traits:
     conf: 0.8
     if:
       type: symbol
-      regex: 'tkinter\.Label|tk\.Label'
+      regex: '^(tkinter\.|tk\.|)Label$'
 
   - id: tkinter-entry
     desc: Tkinter Entry widget
@@ -42,7 +42,7 @@ traits:
     conf: 0.8
     if:
       type: symbol
-      regex: 'tkinter\.Entry|tk\.Entry'
+      regex: '^(tkinter\.|tk\.|)Entry$'
 
   - id: tkinter-text
     desc: Tkinter Text widget
@@ -50,7 +50,7 @@ traits:
     conf: 0.8
     if:
       type: symbol
-      regex: 'tkinter\.Text|tk\.Text'
+      regex: '^(tkinter\.|tk\.|)Text$'
 
   - id: tkinter-scrolledtext
     desc: Tkinter ScrolledText widget

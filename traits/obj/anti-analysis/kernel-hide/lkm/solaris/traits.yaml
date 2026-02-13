@@ -147,17 +147,6 @@ traits:
       type: string
       regex: "sysent\\["
 
-  - id: opcode-structure-definition
-    desc: Architecture-specific opcode structure (binary patching)
-    crit: suspicious
-    conf: 0.95
-    attack: "T1014"
-    for: [c]
-    if:
-      type: ast
-      kind: identifier
-      regex: "_opcode$"
-
   - id: sethi-opcode-struct
     desc: SPARC sethi opcode structure (kernel instruction patching)
     crit: suspicious
@@ -165,8 +154,9 @@ traits:
     attack: "T1014"
     for: [c]
     if:
-      type: string
-      substr: "sethi_opcode"
+      type: ast
+      kind: identifier
+      exact: "sethi_opcode"
 
   - id: jmp-opcode-struct
     desc: SPARC jmp/jmpl opcode structure (kernel jump patching)
@@ -175,6 +165,7 @@ traits:
     attack: "T1014"
     for: [c]
     if:
-      type: string
+      type: ast
+      kind: identifier
       regex: "jmpl?_opcode"
 

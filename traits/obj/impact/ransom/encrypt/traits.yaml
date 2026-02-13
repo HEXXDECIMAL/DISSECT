@@ -211,6 +211,10 @@ traits:
       type: string
       regex: "(data (will be|is) lost|lost forever|cannot.{0,20}recover|unrecoverable.{0,30}(pay|ransom|decrypt|restore))"
       case_insensitive: true
+    unless:
+      - type: string
+        regex: "(password|account|credential|token|user|authentication).{0,80}cannot.{0,30}recover"
+        case_insensitive: true
 
   # Desktop ransom note pattern
   - id: desktop-note-path

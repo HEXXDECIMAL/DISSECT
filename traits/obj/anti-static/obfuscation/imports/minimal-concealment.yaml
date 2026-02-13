@@ -23,6 +23,8 @@ traits:
       type: string_count
       max: 10
       min_length: 4
+    unless:
+      - id: obj/anti-static/hardening/detection::stripped-binary-struct
 
 composite_rules:
   # === Notable: Few capabilities but suspicious combination ===

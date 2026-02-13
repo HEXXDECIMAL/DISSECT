@@ -30,6 +30,8 @@ composite_rules:
     none:
       - id: cap/exec/load/library::network-lib-marker
       - id: cap/exec/load/library::system-lib-marker
+      - id: meta/format::many-imports
+      - id: cap/os/bpf
 
   # Shared library targeting credentials
   # .so with both SSH and shell config access is highly suspicious

@@ -216,7 +216,6 @@ composite_rules:
     desc: SSH authentication error messages
     any:
       - id: cap/comm/ssh/client::auth-failed
-      - id: cap/comm/ssh/client::permission-denied
       - id: too-many-auth-failures
 
   # Helper: SSH port references
@@ -277,6 +276,10 @@ composite_rules:
       - id: ssh-protocol
       - id: ssh-auth-methods
       - id: ssh-auth-errors
+    downgrade:
+      any:
+        - id: cap/os/pam/auth::module
+        - id: cap/os/pam/auth::libpam-string
 
   # Default IoT credential lists (requires 3 of 15)
   - id: iot-creds

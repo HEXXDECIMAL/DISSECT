@@ -39,6 +39,8 @@ traits:
       # Match fixed-length custom base64-like alphabets (64 chars)
       # to avoid matching API/method signatures that include symbols.
       regex: "^[a-zA-Z0-9><*%#!()@$&\\-+]{64}$"
+    not:
+      - regex: "^[a-fA-F0-9]{64}$"
 
 composite_rules:
   # libcurl network dropper: downloads content via libcurl, writes to disk, executes via shell

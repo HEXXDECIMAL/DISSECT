@@ -42,6 +42,14 @@ traits:
       type: raw
       substr: "URI("
 
+  - id: ruby-httparty
+    desc: HTTParty library
+    crit: notable
+    conf: 0.90
+    if:
+      type: string
+      substr: "httparty"
+
   # Hardcoded IP in URL
   - id: hardcoded-ip-url
     desc: Hardcoded IP address in URL
@@ -61,10 +69,19 @@ traits:
         - "172\\.(1[6-9]|2[0-9]|3[0-1])\\."
 
 composite_rules:
-  - id: request-ruby
-    desc: HTTP requests (Ruby)
+  - id: net-http-get
+    desc: Net::HTTP get request
     crit: notable
     conf: 0.85
     all:
       - id: net-http
       - id: http-get-method
+
+  - id: request-ruby
+    desc: HTTP requests (Ruby)
+    crit: notable
+    conf: 0.85
+    any:
+      - id: net-http-get
+      - id: ruby-httparty
+      - id: open-uri

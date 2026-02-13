@@ -1,14 +1,14 @@
 traits:
-- id: mirai-persistent-service
-  desc: Persistent service
-  crit: suspicious
+- id: mirai-target-systemd-path
+  desc: References systemd binary path
+  crit: notable
   conf: 0.8
   for:
   - elf
   - shell
   if:
     type: string
-    regex: (/usr/lib/systemd/systemd|systemd)
+    regex: /usr/lib/systemd/systemd
   attack: T1547
 - id: mirai-backdoor-daemons
   desc: Backdoor daemon processes
@@ -64,7 +64,7 @@ composite_rules:
   - shell
   attack: T1547
   any:
-  - id: mirai-persistent-service
+  - id: mirai-target-systemd-path
   - id: mirai-enable-services
 - id: mirai-persistence-layer-3
   desc: Mirai monitoring and competition

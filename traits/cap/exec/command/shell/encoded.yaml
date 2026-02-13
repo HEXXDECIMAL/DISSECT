@@ -16,7 +16,8 @@ traits:
     if:
       type: encoded
       encoding: xor
-      regex: "\\b(bash|sh|cmd|powershell|popen|system|exec)\\b"
+      # Avoid short matches like "sh", "cmd", "exec" without more context
+      regex: "\\b(bash|sh\\s-c|cmd\\.exe|powershell|popen|system|/bin/sh)\\b"
       case_insensitive: true
 
   # Base64-encoded shell commands
@@ -28,7 +29,7 @@ traits:
     if:
       type: encoded
       encoding: base64
-      regex: "\\b(bash|sh|cmd|powershell|wget|curl)\\b"
+      regex: "\\b(bash|sh\\s-c|cmd\\.exe|powershell|wget|curl|/bin/sh)\\b"
       case_insensitive: true
 
   # Any encoding type with shell patterns
@@ -51,7 +52,7 @@ traits:
     if:
       type: encoded
       encoding: [xor, base64, hex]
-      regex: "\\b(sh|bash|cmd|exec)\\b"
+      regex: "\\b(bash|cmd\\.exe|powershell|/bin/sh|/bin/bash)\\b"
       count_min: 3
       case_insensitive: true
 

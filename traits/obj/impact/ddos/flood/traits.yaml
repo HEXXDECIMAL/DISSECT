@@ -30,7 +30,7 @@ traits:
     for: [elf, macho, pe, so, dylib]
     if:
       type: string
-      regex: "(?i)syn[_\\s]?flood"
+      regex: "(?i)syn[_\\s]?flood\\b"
 
   # === UDP Flood micro-traits ===
   - id: udpbuf

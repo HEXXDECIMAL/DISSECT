@@ -67,7 +67,7 @@ traits:
     conf: 0.80
     if:
       type: string
-      regex: "\\/\\..{0,20}\\.(tar|gz|zip)"
+      regex: "\\/\\.[^.].{0,20}\\.(tar|gz|zip)"
 
   # === Extraction + Execution ===
   - id: extract-then-execute
@@ -76,7 +76,7 @@ traits:
     conf: 0.90
     if:
       type: string
-      regex: "\\b(extract|unzip|tar)\\s*\\(.{0,50}(exec|run|subprocess)\\(|\\b(extract|unzip|tar).{0,30}(\\||>).{0,20}(exec|bash|sh|python)"
+      regex: "\\b(extract|unzip|tar)\\s*\\(.{0,50}(exec|run|subprocess)\\(|\\b(extract|unzip|tar)\\s+.{0,30}(\\||>).{0,20}(exec|bash|sh|python)"
 
   - id: extract-to-temp
     desc: Extract payload to temp

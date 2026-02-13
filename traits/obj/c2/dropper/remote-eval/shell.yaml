@@ -48,6 +48,9 @@ traits:
       type: raw
       # HTTP URL in wget/curl command
       regex: "(?:curl|wget)\\s+[^\\n]{0,50}https?://[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+"
+    unless:
+      - type: raw
+        regex: "127\\.0\\.0\\.1|0\\.0\\.0\\.0"
 
   # === Loader/Downloader Selection ===
   - id: loader-selection

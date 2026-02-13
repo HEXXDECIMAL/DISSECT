@@ -13,7 +13,7 @@ traits:
   # === Crontab Manipulation ===
   - id: crontab-add
     desc: Adds crontab entry
-    crit: suspicious
+    crit: notable
     conf: 0.85
     if:
       type: raw

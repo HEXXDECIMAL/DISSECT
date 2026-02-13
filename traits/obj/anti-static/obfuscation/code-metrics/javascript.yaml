@@ -65,6 +65,8 @@ composite_rules:
       - id: obj/anti-static/obfuscation/code-metrics::js-arrow-function-abuse
       - id: obj/anti-static/obfuscation/code-metrics/strings::high-entropy-strings
       - id: obj/anti-static/obfuscation/code-metrics/structure::no-comments
+    none:
+      - id: cap/crypto/cert/operations::pem-begin
 
   - id: js-npm-malware-pattern
     desc: "npm malware obfuscation pattern (install"
@@ -78,3 +80,4 @@ composite_rules:
       - id: obj/anti-static/obfuscation/code-metrics/structure::very-long-lines
     none:
       - id: js-sphinx-searchindex
+      - id: cap/crypto/cert/operations::pem-begin

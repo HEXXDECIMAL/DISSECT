@@ -16,7 +16,7 @@ traits:
     attack: "T1056"
     if:
       type: string
-      regex: 'authenticate|Identity\.prepend|prepend.{0,50}Module'
+      regex: 'Identity\.prepend|prepend.{0,50}Module'
 
   # === Password Theft ===
   - id: password-theft-ruby

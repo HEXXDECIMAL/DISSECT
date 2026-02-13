@@ -276,3 +276,8 @@ composite_rules:
     all:
       - id: daemon-fork
       - id: daemon-setsid
+    downgrade:
+      any:
+        - id: meta/format::many-imports
+        - id: cap/exec/load/library::system-lib-marker
+        - id: meta/apple/system-component

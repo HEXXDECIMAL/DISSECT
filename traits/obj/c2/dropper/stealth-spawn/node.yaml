@@ -8,80 +8,6 @@
 defaults:
   for: [javascript, typescript]
 
-traits:
-  # === Detached spawn execution indicators ===
-
-  - id: detached-true
-    desc: Detached process spawn option
-    crit: suspicious
-    conf: 0.85
-    mbc: "F0011"
-    attack: "T1059"
-    if:
-      type: raw
-      regex: "detached:\\s*true"
-
-  # === Silent I/O patterns ===
-
-  - id: stdio-ignore-array
-    desc: stdio array with ignore values
-    crit: suspicious
-    conf: 0.85
-    mbc: "F0005"
-    if:
-      type: raw
-      regex: "stdio:\\s*\\[[^\\]]*['\"]ignore['\"]"
-
-  - id: stdio-ignore-string
-    desc: stdio set to ignore
-    crit: notable
-    conf: 0.75
-    mbc: "F0005"
-    if:
-      type: raw
-      regex: "stdio:\\s*['\"]ignore['\"]"
-
-  # === Orphan process patterns ===
-
-  - id: child-unref-call
-    desc: child.unref() orphan process call
-    crit: suspicious
-    conf: 0.85
-    mbc: "F0011"
-    if:
-      type: raw
-      substr: ".unref()"
-
-  # === Node.js self-execution for dropper ===
-
-  - id: process-execpath-spawn
-    desc: Spawn using process.execPath
-    crit: notable
-    conf: 0.9
-    mbc: "B0024"
-    attack: "T1059.007"
-    if:
-      type: raw
-      substr: "process.execPath"
-
-  # === Path construction for secondary payload ===
-
-  - id: path-join-dirname
-    desc: path.join with __dirname
-    crit: notable
-    conf: 0.5
-    if:
-      type: raw
-      regex: "path\\.join\\s*\\(\\s*__dirname"
-
-  - id: local-script-path
-    desc: Local script path reference
-    crit: notable
-    conf: 0.7
-    if:
-      type: raw
-      regex: "__dirname.{0,50}\\.(js|mjs|cjs)['\"]"
-
 composite_rules:
   # === Helper composites ===
 
@@ -90,8 +16,8 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     any:
-      - id: stdio-ignore-array
-      - id: stdio-ignore-string
+      - id: cap/exec/process/spawn::stdio-ignore-array
+      - id: cap/exec/process/spawn::stdio-ignore-string
 
   # === Stealth dropper composite ===
 
@@ -105,9 +31,12 @@ composite_rules:
     mbc: "B0024"
     for: [javascript]
     all:
-      - id: detached-true
+      - id: cap/exec/process/spawn::detached-true
       - id: stdio-suppressed
-      - id: child-unref-call
+      - id: cap/exec/process/spawn::child-unref-call
+    unless:
+      - id: meta/dev/testing::node-core-test
+      - id: obj/lateral/supply-chain/npm/testing::test-filename-pattern
 
   # Node.js self-spawning dropper pattern
   # Complexity: file_types (1) + all (4) = 5 (meets HOSTILE threshold)
@@ -119,10 +48,13 @@ composite_rules:
     mbc: "B0024"
     for: [javascript]
     all:
-      - id: process-execpath-spawn
-      - id: detached-true
+      - id: cap/exec/process/spawn::process-execpath-spawn
+      - id: cap/exec/process/spawn::detached-true
       - id: stdio-suppressed
-      - id: child-unref-call
+      - id: cap/exec/process/spawn::child-unref-call
+    unless:
+      - id: meta/dev/testing::node-core-test
+      - id: obj/lateral/supply-chain/npm/testing::test-filename-pattern
 
   # Supply-chain dropper: child_process + stealth spawn + no exports
   # Complexity: file_types (1) + all (3) = 4 (meets HOSTILE threshold)

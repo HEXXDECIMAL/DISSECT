@@ -187,7 +187,7 @@ traits:
     for: [pe, dll, python, javascript]
     if:
       type: encoded
-      substr: "powershell"
+      regex: "powershell(?:\\.exe)?\\s+[-/]"
     attack: "T1059.001"
 
   - id: encoded-dotnet-diagnostics

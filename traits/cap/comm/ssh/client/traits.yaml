@@ -50,14 +50,6 @@ traits:
       substr: "publickey"
 
   # SSH error messages - normal in any SSH client
-  - id: permission-denied
-    desc: SSH permission denied message
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      substr: "Permission denied"
-
   - id: auth-failed
     desc: SSH authentication failed message
     crit: inert
@@ -65,6 +57,14 @@ traits:
     if:
       type: string
       substr: "Authentication failed"
+
+  - id: permission-denied-ssh
+    desc: SSH permission denied message
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      substr: "Permission denied"
 
   # JavaScript/Node.js SSH libraries
   - id: ssh2-js
@@ -134,5 +134,5 @@ composite_rules:
     all:
       - id: library
     any:
-      - id: permission-denied
+      - id: permission-denied-ssh
       - id: auth-failed

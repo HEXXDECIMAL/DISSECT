@@ -47,7 +47,11 @@ traits:
     attack: "T1105"
     if:
       type: raw
-      regex: 'wget\s+[^|&\n]*-q[^|&\n]*-O\s*-|wget\s+[^|&\n]*-O\s*-[^|&\n]*-q'
+      regex: 'wget\s+.{0,100}-q.{0,100}-O\s*-|wget\s+.{0,100}-O\s*.{0,100}-q'
+    unless:
+      # Benign key fetching (wget -q -O- ... | gpg --import)
+      - type: raw
+        regex: '\|\s*([a-z/]+/)?gpg\b\s+--import'
 
   - id: curl-silent-stdout
     desc: "Silent curl output to stdout"
@@ -82,7 +86,7 @@ traits:
   # === Curl output atomic indicators ===
   - id: curl-output-dash-o
     desc: "Curl with -o flag"
-    crit: notable
+    crit: inert
     conf: 0.7
     mbc: "C0002"
     attack: "T1105"
@@ -109,6 +113,13 @@ traits:
     if:
       type: raw
       regex: '\./[a-zA-Z0-9_.-]+'
+    unless:
+      # Exclude common non-executable files
+      - type: raw
+        regex: '\./([a-zA-Z0-9_.-]+\.(txt|md|log|conf|html|json|xml|yml|yaml)|ChangeLog)'
+      # Exclude sed substitution patterns (s/./)
+      - type: raw
+        regex: 's/\./'
 
   - id: execute-tmp-staging
     desc: "Execute from /tmp staging directory"

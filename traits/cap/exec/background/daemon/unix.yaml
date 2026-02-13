@@ -30,7 +30,7 @@ traits:
   # Background with & and output suppression
   - id: background-ampersand-hidden
     desc: Background process with hidden output
-    crit: notable
+    crit: inert
     conf: 0.7
     if:
       type: raw

@@ -14,3 +14,5 @@ traits:
       type: section
       section: "." # Matches any section name via regex
       min: 7.8
+    unless:
+      - id: cap/exec/reflection/invoke::namespace-import

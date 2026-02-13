@@ -3,6 +3,9 @@
 
 # Generic terms (output, command) moved to data/text/generic.yaml
 
+defaults:
+  for: [javascript, typescript]
+
 composite_rules:
   # Output/command variable composite - references generic terms
   - id: js-output-command-var

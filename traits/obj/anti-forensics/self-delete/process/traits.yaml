@@ -41,7 +41,8 @@ traits:
   - shell
   if:
     type: string
-    substr: kill -9
+    # Kill command targeting deleted processes (e.g. via grep or awk)
+    regex: "kill -9.{0,50}deleted"
   attack: T1070.004
 - id: pkill-deleted-pattern
   desc: pkill -9 targeting (deleted) processes

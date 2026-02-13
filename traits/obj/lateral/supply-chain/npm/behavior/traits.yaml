@@ -424,6 +424,7 @@ composite_rules:
       - id: obj/lateral/supply-chain/npm/metadata::install-hooks
     none:
       - id: pkg-dependencies
+      - id: obj/lateral/supply-chain/npm-quality/pkg-meta::has-bin-field
 
   # Multiple install hooks - migrated from YARA
   - id: multiple-hooks
@@ -435,6 +436,8 @@ composite_rules:
       - id: obj/lateral/supply-chain/npm/metadata::preinstall-hook-key
       - id: obj/lateral/supply-chain/npm/metadata::postinstall-hook-key
       - id: obj/lateral/supply-chain/npm/metadata::install-hook-key
+    none:
+      - id: obj/lateral/supply-chain/npm/metadata::npm-has-repository
 
   # New version with hooks - migrated from YARA
   - id: new-version-hooks
@@ -454,6 +457,7 @@ composite_rules:
       - id: obj/lateral/supply-chain/npm/metadata::install-hooks
     none:
       - id: obj/lateral/supply-chain/npm/metadata::repository-key
+      - id: obj/lateral/supply-chain/npm-quality/pkg-meta::has-bin-field
 
   # Child unref composite
   - id: child-unref
@@ -472,7 +476,7 @@ composite_rules:
     conf: 0.8
     for: [javascript, typescript]
     any:
-      - id: obj/c2/dropper/stealth-spawn::stdio-ignore-string
+      - id: cap/exec/process/spawn::stdio-ignore-string
       - id: stdio-ignore-array
 
   # Multiple OOB exfil domains - migrated from YARA

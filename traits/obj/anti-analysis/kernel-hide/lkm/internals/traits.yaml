@@ -362,7 +362,7 @@ traits:
     if:
       type: ast
       kind: attribute
-      regex: "task->flags|p->flags"
+      regex: "task->flags"
 
   - id: pf-invisible-flag
     desc: PF_INVISIBLE flag value (0x10000000)
@@ -375,85 +375,4 @@ traits:
       kind: binary_op
       exact: "0x10000000"
 
-  - id: xor-assign-flags
-    desc: XOR assignment on flags (toggle
-    crit: suspicious
-    conf: 0.9
-    for: [c]
-    if:
-      type: ast
-      kind: assignment
-      regex: "(current->|task->|p->)(flags|f_flags)\\s*\\^="
-
-  - id: current-macro-ref
-    desc: Current task reference macro
-    crit: suspicious
-    conf: 0.75
-    for: [c]
-    if:
-      type: ast
-      kind: attribute
-      regex: "^current->(pid|tgid|comm|flags|f_flags|files|cred|real_cred|mm|fs|nsproxy|signal)$"
-
-  # ============================================================
-  # CREDENTIAL MANIPULATION
-  # ============================================================
-
-  - id: uid-zero-assign
-    desc: UID set to zero (root
-    crit: suspicious
-    conf: 0.98
-    attack: "T1068"
-    for: [c]
-    if:
-      type: ast
-      kind: assignment
-      regex: "uid.{0,10}=.{0,10}0|->uid = 0"
-
-  - id: gid-zero-assign
-    desc: GID set to zero (root
-    crit: suspicious
-    conf: 0.98
-    attack: "T1068"
-    for: [c]
-    if:
-      type: ast
-      kind: assignment
-      regex: "gid.{0,10}=.{0,10}0|->gid = 0"
-
-  - id: euid-egid-access
-    desc: Effective UID/GID access (privilege escalation)
-    crit: suspicious
-    conf: 0.9
-    for: [c]
-    if:
-      type: ast
-      kind: attribute
-      regex: "euid|egid|suid|sgid|fsuid|fsgid"
-
-  # ============================================================
-  # SIGNAL-BASED BACKDOOR CONTROL
-  # ============================================================
-
-  - id: custom-signal-define
-    desc: Custom signal definition (backdoor trigger)
-    crit: suspicious
-    conf: 0.95
-    attack: "T1014"
-    for: [c]
-    if:
-      type: ast
-      node: preproc_def
-      regex: "^SIG[A-Z]+$"
-
-  - id: signal-switch-handler
-    desc: Signal-based switch handler (command dispatch)
-    crit: suspicious
-    conf: 0.8
-    for: [c]
-    if:
-      type: ast
-      node: switch_statement
-      exact: "sig"
-
-  # ============================================================
+  # ============================

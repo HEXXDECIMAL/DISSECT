@@ -32,7 +32,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      substr: "_search"
+      regex: "/_search"
 
   - id: es-bulk-endpoint
     desc: _bulk ES endpoint
@@ -40,7 +40,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      substr: "_bulk"
+      regex: "/_bulk"
 
 composite_rules:
   # Elasticsearch composite (migrated from YARA)

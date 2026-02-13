@@ -116,43 +116,6 @@ traits:
       type: string
       substr: "os.walk"
 
-  # === Encryption (atomic) ===
-  - id: encrypt-fn
-    desc: encrypt function
-    crit: notable
-    conf: 0.4
-    for: [javascript, typescript, python]
-    if:
-      type: string
-      substr: "encrypt"
-
-  - id: cipher-keyword
-    desc: cipher keyword
-    crit: notable
-    conf: 0.4
-    for: [javascript, typescript, python]
-    if:
-      type: string
-      substr: "cipher"
-
-  - id: create-cipheriv
-    desc: createCipheriv function
-    crit: notable
-    conf: 0.5
-    for: [javascript, typescript, python]
-    if:
-      type: string
-      substr: "createCipheriv"
-
-  - id: aes-keyword
-    desc: AES keyword
-    crit: notable
-    conf: 0.4
-    for: [javascript, typescript, python]
-    if:
-      type: string
-      exact: "AES"
-
   # === File write (atomic) ===
   - id: writefile-sync
     desc: writeFileSync function
@@ -415,18 +378,6 @@ composite_rules:
       - id: readdir-fn
       - id: os-walk
 
-  # Encryption functions
-  - id: encryption-functions
-    desc: Encryption functions
-    crit: notable
-    conf: 0.5
-    for: [javascript, typescript, python]
-    any:
-      - id: encrypt-fn
-      - id: cipher-keyword
-      - id: create-cipheriv
-      - id: aes-keyword
-
   # File write functions
   - id: file-write-functions
     desc: File write functions
@@ -447,7 +398,7 @@ composite_rules:
     for: [javascript, typescript, python]
     all:
       - id: file-iteration
-      - id: encryption-functions
+      - id: cap/crypto/operations/encryption::encryption-functions
       - id: file-write-functions
 
   # Ransom note

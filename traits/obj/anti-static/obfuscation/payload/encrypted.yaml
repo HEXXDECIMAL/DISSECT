@@ -247,3 +247,4 @@ composite_rules:
     unless:
       - type: string
         regex: "findutils|libtsan|sanitizer"
+      - id: meta/format::many-imports

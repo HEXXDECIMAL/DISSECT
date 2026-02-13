@@ -27,7 +27,7 @@ traits:
   # Targets development directories
   - id: target-dev-dirs
     desc: Targets development directories for deletion
-    crit: suspicious
+    crit: notable
     conf: 0.9
     attack: "T1485"
     for: [javascript, typescript, python]

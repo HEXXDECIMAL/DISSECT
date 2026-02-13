@@ -101,6 +101,7 @@ traits:
             // Scientific / complex build patterns
             $legit_numpy = "numpy.distutils" ascii
             $legit_config = "Configuration(" ascii
+            $legit_package_index = "class PackageIndex" ascii
           condition:
             ($setup or $setuptools or $distutils) and
             ($os_system or $subprocess or $exec or $eval or $pip or $requests or $urllib or $aiohttp or $httpx or $socket or $webhook) and

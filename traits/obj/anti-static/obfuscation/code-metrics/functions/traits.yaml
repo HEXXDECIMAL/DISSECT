@@ -15,7 +15,7 @@ traits:
     if:
       type: metrics
       field: functions.high_entropy_names
-      min: 3
+      min: 7
     unless:
       - type: basename
         regex: "\\.pyi$"

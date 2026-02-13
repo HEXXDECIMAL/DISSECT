@@ -115,9 +115,11 @@ traits:
     if:
       type: ast
       kind: comment
-      regex: "(?i)hid(e|ing|den)"
+      regex: "(?i)hid(?:e|ing|den).{0,50}\\b(?:kernel|module|process|task|socket|connection|port|file|dir|pid|proc|sys)\\b"
     not:
       - substr: "ssid"
+      - substr: "hidden flag"
+      - substr: "want_hidden"
 
   - id: stealthy-mention-comment
     desc: Code mentions stealth/stealthy
@@ -255,7 +257,7 @@ traits:
     for: [c]
     if:
       type: ast
-      kind: function
+      kind: identifier
       regex: "hide|invisible|stealth"
       case_insensitive: true
 
@@ -282,7 +284,9 @@ traits:
     if:
       type: ast
       kind: function
-      regex: "^(?!CRYPTO|OpenSSL)([a-z]{2,3}[a-z0-9]{2,4}|[a-f0-9]{6,}|x[a-f0-9]{5,})_"
+      regex: "^([a-f0-9]{8,}|x[a-f0-9]{8,})_"
+    not:
+      - regex: "^(CRYPTO|OpenSSL|ssize|ares_)"
 
   - id: underscore-heavy-naming
     desc: Heavy underscore usage in names
@@ -292,6 +296,8 @@ traits:
     if:
       type: ast
       node: declaration
-      regex: "^__(?!declspec\\b)[a-z]+(?:_[a-z0-9]+)+"
+      regex: "^__[a-z]+(?:_[a-z0-9]+)+"
+    not:
+      - regex: "^__declspec\\b"
 
   # ============================================================

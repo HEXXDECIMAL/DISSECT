@@ -63,6 +63,16 @@ traits:
             any of them
         }
 
+  # Python chained import (often used for obfuscation)
+  - id: python-import-chain
+    desc: Chained __import__ calls
+    crit: notable
+    conf: 0.9
+    for: [python]
+    if:
+      type: raw
+      regex: "__import__\\(.{0,50}__import__"
+
   # Python zipimporter - loads modules from ZIP files
   - id: python-zipimporter
     desc: Python zipimporter module loading

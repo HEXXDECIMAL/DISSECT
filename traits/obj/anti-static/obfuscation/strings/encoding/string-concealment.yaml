@@ -33,6 +33,8 @@ traits:
       min_length: 4
     unless:
       - id: meta/format::tiny-elf
+      - id: meta/format::many-imports
+      - id: obj/anti-static/hardening/detection::stripped-binary-struct
 
 composite_rules:
   # String concealment pattern

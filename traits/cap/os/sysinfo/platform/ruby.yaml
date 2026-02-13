@@ -14,5 +14,5 @@ traits:
     attack: "T1082"
     if:
       type: string
-      regex: 'RUBY_PLATFORM.{0,50}include|RUBY_PLATFORM.{0,50}match|darwin|linux|mswin'
+      regex: 'RUBY_PLATFORM.{0,50}include|RUBY_PLATFORM.{0,50}match|RbConfig::CONFIG|darwin|linux|mswin'
 

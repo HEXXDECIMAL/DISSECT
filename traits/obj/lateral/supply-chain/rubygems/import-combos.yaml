@@ -385,3 +385,15 @@ composite_rules:
       - id: tcpsocket-exec
       - id: socket-stdin
       - id: stdin-reopen
+
+  # Install-time dropper pattern
+  # Precision: all(2) = 2.0, + for(1) = 3.0, + hostile trait(1) = 4.0 (meets hostile threshold)
+  - id: extconf-dropper
+    desc: Ruby native extension performs dropper behavior
+    crit: hostile
+    conf: 0.98
+    mbc: "B0024"
+    all:
+      - id: extconf-file
+      - id: obj/exec/dropper/stealth::ruby-dropper-rename-exec
+

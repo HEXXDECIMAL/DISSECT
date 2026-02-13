@@ -105,6 +105,15 @@ traits:
       field: binary.import_density
       max: 0.01
 
+  - id: many-imports
+    desc: "High number of imported symbols (>100)"
+    crit: inert
+    conf: 0.8
+    if:
+      type: metrics
+      field: binary.import_count
+      min: 100
+
   - id: elf-no-sections
     desc: "ELF with no section headers"
     crit: inert

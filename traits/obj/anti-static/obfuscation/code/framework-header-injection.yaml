@@ -18,7 +18,7 @@ traits:
   # evp.h contains distinctive OpenSSL EVP API markers
   - id: openssl-evp-header
     desc: OpenSSL EVP header with cryptographic API definitions
-    crit: suspicious
+    crit: notable
     conf: 0.95
     if:
       type: raw
@@ -26,16 +26,24 @@ traits:
 
   - id: openssl-copyright-block
     desc: OpenSSL copyright and license header
-    crit: suspicious
+    crit: notable
     conf: 0.90
     if:
       type: string
       substr: "Eric Young (eay@cryptsoft.com)"
 
+  - id: openssl-project-copyright
+    desc: Modern OpenSSL Project copyright
+    crit: inert
+    conf: 0.95
+    if:
+      type: raw
+      substr: "The OpenSSL Project Authors"
+
   # === Generic OpenSSL header signatures ===
   - id: openssl-crypto-header
     desc: OpenSSL crypto header markers
-    crit: suspicious
+    crit: notable
     conf: 0.85
     if:
       type: string
@@ -44,7 +52,7 @@ traits:
   # === Cryptography library headers ===
   - id: libcrypto-marker
     desc: libcrypto header definitions
-    crit: suspicious
+    crit: notable
     conf: 0.8
     if:
       type: string
@@ -61,3 +69,5 @@ composite_rules:
       - id: openssl-evp-header
       - id: openssl-copyright-block
       - id: openssl-crypto-header
+    unless:
+      - id: openssl-project-copyright

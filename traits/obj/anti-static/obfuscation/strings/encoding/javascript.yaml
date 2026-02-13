@@ -311,13 +311,26 @@ composite_rules:
       - id: js-buffer-from-hex
       - id: obj/lateral/supply-chain/npm/malicious-patterns::auto-execute
 
-  # Double encoding pattern (Hex -> Base64)
-  - id: js-double-encoding
-    desc: Double encoding usage (Hex and Base64)
+  # Strong obfuscation indicators (high density or specific techniques)
+  - id: js-strong-obfuscation
+    desc: Strong obfuscation indicators
     crit: suspicious
-    conf: 0.95
-    attack: "T1027"
+    conf: 0.9
     mbc: "B0032"
+    attack: "T1027"
+    for: [javascript]
+    any:
+      - id: dense-fromcharcode
+      - id: dense-unicode-escapes
+      - id: js-dense-hex-escapes
+      - id: js-hex-encoded-require
+      - id: js-string-deobfuscation
+
+  # Mixed encoding usage (Hex and Base64) - common in legitimate code
+  - id: js-mixed-encoding-usage
+    desc: Mixed encoding usage (Hex and Base64)
+    crit: inert
+    conf: 0.6
     for: [javascript]
     all:
       - id: js-buffer-from-base64

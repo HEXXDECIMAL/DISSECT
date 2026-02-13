@@ -241,7 +241,7 @@ traits:
     if:
       type: ast
       kind: call
-      regex: "\\$_(GET|POST|REQUEST|COOKIE|SERVER)"
+      regex: "\\$_(GET|POST|REQUEST|COOKIE|SERVER)\\s*\\("
 
   - id: subscript-function-call
     desc: Subscript used as function (obfuscated

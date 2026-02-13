@@ -31,7 +31,7 @@ traits:
     if:
       type: metrics
       field: identifiers.avg_entropy
-      min: 2.5
+      min: 3.0
       min_size: 2048
 
   # === String Obfuscation ===

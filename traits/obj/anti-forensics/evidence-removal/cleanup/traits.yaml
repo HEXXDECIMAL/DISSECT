@@ -31,7 +31,8 @@ traits:
   attack: T1070.003
   if:
     type: string
-    regex: (sed -i|sed -i '/|sed\s+-i\s+'[/\|])
+    # Matches: sed -i '/pattern/d' or sed -i 's/pattern//'
+    regex: (sed\s+-i\s+['"][^'"]*/d['"]|sed\s+-i\s+['"]s/[^/]+//g?['"])
 
 - id: deleted-process-cleanup
   desc: Cleanup deleted process references
@@ -46,7 +47,7 @@ traits:
     regex: (\(deleted\)|grep deleted|\(deleted\))
 - id: pkill-signal-9
   desc: pkill with kill -9 signal
-  crit: suspicious
+  crit: notable
   conf: 0.8
   for:
   - elf

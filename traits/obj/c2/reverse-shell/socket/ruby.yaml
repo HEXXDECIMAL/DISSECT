@@ -145,6 +145,17 @@ composite_rules:
       - id: open3-popen-ast
       - id: copy-stream-socket
 
+  # Ruby syscall reverse shell
+  - id: ruby-syscall-reverse-shell
+    desc: Ruby reverse shell using raw syscalls (dup2)
+    crit: hostile
+    conf: 0.95
+    attack: "T1059"
+    all:
+      - id: cap/os/kernel/syscall::ruby-syscall
+      - id: cap/exec/command/shell::sh-interactive
+      - id: obj/lateral/scan/port::sym-connect
+
   # Ruby reverse shell (migrated from YARA)
   - id: reverse-shell-ruby
     desc: Reverse shell in Ruby
@@ -157,3 +168,4 @@ composite_rules:
       - id: tcpsocket-popen
       - id: tcpsocket-sh-i
       - id: ruby-cmd-loop-shell
+      - id: ruby-syscall-reverse-shell

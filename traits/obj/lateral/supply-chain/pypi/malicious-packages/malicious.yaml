@@ -327,3 +327,21 @@ composite_rules:
     unless:
       - type: basename
         exact: "six.py"
+      - id: meta/builder/pip::setuptools-package-index
+
+  # Obfuscated setup.py with import chaining
+  # Detects setup.py files that use chained __import__ calls to hide malicious behavior
+  # Example: __import__('builtins').exec(__import__('builtins').compile(__import__('base64').b64decode(...)))
+  - id: pypi-obfuscated-setup-chain
+    desc: Obfuscated setup.py execution chain
+    crit: hostile
+    conf: 0.95
+    attack: "T1195.002"
+    mbc: "E1014"
+    for: [python]
+    all:
+      - id: cap/exec/dynamic-load/class::python-import-chain
+      - id: obj/lateral/supply-chain/pypi/install-patterns::setup-py-file
+    any:
+      - id: obj/anti-static/obfuscation/payload::exec-function-call
+      - id: cap/data/encode/base64::b64decode-string

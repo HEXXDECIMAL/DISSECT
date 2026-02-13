@@ -4,7 +4,7 @@
 traits:
   - id: dmidecode
     desc: Hardware info via dmidecode
-    crit: suspicious
+    crit: notable
     conf: 0.75
     attack: "T1082"
     platforms: [linux]

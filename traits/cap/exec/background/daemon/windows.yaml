@@ -41,7 +41,7 @@ traits:
     crit: suspicious
     conf: 0.9
     if:
-      type: string
+      type: raw
       regex: "powershell.{0,50}-[Ww](indow)?[Ss](tyle)?\\s*[Hh]idden"
 
   # cmd.exe /c with start

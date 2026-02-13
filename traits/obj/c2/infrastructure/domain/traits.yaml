@@ -36,6 +36,8 @@ traits:
       - substr: "nodejs.org"
       - substr: "sourceforge.net"
       - substr: "freedesktop.org"
+      - substr: "proxy.com"
+      - substr: "example.com"
 
   - id: hardcoded-domain-suspicious-pattern
     desc: "Hardcoded suspicious TLD domain pattern"
@@ -49,7 +51,7 @@ traits:
       regex: "['\\\"](?:https?://(?:[a-zA-Z0-9-]{1,63}\\.)+(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|work|stream|download|racing|win|party|review|accountant|science|trade|webcam|bid|loan|pe|su|icu|buzz)(?::\\d{1,5})?(?:[/?#][^'\\\"\\s]*)?|(?:[a-zA-Z0-9-]{1,63}\\.)+(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|work|stream|download|racing|win|party|review|accountant|science|trade|webcam|bid|loan|pe|su|icu|buzz)(?::\\d{1,5}|/[A-Za-z0-9._~!$&'()*+,;=:@%/-]+|\\?[^'\\\"\\s]+))['\\\"]"
     unless:
       - type: raw
-        regex: "sina\\.com\\.cn|163\\.com|126\\.com|sohu\\.com|qq\\.com|yahoo\\.com\\.cn|mysite|rambler\\.ru|yandex\\.ru|mail\\.ru"
+        regex: "sina\\.com\\.cn|163\\.com|126\\.com|sohu\\.com|qq\\.com|yahoo\\.com\\.cn|mysite|rambler\\.ru|yandex\\.ru|mail\\.ru|tbcdn\\.cn"
 
   - id: short-domain-url-pattern
     desc: "Very short domain in URL"
@@ -130,6 +132,7 @@ traits:
         # Build/compiler tools
         - "cmake\\.org"
         - "gcc\\.gnu\\.org"
+        - "gnu\\.org"
         - "sourceware\\.org"
         - "savannah\\.gnu\\.org"
         # Linux/system tools
@@ -198,6 +201,7 @@ traits:
         # Build/compiler tools
         - "cmake\\.org"
         - "gcc\\.gnu\\.org"
+        - "gnu\\.org"
         - "sourceware\\.org"
         - "savannah\\.gnu\\.org"
         # Linux/system tools
@@ -580,7 +584,7 @@ traits:
     attack: "T1071"
     if:
       type: string
-      regex: '[a-z0-9-]+\.replit\.dev'
+      regex: '(?:[a-z0-9-]+\.)+replit\.dev'
 
   - id: repl-co
     desc: Repl.co endpoint
@@ -589,7 +593,16 @@ traits:
     attack: "T1071"
     if:
       type: string
-      regex: '[a-z0-9-]+\.repl\.co'
+      regex: '(?:[a-z0-9-]+\.)+repl\.co'
+
+  - id: replit-id-domain
+    desc: Replit ID endpoint (commonly abused)
+    crit: suspicious
+    conf: 0.85
+    attack: "T1071"
+    if:
+      type: string
+      regex: '[a-f0-9-]+\.id\.repl\.co'
 
   # Glitch-hosted C2
   - id: glitch-hosted
@@ -780,6 +793,7 @@ composite_rules:
     any:
       - id: replit-dev
       - id: repl-co
+      - id: replit-id-domain
 
   # Chisel tunnel
   - id: chisel-tunnel

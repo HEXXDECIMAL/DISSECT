@@ -126,6 +126,10 @@ traits:
       field: identifiers.reuse_ratio
       max: 0.15
       min_size: 2048
+    unless:
+      # Exclude Perl wrapper scripts (polyglots) which often confuse metrics
+      - type: raw
+        substr: "eval 'exec perl -wSx \"$0\" \"$@\"'"
 
 composite_rules:
   - id: identifier-obfuscation

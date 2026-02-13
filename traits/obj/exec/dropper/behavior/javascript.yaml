@@ -22,7 +22,7 @@ composite_rules:
     mbc: "B0032"
     all:
       - id: local-dropper
-      - id: obj/anti-static/obfuscation/strings/encoding::js-double-encoding
+      - id: obj/anti-static/obfuscation/strings/encoding::js-strong-obfuscation
 
   - id: js-malware-hosting-powershell
     desc: References PowerShell script on known malware hosting (Dropper)

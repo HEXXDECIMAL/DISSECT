@@ -9,7 +9,7 @@
 traits:
   - id: dev-path-pattern
     desc: /dev/ device path pattern
-    crit: notable
+    crit: inert
     conf: 0.7
     mbc: E1083
     attack: T1083

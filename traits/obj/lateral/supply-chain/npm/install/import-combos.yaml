@@ -124,7 +124,7 @@ traits:
     if:
       type: kv
       path: "scripts.preinstall"
-      regex: "\\b(curl|wget|node|sh|bash|powershell)\\b"
+      regex: "(?:^|[^a-zA-Z0-9_.-])(curl|wget|node|sh|bash|powershell)(?:\\.exe)?(?:$|[^a-zA-Z0-9_./\\-])"
 
   - id: scripts-postinstall-shell
     desc: postinstall runs shell command
@@ -134,7 +134,7 @@ traits:
     if:
       type: kv
       path: "scripts.postinstall"
-      regex: "\\b(curl|wget|node|sh|bash|powershell)\\b"
+      regex: "(?:^|[^a-zA-Z0-9_.-])(curl|wget|node|sh|bash|powershell)(?:\\.exe)?(?:$|[^a-zA-Z0-9_./\\-])"
 
   - id: scripts-preinstall-pipe
     desc: preinstall download-execute pipe

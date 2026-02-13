@@ -130,7 +130,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     any:
-      - id: cap/exec/load/library
+      - id: cap/exec/load/library/ssl
 
   # Library resolver functionality
   - id: lib-resolver-fn

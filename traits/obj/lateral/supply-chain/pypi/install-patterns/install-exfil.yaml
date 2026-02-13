@@ -443,7 +443,7 @@ composite_rules:
       - id: setup-py-file
       - id: suspicious-php-endpoint
       - id: cap/comm/http/request::request-python
-      - id: windows-computername-env
+      - id: obj/lateral/supply-chain/pypi/install-patterns::windows-computername-env
 
   # === SUSPICIOUS: PyPI Probe Package ===
   # Typosquat/dependency confusion probe: setup.py imports a network library

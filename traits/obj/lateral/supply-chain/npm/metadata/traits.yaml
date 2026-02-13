@@ -238,6 +238,7 @@ composite_rules:
       - id: install-hooks
     none:
       - id: npm-has-repository
+      - id: obj/lateral/supply-chain/npm-quality/pkg-meta::has-bin-field
 
   # Generic descriptions group
   - id: generic-descriptions

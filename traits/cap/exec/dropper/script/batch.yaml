@@ -56,7 +56,7 @@ traits:
     conf: 0.85
     mbc: "F0005"
     attack: "T1564"
-    for: [shell, batch]
+    for: [batch]
     if:
       type: raw
       regex: "start\\s+[\"']?[\"']?\\s*/[Bb]"
@@ -77,13 +77,13 @@ traits:
     for: [shell, batch]
     if:
       type: raw
-      regex: "(?i)\\.exe"
+      regex: "(?i)\\.exe\\b"
 
   - id: start-cmd
     desc: start command
     crit: inert
     conf: 0.5
-    for: [shell, batch]
+    for: [batch]
     if:
       type: raw
       regex: "(?i)\\bstart\\b"
@@ -94,7 +94,7 @@ traits:
     conf: 0.9
     mbc: "B0024"
     attack: "T1059.003"
-    for: [shell, batch]
+    for: [batch]
     if:
       type: raw
       regex: "(?i)start[^\\n]*(%TEMP%|%TMP%)[^\\n]*\\.exe"
@@ -199,7 +199,7 @@ traits:
     for: [shell, batch]
     if:
       type: raw
-      regex: "(?i)\\bcall\\b"
+      regex: "(?i)(?:^|[^-\\w])call(?:$|[^-\\w])"
 
   # PowerShell launcher from batch
   - id: powershell-exe
@@ -311,8 +311,9 @@ composite_rules:
     conf: 0.95
     mbc: "C0002"
     attack: "T1105"
-    for: [shell, batch]
+    for: [batch]
     all:
+      - id: echo-off
       - id: download-tool
       - id: exec-cmd
       - id: output-flag

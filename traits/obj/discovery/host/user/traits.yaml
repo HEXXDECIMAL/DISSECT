@@ -84,6 +84,8 @@ traits:
       - regex: '^\s*USER\s+(user|fwuser)(@|$)'
       # Exclude variable names that contain USER but aren't env access
       - regex: "USERNAME|USERPROFILE|USERID"
+      # Exclude syntax highlighter lists (e.g. "USER|HOST|...")
+      - regex: '[|,]USER[|,]'
 
   - id: logname-var
     desc: LOGNAME environment variable

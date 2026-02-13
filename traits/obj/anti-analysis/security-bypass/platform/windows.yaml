@@ -201,6 +201,15 @@ composite_rules:
       - id: amsi-bypass-reflection
 
   # Combined Windows security bypass
+  - id: uac-bypass
+    desc: Windows UAC bypass or elevation request
+    crit: suspicious
+    conf: 0.95
+    attack: "T1548.002"
+    any:
+      - id: start-process-runas
+      - id: cap/os/env/vars::uac-bypass-compact-layer
+
   - id: windows-bypass
     desc: Windows security bypass detected
     crit: suspicious
@@ -211,5 +220,5 @@ composite_rules:
       - id: defender-disable
       - id: amsi-bypass
       - id: malwarebytes-stop-service
-      - id: start-process-runas
+      - id: uac-bypass
       - id: tasklist-av-check

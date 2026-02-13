@@ -28,7 +28,7 @@ traits:
     for: [all]
     if:
       type: string
-      regex: "(?i)syn.?flood"
+      regex: "(?i)syn.?flood\\b"
 
   - id: ack-flood
     desc: ACK flood attack reference

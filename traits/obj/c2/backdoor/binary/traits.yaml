@@ -287,6 +287,7 @@ composite_rules:
       - id: cap/exec/load/library::cmake-build-ref
       # Debuggers legitimately use process control for debugging
       - id: cap/exec/load/library::debugger-tool-marker
+      - id: meta/format::many-imports
 
   - id: unexpected-crypto
     desc: Cryptographic operations in non-crypto library

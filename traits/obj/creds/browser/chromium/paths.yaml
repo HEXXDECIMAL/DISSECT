@@ -20,7 +20,7 @@ traits:
     desc: Chromium Cookies database path
     if:
       type: string
-      substr: "Cookies"
+      regex: "[/'\"\\\\]Cookies['\"\\\\]?"
 
   - id: web-data
     desc: Chromium Web Data database path

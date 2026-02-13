@@ -282,7 +282,7 @@ composite_rules:
   # Downgrade for Apple system components, debuggers, and graphics libraries to avoid FPs.
   - id: pty-network-backdoor
     desc: PTY-based network backdoor
-    crit: suspicious
+    crit: notable
     conf: 0.95
     attack: "T1059"
     mbc: "B0022"
@@ -311,3 +311,6 @@ composite_rules:
         - id: cap/exec/load/library::graphics-lib-marker
         - id: cap/exec/load/library::x11-ipc-lib-marker
         - id: cap/exec/load/library::network-lib-marker
+        - id: meta/format::many-imports
+        - type: string
+          exact: "busybox"

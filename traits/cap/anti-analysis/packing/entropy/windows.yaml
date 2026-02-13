@@ -12,5 +12,8 @@ traits:
     conf: 0.85
     if:
       type: section
-      section: ".DG'"
+      section: "."
       min: 7.8
+    unless:
+      - id: cap/exec/reflection/invoke::namespace-import
+      - id: meta/format/pe/dotnet::dotnet-assembly

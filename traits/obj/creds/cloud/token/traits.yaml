@@ -9,6 +9,7 @@ traits:
   # === Atomic: AWS ===
   - id: aws-config
     desc: AWS configuration directory
+    crit: notable
     conf: 0.75
     # Restrict to scripts/interpreted languages where this path would be accessed programmatically
     # Binary programs (like syntax highlighters) often contain these patterns for legitimate purposes

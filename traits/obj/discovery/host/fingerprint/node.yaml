@@ -278,6 +278,7 @@ traits:
 
 composite_rules:
   # Helper composites
+  # Helper composites
   - id: mac-keyword-variants
     desc: MAC keyword variants
     for: [javascript, typescript]
@@ -343,7 +344,7 @@ composite_rules:
 
   - id: machine-id-generation
     desc: Machine unique identifier generation
-    crit: suspicious
+    crit: notable
     conf: 0.85
     mbc: "E1592"
     attack: "T1082"
@@ -370,6 +371,8 @@ composite_rules:
       - { id: os-cpus }
       - { id: os-totalmem }
       - { id: os-networkInterfaces }
+      - { id: cap/discovery/system/hardware/display::display-resolution-discovery }
+      - { id: cap/discovery/system/locale }
 
   - id: process-env-dump
     desc: Full environment variable dump

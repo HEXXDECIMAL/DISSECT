@@ -22,4 +22,12 @@ traits:
       type: string
       substr: "requests.post"
 
-# No composite rules needed - use requests-get and requests-post directly
+composite_rules:
+  - id: requests-python
+    desc: Python requests library usage
+    crit: notable
+    conf: 0.8
+    any:
+      - id: requests-get
+      - id: requests-post
+

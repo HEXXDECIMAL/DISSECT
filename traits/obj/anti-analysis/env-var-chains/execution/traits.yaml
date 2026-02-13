@@ -78,14 +78,14 @@ traits:
   attack: T1574.006
 - id: shell-opts-disable
   desc: Shell options disabled for tracing
-  crit: suspicious
+  crit: notable
   conf: 0.85
   for:
   - elf
   - shell
   if:
     type: string
-    regex: (set \+x|set -x|set\s+[+-]x)
+    regex: (set \+x|set\s+\+x)
   attack: T1562.004
 - id: ld-preload-injection
   desc: LD_PRELOAD library injection setup
