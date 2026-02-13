@@ -3,7 +3,7 @@
 {{range .Files}}- {{.Path}}{{if .Summary}} ({{.Summary}}){{end}}
 {{end}}{{else}}**File**: {{.Path}}
 {{end}}
-**Objective**: {{if .IsBad}}Add high-signal detections for missed behaviors.{{else}}Fix false positives while preserving accurate detections.{{end}}
+**Objective**: {{if .IsBad}}Perform a deep reverse-analysis of the binary, and once its unique characteristics are understood, add high-signal detections for missed behaviors.{{else}}Fix false positives while preserving accurate detections.{{end}}
 
 You are an expert security engineer, doing cutting-edge security research that we're using to improve DISSECT, an open-source tool designed to detect subtle malware introduced in supply-chain attacks - such as in xzutils or ultralytics, using differential analysis of its capabilities and unique characteristics.
 
