@@ -1,0 +1,30 @@
+# Ruby File Rename Operations
+
+defaults:
+  for: [ruby]
+  platforms: [all]
+
+traits:
+  - id: ruby-rename
+    desc: Rename files
+    crit: notable
+    conf: 0.95
+    if:
+      type: raw
+      regex: 'File\.rename'
+
+# Ruby File Rename Operations
+
+defaults:
+  for: [ruby]
+  platforms: [all]
+
+traits:
+  - id: ruby-rename
+    desc: Rename files
+    crit: notable
+    conf: 0.95
+    if:
+      type: raw
+      regex: 'File\.rename'
+

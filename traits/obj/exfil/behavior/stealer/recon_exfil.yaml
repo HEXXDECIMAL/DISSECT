@@ -1,0 +1,28 @@
+defaults:
+  for: [javascript]
+
+composite_rules:
+  - id: sysinfo-exfil-socket
+    desc: System recon combined with raw socket connection (exfiltration)
+    crit: hostile
+    conf: 0.95
+    all:
+      - id: obj/discovery/host/fingerprint::process-list
+      - id: obj/c2/infrastructure/ip::hardcoded-ipv4-script
+    any:
+      - id: cap/data/text/keywords::connect
+      - id: obj/c2/network/beacon::direct-http-c2
+defaults:
+  for: [javascript]
+
+composite_rules:
+  - id: sysinfo-exfil-socket
+    desc: System recon combined with raw socket connection (exfiltration)
+    crit: hostile
+    conf: 0.95
+    all:
+      - id: obj/discovery/host/fingerprint::process-list
+      - id: obj/c2/infrastructure/ip::hardcoded-ipv4-script
+    any:
+      - id: cap/data/text/keywords::connect
+      - id: obj/c2/network/beacon::direct-http-c2

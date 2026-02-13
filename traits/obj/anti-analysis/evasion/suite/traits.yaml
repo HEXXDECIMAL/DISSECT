@@ -1,8 +1,8 @@
 traits:
 - id: timing-check-api
   desc: Timing API sandbox detection
-  crit: notable
-  conf: 0.8
+  crit: inert
+  conf: 0.3
   platforms:
   - all
   for:

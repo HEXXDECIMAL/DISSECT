@@ -152,10 +152,11 @@ composite_rules:
       - id: daemon-symbol
 
   # Signal function composite - references cap/ instead of duplicating
+  # NOTE: signal/sigaction are universal in C programs, not persistence indicators alone
   - id: signal-function
     desc: Signal handling function
-    crit: notable
-    conf: 0.3
+    crit: inert
+    conf: 0.2
     for: [elf, macho]
     platforms: [linux, macos, unix]
     any:

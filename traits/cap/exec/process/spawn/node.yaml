@@ -1,0 +1,122 @@
+# Node.js Process Spawning Capabilities
+# Capabilities related to child_process.spawn() and process management
+
+defaults:
+  for: [javascript, typescript]
+
+traits:
+  # === Detached spawn execution indicators ===
+
+  - id: detached-true
+    desc: Detached process spawn option
+    crit: notable
+    conf: 0.85
+    mbc: "F0011"
+    attack: "T1059"
+    if:
+      type: raw
+      regex: 'detached:\s*true'
+
+  # === Silent I/O patterns ===
+
+  - id: stdio-ignore-array
+    desc: stdio array with ignore values
+    crit: notable
+    conf: 0.85
+    mbc: "F0005"
+    if:
+      type: raw
+      regex: 'stdio:\s*\[[^\]]*[''"]ignore[''"]'
+
+  - id: stdio-ignore-string
+    desc: stdio set to ignore
+    crit: notable
+    conf: 0.75
+    mbc: "F0005"
+    if:
+      type: raw
+      regex: 'stdio:\s*[''"]ignore[''"]'
+
+  # === Orphan process patterns ===
+
+  - id: child-unref-call
+    desc: child.unref() orphan process call
+    crit: notable
+    conf: 0.85
+    mbc: "F0011"
+    if:
+      type: raw
+      substr: ".unref()"
+
+  # === Node.js self-execution ===
+
+  - id: process-execpath-spawn
+    desc: Spawn using process.execPath
+    crit: notable
+    conf: 0.9
+    mbc: "B0024"
+    attack: "T1059.007"
+    if:
+      type: raw
+      substr: "process.execPath"
+# Node.js Process Spawning Capabilities
+# Capabilities related to child_process.spawn() and process management
+
+defaults:
+  for: [javascript, typescript]
+
+traits:
+  # === Detached spawn execution indicators ===
+
+  - id: detached-true
+    desc: Detached process spawn option
+    crit: notable
+    conf: 0.85
+    mbc: "F0011"
+    attack: "T1059"
+    if:
+      type: raw
+      regex: 'detached:\s*true'
+
+  # === Silent I/O patterns ===
+
+  - id: stdio-ignore-array
+    desc: stdio array with ignore values
+    crit: notable
+    conf: 0.85
+    mbc: "F0005"
+    if:
+      type: raw
+      regex: 'stdio:\s*\[[^\]]*[''"]ignore[''"]'
+
+  - id: stdio-ignore-string
+    desc: stdio set to ignore
+    crit: notable
+    conf: 0.75
+    mbc: "F0005"
+    if:
+      type: raw
+      regex: 'stdio:\s*[''"]ignore[''"]'
+
+  # === Orphan process patterns ===
+
+  - id: child-unref-call
+    desc: child.unref() orphan process call
+    crit: notable
+    conf: 0.85
+    mbc: "F0011"
+    if:
+      type: raw
+      substr: ".unref()"
+
+  # === Node.js self-execution ===
+
+  - id: process-execpath-spawn
+    desc: Spawn using process.execPath
+    crit: notable
+    conf: 0.9
+    mbc: "B0024"
+    attack: "T1059.007"
+    if:
+      type: raw
+      substr: "process.execPath"

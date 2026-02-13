@@ -41,8 +41,8 @@ traits:
   # === Clock/timing functions ===
   - id: clock-gettime
     desc: "Reads current time (timing measurements)"
-    crit: notable
-    conf: 0.4
+    crit: inert
+    conf: 0.3
     platforms: [linux, macos, unix]
     for: [elf, macho]
     if:
@@ -51,7 +51,7 @@ traits:
 
   - id: gettimeofday
     desc: "Gets current time of day"
-    crit: notable
+    crit: inert
     conf: 0.3
     platforms: [linux, macos, unix]
     for: [elf, macho]

@@ -1,0 +1,34 @@
+# Display and Screen Information Discovery
+# ATT&CK: T1082 (System Information Discovery)
+# MBC: E1082
+
+defaults:
+  for: [shell, javascript, python, ruby, go, macho, elf, pe]
+  attack: "T1082"
+  mbc: "E1082"
+
+traits:
+  - id: display-resolution-discovery
+    desc: Discover screen or display resolution
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: "wmic\\s+path\\s+Win32_VideoController|xrandr\\s+--current|system_profiler\\s+SPDisplaysDataType|CurrentVerticalResolution"
+# Display and Screen Information Discovery
+# ATT&CK: T1082 (System Information Discovery)
+# MBC: E1082
+
+defaults:
+  for: [shell, javascript, python, ruby, go, macho, elf, pe]
+  attack: "T1082"
+  mbc: "E1082"
+
+traits:
+  - id: display-resolution-discovery
+    desc: Discover screen or display resolution
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: "wmic\\s+path\\s+Win32_VideoController|xrandr\\s+--current|system_profiler\\s+SPDisplaysDataType|CurrentVerticalResolution"

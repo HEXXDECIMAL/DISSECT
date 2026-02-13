@@ -1,0 +1,80 @@
+# JavaScript-Specific Metrics-Based Obfuscation Detection
+# Detects JS obfuscation patterns common in npm malware and web exploits
+
+defaults:
+  for: [javascript, typescript]
+  attack: "T1027"
+  mbc: "B0032"
+
+traits:
+  # === JavaScript-Specific Obfuscation Patterns ===
+
+  - id: js-arrow-function-abuse
+    desc: "Excessive anonymous arrow functions (obfuscation"
+    crit: notable
+    conf: 0.8
+    if:
+      type: metrics
+      field: functions.anonymous
+      min: 100
+      min_size: 2048
+    unless:
+      - type: string
+        regex: "MathJax|wgxpath|trix|actiontext"
+
+  - id: js-iife-heavy
+    desc: "Repeated immediately invoked function expressions"
+    crit: notable
+    conf: 0.85
+    size_min: 2048
+    if:
+      type: raw
+      regex: "\\(\\s*(?:async\\s+)?function\\s*\\([^)]{0,50}\\)\\s*\\{|\\(\\s*(?:async\\s*)?\\([^)]{0,50}\\)\\s*=>"
+      count_min: 5
+
+  - id: js-deep-callback-nesting
+    desc: "Deep function nesting (callback hell"
+    crit: notable
+    conf: 0.75
+    if:
+      type: metrics
+      field: functions.max_nesting_depth
+      min: 6
+
+  # NOTE: Webpack minification detection removed - use very-long-lines from structure/traits.yaml instead
+  # Both detected text.max_line_length >= 1000, creating duplicate evidence
+
+  - id: js-sphinx-searchindex
+    desc: "Sphinx documentation search index"
+    crit: notable
+    conf: 0.9
+    attack: ""
+    mbc: ""
+    if:
+      type: raw
+      substr: "Search.setIndex"
+
+composite_rules:
+  - id: js-obfuscator-pattern
+    desc: "JavaScript obfuscator tool output"
+    crit: suspicious
+    conf: 0.9
+    needs: 3
+    any:
+      - id: cap/code/metrics/obfuscation::high-entropy-identifiers
+      - id: obj/anti-static/obfuscation/code-metrics::js-arrow-function-abuse
+      - id: obj/anti-static/obfuscation/code-metrics/strings::high-entropy-strings
+      - id: obj/anti-static/obfuscation/code-metrics/structure::no-comments
+
+  - id: js-npm-malware-pattern
+    desc: "npm malware obfuscation pattern (install"
+    crit: suspicious
+    conf: 0.9
+    # Real npm malware implants are typically small
+    size_max: 50000
+    all:
+      - id: cap/code/metrics/obfuscation::high-entropy-identifiers
+      - id: obj/anti-static/obfuscation/code-metrics/structure::no-comments
+      - id: obj/anti-static/obfuscation/code-metrics/structure::very-long-lines
+    none:
+      - id: js-sphinx-searchindex

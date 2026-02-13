@@ -1,0 +1,40 @@
+composite_rules:
+  - id: fake-urllib3-metadata
+    desc: Package description mimics urllib3 but does not mention urllib3
+    crit: hostile
+    conf: 1.0
+    all:
+      - id: meta/builder/pip::setup-py
+      - id: cap/data/text/keywords::urllib3-content
+    not:
+      - id: cap/data/text/keywords::urllib3-name
+      - id: meta/library::botocore-lib
+
+  - id: metadata-mismatch-tui-http
+    desc: Package Summary claims TUI but Description describes HTTP client
+    crit: suspicious
+    conf: 0.8
+    for: [all]
+    all:
+      - id: cap/data/text/keywords::tui-summary
+      - id: cap/data/text/keywords::urllib3-content
+composite_rules:
+  - id: fake-urllib3-metadata
+    desc: Package description mimics urllib3 but does not mention urllib3
+    crit: hostile
+    conf: 1.0
+    all:
+      - id: meta/builder/pip::setup-py
+      - id: cap/data/text/keywords::urllib3-content
+    not:
+      - id: cap/data/text/keywords::urllib3-name
+      - id: meta/library::botocore-lib
+
+  - id: metadata-mismatch-tui-http
+    desc: Package Summary claims TUI but Description describes HTTP client
+    crit: suspicious
+    conf: 0.8
+    for: [all]
+    all:
+      - id: cap/data/text/keywords::tui-summary
+      - id: cap/data/text/keywords::urllib3-content

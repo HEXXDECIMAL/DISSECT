@@ -39,9 +39,6 @@ composite_rules:
     any:
       - id: cap/exec/command/shell
       - id: system-fn
-    unless:
-      # Exclude Go-specific strings from general C-style symbols
-      - id: go-shell-strings
 
   - id: shell-execution-indicators
     desc: Shell command execution indicators

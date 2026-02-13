@@ -576,4 +576,4 @@ composite_rules:
     platforms: [windows]
     all:
       - id: windows-schtasks-create
-      - id: cap/exec/script/indicators::windows-executable-ref
+      - id: cap/exec/command/shell::cmd-exe

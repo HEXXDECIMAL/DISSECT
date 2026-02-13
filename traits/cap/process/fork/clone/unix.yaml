@@ -12,7 +12,7 @@ traits:
     conf: 0.66
     if:
       type: symbol
-      regex: fork|vfork|clone
+      regex: "^(fork|vfork|clone[0-9]?)$"
 
   - id: daemon
     desc: Daemonize process

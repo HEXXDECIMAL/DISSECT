@@ -38,6 +38,9 @@ traits:
       - substr: "freedesktop.org"
       - substr: "proxy.com"
       - substr: "example.com"
+      - substr: "xiph.org"
+      - substr: "translationproject.org"
+      - substr: "sourceware.org"
 
   - id: hardcoded-domain-suspicious-pattern
     desc: "Hardcoded suspicious TLD domain pattern"
@@ -140,6 +143,9 @@ traits:
         - "freedesktop\\.org"
         - "mesa3d\\.org"
         - "x\\.org"
+        - "xiph\\.org"
+        - "translationproject\\.org"
+        - "sourceware\\.org"
 
   - id: http-url-script
     desc: "Network URL with domain name (script)"
@@ -209,6 +215,9 @@ traits:
         - "freedesktop\\.org"
         - "mesa3d\\.org"
         - "x\\.org"
+        - "xiph\\.org"
+        - "translationproject\\.org"
+        - "sourceware\\.org"
 
   # === Malicious file hosting domains (atomic) ===
   - id: bullethost-cloud

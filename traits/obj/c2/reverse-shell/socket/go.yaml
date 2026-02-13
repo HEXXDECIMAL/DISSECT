@@ -132,7 +132,7 @@ composite_rules:
     any:
       - id: cap/exec/command/shell::bin-sh
       - id: cap/exec/command/shell::bin-bash
-      - id: cap/exec/script/indicators::cmd-exe
+      - id: cap/exec/command/shell::cmd-exe
       - id: cmd-plain
 
   # Go reverse shell (migrated from YARA)

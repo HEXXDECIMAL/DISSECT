@@ -63,7 +63,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      substr: "Basic "
+      regex: "(Authorization|Authenticate).{0,20}Basic"
 
   - id: headers-encoding
     desc: Accept-Encoding header

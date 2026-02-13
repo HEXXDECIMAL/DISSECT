@@ -18,16 +18,16 @@ traits:
 
   - id: sys-clock-gettime
     desc: clock_gettime function (syscall)
-    crit: notable
-    conf: 0.4
+    crit: inert
+    conf: 0.3
     if:
       type: string
       word: "clock_gettime"
 
   - id: sys-gettimeofday
     desc: gettimeofday function (syscall)
-    crit: notable
-    conf: 0.4
+    crit: inert
+    conf: 0.3
     if:
       type: string
       word: "gettimeofday"

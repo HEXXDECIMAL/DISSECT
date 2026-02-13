@@ -164,8 +164,8 @@ traits:
   # Exclusion patterns
   - id: posixly-correct
     desc: POSIXLY_CORRECT environment variable (legitimate bash
-    crit: notable
-    conf: 1.0
+    crit: inert
+    conf: 0.3
     if:
       type: string
       substr: "POSIXLY_CORRECT"

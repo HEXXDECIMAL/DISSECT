@@ -3,18 +3,9 @@
 # containing unvalidated input (typically from snprintf/sprintf)
 # MBC: E1059 (Command and Scripting Interpreter)
 # ATT&CK: T1059
+# NOTE: unsafe-string-format moved to cap/data/format/string/ (not a shell indicator)
 
 traits:
-  - id: unsafe-string-format
-    desc: String formatting with format specifiers
-    crit: inert
-    conf: 0.75
-    platforms: [unix, linux, macos]
-    for: [elf, macho, so, dylib, c]
-    if:
-      type: string
-      regex: 'snprintf|sprintf'
-
   - id: format-string-injection
     desc: Format string with user input
     crit: suspicious
@@ -34,6 +25,6 @@ traits:
     for: [c, elf, macho]
     if:
       type: symbol
-      regex: system
+      regex: "^system$"
 
 composite_rules:

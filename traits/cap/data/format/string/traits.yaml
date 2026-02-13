@@ -1,0 +1,14 @@
+# String Formatting Functions
+# Atomic indicators for C-style format string functions.
+# These are neutral building blocks - sprintf/snprintf are ubiquitous in C code.
+
+traits:
+  - id: unsafe-string-format
+    desc: String formatting with format specifiers
+    crit: inert
+    conf: 0.75
+    platforms: [unix, linux, macos]
+    for: [elf, macho, so, dylib, c]
+    if:
+      type: string
+      regex: 'snprintf|sprintf'

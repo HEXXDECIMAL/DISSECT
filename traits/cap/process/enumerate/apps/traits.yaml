@@ -1,0 +1,65 @@
+# Application Enumeration (via Process List)
+# ATT&CK: T1057 (Process Discovery)
+# MBC: E1592
+
+defaults:
+  for: [javascript, python, ruby, shell, pe, elf, macho]
+  attack: "T1057"
+  mbc: "E1592"
+
+traits:
+  - id: browser-apps
+    desc: Web browser application names
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      regex: "(?i)\\b(chrome|firefox|msedge|safari|opera|brave|iexplore)\\b"
+
+  - id: office-apps
+    desc: Office/Productivity application names
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      regex: "(?i)\\b(winword|excel|powerpnt|soffice|outlook|onenote)\\b"
+
+  - id: dev-apps
+    desc: Developer/Editor application names
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      regex: "(?i)\\b(vscode|sublime_text|notepad\\+\\+|vim|emacs|pycharm|intellij)\\b"# Application Enumeration (via Process List)
+# ATT&CK: T1057 (Process Discovery)
+# MBC: E1592
+
+defaults:
+  for: [javascript, python, ruby, shell, pe, elf, macho]
+  attack: "T1057"
+  mbc: "E1592"
+
+traits:
+  - id: browser-apps
+    desc: Web browser application names
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      regex: "(?i)\\b(chrome|firefox|msedge|safari|opera|brave|iexplore)\\b"
+
+  - id: office-apps
+    desc: Office/Productivity application names
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      regex: "(?i)\\b(winword|excel|powerpnt|soffice|outlook|onenote)\\b"
+
+  - id: dev-apps
+    desc: Developer/Editor application names
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      regex: "(?i)\\b(vscode|sublime_text|notepad\\+\\+|vim|emacs|pycharm|intellij)\\b"

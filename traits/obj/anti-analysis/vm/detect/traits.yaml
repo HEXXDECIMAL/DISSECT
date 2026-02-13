@@ -360,12 +360,14 @@ composite_rules:
       - id: vendor-bhyve
 
   # DMI/SMBIOS VM detection
+  # Requires actual DMI-related checks, not just generic sysinfo
   - id: dmi-check
     desc: DMI/SMBIOS check for VM detection
     crit: notable
     conf: 0.85
     any:
-      - id: cap/os/sysinfo
+      - id: hardware-model
+      - id: cpuid-check
 
   # VM-specific file checks
   - id: file-check

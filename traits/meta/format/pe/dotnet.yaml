@@ -1,0 +1,46 @@
+# .NET Assembly Detection
+# Identifies .NET executables via imports and metadata
+
+defaults:
+  for: [pe]
+
+traits:
+  - id: dotnet-assembly
+    desc: .NET Assembly (mscoree.dll)
+    crit: inert
+    conf: 1.0
+    if:
+      type: string
+      substr: "mscoree.dll"
+
+  - id: dotnet-runtime
+    desc: .NET Runtime Reference
+    crit: inert
+    conf: 1.0
+    if:
+      type: string
+      # _CorExeMain or _CorDllMain
+      regex: "_Cor(Exe|Dll)Main"
+# .NET Assembly Detection
+# Identifies .NET executables via imports and metadata
+
+defaults:
+  for: [pe]
+
+traits:
+  - id: dotnet-assembly
+    desc: .NET Assembly (mscoree.dll)
+    crit: inert
+    conf: 1.0
+    if:
+      type: string
+      substr: "mscoree.dll"
+
+  - id: dotnet-runtime
+    desc: .NET Runtime Reference
+    crit: inert
+    conf: 1.0
+    if:
+      type: string
+      # _CorExeMain or _CorDllMain
+      regex: "_Cor(Exe|Dll)Main"

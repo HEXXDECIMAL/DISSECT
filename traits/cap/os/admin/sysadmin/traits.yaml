@@ -22,17 +22,17 @@ traits:
       source: |
         rule package_management {
           strings:
-            // Debian/Ubuntu
+            // Debian/Ubuntu - require command context, not file extensions
             $apt1 = "apt-get" ascii
-            $apt2 = "apt " ascii
-            $apt3 = "dpkg" ascii
+            $apt2 = /apt (install|remove|update|upgrade|purge|search|list|show)/ ascii
+            $apt3 = /dpkg (-|--|\s+-)/ ascii
             // Red Hat/CentOS
-            $yum1 = "yum " ascii
-            $yum2 = "dnf " ascii
-            $rpm1 = "rpm " ascii
+            $yum1 = /yum (install|remove|update|search|list)/ ascii
+            $yum2 = /dnf (install|remove|update|search|list)/ ascii
+            $rpm1 = /rpm (-|--|\s+-)/ ascii
             // Generic
-            $pkg1 = "pkg " ascii
-            $pkg2 = "pacman" ascii
+            $pkg1 = /pkg (install|delete|add|remove)/ ascii
+            $pkg2 = /pacman (-S|-R|-Q|-U)/ ascii
             $pkg3 = "zypper" ascii
           condition:
             any of them
