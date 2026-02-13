@@ -17,9 +17,6 @@ dissect-macros = { path = "dissect-macros" }
 # Binary parsing
 goblin = "0.8"
 
-# Language-aware string extraction
-stng = { path = "../stng" }
-
 # AppleScript parsing
 scpt = { path = "crates/scpt" }
 
@@ -106,6 +103,7 @@ parking_lot = "0.12"  # For efficient mutexes in memory tracking
 memmap2 = "0.9"  # Memory-mapped file I/O for large files
 smallvec = "1.13"  # Stack-allocated vectors for small collections
 encoding_rs = "0.8"  # Character encoding detection and conversion
+stng = { git = "https://github.com/HEXXDECIMAL/stng" }  # Fast string extraction
 
 # Logging (tracing is the modern standard, more powerful than log+env_logger)
 tracing = "0.1"
