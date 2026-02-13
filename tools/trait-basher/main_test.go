@@ -29,14 +29,14 @@ func TestCleanupOrphanedExtractDirs(t *testing.T) {
 	if err := os.MkdirAll(currentDir, 0o750); err != nil {
 		t.Fatalf("Failed to create current process dir: %v", err)
 	}
-	defer os.RemoveAll(currentDir)
+	defer os.RemoveAll(currentDir) //nolint:errcheck // test cleanup
 
 	// Run cleanup
 	cleanupOrphanedExtractDirs()
 
 	// Verify orphan was cleaned up
 	if _, err := os.Stat(orphanDir); !os.IsNotExist(err) {
-		os.RemoveAll(orphanDir) // Clean up on failure
+		os.RemoveAll(orphanDir) //nolint:errcheck // test cleanup on failure
 		t.Errorf("Orphan directory was not cleaned up: %s", orphanDir)
 	}
 
@@ -60,7 +60,7 @@ func TestCleanupOrphanedExtractDirs_IgnoresNonMatchingDirs(t *testing.T) {
 		if err := os.MkdirAll(dir, 0o750); err != nil {
 			t.Fatalf("Failed to create test dir %s: %v", dir, err)
 		}
-		defer os.RemoveAll(dir)
+		defer os.RemoveAll(dir) //nolint:errcheck // test cleanup
 	}
 
 	// Run cleanup
@@ -142,6 +142,81 @@ func TestFormatProvidersForDisplay(t *testing.T) {
 			result := formatProvidersForDisplay(tc.input)
 			if result != tc.expected {
 				t.Errorf("formatProvidersForDisplay(%v) = %q, want %q", tc.input, result, tc.expected)
+			}
+		})
+	}
+}
+
+func TestFindingDescriptionTruncation(t *testing.T) {
+	tests := []struct {
+		name        string
+		desc        string
+		expectLen   int
+		expectTrunc bool
+	}{
+		{
+			name:        "short description unchanged",
+			desc:        "This is a short description",
+			expectLen:   27,
+			expectTrunc: false,
+		},
+		{
+			name:        "exactly 256 chars unchanged",
+			desc:        string(make([]byte, 256)),
+			expectLen:   256,
+			expectTrunc: false,
+		},
+		{
+			name:        "257 chars gets truncated",
+			desc:        string(make([]byte, 257)),
+			expectLen:   259, // 256 + "..."
+			expectTrunc: true,
+		},
+		{
+			name:        "very long description truncated",
+			desc:        string(make([]byte, 1000)),
+			expectLen:   259, // 256 + "..."
+			expectTrunc: true,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			// Simulate the truncation logic from streamAnalyzeAndReview
+			findings := []Finding{
+				{
+					ID:   "test-id",
+					Crit: "suspicious",
+					Desc: tc.desc,
+				},
+			}
+
+			// Apply the same truncation logic
+			for i := range findings {
+				if len(findings[i].Desc) > 256 {
+					findings[i].Desc = findings[i].Desc[:256] + "..."
+				}
+			}
+
+			result := findings[0].Desc
+			if len(result) != tc.expectLen {
+				t.Errorf("Expected length %d, got %d", tc.expectLen, len(result))
+			}
+
+			if tc.expectTrunc {
+				if len(result) <= 256 {
+					t.Error("Expected description to be truncated but it wasn't")
+				}
+				if len(result) > 259 {
+					t.Errorf("Truncated description should be max 259 chars, got %d", len(result))
+				}
+				if result[len(result)-3:] != "..." {
+					t.Error("Truncated description should end with '...'")
+				}
+			} else {
+				if len(result) > 256 {
+					t.Error("Expected description to not be truncated but it was")
+				}
 			}
 		})
 	}

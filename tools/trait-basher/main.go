@@ -159,44 +159,6 @@ type RealFileAnalysis struct {
 // critRank maps criticality levels to numeric ranks for comparison.
 var critRank = map[string]int{"inert": 0, "notable": 1, "suspicious": 2, "hostile": 3}
 
-// archiveMemberStats finds the most notable file (with highest risk) and largest file.
-func archiveMemberStats(archive *ArchiveAnalysis) (mostNotable, largest *FileAnalysis) {
-	maxRisk := -1
-	var largestSize int64
-
-	for i, m := range archive.Members {
-		// Find most notable
-		for _, f := range m.Findings {
-			rank := critRank[strings.ToLower(f.Crit)]
-			if rank > maxRisk {
-				maxRisk = rank
-				mostNotable = &archive.Members[i]
-			}
-		}
-
-		// Find largest (by extracted path size if available)
-		if m.ExtractedPath != "" {
-			if info, err := os.Stat(m.ExtractedPath); err == nil {
-				if size := info.Size(); size > largestSize {
-					largestSize = size
-					largest = &archive.Members[i]
-				}
-			}
-		}
-	}
-
-	return mostNotable, largest
-}
-
-// memberPath returns the member path within an archive,
-// e.g., "archive.zip!!inner/file.py" -> "inner/file.py".
-func memberPath(path string) string {
-	if idx := strings.Index(path, "!!"); idx != -1 {
-		return path[idx+2:]
-	}
-	return path
-}
-
 // archiveNeedsReview returns true if the archive needs review.
 // Uses the archive summary findings when available (from DISSECT's aggregated output).
 // For known-good archives: review if ANY hostile OR 2+ suspicious (to reduce false positives).
@@ -223,7 +185,9 @@ func archiveNeedsReview(a *ArchiveAnalysis, knownGood bool) bool {
 	return needsReview(agg, knownGood)
 }
 
-// archiveProblematicMembers returns the members that need review.
+// archiveProblematicMembers returns members that individually meet the review threshold.
+// Note: This is used for prioritizing files to show the AI, not for the review decision
+// (which is based on aggregate findings across all members).
 func archiveProblematicMembers(a *ArchiveAnalysis, knownGood bool) []FileAnalysis {
 	var result []FileAnalysis
 	for _, m := range a.Members {
@@ -404,6 +368,8 @@ gemini-2.5-pro, gemini-2.5-flash. Popular choices:
 		cmd.Stderr = &stderr
 
 		if err := cmd.Run(); err != nil {
+			db.Close()               //nolint:errcheck // best-effort cleanup before fatal
+			os.RemoveAll(extractDir) //nolint:errcheck // best-effort cleanup before fatal
 			log.Fatalf("cargo build --release failed: %v (%s)", err, stderr.String())
 		}
 
@@ -510,7 +476,7 @@ type streamStats struct {
 	shouldRestart      bool // Set to true when rescan limit reached
 }
 
-// flushingWriter wraps an io.Writer and flushes after every write to ensure logs survive OOM kills
+// flushingWriter wraps an io.Writer and flushes after every write to ensure logs survive OOM kills.
 type flushingWriter struct {
 	w interface {
 		io.Writer
@@ -531,7 +497,7 @@ func (f *flushingWriter) Write(p []byte) (n int, err error) {
 	return n, nil
 }
 
-// multiHandler writes to multiple slog.Handler instances (for dual console+file logging)
+// multiHandler writes to multiple slog.Handler instances (for dual console+file logging).
 type multiHandler struct {
 	handlers []slog.Handler
 }
@@ -655,7 +621,7 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 	if err != nil {
 		return nil, fmt.Errorf("could not create log file: %w", err)
 	}
-	defer logFile.Close()
+	defer logFile.Close() //nolint:errcheck // best-effort cleanup
 
 	// Print log location to stderr so users know where to find it
 	fmt.Fprintf(os.Stderr, "Logging to: %s\n", logPath)
@@ -742,6 +708,14 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 
 		if entry.Type != "file" {
 			continue
+		}
+
+		// Cap finding descriptions at 256 characters to prevent output explosion.
+		// Final length will be 259 chars (256 + "...") when truncated.
+		for i := range entry.Findings {
+			if len(entry.Findings[i].Desc) > 256 {
+				entry.Findings[i].Desc = entry.Findings[i].Desc[:256] + "..."
+			}
 		}
 
 		n++
@@ -906,23 +880,23 @@ func processFileEntry(ctx context.Context, st *streamState, f FileAnalysis, ap s
 }
 
 func processCompletedArchive(ctx context.Context, st *streamState) {
-	a := st.currentArchive
-	if a == nil || len(a.Members) == 0 {
+	archive := st.currentArchive
+	if archive == nil || len(archive.Members) == 0 {
 		return
 	}
 
-	st.stats.totalFiles += len(a.Members)
+	st.stats.totalFiles += len(archive.Members)
 
-	archiveName := filepath.Base(a.ArchivePath)
+	archiveName := filepath.Base(archive.ArchivePath)
 	processingDuration := time.Since(st.archiveStartTime)
 
 	// Helper to log completion with common fields
 	logCompletion := func(outcome string, extraFields ...any) {
 		if st.logger != nil {
 			fields := []any{
-				"archive_path", a.ArchivePath,
+				"archive_path", archive.ArchivePath,
 				"archive_name", archiveName,
-				"member_count", len(a.Members),
+				"member_count", len(archive.Members),
 				"duration_ms", processingDuration.Milliseconds(),
 				"outcome", outcome,
 			}
@@ -931,12 +905,12 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 		}
 	}
 
-	if !archiveNeedsReview(a, st.cfg.knownGood) {
+	if !archiveNeedsReview(archive, st.cfg.knownGood) {
 		mode := "bad"
-		reason := "at least one file already detected"
+		reason := "already has detections"
 		if st.cfg.knownGood {
 			mode = "good"
-			reason = "no files have suspicious/hostile findings"
+			reason = "archive has insufficient concerning findings (≤1 suspicious, 0 hostile)"
 		}
 		fmt.Fprintf(os.Stderr, "  [skip] %s (--%-4s): %s\n", archiveName, mode, reason)
 		st.stats.skippedNoReview++
@@ -944,15 +918,13 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 		return
 	}
 
-	h := hashString(a.ArchivePath)
-	if wasAnalyzed(ctx, st.cfg.db, h, st.dbMode) {
+	archiveHash := hashString(archive.ArchivePath)
+	if wasAnalyzed(ctx, st.cfg.db, archiveHash, st.dbMode) {
 		fmt.Fprintf(os.Stderr, "  [skip] %s: already analyzed (cache hit)\n", archiveName)
 		st.stats.skippedCached++
-		logCompletion("skipped_cached", "cache_hash", h)
+		logCompletion("skipped_cached", "cache_hash", archiveHash)
 		return
 	}
-
-	prob := archiveProblematicMembers(a, st.cfg.knownGood)
 
 	// Calculate aggregate findings across all members for display
 	aggHostile, aggSuspicious := 0, 0
@@ -962,7 +934,7 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 	}
 	var filesWithFindings []fileFindings
 
-	for _, m := range a.Members {
+	for _, m := range archive.Members {
 		var concerningFindings []Finding
 		for _, f := range m.Findings {
 			c := strings.ToLower(f.Crit)
@@ -984,7 +956,7 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 	}
 
 	fmt.Fprintf(os.Stderr, "\n📦 %s\n", archiveName)
-	fmt.Fprintf(os.Stderr, "   Files: %d total, %d with concerning findings\n", len(a.Members), len(filesWithFindings))
+	fmt.Fprintf(os.Stderr, "   Files: %d total, %d with concerning findings\n", len(archive.Members), len(filesWithFindings))
 
 	// Show aggregate findings that triggered the review
 	var aggParts []string
@@ -1043,17 +1015,17 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 	fmt.Fprintf(os.Stderr, "   [review] Submitting to %s: %s\n", st.cfg.provider, reason)
 
 	sid := generateSessionID()
-	if err := invokeAIArchive(ctx, st.cfg, a, sid); err != nil {
-		fmt.Fprintf(os.Stderr, "Warning: %s failed for %s: %v\n", st.cfg.provider, a.ArchivePath, err)
+	if err := invokeAIArchive(ctx, st.cfg, archive, sid); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: %s failed for %s: %v\n", st.cfg.provider, archive.ArchivePath, err)
 		logCompletion("review_failed",
 			"error", err.Error(),
 			"provider", st.cfg.provider,
 			"session_id", sid,
-			"files_needing_review", len(prob),
+			"files_with_concerns", len(filesWithFindings),
 		)
 	} else {
-		if err := markAnalyzed(ctx, st.cfg.db, h, st.dbMode); err != nil {
-			fmt.Fprintf(os.Stderr, "Warning: could not record analysis for %s: %v\n", a.ArchivePath, err)
+		if err := markAnalyzed(ctx, st.cfg.db, archiveHash, st.dbMode); err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: could not record analysis for %s: %v\n", archive.ArchivePath, err)
 		}
 		st.stats.archivesReviewed++
 		st.filesReviewedCount++
@@ -1066,7 +1038,7 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 		logCompletion("reviewed",
 			"provider", st.cfg.provider,
 			"session_id", sid,
-			"files_needing_review", len(prob),
+			"files_with_concerns", len(filesWithFindings),
 			"total_archives_reviewed", st.stats.archivesReviewed,
 		)
 	}
@@ -1457,7 +1429,7 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 		}
 	}
 
-	// For --good mode: use problematic files
+	// For --good mode: use files that individually meet threshold (most concerning)
 	// For --bad mode: use all files (sorted by size as proxy for complexity)
 	var sourceFiles []FileAnalysis
 	if cfg.knownGood {
@@ -1506,16 +1478,19 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 		}
 	}
 
-	fmt.Fprintf(os.Stderr, ">>> Preparing to invoke %s (session: %s)\n", cfg.provider, sid)
-	fmt.Fprintf(os.Stderr, ">>> Source: %s (%d files, %d with concerns)\n", archiveName, len(a.Members), filesWithConcerns)
+	// Count extracted files once for reuse
+	extractedCount := 0
 	if extractDir != "" {
-		// Count extracted files
-		extractedCount := 0
 		for _, m := range a.Members {
 			if m.ExtractedPath != "" {
 				extractedCount++
 			}
 		}
+	}
+
+	fmt.Fprintf(os.Stderr, ">>> Preparing to invoke %s (session: %s)\n", cfg.provider, sid)
+	fmt.Fprintf(os.Stderr, ">>> Source: %s (%d files, %d with concerns)\n", archiveName, len(a.Members), filesWithConcerns)
+	if extractDir != "" {
 		fmt.Fprintf(os.Stderr, ">>> Extracted: %s (%d files)\n", extractDir, extractedCount)
 	}
 
@@ -1537,7 +1512,8 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 	// Add suspicious/hostile findings summary for good archives
 	if cfg.knownGood {
 		var susp, host []Finding
-		for _, m := range prob {
+		// Collect ALL hostile/suspicious findings across all members (not just prob)
+		for _, m := range a.Members {
 			for _, fd := range m.Findings {
 				switch strings.ToLower(fd.Crit) {
 				case "hostile":
@@ -1581,12 +1557,6 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 	fmt.Fprintf(os.Stderr, "│ %s REVIEW: %s\n", strings.ToUpper(cfg.provider), archiveName)
 	fmt.Fprintf(os.Stderr, "│ Files: %d total, %d with concerns\n", len(a.Members), filesWithConcerns)
 	if extractDir != "" {
-		extractedCount := 0
-		for _, m := range a.Members {
-			if m.ExtractedPath != "" {
-				extractedCount++
-			}
-		}
 		fmt.Fprintf(os.Stderr, "│ Extracted: %s (%d files)\n", extractDir, extractedCount)
 	}
 	fmt.Fprintf(os.Stderr, "│ Findings: %s\n", strings.Join(summary, ", "))
@@ -1790,25 +1760,6 @@ waitForExit:
 	return nil
 }
 
-// timeRemaining returns a human-readable string for remaining context time.
-func timeRemaining(ctx context.Context) string {
-	deadline, ok := ctx.Deadline()
-	if !ok {
-		return "unlimited"
-	}
-	remaining := time.Until(deadline)
-	if remaining <= 0 {
-		return "0s"
-	}
-	if remaining < time.Minute {
-		return fmt.Sprintf("%ds", int(remaining.Seconds()))
-	}
-	if remaining < time.Hour {
-		return fmt.Sprintf("%dm%ds", int(remaining.Minutes()), int(remaining.Seconds())%60)
-	}
-	return fmt.Sprintf("%dh%dm", int(remaining.Hours()), int(remaining.Minutes())%60)
-}
-
 // displayStreamEvent parses a stream-json line and displays relevant info.
 // Handles both Claude format (type: assistant/result) and Gemini format (type: message).
 func displayStreamEvent(line string) {
@@ -2009,7 +1960,7 @@ func formatProvidersForDisplay(providers []string) string {
 //
 // - macOS: ~/Library/Logs/trait-basher/archives.log
 // - Linux: ~/.local/state/trait-basher/archives.log (or ~/.cache/trait-basher/archives.log)
-// - Windows: %LOCALAPPDATA%\trait-basher\logs\archives.log
+// - Windows: %LOCALAPPDATA%\trait-basher\logs\archives.log.
 func getLogFilePath(sessionID string) (string, error) {
 	var logDir string
 
@@ -2056,7 +2007,7 @@ func getLogFilePath(sessionID string) (string, error) {
 	return filepath.Join(logDir, fmt.Sprintf("archives-%s.log", sessionID)), nil
 }
 
-// getDissectLogFilePath returns the path for dissect's own verbose logs
+// getDissectLogFilePath returns the path for dissect's own verbose logs.
 func getDissectLogFilePath(sessionID string) (string, error) {
 	var logDir string
 
