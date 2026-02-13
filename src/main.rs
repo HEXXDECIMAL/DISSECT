@@ -1683,15 +1683,23 @@ fn extract_strings_from_ast(
                 filtered_strings.len(),
                 path.display()
             ));
-            output.push_str(&format!("{:<10} {:<14} {}\n", "OFFSET", "TYPE", "VALUE"));
-            output.push_str(&format!("{:-<10} {:-<14} {:-<20}\n", "", "", ""));
+            output.push_str(&format!("{:<10} {:<14} {:<12} {}\n", "OFFSET", "TYPE", "ENCODING", "VALUE"));
+            output.push_str(&format!("{:-<10} {:-<14} {:-<12} {:-<20}\n", "", "", "", ""));
             for s in filtered_strings {
                 let offset = s
                     .offset
                     .map(|o| format!("{:#x}", o))
                     .unwrap_or_else(|| "unknown".to_string());
                 let stype_str = format!("{:?}", s.string_type);
-                output.push_str(&format!("{:<10} {:<14} {}\n", offset, stype_str, s.value));
+
+                // Format encoding chain like binary strings output
+                let encoding_str = if s.encoding_chain.is_empty() {
+                    "-".to_string()
+                } else {
+                    s.encoding_chain.join("+")
+                };
+
+                output.push_str(&format!("{:<10} {:<14} {:<12} {}\n", offset, stype_str, encoding_str, s.value));
             }
             Ok(output)
         }
